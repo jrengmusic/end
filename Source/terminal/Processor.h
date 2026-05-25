@@ -36,7 +36,7 @@
  *
  * @see terminal::Session — owns TTY and History (PTY side).
  * @see jam::Buffer<jam::Row> — flat row storage, stateless data buffer.
- * @see jam::DiscreteStateTransition — coalescing resize lifecycle manager (smoothResizer, owned by Processor).
+ * @see jam::DiscreteStateTransition — coalescing resize lifecycle manager (owned by Display).
  * @see Parser     — VT100/VT520 state machine.
  * @see Video      — terminal state machine: pen, cursor, modes, Buffer<Row> writes.
  * @see State      — atomic terminal parameter store.
@@ -45,6 +45,7 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include <atomic>
 
 #include "Keyboard.h"
 #include "State.h"
@@ -62,7 +63,9 @@ namespace terminal
  * @brief Terminal pipeline orchestrator — owns Parser and Video, receives Buffer<Row>& and State& from Session.
  *
  * Processor owns the Parser and Video.
- * Buffer<Row> and State are owned by terminal::Session and passed by reference at construction.
+ * State is owned by terminal::Session and passed by reference at construction.
+ * Buffer<Row> is owned by Screen (which is owned by Session) and passed by reference for buffer-level ops.
+ * Block* (two-element array) is passed from Screen for Video cell writes.
  * Processor has no knowledge of TTY, PTY, or IPC.
  * Bytes arrive via `process()` from whichever source owns the byte stream
  * (local `terminal::Session` callback, IPC byte-forward, or history replay).
@@ -72,10 +75,10 @@ namespace terminal
  * which notifies Display to repaint.
  *
  * ### Boundary contract
- * `State`, `buffer`, `uuid`, `video`, `parser`, and `events` are private.
+ * `State`, `uuid`, `video`, `parser`, and `events` are private.
  * The events map is private. Session registers handlers via setHostWriter(), setInputWriter(), and setTTY().
  * External callers access state through the public getter API:
- * - `getState()` / `getBuffer()` — mutable and const references.
+ * - `getState()` — mutable and const references (State is owned by Session).
  * - `getUuid()` — const reference to the stable session UUID.
  * - `setHostWriter()` — registers the `writeToHost` event handler.
  * - `setTTY()` — transfers TTY ownership; Processor calls setWinsize() directly.
@@ -98,20 +101,24 @@ public:
     /**
      * @brief Constructs the Processor and wires the parser, video, and resize pipeline.
      *
-     * Receives Buffer<Row> and TextBuffer by reference from the owning Session,
-     * constructs State, Video, and Parser.
+     * Receives State& from Session and activeBlocksRef from Screen (via Session).
+     * Constructs Video with the atomic blocks reference and Parser.
      * UUID is provided by the caller.
      * Call `setHostWriter()` immediately after construction to route video
      * responses (e.g. cursor-position reports) to the appropriate sink.
      *
-     * @param buffer      Live row buffer — owned by terminal::Session.
-     * @param textBuffer  Cross-thread string buffer owned by terminal::Session.
-     * @param cols        Initial terminal column count.
-     * @param rows        Initial terminal row count.
-     * @param uuid        Stable UUID for this Processor — generated once by the caller.
+     * @param stateRef        Terminal parameter store — owned by terminal::Session.
+     * @param activeBlocksRef Reference to Screen's atomic active-blocks pointer.
+     *                        Video loads this once per process() via refreshBlocks().
+     *                        Must outlive this Processor.
+     * @param textBuffer      Cross-thread string buffer owned by terminal::Session.
+     * @param cols            Initial terminal column count.
+     * @param rows            Initial terminal row count.
+     * @param uuid            Stable UUID for this Processor — generated once by the caller.
      * @note MESSAGE THREAD — must be constructed on the message thread.
      */
-    Processor (jam::Buffer<jam::Row>& buffer,
+    Processor (State& stateRef,
+               std::atomic<jam::Block<jam::Row>*>& activeBlocksRef,
                TextBuffer& textBuffer,
                cell cols,
                cell rows,
@@ -204,27 +211,6 @@ public:
      */
     const State& getState() const noexcept;
 
-    /**
-     * @brief Returns a mutable reference to the row buffer.
-     * @return Mutable reference to the Session-owned `Buffer<Row>` object.
-     * @note MESSAGE THREAD only.
-     */
-    jam::Buffer<jam::Row>& getBuffer() noexcept;
-
-    /**
-     * @brief Returns a const reference to the row buffer.
-     * @return Const reference to the Session-owned `Buffer<Row>` object.
-     * @note MESSAGE THREAD only.
-     */
-    const jam::Buffer<jam::Row>& getBuffer() const noexcept;
-
-    /** @brief Cold-path allocation — reads viewport from State, sizes buffer, tells Video.
-     *  Analogous to PluginProcessor::prepareToPlay.
-     *  Called by Session before reader thread starts, and by smoothResizer on resize.
-     *  Suspends processing before allocating and unsuspends after.
-     *  @note MESSAGE THREAD. */
-    void prepare() noexcept;
-
     /** @brief Suspends processing — blocks until current process() completes, then sets flag.
      *  While suspended, process() outputs nothing. Same contract as AudioProcessor::suspendProcessing.
      *  @note MESSAGE THREAD — blocks on callbackLock. */
@@ -295,15 +281,6 @@ public:
      */
     void setWinsize (cell cols, cell rows, int pixelWidth = 0, int pixelHeight = 0) noexcept;
 
-    /** @brief Returns the buffer to read from — previous snapshot during transition, live otherwise.
-     *  @note MESSAGE THREAD. */
-    const jam::Buffer<jam::Row>& getReadBuffer() const noexcept
-    {
-        if (smoothResizer.isInTransition() and smoothResizer.previous.getNumRows() > 0)
-            return smoothResizer.previous;
-        return buffer;
-    }
-
     /** @brief Fires after cwd and foreground process are written to State.
      *
      *  Set by nexus::Daemon in daemon mode to broadcast a stateUpdate PDU.
@@ -340,23 +317,17 @@ private:
     juce::CriticalSection callbackLock;
 
     /** @brief Processing suspended flag — plain bool under callbackLock, matching AudioProcessor contract.
-     *  Starts true; prepare() unsuspends. process() skips its body when true. */
-    bool suspended { true };
+     *  Transient — only true during resize. */
+    bool suspended { false };
 
     /** @brief Owned PTY — transferred from Session via setTTY().  Null in IPC client mode. */
     std::unique_ptr<TTY> tty;
 
-    /** @brief Live row buffer — owned by terminal::Session. */
-    jam::Buffer<jam::Row>& buffer;
-
-    /** @brief Resize transition — snapshots buffer before resize for safe reader-thread decoupling. */
-    jam::DiscreteStateTransition<jam::Row> smoothResizer;
-
     /** @brief Cross-thread string buffer — owned by terminal::Session. */
     TextBuffer& textBuffer;
 
-    /** @brief Terminal parameter store — constructed after references are bound. */
-    State state;
+    /** @brief Terminal parameter store — owned by terminal::Session, received by reference. */
+    State& state;
 
     /** @brief Events map — Video fired events routed through Processor to Session.
      *
@@ -374,7 +345,6 @@ private:
      *  - `id::cursorCol`           — `(int screen, int col)` — cursor col flush; reader thread
      *  - `id::cursorVisible`       — `(int screen, bool visible)` — cursor visibility flush; reader thread
      *  - `id::applicationCursor` / `id::bracketedPaste` / ... — `(bool)` — mode flag flushes; reader thread
-     *  - `id::screenSwitch`        — `(int newScreen, int oldRow, int oldCol, bool oldVisible)` — screen switch mediation; reader thread
      *
      *  @note READER THREAD — all handlers execute on the reader thread except bell, clipboardChanged, and desktopNotification (message thread via callAsync). */
     jam::Function::Map<juce::Identifier, void> events;

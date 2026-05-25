@@ -36,6 +36,8 @@
 #include <JuceHeader.h>
 #include "History.h"
 #include "TextBuffer.h"
+#include "State.h"
+#include "component/Screen.h"
 #include "Processor.h"
 #include "tty/TTY.h"
 #if JUCE_MAC || JUCE_LINUX
@@ -287,10 +289,21 @@ public:
      */
     terminal::Processor& getProcessor() noexcept;
 
+    /**
+     * @brief Returns the owned Screen.
+     *
+     * Display calls addAndMakeVisible(session.getScreen()) to parent Screen for rendering.
+     * Screen always exists — owned by Session regardless of whether Display is attached.
+     *
+     * @note MESSAGE THREAD.
+     */
+    terminal::Screen& getScreen() noexcept;
+
 private:
-    jam::Buffer<jam::Row> buffer;                 ///< Live cell buffer — 2 channels (normal/alternate), ring-addressed.
-    TextBuffer textBuffer;                        ///< Cross-thread string buffer — constructed before processor.
+    TextBuffer textBuffer;                        ///< Cross-thread string buffer — constructed before state.
+    State state;                                  ///< Terminal parameter store — constructed before screen.
     History history;
+    terminal::Screen screen;                      ///< Cell buffer + renderer — constructed before processor.
     std::unique_ptr<terminal::Processor> processor;
 
     /** @brief Non-owning observer pointer to the TTY transferred to Processor.

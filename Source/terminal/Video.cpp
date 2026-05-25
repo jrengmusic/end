@@ -24,7 +24,7 @@
  * @see VideoCSI.cpp — CSI sequence dispatch
  * @see VideoESC.cpp — ESC sequence dispatch
  * @see VideoMode.cpp — DEC private mode and ANSI mode handlers
- * @see Grid         — row-stride storage (Buffer<Row>)
+ * @see Grid         — row-stride storage (Block<Row>[2])
  * @see CharProps    — Unicode character property queries used by print()
  */
 
@@ -40,26 +40,31 @@ namespace terminal
 // ============================================================================
 
 /**
- * @brief Constructs the Video, binding it to the Buffer and events map.
+ * @brief Constructs the Video, binding it to Screen's atomic blocks ref and events map.
  *
- * Stores references to `buffer` and `events` for use throughout the parsing
- * lifetime.  Internal terminal state is initialised to VT power-on defaults
+ * Stores a reference to Screen's atomic active-blocks pointer and immediately loads
+ * the current blocks via acquire load into the cached `blocks` member.
+ * Internal terminal state is initialised to VT power-on defaults
  * (80×24, cursor at home, autoWrap on, cursor visible).
  *
  * The constructor does **not** call `calc()`.  The owner must call `calc()`
  * after construction (and after every `setWinsize()`) to synchronise internal
  * cached geometry.
  *
- * @param buffer  Live cell buffer. Video writes in-place; dirty flags on Buffer signal Screen.
- * @param events  Events map owned by Processor.  Video fires events through this map.
+ * @param activeBlocksRef  Reference to Screen's atomic active-blocks pointer.
+ *                         Video refreshes this at the top of each process() batch.
+ * @param events           Events map owned by Processor.  Video fires events through this map.
  *
  * @note MESSAGE THREAD — called before the reader thread starts.
  *
  * @see calc()
+ * @see refreshBlocks()
  * @see Video.h
  */
-Video::Video (jam::Buffer<jam::Row>& buffer, jam::Function::Map<juce::Identifier, void>& events) noexcept
-    : buffer (buffer)
+Video::Video (std::atomic<jam::Block<jam::Row>*>& activeBlocksRef,
+              jam::Function::Map<juce::Identifier, void>& events) noexcept
+    : activeBlocksRef (activeBlocksRef)
+    , blocks (activeBlocksRef.load (std::memory_order_acquire))
     , events (events)
 {
 }
@@ -101,6 +106,12 @@ void Video::setWinsize (cell newCols, cell newRows) noexcept
     cursorClamp (newCols, newRows);
     cursorResetScrollRegion();
     initializeTabStops (newCols.value);
+    // Refresh blocks before reading heads — Screen may have swapped the active set.
+    refreshBlocks();
+
+    for (int s { 0 }; s < 2; ++s)
+        writePosition.at (static_cast<size_t> (s)) = blocks[s].getHead();
+
     calc();
 }
 
@@ -122,8 +133,53 @@ void Video::setCellSize (int widthPx, int heightPx) noexcept
     cellHeight = heightPx;
 }
 
+/**
+ * @brief Loads the active blocks pointer from Screen's atomic.
+ *
+ * Called at the start of each process() batch so Video sees any block swap that
+ * Screen performed on the message thread since the last call.
+ *
+ * @note READER THREAD only.
+ */
+void Video::refreshBlocks() noexcept
+{
+    blocks = activeBlocksRef.load (std::memory_order_acquire);
+}
+
+/**
+ * @brief Zeros all rows of the specified channel through the active blocks.
+ *
+ * Called by Processor's clearBuffer event handler after the screen is cleared.
+ *
+ * @param screen  Channel index (0 = normal, 1 = alternate).
+ * @note MESSAGE THREAD.
+ */
+void Video::clearChannel (int screen) noexcept
+{
+    jassert (blocks != nullptr);
+    const int wp { writePosition.at (static_cast<size_t> (screen)) };
+    const int numRows { blocks[screen].getNumRows() };
+
+    for (int r { 0 }; r < numRows; ++r)
+        blocks[screen].clear (r, wp);
+}
+
+/**
+ * @brief Returns the current ring write position for the specified screen.
+ *
+ * Called by Processor's clearBuffer event handler to pack the cleared WriteHead.
+ *
+ * @param screen  Channel index (0 = normal, 1 = alternate).
+ * @note MESSAGE THREAD.
+ */
+int Video::getWritePosition (int screen) const noexcept
+{
+    return writePosition.at (static_cast<size_t> (screen));
+}
+
 void Video::flush() noexcept
 {
+    jam::debug::Log::write ("Video::flush scr=" + juce::String (int (activeScreen)) + " row=" + juce::String (cursorRow.value) + " col=" + juce::String (cursorCol.value));
     events.get (id::activeScreen, int (activeScreen));
     events.get (id::cursorRow, int (activeScreen), cursorRow);
     events.get (id::cursorCol, int (activeScreen), cursorCol);
@@ -281,12 +337,15 @@ void Video::scrollUpAndFill (int top, int bottom, int count) noexcept
     {
         const bool isFullScreen { top == 0 and bottom == visibleRows.value - 1 };
 
+        const int scr { activeScreen };
+
         if (isFullScreen)
         {
             for (int n { 0 }; n < clampedCount; ++n)
             {
-                buffer.advanceHead (activeScreen, 1);
-                buffer.clear (activeScreen, bottom);
+                writePosition.at (static_cast<size_t> (scr)) =
+                    (writePosition.at (static_cast<size_t> (scr)) + 1) % blocks[scr].getNumRows();
+                blocks[scr].clear (bottom, writePosition.at (static_cast<size_t> (scr)));
             }
         }
         else
@@ -294,14 +353,14 @@ void Video::scrollUpAndFill (int top, int bottom, int count) noexcept
             for (int n { 0 }; n < clampedCount; ++n)
             {
                 for (int r { top }; r < bottom; ++r)
-                    buffer.copyFrom (activeScreen, r, buffer, activeScreen, r + 1);
+                    blocks[scr].copyRow (r, r + 1, writePosition.at (static_cast<size_t> (scr)));
 
-                buffer.clear (activeScreen, bottom);
+                blocks[scr].clear (bottom, writePosition.at (static_cast<size_t> (scr)));
             }
         }
 
         if (top == 0 and events.contains (id::scrollUp))
-            events.get (id::scrollUp, int (activeScreen), int (clampedCount));
+            events.get (id::scrollUp, scr, int (clampedCount), writePosition.at (static_cast<size_t> (scr)));
 
         if (penBg.getAlpha() > 0)
         {
@@ -310,7 +369,7 @@ void Video::scrollUpAndFill (int top, int bottom, int count) noexcept
 
             for (int r { bottom - clampedCount + 1 }; r <= bottom; ++r)
             {
-                jam::Row* const row { buffer.getWritePointer (activeScreen, r) };
+                jam::Row* const row { blocks[scr].getWritePointer (r, writePosition.at (static_cast<size_t> (scr))) };
 
                 for (int col { 0 }; col < numCols; ++col)
                     row->cells[col] = fill;
@@ -337,24 +396,30 @@ void Video::scrollUpAndFill (int top, int bottom, int count) noexcept
  */
 void Video::scrollDownAndFill (int top, int bottom) noexcept
 {
+    const int scr { activeScreen };
     const bool isFullScreen { top == 0 and bottom == visibleRows.value - 1 };
 
     if (isFullScreen)
     {
-        buffer.reverseHead (activeScreen, 1);
-        buffer.clear (activeScreen, 0);
+        const int ringRows { blocks[scr].getNumRows() };
+        writePosition.at (static_cast<size_t> (scr)) =
+            (writePosition.at (static_cast<size_t> (scr)) - 1 + ringRows) % ringRows;
+        blocks[scr].clear (0, writePosition.at (static_cast<size_t> (scr)));
+
+        if (events.contains (id::scrollUp))
+            events.get (id::scrollUp, scr, 0, writePosition.at (static_cast<size_t> (scr)));
     }
     else
     {
         for (int r { bottom }; r > top; --r)
-            buffer.copyFrom (activeScreen, r, buffer, activeScreen, r - 1);
+            blocks[scr].copyRow (r, r - 1, writePosition.at (static_cast<size_t> (scr)));
 
-        buffer.clear (activeScreen, top);
+        blocks[scr].clear (top, writePosition.at (static_cast<size_t> (scr)));
     }
 
     if (penBg.getAlpha() > 0)
     {
-        jam::Row* const row { buffer.getWritePointer (activeScreen, top) };
+        jam::Row* const row { blocks[scr].getWritePointer (top, writePosition.at (static_cast<size_t> (scr))) };
         const jam::Cell fill { jam::Cell::erase (eraseStyleId()) };
         const int numCols { cols.value };
 
@@ -400,7 +465,7 @@ void Video::resolveWrapPending (int /*scr*/) noexcept
         const int  sTop      { scrollTop.value };
 
         {
-            jam::Row* const completedRow { buffer.getWritePointer (activeScreen, row) };
+            jam::Row* const completedRow { blocks[activeScreen].getWritePointer (row, writePosition.at (static_cast<size_t> (activeScreen))) };
             completedRow->flags |= jam::Row::flexWrap;
         }
 
@@ -465,7 +530,7 @@ void Video::print (uint32_t codepoint) noexcept
 
     if (segResult.addToCurrentCell())
     {
-        jam::Cell* const baseCell { &buffer.getWritePointer (scr, lastWriteRow)->cells[lastWriteCol] };
+        jam::Cell* const baseCell { &blocks[scr].getWritePointer (lastWriteRow, writePosition.at (static_cast<size_t> (scr)))->cells[lastWriteCol] };
 
         jam::Grapheme::Entry cluster {};
 
@@ -550,7 +615,7 @@ void Video::print (uint32_t codepoint) noexcept
 
         const jam::Cell glyph { jam::Cell::make (cp, jam::Cell::CONTENT_CODEPOINT, wideHint, sid) };
 
-        jam::Row* const writeRowPtr { buffer.getWritePointer (scr, writeRow) };
+        jam::Row* const writeRowPtr { blocks[scr].getWritePointer (writeRow, writePosition.at (static_cast<size_t> (scr))) };
         writeRowPtr->cells[writeCol] = glyph;
         writeRowPtr->usedCols = static_cast<uint16_t> (juce::jmax (static_cast<int> (writeRowPtr->usedCols), writeCol + charWidth));
 

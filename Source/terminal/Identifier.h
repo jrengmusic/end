@@ -237,8 +237,8 @@ namespace id
     // Per-screen scrollback parameter IDs
     //==========================================================================
 
-    /** @brief History row count for this screen. Mirrors Grid's numRows. Processor writes after scroll events. */
-    static const juce::Identifier numRows              { "numRows" };
+    /** @brief Packed write head — ring position (16 bits) + history rows (16 bits). WriteHead::pack()/unpack(). */
+    static const juce::Identifier writeHead            { "writeHead" };
 
     /** @brief User scroll offset. 0 = live viewport, >0 = scrolled into history. */
     static const juce::Identifier scrollOffset         { "scrollOffset" };

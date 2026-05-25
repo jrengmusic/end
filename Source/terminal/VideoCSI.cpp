@@ -521,20 +521,28 @@ void Video::scrollDown (const CSI& params) noexcept
 
         if (isFullScreen)
         {
+            const int ringRows { blocks[scr].getNumRows() };
+
             for (int n { 0 }; n < clampedCount; ++n)
             {
-                buffer.reverseHead (scr, 1);
-                buffer.clear (scr, 0);
+                writePosition.at (static_cast<size_t> (scr)) =
+                    (writePosition.at (static_cast<size_t> (scr)) - 1 + ringRows) % ringRows;
+                blocks[scr].clear (0, writePosition.at (static_cast<size_t> (scr)));
             }
+
+            if (events.contains (id::scrollUp))
+                events.get (id::scrollUp, scr, 0, writePosition.at (static_cast<size_t> (scr)));
         }
         else
         {
+            const int wp { writePosition.at (static_cast<size_t> (scr)) };
+
             for (int n { 0 }; n < clampedCount; ++n)
             {
                 for (int r { bottom }; r > scrTop; --r)
-                    buffer.copyFrom (scr, r, buffer, scr, r - 1);
+                    blocks[scr].copyRow (r, r - 1, wp);
 
-                buffer.clear (scr, scrTop);
+                blocks[scr].clear (scrTop, wp);
             }
         }
     }
@@ -546,7 +554,7 @@ void Video::scrollDown (const CSI& params) noexcept
 
         for (int r { scrTop }; r < scrTop + clampedCount; ++r)
         {
-            jam::Row* const rowPtr { buffer.getWritePointer (scr, r) };
+            jam::Row* const rowPtr { blocks[scr].getWritePointer (r, writePosition.at (static_cast<size_t> (scr))) };
 
             for (int c { 0 }; c < numCols; ++c)
                 rowPtr->cells[c] = fill;

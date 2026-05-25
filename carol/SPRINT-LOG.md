@@ -1,5 +1,77 @@
 # SPRINT-LOG
 
+## Sprint 34: TETRIS Resize Fix + Screen Owns Buffer + screenSwitch Cleanup ✅
+
+**Date:** 2026-05-24 — 2026-05-25
+**Duration:** ~04:00 (pre-compaction: ~03:30, post-compaction: ~00:30)
+
+### Agents Participated
+- COUNSELOR: architecture discussion (ownership model, thread safety, screenSwitch analysis), RFC/PLAN authoring, orchestration, delegate to Engineer
+- Engineer: code implementation
+- Pathfinder: codebase discovery (Screen vTPC, Processor resize, TTY setWinsize, Video state, State delivery)
+
+### Files Modified
+
+**jam (new infrastructure):**
+- `jam_core/jam_write_head.h` — NEW: WriteHead struct with pack()/unpack(). Packs position(16bit) + historyRows(16bit) into single int. Same pattern as Bounds::pack()/unpack().
+- `jam_core/jam_atomic_ops.h` — NEW: AtomicOps struct with load/store/fetchAdd. CRITICAL: preprocessor directives use `&&`/`!`, not C++ alternative tokens `and`/`not` (don't parse in `#if`).
+- `jam_core/buffer/jam_block.h` — Extended with: getWritePointer(row, headPosition), clear(row), clear(row, headPosition), copyRow(dst,src), copyRow(dst,src,headPosition), getHead(). Head-override overloads let Video pass its writePosition. advanceHead/reverseHead/loadHead REMOVED (Block is dumb view). base changed from const ElementType* to ElementType*. static_assert trivially_copyable preserved.
+- `jam_core/jam_bounds.h` — pack()/unpack()/isValid() (carried from Sprint 33 finish)
+
+**END (ownership restructure — Screen owns Buffer, Session owns Screen):**
+- `Source/terminal/Session.h:306` — `terminal::Screen screen` value member (owned by Session, not Display). Added `getScreen()`. Construction order: textBuffer → state → history → screen → processor.
+- `Source/terminal/Session.cpp` — Both constructors: `processor = make_unique<Processor>(state, screen.getActiveBlocksRef(), textBuffer, cols, rows, uuid)`. start() calls `processor->setWinsize(startCols, startRows)`.
+- `Source/terminal/component/Screen.h` — MAJOR: owns double-buffered `jam::Buffer<jam::Row> buffers[2]`, `std::array<jam::Block<jam::Row>,2> blockSets[2]`, `std::atomic<jam::Block<jam::Row>*> activeBlocks`. `getBlocks()` returns atomic load. `getActiveBlocksRef()` returns atomic ref for Processor. `onCellChanged` resizes scratch buffer, swaps atomic, writes viewport to State. No rebuildBlocks. No getBuffer.
+- `Source/terminal/component/Screen.cpp` — Constructor: allocates `buffers[0]`, constructs `blockSets[0]`, stores `activeBlocks`. vTPC reads from `buffers[activeIndex]`. valueTreePropertyChanged: constructs Block from live buffer at flushed head, calls setText.
+- `Source/terminal/Processor.h` — Constructor: `Processor(State&, std::atomic<Block<Row>*>&, TextBuffer&, cell, cell, String&)`. No buffer& member. No smoothResizer. No prepare(). No setVideoWinsize. No onViewportChanged. Keeps suspendProcessing/callbackLock/setWinsize.
+- `Source/terminal/Processor.cpp` — vTPC viewport handler: `if (paramId == id::viewport) { setWinsize(); }`. setWinsize() no-arg guarded: `if (cols.value > 0 && rows.value > 0)` prevents jlimit assertion when viewport not yet flushed. setWinsize(cols,rows) explicit overload calls BOTH video.setWinsize AND tty->setWinsize. clearBuffer handler uses video.clearChannel() and video.getWritePosition(). screenSwitch event REMOVED (post-compaction).
+- `Source/terminal/Video.h` — Member: `jam::Block<jam::Row>* blocks` (was Buffer&). Added `std::array<int,2> writePosition{0,0}`, `clearChannel(int)`, `getWritePosition(int)`, `refreshBlocks()`. Doc comment: screenSwitch entry removed (post-compaction).
+- `Source/terminal/Video.cpp` — All `buffer.` calls migrated to `blocks[scr].method(row, writePosition)`. setWinsize resets writePosition from `blocks[s].getHead()`. scrollUpAndFill/scrollDownAndFill advance/reverse writePosition and fire scrollUp event with 3 args (screen, count, newWritePosition).
+- `Source/terminal/VideoEdit.cpp` — All `buffer.` calls migrated. shiftLines TODOs resolved. Full-channel clear uses loop. setScreen simplified: fires id::activeScreen directly, no args, no setCursor, no wrapPending (post-compaction).
+- `Source/terminal/VideoCSI.cpp` — scrollDown handler: migrated from buffer.reverseHead/clear/copyFrom to writePosition + blocks[scr] methods.
+- `Source/terminal/VideoESC.cpp` — Single buffer.getWritePointer call migrated.
+- `Source/terminal/component/Display.h` — Takes `Session&` instead of `Processor&`. No smoothResizer member. No Screen member.
+- `Source/terminal/component/Display.cpp` — Cleaned: no smoothResizer trigger/onStop, no State listener, no viewport vTPC handler. Only AppState listener for font changes. vTPC simplified to just `applyFromAppState()`.
+- `Source/terminal/Parameters.xml` — Added `<SCREEN>` section with per-screen params: cursorRow, cursorCol, cursorVisible, cursorShape, cursorColor, keyboardFlags, writeHead, scrollOffset, screenDirty. Replaces Display-injected property seeding.
+- `Source/terminal/State.cpp` — buildLayout handles `<SCREEN>` tag: creates NORMAL/ALTERNATE nodes with params from XML.
+- `Source/terminal/Identifier.h` — Added `id::writeHead`. Removed `id::numRows`.
+- `Source/terminal/Panes.cpp` — `createTerminal`: `Display(termSession)` instead of `Display(processor)`.
+- `Source/terminal/MainComponent.cpp` — Popup terminal: `Display(*termSession)` instead of `Display(*termSession->getProcessor())`.
+
+**Diagnostic logging (to be removed per audit):**
+- `/tmp/end-perf.log` — Session::start, Processor::setWinsize, Processor::process, Video::flush, Screen::vTPC, Screen::onCellChanged. Infrastructure preserved for future debug; call sites to be removed.
+
+### Alignment Check
+- [x] BLESSED principles followed — B (Bound): WriteHead is single-purpose, Screen owns 2 buffers; L (Lean): screenSwitch removed, Block advanceHead/reverseHead deleted; E (Explicit): id::activeScreen event name matches State param, writePosition named explicitly; S (SSOT): State is sole writer of activeScreen; D (Deterministic): viewport packing, WriteHead packing, atomic swap all deterministic)
+- [x] NAMES.md adhered — writeHead, writePosition, activeBlocks all follow naming rules
+- [x] MANIFESTO.md principles applied — no early returns; `&&`/`!` in preprocessor; positive checks; alternative tokens throughout
+
+### Problems Solved
+
+- **jlimit assertion crash**: `setWinsize()` no-arg called with uninitialized viewport (0x0) → `cursorClamp(0,0)` → `jlimit(0,-1,...)`. Guard prevents call when cols/rows not yet flushed.
+- **screenSwitch handler redundant**: cursor values already in State from VTPC flush; wrapPending is global transient, not per-screen; `id::activeScreen` delivery handler already handles `state.setScreen(scr)`. Handler removed, Video fires `id::activeScreen` directly.
+- **Preprocessor compile error**: `#if JUCE_WINDOWS and not defined(__clang__)` doesn't parse `and`/`not` — changed to `&&`/`!`.
+- **Head/numRows consistency gap**: WriteHead packs position+historyRows into single int. Both values arrive on same flush tick — always consistent. Eliminates orphaned prompt bug (emoji_test.sh).
+- **Thread safety for buffer resize**: Double-buffer swap — old buffer stays alive, Video reads stale-but-valid memory, no locks on hot path.
+- **Buffer ownership by Screen**: Screen is sole author of dimensions, owns Buffer storage. Processor receives atomic Block pointer. Video writes through Block. Consistent with FFT visualizer analog.
+- **Viewport 0x0 clobbering**: onCellChanged fires during setFont() before Screen has bounds. Guard `viewportSize.isValid()` prevents write. setWinsize no-arg guard prevents jlimit crash.
+- **setVideoWinsize invented pattern**: BLESSED violation. Fixed by merging into existing setWinsize(cols,rows) which calls both video.setWinsize AND tty->setWinsize.
+- **smoothResizer on Display**: Caused cross-object trigger bugs. ARCHITECT directed removal — Screen handles resize in onCellChanged, Processor reacts via vTPC.
+- **Processor started suspended**: prepare() was removed, nobody unsuspended. Fixed to `suspended{false}`.
+- **State.refresh() hack in Session::start()**: Forced flush before setWinsize. ARCHITECT rejected as poking internals. Fixed by using explicit `setWinsize(startCols, startRows)`.
+- **Buffer.* call sites in VideoCSI.cpp and VideoESC.cpp missed**: Initial migration only covered Video.cpp and VideoEdit.cpp. Found via compile errors, fixed.
+
+### Debts Paid
+- `DEBT-20260524T000000` — viewport 0x0 clobbering + screenSwitch redundancy: setWinsize() guard prevents jlimit; screenSwitch removed, id::activeScreen handles State write alone; WriteHead packing eliminates head/numRows consistency gap
+- `DEBT-20260523T070001` — downsize reflow destructive: Screen::reflow() deleted, wrapping moved to TextEditor (carried from Sprint 33)
+
+### Debts Deferred
+- `DEBT-20260525T000001` — Screen resize: new buffer allocated fresh, no content copy from old buffer. `// TODO: copy content from active to next (Step 6 — reflow)` in onCellChanged. History lost when viewport grows. Needs basic row copy at minimum; full reflow with Steps 4-5 later.
+- `DEBT-20260525T000002` — Diagnostic logging: /tmp/end-perf.log instrumentation call sites remain in code. Infrastructure preserved; call sites to be removed per audit.
+- `DEBT-20260521T120000` — tmux garbage bytes: entering tmux inside END echoes `^[[?62;4c%` and `/62;4c_` to terminal. CSI response bytes not consumed by tmux.
+
+---
+
 ## Sprint 33: TextEditor Reflow Infrastructure + TETRIS Resize Pipeline ✅
 
 **Date:** 2026-05-23 — 2026-05-24

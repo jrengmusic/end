@@ -94,6 +94,28 @@ void State::buildLayout (const juce::XmlElement& xml, TextBuffer& tb)
                               modesNode);
             }
         }
+        else if (tag == id::SCREEN.toString())
+        {
+            // Per-screen parameters — create NORMAL and ALTERNATE nodes with identical params.
+            for (int screenIndex { 0 }; screenIndex < Map::Screen::count; ++screenIndex)
+            {
+                const juce::Identifier screenId { Map::Screen::getContext()->get (screenIndex) };
+                juce::ValueTree screenNode { screenId };
+
+                params.add<jam::AnyMap> (screenId);
+                auto* screenGroup { params.get<jam::AnyMap> (screenId) };
+
+                for (auto* screenChild : child->getChildIterator())
+                {
+                    addParameter (juce::Identifier { screenChild->getStringAttribute (id::id.toString()) },
+                                  resolveLayoutDefault (*screenChild),
+                                  *screenGroup,
+                                  screenNode);
+                }
+
+                rootNode.appendChild (screenNode, nullptr);
+            }
+        }
         else if (tag == id::TEXT.toString())
         {
             // TEXT parameter — Parameter<const char*> in SESSION group, slot in TextBuffer.

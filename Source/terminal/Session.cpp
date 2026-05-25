@@ -6,7 +6,6 @@
  */
 
 #include "Session.h"
-#include <BinaryData.h>
 
 // =============================================================================
 // Shell integration helpers
@@ -205,7 +204,10 @@ Session::Session (cell cols,
                   const juce::String& cwd,
                   const juce::StringPairArray& seedEnv,
                   const juce::String& uuid)
-    : history {}
+    : textBuffer {}
+    , state (textBuffer)
+    , history {}
+    , screen (state, cols, rows)
 {
 #if JUCE_MAC || JUCE_LINUX
     auto tty { std::make_unique<UnixTTY>() };
@@ -214,9 +216,10 @@ Session::Session (cell cols,
 #endif
 
     // Create Processor before wiring TTY callbacks so procRawPtr is valid in lambdas.
+    // State and Screen are fully constructed — pass references/pointers to Processor.
     const juce::String effectiveUuid { uuid.isNotEmpty() ? uuid : juce::Uuid().toString() };
-    processor = std::make_unique<terminal::Processor> (buffer, textBuffer, cols, rows, effectiveUuid);
-    processor->getState().setId (effectiveUuid);
+    processor = std::make_unique<terminal::Processor> (state, screen.getActiveBlocksRef(), textBuffer, cols, rows, effectiveUuid);
+    state.setId (effectiveUuid);
 
     terminal::Processor* procRawPtr { processor.get() };
     TTY* ttyRawPtr { tty.get() };
@@ -300,15 +303,18 @@ Session::Session (cell cols,
                   const juce::String& cwd,
                   const juce::String& shell,
                   const juce::String& uuid)
-    : history {}
+    : textBuffer {}
+    , state (textBuffer)
+    , history {}
+    , screen (state, cols, rows)
 {
     jassert (cols.value > 0);
     jassert (rows.value > 0);
 
     const juce::String effectiveUuid { uuid.isNotEmpty() ? uuid : juce::Uuid().toString() };
-    processor = std::make_unique<terminal::Processor> (buffer, textBuffer, cols, rows, effectiveUuid);
-    processor->getState().setId (effectiveUuid);
-    processor->getState().get().setProperty (terminal::id::cwd, cwd, nullptr);
+    processor = std::make_unique<terminal::Processor> (state, screen.getActiveBlocksRef(), textBuffer, cols, rows, effectiveUuid);
+    state.setId (effectiveUuid);
+    state.get().setProperty (terminal::id::cwd, cwd, nullptr);
 }
 
 /**
@@ -414,6 +420,16 @@ terminal::Processor& Session::getProcessor() noexcept
 }
 
 /**
+ * @brief Returns the owned Screen.
+ *
+ * Display calls addAndMakeVisible(session.getScreen()) to parent Screen for rendering.
+ * Screen always exists — owned by Session regardless of whether Display is attached.
+ *
+ * @note MESSAGE THREAD.
+ */
+terminal::Screen& Session::getScreen() noexcept { return screen; }
+
+/**
  * @brief Opens the TTY and starts the reader thread.
  *
  * No-op for remote (no-TTY) sessions — ttyObserver is null.
@@ -425,6 +441,9 @@ terminal::Processor& Session::getProcessor() noexcept
  */
 void Session::start() noexcept
 {
+    processor->setWinsize (startCols, startRows);
+    jam::debug::Log::write ("Session::start cols=" + juce::String (startCols.value) + " rows=" + juce::String (startRows.value));
+
     if (ttyObserver != nullptr)
     {
         ttyObserver->open (startCols, startRows, startShell, startArgs, startCwd);

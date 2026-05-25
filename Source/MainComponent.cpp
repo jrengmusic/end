@@ -165,7 +165,7 @@ MainComponent::MainComponent (lua::Engine& engine)
             auto termSession { terminal::Session::create (effectiveCwd, cols, rows, shell, shellArgs) };
             auto* sessionPtr { termSession.get() };
 
-            auto terminal { std::make_unique<terminal::Display> (termSession->getProcessor()) };
+            auto terminal { std::make_unique<terminal::Display> (*termSession) };
             terminal->setComponentID (termSession->getProcessor().getUuid());
 
             popup.show (*this, std::move (terminal), pixelWidth, pixelHeight);

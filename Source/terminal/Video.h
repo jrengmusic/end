@@ -43,6 +43,7 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include <atomic>
 
 #include "Charset.h"
 #include "DispatchTable.h"
@@ -126,16 +127,21 @@ public:
      *
      * The constructor does not call `setWinsize()`.  The owner must call
      * `setWinsize()` after construction to synchronise the internal geometry.
+     * Constructor loads blocks from activeBlocksRef immediately via acquire load.
      *
-     * @param buffer  Live cell buffer. Video writes in-place; dirty flags on Buffer signal Screen.
-     * @param events  Events map owned by Processor.  Video fires events through
-     *                this map instead of holding std::function callbacks directly.
+     * @param activeBlocksRef  Reference to Screen's atomic active-blocks pointer.
+     *                         Video loads this once per process() via refreshBlocks().
+     *                         Must outlive this Video instance.
+     * @param events           Events map owned by Processor.  Video fires events through
+     *                         this map instead of holding std::function callbacks directly.
      *
      * @note MESSAGE THREAD — construction happens before the reader thread starts.
      *
      * @see calc()
+     * @see refreshBlocks()
      */
-    explicit Video (jam::Buffer<jam::Row>& buffer, jam::Function::Map<juce::Identifier, void>& events) noexcept;
+    explicit Video (std::atomic<jam::Block<jam::Row>*>& activeBlocksRef,
+                    jam::Function::Map<juce::Identifier, void>& events) noexcept;
 
     /**
      * @brief Resets Video and the terminal to a clean initial state.
@@ -214,6 +220,34 @@ public:
      *  @note READER THREAD only.
      */
     void setWinsize (cell newCols, cell newRows) noexcept;
+
+    /** @brief Loads the active blocks pointer from Screen's atomic.
+     *
+     *  Called at the start of each process() batch so Video sees any block swap
+     *  that Screen performed on the message thread since the last call.
+     *
+     *  @note READER THREAD only.
+     */
+    void refreshBlocks() noexcept;
+
+    /** @brief Zeros all rows of the specified channel through the active blocks.
+     *
+     *  Called by Processor's clearBuffer event handler.
+     *
+     *  @param screen  Channel index (0 = normal, 1 = alternate).
+     *  @note MESSAGE THREAD.
+     */
+    void clearChannel (int screen) noexcept;
+
+    /** @brief Returns the current ring write position for the specified screen.
+     *
+     *  Called by Processor's clearBuffer event handler to pack the cleared WriteHead.
+     *
+     *  @param screen  Channel index (0 = normal, 1 = alternate).
+     *  @return Ring write position stored in writePosition[screen].
+     *  @note MESSAGE THREAD.
+     */
+    int getWritePosition (int screen) const noexcept;
 
     /** @brief Sets physical cell dimensions for CSI pixel dimension reports.
      *
@@ -324,9 +358,21 @@ public:
 
 private:
     /**
-     * @brief Live cell buffer. Video writes in-place; dirty flags on Buffer signal Screen.
+     * @brief Reference to Screen's atomic active-blocks pointer.
+     *
+     * refreshBlocks() loads this at the start of each process() batch.
+     * Must outlive this Video instance — Screen is owned by Session.
      */
-    jam::Buffer<jam::Row>& buffer;
+    std::atomic<jam::Block<jam::Row>*>& activeBlocksRef;
+
+    /**
+     * @brief Cached active blocks pointer — loaded from activeBlocksRef each process() batch.
+     *
+     * Index 0 = normal screen channel, 1 = alternate screen channel.
+     * Video writes cells through blocks[activeScreen].
+     * Refreshed by refreshBlocks() at the top of each process() call.
+     */
+    jam::Block<jam::Row>* blocks;
 
 
     /**
@@ -370,6 +416,10 @@ private:
 
     /** @brief Cell height in pixels. Reader thread only. Used by CSI `t` pixel dimension reports. */
     int cellHeight { 0 };
+
+    /** @brief Ring write position per screen. Advances on full-screen scroll-up, reverses on scroll-down.
+     *  Flushed to State as part of WriteHead via the scrollUp event. Same pattern as cursorRow/cursorCol. */
+    std::array<int, 2> writePosition { 0, 0 };
 
     /** @brief Active screen cursor row (zero-based). Single register — screen switch loads/saves via State. */
     cell cursorRow { 0 };

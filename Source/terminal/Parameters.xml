@@ -47,6 +47,19 @@
         <PARAM id="win32InputMode"     type="bool" default="false"/>
     </MODES>
 
+    <!-- Per-screen parameters (created for NORMAL and ALTERNATE) -->
+    <SCREEN>
+        <PARAM id="cursorRow"      type="int"  default="0"/>
+        <PARAM id="cursorCol"      type="int"  default="0"/>
+        <PARAM id="cursorVisible"  type="int"  default="1"/>
+        <PARAM id="cursorShape"    type="int"  default="0"/>
+        <PARAM id="cursorColor"    type="int"  default="-1"/>
+        <PARAM id="keyboardFlags"  type="int"  default="0"/>
+        <PARAM id="writeHead"      type="int"  default="0"/>
+        <PARAM id="scrollOffset"   type="int"  default="0"/>
+        <PARAM id="screenDirty"    type="int"  default="0"/>
+    </SCREEN>
+
     <!-- Cross-thread strings -->
     <TEXT id="title"              maxlen="256"/>
     <TEXT id="cwd"                maxlen="4096"/>

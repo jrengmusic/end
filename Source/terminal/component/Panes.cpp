@@ -143,12 +143,11 @@ juce::String Panes::createTerminal (const juce::String& workingDirectory,
 
     const juce::String effectiveUuid { uuid.isNotEmpty() ? uuid : juce::Uuid().toString() };
     terminal::Session& termSession { Nexus::getContext()->create (workingDirectory, effectiveUuid, cols, rows) };
-    terminal::Processor& processor { termSession.getProcessor() };
 
-    const juce::String termUuid { processor.getUuid() };
+    const juce::String termUuid { termSession.getProcessor().getUuid() };
 
-    auto pane { std::make_unique<terminal::Display> (processor) };
-    pane->setComponentID (processor.getUuid());
+    auto pane { std::make_unique<terminal::Display> (termSession) };
+    pane->setComponentID (termSession.getProcessor().getUuid());
 
     jassert (pane != nullptr);
 
@@ -435,12 +434,11 @@ void Panes::splitAt (const juce::String& targetUuid,
 
     const juce::String effectiveSplitUuid { newUuid.isNotEmpty() ? newUuid : juce::Uuid().toString() };
     terminal::Session& splitSession { Nexus::getContext()->create (cwd, effectiveSplitUuid, cols, rows) };
-    terminal::Processor& processor { splitSession.getProcessor() };
 
-    const juce::String splitUuid { processor.getUuid() };
+    const juce::String splitUuid { splitSession.getProcessor().getUuid() };
 
-    auto pane { std::make_unique<terminal::Display> (processor) };
-    pane->setComponentID (processor.getUuid());
+    auto pane { std::make_unique<terminal::Display> (splitSession) };
+    pane->setComponentID (splitSession.getProcessor().getUuid());
 
     jassert (pane != nullptr);
 

@@ -2,7 +2,7 @@
 #include <JuceHeader.h>
 #include "PaneComponent.h"
 #include "Screen.h"
-#include "../Processor.h"
+#include "../Session.h"
 #include "../Input.h"
 #include "../Mouse.h"
 #include "../LinkManager.h"
@@ -17,7 +17,18 @@ class Display
     , public juce::ValueTree::Listener
 {
 public:
-    Display (terminal::Processor& processor);
+    /**
+     * @brief Constructs Display and parents Session's Screen for rendering.
+     *
+     * Takes Session& — Display parents Screen (owned by Session) for rendering
+     * via addAndMakeVisible. Resize flows through State: Screen writes viewport,
+     * Processor's vTPC calls setWinsize().
+     *
+     * @param session  The terminal session — provides both Screen (for rendering) and
+     *                 Processor (for input/events).  Must outlive this Display.
+     * @note MESSAGE THREAD.
+     */
+    Display (terminal::Session& session);
 
     ~Display() override;
 
@@ -62,13 +73,13 @@ public:
     void mouseWheelMove (const juce::MouseEvent& event, const juce::MouseWheelDetails& wheel) override;
 
 private:
+    terminal::Session& session;
     terminal::Processor& processor;
     terminal::State& state;
 
     std::unique_ptr<jam::ComponentAttachment> attachment;
     juce::ValueTree normalScreen;
     juce::ValueTree alternateScreen;
-    terminal::Screen screen;
 
     terminal::LinkManager linkManager;
     terminal::Input input;

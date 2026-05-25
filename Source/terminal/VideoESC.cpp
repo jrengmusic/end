@@ -246,7 +246,7 @@ void Video::escDispatchDEC (int scr, uint8_t finalByte) noexcept
 
         for (int row { 0 }; row < vRows; ++row)
         {
-            jam::Row* const rowPtr { buffer.getWritePointer (scr, row) };
+            jam::Row* const rowPtr { blocks[scr].getWritePointer (row, writePosition.at (static_cast<size_t> (scr))) };
 
             for (int col { 0 }; col < nCols; ++col)
                 rowPtr->cells[col] = alignCell;
