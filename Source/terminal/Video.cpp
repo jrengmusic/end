@@ -182,7 +182,7 @@ void Video::flush() noexcept
     events.get (id::activeScreen, int (activeScreen));
 
     const CursorState cs { cursorRow.value, cursorCol.value, cursorVisible ? 1 : 0, 0 };
-    events.get (id::cursor, int (activeScreen), cs.pack());
+    events.get (id::cursor, cs.pack());
 
     events.get (id::applicationCursor,   bool (applicationCursor));
     events.get (id::bracketedPaste,      bool (bracketedPaste));
@@ -193,10 +193,9 @@ void Video::flush() noexcept
     events.get (id::win32InputMode,      bool (win32InputMode));
 
     if (events.contains (id::screenDirty))
-        events.get (id::screenDirty, int (activeScreen));
+        events.get (id::screenDirty);
 
-    for (int s { 0 }; s < 2; ++s)
-        events.get (id::writeHead, s, writePosition.at (static_cast<size_t> (s)));
+    events.get (id::writeHead, writePosition.at (static_cast<size_t> (activeScreen)));
 }
 
 void Video::setCursor (CursorState cs) noexcept
@@ -362,7 +361,7 @@ void Video::scrollUpAndFill (int top, int bottom, int count) noexcept
         }
 
         if (top == 0 and events.contains (id::scrollUp))
-            events.get (id::scrollUp, scr, int (clampedCount), writePosition.at (static_cast<size_t> (scr)));
+            events.get (id::scrollUp, int (clampedCount), writePosition.at (static_cast<size_t> (scr)));
 
         if (penBg.getAlpha() > 0)
         {
@@ -409,7 +408,7 @@ void Video::scrollDownAndFill (int top, int bottom) noexcept
         blocks[scr].clear (0, writePosition.at (static_cast<size_t> (scr)));
 
         if (events.contains (id::scrollUp))
-            events.get (id::scrollUp, scr, 0, writePosition.at (static_cast<size_t> (scr)));
+            events.get (id::scrollUp, 0, writePosition.at (static_cast<size_t> (scr)));
     }
     else
     {

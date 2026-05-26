@@ -200,8 +200,7 @@ public:
     /**
      * @brief Returns the PID of the foreground process group leader.
      * @return The foreground PID, or -1 if unavailable.
-     * @note Any thread.  Called from Processor::valueTreePropertyChanged (message thread) when
-     *       foregroundProcess/cwd ValueTree properties change.
+     * @note Any thread.  Called from the outputBlockStart event handler (reader thread).
      */
     virtual int getForegroundPid() const noexcept { return -1; }
 

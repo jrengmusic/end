@@ -37,6 +37,7 @@
 - `Source/terminal/tty/TTY.h` — constructor takes `events&`, `onData`/`onShellExited`/`onDrainComplete` removed, `events` member
 - `Source/terminal/tty/TTY.cpp` — fires `id::data`/`id::drainComplete`/`id::shellExited` through events map
 - `Source/terminal/tty/UnixTTY.cpp` — macOS `/usr/bin/login -fqlp` wrapper for proper login session
+- `Source/terminal/ProcessorEvents.cpp` — NEW: registerEvents() extracted from Processor.cpp
 
 **Component layer:**
 - `Source/terminal/component/Screen.h` — `onCellChanged`/`onDimensionsChanged` removed, `getActiveBuffer()`/`resizeBuffers()` added
@@ -84,6 +85,11 @@
 - **Cursor torn reads**: three separate cursorRow/cursorCol/cursorVisible stores replaced by single packed CursorState atomic
 - **onStateFlush bypass**: Daemon listens to State VT directly for foregroundProcess/cwd
 - **History removed**: byte ring was daemon-only, redundant with Buffer<Row> scrollback
+- **Per-screen event params removed**: cursor, writeHead, screenDirty, scrollUp handlers no longer receive redundant screen param — read activeScreen from State atomic
+- **Selection adjustment moved to Screen**: scrollUp handler was poking TextEditor properties from reader thread — moved to Screen's vTPC (message thread, own state)
+- **Foreground process query moved to event handlers**: outputBlockTop/promptRow vTPC blocks moved to reader-thread event handlers where TTY is directly accessible
+- **ProcessorEvents.cpp extracted**: registerEvents() in own TU, Processor.cpp under 300 lines
+- **Reader-thread getActiveScreen fix**: event handlers called State::getActiveScreen() (message-thread ValueTree read) — replaced with atomic loadValue
 
 ### Debts Paid
 - `DEBT-20260521T120000` — tmux garbage bytes: DA2 query (`CSI > c`) misidentified as DA1, responding twice. Fixed intermediate byte `>` detection in VideoCSI.cpp.

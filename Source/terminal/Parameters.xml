@@ -60,4 +60,5 @@
     <!-- Cross-thread strings -->
     <TEXT id="title"              maxlen="256"/>
     <TEXT id="cwd"                maxlen="4096"/>
+    <TEXT id="foregroundProcess"  maxlen="256"/>
 </STATE>

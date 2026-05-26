@@ -119,6 +119,7 @@ struct State
 
     void setTitle (const char* src, int length) noexcept;
     void setCwd (const char* src, int length) noexcept;
+    void setForegroundProcess (const char* src, int length) noexcept;
 
     /** @brief Builds the parameter schema from XML into this State's ValueTree and AnyMap.
      *  @param xml         Parsed AppParameters XML element.

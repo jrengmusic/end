@@ -128,6 +128,9 @@ private:
     /** @brief Message-thread index indicating which buffer/blockSet is currently active. */
     int activeIndex { 0 };
 
+    /** @brief Last-seen historyRows value — used by vTPC to detect scroll and adjust selection. */
+    int previousHistoryRows { 0 };
+
     static int getValue (const juce::ValueTree& valueTree, juce::Identifier Id) noexcept
     {
         return static_cast<int> (jam::ValueTree::getValueFromChildWithID (valueTree, Id).getValue());

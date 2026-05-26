@@ -362,7 +362,7 @@ private:
      * - `"dcsPayloadComplete"` — `(const uint8_t*, int)` — DCS ST received, reader thread
      * - `"apcPayloadComplete"` — `(const uint8_t*, int)` — APC ST/BEL received, reader thread
      * - `"activeScreen"` / `"cursor"` — `flush()`, reader thread.  `"cursor"` is packed CursorState (row+col+visible+kbFlags).
-     * - `"writeHead"` — `(int screen, int position)` — ring write position per screen — `flush()`, reader thread
+     * - `"writeHead"` — `(int position)` — ring write position for active screen — `flush()`, reader thread
      * - `"applicationCursor"` / `"bracketedPaste"` / mode flags — `(bool)` — `flush()`, reader thread
      *
      * @note READER THREAD — events are fired on the reader thread; callAsync handlers

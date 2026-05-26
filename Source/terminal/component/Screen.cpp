@@ -160,6 +160,34 @@ void Screen::valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier&
         const auto scrollPos { jam::Cell::Point (0_cell, cell (historyRows.value - scrollOffset.value)) };
         setViewportPosition (0, scrollPos.toLogical<int> (font.bounds).y);
         setCaretPosition (cursorCol, cell (historyRows.value + cursorRow.value));
+
+        // Selection adjustment — when content scrolls up, selection anchors must shift down by scrollDelta
+        // so they track the same text. This is a UI concern: message thread, ValueTree properties.
+        // previousHistoryRows tracks the last-seen value to compute how much content scrolled.
+        const int scrollDelta { historyRows.value - previousHistoryRows };
+        previousHistoryRows = historyRows.value;
+
+        if (scrollDelta != 0)
+        {
+            const int selType { static_cast<int> (state.getProperty (jam::TextEditor::properties.at (jam::TextEditor::selectionTypeId), 0)) };
+
+            if (selType != static_cast<int> (terminal::SelectionType::none))
+            {
+                const int anchorRow { static_cast<int> (state.getProperty (jam::TextEditor::properties.at (jam::TextEditor::selectionAnchorRowId), 0)) - scrollDelta };
+                const int selCursorRow { static_cast<int> (state.getProperty (jam::TextEditor::properties.at (jam::TextEditor::selectionCursorRowId), 0)) - scrollDelta };
+
+                if (anchorRow < 0 or selCursorRow < 0)
+                {
+                    state.setProperty (jam::TextEditor::properties.at (jam::TextEditor::selectionTypeId),
+                                       static_cast<int> (terminal::SelectionType::none), nullptr);
+                }
+                else
+                {
+                    state.setProperty (jam::TextEditor::properties.at (jam::TextEditor::selectionAnchorRowId), anchorRow, nullptr);
+                    state.setProperty (jam::TextEditor::properties.at (jam::TextEditor::selectionCursorRowId), selCursorRow, nullptr);
+                }
+            }
+        }
     }
 }
 

@@ -271,6 +271,12 @@ void State::setCwd (const char* src, int length) noexcept
     storeTextValue (id::SESSION, id::cwd, p);
 }
 
+void State::setForegroundProcess (const char* src, int length) noexcept
+{
+    auto* p { textBuffer.write (id::foregroundProcess, src, length) };
+    storeTextValue (id::SESSION, id::foregroundProcess, p);
+}
+
 //==========================================================================
 // OSC 133 shell integration
 //==========================================================================

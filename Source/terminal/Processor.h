@@ -45,7 +45,6 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include <atomic>
 
 #include "Keyboard.h"
 #include "State.h"
@@ -394,9 +393,10 @@ private:
     /** @brief ValueTree::Listener — reacts to top-down property changes from Display.
      *
      *  Fires on the message thread when State's ValueTree properties change.
-     *  Handles shell integration callbacks (outputBlockTop → command process query,
-     *  promptRow → clear foreground), and cell pixel changes (cellWidth, cellHeight)
-     *  applied directly to Video.
+     *  Handles cell pixel changes (cellWidth, cellHeight) applied directly to Video,
+     *  and displayName recomputation from foregroundProcess / cwd.
+     *  Foreground process query and clear happen on the reader thread in the
+     *  outputBlockStart and promptRow event handlers (registerEvents).
      *
      *  @note MESSAGE THREAD.
      */
