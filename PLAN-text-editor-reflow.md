@@ -1,7 +1,7 @@
 # PLAN: TextEditor Reflow
 
-**RFC:** RFC-reflow.md
-**Date:** 2026-05-25 (revised)
+**RFC:** RFC-reflow.md, RFC-sentinel-cell.md
+**Date:** 2026-05-26 (revised)
 **BLESSED Compliance:** verified
 **Language Constraints:** C++17 / JUCE
 
@@ -18,9 +18,19 @@ Video writes through a shared `jam::Block` view. All state flows through
 reads from ValueTree after flush. Hot path lock-free on both threads. Resize is
 cold path under `suspendProcessing`.
 
-`jam::DiscreteStateTransition<Row>` (DST) is the resize coordinator -- owned by
+`jam::DiscreteStateTransition<Cell>` (DST) is the resize coordinator -- owned by
 Session, not Display. DST manages the scratch buffer, coalescing timer, and the
 start/stop trigger lifecycle. No smoothResizer, no onStop callback.
+
+Row FAM is eliminated. `Buffer<Cell>` with sentinel cell at `cells[numCols]` per
+row replaces `Buffer<Row>`. Row metadata (usedCols, flexWrap, justify, collapsed)
+packed into Cell's 23 padding bits on the sentinel. Content cells (0..numCols-1)
+stay pure -- padding bits always 0. Flat storage is trivially copyable.
+
+Reflow is a buffer-to-buffer transform inside the DST lifecycle. Destructive but
+lossless -- all content preserved. FLEX_GAP cells stripped and restamped at new
+width. `wrapColumns` stays 0 in the renderer -- buffer rows are always correctly
+stamped at the current terminal width.
 
 ---
 
@@ -29,11 +39,12 @@ start/stop trigger lifecycle. No smoothResizer, no onStop callback.
 ```
 Session (owns Screen, Processor, resizer)
   |-- Screen (jam::TextEditor) -- sole author of dims, owns Buffer, always exists
-  |     |-- jam::Buffer<Row>   -- cell storage (2 channels: NORMAL=0, ALTERNATE=1)
-  |     +-- Block<Row>         -- shared view into Buffer (atomic activeBlocks pointer)
+  |     |-- jam::Buffer<Cell>  -- cell storage (2 channels: NORMAL=0, ALTERNATE=1)
+  |     |                         stride = (cols + 1) * sizeof(Cell), sentinel at cells[numCols]
+  |     +-- Block<Cell>        -- shared view into Buffer (atomic activeBlocks pointer)
   |-- Processor                   -- owns Video, Parser, State, TTY
   |     +-- Video                 -- writes cells through Block, dumb worker
-  +-- jam::DiscreteStateTransition<Row> resizer  -- scratch buffer, timer, start/stop lifecycle
+  +-- jam::DiscreteStateTransition<Cell> resizer  -- scratch buffer, timer, start/stop lifecycle
 
 Display (UI shell -- parents Screen for rendering via addAndMakeVisible)
   -- owns no resize infrastructure. Display::resized() writes viewport to State only.
@@ -53,11 +64,10 @@ analog -- it owns the rendering buffer because it dictates the resolution.
 Screen always has dimensions -- Display writes bounds to State at creation
 and on resize. For daemon mode, dimensions come from persisted State.
 
-**Session owns the resizer.** `jam::DiscreteStateTransition<Row>` lives on Session.
+**Session owns the resizer.** `jam::DiscreteStateTransition<Cell>` lives on Session.
 It manages the scratch buffer internally, the 16ms coalescing timer, and fires
 "start" and "stop" triggers. Session registers both triggers in its constructor.
 Display does NOT own or wire the resizer. DST does NOT access Screen internals.
-DST creates Block views from its scratch buffer and calls `screen.swapActiveBlocks(blockData)`.
 
 **DST scratch vs NORMAL/ALTERNATE:** Screen's `buffers[2]` (2 channels) is for
 DECSC/DECRC terminal screen switching -- NOT resize ping-pong. DST scratch is a
@@ -66,6 +76,49 @@ separate Buffer owned by DST, used only during resize. They are unrelated.
 **Session doesn't listen to State for resize.** Pure callback chain via DST.
 No Session vTPC listener for resize. No resizeStart/resizeEnd State params needed
 for resize coordination -- DST owns the lifecycle internally.
+
+---
+
+## Sentinel Cell Architecture
+
+Row FAM (`jam::Row`) is eliminated. `Buffer<Cell>` flat storage with sentinel
+cell at position `cells[numCols]` per row.
+
+**Bit layout** (Cell padding bits 41-63, sentinel cell only):
+
+```
+bit 41      flexWrap    -- content continues on next row
+bit 42      justify     -- row contains FLEX_GAP cells
+bit 43      collapsed   -- reflow tombstone
+bits 44-55  usedCols    -- rightmost non-blank column + 1 (12 bits, max 4096)
+bits 56-63  spare       -- reserved, 0
+```
+
+**Content cells** (`cells[0..numCols-1]`): padding bits always 0. Pure display atoms.
+
+**Sentinel cell** (`cells[numCols]`): carries row metadata. Not rendered.
+Within the stride allocation -- `Buffer<Cell>` allocates `(numCols + 1)` cells
+per row (aligned). `getNumCols()` returns logical terminal width (numCols).
+
+**Accessor API** -- static functions on Cell:
+
+```cpp
+Cell::isFlexWrap(sentinel)      Cell::setFlexWrap(sentinel, bool)
+Cell::isJustify(sentinel)       Cell::setJustify(sentinel, bool)
+Cell::isCollapsed(sentinel)     Cell::setCollapsed(sentinel, bool)
+Cell::getUsedCols(sentinel)     Cell::setUsedCols(sentinel, int)
+```
+
+**Video write pattern** (representative):
+
+```cpp
+jam::Cell* row { blocks[scr].getWritePointer (writeRow, writePosition[scr]) };
+row[writeCol] = cell;
+jam::Cell::setUsedCols (row[numCols], jmax (jam::Cell::getUsedCols (row[numCols]), writeCol + charWidth));
+```
+
+**Row clear pattern**: `row[numCols] = jam::Cell {};` -- zeroes all 64 bits,
+resetting usedCols=0 and all flags=0.
 
 ---
 
@@ -86,39 +139,62 @@ arrive on the same flush tick -- always consistent.
 
 ---
 
-## Resize Lifecycle (DST Pattern)
+## Resize Lifecycle (DST Pattern -- Revised)
 
 ```
 Display::resized()
-  → state.setValue(id::viewport, packedBounds)          // logical pixel
+  -> state.setValue(id::viewport, packedBounds)          // logical pixel
 
 Screen vTPC (viewport changed):
-  → compute new cols/rows from pixel dims
-  → if (cols/rows changed):
-       resizer.set(jam::ID::start, newCols, newRows)    // fires "start" trigger + starts timer
+  -> compute new cols/rows from pixel dims
+  -> if (cols/rows changed):
+       resizer.set(jam::ID::start, newCols, newRows)    // stores pending dims, starts timer
 
-DST "start" trigger (fires synchronously):
-  → processor.suspendProcessing(true)                  // callbackLock held, reader blocked
-  → read WriteHead from State (head.position)
-  → copy rows from buffers[activeIndex] to DST scratch at head
+DST coalescing (16ms window):
+  -> additional resize events update pending dims, restart timer
+  -> Video keeps running freely during coalescing
 
-DST timer fires (16ms coalescing window closed):
-  → isTransitioning = false, timer stops
-  → fire "stop" trigger (directly via triggers.get, no new timer)
+DST timer fires (no new events for 16ms):
+  -> fire "stop" trigger:
 
-DST "stop" trigger:
-  → swap: activeBlocks.store(scratch.blocks[activeIndex].data())
-  → screen.setText(block)                              // TextEditor sees new content
-  → processor.suspendProcessing(false)                  // reader resumes
-  → processor.setWinsize(newCols, newRows)            // Video fires SIGWINCH
+DST "stop" trigger (all work here, synchronous):
+  -> processor.suspendProcessing(true)                  // callbackLock held, reader blocked
+  -> read WriteHead from State (head.position)
+
+  -> REFLOW:
+     1. First walk (exact row count):
+        - Per paragraph, walk cells respecting atom boundaries (WIDE pair, FLEX_GAP run)
+        - Strip FLEX_GAP cells from count (not content)
+        - Compute exact output rows needed at new width
+     2. Allocate scratch at (newCols, exactRows)
+     3. Second walk (reflow + restamp):
+        - Write content cells into scratch rows at new width
+        - Restamp FLEX_GAP at new width
+        - Stamp sentinel: flexWrap, justify, usedCols per output row
+     4. Write to scratch buffer
+
+  -> swap: activeBlocks.store(scratch blocks)
+  -> screen.setText(block)                              // TextEditor sees new content
+  -> processor.suspendProcessing(false)                  // reader resumes
+  -> processor.setWinsize(newCols, newRows)            // Video fires SIGWINCH
 ```
+
+**Key change from previous PLAN:** "start" trigger is lightweight (stores dims,
+starts timer). All heavy work (suspend, reflow, swap, resume, SIGWINCH) happens
+in "stop" trigger after coalescing settles. Video is never suspended during the
+coalescing window -- only for the synchronous reflow duration (microseconds).
 
 **Coalescing:** If `resizer.set(jam::ID::start, ...)` is called again during the
 timer window, latest cols/rows replace pending. Timer restarts. On timer fire,
-drain pending and fire "stop" with final values. Exactly one resize per cycle.
+stop trigger executes with final values. Exactly one resize per cycle.
 
 **SIGWINCH fires once per resize cycle** -- after buffer is valid and reader
 has resumed. Buffer is ready before shell is notified.
+
+**Content always preserved.** No paragraph drop, no silent truncation.
+Scrollback config is logical maximum -- reflow may temporarily exceed physical
+row count (downsizing adds rows). Buffer allocation is deterministic from the
+first walk's exact count.
 
 ---
 
@@ -128,8 +204,8 @@ has resumed. Buffer is ready before shell is notified.
 Audio analogy          Terminal equivalent
 ---------------------  -----------------------------------------
 Host                   Nexus -- owns Sessions, UI owns Displays
-FFT bin buffer         jam::Buffer<Row> -- Screen-owned storage
-spectrum data view     shared jam::Block -- view into Screen's Buffer
+FFT bin buffer         jam::Buffer<Cell> -- Screen-owned storage
+spectrum data view     shared jam::Block<Cell> -- view into Screen's Buffer
 audio thread           reader thread (TTY -> Parser -> Video)
 message thread         message thread (State flush -> Screen -> paint)
 prepareToPlay          suspendProcessing -> buffer swap -> resume
@@ -137,12 +213,13 @@ callbackLock           callbackLock (same CriticalSection)
 AudioProcessor         Session/Processor -- processing engine
 FFT visualizer         Screen -- owns buffer, dictates resolution
 SmoothChain/DST        jam::DiscreteStateTransition -- resize coordinator
+trivially copyable T   Cell (8 bytes, static_assert enforced)
 ```
 
 **Invariant:** Video accesses storage through Block indirection. Neither thread
 blocks on the hot path. Resize (cold path) briefly suspends Video -- bounded by
-one process() call duration (~50us). Reader thread is blocked only during the
-copy/swap window inside the "start" trigger.
+reflow duration (~microseconds for 10k rows). Reader thread is blocked only
+during the reflow+swap window inside the "stop" trigger.
 
 ---
 
@@ -159,9 +236,9 @@ copy/swap window inside the "start" trigger.
      -> Processor creates Video (receives blocks pointer)
      -> Processor creates Parser
 
-3. Session creates resizer (jam::DiscreteStateTransition<Row>(buffers[0]))
-     -> resizer.addTrigger(jam::ID::start, [this] (int c, int r) { ... suspend + copy ... })
-     -> resizer.addTrigger(jam::ID::stop,  [this] (int c, int r) { ... swap + resume + SIGWINCH ... })
+3. Session creates resizer (jam::DiscreteStateTransition<Cell>(buffers[0]))
+     -> resizer.addTrigger(jam::ID::start, [this] (int c, int r) { ... store pending dims ... })
+     -> resizer.addTrigger(jam::ID::stop,  [this] (int c, int r) { ... suspend + reflow + swap + resume + SIGWINCH ... })
 
 4. UI creates Display (when terminal pane appears)
      -> Display calls addAndMakeVisible(session.getScreen())
@@ -188,11 +265,12 @@ All objects are dumb workers. They are told, not asked. State is SSOT.
 | Object | Responsibility | Owns | Reads from State | Writes to State |
 |--------|----------------|------|------------------|-----------------|
 | Session | Terminal instance lifecycle, resize orchestration | Screen, Processor, resizer | -- | -- |
-| Screen | Dimension computation (sole author), Buffer allocation, rendering | Buffer, Block, activeBlocks | writeHead, scrollOffset, cursor*, viewport | viewport (via onCellChanged) |
+| Screen | Dimension computation (sole author), Buffer allocation, rendering | Buffer<Cell>, Block<Cell>, activeBlocks | writeHead, scrollOffset, cursor*, viewport | viewport (via onCellChanged) |
 | Display | UI shell | -- | viewport, cellWidth, cellHeight, fontSize | -- |
-| Video | Cell writing, VT command execution | -- (writes through Block pointer) | -- | writeHead, cursor*, modes, screen dirty (every flush) |
+| Video | Cell writing, VT command execution, sentinel stamping | -- (writes through Block pointer) | -- | writeHead, cursor*, modes, screen dirty (every flush) |
 | Processor | Event routing, TTY ownership, suspendProcessing, setWinsize | Video, Parser, State, TTY | -- | -- |
-| DST (resizer) | Scratch buffer, coalescing timer, start/stop trigger lifecycle | scratch buffer | -- (reads head from State via Session) | -- (Session writes resizeStart/resizeEnd if needed for external observers) |
+| DST (resizer) | Scratch buffer, coalescing timer, start/stop trigger lifecycle | scratch buffer | -- (reads head from State via Session) | -- |
+| Reflow | Pure function: old Block + newCols -> scratch content | -- | -- | -- |
 
 ---
 
@@ -215,7 +293,6 @@ All objects are dumb workers. They are told, not asked. State is SSOT.
 - `setWinsize` rename across TTY/Processor/Session/Display
 - `id::writeHead` declared in Identifier.h (packed position+historyRows)
 - `id::writeHead` stored internally in Processor for scrollUp (lines 242, 328, 333)
-- `id::screenSwitch` declared in Identifier.h -- has NO handler (cleanup needed)
 - TETRIS lifecycle: `suspendProcessing` / `callbackLock` on Processor
 - Session owns Screen (value member), Processor receives `screen.getActiveBlocksRef()`
 - Display takes `Session&`, no smoothResizer, no Screen member
@@ -223,11 +300,11 @@ All objects are dumb workers. They are told, not asked. State is SSOT.
 - Screen sole author of cell dims via `onCellChanged` lambda + packed viewport param
 - Full-content Block (history + viewport) passed to TextEditor -- native Viewport scroll
 - Video flushes cursor values every tick
-
-**END HEAD missing (Step 1 remaining):**
-- `id::screenSwitch` declared but unused -- remove from Identifier.h
-- Video::flush() does NOT write `id::writeHead` every tick -- add it
-- `id::writeHead` event NOT registered in Processor::registerEvents() -- add handler
+- Video flushes writeHead every tick
+- DST resizer wired on Session, coalescing 16ms, lossless ring copy via resizeBuffers
+- Callback elimination complete (15 std::function callbacks replaced with APVTS patterns)
+- TTY owned by Processor via startTTY()
+- DA2 parsing fix (CSI > c intermediate byte)
 
 ---
 
@@ -237,166 +314,243 @@ All objects are dumb workers. They are told, not asked. State is SSOT.
 
 **jam:** Done. `WriteHead` struct + `pack()`/`unpack()` at jam HEAD.
 
-**END:** Remaining:
-1. Remove `id::screenSwitch` from `Identifier.h` -- declared but no handler, dead code
-2. Add `id::writeHead` flush in `Video::flush()` -- fires for both screens every tick:
-   ```cpp
-   for (int s = 0; s < 2; ++s)
-       events.get (id::writeHead, s, writePosition[s].pack());
-   ```
-3. Register `id::writeHead` event handler in `Processor::registerEvents()`:
-   ```cpp
-   events.add<int, int> (id::writeHead,
-       [this] (int screen, int packedWH) {
-           const juce::Identifier screenId { Map::Screen::getContext()->get (screen) };
-           state.storeValue (screenId, id::writeHead, packedWH);
-       });
-   ```
-   This stores `writeHead` into State. Video fires it every tick. Processor stores it.
-   State is SSOT for cross-thread values.
+**END:** Done. `id::writeHead` flush in Video::flush() every tick.
+`id::writeHead` event registered in Processor::registerEvents().
+`id::screenSwitch` removed from Identifier.h.
 
 ---
 
-### Step 2: Block mutable access  done
+### Step 2: Block mutable access  DONE
 
-**Problem:** Block is currently a read-only snapshot (`const getRowPointer`).
-For the new ownership model, Video needs mutable write access through Block.
-
-**Solution:** Extend Block with dumb mutation operations:
-- `getWritePointer(row)` -- mutable row access (same ring mapping as `getRowPointer`)
-- `getWritePointer(row, headPosition)` -- caller-supplied head for Video's writePosition
-- `clear(row)` -- zero-fill a row
-- `clear(row, headPosition)` -- caller-supplied head
-- `copyRow(destRow, srcRow)` -- row-to-row copy within the Block
-- `copyRow(destRow, srcRow, headPosition)` -- caller-supplied head
-- `getHead()` -- return stored head position
-- `static_assert(std::is_trivially_copyable_v<Block<T>>)` preserved
-
-Block does NOT manage head. Block receives head at construction time and uses
-it for ring mapping. Video tracks its own `writePosition` and passes it via the
-head-override overloads. Head state lives in State (`WriteHead` Parameter).
+Done. Block extended with `getWritePointer()`, `clear()`, `copyRow()` with
+head-override overloads. `static_assert(std::is_trivially_copyable_v<Block<T>>)`
+preserved.
 
 ---
 
 ### Step 3: DST Resizer + Ownership Restructure  DONE
 
-**jam remaining:**
-- Add `jam::ID::start` / `jam::ID::stop` to `jam_identifier_misc.h` (IDENTIFIER_MISCELLANEOUS macro)
-- Adapt `jam::DiscreteStateTransition` for terminal resize (see below)
+Done. Session owns DST, coalescing 16ms timer, lossless content copy via
+ring-order per-channel resizeBuffers. Callback elimination complete.
 
-**Problem:** Buffer resize happens inline in `onCellChanged` with no content copy,
-no suspend, no SIGWINCH coordination. History lost when viewport grows. smoothResizer
-was on Display which is the wrong layer. Session needs to own the resize coordinator.
+---
 
-**Solution:** `jam::DiscreteStateTransition<Row>` is the resize coordinator, owned
-by Session. It holds the scratch buffer internally. "start" trigger fires suspend +
-copy. Timer coalesces. "stop" trigger fires swap + resume + SIGWINCH.
+### Step 4: Sentinel Cell Architecture (jam)
 
-**DST adaptation (jam):**
-- Holds `scratch` buffer internally (not `previous` snapshot)
-- `set(jam::ID::start, cols, rows)`: sizes scratch based on `cols` and `rows`, fires "start" trigger synchronously, starts 16ms coalescing timer
-- Timer callback: `isTransitioning = false`, `stopTimer()`, fires "stop" trigger via `triggers.get(jam::ID::stop, ...)`
-- `getTargetValue()` returns pending bounds from last `set()` call
-- `captureSnapshot()` removed (not used)
-- Crossfade mechanics removed (not used)
-- Coalescing: `set()` during transition replaces pending bounds, restarts timer
-- Fixed 16ms timer. No `setCrossfadeTimeMs()`.
+**RFC:** RFC-sentinel-cell.md
 
-**jam_identifier changes:**
-- `jam::ID::start` / `jam::ID::stop` in `jam_identifier_misc.h` -- pre-defined identifiers
-  for the resize lifecycle
+**Problem:** Row is FAM -- not trivially copyable, forces runtime stride
+computation, blocks memcpy for reflow, propagates dual-path rendering pipeline
+(`Block<Row>` vs `Block<Cell>`) through every layer.
 
-**Session changes:**
+**Solution:** Eliminate Row. Flat `Buffer<Cell>` with sentinel cell at
+`cells[numCols]` carrying row metadata in Cell's 23 padding bits.
+
+**jam scope:**
+
+1. **jam_cell.h** -- Add sentinel bit constants + static accessor functions
+   (isFlexWrap, setFlexWrap, isJustify, setJustify, isCollapsed, setCollapsed,
+   getUsedCols, setUsedCols). Delete `Cell::RowState` struct (dead code).
+
+2. **jam_buffer.h** -- Delete `has_flex_type` trait and `hasFlexType` variable
+   template (lines 21-29). Delete FAM stride branch (lines 95-100). Single stride
+   path: `(numCols + 1)` cells per row, aligned. `getNumCols()` returns logical
+   width (numCols), not numCols+1.
+
+3. **jam_row.h** -- Delete file entirely.
+
+4. **jam_glyph_arrangement.h/.cpp** -- Delete `shape(Block<Row>)` overloads
+   (2 header declarations + 2 implementations). Modify `shape(Block<Cell>)` lambda
+   to read `usedCols` from sentinel at `row[numCols]`.
+
+5. **jam_ParagraphStorage.h** -- `build()` takes `Block<Cell>`, reads
+   `Cell::isFlexWrap(row[numCols])` instead of `Row::flexWrap`.
+
+6. **jam_text_editor.h/.cpp** -- Delete `setText(Block<Row>)`, `rowContent`
+   member, `hasRowContent` flag. Single `setText(Block<Cell>)` path. `calc()`
+   single-path dispatch.
+
+**Validation:** @Auditor checks: Cell static_asserts preserved (sizeof==8,
+trivially_copyable), no Row references remain in jam, Buffer stride allocates
+sentinel, shape() reads usedCols from sentinel, BLESSED compliance (Lean: no
+dead code, Explicit: named constants, SSOT: sentinel IS metadata).
+
+---
+
+### Step 5: Sentinel Cell Architecture (END)
+
+**Depends on:** Step 4
+
+**Problem:** END references `Buffer<Row>`, `Block<Row>`, `Row::` across 13 files
+(76+ access sites in Video subsystem alone).
+
+**Solution:** Mechanical type change `Row` -> `Cell` + sentinel access pattern.
+
+**END scope:**
+
+1. **Video.h** -- `Block<Row>*` -> `Block<Cell>*`,
+   `std::atomic<Block<Row>*>&` -> `std::atomic<Block<Cell>*>&`
+
+2. **Video.cpp** -- All `row->cells[col]` -> `row[col]`. All `row->usedCols` ->
+   `Cell::getUsedCols(row[numCols])` / `Cell::setUsedCols(row[numCols], ...)`.
+   All `row->flags |= Row::flexWrap` -> `Cell::setFlexWrap(row[numCols], true)`.
+   All `row->flags |= Row::justify` -> `Cell::setJustify(row[numCols], true)`.
+   All `row->usedCols = 0; row->flags = 0;` -> `row[numCols] = jam::Cell {};`.
+
+3. **VideoEdit.cpp** -- Same pattern as Video.cpp (~11 sites).
+
+4. **VideoCSI.cpp** -- Same pattern (scroll fills).
+
+5. **Screen.h/.cpp** -- `Buffer<Row>` -> `Buffer<Cell>`, `Block<Row>` -> `Block<Cell>`,
+   `std::atomic<Block<Row>*>` -> `std::atomic<Block<Cell>*>`.
+   `resizeBuffers()` mechanical type change.
+
+6. **Session.h/.cpp** -- `DST<Row>` -> `DST<Cell>`.
+
+7. **Processor.h** -- `std::atomic<Block<Row>*>&` -> `std::atomic<Block<Cell>*>&`.
+
+8. **Input.cpp** -- Any Row references in cursor/selection logic.
+
+**Validation:** @Auditor checks: no `Row`, `Block<Row>`, `Buffer<Row>` references
+remain in END. Video sentinel access pattern correct (row[numCols] for metadata,
+row[col] for content). memset safety (partial erases stay within 0..numCols-1,
+sentinel untouched). BLESSED compliance.
+
+---
+
+### Step 6: DST Lifecycle Revision
+
+**Depends on:** Step 5
+
+**Problem:** Current DST wiring has "start" trigger doing suspend+copy and "stop"
+doing swap+resume+SIGWINCH with timer between them. Video is suspended for the
+entire coalescing window. New design: "start" is lightweight (coalesce only),
+"stop" does all heavy work.
+
+**Solution:** Revise Session's DST trigger wiring:
+
+- **"start" trigger**: no suspend, no copy. Just stores pending dims. Timer starts/restarts.
+- **"stop" trigger** (timer fires after 16ms settled): suspend Video, reflow
+  (placeholder: row copy for now, full reflow in Step 7), swap activeBlocks,
+  resume Video, SIGWINCH.
+
+**Scope:**
+- `Session.cpp wireResizer()` -- revise trigger lambdas per new lifecycle
+- `Screen.cpp resizeBuffers()` -- may simplify (no longer called from "start")
+
+**Validation:** @Auditor checks: Video suspended only in "stop" trigger, not
+during coalescing. SIGWINCH fires after swap+resume. Content preserved across
+resize. Timer coalescing verified (rapid resize events produce single cycle).
+
+---
+
+### Step 7: Buffer Reflow
+
+**RFC:** RFC-reflow.md (with sentinel cell corrections)
+
+**Depends on:** Steps 5 + 6
+
+**Problem:** After resize, buffer content needs to be reflowed at the new column
+width. FLEX_GAP cells are width-derived artifacts that must be stripped and
+restamped. Paragraph boundaries must be preserved. Content must be 100% intact.
+
+**Solution:** `jam::Reflow` -- pure function, two-pass buffer-to-buffer transform.
+
+**Pass 1 -- exact row count (per paragraph, atom-aware):**
+- Walk cells per paragraph via `ParagraphsModel`
+- Content cells (codepoint, grapheme, WIDE) contribute to area
+- FLEX_GAP cells stripped (not content -- regenerated at new width)
+- Atom boundary rule: WIDE pair (2 cells) and FLEX_GAP run are atomic units
+- If atom straddles wrap boundary, bump to next row (vacated cells = erase)
+- Return exact physical row count needed at new dims
+
+**Pass 2 -- reflow write:**
+- Write content cells into scratch rows at new width
+- Restamp FLEX_GAP at new width (regenerate elastic whitespace)
+- Stamp sentinel per output row: flexWrap, justify, usedCols
+- Paragraph boundaries preserved: last row of each paragraph gets flexWrap=0
+
+**API:**
 ```cpp
-// Session.h
-jam::DiscreteStateTransition<jam::Row> resizer;
+struct Reflow
+{
+    static int computePhysicalRows (const jam::Block<jam::Cell>& oldBlock,
+                                    const jam::ParagraphsModel& paragraphs,
+                                    int newCols) noexcept;
 
-// Session.cpp constructor (after screen + processor created):
-resizer = jam::DiscreteStateTransition<jam::Row>(screen.getActiveBuffer());
-
-resizer.addTrigger<int, int>(jam::ID::start,
-    [this] (int newCols, int newRows) {
-        processor->suspendProcessing(true);
-        const jam::WriteHead wh { jam::WriteHead::unpack (
-            state.loadValue (Map::Screen::getContext()->get(screen.getActiveScreen()), id::writeHead)) };
-        const int head { wh.position };
-        const int rowsToCopy { jmin(buffers[activeIndex].getNumRows(), scratch.getNumRows()) };
-        for (int r = 0; r < rowsToCopy; ++r) {
-            scratch.copyRow(r, (head + r) % buffers[activeIndex].getNumRows());
-        }
-    });
-
-resizer.addTrigger<int, int>(jam::ID::stop,
-    [this] (int /*newCols*/, int /*newRows*/) {
-        const jam::Bounds target { resizer.getTargetValue() };
-        const int ch { screen.getActiveScreen() };
-        jam::Block<jam::Row> scratchBlock { resizer.scratch, ch };
-        screen.setText (scratchBlock);  // TextEditor renders from scratch
-        processor->suspendProcessing (false);
-        if (target.width > 0 and target.height > 0)
-            processor->setWinsize (cell (target.width), cell (target.height));
-    });
-
-screen.onDimensionsChanged = [this] (cell cols, cell rows) {
-    resizer.set (jam::ID::start, cols.value, rows.value);
+    static void write (const jam::Block<jam::Cell>& oldBlock,
+                       const jam::ParagraphsModel& paragraphs,
+                       jam::Buffer<jam::Cell>& scratch,
+                       int newCols) noexcept;
 };
 ```
 
-**Screen changes:**
-- `onCellChanged` fires `onDimensionsChanged(cols, rows)` callback when dimensions change
-- No inline buffer resize. Screen is a dumb renderer.
-- `onDimensionsChanged` callback: owner (Session) sets this to call `resizer.set(jam::ID::start, cols, rows)`
-- Screen exposes `getActiveBuffer()` for DST construction
-- Screen exposes `setText(Block<Row>)` -- already exists, used by Session's "stop" trigger
-
-**DST swap mechanics:**
-- DST creates Block view from scratch: `jam::Block<Row>(scratch, channel)`
-- Session's "stop" trigger calls `screen.setText(scratchBlock)` -- uses existing setText API
-- Screen does NOT know about DST. No new swap method needed.
-
-**Video changes:**
-- `Video::flush()` writes `id::writeHead` (WriteHead pack) every tick, not just on scroll
-
-**Display changes:**
-- `Display::resized()` writes `id::viewport` to State only. No resize orchestration.
-- No smoothResizer member. No resize wiring.
-
-**Processor changes:**
-- No resize listener. `setWinsize()` is called by Session's "stop" trigger callback.
-
-**Constraint:** `callbackLock` acquisition during resize is bounded by one
-`process()` duration. PTY pipe buffer (64KB typical) absorbs bytes during
-suspend -- no overflow at any practical baud rate for sub-millisecond suspend.
-
----
-
-### Step 4: Integrate wrapping into TextEditor pipeline
-
-**Problem:** TextEditor wrapping infrastructure is built but disabled (`wrapColumns`
-forced to 0 in `calc()`). ParagraphsModel builds but JustifiedText never enters
-the render chain.
-
-**Solution:** Enable the pipeline:
+**Integration with DST "stop" trigger:**
 ```
-Block<Row> -> ParagraphsModel -> Arrangement::shape(options) -> JustifiedText -> drawGlyphs
+suspend Video
+-> paragraphs.build(oldBlock)
+-> exactRows = Reflow::computePhysicalRows(oldBlock, paragraphs, newCols)
+-> scratch.setSize(2, exactRows, newCols)
+-> Reflow::write(oldBlock, paragraphs, scratch, newCols)
+-> swap activeBlocks to scratch
+-> resume Video
+-> SIGWINCH
 ```
 
 **Scope:**
-- `jam_text_editor.cpp` `calc()` -- set `wrapColumns` from viewport width
-  (`Cell::Rectangle(font.bounds, visibleBounds).getWidth()`) instead of 0
-- `jam_text_editor.cpp` `calc()` -- after `arrangement.shape()`, construct
-  `JustifiedText(arrangement, shapedTextOptions)` and call `applyTo(arrangement)`
-- `jam_glyph_arrangement.h` `shape()` -- accept `ShapedTextOptions` (currently takes
-  raw `wrapColumns`). Pass through to FLEX_GAP-aware wrap logic.
-- Content height in `calc()` computed from post-wrap line count
-  (JustifiedText::getHeight()), not raw numRows.
+- New file: `jam_reflow.h` (in jam_graphics or jam_core)
+- `Session.cpp wireResizer()` -- replace row copy with Reflow calls in "stop" trigger
 
-**Constraint:** `Arrangement::shape()` signature change is jam API -- affects both
-END and future Whelmed consumers. ShapedTextOptions is the single config carrier.
+**Validation:** @Auditor checks: content 100% preserved (no paragraph drop, no
+cell loss). FLEX_GAP stripped from old, restamped in new. Atom boundary rule
+enforced (WIDE pairs and FLEX_GAP runs never split). Sentinel correctly stamped.
+Pass 1 count == actual rows written in Pass 2 (deterministic). BLESSED: Stateless
+(pure function), Deterministic (same input = same output), Bound (old Block
+read-only, scratch write-only).
 
 ---
 
-### Step 5: Scrollbar viewport width accounting
+### Step 8: JustifiedText in Render Pipeline
+
+**Depends on:** Step 5 (sentinel cell, single Block<Cell> path)
+
+**Problem:** `JustifiedText` is built but never enters the render chain. `calc()`
+shapes arrangement but doesn't apply gap distribution. Content height uses raw
+row count, not post-justify metrics.
+
+**Solution:** Wire JustifiedText into calc() after shape():
+
+```cpp
+void TextEditor::calc() noexcept
+{
+    // ... existing shape call with wrapColumns = 0 ...
+    arrangement.shape (content, font, 0, 0);
+
+    // Apply gap distribution for rows with justify flag
+    JustifiedText jt { arrangement, shapedTextOptions };
+    jt.applyTo (arrangement);
+
+    // Content height from arrangement (reflects any future wrap changes)
+    const int numLines { arrangement.getNumLines() };
+    // ... rest of calc uses numLines for content height ...
+}
+```
+
+**Note:** `wrapColumns` stays 0 for the terminal path. Reflow stamps correct
+rows in the buffer. JustifiedText distributes FLEX_GAP space on justified rows.
+No display-time wrapping.
+
+**Scope:**
+- `jam_text_editor.cpp` calc() -- construct JustifiedText, call applyTo,
+  use arrangement.getNumLines() for content height
+
+**Validation:** @Auditor checks: wrapColumns == 0 for terminal path. JustifiedText
+constructed after shape(). applyTo called before content height computation.
+Content height uses post-justify line count.
+
+---
+
+### Step 9: Scrollbar Viewport Width Accounting
 
 **Problem:** When vertical scrollbar appears (content > viewport height),
 `getMaximumVisibleWidth()` shrinks. But `onResized` only fires from
@@ -405,58 +559,51 @@ content renders wider than visible area, rightmost cols hidden behind scrollbar.
 
 **Solution:** Detect scrollbar-induced width change in `calc()`. When
 `getVisibleWidth()` differs from the width used to compute current viewport cols,
-fire `onResized` to trigger `onCellChanged` -> DST resize flow.
+fire `onResized` to trigger DST resize flow.
 
 **Scope:**
 - `jam_text_editor.cpp` `calc()` -- compare current `getVisibleWidth()` against
-  last-known width. If changed, call `onResized` (deferred via
-  `MessageManager::callAsync` to avoid re-entrancy during `calc()`).
+  last-known width. If changed by >= one cell width, call `onResized` (deferred
+  via `MessageManager::callAsync` to avoid re-entrancy during `calc()`).
 - Track `lastVisibleWidth` member in TextEditor.
 
 **Constraint:** Must not cause oscillation. Guard: if scrollbar appearance changes
 width by less than one cell width, do not fire (sub-cell change is cosmetic only).
 
----
-
-### Step 6: Buffer writeback + reflow (deferred)
-
-**Problem:** After resize, buffer content needs to be preserved across the size
-change. Simple row copy is Step 3 (immediate fix). Full reflow with word wrap
-is Step 4.
-
-**Current (Step 3):** Copy rows from old buffer to scratch at current head,
-then swap. Excess rows beyond new scrollback limit are discarded (natural ring
-overflow). Basic preservation works.
-
-**Full reflow (Step 4 integration):** When Steps 4-5 are complete, the copy
-from old buffer to scratch uses `Arrangement` + `JustifiedText` to reflow at the
-new width. Same pipeline as TextEditor's render-time wrap. Cursor position
-re-derived from logical address after reflow.
+**Validation:** @Auditor checks: oscillation guard present. Deferred callAsync
+(not synchronous re-entry). lastVisibleWidth tracked and compared. BLESSED:
+Explicit (guard condition named), Deterministic (sub-cell threshold).
 
 ---
 
 ## Sequencing
 
 ```
-Step 1 -> WriteHead packed Parameter                    done
-Step 2 -> Block mutable access                          done
-Step 3 -> DST resizer + ownership restructure           done
-Step 4 -> enable wrapping pipeline                       ← NEXT SPRINT
-Step 5 -> scrollbar width accounting
-Step 6 -> buffer writeback + reflow (integrated with Step 4)
+Step 1  -> WriteHead packed Parameter                    DONE
+Step 2  -> Block mutable access                          DONE
+Step 3  -> DST resizer + ownership restructure           DONE
+Step 4  -> Sentinel cell architecture (jam)              <- NEXT
+Step 5  -> Sentinel cell architecture (END)              depends on 4
+Step 6  -> DST lifecycle revision                        depends on 5
+Step 7  -> Buffer reflow                                 depends on 5, 6
+Step 8  -> JustifiedText in render pipeline              depends on 5
+Step 9  -> Scrollbar width accounting                    after 8
 ```
 
-Steps 1-3 complete.
-Steps 4-5 can proceed independently.
-Step 6 depends on Steps 3 + 4.
+Steps 4-5 are the foundation (Row elimination).
+Step 6 revises DST timing (coalesce-only start, heavy stop).
+Step 7 is the reflow transform.
+Step 8 wires justify distribution (independent of reflow).
+Step 9 handles scrollbar edge case.
 
 ---
 
 ## Constraints
 
 - `Cell::FLEX_GAP` is the sole gap identity mechanism
-- `Row::justify` flag is the sole justification signal per row
-- `Row::flexWrap` is the sole logical line boundary marker
+- Sentinel cell at `cells[numCols]` is sole carrier of per-row metadata
+- Content cells (0..numCols-1) have padding bits always 0
+- `Cell::isFlexWrap` / `Cell::isJustify` / `Cell::getUsedCols` are the sole metadata accessors
 - `ParagraphStorage` is the sole logical line boundary tracker
 - `Value::map` for all proportional distribution
 - `Cell::Rectangle` / `Cell::Point` for all pixel-cell conversions
@@ -464,12 +611,14 @@ Step 6 depends on Steps 3 + 4.
 - `<JuceHeader.h>` is the only include in project source files
 - No anonymous namespaces. Static linkage for file-scope helpers
 - No early returns. Positive checks, jassert at preconditions
-- Reflow is a rendering concern -- lives in TextEditor/Arrangement/JustifiedText
+- Reflow is a buffer-to-buffer transform -- not a rendering concern
+- `wrapColumns` stays 0 for terminal path -- buffer rows are correctly stamped
 - Screen is sole author of terminal winsize (cols/rows in cell units)
-- Screen owns Buffer storage -- sole allocator, sole resizer
+- Screen owns Buffer<Cell> storage -- sole allocator, sole resizer
 - Screen always exists (owned by Session) -- Display parents it for rendering
-- Session owns `jam::DiscreteStateTransition<Row>` resizer -- coalescing, start/stop triggers
-- DST holds scratch buffer internally. "start" fires suspend+copy. Timer. "stop" fires swap+resume+SIGWINCH.
+- Session owns `jam::DiscreteStateTransition<Cell>` resizer
+- DST "start" is lightweight (coalesce). "stop" does all heavy work.
+- Video suspended only during "stop" trigger, never during coalescing
 - Block is a dumb view -- receives head at construction, maps rows, no state mgmt
 - State is SSOT -- all cross-thread values flow through State Parameters
 - WriteHead (position + historyRows) is the sole head/history transport
@@ -482,30 +631,37 @@ Step 6 depends on Steps 3 + 4.
 - Session owns Screen + Processor + resizer. Display is optional UI attachment.
 - No deferred init. No nullptr Block. No "set later" setters.
 - Processor is a dumb executor -- suspends/resumes on command, sends SIGWINCH on command
-- Video is a dumb worker -- writes where told, reports state to State, no storage mgmt
-- Daemon mode: same structure, Display writes dims to State before destruction, daemon reads persisted State
+- Video is a dumb worker -- writes where told, stamps sentinel, reports state to State
+- Daemon mode: same structure, Display writes dims to State before destruction
 - DST uses `jam::ID::start` / `jam::ID::stop` identifiers for the resize lifecycle
 - Session does not listen to State for resize -- pure callback chain via DST
+- Reflow is lossless -- all content preserved, no paragraph drop, no silent truncation
+- FLEX_GAP cells are width-derived artifacts -- stripped during reflow, restamped at new width
+- Reflow is a pure function: same old Block + same newCols = same output (Deterministic)
 
 ---
 
 ## Risks
 
-- **calc() chicken-and-egg**: ContentView height depends on post-wrap line count,
+- **Sentinel cell discovery:** Code that iterates `cells[0..numCols]` (inclusive)
+  would read the sentinel as content. All iteration must stop at `numCols-1` or
+  use `usedCols` from sentinel. Pathfinder found 76+ access sites in Video --
+  all use explicit col indices, none iterate to numCols. Low risk but audit needed.
+- **Buffer +1 universal cost:** Every Buffer<T> allocates one extra element per
+  row. 8 bytes/row for Cell. 10k rows = 80KB. Negligible.
+- **Reflow atom boundary edge cases:** WIDE pair at exactly the wrap boundary,
+  FLEX_GAP run spanning wrap boundary. Algorithm must handle both. Unit-testable.
+- **calc() chicken-and-egg**: ContentView height depends on post-justify line count,
   but shape runs with clip rect derived from ContentView height. May need to shape
   in calc() with full content (current approach), then clip in paint.
 - **Performance**: shaping full content in calc() may be expensive for large scrollback.
   Current clip-aware shaping only shapes visible rows. May need pre-pass that counts
-  wrapped lines without full shaping.
+  lines without full shaping.
 - **Scrollbar oscillation**: scrollbar appearance changes cols, which changes content
   layout, which might remove the need for scrollbar. Guard: sub-cell-width changes
   are cosmetic only, do not trigger resize.
 - **Atomic builtins portability**: clang and MSVC have different intrinsics. Thin
   wrapper header (`jam_atomic_ops.h`) must be tested on both platforms.
-- **Reflow fidelity**: buffer writeback reflow must produce identical layout to
-  TextEditor's render-time wrap. Both must use the same pipeline
-  (Arrangement + JustifiedText + ShapedTextOptions) -- divergence means visual
-  inconsistency between resize and steady-state rendering.
-- **DST scratch buffer lifecycle**: DST scratch buffer must be allocated before
-  first resize. Session creates DST with `screen.getActiveBuffer()` as the source.
-  Scratch is sized on first "start" trigger from the pending cols/rows.
+- **Reflow fidelity**: FLEX_GAP restamping must produce correct gap distribution
+  at new width. JustifiedText consumes what reflow stamps -- they must agree on
+  gap semantics.
