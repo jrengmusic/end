@@ -26,6 +26,7 @@
 #ifdef __APPLE__
 #include <util.h>
 #include <libproc.h>
+#include <pwd.h>
 #include <sys/sysctl.h>
 #else
 #include <pty.h>
@@ -95,6 +96,44 @@ static void runChildProcess (int master, int slaveFd, const char* shell,
     {
         setenv (key.c_str(), value.c_str(), 1);
     }
+
+#ifdef __APPLE__
+    // macOS: launch through /usr/bin/login for proper login session setup.
+    // Provides correct getlogin(), $USER, $SHELL, and .hushlogin handling.
+    // Pattern from Ghostty (Exec.zig:1509-1539): login -fqlp user bash --noprofile --norc -c "exec -l shell args"
+    // Flags: -f (no auth), -q (quiet/suppress Last login), -l (no chdir to $HOME), -p (preserve env).
+    struct passwd* pw { getpwuid (geteuid()) };
+
+    if (pw != nullptr and pw->pw_name != nullptr)
+    {
+        // Build the exec command: "exec -l /path/to/shell [args...]"
+        std::string execCmd { "exec -l " };
+        execCmd += shell;
+
+        // Append original shell args — skip argv[0] (the shell itself).
+        for (int i { 1 }; argv[i] != nullptr; ++i)
+        {
+            execCmd += ' ';
+            execCmd += argv[i];
+        }
+
+        const char* loginArgv[]
+        {
+            "/usr/bin/login",
+            "-fqlp",
+            pw->pw_name,
+            "/bin/bash",
+            "--noprofile",
+            "--norc",
+            "-c",
+            execCmd.c_str(),
+            nullptr
+        };
+
+        execvp ("/usr/bin/login", const_cast<char* const*> (loginArgv));
+        // login exec failed — fall through to direct exec below.
+    }
+#endif
 
     execvp (shell, argv);
     _exit (1);

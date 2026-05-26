@@ -233,7 +233,7 @@ All objects are dumb workers. They are told, not asked. State is SSOT.
 
 ## Steps
 
-### Step 1: WriteHead -- packed State Parameter  IN PROGRESS
+### Step 1: WriteHead -- packed State Parameter  DONE
 
 **jam:** Done. `WriteHead` struct + `pack()`/`unpack()` at jam HEAD.
 
@@ -278,7 +278,7 @@ head-override overloads. Head state lives in State (`WriteHead` Parameter).
 
 ---
 
-### Step 3: DST Resizer + Ownership Restructure  IN PROGRESS
+### Step 3: DST Resizer + Ownership Restructure  DONE
 
 **jam remaining:**
 - Add `jam::ID::start` / `jam::ID::stop` to `jam_identifier_misc.h` (IDENTIFIER_MISCELLANEOUS macro)
@@ -438,17 +438,16 @@ re-derived from logical address after reflow.
 ## Sequencing
 
 ```
-Step 1 -> WriteHead packed Parameter (jam done, END in progress)
+Step 1 -> WriteHead packed Parameter                    done
 Step 2 -> Block mutable access                          done
-Step 3 -> DST resizer + ownership restructure            ← NEXT SPRINT
-Step 4 -> enable wrapping pipeline
+Step 3 -> DST resizer + ownership restructure           done
+Step 4 -> enable wrapping pipeline                       ← NEXT SPRINT
 Step 5 -> scrollbar width accounting
 Step 6 -> buffer writeback + reflow (integrated with Step 4)
 ```
 
-Steps 1-2 complete.
-Step 3 is the next sprint.
-Steps 4-5 can proceed independently of Step 3.
+Steps 1-3 complete.
+Steps 4-5 can proceed independently.
 Step 6 depends on Steps 3 + 4.
 
 ---

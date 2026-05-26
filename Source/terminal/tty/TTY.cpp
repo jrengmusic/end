@@ -12,10 +12,9 @@
  * 2. `run()` sets thread priority to high and enters the main poll loop.
  * 3. Each iteration blocks on `waitForData`.
  * 4. When data arrives the inner drain loop calls `read()` until no bytes
- *    remain, delivering each chunk to `onData`.
- * 5. After a full drain `onDrainComplete` is called once.
- * 6. On EOF (`read()` returns -1) the thread calls `onShellExited` synchronously
- *    on the reader thread and returns.
+ *    remain, firing `events.get(id::data, chunk, n)` for each chunk.
+ * 5. After a full drain `events.get(id::drainComplete)` is fired once.
+ * 6. On EOF (`read()` returns -1) `events.get(id::shellExited)` is fired and the thread returns.
  * 7. Thread stops when `threadShouldExit()` becomes true (set by `close()`).
  *
  * @see TTY::run()
@@ -24,6 +23,7 @@
  */
 
 #include "TTY.h"
+#include "../Identifier.h"
 
 /**
  * @brief Reader thread main loop.
@@ -39,15 +39,14 @@
  * kernel buffer holds multiple chunks.
  *
  * @par Drain notification
- * `onDrainComplete` fires once after the inner loop exits with 0 (no more
- * data).  This gives the owner a hook to flush deferred writes — for example,
- * sending the initial shell prompt query after the shell has finished printing
- * its startup banner and switched to raw / no-echo mode.
+ * `events.get(id::drainComplete)` fires once after the inner loop exits with 0 (no more
+ * data).  Processor's registered handler flushes parser responses, clears the paste gate,
+ * and handles sync resize.
  *
  * @par Shell exit
  * When `read()` returns -1 the shell has closed the master fd (EOF).
- * `onShellExited` is called synchronously on the reader thread before the thread returns.
- * The callback stores to State atomics; the flush timer delivers the change to the message thread.
+ * `events.get(id::shellExited)` is fired on the reader thread.  Processor's handler
+ * writes State atomics; the flush timer delivers the change to the message thread.
  *
  * @note READER THREAD context.  Do not call directly.
  */
@@ -63,28 +62,17 @@ void TTY::run()
 
         while (n > 0)
         {
-            if (onData)
-            {
-                onData (chunk, n);
-            }
-
+            events.get (terminal::id::data, static_cast<const char*> (chunk), n);
             n = read (chunk, static_cast<int> (READ_CHUNK_SIZE));
         }
 
         const bool isEof { n < 0 };
 
-        if (not isEof and onDrainComplete)
-        {
-            onDrainComplete();
-        }
+        if (not isEof)
+            events.get (terminal::id::drainComplete);
 
         if (isEof)
-        {
-            if (onShellExited)
-            {
-                onShellExited();
-            }
-        }
+            events.get (terminal::id::shellExited);
 
         return isEof;
     };

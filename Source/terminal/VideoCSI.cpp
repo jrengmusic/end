@@ -169,7 +169,12 @@ void Video::applyCSI (const CSI& params, const uint8_t* inter, uint8_t interCoun
         case 'n': reportCursorPosition (params);        break;
         case 'r': setScrollRegion (params);             break;
         case 'b': repeatCharacter (static_cast<int> (params.param (0, 1))); break;
-        case 'c': reportDeviceAttributes (isPrivate);   break;
+        case 'c':
+        {
+            const bool isSecondaryDA { interCount > 0 and inter[0] == '>' };
+            reportDeviceAttributes (isSecondaryDA);
+            break;
+        }
         case 'g':
         {
             const int ps { static_cast<int> (params.param (0, 0)) };

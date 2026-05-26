@@ -203,7 +203,6 @@ juce::String Panes::createWhelmed (const juce::File& file)
     component->setComponentID (activeID);
     component->setBounds (activeTerminal->getBounds());
     component->openFile (file);
-    component->onRepaintNeeded = onRepaintNeeded;
 
     // Graft DOCUMENT alongside SESSION in the PANE node
     auto paneNode { jam::PaneManager::findLeaf (paneManager.getState(), activeID) };
@@ -287,25 +286,18 @@ void Panes::closeWhelmed()
  */
 void Panes::setTerminalCallbacks (terminal::Display* terminal)
 {
-    jassert (onRepaintNeeded != nullptr);
-    terminal->onRepaintNeeded = onRepaintNeeded;
-
-    terminal->onOpenMarkdown = [this] (const juce::File& file)
-    {
-        if (onOpenMarkdown != nullptr)
-            onOpenMarkdown (file);
-    };
-
-    terminal->onOpenImage = [this] (const juce::File& file)
-    {
-        if (onOpenImage != nullptr)
-            onOpenImage (file);
-    };
-
     const juce::String terminalUuid { terminal->getComponentID() };
     sessionStateTrees[terminalUuid] = terminal->getValueTree();
     sessionStateTrees[terminalUuid].addListener (this);
 }
+
+/**
+ * @brief Returns true when all pane components have been closed.
+ *
+ * @return true when the pane owner is empty.
+ * @note MESSAGE THREAD.
+ */
+bool Panes::isEmpty() const noexcept { return panes.isEmpty(); }
 
 /**
  * @brief Returns the owned pane container.
@@ -365,7 +357,20 @@ void Panes::closePane (const juce::String& uuid)
         }
     }
 
-    paneManager.remove (uuid);
+    if (not panes.isEmpty())
+    {
+        paneManager.remove (uuid);
+    }
+    else
+    {
+        // Last pane — remove the leaf node directly from the tree.
+        // PaneManager::remove() asserts on last-leaf (no sibling to promote).
+        // This child removal fires valueTreeChildRemoved on Tabs, which closes the tab.
+        auto leaf { jam::PaneManager::findLeaf (paneManager.getState(), uuid) };
+
+        if (leaf.isValid())
+            paneManager.getState().removeChild (leaf, nullptr);
+    }
 
     for (auto it { resizerBars.begin() }; it != resizerBars.end();)
     {
@@ -383,7 +388,8 @@ void Panes::closePane (const juce::String& uuid)
     // Nexus::remove() handles session teardown — Display already erased above.
     Nexus::getContext()->remove (uuid);
 
-    resized();
+    if (not panes.isEmpty())
+        resized();
 }
 
 /**
@@ -603,11 +609,8 @@ void Panes::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identif
                     if (nearest->isShowing())
                         nearest->grabKeyboardFocus();
                 }
-                else
-                {
-                    if (onLastPaneClosed != nullptr)
-                        onLastPaneClosed();
-                }
+                // When all panes in this tab are closed, Tabs detects the empty
+                // PANES VT via valueTreeChildRemoved and closes the active tab.
             });
         }
     }

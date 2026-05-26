@@ -6,6 +6,7 @@
  */
 
 #include "LinkManager.h"
+#include "../AppState.h"
 
 namespace terminal
 {
@@ -149,13 +150,15 @@ void LinkManager::dispatch (const LinkSpan& span) const
         const auto* cfg { lua::Engine::getContext() };
         const juce::String handler { cfg->getHandler (ext) };
 
-        if (handler == Map::LinkHandler::getContext()->get (Map::LinkHandler::whelmed) and onOpenMarkdown != nullptr)
+        if (handler == Map::LinkHandler::getContext()->get (Map::LinkHandler::whelmed))
         {
-            onOpenMarkdown (juce::File (path));
+            // Write path to AppState WINDOW — Tabs::valueTreePropertyChanged consumes it.
+            AppState::getContext()->getWindow().setProperty (app::id::pendingMarkdownFile, path, nullptr);
         }
-        else if (handler == Map::LinkHandler::getContext()->get (Map::LinkHandler::image) and onOpenImage != nullptr)
+        else if (handler == Map::LinkHandler::getContext()->get (Map::LinkHandler::image))
         {
-            onOpenImage (juce::File (path), span.row);
+            // Write path to AppState WINDOW — Tabs::valueTreePropertyChanged consumes it.
+            AppState::getContext()->getWindow().setProperty (app::id::pendingImageFile, path, nullptr);
         }
         else
         {

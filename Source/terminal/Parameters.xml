@@ -1,6 +1,5 @@
 <STATE>
     <!-- Dimensions -->
-    <PARAM id="viewport"           type="int"  default="0"/>
     <PARAM id="width"              type="int"  default="0"/>
     <PARAM id="height"             type="int"  default="0"/>
 

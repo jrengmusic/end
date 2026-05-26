@@ -128,6 +128,17 @@ public:
     void closeWhelmed();
 
     /**
+     * @brief Returns true when all pane components have been closed.
+     *
+     * Used by Tabs::valueTreeChildRemoved to detect when a tab has no remaining
+     * terminals and should be closed.
+     *
+     * @return true when the pane owner is empty.
+     * @note MESSAGE THREAD.
+     */
+    bool isEmpty() const noexcept;
+
+    /**
      * @brief Access the owned panes for GL iteration.
      *
      * Returns a reference to the owner container so that the GL renderer
@@ -148,44 +159,6 @@ public:
      * @note MESSAGE THREAD.
      */
     juce::ValueTree& getState() noexcept;
-
-    /**
-     * @brief Callback invoked when any terminal needs a repaint.
-     *
-     * Set by the owning Tabs (which receives it from MainComponent).
-     * Forwarded to each new terminal's own onRepaintNeeded callback.
-     *
-     * @note MESSAGE THREAD.
-     */
-    std::function<void()> onRepaintNeeded;
-
-    /**
-     * @brief Callback invoked when a shell exits and all panes in this tab are closed.
-     *
-     * Fired by setTerminalCallbacks after closePane empties the terminal list.
-     * The owning Tabs wires this to its tab-removal logic.
-     *
-     * @note MESSAGE THREAD (via callAsync).
-     */
-    std::function<void()> onLastPaneClosed;
-
-    /**
-     * @brief Callback invoked when a .md file link is activated.
-     *
-     * Set by the owning Tabs to spawn a Whelmed pane in the active tab.
-     *
-     * @note MESSAGE THREAD.
-     */
-    std::function<void (const juce::File&)> onOpenMarkdown;
-
-    /**
-     * @brief Callback invoked when an image file link is activated.
-     *
-     * Set by the owning Tabs to handle inline image rendering in the active tab.
-     *
-     * @note MESSAGE THREAD.
-     */
-    std::function<void (const juce::File&)> onOpenImage;
 
     /**
      * @brief Close the pane with the given uuid.

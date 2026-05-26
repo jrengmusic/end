@@ -79,6 +79,10 @@ void Tabs::closeActiveTab()
                     terminalUuids.add (pane->getComponentID());
             }
 
+            // Deregister Tabs as VT listener before the Panes instance is destroyed.
+            // The PANES VT data is still live in AppState — not removing here would leave
+            // a dangling listener registered on it.
+            activePanes->getState().removeListener (this);
             removeChildComponent (activePanes);
             panes.erase (panes.begin() + index);
 
@@ -146,6 +150,7 @@ void Tabs::closeSession (const juce::String& uuid)
                     terminalUuids.add (pane->getComponentID());
             }
 
+            ownerPanes->getState().removeListener (this);
             removeChildComponent (ownerPanes);
             panes.erase (panes.begin() + ownerIndex);
 

@@ -130,7 +130,7 @@ void terminal::Display::resized()
                                    .withTrimmedBottom (appState->getPaddingBottom())
                                    .withTrimmedLeft (appState->getPaddingLeft()) };
 
-    // setBounds triggers Screen::resized() -> onCellChanged -> viewport param update.
+    // setBounds triggers Screen::resized() -> updateWinsize() -> winsize property -> Session::valueChanged.
     session.getScreen().setBounds (contentBounds);
 
     // Pixel dimensions — needed by SIGWINCH (tty->setWinsize).

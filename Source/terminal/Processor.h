@@ -10,7 +10,7 @@
  *  bytes → Processor::process → Parser → Video → State / Buffer<Row> → Display
  * ```
  *
- * The PTY-side (TTY + History) lives in `terminal::Session`.  Processor is
+ * The PTY-side TTY lives in `terminal::Processor` (created by startTTY()).  Processor is
  * data-source agnostic — it receives bytes via `process()` whether they come
  * from a local PTY callback, an IPC byte-forward, or a history replay.
  *
@@ -34,7 +34,7 @@
  * - All other public methods — MESSAGE THREAD only.
  * - `State` and `Buffer<Row>` handle their own internal thread safety.
  *
- * @see terminal::Session — owns TTY and History (PTY side).
+ * @see terminal::Session — owns TTY (via Processor::startTTY) and orchestrates startup.
  * @see jam::Buffer<jam::Row> — flat row storage, stateless data buffer.
  * @see jam::DiscreteStateTransition — coalescing resize lifecycle manager (owned by Session).
  * @see Parser     — VT100/VT520 state machine.
@@ -51,6 +51,11 @@
 #include "State.h"
 #include "TextBuffer.h"
 #include "tty/TTY.h"
+#if JUCE_MAC || JUCE_LINUX
+#include "tty/UnixTTY.h"
+#elif JUCE_WINDOWS
+#include "tty/WindowsTTY.h"
+#endif
 #include "Parser.h"
 #include "Skit.h"
 #include "Video.h"
@@ -66,29 +71,28 @@ namespace terminal
  * State is owned by terminal::Session and passed by reference at construction.
  * Buffer<Row> is owned by Screen (which is owned by Session) and passed by reference for buffer-level ops.
  * Block* (two-element array) is passed from Screen for Video cell writes.
- * Processor has no knowledge of TTY, PTY, or IPC.
+ * Processor owns TTY (created by startTTY()) and routes bytes through the VT pipeline.
  * Bytes arrive via `process()` from whichever source owns the byte stream
- * (local `terminal::Session` callback, IPC byte-forward, or history replay).
+ * (local `terminal::Session` callback or IPC byte-forward).
  *
  * Display subscribes as a `juce::ValueTree::Listener` on State's ValueTree.
  * `State::flush()` propagates atomic values to the ValueTree on the timer tick,
  * which notifies Display to repaint.
  *
  * ### Boundary contract
- * `State`, `uuid`, `video`, `parser`, and `events` are private.
- * The events map is private. Session registers handlers via setHostWriter(), setInputWriter(), and setTTY().
+ * `State`, `uuid`, `video`, `parser`, `tty`, and `events` are private.
  * External callers access state through the public getter API:
  * - `getState()` — mutable and const references (State is owned by Session).
  * - `getUuid()` — const reference to the stable session UUID.
- * - `setHostWriter()` — registers the `writeToHost` event handler.
- * - `setTTY()` — transfers TTY ownership; Processor calls setWinsize() directly.
+ * - `startTTY()` — creates and opens the platform TTY, wires data/writeInput/writeToHost events.
  * - `flushResponses()` — flushes queued device responses to the host.
+ * - `setBytesObserver()` — registers IPC byte broadcast handler wired by Daemon.
  *
  * ### Public surface
  * - **Input encoding** — `encodeKeyPress()`, `encodePaste()`, `encodeMouseEvent()`, `encodeFocusEvent()` (const, no side effects)
  * - **Output** — `process()` (called on the reader thread by the byte source)
- * - **Response flushing** — `flushResponses()` (reader thread; called by Session on drain-complete)
- * - **TTY ownership** — `setTTY()` transfers unique_ptr from Session; `setWinsize()` delegates to owned TTY
+ * - **Response flushing** — `flushResponses()` (reader thread; called by drain-complete event handler)
+ * - **TTY lifecycle** — `startTTY()` creates, wires, and opens the platform TTY; `setWinsize()` delegates to owned TTY
  *
  * @note Construct and destroy on the **message thread**.
  *
@@ -104,24 +108,20 @@ public:
      * Receives State& from Session and activeBlocksRef from Screen (via Session).
      * Constructs Video with the atomic blocks reference and Parser.
      * UUID is provided by the caller.
-     * Call `setHostWriter()` immediately after construction to route video
-     * responses (e.g. cursor-position reports) to the appropriate sink.
+     * Call `startTTY()` from Session::start() to create the platform TTY and
+     * route video responses (e.g. cursor-position reports) to the PTY sink.
      *
      * @param stateRef        Terminal parameter store — owned by terminal::Session.
      * @param activeBlocksRef Reference to Screen's atomic active-blocks pointer.
      *                        Video loads this once per process() via refreshBlocks().
      *                        Must outlive this Processor.
      * @param textBuffer      Cross-thread string buffer owned by terminal::Session.
-     * @param cols            Initial terminal column count.
-     * @param rows            Initial terminal row count.
      * @param uuid            Stable UUID for this Processor — generated once by the caller.
      * @note MESSAGE THREAD — must be constructed on the message thread.
      */
     Processor (State& stateRef,
                std::atomic<jam::Block<jam::Row>*>& activeBlocksRef,
                TextBuffer& textBuffer,
-               cell cols,
-               cell rows,
                const juce::String& uuid);
 
     /**
@@ -236,49 +236,62 @@ public:
     void flushResponses() noexcept;
 
     /**
-     * @brief Registers the `writeToHost` event handler in the events map.
+     * @brief Creates the platform TTY, adds shell env vars, wires callbacks, and opens the PTY.
      *
-     * Adds a handler under the `"writeToHost"` key so Video responses (DSR, DA,
-     * CPR, etc.) are forwarded to the caller's sink — local TTY write or IPC
-     * output.  Must be called by the owner before bytes start flowing.
+     * Called by Session::start() after Display/Screen are created and grafted.
+     * Creates the platform-specific TTY (UnixTTY/WindowsTTY) with the shared events map,
+     * adds all shell integration env vars, wires onData for byte delivery and
+     * writeInput/writeToHost events for PTY stdin/response routing, then calls open().
      *
-     * @param writer  Callback invoked with `(const char* data, int len)` on the
-     *                reader thread whenever Video produces a response.
-     * @note MESSAGE THREAD — call before the first `process()` invocation.
+     * No-op in remote (no-TTY) mode — Session::start() is never called for remote sessions.
+     *
+     * @param shell   Shell program path (e.g. "zsh", "/usr/bin/fish").
+     * @param args    Shell arguments string.  Empty = none.
+     * @param cwd     Initial working directory.  Empty = inherit.
+     * @param env     Shell integration environment variable pairs.
+     * @param cols    Initial terminal width in character columns.
+     * @param rows    Initial terminal height in character rows.
+     * @note MESSAGE THREAD — called from Session::start().
      */
-    void setHostWriter (std::function<void (const char*, int)> writer) noexcept;
+    void startTTY (const juce::String& shell,
+                   const juce::String& args,
+                   const juce::String& cwd,
+                   const juce::StringPairArray& env,
+                   cell cols,
+                   cell rows) noexcept;
 
-    /**
-     * @brief Transfers TTY ownership to this Processor.
+    /** @brief Registers an observer callback that receives raw PTY bytes on the reader thread.
      *
-     * Called by Session after wiring all TTY callbacks but before the reader
-     * thread starts producing bytes.  After this call, Processor calls
-     * tty->setWinsize() from setWinsize().
+     *  Called by nexus::Daemon::wireOnBytes() in daemon mode to wire IPC byte broadcast.
+     *  The handler is stored in the events map under id::bytesReceived.
+     *  No-op for sessions that have no byte observers.
      *
-     * @param ttyToOwn  TTY unique_ptr to take ownership of.
-     * @note MESSAGE THREAD.
+     *  @param handler  Callback invoked with (const char* bytes, int len).
+     *  @note MESSAGE THREAD — call before the first bytes arrive.
      */
-    void setTTY (std::unique_ptr<TTY> ttyToOwn) noexcept;
+    void setBytesObserver (std::function<void (const char*, int)> handler) noexcept;
 
     /**
      * @brief Performs the OS-level PTY resize (SIGWINCH to shell).
      *
      * Delegates to tty->setWinsize() when a TTY is owned and its thread is
-     * running.  Called from Session::onDrainComplete for the sync-resize path.
+     * running.  Called from the drainComplete event handler for the sync-resize path.
      * No-op if no TTY is owned.
      *
      * @param cols        New column count.
      * @param rows        New row count.
      * @param pixelWidth  Total viewport width in physical pixels (0 if unknown).
      * @param pixelHeight Total viewport height in physical pixels (0 if unknown).
-     * @note READER THREAD (called from tty->onDrainComplete during sync-resize).
+     * @note READER THREAD (called from the drainComplete event handler during sync-resize).
      */
     void setWinsize (cell cols, cell rows, int pixelWidth = 0, int pixelHeight = 0) noexcept;
 
-    /** @brief Writes raw input bytes to the PTY via the registered handler.
+    /** @brief Writes raw input bytes to the PTY via the writeInput event handler.
      *
      *  Display and Input call this instead of touching events directly.
-     *  Forwards to the writeInput handler registered by Session.
+     *  Forwards to the writeInput event handler wired in startTTY() (PTY mode)
+     *  or setInputWriter() (remote/IPC mode).
+     *  No-op when writeInput is not registered.
      *
      *  @param data  Raw byte buffer.
      *  @param len   Number of bytes.
@@ -288,8 +301,9 @@ public:
 
     /** @brief Registers the handler invoked by writeInput().
      *
-     *  Session calls this to wire PTY stdin. The handler receives raw bytes
-     *  to be written to the PTY.
+     *  Called by Link for remote (IPC-connected) sessions to route keyboard/mouse
+     *  input through the IPC connection instead of a local TTY.
+     *  startTTY() registers this handler internally for PTY sessions.
      *
      *  @param handler  Callback invoked with (const char* data, int len).
      *  @note MESSAGE THREAD — call before the first writeInput() invocation.
@@ -306,7 +320,7 @@ private:
      *  Transient — only true during resize. */
     bool suspended { false };
 
-    /** @brief Owned PTY — transferred from Session via setTTY().  Null in IPC client mode. */
+    /** @brief Owned PTY — created by startTTY().  Null in IPC client mode (remote sessions). */
     std::unique_ptr<TTY> tty;
 
     /** @brief Cross-thread string buffer — owned by terminal::Session. */
@@ -322,7 +336,7 @@ private:
      *  - `id::imageDecoded`        — see Video::onImageDecoded signature — reader thread
      *  - `id::previewFile`         — `(const juce::String&, int, int, int, int)` — reader thread
      *  - `id::registerLink`        — `(const juce::String& uri, const juce::String& params)` — OSC 8 open
-     *  - `id::writeInput`          — `(const char*, int)` — PTY stdin; wired via setInputWriter()
+     *  - `id::writeInput`          — `(const char*, int)` — PTY stdin; wired internally by startTTY() or via setInputWriter() for remote sessions
      *  - `id::bell`                — `()` — BEL 0x07; writes `\a` to stderr; message thread
      *  - `id::clipboardChanged`    — `(const juce::String&)` — OSC 52 clipboard write; message thread
      *  - `id::desktopNotification` — `(const juce::String& title, const juce::String& body)` — OSC 9/777; message thread

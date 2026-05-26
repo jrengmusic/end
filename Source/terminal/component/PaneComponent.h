@@ -80,15 +80,6 @@ public:
     /** @brief Returns true if there is an active text selection. @note MESSAGE THREAD. */
     virtual bool hasSelection() const noexcept = 0;
 
-    /**
-     * @brief Callback invoked after rendering to trigger a repaint.
-     *
-     * Set by Panes/Tabs (which receives it from MainComponent).
-     *
-     * @note MESSAGE THREAD.
-     */
-    std::function<void()> onRepaintNeeded;
-
 private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaneComponent)
 };

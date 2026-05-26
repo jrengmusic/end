@@ -99,11 +99,11 @@ public:
     /**
      * @brief Rebuilds actions, applies config to tabs, LookAndFeel, and orientation.
      *
-     * Called by `lua::Engine::onReload` (wired in Main.cpp) after the engine reloads
-     * `end.lua`.  Also called once from the constructor for initial setup.
+     * Called after the engine reloads `end.lua` — signaled via `app::id::configGeneration`
+     * property change on AppState.  Also called once from the constructor for initial setup.
      *
      * @note MESSAGE THREAD.
-     * @see lua::Engine::onReload
+     * @see app::id::configGeneration
      */
     void applyConfig();
 

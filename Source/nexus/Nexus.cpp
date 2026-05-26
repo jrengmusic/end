@@ -164,7 +164,6 @@ void Nexus::remove (const juce::String& uuid)
         events.removeChild (node, nullptr);
 
     sessions.erase (uuid);
-    fireIfAllExited();
 }
 
 /**
@@ -211,19 +210,6 @@ juce::StringArray Nexus::list() const
         uuids.add (pair.first);
 
     return uuids;
-}
-
-// =============================================================================
-
-/**
- * @brief Fires onAllSessionsExited if the sessions map is now empty.
- *
- * @note NEXUS PROCESS MESSAGE THREAD.
- */
-void Nexus::fireIfAllExited() noexcept
-{
-    if (sessions.empty() and onAllSessionsExited != nullptr)
-        onAllSessionsExited();
 }
 
 /**______________________________END OF FILE___________________________________*/

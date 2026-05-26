@@ -65,7 +65,7 @@ struct CursorState
  * @par Usage Pattern
  * @code
  * ValueTree session = state.getOrCreateChildWithName(id::SESSION, nullptr);
- * session.setProperty(id::viewport, jam::Bounds{80, 24}.pack(), nullptr);
+ * session.setProperty(id::cwd, "/home/user", nullptr);
  * @endcode
  *
  * @see State.h for the complete state model
@@ -127,11 +127,6 @@ namespace id
 
     /** @brief Active screen index (which screen is currently visible). */
     static const juce::Identifier activeScreen   { "activeScreen" };
-
-    /** @brief Packed viewport size — width (cols) in high 16 bits, height (rows) in low 16 bits.
-     *         Pack: jam::Bounds::pack(). Unpack: jam::Bounds::unpack(). */
-    static const juce::Identifier viewport       { "viewport" };
-
 
     /** @brief Logical cell width in pixels. SSOT for all cell metric consumers. */
     static const juce::Identifier cellWidth      { "cellWidth" };
@@ -357,6 +352,10 @@ namespace id
     /** @brief Fired when the child shell process exits — no arguments. */
     static const juce::Identifier shellExited         { "shellExited" };
 
+    /** @brief Fired on the reader thread after a full PTY drain — no arguments.
+     *  Processor handler flushes responses, clears paste gate, and handles sync resize. */
+    static const juce::Identifier drainComplete       { "drainComplete" };
+
     /** @brief Fired to route user input bytes (keyboard, mouse) to the PTY — args: const char*, int. */
     static const juce::Identifier writeInput          { "writeInput" };
 
@@ -392,6 +391,14 @@ namespace id
      *  Fired from Display::resized() via Screen's DST on the MESSAGE THREAD.
      */
     static const juce::Identifier resizeStart           { "resizeStart" };
+
+    /** @brief Fired on the reader thread for each chunk of PTY output data — args: const char*, int.
+     *  Registered by Processor::registerEvents(); handler acquires callbackLock and calls process(). */
+    static const juce::Identifier data                  { "data" };
+
+    /** @brief Fired on the reader thread for each data chunk for IPC byte broadcast — args: const char*, int.
+     *  Registered externally via Processor::setBytesObserver() in daemon mode. */
+    static const juce::Identifier bytesReceived         { "bytesReceived" };
 
 /**______________________________END OF NAMESPACE______________________________*/
 } // namespace id

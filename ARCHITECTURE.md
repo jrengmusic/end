@@ -4,7 +4,7 @@
 
 **Status:** STABLE
 
-**Last Updated:** 2026-05-24 (Sprint 31: Flexbox reflow — Screen pure renderer (no DST, no reflow), Processor owns smoothResizer (DiscreteStateTransition), Display pure pixel-bounds setter, resize path via Screen::onCellChanged → viewport State → Processor vTPC → smoothResizer → prepare() + setWinsize() → SIGWINCH, CursorState packed struct, Bounds::pack/unpack/isValid, jam_fonts → jam_graphics/fonts/.)
+**Last Updated:** 2026-05-26 (Sprint 32: Clean sweep — Session owns DST resizer (wireResizer() extracted from both constructors), Screen owns double-buffered Buffer<Row> + atomic activeBlocks, Processor owns TTY (startTTY), DST start/stop triggers on Session not Processor, History removed, Display has no smoothResizer/Screen member, Daemon uses setBytesObserver not onBytesReceived, Nexus quit via valueTreeChildRemoved not onAllSessionsExited, config reload via configGeneration property not onReload callback, diagnostic logging removed)
 
 ---
 
@@ -92,7 +92,7 @@ Source/
     CharPropsData.h                 Character property lookup table
     Charset.h                       Character set tables (G0/G1)
     DispatchTable.h                 VT state machine transition table
-    History.h/cpp                   Ring buffer of raw PTY bytes (for daemon snapshot/restore)
+    // History.h/cpp removed — byte replay deferred (DEBT-20260526T220000)
     Identifier.h                    ValueTree IDs + Identifier hash (terminal::id namespace)
     ImageDecode.h/cpp               Platform-independent BGRA→RGBA swizzle + ImageSequence struct
     ImageDecodeGif.h                GIF binary metadata parser (static, shared by platform TUs)
@@ -114,9 +114,9 @@ Source/
     Parameter.h                     APVTS-style parameter slot type
     Parser.h/cpp                    VT state machine + byte stream decoder
     ParserAction.cpp                Parser action dispatch
-    Processor.h/cpp                 Pipeline orchestrator: owns Parser, Video, smoothResizer (DiscreteStateTransition<Row>); references Buffer<Row> and State; exposes prepare() (cold-path alloc, reads viewport from State), suspendProcessing(), isSuspended(), getCallbackLock() (JUCE AudioProcessor pattern); setWinsize() fires SIGWINCH via onStop
+    Processor.h/cpp                 Pipeline orchestrator: owns Parser, Video, TTY (created by startTTY()); references Buffer<Row> and State received from Session; exposes suspendProcessing(), isSuspended(), getCallbackLock() (JUCE AudioProcessor pattern); setWinsize() fires SIGWINCH; no smoothResizer (DST owned by Session)
     Map.h                           terminal::Map — jam::Map::Bool, jam::Map::Screen, jam::Map::Gpu typed map instances
-    Session.h/cpp                   PTY orchestrator: owns TTY + History + Buffer<Row>; Processor owns State, Video
+    Session.h/cpp                   PTY orchestrator: owns Screen + Processor (unique_ptr) + DST resizer (unique_ptr); Screen owns Buffer<Row>; Processor owns TTY (via startTTY); Session is Value::Listener for winsize; wireResizer() called from both constructors
     SixelDecoder.h/cpp              Sixel graphics protocol decoder
     SixelDecoderParse.cpp           Sixel decode internals
     Skit.h/cpp                      SKiT (Sixel/Kitty/iTerm2) unified preview protocol entry point
@@ -144,7 +144,7 @@ Source/
 
     component/                      UI hosting layer (Display, Screen, Overlay, Panes, Tabs, LookAndFeel)
       Dialog.h/cpp                  Modal dialog component
-      Display.h/cpp                 terminal::Display — UI host, timer-driven render; delegates to Input + Mouse; resized() sets screen.setBounds(contentBounds) and writes pixel dims to State; does NOT wire DST trigger/onStop
+      Display.h/cpp                 terminal::Display — UI host, timer-driven render; delegates to Input + Mouse; resized() sets screen.setBounds(contentBounds) and writes pixel dims to State; no smoothResizer, no Screen member (Screen owned by Session); Display parents Screen via addAndMakeVisible; owns NORMAL/ALTERNATE screen nodes
       LoaderOverlay.h               Loading spinner overlay (used by whelmed::Component)
       LookAndFeel.h/cpp             Custom LookAndFeel: tab styling, popup menu, colour system
       LookAndFeelMenu.cpp           Menu LookAndFeel overrides
@@ -156,7 +156,7 @@ Source/
       Panes.h/cpp                   Per-tab pane container, owns Owner<PaneComponent> and PaneResizerBars
       Panes.cpp                     Panes implementation
       Popup.h/cpp                   Popup terminal component
-      Screen.h/cpp                  terminal::Screen — IS jam::TextEditor (inherits directly); pure stateless renderer; reads Buffer<Row> via Block<Row> constructor, calls setText(Block<Row>) on itself; computes viewport dims via onCellChanged callback → writes packed id::viewport to State; no DST, no reflow, no reflowedContent/reflowLock; grafts only its TextEditor state node; no node creation or ownership
+      Screen.h/cpp                  terminal::Screen — IS jam::TextEditor (inherits directly); owns double-buffered Buffer<Row> (buffers[2]) and blockSets[2] + atomic activeBlocks pointer; sole author of viewport dims via TextEditor::updateWinsize(); on resize: resizeBuffers() allocates nextIndex, copies content, swaps activeBlocks; grafts only its TextEditor state node; no node creation or ownership
       ScreenSelection.h             Selection anchor/end, contains() hit test, inversion rendering
       StatusBarOverlay.h            Overlay that listens to TABS subtree for modal/selection state display
       Tabs.h/cpp                    terminal::Tabs — tab container, manages one Panes instance per tab
@@ -224,7 +224,7 @@ Source/
 
 Data flow mode (standalone, daemon, client) is determined at runtime by `setMode(Mode)`:
 
-- **`Mode::standalone`** — no IPC. Sessions fire exit signal via State shellExited parameter → `Panes::valueTreePropertyChanged` → `callAsync` → `Panes::closePane` → `Nexus::remove`. When the last session exits, `onAllSessionsExited` is called.
+- **`Mode::standalone`** — no IPC. Sessions fire exit signal via State shellExited parameter → `Panes::valueTreePropertyChanged` → `callAsync` → `Panes::closePane` → `Nexus::remove`. When the last session exits, `ENDApplication` detects removal via `valueTreeChildRemoved` on `Nexus::events` and initiates quit.
 - **`Mode::daemon`** — `nexus::Daemon` registers as a `juce::ValueTree::Listener` on `Nexus::events`. When `Nexus::create` fires a child-added event, Daemon wires IPC broadcast callbacks on the new session.
 - **`Mode::client`** — `nexus::Link` registers on `Nexus::events`. When `Nexus::create` fires a child-added event for a remote session, Link sends a `createSession` PDU to the daemon.
 
@@ -274,38 +274,36 @@ The `nexus` namespace contains the TCP-based IPC transport between a daemon proc
 
 ### Daemon Session Callback Wiring
 
-`nexus::Daemon` observes `Nexus::events` via `juce::ValueTree::Listener`. On `valueTreeChildAdded`, it calls `wireSessionCallbacks(uuid, session)` to install three callbacks:
+`nexus::Daemon` observes `Nexus::events` via `juce::ValueTree::Listener`. On `valueTreeChildAdded`, it calls `wireSessionCallbacks(uuid, session)` to install two callbacks:
 
-- `wireOnBytes` — wires `session.onBytes` to broadcast `nexus::Message::output` to per-session subscribers. Runs on the reader thread; acquires `connectionsLock`.
-- `wireOnStateFlush` — wires `session.getProcessor().onStateFlush` to broadcast `nexus::Message::stateUpdate` (cwd + foreground process). Fires on the message thread via Processor::valueTreePropertyChanged; suppresses redundant broadcasts via shared-ptr captured previous values.
-- `wireOnExit` — wires shell exit detection via State ValueTree listener to broadcast `nexus::Message::sessionKilled`, schedule async `Nexus::remove`, re-broadcast sessions list, and fire `onAllSessionsExited` if empty.
+- `wireOnBytes` — calls `session.getProcessor().setBytesObserver` to broadcast `nexus::Message::output` to per-session subscribers. Runs on the reader thread; acquires `connectionsLock`.
+- `wireOnExit` — registers Daemon as VT listener on session State; on shell exit broadcasts `nexus::Message::sessionKilled`, schedules async `Nexus::remove`, and re-broadcasts the sessions list. App quit on last session removal is handled by `ENDApplication::valueTreeChildRemoved` on `Nexus::events`.
+
+State updates (cwd, foregroundProcess) are broadcast from `Daemon::valueTreePropertyChanged` — Daemon listens to each session's State ValueTree directly. No separate `wireOnStateFlush` callback.
 
 ### Snapshot Restore on Client Attach
 
-When a GUI client sends `createSession` for an existing UUID, `nexus::Daemon::attachSession` sends the current byte history as `nexus::Message::loading`, then registers the client as a subscriber. The lock is held across both operations to prevent the reader thread's `onBytes` broadcast from interleaving between history send and subscriber registration.
-
-```
-Daemon:  terminal::Session::snapshotHistory() → nexus::Message::loading → nexus::Link
-Link:    handleLoading → terminal::Session::process → Processor → Buffer<Row> → terminal::Display
-```
+When a GUI client sends `createSession` for an existing UUID, `nexus::Daemon::attachSession` registers the client as a subscriber. Byte replay (sending `nexus::Message::loading` from a history snapshot) is deferred — DEBT-20260526T220000. The lock is held across subscriber registration to prevent interleaving with the reader thread's output broadcast.
 
 ### Byte-Forward Flow (Live)
 
 ```
-Daemon:  PTY → Session::onBytes → nexus::Message::output → nexus::Daemon::Channel → nexus::Link
+Daemon:  PTY → Processor::events[id::data] → setBytesObserver → nexus::Message::output → nexus::Daemon::Channel → nexus::Link
 Link:    handleOutput → terminal::Session::process → Processor → Buffer<Row> → terminal::Display
 
 Standalone:
-         PTY → Session::onBytes → Processor::process → Buffer<Row> → terminal::Display
+         PTY → Processor::events[id::data] → Processor::process → Buffer<Row> → terminal::Display
 ```
 
 ### terminal::Session
 
 `terminal::Session` is the singular owner of one terminal instance. It holds:
-- `unique_ptr<tty::TTY>` — the platform PTY (null in client mode). Ownership transferred to Processor after callback wiring.
-- `History` — ring buffer of raw PTY bytes.
-- `jam::Buffer<jam::Cell>` — the terminal cell buffer (owned by Session, referenced by Processor).
-- `unique_ptr<terminal::Processor>` — Parser + Video + State pipeline.
+- `terminal::Screen screen` — value member (not pointer); owns double-buffered `jam::Buffer<Row>` and atomic `activeBlocks` pointer. Screen always exists regardless of whether Display is attached.
+- `unique_ptr<terminal::Processor>` — Parser + Video + TTY pipeline. Processor owns the TTY created by `startTTY()`.
+- `unique_ptr<jam::DiscreteStateTransition<Row>> resizer` — DST resize coordinator. Wired in `wireResizer()`, called from both constructors.
+- `juce::Value winsize` — bound to TextEditor's viewport property in State; fires `valueChanged` when cell dimensions change.
+
+No `History` — byte replay deferred (DEBT-20260526T220000).
 
 **Factory — two overloads:**
 
@@ -321,25 +319,12 @@ static unique_ptr<Session> create(cols, rows, cwd, shell, uuid);
 
 | Method | Purpose |
 |--------|---------|
-| `start()` | Defers TTY open until Display/Screen are in component hierarchy; called after grafting |
+| `start()` | Calls `processor->setWinsize()` then `processor->startTTY()` — deferred until after Display/Screen are in component hierarchy |
 | `process(data, len)` | Feed raw bytes from daemon IPC into the Processor |
-| `sendInput(data, len)` | Write raw bytes to PTY stdin |
-| `getStateInformation(block)` | Serialize Processor state for daemon → GUI sync (stubbed) |
-| `setStateInformation(data, size)` | Restore Processor state from daemon snapshot (stubbed) |
+| `getStateInformation(block)` | Stubbed — state serialization pending (DEBT-20260526T220000) |
+| `setStateInformation(data, size)` | Stubbed — state serialization pending |
 | `getProcessor()` | Returns the owned `terminal::Processor` |
-| `snapshotHistory()` | Returns a `MemoryBlock` of buffered PTY output (for `nexus::Message::loading`) |
-
-**Callbacks (set by Nexus or IPC layer):**
-
-| Callback | Thread | Purpose |
-|----------|--------|---------|
-| `onBytes` | Reader | PTY output chunk — broadcast in daemon mode, process locally in standalone |
-
-**Processor callbacks (set on Processor, not Session):**
-
-| Callback | Thread | Purpose |
-|----------|--------|---------|
-| `onStateFlush` | Message | cwd + foreground process updated via Processor::valueTreePropertyChanged — daemon mode broadcasts `stateUpdate` |
+| `getScreen()` | Returns the owned `terminal::Screen` (Display calls `addAndMakeVisible(session.getScreen())`) |
 
 ### Windows Job Object (Cascade-Kill)
 
@@ -368,7 +353,7 @@ static unique_ptr<Session> create(cols, rows, cwd, shell, uuid);
  Terminal / Data (State/Buffer<Row>)                   pure types, atomic storage, timer flush
     |
     v
- Terminal / Component (terminal::Screen/Display)         Screen is pure renderer — reads Buffer<Row> via Block, writes packed viewport to State via onCellChanged; Processor owns DST (smoothResizer) — triggered by vTPC on viewport change; Display only sets pixel bounds in resized()
+ Terminal / Component (terminal::Screen/Display)         Screen owns double-buffered Buffer<Row> + atomic activeBlocks; writes packed viewport to State via valueTreePropertyChanged; Session owns DST (resizer) — start trigger suspends processing, stop trigger calls resizeBuffers + setWinsize; Display parents Screen via addAndMakeVisible, sets pixel bounds in resized()
     |
     v
  Terminal / TTY (platform)                     reader thread feeds raw bytes to Processor
@@ -401,10 +386,10 @@ ValueTree is the SSOT for all scalar state. `State::flush()` copies dirty atomic
 **Bulk data** — cell content (25,000+ entries at 5K fullscreen, updated every frame). High-volume, consumed by render path.
 
 ```
-READER → jam::Buffer<jam::Cell> (owned by Session) → timer flush → MESSAGE reads via Block<Row> constructor
+READER → jam::Buffer<jam::Row> (owned by Screen) → timer flush → MESSAGE reads via Block<Row> constructor
 ```
 
-Session owns `jam::Buffer<jam::Cell>` (2 channels, ring-indexed via per-channel `head` positions; ring addressing uses `% numRows` — any size, no power-of-two requirement; head preserved on resize, reset only on first allocation). `terminal::Screen` reads directly from `buffer` via the `Block<Row>` constructor — a non-owning view with no copy. During `smoothResizer` transition, `smoothResizer.previous` snapshot preserves content. `suspendProcessing()` / `callbackLock` gate the reader thread during resize. No dirty tracking on Buffer — render trigger is timer flush. No VBlank polling. No `dirtyRows` bitmask.
+`terminal::Screen` owns `jam::Buffer<jam::Row>` — dual channel (buffers[2]), ring-indexed via per-channel head positions; ring addressing uses `% numRows` (any size, no power-of-two). Screen exposes `getActiveBlocksRef()` (atomic pointer) for Video to load via `refreshBlocks()` at the top of each `process()` batch. On resize: `resizeBuffers()` allocates the inactive buffer slot, copies content in ring order (oldest first), constructs new Block views, swaps `activeBlocks` atomically, updates `activeIndex`. DST start trigger (owned by Session) calls `processor->suspendProcessing(true)` before resize; stop trigger calls `resizeBuffers` + `processor->setWinsize`. `callbackLock` gates the reader thread during resize. No dirty tracking on Buffer — render trigger is timer flush. No VBlank polling. No `dirtyRows` bitmask.
 
 **Classification rule:** if the data is one-per-cell (O(rows × cols)), it is bulk → `jam::Buffer<jam::Cell>` (owned by Session). If the data is sparse/scalar (O(1) or O(small N)), it is scalar → State ValueTree.
 
@@ -443,11 +428,11 @@ Preview is a Display-side concern. The READER thread writes a filepath + trigger
 - Display destructor removes screen nodes
 
 **Resize path:**
-- Display::resized() → `screen.setBounds(contentBounds)` → Screen::onCellChanged fires → writes packed `id::viewport` to State
-- Processor::vTPC fires on `id::viewport` change → `smoothResizer.set(newViewport)` triggers DST
-- DST trigger → `Processor::prepare()` (buffer.setSize + video.setWinsize, reads viewport from State, cold-path allocation)
-- DST onStop → `Processor::setWinsize()` → SIGWINCH to shell
-- During transition: `smoothResizer.previous` snapshot preserves content; `suspendProcessing()` / `callbackLock` gate the reader thread
+- Display::resized() → `screen.setBounds(contentBounds)` → Screen writes packed `id::viewport` to State via `updateWinsize()`
+- Session::valueChanged (Value::Listener on winsize property) fires → calls `resizer->set(jam::ID::start, cols, rows)`
+- DST start trigger → `processor->suspendProcessing(true)`
+- DST stop trigger → `screen.resizeBuffers(newRingSize, newCols, writePositions)` + `processor->setWinsize(cols, rows)` → SIGWINCH to shell
+- `suspendProcessing()` / `callbackLock` gate the reader thread during resize
 
 **Panes/Tabs -> Nexus (session lifecycle):**
 - `terminal::Panes::createTerminal(cwd)` calls `Nexus::getContext()->create(cwd, uuid, cols, rows)` — mode-routing entry point
@@ -526,11 +511,11 @@ Viewport is stored as a packed `Bounds` integer in `id::viewport` on State. Curs
 
 ### Pattern: AudioProcessor-Analogous Processor Lifecycle
 
-**Used for:** Safe cold-path allocation and reader-thread suspension during resize.
+**Used for:** Safe reader-thread suspension during resize.
 
-**Implementation:** `terminal/Processor.h/cpp`
+**Implementation:** `terminal/Processor.h/cpp`, `terminal/Session.h/cpp`
 
-Mirrors JUCE AudioProcessor: `prepare()` = `prepareToPlay` (cold-path buffer allocation, reads viewport from State, called when smoothResizer triggers); `suspendProcessing()` / `isSuspended()` = AudioProcessor suspend pattern; `getCallbackLock()` = critical section guarding the reader thread during resize. `setWinsize()` is the single resize API (replaces the former `platformResize()`/`finishResize()` split), called from DST onStop to deliver SIGWINCH.
+Mirrors JUCE AudioProcessor: `suspendProcessing()` / `isSuspended()` = AudioProcessor suspend pattern; `getCallbackLock()` = critical section guarding the reader thread during resize. `setWinsize()` is the single resize API — delivers SIGWINCH to shell. Buffer resize (cold-path allocation) is performed by `Screen::resizeBuffers()`, called from the DST stop trigger on Session. No `prepare()` method — Processor does not own the buffer.
 
 WINDOW-subtree properties `app::id::fontFamily` and `app::id::fontSize` drive font changes. A `ValueTree::Listener` on the WINDOW subtree detects changes, applies `fontFamily`/`fontSize` to `Typeface`, then calls `AppState::markAtlasDirty()`. `AppState::atlasDirty` is a `Parameter<int>` using `storeRelease`/`exchangeAcquire`. Consumer: message thread calls `consumeAtlasDirty()` to detect font/size changes before the next paint cycle, then calls `jam::Typeface::setAtlasSize()` to clear and rebuild the atlas.
 
@@ -581,7 +566,7 @@ Config values flow unidirectionally: `lua::Engine` → `AppState` → reactive l
 1. **Init:** `AppState` constructor reads `lua::Engine::getContext()` and seeds all config PARAMs (fontFamily, fontSize, cellWidth, lineHeight, cursorCodepoint, cursorStyle, cursorBlinkInterval, scrollbackLines, paddingTop/Right/Bottom/Left).
 2. **Hot reload:** `MainComponent::applyConfig()` writes updated values to `AppState` via typed setters. No downstream cascade — listeners react automatically.
 3. **Distribution:** `terminal::Display` and `whelmed::Component` register as `juce::ValueTree::Listener` on `AppState::getContext()->get()`. On any property change, they re-apply config to their owned components (Screen, Mouse, Input, attachment).
-4. **Atomic reads:** `Processor` and `History` read `scrollbackLines` directly from AppState's atomic Parameter via `getRawParameterValue<int>(app::id::scrollbackLines)->load()` — lock-free, any thread. No member variable caching.
+4. **Atomic reads:** `Processor`, `Screen`, and `Session` read `scrollbackLines` directly from AppState's atomic Parameter via `getRawParameterValue<int>(app::id::scrollbackLines)->load()` — lock-free, any thread. No member variable caching.
 
 **Guarantee:** AppState is constructed by `ENDApplication` before any Session or Display exists. Config values are always available when components initialize. No init sequence issues.
 
@@ -843,9 +828,11 @@ Access: `setRGB()`, `setPalette()`, `setTheme()`, `paletteIndex()`
 
 ### Buffer<Row> Ring Buffer
 
-Dual channels (normal + alternate). `jam::Buffer<jam::Cell>` with ring-buffer row indexing via per-channel `head` positions + `ringMask`. `head` tracks the logical top row per channel. No dirty tracking on Buffer — no `dirtyRows` bitmask. No `linkIds` sidecar.
+Dual channels (normal + alternate). `jam::Buffer<jam::Row>` with ring-buffer row indexing via per-channel `head` positions. `head` tracks the logical top row per channel. No dirty tracking on Buffer — no `dirtyRows` bitmask. No `linkIds` sidecar.
 
-Buffer API: `Block<Row>` constructor from Buffer returns a non-owning view with no copy. `getWritePointer()` returns a mutable `jam::Row*` for the reader thread; cells accessed via `row->cells[col]`. Ring addressing uses `% numRows` (any size, no power-of-two). Head preserved on resize, reset only on first allocation. Resize is managed by `DiscreteStateTransition<Row>` (owned by Processor as `smoothResizer`) on the message thread via `prepare()`. Lossless reflow preserves history content across column changes.
+**Owned by `terminal::Screen`** (double-buffered: `buffers[2]`). Screen exposes `getActiveBlocksRef()` — an `std::atomic<Block<Row>*>` that Video loads via `refreshBlocks()` at the top of each `process()` batch.
+
+Buffer API: `Block<Row>` constructor from Buffer returns a non-owning view with no copy. `getWritePointer()` returns a mutable `jam::Row*` for the reader thread; cells accessed via `row->cells[col]`. Ring addressing uses `% numRows` (any size, no power-of-two). Head preserved on resize. Resize is managed by `Session::resizer` (`DiscreteStateTransition<Row>`) via `Screen::resizeBuffers()`. Lossless content preservation across column changes copies rows in ring order (oldest first).
 
 Video reads geometry via `state.getRawValue<int>(terminal::id::cols)` etc. (lock-free atomics).
 
@@ -1291,9 +1278,9 @@ Click-mode link underlines only render on OSC 133 output rows.
 | FontCollection | Flat int8_t[0x110000] codepoint-to-font-slot dispatch table, O(1) lookup |
 | GlyphConstraint | Per-codepoint NF icon scaling/alignment descriptor applied at rasterization time |
 | Grapheme | Multi-codepoint character cluster (e.g., flag emoji, combining marks) |
-| Buffer<Row> | `jam::Buffer<jam::Cell>` — ring-buffer storage for terminal cells, dual-channel (normal/alternate). Owned by Session, referenced by Processor. Ring addressing `% numRows` (any size). Head preserved on resize, reset only on first allocation. Pure text — no image flags |
-| DiscreteStateTransition | Resize lifecycle manager (in jam_core): coalesces resize events, captures snapshot before trigger, animates crossfade, fires onStop on completion. `DiscreteStateTransition<Row>` owned by Processor as `smoothResizer`. Triggered by Processor::vTPC on viewport State change; trigger calls `prepare()` (buffer.setSize + video.setWinsize); onStop calls `setWinsize()` (SIGWINCH). |
-| History | Ring buffer of raw PTY bytes owned by terminal::Session. Used for daemon snapshot/restore via snapshotHistory() |
+| Buffer<Row> | `jam::Buffer<jam::Row>` — ring-buffer storage for terminal cells, dual-channel (normal/alternate). Owned by `terminal::Screen` (double-buffered: `buffers[2]`). Ring addressing `% numRows` (any size). Head preserved on resize. Pure text — no image flags |
+| DiscreteStateTransition | Resize lifecycle manager (in jam_core): coalesces resize events, fires start/stop triggers. `DiscreteStateTransition<Row>` owned by Session as `resizer`. Start trigger calls `processor->suspendProcessing(true)`; stop trigger calls `screen.resizeBuffers()` + `processor->setWinsize()` (SIGWINCH). |
+| History | Removed. Byte replay deferred — DEBT-20260526T220000. |
 | Overlay | `jam::animation::Base` child of `terminal::Display`; ephemeral image preview. `jam::animation::Base` is `juce::Component + juce::Timer`. Owns `juce::Image` (static) or `std::vector<juce::Image>` frames. Renders via standard `paint()`. Created on demand by Display, destroyed by `dismissPreview()`. Side-by-side with Screen in Display::resized() |
 | handleSkitFilepath | Shared parser helper for SKiT (Sixel/Kitty/iTerm2) file preview protocol. Extracts filepath from `END;` marker, calls `onPreviewFile` callback |
 | CursorState | Packed struct for per-screen cursor save/restore. Carries cursor position, pen attributes, and origin mode. Used by Video via `setCursor(CursorState)` / `getCursor()` for DEC save/restore and screen switch. |
@@ -1309,12 +1296,12 @@ Click-mode link underlines only render on OSC 133 output rows.
 | PaneResizerBar | Draggable divider bar between split panes, paired with split tree nodes |
 | Panes | `terminal::Panes` — per-tab component owning `terminal::Display` instances and managing split layout via PaneManager |
 | Pen | Current text attributes (style + fg/bg color) applied to new cells |
-| Processor | Pipeline orchestrator: owns Parser, Video, `smoothResizer` (DiscreteStateTransition<Row>); references Buffer<Row> and State received from Session. Exposes `prepare()` (cold-path allocation, reads viewport from State), `suspendProcessing()`, `isSuspended()`, `getCallbackLock()`. `setWinsize()` is the single resize API — fires SIGWINCH via onStop. |
+| Processor | Pipeline orchestrator: owns Parser, Video, TTY (created by startTTY()); references Buffer<Row> (via activeBlocksRef from Screen) and State received from Session. Exposes `suspendProcessing()`, `isSuspended()`, `getCallbackLock()`. `setWinsize()` is the single resize API — fires SIGWINCH to shell. No smoothResizer (DST owned by Session). |
 | pwdValue | juce::Value in AppState bound via referTo to active terminal's cwd property |
 | Map::Screen | `jam::Map::Screen` — normal/alternate channel index map instance in `terminal::Map`; used for Buffer<Row> channel access. See also `Map::Bool` and `Map::Gpu`. Lives in `terminal/Map.h`. |
 | ScreenSelection | Anchor + end Point<int> pair for text selection; contains() for hit testing |
 | Skit | SKiT unified entry point for Sixel/Kitty/iTerm2 inline image preview protocol |
-| Snapshot | `smoothResizer.previous` — full Buffer<Row> copy captured before resize by Processor's `smoothResizer`; held alive until DST transition completes. |
+| Snapshot | Buffer<Row> content preserved during resize: `Screen::resizeBuffers()` copies rows in ring order (oldest first) from the active buffer to the inactive buffer before swapping. |
 | State | APVTS-style atomic + ValueTree bridge for cross-thread terminal state. Includes: OSC 133 shell integration tracking, paste echo gate, sync output (mode 2026), preview split-viewport, hints, modal type, snapshot dirty signal. Per-screen methods removed — callers use `storeValue`/`loadValue` (READER) or VT API (MESSAGE). |
 | Tabs | `terminal::Tabs` — TabbedComponent subclass; Value::Listener for tabName, manages Panes instances |
 | VBlank | Not currently implemented. Render trigger is timer-driven flush (60/120 Hz). |

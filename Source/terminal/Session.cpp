@@ -185,15 +185,11 @@ std::unique_ptr<Session> Session::create (const juce::String& cwd,
 }
 
 /**
- * @brief Constructs the Session, wires the TTY, and transfers TTY ownership to Processor.
- *        Does NOT open the shell — call start() after Display/Screen construction.
+ * @brief Constructs the Session and stores deferred TTY open parameters.
  *
- * History capacity is read from AppState (`app::id::scrollbackLines`) at construction.
- * The `onBytes` callback may be overridden by the owner (`Nexus` /
- * `nexus::Daemon`) after construction for daemon-mode byte broadcasting.
- * All TTY callbacks are wired before ownership is transferred to Processor via setTTY().
- * Open parameters are stored in startCols/startRows/startShell/startArgs/startCwd
- * for consumption by start().
+ * Creates Processor and Screen; stores shell/args/cwd/env for consumption by start().
+ * Does NOT create the TTY — that happens in start() via Processor::startTTY() so
+ * screen node atomics exist before the reader thread fires.
  *
  * @note MESSAGE THREAD.
  */
@@ -206,78 +202,14 @@ Session::Session (cell cols,
                   const juce::String& uuid)
     : textBuffer {}
     , state (textBuffer)
-    , history {}
     , screen (state, cols, rows)
 {
-#if JUCE_MAC || JUCE_LINUX
-    auto tty { std::make_unique<UnixTTY>() };
-#elif JUCE_WINDOWS
-    auto tty { std::make_unique<WindowsTTY>() };
-#endif
-
-    // Create Processor before wiring TTY callbacks so procRawPtr is valid in lambdas.
-    // State and Screen are fully constructed — pass references/pointers to Processor.
     const juce::String effectiveUuid { uuid.isNotEmpty() ? uuid : juce::Uuid().toString() };
-    processor = std::make_unique<terminal::Processor> (state, screen.getActiveBlocksRef(), textBuffer, cols, rows, effectiveUuid);
+    processor = std::make_unique<terminal::Processor> (state, screen.getActiveBlocksRef(), textBuffer, effectiveUuid);
     state.setId (effectiveUuid);
 
     // Resize coordinator — coalesces dimension changes, suspends/resumes processing.
-    resizer = std::make_unique<jam::DiscreteStateTransition<jam::Row>> (screen.getActiveBuffer());
-
-    resizer->addTrigger<int, int> (jam::ID::start,
-        [this] (int, int)
-        {
-            processor->suspendProcessing (true);
-        });
-
-    resizer->addTrigger<int, int> (jam::ID::stop,
-        [this] (int newCols, int newRows)
-        {
-            const int scrollbackLines { AppState::getContext()->getRawParameterValue<int> (app::id::scrollbackLines)->load() };
-            const int newRingSize { scrollbackLines + newRows };
-
-            std::array<int, 2> writePositions {};
-
-            for (int ch { 0 }; ch < 2; ++ch)
-            {
-                const juce::Identifier screenId { Map::Screen::getContext()->get (ch) };
-                const jam::WriteHead wh { jam::WriteHead::unpack (state.loadValue (screenId, id::writeHead)) };
-                writePositions.at (static_cast<size_t> (ch)) = wh.position;
-            }
-
-            const auto newWritePositions { screen.resizeBuffers (newRingSize, newCols, writePositions) };
-
-            for (int ch { 0 }; ch < 2; ++ch)
-            {
-                const juce::Identifier screenId { Map::Screen::getContext()->get (ch) };
-                const jam::WriteHead currentWH { jam::WriteHead::unpack (state.loadValue (screenId, id::writeHead)) };
-                const jam::WriteHead newWH { newWritePositions.at (static_cast<size_t> (ch)), currentWH.historyRows };
-                state.storeValue (screenId, id::writeHead, newWH.pack());
-            }
-
-            processor->suspendProcessing (false);
-            processor->setWinsize (cell (newCols), cell (newRows));
-        });
-
-    screen.onDimensionsChanged = [this] (cell newCols, cell newRows)
-    {
-        resizer->set (jam::ID::start, newCols.value, newRows.value);
-    };
-
-    terminal::Processor* procRawPtr { processor.get() };
-    TTY* ttyRawPtr { tty.get() };
-
-    ttyObserver = ttyRawPtr;
-
-    tty->onShellExited = [procRawPtr]
-    {
-        procRawPtr->getState().setShellExited (true);
-    };
-
-    const auto& keys { seedEnv.getAllKeys() };
-
-    for (const auto& key : keys)
-        tty->addShellEnv (key, seedEnv[key]);
+    wireResizer();
 
     // Store open parameters for start() — TTY open is deferred until after
     // Display/Screen are created so screen node atomics exist before the
@@ -287,49 +219,7 @@ Session::Session (cell cols,
     startShell = shell;
     startArgs  = args;
     startCwd   = cwd;
-
-    // 1. Parser responses (DSR, DA, CPR) → PTY stdin.
-    processor->setHostWriter ([ttyRawPtr] (const char* data, int len)
-    {
-        ttyRawPtr->write (data, len);
-    });
-
-    // 2. User input (keyboard, mouse) → PTY stdin.
-    processor->setInputWriter ([ttyRawPtr] (const char* data, int len)
-    {
-        ttyRawPtr->write (data, len);
-    });
-
-    // 3. PTY output → history + external onBytes + Processor (with resize lock).
-    tty->onData = [this, procRawPtr] (const char* bytes, int len)
-    {
-        history.append (bytes, static_cast<size_t> (len));
-
-        if (onBytes != nullptr)
-            onBytes (bytes, len);
-
-        {
-            const juce::ScopedLock sl (procRawPtr->getCallbackLock());
-
-            if (not procRawPtr->isSuspended())
-                procRawPtr->process (bytes, len);
-        }
-    };
-
-    // 4. Drain-complete: flush parser responses, clear paste gate, sync resize.
-    tty->onDrainComplete = [procRawPtr]
-    {
-        procRawPtr->flushResponses();
-        procRawPtr->getState().clearPasteEchoGate();
-
-        if (procRawPtr->getState().consumeSyncResize())
-            procRawPtr->setWinsize (
-                procRawPtr->getState().getCols(),
-                procRawPtr->getState().getVisibleRows());
-    };
-
-    // Transfer TTY ownership to Processor.
-    processor->setTTY (std::move (tty));
+    startEnv   = seedEnv;
 }
 
 /**
@@ -348,18 +238,32 @@ Session::Session (cell cols,
                   const juce::String& uuid)
     : textBuffer {}
     , state (textBuffer)
-    , history {}
     , screen (state, cols, rows)
 {
     jassert (cols.value > 0);
     jassert (rows.value > 0);
 
     const juce::String effectiveUuid { uuid.isNotEmpty() ? uuid : juce::Uuid().toString() };
-    processor = std::make_unique<terminal::Processor> (state, screen.getActiveBlocksRef(), textBuffer, cols, rows, effectiveUuid);
+    processor = std::make_unique<terminal::Processor> (state, screen.getActiveBlocksRef(), textBuffer, effectiveUuid);
     state.setId (effectiveUuid);
     state.get().setProperty (terminal::id::cwd, cwd, nullptr);
 
-    // Resize coordinator — same wiring as PTY constructor.
+    wireResizer();
+}
+
+/**
+ * @brief Wires DST trigger lambdas and Value::Listener binding.
+ *
+ * Called from both constructors after processor and screen are initialized.
+ * Extracts the duplicated wiring that both PTY and remote constructors require:
+ * - Creates the DST resizer bound to Screen's active buffer.
+ * - Registers start trigger (suspendProcessing) and stop trigger (resizeBuffers + setWinsize).
+ * - Binds winsize Value::Listener to TextEditor's viewport property in State.
+ *
+ * @note MESSAGE THREAD.
+ */
+void Session::wireResizer() noexcept
+{
     resizer = std::make_unique<jam::DiscreteStateTransition<jam::Row>> (screen.getActiveBuffer());
 
     resizer->addTrigger<int, int> (jam::ID::start,
@@ -397,10 +301,37 @@ Session::Session (cell cols,
             processor->setWinsize (cell (newCols), cell (newRows));
         });
 
-    screen.onDimensionsChanged = [this] (cell newCols, cell newRows)
+    // Bind winsize to TextEditor's state property — Value::Listener fires on change.
+    auto teNode { state.get().getChildWithName (jam::TextEditor::properties.at (jam::TextEditor::textEditorId)) };
+    winsize.referTo (teNode.getPropertyAsValue (jam::TextEditor::properties.at (jam::TextEditor::viewportId), nullptr));
+    winsize.addListener (this);
+}
+
+/**
+ * @brief Fires on the message thread when TextEditor's winsize property changes.
+ *
+ * Triggers the DST resizer when cell dimensions change, which coalesces
+ * rapid resize events and suspends processing during the buffer reallocation.
+ *
+ * @note MESSAGE THREAD — juce::Value::Listener fires on the message thread.
+ */
+void Session::valueChanged (juce::Value& value)
+{
+    if (value.refersToSameSourceAs (winsize))
     {
-        resizer->set (jam::ID::start, newCols.value, newRows.value);
-    };
+        const auto dims { jam::Bounds::unpack (static_cast<int> (winsize.getValue())) };
+
+        if (dims.isValid())
+        {
+            const int scrollbackLines { AppState::getContext()->getRawParameterValue<int> (app::id::scrollbackLines)->load() };
+            const int newRingSize { scrollbackLines + dims.height };
+            const int currentCols { screen.getActiveBuffer().getNumCols() };
+            const int currentRing { screen.getActiveBuffer().getNumRows() };
+
+            if (newRingSize != currentRing or dims.width != currentCols)
+                resizer->set (jam::ID::start, dims.width, dims.height);
+        }
+    }
 }
 
 /**
@@ -408,30 +339,6 @@ Session::Session (cell cols,
  * @note MESSAGE THREAD.
  */
 Session::~Session() { stop(); }
-
-/**
- * @brief Writes raw input bytes to the PTY.
- *
- * Delegates to the TTY via ttyObserver (non-owning pointer; Processor owns the TTY).
- *
- * @note MESSAGE THREAD.
- */
-void Session::sendInput (const char* data, int len)
-{
-    jassert (data != nullptr);
-    jassert (len > 0);
-
-    if (ttyObserver != nullptr)
-        ttyObserver->write (data, len);
-}
-
-
-/**
- * @brief Returns a snapshot of all buffered history bytes.
- *
- * @note MESSAGE THREAD.
- */
-juce::MemoryBlock Session::snapshotHistory() const { return history.snapshot(); }
 
 /**
  * @brief Factory overload — creates a Processor-only Session with no TTY.
@@ -516,9 +423,9 @@ terminal::Processor& Session::getProcessor() noexcept
 terminal::Screen& Session::getScreen() noexcept { return screen; }
 
 /**
- * @brief Opens the TTY and starts the reader thread.
+ * @brief Creates the TTY via Processor::startTTY and starts the reader thread.
  *
- * No-op for remote (no-TTY) sessions — ttyObserver is null.
+ * No-op for remote (no-TTY) sessions — startShell is empty.
  * Must be called after Display/Screen are created and their screen nodes
  * grafted into the ValueTree, so all screen node atomics exist before the
  * reader thread fires cursorRow or screenDirty events.
@@ -528,24 +435,17 @@ terminal::Screen& Session::getScreen() noexcept { return screen; }
 void Session::start() noexcept
 {
     processor->setWinsize (startCols, startRows);
-    jam::debug::Log::write ("Session::start cols=" + juce::String (startCols.value) + " rows=" + juce::String (startRows.value));
 
-    if (ttyObserver != nullptr)
+    if (startShell.isNotEmpty())
     {
-        ttyObserver->open (startCols, startRows, startShell, startArgs, startCwd);
-
-        // Force clear-screen on first prompt. Readline picks up this buffered byte when it
-        // initializes and fires its clear-screen widget, wiping any stale bytes from the
-        // resize chain and redrawing the prompt at the current PTY winsize.
-        const char clearScreen { '\x0c' };
-        ttyObserver->write (&clearScreen, 1);
+        processor->startTTY (startShell, startArgs, startCwd, startEnv, startCols, startRows);
     }
 }
 
 /**
  * @brief Closes the PTY and stops the reader thread.  Idempotent.
  *
- * Processor::~Processor() nulls TTY callbacks and calls tty->close() before
+ * Processor::~Processor() nulls onData and calls tty->close() before
  * the reader thread can fire any further callbacks.  This matches the previous
  * explicit teardown sequence, now encapsulated in the Processor destructor.
  * Remote sessions (no TTY) follow the same path — Processor destructs cleanly.
@@ -554,7 +454,6 @@ void Session::start() noexcept
  */
 void Session::stop()
 {
-    ttyObserver = nullptr;
     processor.reset();
 }
 

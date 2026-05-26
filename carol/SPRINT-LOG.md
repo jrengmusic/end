@@ -1,5 +1,98 @@
 # SPRINT-LOG
 
+## Sprint 35: Step 3 DST Resizer + APVTS Compliance + Callback Elimination ✅
+
+**Date:** 2026-05-26
+**Duration:** ~12:00
+
+### Agents Participated
+- COUNSELOR: architecture discussion, ownership model design, callback audit, delegation
+- Engineer: code implementation (cleanup, DST wiring, TTY ownership, callback elimination, macOS login wrapper, DA2 fix, docs)
+- Pathfinder: codebase discovery (event delivery, callback wiring, DA parsing path)
+- Auditor: full sweep (18 findings, all resolved)
+- Researcher: terminal startup research (Ghostty/Kitty/WezTerm), tmux DA handling, OMP UserName resolution
+- Librarian: OMP source, JUCE Viewport scrollbar API, END shell integration scripts
+
+### Files Modified (jam — 2 total)
+- `jam_gui/text_editor/jam_text_editor.h` — `viewportId` replaces `visibleWidthId`/`visibleHeightId`, `onResized` removed, `updateWinsize()` added
+- `jam_gui/text_editor/jam_text_editor.cpp` — `updateWinsize()` implementation (scrollbar-aware), `resized()`/`setFont()` call it, properties array updated
+
+### Files Modified (END — 30+ total)
+
+**Terminal layer:**
+- `Source/terminal/Identifier.h` — `CursorState` moved here from Video.h, `id::cursor`/`id::data`/`id::drainComplete`/`id::bytesReceived` added, `id::screenSwitch`/`id::viewport` removed
+- `Source/terminal/Parameters.xml` — cursor packed to single PARAM, viewport PARAM removed
+- `Source/terminal/Video.h` — `CursorState` removed (moved to Identifier.h), doc updated
+- `Source/terminal/Video.cpp` — `flush()` fires packed cursor + writeHead per screen every tick
+- `Source/terminal/VideoCSI.cpp` — DA2 fix: `case 'c'` checks `inter[0] == '>'` for secondary DA
+- `Source/terminal/Processor.h` — constructor sig (cols/rows removed), `setTTY`/`setHostWriter`/`onBytesReceived`/`onStateFlush` removed, `startTTY`/`setBytesObserver` added, platform TTY includes, class doc updated
+- `Source/terminal/Processor.cpp` — `registerEvents()`: packed cursor/writeHead/shellExited/drainComplete/data handlers. `startTTY()` impl. vTPC viewport handler removed. `setWinsize()` 0-arg removed. Destructor simplified.
+- `Source/terminal/State.h` — `getShellExitAtom()` removed
+- `Source/terminal/State.cpp` — `getShellExitAtom()` removed, `getCols()`/`getVisibleRows()` read from TextEditor child node
+- `Source/terminal/Session.h` — History/ttyObserver/onBytes/sendInput removed, `Value::Listener` added, `winsize`/`startEnv` members, `wireResizer()` extracted
+- `Source/terminal/Session.cpp` — TTY creation removed (Processor::startTTY), DST wired via `wireResizer()`, winsize Value::Listener, `\x0c` hack removed
+- `Source/terminal/History.h` — DELETED (orphaned)
+- `Source/terminal/History.cpp` — DELETED (orphaned)
+- `Source/terminal/Input.cpp` — cursor reads via `CursorState::unpack`
+- `Source/terminal/tty/TTY.h` — constructor takes `events&`, `onData`/`onShellExited`/`onDrainComplete` removed, `events` member
+- `Source/terminal/tty/TTY.cpp` — fires `id::data`/`id::drainComplete`/`id::shellExited` through events map
+- `Source/terminal/tty/UnixTTY.cpp` — macOS `/usr/bin/login -fqlp` wrapper for proper login session
+
+**Component layer:**
+- `Source/terminal/component/Screen.h` — `onCellChanged`/`onDimensionsChanged` removed, `getActiveBuffer()`/`resizeBuffers()` added
+- `Source/terminal/component/Screen.cpp` — `resizeBuffers()` impl (lossless ring copy), vTPC reads viewportId from TextEditor state
+- `Source/terminal/component/Display.h` — `onOpenMarkdown`/`onOpenImage` removed
+- `Source/terminal/component/Panes.h` — `onRepaintNeeded`/`onLastPaneClosed`/`onOpenMarkdown`/`onOpenImage` removed
+- `Source/terminal/component/Panes.cpp` — callback wiring removed, closePane guarded for last pane, paneManager.remove + resized guarded
+- `Source/terminal/component/PaneComponent.h` — `onRepaintNeeded` removed
+- `Source/terminal/component/Tabs.h` — `onRepaintNeeded` removed, `valueTreeChildRemoved`/`valueTreePropertyChanged` added
+- `Source/terminal/component/Tabs.cpp` — VT listener for last-pane-closed and pendingMarkdownFile/pendingImageFile
+
+**Nexus/App layer:**
+- `Source/nexus/Nexus.h` — `onAllSessionsExited` removed
+- `Source/nexus/Nexus.cpp` — `fireIfAllExited` removed
+- `Source/nexus/Daemon.h` — `onAllSessionsExited`/`wireOnStateFlush` removed
+- `Source/nexus/Daemon.cpp` — `wireOnStateFlush` removed, VT listener for foregroundProcess/cwd, `valueTreeChildRemoved` for quit, `wireOnBytes` uses `setBytesObserver`
+- `Source/nexus/Channel.cpp` — `sendInput`→`writeInput`, `viewport`→`viewportId`, `onAllSessionsExited` removed
+- `Source/nexus/Link.cpp` — `viewport`→`viewportId`
+- `Source/Main.cpp` — `onAllSessionsExited`/`onReload` wiring removed, VT listener on Nexus::events for quit
+- `Source/MainComponent.h` — stale `@see onReload` removed
+- `Source/MainComponent.cpp` — `configGeneration` detection in VT listener
+- `Source/AppIdentifier.h` — `configGeneration`/`pendingMarkdownFile`/`pendingImageFile` added
+- `Source/lua/Engine.h` — `onReload` removed
+- `Source/lua/Engine.cpp` — `reload()` writes `configGeneration` to AppState
+
+**Docs:**
+- `ARCHITECTURE.md` — comprehensive update (ownership, Session, Processor, TTY, resize path, glossary)
+- `PLAN-text-editor-reflow.md` — Steps 1+3 marked DONE
+- `DEBT.md` — added DEBT-20260526T220000
+
+### Alignment Check
+- [x] BLESSED principles followed — B (Bound): TTY owned by Processor, DST by Session, Buffer by Screen; L (Lean): wireResizer() extracted; E (Explicit): CursorState packed, viewportId single value; S (SSOT): TextEditor sole author of viewport, State SSOT for all cross-thread; S (Stateless): Screen purely downstream, no outbound signals; E (Encapsulation): no manual callbacks in pipeline, events map pattern throughout; D (Deterministic): DA1/DA2 correctly distinguished
+- [x] NAMES.md adhered — viewportId, updateWinsize, wireResizer, startTTY, setBytesObserver, configGeneration, pendingMarkdownFile, pendingImageFile
+- [x] MANIFESTO.md principles applied — no early returns, alternative tokens, brace init, .at() access
+
+### Problems Solved
+- **DST resize (Step 3)**: Session owns DST, coalescing 16ms timer, lossless content copy via ring-order per-channel resizeBuffers
+- **Callback elimination**: 15 std::function callbacks replaced with APVTS-compliant patterns (events map, VT listeners, Value::Listener, action registry)
+- **TTY ownership**: Processor creates TTY via startTTY(), fires shellExited/drainComplete/data through events map
+- **TextEditor sole author**: viewportId property written by updateWinsize(), Session binds via Value::Listener
+- **DA2 parsing bug**: CSI > c intermediate byte not recognized — tmux received two DA1 responses, second leaked as garbage
+- **macOS login session**: /usr/bin/login -fqlp wrapper provides getlogin(), $USER, $SHELL, .hushlogin handling
+- **\x0c startup hack**: removed — no terminal writes to PTY stdin at startup
+- **Scrollbar width**: updateWinsize uses actual scrollbar visibility, not always-deduct pattern
+- **Cursor torn reads**: three separate cursorRow/cursorCol/cursorVisible stores replaced by single packed CursorState atomic
+- **onStateFlush bypass**: Daemon listens to State VT directly for foregroundProcess/cwd
+- **History removed**: byte ring was daemon-only, redundant with Buffer<Row> scrollback
+
+### Debts Paid
+- `DEBT-20260521T120000` — tmux garbage bytes: DA2 query (`CSI > c`) misidentified as DA1, responding twice. Fixed intermediate byte `>` detection in VideoCSI.cpp.
+
+### Debts Deferred
+- `DEBT-20260526T220000` — daemon serialization (getStateInformation/setStateInformation) deferred until TextEditor pipeline fully working
+
+---
+
 ## Handoff to COUNSELOR: Step 3 DST Resizer Implementation
 
 **From:** COUNSELOR

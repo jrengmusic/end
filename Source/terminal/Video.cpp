@@ -179,7 +179,6 @@ int Video::getWritePosition (int screen) const noexcept
 
 void Video::flush() noexcept
 {
-    jam::debug::Log::write ("Video::flush scr=" + juce::String (int (activeScreen)) + " row=" + juce::String (cursorRow.value) + " col=" + juce::String (cursorCol.value));
     events.get (id::activeScreen, int (activeScreen));
 
     const CursorState cs { cursorRow.value, cursorCol.value, cursorVisible ? 1 : 0, 0 };

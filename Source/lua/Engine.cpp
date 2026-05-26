@@ -17,6 +17,7 @@
 
 #include "Engine.h"
 #include "../Map.h"
+#include "../AppState.h"
 
 namespace lua
 {
@@ -138,8 +139,15 @@ void Engine::reload()
 {
     load();
 
-    if (onReload != nullptr)
-        onReload();
+    // Increment configGeneration on the WINDOW node so MainComponent's VT listener
+    // detects the reload and calls applyConfig() + showReloadMessage().
+    // WINDOW is the node MainComponent already listens to for font/renderer changes.
+    if (AppState::getContext() != nullptr)
+    {
+        auto windowNode { AppState::getContext()->getWindow() };
+        const int current { static_cast<int> (windowNode.getProperty (app::id::configGeneration, 0)) };
+        windowNode.setProperty (app::id::configGeneration, current + 1, nullptr);
+    }
 }
 
 void Engine::setDisplayCallbacks (DisplayCallbacks callbacks) { displayCallbacks = std::move (callbacks); }

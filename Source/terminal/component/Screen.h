@@ -26,8 +26,9 @@ namespace terminal
  * Screen holds no scroll state. scrollOffset is read from State each flush.
  *
  * @see Screen.cpp
- * @see terminal::State         — SSOT for scrollOffset, activeScreen, visibleRows, writeHead
+ * @see terminal::State         — SSOT for scrollOffset, activeScreen, writeHead
  * @see jam::Buffer<jam::Row>   — row storage; Screen constructs Block view
+ * @see jam::TextEditor         — winsize property is the SSOT for terminal dimensions (cols/rows)
  */
 class Screen : public jam::TextEditor
 {
@@ -92,10 +93,6 @@ public:
      *  @note MESSAGE THREAD. */
     jam::Buffer<jam::Row>& getActiveBuffer() noexcept { return buffers[activeIndex]; }
 
-    /** @brief Callback fired when terminal dimensions (cols/rows) change.
-     *  Session wires this to the DST resizer. */
-    std::function<void (cell, cell)> onDimensionsChanged;
-
     /** @brief Resizes buffers with content preservation.
      *
      *  Allocates buffers[nextIndex] with new dimensions, copies all content from
@@ -134,38 +131,6 @@ private:
     static int getValue (const juce::ValueTree& valueTree, juce::Identifier Id) noexcept
     {
         return static_cast<int> (jam::ValueTree::getValueFromChildWithID (valueTree, Id).getValue());
-    }
-
-    std::function<void()> onCellChanged (State& stateMachine)
-    {
-        return [this, &stateMachine]
-        {
-            const int vw { getVisibleWidth() };
-            const int vh { getVisibleHeight() };
-            const auto gridRect { jam::Cell::Rectangle (font.bounds,
-                                                        juce::Rectangle<int> { 0, 0, vw, vh }) };
-            const jam::Bounds viewportSize { gridRect.getWidth().value, gridRect.getHeight().value };
-
-            jam::debug::Log::write ("onCellChanged vw=" + juce::String (vw) + " vh=" + juce::String (vh)
-                + " cols=" + juce::String (viewportSize.width) + " rows=" + juce::String (viewportSize.height)
-                + " font=" + juce::String (font.bounds.width) + "x" + juce::String (font.bounds.height));
-
-            if (viewportSize.isValid())
-            {
-                const int scrollbackLines { AppState::getContext()->getRawParameterValue<int> (app::id::scrollbackLines)->load() };
-                const int newRingSize { scrollbackLines + viewportSize.height };
-                const int currentCols { buffers[activeIndex].getNumCols() };
-                const int currentRing { buffers[activeIndex].getNumRows() };
-
-                stateMachine.setValue (id::viewport, viewportSize.pack());
-
-                if (newRingSize != currentRing or viewportSize.width != currentCols)
-                {
-                    if (onDimensionsChanged != nullptr)
-                        onDimensionsChanged (cell (viewportSize.width), cell (viewportSize.height));
-                }
-            }
-        };
     }
 
     //==============================================================================

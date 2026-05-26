@@ -50,9 +50,6 @@ public:
     int getHintPage() const noexcept;
     int getHintTotalPages() const noexcept;
 
-    std::function<void (const juce::File&)> onOpenMarkdown;
-    std::function<void (const juce::File&)> onOpenImage;
-
     /** @brief Returns a mutable reference to the Processor that backs this Display.
      *  @note MESSAGE THREAD. */
     terminal::Processor& getProcessor() noexcept { return processor; }

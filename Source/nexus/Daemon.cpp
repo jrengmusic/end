@@ -140,12 +140,12 @@ void Daemon::removeConnection (Channel* connection)
 // =============================================================================
 
 /**
- * @brief Removes all sessions and triggers daemon shutdown.
+ * @brief Removes all sessions.
  *
  * Snapshots the session list via `nexus.list()` before iterating so that
- * each `nexus.remove()` call does not invalidate the iterator.  After all
- * sessions are removed, fires `onAllSessionsExited` to trigger the existing
- * quit path (deleteNexusFile + quit).
+ * each `nexus.remove()` call does not invalidate the iterator.  Shutdown is
+ * triggered by the last nexus.remove() firing valueTreeChildRemoved on this
+ * Daemon, which detects the empty list and calls systemRequestedQuit().
  *
  * @note NEXUS PROCESS MESSAGE THREAD.
  */
@@ -155,9 +155,6 @@ void Daemon::killAll()
 
     for (const auto& uuid : uuids)
         nexus.remove (uuid);
-
-    if (onAllSessionsExited != nullptr)
-        onAllSessionsExited();
 }
 
 // =============================================================================
@@ -285,11 +282,16 @@ void Daemon::attachSession (const juce::String& uuid, Channel& target,
         subscribers[uuid].push_back (&target); // operator[] intentional — inserts empty list for new uuid
     }
 
-    // Resize after lock release — write State, Processor reacts via valueTreePropertyChanged.
+    // Resize after lock release — write winsize on TextEditor state node.
+    // Session::valueChanged detects the change and fires the DST resize lifecycle.
     if (nexus.has (uuid))
     {
-        auto& state { nexus.get (uuid).getProcessor().getState() };
-        state.setValue (terminal::id::viewport, jam::Bounds { cols, rows }.pack());
+        auto teNode { nexus.get (uuid).getProcessor().getState().get().getChildWithName (
+            jam::TextEditor::properties.at (jam::TextEditor::textEditorId)) };
+
+        if (teNode.isValid())
+            teNode.setProperty (jam::TextEditor::properties.at (jam::TextEditor::viewportId),
+                                 jam::Bounds { cols, rows }.pack(), nullptr);
     }
 }
 
@@ -319,7 +321,7 @@ void Daemon::detachSession (const juce::String& uuid, Channel& connection)
  * @brief Wires daemon-mode IPC callbacks on a newly created terminal::Session.
  *
  * Delegates to two helpers:
- * - wireOnBytes → `session.onBytes`
+ * - wireOnBytes → `session.getProcessor().setBytesObserver`
  * - wireOnExit  → registers Daemon as VT listener on session State
  *
  * State updates (cwd, foregroundProcess) are broadcast from valueTreePropertyChanged.
@@ -339,21 +341,21 @@ void Daemon::wireSessionCallbacks (const juce::String& uuid, terminal::Session& 
 // =============================================================================
 
 /**
- * @brief Wires `session.onBytes` to broadcast output PDUs to per-session subscribers.
+ * @brief Calls `session.getProcessor().setBytesObserver` to broadcast output PDUs to per-session subscribers.
  *
  * Builds a `Message::output` PDU (uuid prefix + raw bytes) and pushes it to
  * every Channel registered in the subscriber list for @p uuid.  The lambda runs
  * on the reader thread and acquires `connectionsLock` for the subscriber lookup.
  *
  * @param uuid     Session UUID used as the PDU routing key.
- * @param session  terminal::Session whose `onBytes` callback is being set.
+ * @param session  terminal::Session whose Processor::setBytesObserver is being set.
  * @note NEXUS PROCESS MESSAGE THREAD (called at wire time; lambda fires on READER THREAD).
  */
 void Daemon::wireOnBytes (const juce::String& uuid, terminal::Session& session)
 {
     jassert (session.getProcessor().getState().get().isValid());
 
-    session.onBytes = [this, uuid] (const char* bytes, int len)
+    session.getProcessor().setBytesObserver ([this, uuid] (const char* bytes, int len)
     {
         juce::MemoryBlock outputPayload;
         Codec::writeString (outputPayload, uuid);
@@ -367,7 +369,7 @@ void Daemon::wireOnBytes (const juce::String& uuid, terminal::Session& session)
             for (auto* conn : it->second)
                 conn->sendPdu (Message::output, outputPayload);
         }
-    };
+    });
 }
 
 // =============================================================================
@@ -448,9 +450,7 @@ void Daemon::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identi
 
                 nexus.remove (exitedUuid);
                 broadcastSessions();
-
-                if (nexus.list().isEmpty() and onAllSessionsExited != nullptr)
-                    onAllSessionsExited();
+                // Shutdown is triggered by valueTreeChildRemoved detecting empty list.
             });
         }
     }
@@ -515,6 +515,26 @@ void Daemon::valueTreeChildAdded (juce::ValueTree&, juce::ValueTree& child)
             // so start() is safe to call immediately after callback wiring.
             session.start();
         }
+    }
+}
+
+// =============================================================================
+
+/**
+ * @brief Reacts to session removal on Nexus::events.
+ *
+ * When the last "SESSION" child is removed from `nexus.events`, cleans up
+ * the nexus file and triggers application shutdown.  This replaces the
+ * onAllSessionsExited callback.
+ *
+ * @note NEXUS PROCESS MESSAGE THREAD.
+ */
+void Daemon::valueTreeChildRemoved (juce::ValueTree&, juce::ValueTree& child, int)
+{
+    if (child.getType().toString() == "SESSION" and nexus.list().isEmpty())
+    {
+        AppState::getContext()->deleteNexusFile();
+        juce::JUCEApplication::getInstance()->systemRequestedQuit();
     }
 }
 

@@ -219,12 +219,16 @@ getSessionParamInt (const juce::ValueTree& root, const juce::Identifier& paramId
 
 cell State::getCols() const noexcept
 {
-    return cell (jam::Bounds::unpack (getSessionParamInt (get(), id::viewport)).width);
+    const auto teNode { get().getChildWithName (jam::TextEditor::properties.at (jam::TextEditor::textEditorId)) };
+    const int packed { static_cast<int> (teNode.getProperty (jam::TextEditor::properties.at (jam::TextEditor::viewportId), 0)) };
+    return cell (jam::Bounds::unpack (packed).width);
 }
 
 cell State::getVisibleRows() const noexcept
 {
-    return cell (jam::Bounds::unpack (getSessionParamInt (get(), id::viewport)).height);
+    const auto teNode { get().getChildWithName (jam::TextEditor::properties.at (jam::TextEditor::textEditorId)) };
+    const int packed { static_cast<int> (teNode.getProperty (jam::TextEditor::properties.at (jam::TextEditor::viewportId), 0)) };
+    return cell (jam::Bounds::unpack (packed).height);
 }
 
 juce::String State::getTitle() const noexcept

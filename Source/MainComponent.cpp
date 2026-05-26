@@ -330,20 +330,41 @@ void MainComponent::valueTreePropertyChanged (juce::ValueTree& tree, const juce:
         if (property == app::id::fontFamily)
         {
             auto* typeface { jam::Typeface::findTypeface (appState.getFontFamily()) };
+
             if (typeface != nullptr)
                 typeface->setFontFamily (appState.getFontFamily());
+
             appState.markAtlasDirty();
         }
         else if (property == app::id::fontSize)
         {
             auto* typeface { jam::Typeface::findTypeface (appState.getFontFamily()) };
+
             if (typeface != nullptr)
                 typeface->setFontSize (appState.getFontSize());
+
             appState.markAtlasDirty();
         }
         else if (property == app::id::renderer)
         {
             appState.markAtlasDirty();
+        }
+        else if (property == app::id::configGeneration)
+        {
+            applyConfig();
+            showReloadMessage();
+
+            if (auto* window { findParentComponentOfClass<terminal::Window>() }; window != nullptr)
+            {
+                const auto* cfg { lua::Engine::getContext() };
+                window->setGlass (cfg->display.window.colour.withAlpha (cfg->display.window.opacity),
+                                  cfg->display.window.blurRadius);
+            }
+
+#if JUCE_WINDOWS
+            if (isWindows11() and appState.getRendererType() == app::RendererType::cpu)
+                jam::BackgroundBlur::applyForceEffectRegistry (lua::Engine::getContext()->display.window.forceDwm);
+#endif
         }
     }
 }
@@ -530,16 +551,6 @@ void MainComponent::initialiseTabs()
     tabs = std::make_unique<terminal::Tabs> (
         terminal::Tabs::orientationFromString (lua::Engine::getContext()->display.tab.position));
     addAndMakeVisible (tabs.get());
-
-    tabs->onRepaintNeeded = [this]
-    {
-        if (auto* terminal { tabs->getActiveTerminal() }; terminal != nullptr)
-        {
-            statusBarOverlay->updateHintInfo (terminal->getHintPage(), terminal->getHintTotalPages());
-        }
-
-        repaint();
-    };
 
     // Restore tabs and split layout from `<uuid>.display` when present (daemon client mode).
     // Session::create routes internally to client path; the walker is oblivious to mode.

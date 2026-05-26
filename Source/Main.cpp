@@ -181,12 +181,8 @@ void ENDApplication::initialise (const juce::String& commandLine)
             nexus->setMode (Nexus::Mode::daemon);
             daemon = std::make_unique<nexus::Daemon> (*nexus);
             daemon->start();
-
-            daemon->onAllSessionsExited = [this]
-            {
-                appState.deleteNexusFile();
-                quit();
-            };
+            // Shutdown is triggered internally by Daemon::valueTreeChildRemoved
+            // when the last session exits — no callback wiring needed here.
         }
     }
     else
@@ -267,26 +263,6 @@ void ENDApplication::initialise (const juce::String& commandLine)
                     content->grabKeyboardFocus();
             });
 
-        luaEngine.onReload = [this]
-        {
-            if (auto* content { dynamic_cast<MainComponent*> (mainWindow->getContentComponent()) })
-            {
-                content->applyConfig();
-                content->showReloadMessage();
-
-#if JUCE_WINDOWS
-                if (isWindows11() and appState.getRendererType() == app::RendererType::cpu)
-                {
-                    jam::BackgroundBlur::applyForceEffectRegistry (lua::Engine::getContext()->display.window.forceDwm);
-                }
-#endif
-
-                const auto* reloadedCfg { lua::Engine::getContext() };
-                mainWindow->setGlass (
-                    reloadedCfg->display.window.colour.withAlpha (reloadedCfg->display.window.opacity),
-                    reloadedCfg->display.window.blurRadius);
-            }
-        };
     }
 }
 

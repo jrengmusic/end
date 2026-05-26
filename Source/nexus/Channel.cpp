@@ -167,7 +167,7 @@ void Daemon::Channel::messageReceived (const juce::MemoryBlock& message)
 
                     if (inputLen > 0 and nexus.has (uuid))
                     {
-                        nexus.get (uuid).sendInput (
+                        nexus.get (uuid).getProcessor().writeInput (
                             reinterpret_cast<const char*> (payload + uuidConsumed),
                             inputLen);
                     }
@@ -189,9 +189,13 @@ void Daemon::Channel::messageReceived (const juce::MemoryBlock& message)
 
                     if (nexus.has (uuid))
                     {
-                        auto& state { nexus.get (uuid).getProcessor().getState() };
-                        state.setValue (terminal::id::viewport,
-                                        jam::Bounds { static_cast<int> (cols), static_cast<int> (rows) }.pack());
+                        auto teNode { nexus.get (uuid).getProcessor().getState().get().getChildWithName (
+                            jam::TextEditor::properties.at (jam::TextEditor::textEditorId)) };
+
+                        if (teNode.isValid())
+                            teNode.setProperty (jam::TextEditor::properties.at (jam::TextEditor::viewportId),
+                                                 jam::Bounds { static_cast<int> (cols), static_cast<int> (rows) }.pack(),
+                                                 nullptr);
                     }
                 }
 
@@ -220,9 +224,6 @@ void Daemon::Channel::messageReceived (const juce::MemoryBlock& message)
                 {
                     nexus.remove (uuid);
                     daemon.broadcastSessions();
-
-                    if (nexus.list().isEmpty() and daemon.onAllSessionsExited != nullptr)
-                        daemon.onAllSessionsExited();
                 }
 
                 break;

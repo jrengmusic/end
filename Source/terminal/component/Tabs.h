@@ -46,6 +46,7 @@ namespace terminal
 class Tabs : public jam::TabbedComponent
            , private juce::FocusChangeListener
            , private juce::Value::Listener
+           , private juce::ValueTree::Listener
 {
 public:
     /**
@@ -60,19 +61,6 @@ public:
      * @note MESSAGE THREAD.
      */
     ~Tabs() override;
-
-    /**
-     * @brief Callback invoked when any terminal needs a repaint.
-     *
-     * This callback is set by MainComponent to trigger Window::triggerRepaint(), which
-     * delegates to the internal renderer if present and is a no-op in CPU mode.
-     * It is forwarded to each new terminal's own onRepaintNeeded callback.
-     * MainComponent's binding additionally refreshes `StatusBarOverlay::updateHintInfo()`
-     * with the active terminal's hint state.
-     *
-     * @note MESSAGE THREAD.
-     */
-    std::function<void()> onRepaintNeeded;
 
     /**
      * @brief Create and add a new terminal tab.
@@ -372,6 +360,17 @@ private:
 
     /** @brief Shows a rename editor when the user right-clicks a tab. */
     void popupMenuClickOnTab (int tabIndex, const juce::String& tabName) override;
+
+    /** @brief Detects when a Panes instance empties — fires close/quit logic when the last pane exits. */
+    void valueTreeChildRemoved (juce::ValueTree& parent, juce::ValueTree& child, int index) override;
+
+    /** @brief Handles pendingMarkdownFile and pendingImageFile on the WINDOW node. */
+    void valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
+
+    /** @brief Unused VT listener callbacks — required by interface. */
+    void valueTreeChildAdded (juce::ValueTree&, juce::ValueTree&) override {}
+    void valueTreeChildOrderChanged (juce::ValueTree&, int, int) override {}
+    void valueTreeParentChanged (juce::ValueTree&) override {}
 
     /** @brief Sets the active terminal UUID and grabs focus for the last terminal in @p active. */
     void focusLastTerminal (Panes* active);

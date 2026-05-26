@@ -5,7 +5,7 @@
  * Implements Processor — the pipeline half that owns State (the APVTS), Video
  * (the terminal state machine), and Parser,
  * and references Buffer<Row> owned by terminal::Session.
- * The PTY side (TTY + History) lives in terminal::Session.
+ * The PTY-side TTY is owned by Processor and created by startTTY().
  *
  * ### Thread contexts used in this file
  * - **MESSAGE THREAD** — JUCE message loop; all public methods except `process()`.
@@ -28,13 +28,11 @@ namespace terminal
  * Video is owned by this Processor and receives activeBlocksRef and events& references.
  * Parser is owned by this Processor and receives Video& reference directly.
  * UUID is provided by the caller — no internal generation.
- * Buffer resize is handled entirely by Screen's onCellChanged — Processor does not touch Buffer.
+ * Buffer resize is handled entirely by Session::valueChanged (winsize) — Processor does not touch Buffer.
  *
  * @param stateRef        Terminal parameter store owned by terminal::Session.
  * @param activeBlocksRef Reference to Screen's atomic active-blocks pointer.
  * @param textBufferRef   Cross-thread string buffer owned by terminal::Session.
- * @param cols            Initial terminal column count.
- * @param rows            Initial terminal row count.
  * @param uuid            Stable UUID for this Processor — generated once by the caller.
  *
  * @note MESSAGE THREAD — must be constructed on the message thread.
@@ -42,8 +40,6 @@ namespace terminal
 Processor::Processor (State& stateRef,
                       std::atomic<jam::Block<jam::Row>*>& activeBlocksRef,
                       TextBuffer& textBufferRef,
-                      cell cols,
-                      cell rows,
                       const juce::String& uuid)
     : textBuffer (textBufferRef)
     , state (stateRef)
@@ -51,8 +47,6 @@ Processor::Processor (State& stateRef,
     , skit (events)
     , uuid (uuid)
 {
-    juce::ignoreUnused (cols, rows);
-
     registerEvents();
     parser = std::make_unique<Parser> (video);
     state.get().addListener (this);
@@ -63,8 +57,9 @@ Processor::Processor (State& stateRef,
 /**
  * @brief Destroys the Processor.
  *
- * Nulls TTY callbacks before closing — prevents onData / onDrainComplete /
- * onShellExited from firing on the reader thread during the join.
+ * Closes the TTY first — stops the reader thread before the events map is
+ * destroyed by member destruction.  Reader thread joins inside close(), so
+ * events.get(id::data) cannot fire after close() returns.
  * No explicit `removeListener()` needed — the ValueTree inside State is
  * destroyed alongside this Processor (member destruction order).
  *
@@ -73,12 +68,7 @@ Processor::Processor (State& stateRef,
 Processor::~Processor()
 {
     if (tty != nullptr)
-    {
-        tty->onShellExited = nullptr;
-        tty->onData = nullptr;
-        tty->onDrainComplete = nullptr;
         tty->close();
-    }
 }
 
 // =============================================================================
@@ -128,6 +118,11 @@ Processor::~Processor()
  * - `"activeScreen"` / `"cursor"` / `"writeHead"` — Video::flush() flush events; write the
  *   corresponding State atomics.  `"cursor"` carries packed CursorState (row+col+visible+kbFlags).
  *   `"writeHead"` carries the raw ring write position; handler preserves historyRows from State.
+ *
+ * - `"shellExited"` — fired by TTY on reader thread on EOF; calls `State::setShellExited(true)`.
+ *
+ * - `"drainComplete"` — fired by TTY on reader thread after each full PTY drain;
+ *   flushes parser responses, clears paste gate, handles sync resize.
  *
  * - `"applicationCursor"` / `"bracketedPaste"` / ... — Video::flush() mode flag flushes.
  *
@@ -419,7 +414,37 @@ void Processor::registerEvents() noexcept
                                                               terminal::showNotification (title, body);
                                                           });
 
-    }
+    // Byte data from TTY reader thread — optional IPC broadcast then process under callbackLock.
+    events.add<const char*, int> (id::data,
+                                  [this] (const char* bytes, int len)
+                                  {
+                                      if (events.contains (id::bytesReceived))
+                                          events.get (id::bytesReceived, bytes, len);
+
+                                      const juce::ScopedLock sl (callbackLock);
+
+                                      if (not suspended)
+                                          process (bytes, len);
+                                  });
+
+    // Shell exited — TTY fires on EOF (reader thread). Write State so flush timer delivers to message thread.
+    events.add (id::shellExited,
+                [this]
+                {
+                    state.setShellExited (true);
+                });
+
+    // Drain complete — flush parser responses, clear paste gate, handle sync resize.
+    events.add (id::drainComplete,
+                [this]
+                {
+                    flushResponses();
+                    state.clearPasteEchoGate();
+
+                    if (state.consumeSyncResize())
+                        setWinsize (state.getCols(), state.getVisibleRows());
+                });
+}
 
 // =============================================================================
 
@@ -709,7 +734,6 @@ void Processor::process (const char* data, int length) noexcept
 {
     jassert (parser != nullptr);
     video.refreshBlocks();
-    jam::debug::Log::write ("process len=" + juce::String (length) + " cols=" + juce::String (video.getCols().value) + " rows=" + juce::String (video.getVisibleRows().value) + " sus=" + juce::String (int (suspended)));
 
     if (video.getCols() > cell (0) and video.getVisibleRows() > cell (0))
     {
@@ -743,17 +767,61 @@ const juce::String& Processor::getUuid() const noexcept { return uuid; }
 void Processor::flushResponses() noexcept { video.flushResponses(); }
 
 /**
- * @brief Transfers TTY ownership to this Processor.
+ * @brief Creates the platform TTY, adds shell env vars, wires callbacks, and opens the PTY.
  *
- * @note MESSAGE THREAD.
+ * Creates UnixTTY or WindowsTTY with the shared events map, adds all shell integration
+ * env vars, wires writeInput/writeToHost events for PTY stdin/response routing
+ * (id::data is already registered in registerEvents()), then opens the TTY (starts the reader thread).
+ *
+ * @param shell   Shell program path.
+ * @param args    Shell arguments string.  Empty = none.
+ * @param cwd     Initial working directory.  Empty = inherit.
+ * @param env     Shell integration environment variable pairs.
+ * @param cols    Initial terminal width in character columns.
+ * @param rows    Initial terminal height in character rows.
+ * @note MESSAGE THREAD — called from Session::start().
  */
-void Processor::setTTY (std::unique_ptr<TTY> ttyToOwn) noexcept { tty = std::move (ttyToOwn); }
+void Processor::startTTY (const juce::String& shell,
+                           const juce::String& args,
+                           const juce::String& cwd,
+                           const juce::StringPairArray& env,
+                           cell cols,
+                           cell rows) noexcept
+{
+#if JUCE_MAC || JUCE_LINUX
+    tty = std::make_unique<UnixTTY> (events);
+#elif JUCE_WINDOWS
+    tty = std::make_unique<WindowsTTY> (events);
+#endif
+
+    const juce::StringArray& keys { env.getAllKeys() };
+
+    for (const auto& key : keys)
+        tty->addShellEnv (key, env[key]);
+
+    // writeToHost — parser responses (DSR, DA, CPR) → PTY stdin.
+    events.add<const char*, int> (id::writeToHost,
+                                  [this] (const char* data, int len)
+                                  {
+                                      if (tty != nullptr)
+                                          tty->write (data, len);
+                                  });
+
+    // writeInput — keyboard/mouse input from Display → PTY stdin.
+    events.add<const char*, int> (id::writeInput,
+                                  [this] (const char* data, int len)
+                                  {
+                                      tty->write (data, len);
+                                  });
+
+    tty->open (cols, rows, shell, args, cwd);
+}
 
 /**
  * @brief Single resize API — tells Video the new dimensions and sends SIGWINCH to shell.
  *
  * Called from Processor vTPC (viewport change), Session::start() (initial sizing),
- * and Session::onDrainComplete (sync-resize path).
+ * and the drainComplete event handler (sync-resize path).
  *
  * @param cols        New column count.
  * @param rows        New row count.
@@ -762,7 +830,6 @@ void Processor::setTTY (std::unique_ptr<TTY> ttyToOwn) noexcept { tty = std::mov
  */
 void Processor::setWinsize (cell cols, cell rows, int pixelWidth, int pixelHeight) noexcept
 {
-    jam::debug::Log::write ("Processor::setWinsize cols=" + juce::String (cols.value) + " rows=" + juce::String (rows.value));
     video.setWinsize (cols, rows);
 
     if (tty != nullptr and tty->isThreadRunning())
@@ -771,17 +838,9 @@ void Processor::setWinsize (cell cols, cell rows, int pixelWidth, int pixelHeigh
 
 
 /**
- * @brief Registers the `writeToHost` event handler in the events map.
+ * @brief Writes raw input bytes to the PTY via the writeInput event handler.
  *
- * @note MESSAGE THREAD — call before the first process() invocation.
- */
-void Processor::setHostWriter (std::function<void (const char*, int)> writer) noexcept
-{
-    events.add<const char*, int> (id::writeToHost, std::move (writer));
-}
-
-/**
- * @brief Writes raw input bytes to the PTY via the registered writeInput handler.
+ * No-op when writeInput is not registered (remote sessions with no TTY before IPC wiring).
  *
  * @note MESSAGE THREAD.
  */
@@ -792,13 +851,29 @@ void Processor::writeInput (const char* data, int len) noexcept
 }
 
 /**
- * @brief Registers the handler invoked by writeInput().
+ * @brief Registers the writeInput event handler.
  *
- * @note MESSAGE THREAD — call before the first writeInput() invocation.
+ * Called by Link for remote (IPC-connected) sessions to route input through IPC.
+ * startTTY() calls this internally for PTY sessions.
+ *
+ * @note MESSAGE THREAD.
  */
 void Processor::setInputWriter (std::function<void (const char*, int)> handler) noexcept
 {
     events.add<const char*, int> (id::writeInput, std::move (handler));
+}
+
+/**
+ * @brief Registers an IPC byte broadcast observer on the events map.
+ *
+ * The registered handler fires on the reader thread inside the id::data handler,
+ * before callbackLock is acquired.  Used by nexus::Daemon::wireOnBytes() in daemon mode.
+ *
+ * @note MESSAGE THREAD — call before the first bytes arrive.
+ */
+void Processor::setBytesObserver (std::function<void (const char*, int)> handler) noexcept
+{
+    events.add<const char*, int> (id::bytesReceived, std::move (handler));
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

@@ -31,6 +31,7 @@ Tabs::Tabs (jam::TabbedButtonBar::Orientation orientation)
     setOutline (0);
     juce::Desktop::getInstance().addFocusChangeListener (this);
     tabName.addListener (this);
+    AppState::getContext()->getWindow().addListener (this);
 
     getTabbedButtonBar().onTabMoved = [this] (int fromIndex, int toIndex)
     {
@@ -53,6 +54,7 @@ Tabs::Tabs (jam::TabbedButtonBar::Orientation orientation)
  */
 Tabs::~Tabs()
 {
+    AppState::getContext()->getWindow().removeListener (this);
     tabName.removeListener (this);
     juce::Desktop::getInstance().removeFocusChangeListener (this);
 }
@@ -97,25 +99,9 @@ void Tabs::addNewTab (const juce::String& workingDirectory, const juce::String& 
 
     auto& newPanesPtr { panes.add (std::make_unique<Panes>()) };
     auto& newPanes { *newPanesPtr };
-    newPanes.onRepaintNeeded = onRepaintNeeded;
-    newPanes.onOpenMarkdown = [this] (const juce::File& file)
-    {
-        if (auto* active { getActivePanes() }; active != nullptr)
-            active->createWhelmed (file);
-    };
-    newPanes.onLastPaneClosed = [this]
-    {
-        closeActiveTab();
-
-        if (getTabCount() == 0)
-        {
-            juce::JUCEApplication::getInstance()->systemRequestedQuit();
-        }
-        else if (AppState::getContext()->isDaemonMode())
-        {
-            AppState::getContext()->save();
-        }
-    };
+    // Register as VT listener on this tab's PANES tree — valueTreeChildRemoved
+    // fires when the last pane exits and triggers tab close / quit.
+    newPanes.getState().addListener (this);
     addChildComponent (&newPanes);
 
     const auto sessionUuid { newPanes.createTerminal (workingDirectory, uuid, cols, rows) };
@@ -502,6 +488,72 @@ void Tabs::focusLastTerminal (Panes* active)
 
         if (lastPane->isShowing())
             lastPane->grabKeyboardFocus();
+    }
+}
+
+// =============================================================================
+
+/**
+ * @brief Handles pendingMarkdownFile and pendingImageFile written by LinkManager::dispatch().
+ *
+ * LinkManager writes to the WINDOW node when the user activates a .md or image link.
+ * Tabs reads the path, clears the property, and creates the appropriate pane.
+ *
+ * @note MESSAGE THREAD — VT listener fires on the message thread.
+ */
+void Tabs::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
+{
+    if (tree.getType() == app::id::WINDOW)
+    {
+        if (property == app::id::pendingMarkdownFile)
+        {
+            const auto path { tree.getProperty (app::id::pendingMarkdownFile).toString() };
+            tree.removeProperty (app::id::pendingMarkdownFile, nullptr);
+
+            if (path.isNotEmpty())
+            {
+                if (auto* active { getActivePanes() }; active != nullptr)
+                    active->createWhelmed (juce::File (path));
+            }
+        }
+        else if (property == app::id::pendingImageFile)
+        {
+            // Image open path — consume and clear.
+            tree.removeProperty (app::id::pendingImageFile, nullptr);
+        }
+    }
+}
+
+/**
+ * @brief Detects when a PANE child is removed from the PANES VT of a tab.
+ *
+ * Searches the owned Panes instances to find the one whose state VT matches
+ * the notifying parent.  When that Panes instance is empty (all terminals
+ * closed), closes the active tab and quits if no tabs remain.
+ *
+ * This replaces the onLastPaneClosed callback on Panes.
+ *
+ * @note MESSAGE THREAD — VT listener fires on the message thread.
+ */
+void Tabs::valueTreeChildRemoved (juce::ValueTree& parent, juce::ValueTree&, int)
+{
+    for (auto& panesPtr : panes)
+    {
+        if (panesPtr->getState() == parent and panesPtr->isEmpty())
+        {
+            closeActiveTab();
+
+            if (getTabCount() == 0)
+            {
+                juce::JUCEApplication::getInstance()->systemRequestedQuit();
+            }
+            else if (AppState::getContext()->isDaemonMode())
+            {
+                AppState::getContext()->save();
+            }
+
+            break;
+        }
     }
 }
 

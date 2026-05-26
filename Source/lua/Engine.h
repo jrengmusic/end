@@ -1190,9 +1190,6 @@ public:
     */
     static juce::File getConfigPath();
 
-    /** @brief Called after a successful reload. Wired by MainComponent. */
-    std::function<void()> onReload;
-
     //==========================================================================
     /** @brief Top-level nexus and shell configuration. */
     Nexus nexus;

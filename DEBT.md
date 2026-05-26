@@ -8,12 +8,13 @@
 
 ---
 
-## DEBT-20260521T120000
+## DEBT-20260526T220000
 
-**Observation:** entering tmux inside END, garbage bytes echoed to terminal: `^[[?62;4c%` and `/62;4c_`. Need to type random input until gaining full control of active prompt.
-**Divergence:** entering tmux should start cleanly with no garbage byte echo — the CSI response bytes should be consumed by tmux, not displayed
-**Expectation:** tmux session starts with clean prompt, no leaked escape sequence fragments visible to the user
+**Observation:** `getStateInformation`/`setStateInformation` are stubbed. Daemon attach sends no state to connecting clients. History byte ring removed — raw byte replay path is dead.
+**Divergence:** Daemon client attach should reconstruct the terminal display from the daemon's live state. With TextEditor owning winsize and Buffer<Row> owning scrollback, the serialization surface is now ValueTree + Buffer — not raw byte replay.
+**Expectation:** Daemon attach serializes ValueTree state + Buffer<Row> content directly. Client deserializes and renders. No manual callbacks — ValueTree is the transport. Revisit when TextEditor rendering pipeline is fully working.
 
+---
 
 ---
 

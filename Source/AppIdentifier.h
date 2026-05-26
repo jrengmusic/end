@@ -88,6 +88,18 @@ namespace id
     static const juce::Identifier port              { "port" };
     static const juce::Identifier atlasDirty        { "atlasDirty" };
     static const juce::Identifier scrollbackLines   { "scrollbackLines" };
+
+    /** @brief Monotonic counter incremented by lua::Engine::reload() after each successful config load.
+     *  MainComponent's VT listener detects changes and calls applyConfig() + showReloadMessage(). */
+    static const juce::Identifier configGeneration  { "configGeneration" };
+
+    /** @brief Path of the .md file pending Whelmed open. Written by LinkManager::dispatch(); consumed
+     *  and cleared by Tabs::valueTreePropertyChanged on the WINDOW node. */
+    static const juce::Identifier pendingMarkdownFile { "pendingMarkdownFile" };
+
+    /** @brief Path of the image file pending inline open. Written by LinkManager::dispatch(); consumed
+     *  and cleared by Tabs::valueTreePropertyChanged on the WINDOW node. */
+    static const juce::Identifier pendingImageFile    { "pendingImageFile" };
     static const juce::Identifier cellWidth            { "cellWidth" };
     static const juce::Identifier lineHeight           { "lineHeight" };
     static const juce::Identifier cursorCodepoint      { "cursorCodepoint" };

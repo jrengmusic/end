@@ -282,13 +282,15 @@ public:
      */
     void valueTreeChildAdded (juce::ValueTree& parent, juce::ValueTree& child) override;
 
-    // =========================================================================
     /**
-     * @brief Called when the last session exits.
+     * @brief Reacts to session removal on Nexus::events.
      *
-     * Set by ENDApplication in headless daemon mode to trigger shutdown.
+     * When the last "SESSION" child is removed from `nexus.events`, triggers
+     * daemon shutdown by deleting the nexus file and calling systemRequestedQuit().
+     *
+     * @note NEXUS PROCESS MESSAGE THREAD.
      */
-    std::function<void()> onAllSessionsExited;
+    void valueTreeChildRemoved (juce::ValueTree& parent, juce::ValueTree& child, int index) override;
 
 private:
     juce::InterprocessConnection* createConnectionObject() override;
@@ -332,14 +334,14 @@ private:
      * @{ */
 
     /**
-     * @brief Wires `session.onBytes` to broadcast output PDUs to per-session subscribers.
+     * @brief Registers a byte observer on session's Processor to broadcast output PDUs to per-session subscribers.
      *
      * Builds a `Message::output` PDU (uuid prefix + raw bytes) and pushes it to
      * every Channel registered in the subscriber list for @p uuid.  Runs on the
      * reader thread inside the lambda; acquires `connectionsLock`.
      *
      * @param uuid     Session UUID used as the PDU routing key.
-     * @param session  terminal::Session whose `onBytes` callback is being set.
+     * @param session  terminal::Session whose Processor byte observer is being registered.
      * @note NEXUS PROCESS MESSAGE THREAD (called at wire time; lambda fires on READER THREAD).
      */
     void wireOnBytes (const juce::String& uuid, terminal::Session& session);

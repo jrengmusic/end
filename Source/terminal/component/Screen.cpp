@@ -54,8 +54,6 @@ Screen::Screen (State& stateMachine, cell cols, cell rows) noexcept
     blockSets[0].at (1) = jam::Block<jam::Row> (buffers[0], 1);
     activeBlocks.store (blockSets[0].data(), std::memory_order_release);
 
-    onResized = onCellChanged (stateMachine);
-
     setWantsKeyboardFocus (false);
 
     // Screen nodes (NORMAL, ALTERNATE) are owned and grafted by Display before
@@ -114,8 +112,6 @@ std::array<int, 2> Screen::resizeBuffers (int newRingSize, int newCols, const st
     activeBlocks.store (blockSets[nextIndex].data(), std::memory_order_release);
     activeIndex = nextIndex;
 
-    jam::debug::Log::write ("Screen::resizeBuffers newRing=" + juce::String (newRingSize) + " newCols=" + juce::String (newCols) + " rowsCopied=" + juce::String (rowsToCopy));
-
     return newWritePositions;
 }
 
@@ -125,12 +121,11 @@ std::array<int, 2> Screen::resizeBuffers (int newRingSize, int newCols, const st
 
 void Screen::valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier&)
 {
-    jam::debug::Log::write ("Screen::vTPC");
     const int activeScreen { getValue (terminalState, id::activeScreen) };
     const juce::Identifier screenId { Map::Screen::getContext()->get (activeScreen) };
     auto screenNode { terminalState.getChildWithName (screenId) };
 
-    const auto viewportSize { jam::Bounds::unpack (getValue (terminalState, id::viewport)) };
+    const auto viewportSize { jam::Bounds::unpack (static_cast<int> (state.getProperty (jam::TextEditor::properties.at (jam::TextEditor::viewportId)))) };
     const cell viewportRows { viewportSize.height };
 
     const cell scrollOffset { getValue (screenNode, id::scrollOffset) };
@@ -151,7 +146,6 @@ void Screen::valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier&
         const cell historyRows { totalRows.value - viewportRows.value };
 
         const int ringSize { activeBuffer.getNumRows() };
-        jam::debug::Log::write ("Screen::render vp=" + juce::String (viewportRows.value) + " hist=" + juce::String (historyRows.value) + " total=" + juce::String (totalRows.value) + " head=" + juce::String (wh.position) + " ring=" + juce::String (ringSize));
         const int liveStartRow { (ringSize - historyRows.value) % ringSize };
         const jam::Block<jam::Row> block (
             activeBuffer.getChannelPointer (activeScreen),

@@ -13,16 +13,17 @@
  *  ─────────────           ──────────────────────────────────────────────
  *  open()                  waitForData() — blocks up to 100 ms
  *  write()                 read()        — drains all available bytes
- *  setWinsize()            onData()  — fires callback per chunk
- *  close()                 onDrainComplete() — fires after full drain
- *                          onShellExited() — fires synchronously on reader thread on EOF
+ *  setWinsize()            onData()      — fires callback per chunk
+ *  close()                 events.get(drainComplete) — fired after full drain
+ *                          events.get(shellExited) — fired on EOF
  * ```
  *
  * ### Callback model
- * All four callbacks are plain `std::function` fields set by the owner before
- * calling `open()`.  The reader thread invokes `onData`, `onDrainComplete`, and
- * `onShellExited` directly on the reader thread.  `onShellExited` stores to State atomics;
- * the flush timer delivers the change to the message thread via ValueTree.
+ * All data delivery is routed through the events map.
+ * The reader thread fires `id::data` for each chunk (hot path).
+ * On drain, the reader fires `id::drainComplete` through the events map.
+ * On EOF, the reader fires `id::shellExited` through the events map.
+ * All three events are registered by Processor in registerEvents() before startTTY() opens the TTY.
  *
  * ### Resize protocol
  * The message thread calls `grid.resize()` and `parser.resize()` directly,
@@ -44,8 +45,8 @@
  * that drives data delivery, resize handling, and shell-exit detection.
  *
  * @par Ownership
- * The owner (typically Session) creates a concrete subclass, sets the four
- * callbacks, then calls `open()`.  The reader thread starts inside `open()`.
+ * The owner creates a concrete subclass, then calls `open()`.
+ * The reader thread starts inside `open()`.
  * The owner must call `close()` (or destroy the object) to stop the thread
  * and reap the child process.
  *
@@ -56,8 +57,9 @@
 class TTY : public juce::Thread
 {
 public:
-    TTY()
+    explicit TTY (jam::Function::Map<juce::Identifier, void>& eventsMap)
         : juce::Thread ("TTY Reader")
+        , events (eventsMap)
     {
     }
 
@@ -260,45 +262,14 @@ public:
      * Runs at high priority.  Each iteration:
      * 1. Calls `waitForData (100)` to block up to 100 ms.
      * 2. If data is available, drains all bytes in a tight inner loop,
-     *    calling `onData` for each chunk.
-     * 3. After the drain, calls `onDrainComplete` once.
-     * 4. On EOF (`read()` returns -1), calls `onShellExited` synchronously on the reader thread, and returns.
+     *    firing `events.get(id::data, chunk, n)` for each chunk.
+     * 3. After the drain, fires `events.get(id::drainComplete)` once.
+     * 4. On EOF (`read()` returns -1), fires `events.get(id::shellExited)` on the reader thread, and returns.
      *
      * @note Called by juce::Thread infrastructure — do not call directly.
      *       READER THREAD context.
      */
     void run() override;
-
-    /** @} */
-
-    // =========================================================================
-    /** @name Callbacks
-     *  Set by the owner before calling open().  All are optional (null-checked
-     *  before invocation).
-     * @{ */
-
-    /** @brief Called on the reader thread with each chunk of PTY output data.
-     *
-     *  @param buf  Pointer to the received bytes (valid only for the duration
-     *              of the call).
-     *  @param len  Number of bytes in @p buf.
-     */
-    std::function<void (const char*, int)> onData;
-
-    /** @brief Called on the reader thread after a full drain of available data.
-     *
-     *  Allows the owner to flush any queued writes that were deferred until
-     *  the child process had finished its initial output (e.g. waiting for
-     *  the shell to set raw / no-echo mode).
-     */
-    std::function<void()> onDrainComplete;
-
-    /** @brief Called synchronously on the reader thread when the shell process exits (EOF on PTY master).
-     *
-     *  No callAsync — fires directly on the reader thread.  The callback stores to State atomics;
-     *  the 60 Hz flush timer delivers the change to the message thread via ValueTree.
-     */
-    std::function<void()> onShellExited;
 
     /** @} */
 
@@ -351,6 +322,9 @@ protected:
      * Subclasses call this from `open()` after the OS PTY is created.
      */
     void rememberDimensions (int cols, int rows) noexcept;
+
+    /** @brief Events map — shared with Processor. TTY fires shellExited on EOF. */
+    jam::Function::Map<juce::Identifier, void>& events;
 
     /** @brief Shell integration environment variable pairs injected before shell start. */
     std::vector<std::pair<std::string, std::string>> shellIntegrationEnv;

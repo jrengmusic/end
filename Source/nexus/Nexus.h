@@ -207,14 +207,6 @@ public:
      */
     juce::ValueTree events { "NEXUS_EVENTS" };
 
-    // =========================================================================
-    /**
-     * @brief Called when the last session exits.
-     *
-     * Set by ENDApplication in headless daemon mode to trigger shutdown.
-     */
-    std::function<void()> onAllSessionsExited;
-
 private:
     /**
      * @brief Owned terminal::Session map: UUID → unique_ptr<terminal::Session>.
@@ -225,15 +217,6 @@ private:
      * @brief Current IPC mode.
      */
     Mode mode { Mode::standalone };
-
-    /**
-     * @brief Fires onAllSessionsExited if the sessions map is now empty.
-     *
-     * Called at every exit path after the departing entry has been erased.
-     *
-     * @note NEXUS PROCESS MESSAGE THREAD.
-     */
-    void fireIfAllExited() noexcept;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Nexus)

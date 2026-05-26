@@ -26,14 +26,8 @@ ModalWindow::ModalWindow (std::unique_ptr<juce::Component> content,
                         lua::Engine::getContext()->display.window.opacity,
                         lua::Engine::getContext()->display.window.blurRadius)
 {
-    if (auto* terminal { dynamic_cast<terminal::Display*> (getContentComponent()) })
-    {
-        terminal->onRepaintNeeded = [this, terminal]
-        {
-            terminal->repaint();
-            repaint();
-        };
-    }
+    // No onRepaintNeeded wiring needed — terminal repaints via JUCE's normal
+    // component repaint mechanism.
 }
 
 void ModalWindow::paint (juce::Graphics& g)

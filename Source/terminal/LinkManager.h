@@ -134,28 +134,6 @@ public:
     void dispatch (const LinkSpan& span) const;
 
     /**
-     * @brief Callback invoked when a .md file link is activated.
-     *
-     * When set, intercepts file dispatch for `.md` extensions before the
-     * default editor-launch logic runs.
-     *
-     * @note MESSAGE THREAD.
-     */
-    mutable std::function<void (const juce::File&)> onOpenMarkdown;
-
-    /**
-     * @brief Callback invoked when an image file link is activated.
-     *
-     * When set, intercepts file dispatch for image extensions (`.png`, `.jpg`,
-     * `.jpeg`, `.gif`) before the default editor-launch logic runs.
-     *
-     * @param triggerRow  Visible row of the link span that triggered the open.
-     *
-     * @note MESSAGE THREAD.
-     */
-    mutable std::function<void (const juce::File&, cell triggerRow)> onOpenImage;
-
-    /**
      * @brief Returns the current clickable-link spans (for hover underline).
      * @return Read-only reference to the internal vector.
      * @note MESSAGE THREAD.

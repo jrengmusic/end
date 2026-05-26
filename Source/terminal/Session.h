@@ -1,24 +1,20 @@
 /**
  * @file Session.h
- * @brief PTY-side terminal session: byte history, Buffer<Row>, State, and Processor.
+ * @brief PTY-side terminal session: Buffer<Row>, State, and Processor.
  *
  * `terminal::Session` is the data-source half of a terminal connection.  It owns:
- * - A `terminal::History` ring buffer that records every byte the shell emits.
  * - The `Buffer<Row>` live cell buffer and `State` atomic parameter store.
  * - The `terminal::Processor` pipeline (Parser → Buffer<Row> → Display).
- *
- * TTY ownership is transferred to Processor immediately after wiring callbacks.
- * Processor calls setWinsize() directly when dimensions change.
+ *   Processor owns the TTY — created and opened via `Processor::startTTY()` in `start()`.
  *
  * ### Data flow
  * ```
- * PTY → History::append → onBytes (IPC broadcast in daemon mode)
- *                       → Processor::process (local + daemon)
+ * PTY → Processor::onData → Processor::onBytesReceived (IPC broadcast, daemon mode only)
+ *                         → Processor::process (local + daemon)
  * ```
  *
  * ### Thread ownership
- * - `onBytes` fires on the READER THREAD (called from tty::onData).
- * - All other public methods are MESSAGE THREAD only.
+ * - All public methods are MESSAGE THREAD only.
  *
  * ### Naming disambiguation
  * This class is `terminal::Session`.  `Nexus` is the session manager that
@@ -26,7 +22,6 @@
  * The two classes live in different namespaces; all source files that need
  * both must qualify fully.
  *
- * @see terminal::History
  * @see terminal::Processor
  * @see Nexus
  */
@@ -34,17 +29,10 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "History.h"
 #include "TextBuffer.h"
 #include "State.h"
 #include "component/Screen.h"
 #include "Processor.h"
-#include "tty/TTY.h"
-#if JUCE_MAC || JUCE_LINUX
-#include "tty/UnixTTY.h"
-#elif JUCE_WINDOWS
-#include "tty/WindowsTTY.h"
-#endif
 #include "../lua/Engine.h"
 
 namespace terminal
@@ -53,16 +41,15 @@ namespace terminal
 
 /**
  * @class terminal::Session
- * @brief PTY-side terminal session — byte history, Buffer<Row>, State, and Processor.
+ * @brief PTY-side terminal session — Buffer<Row>, State, and Processor.
  *
- * Constructed by `Nexus` (or its mode-specific delegates).  Caller
- * sets `onBytes` before calling any method that starts the reader thread.
+ * Constructed by `Nexus` (or its mode-specific delegates).
+ * TTY is created and opened by Processor::startTTY(), called from start().
  *
  * @par Thread context
- * - `onBytes` callback — READER THREAD.
- * - All other public methods — MESSAGE THREAD.
+ * All public methods — MESSAGE THREAD.
  */
-class Session
+class Session : private juce::Value::Listener
 {
 public:
     /**
@@ -123,12 +110,10 @@ public:
      * Bytes are fed externally via `process()`.  CWD is written
      * to State so display logic (tab title, cwd badge) works identically to a local session.
      *
-     * History capacity is read from `lua::Engine::nexus.terminal.scrollbackLines`.
-     *
      * @param cols   Terminal width in character columns.  Must be > 0.
      * @param rows   Terminal height in character rows.  Must be > 0.
      * @param cwd    Initial working directory — written to State.
-     * @param shell  Shell program name (passed through to TTY but not stored in State).
+     * @param shell  Shell program name (not stored in State; reserved for future use).
      * @param uuid   Session UUID.  Empty = auto-generated.
      * @return Owning unique_ptr to the constructed terminal::Session.
      * @note MESSAGE THREAD.
@@ -140,22 +125,18 @@ public:
                                              const juce::String& uuid);
 
     /**
-     * @brief Constructs the Session and wires the TTY — does NOT open the shell.
+     * @brief Constructs the Session and stores deferred TTY open parameters.
      *
-     * Creates the TTY, wires all callbacks, and pushes env vars via
-     * TTY::addShellEnv.  The TTY is then transferred to Processor via setTTY().
-     * Call start() after Display/Screen construction to open the TTY and begin
-     * the reader thread.
-     *
-     * History capacity is read from `lua::Engine::nexus.terminal.scrollbackLines`.
+     * Creates Processor and Screen; stores shell/args/cwd/env for use by start().
+     * Does NOT open the TTY — call start() after Display/Screen construction so
+     * screen node atomics exist before the reader thread fires.
      *
      * @param cols     Initial terminal width in character columns.
      * @param rows     Initial terminal height in character rows.
      * @param shell    Shell program path (e.g. "zsh", "/usr/bin/fish").
      * @param args     Shell arguments string.  Empty = none.
      * @param cwd      Initial working directory.  Empty = inherit.
-     * @param seedEnv  Extra environment variables injected before shell open.
-     *                 Iterated and pushed via TTY::addShellEnv before tty->open().
+     * @param seedEnv  Shell integration environment variable pairs.
      * @param uuid     Session UUID.  Empty = auto-generated.
      */
     Session (cell cols,
@@ -193,7 +174,7 @@ public:
     ~Session();
 
     /**
-     * @brief Opens the TTY and starts the reader thread.
+     * @brief Creates the TTY via Processor::startTTY and starts the reader thread.
      *
      *  Must be called after Display/Screen are created and grafted,
      *  so screen node atomics exist before the reader writes to them.
@@ -203,39 +184,6 @@ public:
      *  @note MESSAGE THREAD.
      */
     void start() noexcept;
-
-    /**
-     * @brief Called on the READER THREAD for every chunk of PTY output.
-     *
-     * `Nexus` sets this before construction completes:
-     * - Non-nexus: wired to `Processor::process`.
-     * - Daemon: wired to broadcast-to-subscribers (byte forwarding via IPC).
-     */
-    std::function<void (const char*, int)> onBytes;
-
-    /**
-     * @brief Writes raw input bytes to the PTY (keyboard/mouse from client).
-     *
-     * Delegates to the TTY now owned by Processor.  Session retains this
-     * method because Display calls it via getProcessor().writeInput(), which
-     * routes through the writeInput event handler wired here in the constructor.
-     *
-     * @param data  Raw byte buffer.  Must not be null.
-     * @param len   Number of bytes to write.
-     * @note MESSAGE THREAD.
-     */
-    void sendInput (const char* data, int len);
-
-    /**
-     * @brief Returns a snapshot of all buffered PTY output bytes.
-     *
-     * Used to produce the `Message::loading` payload sent to a newly-attaching
-     * client so it can reconstruct the display from scratch.
-     *
-     * @return `juce::MemoryBlock` containing the history, oldest bytes first.
-     * @note MESSAGE THREAD.
-     */
-    juce::MemoryBlock snapshotHistory() const;
 
     /**
      * @brief Closes the PTY and stops the reader thread.
@@ -302,7 +250,6 @@ public:
 private:
     TextBuffer textBuffer;                        ///< Cross-thread string buffer — constructed before state.
     State state;                                  ///< Terminal parameter store — constructed before screen.
-    History history;
     terminal::Screen screen;                      ///< Cell buffer + renderer — constructed before processor.
     std::unique_ptr<terminal::Processor> processor;
 
@@ -310,18 +257,23 @@ private:
      *  Constructed in the constructor body after processor is valid. */
     std::unique_ptr<jam::DiscreteStateTransition<jam::Row>> resizer;
 
-    /** @brief Non-owning observer pointer to the TTY transferred to Processor.
-     *  Kept here so sendInput() can write to the shell without routing through
-     *  Processor internals.  Null for remote (no-TTY) sessions. */
-    TTY* ttyObserver { nullptr };
+    /** @brief Bound to TextEditor's winsize property — fires valueChanged when cell dimensions change. */
+    juce::Value winsize;
+
+    /** @brief Called on the message thread when winsize changes. Triggers DST resize. */
+    void valueChanged (juce::Value& value) override;
+
+    /** @brief Wires DST trigger lambdas and Value::Listener binding — called from both constructors. */
+    void wireResizer() noexcept;
 
     // Deferred TTY open parameters — consumed by start().
     // Populated in the PTY constructor; empty for remote sessions.
-    cell         startCols  { 0 };
-    cell         startRows  { 0 };
-    juce::String startShell {};
-    juce::String startArgs  {};
-    juce::String startCwd   {};
+    cell                    startCols  { 0 };
+    cell                    startRows  { 0 };
+    juce::String            startShell {};
+    juce::String            startArgs  {};
+    juce::String            startCwd   {};
+    juce::StringPairArray   startEnv   {};
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Session)
