@@ -21,32 +21,37 @@ namespace terminal
 /*____________________________________________________________________________*/
 
 /**
- * @brief Constructs the Processor: binds State&, activeBlocksRef, and TextBuffer&; constructs Video and Parser.
+ * @brief Constructs the Processor: binds State& and TextBuffer&; constructs Video (with owned buffer) and Parser.
  *
  * State is owned by terminal::Session and passed by reference.
- * activeBlocksRef is Screen's atomic active-blocks pointer — Video loads it via refreshBlocks().
- * Video is owned by this Processor and receives activeBlocksRef and events& references.
+ * Video is owned by this Processor and receives the initial terminal dimensions and the events map.
  * Parser is owned by this Processor and receives Video& reference directly.
+ * TextLineArray is owned by this Processor — capacity set from AppState scrollbackLines.
  * UUID is provided by the caller — no internal generation.
- * Buffer resize is handled entirely by Session::valueChanged (winsize) — Processor does not touch Buffer.
+ * Buffer resize is handled by resizeVideo() and resizeTextLineArray() called from Session's Resizer stop trigger.
  *
- * @param stateRef        Terminal parameter store owned by terminal::Session.
- * @param activeBlocksRef Reference to Screen's atomic active-blocks pointer.
- * @param textBufferRef   Cross-thread string buffer owned by terminal::Session.
- * @param uuid            Stable UUID for this Processor — generated once by the caller.
+ * @param stateRef      Terminal parameter store owned by terminal::Session.
+ * @param cols          Initial terminal width in character columns.
+ * @param rows          Initial terminal height in visible rows.
+ * @param textBufferRef Cross-thread string buffer owned by terminal::Session.
+ * @param uuid          Stable UUID for this Processor — generated once by the caller.
  *
  * @note MESSAGE THREAD — must be constructed on the message thread.
  */
 Processor::Processor (State& stateRef,
-                      std::atomic<jam::Block<jam::Row>*>& activeBlocksRef,
+                      cell cols, cell rows,
                       TextBuffer& textBufferRef,
                       const juce::String& uuid)
     : textBuffer (textBufferRef)
     , state (stateRef)
-    , video (activeBlocksRef, events)
+    , video (cols, rows, events)
     , skit (events)
     , uuid (uuid)
 {
+    const int scrollbackLines { AppState::getContext()->getRawParameterValue<int> (app::id::scrollbackLines)->load() };
+    textLineArrays.at (0).setCapacity (scrollbackLines, rows.value); // normal: has scrollback
+    textLineArrays.at (1).setCapacity (0, rows.value);               // alternate: zero scrollback, live only
+
     registerEvents();
     parser = std::make_unique<Parser> (video);
     state.get().addListener (this);
@@ -191,6 +196,55 @@ void Processor::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Ide
                 jam::ValueTree::getValueFromChildWithID (displayNode, id::cellHeight).getValue()) };
             video.setCellSize (cellW, cellH);
         }
+
+        // Flush path: screenDirty counter changed — serialize Video's visible rows into TextLineArray live slots.
+        // Flat buffer: head is always 0. Message-thread reads of Video's buffer have tearing tolerance
+        // (Video may be writing concurrently on the reader thread — same as the previous architecture).
+        if (paramId == id::screenDirty)
+        {
+            const int activeScreen { state.getActiveScreen() };
+            auto& activeArray { textLineArrays.at (static_cast<size_t> (activeScreen)) };
+
+            const jam::Buffer<jam::Row>& buf { video.getBuffer() };
+            const int numRows { buf.getNumRows() };
+            const int numCols { buf.getNumCols() };
+
+            if (numRows > 0 and numCols > 0)
+            {
+                const jam::Block<jam::Row> block {
+                    buf.getChannelPointer (activeScreen),
+                    0,
+                    0,
+                    numRows,
+                    numCols,
+                    buf.getRowStrideBytes(),
+                    numRows
+                };
+
+                const int visibleRows { activeArray.visibleRows() };
+
+                for (int r { 0 }; r < visibleRows; ++r)
+                {
+                    const jam::Row* const row { block.getRowPointer (r) };
+                    const int usedCols { static_cast<int> (row->usedCols) };
+
+                    jam::TextLine line;
+                    line.cells.resize (static_cast<size_t> (usedCols));
+
+                    for (int c { 0 }; c < usedCols; ++c)
+                        line.cells.at (static_cast<size_t> (c)) = row->cells[c];
+
+                    line.isContinued = (row->flags & jam::Row::flexWrap) != 0;
+                    line.isJustified = (row->flags & jam::Row::justify)  != 0;
+
+                    activeArray.flushLine (r, std::move (line));
+                }
+
+                // Store historyCount in State so Screen can read it from the ValueTree.
+                const juce::Identifier activeScreenId { Map::Screen::getContext()->get (activeScreen) };
+                state.storeValue (activeScreenId, id::historyCount, activeArray.historyCount());
+            }
+        }
     }
 
     // TEXT parameters flush as direct properties on the SESSION root node.
@@ -325,7 +379,6 @@ juce::String Processor::encodeMouseEvent (int button, cell col, cell row, bool p
 void Processor::process (const char* data, int length) noexcept
 {
     jassert (parser != nullptr);
-    video.refreshBlocks();
 
     if (video.getCols() > cell (0) and video.getVisibleRows() > cell (0))
     {
@@ -407,6 +460,38 @@ void Processor::startTTY (const juce::String& shell,
                                   });
 
     tty->open (cols, rows, shell, args, cwd);
+}
+
+/**
+ * @brief Resizes Video's internal buffer and geometry.
+ *
+ * Delegates to Video::setWinsize() — safe to call from the message thread when
+ * processing is suspended.  Session's Resizer stop trigger calls this before
+ * resuming processing and before sending SIGWINCH via setWinsize().
+ *
+ * @param cols  New terminal width in character columns.
+ * @param rows  New terminal height in visible rows.
+ * @note MESSAGE THREAD — safe only while processing is suspended.
+ */
+void Processor::resizeVideo (cell cols, cell rows) noexcept
+{
+    video.setWinsize (cols, rows);
+}
+
+/**
+ * @brief Updates TextLineArray capacity after resize.
+ *
+ * Called by Session's Resizer stop trigger after resizeVideo(), while processing
+ * is suspended.  Processor manages its own TextLineArray member.
+ *
+ * @param scrollbackLines  Maximum scrollback history line count.
+ * @param visibleRows      New visible row count.
+ * @note MESSAGE THREAD — safe only while processing is suspended.
+ */
+void Processor::resizeTextLineArray (int scrollbackLines, int visibleRows) noexcept
+{
+    textLineArrays.at (0).setCapacity (scrollbackLines, visibleRows); // normal: preserve scrollback capacity
+    textLineArrays.at (1).setCapacity (0, visibleRows);               // alternate: zero scrollback
 }
 
 /**

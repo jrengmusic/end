@@ -74,11 +74,6 @@ void Input::clearSelectionAndScroll() noexcept
             node.setProperty (jam::TextEditor::properties.at (jam::TextEditor::selectionTypeId), static_cast<int> (terminal::SelectionType::none), nullptr);
     }
 
-    const int activeScreen { processor.getState().getActiveScreen() };
-    const juce::Identifier scrollScreenId { Map::Screen::getContext()->get (activeScreen) };
-    auto scrollScreenNode { processor.getState().get().getChildWithName (scrollScreenId) };
-    auto scrollParamNode { jam::ValueTree::getChildWithID (scrollScreenNode, id::scrollOffset.toString()) };
-    scrollParamNode.setProperty (id::value, 0, nullptr);
 }
 
 void Input::buildKeyMap() noexcept

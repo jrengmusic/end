@@ -264,11 +264,8 @@ namespace id
     // Per-screen scrollback parameter IDs
     //==========================================================================
 
-    /** @brief Packed write head — ring position (16 bits) + history rows (16 bits). WriteHead::pack()/unpack(). */
-    static const juce::Identifier writeHead            { "writeHead" };
-
-    /** @brief User scroll offset. 0 = live viewport, >0 = scrolled into history. */
-    static const juce::Identifier scrollOffset         { "scrollOffset" };
+    /** @brief Number of committed history lines in the active screen's TextLineArray. Written by Processor on flush. */
+    static const juce::Identifier historyCount         { "historyCount" };
 
     //==========================================================================
     // Repaint signal atomic
@@ -315,6 +312,11 @@ namespace id
 
     /** @brief Fired on OSC 8 hyperlink open — args: const juce::String& uri, const juce::String& params. */
     static const juce::Identifier registerLink        { "registerLink" };
+
+    /** @brief Fired on the reader thread for each line departing to scrollback — args: int (screen).
+     *  Fires BEFORE the line is shifted up and cleared.  Flat buffer: departing line is always at physical row 0.
+     *  Handler reads the line and dispatches pushHistory to the message thread via callAsync. */
+    static const juce::Identifier pushLine              { "pushLine" };
 
     /** @brief Fired when Grid scrolls up — args: int (screen), int (count). */
     static const juce::Identifier scrollUp              { "scrollUp" };

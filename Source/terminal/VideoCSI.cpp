@@ -521,53 +521,9 @@ void Video::scrollDown (const CSI& params) noexcept
     const int count   { static_cast<int> (params.param (0, 1)) };
     const int clampedCount { juce::jmin (count, bottom - scrTop + 1) };
 
-    {
-        const bool isFullScreen { scrTop == 0 and bottom == visibleRows.value - 1 };
-
-        if (isFullScreen)
-        {
-            const int ringRows { blocks[scr].getNumRows() };
-
-            for (int n { 0 }; n < clampedCount; ++n)
-            {
-                writePosition.at (static_cast<size_t> (scr)) =
-                    (writePosition.at (static_cast<size_t> (scr)) - 1 + ringRows) % ringRows;
-                blocks[scr].clear (0, writePosition.at (static_cast<size_t> (scr)));
-            }
-
-            if (events.contains (id::scrollUp))
-                events.get (id::scrollUp, scr, 0, writePosition.at (static_cast<size_t> (scr)));
-        }
-        else
-        {
-            const int wp { writePosition.at (static_cast<size_t> (scr)) };
-
-            for (int n { 0 }; n < clampedCount; ++n)
-            {
-                for (int r { bottom }; r > scrTop; --r)
-                    blocks[scr].copyRow (r, r - 1, wp);
-
-                blocks[scr].clear (scrTop, wp);
-            }
-        }
-    }
-
-    if (penBg.getAlpha() > 0)
-    {
-        const jam::Cell fill { jam::Cell::erase (eraseStyleId()) };
-        const int numCols   { cols.value };
-
-        for (int r { scrTop }; r < scrTop + clampedCount; ++r)
-        {
-            jam::Row* const rowPtr { blocks[scr].getWritePointer (r, writePosition.at (static_cast<size_t> (scr))) };
-
-            for (int c { 0 }; c < numCols; ++c)
-                rowPtr->cells[c] = fill;
-
-            rowPtr->usedCols = 0;
-            rowPtr->flags    = 0;
-        }
-    }
+    // Flat buffer (head always 0): delegate to scrollDownAndFill for each line.
+    for (int n { 0 }; n < clampedCount; ++n)
+        scrollDownAndFill (scrTop, bottom);
 }
 
 /**

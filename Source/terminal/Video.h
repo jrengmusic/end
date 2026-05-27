@@ -97,24 +97,24 @@ public:
     static constexpr int MAX_OSC_TITLE_LENGTH { 256 };
 
     /**
-     * @brief Constructs Video and initialises internal geometry.
+     * @brief Constructs Video, allocates the owned Buffer and builds Block views.
      *
-     * The constructor does not call `setWinsize()`.  The owner must call
-     * `setWinsize()` after construction to synchronise the internal geometry.
-     * Constructor loads blocks from activeBlocksRef immediately via acquire load.
+     * Allocates a 2-channel Buffer (normal + alternate) with `rows` visible rows
+     * and `cols` columns.  Builds per-channel Block views into the buffer.
+     * The owner must call `setWinsize()` after Display/Screen exist to
+     * synchronise internal geometry before the first process() call.
      *
-     * @param activeBlocksRef  Reference to Screen's atomic active-blocks pointer.
-     *                         Video loads this once per process() via refreshBlocks().
-     *                         Must outlive this Video instance.
-     * @param events           Events map owned by Processor.  Video fires events through
-     *                         this map instead of holding std::function callbacks directly.
+     * @param cols    Initial terminal width in character columns.
+     * @param rows    Initial terminal height in visible rows.
+     * @param events  Events map owned by Processor.  Video fires events through
+     *                this map instead of holding std::function callbacks directly.
      *
      * @note MESSAGE THREAD — construction happens before the reader thread starts.
      *
      * @see calc()
-     * @see refreshBlocks()
+     * @see setWinsize()
      */
-    explicit Video (std::atomic<jam::Block<jam::Row>*>& activeBlocksRef,
+    explicit Video (cell cols, cell rows,
                     jam::Function::Map<juce::Identifier, void>& events) noexcept;
 
     /**
@@ -178,50 +178,44 @@ public:
      *         Called by Processor during screen switch mediation. */
     void setWrapPending (bool pending) noexcept;
 
-    /** @brief Sets terminal dimensions and resets cursor, scroll region, and tab stops.
+    /** @brief Resizes the owned buffer and resets cursor, scroll region, and tab stops.
      *
      *  Stores the new column and row counts, clears wrap-pending, clamps the cursor
      *  to the new bounds, resets the scroll region to full screen, reinitialises tab
-     *  stops, and calls `calc()` to synchronise internal cached geometry.  Replaces
-     *  the former two-step `setWinsize()` + `resize()` call sequence.
+     *  stops, rebuilds Block views from the resized buffer, reads ring heads from
+     *  blocks, and calls `calc()` to synchronise internal cached geometry.
      *
-     *  Called by Processor at cold-start (constructor) and on every viewport resize
-     *  (valueTreePropertyChanged).  All writes occur on the reader thread — no
-     *  synchronisation is needed.
+     *  Called by Processor::resizeVideo() from Session's Resizer stop trigger while
+     *  processing is suspended, and directly by Processor::setWinsize() for cold-start.
      *
      *  @param newCols  New terminal width in character columns.
      *  @param newRows  New terminal height in visible rows.
-     *  @note READER THREAD only.
+     *  @note MESSAGE THREAD — called while processing is suspended.
      */
     void setWinsize (cell newCols, cell newRows) noexcept;
 
-    /** @brief Loads the active blocks pointer from Screen's atomic.
-     *
-     *  Called at the start of each process() batch so Video sees any block swap
-     *  that Screen performed on the message thread since the last call.
-     *
-     *  @note READER THREAD only.
-     */
-    void refreshBlocks() noexcept;
+    /** @brief Returns a const reference to the internal row buffer.
+     *  Session reads this on the message thread for the flush path.
+     *  Tearing tolerance: Video may be writing concurrently on the reader thread.
+     *  @note MESSAGE THREAD — same tearing tolerance as the previous atomic-pointer pattern. */
+    const jam::Buffer<jam::Row>& getBuffer() const noexcept { return buffer; }
+
+    /** @brief Returns a const reference to the Block view for the given screen.
+     *  @param screen  Channel index (0 = normal, 1 = alternate).
+     *  @note READER THREAD. */
+    const jam::Block<jam::Row>& getBlock (int screen) const noexcept
+    {
+        return blocks.at (static_cast<size_t> (screen));
+    }
 
     /** @brief Zeros all rows of the specified channel through the active blocks.
      *
-     *  Called by Processor's clearBuffer event handler.
+     *  Buffer is flat (head always 0).  Called by Processor's clearBuffer event handler.
      *
      *  @param screen  Channel index (0 = normal, 1 = alternate).
      *  @note MESSAGE THREAD.
      */
     void clearChannel (int screen) noexcept;
-
-    /** @brief Returns the current ring write position for the specified screen.
-     *
-     *  Called by Processor's clearBuffer event handler to pack the cleared WriteHead.
-     *
-     *  @param screen  Channel index (0 = normal, 1 = alternate).
-     *  @return Ring write position stored in writePosition[screen].
-     *  @note MESSAGE THREAD.
-     */
-    int getWritePosition (int screen) const noexcept;
 
     /** @brief Sets physical cell dimensions for CSI pixel dimension reports.
      *
@@ -332,21 +326,21 @@ public:
 
 private:
     /**
-     * @brief Reference to Screen's atomic active-blocks pointer.
+     * @brief Owned cell buffer — 2 channels (normal + alternate), cols × visibleRows.
      *
-     * refreshBlocks() loads this at the start of each process() batch.
-     * Must outlive this Video instance — Screen is owned by Session.
+     * Disposable scratch.  Resized by setWinsize() while processing is suspended.
+     * Session reads this via getBuffer() on the message thread for the flush path.
      */
-    std::atomic<jam::Block<jam::Row>*>& activeBlocksRef;
+    jam::Buffer<jam::Row> buffer;
 
     /**
-     * @brief Cached active blocks pointer — loaded from activeBlocksRef each process() batch.
+     * @brief Per-channel Block views into the owned buffer.
      *
      * Index 0 = normal screen channel, 1 = alternate screen channel.
-     * Video writes cells through blocks[activeScreen].
-     * Refreshed by refreshBlocks() at the top of each process() call.
+     * Video writes cells through blocks.at(activeScreen).
+     * Rebuilt by setWinsize() after every buffer resize.
      */
-    jam::Block<jam::Row>* blocks;
+    std::array<jam::Block<jam::Row>, 2> blocks;
 
 
     /**
@@ -362,7 +356,6 @@ private:
      * - `"dcsPayloadComplete"` — `(const uint8_t*, int)` — DCS ST received, reader thread
      * - `"apcPayloadComplete"` — `(const uint8_t*, int)` — APC ST/BEL received, reader thread
      * - `"activeScreen"` / `"cursor"` — `flush()`, reader thread.  `"cursor"` is packed CursorState (row+col+visible+kbFlags).
-     * - `"writeHead"` — `(int position)` — ring write position for active screen — `flush()`, reader thread
      * - `"applicationCursor"` / `"bracketedPaste"` / mode flags — `(bool)` — `flush()`, reader thread
      *
      * @note READER THREAD — events are fired on the reader thread; callAsync handlers
@@ -390,10 +383,6 @@ private:
 
     /** @brief Cell height in pixels. Reader thread only. Used by CSI `t` pixel dimension reports. */
     int cellHeight { 0 };
-
-    /** @brief Ring write position per screen. Advances on full-screen scroll-up, reverses on scroll-down.
-     *  Flushed to State as part of WriteHead via the scrollUp event. Same pattern as cursorRow/cursorCol. */
-    std::array<int, 2> writePosition { 0, 0 };
 
     /** @brief Active screen cursor row (zero-based). Single register — screen switch loads/saves via State. */
     cell cursorRow { 0 };

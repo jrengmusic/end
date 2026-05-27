@@ -1,5 +1,60 @@
 # SPRINT-LOG
 
+## Sprint 36: Neovim-Modeled Text Rendering Foundation ✅
+
+**Date:** 2026-05-28
+
+### Agents Participated
+- COUNSELOR: orchestration, PLAN, RFC compliance, discussion
+- Engineer: implementation (multiple delegations — ownership restructure, wiring, rendering, fixes)
+- Auditor: comprehensive audit + clean sweep
+- Oracle: Neovim structural comparison (plines, terminal.c, memline, buffer_defs)
+- Pathfinder: codebase discovery, mouse event routing investigation
+- Librarian: JUCE Viewport mouseWheelMove, juce::TextEditor pattern
+
+### Files Modified (19 total)
+- `Source/terminal/Video.h` — owns flat Buffer<Row>, no activeBlocksRef/refreshBlocks/writePosition, added getBuffer/getBlock
+- `Source/terminal/Video.cpp` — flat buffer (shift rows, no ring rotation), pushLine event before shift, removed writePosition/refreshBlocks
+- `Source/terminal/VideoEdit.cpp` — all blocks[] pointer access → .at(), flat buffer shift
+- `Source/terminal/VideoCSI.cpp` — blocks[] → .at(), scrollDown flat shift
+- `Source/terminal/VideoESC.cpp` — blocks[] → .at(), head=0
+- `Source/terminal/Processor.h` — owns two TextLineArrays, resizeVideo/resizeTextLineArray/getTextLineArray, font-aware constructor
+- `Source/terminal/Processor.cpp` — screenDirty flush in vTPC, TextLineArray init, historyCount to State
+- `Source/terminal/ProcessorEvents.cpp` — pushLine handler (normal screen only, callAsync), selection adjustment in pushLine, simplified screenDirty/clearBuffer
+- `Source/terminal/Session.h` — removed TextLineArray, font in constructor, Resizer replaces DST
+- `Source/terminal/Session.cpp` — font from AppState in create(), simplified wireResizer (resizeVideo + resizeTextLineArray), removed buffer comparisons
+- `Source/terminal/component/Screen.h` — pure renderer, own ValueTree::Listener, no buffers/pointers
+- `Source/terminal/component/Screen.cpp` — vTPC: caret positioning from State historyCount + cursor only
+- `Source/terminal/component/Display.h` — terminalState listener, removed mouseWheelMove
+- `Source/terminal/component/Display.cpp` — vTPC filters screenDirty → setText + setWrapEnabled, config → applyFromAppState; scrollToBottom on keyPressed
+- `Source/terminal/Identifier.h` — added pushLine/historyCount, removed commitRow/scrollOffset/writeHead
+- `Source/terminal/Parameters.xml` — added historyCount, removed scrollOffset/writeHead
+- `Source/terminal/Input.cpp` — removed scrollOffset reset from clearSelectionAndScroll
+- `ARCHITECTURE.md` — surgical update: ownership model, glossary, component descriptions
+- `PLAN-text-editor.md` — deleted (sprint complete)
+
+### Alignment Check
+- [x] BLESSED principles followed — B: Video owns scratch, Processor owns SSOT, Screen owns nothing; L: WriteHead/DST/double-buffer eliminated; E: TextEditor sole author of viewport, Display orchestrates; S: TextLineArray SSOT, historyCount from TextLineArray; S: Screen stateless renderer; E: layer boundaries (Video→Processor→Display→Screen); D: same TextLineArray + viewWidth = same render
+- [x] NAMES.md adhered — pushLine, pushHistory, flushLine, historyCount, getWrappedLines, TextLine, TextLineArray, Resizer, projectedRows, scrollToBottom, setWrapEnabled
+- [x] MANIFESTO.md principles applied — no naked pointers, no early returns, TETRIS calc(), references for non-owning deps
+
+### Problems Solved
+- Neovim-faithful buffer/projection architecture (verified by Oracle against plines.c, terminal.c, memline.c)
+- Video flat buffer — no ring rotation, no writePosition, no atomic pointer indirection
+- Processor owns TextLineArrays — sole author of content, daemon-safe serialization path
+- Display orchestrates rendering — filters vTPC by property, separates content from config
+- Screen pure renderer — no content ownership, no content writes, caret from State
+- JUCE Viewport as scroll engine — mouseWheelMove via useMouseWheelMoveIfNeeded pattern
+- Font through constructor chain — no deferred guard needed
+- TETRIS calc() — one function, cell units, single pixel conversion, resized() inlined
+- Selection adjustment moved from Screen vTPC to pushLine handler (no listener write-back)
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- Glyph constraint expansion disagrees with cells.size() for NF icons — Arrangement::shape wraps lines that getWrappedLines says fit. Root cause: wcwidth=1 but constraint span=2. Needs instrumentation to compare Video usedCols vs TextLine cells.size() vs Arrangement accumulated columns per line.
+
 ## Sprint 35: Step 3 DST Resizer + APVTS Compliance + Callback Elimination ✅
 
 **Date:** 2026-05-26

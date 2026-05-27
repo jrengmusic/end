@@ -67,7 +67,6 @@ public:
     void mouseDrag (const juce::MouseEvent& event) override;
     void mouseUp (const juce::MouseEvent& event) override;
     void mouseMove (const juce::MouseEvent& event) override;
-    void mouseWheelMove (const juce::MouseEvent& event, const juce::MouseWheelDetails& wheel) override;
 
 private:
     terminal::Session& session;
@@ -77,6 +76,8 @@ private:
     std::unique_ptr<jam::ComponentAttachment> attachment;
     juce::ValueTree normalScreen;
     juce::ValueTree alternateScreen;
+
+    juce::ValueTree terminalState;  ///< Per-session state tree — Display listens for content updates.
 
     terminal::LinkManager linkManager;
     terminal::Input input;

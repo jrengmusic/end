@@ -145,7 +145,8 @@ public:
              const juce::String& args,
              const juce::String& cwd,
              const juce::StringPairArray& seedEnv,
-             const juce::String& uuid);
+             const juce::String& uuid,
+             const jam::Font& font);
 
     /**
      * @brief Constructs a remote Session — Processor + State only, no TTY.
@@ -165,7 +166,8 @@ public:
              cell rows,
              const juce::String& cwd,
              const juce::String& shell,
-             const juce::String& uuid);
+             const juce::String& uuid,
+             const jam::Font& font);
 
     /**
      * @brief Stops the PTY and releases all resources.
@@ -248,22 +250,22 @@ public:
     terminal::Screen& getScreen() noexcept;
 
 private:
-    TextBuffer textBuffer;                        ///< Cross-thread string buffer — constructed before state.
-    State state;                                  ///< Terminal parameter store — constructed before screen.
-    terminal::Screen screen;                      ///< Cell buffer + renderer — constructed before processor.
-    std::unique_ptr<terminal::Processor> processor;
+    TextBuffer textBuffer;                              ///< Cross-thread string buffer — constructed first.
+    State state;                                        ///< Terminal parameter store — constructed before Screen.
+    terminal::Screen screen;                            ///< IS jam::TextEditor — SOLE AUTHOR of viewport dims.
+    std::unique_ptr<terminal::Processor> processor;     ///< Owns Video and TextLineArray — constructed last.
 
-    /** @brief DST resize coordinator — coalesces dimension changes, suspends/resumes Processor.
+    /** @brief Resize coordinator — coalesces dimension changes, suspends/resumes Processor.
      *  Constructed in the constructor body after processor is valid. */
-    std::unique_ptr<jam::DiscreteStateTransition<jam::Row>> resizer;
+    std::unique_ptr<jam::Resizer> resizer;
 
     /** @brief Bound to TextEditor's winsize property — fires valueChanged when cell dimensions change. */
     juce::Value winsize;
 
-    /** @brief Called on the message thread when winsize changes. Triggers DST resize. */
+    /** @brief Called on the message thread when winsize changes. Triggers resize via Resizer. */
     void valueChanged (juce::Value& value) override;
 
-    /** @brief Wires DST trigger lambdas and Value::Listener binding — called from both constructors. */
+    /** @brief Wires Resizer trigger lambdas and Value::Listener binding — called from both constructors. */
     void wireResizer() noexcept;
 
     // Deferred TTY open parameters — consumed by start().

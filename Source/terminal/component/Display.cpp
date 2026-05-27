@@ -33,6 +33,11 @@ terminal::Display::Display (terminal::Session& sessionToUse)
         });
 
     AppState::getContext()->get().addListener (this);
+
+    // Listen to per-session terminal state for content updates (screenDirty).
+    terminalState = state.get();
+    terminalState.addListener (this);
+
     applyFromAppState();
 }
 
@@ -47,6 +52,7 @@ terminal::State& terminal::Display::createAndAttachState (terminal::State& state
 
 terminal::Display::~Display()
 {
+    terminalState.removeListener (this);
     AppState::getContext()->get().removeListener (this);
     session.getScreen().removeKeyListener (this);
 }
@@ -77,9 +83,25 @@ void terminal::Display::applyFromAppState() noexcept
     mouse.setCellSize (font.bounds.width, font.bounds.height);
     input.buildKeyMap();
 }
-void terminal::Display::valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier&)
+void terminal::Display::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
 {
-    applyFromAppState();
+    bool isContentUpdate { false };
+
+    if (property == id::value and tree.getType() == jam::ValueTree::PARAM)
+    {
+        const juce::Identifier paramId { tree.getProperty (id::id).toString() };
+
+        if (paramId == id::screenDirty)
+        {
+            isContentUpdate = true;
+            const int activeScreen { state.getActiveScreen() };
+            session.getScreen().setWrapEnabled (activeScreen == Map::Screen::normal);
+            session.getScreen().setText (processor.getTextLineArray());
+        }
+    }
+
+    if (not isContentUpdate)
+        applyFromAppState();
 }
 
 void terminal::Display::applyZoom (float) noexcept {}
@@ -141,7 +163,12 @@ void terminal::Display::resized()
 // juce::KeyListener
 bool terminal::Display::keyPressed (const juce::KeyPress& key, juce::Component*)
 {
-    return input.handleKey (key);
+    const bool handled { input.handleKey (key) };
+
+    if (handled)
+        session.getScreen().scrollToBottom();
+
+    return handled;
 }
 
 // juce::Component mouse events
@@ -150,22 +177,3 @@ void terminal::Display::mouseDoubleClick (const juce::MouseEvent& event) { mouse
 void terminal::Display::mouseDrag (const juce::MouseEvent& event) { mouse.handleDrag (event); }
 void terminal::Display::mouseUp (const juce::MouseEvent& event) { mouse.handleUp (event); }
 void terminal::Display::mouseMove (const juce::MouseEvent& event) { mouse.handleMove (event, *this); }
-
-void terminal::Display::mouseWheelMove (const juce::MouseEvent& event, const juce::MouseWheelDetails& wheel)
-{
-    const int activeScreenIndex { state.getActiveScreen() };
-    const juce::Identifier wheelScreenId { Map::Screen::getContext()->get (activeScreenIndex) };
-    auto wheelScreenNode { state.get().getChildWithName (wheelScreenId) };
-    const int currentOffset { static_cast<int> (jam::ValueTree::getValueFromChildWithID (wheelScreenNode, terminal::id::scrollOffset).getValue()) };
-    const jam::WriteHead wh { jam::WriteHead::unpack (static_cast<int> (
-        jam::ValueTree::getValueFromChildWithID (wheelScreenNode, terminal::id::writeHead).getValue())) };
-
-    mouse.handleWheel (event, wheel, [this, activeScreenIndex, currentOffset, historyRows = wh.historyRows] (int delta)
-    {
-        const int newOffset { juce::jlimit (0, historyRows, currentOffset + delta) };
-        const juce::Identifier writeScreenId { Map::Screen::getContext()->get (activeScreenIndex) };
-        auto writeScreenNode { state.get().getChildWithName (writeScreenId) };
-        auto paramNode { jam::ValueTree::getChildWithID (writeScreenNode, terminal::id::scrollOffset.toString()) };
-        paramNode.setProperty (terminal::id::value, newOffset, nullptr);
-    });
-}

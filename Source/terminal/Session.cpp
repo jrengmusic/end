@@ -180,14 +180,21 @@ std::unique_ptr<Session> Session::create (const juce::String& cwd,
     juce::StringPairArray mergedEnv { seedEnv };
     applyShellIntegration (effectiveShell, effectiveArgs, mergedEnv);
 
-    auto session { std::make_unique<Session> (cols, rows, effectiveShell, effectiveArgs, cwd, mergedEnv, uuid) };
+    const auto* appState { AppState::getContext() };
+    const jam::Font font { appState->getFontFamily(),
+                           appState->getFontSize(),
+                           static_cast<float> (appState->getCellWidth()),
+                           static_cast<float> (appState->getLineHeight()) };
+
+    auto session { std::make_unique<Session> (cols, rows, effectiveShell, effectiveArgs, cwd, mergedEnv, uuid, font) };
     return session;
 }
 
 /**
  * @brief Constructs the Session and stores deferred TTY open parameters.
  *
- * Creates Processor and Screen; stores shell/args/cwd/env for consumption by start().
+ * Creates Screen, Processor (owns Video and TextLineArray with its own buffer).
+ * Stores shell/args/cwd/env for start().
  * Does NOT create the TTY — that happens in start() via Processor::startTTY() so
  * screen node atomics exist before the reader thread fires.
  *
@@ -199,13 +206,14 @@ Session::Session (cell cols,
                   const juce::String& args,
                   const juce::String& cwd,
                   const juce::StringPairArray& seedEnv,
-                  const juce::String& uuid)
+                  const juce::String& uuid,
+                  const jam::Font& font)
     : textBuffer {}
     , state (textBuffer)
-    , screen (state, cols, rows)
+    , screen (state, font)
 {
     const juce::String effectiveUuid { uuid.isNotEmpty() ? uuid : juce::Uuid().toString() };
-    processor = std::make_unique<terminal::Processor> (state, screen.getActiveBlocksRef(), textBuffer, effectiveUuid);
+    processor = std::make_unique<terminal::Processor> (state, cols, rows, textBuffer, effectiveUuid);
     state.setId (effectiveUuid);
 
     // Resize coordinator — coalesces dimension changes, suspends/resumes processing.
@@ -225,9 +233,10 @@ Session::Session (cell cols,
 /**
  * @brief Constructs a remote Session — Processor + State only, no TTY.
  *
- * Creates Processor and wires CWD into State so display logic
- * (tab title, cwd badge) works identically to a local session.  TTY is not
- * created.  Bytes must be fed externally via getProcessor().process().
+ * Creates Screen, Processor (owns Video and TextLineArray with its own buffer).
+ * Wires CWD into State so display logic (tab title, cwd badge)
+ * works identically to a local session.  TTY is not created.  Bytes must be
+ * fed externally via getProcessor().process().
  *
  * @note MESSAGE THREAD.
  */
@@ -235,36 +244,45 @@ Session::Session (cell cols,
                   cell rows,
                   const juce::String& cwd,
                   const juce::String& shell,
-                  const juce::String& uuid)
+                  const juce::String& uuid,
+                  const jam::Font& font)
     : textBuffer {}
     , state (textBuffer)
-    , screen (state, cols, rows)
+    , screen (state, font)
 {
     jassert (cols.value > 0);
     jassert (rows.value > 0);
 
     const juce::String effectiveUuid { uuid.isNotEmpty() ? uuid : juce::Uuid().toString() };
-    processor = std::make_unique<terminal::Processor> (state, screen.getActiveBlocksRef(), textBuffer, effectiveUuid);
+    processor = std::make_unique<terminal::Processor> (state, cols, rows, textBuffer, effectiveUuid);
     state.setId (effectiveUuid);
+
     state.get().setProperty (terminal::id::cwd, cwd, nullptr);
 
     wireResizer();
 }
 
 /**
- * @brief Wires DST trigger lambdas and Value::Listener binding.
+ * @brief Wires Resizer trigger lambdas and Value::Listener binding.
  *
  * Called from both constructors after processor and screen are initialized.
- * Extracts the duplicated wiring that both PTY and remote constructors require:
- * - Creates the DST resizer bound to Screen's active buffer.
- * - Registers start trigger (suspendProcessing) and stop trigger (resizeBuffers + setWinsize).
- * - Binds winsize Value::Listener to TextEditor's viewport property in State.
+ * Creates the jam::Resizer, registers start trigger (suspendProcessing) and
+ * stop trigger (resizeVideo + resizeTextLineArray + SIGWINCH), and binds
+ * winsize Value::Listener to TextEditor's viewport property in State.
+ *
+ * Stop trigger:
+ *   processor->resizeVideo(newCols, newRows)                     — resize Buffer<Row>, blank canvas
+ *   processor->resizeTextLineArray(scrollbackLines, newRows)     — update live slot count
+ *   processor->suspendProcessing(false)
+ *   processor->setWinsize(newCols, newRows)                      — SIGWINCH to shell
+ *
+ * Display handles screen.setText via its own vTPC on screenDirty.
  *
  * @note MESSAGE THREAD.
  */
 void Session::wireResizer() noexcept
 {
-    resizer = std::make_unique<jam::DiscreteStateTransition<jam::Row>> (screen.getActiveBuffer());
+    resizer = std::make_unique<jam::Resizer>();
 
     resizer->addTrigger<int, int> (jam::ID::start,
         [this] (int, int)
@@ -275,27 +293,12 @@ void Session::wireResizer() noexcept
     resizer->addTrigger<int, int> (jam::ID::stop,
         [this] (int newCols, int newRows)
         {
+            // Video resizes its own buffer — safe: processing is suspended.
+            processor->resizeVideo (cell (newCols), cell (newRows));
+
+            // Update Processor's owned TextLineArray live region.
             const int scrollbackLines { AppState::getContext()->getRawParameterValue<int> (app::id::scrollbackLines)->load() };
-            const int newRingSize { scrollbackLines + newRows };
-
-            std::array<int, 2> writePositions {};
-
-            for (int ch { 0 }; ch < 2; ++ch)
-            {
-                const juce::Identifier screenId { Map::Screen::getContext()->get (ch) };
-                const jam::WriteHead wh { jam::WriteHead::unpack (state.loadValue (screenId, id::writeHead)) };
-                writePositions.at (static_cast<size_t> (ch)) = wh.position;
-            }
-
-            const auto newWritePositions { screen.resizeBuffers (newRingSize, newCols, writePositions) };
-
-            for (int ch { 0 }; ch < 2; ++ch)
-            {
-                const juce::Identifier screenId { Map::Screen::getContext()->get (ch) };
-                const jam::WriteHead currentWH { jam::WriteHead::unpack (state.loadValue (screenId, id::writeHead)) };
-                const jam::WriteHead newWH { newWritePositions.at (static_cast<size_t> (ch)), currentWH.historyRows };
-                state.storeValue (screenId, id::writeHead, newWH.pack());
-            }
+            processor->resizeTextLineArray (scrollbackLines, newRows);
 
             processor->suspendProcessing (false);
             processor->setWinsize (cell (newCols), cell (newRows));
@@ -310,8 +313,8 @@ void Session::wireResizer() noexcept
 /**
  * @brief Fires on the message thread when TextEditor's winsize property changes.
  *
- * Triggers the DST resizer when cell dimensions change, which coalesces
- * rapid resize events and suspends processing during the buffer reallocation.
+ * Triggers the Resizer when viewport dimensions change.  The Resizer's 16ms
+ * coalescing timer prevents redundant resizes on rapid successive changes.
  *
  * @note MESSAGE THREAD — juce::Value::Listener fires on the message thread.
  */
@@ -322,15 +325,7 @@ void Session::valueChanged (juce::Value& value)
         const auto dims { jam::Bounds::unpack (static_cast<int> (winsize.getValue())) };
 
         if (dims.isValid())
-        {
-            const int scrollbackLines { AppState::getContext()->getRawParameterValue<int> (app::id::scrollbackLines)->load() };
-            const int newRingSize { scrollbackLines + dims.height };
-            const int currentCols { screen.getActiveBuffer().getNumCols() };
-            const int currentRing { screen.getActiveBuffer().getNumRows() };
-
-            if (newRingSize != currentRing or dims.width != currentCols)
-                resizer->set (jam::ID::start, dims.width, dims.height);
-        }
+            resizer->set (jam::ID::start, dims.width, dims.height);
     }
 }
 
@@ -358,7 +353,13 @@ std::unique_ptr<Session> Session::create (cell cols,
 
     const juce::String effectiveUuid { uuid.isNotEmpty() ? uuid : juce::Uuid().toString() };
 
-    return std::make_unique<Session> (cols, rows, cwd, shell, effectiveUuid);
+    const auto* appState { AppState::getContext() };
+    const jam::Font font { appState->getFontFamily(),
+                           appState->getFontSize(),
+                           static_cast<float> (appState->getCellWidth()),
+                           static_cast<float> (appState->getLineHeight()) };
+
+    return std::make_unique<Session> (cols, rows, cwd, shell, effectiveUuid, font);
 }
 
 /**

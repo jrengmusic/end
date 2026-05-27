@@ -36,7 +36,7 @@
  *
  * @see terminal::Session — owns TTY (via Processor::startTTY) and orchestrates startup.
  * @see jam::Buffer<jam::Row> — flat row storage, stateless data buffer.
- * @see jam::DiscreteStateTransition — coalescing resize lifecycle manager (owned by Session).
+ * @see jam::Resizer — coalescing resize coordinator (owned by Session).
  * @see Parser     — VT100/VT520 state machine.
  * @see Video      — terminal state machine: pen, cursor, modes, Buffer<Row> writes.
  * @see State      — atomic terminal parameter store.
@@ -95,31 +95,30 @@ namespace terminal
  *
  * @note Construct and destroy on the **message thread**.
  *
- * @see jam::Buffer<jam::Row>, Parser, Video, State, terminal::Session, jam::DiscreteStateTransition
+ * @see jam::Buffer<jam::Row>, Parser, Video, State, terminal::Session, jam::Resizer
  */
 class Processor : public juce::ValueTree::Listener
 {
 public:
     //==============================================================================
     /**
-     * @brief Constructs the Processor and wires the parser, video, and resize pipeline.
+     * @brief Constructs the Processor and wires the parser and video pipeline.
      *
-     * Receives State& from Session and activeBlocksRef from Screen (via Session).
-     * Constructs Video with the atomic blocks reference and Parser.
+     * Constructs Video with the initial terminal dimensions and Parser.
+     * Constructs and owns TextLineArray — capacity set from AppState scrollbackLines.
      * UUID is provided by the caller.
      * Call `startTTY()` from Session::start() to create the platform TTY and
      * route video responses (e.g. cursor-position reports) to the PTY sink.
      *
-     * @param stateRef        Terminal parameter store — owned by terminal::Session.
-     * @param activeBlocksRef Reference to Screen's atomic active-blocks pointer.
-     *                        Video loads this once per process() via refreshBlocks().
-     *                        Must outlive this Processor.
-     * @param textBuffer      Cross-thread string buffer owned by terminal::Session.
-     * @param uuid            Stable UUID for this Processor — generated once by the caller.
+     * @param stateRef    Terminal parameter store — owned by terminal::Session.
+     * @param cols        Initial terminal width in character columns.
+     * @param rows        Initial terminal height in visible rows.
+     * @param textBuffer  Cross-thread string buffer owned by terminal::Session.
+     * @param uuid        Stable UUID for this Processor — generated once by the caller.
      * @note MESSAGE THREAD — must be constructed on the message thread.
      */
     Processor (State& stateRef,
-               std::atomic<jam::Block<jam::Row>*>& activeBlocksRef,
+               cell cols, cell rows,
                TextBuffer& textBuffer,
                const juce::String& uuid);
 
@@ -271,6 +270,39 @@ public:
     void setBytesObserver (std::function<void (const char*, int)> handler) noexcept;
 
     /**
+     * @brief Resizes Video's internal buffer and geometry.
+     *
+     * Called by Session's Resizer stop trigger while processing is suspended.
+     * Delegates to Video::setWinsize() — safe because processing is suspended
+     * and the reader thread is not active.
+     *
+     * @param cols  New terminal width in character columns.
+     * @param rows  New terminal height in visible rows.
+     * @note MESSAGE THREAD — safe only when processing is suspended.
+     */
+    void resizeVideo (cell cols, cell rows) noexcept;
+
+    /** @brief Updates TextLineArray capacity after resize.
+     *
+     * Called by Session's Resizer stop trigger after resizeVideo(), while processing
+     * is suspended.  Processor manages its own TextLineArray member.
+     *
+     * @param scrollbackLines  Maximum scrollback history line count.
+     * @param visibleRows      New visible row count.
+     * @note MESSAGE THREAD — called from Resizer stop trigger while processing suspended.
+     */
+    void resizeTextLineArray (int scrollbackLines, int visibleRows) noexcept;
+
+    /** @brief Returns a const reference to the active screen's SSOT content storage.
+     *  Display reads this to pass to Screen::setText for rendering.
+     *  Index 0 = normal (has scrollback), index 1 = alternate (zero scrollback).
+     *  @note MESSAGE THREAD. */
+    const jam::TextLineArray& getTextLineArray() const noexcept
+    {
+        return textLineArrays.at (static_cast<size_t> (state.getActiveScreen()));
+    }
+
+    /**
      * @brief Performs the OS-level PTY resize (SIGWINCH to shell).
      *
      * Delegates to tty->setWinsize() when a TTY is owned and its thread is
@@ -325,6 +357,13 @@ private:
     /** @brief Cross-thread string buffer — owned by terminal::Session. */
     TextBuffer& textBuffer;
 
+    /** @brief Per-screen SSOT content storage — owned by Processor.
+     *  Index 0 = normal screen (scrollback capacity from AppState).
+     *  Index 1 = alternate screen (zero scrollback — live rows only).
+     *  pushLine handler pushes history to index 0 only (normal screen).
+     *  Message-thread-only writes — all access via callAsync from reader thread. */
+    std::array<jam::TextLineArray, 2> textLineArrays;
+
     /** @brief Terminal parameter store — owned by terminal::Session, received by reference. */
     State& state;
 
@@ -341,7 +380,6 @@ private:
      *  - `id::desktopNotification` — `(const juce::String& title, const juce::String& body)` — OSC 9/777; message thread
      *  - `id::activeScreen`        — `(int)` — active screen index flush; reader thread
      *  - `id::cursor`              — `(int screen, int packed)` — packed cursor (row+col+visible+kbFlags); reader thread
-     *  - `id::writeHead`           — `(int screen, int position)` — ring write position per screen; reader thread
      *  - `id::applicationCursor` / `id::bracketedPaste` / ... — `(bool)` — mode flag flushes; reader thread
      *
      *  @note READER THREAD — all handlers execute on the reader thread except bell, clipboardChanged, and desktopNotification (message thread via callAsync). */

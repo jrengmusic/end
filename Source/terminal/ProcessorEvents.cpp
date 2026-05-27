@@ -54,10 +54,10 @@ namespace terminal
  *
  * - `"requestSyncResize"` — DEC mode 2026 set; calls `State::requestSyncResize()`.
  *
- * - `"activeScreen"` / `"cursor"` / `"writeHead"` — Video::flush() flush events; write the
+ * - `"activeScreen"` / `"cursor"` — Video::flush() flush events; write the
  *   corresponding State atomics.  `"cursor"` carries packed CursorState (row+col+visible+kbFlags).
- *   `"writeHead"` carries the raw ring write position for the active screen; handler preserves historyRows from State.
- *   Neither `"cursor"` nor `"writeHead"` carry a screen param — handlers read activeScreen from State.
+ *   `"cursor"` does not carry a screen param — handler reads activeScreen from State.
+ *   `"writeHead"` is eliminated: flat buffer has no ring rotation, head is always 0.
  *
  * - `"shellExited"` — fired by TTY on reader thread on EOF; calls `State::setShellExited(true)`.
  *
@@ -181,18 +181,20 @@ void Processor::registerEvents() noexcept
                     state.setSnapshotDirty();
                 });
 
-    // Clear scrollback — zero all rows via Video, reset writeHead, and clear scroll offset for the given screen.
-    // video.clearChannel zeros all rows through the active blocks.
-    // video.getWritePosition returns the current ring position — preserved after clear (ring head is unchanged).
-    // historyRows is reset to 0 — no history remains after clear.
+    // Clear scrollback — zero all rows via Video, reset scrollOffset, clear TextLineArray.
+    // video.clearChannel zeros all rows through the active blocks (flat buffer, head always 0).
+    // writeHead is always 0 for a flat buffer — no need to store it on clear.
+    // textLineArray.clear() resets history deque, preserves empty live slots — ED 3 SSOT wipe.
     events.add<int> (id::clearBuffer,
                      [this] (int screen)
                      {
                          video.clearChannel (screen);
-                         const juce::Identifier clearScreenId { Map::Screen::getContext()->get (screen) };
-                         const jam::WriteHead clearedWH { video.getWritePosition (screen), 0 };
-                         state.storeValue (clearScreenId, id::writeHead, clearedWH.pack());
-                         state.storeValue (clearScreenId, id::scrollOffset, 0);
+
+                         // Dispatch TextLineArray clear to the message thread — TextLineArray is message-thread-only.
+                         juce::MessageManager::callAsync ([this, screen]
+                         {
+                             textLineArrays.at (static_cast<size_t> (screen)).clear();
+                         });
                      });
 
     // OSC 0/2 window title.
@@ -269,27 +271,101 @@ void Processor::registerEvents() noexcept
                          state.setScreen (scr);
                      });
 
-    // State delivery: scrollUp — pack new WriteHead (ring position + history rows) capped at scrollbackLines.
-    // Selection adjustment is Screen's domain — handled in Screen::valueTreePropertyChanged on the message thread.
-    // Excess rows beyond scrollbackLines are overwritten naturally by ring rotation.
-    events.add<int, int> (
-        id::scrollUp,
-        [this] (int count, int newWritePosition)
+    // Push path: pushLine — fired on the reader thread for each line departing to scrollback.
+    // Fires BEFORE the line is shifted up and cleared, so the content at physical row 0 is still valid.
+    // Flat buffer: departing line is always at physical row 0 (head always 0).
+    // Reads the departing line from Video's block, constructs a TextLine, and dispatches
+    // pushHistory to TextLineArray on the message thread via callAsync.
+    events.add<int> (
+        id::pushLine,
+        [this] (int screen)
         {
-            const int scrollbackLines { AppState::getContext()->getRawParameterValue<int> (app::id::scrollbackLines)->load() };
-            const juce::Identifier scrollScreenId { Map::Screen::getContext()->get (state.loadValue (id::SESSION, id::activeScreen)) };
-            const jam::WriteHead currentWH { jam::WriteHead::unpack (state.loadValue (scrollScreenId, id::writeHead)) };
-            const int newHistoryRows { juce::jmin (currentWH.historyRows + count, scrollbackLines) };
-            const jam::WriteHead newWH { newWritePosition, newHistoryRows };
-            state.storeValue (scrollScreenId, id::writeHead, newWH.pack());
+            // Alternate screen has zero scrollback — departing rows are discarded.
+            // Only normal screen rows enter TextLineArray history.
+            if (screen == Map::Screen::normal)
+            {
+                // Reader thread — Video's buffer is safe to read: same thread, row not yet shifted.
+                // Flat buffer: head = 0, departing row is always at physical row 0.
+                const jam::Buffer<jam::Row>& buf { video.getBuffer() };
+                const int numRingRows { buf.getNumRows() };
+                const int numCols     { buf.getNumCols() };
+
+                const jam::Block<jam::Row> block {
+                    buf.getChannelPointer (screen),
+                    0,      // head = 0 (flat buffer)
+                    0,
+                    numRingRows,
+                    numCols,
+                    buf.getRowStrideBytes(),
+                    numRingRows
+                };
+
+                // getRowPointer(0) with head=0: physical = 0 — the departing row.
+                const jam::Row* const row { block.getRowPointer (0) };
+
+                const int usedCols { static_cast<int> (row->usedCols) };
+
+                jam::TextLine line;
+                line.cells.resize (static_cast<size_t> (usedCols));
+
+                for (int c { 0 }; c < usedCols; ++c)
+                    line.cells.at (static_cast<size_t> (c)) = row->cells[c];
+
+                line.isContinued = (row->flags & jam::Row::flexWrap) != 0;
+                line.isJustified = (row->flags & jam::Row::justify)  != 0;
+
+                // Dispatch to message thread — TextLineArray is message-thread-only storage.
+                juce::MessageManager::callAsync ([this, captured = std::move (line)]() mutable
+                {
+                    textLineArrays.at (0).pushHistory (std::move (captured));
+
+                    // Selection adjustment — one row scrolled into history, anchors shift down by 1
+                    // to track the same text. Runs on message thread (safe to modify ValueTree).
+                    auto teNode { state.get().getChildWithName (jam::TextEditor::properties.at (jam::TextEditor::textEditorId)) };
+
+                    if (teNode.isValid())
+                    {
+                        const int selType { static_cast<int> (teNode.getProperty (jam::TextEditor::properties.at (jam::TextEditor::selectionTypeId), 0)) };
+
+                        if (selType != static_cast<int> (terminal::SelectionType::none))
+                        {
+                            const int anchorRow    { static_cast<int> (teNode.getProperty (jam::TextEditor::properties.at (jam::TextEditor::selectionAnchorRowId),    0)) - 1 };
+                            const int selCursorRow { static_cast<int> (teNode.getProperty (jam::TextEditor::properties.at (jam::TextEditor::selectionCursorRowId), 0)) - 1 };
+
+                            if (anchorRow < 0 or selCursorRow < 0)
+                            {
+                                teNode.setProperty (jam::TextEditor::properties.at (jam::TextEditor::selectionTypeId),
+                                                    static_cast<int> (terminal::SelectionType::none), nullptr);
+                            }
+                            else
+                            {
+                                teNode.setProperty (jam::TextEditor::properties.at (jam::TextEditor::selectionAnchorRowId),    anchorRow,    nullptr);
+                                teNode.setProperty (jam::TextEditor::properties.at (jam::TextEditor::selectionCursorRowId), selCursorRow, nullptr);
+                            }
+                        }
+                    }
+                });
+            }
         });
 
-    // State delivery: screenDirty — increment monotonic counter so Screen detects new cell data.
-    // Active screen is the only screen Video writes cells to; screen param is redundant.
+    // State delivery: scrollUp — flat buffer, no ring rotation, no writeHead to update.
+    // History depth is derived from textLineArray.historyCount().
+    // Selection adjustment is handled in the pushLine callAsync lambda above.
+    events.add<int> (
+        id::scrollUp,
+        [this] (int /*count*/)
+        {
+            // Flat buffer: writeHead is always 0. No State update needed on scroll.
+        });
+
+    // State delivery: screenDirty — increment monotonic counter.
+    // Flush path: Processor's vTPC picks up the counter change and serializes
+    // Video's visible rows into TextLineArray live slots on the message thread.
     events.add (id::screenDirty,
                 [this]
                 {
-                    const juce::Identifier dirtyScreenId { Map::Screen::getContext()->get (state.loadValue (id::SESSION, id::activeScreen)) };
+                    const int activeScr { state.loadValue (id::SESSION, id::activeScreen) };
+                    const juce::Identifier dirtyScreenId { Map::Screen::getContext()->get (activeScr) };
                     const int current { state.loadValue (dirtyScreenId, id::screenDirty) };
                     state.storeValue (dirtyScreenId, id::screenDirty, current + 1);
                 });
@@ -302,17 +378,6 @@ void Processor::registerEvents() noexcept
                          const juce::Identifier cursorScreenId { Map::Screen::getContext()->get (state.loadValue (id::SESSION, id::activeScreen)) };
                          state.storeValue (cursorScreenId, id::cursor, packedCursor);
                          state.setSnapshotDirty();
-                     });
-
-    // State delivery: writeHead position for active screen — preserves historyRows set by scrollUp.
-    // Video fires writeHead only for the active screen; handler reads activeScreen from State.
-    events.add<int> (id::writeHead,
-                     [this] (int position)
-                     {
-                         const juce::Identifier whScreenId { Map::Screen::getContext()->get (state.loadValue (id::SESSION, id::activeScreen)) };
-                         const jam::WriteHead currentWH { jam::WriteHead::unpack (state.loadValue (whScreenId, id::writeHead)) };
-                         const jam::WriteHead newWH { position, currentWH.historyRows };
-                         state.storeValue (whScreenId, id::writeHead, newWH.pack());
                      });
 
     // State delivery: mode flags.
