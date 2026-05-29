@@ -8,6 +8,16 @@
 
 ---
 
+## DEBT-20260529T020000
+
+**Observation:** SPSC pipeline (CellFifo + mutable tail + OSC 133 lifecycle) partially implemented but broken. Three symptoms: (1) ls output sometimes doubled — C handler COMMIT_PROMPT pushes rows to CellFifo AND mutable tail re-adds same rows from Video. (2) `clear` sometimes renders only bottom half of OMP prompt. (3) `seq 1000` output not fully rendered — content lost during high-throughput drain.
+**Divergence:** Root causes identified from diagnostic log: (a) Flush ordering — screenDirty fires before promptRow Parameter flushes, handler reads stale promptRow from ValueTree. (b) mutableRows computed from stale promptRow overlaps with CellFifo drain content. (c) `mutableRows > totalRows` guard fails → no REMOVE → content accumulates. (d) Coordinate mapping between Video rows and TLA indices uses manual arithmetic (cursorRow - promptRow + 1) which drifts when State values are stale.
+**Expectation:** Replace manual arithmetic with Value::map for all coordinate translation. terminal::Viewport type (packed uint64_t: cell Bounds + pixel Bounds) as single Parameter<uint64_t> — Display sole author. Flush ordering resolved by reading atomics directly (not VT properties) or by ensuring Parameter flush order. All DIAG logging must be removed. Screen caret positioning (historyRows=0 placeholder) must be fixed.
+
+---
+
+---
+
 ## DEBT-20260526T220000
 
 **Observation:** `getStateInformation`/`setStateInformation` are stubbed. Daemon attach sends no state to connecting clients. History byte ring removed — raw byte replay path is dead.

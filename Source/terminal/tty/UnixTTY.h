@@ -93,7 +93,7 @@ public:
      *
      * @note MESSAGE THREAD context.
      */
-    bool open (cell cols, cell rows, const juce::String& shell,
+    bool open (jam::Cell::Rectangle dims, const juce::String& shell,
                const juce::String& args = {}, const juce::String& workingDirectory = {}) override;
 
     /**
@@ -228,7 +228,7 @@ public:
      *
      * @note MESSAGE THREAD context.
      */
-    void setWinsize (cell cols, cell rows, int pixelWidth, int pixelHeight) override;
+    void setWinsize (terminal::Winsize ws) override;
 
     /** @} */
 

@@ -52,8 +52,6 @@ namespace terminal
  *
  * - `"syncOutput"` — DEC mode 2026 toggle; calls `State::setSyncOutput()`.
  *
- * - `"requestSyncResize"` — DEC mode 2026 set; calls `State::requestSyncResize()`.
- *
  * - `"activeScreen"` / `"cursor"` — Video::flush() flush events; write the
  *   corresponding State atomics.  `"cursor"` carries packed CursorState (row+col+visible+kbFlags).
  *   `"cursor"` does not carry a screen param — handler reads activeScreen from State.
@@ -62,7 +60,7 @@ namespace terminal
  * - `"shellExited"` — fired by TTY on reader thread on EOF; calls `State::setShellExited(true)`.
  *
  * - `"drainComplete"` — fired by TTY on reader thread after each full PTY drain;
- *   flushes parser responses, clears paste gate, handles sync resize.
+ *   flushes parser responses, clears paste gate.
  *
  * - `"applicationCursor"` / `"bracketedPaste"` / ... — Video::flush() mode flag flushes.
  *
@@ -107,11 +105,41 @@ void Processor::registerEvents() noexcept
                          state.setForegroundProcess ("", 0);
                      });
 
-    // outputBlockStart fires when a command starts — query foreground process from TTY.
+    // outputBlockStart fires when a command starts — commit prompt block then query foreground process from TTY.
     events.add<int> (id::outputBlockStart,
                      [this] (int relativeRow)
                      {
+                         // Read prompt boundary before clearing it.
+                         const int commitPromptRow { state.loadValue (id::SESSION, id::promptRow) };
+
                          state.setOutputBlockStart (cell (relativeRow));
+                         state.setPromptRow (cell (-1));
+
+                         // Commit prompt block [commitPromptRow..relativeRow-1] to CellFifo.
+                         if (commitPromptRow >= 0 and commitPromptRow < relativeRow)
+                         {
+                             const jam::Buffer<jam::Row>& buf { video.getBuffer() };
+                             const int numRingRows { buf.getNumRows() };
+                             const int numCols { buf.getNumCols() };
+
+                             const jam::Block<jam::Row> block {
+                                 buf.getChannelPointer (Map::Screen::normal),
+                                 0, 0, numRingRows, numCols,
+                                 buf.getRowStrideBytes(), numRingRows
+                             };
+
+                             for (int r { commitPromptRow }; r < relativeRow; ++r)
+                             {
+                                 const jam::Row* const commitRow { block.getRowPointer (r) };
+                                 const int usedCols { static_cast<int> (commitRow->usedCols) };
+
+                                 uint8_t flags { 0 };
+                                 if ((commitRow->flags & jam::Row::flexWrap) != 0) flags |= CellFifo::isContinuedFlag;
+                                 if ((commitRow->flags & jam::Row::justify)  != 0) flags |= CellFifo::isJustifiedFlag;
+
+                                 cellFifo.pushRow (commitRow->cells, usedCols, flags);
+                             }
+                         }
 
                          if (tty != nullptr)
                          {
@@ -257,13 +285,6 @@ void Processor::registerEvents() noexcept
                           state.setSyncOutput (active);
                       });
 
-    // DEC mode 2026 set — request same-size PTY resize on next drain completion.
-    events.add (id::requestSyncResize,
-                [this]
-                {
-                    state.requestSyncResize();
-                });
-
     // State delivery: activeScreen.
     events.add<int> (id::activeScreen,
                      [this] (int scr)
@@ -272,91 +293,68 @@ void Processor::registerEvents() noexcept
                      });
 
     // Push path: pushLine — fired on the reader thread for each line departing to scrollback.
-    // Fires BEFORE the line is shifted up and cleared, so the content at physical row 0 is still valid.
-    // Flat buffer: departing line is always at physical row 0 (head always 0).
-    // Reads the departing line from Video's block, constructs a TextLine, and dispatches
-    // pushHistory to TextLineArray on the message thread via callAsync.
-    events.add<int> (
+    // Args: int screen, int row — the physical row index of the departing row in the flat buffer.
+    // Fires BEFORE the row is shifted up and cleared.
+    // Alternate screen discards departing rows (zero scrollback).
+    // Normal screen rows are copied into CellFifo — no heap allocation, no callAsync.
+    events.add<int, int> (
         id::pushLine,
-        [this] (int screen)
+        [this] (int screen, int row)
         {
-            // Alternate screen has zero scrollback — departing rows are discarded.
-            // Only normal screen rows enter TextLineArray history.
             if (screen == Map::Screen::normal)
             {
-                // Reader thread — Video's buffer is safe to read: same thread, row not yet shifted.
-                // Flat buffer: head = 0, departing row is always at physical row 0.
-                const jam::Buffer<jam::Row>& buf { video.getBuffer() };
-                const int numRingRows { buf.getNumRows() };
-                const int numCols     { buf.getNumCols() };
+                // Gate: read promptRow from State atomic (reader thread safe).
+                // Rows >= promptRow are active prompt — mutable, not history.
+                const int currentPromptRow { state.loadValue (id::SESSION, id::promptRow) };
 
-                const jam::Block<jam::Row> block {
-                    buf.getChannelPointer (screen),
-                    0,      // head = 0 (flat buffer)
-                    0,
-                    numRingRows,
-                    numCols,
-                    buf.getRowStrideBytes(),
-                    numRingRows
-                };
-
-                // getRowPointer(0) with head=0: physical = 0 — the departing row.
-                const jam::Row* const row { block.getRowPointer (0) };
-
-                const int usedCols { static_cast<int> (row->usedCols) };
-
-                jam::TextLine line;
-                line.cells.resize (static_cast<size_t> (usedCols));
-
-                for (int c { 0 }; c < usedCols; ++c)
-                    line.cells.at (static_cast<size_t> (c)) = row->cells[c];
-
-                line.isContinued = (row->flags & jam::Row::flexWrap) != 0;
-                line.isJustified = (row->flags & jam::Row::justify)  != 0;
-
-                // Dispatch to message thread — TextLineArray is message-thread-only storage.
-                juce::MessageManager::callAsync ([this, captured = std::move (line)]() mutable
+                if (currentPromptRow < 0 or row < currentPromptRow)
                 {
-                    textLineArrays.at (0).pushHistory (std::move (captured));
+                    const jam::Buffer<jam::Row>& buf { video.getBuffer() };
+                    const int numRingRows { buf.getNumRows() };
+                    const int numCols     { buf.getNumCols() };
 
-                    // Selection adjustment — one row scrolled into history, anchors shift down by 1
-                    // to track the same text. Runs on message thread (safe to modify ValueTree).
-                    auto teNode { state.get().getChildWithName (jam::TextEditor::properties.at (jam::TextEditor::textEditorId)) };
+                    const jam::Block<jam::Row> block {
+                        buf.getChannelPointer (screen),
+                        0,
+                        0,
+                        numRingRows,
+                        numCols,
+                        buf.getRowStrideBytes(),
+                        numRingRows
+                    };
 
-                    if (teNode.isValid())
-                    {
-                        const int selType { static_cast<int> (teNode.getProperty (jam::TextEditor::properties.at (jam::TextEditor::selectionTypeId), 0)) };
+                    const jam::Row* const departingRow { block.getRowPointer (row) };
+                    const int usedCols { static_cast<int> (departingRow->usedCols) };
 
-                        if (selType != static_cast<int> (terminal::SelectionType::none))
-                        {
-                            const int anchorRow    { static_cast<int> (teNode.getProperty (jam::TextEditor::properties.at (jam::TextEditor::selectionAnchorRowId),    0)) - 1 };
-                            const int selCursorRow { static_cast<int> (teNode.getProperty (jam::TextEditor::properties.at (jam::TextEditor::selectionCursorRowId), 0)) - 1 };
+                    uint8_t flags { 0 };
 
-                            if (anchorRow < 0 or selCursorRow < 0)
-                            {
-                                teNode.setProperty (jam::TextEditor::properties.at (jam::TextEditor::selectionTypeId),
-                                                    static_cast<int> (terminal::SelectionType::none), nullptr);
-                            }
-                            else
-                            {
-                                teNode.setProperty (jam::TextEditor::properties.at (jam::TextEditor::selectionAnchorRowId),    anchorRow,    nullptr);
-                                teNode.setProperty (jam::TextEditor::properties.at (jam::TextEditor::selectionCursorRowId), selCursorRow, nullptr);
-                            }
-                        }
-                    }
-                });
+                    if ((departingRow->flags & jam::Row::flexWrap) != 0)
+                        flags |= CellFifo::isContinuedFlag;
+
+                    if ((departingRow->flags & jam::Row::justify) != 0)
+                        flags |= CellFifo::isJustifiedFlag;
+
+                    cellFifo.pushRow (departingRow->cells, usedCols, flags);
+                }
             }
         });
 
     // State delivery: scrollUp — flat buffer, no ring rotation, no writeHead to update.
-    // History depth is derived from textLineArray.historyCount().
-    // Selection adjustment is handled in the pushLine callAsync lambda above.
+    // History depth is derived from textLineArrays.at(0).totalRows().
     events.add<int> (
         id::scrollUp,
         [this] (int /*count*/)
         {
             // Flat buffer: writeHead is always 0. No State update needed on scroll.
         });
+
+    // Row-dirty delivery: sets the per-row dirty flag in State.
+    // Fired by Video::flush() for each row touched since the last flush.
+    events.add<int> (id::rowDirty,
+                     [this] (int row)
+                     {
+                         state.setRowDirty (row);
+                     });
 
     // State delivery: screenDirty — increment monotonic counter.
     // Flush path: Processor's vTPC picks up the counter change and serializes
@@ -437,15 +435,12 @@ void Processor::registerEvents() noexcept
                     state.setShellExited (true);
                 });
 
-    // Drain complete — flush parser responses, clear paste gate, handle sync resize.
+    // Drain complete — flush parser responses, clear paste gate.
     events.add (id::drainComplete,
                 [this]
                 {
                     flushResponses();
                     state.clearPasteEchoGate();
-
-                    if (state.consumeSyncResize())
-                        setWinsize (state.getCols(), state.getVisibleRows());
                 });
 }
 

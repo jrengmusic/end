@@ -240,7 +240,7 @@ void Tabs::restore (juce::ValueTree savedTabs, juce::Rectangle<int> contentRect)
                     }
 
                     const auto [tabCols, tabRows] { Panes::cellsFromRect (firstLeafRect) };
-                    addNewTab (firstCwd, firstUuid, tabCols, tabRows);
+                    addNewTab (firstCwd, firstUuid, jam::Cell::Rectangle (tabCols, tabRows));
 
                     auto* activePanes { getActivePanes() };
                     jassert (activePanes != nullptr);

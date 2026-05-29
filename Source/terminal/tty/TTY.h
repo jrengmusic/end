@@ -35,6 +35,7 @@
 
 #pragma once
 #include <JuceHeader.h>
+#include "../Winsize.h"
 
 /**
  * @class TTY
@@ -91,7 +92,7 @@ public:
      * @note Called from the message thread.  Must not be called while the
      *       reader thread is already running.
      */
-    virtual bool open (cell cols, cell rows, const juce::String& shell,
+    virtual bool open (jam::Cell::Rectangle dims, const juce::String& shell,
                        const juce::String& args = {}, const juce::String& workingDirectory = {}) = 0;
 
     /**
@@ -310,8 +311,7 @@ public:
      *
      * @note MESSAGE THREAD.
      */
-    virtual void setWinsize (cell cols, cell rows,
-                             int pixelWidth = 0, int pixelHeight = 0) = 0;
+    virtual void setWinsize (terminal::Winsize ws) = 0;
 
 protected:
     /**

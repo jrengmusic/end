@@ -134,10 +134,9 @@ void Skit::processDCS (uint8_t finalByte, const uint8_t* data, int length,
 
                 if (image.isValid())
                 {
-                    const auto span { jam::Cell::Rectangle (
-                        jam::Bounds { cellW, cellH },
+                    const auto span { jam::Cell::Rectangle::fromPixelCeiling (
                         juce::Rectangle<int> { 0, 0, image.width, image.height },
-                        true) };
+                        cellW, cellH) };
 
                     const int cellCols { span.getWidth().value };
                     const int cellRows { span.getHeight().value };
@@ -232,10 +231,9 @@ void Skit::processAPC (const uint8_t* data, int length,
 
                 if (result.shouldDisplay and result.image.isValid())
                 {
-                    const auto span { jam::Cell::Rectangle (
-                        jam::Bounds { cellW, cellH },
+                    const auto span { jam::Cell::Rectangle::fromPixelCeiling (
                         juce::Rectangle<int> { 0, 0, result.image.width, result.image.height },
-                        true) };
+                        cellW, cellH) };
 
                     const int cellCols { span.getWidth().value };
                     const int cellRows { result.placementRows > 0
@@ -328,10 +326,9 @@ void Skit::processOSC1337 (const uint8_t* data, int length,
 
                 if (seq.isValid())
                 {
-                    const auto span { jam::Cell::Rectangle (
-                        jam::Bounds { cellW, cellH },
+                    const auto span { jam::Cell::Rectangle::fromPixelCeiling (
                         juce::Rectangle<int> { 0, 0, seq.width, seq.height },
-                        true) };
+                        cellW, cellH) };
 
                     const int cellCols { span.getWidth().value };
                     const int cellRows { span.getHeight().value };

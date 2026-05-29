@@ -50,8 +50,7 @@ namespace terminal
  * The constructor does **not** call `calc()`.  The owner must call `setWinsize()`
  * after construction to synchronise internal geometry before the first process().
  *
- * @param cols    Initial terminal width in character columns.
- * @param rows    Initial terminal height in visible rows.
+ * @param dims    Terminal dimensions in cells.
  * @param events  Events map owned by Processor.  Video fires events through this map.
  *
  * @note MESSAGE THREAD — called before the reader thread starts.
@@ -60,13 +59,14 @@ namespace terminal
  * @see setWinsize()
  * @see Video.h
  */
-Video::Video (cell cols, cell rows,
+Video::Video (jam::Cell::Rectangle dims,
               jam::Function::Map<juce::Identifier, void>& events) noexcept
     : events (events)
 {
-    buffer.setSize (2, rows.value, cols.value);
+    buffer.setSize (2, dims.getHeight().value, dims.getWidth().value);
     blocks.at (0) = jam::Block<jam::Row> (buffer, 0);
     blocks.at (1) = jam::Block<jam::Row> (buffer, 1);
+    rowTouched.allocate (static_cast<size_t> (dims.getHeight().value), true);
 }
 
 /**
@@ -93,27 +93,27 @@ void Video::calc() noexcept
  * Block views, reads ring heads from the rebuilt blocks, resets geometry state,
  * and calls calc() to synchronise internal cached geometry.
  *
- * Called by Processor::resizeVideo() from Session's Resizer stop trigger while
+ * Called by Processor::prepare() from Session's Resizer stop trigger while
  * processing is suspended (message-thread-safe under suspension), and directly
- * by Processor::setWinsize() for cold-start initial sizing.
+ * for cold-start initial sizing.
  *
- * @param newCols  New terminal width in character columns.
- * @param newRows  New terminal height in visible rows.
+ * @param dims  Terminal dimensions in cells.
  *
  * @note MESSAGE THREAD — called while processing is suspended.
  */
-void Video::setWinsize (cell newCols, cell newRows) noexcept
+void Video::setWinsize (jam::Cell::Rectangle dims) noexcept
 {
-    cols        = newCols;
-    visibleRows = newRows;
+    cols        = dims.getWidth();
+    visibleRows = dims.getHeight();
     wrapPending = false;
-    cursorClamp (newCols, newRows);
+    cursorClamp (dims.getWidth(), dims.getHeight());
     cursorResetScrollRegion();
-    initializeTabStops (newCols.value);
+    initializeTabStops (dims.getWidth().value);
 
-    buffer.setSize (2, newRows.value, newCols.value);
+    buffer.setSize (2, dims.getHeight().value, dims.getWidth().value);
     blocks.at (0) = jam::Block<jam::Row> (buffer, 0);
     blocks.at (1) = jam::Block<jam::Row> (buffer, 1);
+    rowTouched.allocate (static_cast<size_t> (dims.getHeight().value), true);
 
     calc();
 }
@@ -167,6 +167,20 @@ void Video::flush() noexcept
     events.get (id::mouseAllTracking,    bool (mouseAllTracking));
     events.get (id::focusEvents,         bool (focusEvents));
     events.get (id::win32InputMode,      bool (win32InputMode));
+
+    // Mark dirty rows in State via events — fires before screenDirty so Processor
+    // row-dirty flags are set before the repaint path runs.
+    if (events.contains (id::rowDirty))
+    {
+        for (int r { 0 }; r < visibleRows.value; ++r)
+        {
+            if (rowTouched[r])
+            {
+                events.get (id::rowDirty, r);
+                rowTouched[r] = false;
+            }
+        }
+    }
 
     if (events.contains (id::screenDirty))
         events.get (id::screenDirty);
@@ -319,9 +333,10 @@ void Video::scrollUpAndFill (int top, int bottom, int count) noexcept
             for (int n { 0 }; n < clampedCount; ++n)
             {
                 // Commit departing row (logical row 0) before shifting.
-                // Flat buffer: the departing row is always at physical row 0.
                 if (events.contains (id::pushLine))
-                    events.get (id::pushLine, int (scr));
+                {
+                    events.get (id::pushLine, int (scr), 0);
+                }
 
                 // Shift all rows up by 1 — row[r] = row[r+1].
                 for (int r { 0 }; r < bottom; ++r)
@@ -341,6 +356,10 @@ void Video::scrollUpAndFill (int top, int bottom, int count) noexcept
                 blocks.at (static_cast<size_t> (scr)).clear (bottom, 0);
             }
         }
+
+        // Mark all rows in the scrolled region as touched.
+        for (int r { top }; r <= bottom; ++r)
+            rowTouched[r] = true;
 
         if (top == 0 and events.contains (id::scrollUp))
             events.get (id::scrollUp, int (clampedCount));
@@ -603,6 +622,7 @@ void Video::print (uint32_t codepoint) noexcept
         jam::Row* const writeRowPtr { blocks.at (static_cast<size_t> (scr)).getWritePointer (writeRow, 0) };
         writeRowPtr->cells[writeCol] = glyph;
         writeRowPtr->usedCols = static_cast<uint16_t> (juce::jmax (static_cast<int> (writeRowPtr->usedCols), writeCol + charWidth));
+        rowTouched[writeRow] = true;
 
         // Stamp consecutive blanks as FLEX_GAP — elastic whitespace for reflow.
         if (cp == 0x20 and writeCol > 0)
@@ -673,6 +693,11 @@ void Video::executeLineFeed (int scr) noexcept
     if (cRow == scrollBot.value)
     {
         scrollUpAndFill (sTop, scrollBot.value);
+    }
+    else
+    {
+        if (events.contains (id::pushLine))
+            events.get (id::pushLine, int (scr), cRow);
     }
 
     cursorGoToNextLine (scrollBot, visibleRows);

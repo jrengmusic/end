@@ -18,7 +18,7 @@
     <PARAM id="outputBlockTop"     type="int"  default="-1"/>
     <PARAM id="outputBlockBottom"  type="int"  default="-1"/>
     <PARAM id="outputScanActive"   type="bool" default="false"/>
-    <PARAM id="promptRow"          type="int"  default="-1"/>
+    <PARAM id="promptRow"          type="int"  default="0"/>
 
     <!-- Render signal -->
     <PARAM id="snapshotDirty"      type="bool" default="false"/>
@@ -28,9 +28,6 @@
 
     <!-- Sync output (mode 2026) -->
     <PARAM id="syncOutputActive"   type="bool" default="false"/>
-
-    <!-- Sync resize request -->
-    <PARAM id="syncResizePending"  type="bool" default="false"/>
 
     <!-- Shell exit signal -->
     <PARAM id="shellExited"        type="bool" default="false"/>

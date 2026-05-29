@@ -25,7 +25,7 @@
  * 7. State::flush() propagates atomic values to the ValueTree on the timer tick,
  *    notifying Display via `juce::ValueTree::Listener`.
  * 8. Resize: Processor vTPC detects viewport change (packed cols+rows), resizes buffer,
- *    tells Video via setWinsize(), and fires tty->setWinsize() for SIGWINCH.
+ *    tells Video via Video::setWinsize(), and fires tty->setWinsize() for SIGWINCH.
  *    Cold-start allocation happens in the constructor before the first bytes flow.
  *    Cell pixel changes are applied to Video directly.
  *
@@ -49,12 +49,14 @@
 #include "Keyboard.h"
 #include "State.h"
 #include "TextBuffer.h"
+#include "Winsize.h"
 #include "tty/TTY.h"
 #if JUCE_MAC || JUCE_LINUX
 #include "tty/UnixTTY.h"
 #elif JUCE_WINDOWS
 #include "tty/WindowsTTY.h"
 #endif
+#include "CellFifo.h"
 #include "Parser.h"
 #include "Skit.h"
 #include "Video.h"
@@ -91,7 +93,7 @@ namespace terminal
  * - **Input encoding** — `encodeKeyPress()`, `encodePaste()`, `encodeMouseEvent()`, `encodeFocusEvent()` (const, no side effects)
  * - **Output** — `process()` (called on the reader thread by the byte source)
  * - **Response flushing** — `flushResponses()` (reader thread; called by drain-complete event handler)
- * - **TTY lifecycle** — `startTTY()` creates, wires, and opens the platform TTY; `setWinsize()` delegates to owned TTY
+ * - **TTY lifecycle** — `startTTY()` creates, wires, and opens the platform TTY; `prepare()` resets CellFifo, resizes Video, rebuilds dirty flags, alternate screen, and sends SIGWINCH after coalescing
  *
  * @note Construct and destroy on the **message thread**.
  *
@@ -111,14 +113,13 @@ public:
      * route video responses (e.g. cursor-position reports) to the PTY sink.
      *
      * @param stateRef    Terminal parameter store — owned by terminal::Session.
-     * @param cols        Initial terminal width in character columns.
-     * @param rows        Initial terminal height in visible rows.
+     * @param dims        Terminal dimensions in cells.
      * @param textBuffer  Cross-thread string buffer owned by terminal::Session.
      * @param uuid        Stable UUID for this Processor — generated once by the caller.
      * @note MESSAGE THREAD — must be constructed on the message thread.
      */
     Processor (State& stateRef,
-               cell cols, cell rows,
+               jam::Cell::Rectangle dims,
                TextBuffer& textBuffer,
                const juce::String& uuid);
 
@@ -247,16 +248,14 @@ public:
      * @param args    Shell arguments string.  Empty = none.
      * @param cwd     Initial working directory.  Empty = inherit.
      * @param env     Shell integration environment variable pairs.
-     * @param cols    Initial terminal width in character columns.
-     * @param rows    Initial terminal height in character rows.
+     * @param dims    Terminal dimensions in cells.
      * @note MESSAGE THREAD — called from Session::start().
      */
     void startTTY (const juce::String& shell,
                    const juce::String& args,
                    const juce::String& cwd,
                    const juce::StringPairArray& env,
-                   cell cols,
-                   cell rows) noexcept;
+                   jam::Cell::Rectangle dims) noexcept;
 
     /** @brief Registers an observer callback that receives raw PTY bytes on the reader thread.
      *
@@ -269,30 +268,6 @@ public:
      */
     void setBytesObserver (std::function<void (const char*, int)> handler) noexcept;
 
-    /**
-     * @brief Resizes Video's internal buffer and geometry.
-     *
-     * Called by Session's Resizer stop trigger while processing is suspended.
-     * Delegates to Video::setWinsize() — safe because processing is suspended
-     * and the reader thread is not active.
-     *
-     * @param cols  New terminal width in character columns.
-     * @param rows  New terminal height in visible rows.
-     * @note MESSAGE THREAD — safe only when processing is suspended.
-     */
-    void resizeVideo (cell cols, cell rows) noexcept;
-
-    /** @brief Updates TextLineArray capacity after resize.
-     *
-     * Called by Session's Resizer stop trigger after resizeVideo(), while processing
-     * is suspended.  Processor manages its own TextLineArray member.
-     *
-     * @param scrollbackLines  Maximum scrollback history line count.
-     * @param visibleRows      New visible row count.
-     * @note MESSAGE THREAD — called from Resizer stop trigger while processing suspended.
-     */
-    void resizeTextLineArray (int scrollbackLines, int visibleRows) noexcept;
-
     /** @brief Returns a const reference to the active screen's SSOT content storage.
      *  Display reads this to pass to Screen::setText for rendering.
      *  Index 0 = normal (has scrollback), index 1 = alternate (zero scrollback).
@@ -302,20 +277,13 @@ public:
         return textLineArrays.at (static_cast<size_t> (state.getActiveScreen()));
     }
 
-    /**
-     * @brief Performs the OS-level PTY resize (SIGWINCH to shell).
-     *
-     * Delegates to tty->setWinsize() when a TTY is owned and its thread is
-     * running.  Called from the drainComplete event handler for the sync-resize path.
-     * No-op if no TTY is owned.
-     *
-     * @param cols        New column count.
-     * @param rows        New row count.
-     * @param pixelWidth  Total viewport width in physical pixels (0 if unknown).
-     * @param pixelHeight Total viewport height in physical pixels (0 if unknown).
-     * @note READER THREAD (called from the drainComplete event handler during sync-resize).
-     */
-    void setWinsize (cell cols, cell rows, int pixelWidth = 0, int pixelHeight = 0) noexcept;
+    /** @brief Prepares Processor for new terminal dimensions.
+     *  Resizes Video buffer, resets CellFifo, rebuilds dirty flags, rebuilds alternate screen.
+     *  Called by Session's Resizer start trigger while processing is suspended.
+     *  @param dims  Terminal dimensions in cells.
+     *  @note MESSAGE THREAD — safe only while processing is suspended. */
+    void prepare (jam::Cell::Rectangle dims) noexcept;
+
 
     /** @brief Writes raw input bytes to the PTY via the writeInput event handler.
      *
@@ -357,12 +325,15 @@ private:
     /** @brief Cross-thread string buffer — owned by terminal::Session. */
     TextBuffer& textBuffer;
 
-    /** @brief Per-screen SSOT content storage — owned by Processor.
+    /** @brief Per-screen document buffer — owned by Processor.
      *  Index 0 = normal screen (scrollback capacity from AppState).
-     *  Index 1 = alternate screen (zero scrollback — live rows only).
-     *  pushLine handler pushes history to index 0 only (normal screen).
-     *  Message-thread-only writes — all access via callAsync from reader thread. */
+     *  Index 1 = alternate screen (fixed live rows, cleared and rebuilt on each flush).
+     *  add() on index 0 is message-thread-only — dispatched via callAsync from reader thread. */
     std::array<jam::TextLineArray, 2> textLineArrays;
+
+    /** @brief SPSC ring buffer for lock-free cross-thread cell row delivery.
+     *  pushLine handler writes on reader thread. screenDirty handler drains on message thread. */
+    CellFifo cellFifo { 1 };
 
     /** @brief Terminal parameter store — owned by terminal::Session, received by reference. */
     State& state;

@@ -1,5 +1,106 @@
 # SPRINT-LOG
 
+## Sprint 37: Cell Type System — Pixel = juce, Cell = jam
+
+**Date:** 2026-05-29
+
+### Agents Participated
+- COUNSELOR: orchestration, PLAN, type system design, audit resolution
+- Engineer: implementation (Cell::Point/Rectangle API, Font/GlyphArrangement/GlyphGraphics/Resizer migration, jam_bounds.h removal, Parameter<int64_t>, Winsize, function signature migration, conversion call sites, audit fixes)
+- Auditor: comprehensive audit (12 findings, all resolved)
+- Pathfinder: jam::Bounds usage survey, Cell type survey, unpaired dimension inventory, juce API survey, kuassa dependency check, Parameter specialization discovery
+
+### Files Modified (jam — 16 total)
+- `jam_graphics/detail/jam_cell_point.h` — full rewrite: mirror juce::Point<int> API, add pack/unpack/fromPixel/toPixel, remove Bounds-based ctor/toLogical/fromJuce/toJuce/totalPixels
+- `jam_graphics/detail/jam_cell_rectangle.h` — full rewrite: mirror juce::Rectangle<int> API, add pack/unpack/fromPixel/fromPixelCeiling/toPixel, absorb Bounds (isValid/getArea/getRelativeScale), add position/center/edge queries, setters, set ops, translation ops
+- `jam_graphics/fonts/font/jam_font.h` — `jam::Bounds bounds` → `int cellWidth, int cellHeight`; fix blank @file
+- `jam_graphics/fonts/font/jam_font.cpp` — resolveMetrics writes cellWidth/cellHeight; getImage passes ints
+- `jam_graphics/fonts/font/glyph/jam_glyph_arrangement.h` — `jam::Bounds cellSize` → `int cellWidth, int cellHeight`
+- `jam_graphics/fonts/font/glyph/jam_glyph_arrangement.cpp` — all font.bounds/cellSize refs → cellWidth/cellHeight
+- `jam_graphics/fonts/font/glyph/jam_glyph_arrangement_queries.cpp` — fromPixel/toPixel replaces Bounds-based ctor/toLogical
+- `jam_graphics/fonts/font/glyph/jam_glyph_graphics.h` — push takes juce::Rectangle<int>; drawGlyphs takes int cellWidth/cellHeight; updated doxygen
+- `jam_graphics/fonts/font/glyph/jam_glyph_graphics.cpp` — push impl uses juce::Rectangle API
+- `jam_graphics/fonts/font/glyph/jam_glyph_graphics_cells.cpp` — drawGlyphs overload uses int params
+- `jam_graphics/fonts/font/glyph/jam_glyph.h` — getImage takes int cellWidth/cellHeight
+- `jam_graphics/fonts/font/glyph/jam_glyph.cpp` — getImage impl, push call updated
+- `jam_gui/text_editor/jam_text_editor.cpp` — font.bounds → font.cellWidth/cellHeight; fromPixel/toPixel replaces Bounds ctors/toLogical
+- `jam_gui/text_editor/jam_text_editor_content_view.cpp` — push takes juce::Rectangle<int>; drawGlyphs passes cellWidth/cellHeight
+- `jam_gui/text_editor/jam_caret_component.h` — font.bounds → font.cellWidth/cellHeight
+- `jam_gui/view/jam_view_editor.h` — Bounds → juce::Rectangle<int> return types/params
+- `jam_gui/view/jam_view_editor.cpp` — Bounds → juce::Rectangle<int>; getRelativeScale → Cell::Rectangle::getRelativeScale
+- `jam_tui/ansi/jam_tui_component.h` — fromJuce → direct cell() construction
+- `jam_tui/ansi/jam_tui_screen.cpp` — fromJuce → direct cell() construction
+- `jam_tui/component/jam_tui_spinner.cpp` — fromJuce → direct cell() construction
+- `jam_tui/component/jam_tui_splitpane.cpp` — fromJuce → direct cell() construction
+- `jam_tui/component/jam_tui_console.cpp` — fromJuce → direct cell() construction
+- `jam_tui/component/jam_tui_listpane.cpp` — fromJuce → direct cell() construction
+- `jam_tui/component/jam_tui_textpane.cpp` — fromJuce → direct cell() construction
+- `jam_tui/component/jam_tui_dialog.cpp` — fromJuce → direct cell() construction
+- `jam_look_and_feel/graphics/toggle_slide/jam_look_and_feel_graphics_toggle_slide.cpp` — Bounds::isPortrait/isLandscape → inline comparison
+- `jam_data_structures/model/jam_model.h` — stale Bounds doxygen comment updated
+- `jam_data_structures/value_tree/jam_parameter.h` — Parameter<int64_t> specialization added
+- `jam_core/buffer/jam_resizer.h` — pendingBounds → pendingWidth/pendingHeight; set() explicit int,int
+- `jam_core/jam_core.h` — removed jam_bounds.h include
+- `jam_core/jam_bounds.h` — DELETED
+
+### Files Modified (end — 30 total)
+- `Source/terminal/Winsize.h` — NEW: terminal::Winsize packed cell+pixel dims into uint64
+- `Source/terminal/CellFifo.h` — dead branches removed in writeHeader/readHeader; isContinuedFlag/isJustifiedFlag made public
+- `Source/terminal/Processor.h` — Winsize.h include; constructor/prepare/startTTY signatures → Cell::Rectangle dims; stale doxygen updated
+- `Source/terminal/Processor.cpp` — constructor/prepare/startTTY impls updated; DIAG Log::write removed (5 calls)
+- `Source/terminal/ProcessorEvents.cpp` — CellFifo named flag constants; early return → positive nested check; DIAG Log::write removed (2 calls)
+- `Source/terminal/Video.h` — constructor/setWinsize signatures → Cell::Rectangle dims; stale doxygen updated
+- `Source/terminal/Video.cpp` — constructor/setWinsize impls updated; DIAG Log::write removed (2 calls)
+- `Source/terminal/VideoOSCExt.cpp` — DIAG Log::write removed (4 calls)
+- `Source/terminal/VideoCSI.cpp` — totalPixels → Cell::Rectangle::toPixel
+- `Source/terminal/State.cpp` — Bounds::unpack → Cell::Rectangle::unpack
+- `Source/terminal/Session.h` — both create overloads and both constructors → Cell::Rectangle dims
+- `Source/terminal/Session.cpp` — create/constructor impls updated; valueChanged unpack updated
+- `Source/terminal/Identifier.h` — stale Bounds comment updated
+- `Source/terminal/Mouse.cpp` — 11 Bounds-based Cell::Point ctors → Cell::Point::fromPixel
+- `Source/terminal/Skit.cpp` — 3 Bounds-based Cell::Rectangle ctors → fromPixelCeiling; getRelativeScale updated
+- `Source/terminal/tty/TTY.h` — open → Cell::Rectangle dims; setWinsize → terminal::Winsize
+- `Source/terminal/tty/UnixTTY.h` — override signatures match base
+- `Source/terminal/tty/UnixTTY.cpp` — open/setWinsize impls updated
+- `Source/terminal/tty/WindowsTTY.h` — override signatures match base
+- `Source/terminal/tty/WindowsTTY.cpp` — open/setWinsize impls updated
+- `Source/terminal/component/Display.cpp` — font.cellWidth/cellHeight; Cell::Rectangle::fromPixel; int64 viewport pack
+- `Source/terminal/component/Tabs.h` — addNewTab → Cell::Rectangle dims
+- `Source/terminal/component/Tabs.cpp` — addNewTab impl updated
+- `Source/terminal/component/TabsActions.cpp` — call site updated
+- `Source/terminal/component/Panes.h` — createTerminal → Cell::Rectangle dims
+- `Source/terminal/component/Panes.cpp` — createTerminal impl; fromPixel; font.cellWidth/cellHeight
+- `Source/terminal/component/MessageOverlay.h` — showResize → Cell::Rectangle dims
+- `Source/MainComponent.cpp` — Session::create/showResize call sites; font.cellWidth/cellHeight; fromPixel
+- `Source/Main.h` — DIAG logScope removed
+- `Source/nexus/Nexus.h` — all create overloads → Cell::Rectangle dims
+- `Source/nexus/Nexus.cpp` — create impls updated
+- `Source/nexus/Link.cpp` — Bounds::unpack → Cell::Rectangle::unpack
+- `Source/nexus/Daemon.cpp` — Bounds{}.pack() → Cell::Rectangle().pack()
+- `Source/nexus/Channel.cpp` — create call site → Cell::Rectangle
+- `ARCHITECTURE.md` — stale jam::Bounds/Font::bounds entries updated
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- Eliminated jam::Bounds — pixel/cell type confusion resolved with strict convention: pixel=juce, cell=jam
+- All 18+ function signatures taking unpaired cell cols/rows consolidated to Cell::Rectangle
+- All manual pixel↔cell arithmetic replaced with fromPixel/toPixel API
+- CellFifo flag SSOT violation fixed (raw 0x01/0x02 → named public constants)
+- CellFifo dead branches removed
+- Early return in pushLine handler → positive nested check
+- All DIAG logging removed (13+ calls across 5 files + Main.h logScope)
+- Parameter<int64_t> enables packed composite parameter storage
+
+### Debts Paid
+- `DEBT-20260529T020100` — terminal::Viewport type implemented as terminal::Winsize; jam::Bounds eliminated; Cell::Rectangle pack/unpack; Parameter<int64_t> specialization; Display sole author of packed viewport dims
+
+### Debts Deferred
+- None
+
 ## Sprint 36: Neovim-Modeled Text Rendering Foundation ✅
 
 **Date:** 2026-05-28

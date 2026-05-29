@@ -113,8 +113,7 @@ public:
      */
     juce::String createTerminal (const juce::String& workingDirectory,
                                  const juce::String& uuid,
-                                 cell cols,
-                                 cell rows);
+                                 jam::Cell::Rectangle dims);
 
     /**
      * @brief Create a new Whelmed markdown viewer pane and open the given file.

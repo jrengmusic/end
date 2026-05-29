@@ -77,7 +77,7 @@ void Tabs::addNewTab()
     const auto contentRect { computeContentRect (newDepth) };
     const auto [newCols, newRows] { Panes::cellsFromRect (contentRect) };
 
-    addNewTab (AppState::getContext()->getPwd(), {}, newCols, newRows);
+    addNewTab (AppState::getContext()->getPwd(), {}, jam::Cell::Rectangle (newCols, newRows));
 }
 
 /**
@@ -93,9 +93,9 @@ void Tabs::addNewTab()
  * @param rows              Terminal row count. Must be > 0.
  * @note MESSAGE THREAD.
  */
-void Tabs::addNewTab (const juce::String& workingDirectory, const juce::String& uuid, cell cols, cell rows)
+void Tabs::addNewTab (const juce::String& workingDirectory, const juce::String& uuid, jam::Cell::Rectangle dims)
 {
-    jassert (cols.value > 0 and rows.value > 0);
+    jassert (dims.getWidth().value > 0 and dims.getHeight().value > 0);
 
     auto& newPanesPtr { panes.add (std::make_unique<Panes>()) };
     auto& newPanes { *newPanesPtr };
@@ -104,7 +104,7 @@ void Tabs::addNewTab (const juce::String& workingDirectory, const juce::String& 
     newPanes.getState().addListener (this);
     addChildComponent (&newPanes);
 
-    const auto sessionUuid { newPanes.createTerminal (workingDirectory, uuid, cols, rows) };
+    const auto sessionUuid { newPanes.createTerminal (workingDirectory, uuid, dims) };
 
     auto tab { AppState::getContext()->addTab() };
     tab.removeChild (tab.getChildWithName (app::id::PANES), nullptr);

@@ -104,8 +104,7 @@ public:
      * The owner must call `setWinsize()` after Display/Screen exist to
      * synchronise internal geometry before the first process() call.
      *
-     * @param cols    Initial terminal width in character columns.
-     * @param rows    Initial terminal height in visible rows.
+     * @param dims    Terminal dimensions in cells.
      * @param events  Events map owned by Processor.  Video fires events through
      *                this map instead of holding std::function callbacks directly.
      *
@@ -114,7 +113,7 @@ public:
      * @see calc()
      * @see setWinsize()
      */
-    explicit Video (cell cols, cell rows,
+    explicit Video (jam::Cell::Rectangle dims,
                     jam::Function::Map<juce::Identifier, void>& events) noexcept;
 
     /**
@@ -185,14 +184,13 @@ public:
      *  stops, rebuilds Block views from the resized buffer, reads ring heads from
      *  blocks, and calls `calc()` to synchronise internal cached geometry.
      *
-     *  Called by Processor::resizeVideo() from Session's Resizer stop trigger while
-     *  processing is suspended, and directly by Processor::setWinsize() for cold-start.
+     *  Called by Processor::prepare() from Session's Resizer stop trigger while
+     *  processing is suspended, and directly for cold-start.
      *
-     *  @param newCols  New terminal width in character columns.
-     *  @param newRows  New terminal height in visible rows.
+     *  @param dims  Terminal dimensions in cells.
      *  @note MESSAGE THREAD — called while processing is suspended.
      */
-    void setWinsize (cell newCols, cell newRows) noexcept;
+    void setWinsize (jam::Cell::Rectangle dims) noexcept;
 
     /** @brief Returns a const reference to the internal row buffer.
      *  Session reads this on the message thread for the flush path.
@@ -419,6 +417,10 @@ private:
 
     /** @brief Active screen keyboard enhancement flags. Single register — screen switch loads/saves via State. */
     uint32_t keyboardFlags { 0 };
+
+    /** @brief Rows touched since last flush. Set on cell write, cleared in flush().
+     *  Reader thread only. */
+    juce::HeapBlock<bool> rowTouched;
 
     /** @} */
 

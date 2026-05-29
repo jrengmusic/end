@@ -86,8 +86,7 @@ public:
      * seedEnv to the constructor directly.
      *
      * @param cwd    Initial working directory.  Empty = inherit.
-     * @param cols   Initial column count.  Must be > 0.
-     * @param rows   Initial row count.  Must be > 0.
+     * @param dims   Terminal dimensions in cells. Must be valid.
      * @param shell  Shell program override.  Empty = read from config.
      * @param args   Shell arguments override.  Empty = read from config.
      * @param seedEnv  Extra environment variables.  Merged before construction.
@@ -96,8 +95,7 @@ public:
      * @note MESSAGE THREAD.
      */
     static std::unique_ptr<Session> create (const juce::String& cwd,
-                                             cell cols,
-                                             cell rows,
+                                             jam::Cell::Rectangle dims,
                                              const juce::String& shell = {},
                                              const juce::String& args = {},
                                              const juce::StringPairArray& seedEnv = {},
@@ -110,16 +108,14 @@ public:
      * Bytes are fed externally via `process()`.  CWD is written
      * to State so display logic (tab title, cwd badge) works identically to a local session.
      *
-     * @param cols   Terminal width in character columns.  Must be > 0.
-     * @param rows   Terminal height in character rows.  Must be > 0.
+     * @param dims   Terminal dimensions in cells. Must be valid.
      * @param cwd    Initial working directory — written to State.
      * @param shell  Shell program name (not stored in State; reserved for future use).
      * @param uuid   Session UUID.  Empty = auto-generated.
      * @return Owning unique_ptr to the constructed terminal::Session.
      * @note MESSAGE THREAD.
      */
-    static std::unique_ptr<Session> create (cell cols,
-                                             cell rows,
+    static std::unique_ptr<Session> create (jam::Cell::Rectangle dims,
                                              const juce::String& cwd,
                                              const juce::String& shell,
                                              const juce::String& uuid);
@@ -131,16 +127,14 @@ public:
      * Does NOT open the TTY — call start() after Display/Screen construction so
      * screen node atomics exist before the reader thread fires.
      *
-     * @param cols     Initial terminal width in character columns.
-     * @param rows     Initial terminal height in character rows.
+     * @param dims     Terminal dimensions in cells. Must be valid.
      * @param shell    Shell program path (e.g. "zsh", "/usr/bin/fish").
      * @param args     Shell arguments string.  Empty = none.
      * @param cwd      Initial working directory.  Empty = inherit.
      * @param seedEnv  Shell integration environment variable pairs.
      * @param uuid     Session UUID.  Empty = auto-generated.
      */
-    Session (cell cols,
-             cell rows,
+    Session (jam::Cell::Rectangle dims,
              const juce::String& shell,
              const juce::String& args,
              const juce::String& cwd,
@@ -155,15 +149,13 @@ public:
      * Bytes are fed externally via `getProcessor().process()`.
      * CWD is written to State so display logic works identically.
      *
-     * @param cols   Terminal width.  Must be > 0.
-     * @param rows   Terminal height.  Must be > 0.
+     * @param dims   Terminal dimensions in cells. Must be valid.
      * @param cwd    Initial working directory — written to State.
      * @param shell  Shell program name (not stored in State; reserved for future use).
      * @param uuid   Session UUID.  Empty = auto-generated.
      * @note MESSAGE THREAD.
      */
-    Session (cell cols,
-             cell rows,
+    Session (jam::Cell::Rectangle dims,
              const juce::String& cwd,
              const juce::String& shell,
              const juce::String& uuid,

@@ -50,10 +50,10 @@ std::pair<cell, cell> Panes::cellsFromRect (juce::Rectangle<int> paneRect) noexc
     const float fontSize { cfg->dpiCorrectedFontSize() };
     const jam::Font font { cfg->display.font.family, fontSize,
                            cfg->display.font.cellWidth, cfg->display.font.lineHeight };
-    jassert (font.bounds.width > 0 and font.bounds.height > 0);
+    jassert (font.cellWidth > 0 and font.cellHeight > 0);
 
-    const int physCellW { jam::toInt (static_cast<float> (font.bounds.width) * scale, true) };
-    const int physCellH { jam::toInt (static_cast<float> (font.bounds.height) * scale, true) };
+    const int physCellW { jam::toInt (static_cast<float> (font.cellWidth) * scale, true) };
+    const int physCellH { jam::toInt (static_cast<float> (font.cellHeight) * scale, true) };
 
     jassert (physCellW > 0 and physCellH > 0);
 
@@ -68,7 +68,7 @@ std::pair<cell, cell> Panes::cellsFromRect (juce::Rectangle<int> paneRect) noexc
     const int physContentW { jam::toInt (static_cast<float> (contentW) * scale, true) };
     const int physContentH { jam::toInt (static_cast<float> (contentH) * scale, true) };
 
-    const auto gridRect { jam::Cell::Rectangle (jam::Bounds { physCellW, physCellH }, juce::Rectangle<int> { 0, 0, physContentW, physContentH }) };
+    const auto gridRect { jam::Cell::Rectangle::fromPixel (juce::Rectangle<int> { 0, 0, physContentW, physContentH }, physCellW, physCellH) };
     const cell cols { (physContentW > 0 and physCellW > 0) ? gridRect.getWidth().value  : 1 };
     const cell rows { (physContentH > 0 and physCellH > 0) ? gridRect.getHeight().value : 1 };
 
@@ -136,13 +136,12 @@ std::pair<juce::Rectangle<int>, juce::Rectangle<int>>
  */
 juce::String Panes::createTerminal (const juce::String& workingDirectory,
                                      const juce::String& uuid,
-                                     cell cols,
-                                     cell rows)
+                                     jam::Cell::Rectangle dims)
 {
-    jassert (cols.value > 0 and rows.value > 0);
+    jassert (dims.getWidth().value > 0 and dims.getHeight().value > 0);
 
     const juce::String effectiveUuid { uuid.isNotEmpty() ? uuid : juce::Uuid().toString() };
-    terminal::Session& termSession { Nexus::getContext()->create (workingDirectory, effectiveUuid, cols, rows) };
+    terminal::Session& termSession { Nexus::getContext()->create (workingDirectory, effectiveUuid, dims) };
 
     const juce::String termUuid { termSession.getProcessor().getUuid() };
 
@@ -439,7 +438,7 @@ void Panes::splitAt (const juce::String& targetUuid,
     jassert (cols.value > 0 and rows.value > 0);
 
     const juce::String effectiveSplitUuid { newUuid.isNotEmpty() ? newUuid : juce::Uuid().toString() };
-    terminal::Session& splitSession { Nexus::getContext()->create (cwd, effectiveSplitUuid, cols, rows) };
+    terminal::Session& splitSession { Nexus::getContext()->create (cwd, effectiveSplitUuid, jam::Cell::Rectangle (cols, rows)) };
 
     const juce::String splitUuid { splitSession.getProcessor().getUuid() };
 

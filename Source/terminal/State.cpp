@@ -180,6 +180,36 @@ int State::loadValue (const juce::Identifier& groupId, const juce::Identifier& p
     return params.get<jam::AnyMap> (groupId)->get<Parameter<int>> (paramId)->load();
 }
 
+//==========================================================================
+// Per-row flush-dirty flags
+//==========================================================================
+
+void State::setRowDirty (int row) noexcept
+{
+    jassert (row >= 0 and row < rowDirtyCount);
+
+    if (row >= 0 and row < rowDirtyCount)
+        rowDirtyFlags[static_cast<size_t> (row)].store (1, std::memory_order_relaxed);
+}
+
+bool State::consumeRowDirty (int row) noexcept
+{
+    jassert (row >= 0 and row < rowDirtyCount);
+
+    if (row >= 0 and row < rowDirtyCount)
+        return rowDirtyFlags[static_cast<size_t> (row)].exchange (0, std::memory_order_relaxed) != 0;
+
+    return false;
+}
+
+void State::rebuildRowDirtyFlags (int newVisibleRows) noexcept
+{
+    rowDirtyFlags = std::make_unique<std::atomic<int>[]> (static_cast<size_t> (newVisibleRows));
+    rowDirtyCount = newVisibleRows;
+}
+
+int State::getRowDirtyCount() const noexcept { return rowDirtyCount; }
+
 void State::storeTextValue (const juce::Identifier& groupId, const juce::Identifier& paramId, const char* ptr) noexcept
 {
     params.get<jam::AnyMap> (groupId)->get<Parameter<const char*>> (paramId)->store (ptr);
@@ -221,14 +251,14 @@ cell State::getCols() const noexcept
 {
     const auto teNode { get().getChildWithName (jam::TextEditor::properties.at (jam::TextEditor::textEditorId)) };
     const int packed { static_cast<int> (teNode.getProperty (jam::TextEditor::properties.at (jam::TextEditor::viewportId), 0)) };
-    return cell (jam::Bounds::unpack (packed).width);
+    return jam::Cell::Rectangle::unpack (static_cast<int64_t> (packed)).getWidth();
 }
 
 cell State::getVisibleRows() const noexcept
 {
     const auto teNode { get().getChildWithName (jam::TextEditor::properties.at (jam::TextEditor::textEditorId)) };
     const int packed { static_cast<int> (teNode.getProperty (jam::TextEditor::properties.at (jam::TextEditor::viewportId), 0)) };
-    return cell (jam::Bounds::unpack (packed).height);
+    return jam::Cell::Rectangle::unpack (static_cast<int64_t> (packed)).getHeight();
 }
 
 juce::String State::getTitle() const noexcept
@@ -411,16 +441,6 @@ void State::setSyncOutput (bool active) noexcept
 bool State::isSyncOutputActive() const noexcept
 {
     return params.get<jam::AnyMap> (id::SESSION)->get<Parameter<int>> (id::syncOutputActive)->load() != 0;
-}
-
-void State::requestSyncResize() noexcept
-{
-    params.get<jam::AnyMap> (id::SESSION)->get<Parameter<int>> (id::syncResizePending)->store (1);
-}
-
-bool State::consumeSyncResize() noexcept
-{
-    return params.get<jam::AnyMap> (id::SESSION)->get<Parameter<int>> (id::syncResizePending)->exchangeRelaxed (0) != 0;
 }
 
 //==========================================================================

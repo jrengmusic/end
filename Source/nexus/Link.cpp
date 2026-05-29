@@ -565,8 +565,8 @@ void Link::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifi
 
         if (resizeUuid.isNotEmpty())
         {
-            const auto dims { jam::Bounds::unpack (static_cast<int> (tree.getProperty (property))) };
-            sendResize (resizeUuid, dims.width, dims.height);
+            const auto dims { jam::Cell::Rectangle::unpack (static_cast<int64_t> (static_cast<int> (tree.getProperty (property)))) };
+            sendResize (resizeUuid, dims.getWidth().value, dims.getHeight().value);
         }
     }
 }

@@ -114,9 +114,14 @@ void Video::handleOsc133 (int scr, const uint8_t* data, int dataLength) noexcept
                 if (events.contains (id::promptRow)) events.get (id::promptRow, int (cRow));
                 break;
 
+            case 'B':
+                break;
+
             case 'C':
+            {
                 if (events.contains (id::outputBlockStart)) events.get (id::outputBlockStart, int (cRow));
                 break;
+            }
 
             case 'D':
                 if (events.contains (id::outputBlockEnd)) events.get (id::outputBlockEnd, int (cRow));

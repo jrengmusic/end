@@ -48,8 +48,7 @@ void Screen::valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier&
     const CursorState cursorState { CursorState::unpack (
         static_cast<int> (jam::ValueTree::getValueFromChildWithID (screenNode, id::cursor).getValue())) };
 
-    const int historyRows { static_cast<int> (
-        jam::ValueTree::getValueFromChildWithID (screenNode, id::historyCount).getValue()) };
+    const int historyRows { 0 }; // Step 9: caret positioning redesign
 
     // Caret position — absolute row in document space.
     setCaretPosition (cell (cursorState.col), cell (historyRows + cursorState.row));

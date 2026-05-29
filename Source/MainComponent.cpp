@@ -148,7 +148,7 @@ MainComponent::MainComponent (lua::Engine& engine)
             const float fontSize { cfg->dpiCorrectedFontSize() };
             const jam::Font font { cfg->display.font.family, fontSize,
                                    cfg->display.font.cellWidth, cfg->display.font.lineHeight };
-            jassert (font.bounds.width > 0 and font.bounds.height > 0);
+            jassert (font.cellWidth > 0 and font.cellHeight > 0);
 
             const int titleBarHeight { cfg->display.window.buttons ? app::titleBarHeight : 0 };
             const int paddingTop    { cfg->nexus.terminal.paddingTop };
@@ -156,13 +156,13 @@ MainComponent::MainComponent (lua::Engine& engine)
             const int paddingBottom { cfg->nexus.terminal.paddingBottom };
             const int paddingLeft   { cfg->nexus.terminal.paddingLeft };
 
-            const auto cellPx { jam::Cell::Point::totalPixels<int> (cols, rows, font.bounds) };
-            const int pixelWidth  { cellPx.x + paddingLeft + paddingRight };
-            const int pixelHeight { cellPx.y + paddingTop + paddingBottom + titleBarHeight };
+            const auto cellPx { jam::Cell::Rectangle (cols, rows).toPixel (font.cellWidth, font.cellHeight) };
+            const int pixelWidth  { cellPx.getWidth()  + paddingLeft + paddingRight };
+            const int pixelHeight { cellPx.getHeight() + paddingTop + paddingBottom + titleBarHeight };
 
             const auto effectiveCwd { cwd.isNotEmpty() ? cwd : appState.getPwd() };
 
-            auto termSession { terminal::Session::create (effectiveCwd, cols, rows, shell, shellArgs) };
+            auto termSession { terminal::Session::create (effectiveCwd, jam::Cell::Rectangle (cols, rows), shell, shellArgs) };
             auto* sessionPtr { termSession.get() };
 
             auto terminal { std::make_unique<terminal::Display> (*termSession) };
@@ -496,7 +496,7 @@ void MainComponent::showMessageOverlay()
         const jam::Font font { appState.getFontFamily(), fontSize,
                                cfg->display.font.cellWidth, cfg->display.font.lineHeight };
 
-        if (font.bounds.width > 0)
+        if (font.cellWidth > 0)
         {
             auto content { getLocalBounds() };
             const int depth { tabs != nullptr ? tabs->getTabBarDepth() : 0 };
@@ -523,13 +523,10 @@ void MainComponent::showMessageOverlay()
             content.removeFromBottom (padBottom);
             content.removeFromLeft (padLeft);
 
-            const auto gridRect { jam::Cell::Rectangle (font.bounds, content) };
-            const cell cols { gridRect.getWidth() };
-            const cell rows { gridRect.getHeight() };
-
-            if (cols.value > 0 and rows.value > 0 and isShowing())
+            const auto gridRect { jam::Cell::Rectangle::fromPixel (content, font.cellWidth, font.cellHeight) };
+            if (gridRect.isValid() and isShowing())
             {
-                messageOverlay->showResize (cols, rows, padTop, padRight, padBottom, padLeft);
+                messageOverlay->showResize (gridRect, padTop, padRight, padBottom, padLeft);
             }
         }
     }

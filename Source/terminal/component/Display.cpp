@@ -75,12 +75,12 @@ void terminal::Display::applyFromAppState() noexcept
     session.getScreen().setCaretShape (appState->getCursorStyle());
     session.getScreen().setCaretBlinkRate (appState->getCursorBlinkInterval());
 
-    attachment->setValue (terminal::id::cellWidth,  font.bounds.width);
-    attachment->setValue (terminal::id::cellHeight, font.bounds.height);
+    attachment->setValue (terminal::id::cellWidth,  font.cellWidth);
+    attachment->setValue (terminal::id::cellHeight, font.cellHeight);
     attachment->setValue (terminal::id::baseline,   font.baseline);
     attachment->setValue (terminal::id::fontSize,   static_cast<int> (font.fontSize));
 
-    mouse.setCellSize (font.bounds.width, font.bounds.height);
+    mouse.setCellSize (font.cellWidth, font.cellHeight);
     input.buildKeyMap();
 }
 void terminal::Display::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
@@ -158,6 +158,25 @@ void terminal::Display::resized()
     // Pixel dimensions — needed by SIGWINCH (tty->setWinsize).
     state.setValue (jam::ID::width, contentBounds.getWidth());
     state.setValue (jam::ID::height, contentBounds.getHeight());
+
+    // Display is the sole author of viewport cell dimensions.
+    // Uses contentBounds (scrollbar-unaware) — scrollbar is a TextEditor rendering concern.
+    const auto& displayNode { attachment->getNode() };
+    const int cellW { static_cast<int> (jam::ValueTree::getValueFromChildWithID (displayNode, terminal::id::cellWidth).getValue()) };
+    const int cellH { static_cast<int> (jam::ValueTree::getValueFromChildWithID (displayNode, terminal::id::cellHeight).getValue()) };
+
+    if (cellW > 0 and cellH > 0)
+    {
+        const auto cellDims { jam::Cell::Rectangle::fromPixel (contentBounds, cellW, cellH) };
+
+        if (cellDims.isValid())
+        {
+            auto teNode { state.get().getChildWithName (jam::TextEditor::properties.at (jam::TextEditor::textEditorId)) };
+
+            if (teNode.isValid())
+                teNode.setProperty (jam::TextEditor::properties.at (jam::TextEditor::viewportId), cellDims.pack(), nullptr);
+        }
+    }
 }
 
 // juce::KeyListener

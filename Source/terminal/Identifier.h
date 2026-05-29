@@ -28,7 +28,7 @@ namespace terminal
 /** @brief Packed cursor state for atomic screen state transfer.
  *
  *  Aggregates cursor position, visibility, and keyboard flags for one screen.
- *  pack()/unpack() mirror jam::Bounds::pack()/unpack() in naming convention —
+ *  pack()/unpack() mirror jam::Cell::Rectangle::pack()/unpack() in naming convention —
  *  12 bits each for row/col, 1 for visible, 5 for kbFlags.
  */
 struct CursorState
@@ -245,9 +245,6 @@ namespace id
     /** @brief True while synchronized output (mode 2026) is active. */
     static const juce::Identifier syncOutputActive     { "syncOutputActive" };
 
-    /** @brief True when a same-size PTY resize is requested on next drain. */
-    static const juce::Identifier syncResizePending    { "syncResizePending" };
-
     /** @brief First visible row of the current OSC 133 command output block. -1 = none. */
     static const juce::Identifier outputBlockTop       { "outputBlockTop" };
 
@@ -324,6 +321,9 @@ namespace id
     /** @brief Fired when cell data is written to Grid — args: int (screen). Triggers Screen repaint. */
     static const juce::Identifier screenDirty           { "screenDirty" };
 
+    /** @brief Fired once per dirty row during flush — args: int (row). Reader thread marks State row-dirty flags. */
+    static const juce::Identifier rowDirty              { "rowDirty" };
+
     /** @brief Fired on OSC 133 A prompt marker — args: int (relative row). */
     static const juce::Identifier outputBlockStart    { "outputBlockStart" };
 
@@ -347,9 +347,6 @@ namespace id
 
     /** @brief Fired on CSI < count u — pop keyboard mode — args: int (screen), int (count). */
     static const juce::Identifier popKeyboardMode     { "popKeyboardMode" };
-
-    /** @brief Fired on DEC mode 2026 set to trigger sync resize — no arguments. */
-    static const juce::Identifier requestSyncResize   { "requestSyncResize" };
 
     /** @brief Fired when the child shell process exits — no arguments. */
     static const juce::Identifier shellExited         { "shellExited" };

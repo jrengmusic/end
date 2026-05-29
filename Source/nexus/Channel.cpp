@@ -143,7 +143,7 @@ void Daemon::Channel::messageReceived (const juce::MemoryBlock& message)
                     const bool exists { nexus.has (parsed.uuid) };
 
                     if (not exists)
-                        nexus.create (parsed.cwd, cell (parsed.cols), cell (parsed.rows), {}, {}, {}, parsed.uuid);
+                        nexus.create (parsed.cwd, jam::Cell::Rectangle (cell (parsed.cols), cell (parsed.rows)), {}, {}, {}, parsed.uuid);
 
                     // Subscribe, send history (rebuilds terminal state: alt screen, cursor, etc.),
                     // then resize PTY. SIGWINCH redraw overwrites any dim-garbled history output.
@@ -194,7 +194,7 @@ void Daemon::Channel::messageReceived (const juce::MemoryBlock& message)
 
                         if (teNode.isValid())
                             teNode.setProperty (jam::TextEditor::properties.at (jam::TextEditor::viewportId),
-                                                 jam::Bounds { static_cast<int> (cols), static_cast<int> (rows) }.pack(),
+                                                 jam::Cell::Rectangle (cell (static_cast<int> (cols)), cell (static_cast<int> (rows))).pack(),
                                                  nullptr);
                     }
                 }

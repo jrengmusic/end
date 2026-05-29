@@ -154,8 +154,6 @@ struct State
     // Sync output (mode 2026)
     void setSyncOutput (bool active) noexcept;
     bool isSyncOutputActive() const noexcept;
-    void requestSyncResize() noexcept;
-    bool consumeSyncResize() noexcept;
 
     // Preview split-viewport
     void dismissPreview() noexcept;
@@ -177,10 +175,18 @@ struct State
     void storeValue (const juce::Identifier& groupId, const juce::Identifier& paramId, int value) noexcept;
     int loadValue (const juce::Identifier& groupId, const juce::Identifier& paramId) const noexcept;
 
+    // Per-row flush-dirty flags — reader thread writes, message thread consumes.
+    void setRowDirty (int row) noexcept;
+    bool consumeRowDirty (int row) noexcept;
+    void rebuildRowDirtyFlags (int newVisibleRows) noexcept;
+    int getRowDirtyCount() const noexcept;
+
     // Flush
     bool refresh() noexcept;
 
 private:
+    std::unique_ptr<std::atomic<int>[]> rowDirtyFlags;
+    int rowDirtyCount { 0 };
     static int resolveLayoutDefault (const juce::XmlElement& elem) noexcept;
 
     void valueTreeChildAdded (juce::ValueTree& parent, juce::ValueTree& child) override;

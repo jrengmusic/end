@@ -109,9 +109,6 @@ public:
     void systemRequestedQuit() override;
 
 private:
-    /** @brief Diagnostic file logger -- fresh each launch. */
-    jam::debug::Log::Scope logScope { juce::File { "/tmp/end-perf.log" } };
-
     /** @brief Application-owned typeface registry and shared glyph atlas. */
     jam::TypefaceResources typefaceResources;
 

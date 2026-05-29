@@ -160,15 +160,13 @@ void Session::applyShellIntegration (const juce::String& shell, juce::String& ar
  * @note MESSAGE THREAD.
  */
 std::unique_ptr<Session> Session::create (const juce::String& cwd,
-                                           cell cols,
-                                           cell rows,
+                                           jam::Cell::Rectangle dims,
                                            const juce::String& shell,
                                            const juce::String& args,
                                            const juce::StringPairArray& seedEnv,
                                            const juce::String& uuid)
 {
-    jassert (cols.value > 0);
-    jassert (rows.value > 0);
+    jassert (dims.isValid());
 
     const auto* cfg { lua::Engine::getContext() };
     const juce::String effectiveShell { shell.isNotEmpty()
@@ -186,7 +184,7 @@ std::unique_ptr<Session> Session::create (const juce::String& cwd,
                            static_cast<float> (appState->getCellWidth()),
                            static_cast<float> (appState->getLineHeight()) };
 
-    auto session { std::make_unique<Session> (cols, rows, effectiveShell, effectiveArgs, cwd, mergedEnv, uuid, font) };
+    auto session { std::make_unique<Session> (dims, effectiveShell, effectiveArgs, cwd, mergedEnv, uuid, font) };
     return session;
 }
 
@@ -200,8 +198,7 @@ std::unique_ptr<Session> Session::create (const juce::String& cwd,
  *
  * @note MESSAGE THREAD.
  */
-Session::Session (cell cols,
-                  cell rows,
+Session::Session (jam::Cell::Rectangle dims,
                   const juce::String& shell,
                   const juce::String& args,
                   const juce::String& cwd,
@@ -213,7 +210,7 @@ Session::Session (cell cols,
     , screen (state, font)
 {
     const juce::String effectiveUuid { uuid.isNotEmpty() ? uuid : juce::Uuid().toString() };
-    processor = std::make_unique<terminal::Processor> (state, cols, rows, textBuffer, effectiveUuid);
+    processor = std::make_unique<terminal::Processor> (state, dims, textBuffer, effectiveUuid);
     state.setId (effectiveUuid);
 
     // Resize coordinator — coalesces dimension changes, suspends/resumes processing.
@@ -222,8 +219,8 @@ Session::Session (cell cols,
     // Store open parameters for start() — TTY open is deferred until after
     // Display/Screen are created so screen node atomics exist before the
     // reader thread writes to them.
-    startCols  = cols;
-    startRows  = rows;
+    startCols  = dims.getWidth();
+    startRows  = dims.getHeight();
     startShell = shell;
     startArgs  = args;
     startCwd   = cwd;
@@ -240,8 +237,7 @@ Session::Session (cell cols,
  *
  * @note MESSAGE THREAD.
  */
-Session::Session (cell cols,
-                  cell rows,
+Session::Session (jam::Cell::Rectangle dims,
                   const juce::String& cwd,
                   const juce::String& shell,
                   const juce::String& uuid,
@@ -250,11 +246,10 @@ Session::Session (cell cols,
     , state (textBuffer)
     , screen (state, font)
 {
-    jassert (cols.value > 0);
-    jassert (rows.value > 0);
+    jassert (dims.isValid());
 
     const juce::String effectiveUuid { uuid.isNotEmpty() ? uuid : juce::Uuid().toString() };
-    processor = std::make_unique<terminal::Processor> (state, cols, rows, textBuffer, effectiveUuid);
+    processor = std::make_unique<terminal::Processor> (state, dims, textBuffer, effectiveUuid);
     state.setId (effectiveUuid);
 
     state.get().setProperty (terminal::id::cwd, cwd, nullptr);
@@ -266,15 +261,16 @@ Session::Session (cell cols,
  * @brief Wires Resizer trigger lambdas and Value::Listener binding.
  *
  * Called from both constructors after processor and screen are initialized.
- * Creates the jam::Resizer, registers start trigger (suspendProcessing) and
- * stop trigger (resizeVideo + resizeTextLineArray + SIGWINCH), and binds
+ * Creates the jam::Resizer, registers start and stop triggers, and binds
  * winsize Value::Listener to TextEditor's viewport property in State.
  *
- * Stop trigger:
- *   processor->resizeVideo(newCols, newRows)                     — resize Buffer<Row>, blank canvas
- *   processor->resizeTextLineArray(scrollbackLines, newRows)     — update live slot count
+ * Start trigger (buffer/state setup while processing is suspended):
+ *   processor->suspendProcessing(true)
+ *   processor->prepare(newCols, newRows)  — CellFifo reset, Video resize, dirty flags, alt screen rebuild
  *   processor->suspendProcessing(false)
- *   processor->setWinsize(newCols, newRows)                      — SIGWINCH to shell
+ *
+ * Stop trigger (SIGWINCH after coalescing completes):
+ *   processor->prepare(newCols, newRows)
  *
  * Display handles screen.setText via its own vTPC on screenDirty.
  *
@@ -285,23 +281,17 @@ void Session::wireResizer() noexcept
     resizer = std::make_unique<jam::Resizer>();
 
     resizer->addTrigger<int, int> (jam::ID::start,
-        [this] (int, int)
+        [this] (int newCols, int newRows)
         {
             processor->suspendProcessing (true);
+            processor->prepare (jam::Cell::Rectangle (cell (newCols), cell (newRows)));
+            processor->suspendProcessing (false);
         });
 
     resizer->addTrigger<int, int> (jam::ID::stop,
         [this] (int newCols, int newRows)
         {
-            // Video resizes its own buffer — safe: processing is suspended.
-            processor->resizeVideo (cell (newCols), cell (newRows));
-
-            // Update Processor's owned TextLineArray live region.
-            const int scrollbackLines { AppState::getContext()->getRawParameterValue<int> (app::id::scrollbackLines)->load() };
-            processor->resizeTextLineArray (scrollbackLines, newRows);
-
-            processor->suspendProcessing (false);
-            processor->setWinsize (cell (newCols), cell (newRows));
+            processor->prepare (jam::Cell::Rectangle (cell (newCols), cell (newRows)));
         });
 
     // Bind winsize to TextEditor's state property — Value::Listener fires on change.
@@ -322,10 +312,10 @@ void Session::valueChanged (juce::Value& value)
 {
     if (value.refersToSameSourceAs (winsize))
     {
-        const auto dims { jam::Bounds::unpack (static_cast<int> (winsize.getValue())) };
+        const auto dims { jam::Cell::Rectangle::unpack (static_cast<int64_t> (static_cast<int> (winsize.getValue()))) };
 
         if (dims.isValid())
-            resizer->set (jam::ID::start, dims.width, dims.height);
+            resizer->set (jam::ID::start, dims.getWidth().value, dims.getHeight().value);
     }
 }
 
@@ -342,14 +332,12 @@ Session::~Session() { stop(); }
  *      in Session.h for full documentation.
  * @note MESSAGE THREAD.
  */
-std::unique_ptr<Session> Session::create (cell cols,
-                                           cell rows,
+std::unique_ptr<Session> Session::create (jam::Cell::Rectangle dims,
                                            const juce::String& cwd,
                                            const juce::String& shell,
                                            const juce::String& uuid)
 {
-    jassert (cols.value > 0);
-    jassert (rows.value > 0);
+    jassert (dims.isValid());
 
     const juce::String effectiveUuid { uuid.isNotEmpty() ? uuid : juce::Uuid().toString() };
 
@@ -359,7 +347,7 @@ std::unique_ptr<Session> Session::create (cell cols,
                            static_cast<float> (appState->getCellWidth()),
                            static_cast<float> (appState->getLineHeight()) };
 
-    return std::make_unique<Session> (cols, rows, cwd, shell, effectiveUuid, font);
+    return std::make_unique<Session> (dims, cwd, shell, effectiveUuid, font);
 }
 
 /**
@@ -435,11 +423,11 @@ terminal::Screen& Session::getScreen() noexcept { return screen; }
  */
 void Session::start() noexcept
 {
-    processor->setWinsize (startCols, startRows);
+    processor->prepare (jam::Cell::Rectangle (startCols, startRows));
 
     if (startShell.isNotEmpty())
     {
-        processor->startTTY (startShell, startArgs, startCwd, startEnv, startCols, startRows);
+        processor->startTTY (startShell, startArgs, startCwd, startEnv, jam::Cell::Rectangle (startCols, startRows));
     }
 }
 

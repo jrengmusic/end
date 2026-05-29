@@ -291,7 +291,7 @@ void Daemon::attachSession (const juce::String& uuid, Channel& target,
 
         if (teNode.isValid())
             teNode.setProperty (jam::TextEditor::properties.at (jam::TextEditor::viewportId),
-                                 jam::Bounds { cols, rows }.pack(), nullptr);
+                                 jam::Cell::Rectangle (cell (cols), cell (rows)).pack(), nullptr);
     }
 }
 

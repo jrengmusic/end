@@ -99,7 +99,7 @@ public:
      * @note MESSAGE THREAD.
      */
     void addNewTab (const juce::String& workingDirectory, const juce::String& uuid,
-                    cell cols, cell rows);
+                    jam::Cell::Rectangle dims);
 
     /**
      * @brief Close the currently active tab and its terminal.

@@ -118,11 +118,11 @@ public:
      * @note Calls `toFront(false)` after fade-in to guarantee sibling z-order lift
      *       (CPU mode respects sibling order literally; GPU composites via GL).
      */
-    void showResize (cell cols, cell rows, int padTop, int padRight, int padBottom, int padLeft)
+    void showResize (jam::Cell::Rectangle dims, int padTop, int padRight, int padBottom, int padLeft)
     {
         resizeMode = true;
-        resizeCols = cols;
-        resizeRows = rows;
+        resizeCols = dims.getWidth();
+        resizeRows = dims.getHeight();
         resizePadTop = padTop;
         resizePadRight = padRight;
         resizePadBottom = padBottom;

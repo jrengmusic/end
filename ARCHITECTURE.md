@@ -424,7 +424,7 @@ Preview is a Display-side concern. The READER thread writes a filepath + trigger
 - Screen inherits jam::TextEditor directly — it IS the TextEditor, not a coordinator calling setText on a separate object
 - Screen is pure stateless renderer: no DST, no reflow; no node creation, no node ownership; grafts only its TextEditor `state` node (selection, caret, viewport mode)
 - Display owns NORMAL/ALTERNATE screen nodes via `seedScreenNodes` static helper; grafts them BEFORE Screen construction so atomics exist before the reader thread starts
-- Display owns `jam::ComponentAttachment` for the DISPLAY node (Font::bounds — cellWidth/cellHeight/baseline/fontSize); reads config from AppState via listener, writes computed font metrics to session State via attachment
+- Display owns `jam::ComponentAttachment` for the DISPLAY node (Font::cellWidth/cellHeight/baseline/fontSize); reads config from AppState via listener, writes computed font metrics to session State via attachment
 - Display destructor removes screen nodes
 
 **Resize path:**
@@ -813,7 +813,7 @@ Packed into a single u64. `jam::Cell` in `jam_graphics/detail/`. Global alias: `
 Nested types:
 - `Cell::Unit` — coordinate scalar
 - `Cell::Point` — cell-space 2D coordinate
-- `Cell::Rectangle` — cell-space rectangle; constructed from pixel dimensions + Font::bounds (no manual arithmetic)
+- `Cell::Rectangle` — cell-space rectangle; `fromPixel()` / `toPixel()` convert between pixel and cell coordinates using explicit cellWidth/cellHeight. pack() to int64, unpack() from int64.
 - `Cell::RowState` — per-row metadata
 - `Cell::getKey()` — extract cache key from packed cell
 
@@ -1286,7 +1286,7 @@ Click-mode link underlines only render on OSC 133 output rows.
 | Overlay | `jam::animation::Base` child of `terminal::Display`; ephemeral image preview. `jam::animation::Base` is `juce::Component + juce::Timer`. Owns `juce::Image` (static) or `std::vector<juce::Image>` frames. Renders via standard `paint()`. Created on demand by Display, destroyed by `dismissPreview()`. Side-by-side with Screen in Display::resized() |
 | handleSkitFilepath | Shared parser helper for SKiT (Sixel/Kitty/iTerm2) file preview protocol. Extracts filepath from `END;` marker, calls `onPreviewFile` callback |
 | CursorState | Packed struct for per-screen cursor save/restore. Carries cursor position, pen attributes, and origin mode. Used by Video via `setCursor(CursorState)` / `getCursor()` for DEC save/restore and screen switch. |
-| Font::bounds | `jam::Bounds` — cell dimension descriptor (cellWidth, cellHeight, baseline, fontSize) stored on the DISPLAY node via `jam::ComponentAttachment`. Source of truth for cell pixel dimensions; `Cell::Rectangle` reads these to compute grid dimensions without manual arithmetic. `Bounds::pack()` / `Bounds::unpack()` encode/decode to a single atomic integer; `Bounds::isValid()` guards against zero dimensions. |
+| Font::cellWidth/cellHeight | Plain int members on `jam::Font` — cell pixel dimensions (max advance * cellWidthMultiplier, line height * lineHeightMultiplier). Stored on the DISPLAY node via `jam::ComponentAttachment`. Source of truth for cell pixel dimensions; `Cell::Rectangle::fromPixel()` / `Cell::Point::fromPixel()` use these for pixel-to-cell conversion. |
 | LRUCache | `jam::glyph::LRUCache` — frame-stamped LRU map inside `Atlas::Packer`; evicts oldest 10% when over capacity. Capacities: mono 19,000; emoji 4,000. MESSAGE THREAD only. |
 | Atlas::Region | `jam::glyph::Atlas::Region` — cached rasterization result: `textureCoordinates` (UV rect), `widthPixels`, `heightPixels`, `bearingX`, `bearingY`, `type` (mono/emoji). |
 | LookAndFeel | Custom JUCE LookAndFeel: tab line indicator, popup menu glass blur, colour system via lua::Engine |

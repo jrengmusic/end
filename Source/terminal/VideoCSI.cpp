@@ -201,9 +201,9 @@ void Video::applyCSI (const CSI& params, const uint8_t* inter, uint8_t interCoun
             if (ps == 14)
             {
                 // Report text area size in pixels: ESC [ 4 ; height ; width t
-                const auto total { jam::Cell::Point::totalPixels<int> (cols, visibleRows, jam::Bounds { cellWidth, cellHeight }) };
-                const int totalW { total.x };
-                const int totalH { total.y };
+                const auto total { jam::Cell::Rectangle (cols, visibleRows).toPixel (cellWidth, cellHeight) };
+                const int totalW { total.getWidth() };
+                const int totalH { total.getHeight() };
 
                 if (totalW > 0 and totalH > 0)
                 {

@@ -173,11 +173,11 @@ UnixTTY::~UnixTTY()
  *
  * @note MESSAGE THREAD context.
  */
-bool UnixTTY::open (cell cols, cell rows, const juce::String& shell,
+bool UnixTTY::open (jam::Cell::Rectangle dims, const juce::String& shell,
                     const juce::String& args, const juce::String& workingDirectory)
 {
     int slaveFd { -1 };
-    struct winsize ws { static_cast<unsigned short> (rows.value), static_cast<unsigned short> (cols.value), 0, 0 };
+    struct winsize ws { static_cast<unsigned short> (dims.getHeight().value), static_cast<unsigned short> (dims.getWidth().value), 0, 0 };
     const auto shellUtf8 { shell.toStdString() };
     const char* shellCStr { shellUtf8.c_str() };
     const auto cwdUtf8 { workingDirectory.toStdString() };
@@ -226,7 +226,7 @@ bool UnixTTY::open (cell cols, cell rows, const juce::String& shell,
                 fcntl (master, F_SETFL, flags | O_NONBLOCK);
             }
 
-            rememberDimensions (cols.value, rows.value);
+            rememberDimensions (dims.getWidth().value, dims.getHeight().value);
             startThread();
 
             result = true;
@@ -395,24 +395,24 @@ bool UnixTTY::write (const char* buf, int len)
  *
  * @note MESSAGE THREAD context.
  */
-void UnixTTY::setWinsize (cell cols, cell rows, int pixelWidth, int pixelHeight)
+void UnixTTY::setWinsize (terminal::Winsize ws)
 {
-    if (cols.value != lastResizeCols or rows.value != lastResizeRows)
+    if (ws.cols != lastResizeCols or ws.rows != lastResizeRows)
     {
-        struct winsize ws {};
-        ws.ws_row    = static_cast<unsigned short> (rows.value);
-        ws.ws_col    = static_cast<unsigned short> (cols.value);
-        ws.ws_xpixel = static_cast<unsigned short> (pixelWidth);
-        ws.ws_ypixel = static_cast<unsigned short> (pixelHeight);
-        ioctl (master, TIOCSWINSZ, &ws);
+        struct winsize kwsz {};
+        kwsz.ws_col    = static_cast<unsigned short> (ws.cols);
+        kwsz.ws_row    = static_cast<unsigned short> (ws.rows);
+        kwsz.ws_xpixel = static_cast<unsigned short> (ws.pixelWidth);
+        kwsz.ws_ypixel = static_cast<unsigned short> (ws.pixelHeight);
+        ioctl (master, TIOCSWINSZ, &kwsz);
 
         if (childProcess > 0)
         {
             kill (childProcess, SIGWINCH);
         }
 
-        lastResizeCols = cols.value;
-        lastResizeRows = rows.value;
+        lastResizeCols = ws.cols;
+        lastResizeRows = ws.rows;
     }
 }
 

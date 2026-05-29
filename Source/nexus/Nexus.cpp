@@ -47,18 +47,16 @@ Nexus::Mode Nexus::getMode() const noexcept { return mode; }
  * @note NEXUS PROCESS MESSAGE THREAD.
  */
 terminal::Session& Nexus::create (const juce::String& cwd,
-                                   cell cols,
-                                   cell rows,
+                                   jam::Cell::Rectangle dims,
                                    const juce::String& shell,
                                    const juce::String& args,
                                    const juce::StringPairArray& seedEnv,
                                    const juce::String& uuid)
 {
     jassert (uuid.isNotEmpty());
-    jassert (cols.value > 0);
-    jassert (rows.value > 0);
+    jassert (dims.isValid());
 
-    auto termSession { terminal::Session::create (cwd, cols, rows, shell, args, seedEnv, uuid) };
+    auto termSession { terminal::Session::create (cwd, dims, shell, args, seedEnv, uuid) };
     terminal::Session* rawPtr { termSession.get() };
 
     sessions.emplace (uuid, std::move (termSession));
@@ -77,16 +75,15 @@ terminal::Session& Nexus::create (const juce::String& cwd,
  *
  * @note NEXUS PROCESS MESSAGE THREAD.
  */
-terminal::Session& Nexus::create (cell cols, cell rows,
+terminal::Session& Nexus::create (jam::Cell::Rectangle dims,
                                    const juce::String& cwd,
                                    const juce::String& shell,
                                    const juce::String& uuid)
 {
     jassert (uuid.isNotEmpty());
-    jassert (cols.value > 0);
-    jassert (rows.value > 0);
+    jassert (dims.isValid());
 
-    auto termSession { terminal::Session::create (cols, rows, cwd, shell, uuid) };
+    auto termSession { terminal::Session::create (dims, cwd, shell, uuid) };
     terminal::Session* rawPtr { termSession.get() };
 
     sessions.emplace (uuid, std::move (termSession));
@@ -112,12 +109,11 @@ terminal::Session& Nexus::create (cell cols, cell rows,
  */
 terminal::Session& Nexus::create (const juce::String& cwd,
                                    const juce::String& uuid,
-                                   cell cols,
-                                   cell rows)
+                                   jam::Cell::Rectangle dims)
 {
     jassert (uuid.isNotEmpty());
-    jassert (cols.value > 0);
-    jassert (rows.value > 0);
+    jassert (dims.getWidth().value > 0);
+    jassert (dims.getHeight().value > 0);
 
     const auto existing { sessions.find (uuid) };
     const bool alreadyExists { existing != sessions.end() };
@@ -134,14 +130,14 @@ terminal::Session& Nexus::create (const juce::String& cwd,
         // The events VT child-added fires inside the delegated create overload,
         // which Link observes to send the createSession PDU and wire IPC.
         const juce::String shell { lua::Engine::getContext()->nexus.shell.program };
-        result = &create (cols, rows, cwd, shell, uuid);
+        result = &create (dims, cwd, shell, uuid);
     }
     else
     {
         // Standalone or daemon mode — full PTY-backed session.
         // The events VT child-added fires inside the delegated create overload,
         // which Daemon observes to wire session callbacks.
-        result = &create (cwd, cols, rows, {}, {}, {}, uuid);
+        result = &create (cwd, dims, {}, {}, {}, uuid);
     }
 
     jassert (result != nullptr);

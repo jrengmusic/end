@@ -809,7 +809,7 @@ WindowsTTY::~WindowsTTY()
  *
  * @note MESSAGE THREAD context.
  */
-bool WindowsTTY::open (cell cols, cell rows, const juce::String& shell,
+bool WindowsTTY::open (jam::Cell::Rectangle dims, const juce::String& shell,
                        const juce::String& args, const juce::String& workingDirectory)
 {
     readBuffer.malloc (READ_CHUNK_SIZE);
@@ -829,7 +829,7 @@ bool WindowsTTY::open (cell cols, cell rows, const juce::String& shell,
 
         if (createDuplexOverlappedPipe (pipe, client))
         {
-            const COORD size { static_cast<short> (cols.value), static_cast<short> (rows.value) };
+            const COORD size { static_cast<short> (dims.getWidth().value), static_cast<short> (dims.getHeight().value) };
 
             if (createPseudoConsole (pseudoConsole, client, size))
             {
@@ -844,7 +844,7 @@ bool WindowsTTY::open (cell cols, cell rows, const juce::String& shell,
                     readOverlapped.hEvent  = readEvent;
                     writeOverlapped.hEvent = writeEvent;
 
-                    rememberDimensions (cols.value, rows.value);
+                    rememberDimensions (dims.getWidth().value, dims.getHeight().value);
                     startThread();
                     result = true;
                 }
@@ -1623,9 +1623,9 @@ bool WindowsTTY::write (const char* buf, int len)
  *
  * @note MESSAGE THREAD context.
  */
-void WindowsTTY::setWinsize (cell cols, cell rows, int /*pixelWidth*/, int /*pixelHeight*/)
+void WindowsTTY::setWinsize (terminal::Winsize ws)
 {
-    if (cols.value != lastResizeCols or rows.value != lastResizeRows)
+    if (ws.cols != lastResizeCols or ws.rows != lastResizeRows)
     {
         if (pseudoConsole != nullptr)
         {
@@ -1633,13 +1633,13 @@ void WindowsTTY::setWinsize (cell cols, cell rows, int /*pixelWidth*/, int /*pix
 
             if (funcs.resize != nullptr)
             {
-                const COORD size { static_cast<short> (cols.value), static_cast<short> (rows.value) };
+                const COORD size { static_cast<short> (ws.cols), static_cast<short> (ws.rows) };
                 funcs.resize (pseudoConsole, size);
             }
         }
 
-        lastResizeCols = cols.value;
-        lastResizeRows = rows.value;
+        lastResizeCols = ws.cols;
+        lastResizeRows = ws.rows;
     }
 }
 

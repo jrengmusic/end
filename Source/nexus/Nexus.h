@@ -95,8 +95,7 @@ public:
      * Fires a child-added event on `events` after the session is stored.
      *
      * @param cwd      Initial working directory.  Empty = inherit.
-     * @param cols     Initial column count.  Must be > 0.
-     * @param rows     Initial row count.  Must be > 0.
+     * @param dims     Terminal dimensions in cells. Must be valid.
      * @param shell    Shell program override.  Empty = read from Config.
      * @param args     Shell arguments override.  Empty = read from Config.
      * @param seedEnv  Extra environment variables merged before shell open.
@@ -105,8 +104,7 @@ public:
      * @note NEXUS PROCESS MESSAGE THREAD.
      */
     terminal::Session& create (const juce::String& cwd,
-                               cell cols,
-                               cell rows,
+                               jam::Cell::Rectangle dims,
                                const juce::String& shell,
                                const juce::String& args,
                                const juce::StringPairArray& seedEnv,
@@ -120,15 +118,14 @@ public:
      * written to State so display logic works without waiting for a stateUpdate PDU.
      * Fires a child-added event on `events` after the session is stored.
      *
-     * @param cols   Terminal width in character columns.  Must be > 0.
-     * @param rows   Terminal height in character rows.  Must be > 0.
+     * @param dims   Terminal dimensions in cells (width = cols, height = rows).  Must be valid.
      * @param cwd    Initial working directory — written to State.
      * @param shell  Shell program name — written to State for displayName logic.
      * @param uuid   Explicit UUID to assign.  Must be non-empty.
      * @return Mutable reference to the newly constructed terminal::Session.
      * @note NEXUS PROCESS MESSAGE THREAD.
      */
-    terminal::Session& create (cell cols, cell rows,
+    terminal::Session& create (jam::Cell::Rectangle dims,
                                const juce::String& cwd,
                                const juce::String& shell,
                                const juce::String& uuid);
@@ -154,8 +151,7 @@ public:
      */
     terminal::Session& create (const juce::String& cwd,
                                const juce::String& uuid,
-                               cell cols,
-                               cell rows);
+                               jam::Cell::Rectangle dims);
 
     /**
      * @brief Removes and destroys the session with the given UUID.

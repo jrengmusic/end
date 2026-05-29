@@ -217,10 +217,6 @@ void Video::handlePrivateMode (const CSI& params, bool enable) noexcept
             else if (modeValue == 2026)
             {
                 if (events.contains (id::syncOutput)) events.get (id::syncOutput, bool (enable));
-
-                if (enable)
-                    if (events.contains (id::requestSyncResize))
-                        events.get (id::requestSyncResize);
             }
         }
     }
