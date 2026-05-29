@@ -1,5 +1,74 @@
 # SPRINT-LOG
 
+## Sprint 38: Buffer-to-TextEditor Pipeline — Eliminate Screen, Decouple TLA from Buffer<Row>
+
+**Date:** 2026-05-29 to 2026-05-30
+
+### Agents Participated
+- COUNSELOR: orchestration, design discussion (fixed TLA, Value::map, CellFifo role, Screen elimination, ComponentAttachment, JFS dispatch pattern), audit resolution
+- Engineer: implementation (pipeline rewrite, Screen elimination, vTPC decomposition, dead code removal, ARCHITECTURE.md sweep)
+- Auditor: three audit passes (dead code, stale docs, BLESSED compliance)
+- Pathfinder: Screen usage survey, JUCE OpenGL context research
+- Librarian: JUCE OpenGL context/setComponentPaintingEnabled research
+
+### Files Modified (end — 26 total)
+- `Source/terminal/Processor.h` — vTPC decomposed: `parameters` Function::Map dispatch, `setCellSize()`, `setText()`, `setDisplayName()`. Removed `liveContentRows` member. Destructor removes VT listener.
+- `Source/terminal/Processor.cpp` — `buildTextLine` static helper. `setText()` (screenDirty): drain CellFifo + dirty-row in-place overwrite via Value::map. `prepare()` decoupled: only Video resize + dirty flags + SIGWINCH. No TLA/CellFifo touch.
+- `Source/terminal/ProcessorEvents.cpp` — pushLine: promptRow gate removed. outputBlockStart: CellFifo commit removed. clearBuffer: liveRows reset added.
+- `Source/terminal/Video.cpp` — executeLineFeed: non-scroll pushLine removed.
+- `Source/terminal/Video.h` — OSC 133 A doxygen: "no-op" → "fires promptRow event"
+- `Source/terminal/CellFifo.h` — `drainInto()`: insert → add, insertIndex parameter removed.
+- `Source/terminal/State.h` — Dead getters removed: getRowDirtyCount, isSnapshotDirty, getShellExited.
+- `Source/terminal/State.cpp` — Dead getter implementations removed. getCols/getVisibleRows: int64_t truncation fix.
+- `Source/terminal/Session.h` — `Screen screen` → `jam::TextEditor textEditor`. `getScreen()` → `getTextEditor()`.
+- `Source/terminal/Session.cpp` — Constructor passes state to TextEditor. Accessor renamed.
+- `Source/terminal/Identifier.h` — Dead identifiers removed: historyCount, cursorRow, cursorCol, wrapPending, scrollTop, scrollBottom. "Branked" → "Bracketed". Stale Screen reference fixed.
+- `Source/terminal/Parameters.xml` — historyCount → liveRows. promptRow default: 0 → -1.
+- `Source/terminal/Input.h` — Stale `@see terminal::Screen` → `terminal::Display`.
+- `Source/terminal/component/Display.h` — Absorbs Screen ColourIds. switchRenderer removed. createAndAttachState removed. normalScreen/alternateScreen dead members removed.
+- `Source/terminal/component/Display.cpp` — vTPC: screenDirty + activeScreen → content, cursor → caret (Cell::Point). All getScreen → getTextEditor. graftState call removed.
+- `Source/terminal/component/PaneComponent.h` — switchRenderer pure virtual removed.
+- `Source/terminal/component/LookAndFeel.h` — Screen.h → Display.h include.
+- `Source/terminal/component/LookAndFeel.cpp` — Screen:: → Display:: colour references.
+- `Source/terminal/component/Tabs.h` — switchRenderer declaration removed.
+- `Source/terminal/component/TabsActions.cpp` — Tabs::switchRenderer method removed.
+- `Source/whelmed/component/Component.h` — switchRenderer override removed.
+- `Source/whelmed/component/Component.cpp` — switchRenderer implementation removed.
+- `Source/MainComponent.cpp` — tabs->switchRenderer call removed.
+- `Source/Main.h` — Screen.h include removed.
+- `ARCHITECTURE.md` — Comprehensive sweep: ~30+ stale references (Screen → TextEditor, Buffer ownership, prepare API, glossary entries, module map).
+- `DEBT.md` — DEBT-20260530T100000 added (resize content destruction).
+
+### Deleted Files
+- `Source/terminal/component/Screen.h`
+- `Source/terminal/component/Screen.cpp`
+- `PLAN-buffer-texteditor.md`
+- `PLAN-cell-type-system.md`
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+- [ ] Resize content destruction violates Deterministic (D) — tracked as DEBT-20260530T100000
+
+### Problems Solved
+- Content doubling eliminated — non-scroll pushLine removed from Video, outputBlockStart CellFifo commit removed
+- Screen class eliminated — Session owns TextEditor directly, Display orchestrates
+- TextEditor uses ComponentAttachment for state grafting (RAII, established pattern)
+- Processor vTPC decomposed into Function::Map dispatch (JFS pattern)
+- switchRenderer dead abstraction removed (JUCE handles GL/CPU transparently)
+- CellFifo drain crash on seq 10M fixed (insert → add)
+- Caret mapping moved into TextEditor (Tell, don't Ask)
+- prepare() decoupled from TLA — no content destruction on resize from prepare itself
+
+### Debts Paid
+- `DEBT-20260529T020000` — SPSC pipeline bugs (doubling, stale promptRow, mutableRows overflow, manual arithmetic, DIAG logging, caret positioning) — all resolved by pipeline rewrite
+
+### Debts Deferred
+- `DEBT-20260530T100000` — resize content destruction (full rebuild copies garbage from Video before shell redraws)
+
+---
+
 ## Sprint 37: Cell Type System — Pixel = juce, Cell = jam
 
 **Date:** 2026-05-29

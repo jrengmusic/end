@@ -18,7 +18,7 @@
     <PARAM id="outputBlockTop"     type="int"  default="-1"/>
     <PARAM id="outputBlockBottom"  type="int"  default="-1"/>
     <PARAM id="outputScanActive"   type="bool" default="false"/>
-    <PARAM id="promptRow"          type="int"  default="0"/>
+    <PARAM id="promptRow"          type="int"  default="-1"/>
 
     <!-- Render signal -->
     <PARAM id="snapshotDirty"      type="bool" default="false"/>

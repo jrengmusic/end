@@ -31,7 +31,6 @@
 #include <JuceHeader.h>
 #include "TextBuffer.h"
 #include "State.h"
-#include "component/Screen.h"
 #include "Processor.h"
 #include "../lua/Engine.h"
 
@@ -232,19 +231,19 @@ public:
     terminal::Processor& getProcessor() noexcept;
 
     /**
-     * @brief Returns the owned Screen.
+     * @brief Returns the owned TextEditor.
      *
-     * Display calls addAndMakeVisible(session.getScreen()) to parent Screen for rendering.
-     * Screen always exists — owned by Session regardless of whether Display is attached.
+     * Display calls addAndMakeVisible(session.getTextEditor()) to parent it for rendering.
+     * TextEditor always exists — owned by Session regardless of whether Display is attached.
      *
      * @note MESSAGE THREAD.
      */
-    terminal::Screen& getScreen() noexcept;
+    jam::TextEditor& getTextEditor() noexcept;
 
 private:
     TextBuffer textBuffer;                              ///< Cross-thread string buffer — constructed first.
-    State state;                                        ///< Terminal parameter store — constructed before Screen.
-    terminal::Screen screen;                            ///< IS jam::TextEditor — SOLE AUTHOR of viewport dims.
+    State state;                                        ///< Terminal parameter store — constructed before TextEditor.
+    jam::TextEditor textEditor;                         ///< Terminal viewport renderer — owned by Session.
     std::unique_ptr<terminal::Processor> processor;     ///< Owns Video and TextLineArray — constructed last.
 
     /** @brief Resize coordinator — coalesces dimension changes, suspends/resumes Processor.

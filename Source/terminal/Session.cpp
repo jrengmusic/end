@@ -207,7 +207,7 @@ Session::Session (jam::Cell::Rectangle dims,
                   const jam::Font& font)
     : textBuffer {}
     , state (textBuffer)
-    , screen (state, font)
+    , textEditor (font, state)
 {
     const juce::String effectiveUuid { uuid.isNotEmpty() ? uuid : juce::Uuid().toString() };
     processor = std::make_unique<terminal::Processor> (state, dims, textBuffer, effectiveUuid);
@@ -244,7 +244,7 @@ Session::Session (jam::Cell::Rectangle dims,
                   const jam::Font& font)
     : textBuffer {}
     , state (textBuffer)
-    , screen (state, font)
+    , textEditor (font, state)
 {
     jassert (dims.isValid());
 
@@ -402,14 +402,14 @@ terminal::Processor& Session::getProcessor() noexcept
 }
 
 /**
- * @brief Returns the owned Screen.
+ * @brief Returns the owned TextEditor.
  *
- * Display calls addAndMakeVisible(session.getScreen()) to parent Screen for rendering.
- * Screen always exists — owned by Session regardless of whether Display is attached.
+ * Display calls addAndMakeVisible(session.getTextEditor()) to parent it for rendering.
+ * TextEditor always exists — owned by Session regardless of whether Display is attached.
  *
  * @note MESSAGE THREAD.
  */
-terminal::Screen& Session::getScreen() noexcept { return screen; }
+jam::TextEditor& Session::getTextEditor() noexcept { return textEditor; }
 
 /**
  * @brief Creates the TTY via Processor::startTTY and starts the reader thread.

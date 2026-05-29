@@ -80,16 +80,16 @@ void LookAndFeel::setColours()
     setColour (jam::TextEditor::focusedOutlineColourId, cfg->display.colours.editorOutline);
     setColour (jam::TextEditor::textColourId,           cfg->display.colours.foreground);
     setColour (jam::CaretComponent::caretColourId,    cfg->display.colours.cursor);
-    setColour (Screen::cursorColourId,              cfg->display.colours.cursor);
-    setColour (Screen::selectionColourId,           cfg->display.colours.selection);
-    setColour (Screen::selectionCursorColourId,     cfg->display.colours.selectionCursor);
-    setColour (Screen::hintLabelFgColourId,         cfg->display.colours.hintLabelFg);
-    setColour (Screen::hintLabelBgColourId,         cfg->display.colours.hintLabelBg);
+    setColour (Display::cursorColourId,              cfg->display.colours.cursor);
+    setColour (Display::selectionColourId,           cfg->display.colours.selection);
+    setColour (Display::selectionCursorColourId,     cfg->display.colours.selectionCursor);
+    setColour (Display::hintLabelFgColourId,         cfg->display.colours.hintLabelFg);
+    setColour (Display::hintLabelBgColourId,         cfg->display.colours.hintLabelBg);
 
     for (int i { 0 }; i < 16; ++i)
     {
         const juce::Colour ansi { cfg->display.colours.ansi[static_cast<size_t> (i)] };
-        setColour (Screen::ansi0ColourId + i, ansi);
+        setColour (Display::ansi0ColourId + i, ansi);
         terminal::setAnsi16Colour (i, ansi);
     }
 

@@ -8,6 +8,16 @@
 
 ---
 
+## DEBT-20260530T100000
+
+**Observation:** Resize destroys TextLineArray history content. Upsize/downsize eventually creates active prompt at bottom with garbage-filled scrollback. Content that was rendered correctly before resize disappears or is replaced with garbage from Video's zeroed buffer.
+**Divergence:** The full rebuild path (`drainCount > 0 or totalRows < contentRows`) removes old live zone entries and re-adds from Video. After resize, Video buffer is cleared (setWinsize re-allocates) but the rebuild copies zeroed/garbage rows into TLA before the shell redraws. CellFifo in-flight departures may also be stale (captured at old dimensions). The coupling between Buffer<Row> lifecycle and TLA content is the root cause — TLA should be independent of Buffer<Row> resize.
+**Expectation:** Resize should NOT affect TLA content. Buffer<Row> is Video's scratch — its lifecycle is irrelevant to TLA. Only dirty rows (actually written by Video after shell redraw) should overwrite TLA entries. The full rebuild path should not copy from Video unless Video has real content (dirty-flagged rows). History must survive resize intact.
+
+---
+
+---
+
 ## DEBT-20260529T020000
 
 **Observation:** SPSC pipeline (CellFifo + mutable tail + OSC 133 lifecycle) partially implemented but broken. Three symptoms: (1) ls output sometimes doubled — C handler COMMIT_PROMPT pushes rows to CellFifo AND mutable tail re-adds same rows from Video. (2) `clear` sometimes renders only bottom half of OMP prompt. (3) `seq 1000` output not fully rendered — content lost during high-throughput drain.

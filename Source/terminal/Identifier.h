@@ -372,7 +372,7 @@ namespace id
     /** @brief DST trigger key — lossless reflow, buffer reallocation, video + state sync.
      *
      *  Args: cell (targetCols), cell (targetRows).
-     *  Fired from Display::resized() via Screen's DST on the MESSAGE THREAD.
+     *  Fired from Display::resized() via TextEditor's DST on the MESSAGE THREAD.
      */
     static const juce::Identifier resizeStart           { "resizeStart" };
 

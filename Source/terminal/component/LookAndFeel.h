@@ -17,7 +17,7 @@
 #include <JuceHeader.h>
 #include "../../lua/Engine.h"
 #include "../Palette.h"
-#include "Screen.h"
+#include "Display.h"
 
 namespace terminal
 {

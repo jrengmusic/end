@@ -356,6 +356,11 @@ private:
      *  @note READER THREAD — all handlers execute on the reader thread except bell, clipboardChanged, and desktopNotification (message thread via callAsync). */
     jam::Function::Map<juce::Identifier, void> events;
 
+    /** @brief Dispatch map for PARAM-path valueTreePropertyChanged handlers.
+     *  Keys are paramId values (cellWidth, cellHeight, screenDirty).
+     *  Registered in the constructor after registerEvents(). */
+    jam::Function::Map<juce::Identifier, void> parameters;
+
     /** @brief Terminal state machine — pen, cursor, modes, Buffer<Row> writes. */
     Video video;
 
@@ -398,6 +403,15 @@ private:
      *  Called once from the constructor.
      */
     void registerEvents() noexcept;
+
+    /** @brief Applies cellWidth/cellHeight PARAM changes to Video. */
+    void setCellSize() noexcept;
+
+    /** @brief Drains CellFifo history and overwrites the live zone from Video. */
+    void setText() noexcept;
+
+    /** @brief Recomputes displayName from foregroundProcess/cwd on the session root node. */
+    void setDisplayName (const juce::ValueTree& tree) noexcept;
 
     /** @brief ValueTree::Listener — reacts to top-down property changes from Display.
      *

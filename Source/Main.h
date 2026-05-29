@@ -17,7 +17,6 @@
 #include "nexus/Daemon.h"
 #include "nexus/Link.h"
 #include "terminal/component/TerminalWindow.h"
-#include "terminal/component/Screen.h"
 
 //==============================================================================
 /**

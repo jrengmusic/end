@@ -76,6 +76,11 @@ Processor::Processor (State& stateRef,
     cellFifo.reset (scrollbackLines * dims.getWidth().value);
 
     registerEvents();
+
+    parameters.add (id::cellWidth,   [this] { setCellSize(); });
+    parameters.add (id::cellHeight,  [this] { setCellSize(); });
+    parameters.add (id::screenDirty, [this] { setText(); });
+
     parser = std::make_unique<Parser> (video);
     state.get().addListener (this);
 }
@@ -85,16 +90,19 @@ Processor::Processor (State& stateRef,
 /**
  * @brief Destroys the Processor.
  *
- * Closes the TTY first — stops the reader thread before the events map is
- * destroyed by member destruction.  Reader thread joins inside close(), so
- * events.get(id::data) cannot fire after close() returns.
- * No explicit `removeListener()` needed — the ValueTree inside State is
- * destroyed alongside this Processor (member destruction order).
+ * Removes the ValueTree listener first — ComponentAttachment ungraft on
+ * TextEditor destruction fires VT events; Processor must not be in the
+ * listener list at that point.  Then closes the TTY — stops the reader
+ * thread before the events map is destroyed by member destruction.
+ * Reader thread joins inside close(), so events.get(id::data) cannot
+ * fire after close() returns.
  *
  * @note MESSAGE THREAD.
  */
 Processor::~Processor()
 {
+    state.get().removeListener (this);
+
     if (tty != nullptr)
         tty->close();
 }
@@ -205,137 +213,146 @@ void Processor::resetKeyboardMode (int s) noexcept
  */
 void Processor::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
 {
-    // PARAM children flush via id::value — check the id property to identify cell pixel params.
+    // PARAM children flush via id::value — dispatch on paramId via parameters map.
     if (property == id::value and tree.getType() == jam::ValueTree::PARAM)
     {
         const juce::Identifier paramId { tree.getProperty (id::id).toString() };
 
-        if (paramId == id::cellWidth or paramId == id::cellHeight)
-        {
-            const juce::Identifier displayId { id::DISPLAY };
-            auto displayNode { state.get().getChildWithName (displayId) };
-            const int cellW { static_cast<int> (
-                jam::ValueTree::getValueFromChildWithID (displayNode, id::cellWidth).getValue()) };
-            const int cellH { static_cast<int> (
-                jam::ValueTree::getValueFromChildWithID (displayNode, id::cellHeight).getValue()) };
-            video.setCellSize (cellW, cellH);
-        }
-
-        // Normal screen: drain CellFifo history + overwrite live zone from Video. Alternate screen: full viewport flush.
-        if (paramId == id::screenDirty)
-        {
-            const int activeScreen { state.getActiveScreen() };
-
-            const jam::Buffer<jam::Row>& buf { video.getBuffer() };
-            const int numRows { buf.getNumRows() };
-            const int numCols { buf.getNumCols() };
-
-            if (numRows > 0 and numCols > 0)
-            {
-                const jam::Block<jam::Row> block {
-                    buf.getChannelPointer (activeScreen),
-                    0,
-                    0,
-                    numRows,
-                    numCols,
-                    buf.getRowStrideBytes(),
-                    numRows
-                };
-
-                if (activeScreen == Map::Screen::normal)
-                {
-                    auto& normalArray { textLineArrays.at (0) };
-                    const int visibleRows { numRows };
-                    const int contentRows { video.getCursorRow().value + 1 };
-                    const int drainCount { cellFifo.getNumReady() };
-                    const juce::Identifier screenId { Map::Screen::getContext()->get (activeScreen) };
-                    const int oldLiveRows { state.loadValue (screenId, id::liveRows) };
-
-                    if (drainCount > 0 or normalArray.totalRows() < contentRows or oldLiveRows != contentRows)
-                    {
-                        // Phase 1: Remove old live zone from tail.
-                        const int removeCount { std::min (oldLiveRows, normalArray.totalRows()) };
-
-                        if (removeCount > 0)
-                            normalArray.remove (juce::Range<int> (normalArray.totalRows() - removeCount, normalArray.totalRows()));
-
-                        // Phase 2: Drain CellFifo — appends history rows to tail.
-                        cellFifo.drainInto (normalArray);
-
-                        // Phase 3: Append live content from Video [0..cursorRow].
-                        for (int r { 0 }; r < contentRows; ++r)
-                        {
-                            const jam::Row* const videoRow { block.getRowPointer (r) };
-                            normalArray.add (buildTextLine (videoRow));
-                        }
-
-                        state.storeValue (screenId, id::liveRows, contentRows);
-
-                        // Consume dirty flags — phase 3 rebuilt all content rows unconditionally.
-                        for (int r { 0 }; r < contentRows; ++r)
-                            state.consumeRowDirty (r);
-                    }
-                    else
-                    {
-                        // No new history — overwrite only dirty rows in-place.
-                        const int total { normalArray.totalRows() };
-
-                        for (int r { 0 }; r < contentRows; ++r)
-                        {
-                            if (state.consumeRowDirty (r))
-                            {
-                                const int tlaIndex { jam::Value::map (r, 0, contentRows - 1,
-                                                                      total - contentRows,
-                                                                      total - 1) };
-
-                                // Guard: during transient states (clearBuffer callAsync, rapid resize),
-                                // total can temporarily be less than contentRows.
-                                // The next tick's full rebuild path corrects it.
-                                if (tlaIndex >= 0 and tlaIndex < total)
-                                {
-                                    const jam::Row* const videoRow { block.getRowPointer (r) };
-                                    normalArray.set (tlaIndex, buildTextLine (videoRow));
-                                }
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    // Alternate screen: full viewport flush from Video. Clear and rebuild.
-                    auto& altArray { textLineArrays.at (1) };
-                    altArray.clear();
-
-                    for (int r { 0 }; r < numRows; ++r)
-                    {
-                        const jam::Row* const row { block.getRowPointer (r) };
-                        altArray.add (buildTextLine (row));
-                    }
-                }
-            }
-        }
+        if (parameters.contains (paramId))
+            parameters.get (paramId);
     }
 
     // TEXT parameters flush as direct properties on the SESSION root node.
     // When foregroundProcess or cwd change, recompute displayName.
     if (property == id::foregroundProcess or property == id::cwd)
+        setDisplayName (tree);
+}
+
+// =============================================================================
+
+void Processor::setCellSize() noexcept
+{
+    auto displayNode { state.get().getChildWithName (id::DISPLAY) };
+    const int cellW { static_cast<int> (
+        jam::ValueTree::getValueFromChildWithID (displayNode, id::cellWidth).getValue()) };
+    const int cellH { static_cast<int> (
+        jam::ValueTree::getValueFromChildWithID (displayNode, id::cellHeight).getValue()) };
+    video.setCellSize (cellW, cellH);
+}
+
+// Normal screen: drain CellFifo history + overwrite live zone from Video. Alternate screen: full viewport flush.
+// =============================================================================
+
+void Processor::setText() noexcept
+{
+    const int activeScreen { state.getActiveScreen() };
+
+    const jam::Buffer<jam::Row>& buf { video.getBuffer() };
+    const int numRows { buf.getNumRows() };
+    const int numCols { buf.getNumCols() };
+
+    if (numRows > 0 and numCols > 0)
     {
-        const auto foreground { tree.getProperty (id::foregroundProcess).toString() };
-        const auto cwdPath { tree.getProperty (id::cwd).toString() };
-        juce::String name;
+        const jam::Block<jam::Row> block {
+            buf.getChannelPointer (activeScreen),
+            0,
+            0,
+            numRows,
+            numCols,
+            buf.getRowStrideBytes(),
+            numRows
+        };
 
-        if (foreground.isNotEmpty())
+        if (activeScreen == Map::Screen::normal)
         {
-            name = foreground;
-        }
-        else if (cwdPath.isNotEmpty())
-        {
-            name = juce::File (cwdPath).getFileName();
-        }
+            auto& normalArray { textLineArrays.at (0) };
+            const int visibleRows { numRows };
+            const int contentRows { video.getCursorRow().value + 1 };
+            const int drainCount { cellFifo.getNumReady() };
+            const juce::Identifier screenId { Map::Screen::getContext()->get (activeScreen) };
+            const int oldLiveRows { state.loadValue (screenId, id::liveRows) };
 
-        if (name.isNotEmpty())
-            state.get().setProperty (app::id::displayName, name, nullptr);
+            if (drainCount > 0 or normalArray.totalRows() < contentRows)
+            {
+                // Phase 1: Remove old live zone from tail.
+                const int removeCount { std::min (oldLiveRows, normalArray.totalRows()) };
+
+                if (removeCount > 0)
+                    normalArray.remove (juce::Range<int> (normalArray.totalRows() - removeCount, normalArray.totalRows()));
+
+                // Phase 2: Drain CellFifo — appends history rows to tail.
+                cellFifo.drainInto (normalArray);
+
+                // Phase 3: Append live content from Video [0..cursorRow].
+                for (int r { 0 }; r < contentRows; ++r)
+                {
+                    const jam::Row* const videoRow { block.getRowPointer (r) };
+                    normalArray.add (buildTextLine (videoRow));
+                }
+
+                state.storeValue (screenId, id::liveRows, contentRows);
+
+                // Consume dirty flags — phase 3 rebuilt all content rows unconditionally.
+                for (int r { 0 }; r < contentRows; ++r)
+                    state.consumeRowDirty (r);
+            }
+            else
+            {
+                // No new history — overwrite only dirty rows in-place.
+                const int total { normalArray.totalRows() };
+
+                for (int r { 0 }; r < contentRows; ++r)
+                {
+                    if (state.consumeRowDirty (r))
+                    {
+                        const int tlaIndex { jam::Value::map (r, 0, contentRows - 1,
+                                                              total - contentRows,
+                                                              total - 1) };
+
+                        // Guard: during transient states (clearBuffer callAsync, rapid resize),
+                        // total can temporarily be less than contentRows.
+                        // The next tick's full rebuild path corrects it.
+                        if (tlaIndex >= 0 and tlaIndex < total)
+                        {
+                            const jam::Row* const videoRow { block.getRowPointer (r) };
+                            normalArray.set (tlaIndex, buildTextLine (videoRow));
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            // Alternate screen: full viewport flush from Video. Clear and rebuild.
+            auto& altArray { textLineArrays.at (1) };
+            altArray.clear();
+
+            for (int r { 0 }; r < numRows; ++r)
+            {
+                const jam::Row* const row { block.getRowPointer (r) };
+                altArray.add (buildTextLine (row));
+            }
+        }
     }
+}
+
+void Processor::setDisplayName (const juce::ValueTree& tree) noexcept
+{
+    const auto foreground { tree.getProperty (id::foregroundProcess).toString() };
+    const auto cwdPath { tree.getProperty (id::cwd).toString() };
+    juce::String name;
+
+    if (foreground.isNotEmpty())
+    {
+        name = foreground;
+    }
+    else if (cwdPath.isNotEmpty())
+    {
+        name = juce::File (cwdPath).getFileName();
+    }
+
+    if (name.isNotEmpty())
+        state.get().setProperty (app::id::displayName, name, nullptr);
 }
 
 // =============================================================================
@@ -532,37 +549,18 @@ void Processor::startTTY (const juce::String& shell,
 /**
  * @brief Prepares Processor for new terminal dimensions.
  *
- * Resets CellFifo, resizes Video, rebuilds dirty flags, removes the old live
- * zone and appends a fresh one at new dimensions for both screens.  Called by
- * Session's Resizer start trigger while processing is suspended.  History
- * survives resize; the shell redraws the active prompt after SIGWINCH.
+ * Resizes Video and rebuilds dirty flags.  TextLineArrays and CellFifo are
+ * NOT touched — history is preserved, in-flight departures drain normally.
+ * Live zone refreshes on the next screenDirty tick when the shell redraws
+ * after SIGWINCH.
  *
  * @param dims  Terminal dimensions in cells.
  * @note MESSAGE THREAD — safe only while processing is suspended.
  */
 void Processor::prepare (jam::Cell::Rectangle dims) noexcept
 {
-    const int oldVisibleRows { video.getVisibleRows().value };
-
-    cellFifo.reset (AppState::getContext()->getRawParameterValue<int> (app::id::scrollbackLines)->load() * dims.getWidth().value);
     video.setWinsize (dims);
     state.rebuildRowDirtyFlags (dims.getHeight().value);
-
-    // Normal screen: remove old live zone. History preserved. Shell redraws after SIGWINCH.
-    auto& normalArray { textLineArrays.at (0) };
-    const int oldLiveRows { state.loadValue (id::NORMAL, id::liveRows) };
-    const int removeCount { std::min (oldLiveRows, normalArray.totalRows()) };
-
-    if (removeCount > 0)
-        normalArray.remove (juce::Range<int> (normalArray.totalRows() - removeCount, normalArray.totalRows()));
-
-    state.storeValue (id::NORMAL, id::liveRows, 0);
-
-    // Alternate screen: clear and rebuild at new dimensions.
-    textLineArrays.at (1).clear();
-
-    for (int i { 0 }; i < dims.getHeight().value; ++i)
-        textLineArrays.at (1).add (jam::TextLine {});
 
     if (tty != nullptr and tty->isThreadRunning())
         tty->setWinsize (terminal::Winsize { dims.getWidth().value, dims.getHeight().value, 0, 0 });

@@ -4,7 +4,7 @@
 
 **Status:** STABLE
 
-**Last Updated:** 2026-05-28 (Sprint 33: Clean sweep — DiscreteStateTransition replaced by jam::Resizer; Processor owns two TextLineArrays (normal + alternate); historyCount from TextLineArray replaces WriteHead; scrollOffset identifier removed from Identifier.h; jam_write_head.h deleted)
+**Last Updated:** 2026-05-30 (Sprint 34: Screen elimination — terminal::Screen removed; Session owns jam::TextEditor directly; getScreen() replaced by getTextEditor(); seedScreenNodes removed; Buffer<Row> ownership corrected to Video; TextLine corrected to HeapBlock<Cell>+cellCount; TextLineArray historyCount() removed; Processor resize API corrected to prepare())
 
 ---
 
@@ -114,9 +114,9 @@ Source/
     Parameter.h                     APVTS-style parameter slot type
     Parser.h/cpp                    VT state machine + byte stream decoder
     ParserAction.cpp                Parser action dispatch
-    Processor.h/cpp                 Pipeline orchestrator: owns Parser, Video, TTY (created by startTTY()); references Buffer<Row> and State received from Session; exposes suspendProcessing(), isSuspended(), getCallbackLock() (JUCE AudioProcessor pattern); setWinsize() fires SIGWINCH; no smoothResizer (DST owned by Session)
+    Processor.h/cpp                 Pipeline orchestrator: owns Parser, Video, TTY (created by startTTY()); references State received from Session; exposes suspendProcessing(), isSuspended(), getCallbackLock() (JUCE AudioProcessor pattern); prepare() is the single resize API — resets CellFifo, resizes Video, fires SIGWINCH; jam::Resizer owned by Session
     Map.h                           terminal::Map — jam::Map::Bool, jam::Map::Screen, jam::Map::Gpu typed map instances
-    Session.h/cpp                   PTY orchestrator: owns Screen + Processor (unique_ptr) + jam::Resizer (unique_ptr); Processor owns TTY (via startTTY) and two TextLineArrays (normal + alternate); Session is Value::Listener for winsize; wireResizer() called from both constructors
+    Session.h/cpp                   PTY orchestrator: owns jam::TextEditor + Processor (unique_ptr) + jam::Resizer (unique_ptr); Processor owns TTY (via startTTY) and two TextLineArrays (normal + alternate); Session is Value::Listener for winsize; wireResizer() called from both constructors
     SixelDecoder.h/cpp              Sixel graphics protocol decoder
     SixelDecoderParse.cpp           Sixel decode internals
     Skit.h/cpp                      SKiT (Sixel/Kitty/iTerm2) unified preview protocol entry point
@@ -142,9 +142,9 @@ Source/
       ActionRow.h/cpp               Row component for ActionList (displays action name + keybinding)
       KeyHandler.h/cpp              Key event routing for ActionList modal input
 
-    component/                      UI hosting layer (Display, Screen, Overlay, Panes, Tabs, LookAndFeel)
+    component/                      UI hosting layer (Display, ScreenSelection, Overlay, Panes, Tabs, LookAndFeel)
       Dialog.h/cpp                  Modal dialog component
-      Display.h/cpp                 terminal::Display — UI host, timer-driven render; delegates to Input + Mouse; resized() sets screen.setBounds(contentBounds) and writes pixel dims to State; no smoothResizer, no Screen member (Screen owned by Session); Display parents Screen via addAndMakeVisible; owns NORMAL/ALTERNATE screen nodes
+      Display.h/cpp                 terminal::Display — UI host, timer-driven render; delegates to Input + Mouse; resized() calls session.getTextEditor().setBounds(contentBounds) and writes pixel dims to State; no smoothResizer; no terminal::Screen class — Session owns jam::TextEditor directly; Display parents TextEditor via addAndMakeVisible
       LoaderOverlay.h               Loading spinner overlay (used by whelmed::Component)
       LookAndFeel.h/cpp             Custom LookAndFeel: tab styling, popup menu, colour system
       LookAndFeelMenu.cpp           Menu LookAndFeel overrides
@@ -156,7 +156,6 @@ Source/
       Panes.h/cpp                   Per-tab pane container, owns Owner<PaneComponent> and PaneResizerBars
       Panes.cpp                     Panes implementation
       Popup.h/cpp                   Popup terminal component
-      Screen.h/cpp                  terminal::Screen — IS jam::TextEditor (inherits directly); sole author of viewport dims via TextEditor::updateWinsize(); grafts only its TextEditor state node; no node creation or ownership
       ScreenSelection.h             Selection anchor/end, contains() hit test, inversion rendering
       StatusBarOverlay.h            Overlay that listens to TABS subtree for modal/selection state display
       Tabs.h/cpp                    terminal::Tabs — tab container, manages one Panes instance per tab
@@ -197,10 +196,10 @@ Source/
 | AppState | `Source/` | App-level config SSOT — font, cursor, padding, scrollback seeded from lua::Engine at init + hot reload. ValueTree root, pwd tracking, active pane type + UUID. Components listen and react — no manual config cascade. | JUCE ValueTree, terminal::id, lua::Engine (init only) |
 | AppIdentifier | `Source/` | ValueTree node and property identifiers (app::id:: namespace); pane type string constants; app::RendererType enum | JUCE |
 | lua::Engine | `lua/` | Unified Lua config + scripting engine. Sole owner of `jam::lua::state` — SSOT for all settings, keybindings, popup definitions, and custom actions. Six typed module structs (Nexus, Display, Whelmed, Keys, Popup, Action) replace string-keyed value maps. Unified colour parser handles `#RRGGBB`, `#RRGGBBAA`, and bare `RRGGBBAA` formats. File watcher triggers total reload on any `.lua` change (gated by `nexus.autoReload`). Provides parsed bindings to `action::Registry`, selection keys to `terminal::Input` / `whelmed::InputHandler`, and Theme to Screen. | sol2, jam::Context, jam::File::Watcher |
-| Component | `terminal/component/` | JUCE UI hosting, tabs, panes, LookAndFeel, timer-driven render trigger | Session, Screen, PaneManager, AppState |
+| Component | `terminal/component/` | JUCE UI hosting, tabs, panes, LookAndFeel, timer-driven render trigger | Session, TextEditor, PaneManager, AppState |
 | Fonts | `fonts/` | Embedded TTF binaries (BinaryData) | — |
 | Terminal | `terminal/` | Pure value types, state atomics, IDs, VT parsing, Video command processor, grid storage, session orchestration, preview decoders | JUCE ValueTree |
-| Rendering | `terminal/component/` | Screen render coordinator, GL/CPU draw, Fonts (Context-managed), Overlay (image preview component) | terminal/, FreeType, HarfBuzz, OpenGL, jam_graphics, jam_tui |
+| Rendering | `terminal/component/` | TextEditor render host, GL/CPU draw, Fonts (Context-managed), Overlay (image preview component) | terminal/, FreeType, HarfBuzz, OpenGL, jam_graphics, jam_tui |
 | Notifications | `terminal/` | Native desktop notification dispatch (`terminal::showNotification()`, OSC 9/777) | JUCE, UserNotifications (macOS) |
 | TTY | `terminal/tty/` | Platform PTY abstraction, reader thread | JUCE Thread |
 | jam_core | `~/Documents/Poems/dev/jam/jam_core/` | Shared utilities, identifiers, Context, BinaryData | JUCE core |
@@ -298,7 +297,7 @@ Standalone:
 ### terminal::Session
 
 `terminal::Session` is the singular owner of one terminal instance. It holds:
-- `terminal::Screen screen` — value member (not pointer). Screen always exists regardless of whether Display is attached.
+- `jam::TextEditor textEditor` — value member (not pointer). TextEditor always exists regardless of whether Display is attached.
 - `unique_ptr<terminal::Processor>` — Parser + Video + TTY pipeline. Processor owns the TTY created by `startTTY()`.
 - `unique_ptr<jam::Resizer> resizer` — resize coordinator. Wired in `wireResizer()`, called from both constructors.
 - `juce::Value winsize` — bound to TextEditor's viewport property in State; fires `valueChanged` when cell dimensions change.
@@ -319,12 +318,12 @@ static unique_ptr<Session> create(cols, rows, cwd, shell, uuid);
 
 | Method | Purpose |
 |--------|---------|
-| `start()` | Calls `processor->setWinsize()` then `processor->startTTY()` — deferred until after Display/Screen are in component hierarchy |
+| `start()` | Calls `processor->prepare()` then `processor->startTTY()` — deferred until after Display and TextEditor are in component hierarchy |
 | `process(data, len)` | Feed raw bytes from daemon IPC into the Processor |
 | `getStateInformation(block)` | Stubbed — state serialization pending (DEBT-20260526T220000) |
 | `setStateInformation(data, size)` | Stubbed — state serialization pending |
 | `getProcessor()` | Returns the owned `terminal::Processor` |
-| `getScreen()` | Returns the owned `terminal::Screen` (Display calls `addAndMakeVisible(session.getScreen())`) |
+| `getTextEditor()` | Returns the owned `jam::TextEditor` (Display calls `addAndMakeVisible(session.getTextEditor())`) |
 
 ### Windows Job Object (Cascade-Kill)
 
@@ -353,7 +352,7 @@ static unique_ptr<Session> create(cols, rows, cwd, shell, uuid);
  Terminal / Data (State/Buffer<Row>)                   pure types, atomic storage, timer flush
     |
     v
- Terminal / Component (terminal::Screen/Display)         Screen writes packed viewport to State via valueTreePropertyChanged; Session owns jam::Resizer — start trigger suspends processing, stop trigger calls setWinsize; Display parents Screen via addAndMakeVisible, sets pixel bounds in resized()
+ Terminal / Component (terminal::Display)                TextEditor writes packed viewport to State via updateWinsize(); Session owns jam::Resizer — start trigger suspends processing, stop trigger calls prepare(); Display parents TextEditor via addAndMakeVisible, sets pixel bounds in resized()
     |
     v
  Terminal / TTY (platform)                     reader thread feeds raw bytes to Processor
@@ -391,7 +390,7 @@ READER → Video writes Buffer<Row> (owned by Video) → CellFifo captures depar
 
 `Video` owns `jam::Buffer<jam::Row>` — dual channel (normal + alternate), flat indexed. Processor owns two `jam::TextLineArray` instances (normal + alternate) and a `CellFifo` (SPSC ring) for lock-free cross-thread row delivery. `jam::Resizer` start trigger (owned by Session) calls `processor->suspendProcessing(true)` then `processor->prepare()` then `processor->suspendProcessing(false)`. `prepare()` resets CellFifo, resizes Video, rebuilds dirty flags, and manages live zone. No dirty tracking on Buffer — render trigger is timer flush via screenDirty Parameter.
 
-**Classification rule:** if the data is one-per-cell (O(rows × cols)), it is bulk → `jam::Buffer<jam::Cell>` (owned by Session). If the data is sparse/scalar (O(1) or O(small N)), it is scalar → State ValueTree.
+**Classification rule:** if the data is one-per-cell (O(rows × cols)), it is bulk → `jam::Buffer<jam::Row>` (owned by Video). If the data is sparse/scalar (O(1) or O(small N)), it is scalar → State ValueTree.
 
 **Image preview** — file-based image display triggered by hyperlink click or SKiT protocol (Sixel/Kitty/iTerm2).
 
@@ -399,7 +398,7 @@ READER → Video writes Buffer<Row> (owned by Video) → CellFifo captures depar
 READER → Parser → Skit → onPreviewFile(filepath, row) → SpinLock slot on Display → MESSAGE thread → consumePendingPreview() → handleOpenImage() → terminal::Overlay component
 ```
 
-Preview is a Display-side concern. The READER thread writes a filepath + trigger row into a SpinLock-guarded slot on Display via `onPreviewFile`. The MESSAGE thread consumes it via `consumePendingPreview()`, loads the file via `loadImageNative()`, downscales if needed, and creates an ephemeral `terminal::Overlay` child component. Overlay is a `jam::animation::Base` that renders `juce::Image` directly — no atlas, no FIFO, no staging pipeline. Display::resized() splits the content area: Overlay gets the right portion, Screen reflows into the remaining space via PTY resize. Dismiss destroys the Overlay and restores Screen to full width.
+Preview is a Display-side concern. The READER thread writes a filepath + trigger row into a SpinLock-guarded slot on Display via `onPreviewFile`. The MESSAGE thread consumes it via `consumePendingPreview()`, loads the file via `loadImageNative()`, downscales if needed, and creates an ephemeral `terminal::Overlay` child component. Overlay is a `jam::animation::Base` that renders `juce::Image` directly — no atlas, no FIFO, no staging pipeline. Display::resized() splits the content area: Overlay gets the right portion, TextEditor reflows into the remaining space via PTY resize. Dismiss destroys the Overlay and restores TextEditor to full width.
 
 ### Communication Contracts
 
@@ -416,19 +415,16 @@ Preview is a Display-side concern. The READER thread writes a filepath + trigger
 **Data -> Component (timer path):**
 - `State::timerCallback()` runs on message thread (60-120Hz)
 - Flushes atomics to ValueTree via `flush()`
-- ValueTree fires `valueTreePropertyChanged` → Processor::valueTreePropertyChanged reads screenDirty → drains CellFifo into TextLineArray history → overwrites live zone from Video → Display calls Screen::setText(TextLineArray); CursorComponent updates separately via `setCursor(CursorState)`
+- ValueTree fires `valueTreePropertyChanged` → Processor::valueTreePropertyChanged reads screenDirty → drains CellFifo into TextLineArray history → overwrites live zone from Video → Display calls session.getTextEditor().setText(TextLineArray); cursor updates separately via `setCursor(CursorState)`
 
 **Data -> Component (render path):**
 - Timer-driven flush (60/120 Hz) on the message thread flushes dirty atomics to ValueTree
-- `Processor::valueTreePropertyChanged` handles screenDirty → drains CellFifo + overwrites live zone → Display::valueTreePropertyChanged calls Screen::setText(TextLineArray) → `calc()` → `repaint()`
-- Screen inherits jam::TextEditor directly — it IS the TextEditor, not a coordinator calling setText on a separate object
-- Screen is pure stateless renderer: no DST, no reflow; no node creation, no node ownership; grafts only its TextEditor `state` node (selection, caret, viewport mode)
-- Display owns NORMAL/ALTERNATE screen nodes via `seedScreenNodes` static helper; grafts them BEFORE Screen construction so atomics exist before the reader thread starts
+- `Processor::valueTreePropertyChanged` handles screenDirty → drains CellFifo + overwrites live zone → Display::valueTreePropertyChanged calls session.getTextEditor().setText(TextLineArray) → `calc()` → `repaint()`
+- Session owns jam::TextEditor directly — no terminal::Screen class; TextEditor is the stateless renderer, no DST, no reflow; grafts only its own `state` node (selection, caret, viewport mode); no external node creation or ownership
 - Display owns `jam::ComponentAttachment` for the DISPLAY node (Font::cellWidth/cellHeight/baseline/fontSize); reads config from AppState via listener, writes computed font metrics to session State via attachment
-- Display destructor removes screen nodes
 
 **Resize path:**
-- Display::resized() → `screen.setBounds(contentBounds)` → Screen writes packed `id::viewport` to State via `updateWinsize()`
+- Display::resized() → `session.getTextEditor().setBounds(contentBounds)` → TextEditor writes packed `id::viewport` to State via `updateWinsize()`
 - Session::valueChanged (Value::Listener on winsize property) fires → calls `resizer->set(jam::ID::start, cols, rows)`
 - Resizer start trigger → `processor->suspendProcessing(true)` → `processor->prepare(dims)` → `processor->suspendProcessing(false)`. `prepare()` includes SIGWINCH.
 - `suspendProcessing()` / `callbackLock` gate the reader thread during resize
@@ -471,7 +467,7 @@ Preview is a Display-side concern. The READER thread writes a filepath + trigger
 |--------|-----|------|-------|--------|
 | **Reader** (TTY) | high | TTY fd | raw bytes | State atomics, Buffer<Row> writes, scrollbackUsed |
 | **Timer** (JUCE) | default | — | `needsFlush` atomic | ValueTree properties |
-| **Message** (main) | user-interactive | Component, Screen | ValueTree, TextLineArray | Snapshot (reads TextLineArray) |
+| **Message** (main) | user-interactive | Component, TextEditor | ValueTree, TextLineArray | Snapshot (reads TextLineArray) |
 | **GL** (OpenGL) | user-interactive | OpenGL context | — | background clear only (`renderOpenGL` calls `OpenGLHelpers::clear`). JUCE component paint routed through GL context. |
 
 ### Data Flow: Keystroke to Pixel
@@ -481,7 +477,7 @@ Keystroke -> Message Thread -> TTY::write()
          -> Reader Thread reads response -> Processor::process() -> Parser -> Video
          -> Buffer<Row> written, State atomics set
          -> Timer flush (60/120 Hz) on Message Thread -> State flushes dirty atomics to ValueTree
-         -> Processor::valueTreePropertyChanged() drains CellFifo + overwrites live zone → Display::valueTreePropertyChanged() → Screen::setText(TextLineArray) → calc() -> repaint
+         -> Processor::valueTreePropertyChanged() drains CellFifo + overwrites live zone → Display::valueTreePropertyChanged() → session.getTextEditor().setText(TextLineArray) → calc() -> repaint
          -> JUCE composites component paint through GL context when GPU renderer active.
             glyph::Graphics::pop() blits renderTarget juce::Image via g.drawImageAt() inside paint().
 ```
@@ -504,7 +500,7 @@ Keystroke -> Message Thread -> TTY::write()
 
 **Implementation:** `terminal/State.h/cpp`, `terminal/StateFlush.cpp`
 
-Reader thread writes to `std::atomic<float>` via `storeAndFlush()`. Timer polls `needsFlush` and copies atomics to ValueTree. UI reads from ValueTree listeners. Display calls Screen::setText(TextLineArray) — Screen (which IS jam::TextEditor) renders from the TextLineArray. Stateless renderer, no buffer ownership.
+Reader thread writes to `std::atomic<float>` via `storeAndFlush()`. Timer polls `needsFlush` and copies atomics to ValueTree. UI reads from ValueTree listeners. Display calls session.getTextEditor().setText(TextLineArray) — TextEditor renders from the TextLineArray. Stateless renderer, no buffer ownership.
 
 Viewport is stored as a packed `Bounds` integer in `id::viewport` on State. Cursor is stored as a packed `CursorState` integer in `id::cursor`. Both use the same atomic slot → ValueTree flush path.
 
@@ -544,7 +540,6 @@ Horizontal shelves, best-fit allocation. Separate packers for mono and emoji. LR
 
 Video.cpp -> VideoCSI, VideoDCS, VideoESC, VideoSGR, VideoEdit, VideoMode, VideoOps, VideoOSC, VideoOSCExt
 State.cpp -> StateFlush
-Screen.cpp (in terminal/component/)
 SixelDecoder.cpp -> SixelDecoderParse
 KittyDecoder.cpp -> KittyDecoderDecode
 LinkManager.cpp -> LinkManagerScan
@@ -564,8 +559,8 @@ Config values flow unidirectionally: `lua::Engine` → `AppState` → reactive l
 
 1. **Init:** `AppState` constructor reads `lua::Engine::getContext()` and seeds all config PARAMs (fontFamily, fontSize, cellWidth, lineHeight, cursorCodepoint, cursorStyle, cursorBlinkInterval, scrollbackLines, paddingTop/Right/Bottom/Left).
 2. **Hot reload:** `MainComponent::applyConfig()` writes updated values to `AppState` via typed setters. No downstream cascade — listeners react automatically.
-3. **Distribution:** `terminal::Display` and `whelmed::Component` register as `juce::ValueTree::Listener` on `AppState::getContext()->get()`. On any property change, they re-apply config to their owned components (Screen, Mouse, Input, attachment).
-4. **Atomic reads:** `Processor`, `Screen`, and `Session` read `scrollbackLines` directly from AppState's atomic Parameter via `getRawParameterValue<int>(app::id::scrollbackLines)->load()` — lock-free, any thread. No member variable caching.
+3. **Distribution:** `terminal::Display` and `whelmed::Component` register as `juce::ValueTree::Listener` on `AppState::getContext()->get()`. On any property change, they re-apply config to their owned components (TextEditor, Mouse, Input, attachment).
+4. **Atomic reads:** `Processor` reads `scrollbackLines` directly from AppState's atomic Parameter via `getRawParameterValue<int>(app::id::scrollbackLines)->load()` — lock-free, any thread. No member variable caching.
 
 **Guarantee:** AppState is constructed by `ENDApplication` before any Session or Display exists. Config values are always available when components initialize. No init sequence issues.
 
@@ -879,11 +874,11 @@ Anchor + end `Point<int>` pair. Uses `::SelectionType` (none/visual/visualLine/v
 
 ### TextEditor (jam::TextEditor)
 
-Stateless monospace cell-grid renderer. `terminal::Screen` IS jam::TextEditor (direct inheritance) — not a separate entity. Holds no persistent cell buffer. Content set per frame via `setText(TextLineArray)` — non-owning, no copy. Single viewport mode: `juce::Viewport` with vertical scrollbar.
+Stateless monospace cell-grid renderer. Owned directly by Session as `jam::TextEditor textEditor` — no terminal::Screen wrapper class. Holds no persistent cell buffer. Content set per frame via `setText(TextLineArray)` — non-owning, no copy. Single viewport mode: `juce::Viewport` with vertical scrollbar.
 
 Properties accessed via static array + enum (`TextEditor::properties`, `TextEditor::PropertyIndex`). Selection is TextEditor's responsibility. Input/Mouse write selection properties directly to TextEditor's grafted node. Processor adjusts selection anchors on scroll via storeValue atomics.
 
-Screen grafts only its TextEditor `state` node (selection, caret, viewport mode). Node creation and NORMAL/ALTERNATE screen node ownership belong to Display.
+TextEditor grafts only its own `state` node (selection, caret, viewport mode). Node creation belongs to TextEditor itself — no external node seeding.
 
 ### ModalType
 
@@ -1088,9 +1083,9 @@ Capacities: mono 19,000 glyphs; emoji 4,000 glyphs.
 
 **Context:** Previous image subsystem used a READER FIFO and MESSAGE drain pipeline. Buffer<Row> is pure text — images extracted.
 
-**Decision:** `terminal::Overlay` inherits `jam::animation::Base` (`juce::Component + juce::Timer`). Owns `juce::Image` (static) or `std::vector<juce::Image>` (animated frames with `std::vector<int>` delays). Renders via standard `paint()`. No FIFO, no staging, no GL shaders. Display::resized() allocates side-by-side bounds; Screen reflows via PTY resize.
+**Decision:** `terminal::Overlay` inherits `jam::animation::Base` (`juce::Component + juce::Timer`). Owns `juce::Image` (static) or `std::vector<juce::Image>` (animated frames with `std::vector<int>` delays). Renders via standard `paint()`. No FIFO, no staging, no GL shaders. Display::resized() allocates side-by-side bounds; TextEditor reflows via PTY resize.
 
-**Rationale:** One image at a time needs no pipeline. Standard `paint()` composited by JUCE is sufficient. Matches the Display→Screen ownership pattern.
+**Rationale:** One image at a time needs no pipeline. Standard `paint()` composited by JUCE is sufficient. Matches the Display→TextEditor ownership pattern.
 
 ### Decision: Nexus Mode via setMode() Enum, not attach() Overloads
 
@@ -1277,12 +1272,12 @@ Click-mode link underlines only render on OSC 133 output rows.
 | FontCollection | Flat int8_t[0x110000] codepoint-to-font-slot dispatch table, O(1) lookup |
 | GlyphConstraint | Per-codepoint NF icon scaling/alignment descriptor applied at rasterization time |
 | Grapheme | Multi-codepoint character cluster (e.g., flag emoji, combining marks) |
-| Buffer<Row> | `jam::Buffer<jam::Row>` — ring-buffer storage for terminal cells, dual-channel (normal/alternate). Owned by `terminal::Screen` (double-buffered: `buffers[2]`). Ring addressing `% numRows` (any size). Head preserved on resize. Pure text — no image flags |
-| jam::Resizer | Timer-driven resize coordinator (in jam_core): coalesces rapid dimension changes via 16ms timer. `jam::Resizer` owned by Session as `resizer`. Start trigger calls `processor->suspendProcessing(true)`; stop trigger calls `processor->setWinsize()` (SIGWINCH). |
-| TextLine | `jam::TextLine` — one rendered line of terminal output: a `juce::AttributedString` carrying styled text segments. Lives in `jam_graphics/detail/`. |
-| TextLineArray | `jam::TextLineArray` — SSOT content storage for committed history + live rows. Backed by `std::deque<TextLine>`. `index 0..historyCount()-1` = immutable history; `index historyCount()..end` = live rows. Processor owns two: `textLineArrays[0]` (normal), `textLineArrays[1]` (alternate). `historyCount()` is the SSOT published to `id::historyCount` on flush. |
+| Buffer<Row> | `jam::Buffer<jam::Row>` — ring-buffer storage for terminal cells, dual-channel (normal/alternate). Owned by `Video` (single `jam::Buffer<jam::Row> buffer` member with dual-channel access via `Map::Screen`). Ring addressing `% numRows` (any size). Head preserved on resize. Pure text — no image flags |
+| jam::Resizer | Timer-driven resize coordinator (in jam_core): coalesces rapid dimension changes via 16ms timer. `jam::Resizer` owned by Session as `resizer`. Start trigger calls `processor->suspendProcessing(true)`; stop trigger calls `processor->prepare()` (resets CellFifo, resizes Video, fires SIGWINCH). |
+| TextLine | `jam::TextLine` — one rendered line of terminal output: `juce::HeapBlock<Cell> cells` + `int cellCount`. Lives in `jam_graphics/detail/`. |
+| TextLineArray | `jam::TextLineArray` — SSOT content storage for committed history + live rows. Backed by `std::deque<TextLine>`. Processor owns two: `textLineArrays[0]` (normal), `textLineArrays[1]` (alternate). |
 | History | Removed. Byte replay deferred — DEBT-20260526T220000. |
-| Overlay | `jam::animation::Base` child of `terminal::Display`; ephemeral image preview. `jam::animation::Base` is `juce::Component + juce::Timer`. Owns `juce::Image` (static) or `std::vector<juce::Image>` frames. Renders via standard `paint()`. Created on demand by Display, destroyed by `dismissPreview()`. Side-by-side with Screen in Display::resized() |
+| Overlay | `jam::animation::Base` child of `terminal::Display`; ephemeral image preview. `jam::animation::Base` is `juce::Component + juce::Timer`. Owns `juce::Image` (static) or `std::vector<juce::Image>` frames. Renders via standard `paint()`. Created on demand by Display, destroyed by `dismissPreview()`. Side-by-side with TextEditor in Display::resized() |
 | handleSkitFilepath | Shared parser helper for SKiT (Sixel/Kitty/iTerm2) file preview protocol. Extracts filepath from `END;` marker, calls `onPreviewFile` callback |
 | CursorState | Packed struct for per-screen cursor save/restore. Carries cursor position, pen attributes, and origin mode. Used by Video via `setCursor(CursorState)` / `getCursor()` for DEC save/restore and screen switch. |
 | Font::cellWidth/cellHeight | Plain int members on `jam::Font` — cell pixel dimensions (max advance * cellWidthMultiplier, line height * lineHeightMultiplier). Stored on the DISPLAY node via `jam::ComponentAttachment`. Source of truth for cell pixel dimensions; `Cell::Rectangle::fromPixel()` / `Cell::Point::fromPixel()` use these for pixel-to-cell conversion. |

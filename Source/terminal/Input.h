@@ -15,7 +15,7 @@
  * - `reset()` — clears `pendingG`; called when exiting selection mode.
  *
  * @see terminal::Processor
- * @see terminal::Screen
+ * @see terminal::Display
  * @see terminal::LinkManager
  */
 

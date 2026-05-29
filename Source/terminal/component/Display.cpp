@@ -12,9 +12,9 @@ terminal::Display::Display (terminal::Session& sessionToUse)
     , input (sessionToUse.getProcessor(), linkManager)
     , mouse (sessionToUse.getProcessor(), 0, 0, linkManager)
 {
-    // Parent Screen (owned by Session) for rendering via the Component hierarchy.
-    addAndMakeVisible (session.getScreen());
-    session.getScreen().addKeyListener (this);
+    // Parent TextEditor (owned by Session) for rendering via the Component hierarchy.
+    addAndMakeVisible (session.getTextEditor());
+    session.getTextEditor().addKeyListener (this);
 
     // Graft DISPLAY node via ComponentAttachment — registerNodeAtomics fires on appendChild
     // and creates Parameter<int> entries in the DISPLAY group for font metrics.
@@ -40,7 +40,7 @@ terminal::Display::~Display()
 {
     terminalState.removeListener (this);
     AppState::getContext()->get().removeListener (this);
-    session.getScreen().removeKeyListener (this);
+    session.getTextEditor().removeKeyListener (this);
 }
 
 // PaneComponent
@@ -58,10 +58,10 @@ void terminal::Display::applyFromAppState() noexcept
                            static_cast<float> (appState->getCellWidth()),
                            static_cast<float> (appState->getLineHeight()) };
 
-    session.getScreen().setFont (font);
-    session.getScreen().setCaretChar (jam::toChar (appState->getCursorCodepoint()));
-    session.getScreen().setCaretShape (appState->getCursorStyle());
-    session.getScreen().setCaretBlinkRate (appState->getCursorBlinkInterval());
+    session.getTextEditor().setFont (font);
+    session.getTextEditor().setCaretChar (jam::toChar (appState->getCursorCodepoint()));
+    session.getTextEditor().setCaretShape (appState->getCursorStyle());
+    session.getTextEditor().setCaretBlinkRate (appState->getCursorBlinkInterval());
 
     attachment->setValue (terminal::id::cellWidth, font.cellWidth);
     attachment->setValue (terminal::id::cellHeight, font.cellHeight);
@@ -73,18 +73,30 @@ void terminal::Display::applyFromAppState() noexcept
 }
 void terminal::Display::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
 {
-    if (tree.getType() == jam::ValueTree::PARAM
-        and juce::Identifier { tree.getProperty (id::id).toString() } == id::screenDirty)
+    if (property == id::value and tree.getType() == jam::ValueTree::PARAM)
     {
-        session.getScreen().setWrapEnabled (tree.getParent().getType() == id::NORMAL);
-        session.getScreen().setText (processor.getTextLineArray());
+        const juce::Identifier paramId { tree.getProperty (id::id).toString() };
+        const int activeScreen { state.getActiveScreen() };
+
+        if (paramId == id::screenDirty or paramId == id::activeScreen)
+        {
+            session.getTextEditor().setWrapEnabled (activeScreen == Map::Screen::normal);
+            session.getTextEditor().setText (processor.getTextLineArray());
+        }
+        else if (paramId == id::cursor)
+        {
+            const juce::Identifier screenId { Map::Screen::getContext()->get (activeScreen) };
+            const auto screenNode { state.get().getChildWithName (screenId) };
+            const CursorState cursorState { CursorState::unpack (
+                static_cast<int> (jam::ValueTree::getValueFromChildWithID (screenNode, id::cursor).getValue())) };
+
+            session.getTextEditor().setCaretPosition (jam::Cell::Point { cell (cursorState.col), cell (cursorState.row) });
+        }
     }
     else
     {
         applyFromAppState();
     }
-
-    repaint();
 }
 
 void terminal::Display::applyZoom (float) noexcept {}
@@ -119,7 +131,7 @@ int terminal::Display::getHintPage() const noexcept { return 0; }
 int terminal::Display::getHintTotalPages() const noexcept { return 0; }
 
 // juce::Component
-void terminal::Display::focusGained (FocusChangeType) { session.getScreen().grabKeyboardFocus(); }
+void terminal::Display::focusGained (FocusChangeType) { session.getTextEditor().grabKeyboardFocus(); }
 
 void terminal::Display::resized()
 {
@@ -130,8 +142,8 @@ void terminal::Display::resized()
                                    .withTrimmedBottom (appState->getPaddingBottom())
                                    .withTrimmedLeft (appState->getPaddingLeft()) };
 
-    // setBounds triggers Screen::resized() -> updateWinsize() -> winsize property -> Session::valueChanged.
-    session.getScreen().setBounds (contentBounds);
+    // setBounds triggers TextEditor::resized() -> updateWinsize() -> winsize property -> Session::valueChanged.
+    session.getTextEditor().setBounds (contentBounds);
 
     // Pixel dimensions — needed by SIGWINCH (tty->setWinsize).
     state.setValue (jam::ID::width, contentBounds.getWidth());
@@ -167,7 +179,7 @@ bool terminal::Display::keyPressed (const juce::KeyPress& key, juce::Component*)
     const bool handled { input.handleKey (key) };
 
     if (handled)
-        session.getScreen().scrollToBottom();
+        session.getTextEditor().scrollToBottom();
 
     return handled;
 }
