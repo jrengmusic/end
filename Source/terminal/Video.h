@@ -1220,7 +1220,7 @@ private:
      * @brief Handles OSC 133 — shell integration semantic prompt markers.
      *
      * Dispatches single-letter subcommands A/B/C/D:
-     * - A: prompt start (no-op for output tracking).
+     * - A: prompt start — fires promptRow event.
      * - B: command start (no-op for output tracking).
      * - C: command output start — records outputBlockTop and activates scan.
      * - D: command output end — records outputBlockBottom and deactivates scan.

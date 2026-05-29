@@ -172,7 +172,7 @@ namespace id
     /** @brief Application Cursor Keys (DECCKM) - arrow key escape sequence mode. */
     static const juce::Identifier applicationCursor    { "applicationCursor" };
 
-    /** @brief Branked Paste Mode (DECBPM) - wraps pasted text with markers. */
+    /** @brief Bracketed Paste Mode (DECBPM) - wraps pasted text with markers. */
     static const juce::Identifier bracketedPaste       { "bracketedPaste" };
 
     /** @brief Insert Mode (IRM) - inserted characters shift existing content. */
@@ -214,21 +214,6 @@ namespace id
      *         Used both as a per-screen State param and as a Video::flush() event key. */
     static const juce::Identifier cursor              { "cursor" };
 
-    /** @brief Cursor row position (0-based, top row is 0). */
-    static const juce::Identifier cursorRow            { "cursorRow" };
-
-    /** @brief Cursor column position (0-based, leftmost column is 0). */
-    static const juce::Identifier cursorCol            { "cursorCol" };
-
-    /** @brief Wrap Pending Flag - cursor is at right margin waiting to wrap. */
-    static const juce::Identifier wrapPending          { "wrapPending" };
-
-    /** @brief Scroll Top - top margin row for scrolling region (inclusive). */
-    static const juce::Identifier scrollTop            { "scrollTop" };
-
-    /** @brief Scroll Bottom - bottom margin row for scrolling region (inclusive). */
-    static const juce::Identifier scrollBottom         { "scrollBottom" };
-
     /** @brief DECSCUSR cursor shape (0=default, 1=blinking block, 2=steady block, 3=blinking underline, 4=steady underline, 5=blinking bar, 6=steady bar). */
     static const juce::Identifier cursorShape         { "cursorShape" };
 
@@ -258,11 +243,11 @@ namespace id
     static const juce::Identifier promptRow            { "promptRow" };
 
     //==========================================================================
-    // Per-screen scrollback parameter IDs
+    // Per-screen live zone tracking
     //==========================================================================
 
-    /** @brief Number of committed history lines in the active screen's TextLineArray. Written by Processor on flush. */
-    static const juce::Identifier historyCount         { "historyCount" };
+    /** @brief Number of TLA tail entries mirroring Video content (live zone size). Set by Processor after live zone rebuild. */
+    static const juce::Identifier liveRows             { "liveRows" };
 
     //==========================================================================
     // Repaint signal atomic

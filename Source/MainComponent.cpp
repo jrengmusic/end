@@ -233,9 +233,6 @@ void MainComponent::setRenderer (app::RendererType rendererType)
     }
 
     setOpaque (not isUsingGpu);
-
-    if (tabs != nullptr)
-        tabs->switchRenderer (rendererType);
 }
 
 void MainComponent::newOpenGLContextCreated()

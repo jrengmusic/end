@@ -105,41 +105,12 @@ void Processor::registerEvents() noexcept
                          state.setForegroundProcess ("", 0);
                      });
 
-    // outputBlockStart fires when a command starts — commit prompt block then query foreground process from TTY.
+    // outputBlockStart fires when a command starts — set output block start, clear promptRow, query foreground process from TTY.
     events.add<int> (id::outputBlockStart,
                      [this] (int relativeRow)
                      {
-                         // Read prompt boundary before clearing it.
-                         const int commitPromptRow { state.loadValue (id::SESSION, id::promptRow) };
-
                          state.setOutputBlockStart (cell (relativeRow));
                          state.setPromptRow (cell (-1));
-
-                         // Commit prompt block [commitPromptRow..relativeRow-1] to CellFifo.
-                         if (commitPromptRow >= 0 and commitPromptRow < relativeRow)
-                         {
-                             const jam::Buffer<jam::Row>& buf { video.getBuffer() };
-                             const int numRingRows { buf.getNumRows() };
-                             const int numCols { buf.getNumCols() };
-
-                             const jam::Block<jam::Row> block {
-                                 buf.getChannelPointer (Map::Screen::normal),
-                                 0, 0, numRingRows, numCols,
-                                 buf.getRowStrideBytes(), numRingRows
-                             };
-
-                             for (int r { commitPromptRow }; r < relativeRow; ++r)
-                             {
-                                 const jam::Row* const commitRow { block.getRowPointer (r) };
-                                 const int usedCols { static_cast<int> (commitRow->usedCols) };
-
-                                 uint8_t flags { 0 };
-                                 if ((commitRow->flags & jam::Row::flexWrap) != 0) flags |= CellFifo::isContinuedFlag;
-                                 if ((commitRow->flags & jam::Row::justify)  != 0) flags |= CellFifo::isJustifiedFlag;
-
-                                 cellFifo.pushRow (commitRow->cells, usedCols, flags);
-                             }
-                         }
 
                          if (tty != nullptr)
                          {
@@ -222,6 +193,8 @@ void Processor::registerEvents() noexcept
                          juce::MessageManager::callAsync ([this, screen]
                          {
                              textLineArrays.at (static_cast<size_t> (screen)).clear();
+                             const juce::Identifier clrScreenId { Map::Screen::getContext()->get (screen) };
+                             state.storeValue (clrScreenId, id::liveRows, 0);
                          });
                      });
 
@@ -296,46 +269,39 @@ void Processor::registerEvents() noexcept
     // Args: int screen, int row — the physical row index of the departing row in the flat buffer.
     // Fires BEFORE the row is shifted up and cleared.
     // Alternate screen discards departing rows (zero scrollback).
-    // Normal screen rows are copied into CellFifo — no heap allocation, no callAsync.
+    // Normal screen rows are copied into CellFifo unconditionally — no heap allocation, no callAsync.
     events.add<int, int> (
         id::pushLine,
         [this] (int screen, int row)
         {
             if (screen == Map::Screen::normal)
             {
-                // Gate: read promptRow from State atomic (reader thread safe).
-                // Rows >= promptRow are active prompt — mutable, not history.
-                const int currentPromptRow { state.loadValue (id::SESSION, id::promptRow) };
+                const jam::Buffer<jam::Row>& buf { video.getBuffer() };
+                const int numRingRows { buf.getNumRows() };
+                const int numCols     { buf.getNumCols() };
 
-                if (currentPromptRow < 0 or row < currentPromptRow)
-                {
-                    const jam::Buffer<jam::Row>& buf { video.getBuffer() };
-                    const int numRingRows { buf.getNumRows() };
-                    const int numCols     { buf.getNumCols() };
+                const jam::Block<jam::Row> block {
+                    buf.getChannelPointer (screen),
+                    0,
+                    0,
+                    numRingRows,
+                    numCols,
+                    buf.getRowStrideBytes(),
+                    numRingRows
+                };
 
-                    const jam::Block<jam::Row> block {
-                        buf.getChannelPointer (screen),
-                        0,
-                        0,
-                        numRingRows,
-                        numCols,
-                        buf.getRowStrideBytes(),
-                        numRingRows
-                    };
+                const jam::Row* const departingRow { block.getRowPointer (row) };
+                const int usedCols { static_cast<int> (departingRow->usedCols) };
 
-                    const jam::Row* const departingRow { block.getRowPointer (row) };
-                    const int usedCols { static_cast<int> (departingRow->usedCols) };
+                uint8_t flags { 0 };
 
-                    uint8_t flags { 0 };
+                if ((departingRow->flags & jam::Row::flexWrap) != 0)
+                    flags |= CellFifo::isContinuedFlag;
 
-                    if ((departingRow->flags & jam::Row::flexWrap) != 0)
-                        flags |= CellFifo::isContinuedFlag;
+                if ((departingRow->flags & jam::Row::justify) != 0)
+                    flags |= CellFifo::isJustifiedFlag;
 
-                    if ((departingRow->flags & jam::Row::justify) != 0)
-                        flags |= CellFifo::isJustifiedFlag;
-
-                    cellFifo.pushRow (departingRow->cells, usedCols, flags);
-                }
+                cellFifo.pushRow (departingRow->cells, usedCols, flags);
             }
         });
 

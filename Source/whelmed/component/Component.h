@@ -30,8 +30,8 @@ namespace whelmed
  * @brief PaneComponent subclass that hosts the Whelmed markdown viewer.
  *
  * Owns the document state, parser, Screen, and InputHandler. Implements the
- * full PaneComponent interface (selection, renderer switching, config) so it
- * can occupy any split pane alongside terminal::Display instances.
+ * full PaneComponent interface (selection, config) so it can occupy any split
+ * pane alongside terminal::Display instances.
  *
  * @note MESSAGE THREAD — all public methods.
  */
@@ -44,7 +44,6 @@ public:
     ~Component() override;
 
     juce::String getPaneType() const noexcept override { return Map::PaneType::getContext()->get (Map::PaneType::document); }
-    void switchRenderer (app::RendererType type) override;
     void applyZoom (float) noexcept override {}
 
     bool keyPressed (const juce::KeyPress& key) override;

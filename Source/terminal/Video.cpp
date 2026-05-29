@@ -691,14 +691,7 @@ void Video::executeLineFeed (int scr) noexcept
     const int  sTop      { scrollTop.value };
 
     if (cRow == scrollBot.value)
-    {
         scrollUpAndFill (sTop, scrollBot.value);
-    }
-    else
-    {
-        if (events.contains (id::pushLine))
-            events.get (id::pushLine, int (scr), cRow);
-    }
 
     cursorGoToNextLine (scrollBot, visibleRows);
 

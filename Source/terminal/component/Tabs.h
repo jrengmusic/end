@@ -302,9 +302,6 @@ public:
     /** @brief Focus the nearest pane to the right of the active pane. @note MESSAGE THREAD. */
     void focusPaneRight();
 
-    /** @brief Switches all terminals to the given renderer type. */
-    void switchRenderer (app::RendererType type);
-
     /**
      * @brief Reads tab.position from Config and applies the orientation.
      *

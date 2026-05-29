@@ -104,12 +104,11 @@ public:
     }
 
     /** @brief Drains all ready entries, joins continued rows into logical TextLines,
-     *  and inserts them into the target TextLineArray starting at insertIndex. Message thread only.
+     *  and appends them to the target TextLineArray. Message thread only.
      *
-     *  @param target       TextLineArray to insert committed logical lines into.
-     *  @param insertIndex  Index at which to insert the first committed line; subsequent lines increment.
+     *  @param target  TextLineArray to append committed logical lines to.
      *  @return Number of logical lines committed. */
-    int drainInto (jam::TextLineArray& target, int insertIndex) noexcept
+    int drainInto (jam::TextLineArray& target) noexcept
     {
         int linesCommitted { 0 };
         jam::TextLine pending;
@@ -166,7 +165,7 @@ public:
             if (not (hdr.flags & isContinuedFlag))
             {
                 pending.isContinued = false;
-                target.insert (insertIndex++, std::move (pending));
+                target.add (std::move (pending));
                 pending = {};
                 ++linesCommitted;
             }
@@ -177,7 +176,7 @@ public:
         if (pending.cellCount > 0)
         {
             pending.isContinued = true;
-            target.insert (insertIndex++, std::move (pending));
+            target.add (std::move (pending));
             ++linesCommitted;
         }
 

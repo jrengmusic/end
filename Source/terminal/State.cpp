@@ -208,8 +208,6 @@ void State::rebuildRowDirtyFlags (int newVisibleRows) noexcept
     rowDirtyCount = newVisibleRows;
 }
 
-int State::getRowDirtyCount() const noexcept { return rowDirtyCount; }
-
 void State::storeTextValue (const juce::Identifier& groupId, const juce::Identifier& paramId, const char* ptr) noexcept
 {
     params.get<jam::AnyMap> (groupId)->get<Parameter<const char*>> (paramId)->store (ptr);
@@ -250,15 +248,15 @@ getSessionParamInt (const juce::ValueTree& root, const juce::Identifier& paramId
 cell State::getCols() const noexcept
 {
     const auto teNode { get().getChildWithName (jam::TextEditor::properties.at (jam::TextEditor::textEditorId)) };
-    const int packed { static_cast<int> (teNode.getProperty (jam::TextEditor::properties.at (jam::TextEditor::viewportId), 0)) };
-    return jam::Cell::Rectangle::unpack (static_cast<int64_t> (packed)).getWidth();
+    const int64_t packed { static_cast<int64_t> (teNode.getProperty (jam::TextEditor::properties.at (jam::TextEditor::viewportId), 0)) };
+    return jam::Cell::Rectangle::unpack (packed).getWidth();
 }
 
 cell State::getVisibleRows() const noexcept
 {
     const auto teNode { get().getChildWithName (jam::TextEditor::properties.at (jam::TextEditor::textEditorId)) };
-    const int packed { static_cast<int> (teNode.getProperty (jam::TextEditor::properties.at (jam::TextEditor::viewportId), 0)) };
-    return jam::Cell::Rectangle::unpack (static_cast<int64_t> (packed)).getHeight();
+    const int64_t packed { static_cast<int64_t> (teNode.getProperty (jam::TextEditor::properties.at (jam::TextEditor::viewportId), 0)) };
+    return jam::Cell::Rectangle::unpack (packed).getHeight();
 }
 
 juce::String State::getTitle() const noexcept
@@ -360,12 +358,6 @@ bool State::hasOutputBlock() const noexcept
 
 void State::setShellExited (bool exited) noexcept { storeValue (id::SESSION, id::shellExited, exited ? 1 : 0); }
 
-bool State::getShellExited() const noexcept
-{
-    JUCE_ASSERT_MESSAGE_THREAD
-    return getSessionParamInt (get(), id::shellExited) != 0;
-}
-
 //==========================================================================
 // Snapshot signal
 //==========================================================================
@@ -381,12 +373,6 @@ void State::setSnapshotDirty() noexcept
 bool State::consumeSnapshotDirty() noexcept
 {
     return params.get<jam::AnyMap> (id::SESSION)->get<Parameter<int>> (id::snapshotDirty)->exchangeAcquire (0) != 0;
-}
-
-bool State::isSnapshotDirty() const noexcept
-{
-    JUCE_ASSERT_MESSAGE_THREAD
-    return getSessionParamInt (get(), id::snapshotDirty) != 0;
 }
 
 //==========================================================================

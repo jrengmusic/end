@@ -43,15 +43,22 @@ void Screen::valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier&
     const int activeScreen { static_cast<int> (
         jam::ValueTree::getValueFromChildWithID (terminalState, id::activeScreen).getValue()) };
     const juce::Identifier screenId { Map::Screen::getContext()->get (activeScreen) };
-    auto screenNode { terminalState.getChildWithName (screenId) };
+    const auto screenNode { terminalState.getChildWithName (screenId) };
 
     const CursorState cursorState { CursorState::unpack (
         static_cast<int> (jam::ValueTree::getValueFromChildWithID (screenNode, id::cursor).getValue())) };
 
-    const int historyRows { 0 }; // Step 9: caret positioning redesign
+    const int64_t packed { static_cast<int64_t> (state.getProperty (properties.at (viewportId), 0)) };
+    const int visibleTerminalRows { jam::Cell::Rectangle::unpack (packed).getHeight().value };
 
-    // Caret position — absolute row in document space.
-    setCaretPosition (cell (cursorState.col), cell (historyRows + cursorState.row));
+    if (visibleTerminalRows > 0 and projectedRows > 0)
+    {
+        const int historyRows { std::max (0, projectedRows - visibleTerminalRows) };
+        const int mappedRow { jam::Value::map (cursorState.row, 0, visibleTerminalRows - 1,
+                                               historyRows, historyRows + visibleTerminalRows - 1) };
+
+        setCaretPosition (cell (cursorState.col), cell (mappedRow));
+    }
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

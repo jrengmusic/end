@@ -34,7 +34,6 @@ public:
 
     // PaneComponent interface
     juce::String getPaneType() const noexcept override;
-    void switchRenderer (app::RendererType type) noexcept override;
     juce::ValueTree getValueTree() noexcept override;
     void applyZoom (float zoom) noexcept override;
     void enterSelectionMode() noexcept override;
@@ -74,22 +73,12 @@ private:
     terminal::State& state;
 
     std::unique_ptr<jam::ComponentAttachment> attachment;
-    juce::ValueTree normalScreen;
-    juce::ValueTree alternateScreen;
 
     juce::ValueTree terminalState;  ///< Per-session state tree — Display listens for content updates.
 
     terminal::LinkManager linkManager;
     terminal::Input input;
     terminal::Mouse mouse;
-
-    /** @brief Creates NORMAL/ALTERNATE screen nodes, grafts them into State, and returns
-     *         the State reference so Screen's member initializer can run after nodes are
-     *         in the tree.
-     *  @note Called from member initializer list — executes before Screen's constructor. */
-    static terminal::State& createAndAttachState (terminal::State& stateToSeed,
-                                                  juce::ValueTree& normalScreenNode,
-                                                  juce::ValueTree& alternateScreenNode) noexcept;
 
     void applyFromAppState() noexcept;
     void valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;

@@ -68,10 +68,10 @@ namespace terminal
  * @class Processor
  * @brief Terminal pipeline orchestrator — owns Parser and Video, receives Buffer<Row>& and State& from Session.
  *
- * Processor owns the Parser and Video.
+ * Processor owns Parser, Video, and two TextLineArrays (one per screen).
  * State is owned by terminal::Session and passed by reference at construction.
- * Buffer<Row> is owned by Screen (which is owned by Session) and passed by reference for buffer-level ops.
- * Block* (two-element array) is passed from Screen for Video cell writes.
+ * Video owns Buffer<Row> — the flat cell buffer.
+ * Display reads TextLineArray via getTextLineArray().
  * Processor owns TTY (created by startTTY()) and routes bytes through the VT pipeline.
  * Bytes arrive via `process()` from whichever source owns the byte stream
  * (local `terminal::Session` callback or IPC byte-forward).
@@ -404,6 +404,7 @@ private:
      *  Fires on the message thread when State's ValueTree properties change.
      *  Handles cell pixel changes (cellWidth, cellHeight) applied directly to Video,
      *  and displayName recomputation from foregroundProcess / cwd.
+     *  Handles screenDirty — drains CellFifo history rows, overwrites live content from Video via Value::map projection.
      *  Foreground process query and clear happen on the reader thread in the
      *  outputBlockStart and promptRow event handlers (registerEvents).
      *

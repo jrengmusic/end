@@ -139,12 +139,10 @@ struct State
 
     // Shell exit signal
     void setShellExited (bool exited) noexcept;
-    bool getShellExited() const noexcept;
 
     // Snapshot signal
     void setSnapshotDirty() noexcept;
     bool consumeSnapshotDirty() noexcept;
-    bool isSnapshotDirty() const noexcept;
 
     // Paste echo gate
     void setPasteEchoGate (int bytes) noexcept;
@@ -179,7 +177,6 @@ struct State
     void setRowDirty (int row) noexcept;
     bool consumeRowDirty (int row) noexcept;
     void rebuildRowDirtyFlags (int newVisibleRows) noexcept;
-    int getRowDirtyCount() const noexcept;
 
     // Flush
     bool refresh() noexcept;

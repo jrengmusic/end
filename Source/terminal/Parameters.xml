@@ -49,7 +49,7 @@
         <PARAM id="cursorShape"    type="int"  default="0"/>
         <PARAM id="cursorColor"    type="int"  default="-1"/>
         <PARAM id="keyboardFlags"  type="int"  default="0"/>
-        <PARAM id="historyCount"   type="int"  default="0"/>
+        <PARAM id="liveRows"       type="int"  default="0"/>
         <PARAM id="screenDirty"    type="int"  default="0"/>
     </SCREEN>
 

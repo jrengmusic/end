@@ -12,25 +12,20 @@ terminal::Display::Display (terminal::Session& sessionToUse)
     , input (sessionToUse.getProcessor(), linkManager)
     , mouse (sessionToUse.getProcessor(), 0, 0, linkManager)
 {
-    // Cache NORMAL/ALTERNATE screen nodes from State (built by State::buildLayout).
-    normalScreen = state.get().getChildWithName (terminal::id::NORMAL);
-    alternateScreen = state.get().getChildWithName (terminal::id::ALTERNATE);
-
     // Parent Screen (owned by Session) for rendering via the Component hierarchy.
     addAndMakeVisible (session.getScreen());
     session.getScreen().addKeyListener (this);
 
     // Graft DISPLAY node via ComponentAttachment — registerNodeAtomics fires on appendChild
     // and creates Parameter<int> entries in the DISPLAY group for font metrics.
-    attachment = std::make_unique<jam::ComponentAttachment> (
-        state,
-        terminal::id::DISPLAY,
-        std::initializer_list<jam::ComponentAttachment::Property> {
-            { terminal::id::cellWidth,  0 },
-            { terminal::id::cellHeight, 0 },
-            { terminal::id::baseline,   0 },
-            { terminal::id::fontSize,   0 }
-        });
+    attachment = std::make_unique<jam::ComponentAttachment> (state,
+                                                             terminal::id::DISPLAY,
+                                                             std::initializer_list<jam::ComponentAttachment::Property> {
+                                                                 { terminal::id::cellWidth,  0 },
+                                                                 { terminal::id::cellHeight, 0 },
+                                                                 { terminal::id::baseline,   0 },
+                                                                 { terminal::id::fontSize,   0 }
+    });
 
     AppState::getContext()->get().addListener (this);
 
@@ -41,15 +36,6 @@ terminal::Display::Display (terminal::Session& sessionToUse)
     applyFromAppState();
 }
 
-terminal::State& terminal::Display::createAndAttachState (terminal::State& stateToSeed,
-                                                      juce::ValueTree& normalScreenNode,
-                                                      juce::ValueTree& alternateScreenNode) noexcept
-{
-    normalScreenNode = stateToSeed.get().getChildWithName (terminal::id::NORMAL);
-    alternateScreenNode = stateToSeed.get().getChildWithName (terminal::id::ALTERNATE);
-    return stateToSeed;
-}
-
 terminal::Display::~Display()
 {
     terminalState.removeListener (this);
@@ -58,8 +44,10 @@ terminal::Display::~Display()
 }
 
 // PaneComponent
-juce::String terminal::Display::getPaneType() const noexcept { return Map::PaneType::getContext()->get (Map::PaneType::terminal); }
-void terminal::Display::switchRenderer (app::RendererType) noexcept {}
+juce::String terminal::Display::getPaneType() const noexcept
+{
+    return Map::PaneType::getContext()->get (Map::PaneType::terminal);
+}
 juce::ValueTree terminal::Display::getValueTree() noexcept { return state.get(); }
 void terminal::Display::applyFromAppState() noexcept
 {
@@ -75,40 +63,32 @@ void terminal::Display::applyFromAppState() noexcept
     session.getScreen().setCaretShape (appState->getCursorStyle());
     session.getScreen().setCaretBlinkRate (appState->getCursorBlinkInterval());
 
-    attachment->setValue (terminal::id::cellWidth,  font.cellWidth);
+    attachment->setValue (terminal::id::cellWidth, font.cellWidth);
     attachment->setValue (terminal::id::cellHeight, font.cellHeight);
-    attachment->setValue (terminal::id::baseline,   font.baseline);
-    attachment->setValue (terminal::id::fontSize,   static_cast<int> (font.fontSize));
+    attachment->setValue (terminal::id::baseline, font.baseline);
+    attachment->setValue (terminal::id::fontSize, static_cast<int> (font.fontSize));
 
     mouse.setCellSize (font.cellWidth, font.cellHeight);
     input.buildKeyMap();
 }
 void terminal::Display::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
 {
-    bool isContentUpdate { false };
-
-    if (property == id::value and tree.getType() == jam::ValueTree::PARAM)
+    if (tree.getType() == jam::ValueTree::PARAM
+        and juce::Identifier { tree.getProperty (id::id).toString() } == id::screenDirty)
     {
-        const juce::Identifier paramId { tree.getProperty (id::id).toString() };
-
-        if (paramId == id::screenDirty)
-        {
-            isContentUpdate = true;
-            const int activeScreen { state.getActiveScreen() };
-            session.getScreen().setWrapEnabled (activeScreen == Map::Screen::normal);
-            session.getScreen().setText (processor.getTextLineArray());
-        }
+        session.getScreen().setWrapEnabled (tree.getParent().getType() == id::NORMAL);
+        session.getScreen().setText (processor.getTextLineArray());
+    }
+    else
+    {
+        applyFromAppState();
     }
 
-    if (not isContentUpdate)
-        applyFromAppState();
+    repaint();
 }
 
 void terminal::Display::applyZoom (float) noexcept {}
-void terminal::Display::enterSelectionMode() noexcept
-{
-    state.setModalType (terminal::ModalType::selection);
-}
+void terminal::Display::enterSelectionMode() noexcept { state.setModalType (terminal::ModalType::selection); }
 
 void terminal::Display::copySelection() noexcept
 {
@@ -123,7 +103,8 @@ bool terminal::Display::hasSelection() const noexcept
     bool result { false };
 
     if (node.isValid())
-        result = static_cast<int> (node.getProperty (jam::TextEditor::properties.at (jam::TextEditor::selectionTypeId))) != static_cast<int> (terminal::SelectionType::none);
+        result = static_cast<int> (node.getProperty (jam::TextEditor::properties.at (jam::TextEditor::selectionTypeId)))
+                 != static_cast<int> (terminal::SelectionType::none);
 
     return result;
 }
@@ -133,10 +114,7 @@ bool terminal::Display::isInSelectionMode() const noexcept { return false; }
 void terminal::Display::exitSelectionMode() noexcept {}
 void terminal::Display::enterOpenFileMode() noexcept {}
 void terminal::Display::pasteClipboard() {}
-void terminal::Display::writeToPty (const char* data, int len) noexcept
-{
-    processor.writeInput (data, len);
-}
+void terminal::Display::writeToPty (const char* data, int len) noexcept { processor.writeInput (data, len); }
 int terminal::Display::getHintPage() const noexcept { return 0; }
 int terminal::Display::getHintTotalPages() const noexcept { return 0; }
 
@@ -162,8 +140,10 @@ void terminal::Display::resized()
     // Display is the sole author of viewport cell dimensions.
     // Uses contentBounds (scrollbar-unaware) — scrollbar is a TextEditor rendering concern.
     const auto& displayNode { attachment->getNode() };
-    const int cellW { static_cast<int> (jam::ValueTree::getValueFromChildWithID (displayNode, terminal::id::cellWidth).getValue()) };
-    const int cellH { static_cast<int> (jam::ValueTree::getValueFromChildWithID (displayNode, terminal::id::cellHeight).getValue()) };
+    const int cellW { static_cast<int> (
+        jam::ValueTree::getValueFromChildWithID (displayNode, terminal::id::cellWidth).getValue()) };
+    const int cellH { static_cast<int> (
+        jam::ValueTree::getValueFromChildWithID (displayNode, terminal::id::cellHeight).getValue()) };
 
     if (cellW > 0 and cellH > 0)
     {
@@ -171,10 +151,12 @@ void terminal::Display::resized()
 
         if (cellDims.isValid())
         {
-            auto teNode { state.get().getChildWithName (jam::TextEditor::properties.at (jam::TextEditor::textEditorId)) };
+            auto teNode { state.get().getChildWithName (
+                jam::TextEditor::properties.at (jam::TextEditor::textEditorId)) };
 
             if (teNode.isValid())
-                teNode.setProperty (jam::TextEditor::properties.at (jam::TextEditor::viewportId), cellDims.pack(), nullptr);
+                teNode.setProperty (
+                    jam::TextEditor::properties.at (jam::TextEditor::viewportId), cellDims.pack(), nullptr);
         }
     }
 }

@@ -4,7 +4,7 @@
  *
  * Implements Processor — the pipeline half that owns State (the APVTS), Video
  * (the terminal state machine), and Parser,
- * and references Buffer<Row> owned by terminal::Session.
+ * Video owns the cell buffer (Buffer<Row>).
  * The PTY-side TTY is owned by Processor and created by startTTY().
  *
  * ### Thread contexts used in this file
@@ -19,6 +19,24 @@
 namespace terminal
 {
 /*____________________________________________________________________________*/
+
+static jam::TextLine buildTextLine (const jam::Row* videoRow) noexcept
+{
+    jam::TextLine line;
+    const int usedCols { static_cast<int> (videoRow->usedCols) };
+
+    if (usedCols > 0)
+    {
+        line.cells.allocate (usedCols, true);
+        line.cellCount = usedCols;
+        std::memcpy (line.cells.getData(), videoRow->cells, static_cast<size_t> (usedCols) * sizeof (jam::Cell));
+    }
+
+    line.isContinued = (videoRow->flags & jam::Row::flexWrap) != 0;
+    line.isJustified = (videoRow->flags & jam::Row::justify)  != 0;
+
+    return line;
+}
 
 /**
  * @brief Constructs the Processor: binds State& and TextBuffer&; constructs Video (with owned buffer) and Parser.
@@ -49,7 +67,8 @@ Processor::Processor (State& stateRef,
 {
     const int scrollbackLines { AppState::getContext()->getRawParameterValue<int> (app::id::scrollbackLines)->load() };
     textLineArrays.at (0).setCapacity (scrollbackLines);
-    // Normal screen starts empty — mutableStart = 0. All content arrives via dirty flush + CellFifo.
+
+    // Alternate screen: pre-populate at viewport dimensions (zero scrollback, full rebuild on flush).
     for (int i { 0 }; i < dims.getHeight().value; ++i)
         textLineArrays.at (1).add (jam::TextLine {});
 
@@ -141,9 +160,9 @@ void Processor::setKeyboardMode (int s, uint32_t flags, int mode) noexcept
     jassert (base + size - 1 < 2 * maxKeyboardStackDepth);
     auto& top { keyboardModeStack.at (static_cast<size_t> (base + size - 1)) };
 
-    static constexpr int kbModeSet { 1 };// XTMODKEYS: assign flags verbatim
-    static constexpr int kbModeOr { 2 };// XTMODKEYS: enable bits (bitwise OR)
-    static constexpr int kbModeAndNot { 3 };// XTMODKEYS: disable bits (bitwise AND NOT)
+    static constexpr int kbModeSet { 1 }; // XTMODKEYS: assign flags verbatim
+    static constexpr int kbModeOr { 2 }; // XTMODKEYS: enable bits (bitwise OR)
+    static constexpr int kbModeAndNot { 3 }; // XTMODKEYS: disable bits (bitwise AND NOT)
 
     if (mode == kbModeSet)
     {
@@ -178,6 +197,7 @@ void Processor::resetKeyboardMode (int s) noexcept
  * Fires on the message thread when State's ValueTree properties change.
  * Handles cell pixel changes (cellWidth, cellHeight) applied directly to Video,
  * and displayName recomputation from foregroundProcess / cwd.
+ * Handles screenDirty — drains CellFifo history rows, overwrites live content from Video via Value::map projection.
  * Foreground process query and clear happen on the reader thread in the
  * outputBlockStart and promptRow event handlers (registerEvents).
  *
@@ -201,8 +221,7 @@ void Processor::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Ide
             video.setCellSize (cellW, cellH);
         }
 
-        // screenDirty: normal screen drains CellFifo + reads active prompt from dirty flags.
-        // Alternate screen: full viewport flush from Video (clear and rebuild).
+        // Normal screen: drain CellFifo history + overwrite live zone from Video. Alternate screen: full viewport flush.
         if (paramId == id::screenDirty)
         {
             const int activeScreen { state.getActiveScreen() };
@@ -226,48 +245,59 @@ void Processor::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Ide
                 if (activeScreen == Map::Screen::normal)
                 {
                     auto& normalArray { textLineArrays.at (0) };
-                    const int promptRowValue { state.getPromptRow().value };
-                    const int cursorRowValue { video.getCursorRow().value };
+                    const int visibleRows { numRows };
+                    const int contentRows { video.getCursorRow().value + 1 };
+                    const int drainCount { cellFifo.getNumReady() };
+                    const juce::Identifier screenId { Map::Screen::getContext()->get (activeScreen) };
+                    const int oldLiveRows { state.loadValue (screenId, id::liveRows) };
 
-                    // Mutable block: [promptRow..cursorRow] during prompt, cursor row only otherwise.
-                    const int mutableRows { (promptRowValue >= 0 and promptRowValue <= cursorRowValue)
-                                                ? (cursorRowValue - promptRowValue + 1)
-                                                : 1 };
-                    const int startRow { (promptRowValue >= 0 and promptRowValue <= cursorRowValue)
-                                             ? promptRowValue
-                                             : cursorRowValue };
-
-                    // 1. Remove old mutable block from tail.
-                    if (normalArray.totalRows() >= mutableRows)
+                    if (drainCount > 0 or normalArray.totalRows() < contentRows or oldLiveRows != contentRows)
                     {
-                        const int removeFrom { normalArray.totalRows() - mutableRows };
-                        normalArray.remove (juce::Range<int> (removeFrom, normalArray.totalRows()));
-                    }
+                        // Phase 1: Remove old live zone from tail.
+                        const int removeCount { std::min (oldLiveRows, normalArray.totalRows()) };
 
-                    // 2. Drain CellFifo.
-                    cellFifo.drainInto (normalArray, normalArray.totalRows());
+                        if (removeCount > 0)
+                            normalArray.remove (juce::Range<int> (normalArray.totalRows() - removeCount, normalArray.totalRows()));
 
-                    // 3. Add mutable block from Video [startRow..cursorRow].
-                    for (int r { startRow }; r <= cursorRowValue; ++r)
-                    {
-                        const jam::Row* const videoRow { block.getRowPointer (r) };
-                        const int usedCols { static_cast<int> (videoRow->usedCols) };
+                        // Phase 2: Drain CellFifo — appends history rows to tail.
+                        cellFifo.drainInto (normalArray);
 
-                        jam::TextLine line;
-
-                        if (usedCols > 0)
+                        // Phase 3: Append live content from Video [0..cursorRow].
+                        for (int r { 0 }; r < contentRows; ++r)
                         {
-                            line.cells.allocate (usedCols, true);
-                            line.cellCount = usedCols;
-
-                            for (int c { 0 }; c < usedCols; ++c)
-                                line.cells[c] = videoRow->cells[c];
+                            const jam::Row* const videoRow { block.getRowPointer (r) };
+                            normalArray.add (buildTextLine (videoRow));
                         }
 
-                        line.isContinued = (videoRow->flags & jam::Row::flexWrap) != 0;
-                        line.isJustified = (videoRow->flags & jam::Row::justify)  != 0;
+                        state.storeValue (screenId, id::liveRows, contentRows);
 
-                        normalArray.add (std::move (line));
+                        // Consume dirty flags — phase 3 rebuilt all content rows unconditionally.
+                        for (int r { 0 }; r < contentRows; ++r)
+                            state.consumeRowDirty (r);
+                    }
+                    else
+                    {
+                        // No new history — overwrite only dirty rows in-place.
+                        const int total { normalArray.totalRows() };
+
+                        for (int r { 0 }; r < contentRows; ++r)
+                        {
+                            if (state.consumeRowDirty (r))
+                            {
+                                const int tlaIndex { jam::Value::map (r, 0, contentRows - 1,
+                                                                      total - contentRows,
+                                                                      total - 1) };
+
+                                // Guard: during transient states (clearBuffer callAsync, rapid resize),
+                                // total can temporarily be less than contentRows.
+                                // The next tick's full rebuild path corrects it.
+                                if (tlaIndex >= 0 and tlaIndex < total)
+                                {
+                                    const jam::Row* const videoRow { block.getRowPointer (r) };
+                                    normalArray.set (tlaIndex, buildTextLine (videoRow));
+                                }
+                            }
+                        }
                     }
                 }
                 else
@@ -279,19 +309,7 @@ void Processor::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Ide
                     for (int r { 0 }; r < numRows; ++r)
                     {
                         const jam::Row* const row { block.getRowPointer (r) };
-                        const int usedCols { static_cast<int> (row->usedCols) };
-
-                        jam::TextLine line;
-                        line.cells.allocate (usedCols, true);
-                        line.cellCount = usedCols;
-
-                        for (int c { 0 }; c < usedCols; ++c)
-                            line.cells[c] = row->cells[c];
-
-                        line.isContinued = (row->flags & jam::Row::flexWrap) != 0;
-                        line.isJustified = (row->flags & jam::Row::justify)  != 0;
-
-                        altArray.add (std::move (line));
+                        altArray.add (buildTextLine (row));
                     }
                 }
             }
@@ -514,22 +532,35 @@ void Processor::startTTY (const juce::String& shell,
 /**
  * @brief Prepares Processor for new terminal dimensions.
  *
- * Resets CellFifo, resizes Video, rebuilds dirty flags, and rebuilds the
- * alternate screen at the new dimensions.  Called by Session's Resizer start
- * trigger while processing is suspended.  mutableStart is preserved — history
- * survives resize; only the mutable tail is rebuilt by the shell after SIGWINCH.
+ * Resets CellFifo, resizes Video, rebuilds dirty flags, removes the old live
+ * zone and appends a fresh one at new dimensions for both screens.  Called by
+ * Session's Resizer start trigger while processing is suspended.  History
+ * survives resize; the shell redraws the active prompt after SIGWINCH.
  *
  * @param dims  Terminal dimensions in cells.
  * @note MESSAGE THREAD — safe only while processing is suspended.
  */
 void Processor::prepare (jam::Cell::Rectangle dims) noexcept
 {
+    const int oldVisibleRows { video.getVisibleRows().value };
+
     cellFifo.reset (AppState::getContext()->getRawParameterValue<int> (app::id::scrollbackLines)->load() * dims.getWidth().value);
     video.setWinsize (dims);
     state.rebuildRowDirtyFlags (dims.getHeight().value);
 
+    // Normal screen: remove old live zone. History preserved. Shell redraws after SIGWINCH.
+    auto& normalArray { textLineArrays.at (0) };
+    const int oldLiveRows { state.loadValue (id::NORMAL, id::liveRows) };
+    const int removeCount { std::min (oldLiveRows, normalArray.totalRows()) };
+
+    if (removeCount > 0)
+        normalArray.remove (juce::Range<int> (normalArray.totalRows() - removeCount, normalArray.totalRows()));
+
+    state.storeValue (id::NORMAL, id::liveRows, 0);
+
     // Alternate screen: clear and rebuild at new dimensions.
     textLineArrays.at (1).clear();
+
     for (int i { 0 }; i < dims.getHeight().value; ++i)
         textLineArrays.at (1).add (jam::TextLine {});
 

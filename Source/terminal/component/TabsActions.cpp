@@ -10,17 +10,6 @@
 namespace terminal
 {
 /*____________________________________________________________________________*/
-void Tabs::switchRenderer (app::RendererType type)
-{
-    for (auto& p : panes)
-    {
-        for (auto& pane : p->getPanes())
-        {
-            pane->switchRenderer (type);
-        }
-    }
-}
-
 void Tabs::increaseZoom()
 {
     const float current { AppState::getContext()->getWindowZoom() };

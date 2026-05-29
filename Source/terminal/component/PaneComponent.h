@@ -18,9 +18,9 @@
  * @class PaneComponent
  * @brief Pure virtual base for renderable pane components.
  *
- * Inherits juce::Component. Subclasses implement switchRenderer.
+ * Inherits juce::Component. Shared between Terminal and Whelmed.
  *
- * @note App-level — not in any namespace. Shared between Terminal and Whelmed.
+ * @note App-level — not in any namespace.
  */
 class PaneComponent : public juce::Component
 {
@@ -50,13 +50,6 @@ public:
      * @note MESSAGE THREAD.
      */
     virtual juce::String getPaneType() const noexcept = 0;
-
-    /**
-     * @brief Switches the active rendering backend at runtime.
-     * @param type  The desired rendering backend.
-     * @note MESSAGE THREAD.
-     */
-    virtual void switchRenderer (app::RendererType type) = 0;
 
     /**
      * @brief Returns the pane's root ValueTree for grafting into AppState.

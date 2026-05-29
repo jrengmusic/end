@@ -386,10 +386,10 @@ ValueTree is the SSOT for all scalar state. `State::flush()` copies dirty atomic
 **Bulk data** — cell content (25,000+ entries at 5K fullscreen, updated every frame). High-volume, consumed by render path.
 
 ```
-READER → jam::Buffer<jam::Row> (owned by Screen) → timer flush → MESSAGE reads via Block<Row> constructor
+READER → Video writes Buffer<Row> (owned by Video) → CellFifo captures departures → timer flush → Processor drains CellFifo + overwrites live zone → TextLineArray → TextEditor::setText()
 ```
 
-`terminal::Screen` owns `jam::Buffer<jam::Row>` — dual channel (buffers[2]), ring-indexed via per-channel head positions; ring addressing uses `% numRows` (any size, no power-of-two). Screen exposes `getActiveBlocksRef()` (atomic pointer) for Video to load via `refreshBlocks()` at the top of each `process()` batch. `jam::Resizer` start trigger (owned by Session) calls `processor->suspendProcessing(true)` before resize; stop trigger calls `processor->setWinsize`. `callbackLock` gates the reader thread during resize. No dirty tracking on Buffer — render trigger is timer flush. No VBlank polling. No `dirtyRows` bitmask.
+`Video` owns `jam::Buffer<jam::Row>` — dual channel (normal + alternate), flat indexed. Processor owns two `jam::TextLineArray` instances (normal + alternate) and a `CellFifo` (SPSC ring) for lock-free cross-thread row delivery. `jam::Resizer` start trigger (owned by Session) calls `processor->suspendProcessing(true)` then `processor->prepare()` then `processor->suspendProcessing(false)`. `prepare()` resets CellFifo, resizes Video, rebuilds dirty flags, and manages live zone. No dirty tracking on Buffer — render trigger is timer flush via screenDirty Parameter.
 
 **Classification rule:** if the data is one-per-cell (O(rows × cols)), it is bulk → `jam::Buffer<jam::Cell>` (owned by Session). If the data is sparse/scalar (O(1) or O(small N)), it is scalar → State ValueTree.
 
@@ -416,11 +416,11 @@ Preview is a Display-side concern. The READER thread writes a filepath + trigger
 **Data -> Component (timer path):**
 - `State::timerCallback()` runs on message thread (60-120Hz)
 - Flushes atomics to ValueTree via `flush()`
-- ValueTree fires `valueTreePropertyChanged` → Screen::vTPC reads packed `id::viewport` from State → reads Buffer<Row> directly via `Block<Row>` constructor → calls `setText(Block<Row>)` on itself → `repaint()`; CursorComponent updates separately via `setCursor(CursorState)`
+- ValueTree fires `valueTreePropertyChanged` → Processor::valueTreePropertyChanged reads screenDirty → drains CellFifo into TextLineArray history → overwrites live zone from Video → Display calls Screen::setText(TextLineArray); CursorComponent updates separately via `setCursor(CursorState)`
 
 **Data -> Component (render path):**
 - Timer-driven flush (60/120 Hz) on the message thread flushes dirty atomics to ValueTree
-- `Screen::valueTreePropertyChanged()` fires → Screen reads Buffer<Row> via `Block<Row>` constructor → calls `setText(Block<Row>)` on itself (non-owning, no copy) → `calc()` → `repaint()`
+- `Processor::valueTreePropertyChanged` handles screenDirty → drains CellFifo + overwrites live zone → Display::valueTreePropertyChanged calls Screen::setText(TextLineArray) → `calc()` → `repaint()`
 - Screen inherits jam::TextEditor directly — it IS the TextEditor, not a coordinator calling setText on a separate object
 - Screen is pure stateless renderer: no DST, no reflow; no node creation, no node ownership; grafts only its TextEditor `state` node (selection, caret, viewport mode)
 - Display owns NORMAL/ALTERNATE screen nodes via `seedScreenNodes` static helper; grafts them BEFORE Screen construction so atomics exist before the reader thread starts
@@ -430,8 +430,7 @@ Preview is a Display-side concern. The READER thread writes a filepath + trigger
 **Resize path:**
 - Display::resized() → `screen.setBounds(contentBounds)` → Screen writes packed `id::viewport` to State via `updateWinsize()`
 - Session::valueChanged (Value::Listener on winsize property) fires → calls `resizer->set(jam::ID::start, cols, rows)`
-- DST start trigger → `processor->suspendProcessing(true)`
-- Resizer stop trigger → `processor->setWinsize(cols, rows)` → SIGWINCH to shell
+- Resizer start trigger → `processor->suspendProcessing(true)` → `processor->prepare(dims)` → `processor->suspendProcessing(false)`. `prepare()` includes SIGWINCH.
 - `suspendProcessing()` / `callbackLock` gate the reader thread during resize
 
 **Panes/Tabs -> Nexus (session lifecycle):**
@@ -472,7 +471,7 @@ Preview is a Display-side concern. The READER thread writes a filepath + trigger
 |--------|-----|------|-------|--------|
 | **Reader** (TTY) | high | TTY fd | raw bytes | State atomics, Buffer<Row> writes, scrollbackUsed |
 | **Timer** (JUCE) | default | — | `needsFlush` atomic | ValueTree properties |
-| **Message** (main) | user-interactive | Component, Screen | ValueTree, Buffer<Row> via Block<Row> | Snapshot (reads Buffer<Row> directly) |
+| **Message** (main) | user-interactive | Component, Screen | ValueTree, TextLineArray | Snapshot (reads TextLineArray) |
 | **GL** (OpenGL) | user-interactive | OpenGL context | — | background clear only (`renderOpenGL` calls `OpenGLHelpers::clear`). JUCE component paint routed through GL context. |
 
 ### Data Flow: Keystroke to Pixel
@@ -482,7 +481,7 @@ Keystroke -> Message Thread -> TTY::write()
          -> Reader Thread reads response -> Processor::process() -> Parser -> Video
          -> Buffer<Row> written, State atomics set
          -> Timer flush (60/120 Hz) on Message Thread -> State flushes dirty atomics to ValueTree
-         -> Screen::valueTreePropertyChanged() -> Block<Row> constructor from Buffer -> TextEditor::setText(Block<Row>) -> calc() -> repaint
+         -> Processor::valueTreePropertyChanged() drains CellFifo + overwrites live zone → Display::valueTreePropertyChanged() → Screen::setText(TextLineArray) → calc() -> repaint
          -> JUCE composites component paint through GL context when GPU renderer active.
             glyph::Graphics::pop() blits renderTarget juce::Image via g.drawImageAt() inside paint().
 ```
@@ -505,7 +504,7 @@ Keystroke -> Message Thread -> TTY::write()
 
 **Implementation:** `terminal/State.h/cpp`, `terminal/StateFlush.cpp`
 
-Reader thread writes to `std::atomic<float>` via `storeAndFlush()`. Timer polls `needsFlush` and copies atomics to ValueTree. UI reads from ValueTree listeners. Screen (which IS jam::TextEditor) reads Buffer<Row> via the `Block<Row>` constructor and calls `setText(Block<Row>)` on itself — no copy, stateless renderer.
+Reader thread writes to `std::atomic<float>` via `storeAndFlush()`. Timer polls `needsFlush` and copies atomics to ValueTree. UI reads from ValueTree listeners. Display calls Screen::setText(TextLineArray) — Screen (which IS jam::TextEditor) renders from the TextLineArray. Stateless renderer, no buffer ownership.
 
 Viewport is stored as a packed `Bounds` integer in `id::viewport` on State. Cursor is stored as a packed `CursorState` integer in `id::cursor`. Both use the same atomic slot → ValueTree flush path.
 
@@ -515,7 +514,7 @@ Viewport is stored as a packed `Bounds` integer in `id::viewport` on State. Curs
 
 **Implementation:** `terminal/Processor.h/cpp`, `terminal/Session.h/cpp`
 
-Mirrors JUCE AudioProcessor: `suspendProcessing()` / `isSuspended()` = AudioProcessor suspend pattern; `getCallbackLock()` = critical section guarding the reader thread during resize. `setWinsize()` is the single resize API — delivers SIGWINCH to shell. Called from the Resizer stop trigger on Session. No `prepare()` method.
+Mirrors JUCE AudioProcessor: `suspendProcessing()` / `isSuspended()` = AudioProcessor suspend pattern; `getCallbackLock()` = critical section guarding the reader thread during resize. `prepare()` is the single resize API — resets CellFifo, resizes Video, rebuilds dirty flags, manages live zone, delivers SIGWINCH. Called from Session's Resizer start trigger while processing is suspended.
 
 WINDOW-subtree properties `app::id::fontFamily` and `app::id::fontSize` drive font changes. A `ValueTree::Listener` on the WINDOW subtree detects changes, applies `fontFamily`/`fontSize` to `Typeface`, then calls `AppState::markAtlasDirty()`. `AppState::atlasDirty` is a `Parameter<int>` using `storeRelease`/`exchangeAcquire`. Consumer: message thread calls `consumeAtlasDirty()` to detect font/size changes before the next paint cycle, then calls `jam::Typeface::setAtlasSize()` to clear and rebuild the atlas.
 
@@ -830,7 +829,7 @@ Access: `setRGB()`, `setPalette()`, `setTheme()`, `paletteIndex()`
 
 Dual channels (normal + alternate). `jam::Buffer<jam::Row>` with ring-buffer row indexing via per-channel `head` positions. `head` tracks the logical top row per channel. No dirty tracking on Buffer — no `dirtyRows` bitmask. No `linkIds` sidecar.
 
-**Owned by `terminal::Screen`** (double-buffered: `buffers[2]`). Screen exposes `getActiveBlocksRef()` — an `std::atomic<Block<Row>*>` that Video loads via `refreshBlocks()` at the top of each `process()` batch.
+**Owned by `Video`** (dual channel: normal + alternate). Video writes cells to Buffer<Row> via Block views. No atomic pointer exchange — Video owns the buffer directly. Processor reads Buffer<Row> on the message thread for live zone overwrite (tearing-tolerant, corrected on next tick).
 
 Buffer API: `Block<Row>` constructor from Buffer returns a non-owning view with no copy. `getWritePointer()` returns a mutable `jam::Row*` for the reader thread; cells accessed via `row->cells[col]`. Ring addressing uses `% numRows` (any size, no power-of-two). Head preserved on resize. Resize is managed by `Session::resizer` (`jam::Resizer`). Lossless content preservation across column changes copies rows in ring order (oldest first).
 
@@ -880,7 +879,7 @@ Anchor + end `Point<int>` pair. Uses `::SelectionType` (none/visual/visualLine/v
 
 ### TextEditor (jam::TextEditor)
 
-Stateless monospace cell-grid renderer. `terminal::Screen` IS jam::TextEditor (direct inheritance) — not a separate entity. Holds no persistent cell buffer. Content set per frame via `setText(Block<Row>)` — non-owning, no copy. Single viewport mode: `juce::Viewport` with vertical scrollbar.
+Stateless monospace cell-grid renderer. `terminal::Screen` IS jam::TextEditor (direct inheritance) — not a separate entity. Holds no persistent cell buffer. Content set per frame via `setText(TextLineArray)` — non-owning, no copy. Single viewport mode: `juce::Viewport` with vertical scrollbar.
 
 Properties accessed via static array + enum (`TextEditor::properties`, `TextEditor::PropertyIndex`). Selection is TextEditor's responsibility. Input/Mouse write selection properties directly to TextEditor's grafted node. Processor adjusts selection anchors on scroll via storeValue atomics.
 
@@ -1298,7 +1297,7 @@ Click-mode link underlines only render on OSC 133 output rows.
 | PaneResizerBar | Draggable divider bar between split panes, paired with split tree nodes |
 | Panes | `terminal::Panes` — per-tab component owning `terminal::Display` instances and managing split layout via PaneManager |
 | Pen | Current text attributes (style + fg/bg color) applied to new cells |
-| Processor | Pipeline orchestrator: owns Parser, Video, TTY (created by startTTY()), and two TextLineArrays (normal + alternate); references Buffer<Row> (via activeBlocksRef from Screen) and State received from Session. Exposes `suspendProcessing()`, `isSuspended()`, `getCallbackLock()`. `setWinsize()` is the single resize API — fires SIGWINCH to shell. No smoothResizer (jam::Resizer owned by Session). |
+| Processor | Pipeline orchestrator: owns Parser, Video, TTY (created by startTTY()), and two TextLineArrays (normal + alternate); references State received from Session. Owns CellFifo for cross-thread row delivery. Exposes `suspendProcessing()`, `isSuspended()`, `getCallbackLock()`. `prepare()` is the single resize API — resets CellFifo, resizes Video, rebuilds dirty flags, fires SIGWINCH. jam::Resizer owned by Session. |
 | pwdValue | juce::Value in AppState bound via referTo to active terminal's cwd property |
 | Map::Screen | `jam::Map::Screen` — normal/alternate channel index map instance in `terminal::Map`; used for Buffer<Row> channel access. See also `Map::Bool` and `Map::Gpu`. Lives in `terminal/Map.h`. |
 | ScreenSelection | Anchor + end Point<int> pair for text selection; contains() for hit testing |

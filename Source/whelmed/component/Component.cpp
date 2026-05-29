@@ -63,8 +63,6 @@ bool Component::keyPressed (const juce::KeyPress& key)
     return inputHandler.handleKey (key);
 }
 
-void Component::switchRenderer (app::RendererType type) { juce::ignoreUnused (type); }
-
 void Component::applyFromAppState() noexcept
 {
     screen.load (docState.getDocument(), std::numeric_limits<int>::max());
