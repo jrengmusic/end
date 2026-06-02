@@ -513,8 +513,8 @@
         </childnode>
       </node>
       <node id="50">
-        <label>terminal/component/PaneComponent.h</label>
-        <link refid="_pane_component_8h"/>
+        <label>terminal/component/PaneView.h</label>
+        <link refid="_pane_view_8h"/>
         <childnode refid="6" relation="include">
         </childnode>
         <childnode refid="22" relation="include">
@@ -1194,13 +1194,13 @@
 <codeline lineno="798" refid="structlua_1_1_engine_1_1_keys_1_1_binding_1a9cc63db89c089816943dcf898bb8f7a2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structlua_1_1_engine_1_1_keys_1_1_binding_1a9cc63db89c089816943dcf898bb8f7a2" kindref="member">isModal</ref><sp/>{<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal"><sp/>};</highlight></codeline>
 <codeline lineno="799"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>};</highlight></codeline>
 <codeline lineno="800"><highlight class="normal"></highlight></codeline>
-<codeline lineno="802"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>juce::String<sp/>prefix<sp/>{<sp/></highlight><highlight class="stringliteral">&quot;`&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="802" refid="structlua_1_1_engine_1_1_keys_1aee5fe8a4d97b7219d8c4bd7752615c58" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>juce::String<sp/><ref refid="structlua_1_1_engine_1_1_keys_1aee5fe8a4d97b7219d8c4bd7752615c58" kindref="member">prefix</ref><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;`&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
 <codeline lineno="803"><highlight class="normal"></highlight></codeline>
-<codeline lineno="805"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>prefixTimeout<sp/>{<sp/>1000<sp/>};</highlight></codeline>
+<codeline lineno="805" refid="structlua_1_1_engine_1_1_keys_1a734505d6e2ec86eafe4aa71cc8bd988f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structlua_1_1_engine_1_1_keys_1a734505d6e2ec86eafe4aa71cc8bd988f" kindref="member">prefixTimeout</ref><sp/>{<sp/>1000<sp/>};</highlight></codeline>
 <codeline lineno="806"><highlight class="normal"></highlight></codeline>
-<codeline lineno="808"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::vector&lt;Binding&gt;<sp/>bindings;</highlight></codeline>
+<codeline lineno="808" refid="structlua_1_1_engine_1_1_keys_1afb89757287d37b3b14d08d6df7e64f5e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::vector&lt;Binding&gt;<sp/><ref refid="structlua_1_1_engine_1_1_keys_1afb89757287d37b3b14d08d6df7e64f5e" kindref="member">bindings</ref>;</highlight></codeline>
 <codeline lineno="809"><highlight class="normal"></highlight></codeline>
-<codeline lineno="811"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SelectionKeys<sp/><ref refid="_modal_type_8h_1a1878c47fb0486dfcf512d127b5342816aef5714e0519bfaa645cdff7d28843b70" kindref="member">selection</ref>;</highlight></codeline>
+<codeline lineno="811" refid="structlua_1_1_engine_1_1_keys_1acfff04ddb56741df32f6092c1fea73f2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structlua_1_1_engine_1_1_selection_keys" kindref="compound">SelectionKeys</ref><sp/><ref refid="structlua_1_1_engine_1_1_keys_1acfff04ddb56741df32f6092c1fea73f2" kindref="member">selection</ref>;</highlight></codeline>
 <codeline lineno="812"><highlight class="normal"><sp/><sp/><sp/><sp/>};</highlight></codeline>
 <codeline lineno="813"><highlight class="normal"></highlight></codeline>
 <codeline lineno="814"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==========================================================================</highlight><highlight class="normal"></highlight></codeline>

@@ -224,7 +224,7 @@
         <location file="terminal/LinkManager.h" line="53" column="5" bodyfile="terminal/LinkManager.cpp" bodystart="15" bodyend="24"/>
         <references refid="namespaceterminal_1_1id_1ad9fd72b61b4ec96b2a652a7762f89ac3" compoundref="_identifier_8h" startline="129" endline="129">terminal::id::activeScreen</references>
         <references refid="classterminal_1_1_link_manager_1ae9c2fcb3588ef4fd9891ae833285ec9d" compoundref="_link_manager_8h" startline="260">activeScreenNode</references>
-        <references refid="classjam_1_1_model_1ac0204402c1739f45230319069868ab23">jam::Model::getChildWithID</references>
+        <references refid="structjam_1_1_value_tree_1ac7c592a1eba42ac3b0628a2ada9ab4e7">jam::ValueTree::getChildWithID</references>
         <references refid="namespaceterminal_1_1id_1afb69df17fc87c56e23116b7df4409258" compoundref="_identifier_8h" startline="243" endline="243">terminal::id::promptRow</references>
         <references refid="classterminal_1_1_link_manager_1a7a4c7f58ab6a1fbf68b2718ff7c75240" compoundref="_link_manager_8h" startline="257">promptRowNode</references>
         <references refid="classterminal_1_1_link_manager_1aa045fa44879bd1d877ed867e9e5768f7" compoundref="_link_manager_8h" startline="236">state</references>

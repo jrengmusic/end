@@ -42,7 +42,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="nexus/Daemon.h" line="188" column="10" bodyfile="nexus/Daemon.cpp" bodystart="168" bodyend="172"/>
+        <location file="nexus/Daemon.h" line="188" column="10" bodyfile="nexus/Daemon.cpp" bodystart="147" bodyend="151"/>
         <references refid="classnexus_1_1_daemon_1a1b75378e2b4b91892061d962b31b14a1" compoundref="_daemon_8h" startline="399">attached</references>
         <references refid="classnexus_1_1_daemon_1a8b129190142a4ea1d5b2eef63d29912b" compoundref="_daemon_8h" startline="413">connectionsLock</references>
       </memberdef>
@@ -78,7 +78,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="nexus/Daemon.h" line="197" column="10" bodyfile="nexus/Daemon.cpp" bodystart="180" bodyend="196"/>
+        <location file="nexus/Daemon.h" line="197" column="10" bodyfile="nexus/Daemon.cpp" bodystart="159" bodyend="175"/>
         <references refid="classnexus_1_1_daemon_1a1b75378e2b4b91892061d962b31b14a1" compoundref="_daemon_8h" startline="399">attached</references>
         <references refid="classnexus_1_1_daemon_1a8b129190142a4ea1d5b2eef63d29912b" compoundref="_daemon_8h" startline="413">connectionsLock</references>
         <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682ca10ae9fc7d453b0dd525d0edf2ede7961">list</references>
@@ -117,8 +117,8 @@ Called from <ref refid="classnexus_1_1_daemon_1_1_channel_1adec8c8b370c9bdc520b0
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="nexus/Daemon.h" line="209" column="10" bodyfile="nexus/Daemon.cpp" bodystart="225" bodyend="228"/>
-        <references refid="classnexus_1_1_daemon_1a27ce6da01a4cdce73f20c5c132f335c9" compoundref="_daemon_8cpp" startline="205" endline="215">buildSessionsPayload</references>
+        <location file="nexus/Daemon.h" line="209" column="10" bodyfile="nexus/Daemon.cpp" bodystart="204" bodyend="207"/>
+        <references refid="classnexus_1_1_daemon_1a27ce6da01a4cdce73f20c5c132f335c9" compoundref="_daemon_8cpp" startline="184" endline="194">buildSessionsPayload</references>
         <references refid="classnexus_1_1_daemon_1_1_channel_1a3af754db6a9ae3590056c866b15f3a72" compoundref="_channel_8cpp" startline="81" endline="84">nexus::Daemon::Channel::sendPdu</references>
         <references refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558a161bca2e917335e125291a00fd76a80f" compoundref="_message_8h" startline="66">nexus::sessions</references>
       </memberdef>
@@ -139,12 +139,12 @@ Called from <ref refid="classnexus_1_1_daemon_1_1_channel_1adec8c8b370c9bdc520b0
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="nexus/Daemon.h" line="218" column="10" bodyfile="nexus/Daemon.cpp" bodystart="237" bodyend="244"/>
+        <location file="nexus/Daemon.h" line="218" column="10" bodyfile="nexus/Daemon.cpp" bodystart="216" bodyend="223"/>
         <references refid="classnexus_1_1_daemon_1a1b75378e2b4b91892061d962b31b14a1" compoundref="_daemon_8h" startline="399">attached</references>
-        <references refid="classnexus_1_1_daemon_1a27ce6da01a4cdce73f20c5c132f335c9" compoundref="_daemon_8cpp" startline="205" endline="215">buildSessionsPayload</references>
+        <references refid="classnexus_1_1_daemon_1a27ce6da01a4cdce73f20c5c132f335c9" compoundref="_daemon_8cpp" startline="184" endline="194">buildSessionsPayload</references>
         <references refid="classnexus_1_1_daemon_1a8b129190142a4ea1d5b2eef63d29912b" compoundref="_daemon_8h" startline="413">connectionsLock</references>
         <references refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558a161bca2e917335e125291a00fd76a80f" compoundref="_message_8h" startline="66">nexus::sessions</references>
-        <referencedby refid="classnexus_1_1_daemon_1a926bf8b33d96803c18cfbf7516da1e5b" compoundref="_daemon_8cpp" startline="415" endline="491">valueTreePropertyChanged</referencedby>
+        <referencedby refid="classnexus_1_1_daemon_1a926bf8b33d96803c18cfbf7516da1e5b" compoundref="_daemon_8cpp" startline="356" endline="432">valueTreePropertyChanged</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="user-defined">
@@ -229,7 +229,7 @@ Called from <ref refid="classnexus_1_1_daemon_1_1_channel_1adec8c8b370c9bdc520b0
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="nexus/Daemon.h" line="242" column="10" bodyfile="nexus/Daemon.cpp" bodystart="264" bodyend="296"/>
+        <location file="nexus/Daemon.h" line="242" column="10" bodyfile="nexus/Daemon.cpp" bodystart="243" bodyend="275"/>
         <references refid="classjam_1_1_code_view_1a93a5ced4b1717717dac8f5d07a4a4f9ca921134cac19521591ed4ad00784c9ea9">jam::CodeView::codeViewId</references>
         <references refid="classnexus_1_1_daemon_1a8b129190142a4ea1d5b2eef63d29912b" compoundref="_daemon_8h" startline="413">connectionsLock</references>
         <references refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558aa14fa2166ed698f3d04061f57e5ab9b9" compoundref="_message_8h" startline="58">nexus::loading</references>
@@ -283,7 +283,7 @@ Called from <ref refid="classnexus_1_1_daemon_1_1_channel_1adec8c8b370c9bdc520b0
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="nexus/Daemon.h" line="251" column="10" bodyfile="nexus/Daemon.cpp" bodystart="303" bodyend="316"/>
+        <location file="nexus/Daemon.h" line="251" column="10" bodyfile="nexus/Daemon.cpp" bodystart="282" bodyend="295"/>
         <references refid="classnexus_1_1_daemon_1a8b129190142a4ea1d5b2eef63d29912b" compoundref="_daemon_8h" startline="413">connectionsLock</references>
         <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682ca10ae9fc7d453b0dd525d0edf2ede7961">list</references>
         <references refid="classnexus_1_1_daemon_1ae48651c9ea2087bea5a8e8e6dcd850b9" compoundref="_daemon_8h" startline="410">subscribers</references>
@@ -312,7 +312,6 @@ Called from <ref refid="classnexus_1_1_daemon_1_1_channel_1adec8c8b370c9bdc520b0
 <para>Registers a byte observer on session&apos;s Processor to broadcast output PDUs to per-session subscribers. </para>
         </briefdescription>
         <detaileddescription>
-<para>Registers id::bytesReceived on the session Processor to broadcast output PDUs to per-session subscribers.</para>
 <para>Builds a <computeroutput><ref refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558a78e6221f6393d1356681db398f14ce6d" kindref="member">Message::output</ref></computeroutput> PDU (uuid prefix + raw bytes) and pushes it to every <ref refid="classnexus_1_1_daemon_1_1_channel" kindref="compound">Channel</ref> registered in the subscriber list for <computeroutput>uuid</computeroutput>. Runs on the reader thread inside the lambda; acquires <computeroutput><ref refid="classnexus_1_1_daemon_1a8b129190142a4ea1d5b2eef63d29912b" kindref="member">connectionsLock</ref></computeroutput>.</para>
 <para><parameterlist kind="param"><parameteritem>
 <parameternamelist>
@@ -331,44 +330,24 @@ Called from <ref refid="classnexus_1_1_daemon_1_1_channel_1adec8c8b370c9bdc520b0
 </parameterdescription>
 </parameteritem>
 </parameterlist>
-<simplesect kind="note"><para>NEXUS PROCESS MESSAGE THREAD (called at wire time; lambda fires on READER THREAD).</para>
-</simplesect>
-Builds a <computeroutput><ref refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558a78e6221f6393d1356681db398f14ce6d" kindref="member">Message::output</ref></computeroutput> PDU (uuid prefix + raw bytes) and pushes it to every <ref refid="classnexus_1_1_daemon_1_1_channel" kindref="compound">Channel</ref> registered in the subscriber list for <computeroutput>uuid</computeroutput>. The lambda runs on the reader thread and acquires <computeroutput><ref refid="classnexus_1_1_daemon_1a8b129190142a4ea1d5b2eef63d29912b" kindref="member">connectionsLock</ref></computeroutput> for the subscriber lookup.</para>
-<para><parameterlist kind="param"><parameteritem>
-<parameternamelist>
-<parametername>uuid</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>Session UUID used as the PDU routing key. </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>session</parametername>
-</parameternamelist>
-<parameterdescription>
-<para><ref refid="classterminal_1_1_session" kindref="compound">terminal::Session</ref> whose Processor receives the id::bytesReceived registration. </para>
-</parameterdescription>
-</parameteritem>
-</parameterlist>
 <simplesect kind="note"><para>NEXUS PROCESS MESSAGE THREAD (called at wire time; lambda fires on READER THREAD). </para>
 </simplesect>
 </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="nexus/Daemon.h" line="347" column="10" bodyfile="nexus/Daemon.cpp" bodystart="354" bodyend="373"/>
+        <location file="nexus/Daemon.h" line="347" column="10" bodyfile="nexus/Daemon.cpp" bodystart="307" bodyend="326"/>
         <references refid="namespaceterminal_1_1id_1ada63c4b428cfd0eb63899d3e7dfefac9" compoundref="_identifier_8h" startline="375" endline="375">terminal::id::bytesReceived</references>
         <references refid="classnexus_1_1_daemon_1a8b129190142a4ea1d5b2eef63d29912b" compoundref="_daemon_8h" startline="413">connectionsLock</references>
-        <references refid="classterminal_1_1_session_1a3564c58fc509e22d7e900071233cea5e" compoundref="_session_8cpp" startline="406" endline="410">terminal::Session::getProcessor</references>
+        <references refid="classterminal_1_1_session_1a3564c58fc509e22d7e900071233cea5e" compoundref="_session_8cpp" startline="386" endline="390">terminal::Session::getProcessor</references>
         <references refid="classjam_1_1_model_1abf91bfe071259060be78f47c83e720e4">jam::Model::getRootTree</references>
-        <references refid="classterminal_1_1_processor_1af4826b9ede2a6ed6737316d0706ba455" compoundref="_processor_8cpp" startline="404" endline="404">terminal::Processor::getState</references>
+        <references refid="classterminal_1_1_processor_1af4826b9ede2a6ed6737316d0706ba455" compoundref="_processor_8cpp" startline="367" endline="367">terminal::Processor::getState</references>
         <references refid="group__juce__core-system_1ga1f96ab6751237979b907a54f52a7296a">jassert</references>
         <references refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558a78e6221f6393d1356681db398f14ce6d" compoundref="_message_8h" startline="60">nexus::output</references>
         <references refid="classterminal_1_1_processor_1a90b588fb79485f03eca579538ccc9619" compoundref="_processor_8h" startline="277" endline="280">terminal::Processor::registerEvent</references>
         <references refid="classnexus_1_1_daemon_1ae48651c9ea2087bea5a8e8e6dcd850b9" compoundref="_daemon_8h" startline="410">subscribers</references>
         <references refid="structjam_1_1_binary_codec_1a203a1f410e86b1c1868ef8227772bba6">jam::BinaryCodec::writeString</references>
-        <referencedby refid="classnexus_1_1_daemon_1a53acdc55f0dfc4037ee3b62451c2be93" compoundref="_daemon_8cpp" startline="335" endline="339">wireSessionCallbacks</referencedby>
+        <referencedby refid="classnexus_1_1_daemon_1a53acdc55f0dfc4037ee3b62451c2be93" compoundref="_daemon_8cpp" startline="299" endline="303">wireSessionCallbacks</referencedby>
       </memberdef>
       <memberdef kind="function" id="classnexus_1_1_daemon_1a7744d5c04e1bd302d18a1359d6d703f2" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -406,39 +385,19 @@ Builds a <computeroutput><ref refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543
 </parameterdescription>
 </parameteritem>
 </parameterlist>
-<simplesect kind="note"><para>NEXUS PROCESS MESSAGE THREAD (called at wire time; VT callback fires on MESSAGE THREAD).</para>
-</simplesect>
-Inserts the session&apos;s State root into sessionStateRoots keyed by <computeroutput>uuid</computeroutput>, then registers <ref refid="classnexus_1_1_daemon" kindref="compound">Daemon</ref> as a listener on that VT. The actual exit handling runs in valueTreePropertyChanged when shellExited is detected.</para>
-<para><parameterlist kind="param"><parameteritem>
-<parameternamelist>
-<parametername>uuid</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>Session UUID used as the PDU routing key. </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>session</parametername>
-</parameternamelist>
-<parameterdescription>
-<para><ref refid="classterminal_1_1_session" kindref="compound">terminal::Session</ref> whose State <ref refid="classValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ValueTree</ref> is being listened to. </para>
-</parameterdescription>
-</parameteritem>
-</parameterlist>
-<simplesect kind="note"><para>NEXUS PROCESS MESSAGE THREAD. </para>
+<simplesect kind="note"><para>NEXUS PROCESS MESSAGE THREAD (called at wire time; VT callback fires on MESSAGE THREAD). </para>
 </simplesect>
 </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="nexus/Daemon.h" line="362" column="10" bodyfile="nexus/Daemon.cpp" bodystart="389" bodyend="396"/>
-        <references refid="classterminal_1_1_session_1a3564c58fc509e22d7e900071233cea5e" compoundref="_session_8cpp" startline="406" endline="410">terminal::Session::getProcessor</references>
+        <location file="nexus/Daemon.h" line="362" column="10" bodyfile="nexus/Daemon.cpp" bodystart="330" bodyend="337"/>
+        <references refid="classterminal_1_1_session_1a3564c58fc509e22d7e900071233cea5e" compoundref="_session_8cpp" startline="386" endline="390">terminal::Session::getProcessor</references>
         <references refid="classjam_1_1_model_1abf91bfe071259060be78f47c83e720e4">jam::Model::getRootTree</references>
-        <references refid="classterminal_1_1_processor_1af4826b9ede2a6ed6737316d0706ba455" compoundref="_processor_8cpp" startline="404" endline="404">terminal::Processor::getState</references>
+        <references refid="classterminal_1_1_processor_1af4826b9ede2a6ed6737316d0706ba455" compoundref="_processor_8cpp" startline="367" endline="367">terminal::Processor::getState</references>
         <references refid="group__juce__core-system_1ga1f96ab6751237979b907a54f52a7296a">jassert</references>
         <references refid="classnexus_1_1_daemon_1a18e834b8dd11fb97a921fe20e44e7e79" compoundref="_daemon_8h" startline="382">sessionStateRoots</references>
-        <referencedby refid="classnexus_1_1_daemon_1a53acdc55f0dfc4037ee3b62451c2be93" compoundref="_daemon_8cpp" startline="335" endline="339">wireSessionCallbacks</referencedby>
+        <referencedby refid="classnexus_1_1_daemon_1a53acdc55f0dfc4037ee3b62451c2be93" compoundref="_daemon_8cpp" startline="299" endline="303">wireSessionCallbacks</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-static-attrib">
@@ -488,9 +447,9 @@ Inserts the session&apos;s State root into sessionStateRoots keyed by <computero
         <inbodydescription>
         </inbodydescription>
         <location file="nexus/Daemon.h" line="370" column="9" bodyfile="nexus/Daemon.h" bodystart="370" bodyend="370"/>
-        <referencedby refid="classnexus_1_1_daemon_1ac94a7232754b1a22d412cb585a08ec81" compoundref="_daemon_8cpp" startline="99" endline="102">getPort</referencedby>
-        <referencedby refid="classnexus_1_1_daemon_1ac756ae852414097d832dea3dca937c63" compoundref="_daemon_8cpp" startline="54" endline="69">start</referencedby>
-        <referencedby refid="classnexus_1_1_daemon_1ad2934326955c52d495c942b6d37dded4" compoundref="_daemon_8cpp" startline="79" endline="91">stop</referencedby>
+        <referencedby refid="classnexus_1_1_daemon_1ac94a7232754b1a22d412cb585a08ec81" compoundref="_daemon_8cpp" startline="87" endline="90">getPort</referencedby>
+        <referencedby refid="classnexus_1_1_daemon_1ac756ae852414097d832dea3dca937c63" compoundref="_daemon_8cpp" startline="42" endline="57">start</referencedby>
+        <referencedby refid="classnexus_1_1_daemon_1ad2934326955c52d495c942b6d37dded4" compoundref="_daemon_8cpp" startline="67" endline="79">stop</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classnexus_1_1_daemon_1a18e834b8dd11fb97a921fe20e44e7e79" prot="private" static="no" mutable="no">
         <type>std::unordered_map&lt; juce::String, juce::ValueTree &gt;</type>
@@ -510,8 +469,8 @@ Inserts the session&apos;s State root into sessionStateRoots keyed by <computero
         <inbodydescription>
         </inbodydescription>
         <location file="nexus/Daemon.h" line="382" column="24" bodyfile="nexus/Daemon.h" bodystart="382" bodyend="-1"/>
-        <referencedby refid="classnexus_1_1_daemon_1a926bf8b33d96803c18cfbf7516da1e5b" compoundref="_daemon_8cpp" startline="415" endline="491">valueTreePropertyChanged</referencedby>
-        <referencedby refid="classnexus_1_1_daemon_1a7744d5c04e1bd302d18a1359d6d703f2" compoundref="_daemon_8cpp" startline="389" endline="396">wireOnExit</referencedby>
+        <referencedby refid="classnexus_1_1_daemon_1a926bf8b33d96803c18cfbf7516da1e5b" compoundref="_daemon_8cpp" startline="356" endline="432">valueTreePropertyChanged</referencedby>
+        <referencedby refid="classnexus_1_1_daemon_1a7744d5c04e1bd302d18a1359d6d703f2" compoundref="_daemon_8cpp" startline="330" endline="337">wireOnExit</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classnexus_1_1_daemon_1a0d240bf2feb8e9333fa478536016f1a6" prot="private" static="no" mutable="no">
         <type><ref refid="classjam_1_1_owner" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Owner</ref>&lt; <ref refid="classnexus_1_1_daemon_1_1_channel" kindref="compound">Channel</ref> &gt;</type>
@@ -527,8 +486,8 @@ Inserts the session&apos;s State root into sessionStateRoots keyed by <computero
         <inbodydescription>
         </inbodydescription>
         <location file="nexus/Daemon.h" line="389" column="16" bodyfile="nexus/Daemon.h" bodystart="389" bodyend="-1"/>
-        <referencedby refid="classnexus_1_1_daemon_1ae7ae71d77942f61f7fe64ec442a1c353" compoundref="_daemon_8cpp" startline="116" endline="119">createConnectionObject</referencedby>
-        <referencedby refid="classnexus_1_1_daemon_1acfb1296b932c220148c0a69597ccc2ec" compoundref="_daemon_8cpp" startline="130" endline="138">removeConnection</referencedby>
+        <referencedby refid="classnexus_1_1_daemon_1ae7ae71d77942f61f7fe64ec442a1c353" compoundref="_daemon_8cpp" startline="104" endline="107">createConnectionObject</referencedby>
+        <referencedby refid="classnexus_1_1_daemon_1acfb1296b932c220148c0a69597ccc2ec" compoundref="_daemon_8cpp" startline="109" endline="117">removeConnection</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classnexus_1_1_daemon_1a1b75378e2b4b91892061d962b31b14a1" prot="private" static="no" mutable="no">
         <type>std::vector&lt; <ref refid="classnexus_1_1_daemon_1_1_channel" kindref="compound">Channel</ref> * &gt;</type>
@@ -546,11 +505,11 @@ Inserts the session&apos;s State root into sessionStateRoots keyed by <computero
         <inbodydescription>
         </inbodydescription>
         <location file="nexus/Daemon.h" line="399" column="17" bodyfile="nexus/Daemon.h" bodystart="399" bodyend="-1"/>
-        <referencedby refid="classnexus_1_1_daemon_1a2416cbf604c7edc0ccba9cd218d8daea" compoundref="_daemon_8cpp" startline="168" endline="172">attach</referencedby>
-        <referencedby refid="classnexus_1_1_daemon_1a37ea2ff9c36f801cf3ee810ae289f40b" compoundref="_daemon_8cpp" startline="237" endline="244">broadcastSessions</referencedby>
-        <referencedby refid="classnexus_1_1_daemon_1a4d01320b5748479ee40b8f2b94d833d7" compoundref="_daemon_8cpp" startline="180" endline="196">detach</referencedby>
-        <referencedby refid="classnexus_1_1_daemon_1ad2934326955c52d495c942b6d37dded4" compoundref="_daemon_8cpp" startline="79" endline="91">stop</referencedby>
-        <referencedby refid="classnexus_1_1_daemon_1a926bf8b33d96803c18cfbf7516da1e5b" compoundref="_daemon_8cpp" startline="415" endline="491">valueTreePropertyChanged</referencedby>
+        <referencedby refid="classnexus_1_1_daemon_1a2416cbf604c7edc0ccba9cd218d8daea" compoundref="_daemon_8cpp" startline="147" endline="151">attach</referencedby>
+        <referencedby refid="classnexus_1_1_daemon_1a37ea2ff9c36f801cf3ee810ae289f40b" compoundref="_daemon_8cpp" startline="216" endline="223">broadcastSessions</referencedby>
+        <referencedby refid="classnexus_1_1_daemon_1a4d01320b5748479ee40b8f2b94d833d7" compoundref="_daemon_8cpp" startline="159" endline="175">detach</referencedby>
+        <referencedby refid="classnexus_1_1_daemon_1ad2934326955c52d495c942b6d37dded4" compoundref="_daemon_8cpp" startline="67" endline="79">stop</referencedby>
+        <referencedby refid="classnexus_1_1_daemon_1a926bf8b33d96803c18cfbf7516da1e5b" compoundref="_daemon_8cpp" startline="356" endline="432">valueTreePropertyChanged</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classnexus_1_1_daemon_1ae48651c9ea2087bea5a8e8e6dcd850b9" prot="private" static="no" mutable="no">
         <type>std::unordered_map&lt; juce::String, std::vector&lt; <ref refid="classnexus_1_1_daemon_1_1_channel" kindref="compound">Channel</ref> * &gt; &gt;</type>
@@ -568,11 +527,11 @@ Inserts the session&apos;s State root into sessionStateRoots keyed by <computero
         <inbodydescription>
         </inbodydescription>
         <location file="nexus/Daemon.h" line="410" column="24" bodyfile="nexus/Daemon.h" bodystart="410" bodyend="-1"/>
-        <referencedby refid="classnexus_1_1_daemon_1a4ab3426405fc0a5636f11e960bb6ba09" compoundref="_daemon_8cpp" startline="264" endline="296">attachSession</referencedby>
-        <referencedby refid="classnexus_1_1_daemon_1a4d01320b5748479ee40b8f2b94d833d7" compoundref="_daemon_8cpp" startline="180" endline="196">detach</referencedby>
-        <referencedby refid="classnexus_1_1_daemon_1aea246ba3a19ec3caa1acff4dc370f075" compoundref="_daemon_8cpp" startline="303" endline="316">detachSession</referencedby>
-        <referencedby refid="classnexus_1_1_daemon_1a926bf8b33d96803c18cfbf7516da1e5b" compoundref="_daemon_8cpp" startline="415" endline="491">valueTreePropertyChanged</referencedby>
-        <referencedby refid="classnexus_1_1_daemon_1a57bf4ccda740f0bff5e33a57592c0c14" compoundref="_daemon_8cpp" startline="354" endline="373">wireOnBytes</referencedby>
+        <referencedby refid="classnexus_1_1_daemon_1a4ab3426405fc0a5636f11e960bb6ba09" compoundref="_daemon_8cpp" startline="243" endline="275">attachSession</referencedby>
+        <referencedby refid="classnexus_1_1_daemon_1a4d01320b5748479ee40b8f2b94d833d7" compoundref="_daemon_8cpp" startline="159" endline="175">detach</referencedby>
+        <referencedby refid="classnexus_1_1_daemon_1aea246ba3a19ec3caa1acff4dc370f075" compoundref="_daemon_8cpp" startline="282" endline="295">detachSession</referencedby>
+        <referencedby refid="classnexus_1_1_daemon_1a926bf8b33d96803c18cfbf7516da1e5b" compoundref="_daemon_8cpp" startline="356" endline="432">valueTreePropertyChanged</referencedby>
+        <referencedby refid="classnexus_1_1_daemon_1a57bf4ccda740f0bff5e33a57592c0c14" compoundref="_daemon_8cpp" startline="307" endline="326">wireOnBytes</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classnexus_1_1_daemon_1a8b129190142a4ea1d5b2eef63d29912b" prot="private" static="no" mutable="no">
         <type>juce::CriticalSection</type>
@@ -588,14 +547,14 @@ Inserts the session&apos;s State root into sessionStateRoots keyed by <computero
         <inbodydescription>
         </inbodydescription>
         <location file="nexus/Daemon.h" line="413" column="27" bodyfile="nexus/Daemon.h" bodystart="413" bodyend="-1"/>
-        <referencedby refid="classnexus_1_1_daemon_1a2416cbf604c7edc0ccba9cd218d8daea" compoundref="_daemon_8cpp" startline="168" endline="172">attach</referencedby>
-        <referencedby refid="classnexus_1_1_daemon_1a4ab3426405fc0a5636f11e960bb6ba09" compoundref="_daemon_8cpp" startline="264" endline="296">attachSession</referencedby>
-        <referencedby refid="classnexus_1_1_daemon_1a37ea2ff9c36f801cf3ee810ae289f40b" compoundref="_daemon_8cpp" startline="237" endline="244">broadcastSessions</referencedby>
-        <referencedby refid="classnexus_1_1_daemon_1a4d01320b5748479ee40b8f2b94d833d7" compoundref="_daemon_8cpp" startline="180" endline="196">detach</referencedby>
-        <referencedby refid="classnexus_1_1_daemon_1aea246ba3a19ec3caa1acff4dc370f075" compoundref="_daemon_8cpp" startline="303" endline="316">detachSession</referencedby>
-        <referencedby refid="classnexus_1_1_daemon_1ad2934326955c52d495c942b6d37dded4" compoundref="_daemon_8cpp" startline="79" endline="91">stop</referencedby>
-        <referencedby refid="classnexus_1_1_daemon_1a926bf8b33d96803c18cfbf7516da1e5b" compoundref="_daemon_8cpp" startline="415" endline="491">valueTreePropertyChanged</referencedby>
-        <referencedby refid="classnexus_1_1_daemon_1a57bf4ccda740f0bff5e33a57592c0c14" compoundref="_daemon_8cpp" startline="354" endline="373">wireOnBytes</referencedby>
+        <referencedby refid="classnexus_1_1_daemon_1a2416cbf604c7edc0ccba9cd218d8daea" compoundref="_daemon_8cpp" startline="147" endline="151">attach</referencedby>
+        <referencedby refid="classnexus_1_1_daemon_1a4ab3426405fc0a5636f11e960bb6ba09" compoundref="_daemon_8cpp" startline="243" endline="275">attachSession</referencedby>
+        <referencedby refid="classnexus_1_1_daemon_1a37ea2ff9c36f801cf3ee810ae289f40b" compoundref="_daemon_8cpp" startline="216" endline="223">broadcastSessions</referencedby>
+        <referencedby refid="classnexus_1_1_daemon_1a4d01320b5748479ee40b8f2b94d833d7" compoundref="_daemon_8cpp" startline="159" endline="175">detach</referencedby>
+        <referencedby refid="classnexus_1_1_daemon_1aea246ba3a19ec3caa1acff4dc370f075" compoundref="_daemon_8cpp" startline="282" endline="295">detachSession</referencedby>
+        <referencedby refid="classnexus_1_1_daemon_1ad2934326955c52d495c942b6d37dded4" compoundref="_daemon_8cpp" startline="67" endline="79">stop</referencedby>
+        <referencedby refid="classnexus_1_1_daemon_1a926bf8b33d96803c18cfbf7516da1e5b" compoundref="_daemon_8cpp" startline="356" endline="432">valueTreePropertyChanged</referencedby>
+        <referencedby refid="classnexus_1_1_daemon_1a57bf4ccda740f0bff5e33a57592c0c14" compoundref="_daemon_8cpp" startline="307" endline="326">wireOnBytes</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-static-func">
@@ -673,7 +632,7 @@ Inserts the session&apos;s State root into sessionStateRoots keyed by <computero
         <detaileddescription>
 <para><parameterlist kind="param"><parameteritem>
 <parameternamelist>
-<parametername>host_</parametername>
+<parametername>host</parametername>
 </parameternamelist>
 <parameterdescription>
 <para>Owning <ref refid="class_nexus" kindref="compound">Nexus</ref> — passed through to each <ref refid="classnexus_1_1_daemon_1_1_channel" kindref="compound">Channel</ref> and used for session list queries in buildSessionsPayload. </para>
@@ -701,7 +660,7 @@ Inserts the session&apos;s State root into sessionStateRoots keyed by <computero
         <inbodydescription>
         </inbodydescription>
         <location file="nexus/Daemon.h" line="126" column="5" bodyfile="nexus/Daemon.cpp" bodystart="34" bodyend="38"/>
-        <references refid="classnexus_1_1_daemon_1ad2934326955c52d495c942b6d37dded4" compoundref="_daemon_8cpp" startline="79" endline="91">stop</references>
+        <references refid="classnexus_1_1_daemon_1ad2934326955c52d495c942b6d37dded4" compoundref="_daemon_8cpp" startline="67" endline="79">stop</references>
       </memberdef>
       <memberdef kind="function" id="classnexus_1_1_daemon_1ac756ae852414097d832dea3dca937c63" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>bool</type>
@@ -718,7 +677,6 @@ Inserts the session&apos;s State root into sessionStateRoots keyed by <computero
 <para>Starts listening on <computeroutput>port</computeroutput> and writes the bound port to <ref refid="struct_app_model" kindref="compound">AppModel</ref>. </para>
         </briefdescription>
         <detaileddescription>
-<para>Starts listening and writes the bound port to <ref refid="struct_app_model" kindref="compound">AppModel</ref>.</para>
 <para>Tries <computeroutput>port</computeroutput> first. If <computeroutput>port</computeroutput> is 0, <computeroutput>beginWaitingForSocket</computeroutput> returns the OS-assigned port via <computeroutput>getBoundPort()</computeroutput>. On success, calls <computeroutput><ref refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">AppModel::getContext()</ref>-&gt;setPort(activePort)</computeroutput> which persists the port to <computeroutput>~/.config/end/nexus/&lt;uuid&gt;.<ref refid="namespacenexus" kindref="compound">nexus</ref></computeroutput> so clients can probe it.</para>
 <para><parameterlist kind="param"><parameteritem>
 <parameternamelist>
@@ -731,27 +689,13 @@ Inserts the session&apos;s State root into sessionStateRoots keyed by <computero
 </parameterlist>
 <simplesect kind="return"><para><computeroutput>true</computeroutput> if <computeroutput>beginWaitingForSocket</computeroutput> succeeded. </para>
 </simplesect>
-<simplesect kind="note"><para>NEXUS PROCESS MESSAGE THREAD.</para>
-</simplesect>
-Calls <computeroutput>beginWaitingForSocket (port, "127.0.0.1")</computeroutput>. After a successful bind, <computeroutput>getBoundPort()</computeroutput> returns the actual port (useful when <computeroutput>port</computeroutput> == 0). On success, calls <computeroutput><ref refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">AppModel::getContext()</ref>-&gt;setPort(activePort)</computeroutput> which persists the port to <computeroutput>~/.config/end/nexus/&lt;uuid&gt;.<ref refid="namespacenexus" kindref="compound">nexus</ref></computeroutput>.</para>
-<para><parameterlist kind="param"><parameteritem>
-<parameternamelist>
-<parametername>port</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>Preferred port. 0 = OS-assigned. </para>
-</parameterdescription>
-</parameteritem>
-</parameterlist>
-<simplesect kind="return"><para><computeroutput>true</computeroutput> if the daemon started listening successfully. </para>
-</simplesect>
 <simplesect kind="note"><para>NEXUS PROCESS MESSAGE THREAD. </para>
 </simplesect>
 </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="nexus/Daemon.h" line="140" column="10" bodyfile="nexus/Daemon.cpp" bodystart="54" bodyend="69"/>
+        <location file="nexus/Daemon.h" line="140" column="10" bodyfile="nexus/Daemon.cpp" bodystart="42" bodyend="57"/>
         <references refid="classnexus_1_1_daemon_1af086e61013d2942f3c87a207ce9b8761" compoundref="_daemon_8h" startline="370" endline="370">activePort</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
         <references refid="classnexus_1_1_daemon_1a57cc676aaca28bb69c3fc5ce27af734f" compoundref="_daemon_8mm" startline="66" endline="66">installPlatformProcessCleanup</references>
@@ -775,7 +719,7 @@ Calls the base <computeroutput><ref refid="classInterprocessConnectionServer_1ac
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="nexus/Daemon.h" line="146" column="10" bodyfile="nexus/Daemon.cpp" bodystart="79" bodyend="91"/>
+        <location file="nexus/Daemon.h" line="146" column="10" bodyfile="nexus/Daemon.cpp" bodystart="67" bodyend="79"/>
         <references refid="classnexus_1_1_daemon_1af086e61013d2942f3c87a207ce9b8761" compoundref="_daemon_8h" startline="370" endline="370">activePort</references>
         <references refid="classnexus_1_1_daemon_1a1b75378e2b4b91892061d962b31b14a1" compoundref="_daemon_8h" startline="399">attached</references>
         <references refid="classnexus_1_1_daemon_1a8b129190142a4ea1d5b2eef63d29912b" compoundref="_daemon_8h" startline="413">connectionsLock</references>
@@ -803,7 +747,7 @@ Calls the base <computeroutput><ref refid="classInterprocessConnectionServer_1ac
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="nexus/Daemon.h" line="152" column="9" bodyfile="nexus/Daemon.cpp" bodystart="99" bodyend="102"/>
+        <location file="nexus/Daemon.h" line="152" column="9" bodyfile="nexus/Daemon.cpp" bodystart="87" bodyend="90"/>
         <references refid="classnexus_1_1_daemon_1af086e61013d2942f3c87a207ce9b8761" compoundref="_daemon_8h" startline="370" endline="370">activePort</references>
       </memberdef>
       <memberdef kind="function" id="classnexus_1_1_daemon_1acfb1296b932c220148c0a69597ccc2ec" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -820,7 +764,6 @@ Calls the base <computeroutput><ref refid="classInterprocessConnectionServer_1ac
 <para>Removes and destroys the connection owned by this daemon. </para>
         </briefdescription>
         <detaileddescription>
-<para>Removes and destroys the given <ref refid="classnexus_1_1_daemon_1_1_channel" kindref="compound">Channel</ref>.</para>
 <para>Called from <ref refid="classnexus_1_1_daemon_1_1_channel_1a87b3e0716c38f67a55e0b2528d3548f9" kindref="member">Channel::connectionLost()</ref> on the message thread. Triggers destruction of the <ref refid="classnexus_1_1_daemon_1_1_channel" kindref="compound">Channel</ref>.</para>
 <para><parameterlist kind="param"><parameteritem>
 <parameternamelist>
@@ -831,25 +774,13 @@ Calls the base <computeroutput><ref refid="classInterprocessConnectionServer_1ac
 </parameterdescription>
 </parameteritem>
 </parameterlist>
-<simplesect kind="note"><para>NEXUS PROCESS MESSAGE THREAD.</para>
-</simplesect>
-Called from <ref refid="classnexus_1_1_daemon_1_1_channel_1a87b3e0716c38f67a55e0b2528d3548f9" kindref="member">Channel::connectionLost()</ref> on the message thread. Locates <computeroutput>connection</computeroutput> by raw pointer in the owner and removes (destroys) it.</para>
-<para><parameterlist kind="param"><parameteritem>
-<parameternamelist>
-<parametername>connection</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>Raw pointer to the connection to destroy. </para>
-</parameterdescription>
-</parameteritem>
-</parameterlist>
 <simplesect kind="note"><para>NEXUS PROCESS MESSAGE THREAD. </para>
 </simplesect>
 </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="nexus/Daemon.h" line="163" column="10" bodyfile="nexus/Daemon.cpp" bodystart="130" bodyend="138"/>
+        <location file="nexus/Daemon.h" line="163" column="10" bodyfile="nexus/Daemon.cpp" bodystart="109" bodyend="117"/>
         <references refid="classnexus_1_1_daemon_1a0d240bf2feb8e9333fa478536016f1a6" compoundref="_daemon_8h" startline="389">connections</references>
       </memberdef>
       <memberdef kind="function" id="classnexus_1_1_daemon_1a2fb969089b4b034da870fbe365dcf6f6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -873,7 +804,7 @@ Snapshots the session list via <computeroutput>nexus.list()</computeroutput> bef
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="nexus/Daemon.h" line="173" column="10" bodyfile="nexus/Daemon.cpp" bodystart="152" bodyend="158"/>
+        <location file="nexus/Daemon.h" line="173" column="10" bodyfile="nexus/Daemon.cpp" bodystart="131" bodyend="137"/>
       </memberdef>
       <memberdef kind="function" id="classnexus_1_1_daemon_1a53acdc55f0dfc4037ee3b62451c2be93" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -918,42 +849,16 @@ Snapshots the session list via <computeroutput>nexus.list()</computeroutput> bef
 </parameterdescription>
 </parameteritem>
 </parameterlist>
-<simplesect kind="note"><para>NEXUS PROCESS MESSAGE THREAD.</para>
-</simplesect>
-Delegates to two helpers:<itemizedlist>
-<listitem><para>wireOnBytes → <computeroutput>session.getProcessor().registerEvent&lt;const char*, int&gt; (id::bytesReceived, ...)</computeroutput></para>
-</listitem><listitem><para>wireOnExit → registers <ref refid="classnexus_1_1_daemon" kindref="compound">Daemon</ref> as VT listener on session State</para>
-</listitem></itemizedlist>
-</para>
-<para>State updates (cwd, foregroundProcess) are broadcast from valueTreePropertyChanged.</para>
-<para>Called by <ref refid="class_nexus_1a9a1ee88d9163d5d75e7f40810c5350a5" kindref="member">Nexus::create</ref> (<ref refid="class_t_t_y" kindref="compound">TTY</ref> overload) when an <ref refid="classnexus_1_1_daemon" kindref="compound">nexus::Daemon</ref> is attached.</para>
-<para><parameterlist kind="param"><parameteritem>
-<parameternamelist>
-<parametername>uuid</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>UUID of the session (used in closures for routing). </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>session</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>The <ref refid="classterminal_1_1_session" kindref="compound">terminal::Session</ref> to wire. </para>
-</parameterdescription>
-</parameteritem>
-</parameterlist>
 <simplesect kind="note"><para>NEXUS PROCESS MESSAGE THREAD. </para>
 </simplesect>
 </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="nexus/Daemon.h" line="273" column="10" bodyfile="nexus/Daemon.cpp" bodystart="335" bodyend="339"/>
-        <references refid="classnexus_1_1_daemon_1a57bf4ccda740f0bff5e33a57592c0c14" compoundref="_daemon_8cpp" startline="354" endline="373">wireOnBytes</references>
-        <references refid="classnexus_1_1_daemon_1a7744d5c04e1bd302d18a1359d6d703f2" compoundref="_daemon_8cpp" startline="389" endline="396">wireOnExit</references>
-        <referencedby refid="classnexus_1_1_daemon_1a1c0c8d39c33699ede160df32dfac4a49" compoundref="_daemon_8cpp" startline="503" endline="519">valueTreeChildAdded</referencedby>
+        <location file="nexus/Daemon.h" line="273" column="10" bodyfile="nexus/Daemon.cpp" bodystart="299" bodyend="303"/>
+        <references refid="classnexus_1_1_daemon_1a57bf4ccda740f0bff5e33a57592c0c14" compoundref="_daemon_8cpp" startline="307" endline="326">wireOnBytes</references>
+        <references refid="classnexus_1_1_daemon_1a7744d5c04e1bd302d18a1359d6d703f2" compoundref="_daemon_8cpp" startline="330" endline="337">wireOnExit</references>
+        <referencedby refid="classnexus_1_1_daemon_1a1c0c8d39c33699ede160df32dfac4a49" compoundref="_daemon_8cpp" startline="444" endline="460">valueTreeChildAdded</referencedby>
       </memberdef>
       <memberdef kind="function" id="classnexus_1_1_daemon_1a1c0c8d39c33699ede160df32dfac4a49" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -983,10 +888,10 @@ When a &quot;SESSION&quot; child is appended to <computeroutput>nexus.events</co
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="nexus/Daemon.h" line="283" column="10" bodyfile="nexus/Daemon.cpp" bodystart="503" bodyend="519"/>
+        <location file="nexus/Daemon.h" line="283" column="10" bodyfile="nexus/Daemon.cpp" bodystart="444" bodyend="460"/>
         <references refid="structjam_1_1_i_d_1a94afe032a3af21e6f22fb73c9625b60a">jam::ID::id</references>
-        <references refid="classterminal_1_1_session_1a2cc000f4ffcb31cb35195118eb542404" compoundref="_session_8cpp" startline="443" endline="451">terminal::Session::start</references>
-        <references refid="classnexus_1_1_daemon_1a53acdc55f0dfc4037ee3b62451c2be93" compoundref="_daemon_8cpp" startline="335" endline="339">wireSessionCallbacks</references>
+        <references refid="classterminal_1_1_session_1a2cc000f4ffcb31cb35195118eb542404" compoundref="_session_8cpp" startline="439" endline="447">terminal::Session::start</references>
+        <references refid="classnexus_1_1_daemon_1a53acdc55f0dfc4037ee3b62451c2be93" compoundref="_daemon_8cpp" startline="299" endline="303">wireSessionCallbacks</references>
       </memberdef>
       <memberdef kind="function" id="classnexus_1_1_daemon_1a8726e398b09098d3a12f8fe5e916743e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -1020,7 +925,7 @@ When the last &quot;SESSION&quot; child is removed from <computeroutput>nexus.ev
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="nexus/Daemon.h" line="293" column="10" bodyfile="nexus/Daemon.cpp" bodystart="532" bodyend="539"/>
+        <location file="nexus/Daemon.h" line="293" column="10" bodyfile="nexus/Daemon.cpp" bodystart="473" bodyend="480"/>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
       </memberdef>
     </sectiondef>
@@ -1044,7 +949,7 @@ When the last &quot;SESSION&quot; child is removed from <computeroutput>nexus.ev
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="nexus/Daemon.h" line="296" column="34" bodyfile="nexus/Daemon.cpp" bodystart="116" bodyend="119"/>
+        <location file="nexus/Daemon.h" line="296" column="34" bodyfile="nexus/Daemon.cpp" bodystart="104" bodyend="107"/>
         <references refid="classnexus_1_1_daemon_1a0d240bf2feb8e9333fa478536016f1a6" compoundref="_daemon_8h" startline="389">connections</references>
       </memberdef>
       <memberdef kind="function" id="classnexus_1_1_daemon_1a27ce6da01a4cdce73f20c5c132f335c9" prot="private" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
@@ -1064,11 +969,11 @@ When the last &quot;SESSION&quot; child is removed from <computeroutput>nexus.ev
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="nexus/Daemon.h" line="305" column="23" bodyfile="nexus/Daemon.cpp" bodystart="205" bodyend="215"/>
+        <location file="nexus/Daemon.h" line="305" column="23" bodyfile="nexus/Daemon.cpp" bodystart="184" bodyend="194"/>
         <references refid="structjam_1_1_binary_codec_1a203a1f410e86b1c1868ef8227772bba6">jam::BinaryCodec::writeString</references>
         <references refid="structjam_1_1_binary_codec_1adf11734f6b3f39f491a6f79896e5753f">jam::BinaryCodec::writeUint16</references>
-        <referencedby refid="classnexus_1_1_daemon_1a37ea2ff9c36f801cf3ee810ae289f40b" compoundref="_daemon_8cpp" startline="237" endline="244">broadcastSessions</referencedby>
-        <referencedby refid="classnexus_1_1_daemon_1a9b9ba8442b73783fea31e162c28d53a8" compoundref="_daemon_8cpp" startline="225" endline="228">broadcastSessions</referencedby>
+        <referencedby refid="classnexus_1_1_daemon_1a37ea2ff9c36f801cf3ee810ae289f40b" compoundref="_daemon_8cpp" startline="216" endline="223">broadcastSessions</referencedby>
+        <referencedby refid="classnexus_1_1_daemon_1a9b9ba8442b73783fea31e162c28d53a8" compoundref="_daemon_8cpp" startline="204" endline="207">broadcastSessions</referencedby>
       </memberdef>
       <memberdef kind="function" id="classnexus_1_1_daemon_1a57cc676aaca28bb69c3fc5ce27af734f" prot="private" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
         <type>void</type>
@@ -1088,7 +993,7 @@ When the last &quot;SESSION&quot; child is removed from <computeroutput>nexus.ev
         <inbodydescription>
         </inbodydescription>
         <location file="nexus/Daemon.h" line="317" column="10" bodyfile="nexus/Daemon.mm" bodystart="66" bodyend="66"/>
-        <referencedby refid="classnexus_1_1_daemon_1ac756ae852414097d832dea3dca937c63" compoundref="_daemon_8cpp" startline="54" endline="69">start</referencedby>
+        <referencedby refid="classnexus_1_1_daemon_1ac756ae852414097d832dea3dca937c63" compoundref="_daemon_8cpp" startline="42" endline="57">start</referencedby>
       </memberdef>
       <memberdef kind="function" id="classnexus_1_1_daemon_1a2eee62ce9ba23da9c108e5346bcba689" prot="private" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
         <type>void</type>
@@ -1135,9 +1040,9 @@ When the last &quot;SESSION&quot; child is removed from <computeroutput>nexus.ev
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="nexus/Daemon.h" line="367" column="10" bodyfile="nexus/Daemon.cpp" bodystart="415" bodyend="491"/>
+        <location file="nexus/Daemon.h" line="367" column="10" bodyfile="nexus/Daemon.cpp" bodystart="356" bodyend="432"/>
         <references refid="classnexus_1_1_daemon_1a1b75378e2b4b91892061d962b31b14a1" compoundref="_daemon_8h" startline="399">attached</references>
-        <references refid="classnexus_1_1_daemon_1a37ea2ff9c36f801cf3ee810ae289f40b" compoundref="_daemon_8cpp" startline="237" endline="244">broadcastSessions</references>
+        <references refid="classnexus_1_1_daemon_1a37ea2ff9c36f801cf3ee810ae289f40b" compoundref="_daemon_8cpp" startline="216" endline="223">broadcastSessions</references>
         <references refid="classnexus_1_1_daemon_1a8b129190142a4ea1d5b2eef63d29912b" compoundref="_daemon_8h" startline="413">connectionsLock</references>
         <references refid="namespaceterminal_1_1id_1a0d551d759a87363c22a6d1712cf26cd9" compoundref="_identifier_8h" startline="157" endline="157">terminal::id::cwd</references>
         <references refid="namespaceterminal_1_1id_1adb1918ba2082b206d57bc4e3f969a5b0" compoundref="_identifier_8h" startline="160" endline="160">terminal::id::foregroundProcess</references>
@@ -1181,7 +1086,7 @@ When the last &quot;SESSION&quot; child is removed from <computeroutput>nexus.ev
       </node>
     </inheritancegraph>
     <collaborationgraph>
-      <node id="57">
+      <node id="59">
         <label>GraphemeSegmentationResult</label>
         <link refid="struct_grapheme_segmentation_result"/>
       </node>
@@ -1194,19 +1099,19 @@ When the last &quot;SESSION&quot; child is removed from <computeroutput>nexus.ev
           <edgelabel>sessions</edgelabel>
         </childnode>
       </node>
-      <node id="40">
+      <node id="42">
         <label>TTY</label>
         <link refid="class_t_t_y"/>
-        <childnode refid="41" relation="public-inheritance">
+        <childnode refid="43" relation="public-inheritance">
         </childnode>
-        <childnode refid="42" relation="usage">
+        <childnode refid="44" relation="usage">
           <edgelabel>events</edgelabel>
         </childnode>
-        <childnode refid="43" relation="usage">
+        <childnode refid="45" relation="usage">
           <edgelabel>shellIntegrationEnv</edgelabel>
         </childnode>
       </node>
-      <node id="75">
+      <node id="78">
         <label>Value</label>
         <link refid="classValue" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag"/>
       </node>
@@ -1224,33 +1129,33 @@ When the last &quot;SESSION&quot; child is removed from <computeroutput>nexus.ev
           <edgelabel>types</edgelabel>
         </childnode>
       </node>
-      <node id="53">
+      <node id="55">
         <label>jam::Block&lt; jam::Row &gt;</label>
         <link refid="classjam_1_1_block" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="51">
+      <node id="53">
         <label>jam::Buffer&lt; jam::Row &gt;</label>
         <link refid="classjam_1_1_buffer" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="48">
+      <node id="50">
         <label>jam::BufferSPSC</label>
         <link refid="classjam_1_1_buffer_s_p_s_c" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
         <childnode refid="14" relation="usage">
           <edgelabel>validStart</edgelabel>
         </childnode>
       </node>
-      <node id="29">
+      <node id="31">
         <label>jam::CaretComponent</label>
         <link refid="classjam_1_1_caret_component" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="27" relation="usage">
+        <childnode refid="29" relation="usage">
           <edgelabel>font</edgelabel>
         </childnode>
       </node>
-      <node id="54">
+      <node id="56">
         <label>jam::Cell</label>
         <link refid="structjam_1_1_cell" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="49">
+      <node id="51">
         <label>jam::CodeLine</label>
         <link refid="structjam_1_1_code_line" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
@@ -1264,64 +1169,59 @@ When the last &quot;SESSION&quot; child is removed from <computeroutput>nexus.ev
       <node id="25">
         <label>jam::CodeView</label>
         <link refid="classjam_1_1_code_view" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="26" relation="usage">
+        <childnode refid="26" relation="public-inheritance">
+        </childnode>
+        <childnode refid="28" relation="usage">
           <edgelabel>properties</edgelabel>
         </childnode>
-        <childnode refid="27" relation="usage">
+        <childnode refid="29" relation="usage">
           <edgelabel>font</edgelabel>
         </childnode>
         <childnode refid="23" relation="usage">
           <edgelabel>document</edgelabel>
         </childnode>
-        <childnode refid="28" relation="usage">
+        <childnode refid="30" relation="usage">
           <edgelabel>caret</edgelabel>
         </childnode>
-        <childnode refid="30" relation="usage">
+        <childnode refid="32" relation="usage">
           <edgelabel>stateAttachment</edgelabel>
         </childnode>
-        <childnode refid="31" relation="usage">
+        <childnode refid="33" relation="usage">
           <edgelabel>contentView</edgelabel>
         </childnode>
-        <childnode refid="33" relation="usage">
+        <childnode refid="35" relation="usage">
           <edgelabel>viewport</edgelabel>
         </childnode>
-        <childnode refid="35" relation="usage">
+        <childnode refid="37" relation="usage">
           <edgelabel>arrangement</edgelabel>
         </childnode>
-        <childnode refid="36" relation="usage">
+        <childnode refid="38" relation="usage">
           <edgelabel>glyphGraphics</edgelabel>
         </childnode>
       </node>
-      <node id="34">
+      <node id="36">
         <label>jam::CodeView::CodeViewViewport</label>
         <link refid="structjam_1_1_code_view_1_1_code_view_viewport" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
         <childnode refid="25" relation="usage">
           <edgelabel>owner</edgelabel>
         </childnode>
       </node>
-      <node id="32">
+      <node id="34">
         <label>jam::CodeView::ContentView</label>
         <link refid="structjam_1_1_code_view_1_1_content_view" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
         <childnode refid="25" relation="usage">
           <edgelabel>owner</edgelabel>
         </childnode>
       </node>
-      <node id="30">
-        <label>jam::ComponentAttachment</label>
-        <link refid="classjam_1_1_component_attachment" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="16" relation="usage">
-          <edgelabel>parentTree</edgelabel>
-        </childnode>
-      </node>
       <node id="5">
         <label>jam::Context&lt; Nexus &gt;</label>
         <link refid="structjam_1_1_context" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="27">
+      <node id="29">
         <label>jam::Font</label>
         <link refid="structjam_1_1_font" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="42">
+      <node id="44">
         <label>jam::Function::Map&lt; juce::Identifier, void &gt;</label>
         <link refid="structjam_1_1_function_1_1_map" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
@@ -1339,32 +1239,46 @@ When the last &quot;SESSION&quot; child is removed from <computeroutput>nexus.ev
         <label>jam::Owner&lt; jam::CodeModel::Screen &gt;</label>
         <link refid="classjam_1_1_owner" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="76">
+      <node id="79">
         <label>jam::Owner&lt; nexus::Daemon::Channel &gt;</label>
         <link refid="classjam_1_1_owner" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="74">
+      <node id="77">
         <label>jam::Resizer</label>
         <link refid="classjam_1_1_resizer" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="42" relation="usage">
+        <childnode refid="44" relation="usage">
           <edgelabel>triggers</edgelabel>
         </childnode>
       </node>
-      <node id="35">
+      <node id="32">
+        <label>jam::ValueTree::Attachment</label>
+        <link refid="classjam_1_1_value_tree_1_1_attachment" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+      <node id="27">
+        <label>jam::ValueTree::Component</label>
+        <link refid="structjam_1_1_value_tree_1_1_component" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+      <node id="26">
+        <label>jam::ValueTree::ComponentWithID&lt; CodeView &gt;</label>
+        <link refid="structjam_1_1_value_tree_1_1_component_with_i_d" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="27" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="37">
         <label>jam::glyph::Arrangement</label>
         <link refid="classjam_1_1glyph_1_1_arrangement" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="36">
+      <node id="38">
         <label>jam::glyph::Graphics</label>
         <link refid="classjam_1_1glyph_1_1_graphics" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="79">
+      <node id="82">
         <label>juce::InterprocessConnection</label>
       </node>
       <node id="2">
         <label>juce::InterprocessConnectionServer</label>
       </node>
-      <node id="41">
+      <node id="43">
         <label>juce::Thread</label>
       </node>
       <node id="3">
@@ -1383,20 +1297,20 @@ When the last &quot;SESSION&quot; child is removed from <computeroutput>nexus.ev
         <childnode refid="21" relation="usage">
           <edgelabel>sessionStateRoots</edgelabel>
         </childnode>
-        <childnode refid="76" relation="usage">
+        <childnode refid="79" relation="usage">
           <edgelabel>connections</edgelabel>
         </childnode>
-        <childnode refid="77" relation="usage">
+        <childnode refid="80" relation="usage">
           <edgelabel>attached</edgelabel>
         </childnode>
-        <childnode refid="80" relation="usage">
+        <childnode refid="83" relation="usage">
           <edgelabel>subscribers</edgelabel>
         </childnode>
       </node>
-      <node id="78">
+      <node id="81">
         <label>nexus::Daemon::Channel</label>
         <link refid="classnexus_1_1_daemon_1_1_channel"/>
-        <childnode refid="79" relation="public-inheritance">
+        <childnode refid="82" relation="public-inheritance">
         </childnode>
         <childnode refid="1" relation="usage">
           <edgelabel>daemon</edgelabel>
@@ -1405,78 +1319,84 @@ When the last &quot;SESSION&quot; child is removed from <computeroutput>nexus.ev
           <edgelabel>nexus</edgelabel>
         </childnode>
       </node>
-      <node id="68">
+      <node id="70">
         <label>std::array&lt; StateRow, STATE_COUNT &gt;</label>
       </node>
-      <node id="72">
+      <node id="74">
         <label>std::array&lt; int, 2 &gt;</label>
       </node>
-      <node id="52">
+      <node id="54">
         <label>std::array&lt; jam::Block&lt; jam::Row &gt;, 2 &gt;</label>
-        <childnode refid="53" relation="usage">
+        <childnode refid="55" relation="usage">
           <edgelabel>elements</edgelabel>
         </childnode>
       </node>
-      <node id="26">
+      <node id="28">
         <label>std::array&lt; juce::Identifier, propertyCount &gt;</label>
       </node>
-      <node id="55">
+      <node id="57">
         <label>std::array&lt; terminal::Video::SavedCursor, 2 &gt;</label>
-        <childnode refid="56" relation="usage">
+        <childnode refid="58" relation="usage">
           <edgelabel>elements</edgelabel>
         </childnode>
       </node>
-      <node id="70">
+      <node id="72">
         <label>std::array&lt; uint16_t, MAX_PARAMS &gt;</label>
       </node>
-      <node id="71">
+      <node id="73">
         <label>std::array&lt; uint32_t, 2 *maxKeyboardStackDepth &gt;</label>
       </node>
       <node id="14">
         <label>std::atomic&lt; int &gt;</label>
       </node>
-      <node id="46">
+      <node id="48">
         <label>std::basic_string&lt; Char &gt;</label>
       </node>
-      <node id="44">
+      <node id="46">
         <label>std::pair&lt; std::string, std::string &gt;</label>
-        <childnode refid="45" relation="usage">
+        <childnode refid="47" relation="usage">
           <edgelabel>first_type</edgelabel>
           <edgelabel>second_type</edgelabel>
         </childnode>
       </node>
-      <node id="45">
+      <node id="47">
         <label>std::string</label>
-        <childnode refid="46" relation="public-inheritance">
+        <childnode refid="48" relation="public-inheritance">
         </childnode>
       </node>
-      <node id="39">
+      <node id="41">
         <label>std::unique_ptr&lt; TTY &gt;</label>
-        <childnode refid="40" relation="usage">
+        <childnode refid="42" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
-      <node id="28">
+      <node id="30">
         <label>std::unique_ptr&lt; jam::CaretComponent &gt;</label>
-        <childnode refid="29" relation="usage">
+        <childnode refid="31" relation="usage">
+          <edgelabel>ptr</edgelabel>
+        </childnode>
+      </node>
+      <node id="35">
+        <label>std::unique_ptr&lt; jam::CodeView::CodeViewViewport &gt;</label>
+        <childnode refid="36" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
       <node id="33">
-        <label>std::unique_ptr&lt; jam::CodeView::CodeViewViewport &gt;</label>
+        <label>std::unique_ptr&lt; jam::CodeView::ContentView &gt;</label>
         <childnode refid="34" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
-      <node id="31">
-        <label>std::unique_ptr&lt; jam::CodeView::ContentView &gt;</label>
-        <childnode refid="32" relation="usage">
+      <node id="76">
+        <label>std::unique_ptr&lt; jam::Resizer &gt;</label>
+        <childnode refid="77" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
-      <node id="73">
-        <label>std::unique_ptr&lt; jam::Resizer &gt;</label>
-        <childnode refid="74" relation="usage">
+      <node id="75">
+        <label>std::unique_ptr&lt; jam::ValueTree::Attachment &gt;</label>
+        <childnode refid="32" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
@@ -1486,15 +1406,15 @@ When the last &quot;SESSION&quot; child is removed from <computeroutput>nexus.ev
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
-      <node id="65">
+      <node id="67">
         <label>std::unique_ptr&lt; terminal::Parser &gt;</label>
-        <childnode refid="66" relation="usage">
+        <childnode refid="68" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
-      <node id="37">
+      <node id="39">
         <label>std::unique_ptr&lt; terminal::Processor &gt;</label>
-        <childnode refid="38" relation="usage">
+        <childnode refid="40" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
@@ -1537,79 +1457,79 @@ When the last &quot;SESSION&quot; child is removed from <computeroutput>nexus.ev
           <edgelabel>elements</edgelabel>
         </childnode>
       </node>
-      <node id="80">
+      <node id="83">
         <label>std::unordered_map&lt; juce::String, std::vector&lt; nexus::Daemon::Channel * &gt; &gt;</label>
-        <childnode refid="77" relation="usage">
-          <edgelabel>elements</edgelabel>
-        </childnode>
-      </node>
-      <node id="61">
-        <label>std::unordered_map&lt; uint32_t, terminal::KittyDecoder::ChunkAccumulator &gt;</label>
-        <childnode refid="62" relation="usage">
+        <childnode refid="80" relation="usage">
           <edgelabel>elements</edgelabel>
         </childnode>
       </node>
       <node id="63">
-        <label>std::unordered_map&lt; uint32_t, terminal::KittyDecoder::StoredImage &gt;</label>
+        <label>std::unordered_map&lt; uint32_t, terminal::KittyDecoder::ChunkAccumulator &gt;</label>
         <childnode refid="64" relation="usage">
           <edgelabel>elements</edgelabel>
         </childnode>
       </node>
-      <node id="58">
-        <label>std::vector&lt; char &gt;</label>
-      </node>
-      <node id="77">
-        <label>std::vector&lt; nexus::Daemon::Channel * &gt;</label>
-        <childnode refid="78" relation="usage">
+      <node id="65">
+        <label>std::unordered_map&lt; uint32_t, terminal::KittyDecoder::StoredImage &gt;</label>
+        <childnode refid="66" relation="usage">
           <edgelabel>elements</edgelabel>
-        </childnode>
-      </node>
-      <node id="43">
-        <label>std::vector&lt; std::pair&lt; std::string, std::string &gt; &gt;</label>
-        <childnode refid="44" relation="usage">
-          <edgelabel>elements</edgelabel>
-        </childnode>
-      </node>
-      <node id="69">
-        <label>terminal::CSI</label>
-        <link refid="structterminal_1_1_c_s_i"/>
-        <childnode refid="70" relation="usage">
-          <edgelabel>values</edgelabel>
-        </childnode>
-      </node>
-      <node id="47">
-        <label>terminal::CellFifo</label>
-        <link refid="classterminal_1_1_cell_fifo"/>
-        <childnode refid="48" relation="usage">
-          <edgelabel>activeRing</edgelabel>
-          <edgelabel>historyRing</edgelabel>
-        </childnode>
-        <childnode refid="49" relation="usage">
-          <edgelabel>pending</edgelabel>
-        </childnode>
-      </node>
-      <node id="67">
-        <label>terminal::DispatchTable</label>
-        <link refid="classterminal_1_1_dispatch_table"/>
-        <childnode refid="68" relation="usage">
-          <edgelabel>table</edgelabel>
         </childnode>
       </node>
       <node id="60">
-        <label>terminal::KittyDecoder</label>
-        <link refid="classterminal_1_1_kitty_decoder"/>
-        <childnode refid="61" relation="usage">
-          <edgelabel>chunks</edgelabel>
+        <label>std::vector&lt; char &gt;</label>
+      </node>
+      <node id="80">
+        <label>std::vector&lt; nexus::Daemon::Channel * &gt;</label>
+        <childnode refid="81" relation="usage">
+          <edgelabel>elements</edgelabel>
         </childnode>
-        <childnode refid="63" relation="usage">
-          <edgelabel>storedImages</edgelabel>
+      </node>
+      <node id="45">
+        <label>std::vector&lt; std::pair&lt; std::string, std::string &gt; &gt;</label>
+        <childnode refid="46" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+      <node id="71">
+        <label>terminal::CSI</label>
+        <link refid="structterminal_1_1_c_s_i"/>
+        <childnode refid="72" relation="usage">
+          <edgelabel>values</edgelabel>
+        </childnode>
+      </node>
+      <node id="49">
+        <label>terminal::CellFifo</label>
+        <link refid="classterminal_1_1_cell_fifo"/>
+        <childnode refid="50" relation="usage">
+          <edgelabel>activeRing</edgelabel>
+          <edgelabel>historyRing</edgelabel>
+        </childnode>
+        <childnode refid="51" relation="usage">
+          <edgelabel>pending</edgelabel>
+        </childnode>
+      </node>
+      <node id="69">
+        <label>terminal::DispatchTable</label>
+        <link refid="classterminal_1_1_dispatch_table"/>
+        <childnode refid="70" relation="usage">
+          <edgelabel>table</edgelabel>
         </childnode>
       </node>
       <node id="62">
+        <label>terminal::KittyDecoder</label>
+        <link refid="classterminal_1_1_kitty_decoder"/>
+        <childnode refid="63" relation="usage">
+          <edgelabel>chunks</edgelabel>
+        </childnode>
+        <childnode refid="65" relation="usage">
+          <edgelabel>storedImages</edgelabel>
+        </childnode>
+      </node>
+      <node id="64">
         <label>terminal::KittyDecoder::ChunkAccumulator</label>
         <link refid="structterminal_1_1_kitty_decoder_1_1_chunk_accumulator"/>
       </node>
-      <node id="64">
+      <node id="66">
         <label>terminal::KittyDecoder::StoredImage</label>
         <link refid="structterminal_1_1_kitty_decoder_1_1_stored_image"/>
       </node>
@@ -1627,53 +1547,53 @@ When the last &quot;SESSION&quot; child is removed from <computeroutput>nexus.ev
           <edgelabel>textBuffer</edgelabel>
         </childnode>
       </node>
-      <node id="66">
+      <node id="68">
         <label>terminal::Parser</label>
         <link refid="classterminal_1_1_parser"/>
-        <childnode refid="50" relation="usage">
+        <childnode refid="52" relation="usage">
           <edgelabel>video</edgelabel>
         </childnode>
-        <childnode refid="67" relation="usage">
+        <childnode refid="69" relation="usage">
           <edgelabel>dispatchTable</edgelabel>
         </childnode>
-        <childnode refid="69" relation="usage">
+        <childnode refid="71" relation="usage">
           <edgelabel>csi</edgelabel>
         </childnode>
       </node>
-      <node id="38">
+      <node id="40">
         <label>terminal::Processor</label>
         <link refid="classterminal_1_1_processor"/>
         <childnode refid="3" relation="public-inheritance">
         </childnode>
-        <childnode refid="39" relation="usage">
+        <childnode refid="41" relation="usage">
           <edgelabel>tty</edgelabel>
         </childnode>
         <childnode refid="10" relation="usage">
           <edgelabel>textBuffer</edgelabel>
         </childnode>
-        <childnode refid="47" relation="usage">
+        <childnode refid="49" relation="usage">
           <edgelabel>cellFifo</edgelabel>
         </childnode>
         <childnode refid="15" relation="usage">
           <edgelabel>state</edgelabel>
         </childnode>
-        <childnode refid="42" relation="usage">
+        <childnode refid="44" relation="usage">
           <edgelabel>events</edgelabel>
           <edgelabel>parameters</edgelabel>
         </childnode>
-        <childnode refid="50" relation="usage">
+        <childnode refid="52" relation="usage">
           <edgelabel>video</edgelabel>
         </childnode>
-        <childnode refid="59" relation="usage">
+        <childnode refid="61" relation="usage">
           <edgelabel>skit</edgelabel>
         </childnode>
-        <childnode refid="65" relation="usage">
+        <childnode refid="67" relation="usage">
           <edgelabel>parser</edgelabel>
         </childnode>
-        <childnode refid="71" relation="usage">
+        <childnode refid="73" relation="usage">
           <edgelabel>keyboardModeStack</edgelabel>
         </childnode>
-        <childnode refid="72" relation="usage">
+        <childnode refid="74" relation="usage">
           <edgelabel>keyboardModeStackSize</edgelabel>
         </childnode>
       </node>
@@ -1694,30 +1614,33 @@ When the last &quot;SESSION&quot; child is removed from <computeroutput>nexus.ev
         <childnode refid="25" relation="usage">
           <edgelabel>textEditor</edgelabel>
         </childnode>
-        <childnode refid="37" relation="usage">
+        <childnode refid="39" relation="usage">
           <edgelabel>processor</edgelabel>
         </childnode>
-        <childnode refid="73" relation="usage">
+        <childnode refid="75" relation="usage">
+          <edgelabel>sessionAttachment</edgelabel>
+        </childnode>
+        <childnode refid="76" relation="usage">
           <edgelabel>resizer</edgelabel>
         </childnode>
-        <childnode refid="75" relation="usage">
+        <childnode refid="78" relation="usage">
           <edgelabel>winsize</edgelabel>
         </childnode>
-        <childnode refid="54" relation="usage">
+        <childnode refid="56" relation="usage">
           <edgelabel>startCols</edgelabel>
           <edgelabel>startRows</edgelabel>
         </childnode>
       </node>
-      <node id="59">
+      <node id="61">
         <label>terminal::Skit</label>
         <link refid="classterminal_1_1_skit"/>
-        <childnode refid="42" relation="usage">
+        <childnode refid="44" relation="usage">
           <edgelabel>events</edgelabel>
         </childnode>
-        <childnode refid="60" relation="usage">
+        <childnode refid="62" relation="usage">
           <edgelabel>kittyDecoder</edgelabel>
         </childnode>
-        <childnode refid="54" relation="usage">
+        <childnode refid="56" relation="usage">
           <edgelabel>lastImageRows</edgelabel>
         </childnode>
       </node>
@@ -1735,19 +1658,19 @@ When the last &quot;SESSION&quot; child is removed from <computeroutput>nexus.ev
           <edgelabel>active</edgelabel>
         </childnode>
       </node>
-      <node id="50">
+      <node id="52">
         <label>terminal::Video</label>
         <link refid="classterminal_1_1_video"/>
-        <childnode refid="51" relation="usage">
+        <childnode refid="53" relation="usage">
           <edgelabel>grid</edgelabel>
         </childnode>
-        <childnode refid="52" relation="usage">
+        <childnode refid="54" relation="usage">
           <edgelabel>blocks</edgelabel>
         </childnode>
-        <childnode refid="42" relation="usage">
+        <childnode refid="44" relation="usage">
           <edgelabel>events</edgelabel>
         </childnode>
-        <childnode refid="54" relation="usage">
+        <childnode refid="56" relation="usage">
           <edgelabel>cols</edgelabel>
           <edgelabel>cursorCol</edgelabel>
           <edgelabel>cursorRow</edgelabel>
@@ -1755,20 +1678,20 @@ When the last &quot;SESSION&quot; child is removed from <computeroutput>nexus.ev
           <edgelabel>scrollTop</edgelabel>
           <edgelabel>visibleRows</edgelabel>
         </childnode>
-        <childnode refid="55" relation="usage">
+        <childnode refid="57" relation="usage">
           <edgelabel>savedCursor</edgelabel>
         </childnode>
-        <childnode refid="57" relation="usage">
+        <childnode refid="59" relation="usage">
           <edgelabel>graphemeState</edgelabel>
         </childnode>
-        <childnode refid="58" relation="usage">
+        <childnode refid="60" relation="usage">
           <edgelabel>tabStops</edgelabel>
         </childnode>
       </node>
-      <node id="56">
+      <node id="58">
         <label>terminal::Video::SavedCursor</label>
         <link refid="structterminal_1_1_video_1_1_saved_cursor"/>
-        <childnode refid="54" relation="usage">
+        <childnode refid="56" relation="usage">
           <edgelabel>col</edgelabel>
           <edgelabel>row</edgelabel>
         </childnode>

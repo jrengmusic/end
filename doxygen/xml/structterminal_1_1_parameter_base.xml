@@ -19,7 +19,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml" line="43548" column="1"/>
+        <location file="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml" line="43541" column="1"/>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">
@@ -39,7 +39,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml" line="43520" column="1"/>
+        <location file="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml" line="43513" column="1"/>
       </memberdef>
       <memberdef kind="function" id="structjam_1_1_parameter_base_1afbe15bcd03552eb51610c3f27a3389a5" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
         <type></type>
@@ -53,7 +53,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml" line="43527" column="1"/>
+        <location file="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml" line="43520" column="1"/>
       </memberdef>
       <memberdef kind="function" id="structjam_1_1_parameter_base_1a9ed66cc4015a238a76c70bea49d9ba9e" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
         <type>bool</type>
@@ -67,7 +67,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml" line="43534" column="1"/>
+        <location file="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml" line="43527" column="1"/>
       </memberdef>
       <memberdef kind="function" id="structjam_1_1_parameter_base_1aee9d383a6cbdbb24900f1de30ae42e52" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
         <type>void</type>
@@ -81,7 +81,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml" line="43541" column="1"/>
+        <location file="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml" line="43534" column="1"/>
       </memberdef>
     </sectiondef>
     <briefdescription>
@@ -118,7 +118,7 @@
         <link refid="structterminal_1_1_parameter_base"/>
       </node>
     </inheritancegraph>
-    <location file="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml" line="43517" column="1"/>
+    <location file="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml" line="43510" column="1"/>
     <listofallmembers>
       <member refid="structjam_1_1_parameter_base_1a9ed66cc4015a238a76c70bea49d9ba9e" prot="public" virt="pure-virtual"><scope>terminal::ParameterBase</scope><name>flush</name></member>
       <member refid="structjam_1_1_parameter_base_1ae056ec08b83cb00c85f6bd8561d0a5e8" prot="public" virt="non-virtual"><scope>terminal::ParameterBase</scope><name>id</name></member>

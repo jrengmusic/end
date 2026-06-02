@@ -144,7 +144,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/component/LookAndFeel.h" line="281" column="28" bodyfile="terminal/component/LookAndFeel.h" bodystart="281" bodyend="281"/>
-        <referencedby refid="classterminal_1_1_look_and_feel_1a68ae7c0401a004635be9c6aee34a78e7" compoundref="_look_and_feel_menu_8cpp" startline="101" endline="169">drawPopupMenuItem</referencedby>
+        <referencedby refid="classterminal_1_1_look_and_feel_1a68ae7c0401a004635be9c6aee34a78e7" compoundref="_look_and_feel_menu_8cpp" startline="71" endline="139">drawPopupMenuItem</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classterminal_1_1_look_and_feel_1a5cf2b6304876b80951095a95008811d6" prot="private" static="yes" constexpr="yes" mutable="no">
         <type>int</type>
@@ -180,8 +180,8 @@
         <referencedby refid="classterminal_1_1_look_and_feel_1a59aa59b76ca56651ee887ce900ba5d07" compoundref="_look_and_feel_tab_8cpp" startline="56" endline="153">drawTabButtonCore</referencedby>
         <referencedby refid="classterminal_1_1_look_and_feel_1a547525edf575569692bb93a249612e6b" compoundref="_look_and_feel_tab_8cpp" startline="197" endline="208">getTabButtonBestWidth</referencedby>
         <referencedby refid="classterminal_1_1_look_and_feel_1abe330f190f36b8d4bbcdd7b848ba5d59" compoundref="_look_and_feel_tab_8cpp" startline="252" endline="264">getTabButtonBestWidth</referencedby>
-        <referencedby refid="classterminal_1_1_look_and_feel_1ac365d86abf821db3eb6312db3fcd1aaf" compoundref="_look_and_feel_8cpp" startline="318" endline="327">getTabButtonIndicator</referencedby>
-        <referencedby refid="classterminal_1_1_look_and_feel_1a5a8071f7bdf6f656db1fd58842ffa1d7" compoundref="_look_and_feel_8cpp" startline="329" endline="338">getTabButtonShape</referencedby>
+        <referencedby refid="classterminal_1_1_look_and_feel_1ac365d86abf821db3eb6312db3fcd1aaf" compoundref="_look_and_feel_8cpp" startline="293" endline="302">getTabButtonIndicator</referencedby>
+        <referencedby refid="classterminal_1_1_look_and_feel_1a5a8071f7bdf6f656db1fd58842ffa1d7" compoundref="_look_and_feel_8cpp" startline="304" endline="313">getTabButtonShape</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classterminal_1_1_look_and_feel_1ab58669bac6a1e37a5c9f35037a883a4b" prot="private" static="yes" constexpr="yes" mutable="no">
         <type>float</type>
@@ -280,7 +280,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/component/LookAndFeel.h" line="289" column="26" bodyfile="terminal/component/LookAndFeel.h" bodystart="289" bodyend="289"/>
-        <referencedby refid="classterminal_1_1_look_and_feel_1ac365d86abf821db3eb6312db3fcd1aaf" compoundref="_look_and_feel_8cpp" startline="318" endline="327">getTabButtonIndicator</referencedby>
+        <referencedby refid="classterminal_1_1_look_and_feel_1ac365d86abf821db3eb6312db3fcd1aaf" compoundref="_look_and_feel_8cpp" startline="293" endline="302">getTabButtonIndicator</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="private-attrib">
@@ -441,25 +441,25 @@ Reads Config once and sets all JUCE colour IDs for tabs, popup menus, and text b
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/component/LookAndFeel.h" line="75" column="10" bodyfile="terminal/component/LookAndFeel.cpp" bodystart="32" bodyend="97"/>
-        <references refid="classterminal_1_1_display_1ae191378e54e5671c8f04a878881bcbf1a4b9947423ce895b242abd980723734d7" compoundref="_display_8h" startline="26">terminal::Display::ansi0ColourId</references>
+        <references refid="classterminal_1_1_display_1ae191378e54e5671c8f04a878881bcbf1a4b9947423ce895b242abd980723734d7" compoundref="_display_8h" startline="27">terminal::Display::ansi0ColourId</references>
         <references refid="classjam_1_1_code_view_1a93a5ced4b1717717dac8f5d07a4a4f9ca91da197c78b9d7429d512c5ddb51dc0f">jam::CodeView::backgroundColourId</references>
         <references refid="classjam_1_1_tabbed_component_1a9b952e02d9d34bc8e50563d62b90a4cfa7853ede03f81e4b4846760e503b95fed">jam::TabbedComponent::backgroundColourId</references>
         <references refid="classjam_1_1_caret_component_1a8ef8abf9a27d732776d623ba1bb9695da00c1d92d6fcf0598b3a3281f7e6f75d2">jam::CaretComponent::caretColourId</references>
-        <references refid="classterminal_1_1_display_1ae191378e54e5671c8f04a878881bcbf1aedcf556d8c0c7b2c66f6e1c58bf5a3ac" compoundref="_display_8h" startline="21">terminal::Display::cursorColourId</references>
+        <references refid="classterminal_1_1_display_1ae191378e54e5671c8f04a878881bcbf1aedcf556d8c0c7b2c66f6e1c58bf5a3ac" compoundref="_display_8h" startline="22">terminal::Display::cursorColourId</references>
         <references refid="classterminal_1_1_look_and_feel_1a65a5132485bdcbd2db326677fa3fe6ccaf1e0731469e7e75867233e0583f0dd1f" compoundref="_look_and_feel_8h" startline="53">cursorColourId</references>
         <references refid="classjam_1_1_code_view_1a93a5ced4b1717717dac8f5d07a4a4f9cad1f7edde6caf6c29ab6025c59ff86f6c">jam::CodeView::focusedOutlineColourId</references>
         <references refid="classjam_1_1_tabbed_button_bar_1ae675bf20d22d98b61ac62c2cdedd42d1a6fa987e0042f29cc5f6fa8866f175e57">jam::TabbedButtonBar::frontOutlineColourId</references>
         <references refid="classjam_1_1_tabbed_button_bar_1ae675bf20d22d98b61ac62c2cdedd42d1a128f00b314beb01a8e26e423cfb6cd1c">jam::TabbedButtonBar::frontTextColourId</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
-        <references refid="classterminal_1_1_display_1ae191378e54e5671c8f04a878881bcbf1a00194958321be2f16223ff149530cbf9" compoundref="_display_8h" startline="25">terminal::Display::hintLabelBgColourId</references>
-        <references refid="classterminal_1_1_display_1ae191378e54e5671c8f04a878881bcbf1ab9748aac2975feda9bfcfc6d287fa875" compoundref="_display_8h" startline="24">terminal::Display::hintLabelFgColourId</references>
+        <references refid="classterminal_1_1_display_1ae191378e54e5671c8f04a878881bcbf1a00194958321be2f16223ff149530cbf9" compoundref="_display_8h" startline="26">terminal::Display::hintLabelBgColourId</references>
+        <references refid="classterminal_1_1_display_1ae191378e54e5671c8f04a878881bcbf1ab9748aac2975feda9bfcfc6d287fa875" compoundref="_display_8h" startline="25">terminal::Display::hintLabelFgColourId</references>
         <references refid="classterminal_1_1_look_and_feel_1a740ffd15e46c5879fb468be4b8e922eb" compoundref="_look_and_feel_8cpp" startline="112" endline="179">loadTabButtonSvg</references>
         <references refid="classjam_1_1_code_view_1a93a5ced4b1717717dac8f5d07a4a4f9cade3f27b27c855f55851e533e340d9df8">jam::CodeView::outlineColourId</references>
         <references refid="classjam_1_1_tabbed_component_1a9b952e02d9d34bc8e50563d62b90a4cfad605edffec00c32d70d38c2769b99a69">jam::TabbedComponent::outlineColourId</references>
         <references refid="classterminal_1_1_look_and_feel_1a65a5132485bdcbd2db326677fa3fe6cca87b9b7b5c4b303cc62c594188ffff318" compoundref="_look_and_feel_8h" startline="58">paneBarColourId</references>
         <references refid="classterminal_1_1_look_and_feel_1a65a5132485bdcbd2db326677fa3fe6cca29334b83ae708bfa4f43610f3e489aa6" compoundref="_look_and_feel_8h" startline="59">paneBarHighlightColourId</references>
-        <references refid="classterminal_1_1_display_1ae191378e54e5671c8f04a878881bcbf1a9782dc018263b1e8947ea35bf84e8bc1" compoundref="_display_8h" startline="22">terminal::Display::selectionColourId</references>
-        <references refid="classterminal_1_1_display_1ae191378e54e5671c8f04a878881bcbf1a2b81934748fc39c35826b14d142b0901" compoundref="_display_8h" startline="23">terminal::Display::selectionCursorColourId</references>
+        <references refid="classterminal_1_1_display_1ae191378e54e5671c8f04a878881bcbf1a9782dc018263b1e8947ea35bf84e8bc1" compoundref="_display_8h" startline="23">terminal::Display::selectionColourId</references>
+        <references refid="classterminal_1_1_display_1ae191378e54e5671c8f04a878881bcbf1a2b81934748fc39c35826b14d142b0901" compoundref="_display_8h" startline="24">terminal::Display::selectionCursorColourId</references>
         <references refid="namespaceterminal_1aa34b7c27f3d55a46829786eb96ffb5df" compoundref="_palette_8h" startline="67" endline="70">terminal::setAnsi16Colour</references>
         <references refid="classterminal_1_1_look_and_feel_1a65a5132485bdcbd2db326677fa3fe6ccafed76c98780ca872c237bd88bdebca08" compoundref="_look_and_feel_8h" startline="60">statusBarBackgroundColourId</references>
         <references refid="classterminal_1_1_look_and_feel_1a65a5132485bdcbd2db326677fa3fe6cca5996543449878af3b9dddde9bb02ff68" compoundref="_look_and_feel_8h" startline="61">statusBarLabelBackgroundColourId</references>
@@ -916,7 +916,7 @@ Reads Config once and sets all JUCE colour IDs for tabs, popup menus, and text b
         <location file="terminal/component/LookAndFeel.h" line="114" column="10" bodyfile="terminal/component/LookAndFeelTab.cpp" bodystart="229" bodyend="233"/>
         <references refid="group__juce__audio__plugin__client-Unity_1gac9a690ac771d86f797f87594f6dfa694">button</references>
         <references refid="classterminal_1_1_look_and_feel_1ac8e99173433b98234f3b9d662c2a8ec1" compoundref="_look_and_feel_8h" startline="287" endline="287">buttonInset</references>
-        <references refid="classterminal_1_1_look_and_feel_1a5a8071f7bdf6f656db1fd58842ffa1d7" compoundref="_look_and_feel_8cpp" startline="329" endline="338">getTabButtonShape</references>
+        <references refid="classterminal_1_1_look_and_feel_1a5a8071f7bdf6f656db1fd58842ffa1d7" compoundref="_look_and_feel_8cpp" startline="304" endline="313">getTabButtonShape</references>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_look_and_feel_1ac36cf6eb5eab63a0dc9e67e703cdd1fd" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
         <type>void</type>
@@ -979,7 +979,7 @@ Uses the same font family and point size as tab buttons, via Config.</para>
         </inbodydescription>
         <location file="terminal/component/LookAndFeel.h" line="126" column="16" bodyfile="terminal/component/LookAndFeel.cpp" bodystart="207" bodyend="213"/>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
-        <referencedby refid="classterminal_1_1_look_and_feel_1a68ae7c0401a004635be9c6aee34a78e7" compoundref="_look_and_feel_menu_8cpp" startline="101" endline="169">drawPopupMenuItem</referencedby>
+        <referencedby refid="classterminal_1_1_look_and_feel_1a68ae7c0401a004635be9c6aee34a78e7" compoundref="_look_and_feel_menu_8cpp" startline="71" endline="139">drawPopupMenuItem</referencedby>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_look_and_feel_1aa684176bbeb98a9854981e2f9e5960e0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>juce::Font</type>
@@ -1007,27 +1007,13 @@ Uses the same font family and point size as tab buttons, via Config.</para>
 </parameterlist>
 <simplesect kind="return"><para>The resolved font for the given label. </para>
 </simplesect>
-<simplesect kind="note"><para>MESSAGE THREAD.</para>
-</simplesect>
-Reads the <computeroutput>font</computeroutput> property from the label&apos;s property map. A value equal to <computeroutput><ref refid="structjam_1_1_i_d_1a2f2ee05e76603e24f721a5ad93fe4795" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::ID::name</ref></computeroutput> selects the action list name font; a value equal to <computeroutput><ref refid="structjam_1_1_i_d_1af8c1b16a4690393052b44ee472e56c46" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::ID::keyPress</ref></computeroutput> selects the action list shortcut font. All other labels fall back to <ref refid="classLookAndFeel__V4" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">LookAndFeel_V4</ref> default behaviour.</para>
-<para><parameterlist kind="param"><parameteritem>
-<parameternamelist>
-<parametername>label</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>The label being queried. </para>
-</parameterdescription>
-</parameteritem>
-</parameterlist>
-<simplesect kind="return"><para>The resolved font for the given label. </para>
-</simplesect>
 <simplesect kind="note"><para>MESSAGE THREAD. </para>
 </simplesect>
 </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/LookAndFeel.h" line="140" column="16" bodyfile="terminal/component/LookAndFeel.cpp" bodystart="258" bodyend="282"/>
+        <location file="terminal/component/LookAndFeel.h" line="140" column="16" bodyfile="terminal/component/LookAndFeel.cpp" bodystart="233" bodyend="257"/>
         <references refid="structjam_1_1_i_d_1a9bea2af49b70281e3caf8077fb00f994">jam::ID::font</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
         <references refid="structjam_1_1_i_d_1af8c1b16a4690393052b44ee472e56c46">jam::ID::keyPress</references>
@@ -1048,7 +1034,6 @@ Reads the <computeroutput>font</computeroutput> property from the label&apos;s p
 <para>Makes the popup window transparent and applies native background blur. </para>
         </briefdescription>
         <detaileddescription>
-<para>Prepares a popup menu window for display with background blur.</para>
 <para>Sets the popup window to non-opaque and applies background blur via <ref refid="structjam_1_1_background_blur" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::BackgroundBlur</ref>. Uses callAsync with a SafePointer to defer blur application until the window has a native peer.</para>
 <para><parameterlist kind="param"><parameteritem>
 <parameternamelist>
@@ -1059,25 +1044,13 @@ Reads the <computeroutput>font</computeroutput> property from the label&apos;s p
 </parameterdescription>
 </parameteritem>
 </parameterlist>
-<simplesect kind="note"><para>MESSAGE THREAD.</para>
-</simplesect>
-Applies platform-specific background blur to the popup menu window asynchronously after the window is created. Only available on Mac and Windows platforms.</para>
-<para><parameterlist kind="param"><parameteritem>
-<parameternamelist>
-<parametername>newWindow</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>The popup menu window to prepare. </para>
-</parameterdescription>
-</parameteritem>
-</parameterlist>
-<simplesect kind="note"><para>MESSAGE THREAD — called from UI show logic. </para>
+<simplesect kind="note"><para>MESSAGE THREAD. </para>
 </simplesect>
 </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/LookAndFeel.h" line="152" column="10" bodyfile="terminal/component/LookAndFeelMenu.cpp" bodystart="60" bodyend="79"/>
+        <location file="terminal/component/LookAndFeel.h" line="152" column="10" bodyfile="terminal/component/LookAndFeelMenu.cpp" bodystart="50" bodyend="69"/>
         <references refid="structjam_1_1_background_blur_1ae9c79fa16ebb9a92693dc2b89ee498da">jam::BackgroundBlur::enable</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
       </memberdef>
@@ -1101,7 +1074,7 @@ Applies platform-specific background blur to the popup menu window asynchronousl
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/LookAndFeel.h" line="156" column="9" bodyfile="terminal/component/LookAndFeel.cpp" bodystart="290" bodyend="293"/>
+        <location file="terminal/component/LookAndFeel.h" line="156" column="9" bodyfile="terminal/component/LookAndFeel.cpp" bodystart="265" bodyend="268"/>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_look_and_feel_1a9a44c68f08337e65a2e6278363af9b76" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
@@ -1207,7 +1180,6 @@ Applies platform-specific background blur to the popup menu window asynchronousl
 <para>Draws a single popup menu item using terminal theme colours. </para>
         </briefdescription>
         <detaileddescription>
-<para>Draws a single popup menu item with theme styling.</para>
 <para>Active items use the foreground colour; highlighted items use the cursor colour background; ticked items show a chevron tick mark. Separators are drawn as thin horizontal lines.</para>
 <para><parameterlist kind="param"><parameteritem>
 <parameternamelist>
@@ -1298,105 +1270,13 @@ Applies platform-specific background blur to the popup menu window asynchronousl
 </parameterdescription>
 </parameteritem>
 </parameterlist>
-<simplesect kind="note"><para>MESSAGE THREAD.</para>
-</simplesect>
-Handles normal, highlighted, active, separator, ticked, and disabled states. Uses foreground colour for text, selection colour for highlights, and cursor colour for ticked items.</para>
-<para><parameterlist kind="param"><parameteritem>
-<parameternamelist>
-<parametername>g</parametername>
-</parameternamelist>
-<parameterdescription>
-<para><ref refid="classGraphics" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Graphics</ref> context. </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>area</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>Bounding rectangle for the item. </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>isSeparator</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>True if this item is a separator. </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>isActive</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>True if the item is enabled. </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>isHighlighted</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>True if the item is hovered. </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>isTicked</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>True if the item is checked. </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>hasSubMenu</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>True if the item has a submenu. </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>text</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>Item text. </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>shortcutKeyText</parametername>
-</parameternamelist>
-<parameterdescription>
-<para><ref refid="classOptional" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Optional</ref> keyboard shortcut text. </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>icon</parametername>
-</parameternamelist>
-<parameterdescription>
-<para><ref refid="classOptional" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Optional</ref> icon drawable. </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>textColourToUse</parametername>
-</parameternamelist>
-<parameterdescription>
-<para><ref refid="classOptional" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Optional</ref> text colour override. </para>
-</parameterdescription>
-</parameteritem>
-</parameterlist>
-<simplesect kind="note"><para>MESSAGE THREAD — called by JUCE popup menu item painting. </para>
+<simplesect kind="note"><para>MESSAGE THREAD. </para>
 </simplesect>
 </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/LookAndFeel.h" line="192" column="10" bodyfile="terminal/component/LookAndFeelMenu.cpp" bodystart="101" bodyend="169"/>
+        <location file="terminal/component/LookAndFeel.h" line="192" column="10" bodyfile="terminal/component/LookAndFeelMenu.cpp" bodystart="71" bodyend="139"/>
         <references refid="classterminal_1_1_look_and_feel_1a65a5132485bdcbd2db326677fa3fe6ccaf1e0731469e7e75867233e0583f0dd1f" compoundref="_look_and_feel_8h" startline="53">cursorColourId</references>
         <references refid="namespaceterminal_1aa075362048925f1d63dcff19edc7b1cd" compoundref="_look_and_feel_menu_8cpp" startline="19" endline="27">terminal::drawPopupMenuSeparator</references>
         <references refid="namespaceterminal_1a62a5134aa7cf3353a9e29cb7f0968e54" compoundref="_look_and_feel_menu_8cpp" startline="36" endline="48">terminal::drawSubmenuArrow</references>
@@ -1468,35 +1348,13 @@ Handles normal, highlighted, active, separator, ticked, and disabled states. Use
 </parameterlist>
 <simplesect kind="return"><para>The resolved font for the given button. </para>
 </simplesect>
-<simplesect kind="note"><para>MESSAGE THREAD.</para>
-</simplesect>
-Reads the <computeroutput>font</computeroutput> property from the button&apos;s property map. A value equal to <computeroutput><ref refid="structjam_1_1_i_d_1a2f2ee05e76603e24f721a5ad93fe4795" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::ID::name</ref></computeroutput> selects the action list name font (same branch as getLabelFont&apos;s <computeroutput><ref refid="group__juce__audio__plugin__client-Unity_1ga010e50efcb9d6d393b9414f09f368dbc" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">name</ref></computeroutput>-role path). All other buttons fall back to the configured tab font at 60 % of the button height.</para>
-<para><parameterlist kind="param"><parameteritem>
-<parameternamelist>
-<parametername><ref refid="group__juce__audio__plugin__client-Unity_1gac9a690ac771d86f797f87594f6dfa694" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">button</ref></parametername>
-</parameternamelist>
-<parameterdescription>
-<para>The text button being queried. </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>buttonHeight</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>The button height in pixels. </para>
-</parameterdescription>
-</parameteritem>
-</parameterlist>
-<simplesect kind="return"><para>The resolved font for the given button. </para>
-</simplesect>
 <simplesect kind="note"><para>MESSAGE THREAD. </para>
 </simplesect>
 </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/LookAndFeel.h" line="228" column="16" bodyfile="terminal/component/LookAndFeel.cpp" bodystart="228" bodyend="244"/>
+        <location file="terminal/component/LookAndFeel.h" line="228" column="16" bodyfile="terminal/component/LookAndFeel.cpp" bodystart="215" bodyend="231"/>
         <references refid="group__juce__audio__plugin__client-Unity_1gac9a690ac771d86f797f87594f6dfa694">button</references>
         <references refid="structjam_1_1_i_d_1a9bea2af49b70281e3caf8077fb00f994">jam::ID::font</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
@@ -1592,7 +1450,7 @@ Reads the <computeroutput>font</computeroutput> property from the button&apos;s 
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/LookAndFeel.h" line="244" column="10" bodyfile="terminal/component/LookAndFeel.cpp" bodystart="295" bodyend="316"/>
+        <location file="terminal/component/LookAndFeel.h" line="244" column="10" bodyfile="terminal/component/LookAndFeel.cpp" bodystart="270" bodyend="291"/>
         <references refid="group__juce__audio__plugin__client-Unity_1ga2ee4d4f298ba1bf1bc2f45c681c40ca3">h</references>
         <references refid="classterminal_1_1_look_and_feel_1a65a5132485bdcbd2db326677fa3fe6cca87b9b7b5c4b303cc62c594188ffff318" compoundref="_look_and_feel_8h" startline="58">paneBarColourId</references>
         <references refid="classterminal_1_1_look_and_feel_1a65a5132485bdcbd2db326677fa3fe6cca29334b83ae708bfa4f43610f3e489aa6" compoundref="_look_and_feel_8h" startline="59">paneBarHighlightColourId</references>
@@ -1627,9 +1485,9 @@ Queries the real rendered font height from <computeroutput><ref refid="classterm
         <location file="terminal/component/LookAndFeel.h" line="260" column="16" bodyfile="terminal/component/LookAndFeel.cpp" bodystart="190" bodyend="197"/>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
         <references refid="classterminal_1_1_look_and_feel_1ad3ffc7f0708eb75f93db00195c56800c" compoundref="_look_and_feel_8h" startline="280" endline="280">tabFontRatio</references>
-        <referencedby refid="classterminal_1_1_tabs_1a1c61449d446b6d55db1ef8a4a81940c5" compoundref="_tabs_8cpp" startline="71" endline="81">terminal::Tabs::addNewTab</referencedby>
-        <referencedby refid="class_main_component_1a2887187bf68d26044bb55e5d4a6456f0" compoundref="_main_component_8cpp" startline="479" endline="503">MainComponent::getContentRect</referencedby>
-        <referencedby refid="classterminal_1_1_tabs_1a9262082162f833cbff7abfc2df27da8d" compoundref="_tabs_8cpp" startline="377" endline="381">terminal::Tabs::updateTabBarVisibility</referencedby>
+        <referencedby refid="classterminal_1_1_tabs_1a1c61449d446b6d55db1ef8a4a81940c5" compoundref="_tabs_8cpp" startline="60" endline="70">terminal::Tabs::addNewTab</referencedby>
+        <referencedby refid="class_main_component_1a2887187bf68d26044bb55e5d4a6456f0" compoundref="_main_component_8cpp" startline="465" endline="489">MainComponent::getContentRect</referencedby>
+        <referencedby refid="classterminal_1_1_tabs_1a9262082162f833cbff7abfc2df27da8d" compoundref="_tabs_8cpp" startline="341" endline="345">terminal::Tabs::updateTabBarVisibility</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="private-func">
@@ -1683,7 +1541,7 @@ Queries the real rendered font height from <computeroutput><ref refid="classterm
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/LookAndFeel.h" line="294" column="23" bodyfile="terminal/component/LookAndFeel.cpp" bodystart="329" bodyend="338"/>
+        <location file="terminal/component/LookAndFeel.h" line="294" column="23" bodyfile="terminal/component/LookAndFeel.cpp" bodystart="304" bodyend="313"/>
         <references refid="classterminal_1_1_look_and_feel_1afb71e3cbe0205690abc8ed633d6a5095" compoundref="_look_and_feel_8h" startline="283" endline="283">skew</references>
         <referencedby refid="classterminal_1_1_look_and_feel_1afb1a3a02fac7c9052e7bbc4c5a52c5db" compoundref="_look_and_feel_tab_8cpp" startline="229" endline="233">createTabButtonShape</referencedby>
         <referencedby refid="classterminal_1_1_look_and_feel_1a59aa59b76ca56651ee887ce900ba5d07" compoundref="_look_and_feel_tab_8cpp" startline="56" endline="153">drawTabButtonCore</referencedby>
@@ -1704,7 +1562,7 @@ Queries the real rendered font height from <computeroutput><ref refid="classterm
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/LookAndFeel.h" line="295" column="23" bodyfile="terminal/component/LookAndFeel.cpp" bodystart="318" bodyend="327"/>
+        <location file="terminal/component/LookAndFeel.h" line="295" column="23" bodyfile="terminal/component/LookAndFeel.cpp" bodystart="293" bodyend="302"/>
         <references refid="classterminal_1_1_look_and_feel_1a8fba4883e1234d4ae882e41d686621b4" compoundref="_look_and_feel_8h" startline="289" endline="289">gap</references>
         <references refid="classterminal_1_1_look_and_feel_1afb71e3cbe0205690abc8ed633d6a5095" compoundref="_look_and_feel_8h" startline="283" endline="283">skew</references>
         <referencedby refid="classterminal_1_1_look_and_feel_1a59aa59b76ca56651ee887ce900ba5d07" compoundref="_look_and_feel_tab_8cpp" startline="56" endline="153">drawTabButtonCore</referencedby>
@@ -1824,8 +1682,8 @@ Queries the real rendered font height from <computeroutput><ref refid="classterm
         <location file="terminal/component/LookAndFeel.h" line="296" column="17" bodyfile="terminal/component/LookAndFeelTab.cpp" bodystart="56" bodyend="153"/>
         <references refid="namespaceterminal_1a688ccfb4d64021c0279a5072fc2ae5cd" compoundref="_look_and_feel_tab_8cpp" startline="24" endline="39">terminal::applyVerticalTabTransform</references>
         <references refid="classterminal_1_1_look_and_feel_1ac8e99173433b98234f3b9d662c2a8ec1" compoundref="_look_and_feel_8h" startline="287" endline="287">buttonInset</references>
-        <references refid="classterminal_1_1_look_and_feel_1ac365d86abf821db3eb6312db3fcd1aaf" compoundref="_look_and_feel_8cpp" startline="318" endline="327">getTabButtonIndicator</references>
-        <references refid="classterminal_1_1_look_and_feel_1a5a8071f7bdf6f656db1fd58842ffa1d7" compoundref="_look_and_feel_8cpp" startline="329" endline="338">getTabButtonShape</references>
+        <references refid="classterminal_1_1_look_and_feel_1ac365d86abf821db3eb6312db3fcd1aaf" compoundref="_look_and_feel_8cpp" startline="293" endline="302">getTabButtonIndicator</references>
+        <references refid="classterminal_1_1_look_and_feel_1a5a8071f7bdf6f656db1fd58842ffa1d7" compoundref="_look_and_feel_8cpp" startline="304" endline="313">getTabButtonShape</references>
         <references refid="classterminal_1_1_look_and_feel_1a3bb62bdf021fa2de1a8676ac21f53e50" compoundref="_look_and_feel_8h" startline="293" endline="293">hasSvgTabButton</references>
         <references refid="classterminal_1_1_look_and_feel_1af6e7954ef7a3b9bba05df648f1129452" compoundref="_look_and_feel_8h" startline="288" endline="288">indicatorSize</references>
         <references refid="classterminal_1_1_look_and_feel_1ac3c8e3057a825febbdf7fcff31d0cb99" compoundref="_look_and_feel_8cpp" startline="22" endline="22">LookAndFeel</references>

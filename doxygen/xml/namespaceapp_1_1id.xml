@@ -36,8 +36,8 @@
         <referencedby refid="struct_app_model_1a33fc400cec078d808f6017c45574e10e" compoundref="_app_model_8cpp" startline="44" endline="47">AppModel::getWindow</referencedby>
         <referencedby refid="struct_app_model_1aaae7da7125d05bc93f67e7cc08be4405" compoundref="_app_model_8cpp" startline="486" endline="512">AppModel::loadWindowState</referencedby>
         <referencedby refid="struct_app_model_1aadec1c1d139204d67deaed3c856c10a4" compoundref="_app_model_8cpp" startline="470" endline="484">AppModel::saveWindowState</referencedby>
-        <referencedby refid="class_main_component_1ab981f8a50bedc6595965294c12796ac6" compoundref="_main_component_8cpp" startline="350" endline="394">MainComponent::valueTreePropertyChanged</referencedby>
-        <referencedby refid="classterminal_1_1_tabs_1ae3fe96dd1a1b0e229d60c7871b0a438b" compoundref="_tabs_8cpp" startline="504" endline="525">terminal::Tabs::valueTreePropertyChanged</referencedby>
+        <referencedby refid="class_main_component_1ab981f8a50bedc6595965294c12796ac6" compoundref="_main_component_8cpp" startline="349" endline="393">MainComponent::valueTreePropertyChanged</referencedby>
+        <referencedby refid="classterminal_1_1_tabs_1ae3fe96dd1a1b0e229d60c7871b0a438b" compoundref="_tabs_8cpp" startline="458" endline="479">terminal::Tabs::valueTreePropertyChanged</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceapp_1_1id_1a29752745764460568dcc06ab2cb55595" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>
@@ -73,7 +73,7 @@
         <referencedby refid="struct_app_model_1a5bf961bf2da4f58edc44f53491d07b8b" compoundref="_app_model_8cpp" startline="54" endline="57">AppModel::getSessionsNode</referencedby>
         <referencedby refid="classnexus_1_1_link_1ac94c5267a1a3129f146e3c8596d3160c" compoundref="_link_8cpp" startline="304" endline="342">nexus::Link::handleSessions</referencedby>
         <referencedby refid="class_e_n_d_application_1a96fc235a4618e12e65fb65d24578a554" compoundref="_main_8cpp" startline="60" endline="267">ENDApplication::initialise</referencedby>
-        <referencedby refid="class_main_component_1a46cc067d6026247d03d95ceab86e687d" compoundref="_main_component_8cpp" startline="403" endline="416">MainComponent::valueTreeChildAdded</referencedby>
+        <referencedby refid="class_main_component_1a46cc067d6026247d03d95ceab86e687d" compoundref="_main_component_8cpp" startline="402" endline="415">MainComponent::valueTreeChildAdded</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceapp_1_1id_1a8f0ae852c5021ac2b355b72b31c29a0e" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>
@@ -154,9 +154,9 @@
         <location file="AppIdentifier.h" line="62" column="35" bodyfile="AppIdentifier.h" bodystart="62" bodyend="62"/>
         <referencedby refid="struct_app_model_1a97e7b0dbabbf20a8f35682722b8268be" compoundref="_app_model_8cpp" startline="304" endline="314">AppModel::addTab</referencedby>
         <referencedby refid="struct_app_model_1a4588cfbb14ca0c3ebb0f1b3ae593e02a" compoundref="_app_model_8cpp" startline="339" endline="357">AppModel::getTab</referencedby>
-        <referencedby refid="class_main_component_1a3e048893b0fb515c367cdc2dd69de164" compoundref="_main_component_8cpp" startline="572" endline="622">MainComponent::initialiseTabs</referencedby>
+        <referencedby refid="class_main_component_1a3e048893b0fb515c367cdc2dd69de164" compoundref="_main_component_8cpp" startline="558" endline="608">MainComponent::initialiseTabs</referencedby>
         <referencedby refid="struct_app_model_1af0eb41847a5138c20cca20a23d5d8283" compoundref="_app_model_8cpp" startline="316" endline="337">AppModel::removeTab</referencedby>
-        <referencedby refid="classterminal_1_1_tabs_1a729530e36f5facd240fdf7fc725f9be4" compoundref="_tabs_actions_8cpp" startline="133" endline="242">terminal::Tabs::restore</referencedby>
+        <referencedby refid="classterminal_1_1_tabs_1a729530e36f5facd240fdf7fc725f9be4" compoundref="_tabs_actions_8cpp" startline="117" endline="226">terminal::Tabs::restore</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceapp_1_1id_1a77bea35c2a1535e966a095d72de7e3c5" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>
@@ -172,9 +172,9 @@
         <inbodydescription>
         </inbodydescription>
         <location file="AppIdentifier.h" line="63" column="35" bodyfile="AppIdentifier.h" bodystart="63" bodyend="63"/>
-        <referencedby refid="classterminal_1_1_tabs_1a15a9e5789878b9646a8c026b94f33391" compoundref="_tabs_8cpp" startline="96" endline="128">terminal::Tabs::addNewTab</referencedby>
+        <referencedby refid="classterminal_1_1_tabs_1a15a9e5789878b9646a8c026b94f33391" compoundref="_tabs_8cpp" startline="72" endline="104">terminal::Tabs::addNewTab</referencedby>
         <referencedby refid="struct_app_model_1a97e7b0dbabbf20a8f35682722b8268be" compoundref="_app_model_8cpp" startline="304" endline="314">AppModel::addTab</referencedby>
-        <referencedby refid="classterminal_1_1_tabs_1a729530e36f5facd240fdf7fc725f9be4" compoundref="_tabs_actions_8cpp" startline="133" endline="242">terminal::Tabs::restore</referencedby>
+        <referencedby refid="classterminal_1_1_tabs_1a729530e36f5facd240fdf7fc725f9be4" compoundref="_tabs_actions_8cpp" startline="117" endline="226">terminal::Tabs::restore</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceapp_1_1id_1abcf86f0cdf896a33b56cd1dce582f219" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>
@@ -190,7 +190,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="AppIdentifier.h" line="64" column="35" bodyfile="AppIdentifier.h" bodystart="64" bodyend="64"/>
-        <referencedby refid="classterminal_1_1_tabs_1a729530e36f5facd240fdf7fc725f9be4" compoundref="_tabs_actions_8cpp" startline="133" endline="242">terminal::Tabs::restore</referencedby>
+        <referencedby refid="classterminal_1_1_tabs_1a729530e36f5facd240fdf7fc725f9be4" compoundref="_tabs_actions_8cpp" startline="117" endline="226">terminal::Tabs::restore</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceapp_1_1id_1a9a9123c0d63aa046272530c9b72b475b" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>
@@ -206,7 +206,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="AppIdentifier.h" line="65" column="35" bodyfile="AppIdentifier.h" bodystart="65" bodyend="65"/>
-        <referencedby refid="classterminal_1_1_panes_1abf5087515b417ec5b6c451256177268a" compoundref="_panes_8cpp" startline="530" endline="549">terminal::Panes::visibilityChanged</referencedby>
+        <referencedby refid="classterminal_1_1_panes_1abf5087515b417ec5b6c451256177268a" compoundref="_panes_8cpp" startline="454" endline="473">terminal::Panes::visibilityChanged</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceapp_1_1id_1af79af5c8c296799dd1db517fd2f8c1a9" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>
@@ -328,7 +328,7 @@
         <referencedby refid="class_status_bar_overlay_1a36a7a9d11215ee6c86c513af7a912c09" compoundref="_status_bar_overlay_8h" startline="119" endline="167">StatusBarOverlay::refresh</referencedby>
         <referencedby refid="struct_app_model_1a3a5760411f18cfceaba0bd6970a03490" compoundref="_app_model_8cpp" startline="379" endline="382">AppModel::setModalType</referencedby>
         <referencedby refid="class_status_bar_overlay_1a643e4131b67d2dd991c87b01f38543da" compoundref="_status_bar_overlay_8h" startline="103" endline="109">StatusBarOverlay::valueTreePropertyChanged</referencedby>
-        <referencedby refid="classwhelmed_1_1_component_1ab33051f05dd5e6585dc190b4fb0b733b" compoundref="_component_8cpp" startline="218" endline="288">whelmed::Component::valueTreePropertyChanged</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1ab33051f05dd5e6585dc190b4fb0b733b" compoundref="_component_8cpp" startline="235" endline="305">whelmed::Component::valueTreePropertyChanged</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceapp_1_1id_1aef98bdb7eb091fb3036b15e7e50a95a1" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>
@@ -366,7 +366,7 @@
         <referencedby refid="struct_app_model_1abe400a13f767af47666a679942ccf1c5" compoundref="_app_model_8cpp" startline="10" endline="38">AppModel::AppModel</referencedby>
         <referencedby refid="struct_app_model_1a148268915563bf57f4d8dd331bdc8af1" compoundref="_app_model_8cpp" startline="98" endline="101">AppModel::getFontFamily</referencedby>
         <referencedby refid="struct_app_model_1a2dae0bf677d786df54592add4b6f7653" compoundref="_app_model_8cpp" startline="103" endline="106">AppModel::setFontFamily</referencedby>
-        <referencedby refid="class_main_component_1ab981f8a50bedc6595965294c12796ac6" compoundref="_main_component_8cpp" startline="350" endline="394">MainComponent::valueTreePropertyChanged</referencedby>
+        <referencedby refid="class_main_component_1ab981f8a50bedc6595965294c12796ac6" compoundref="_main_component_8cpp" startline="349" endline="393">MainComponent::valueTreePropertyChanged</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceapp_1_1id_1a4affa12e1041cbac52db6146cfeb8669" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>
@@ -385,7 +385,7 @@
         <referencedby refid="struct_app_model_1abe400a13f767af47666a679942ccf1c5" compoundref="_app_model_8cpp" startline="10" endline="38">AppModel::AppModel</referencedby>
         <referencedby refid="struct_app_model_1a453da06259ecb0b83b6966771efe1f82" compoundref="_app_model_8cpp" startline="108" endline="111">AppModel::getFontSize</referencedby>
         <referencedby refid="struct_app_model_1a73228906a27ee0e0ddd749e02c55f507" compoundref="_app_model_8cpp" startline="113" endline="116">AppModel::setFontSize</referencedby>
-        <referencedby refid="class_main_component_1ab981f8a50bedc6595965294c12796ac6" compoundref="_main_component_8cpp" startline="350" endline="394">MainComponent::valueTreePropertyChanged</referencedby>
+        <referencedby refid="class_main_component_1ab981f8a50bedc6595965294c12796ac6" compoundref="_main_component_8cpp" startline="349" endline="393">MainComponent::valueTreePropertyChanged</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceapp_1_1id_1afcd800608ba4d7e58892302a68db73cb" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>
@@ -403,7 +403,7 @@
         <location file="AppIdentifier.h" line="81" column="35" bodyfile="AppIdentifier.h" bodystart="81" bodyend="81"/>
         <referencedby refid="struct_app_model_1ae1b2239313dc86889de4137db2b2a19a" compoundref="_app_model_8cpp" startline="223" endline="231">AppModel::getRendererType</referencedby>
         <referencedby refid="struct_app_model_1aae67bc48e392b48d0a269ad489a9d33e" compoundref="_app_model_8cpp" startline="233" endline="241">AppModel::setRendererType</referencedby>
-        <referencedby refid="class_main_component_1ab981f8a50bedc6595965294c12796ac6" compoundref="_main_component_8cpp" startline="350" endline="394">MainComponent::valueTreePropertyChanged</referencedby>
+        <referencedby refid="class_main_component_1ab981f8a50bedc6595965294c12796ac6" compoundref="_main_component_8cpp" startline="349" endline="393">MainComponent::valueTreePropertyChanged</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceapp_1_1id_1afc8dc371554c62051e97d078a3eaf20f" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>
@@ -453,7 +453,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="AppIdentifier.h" line="84" column="35" bodyfile="AppIdentifier.h" bodystart="84" bodyend="84"/>
-        <referencedby refid="classwhelmed_1_1_component_1a847d8cf7cee861b4177ab98de0423214" compoundref="_component_8cpp" startline="106" endline="160">whelmed::Component::openFile</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a847d8cf7cee861b4177ab98de0423214" compoundref="_component_8cpp" startline="125" endline="179">whelmed::Component::openFile</referencedby>
         <referencedby refid="classwhelmed_1_1_state_1a066e375d5110a198b77ed71b9bd15b82" compoundref="_state_8cpp" startline="7" endline="18">whelmed::State::State</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceapp_1_1id_1a5db3df1548793287f6642045bb68fe2a" prot="public" static="yes" mutable="no">
@@ -470,10 +470,10 @@
         <inbodydescription>
         </inbodydescription>
         <location file="AppIdentifier.h" line="85" column="35" bodyfile="AppIdentifier.h" bodystart="85" bodyend="85"/>
-        <referencedby refid="classterminal_1_1_tabs_1a15a9e5789878b9646a8c026b94f33391" compoundref="_tabs_8cpp" startline="96" endline="128">terminal::Tabs::addNewTab</referencedby>
-        <referencedby refid="classterminal_1_1_tabs_1a069f19bbf6ef63d9832d2a100bb485fd" compoundref="_tabs_8cpp" startline="164" endline="177">terminal::Tabs::globalFocusChanged</referencedby>
-        <referencedby refid="classwhelmed_1_1_component_1a847d8cf7cee861b4177ab98de0423214" compoundref="_component_8cpp" startline="106" endline="160">whelmed::Component::openFile</referencedby>
-        <referencedby refid="classterminal_1_1_processor_1a8f79b466828dc06141487adc1e95cac1" compoundref="_processor_8cpp" startline="250" endline="267">terminal::Processor::setDisplayName</referencedby>
+        <referencedby refid="classterminal_1_1_tabs_1a15a9e5789878b9646a8c026b94f33391" compoundref="_tabs_8cpp" startline="72" endline="104">terminal::Tabs::addNewTab</referencedby>
+        <referencedby refid="classterminal_1_1_tabs_1a069f19bbf6ef63d9832d2a100bb485fd" compoundref="_tabs_8cpp" startline="140" endline="150">terminal::Tabs::globalFocusChanged</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a847d8cf7cee861b4177ab98de0423214" compoundref="_component_8cpp" startline="125" endline="179">whelmed::Component::openFile</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a8f79b466828dc06141487adc1e95cac1" compoundref="_processor_8cpp" startline="213" endline="230">terminal::Processor::setDisplayName</referencedby>
         <referencedby refid="classwhelmed_1_1_state_1a066e375d5110a198b77ed71b9bd15b82" compoundref="_state_8cpp" startline="7" endline="18">whelmed::State::State</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceapp_1_1id_1a26da4c7c28fb31bec9a510aa30048c94" prot="public" static="yes" mutable="no">
@@ -490,8 +490,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="AppIdentifier.h" line="86" column="35" bodyfile="AppIdentifier.h" bodystart="86" bodyend="86"/>
-        <referencedby refid="classterminal_1_1_tabs_1ae255fc335cf4f9f8e71789831717b4bc" compoundref="_tabs_8cpp" startline="440" endline="461">terminal::Tabs::renameActiveTab</referencedby>
-        <referencedby refid="classterminal_1_1_tabs_1adb98c848c15e80ef2322b7b69bbc670a" compoundref="_tabs_8cpp" startline="179" endline="195">terminal::Tabs::valueChanged</referencedby>
+        <referencedby refid="classterminal_1_1_tabs_1ae255fc335cf4f9f8e71789831717b4bc" compoundref="_tabs_8cpp" startline="394" endline="415">terminal::Tabs::renameActiveTab</referencedby>
+        <referencedby refid="classterminal_1_1_tabs_1adb98c848c15e80ef2322b7b69bbc670a" compoundref="_tabs_8cpp" startline="152" endline="168">terminal::Tabs::valueChanged</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceapp_1_1id_1a8056e4239f4b22fce564a395bbbcb52a" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>
@@ -507,7 +507,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="AppIdentifier.h" line="87" column="35" bodyfile="AppIdentifier.h" bodystart="87" bodyend="87"/>
-        <referencedby refid="classwhelmed_1_1_component_1a847d8cf7cee861b4177ab98de0423214" compoundref="_component_8cpp" startline="106" endline="160">whelmed::Component::openFile</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a847d8cf7cee861b4177ab98de0423214" compoundref="_component_8cpp" startline="125" endline="179">whelmed::Component::openFile</referencedby>
         <referencedby refid="classwhelmed_1_1_state_1a066e375d5110a198b77ed71b9bd15b82" compoundref="_state_8cpp" startline="7" endline="18">whelmed::State::State</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceapp_1_1id_1a7767a9a308eb0efa1d502fefd0230c82" prot="public" static="yes" mutable="no">
@@ -560,7 +560,7 @@
         </inbodydescription>
         <location file="AppIdentifier.h" line="90" column="35" bodyfile="AppIdentifier.h" bodystart="90" bodyend="90"/>
         <referencedby refid="struct_app_model_1abe400a13f767af47666a679942ccf1c5" compoundref="_app_model_8cpp" startline="10" endline="38">AppModel::AppModel</referencedby>
-        <referencedby refid="classterminal_1_1_processor_1a55c3277d5426fc60a5318834bc630226" compoundref="_processor_8cpp" startline="39" endline="61">terminal::Processor::Processor</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a55c3277d5426fc60a5318834bc630226" compoundref="_processor_8cpp" startline="22" endline="44">terminal::Processor::Processor</referencedby>
         <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
         <referencedby refid="struct_app_model_1ad280d1276cb136d455b3703332875eb7" compoundref="_app_model_8cpp" startline="118" endline="121">AppModel::setScrollbackLines</referencedby>
       </memberdef>
@@ -581,7 +581,7 @@
         </inbodydescription>
         <location file="AppIdentifier.h" line="94" column="35" bodyfile="AppIdentifier.h" bodystart="94" bodyend="94"/>
         <referencedby refid="classlua_1_1_engine_1af028d4813e69b9b55d82639a3105cdb1" compoundref="_engine_8cpp" startline="138" endline="151">lua::Engine::reload</referencedby>
-        <referencedby refid="class_main_component_1ab981f8a50bedc6595965294c12796ac6" compoundref="_main_component_8cpp" startline="350" endline="394">MainComponent::valueTreePropertyChanged</referencedby>
+        <referencedby refid="class_main_component_1ab981f8a50bedc6595965294c12796ac6" compoundref="_main_component_8cpp" startline="349" endline="393">MainComponent::valueTreePropertyChanged</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceapp_1_1id_1aceb488e669313b802438e6366c5d36cd" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>
@@ -600,7 +600,7 @@
         </inbodydescription>
         <location file="AppIdentifier.h" line="98" column="35" bodyfile="AppIdentifier.h" bodystart="98" bodyend="98"/>
         <referencedby refid="classterminal_1_1_link_manager_1a31972897ab13d8ab670c6c5abd749e57" compoundref="_link_manager_8cpp" startline="139" endline="187">terminal::LinkManager::dispatch</referencedby>
-        <referencedby refid="classterminal_1_1_tabs_1ae3fe96dd1a1b0e229d60c7871b0a438b" compoundref="_tabs_8cpp" startline="504" endline="525">terminal::Tabs::valueTreePropertyChanged</referencedby>
+        <referencedby refid="classterminal_1_1_tabs_1ae3fe96dd1a1b0e229d60c7871b0a438b" compoundref="_tabs_8cpp" startline="458" endline="479">terminal::Tabs::valueTreePropertyChanged</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceapp_1_1id_1af4b579159e05cc121f8ba57c25cf6a42" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>
@@ -619,7 +619,7 @@
         </inbodydescription>
         <location file="AppIdentifier.h" line="102" column="35" bodyfile="AppIdentifier.h" bodystart="102" bodyend="102"/>
         <referencedby refid="classterminal_1_1_link_manager_1a31972897ab13d8ab670c6c5abd749e57" compoundref="_link_manager_8cpp" startline="139" endline="187">terminal::LinkManager::dispatch</referencedby>
-        <referencedby refid="classterminal_1_1_tabs_1ae3fe96dd1a1b0e229d60c7871b0a438b" compoundref="_tabs_8cpp" startline="504" endline="525">terminal::Tabs::valueTreePropertyChanged</referencedby>
+        <referencedby refid="classterminal_1_1_tabs_1ae3fe96dd1a1b0e229d60c7871b0a438b" compoundref="_tabs_8cpp" startline="458" endline="479">terminal::Tabs::valueTreePropertyChanged</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceapp_1_1id_1a85c1e78989b72416aac80246796ad6a1" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>
@@ -798,9 +798,9 @@
         </inbodydescription>
         <location file="AppIdentifier.h" line="113" column="35" bodyfile="AppIdentifier.h" bodystart="113" bodyend="113"/>
         <referencedby refid="classwhelmed_1_1_state_1a8aba6122fdb2ef5b27bf641ae5504dac" compoundref="_state_8cpp" startline="59" endline="79">whelmed::State::flush</referencedby>
-        <referencedby refid="classwhelmed_1_1_component_1a847d8cf7cee861b4177ab98de0423214" compoundref="_component_8cpp" startline="106" endline="160">whelmed::Component::openFile</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a847d8cf7cee861b4177ab98de0423214" compoundref="_component_8cpp" startline="125" endline="179">whelmed::Component::openFile</referencedby>
         <referencedby refid="classwhelmed_1_1_state_1a066e375d5110a198b77ed71b9bd15b82" compoundref="_state_8cpp" startline="7" endline="18">whelmed::State::State</referencedby>
-        <referencedby refid="classwhelmed_1_1_component_1ab33051f05dd5e6585dc190b4fb0b733b" compoundref="_component_8cpp" startline="218" endline="288">whelmed::Component::valueTreePropertyChanged</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1ab33051f05dd5e6585dc190b4fb0b733b" compoundref="_component_8cpp" startline="235" endline="305">whelmed::Component::valueTreePropertyChanged</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceapp_1_1id_1ae480d402f2c4854e10a819621b23f6d0" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>
@@ -817,7 +817,7 @@
         </inbodydescription>
         <location file="AppIdentifier.h" line="114" column="35" bodyfile="AppIdentifier.h" bodystart="114" bodyend="114"/>
         <referencedby refid="classwhelmed_1_1_state_1a8aba6122fdb2ef5b27bf641ae5504dac" compoundref="_state_8cpp" startline="59" endline="79">whelmed::State::flush</referencedby>
-        <referencedby refid="classwhelmed_1_1_component_1a847d8cf7cee861b4177ab98de0423214" compoundref="_component_8cpp" startline="106" endline="160">whelmed::Component::openFile</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a847d8cf7cee861b4177ab98de0423214" compoundref="_component_8cpp" startline="125" endline="179">whelmed::Component::openFile</referencedby>
         <referencedby refid="classwhelmed_1_1_state_1a066e375d5110a198b77ed71b9bd15b82" compoundref="_state_8cpp" startline="7" endline="18">whelmed::State::State</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceapp_1_1id_1abad3be16444df05531528d3e30735ebd" prot="public" static="yes" mutable="no">
@@ -835,9 +835,9 @@
         </inbodydescription>
         <location file="AppIdentifier.h" line="115" column="35" bodyfile="AppIdentifier.h" bodystart="115" bodyend="115"/>
         <referencedby refid="classwhelmed_1_1_input_handler_1aa315da395df2d2542ce768d3de8a19b3" compoundref="_input_handler_8cpp" startline="148" endline="258">whelmed::InputHandler::handleCursorMovement</referencedby>
-        <referencedby refid="classwhelmed_1_1_component_1a847d8cf7cee861b4177ab98de0423214" compoundref="_component_8cpp" startline="106" endline="160">whelmed::Component::openFile</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a847d8cf7cee861b4177ab98de0423214" compoundref="_component_8cpp" startline="125" endline="179">whelmed::Component::openFile</referencedby>
         <referencedby refid="classwhelmed_1_1_state_1a066e375d5110a198b77ed71b9bd15b82" compoundref="_state_8cpp" startline="7" endline="18">whelmed::State::State</referencedby>
-        <referencedby refid="classwhelmed_1_1_component_1ab33051f05dd5e6585dc190b4fb0b733b" compoundref="_component_8cpp" startline="218" endline="288">whelmed::Component::valueTreePropertyChanged</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1ab33051f05dd5e6585dc190b4fb0b733b" compoundref="_component_8cpp" startline="235" endline="305">whelmed::Component::valueTreePropertyChanged</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceapp_1_1id_1a044c24e7e6b652dbbd38a9ed2aaee9ed" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>
@@ -854,13 +854,13 @@
         </inbodydescription>
         <location file="AppIdentifier.h" line="116" column="35" bodyfile="AppIdentifier.h" bodystart="116" bodyend="116"/>
         <referencedby refid="classwhelmed_1_1_input_handler_1a13dbc7eda04a2bcbc873f86cdc7efb47" compoundref="_input_handler_8cpp" startline="282" endline="305">whelmed::InputHandler::copyAndClearSelection</referencedby>
-        <referencedby refid="classwhelmed_1_1_component_1abd70119f118c4b0e82842f01129d8c0a" compoundref="_component_8cpp" startline="182" endline="205">whelmed::Component::copySelection</referencedby>
-        <referencedby refid="classwhelmed_1_1_component_1a86f04f40924c6a7c074d4200c95f7377" compoundref="_component_8cpp" startline="168" endline="180">whelmed::Component::enterSelectionMode</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1abd70119f118c4b0e82842f01129d8c0a" compoundref="_component_8cpp" startline="201" endline="224">whelmed::Component::copySelection</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a86f04f40924c6a7c074d4200c95f7377" compoundref="_component_8cpp" startline="187" endline="199">whelmed::Component::enterSelectionMode</referencedby>
         <referencedby refid="classwhelmed_1_1_input_handler_1aa315da395df2d2542ce768d3de8a19b3" compoundref="_input_handler_8cpp" startline="148" endline="258">whelmed::InputHandler::handleCursorMovement</referencedby>
         <referencedby refid="classwhelmed_1_1_screen_1af535282cda6a80e3068faf89f3eab6c1" compoundref="_screen_8cpp" startline="444" endline="516">whelmed::Screen::mouseDown</referencedby>
         <referencedby refid="classwhelmed_1_1_screen_1a06d06abb9c9f4e8064a76fdf6b6ed71b" compoundref="_screen_8cpp" startline="518" endline="545">whelmed::Screen::mouseDrag</referencedby>
         <referencedby refid="classwhelmed_1_1_input_handler_1a5bc9a55e4a8dac5168d09cb444e31790" compoundref="_input_handler_8cpp" startline="260" endline="280">whelmed::InputHandler::toggleSelectionType</referencedby>
-        <referencedby refid="classwhelmed_1_1_component_1ab33051f05dd5e6585dc190b4fb0b733b" compoundref="_component_8cpp" startline="218" endline="288">whelmed::Component::valueTreePropertyChanged</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1ab33051f05dd5e6585dc190b4fb0b733b" compoundref="_component_8cpp" startline="235" endline="305">whelmed::Component::valueTreePropertyChanged</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceapp_1_1id_1a53f4e3db60bb5963c1ba6f10958e1c96" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>
@@ -877,13 +877,13 @@
         </inbodydescription>
         <location file="AppIdentifier.h" line="117" column="35" bodyfile="AppIdentifier.h" bodystart="117" bodyend="117"/>
         <referencedby refid="classwhelmed_1_1_input_handler_1a13dbc7eda04a2bcbc873f86cdc7efb47" compoundref="_input_handler_8cpp" startline="282" endline="305">whelmed::InputHandler::copyAndClearSelection</referencedby>
-        <referencedby refid="classwhelmed_1_1_component_1abd70119f118c4b0e82842f01129d8c0a" compoundref="_component_8cpp" startline="182" endline="205">whelmed::Component::copySelection</referencedby>
-        <referencedby refid="classwhelmed_1_1_component_1a86f04f40924c6a7c074d4200c95f7377" compoundref="_component_8cpp" startline="168" endline="180">whelmed::Component::enterSelectionMode</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1abd70119f118c4b0e82842f01129d8c0a" compoundref="_component_8cpp" startline="201" endline="224">whelmed::Component::copySelection</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a86f04f40924c6a7c074d4200c95f7377" compoundref="_component_8cpp" startline="187" endline="199">whelmed::Component::enterSelectionMode</referencedby>
         <referencedby refid="classwhelmed_1_1_input_handler_1aa315da395df2d2542ce768d3de8a19b3" compoundref="_input_handler_8cpp" startline="148" endline="258">whelmed::InputHandler::handleCursorMovement</referencedby>
         <referencedby refid="classwhelmed_1_1_screen_1af535282cda6a80e3068faf89f3eab6c1" compoundref="_screen_8cpp" startline="444" endline="516">whelmed::Screen::mouseDown</referencedby>
         <referencedby refid="classwhelmed_1_1_screen_1a06d06abb9c9f4e8064a76fdf6b6ed71b" compoundref="_screen_8cpp" startline="518" endline="545">whelmed::Screen::mouseDrag</referencedby>
         <referencedby refid="classwhelmed_1_1_input_handler_1a5bc9a55e4a8dac5168d09cb444e31790" compoundref="_input_handler_8cpp" startline="260" endline="280">whelmed::InputHandler::toggleSelectionType</referencedby>
-        <referencedby refid="classwhelmed_1_1_component_1ab33051f05dd5e6585dc190b4fb0b733b" compoundref="_component_8cpp" startline="218" endline="288">whelmed::Component::valueTreePropertyChanged</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1ab33051f05dd5e6585dc190b4fb0b733b" compoundref="_component_8cpp" startline="235" endline="305">whelmed::Component::valueTreePropertyChanged</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceapp_1_1id_1ae541c86458bee0db98858cb134c69379" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>
@@ -900,12 +900,12 @@
         </inbodydescription>
         <location file="AppIdentifier.h" line="118" column="35" bodyfile="AppIdentifier.h" bodystart="118" bodyend="118"/>
         <referencedby refid="classwhelmed_1_1_input_handler_1a13dbc7eda04a2bcbc873f86cdc7efb47" compoundref="_input_handler_8cpp" startline="282" endline="305">whelmed::InputHandler::copyAndClearSelection</referencedby>
-        <referencedby refid="classwhelmed_1_1_component_1abd70119f118c4b0e82842f01129d8c0a" compoundref="_component_8cpp" startline="182" endline="205">whelmed::Component::copySelection</referencedby>
-        <referencedby refid="classwhelmed_1_1_component_1a86f04f40924c6a7c074d4200c95f7377" compoundref="_component_8cpp" startline="168" endline="180">whelmed::Component::enterSelectionMode</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1abd70119f118c4b0e82842f01129d8c0a" compoundref="_component_8cpp" startline="201" endline="224">whelmed::Component::copySelection</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a86f04f40924c6a7c074d4200c95f7377" compoundref="_component_8cpp" startline="187" endline="199">whelmed::Component::enterSelectionMode</referencedby>
         <referencedby refid="classwhelmed_1_1_screen_1af535282cda6a80e3068faf89f3eab6c1" compoundref="_screen_8cpp" startline="444" endline="516">whelmed::Screen::mouseDown</referencedby>
         <referencedby refid="classwhelmed_1_1_screen_1a06d06abb9c9f4e8064a76fdf6b6ed71b" compoundref="_screen_8cpp" startline="518" endline="545">whelmed::Screen::mouseDrag</referencedby>
         <referencedby refid="classwhelmed_1_1_input_handler_1a5bc9a55e4a8dac5168d09cb444e31790" compoundref="_input_handler_8cpp" startline="260" endline="280">whelmed::InputHandler::toggleSelectionType</referencedby>
-        <referencedby refid="classwhelmed_1_1_component_1ab33051f05dd5e6585dc190b4fb0b733b" compoundref="_component_8cpp" startline="218" endline="288">whelmed::Component::valueTreePropertyChanged</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1ab33051f05dd5e6585dc190b4fb0b733b" compoundref="_component_8cpp" startline="235" endline="305">whelmed::Component::valueTreePropertyChanged</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceapp_1_1id_1ab2b4791778841d9e46a8ea36c17e4266" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>
@@ -922,12 +922,12 @@
         </inbodydescription>
         <location file="AppIdentifier.h" line="119" column="35" bodyfile="AppIdentifier.h" bodystart="119" bodyend="119"/>
         <referencedby refid="classwhelmed_1_1_input_handler_1a13dbc7eda04a2bcbc873f86cdc7efb47" compoundref="_input_handler_8cpp" startline="282" endline="305">whelmed::InputHandler::copyAndClearSelection</referencedby>
-        <referencedby refid="classwhelmed_1_1_component_1abd70119f118c4b0e82842f01129d8c0a" compoundref="_component_8cpp" startline="182" endline="205">whelmed::Component::copySelection</referencedby>
-        <referencedby refid="classwhelmed_1_1_component_1a86f04f40924c6a7c074d4200c95f7377" compoundref="_component_8cpp" startline="168" endline="180">whelmed::Component::enterSelectionMode</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1abd70119f118c4b0e82842f01129d8c0a" compoundref="_component_8cpp" startline="201" endline="224">whelmed::Component::copySelection</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a86f04f40924c6a7c074d4200c95f7377" compoundref="_component_8cpp" startline="187" endline="199">whelmed::Component::enterSelectionMode</referencedby>
         <referencedby refid="classwhelmed_1_1_screen_1af535282cda6a80e3068faf89f3eab6c1" compoundref="_screen_8cpp" startline="444" endline="516">whelmed::Screen::mouseDown</referencedby>
         <referencedby refid="classwhelmed_1_1_screen_1a06d06abb9c9f4e8064a76fdf6b6ed71b" compoundref="_screen_8cpp" startline="518" endline="545">whelmed::Screen::mouseDrag</referencedby>
         <referencedby refid="classwhelmed_1_1_input_handler_1a5bc9a55e4a8dac5168d09cb444e31790" compoundref="_input_handler_8cpp" startline="260" endline="280">whelmed::InputHandler::toggleSelectionType</referencedby>
-        <referencedby refid="classwhelmed_1_1_component_1ab33051f05dd5e6585dc190b4fb0b733b" compoundref="_component_8cpp" startline="218" endline="288">whelmed::Component::valueTreePropertyChanged</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1ab33051f05dd5e6585dc190b4fb0b733b" compoundref="_component_8cpp" startline="235" endline="305">whelmed::Component::valueTreePropertyChanged</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceapp_1_1id_1ae576c239b4056906a6e377c6362ec71e" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>

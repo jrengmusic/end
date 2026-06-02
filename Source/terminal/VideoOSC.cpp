@@ -96,27 +96,6 @@ static OscHeader parseOscHeader (const uint8_t* payload, int length) noexcept
 // OSC handlers
 // ============================================================================
 
-/**
- * @brief Handles OSC 0 / OSC 2 — window title change.
- *
- * Trims `dataLength` to avoid splitting a multi-byte UTF-8 sequence at the
- * boundary, then fires the `"title"` event with the raw bytes.
- *
- * @par Sequences
- * @code
- *   ESC ] 0 ; <title> BEL    — set icon name and window title
- *   ESC ] 2 ; <title> BEL    — set window title only
- * @endcode
- *
- * @param data        Pointer to the title bytes (after the `"0;"` or `"2;"` prefix).
- *                    Not null-terminated.
- * @param dataLength  Number of bytes in `data`.
- *
- * @note READER THREAD only.
- *
- * @see events
- * @see applyOSC()
- */
 void Video::handleOscTitle (const uint8_t* data, int dataLength) noexcept
 {
     // READER THREAD
@@ -195,40 +174,6 @@ void Video::handleOscCwd (const uint8_t* data, int dataLength) noexcept
     }
 }
 
-/**
- * @brief Handles OSC 52 — clipboard write.
- *
- * Decodes a base64-encoded clipboard payload and fires the `"clipboardChanged"`
- * event on the message thread.  The OSC 52 payload format is:
- * @code
- *   <selection> ; <base64-data>
- * @endcode
- * where `<selection>` is a string like `c` (clipboard) or `s0` (selection 0).
- * This implementation ignores the selection parameter and always writes to the
- * system clipboard via the callback.
- *
- * @par Sequence
- * @code
- *   ESC ] 52 ; c ; <base64> BEL    — write base64-decoded text to clipboard
- * @endcode
- *
- * @par Validation
- * - Payloads shorter than 3 bytes are silently ignored.
- * - If no `;` separator is found after the selection parameter, the payload
- *   is silently ignored.
- * - Malformed base64 (rejected by `juce::MemoryBlock::fromBase64Encoding`)
- *   is silently ignored.
- *
- * @param data        Pointer to the OSC 52 payload bytes (after `"52;"`).
- *                    Not null-terminated.
- * @param dataLength  Number of bytes in `data`.
- *
- * @note READER THREAD only.  The `"clipboardChanged"` event is dispatched
- *       to the message thread.
- *
- * @see events
- * @see applyOSC()
- */
 void Video::handleOscClipboard (const uint8_t* data, int dataLength) noexcept
 {
     if (dataLength > 2)
@@ -263,26 +208,6 @@ void Video::handleOscClipboard (const uint8_t* data, int dataLength) noexcept
     }
 }
 
-/**
- * @brief Handles OSC 9 — desktop notification (body only).
- *
- * The entire payload is treated as the notification body; title is empty.
- * Fires the `"desktopNotification"` event on the message thread.
- *
- * @par Sequence
- * @code
- *   ESC ] 9 ; <message> BEL
- * @endcode
- *
- * @param data        Pointer to the OSC 9 payload bytes (after "9;").
- *                    Not null-terminated.
- * @param dataLength  Number of bytes in `data`.
- *
- * @note READER THREAD only.  `"desktopNotification"` event dispatched via `callAsync`.
- *
- * @see events
- * @see applyOSC()
- */
 void Video::handleOscNotification (const uint8_t* data, int dataLength) noexcept
 {
     if (dataLength > 0 and events.contains (id::desktopNotification))
@@ -294,30 +219,6 @@ void Video::handleOscNotification (const uint8_t* data, int dataLength) noexcept
     }
 }
 
-/**
- * @brief Handles OSC 777 — desktop notification with title and body.
- *
- * Verifies the `notify;` prefix, then extracts title and body separated by `;`.
- * Fires the `"desktopNotification"` event on the message thread.
- *
- * @par Sequence
- * @code
- *   ESC ] 777 ; notify ; <title> ; <body> BEL
- * @endcode
- *
- * @par Validation
- * - Payloads shorter than 8 bytes are silently ignored.
- * - Payloads not beginning with `notify;` are silently ignored.
- *
- * @param data        Pointer to the OSC 777 payload bytes (after "777;").
- *                    Not null-terminated.
- * @param dataLength  Number of bytes in `data`.
- *
- * @note READER THREAD only.  `"desktopNotification"` event dispatched via `callAsync`.
- *
- * @see events
- * @see applyOSC()
- */
 void Video::handleOsc777 (const uint8_t* data, int dataLength) noexcept
 {
     // Format: notify;title;body

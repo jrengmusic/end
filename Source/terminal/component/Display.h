@@ -1,6 +1,6 @@
 #pragma once
 #include <JuceHeader.h>
-#include "PaneComponent.h"
+#include "PaneView.h"
 #include "../Session.h"
 #include "../Input.h"
 #include "../Mouse.h"
@@ -11,7 +11,8 @@ namespace terminal
 /*____________________________________________________________________________*/
 
 class Display
-    : public PaneComponent
+    : public PaneView
+    , public jam::ValueTree::ComponentWithID<Display>
     , public juce::KeyListener
     , public juce::ValueTree::Listener
 {
@@ -57,9 +58,8 @@ public:
 
     ~Display() override;
 
-    // PaneComponent interface
+    // PaneView interface
     juce::String getPaneType() const noexcept override;
-    juce::ValueTree getValueTree() noexcept override;
     void applyZoom (float zoom) noexcept override;
     void enterSelectionMode() noexcept override;
     void copySelection() noexcept override;
@@ -97,7 +97,7 @@ private:
     terminal::Processor& processor;
     terminal::Model& state;
 
-    std::unique_ptr<jam::ComponentAttachment> attachment;
+    jam::ValueTree::Attachment attachment;
 
     /** @brief Per-screen count of document tail lines Display laid down as the live region last tick.
      *  Internal transient — message thread only, never exposed. The live tail is dynamic

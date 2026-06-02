@@ -27,7 +27,6 @@
 */
 
 #include "MainComponent.h"
-#include <JamFontsBinaryData.h>
 
 /**
  * @brief Constructs MainComponent.
@@ -463,19 +462,6 @@ void MainComponent::registerActions()
     luaEngine.buildKeyMap (action);
 }
 
-/**
- * @brief Returns the pixel rect available for terminal panes after subtracting chrome.
- *
- * Subtracts: title bar (when windowButtons is enabled) and tab bar (when tabCount > 1).
- * Tab bar depth and orientation are derived from LookAndFeel and the configured tab position.
- * Terminal padding is NOT subtracted here — that is done inside Panes::cellsFromRect.
- *
- * @param windowWidth   Window pixel width.
- * @param windowHeight  Window pixel height.
- * @param tabCount      Number of tabs (determines tab bar visibility).
- * @return Content rect for the panes area.
- * @note MESSAGE THREAD.
- */
 juce::Rectangle<int> MainComponent::getContentRect (int windowWidth, int windowHeight, int tabCount) const noexcept
 {
     // windowWidth/windowHeight are MainComponent bounds (content area) —

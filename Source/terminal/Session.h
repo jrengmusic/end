@@ -134,6 +134,7 @@ public:
      * @param cwd      Initial working directory.  Empty = inherit.
      * @param seedEnv  Shell integration environment variable pairs.
      * @param uuid     Session UUID.  Empty = auto-generated.
+     * @param font     Font metrics used for the text editor.
      */
     Session (jam::Cell::Rectangle dims,
              const juce::String& shell,
@@ -154,6 +155,7 @@ public:
      * @param cwd    Initial working directory — written to Model.
      * @param shell  Shell program name (not stored in Model; reserved for future use).
      * @param uuid   Session UUID.  Empty = auto-generated.
+     * @param font   Font metrics used for the text editor.
      * @note MESSAGE THREAD.
      */
     Session (jam::Cell::Rectangle dims,
@@ -167,6 +169,18 @@ public:
      * @note MESSAGE THREAD.
      */
     ~Session();
+
+    /**
+     * @brief Grafts the SESSION tree (terminal::Model root) into the given PANE node.
+     *
+     * Creates a jam::ValueTree::Attachment that owns the graft for the lifetime of this
+     * Session. Destruction of Session destroys the Attachment, which ungrafts the
+     * SESSION tree from the PANE node automatically.
+     *
+     * @param paneNode  The PANE juce::ValueTree node to graft into. Must be valid.
+     * @note MESSAGE THREAD. Called by Panes after addLeaf / split.
+     */
+    void graftInto (juce::ValueTree paneNode);
 
     /**
      * @brief Creates the TTY via Processor::startTTY and starts the reader thread.
@@ -258,6 +272,9 @@ private:
     jam::CodeModel codeModel;                           ///< Document model — constructed before textEditor; outlives it.
     jam::CodeView textEditor;                           ///< Terminal viewport renderer — references codeModel.
     std::unique_ptr<terminal::Processor> processor;     ///< VT pipeline orchestrator — constructed last.
+
+    /** @brief RAII graft of the SESSION tree into the owning PANE node. Created by graftInto(). */
+    std::unique_ptr<jam::ValueTree::Attachment> sessionAttachment;
 
     /** @brief Resize coordinator — coalesces dimension changes, suspends/resumes Processor.
      *  Constructed in the constructor body after processor is valid. */

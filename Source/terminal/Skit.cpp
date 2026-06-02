@@ -47,19 +47,6 @@ void Skit::setCellSize (int widthPx, int heightPx) noexcept
 
 // =============================================================================
 
-/**
- * @brief Handles an END; filepath signal from any SKiT protocol envelope.
- *
- * Fires the `"previewFile"` event with the filepath, cursor row, cursor column,
- * and optional protocol bounds.  An empty filepath signals preview dismissal.
- *
- * @param filepath   Absolute path extracted after the END;/GEND; marker.  Empty = dismiss.
- * @param cols       Protocol-specified overlay width in cells; 0 = use config.
- * @param lines      Protocol-specified overlay height in cells; 0 = use config.
- * @param cursorRow  Cursor row at signal time (screen-relative).
- * @param cursorCol  Cursor column at signal time.
- * @note READER THREAD only.
- */
 void Skit::handleSkitFilepath (const juce::String& filepath, cell cols, cell lines,
                                 cell cursorRow, cell cursorCol) noexcept
 {

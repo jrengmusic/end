@@ -10,8 +10,8 @@
  *   ESC [ <params> <intermediates> <final>
  * @endcode
  *
- * where `<params>` is a semicolon-separated list of decimal integers,
- * `<intermediates>` is zero or more bytes in 0x20–0x2F, and `<final>` is a
+ * where \<params\> is a semicolon-separated list of decimal integers,
+ * \<intermediates\> is zero or more bytes in 0x20-0x2F, and \<final\> is a
  * single byte in 0x40–0x7E that identifies the command.
  *
  * @par Dispatch table
@@ -42,7 +42,7 @@
  * | X     | ECH           | `eraseCells()`           |
  * | Z     | CBT           | `cursorBackTab()`        |
  * | @     | ICH           | `shiftCellsRight()`      |
- * | `     | HPA           | `setCursorColumn()`      |
+ * | (backtick) | HPA      | `setCursorColumn()`      |
  * | a     | HPR           | `moveCursorForward()`    |
  * | d     | VPA           | `setCursorLine()`        |
  * | e     | VPR           | `moveCursorDown()`       |
@@ -238,84 +238,26 @@ void Video::applyCSI (const CSI& params, const uint8_t* inter, uint8_t interCoun
 // CSI Handlers — cursor
 // ============================================================================
 
-/**
- * @brief Handles `CSI Pn A` — Cursor Up (CUU).
- *
- * Moves the cursor up by `Pn` rows (default 1), clamped to the top of the
- * scrolling region.  Does not change the cursor column.
- *
- * @param params  CSI parameters.  `params.param(0, 1)` is the row count.
- *
- * @note READER THREAD only.
- *
- * @see cursorMoveUp()
- */
 void Video::moveCursorUp (const CSI& params) noexcept
 {
     cursorMoveUp (static_cast<int> (params.param (0, 1)));
 }
 
-/**
- * @brief Handles `CSI Pn B` — Cursor Down (CUD).
- *
- * Moves the cursor down by `Pn` rows (default 1).
- *
- * @param params  CSI parameters.  `params.param(0, 1)` is the row count.
- *
- * @note READER THREAD only.
- *
- * @see cursorMoveDown()
- */
 void Video::moveCursorDown (const CSI& params) noexcept
 {
     cursorMoveDown (static_cast<int> (params.param (0, 1)), effectiveClampBottom());
 }
 
-/**
- * @brief Handles `CSI Pn C` — Cursor Forward (CUF).
- *
- * Moves the cursor right by `Pn` columns (default 1), clamped to the right
- * margin (`cols - 1`).  Does not change the cursor row.
- *
- * @param params  CSI parameters.  `params.param(0, 1)` is the column count.
- *
- * @note READER THREAD only.
- *
- * @see cursorMoveForward()
- */
 void Video::moveCursorForward (const CSI& params) noexcept
 {
     cursorMoveForward (static_cast<int> (params.param (0, 1)), cols);
 }
 
-/**
- * @brief Handles `CSI Pn D` — Cursor Backward (CUB).
- *
- * Moves the cursor left by `Pn` columns (default 1), clamped to column 0.
- * Does not change the cursor row.
- *
- * @param params  CSI parameters.  `params.param(0, 1)` is the column count.
- *
- * @note READER THREAD only.
- *
- * @see cursorMoveBackward()
- */
 void Video::moveCursorBackward (const CSI& params) noexcept
 {
     cursorMoveBackward (static_cast<int> (params.param (0, 1)));
 }
 
-/**
- * @brief Handles `CSI Pn E` — Cursor Next Line (CNL).
- *
- * Moves the cursor down by `Pn` rows (default 1) and sets the column to 0.
- *
- * @param params  CSI parameters.  `params.param(0, 1)` is the row count.
- *
- * @note READER THREAD only.
- *
- * @see cursorMoveDown()
- */
 void Video::moveCursorNextLine (const CSI& params) noexcept
 {
     const int count { static_cast<int> (params.param (0, 1)) };
@@ -323,17 +265,6 @@ void Video::moveCursorNextLine (const CSI& params) noexcept
     cursorCol = 0_cell;
 }
 
-/**
- * @brief Handles `CSI Pn F` — Cursor Previous Line (CPL).
- *
- * Moves the cursor up by `Pn` rows (default 1) and sets the column to 0.
- *
- * @param params  CSI parameters.  `params.param(0, 1)` is the row count.
- *
- * @note READER THREAD only.
- *
- * @see cursorMoveUp()
- */
 void Video::moveCursorPrevLine (const CSI& params) noexcept
 {
     const int count { static_cast<int> (params.param (0, 1)) };
@@ -341,17 +272,6 @@ void Video::moveCursorPrevLine (const CSI& params) noexcept
     cursorCol = 0_cell;
 }
 
-/**
- * @brief Handles `CSI Pn I` — Cursor Forward Tabulation (CHT).
- *
- * Advances the cursor to the next tab stop `Pn` times (default 1).
- *
- * @param params  CSI parameters.  `params.param(0, 1)` is the tab count.
- *
- * @note READER THREAD only.
- *
- * @see nextTabStop()
- */
 void Video::cursorForwardTab (const CSI& params) noexcept
 {
     const int count { static_cast<int> (params.param (0, 1)) };
@@ -364,17 +284,6 @@ void Video::cursorForwardTab (const CSI& params) noexcept
     wrapPending = false;
 }
 
-/**
- * @brief Handles `CSI Pn Z` — Cursor Backward Tabulation (CBT).
- *
- * Moves the cursor to the previous tab stop `Pn` times (default 1).
- *
- * @param params  CSI parameters.  `params.param(0, 1)` is the tab count.
- *
- * @note READER THREAD only.
- *
- * @see prevTabStop()
- */
 void Video::cursorBackTab (const CSI& params) noexcept
 {
     const int count { static_cast<int> (params.param (0, 1)) };
@@ -387,19 +296,6 @@ void Video::cursorBackTab (const CSI& params) noexcept
     wrapPending = false;
 }
 
-/**
- * @brief Handles `CSI Pn G` — Cursor Horizontal Absolute (CHA).
- *
- * Sets the cursor column to `Pn - 1` (one-based input, zero-based internal),
- * clamped to `[0, cols - 1]`.  Clears the wrap-pending flag.
- *
- * @param params  CSI parameters.  `params.param(0, 1)` is the target column
- *                (one-based, default 1 → column 0).
- *
- * @note READER THREAD only.
- *
- * @see paramToIndex()
- */
 void Video::setCursorColumn (const CSI& params) noexcept
 {
     const int col { juce::jlimit (0, cols.value - 1, paramToIndex (params, 0, 1)) };
@@ -407,62 +303,16 @@ void Video::setCursorColumn (const CSI& params) noexcept
     wrapPending = false;
 }
 
-/**
- * @brief Handles `CSI Pr ; Pc H` / `CSI Pr ; Pc f` — Cursor Position (CUP / HVP).
- *
- * Sets the cursor to the absolute position (row, col), both one-based.
- * Respects origin mode (DECOM).
- *
- * @param params  CSI parameters.  `params.param(0, 1)` is the target row and
- *                `params.param(1, 1)` is the target column (both one-based,
- *                default 1 → row 0, column 0).
- *
- * @note READER THREAD only.
- *
- * @see moveCursorTo()
- * @see cursorSetPositionInOrigin()
- */
 void Video::setCursorPosition (const CSI& params) noexcept
 {
     moveCursorTo (cell (paramToIndex (params, 0, 1)), cell (paramToIndex (params, 1, 1)));
 }
 
-/**
- * @brief Handles `CSI Pn d` — Line Position Absolute (VPA).
- *
- * Sets the cursor row to `Pn - 1` (one-based input, zero-based internal),
- * preserving the current cursor column.
- *
- * @param params  CSI parameters.  `params.param(0, 1)` is the target row
- *                (one-based, default 1 → row 0).
- *
- * @note READER THREAD only.
- *
- * @see moveCursorTo()
- */
 void Video::setCursorLine (const CSI& params) noexcept
 {
     moveCursorTo (cell (paramToIndex (params, 0, 1)), cursorCol);
 }
 
-/**
- * @brief Moves the cursor to an absolute (row, col) position (zero-based).
- *
- * Internal helper used by `setCursorPosition()` and `setCursorLine()` after
- * converting from one-based CSI parameters.  Delegates to either
- * `cursorSetPositionInOrigin()` (when DECOM is active) or
- * `cursorSetPosition()` (normal mode).  Calls `calc()` after the move to
- * synchronise the cached scroll-region bottom.
- *
- * @param row  Zero-based target row.
- * @param col  Zero-based target column.
- *
- * @note READER THREAD only.
- *
- * @see cursorSetPosition()
- * @see cursorSetPositionInOrigin()
- * @see calc()
- */
 void Video::moveCursorTo (cell row, cell col) noexcept
 {
     if (originMode)
@@ -481,17 +331,6 @@ void Video::moveCursorTo (cell row, cell col) noexcept
 // CSI Handlers — scroll
 // ============================================================================
 
-/**
- * @brief Handles `CSI Pn S` — Scroll Up (SU).
- *
- * Scrolls the active scroll region upward via Grid.  Lines scrolled off the
- * top are discarded; blank lines are inserted at the bottom.  The cursor
- * position is not changed.
- *
- * @param params  CSI parameters.  `params.param(0, 1)` is the line count.
- *
- * @note READER THREAD only.
- */
 void Video::scrollUp (const CSI& params) noexcept
 {
     const int scrTop { scrollTop.value };
@@ -502,17 +341,6 @@ void Video::scrollUp (const CSI& params) noexcept
     scrollUpAndFill (scrTop, bottom, clampedCount);
 }
 
-/**
- * @brief Handles `CSI Pn T` — Scroll Down (SD).
- *
- * Scrolls the active scroll region downward via Grid.  Lines scrolled off the
- * bottom are discarded; blank lines are inserted at the top.  The cursor
- * position is not changed.
- *
- * @param params  CSI parameters.  `params.param(0, 1)` is the line count.
- *
- * @note READER THREAD only.
- */
 void Video::scrollDown (const CSI& params) noexcept
 {
     const auto scr    { activeScreen };
@@ -526,22 +354,6 @@ void Video::scrollDown (const CSI& params) noexcept
         scrollDownAndFill (scrTop, bottom);
 }
 
-/**
- * @brief Handles `CSI Pt ; Pb r` — Set Scrolling Region (DECSTBM).
- *
- * Sets the top and bottom margins of the scrolling region.  After setting the
- * region, the cursor is moved to the home position.
- *
- * @param params  CSI parameters.  `params.param(0, 1)` is the top margin
- *                (one-based) and `params.param(1, visibleRows)` is the bottom
- *                margin (one-based).
- *
- * @note READER THREAD only.
- *
- * @see cursorSetScrollRegion()
- * @see cursorResetScrollRegion()
- * @see calc()
- */
 void Video::setScrollRegion (const CSI& params) noexcept
 {
     const int vRows  { visibleRows.value };
@@ -566,19 +378,6 @@ void Video::setScrollRegion (const CSI& params) noexcept
 // CSI Handlers — report
 // ============================================================================
 
-/**
- * @brief Handles `CSI Pn n` — Device Status Report (DSR).
- *
- * Responds to terminal status queries from the host application.
- *
- * @param params  CSI parameters.  `params.param(0, 0)` selects the sub-command.
- *
- * @note READER THREAD only.  Responses are queued via `sendResponse()` and
- *       flushed after `process()` returns.
- *
- * @see sendResponse()
- * @see flushResponses()
- */
 void Video::reportCursorPosition (const CSI& params) noexcept
 {
     const auto modeValue { params.param (0, 0) };
@@ -595,13 +394,6 @@ void Video::reportCursorPosition (const CSI& params) noexcept
     }
 }
 
-/**
- * @brief Handles `CSI c` / `CSI ? c` — Device Attributes (DA1 / DA2).
- *
- * @param isPrivate  `true` if the sequence had a `>` intermediate (DA2).
- *
- * @note READER THREAD only.
- */
 void Video::reportDeviceAttributes (bool isPrivate) noexcept
 {
     if (isPrivate)

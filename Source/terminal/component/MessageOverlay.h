@@ -108,8 +108,7 @@ public:
      * grid padding so they align with the actual grid edges rather than the
      * raw window edge.
      *
-     * @param cols    Current terminal column count (cell units).
-     * @param rows    Current terminal row count (cell units).
+     * @param dims    Current terminal dimensions (cols × rows in cell units).
      * @param padTop    Grid padding — top edge in logical pixels.
      * @param padRight  Grid padding — right edge in logical pixels.
      * @param padBottom Grid padding — bottom edge in logical pixels.

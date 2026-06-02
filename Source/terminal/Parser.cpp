@@ -44,40 +44,11 @@ namespace terminal
 // Public API
 // ============================================================================
 
-/**
- * @brief Constructs the Parser, binding it to a Video reference for direct action dispatch.
- *
- * Stores a reference to `video` for use throughout the parsing lifetime.
- * The `DispatchTable` member is default-constructed here, which populates the
- * full `(ParserState, byte) → Transition` lookup table.
- *
- * @param video  VT command processor.  All decoded semantic actions
- *               (print, applyControlCode, applyCSI, …) are called directly on
- *               this reference on the reader thread.
- *
- * @note MESSAGE THREAD — called before the reader thread starts.
- *
- * @see Parser.h
- */
 Parser::Parser (Video& video) noexcept
     : video (video)
 {
 }
 
-/**
- * @brief Processes a block of raw PTY bytes through the VT state machine.
- *
- * This is the hot path.  The method iterates over `[data, data+length)` and
- * routes each byte through the DispatchTable to `processTransition()`.
- *
- * @param data    Pointer to the first byte of the input buffer.
- *                Must not be null when `length > 0`.
- * @param length  Number of bytes to process.  Zero is a no-op.
- *
- * @note READER THREAD only.  Must not be called concurrently.
- *
- * @see processTransition()
- */
 void Parser::process (const uint8_t* data, size_t length) noexcept
 {
     size_t i { 0 };
@@ -91,28 +62,6 @@ void Parser::process (const uint8_t* data, size_t length) noexcept
     }
 }
 
-/**
- * @brief Applies a state transition: exit action → transition action → entry action.
- *
- * Implements the two-phase transition model for every byte that produces
- * a non-trivial result:
- *
- * 1. Calls `performAction (transition.action, byte)` unconditionally.
- * 2. If `transition.nextState != currentState`, calls
- *    `performEntryAction (transition.nextState)` to initialise the new
- *    state's accumulators, then updates `currentState`.
- *
- * When the state does not change (self-transition), only step 1 runs.
- *
- * @param byte        The input byte that triggered the transition.
- * @param transition  The `{nextState, action}` pair returned by `dispatchTable.get()`.
- *
- * @note READER THREAD only.
- *
- * @see performAction()
- * @see performEntryAction()
- * @see DispatchTable.h
- */
 void Parser::processTransition (uint8_t byte, const Transition& transition) noexcept
 {
     if (transition.nextState != currentState)

@@ -694,10 +694,10 @@ private:
      *
      * Text keys are the set of keys that produce printable ASCII characters
      * in the CSI u protocol spec: a-z (JUCE codes A-Z), 0-9, and the
-     * punctuation keys: ` - = [ ] \\ ; ' , . / and space.
+     * punctuation keys: (backtick) - = [ ] \\ ; ' , . / and space.
      *
      * @param code  JUCE key code.
-     * @return `true` if the key is an ASCII text key.
+     * @return @c true if the key is an ASCII text key.
      */
     static inline bool isTextKey (int code) noexcept
     {
@@ -734,11 +734,11 @@ private:
      * @brief Builds the escape sequence for an arrow key press.
      *
      * Without modifiers:
-     * - Normal cursor mode: `CSI <final>`  (e.g. `\x1b[A`)
-     * - Application cursor mode: `SS3 <final>` (e.g. `\x1bOA`)
+     * - Normal cursor mode: CSI \<final\>  (e.g. \\x1b[A)
+     * - Application cursor mode: SS3 \<final\> (e.g. \\x1bOA)
      *
-     * With modifiers: always `CSI 1 ; N <final>` regardless of cursor mode
-     * (e.g. Shift+Up → `\x1b[1;2A`).
+     * With modifiers: always CSI 1 ; N \<final\> regardless of cursor mode
+     * (e.g. Shift+Up: \\x1b[1;2A).
      *
      * @param finalChar       The letter identifying the direction: A/B/C/D.
      * @param mods            Active modifier keys.

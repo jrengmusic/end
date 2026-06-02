@@ -73,29 +73,6 @@ void Video::restoreCursor (int scr) noexcept
 // VT Handler: ESC dispatch
 // ============================================================================
 
-/**
- * @brief Handles ESC sequences with no intermediate bytes.
- *
- * Covers the most common two-byte ESC sequences.  The final byte selects the
- * action:
- *
- * | Final | Name  | Action                                                       |
- * |-------|-------|--------------------------------------------------------------|
- * | 'D'   | IND   | Index — line feed without CR (scroll if at bottom)           |
- * | 'E'   | NEL   | Next Line — CR + line feed (scroll if at bottom)             |
- * | 'H'   | HTS   | Horizontal Tab Set — set tab stop at current column          |
- * | 'M'   | RI    | Reverse Index — move cursor up, scroll down if at top        |
- * | 'c'   | RIS   | Reset to Initial State — full terminal reset                 |
- *
- * @param scr        Target screen buffer (normal or alternate).
- * @param finalByte  The ESC final byte (0x30–0x7E).
- *
- * @note READER THREAD only.
- *
- * @see cursorGoToNextLine()
- * @see setTabStop()
- * @see reset()
- */
 void Video::escDispatchNoIntermediate (int scr, uint8_t finalByte) noexcept
 {
     switch (finalByte)
@@ -186,27 +163,6 @@ void Video::escDispatchNoIntermediate (int scr, uint8_t finalByte) noexcept
     }
 }
 
-/**
- * @brief Handles ESC sequences that designate a character set (G0–G3 slots).
- *
- * Intermediate bytes 0x28–0x2B select the target charset slot:
- * - `(` (0x28) → G0
- * - `)` (0x29) → G1
- * - `*` (0x2A) → G2
- * - `+` (0x2B) → G3
- *
- * The final byte selects the character set to load into that slot:
- * - `B` → ASCII (ISO 646 US)
- * - `0` → DEC Special Graphics (VT100 line-drawing characters)
- *
- * @param interByte  The intermediate byte (`(`, `)`, `*`, or `+`).
- * @param finalByte  The charset designator byte (`B`, `0`, etc.).
- *
- * @note READER THREAD only.
- *
- * @see useLineDrawing
- * @see translateCharset()
- */
 void Video::escDispatchCharset (uint8_t interByte, uint8_t finalByte) noexcept
 {
     if (interByte == '(')
@@ -220,21 +176,6 @@ void Video::escDispatchCharset (uint8_t interByte, uint8_t finalByte) noexcept
     }
 }
 
-/**
- * @brief Handles DEC-private ESC sequences with intermediate byte `#`.
- *
- * Currently implements only DECALN (DEC Screen Alignment Test, ESC # 8),
- * which fills the entire visible screen with the letter `E` and homes the
- * cursor.  DECALN is used by terminal conformance tests to verify that all
- * cells are addressable and that the screen geometry is correct.
- *
- * Each cell is written directly to Grid via getWritePointer.
- *
- * @param scr        Target screen buffer (normal or alternate).
- * @param finalByte  The ESC final byte following `#`.
- *
- * @note READER THREAD only.
- */
 void Video::escDispatchDEC (int scr, uint8_t finalByte) noexcept
 {
     if (finalByte == '8')
@@ -259,29 +200,6 @@ void Video::escDispatchDEC (int scr, uint8_t finalByte) noexcept
     }
 }
 
-/**
- * @brief Dispatches a complete ESC sequence to the appropriate sub-handler.
- *
- * Called by `performAction()` when the `escDispatch` action fires.  Routes
- * based on the number and value of intermediate bytes:
- *
- * | Condition                          | Handler                      |
- * |------------------------------------|------------------------------|
- * | `interCount == 0`                  | `escDispatchNoIntermediate()` |
- * | `interCount == 1 && inter[0]=='('` | `escDispatchCharset()`       |
- * | `interCount == 1 && inter[0]=='#'` | `escDispatchDEC()`           |
- * | Other                              | silently ignored             |
- *
- * @param inter              Pointer to the intermediate byte buffer.
- * @param interCount         Number of valid bytes in `inter`.
- * @param finalByte          The ESC final byte (0x30–0x7E).
- *
- * @note READER THREAD only.
- *
- * @see escDispatchNoIntermediate()
- * @see escDispatchCharset()
- * @see escDispatchDEC()
- */
 void Video::applyESC (const uint8_t* inter, uint8_t interCount, uint8_t finalByte) noexcept
 {
     const auto scr { activeScreen };

@@ -17,7 +17,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/component/Display.h" line="122" column="17" bodyfile="terminal/component/Display.h" bodystart="122" bodyend="-1"/>
-        <referencedby refid="structterminal_1_1_display_1_1_config_listener_1a10c2d53b02019034a43005814278a391" compoundref="_display_8cpp" startline="85" endline="89">valueTreePropertyChanged</referencedby>
+        <referencedby refid="structterminal_1_1_display_1_1_config_listener_1a10c2d53b02019034a43005814278a391" compoundref="_display_8cpp" startline="82" endline="86">valueTreePropertyChanged</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structterminal_1_1_display_1_1_config_listener_1a902ac720324f356942feb46e3c0c208d" prot="private" static="no" mutable="no">
         <type>juce::ValueTree</type>
@@ -32,9 +32,9 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/component/Display.h" line="123" column="25" bodyfile="terminal/component/Display.h" bodystart="123" bodyend="-1"/>
-        <referencedby refid="structterminal_1_1_display_1_1_config_listener_1aff3bc9ae4a92be4a5768f72f09d3af89" compoundref="_display_8cpp" startline="74" endline="78">start</referencedby>
-        <referencedby refid="structterminal_1_1_display_1_1_config_listener_1a3f4b874e3064af96f4ada315eaa4e470" compoundref="_display_8cpp" startline="80" endline="83">stop</referencedby>
-        <referencedby refid="structterminal_1_1_display_1_1_config_listener_1a10c2d53b02019034a43005814278a391" compoundref="_display_8cpp" startline="85" endline="89">valueTreePropertyChanged</referencedby>
+        <referencedby refid="structterminal_1_1_display_1_1_config_listener_1aff3bc9ae4a92be4a5768f72f09d3af89" compoundref="_display_8cpp" startline="71" endline="75">start</referencedby>
+        <referencedby refid="structterminal_1_1_display_1_1_config_listener_1a3f4b874e3064af96f4ada315eaa4e470" compoundref="_display_8cpp" startline="77" endline="80">stop</referencedby>
+        <referencedby refid="structterminal_1_1_display_1_1_config_listener_1a10c2d53b02019034a43005814278a391" compoundref="_display_8cpp" startline="82" endline="86">valueTreePropertyChanged</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">
@@ -55,7 +55,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/component/Display.h" line="118" column="18" bodyfile="terminal/component/Display.h" bodystart="118" bodyend="118"/>
-        <references refid="classterminal_1_1_display_1aba2b9e271d38ad4e5268333aaac31d8d" compoundref="_display_8cpp" startline="3" endline="36">terminal::Display::Display</references>
+        <references refid="classterminal_1_1_display_1aba2b9e271d38ad4e5268333aaac31d8d" compoundref="_display_8cpp" startline="3" endline="34">terminal::Display::Display</references>
       </memberdef>
       <memberdef kind="function" id="structterminal_1_1_display_1_1_config_listener_1aff3bc9ae4a92be4a5768f72f09d3af89" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
         <type>void</type>
@@ -69,7 +69,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="119" column="14" bodyfile="terminal/component/Display.cpp" bodystart="74" bodyend="78"/>
+        <location file="terminal/component/Display.h" line="119" column="14" bodyfile="terminal/component/Display.cpp" bodystart="71" bodyend="75"/>
         <references refid="structterminal_1_1_display_1_1_config_listener_1a902ac720324f356942feb46e3c0c208d" compoundref="_display_8h" startline="123">appState</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
       </memberdef>
@@ -85,7 +85,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="120" column="14" bodyfile="terminal/component/Display.cpp" bodystart="80" bodyend="83"/>
+        <location file="terminal/component/Display.h" line="120" column="14" bodyfile="terminal/component/Display.cpp" bodystart="77" bodyend="80"/>
         <references refid="structterminal_1_1_display_1_1_config_listener_1a902ac720324f356942feb46e3c0c208d" compoundref="_display_8h" startline="123">appState</references>
       </memberdef>
     </sectiondef>
@@ -110,7 +110,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="124" column="14" bodyfile="terminal/component/Display.cpp" bodystart="85" bodyend="89"/>
+        <location file="terminal/component/Display.h" line="124" column="14" bodyfile="terminal/component/Display.cpp" bodystart="82" bodyend="86"/>
         <references refid="structterminal_1_1_display_1_1_config_listener_1a902ac720324f356942feb46e3c0c208d" compoundref="_display_8h" startline="123">appState</references>
         <references refid="structterminal_1_1_display_1_1_config_listener_1a800c7d8dc8dd5f5b3aff7b1b7b0da769" compoundref="_display_8h" startline="122">display</references>
         <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682cac0af77cf8294ff93a5cdb2963ca9f038">tree</references>
@@ -134,365 +134,380 @@
       </node>
     </inheritancegraph>
     <collaborationgraph>
-      <node id="56">
+      <node id="59">
         <label>GraphemeSegmentationResult</label>
         <link refid="struct_grapheme_segmentation_result"/>
       </node>
       <node id="4">
-        <label>PaneComponent</label>
-        <link refid="class_pane_component"/>
+        <label>PaneView</label>
+        <link refid="class_pane_view"/>
         <childnode refid="5" relation="public-inheritance">
         </childnode>
       </node>
-      <node id="39">
+      <node id="42">
         <label>TTY</label>
         <link refid="class_t_t_y"/>
-        <childnode refid="40" relation="public-inheritance">
+        <childnode refid="43" relation="public-inheritance">
         </childnode>
-        <childnode refid="41" relation="usage">
+        <childnode refid="44" relation="usage">
           <edgelabel>events</edgelabel>
         </childnode>
-        <childnode refid="42" relation="usage">
+        <childnode refid="45" relation="usage">
           <edgelabel>shellIntegrationEnv</edgelabel>
         </childnode>
       </node>
-      <node id="74">
+      <node id="78">
         <label>Value</label>
         <link refid="classValue" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag"/>
       </node>
-      <node id="8">
+      <node id="10">
         <label>Value::Listener</label>
         <link refid="classValue_1_1Listener" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag"/>
       </node>
-      <node id="16">
+      <node id="18">
         <label>jam::AnyMap</label>
         <link refid="classjam_1_1_any_map" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="17" relation="usage">
+        <childnode refid="19" relation="usage">
           <edgelabel>entries</edgelabel>
         </childnode>
-        <childnode refid="19" relation="usage">
+        <childnode refid="21" relation="usage">
           <edgelabel>types</edgelabel>
         </childnode>
       </node>
-      <node id="52">
+      <node id="55">
         <label>jam::Block&lt; jam::Row &gt;</label>
         <link refid="classjam_1_1_block" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="50">
+      <node id="53">
         <label>jam::Buffer&lt; jam::Row &gt;</label>
         <link refid="classjam_1_1_buffer" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="47">
+      <node id="50">
         <label>jam::BufferSPSC</label>
         <link refid="classjam_1_1_buffer_s_p_s_c" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="13" relation="usage">
+        <childnode refid="15" relation="usage">
           <edgelabel>validStart</edgelabel>
         </childnode>
       </node>
-      <node id="28">
+      <node id="31">
         <label>jam::CaretComponent</label>
         <link refid="classjam_1_1_caret_component" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="26" relation="usage">
+        <childnode refid="29" relation="usage">
           <edgelabel>font</edgelabel>
         </childnode>
       </node>
-      <node id="53">
+      <node id="56">
         <label>jam::Cell</label>
         <link refid="structjam_1_1_cell" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="48">
+      <node id="51">
         <label>jam::CodeLine</label>
         <link refid="structjam_1_1_code_line" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="22">
+      <node id="24">
         <label>jam::CodeModel</label>
         <link refid="classjam_1_1_code_model" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="23" relation="usage">
+        <childnode refid="25" relation="usage">
           <edgelabel>screens</edgelabel>
         </childnode>
       </node>
-      <node id="24">
+      <node id="26">
         <label>jam::CodeView</label>
         <link refid="classjam_1_1_code_view" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="25" relation="usage">
+        <childnode refid="27" relation="public-inheritance">
+        </childnode>
+        <childnode refid="28" relation="usage">
           <edgelabel>properties</edgelabel>
         </childnode>
-        <childnode refid="26" relation="usage">
+        <childnode refid="29" relation="usage">
           <edgelabel>font</edgelabel>
         </childnode>
-        <childnode refid="22" relation="usage">
+        <childnode refid="24" relation="usage">
           <edgelabel>document</edgelabel>
         </childnode>
-        <childnode refid="27" relation="usage">
+        <childnode refid="30" relation="usage">
           <edgelabel>caret</edgelabel>
         </childnode>
-        <childnode refid="29" relation="usage">
+        <childnode refid="32" relation="usage">
           <edgelabel>stateAttachment</edgelabel>
         </childnode>
-        <childnode refid="30" relation="usage">
+        <childnode refid="33" relation="usage">
           <edgelabel>contentView</edgelabel>
         </childnode>
-        <childnode refid="32" relation="usage">
+        <childnode refid="35" relation="usage">
           <edgelabel>viewport</edgelabel>
         </childnode>
-        <childnode refid="34" relation="usage">
+        <childnode refid="37" relation="usage">
           <edgelabel>arrangement</edgelabel>
         </childnode>
-        <childnode refid="35" relation="usage">
+        <childnode refid="38" relation="usage">
           <edgelabel>glyphGraphics</edgelabel>
         </childnode>
       </node>
-      <node id="33">
+      <node id="36">
         <label>jam::CodeView::CodeViewViewport</label>
         <link refid="structjam_1_1_code_view_1_1_code_view_viewport" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="24" relation="usage">
+        <childnode refid="26" relation="usage">
           <edgelabel>owner</edgelabel>
         </childnode>
       </node>
-      <node id="31">
+      <node id="34">
         <label>jam::CodeView::ContentView</label>
         <link refid="structjam_1_1_code_view_1_1_content_view" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="24" relation="usage">
+        <childnode refid="26" relation="usage">
           <edgelabel>owner</edgelabel>
         </childnode>
       </node>
       <node id="29">
-        <label>jam::ComponentAttachment</label>
-        <link refid="classjam_1_1_component_attachment" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="15" relation="usage">
-          <edgelabel>parentTree</edgelabel>
-        </childnode>
-      </node>
-      <node id="26">
         <label>jam::Font</label>
         <link refid="structjam_1_1_font" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="41">
+      <node id="44">
         <label>jam::Function::Map&lt; juce::Identifier, void &gt;</label>
         <link refid="structjam_1_1_function_1_1_map" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="15">
+      <node id="17">
         <label>jam::Model</label>
         <link refid="classjam_1_1_model" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="16" relation="usage">
+        <childnode refid="18" relation="usage">
           <edgelabel>params</edgelabel>
         </childnode>
-        <childnode refid="20" relation="usage">
+        <childnode refid="22" relation="usage">
           <edgelabel>uniqueNodeMap</edgelabel>
         </childnode>
       </node>
-      <node id="23">
+      <node id="25">
         <label>jam::Owner&lt; jam::CodeModel::Screen &gt;</label>
         <link refid="classjam_1_1_owner" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="73">
+      <node id="77">
         <label>jam::Resizer</label>
         <link refid="classjam_1_1_resizer" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="41" relation="usage">
+        <childnode refid="44" relation="usage">
           <edgelabel>triggers</edgelabel>
         </childnode>
       </node>
-      <node id="34">
+      <node id="32">
+        <label>jam::ValueTree::Attachment</label>
+        <link refid="classjam_1_1_value_tree_1_1_attachment" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+      <node id="7">
+        <label>jam::ValueTree::Component</label>
+        <link refid="structjam_1_1_value_tree_1_1_component" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+      <node id="27">
+        <label>jam::ValueTree::ComponentWithID&lt; CodeView &gt;</label>
+        <link refid="structjam_1_1_value_tree_1_1_component_with_i_d" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="7" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>jam::ValueTree::ComponentWithID&lt; Display &gt;</label>
+        <link refid="structjam_1_1_value_tree_1_1_component_with_i_d" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="7" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="37">
         <label>jam::glyph::Arrangement</label>
         <link refid="classjam_1_1glyph_1_1_arrangement" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="35">
+      <node id="38">
         <label>jam::glyph::Graphics</label>
         <link refid="classjam_1_1glyph_1_1_graphics" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
       <node id="5">
         <label>juce::Component</label>
       </node>
-      <node id="6">
+      <node id="8">
         <label>juce::KeyListener</label>
       </node>
-      <node id="40">
+      <node id="43">
         <label>juce::Thread</label>
       </node>
       <node id="2">
         <label>juce::ValueTree::Listener</label>
       </node>
-      <node id="67">
+      <node id="70">
         <label>std::array&lt; StateRow, STATE_COUNT &gt;</label>
       </node>
-      <node id="71">
+      <node id="74">
         <label>std::array&lt; int, 2 &gt;</label>
       </node>
-      <node id="76">
+      <node id="79">
         <label>std::array&lt; int, Map::Screen::count &gt;</label>
       </node>
-      <node id="51">
-        <label>std::array&lt; jam::Block&lt; jam::Row &gt;, 2 &gt;</label>
-        <childnode refid="52" relation="usage">
-          <edgelabel>elements</edgelabel>
-        </childnode>
-      </node>
-      <node id="25">
-        <label>std::array&lt; juce::Identifier, propertyCount &gt;</label>
-      </node>
       <node id="54">
-        <label>std::array&lt; terminal::Video::SavedCursor, 2 &gt;</label>
+        <label>std::array&lt; jam::Block&lt; jam::Row &gt;, 2 &gt;</label>
         <childnode refid="55" relation="usage">
           <edgelabel>elements</edgelabel>
         </childnode>
       </node>
-      <node id="69">
+      <node id="28">
+        <label>std::array&lt; juce::Identifier, propertyCount &gt;</label>
+      </node>
+      <node id="57">
+        <label>std::array&lt; terminal::Video::SavedCursor, 2 &gt;</label>
+        <childnode refid="58" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+      <node id="72">
         <label>std::array&lt; uint16_t, MAX_PARAMS &gt;</label>
       </node>
-      <node id="70">
+      <node id="73">
         <label>std::array&lt; uint32_t, 2 *maxKeyboardStackDepth &gt;</label>
       </node>
-      <node id="13">
+      <node id="15">
         <label>std::atomic&lt; int &gt;</label>
       </node>
-      <node id="45">
+      <node id="48">
         <label>std::basic_string&lt; Char &gt;</label>
       </node>
-      <node id="43">
+      <node id="46">
         <label>std::pair&lt; std::string, std::string &gt;</label>
-        <childnode refid="44" relation="usage">
+        <childnode refid="47" relation="usage">
           <edgelabel>first_type</edgelabel>
           <edgelabel>second_type</edgelabel>
         </childnode>
       </node>
-      <node id="44">
+      <node id="47">
         <label>std::string</label>
-        <childnode refid="45" relation="public-inheritance">
+        <childnode refid="48" relation="public-inheritance">
         </childnode>
       </node>
-      <node id="38">
+      <node id="41">
         <label>std::unique_ptr&lt; TTY &gt;</label>
-        <childnode refid="39" relation="usage">
-          <edgelabel>ptr</edgelabel>
-        </childnode>
-      </node>
-      <node id="27">
-        <label>std::unique_ptr&lt; jam::CaretComponent &gt;</label>
-        <childnode refid="28" relation="usage">
-          <edgelabel>ptr</edgelabel>
-        </childnode>
-      </node>
-      <node id="32">
-        <label>std::unique_ptr&lt; jam::CodeView::CodeViewViewport &gt;</label>
-        <childnode refid="33" relation="usage">
+        <childnode refid="42" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
       <node id="30">
-        <label>std::unique_ptr&lt; jam::CodeView::ContentView &gt;</label>
+        <label>std::unique_ptr&lt; jam::CaretComponent &gt;</label>
         <childnode refid="31" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
-      <node id="75">
-        <label>std::unique_ptr&lt; jam::ComponentAttachment &gt;</label>
-        <childnode refid="29" relation="usage">
+      <node id="35">
+        <label>std::unique_ptr&lt; jam::CodeView::CodeViewViewport &gt;</label>
+        <childnode refid="36" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
-      <node id="72">
+      <node id="33">
+        <label>std::unique_ptr&lt; jam::CodeView::ContentView &gt;</label>
+        <childnode refid="34" relation="usage">
+          <edgelabel>ptr</edgelabel>
+        </childnode>
+      </node>
+      <node id="76">
         <label>std::unique_ptr&lt; jam::Resizer &gt;</label>
-        <childnode refid="73" relation="usage">
+        <childnode refid="77" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
-      <node id="21">
+      <node id="75">
+        <label>std::unique_ptr&lt; jam::ValueTree::Attachment &gt;</label>
+        <childnode refid="32" relation="usage">
+          <edgelabel>ptr</edgelabel>
+        </childnode>
+      </node>
+      <node id="23">
         <label>std::unique_ptr&lt; std::atomic&lt; int &gt;[]&gt;</label>
-        <childnode refid="13" relation="usage">
+        <childnode refid="15" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
-      <node id="64">
+      <node id="67">
         <label>std::unique_ptr&lt; terminal::Parser &gt;</label>
-        <childnode refid="65" relation="usage">
+        <childnode refid="68" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
-      <node id="36">
+      <node id="39">
         <label>std::unique_ptr&lt; terminal::Processor &gt;</label>
-        <childnode refid="37" relation="usage">
+        <childnode refid="40" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
-      <node id="11">
+      <node id="13">
         <label>std::unique_ptr&lt; terminal::TextSlot &gt;</label>
-        <childnode refid="12" relation="usage">
+        <childnode refid="14" relation="usage">
           <edgelabel>ptr</edgelabel>
-        </childnode>
-      </node>
-      <node id="18">
-        <label>std::unique_ptr&lt; void, Deleter &gt;</label>
-      </node>
-      <node id="19">
-        <label>std::unordered_map&lt; juce::Identifier, std::type_index &gt;</label>
-      </node>
-      <node id="10">
-        <label>std::unordered_map&lt; juce::Identifier, std::unique_ptr&lt; terminal::TextSlot &gt; &gt;</label>
-        <childnode refid="11" relation="usage">
-          <edgelabel>elements</edgelabel>
-        </childnode>
-      </node>
-      <node id="17">
-        <label>std::unordered_map&lt; juce::Identifier, std::unique_ptr&lt; void, Deleter &gt; &gt;</label>
-        <childnode refid="18" relation="usage">
-          <edgelabel>elements</edgelabel>
         </childnode>
       </node>
       <node id="20">
+        <label>std::unique_ptr&lt; void, Deleter &gt;</label>
+      </node>
+      <node id="21">
+        <label>std::unordered_map&lt; juce::Identifier, std::type_index &gt;</label>
+      </node>
+      <node id="12">
+        <label>std::unordered_map&lt; juce::Identifier, std::unique_ptr&lt; terminal::TextSlot &gt; &gt;</label>
+        <childnode refid="13" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+      <node id="19">
+        <label>std::unordered_map&lt; juce::Identifier, std::unique_ptr&lt; void, Deleter &gt; &gt;</label>
+        <childnode refid="20" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+      <node id="22">
         <label>std::unordered_map&lt; juce::String, juce::ValueTree &gt;</label>
       </node>
-      <node id="60">
+      <node id="63">
         <label>std::unordered_map&lt; uint32_t, terminal::KittyDecoder::ChunkAccumulator &gt;</label>
-        <childnode refid="61" relation="usage">
+        <childnode refid="64" relation="usage">
           <edgelabel>elements</edgelabel>
         </childnode>
       </node>
-      <node id="62">
+      <node id="65">
         <label>std::unordered_map&lt; uint32_t, terminal::KittyDecoder::StoredImage &gt;</label>
-        <childnode refid="63" relation="usage">
+        <childnode refid="66" relation="usage">
           <edgelabel>elements</edgelabel>
         </childnode>
       </node>
-      <node id="57">
+      <node id="60">
         <label>std::vector&lt; char &gt;</label>
       </node>
-      <node id="80">
+      <node id="83">
         <label>std::vector&lt; int &gt;</label>
       </node>
-      <node id="42">
+      <node id="45">
         <label>std::vector&lt; std::pair&lt; std::string, std::string &gt; &gt;</label>
-        <childnode refid="43" relation="usage">
+        <childnode refid="46" relation="usage">
           <edgelabel>elements</edgelabel>
         </childnode>
       </node>
-      <node id="78">
+      <node id="81">
         <label>std::vector&lt; terminal::LinkSpan &gt;</label>
-        <childnode refid="79" relation="usage">
+        <childnode refid="82" relation="usage">
           <edgelabel>elements</edgelabel>
         </childnode>
       </node>
-      <node id="68">
+      <node id="71">
         <label>terminal::CSI</label>
         <link refid="structterminal_1_1_c_s_i"/>
-        <childnode refid="69" relation="usage">
+        <childnode refid="72" relation="usage">
           <edgelabel>values</edgelabel>
         </childnode>
       </node>
-      <node id="46">
+      <node id="49">
         <label>terminal::CellFifo</label>
         <link refid="classterminal_1_1_cell_fifo"/>
-        <childnode refid="47" relation="usage">
+        <childnode refid="50" relation="usage">
           <edgelabel>activeRing</edgelabel>
           <edgelabel>historyRing</edgelabel>
         </childnode>
-        <childnode refid="48" relation="usage">
+        <childnode refid="51" relation="usage">
           <edgelabel>pending</edgelabel>
         </childnode>
       </node>
-      <node id="66">
+      <node id="69">
         <label>terminal::DispatchTable</label>
         <link refid="classterminal_1_1_dispatch_table"/>
-        <childnode refid="67" relation="usage">
+        <childnode refid="70" relation="usage">
           <edgelabel>table</edgelabel>
         </childnode>
       </node>
@@ -503,30 +518,32 @@
         </childnode>
         <childnode refid="6" relation="public-inheritance">
         </childnode>
+        <childnode refid="8" relation="public-inheritance">
+        </childnode>
         <childnode refid="2" relation="public-inheritance">
         </childnode>
-        <childnode refid="7" relation="usage">
+        <childnode refid="9" relation="usage">
           <edgelabel>session</edgelabel>
         </childnode>
-        <childnode refid="37" relation="usage">
+        <childnode refid="40" relation="usage">
           <edgelabel>processor</edgelabel>
         </childnode>
-        <childnode refid="14" relation="usage">
+        <childnode refid="16" relation="usage">
           <edgelabel>state</edgelabel>
         </childnode>
-        <childnode refid="75" relation="usage">
+        <childnode refid="32" relation="usage">
           <edgelabel>attachment</edgelabel>
         </childnode>
-        <childnode refid="76" relation="usage">
+        <childnode refid="79" relation="usage">
           <edgelabel>liveTailExtent</edgelabel>
         </childnode>
-        <childnode refid="77" relation="usage">
+        <childnode refid="80" relation="usage">
           <edgelabel>linkManager</edgelabel>
         </childnode>
-        <childnode refid="81" relation="usage">
+        <childnode refid="84" relation="usage">
           <edgelabel>input</edgelabel>
         </childnode>
-        <childnode refid="83" relation="usage">
+        <childnode refid="86" relation="usage">
           <edgelabel>mouse</edgelabel>
         </childnode>
         <childnode refid="1" relation="usage">
@@ -542,211 +559,214 @@
           <edgelabel>display</edgelabel>
         </childnode>
       </node>
-      <node id="81">
+      <node id="84">
         <label>terminal::Input</label>
         <link refid="classterminal_1_1_input"/>
-        <childnode refid="37" relation="usage">
+        <childnode refid="40" relation="usage">
           <edgelabel>processor</edgelabel>
         </childnode>
-        <childnode refid="77" relation="usage">
+        <childnode refid="80" relation="usage">
           <edgelabel>linkManager</edgelabel>
         </childnode>
-        <childnode refid="82" relation="usage">
+        <childnode refid="85" relation="usage">
           <edgelabel>selectionKeys</edgelabel>
         </childnode>
       </node>
-      <node id="82">
+      <node id="85">
         <label>terminal::Input::SelectionKeys</label>
         <link refid="structterminal_1_1_input_1_1_selection_keys"/>
       </node>
-      <node id="59">
+      <node id="62">
         <label>terminal::KittyDecoder</label>
         <link refid="classterminal_1_1_kitty_decoder"/>
-        <childnode refid="60" relation="usage">
+        <childnode refid="63" relation="usage">
           <edgelabel>chunks</edgelabel>
         </childnode>
-        <childnode refid="62" relation="usage">
+        <childnode refid="65" relation="usage">
           <edgelabel>storedImages</edgelabel>
         </childnode>
       </node>
-      <node id="61">
+      <node id="64">
         <label>terminal::KittyDecoder::ChunkAccumulator</label>
         <link refid="structterminal_1_1_kitty_decoder_1_1_chunk_accumulator"/>
       </node>
-      <node id="63">
+      <node id="66">
         <label>terminal::KittyDecoder::StoredImage</label>
         <link refid="structterminal_1_1_kitty_decoder_1_1_stored_image"/>
       </node>
-      <node id="77">
+      <node id="80">
         <label>terminal::LinkManager</label>
         <link refid="classterminal_1_1_link_manager"/>
         <childnode refid="2" relation="public-inheritance">
         </childnode>
-        <childnode refid="14" relation="usage">
+        <childnode refid="16" relation="usage">
           <edgelabel>state</edgelabel>
         </childnode>
-        <childnode refid="78" relation="usage">
+        <childnode refid="81" relation="usage">
           <edgelabel>clickableLinks</edgelabel>
           <edgelabel>hintLinks</edgelabel>
         </childnode>
-        <childnode refid="80" relation="usage">
+        <childnode refid="83" relation="usage">
           <edgelabel>pageBreaks</edgelabel>
         </childnode>
       </node>
-      <node id="79">
+      <node id="82">
         <label>terminal::LinkSpan</label>
         <link refid="structterminal_1_1_link_span"/>
-        <childnode refid="53" relation="usage">
+        <childnode refid="56" relation="usage">
           <edgelabel>col</edgelabel>
           <edgelabel>labelCol</edgelabel>
           <edgelabel>row</edgelabel>
         </childnode>
       </node>
-      <node id="14">
+      <node id="16">
         <label>terminal::Model</label>
         <link refid="structterminal_1_1_model"/>
-        <childnode refid="15" relation="public-inheritance">
+        <childnode refid="17" relation="public-inheritance">
         </childnode>
         <childnode refid="2" relation="private-inheritance">
         </childnode>
-        <childnode refid="21" relation="usage">
+        <childnode refid="23" relation="usage">
           <edgelabel>rowDirtyFlags</edgelabel>
         </childnode>
-        <childnode refid="9" relation="usage">
+        <childnode refid="11" relation="usage">
           <edgelabel>textBuffer</edgelabel>
         </childnode>
       </node>
-      <node id="83">
+      <node id="86">
         <label>terminal::Mouse</label>
         <link refid="classterminal_1_1_mouse"/>
-        <childnode refid="37" relation="usage">
+        <childnode refid="40" relation="usage">
           <edgelabel>processor</edgelabel>
         </childnode>
-        <childnode refid="77" relation="usage">
+        <childnode refid="80" relation="usage">
           <edgelabel>linkManager</edgelabel>
         </childnode>
       </node>
-      <node id="65">
+      <node id="68">
         <label>terminal::Parser</label>
         <link refid="classterminal_1_1_parser"/>
-        <childnode refid="49" relation="usage">
+        <childnode refid="52" relation="usage">
           <edgelabel>video</edgelabel>
         </childnode>
-        <childnode refid="66" relation="usage">
+        <childnode refid="69" relation="usage">
           <edgelabel>dispatchTable</edgelabel>
         </childnode>
-        <childnode refid="68" relation="usage">
+        <childnode refid="71" relation="usage">
           <edgelabel>csi</edgelabel>
         </childnode>
       </node>
-      <node id="37">
+      <node id="40">
         <label>terminal::Processor</label>
         <link refid="classterminal_1_1_processor"/>
         <childnode refid="2" relation="public-inheritance">
         </childnode>
-        <childnode refid="38" relation="usage">
+        <childnode refid="41" relation="usage">
           <edgelabel>tty</edgelabel>
         </childnode>
-        <childnode refid="9" relation="usage">
+        <childnode refid="11" relation="usage">
           <edgelabel>textBuffer</edgelabel>
         </childnode>
-        <childnode refid="46" relation="usage">
+        <childnode refid="49" relation="usage">
           <edgelabel>cellFifo</edgelabel>
         </childnode>
-        <childnode refid="14" relation="usage">
+        <childnode refid="16" relation="usage">
           <edgelabel>state</edgelabel>
         </childnode>
-        <childnode refid="41" relation="usage">
+        <childnode refid="44" relation="usage">
           <edgelabel>events</edgelabel>
           <edgelabel>parameters</edgelabel>
         </childnode>
-        <childnode refid="49" relation="usage">
+        <childnode refid="52" relation="usage">
           <edgelabel>video</edgelabel>
         </childnode>
-        <childnode refid="58" relation="usage">
+        <childnode refid="61" relation="usage">
           <edgelabel>skit</edgelabel>
         </childnode>
-        <childnode refid="64" relation="usage">
+        <childnode refid="67" relation="usage">
           <edgelabel>parser</edgelabel>
         </childnode>
-        <childnode refid="70" relation="usage">
+        <childnode refid="73" relation="usage">
           <edgelabel>keyboardModeStack</edgelabel>
         </childnode>
-        <childnode refid="71" relation="usage">
+        <childnode refid="74" relation="usage">
           <edgelabel>keyboardModeStackSize</edgelabel>
         </childnode>
       </node>
-      <node id="7">
+      <node id="9">
         <label>terminal::Session</label>
         <link refid="classterminal_1_1_session"/>
-        <childnode refid="8" relation="private-inheritance">
+        <childnode refid="10" relation="private-inheritance">
         </childnode>
-        <childnode refid="9" relation="usage">
+        <childnode refid="11" relation="usage">
           <edgelabel>textBuffer</edgelabel>
         </childnode>
-        <childnode refid="14" relation="usage">
+        <childnode refid="16" relation="usage">
           <edgelabel>model</edgelabel>
         </childnode>
-        <childnode refid="22" relation="usage">
+        <childnode refid="24" relation="usage">
           <edgelabel>codeModel</edgelabel>
         </childnode>
-        <childnode refid="24" relation="usage">
+        <childnode refid="26" relation="usage">
           <edgelabel>textEditor</edgelabel>
         </childnode>
-        <childnode refid="36" relation="usage">
+        <childnode refid="39" relation="usage">
           <edgelabel>processor</edgelabel>
         </childnode>
-        <childnode refid="72" relation="usage">
+        <childnode refid="75" relation="usage">
+          <edgelabel>sessionAttachment</edgelabel>
+        </childnode>
+        <childnode refid="76" relation="usage">
           <edgelabel>resizer</edgelabel>
         </childnode>
-        <childnode refid="74" relation="usage">
+        <childnode refid="78" relation="usage">
           <edgelabel>winsize</edgelabel>
         </childnode>
-        <childnode refid="53" relation="usage">
+        <childnode refid="56" relation="usage">
           <edgelabel>startCols</edgelabel>
           <edgelabel>startRows</edgelabel>
         </childnode>
       </node>
-      <node id="58">
+      <node id="61">
         <label>terminal::Skit</label>
         <link refid="classterminal_1_1_skit"/>
-        <childnode refid="41" relation="usage">
+        <childnode refid="44" relation="usage">
           <edgelabel>events</edgelabel>
         </childnode>
-        <childnode refid="59" relation="usage">
+        <childnode refid="62" relation="usage">
           <edgelabel>kittyDecoder</edgelabel>
         </childnode>
-        <childnode refid="53" relation="usage">
+        <childnode refid="56" relation="usage">
           <edgelabel>lastImageRows</edgelabel>
         </childnode>
       </node>
-      <node id="9">
+      <node id="11">
         <label>terminal::TextBuffer</label>
         <link refid="structterminal_1_1_text_buffer"/>
-        <childnode refid="10" relation="usage">
+        <childnode refid="12" relation="usage">
           <edgelabel>slots</edgelabel>
         </childnode>
       </node>
-      <node id="12">
+      <node id="14">
         <label>terminal::TextSlot</label>
         <link refid="structterminal_1_1_text_slot"/>
-        <childnode refid="13" relation="usage">
+        <childnode refid="15" relation="usage">
           <edgelabel>active</edgelabel>
         </childnode>
       </node>
-      <node id="49">
+      <node id="52">
         <label>terminal::Video</label>
         <link refid="classterminal_1_1_video"/>
-        <childnode refid="50" relation="usage">
+        <childnode refid="53" relation="usage">
           <edgelabel>grid</edgelabel>
         </childnode>
-        <childnode refid="51" relation="usage">
+        <childnode refid="54" relation="usage">
           <edgelabel>blocks</edgelabel>
         </childnode>
-        <childnode refid="41" relation="usage">
+        <childnode refid="44" relation="usage">
           <edgelabel>events</edgelabel>
         </childnode>
-        <childnode refid="53" relation="usage">
+        <childnode refid="56" relation="usage">
           <edgelabel>cols</edgelabel>
           <edgelabel>cursorCol</edgelabel>
           <edgelabel>cursorRow</edgelabel>
@@ -754,20 +774,20 @@
           <edgelabel>scrollTop</edgelabel>
           <edgelabel>visibleRows</edgelabel>
         </childnode>
-        <childnode refid="54" relation="usage">
+        <childnode refid="57" relation="usage">
           <edgelabel>savedCursor</edgelabel>
         </childnode>
-        <childnode refid="56" relation="usage">
+        <childnode refid="59" relation="usage">
           <edgelabel>graphemeState</edgelabel>
         </childnode>
-        <childnode refid="57" relation="usage">
+        <childnode refid="60" relation="usage">
           <edgelabel>tabStops</edgelabel>
         </childnode>
       </node>
-      <node id="55">
+      <node id="58">
         <label>terminal::Video::SavedCursor</label>
         <link refid="structterminal_1_1_video_1_1_saved_cursor"/>
-        <childnode refid="53" relation="usage">
+        <childnode refid="56" relation="usage">
           <edgelabel>col</edgelabel>
           <edgelabel>row</edgelabel>
         </childnode>

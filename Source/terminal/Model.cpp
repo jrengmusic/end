@@ -225,20 +225,20 @@ bool Model::getMode (const juce::Identifier& id) const noexcept
 {
     JUCE_ASSERT_MESSAGE_THREAD
     auto modesNode { state.getChildWithName (id::MODES) };
-    return static_cast<int> (jam::Model::getValueFromChildWithID (modesNode, id).getValue()) != 0;
+    return static_cast<int> (jam::ValueTree::getValueFromChildWithID (modesNode, id).getValue()) != 0;
 }
 
 int Model::getActiveScreen() const noexcept
 {
     JUCE_ASSERT_MESSAGE_THREAD
-    return static_cast<int> (jam::Model::getValueFromChildWithID (state, id::activeScreen).getValue());
+    return static_cast<int> (jam::ValueTree::getValueFromChildWithID (state, id::activeScreen).getValue());
 }
 
 static int
 getSessionParamInt (const juce::ValueTree& root, const juce::Identifier& paramId, int defaultValue = 0) noexcept
 {
     JUCE_ASSERT_MESSAGE_THREAD
-    auto param { jam::Model::getChildWithID (root, paramId.toString()) };
+    auto param { jam::ValueTree::getChildWithID (root, paramId.toString()) };
     int result { defaultValue };
 
     if (param.isValid())

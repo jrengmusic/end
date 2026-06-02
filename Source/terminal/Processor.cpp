@@ -19,23 +19,6 @@ namespace terminal
 {
 /*____________________________________________________________________________*/
 
-/**
- * @brief Constructs the Processor: binds Model& and TextBuffer&; constructs Video and Parser.
- *
- * Model is owned by terminal::Session and passed by reference.
- * Video is owned by this Processor and receives the initial terminal dimensions and the events map.
- * Parser is owned by this Processor and receives Video& reference directly.
- * CellFifo is sized for scrollbackLines × cols worst-case Char slots.
- * UUID is provided by the caller — no internal generation.
- * Buffer resize is handled by prepare() called from Session's Resizer stop trigger.
- *
- * @param stateRef      Terminal parameter store owned by terminal::Session.
- * @param dims          Terminal dimensions in cells.
- * @param textBufferRef Cross-thread string buffer owned by terminal::Session.
- * @param uuid          Stable UUID for this Processor — generated once by the caller.
- *
- * @note MESSAGE THREAD — must be constructed on the message thread.
- */
 Processor::Processor (Model& stateRef,
                       jam::Cell::Rectangle dims,
                       TextBuffer& textBufferRef,
@@ -65,7 +48,7 @@ Processor::Processor (Model& stateRef,
 /**
  * @brief Destroys the Processor.
  *
- * Removes the ValueTree listener first — ComponentAttachment ungraft on
+ * Removes the ValueTree listener first — Attachment ungraft on
  * CodeView destruction fires VT events; Processor must not be in the
  * listener list at that point.  Then closes the TTY — stops the reader
  * thread before the events map is destroyed by member destruction.
@@ -209,39 +192,19 @@ void Processor::setCellSize() noexcept
 {
     auto displayNode { state.getChildWithName (id::DISPLAY) };
     const int cellW { static_cast<int> (
-        jam::Model::getValueFromChildWithID (displayNode, id::cellWidth).getValue()) };
+        jam::ValueTree::getValueFromChildWithID (displayNode, id::cellWidth).getValue()) };
     const int cellH { static_cast<int> (
-        jam::Model::getValueFromChildWithID (displayNode, id::cellHeight).getValue()) };
+        jam::ValueTree::getValueFromChildWithID (displayNode, id::cellHeight).getValue()) };
     video.setCellSize (cellW, cellH);
 }
 
 // =============================================================================
 
-/**
- * @brief Drains one logical history line from the history ring. Message thread.
- *
- * Delegates to CellFifo::drainHistory — Processor does not apply the entry to any editor.
- * The View (Display) is the sole CodeModel owner and applies drained entries directly.
- *
- * @param outLine  Receives the joined jam::CodeLine built from Char data and flags.
- * @return true if a complete (or partial tail) entry was produced; false when the history ring is empty.
- * @note MESSAGE THREAD only.
- */
 bool Processor::drainHistory (jam::CodeLine& outLine) noexcept
 {
     return cellFifo.drainHistory (outLine);
 }
 
-/**
- * @brief Drains one viewport row from the active ring. Message thread.
- *
- * Delegates to CellFifo::drainActive — Processor does not apply the entry to any editor.
- * The View (Display) is the sole CodeModel owner and applies drained entries directly.
- *
- * @param outLine  Receives the viewport row jam::CodeLine built from Char data and flags.
- * @return true if an entry was produced; false when the active ring is empty.
- * @note MESSAGE THREAD only.
- */
 bool Processor::drainActive (jam::CodeLine& outLine) noexcept
 {
     return cellFifo.drainActive (outLine);
@@ -292,7 +255,7 @@ juce::String Processor::encodeKeyPress (const juce::KeyPress& key) const noexcep
         const juce::Identifier kbScreenId { Map::Screen::getContext()->get (activeScr) };
         auto kbScreenNode { state.getChildWithName (kbScreenId) };
         const uint32_t keyboardFlags { static_cast<uint32_t> (
-            static_cast<int> (jam::Model::getValueFromChildWithID (kbScreenNode, id::keyboardFlags).getValue())) };
+            static_cast<int> (jam::ValueTree::getValueFromChildWithID (kbScreenNode, id::keyboardFlags).getValue())) };
         seq = Keyboard::map (key, applicationCursor, keyboardFlags);
     }
 
@@ -408,20 +371,6 @@ const juce::String& Processor::getUuid() const noexcept { return uuid; }
 
 void Processor::flushResponses() noexcept { video.flushResponses(); }
 
-/**
- * @brief Creates the platform TTY, adds shell env vars, wires callbacks, and opens the PTY.
- *
- * Creates UnixTTY or WindowsTTY with the shared events map, adds all shell integration
- * env vars, wires writeInput/writeToHost events for PTY stdin/response routing
- * (id::data is already registered in registerEvents()), then opens the TTY (starts the reader thread).
- *
- * @param shell   Shell program path.
- * @param args    Shell arguments string.  Empty = none.
- * @param cwd     Initial working directory.  Empty = inherit.
- * @param env     Shell integration environment variable pairs.
- * @param dims    Terminal dimensions in cells.
- * @note MESSAGE THREAD — called from Session::start().
- */
 void Processor::startTTY (const juce::String& shell,
                            const juce::String& args,
                            const juce::String& cwd,
@@ -457,17 +406,6 @@ void Processor::startTTY (const juce::String& shell,
     tty->open (dims, shell, args, cwd);
 }
 
-/**
- * @brief Prepares Processor for new terminal dimensions.
- *
- * Resizes Video's grid only — CellFifo and CodeView are untouched (I3).
- * History is preserved; in-flight departures drain normally.
- * Live zone refreshes on the next screenDirty tick when the shell redraws
- * after SIGWINCH.
- *
- * @param dims  Terminal dimensions in cells.
- * @note MESSAGE THREAD — safe only while processing is suspended.
- */
 void Processor::prepare (jam::Cell::Rectangle dims) noexcept
 {
     video.setWinsize (dims);

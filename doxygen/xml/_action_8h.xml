@@ -518,8 +518,8 @@
         </childnode>
       </node>
       <node id="51">
-        <label>terminal/component/PaneComponent.h</label>
-        <link refid="_pane_component_8h"/>
+        <label>terminal/component/PaneView.h</label>
+        <link refid="_pane_view_8h"/>
         <childnode refid="4" relation="include">
         </childnode>
         <childnode refid="23" relation="include">
@@ -776,7 +776,7 @@
 <codeline lineno="171"><highlight class="normal"></highlight></codeline>
 <codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classaction_1_1_registry_1a01c6a9ecea9e1780a7e36c3ac4e7a909" kindref="member">clear</ref>();</highlight></codeline>
 <codeline lineno="179"><highlight class="normal"></highlight></codeline>
-<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>buildKeyMap<sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::String&amp;<sp/>prefixShortcut,</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classaction_1_1_registry_1a8064de18edb0abfc46f5b41a08f8d638" kindref="member">buildKeyMap</ref><sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::String&amp;<sp/>prefixShortcut,</highlight></codeline>
 <codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>prefixTimeout,</highlight></codeline>
 <codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;Binding&gt;&amp;<sp/>bindings);</highlight></codeline>
 <codeline lineno="193"><highlight class="normal"></highlight></codeline>

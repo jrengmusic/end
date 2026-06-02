@@ -29,7 +29,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="nexus/Nexus.h" line="75" column="10" bodyfile="nexus/Nexus.cpp" bodystart="30" bodyend="30"/>
-        <references refid="class_nexus_1aaf04aa20bd3a0cd7d789c29281909335" compoundref="_nexus_8h" startline="215" endline="215">mode</references>
+        <references refid="class_nexus_1aaf04aa20bd3a0cd7d789c29281909335" compoundref="_nexus_8h" startline="214" endline="214">mode</references>
       </memberdef>
       <memberdef kind="function" id="class_nexus_1a1c793cac99b61f5b217e1a19c0e213b6" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
         <type><ref refid="class_nexus_1a44a47e81640e5c3629af907f808e7f69" kindref="member">Mode</ref></type>
@@ -48,7 +48,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="nexus/Nexus.h" line="81" column="10" bodyfile="nexus/Nexus.cpp" bodystart="37" bodyend="37"/>
-        <references refid="class_nexus_1aaf04aa20bd3a0cd7d789c29281909335" compoundref="_nexus_8h" startline="215" endline="215">mode</references>
+        <references refid="class_nexus_1aaf04aa20bd3a0cd7d789c29281909335" compoundref="_nexus_8h" startline="214" endline="214">mode</references>
       </memberdef>
     </sectiondef>
     <sectiondef kind="user-defined">
@@ -151,11 +151,11 @@ Fires a child-added event on <computeroutput><ref refid="class_nexus_1a814a61854
         </inbodydescription>
         <location file="nexus/Nexus.h" line="106" column="23" bodyfile="nexus/Nexus.cpp" bodystart="49" bodyend="69"/>
         <references refid="classterminal_1_1_session_1aed676defe02ce47cde95eb7e432002df" compoundref="_session_8cpp" startline="162" endline="189">terminal::Session::create</references>
-        <references refid="class_nexus_1a814a618547ed2ee8197256dab2fdd680" compoundref="_nexus_8h" startline="204" endline="204">events</references>
+        <references refid="class_nexus_1a814a618547ed2ee8197256dab2fdd680" compoundref="_nexus_8h" startline="203" endline="203">events</references>
         <references refid="structjam_1_1_i_d_1a94afe032a3af21e6f22fb73c9625b60a">jam::ID::id</references>
         <references refid="structjam_1_1_cell_1_1_rectangle_1a9ab8d29a95a92c4e5745d0aa2508bb91">jam::Cell::Rectangle::isValid</references>
         <references refid="group__juce__core-system_1ga1f96ab6751237979b907a54f52a7296a">jassert</references>
-        <references refid="class_nexus_1a9ce75213f0eaf0b4154f555511c85dc5" compoundref="_nexus_8h" startline="210">sessions</references>
+        <references refid="class_nexus_1a9ce75213f0eaf0b4154f555511c85dc5" compoundref="_nexus_8h" startline="209">sessions</references>
         <referencedby refid="class_nexus_1a33d563c3c0a9b4921d017cdaecc193d0" compoundref="_nexus_8cpp" startline="110" endline="145">create</referencedby>
         <referencedby refid="class_nexus_1afea0a53a1851b0d1ee3568170031f3d5">~Nexus</referencedby>
       </memberdef>
@@ -232,11 +232,11 @@ Fires a child-added event on <computeroutput><ref refid="class_nexus_1a814a61854
         </inbodydescription>
         <location file="nexus/Nexus.h" line="128" column="23" bodyfile="nexus/Nexus.cpp" bodystart="78" bodyend="96"/>
         <references refid="classterminal_1_1_session_1aed676defe02ce47cde95eb7e432002df" compoundref="_session_8cpp" startline="162" endline="189">terminal::Session::create</references>
-        <references refid="class_nexus_1a814a618547ed2ee8197256dab2fdd680" compoundref="_nexus_8h" startline="204" endline="204">events</references>
+        <references refid="class_nexus_1a814a618547ed2ee8197256dab2fdd680" compoundref="_nexus_8h" startline="203" endline="203">events</references>
         <references refid="structjam_1_1_i_d_1a94afe032a3af21e6f22fb73c9625b60a">jam::ID::id</references>
         <references refid="structjam_1_1_cell_1_1_rectangle_1a9ab8d29a95a92c4e5745d0aa2508bb91">jam::Cell::Rectangle::isValid</references>
         <references refid="group__juce__core-system_1ga1f96ab6751237979b907a54f52a7296a">jassert</references>
-        <references refid="class_nexus_1a9ce75213f0eaf0b4154f555511c85dc5" compoundref="_nexus_8h" startline="210">sessions</references>
+        <references refid="class_nexus_1a9ce75213f0eaf0b4154f555511c85dc5" compoundref="_nexus_8h" startline="209">sessions</references>
       </memberdef>
       <memberdef kind="function" id="class_nexus_1a33d563c3c0a9b4921d017cdaecc193d0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="classterminal_1_1_session" kindref="compound">terminal::Session</ref> &amp;</type>
@@ -284,18 +284,10 @@ Fires a child-added event on <computeroutput><ref refid="class_nexus_1a814a61854
 </parameteritem>
 <parameteritem>
 <parameternamelist>
-<parametername>cols</parametername>
+<parametername>dims</parametername>
 </parameternamelist>
 <parameterdescription>
-<para>Initial column count. Must be &gt; 0. </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>rows</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>Initial row count. Must be &gt; 0. </para>
+<para>Terminal dimensions (cols × rows). Must be valid and &gt; 0. </para>
 </parameterdescription>
 </parameteritem>
 </parameterlist>
@@ -315,15 +307,15 @@ Routes based on mode:<itemizedlist>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="nexus/Nexus.h" line="152" column="23" bodyfile="nexus/Nexus.cpp" bodystart="110" bodyend="145"/>
+        <location file="nexus/Nexus.h" line="151" column="23" bodyfile="nexus/Nexus.cpp" bodystart="110" bodyend="145"/>
         <references refid="class_nexus_1a44a47e81640e5c3629af907f808e7f69a62608e08adc29a8d6dbc9754e659f125" compoundref="_nexus_8h" startline="60">client</references>
         <references refid="class_nexus_1a9a1ee88d9163d5d75e7f40810c5350a5" compoundref="_nexus_8cpp" startline="49" endline="69">create</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
         <references refid="structjam_1_1_cell_1_1_rectangle_1a6fd3c1980b15bde3963479e0d23a938f">jam::Cell::Rectangle::getHeight</references>
         <references refid="structjam_1_1_cell_1_1_rectangle_1a840c42ca4c36a43986eb1c931bc5f7d0">jam::Cell::Rectangle::getWidth</references>
         <references refid="group__juce__core-system_1ga1f96ab6751237979b907a54f52a7296a">jassert</references>
-        <references refid="class_nexus_1aaf04aa20bd3a0cd7d789c29281909335" compoundref="_nexus_8h" startline="215" endline="215">mode</references>
-        <references refid="class_nexus_1a9ce75213f0eaf0b4154f555511c85dc5" compoundref="_nexus_8h" startline="210">sessions</references>
+        <references refid="class_nexus_1aaf04aa20bd3a0cd7d789c29281909335" compoundref="_nexus_8h" startline="214" endline="214">mode</references>
+        <references refid="class_nexus_1a9ce75213f0eaf0b4154f555511c85dc5" compoundref="_nexus_8h" startline="209">sessions</references>
         <references refid="structjam_1_1_cell_1aecd8f8ae6d8912e9b0689382ac96cbb4">jam::Cell::value</references>
       </memberdef>
       <memberdef kind="function" id="class_nexus_1a12114de4879d228a64d6cea38ce96734" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -359,10 +351,10 @@ Fires a child-removed event on <computeroutput><ref refid="class_nexus_1a814a618
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="nexus/Nexus.h" line="164" column="10" bodyfile="nexus/Nexus.cpp" bodystart="155" bodyend="163"/>
-        <references refid="class_nexus_1a814a618547ed2ee8197256dab2fdd680" compoundref="_nexus_8h" startline="204" endline="204">events</references>
+        <location file="nexus/Nexus.h" line="163" column="10" bodyfile="nexus/Nexus.cpp" bodystart="155" bodyend="163"/>
+        <references refid="class_nexus_1a814a618547ed2ee8197256dab2fdd680" compoundref="_nexus_8h" startline="203" endline="203">events</references>
         <references refid="structjam_1_1_i_d_1a94afe032a3af21e6f22fb73c9625b60a">jam::ID::id</references>
-        <references refid="class_nexus_1a9ce75213f0eaf0b4154f555511c85dc5" compoundref="_nexus_8h" startline="210">sessions</references>
+        <references refid="class_nexus_1a9ce75213f0eaf0b4154f555511c85dc5" compoundref="_nexus_8h" startline="209">sessions</references>
         <referencedby refid="class_nexus_1afea0a53a1851b0d1ee3568170031f3d5">~Nexus</referencedby>
       </memberdef>
       <memberdef kind="function" id="class_nexus_1a9ad908d99f7c23d12cafae8926008656" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -400,9 +392,9 @@ jasserts if no session with <computeroutput>uuid</computeroutput> exists.</para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="nexus/Nexus.h" line="175" column="23" bodyfile="nexus/Nexus.cpp" bodystart="172" bodyend="184"/>
+        <location file="nexus/Nexus.h" line="174" column="23" bodyfile="nexus/Nexus.cpp" bodystart="172" bodyend="184"/>
         <references refid="group__juce__core-system_1ga1f96ab6751237979b907a54f52a7296a">jassert</references>
-        <references refid="class_nexus_1a9ce75213f0eaf0b4154f555511c85dc5" compoundref="_nexus_8h" startline="210">sessions</references>
+        <references refid="class_nexus_1a9ce75213f0eaf0b4154f555511c85dc5" compoundref="_nexus_8h" startline="209">sessions</references>
         <referencedby refid="classnexus_1_1_link_1a45210ea6cd6ff4cbbda9ad056c3ec41c" compoundref="_link_8cpp" startline="400" endline="421">nexus::Link::handleLoading</referencedby>
         <referencedby refid="classnexus_1_1_link_1ab161fd3b32924eb7651b489d546c1b18" compoundref="_link_8cpp" startline="371" endline="390">nexus::Link::handleOutput</referencedby>
         <referencedby refid="classnexus_1_1_link_1a90d54f4bafa0d44a37b998c844f931d3" compoundref="_link_8cpp" startline="434" endline="465">nexus::Link::handleStateUpdate</referencedby>
@@ -442,8 +434,8 @@ jasserts if no session with <computeroutput>uuid</computeroutput> exists.</para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="nexus/Nexus.h" line="184" column="10" bodyfile="nexus/Nexus.cpp" bodystart="191" bodyend="194"/>
-        <references refid="class_nexus_1a9ce75213f0eaf0b4154f555511c85dc5" compoundref="_nexus_8h" startline="210">sessions</references>
+        <location file="nexus/Nexus.h" line="183" column="10" bodyfile="nexus/Nexus.cpp" bodystart="191" bodyend="194"/>
+        <references refid="class_nexus_1a9ce75213f0eaf0b4154f555511c85dc5" compoundref="_nexus_8h" startline="209">sessions</references>
         <referencedby refid="classnexus_1_1_link_1a45210ea6cd6ff4cbbda9ad056c3ec41c" compoundref="_link_8cpp" startline="400" endline="421">nexus::Link::handleLoading</referencedby>
         <referencedby refid="classnexus_1_1_link_1ab161fd3b32924eb7651b489d546c1b18" compoundref="_link_8cpp" startline="371" endline="390">nexus::Link::handleOutput</referencedby>
         <referencedby refid="classnexus_1_1_link_1a90d54f4bafa0d44a37b998c844f931d3" compoundref="_link_8cpp" startline="434" endline="465">nexus::Link::handleStateUpdate</referencedby>
@@ -470,8 +462,8 @@ jasserts if no session with <computeroutput>uuid</computeroutput> exists.</para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="nexus/Nexus.h" line="192" column="23" bodyfile="nexus/Nexus.cpp" bodystart="201" bodyend="209"/>
-        <references refid="class_nexus_1a9ce75213f0eaf0b4154f555511c85dc5" compoundref="_nexus_8h" startline="210">sessions</references>
+        <location file="nexus/Nexus.h" line="191" column="23" bodyfile="nexus/Nexus.cpp" bodystart="201" bodyend="209"/>
+        <references refid="class_nexus_1a9ce75213f0eaf0b4154f555511c85dc5" compoundref="_nexus_8h" startline="209">sessions</references>
         <referencedby refid="class_nexus_1afea0a53a1851b0d1ee3568170031f3d5">~Nexus</referencedby>
       </memberdef>
     </sectiondef>
@@ -527,7 +519,7 @@ jasserts if no session with <computeroutput>uuid</computeroutput> exists.</para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="nexus/Nexus.h" line="204" column="21" bodyfile="nexus/Nexus.h" bodystart="204" bodyend="204"/>
+        <location file="nexus/Nexus.h" line="203" column="21" bodyfile="nexus/Nexus.h" bodystart="203" bodyend="203"/>
         <referencedby refid="class_nexus_1a9a1ee88d9163d5d75e7f40810c5350a5" compoundref="_nexus_8cpp" startline="49" endline="69">create</referencedby>
         <referencedby refid="class_nexus_1a66d0a17a1a325ba804fc7f601c387623" compoundref="_nexus_8cpp" startline="78" endline="96">create</referencedby>
         <referencedby refid="class_nexus_1a12114de4879d228a64d6cea38ce96734" compoundref="_nexus_8cpp" startline="155" endline="163">remove</referencedby>
@@ -547,7 +539,7 @@ jasserts if no session with <computeroutput>uuid</computeroutput> exists.</para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="nexus/Nexus.h" line="210" column="24" bodyfile="nexus/Nexus.h" bodystart="210" bodyend="-1"/>
+        <location file="nexus/Nexus.h" line="209" column="24" bodyfile="nexus/Nexus.h" bodystart="209" bodyend="-1"/>
         <referencedby refid="class_nexus_1a33d563c3c0a9b4921d017cdaecc193d0" compoundref="_nexus_8cpp" startline="110" endline="145">create</referencedby>
         <referencedby refid="class_nexus_1a9a1ee88d9163d5d75e7f40810c5350a5" compoundref="_nexus_8cpp" startline="49" endline="69">create</referencedby>
         <referencedby refid="class_nexus_1a66d0a17a1a325ba804fc7f601c387623" compoundref="_nexus_8cpp" startline="78" endline="96">create</referencedby>
@@ -570,7 +562,7 @@ jasserts if no session with <computeroutput>uuid</computeroutput> exists.</para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="nexus/Nexus.h" line="215" column="10" bodyfile="nexus/Nexus.h" bodystart="215" bodyend="215"/>
+        <location file="nexus/Nexus.h" line="214" column="10" bodyfile="nexus/Nexus.h" bodystart="214" bodyend="214"/>
         <referencedby refid="class_nexus_1a33d563c3c0a9b4921d017cdaecc193d0" compoundref="_nexus_8cpp" startline="110" endline="145">create</referencedby>
         <referencedby refid="class_nexus_1a1c793cac99b61f5b217e1a19c0e213b6" compoundref="_nexus_8cpp" startline="37" endline="37">getMode</referencedby>
         <referencedby refid="class_nexus_1a20348d03b8bf34d7959322970374cfac" compoundref="_nexus_8cpp" startline="30" endline="30">setMode</referencedby>
@@ -636,7 +628,7 @@ jasserts if no session with <computeroutput>uuid</computeroutput> exists.</para>
       </node>
     </inheritancegraph>
     <collaborationgraph>
-      <node id="55">
+      <node id="57">
         <label>GraphemeSegmentationResult</label>
         <link refid="struct_grapheme_segmentation_result"/>
       </node>
@@ -649,19 +641,19 @@ jasserts if no session with <computeroutput>uuid</computeroutput> exists.</para>
           <edgelabel>sessions</edgelabel>
         </childnode>
       </node>
-      <node id="38">
+      <node id="40">
         <label>TTY</label>
         <link refid="class_t_t_y"/>
-        <childnode refid="39" relation="public-inheritance">
+        <childnode refid="41" relation="public-inheritance">
         </childnode>
-        <childnode refid="40" relation="usage">
+        <childnode refid="42" relation="usage">
           <edgelabel>events</edgelabel>
         </childnode>
-        <childnode refid="41" relation="usage">
+        <childnode refid="43" relation="usage">
           <edgelabel>shellIntegrationEnv</edgelabel>
         </childnode>
       </node>
-      <node id="73">
+      <node id="76">
         <label>Value</label>
         <link refid="classValue" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag"/>
       </node>
@@ -679,33 +671,33 @@ jasserts if no session with <computeroutput>uuid</computeroutput> exists.</para>
           <edgelabel>types</edgelabel>
         </childnode>
       </node>
-      <node id="51">
+      <node id="53">
         <label>jam::Block&lt; jam::Row &gt;</label>
         <link refid="classjam_1_1_block" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="49">
+      <node id="51">
         <label>jam::Buffer&lt; jam::Row &gt;</label>
         <link refid="classjam_1_1_buffer" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="46">
+      <node id="48">
         <label>jam::BufferSPSC</label>
         <link refid="classjam_1_1_buffer_s_p_s_c" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
         <childnode refid="11" relation="usage">
           <edgelabel>validStart</edgelabel>
         </childnode>
       </node>
-      <node id="27">
+      <node id="29">
         <label>jam::CaretComponent</label>
         <link refid="classjam_1_1_caret_component" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="25" relation="usage">
+        <childnode refid="27" relation="usage">
           <edgelabel>font</edgelabel>
         </childnode>
       </node>
-      <node id="52">
+      <node id="54">
         <label>jam::Cell</label>
         <link refid="structjam_1_1_cell" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="47">
+      <node id="49">
         <label>jam::CodeLine</label>
         <link refid="structjam_1_1_code_line" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
@@ -719,64 +711,59 @@ jasserts if no session with <computeroutput>uuid</computeroutput> exists.</para>
       <node id="23">
         <label>jam::CodeView</label>
         <link refid="classjam_1_1_code_view" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="24" relation="usage">
+        <childnode refid="24" relation="public-inheritance">
+        </childnode>
+        <childnode refid="26" relation="usage">
           <edgelabel>properties</edgelabel>
         </childnode>
-        <childnode refid="25" relation="usage">
+        <childnode refid="27" relation="usage">
           <edgelabel>font</edgelabel>
         </childnode>
         <childnode refid="21" relation="usage">
           <edgelabel>document</edgelabel>
         </childnode>
-        <childnode refid="26" relation="usage">
+        <childnode refid="28" relation="usage">
           <edgelabel>caret</edgelabel>
         </childnode>
-        <childnode refid="28" relation="usage">
+        <childnode refid="30" relation="usage">
           <edgelabel>stateAttachment</edgelabel>
         </childnode>
-        <childnode refid="29" relation="usage">
+        <childnode refid="31" relation="usage">
           <edgelabel>contentView</edgelabel>
         </childnode>
-        <childnode refid="31" relation="usage">
+        <childnode refid="33" relation="usage">
           <edgelabel>viewport</edgelabel>
         </childnode>
-        <childnode refid="33" relation="usage">
+        <childnode refid="35" relation="usage">
           <edgelabel>arrangement</edgelabel>
         </childnode>
-        <childnode refid="34" relation="usage">
+        <childnode refid="36" relation="usage">
           <edgelabel>glyphGraphics</edgelabel>
         </childnode>
       </node>
-      <node id="32">
+      <node id="34">
         <label>jam::CodeView::CodeViewViewport</label>
         <link refid="structjam_1_1_code_view_1_1_code_view_viewport" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
         <childnode refid="23" relation="usage">
           <edgelabel>owner</edgelabel>
         </childnode>
       </node>
-      <node id="30">
+      <node id="32">
         <label>jam::CodeView::ContentView</label>
         <link refid="structjam_1_1_code_view_1_1_content_view" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
         <childnode refid="23" relation="usage">
           <edgelabel>owner</edgelabel>
         </childnode>
       </node>
-      <node id="28">
-        <label>jam::ComponentAttachment</label>
-        <link refid="classjam_1_1_component_attachment" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="13" relation="usage">
-          <edgelabel>parentTree</edgelabel>
-        </childnode>
-      </node>
       <node id="2">
         <label>jam::Context&lt; Nexus &gt;</label>
         <link refid="structjam_1_1_context" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="25">
+      <node id="27">
         <label>jam::Font</label>
         <link refid="structjam_1_1_font" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="40">
+      <node id="42">
         <label>jam::Function::Map&lt; juce::Identifier, void &gt;</label>
         <link refid="structjam_1_1_function_1_1_map" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
@@ -794,99 +781,119 @@ jasserts if no session with <computeroutput>uuid</computeroutput> exists.</para>
         <label>jam::Owner&lt; jam::CodeModel::Screen &gt;</label>
         <link refid="classjam_1_1_owner" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="72">
+      <node id="75">
         <label>jam::Resizer</label>
         <link refid="classjam_1_1_resizer" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="40" relation="usage">
+        <childnode refid="42" relation="usage">
           <edgelabel>triggers</edgelabel>
         </childnode>
       </node>
-      <node id="33">
+      <node id="30">
+        <label>jam::ValueTree::Attachment</label>
+        <link refid="classjam_1_1_value_tree_1_1_attachment" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+      <node id="25">
+        <label>jam::ValueTree::Component</label>
+        <link refid="structjam_1_1_value_tree_1_1_component" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+      <node id="24">
+        <label>jam::ValueTree::ComponentWithID&lt; CodeView &gt;</label>
+        <link refid="structjam_1_1_value_tree_1_1_component_with_i_d" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="25" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="35">
         <label>jam::glyph::Arrangement</label>
         <link refid="classjam_1_1glyph_1_1_arrangement" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="34">
+      <node id="36">
         <label>jam::glyph::Graphics</label>
         <link refid="classjam_1_1glyph_1_1_graphics" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="39">
+      <node id="41">
         <label>juce::Thread</label>
       </node>
       <node id="19">
         <label>juce::ValueTree::Listener</label>
       </node>
-      <node id="66">
+      <node id="68">
         <label>std::array&lt; StateRow, STATE_COUNT &gt;</label>
       </node>
-      <node id="70">
+      <node id="72">
         <label>std::array&lt; int, 2 &gt;</label>
       </node>
-      <node id="50">
+      <node id="52">
         <label>std::array&lt; jam::Block&lt; jam::Row &gt;, 2 &gt;</label>
-        <childnode refid="51" relation="usage">
+        <childnode refid="53" relation="usage">
           <edgelabel>elements</edgelabel>
         </childnode>
       </node>
-      <node id="24">
+      <node id="26">
         <label>std::array&lt; juce::Identifier, propertyCount &gt;</label>
       </node>
-      <node id="53">
+      <node id="55">
         <label>std::array&lt; terminal::Video::SavedCursor, 2 &gt;</label>
-        <childnode refid="54" relation="usage">
+        <childnode refid="56" relation="usage">
           <edgelabel>elements</edgelabel>
         </childnode>
       </node>
-      <node id="68">
+      <node id="70">
         <label>std::array&lt; uint16_t, MAX_PARAMS &gt;</label>
       </node>
-      <node id="69">
+      <node id="71">
         <label>std::array&lt; uint32_t, 2 *maxKeyboardStackDepth &gt;</label>
       </node>
       <node id="11">
         <label>std::atomic&lt; int &gt;</label>
       </node>
-      <node id="44">
+      <node id="46">
         <label>std::basic_string&lt; Char &gt;</label>
       </node>
-      <node id="42">
+      <node id="44">
         <label>std::pair&lt; std::string, std::string &gt;</label>
-        <childnode refid="43" relation="usage">
+        <childnode refid="45" relation="usage">
           <edgelabel>first_type</edgelabel>
           <edgelabel>second_type</edgelabel>
         </childnode>
       </node>
-      <node id="43">
+      <node id="45">
         <label>std::string</label>
-        <childnode refid="44" relation="public-inheritance">
+        <childnode refid="46" relation="public-inheritance">
         </childnode>
       </node>
-      <node id="37">
+      <node id="39">
         <label>std::unique_ptr&lt; TTY &gt;</label>
-        <childnode refid="38" relation="usage">
+        <childnode refid="40" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
-      <node id="26">
+      <node id="28">
         <label>std::unique_ptr&lt; jam::CaretComponent &gt;</label>
-        <childnode refid="27" relation="usage">
+        <childnode refid="29" relation="usage">
+          <edgelabel>ptr</edgelabel>
+        </childnode>
+      </node>
+      <node id="33">
+        <label>std::unique_ptr&lt; jam::CodeView::CodeViewViewport &gt;</label>
+        <childnode refid="34" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
       <node id="31">
-        <label>std::unique_ptr&lt; jam::CodeView::CodeViewViewport &gt;</label>
+        <label>std::unique_ptr&lt; jam::CodeView::ContentView &gt;</label>
         <childnode refid="32" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
-      <node id="29">
-        <label>std::unique_ptr&lt; jam::CodeView::ContentView &gt;</label>
-        <childnode refid="30" relation="usage">
+      <node id="74">
+        <label>std::unique_ptr&lt; jam::Resizer &gt;</label>
+        <childnode refid="75" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
-      <node id="71">
-        <label>std::unique_ptr&lt; jam::Resizer &gt;</label>
-        <childnode refid="72" relation="usage">
+      <node id="73">
+        <label>std::unique_ptr&lt; jam::ValueTree::Attachment &gt;</label>
+        <childnode refid="30" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
@@ -896,15 +903,15 @@ jasserts if no session with <computeroutput>uuid</computeroutput> exists.</para>
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
-      <node id="63">
+      <node id="65">
         <label>std::unique_ptr&lt; terminal::Parser &gt;</label>
-        <childnode refid="64" relation="usage">
+        <childnode refid="66" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
-      <node id="35">
+      <node id="37">
         <label>std::unique_ptr&lt; terminal::Processor &gt;</label>
-        <childnode refid="36" relation="usage">
+        <childnode refid="38" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
@@ -947,67 +954,67 @@ jasserts if no session with <computeroutput>uuid</computeroutput> exists.</para>
           <edgelabel>elements</edgelabel>
         </childnode>
       </node>
-      <node id="59">
-        <label>std::unordered_map&lt; uint32_t, terminal::KittyDecoder::ChunkAccumulator &gt;</label>
-        <childnode refid="60" relation="usage">
-          <edgelabel>elements</edgelabel>
-        </childnode>
-      </node>
       <node id="61">
-        <label>std::unordered_map&lt; uint32_t, terminal::KittyDecoder::StoredImage &gt;</label>
+        <label>std::unordered_map&lt; uint32_t, terminal::KittyDecoder::ChunkAccumulator &gt;</label>
         <childnode refid="62" relation="usage">
           <edgelabel>elements</edgelabel>
         </childnode>
       </node>
-      <node id="56">
-        <label>std::vector&lt; char &gt;</label>
-      </node>
-      <node id="41">
-        <label>std::vector&lt; std::pair&lt; std::string, std::string &gt; &gt;</label>
-        <childnode refid="42" relation="usage">
+      <node id="63">
+        <label>std::unordered_map&lt; uint32_t, terminal::KittyDecoder::StoredImage &gt;</label>
+        <childnode refid="64" relation="usage">
           <edgelabel>elements</edgelabel>
         </childnode>
       </node>
-      <node id="67">
+      <node id="58">
+        <label>std::vector&lt; char &gt;</label>
+      </node>
+      <node id="43">
+        <label>std::vector&lt; std::pair&lt; std::string, std::string &gt; &gt;</label>
+        <childnode refid="44" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+      <node id="69">
         <label>terminal::CSI</label>
         <link refid="structterminal_1_1_c_s_i"/>
-        <childnode refid="68" relation="usage">
+        <childnode refid="70" relation="usage">
           <edgelabel>values</edgelabel>
         </childnode>
       </node>
-      <node id="45">
+      <node id="47">
         <label>terminal::CellFifo</label>
         <link refid="classterminal_1_1_cell_fifo"/>
-        <childnode refid="46" relation="usage">
+        <childnode refid="48" relation="usage">
           <edgelabel>activeRing</edgelabel>
           <edgelabel>historyRing</edgelabel>
         </childnode>
-        <childnode refid="47" relation="usage">
+        <childnode refid="49" relation="usage">
           <edgelabel>pending</edgelabel>
         </childnode>
       </node>
-      <node id="65">
+      <node id="67">
         <label>terminal::DispatchTable</label>
         <link refid="classterminal_1_1_dispatch_table"/>
-        <childnode refid="66" relation="usage">
+        <childnode refid="68" relation="usage">
           <edgelabel>table</edgelabel>
         </childnode>
       </node>
-      <node id="58">
+      <node id="60">
         <label>terminal::KittyDecoder</label>
         <link refid="classterminal_1_1_kitty_decoder"/>
-        <childnode refid="59" relation="usage">
+        <childnode refid="61" relation="usage">
           <edgelabel>chunks</edgelabel>
         </childnode>
-        <childnode refid="61" relation="usage">
+        <childnode refid="63" relation="usage">
           <edgelabel>storedImages</edgelabel>
         </childnode>
       </node>
-      <node id="60">
+      <node id="62">
         <label>terminal::KittyDecoder::ChunkAccumulator</label>
         <link refid="structterminal_1_1_kitty_decoder_1_1_chunk_accumulator"/>
       </node>
-      <node id="62">
+      <node id="64">
         <label>terminal::KittyDecoder::StoredImage</label>
         <link refid="structterminal_1_1_kitty_decoder_1_1_stored_image"/>
       </node>
@@ -1025,53 +1032,53 @@ jasserts if no session with <computeroutput>uuid</computeroutput> exists.</para>
           <edgelabel>textBuffer</edgelabel>
         </childnode>
       </node>
-      <node id="64">
+      <node id="66">
         <label>terminal::Parser</label>
         <link refid="classterminal_1_1_parser"/>
-        <childnode refid="48" relation="usage">
+        <childnode refid="50" relation="usage">
           <edgelabel>video</edgelabel>
         </childnode>
-        <childnode refid="65" relation="usage">
+        <childnode refid="67" relation="usage">
           <edgelabel>dispatchTable</edgelabel>
         </childnode>
-        <childnode refid="67" relation="usage">
+        <childnode refid="69" relation="usage">
           <edgelabel>csi</edgelabel>
         </childnode>
       </node>
-      <node id="36">
+      <node id="38">
         <label>terminal::Processor</label>
         <link refid="classterminal_1_1_processor"/>
         <childnode refid="19" relation="public-inheritance">
         </childnode>
-        <childnode refid="37" relation="usage">
+        <childnode refid="39" relation="usage">
           <edgelabel>tty</edgelabel>
         </childnode>
         <childnode refid="7" relation="usage">
           <edgelabel>textBuffer</edgelabel>
         </childnode>
-        <childnode refid="45" relation="usage">
+        <childnode refid="47" relation="usage">
           <edgelabel>cellFifo</edgelabel>
         </childnode>
         <childnode refid="12" relation="usage">
           <edgelabel>state</edgelabel>
         </childnode>
-        <childnode refid="40" relation="usage">
+        <childnode refid="42" relation="usage">
           <edgelabel>events</edgelabel>
           <edgelabel>parameters</edgelabel>
         </childnode>
-        <childnode refid="48" relation="usage">
+        <childnode refid="50" relation="usage">
           <edgelabel>video</edgelabel>
         </childnode>
-        <childnode refid="57" relation="usage">
+        <childnode refid="59" relation="usage">
           <edgelabel>skit</edgelabel>
         </childnode>
-        <childnode refid="63" relation="usage">
+        <childnode refid="65" relation="usage">
           <edgelabel>parser</edgelabel>
         </childnode>
-        <childnode refid="69" relation="usage">
+        <childnode refid="71" relation="usage">
           <edgelabel>keyboardModeStack</edgelabel>
         </childnode>
-        <childnode refid="70" relation="usage">
+        <childnode refid="72" relation="usage">
           <edgelabel>keyboardModeStackSize</edgelabel>
         </childnode>
       </node>
@@ -1092,30 +1099,33 @@ jasserts if no session with <computeroutput>uuid</computeroutput> exists.</para>
         <childnode refid="23" relation="usage">
           <edgelabel>textEditor</edgelabel>
         </childnode>
-        <childnode refid="35" relation="usage">
+        <childnode refid="37" relation="usage">
           <edgelabel>processor</edgelabel>
         </childnode>
-        <childnode refid="71" relation="usage">
+        <childnode refid="73" relation="usage">
+          <edgelabel>sessionAttachment</edgelabel>
+        </childnode>
+        <childnode refid="74" relation="usage">
           <edgelabel>resizer</edgelabel>
         </childnode>
-        <childnode refid="73" relation="usage">
+        <childnode refid="76" relation="usage">
           <edgelabel>winsize</edgelabel>
         </childnode>
-        <childnode refid="52" relation="usage">
+        <childnode refid="54" relation="usage">
           <edgelabel>startCols</edgelabel>
           <edgelabel>startRows</edgelabel>
         </childnode>
       </node>
-      <node id="57">
+      <node id="59">
         <label>terminal::Skit</label>
         <link refid="classterminal_1_1_skit"/>
-        <childnode refid="40" relation="usage">
+        <childnode refid="42" relation="usage">
           <edgelabel>events</edgelabel>
         </childnode>
-        <childnode refid="58" relation="usage">
+        <childnode refid="60" relation="usage">
           <edgelabel>kittyDecoder</edgelabel>
         </childnode>
-        <childnode refid="52" relation="usage">
+        <childnode refid="54" relation="usage">
           <edgelabel>lastImageRows</edgelabel>
         </childnode>
       </node>
@@ -1133,19 +1143,19 @@ jasserts if no session with <computeroutput>uuid</computeroutput> exists.</para>
           <edgelabel>active</edgelabel>
         </childnode>
       </node>
-      <node id="48">
+      <node id="50">
         <label>terminal::Video</label>
         <link refid="classterminal_1_1_video"/>
-        <childnode refid="49" relation="usage">
+        <childnode refid="51" relation="usage">
           <edgelabel>grid</edgelabel>
         </childnode>
-        <childnode refid="50" relation="usage">
+        <childnode refid="52" relation="usage">
           <edgelabel>blocks</edgelabel>
         </childnode>
-        <childnode refid="40" relation="usage">
+        <childnode refid="42" relation="usage">
           <edgelabel>events</edgelabel>
         </childnode>
-        <childnode refid="52" relation="usage">
+        <childnode refid="54" relation="usage">
           <edgelabel>cols</edgelabel>
           <edgelabel>cursorCol</edgelabel>
           <edgelabel>cursorRow</edgelabel>
@@ -1153,26 +1163,26 @@ jasserts if no session with <computeroutput>uuid</computeroutput> exists.</para>
           <edgelabel>scrollTop</edgelabel>
           <edgelabel>visibleRows</edgelabel>
         </childnode>
-        <childnode refid="53" relation="usage">
+        <childnode refid="55" relation="usage">
           <edgelabel>savedCursor</edgelabel>
         </childnode>
-        <childnode refid="55" relation="usage">
+        <childnode refid="57" relation="usage">
           <edgelabel>graphemeState</edgelabel>
         </childnode>
-        <childnode refid="56" relation="usage">
+        <childnode refid="58" relation="usage">
           <edgelabel>tabStops</edgelabel>
         </childnode>
       </node>
-      <node id="54">
+      <node id="56">
         <label>terminal::Video::SavedCursor</label>
         <link refid="structterminal_1_1_video_1_1_saved_cursor"/>
-        <childnode refid="52" relation="usage">
+        <childnode refid="54" relation="usage">
           <edgelabel>col</edgelabel>
           <edgelabel>row</edgelabel>
         </childnode>
       </node>
     </collaborationgraph>
-    <location file="nexus/Nexus.h" line="56" column="1" bodyfile="nexus/Nexus.h" bodystart="57" bodyend="219"/>
+    <location file="nexus/Nexus.h" line="56" column="1" bodyfile="nexus/Nexus.h" bodystart="57" bodyend="218"/>
     <listofallmembers>
       <member refid="structjam_1_1_context_1a6e3f38a234db8ff2a9acb5986e72a2de" prot="public" virt="non-virtual"><scope>Nexus</scope><name>Context</name></member>
       <member refid="class_nexus_1a9a1ee88d9163d5d75e7f40810c5350a5" prot="public" virt="non-virtual"><scope>Nexus</scope><name>create</name></member>

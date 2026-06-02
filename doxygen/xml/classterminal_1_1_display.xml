@@ -2,7 +2,8 @@
 <doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
   <compounddef id="classterminal_1_1_display" kind="class" language="C++" prot="public">
     <compoundname>terminal::Display</compoundname>
-    <basecompoundref refid="class_pane_component" prot="public" virt="non-virtual">PaneComponent</basecompoundref>
+    <basecompoundref refid="class_pane_view" prot="public" virt="non-virtual">PaneView</basecompoundref>
+    <basecompoundref refid="structjam_1_1_value_tree_1_1_component_with_i_d" prot="public" virt="non-virtual">jam::ValueTree::ComponentWithID&lt; Display &gt;</basecompoundref>
     <basecompoundref prot="public" virt="non-virtual">juce::KeyListener</basecompoundref>
     <basecompoundref prot="public" virt="non-virtual">juce::ValueTree::Listener</basecompoundref>
     <includes refid="_display_8h" local="no">Display.h</includes>
@@ -186,7 +187,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="19" column="5" bodyfile="terminal/component/Display.h" bodystart="20" bodyend="42"/>
+        <location file="terminal/component/Display.h" line="20" column="5" bodyfile="terminal/component/Display.h" bodystart="21" bodyend="43"/>
       </memberdef>
     </sectiondef>
     <sectiondef kind="private-attrib">
@@ -203,13 +204,12 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/component/Display.h" line="96" column="23" bodyfile="terminal/component/Display.h" bodystart="96" bodyend="-1"/>
-        <referencedby refid="classterminal_1_1_display_1a4d5c9e51f93d6251bd8cdf81b8a9bd75" compoundref="_display_8cpp" startline="51" endline="72">applyFromAppModel</referencedby>
-        <referencedby refid="classterminal_1_1_display_1aba2b9e271d38ad4e5268333aaac31d8d" compoundref="_display_8cpp" startline="3" endline="36">Display</referencedby>
-        <referencedby refid="classterminal_1_1_display_1aff07d87262395ee3597d012cbae48b57" compoundref="_display_8cpp" startline="216" endline="216">focusGained</referencedby>
-        <referencedby refid="classterminal_1_1_display_1ac7671d2f5e124fe1d0002c19440229fd" compoundref="_display_8cpp" startline="259" endline="267">keyPressed</referencedby>
-        <referencedby refid="classterminal_1_1_display_1afd5758511197f47a6bf7fb96d9886b5a" compoundref="_display_8cpp" startline="218" endline="256">resized</referencedby>
-        <referencedby refid="classterminal_1_1_display_1a96f58201d64de70c95725f3ec9f44676" compoundref="_display_8cpp" startline="91" endline="182">valueTreePropertyChanged</referencedby>
-        <referencedby refid="classterminal_1_1_display_1a33d13f29e268c4641b6d79f077bab78a" compoundref="_display_8cpp" startline="38" endline="43">~Display</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a4d5c9e51f93d6251bd8cdf81b8a9bd75" compoundref="_display_8cpp" startline="48" endline="69">applyFromAppModel</referencedby>
+        <referencedby refid="classterminal_1_1_display_1aff07d87262395ee3597d012cbae48b57" compoundref="_display_8cpp" startline="213" endline="213">focusGained</referencedby>
+        <referencedby refid="classterminal_1_1_display_1ac7671d2f5e124fe1d0002c19440229fd" compoundref="_display_8cpp" startline="256" endline="264">keyPressed</referencedby>
+        <referencedby refid="classterminal_1_1_display_1afd5758511197f47a6bf7fb96d9886b5a" compoundref="_display_8cpp" startline="215" endline="253">resized</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a96f58201d64de70c95725f3ec9f44676" compoundref="_display_8cpp" startline="88" endline="179">valueTreePropertyChanged</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a33d13f29e268c4641b6d79f077bab78a" compoundref="_display_8cpp" startline="36" endline="41">~Display</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classterminal_1_1_display_1ac9742b57e514bca8ba57639a1b28928f" prot="private" static="no" mutable="no">
         <type><ref refid="classterminal_1_1_processor" kindref="compound">terminal::Processor</ref> &amp;</type>
@@ -224,10 +224,9 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/component/Display.h" line="97" column="25" bodyfile="terminal/component/Display.h" bodystart="97" bodyend="-1"/>
-        <referencedby refid="classterminal_1_1_display_1aba2b9e271d38ad4e5268333aaac31d8d" compoundref="_display_8cpp" startline="3" endline="36">Display</referencedby>
         <referencedby refid="classterminal_1_1_display_1a828a78229475e8213a7753f212806fbc" compoundref="_display_8h" startline="79" endline="79">getProcessor</referencedby>
-        <referencedby refid="classterminal_1_1_display_1a96f58201d64de70c95725f3ec9f44676" compoundref="_display_8cpp" startline="91" endline="182">valueTreePropertyChanged</referencedby>
-        <referencedby refid="classterminal_1_1_display_1a3d6f1c19739fa330d758951a7be249dd" compoundref="_display_8cpp" startline="211" endline="211">writeToPty</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a96f58201d64de70c95725f3ec9f44676" compoundref="_display_8cpp" startline="88" endline="179">valueTreePropertyChanged</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a3d6f1c19739fa330d758951a7be249dd" compoundref="_display_8cpp" startline="208" endline="208">writeToPty</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classterminal_1_1_display_1ab4df5fcfe2827a6f52aaae7d48935bb7" prot="private" static="no" mutable="no">
         <type><ref refid="structterminal_1_1_model" kindref="compound">terminal::Model</ref> &amp;</type>
@@ -242,18 +241,17 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/component/Display.h" line="98" column="21" bodyfile="terminal/component/Display.h" bodystart="98" bodyend="-1"/>
-        <referencedby refid="classterminal_1_1_display_1a22a44a31c7bc528a6a584408ddfc7cf8" compoundref="_display_8cpp" startline="187" endline="192">copySelection</referencedby>
-        <referencedby refid="classterminal_1_1_display_1aba2b9e271d38ad4e5268333aaac31d8d" compoundref="_display_8cpp" startline="3" endline="36">Display</referencedby>
-        <referencedby refid="classterminal_1_1_display_1a51e40f907d1725afc433513c8b5e2bc1" compoundref="_display_8cpp" startline="185" endline="185">enterSelectionMode</referencedby>
-        <referencedby refid="classterminal_1_1_display_1a2f1c265247307e3189f1b639c7a38361" compoundref="_display_8cpp" startline="50" endline="50">getValueTree</referencedby>
-        <referencedby refid="classterminal_1_1_display_1a858679ef9dc232b5406fe94c5f6c79cb" compoundref="_display_8cpp" startline="194" endline="204">hasSelection</referencedby>
-        <referencedby refid="classterminal_1_1_display_1afd5758511197f47a6bf7fb96d9886b5a" compoundref="_display_8cpp" startline="218" endline="256">resized</referencedby>
-        <referencedby refid="classterminal_1_1_display_1a96f58201d64de70c95725f3ec9f44676" compoundref="_display_8cpp" startline="91" endline="182">valueTreePropertyChanged</referencedby>
-        <referencedby refid="classterminal_1_1_display_1a33d13f29e268c4641b6d79f077bab78a" compoundref="_display_8cpp" startline="38" endline="43">~Display</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a4d5c9e51f93d6251bd8cdf81b8a9bd75" compoundref="_display_8cpp" startline="48" endline="69">applyFromAppModel</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a22a44a31c7bc528a6a584408ddfc7cf8" compoundref="_display_8cpp" startline="184" endline="189">copySelection</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a51e40f907d1725afc433513c8b5e2bc1" compoundref="_display_8cpp" startline="182" endline="182">enterSelectionMode</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a858679ef9dc232b5406fe94c5f6c79cb" compoundref="_display_8cpp" startline="191" endline="201">hasSelection</referencedby>
+        <referencedby refid="classterminal_1_1_display_1afd5758511197f47a6bf7fb96d9886b5a" compoundref="_display_8cpp" startline="215" endline="253">resized</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a96f58201d64de70c95725f3ec9f44676" compoundref="_display_8cpp" startline="88" endline="179">valueTreePropertyChanged</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a33d13f29e268c4641b6d79f077bab78a" compoundref="_display_8cpp" startline="36" endline="41">~Display</referencedby>
       </memberdef>
-      <memberdef kind="variable" id="classterminal_1_1_display_1af0d7d75128d9a9bc0a62e430a94d737c" prot="private" static="no" mutable="no">
-        <type>std::unique_ptr&lt; <ref refid="classjam_1_1_component_attachment" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::ComponentAttachment</ref> &gt;</type>
-        <definition>std::unique_ptr&lt;jam::ComponentAttachment&gt; terminal::Display::attachment</definition>
+      <memberdef kind="variable" id="classterminal_1_1_display_1a7eac961b34ffac9bb911f6702561fd7e" prot="private" static="no" mutable="no">
+        <type><ref refid="classjam_1_1_value_tree_1_1_attachment" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::ValueTree::Attachment</ref></type>
+        <definition>jam::ValueTree::Attachment terminal::Display::attachment</definition>
         <argsstring></argsstring>
         <name>attachment</name>
         <qualifiedname>terminal::Display::attachment</qualifiedname>
@@ -263,9 +261,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="100" column="21" bodyfile="terminal/component/Display.h" bodystart="100" bodyend="-1"/>
-        <referencedby refid="classterminal_1_1_display_1a4d5c9e51f93d6251bd8cdf81b8a9bd75" compoundref="_display_8cpp" startline="51" endline="72">applyFromAppModel</referencedby>
-        <referencedby refid="classterminal_1_1_display_1afd5758511197f47a6bf7fb96d9886b5a" compoundref="_display_8cpp" startline="218" endline="256">resized</referencedby>
+        <location file="terminal/component/Display.h" line="100" column="32" bodyfile="terminal/component/Display.h" bodystart="100" bodyend="-1"/>
       </memberdef>
       <memberdef kind="variable" id="classterminal_1_1_display_1a433ce38b90249658cdee6201a0cd0b86" prot="private" static="no" mutable="no">
         <type>std::array&lt; int, <ref refid="struct_map_1_1_screen_1a8056c9409ef123c5e432c77dbcd03f11" kindref="member">Map::Screen::count</ref> &gt;</type>
@@ -283,7 +279,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/component/Display.h" line="106" column="16" bodyfile="terminal/component/Display.h" bodystart="106" bodyend="106"/>
-        <referencedby refid="classterminal_1_1_display_1a96f58201d64de70c95725f3ec9f44676" compoundref="_display_8cpp" startline="91" endline="182">valueTreePropertyChanged</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a96f58201d64de70c95725f3ec9f44676" compoundref="_display_8cpp" startline="88" endline="179">valueTreePropertyChanged</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classterminal_1_1_display_1aa29d50a3ba2b5ac9b6a1f6921189f31b" prot="private" static="no" mutable="no">
         <type><ref refid="classterminal_1_1_link_manager" kindref="compound">terminal::LinkManager</ref></type>
@@ -298,7 +294,6 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/component/Display.h" line="108" column="27" bodyfile="terminal/component/Display.h" bodystart="108" bodyend="-1"/>
-        <referencedby refid="classterminal_1_1_display_1aba2b9e271d38ad4e5268333aaac31d8d" compoundref="_display_8cpp" startline="3" endline="36">Display</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classterminal_1_1_display_1a56902129be2ac08d4fd6b026387f3c30" prot="private" static="no" mutable="no">
         <type><ref refid="classterminal_1_1_input" kindref="compound">terminal::Input</ref></type>
@@ -313,8 +308,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/component/Display.h" line="109" column="21" bodyfile="terminal/component/Display.h" bodystart="109" bodyend="-1"/>
-        <referencedby refid="classterminal_1_1_display_1a4d5c9e51f93d6251bd8cdf81b8a9bd75" compoundref="_display_8cpp" startline="51" endline="72">applyFromAppModel</referencedby>
-        <referencedby refid="classterminal_1_1_display_1ac7671d2f5e124fe1d0002c19440229fd" compoundref="_display_8cpp" startline="259" endline="267">keyPressed</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a4d5c9e51f93d6251bd8cdf81b8a9bd75" compoundref="_display_8cpp" startline="48" endline="69">applyFromAppModel</referencedby>
+        <referencedby refid="classterminal_1_1_display_1ac7671d2f5e124fe1d0002c19440229fd" compoundref="_display_8cpp" startline="256" endline="264">keyPressed</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classterminal_1_1_display_1a76b9f59f3f9b03f6b34d92f73e38b657" prot="private" static="no" mutable="no">
         <type><ref refid="classterminal_1_1_mouse" kindref="compound">terminal::Mouse</ref></type>
@@ -329,12 +324,12 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/component/Display.h" line="110" column="21" bodyfile="terminal/component/Display.h" bodystart="110" bodyend="-1"/>
-        <referencedby refid="classterminal_1_1_display_1a4d5c9e51f93d6251bd8cdf81b8a9bd75" compoundref="_display_8cpp" startline="51" endline="72">applyFromAppModel</referencedby>
-        <referencedby refid="classterminal_1_1_display_1a601d4f2075e743c2757ede96e1c200dd" compoundref="_display_8cpp" startline="271" endline="271">mouseDoubleClick</referencedby>
-        <referencedby refid="classterminal_1_1_display_1aad5cb90dff1a5da0b038c4d508ebff7d" compoundref="_display_8cpp" startline="270" endline="270">mouseDown</referencedby>
-        <referencedby refid="classterminal_1_1_display_1a9b83dcb0b85f61952747b2c9c561e31d" compoundref="_display_8cpp" startline="272" endline="272">mouseDrag</referencedby>
-        <referencedby refid="classterminal_1_1_display_1a818cf50c6edd518f5c383ca09ae8b5e2" compoundref="_display_8cpp" startline="274" endline="274">mouseMove</referencedby>
-        <referencedby refid="classterminal_1_1_display_1ab28c97970e1f0bc8137613d4f12d4416" compoundref="_display_8cpp" startline="273" endline="273">mouseUp</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a4d5c9e51f93d6251bd8cdf81b8a9bd75" compoundref="_display_8cpp" startline="48" endline="69">applyFromAppModel</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a601d4f2075e743c2757ede96e1c200dd" compoundref="_display_8cpp" startline="268" endline="268">mouseDoubleClick</referencedby>
+        <referencedby refid="classterminal_1_1_display_1aad5cb90dff1a5da0b038c4d508ebff7d" compoundref="_display_8cpp" startline="267" endline="267">mouseDown</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a9b83dcb0b85f61952747b2c9c561e31d" compoundref="_display_8cpp" startline="269" endline="269">mouseDrag</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a818cf50c6edd518f5c383ca09ae8b5e2" compoundref="_display_8cpp" startline="271" endline="271">mouseMove</referencedby>
+        <referencedby refid="classterminal_1_1_display_1ab28c97970e1f0bc8137613d4f12d4416" compoundref="_display_8cpp" startline="270" endline="270">mouseUp</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classterminal_1_1_display_1a2dd6e6eb013b7d0a9302c321d5d75c4d" prot="private" static="no" mutable="no">
         <type><ref refid="structterminal_1_1_display_1_1_config_listener" kindref="compound">ConfigListener</ref></type>
@@ -350,7 +345,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/component/Display.h" line="126" column="20" bodyfile="terminal/component/Display.h" bodystart="126" bodyend="126"/>
-        <referencedby refid="classterminal_1_1_display_1a33d13f29e268c4641b6d79f077bab78a" compoundref="_display_8cpp" startline="38" endline="43">~Display</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a33d13f29e268c4641b6d79f077bab78a" compoundref="_display_8cpp" startline="36" endline="41">~Display</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">
@@ -384,14 +379,15 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="56" column="5" bodyfile="terminal/component/Display.cpp" bodystart="3" bodyend="36"/>
-        <references refid="classterminal_1_1_display_1a828a78229475e8213a7753f212806fbc" compoundref="_display_8h" startline="79" endline="79">getProcessor</references>
-        <references refid="classterminal_1_1_session_1a3564c58fc509e22d7e900071233cea5e" compoundref="_session_8cpp" startline="406" endline="410">terminal::Session::getProcessor</references>
-        <references refid="classterminal_1_1_display_1aa29d50a3ba2b5ac9b6a1f6921189f31b" compoundref="_display_8h" startline="108">linkManager</references>
-        <references refid="classterminal_1_1_display_1ac9742b57e514bca8ba57639a1b28928f" compoundref="_display_8h" startline="97">processor</references>
-        <references refid="classterminal_1_1_display_1a84cccc586dafd4010281887d9c5a8a86" compoundref="_display_8h" startline="96">session</references>
-        <references refid="classterminal_1_1_display_1ab4df5fcfe2827a6f52aaae7d48935bb7" compoundref="_display_8h" startline="98">state</references>
+        <location file="terminal/component/Display.h" line="57" column="5" bodyfile="terminal/component/Display.cpp" bodystart="3" bodyend="34"/>
+        <references refid="namespaceterminal_1_1id_1a0e30c34b95c11793be83bc3c6adb0c27" compoundref="_identifier_8h" startline="138" endline="138">terminal::id::baseline</references>
+        <references refid="namespaceterminal_1_1id_1a90a87bb834cd3d8010472103526b0e6f" compoundref="_identifier_8h" startline="135" endline="135">terminal::id::cellHeight</references>
+        <references refid="namespaceterminal_1_1id_1a24851586253954da0bdefe155b4bda44" compoundref="_identifier_8h" startline="132" endline="132">terminal::id::cellWidth</references>
+        <references refid="structjam_1_1_value_tree_1_1_component_with_i_d_1a1b1614733807b69868cd6a6f417af0ae">jam::ValueTree::ComponentWithID&lt; Display &gt;::ComponentWithID</references>
+        <references refid="classterminal_1_1_display_1aba2b9e271d38ad4e5268333aaac31d8d" compoundref="_display_8cpp" startline="3" endline="34">Display</references>
+        <references refid="namespaceterminal_1_1id_1a74ede1ffd0ee235b77447a91e4965995" compoundref="_identifier_8h" startline="141" endline="141">terminal::id::fontSize</references>
         <referencedby refid="structterminal_1_1_display_1_1_config_listener_1ab2321b389d513daaf39861a62605bc1e" compoundref="_display_8h" startline="118" endline="118">terminal::Display::ConfigListener::ConfigListener</referencedby>
+        <referencedby refid="classterminal_1_1_display_1aba2b9e271d38ad4e5268333aaac31d8d" compoundref="_display_8cpp" startline="3" endline="34">Display</referencedby>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_display_1a33d13f29e268c4641b6d79f077bab78a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type></type>
@@ -405,7 +401,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="58" column="5" bodyfile="terminal/component/Display.cpp" bodystart="38" bodyend="43"/>
+        <location file="terminal/component/Display.h" line="59" column="5" bodyfile="terminal/component/Display.cpp" bodystart="36" bodyend="41"/>
         <references refid="classterminal_1_1_display_1a2dd6e6eb013b7d0a9302c321d5d75c4d" compoundref="_display_8h" startline="126" endline="126">configListener</references>
         <references refid="classterminal_1_1_display_1a84cccc586dafd4010281887d9c5a8a86" compoundref="_display_8h" startline="96">session</references>
         <references refid="classterminal_1_1_display_1ab4df5fcfe2827a6f52aaae7d48935bb7" compoundref="_display_8h" startline="98">state</references>
@@ -416,7 +412,7 @@
         <argsstring>() const noexcept override</argsstring>
         <name>getPaneType</name>
         <qualifiedname>terminal::Display::getPaneType</qualifiedname>
-        <reimplements refid="class_pane_component_1a1c77b11fdb0a53c438872fc7ec03553d">getPaneType</reimplements>
+        <reimplements refid="class_pane_view_1ae57da3aa6719f166963269be19d81ef2">getPaneType</reimplements>
         <briefdescription>
 <para>Returns a string identifier for the pane type (&quot;terminal&quot; or &quot;document&quot;). </para>
         </briefdescription>
@@ -430,29 +426,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="61" column="18" bodyfile="terminal/component/Display.cpp" bodystart="46" bodyend="49"/>
+        <location file="terminal/component/Display.h" line="62" column="18" bodyfile="terminal/component/Display.cpp" bodystart="44" bodyend="47"/>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Derived &gt;::getContext</references>
         <references refid="struct_map_1_1_pane_type_1a26b29bb01d0ebc96052d9f071b2794ceac0919083fc9d573f2caea390a3625410" compoundref="_map_8h" startline="138">Map::PaneType::terminal</references>
-      </memberdef>
-      <memberdef kind="function" id="classterminal_1_1_display_1a2f1c265247307e3189f1b639c7a38361" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="virtual">
-        <type>juce::ValueTree</type>
-        <definition>juce::ValueTree Display::getValueTree</definition>
-        <argsstring>() noexcept override</argsstring>
-        <name>getValueTree</name>
-        <qualifiedname>terminal::Display::getValueTree</qualifiedname>
-        <reimplements refid="class_pane_component_1a00cf3614e041e534cf0c631df573c5cb">getValueTree</reimplements>
-        <briefdescription>
-<para>Returns the pane&apos;s root <ref refid="classValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ValueTree</ref> for grafting into <ref refid="struct_app_model" kindref="compound">AppModel</ref>. </para>
-        </briefdescription>
-        <detaileddescription>
-<para><simplesect kind="note"><para>MESSAGE THREAD. </para>
-</simplesect>
-</para>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="terminal/component/Display.h" line="62" column="21" bodyfile="terminal/component/Display.cpp" bodystart="50" bodyend="50"/>
-        <references refid="classterminal_1_1_display_1ab4df5fcfe2827a6f52aaae7d48935bb7" compoundref="_display_8h" startline="98">state</references>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_display_1aaafdfb7ab2395946be6b70e0e189bcf8" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="virtual">
         <type>void</type>
@@ -460,7 +436,7 @@
         <argsstring>(float zoom) noexcept override</argsstring>
         <name>applyZoom</name>
         <qualifiedname>terminal::Display::applyZoom</qualifiedname>
-        <reimplements refid="class_pane_component_1a5754a5ad90eff33aefeaf972e609ac06">applyZoom</reimplements>
+        <reimplements refid="class_pane_view_1a5dc13a70b2845f4a44e2bf0e7913782f">applyZoom</reimplements>
         <param>
           <type>float</type>
           <declname>zoom</declname>
@@ -484,7 +460,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="63" column="10" bodyfile="terminal/component/Display.cpp" bodystart="184" bodyend="184"/>
+        <location file="terminal/component/Display.h" line="63" column="10" bodyfile="terminal/component/Display.cpp" bodystart="181" bodyend="181"/>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_display_1a51e40f907d1725afc433513c8b5e2bc1" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="virtual">
         <type>void</type>
@@ -492,7 +468,7 @@
         <argsstring>() noexcept override</argsstring>
         <name>enterSelectionMode</name>
         <qualifiedname>terminal::Display::enterSelectionMode</qualifiedname>
-        <reimplements refid="class_pane_component_1aa1f15568c84debd32630ccfba2aa2801">enterSelectionMode</reimplements>
+        <reimplements refid="class_pane_view_1a3b154dde48bee6aa5032b0b8288fc06a">enterSelectionMode</reimplements>
         <briefdescription>
 <para>Enters vim-style keyboard selection mode. </para>
         </briefdescription>
@@ -503,7 +479,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="64" column="10" bodyfile="terminal/component/Display.cpp" bodystart="185" bodyend="185"/>
+        <location file="terminal/component/Display.h" line="64" column="10" bodyfile="terminal/component/Display.cpp" bodystart="182" bodyend="182"/>
         <references refid="classterminal_1_1_display_1ab4df5fcfe2827a6f52aaae7d48935bb7" compoundref="_display_8h" startline="98">state</references>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_display_1a22a44a31c7bc528a6a584408ddfc7cf8" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="virtual">
@@ -512,7 +488,7 @@
         <argsstring>() noexcept override</argsstring>
         <name>copySelection</name>
         <qualifiedname>terminal::Display::copySelection</qualifiedname>
-        <reimplements refid="class_pane_component_1a9ef4d9180f4618bfa92727a1191659b8">copySelection</reimplements>
+        <reimplements refid="class_pane_view_1ab0eb542e3a463fce3b4da3117b3ac9c2">copySelection</reimplements>
         <briefdescription>
 <para>Copies the active selection to the system clipboard and clears selection. </para>
         </briefdescription>
@@ -523,7 +499,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="65" column="10" bodyfile="terminal/component/Display.cpp" bodystart="187" bodyend="192"/>
+        <location file="terminal/component/Display.h" line="65" column="10" bodyfile="terminal/component/Display.cpp" bodystart="184" bodyend="189"/>
         <references refid="classterminal_1_1_display_1ab4df5fcfe2827a6f52aaae7d48935bb7" compoundref="_display_8h" startline="98">state</references>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_display_1a858679ef9dc232b5406fe94c5f6c79cb" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="virtual">
@@ -532,7 +508,7 @@
         <argsstring>() const noexcept override</argsstring>
         <name>hasSelection</name>
         <qualifiedname>terminal::Display::hasSelection</qualifiedname>
-        <reimplements refid="class_pane_component_1a24ffa54e82c421a664da37f7aee799c8">hasSelection</reimplements>
+        <reimplements refid="class_pane_view_1a5b522ca7d6365011ec218909618c0cc5">hasSelection</reimplements>
         <briefdescription>
 <para>Returns true if there is an active text selection. </para>
         </briefdescription>
@@ -543,8 +519,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="66" column="10" bodyfile="terminal/component/Display.cpp" bodystart="194" bodyend="204"/>
+        <location file="terminal/component/Display.h" line="66" column="10" bodyfile="terminal/component/Display.cpp" bodystart="191" bodyend="201"/>
         <references refid="classjam_1_1_code_view_1a93a5ced4b1717717dac8f5d07a4a4f9ca921134cac19521591ed4ad00784c9ea9">jam::CodeView::codeViewId</references>
+        <references refid="structjam_1_1_value_tree_1_1_component_1ab587799358050ce53720ef28f33e01eb">jam::ValueTree::Component::node</references>
         <references refid="classjam_1_1_code_view_1a6360f1b4243ed6ade7dde533ed2624bb">jam::CodeView::properties</references>
         <references refid="classjam_1_1_code_view_1a93a5ced4b1717717dac8f5d07a4a4f9ca9025212cef75f42667371ef36fabc880">jam::CodeView::selectionTypeId</references>
         <references refid="classterminal_1_1_display_1ab4df5fcfe2827a6f52aaae7d48935bb7" compoundref="_display_8h" startline="98">state</references>
@@ -561,7 +538,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="69" column="10" bodyfile="terminal/component/Display.cpp" bodystart="207" bodyend="207"/>
+        <location file="terminal/component/Display.h" line="69" column="10" bodyfile="terminal/component/Display.cpp" bodystart="204" bodyend="204"/>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_display_1a802ea0d464c73e490108e174c75009be" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
         <type>void</type>
@@ -575,7 +552,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="70" column="10" bodyfile="terminal/component/Display.cpp" bodystart="208" bodyend="208"/>
+        <location file="terminal/component/Display.h" line="70" column="10" bodyfile="terminal/component/Display.cpp" bodystart="205" bodyend="205"/>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_display_1aa9aa883d0643ce237cd9f3f39e2a38f7" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
         <type>void</type>
@@ -589,7 +566,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="71" column="10" bodyfile="terminal/component/Display.cpp" bodystart="209" bodyend="209"/>
+        <location file="terminal/component/Display.h" line="71" column="10" bodyfile="terminal/component/Display.cpp" bodystart="206" bodyend="206"/>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_display_1a72c3a3308d4683cf57ef4ce35c7c85b0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -603,7 +580,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="72" column="10" bodyfile="terminal/component/Display.cpp" bodystart="210" bodyend="210"/>
+        <location file="terminal/component/Display.h" line="72" column="10" bodyfile="terminal/component/Display.cpp" bodystart="207" bodyend="207"/>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_display_1a3d6f1c19739fa330d758951a7be249dd" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
         <type>void</type>
@@ -625,7 +602,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="73" column="10" bodyfile="terminal/component/Display.cpp" bodystart="211" bodyend="211"/>
+        <location file="terminal/component/Display.h" line="73" column="10" bodyfile="terminal/component/Display.cpp" bodystart="208" bodyend="208"/>
         <references refid="classterminal_1_1_display_1ac9742b57e514bca8ba57639a1b28928f" compoundref="_display_8h" startline="97">processor</references>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_display_1ad16cf74242003393eb446e80586cca69" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
@@ -640,7 +617,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="74" column="9" bodyfile="terminal/component/Display.cpp" bodystart="212" bodyend="212"/>
+        <location file="terminal/component/Display.h" line="74" column="9" bodyfile="terminal/component/Display.cpp" bodystart="209" bodyend="209"/>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_display_1a79e9528da6877aa69600dc0db4ab6686" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
         <type>int</type>
@@ -654,7 +631,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="75" column="9" bodyfile="terminal/component/Display.cpp" bodystart="213" bodyend="213"/>
+        <location file="terminal/component/Display.h" line="75" column="9" bodyfile="terminal/component/Display.cpp" bodystart="210" bodyend="210"/>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_display_1a828a78229475e8213a7753f212806fbc" prot="public" static="no" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
         <type><ref refid="classterminal_1_1_processor" kindref="compound">terminal::Processor</ref> &amp;</type>
@@ -675,7 +652,6 @@
         <location file="terminal/component/Display.h" line="79" column="25" bodyfile="terminal/component/Display.h" bodystart="79" bodyend="79"/>
         <references refid="classterminal_1_1_display_1a828a78229475e8213a7753f212806fbc" compoundref="_display_8h" startline="79" endline="79">getProcessor</references>
         <references refid="classterminal_1_1_display_1ac9742b57e514bca8ba57639a1b28928f" compoundref="_display_8h" startline="97">processor</references>
-        <referencedby refid="classterminal_1_1_display_1aba2b9e271d38ad4e5268333aaac31d8d" compoundref="_display_8cpp" startline="3" endline="36">Display</referencedby>
         <referencedby refid="classterminal_1_1_display_1a828a78229475e8213a7753f212806fbc" compoundref="_display_8h" startline="79" endline="79">getProcessor</referencedby>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_display_1afd5758511197f47a6bf7fb96d9886b5a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -690,14 +666,14 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="82" column="10" bodyfile="terminal/component/Display.cpp" bodystart="218" bodyend="256"/>
-        <references refid="classterminal_1_1_display_1af0d7d75128d9a9bc0a62e430a94d737c" compoundref="_display_8h" startline="100">attachment</references>
+        <location file="terminal/component/Display.h" line="82" column="10" bodyfile="terminal/component/Display.cpp" bodystart="215" bodyend="253"/>
         <references refid="namespaceterminal_1_1id_1a90a87bb834cd3d8010472103526b0e6f" compoundref="_identifier_8h" startline="135" endline="135">terminal::id::cellHeight</references>
         <references refid="namespaceterminal_1_1id_1a24851586253954da0bdefe155b4bda44" compoundref="_identifier_8h" startline="132" endline="132">terminal::id::cellWidth</references>
         <references refid="classjam_1_1_code_view_1a93a5ced4b1717717dac8f5d07a4a4f9ca921134cac19521591ed4ad00784c9ea9">jam::CodeView::codeViewId</references>
         <references refid="structjam_1_1_cell_1_1_rectangle_1aabcbe216a06a05584c753c346ccd769b">jam::Cell::Rectangle::fromPixel</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
-        <references refid="classjam_1_1_model_1a2f037e88407eb8b95b9ab7daf7c0b15c">jam::Model::getValueFromChildWithID</references>
+        <references refid="structjam_1_1_value_tree_1a7cd25c35d555eb38c4788e72ed7aa95b">jam::ValueTree::getValueFromChildWithID</references>
+        <references refid="structjam_1_1_value_tree_1_1_component_1af113c64ae0452249b0ebf97fbdb8c0a8">jam::ValueTree::Component::getValueTree</references>
         <references refid="structjam_1_1_i_d_1ab6389fe91d4bb010418fc3d930e869b6">jam::ID::height</references>
         <references refid="classjam_1_1_code_view_1a6360f1b4243ed6ade7dde533ed2624bb">jam::CodeView::properties</references>
         <references refid="classterminal_1_1_display_1a84cccc586dafd4010281887d9c5a8a86" compoundref="_display_8h" startline="96">session</references>
@@ -721,7 +697,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="83" column="10" bodyfile="terminal/component/Display.cpp" bodystart="216" bodyend="216"/>
+        <location file="terminal/component/Display.h" line="83" column="10" bodyfile="terminal/component/Display.cpp" bodystart="213" bodyend="213"/>
         <references refid="classterminal_1_1_display_1a84cccc586dafd4010281887d9c5a8a86" compoundref="_display_8h" startline="96">session</references>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_display_1ac7671d2f5e124fe1d0002c19440229fd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -744,7 +720,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="86" column="10" bodyfile="terminal/component/Display.cpp" bodystart="259" bodyend="267"/>
+        <location file="terminal/component/Display.h" line="86" column="10" bodyfile="terminal/component/Display.cpp" bodystart="256" bodyend="264"/>
         <references refid="classterminal_1_1_display_1a56902129be2ac08d4fd6b026387f3c30" compoundref="_display_8h" startline="109">input</references>
         <references refid="classterminal_1_1_display_1a84cccc586dafd4010281887d9c5a8a86" compoundref="_display_8h" startline="96">session</references>
       </memberdef>
@@ -764,7 +740,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="89" column="10" bodyfile="terminal/component/Display.cpp" bodystart="270" bodyend="270"/>
+        <location file="terminal/component/Display.h" line="89" column="10" bodyfile="terminal/component/Display.cpp" bodystart="267" bodyend="267"/>
         <references refid="classterminal_1_1_display_1a76b9f59f3f9b03f6b34d92f73e38b657" compoundref="_display_8h" startline="110">mouse</references>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_display_1a601d4f2075e743c2757ede96e1c200dd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -783,7 +759,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="90" column="10" bodyfile="terminal/component/Display.cpp" bodystart="271" bodyend="271"/>
+        <location file="terminal/component/Display.h" line="90" column="10" bodyfile="terminal/component/Display.cpp" bodystart="268" bodyend="268"/>
         <references refid="classterminal_1_1_display_1a76b9f59f3f9b03f6b34d92f73e38b657" compoundref="_display_8h" startline="110">mouse</references>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_display_1a9b83dcb0b85f61952747b2c9c561e31d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -802,7 +778,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="91" column="10" bodyfile="terminal/component/Display.cpp" bodystart="272" bodyend="272"/>
+        <location file="terminal/component/Display.h" line="91" column="10" bodyfile="terminal/component/Display.cpp" bodystart="269" bodyend="269"/>
         <references refid="classterminal_1_1_display_1a76b9f59f3f9b03f6b34d92f73e38b657" compoundref="_display_8h" startline="110">mouse</references>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_display_1ab28c97970e1f0bc8137613d4f12d4416" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -821,7 +797,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="92" column="10" bodyfile="terminal/component/Display.cpp" bodystart="273" bodyend="273"/>
+        <location file="terminal/component/Display.h" line="92" column="10" bodyfile="terminal/component/Display.cpp" bodystart="270" bodyend="270"/>
         <references refid="classterminal_1_1_display_1a76b9f59f3f9b03f6b34d92f73e38b657" compoundref="_display_8h" startline="110">mouse</references>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_display_1a818cf50c6edd518f5c383ca09ae8b5e2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -840,7 +816,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="93" column="10" bodyfile="terminal/component/Display.cpp" bodystart="274" bodyend="274"/>
+        <location file="terminal/component/Display.h" line="93" column="10" bodyfile="terminal/component/Display.cpp" bodystart="271" bodyend="271"/>
         <references refid="classterminal_1_1_display_1a76b9f59f3f9b03f6b34d92f73e38b657" compoundref="_display_8h" startline="110">mouse</references>
       </memberdef>
     </sectiondef>
@@ -857,20 +833,21 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="128" column="10" bodyfile="terminal/component/Display.cpp" bodystart="51" bodyend="72"/>
-        <references refid="classterminal_1_1_display_1af0d7d75128d9a9bc0a62e430a94d737c" compoundref="_display_8h" startline="100">attachment</references>
+        <location file="terminal/component/Display.h" line="128" column="10" bodyfile="terminal/component/Display.cpp" bodystart="48" bodyend="69"/>
         <references refid="structjam_1_1_font_1abeb932a23dd7582bc4e537dd1a78ca20">jam::Font::baseline</references>
         <references refid="namespaceterminal_1_1id_1a0e30c34b95c11793be83bc3c6adb0c27" compoundref="_identifier_8h" startline="138" endline="138">terminal::id::baseline</references>
         <references refid="structjam_1_1_font_1a7eaadf8cff31c90d759339153197544e">jam::Font::cellHeight</references>
         <references refid="namespaceterminal_1_1id_1a90a87bb834cd3d8010472103526b0e6f" compoundref="_identifier_8h" startline="135" endline="135">terminal::id::cellHeight</references>
         <references refid="structjam_1_1_font_1a242a8b90fcd977d98e7bff48cbea2e29">jam::Font::cellWidth</references>
         <references refid="namespaceterminal_1_1id_1a24851586253954da0bdefe155b4bda44" compoundref="_identifier_8h" startline="132" endline="132">terminal::id::cellWidth</references>
+        <references refid="namespaceterminal_1_1id_1ac60aa22c1be553aa55cbd312cb0ef0df" compoundref="_identifier_8h" startline="100" endline="100">terminal::id::DISPLAY</references>
         <references refid="structjam_1_1_font_1afba855a46a48bddfee98975d3e1795e4">jam::Font::fontSize</references>
         <references refid="namespaceterminal_1_1id_1a74ede1ffd0ee235b77447a91e4965995" compoundref="_identifier_8h" startline="141" endline="141">terminal::id::fontSize</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
         <references refid="classterminal_1_1_display_1a56902129be2ac08d4fd6b026387f3c30" compoundref="_display_8h" startline="109">input</references>
         <references refid="classterminal_1_1_display_1a76b9f59f3f9b03f6b34d92f73e38b657" compoundref="_display_8h" startline="110">mouse</references>
         <references refid="classterminal_1_1_display_1a84cccc586dafd4010281887d9c5a8a86" compoundref="_display_8h" startline="96">session</references>
+        <references refid="classterminal_1_1_display_1ab4df5fcfe2827a6f52aaae7d48935bb7" compoundref="_display_8h" startline="98">state</references>
         <references refid="namespacejam_1aa855f56f0be351b996daf527406a3ca8">jam::toChar</references>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_display_1a96f58201d64de70c95725f3ec9f44676" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -893,7 +870,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="129" column="10" bodyfile="terminal/component/Display.cpp" bodystart="91" bodyend="182"/>
+        <location file="terminal/component/Display.h" line="129" column="10" bodyfile="terminal/component/Display.cpp" bodystart="88" bodyend="179"/>
         <references refid="namespaceterminal_1_1id_1ad9fd72b61b4ec96b2a652a7762f89ac3" compoundref="_identifier_8h" startline="129" endline="129">terminal::id::activeScreen</references>
         <references refid="struct_map_1_1_screen_1ae896a8da63494212bf03476a7240bcd7a1496f93865164852b01cd516fa71a3e8" compoundref="_map_8h" startline="42">Map::Screen::alternate</references>
         <references refid="classjam_1_1_code_model_1a33e542fc5e9c5a94f049d723e85a6cfc">jam::CodeModel::append</references>
@@ -902,7 +879,7 @@
         <references refid="namespaceterminal_1_1id_1a30123845e4ea3907ed59d354a9a8dfcf" compoundref="_identifier_8h" startline="215" endline="215">terminal::id::cursor</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Derived &gt;::getContext</references>
         <references refid="classjam_1_1_code_model_1af3a02c150faf4703d1c5d56deb377b1a">jam::CodeModel::getNumLines</references>
-        <references refid="classjam_1_1_model_1a2f037e88407eb8b95b9ab7daf7c0b15c">jam::Model::getValueFromChildWithID</references>
+        <references refid="structjam_1_1_value_tree_1a7cd25c35d555eb38c4788e72ed7aa95b">jam::ValueTree::getValueFromChildWithID</references>
         <references refid="namespaceterminal_1_1id_1a4cea21a405bc847e5f7b62e8957dda2f" compoundref="_identifier_8h" startline="107" endline="107">terminal::id::id</references>
         <references refid="group__juce__core-system_1ga1f96ab6751237979b907a54f52a7296a">jassert</references>
         <references refid="classterminal_1_1_display_1a433ce38b90249658cdee6201a0cd0b86" compoundref="_display_8h" startline="106" endline="106">liveTailExtent</references>
@@ -927,18 +904,28 @@
     </detaileddescription>
     <inheritancegraph>
       <node id="2">
-        <label>PaneComponent</label>
-        <link refid="class_pane_component"/>
+        <label>PaneView</label>
+        <link refid="class_pane_view"/>
         <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>jam::ValueTree::Component</label>
+        <link refid="structjam_1_1_value_tree_1_1_component" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+      <node id="4">
+        <label>jam::ValueTree::ComponentWithID&lt; Display &gt;</label>
+        <link refid="structjam_1_1_value_tree_1_1_component_with_i_d" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="5" relation="public-inheritance">
         </childnode>
       </node>
       <node id="3">
         <label>juce::Component</label>
       </node>
-      <node id="4">
+      <node id="6">
         <label>juce::KeyListener</label>
       </node>
-      <node id="5">
+      <node id="7">
         <label>juce::ValueTree::Listener</label>
       </node>
       <node id="1">
@@ -948,370 +935,387 @@
         </childnode>
         <childnode refid="4" relation="public-inheritance">
         </childnode>
-        <childnode refid="5" relation="public-inheritance">
+        <childnode refid="6" relation="public-inheritance">
+        </childnode>
+        <childnode refid="7" relation="public-inheritance">
         </childnode>
       </node>
     </inheritancegraph>
     <collaborationgraph>
-      <node id="55">
+      <node id="58">
         <label>GraphemeSegmentationResult</label>
         <link refid="struct_grapheme_segmentation_result"/>
       </node>
       <node id="2">
-        <label>PaneComponent</label>
-        <link refid="class_pane_component"/>
+        <label>PaneView</label>
+        <link refid="class_pane_view"/>
         <childnode refid="3" relation="public-inheritance">
         </childnode>
       </node>
-      <node id="38">
+      <node id="41">
         <label>TTY</label>
         <link refid="class_t_t_y"/>
-        <childnode refid="39" relation="public-inheritance">
+        <childnode refid="42" relation="public-inheritance">
         </childnode>
-        <childnode refid="40" relation="usage">
+        <childnode refid="43" relation="usage">
           <edgelabel>events</edgelabel>
         </childnode>
-        <childnode refid="41" relation="usage">
+        <childnode refid="44" relation="usage">
           <edgelabel>shellIntegrationEnv</edgelabel>
         </childnode>
       </node>
-      <node id="73">
+      <node id="77">
         <label>Value</label>
         <link refid="classValue" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag"/>
       </node>
-      <node id="7">
+      <node id="9">
         <label>Value::Listener</label>
         <link refid="classValue_1_1Listener" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag"/>
       </node>
-      <node id="15">
+      <node id="17">
         <label>jam::AnyMap</label>
         <link refid="classjam_1_1_any_map" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="16" relation="usage">
+        <childnode refid="18" relation="usage">
           <edgelabel>entries</edgelabel>
         </childnode>
-        <childnode refid="18" relation="usage">
+        <childnode refid="20" relation="usage">
           <edgelabel>types</edgelabel>
         </childnode>
       </node>
-      <node id="51">
+      <node id="54">
         <label>jam::Block&lt; jam::Row &gt;</label>
         <link refid="classjam_1_1_block" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="49">
+      <node id="52">
         <label>jam::Buffer&lt; jam::Row &gt;</label>
         <link refid="classjam_1_1_buffer" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="46">
+      <node id="49">
         <label>jam::BufferSPSC</label>
         <link refid="classjam_1_1_buffer_s_p_s_c" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="12" relation="usage">
+        <childnode refid="14" relation="usage">
           <edgelabel>validStart</edgelabel>
         </childnode>
       </node>
-      <node id="27">
+      <node id="30">
         <label>jam::CaretComponent</label>
         <link refid="classjam_1_1_caret_component" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="25" relation="usage">
+        <childnode refid="28" relation="usage">
           <edgelabel>font</edgelabel>
         </childnode>
       </node>
-      <node id="52">
+      <node id="55">
         <label>jam::Cell</label>
         <link refid="structjam_1_1_cell" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="47">
+      <node id="50">
         <label>jam::CodeLine</label>
         <link refid="structjam_1_1_code_line" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="21">
+      <node id="23">
         <label>jam::CodeModel</label>
         <link refid="classjam_1_1_code_model" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="22" relation="usage">
+        <childnode refid="24" relation="usage">
           <edgelabel>screens</edgelabel>
         </childnode>
       </node>
-      <node id="23">
+      <node id="25">
         <label>jam::CodeView</label>
         <link refid="classjam_1_1_code_view" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="24" relation="usage">
+        <childnode refid="26" relation="public-inheritance">
+        </childnode>
+        <childnode refid="27" relation="usage">
           <edgelabel>properties</edgelabel>
         </childnode>
-        <childnode refid="25" relation="usage">
+        <childnode refid="28" relation="usage">
           <edgelabel>font</edgelabel>
         </childnode>
-        <childnode refid="21" relation="usage">
+        <childnode refid="23" relation="usage">
           <edgelabel>document</edgelabel>
         </childnode>
-        <childnode refid="26" relation="usage">
+        <childnode refid="29" relation="usage">
           <edgelabel>caret</edgelabel>
         </childnode>
-        <childnode refid="28" relation="usage">
+        <childnode refid="31" relation="usage">
           <edgelabel>stateAttachment</edgelabel>
         </childnode>
-        <childnode refid="29" relation="usage">
+        <childnode refid="32" relation="usage">
           <edgelabel>contentView</edgelabel>
         </childnode>
-        <childnode refid="31" relation="usage">
+        <childnode refid="34" relation="usage">
           <edgelabel>viewport</edgelabel>
         </childnode>
-        <childnode refid="33" relation="usage">
+        <childnode refid="36" relation="usage">
           <edgelabel>arrangement</edgelabel>
         </childnode>
-        <childnode refid="34" relation="usage">
+        <childnode refid="37" relation="usage">
           <edgelabel>glyphGraphics</edgelabel>
         </childnode>
       </node>
-      <node id="32">
+      <node id="35">
         <label>jam::CodeView::CodeViewViewport</label>
         <link refid="structjam_1_1_code_view_1_1_code_view_viewport" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="23" relation="usage">
+        <childnode refid="25" relation="usage">
           <edgelabel>owner</edgelabel>
         </childnode>
       </node>
-      <node id="30">
+      <node id="33">
         <label>jam::CodeView::ContentView</label>
         <link refid="structjam_1_1_code_view_1_1_content_view" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="23" relation="usage">
+        <childnode refid="25" relation="usage">
           <edgelabel>owner</edgelabel>
         </childnode>
       </node>
       <node id="28">
-        <label>jam::ComponentAttachment</label>
-        <link refid="classjam_1_1_component_attachment" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="14" relation="usage">
-          <edgelabel>parentTree</edgelabel>
-        </childnode>
-      </node>
-      <node id="25">
         <label>jam::Font</label>
         <link refid="structjam_1_1_font" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="40">
+      <node id="43">
         <label>jam::Function::Map&lt; juce::Identifier, void &gt;</label>
         <link refid="structjam_1_1_function_1_1_map" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="14">
+      <node id="16">
         <label>jam::Model</label>
         <link refid="classjam_1_1_model" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="15" relation="usage">
+        <childnode refid="17" relation="usage">
           <edgelabel>params</edgelabel>
         </childnode>
-        <childnode refid="19" relation="usage">
+        <childnode refid="21" relation="usage">
           <edgelabel>uniqueNodeMap</edgelabel>
         </childnode>
       </node>
-      <node id="22">
+      <node id="24">
         <label>jam::Owner&lt; jam::CodeModel::Screen &gt;</label>
         <link refid="classjam_1_1_owner" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="72">
+      <node id="76">
         <label>jam::Resizer</label>
         <link refid="classjam_1_1_resizer" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="40" relation="usage">
+        <childnode refid="43" relation="usage">
           <edgelabel>triggers</edgelabel>
         </childnode>
       </node>
-      <node id="33">
+      <node id="31">
+        <label>jam::ValueTree::Attachment</label>
+        <link refid="classjam_1_1_value_tree_1_1_attachment" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+      <node id="5">
+        <label>jam::ValueTree::Component</label>
+        <link refid="structjam_1_1_value_tree_1_1_component" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+      <node id="26">
+        <label>jam::ValueTree::ComponentWithID&lt; CodeView &gt;</label>
+        <link refid="structjam_1_1_value_tree_1_1_component_with_i_d" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>jam::ValueTree::ComponentWithID&lt; Display &gt;</label>
+        <link refid="structjam_1_1_value_tree_1_1_component_with_i_d" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="36">
         <label>jam::glyph::Arrangement</label>
         <link refid="classjam_1_1glyph_1_1_arrangement" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="34">
+      <node id="37">
         <label>jam::glyph::Graphics</label>
         <link refid="classjam_1_1glyph_1_1_graphics" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
       <node id="3">
         <label>juce::Component</label>
       </node>
-      <node id="4">
+      <node id="6">
         <label>juce::KeyListener</label>
       </node>
-      <node id="39">
+      <node id="42">
         <label>juce::Thread</label>
       </node>
-      <node id="5">
+      <node id="7">
         <label>juce::ValueTree::Listener</label>
       </node>
-      <node id="66">
+      <node id="69">
         <label>std::array&lt; StateRow, STATE_COUNT &gt;</label>
       </node>
-      <node id="70">
+      <node id="73">
         <label>std::array&lt; int, 2 &gt;</label>
       </node>
-      <node id="75">
+      <node id="78">
         <label>std::array&lt; int, Map::Screen::count &gt;</label>
       </node>
-      <node id="50">
-        <label>std::array&lt; jam::Block&lt; jam::Row &gt;, 2 &gt;</label>
-        <childnode refid="51" relation="usage">
-          <edgelabel>elements</edgelabel>
-        </childnode>
-      </node>
-      <node id="24">
-        <label>std::array&lt; juce::Identifier, propertyCount &gt;</label>
-      </node>
       <node id="53">
-        <label>std::array&lt; terminal::Video::SavedCursor, 2 &gt;</label>
+        <label>std::array&lt; jam::Block&lt; jam::Row &gt;, 2 &gt;</label>
         <childnode refid="54" relation="usage">
           <edgelabel>elements</edgelabel>
         </childnode>
       </node>
-      <node id="68">
+      <node id="27">
+        <label>std::array&lt; juce::Identifier, propertyCount &gt;</label>
+      </node>
+      <node id="56">
+        <label>std::array&lt; terminal::Video::SavedCursor, 2 &gt;</label>
+        <childnode refid="57" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+      <node id="71">
         <label>std::array&lt; uint16_t, MAX_PARAMS &gt;</label>
       </node>
-      <node id="69">
+      <node id="72">
         <label>std::array&lt; uint32_t, 2 *maxKeyboardStackDepth &gt;</label>
       </node>
-      <node id="12">
+      <node id="14">
         <label>std::atomic&lt; int &gt;</label>
       </node>
-      <node id="44">
+      <node id="47">
         <label>std::basic_string&lt; Char &gt;</label>
       </node>
-      <node id="42">
+      <node id="45">
         <label>std::pair&lt; std::string, std::string &gt;</label>
-        <childnode refid="43" relation="usage">
+        <childnode refid="46" relation="usage">
           <edgelabel>first_type</edgelabel>
           <edgelabel>second_type</edgelabel>
         </childnode>
       </node>
-      <node id="43">
+      <node id="46">
         <label>std::string</label>
-        <childnode refid="44" relation="public-inheritance">
+        <childnode refid="47" relation="public-inheritance">
         </childnode>
       </node>
-      <node id="37">
+      <node id="40">
         <label>std::unique_ptr&lt; TTY &gt;</label>
-        <childnode refid="38" relation="usage">
-          <edgelabel>ptr</edgelabel>
-        </childnode>
-      </node>
-      <node id="26">
-        <label>std::unique_ptr&lt; jam::CaretComponent &gt;</label>
-        <childnode refid="27" relation="usage">
-          <edgelabel>ptr</edgelabel>
-        </childnode>
-      </node>
-      <node id="31">
-        <label>std::unique_ptr&lt; jam::CodeView::CodeViewViewport &gt;</label>
-        <childnode refid="32" relation="usage">
+        <childnode refid="41" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
       <node id="29">
-        <label>std::unique_ptr&lt; jam::CodeView::ContentView &gt;</label>
+        <label>std::unique_ptr&lt; jam::CaretComponent &gt;</label>
         <childnode refid="30" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
-      <node id="74">
-        <label>std::unique_ptr&lt; jam::ComponentAttachment &gt;</label>
-        <childnode refid="28" relation="usage">
+      <node id="34">
+        <label>std::unique_ptr&lt; jam::CodeView::CodeViewViewport &gt;</label>
+        <childnode refid="35" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
-      <node id="71">
+      <node id="32">
+        <label>std::unique_ptr&lt; jam::CodeView::ContentView &gt;</label>
+        <childnode refid="33" relation="usage">
+          <edgelabel>ptr</edgelabel>
+        </childnode>
+      </node>
+      <node id="75">
         <label>std::unique_ptr&lt; jam::Resizer &gt;</label>
-        <childnode refid="72" relation="usage">
+        <childnode refid="76" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
-      <node id="20">
+      <node id="74">
+        <label>std::unique_ptr&lt; jam::ValueTree::Attachment &gt;</label>
+        <childnode refid="31" relation="usage">
+          <edgelabel>ptr</edgelabel>
+        </childnode>
+      </node>
+      <node id="22">
         <label>std::unique_ptr&lt; std::atomic&lt; int &gt;[]&gt;</label>
-        <childnode refid="12" relation="usage">
+        <childnode refid="14" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
-      <node id="63">
+      <node id="66">
         <label>std::unique_ptr&lt; terminal::Parser &gt;</label>
-        <childnode refid="64" relation="usage">
+        <childnode refid="67" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
-      <node id="35">
+      <node id="38">
         <label>std::unique_ptr&lt; terminal::Processor &gt;</label>
-        <childnode refid="36" relation="usage">
+        <childnode refid="39" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
-      <node id="10">
+      <node id="12">
         <label>std::unique_ptr&lt; terminal::TextSlot &gt;</label>
-        <childnode refid="11" relation="usage">
+        <childnode refid="13" relation="usage">
           <edgelabel>ptr</edgelabel>
-        </childnode>
-      </node>
-      <node id="17">
-        <label>std::unique_ptr&lt; void, Deleter &gt;</label>
-      </node>
-      <node id="18">
-        <label>std::unordered_map&lt; juce::Identifier, std::type_index &gt;</label>
-      </node>
-      <node id="9">
-        <label>std::unordered_map&lt; juce::Identifier, std::unique_ptr&lt; terminal::TextSlot &gt; &gt;</label>
-        <childnode refid="10" relation="usage">
-          <edgelabel>elements</edgelabel>
-        </childnode>
-      </node>
-      <node id="16">
-        <label>std::unordered_map&lt; juce::Identifier, std::unique_ptr&lt; void, Deleter &gt; &gt;</label>
-        <childnode refid="17" relation="usage">
-          <edgelabel>elements</edgelabel>
         </childnode>
       </node>
       <node id="19">
+        <label>std::unique_ptr&lt; void, Deleter &gt;</label>
+      </node>
+      <node id="20">
+        <label>std::unordered_map&lt; juce::Identifier, std::type_index &gt;</label>
+      </node>
+      <node id="11">
+        <label>std::unordered_map&lt; juce::Identifier, std::unique_ptr&lt; terminal::TextSlot &gt; &gt;</label>
+        <childnode refid="12" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+      <node id="18">
+        <label>std::unordered_map&lt; juce::Identifier, std::unique_ptr&lt; void, Deleter &gt; &gt;</label>
+        <childnode refid="19" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+      <node id="21">
         <label>std::unordered_map&lt; juce::String, juce::ValueTree &gt;</label>
       </node>
-      <node id="59">
+      <node id="62">
         <label>std::unordered_map&lt; uint32_t, terminal::KittyDecoder::ChunkAccumulator &gt;</label>
-        <childnode refid="60" relation="usage">
+        <childnode refid="63" relation="usage">
           <edgelabel>elements</edgelabel>
         </childnode>
       </node>
-      <node id="61">
+      <node id="64">
         <label>std::unordered_map&lt; uint32_t, terminal::KittyDecoder::StoredImage &gt;</label>
-        <childnode refid="62" relation="usage">
+        <childnode refid="65" relation="usage">
           <edgelabel>elements</edgelabel>
         </childnode>
       </node>
-      <node id="56">
+      <node id="59">
         <label>std::vector&lt; char &gt;</label>
       </node>
-      <node id="79">
+      <node id="82">
         <label>std::vector&lt; int &gt;</label>
       </node>
-      <node id="41">
+      <node id="44">
         <label>std::vector&lt; std::pair&lt; std::string, std::string &gt; &gt;</label>
-        <childnode refid="42" relation="usage">
+        <childnode refid="45" relation="usage">
           <edgelabel>elements</edgelabel>
         </childnode>
       </node>
-      <node id="77">
+      <node id="80">
         <label>std::vector&lt; terminal::LinkSpan &gt;</label>
-        <childnode refid="78" relation="usage">
+        <childnode refid="81" relation="usage">
           <edgelabel>elements</edgelabel>
         </childnode>
       </node>
-      <node id="67">
+      <node id="70">
         <label>terminal::CSI</label>
         <link refid="structterminal_1_1_c_s_i"/>
-        <childnode refid="68" relation="usage">
+        <childnode refid="71" relation="usage">
           <edgelabel>values</edgelabel>
         </childnode>
       </node>
-      <node id="45">
+      <node id="48">
         <label>terminal::CellFifo</label>
         <link refid="classterminal_1_1_cell_fifo"/>
-        <childnode refid="46" relation="usage">
+        <childnode refid="49" relation="usage">
           <edgelabel>activeRing</edgelabel>
           <edgelabel>historyRing</edgelabel>
         </childnode>
-        <childnode refid="47" relation="usage">
+        <childnode refid="50" relation="usage">
           <edgelabel>pending</edgelabel>
         </childnode>
       </node>
-      <node id="65">
+      <node id="68">
         <label>terminal::DispatchTable</label>
         <link refid="classterminal_1_1_dispatch_table"/>
-        <childnode refid="66" relation="usage">
+        <childnode refid="69" relation="usage">
           <edgelabel>table</edgelabel>
         </childnode>
       </node>
@@ -1322,250 +1326,255 @@
         </childnode>
         <childnode refid="4" relation="public-inheritance">
         </childnode>
-        <childnode refid="5" relation="public-inheritance">
+        <childnode refid="6" relation="public-inheritance">
         </childnode>
-        <childnode refid="6" relation="usage">
+        <childnode refid="7" relation="public-inheritance">
+        </childnode>
+        <childnode refid="8" relation="usage">
           <edgelabel>session</edgelabel>
         </childnode>
-        <childnode refid="36" relation="usage">
+        <childnode refid="39" relation="usage">
           <edgelabel>processor</edgelabel>
         </childnode>
-        <childnode refid="13" relation="usage">
+        <childnode refid="15" relation="usage">
           <edgelabel>state</edgelabel>
         </childnode>
-        <childnode refid="74" relation="usage">
+        <childnode refid="31" relation="usage">
           <edgelabel>attachment</edgelabel>
         </childnode>
-        <childnode refid="75" relation="usage">
+        <childnode refid="78" relation="usage">
           <edgelabel>liveTailExtent</edgelabel>
         </childnode>
-        <childnode refid="76" relation="usage">
+        <childnode refid="79" relation="usage">
           <edgelabel>linkManager</edgelabel>
         </childnode>
-        <childnode refid="80" relation="usage">
+        <childnode refid="83" relation="usage">
           <edgelabel>input</edgelabel>
         </childnode>
-        <childnode refid="82" relation="usage">
+        <childnode refid="85" relation="usage">
           <edgelabel>mouse</edgelabel>
         </childnode>
-        <childnode refid="83" relation="usage">
+        <childnode refid="86" relation="usage">
           <edgelabel>configListener</edgelabel>
         </childnode>
       </node>
-      <node id="83">
+      <node id="86">
         <label>terminal::Display::ConfigListener</label>
         <link refid="structterminal_1_1_display_1_1_config_listener"/>
-        <childnode refid="5" relation="private-inheritance">
+        <childnode refid="7" relation="private-inheritance">
         </childnode>
         <childnode refid="1" relation="usage">
           <edgelabel>display</edgelabel>
         </childnode>
       </node>
-      <node id="80">
+      <node id="83">
         <label>terminal::Input</label>
         <link refid="classterminal_1_1_input"/>
-        <childnode refid="36" relation="usage">
+        <childnode refid="39" relation="usage">
           <edgelabel>processor</edgelabel>
         </childnode>
-        <childnode refid="76" relation="usage">
+        <childnode refid="79" relation="usage">
           <edgelabel>linkManager</edgelabel>
         </childnode>
-        <childnode refid="81" relation="usage">
+        <childnode refid="84" relation="usage">
           <edgelabel>selectionKeys</edgelabel>
         </childnode>
       </node>
-      <node id="81">
+      <node id="84">
         <label>terminal::Input::SelectionKeys</label>
         <link refid="structterminal_1_1_input_1_1_selection_keys"/>
       </node>
-      <node id="58">
+      <node id="61">
         <label>terminal::KittyDecoder</label>
         <link refid="classterminal_1_1_kitty_decoder"/>
-        <childnode refid="59" relation="usage">
+        <childnode refid="62" relation="usage">
           <edgelabel>chunks</edgelabel>
         </childnode>
-        <childnode refid="61" relation="usage">
+        <childnode refid="64" relation="usage">
           <edgelabel>storedImages</edgelabel>
         </childnode>
       </node>
-      <node id="60">
+      <node id="63">
         <label>terminal::KittyDecoder::ChunkAccumulator</label>
         <link refid="structterminal_1_1_kitty_decoder_1_1_chunk_accumulator"/>
       </node>
-      <node id="62">
+      <node id="65">
         <label>terminal::KittyDecoder::StoredImage</label>
         <link refid="structterminal_1_1_kitty_decoder_1_1_stored_image"/>
       </node>
-      <node id="76">
+      <node id="79">
         <label>terminal::LinkManager</label>
         <link refid="classterminal_1_1_link_manager"/>
-        <childnode refid="5" relation="public-inheritance">
+        <childnode refid="7" relation="public-inheritance">
         </childnode>
-        <childnode refid="13" relation="usage">
+        <childnode refid="15" relation="usage">
           <edgelabel>state</edgelabel>
         </childnode>
-        <childnode refid="77" relation="usage">
+        <childnode refid="80" relation="usage">
           <edgelabel>clickableLinks</edgelabel>
           <edgelabel>hintLinks</edgelabel>
         </childnode>
-        <childnode refid="79" relation="usage">
+        <childnode refid="82" relation="usage">
           <edgelabel>pageBreaks</edgelabel>
         </childnode>
       </node>
-      <node id="78">
+      <node id="81">
         <label>terminal::LinkSpan</label>
         <link refid="structterminal_1_1_link_span"/>
-        <childnode refid="52" relation="usage">
+        <childnode refid="55" relation="usage">
           <edgelabel>col</edgelabel>
           <edgelabel>labelCol</edgelabel>
           <edgelabel>row</edgelabel>
         </childnode>
       </node>
-      <node id="13">
+      <node id="15">
         <label>terminal::Model</label>
         <link refid="structterminal_1_1_model"/>
-        <childnode refid="14" relation="public-inheritance">
+        <childnode refid="16" relation="public-inheritance">
         </childnode>
-        <childnode refid="5" relation="private-inheritance">
+        <childnode refid="7" relation="private-inheritance">
         </childnode>
-        <childnode refid="20" relation="usage">
+        <childnode refid="22" relation="usage">
           <edgelabel>rowDirtyFlags</edgelabel>
         </childnode>
-        <childnode refid="8" relation="usage">
+        <childnode refid="10" relation="usage">
           <edgelabel>textBuffer</edgelabel>
         </childnode>
       </node>
-      <node id="82">
+      <node id="85">
         <label>terminal::Mouse</label>
         <link refid="classterminal_1_1_mouse"/>
-        <childnode refid="36" relation="usage">
+        <childnode refid="39" relation="usage">
           <edgelabel>processor</edgelabel>
         </childnode>
-        <childnode refid="76" relation="usage">
+        <childnode refid="79" relation="usage">
           <edgelabel>linkManager</edgelabel>
         </childnode>
       </node>
-      <node id="64">
+      <node id="67">
         <label>terminal::Parser</label>
         <link refid="classterminal_1_1_parser"/>
-        <childnode refid="48" relation="usage">
+        <childnode refid="51" relation="usage">
           <edgelabel>video</edgelabel>
         </childnode>
-        <childnode refid="65" relation="usage">
+        <childnode refid="68" relation="usage">
           <edgelabel>dispatchTable</edgelabel>
         </childnode>
-        <childnode refid="67" relation="usage">
+        <childnode refid="70" relation="usage">
           <edgelabel>csi</edgelabel>
         </childnode>
       </node>
-      <node id="36">
+      <node id="39">
         <label>terminal::Processor</label>
         <link refid="classterminal_1_1_processor"/>
-        <childnode refid="5" relation="public-inheritance">
-        </childnode>
-        <childnode refid="37" relation="usage">
-          <edgelabel>tty</edgelabel>
-        </childnode>
-        <childnode refid="8" relation="usage">
-          <edgelabel>textBuffer</edgelabel>
-        </childnode>
-        <childnode refid="45" relation="usage">
-          <edgelabel>cellFifo</edgelabel>
-        </childnode>
-        <childnode refid="13" relation="usage">
-          <edgelabel>state</edgelabel>
+        <childnode refid="7" relation="public-inheritance">
         </childnode>
         <childnode refid="40" relation="usage">
+          <edgelabel>tty</edgelabel>
+        </childnode>
+        <childnode refid="10" relation="usage">
+          <edgelabel>textBuffer</edgelabel>
+        </childnode>
+        <childnode refid="48" relation="usage">
+          <edgelabel>cellFifo</edgelabel>
+        </childnode>
+        <childnode refid="15" relation="usage">
+          <edgelabel>state</edgelabel>
+        </childnode>
+        <childnode refid="43" relation="usage">
           <edgelabel>events</edgelabel>
           <edgelabel>parameters</edgelabel>
         </childnode>
-        <childnode refid="48" relation="usage">
+        <childnode refid="51" relation="usage">
           <edgelabel>video</edgelabel>
         </childnode>
-        <childnode refid="57" relation="usage">
+        <childnode refid="60" relation="usage">
           <edgelabel>skit</edgelabel>
         </childnode>
-        <childnode refid="63" relation="usage">
+        <childnode refid="66" relation="usage">
           <edgelabel>parser</edgelabel>
         </childnode>
-        <childnode refid="69" relation="usage">
+        <childnode refid="72" relation="usage">
           <edgelabel>keyboardModeStack</edgelabel>
         </childnode>
-        <childnode refid="70" relation="usage">
+        <childnode refid="73" relation="usage">
           <edgelabel>keyboardModeStackSize</edgelabel>
         </childnode>
       </node>
-      <node id="6">
+      <node id="8">
         <label>terminal::Session</label>
         <link refid="classterminal_1_1_session"/>
-        <childnode refid="7" relation="private-inheritance">
+        <childnode refid="9" relation="private-inheritance">
         </childnode>
-        <childnode refid="8" relation="usage">
+        <childnode refid="10" relation="usage">
           <edgelabel>textBuffer</edgelabel>
         </childnode>
-        <childnode refid="13" relation="usage">
+        <childnode refid="15" relation="usage">
           <edgelabel>model</edgelabel>
         </childnode>
-        <childnode refid="21" relation="usage">
+        <childnode refid="23" relation="usage">
           <edgelabel>codeModel</edgelabel>
         </childnode>
-        <childnode refid="23" relation="usage">
+        <childnode refid="25" relation="usage">
           <edgelabel>textEditor</edgelabel>
         </childnode>
-        <childnode refid="35" relation="usage">
+        <childnode refid="38" relation="usage">
           <edgelabel>processor</edgelabel>
         </childnode>
-        <childnode refid="71" relation="usage">
+        <childnode refid="74" relation="usage">
+          <edgelabel>sessionAttachment</edgelabel>
+        </childnode>
+        <childnode refid="75" relation="usage">
           <edgelabel>resizer</edgelabel>
         </childnode>
-        <childnode refid="73" relation="usage">
+        <childnode refid="77" relation="usage">
           <edgelabel>winsize</edgelabel>
         </childnode>
-        <childnode refid="52" relation="usage">
+        <childnode refid="55" relation="usage">
           <edgelabel>startCols</edgelabel>
           <edgelabel>startRows</edgelabel>
         </childnode>
       </node>
-      <node id="57">
+      <node id="60">
         <label>terminal::Skit</label>
         <link refid="classterminal_1_1_skit"/>
-        <childnode refid="40" relation="usage">
+        <childnode refid="43" relation="usage">
           <edgelabel>events</edgelabel>
         </childnode>
-        <childnode refid="58" relation="usage">
+        <childnode refid="61" relation="usage">
           <edgelabel>kittyDecoder</edgelabel>
         </childnode>
-        <childnode refid="52" relation="usage">
+        <childnode refid="55" relation="usage">
           <edgelabel>lastImageRows</edgelabel>
         </childnode>
       </node>
-      <node id="8">
+      <node id="10">
         <label>terminal::TextBuffer</label>
         <link refid="structterminal_1_1_text_buffer"/>
-        <childnode refid="9" relation="usage">
+        <childnode refid="11" relation="usage">
           <edgelabel>slots</edgelabel>
         </childnode>
       </node>
-      <node id="11">
+      <node id="13">
         <label>terminal::TextSlot</label>
         <link refid="structterminal_1_1_text_slot"/>
-        <childnode refid="12" relation="usage">
+        <childnode refid="14" relation="usage">
           <edgelabel>active</edgelabel>
         </childnode>
       </node>
-      <node id="48">
+      <node id="51">
         <label>terminal::Video</label>
         <link refid="classterminal_1_1_video"/>
-        <childnode refid="49" relation="usage">
+        <childnode refid="52" relation="usage">
           <edgelabel>grid</edgelabel>
         </childnode>
-        <childnode refid="50" relation="usage">
+        <childnode refid="53" relation="usage">
           <edgelabel>blocks</edgelabel>
         </childnode>
-        <childnode refid="40" relation="usage">
+        <childnode refid="43" relation="usage">
           <edgelabel>events</edgelabel>
         </childnode>
-        <childnode refid="52" relation="usage">
+        <childnode refid="55" relation="usage">
           <edgelabel>cols</edgelabel>
           <edgelabel>cursorCol</edgelabel>
           <edgelabel>cursorRow</edgelabel>
@@ -1573,26 +1582,26 @@
           <edgelabel>scrollTop</edgelabel>
           <edgelabel>visibleRows</edgelabel>
         </childnode>
-        <childnode refid="53" relation="usage">
+        <childnode refid="56" relation="usage">
           <edgelabel>savedCursor</edgelabel>
         </childnode>
-        <childnode refid="55" relation="usage">
+        <childnode refid="58" relation="usage">
           <edgelabel>graphemeState</edgelabel>
         </childnode>
-        <childnode refid="56" relation="usage">
+        <childnode refid="59" relation="usage">
           <edgelabel>tabStops</edgelabel>
         </childnode>
       </node>
-      <node id="54">
+      <node id="57">
         <label>terminal::Video::SavedCursor</label>
         <link refid="structterminal_1_1_video_1_1_saved_cursor"/>
-        <childnode refid="52" relation="usage">
+        <childnode refid="55" relation="usage">
           <edgelabel>col</edgelabel>
           <edgelabel>row</edgelabel>
         </childnode>
       </node>
     </collaborationgraph>
-    <location file="terminal/component/Display.h" line="13" column="1" bodyfile="terminal/component/Display.h" bodystart="17" bodyend="133"/>
+    <location file="terminal/component/Display.h" line="13" column="1" bodyfile="terminal/component/Display.h" bodystart="18" bodyend="133"/>
     <listofallmembers>
       <member refid="classterminal_1_1_display_1ae191378e54e5671c8f04a878881bcbf1a4b9947423ce895b242abd980723734d7" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>ansi0ColourId</name></member>
       <member refid="classterminal_1_1_display_1ae191378e54e5671c8f04a878881bcbf1a8952049b8972ab05358a3ec6f8b1741e" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>ansi10ColourId</name></member>
@@ -1612,8 +1621,11 @@
       <member refid="classterminal_1_1_display_1ae191378e54e5671c8f04a878881bcbf1aaec9283a201d3132290e8c0d56952470" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>ansi9ColourId</name></member>
       <member refid="classterminal_1_1_display_1a4d5c9e51f93d6251bd8cdf81b8a9bd75" prot="private" virt="non-virtual"><scope>terminal::Display</scope><name>applyFromAppModel</name></member>
       <member refid="classterminal_1_1_display_1aaafdfb7ab2395946be6b70e0e189bcf8" prot="public" virt="virtual"><scope>terminal::Display</scope><name>applyZoom</name></member>
-      <member refid="classterminal_1_1_display_1af0d7d75128d9a9bc0a62e430a94d737c" prot="private" virt="non-virtual"><scope>terminal::Display</scope><name>attachment</name></member>
+      <member refid="classterminal_1_1_display_1a7eac961b34ffac9bb911f6702561fd7e" prot="private" virt="non-virtual"><scope>terminal::Display</scope><name>attachment</name></member>
       <member refid="classterminal_1_1_display_1ae191378e54e5671c8f04a878881bcbf1" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>ColourIds</name></member>
+      <member refid="structjam_1_1_value_tree_1_1_component_1a7f12afb19c9e03ae2797eadeb90917be" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>Component</name></member>
+      <member refid="structjam_1_1_value_tree_1_1_component_1aaa3f3062a1c039af8f0ee1673fc06775" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>Component</name></member>
+      <member refid="structjam_1_1_value_tree_1_1_component_with_i_d_1a1b1614733807b69868cd6a6f417af0ae" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>ComponentWithID</name></member>
       <member refid="classterminal_1_1_display_1a2dd6e6eb013b7d0a9302c321d5d75c4d" prot="private" virt="non-virtual"><scope>terminal::Display</scope><name>configListener</name></member>
       <member refid="classterminal_1_1_display_1a22a44a31c7bc528a6a584408ddfc7cf8" prot="public" virt="virtual"><scope>terminal::Display</scope><name>copySelection</name></member>
       <member refid="classterminal_1_1_display_1ae191378e54e5671c8f04a878881bcbf1aedcf556d8c0c7b2c66f6e1c58bf5a3ac" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>cursorColourId</name></member>
@@ -1626,7 +1638,7 @@
       <member refid="classterminal_1_1_display_1a79e9528da6877aa69600dc0db4ab6686" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>getHintTotalPages</name></member>
       <member refid="classterminal_1_1_display_1afb467cdeee6e7bed23e32fcc1a31be38" prot="public" virt="virtual"><scope>terminal::Display</scope><name>getPaneType</name></member>
       <member refid="classterminal_1_1_display_1a828a78229475e8213a7753f212806fbc" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>getProcessor</name></member>
-      <member refid="classterminal_1_1_display_1a2f1c265247307e3189f1b639c7a38361" prot="public" virt="virtual"><scope>terminal::Display</scope><name>getValueTree</name></member>
+      <member refid="structjam_1_1_value_tree_1_1_component_1af113c64ae0452249b0ebf97fbdb8c0a8" prot="public" virt="virtual"><scope>terminal::Display</scope><name>getValueTree</name></member>
       <member refid="classterminal_1_1_display_1a858679ef9dc232b5406fe94c5f6c79cb" prot="public" virt="virtual"><scope>terminal::Display</scope><name>hasSelection</name></member>
       <member refid="classterminal_1_1_display_1ae191378e54e5671c8f04a878881bcbf1a00194958321be2f16223ff149530cbf9" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>hintLabelBgColourId</name></member>
       <member refid="classterminal_1_1_display_1ae191378e54e5671c8f04a878881bcbf1ab9748aac2975feda9bfcfc6d287fa875" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>hintLabelFgColourId</name></member>
@@ -1641,7 +1653,9 @@
       <member refid="classterminal_1_1_display_1a9b83dcb0b85f61952747b2c9c561e31d" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>mouseDrag</name></member>
       <member refid="classterminal_1_1_display_1a818cf50c6edd518f5c383ca09ae8b5e2" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>mouseMove</name></member>
       <member refid="classterminal_1_1_display_1ab28c97970e1f0bc8137613d4f12d4416" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>mouseUp</name></member>
-      <member refid="class_pane_component_1af5de35725b5161afb926fd6923417600" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>PaneComponent</name></member>
+      <member refid="structjam_1_1_value_tree_1_1_component_1ab587799358050ce53720ef28f33e01eb" prot="protected" virt="non-virtual"><scope>terminal::Display</scope><name>node</name></member>
+      <member refid="structjam_1_1_value_tree_1_1_component_1ae5c294c6f2e32f37ca3fea0030062da4" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>onAttachment</name></member>
+      <member refid="class_pane_view_1aca153b6096a1356c483d81f2dc081491" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>PaneView</name></member>
       <member refid="classterminal_1_1_display_1a72c3a3308d4683cf57ef4ce35c7c85b0" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>pasteClipboard</name></member>
       <member refid="classterminal_1_1_display_1ac9742b57e514bca8ba57639a1b28928f" prot="private" virt="non-virtual"><scope>terminal::Display</scope><name>processor</name></member>
       <member refid="classterminal_1_1_display_1afd5758511197f47a6bf7fb96d9886b5a" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>resized</name></member>
@@ -1651,8 +1665,9 @@
       <member refid="classterminal_1_1_display_1ab4df5fcfe2827a6f52aaae7d48935bb7" prot="private" virt="non-virtual"><scope>terminal::Display</scope><name>state</name></member>
       <member refid="classterminal_1_1_display_1a96f58201d64de70c95725f3ec9f44676" prot="private" virt="non-virtual"><scope>terminal::Display</scope><name>valueTreePropertyChanged</name></member>
       <member refid="classterminal_1_1_display_1a3d6f1c19739fa330d758951a7be249dd" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>writeToPty</name></member>
+      <member refid="structjam_1_1_value_tree_1_1_component_1a48477791e420a062998e98410e699180" prot="public" virt="virtual"><scope>terminal::Display</scope><name>~Component</name></member>
       <member refid="classterminal_1_1_display_1a33d13f29e268c4641b6d79f077bab78a" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>~Display</name></member>
-      <member refid="class_pane_component_1ae14089c7d24e0f809a55cc6f7e56aa98" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>~PaneComponent</name></member>
+      <member refid="class_pane_view_1ac9f88cfd0c1888888e26a1a1e7a18a1f" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>~PaneView</name></member>
     </listofallmembers>
   </compounddef>
 </doxygen>

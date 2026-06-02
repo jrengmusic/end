@@ -6,10 +6,10 @@
  * cursor movement, text attributes, and other terminal functions. They follow the format:
  *
  * @code
- * ESC [ <params> <intermediates> <final>
+ * ESC [ \<params\> \<intermediates\> \<final\>
  * @endcode
  *
- * Where <params> is a semicolon-separated list of decimal numbers, e.g.:
+ * Where \<params\> is a semicolon-separated list of decimal numbers, e.g.:
  * - `ESC[1;34m` — set bold (1) and blue foreground (34)
  * - `ESC[10;20H` — move cursor to row 10, column 20
  * - `ESC[38:2:255:0:0m` — set 24-bit RGB color (extended sub-parameter syntax)

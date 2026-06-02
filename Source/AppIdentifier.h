@@ -7,7 +7,7 @@
  * window.state  — window geometry only (standalone, cross-instance):
  *     WINDOW (width, height)
  *
- * nexus/<uuid>.display  — full display state (daemon client mode only):
+ * nexus/\<uuid\>.display  — full display state (daemon client mode only):
  *     END
  *     +-- WINDOW (width, height, zoom, renderer, daemonMode)
  *     +-- TABS (active, position, activePaneID)
@@ -17,7 +17,7 @@
  *                     +-- SESSION (terminal state, grafted from terminal::Model)
  *                     +-- DOCUMENT (whelmed state, grafted from whelmed::State)
  *
- * nexus/<uuid>.nexus  — daemon port only (plain text, no ValueTree).
+ * nexus/\<uuid\>.nexus  — daemon port only (plain text, no ValueTree).
  *
  * @see AppModel
  * @see terminal::ID (terminal-level identifiers in Source/terminal/data/Identifier.h)

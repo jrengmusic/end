@@ -16,9 +16,9 @@
     <innerfile refid="_modal_window_8h">ModalWindow.h</innerfile>
     <innerfile refid="_overlay_8cpp">Overlay.cpp</innerfile>
     <innerfile refid="_overlay_8h">Overlay.h</innerfile>
-    <innerfile refid="_pane_component_8h">PaneComponent.h</innerfile>
     <innerfile refid="_panes_8cpp">Panes.cpp</innerfile>
     <innerfile refid="_panes_8h">Panes.h</innerfile>
+    <innerfile refid="_pane_view_8h">PaneView.h</innerfile>
     <innerfile refid="_popup_8cpp">Popup.cpp</innerfile>
     <innerfile refid="_popup_8h">Popup.h</innerfile>
     <innerfile refid="_screen_selection_8h">ScreenSelection.h</innerfile>

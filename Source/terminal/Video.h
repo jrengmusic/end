@@ -752,7 +752,8 @@ private:
      * scrolled up by one line (the top line is discarded, a blank line is
      * inserted at the bottom).  Otherwise the cursor simply moves down one row.
      *
-     * @param bottom Zero-based index of the last row of the scrolling region.
+     * @param bottom      Zero-based index of the last row of the scrolling region.
+     * @param visibleRows Total number of visible rows in the terminal.
      *
      * @return `true` if a scroll occurred, `false` if the cursor just moved down.
      *
@@ -1129,7 +1130,7 @@ private:
      * @{ */
 
     /**
-     * @brief Handles DEC private mode set/reset sequences (`CSI ? Pm h/l`).
+     * @brief Handles DEC private mode set/reset sequences (CSI ? Pm h/l).
      *
      * Iterates over all parameters in `params` and enables or disables the
      * corresponding private mode.  Recognised modes include:
@@ -1470,13 +1471,13 @@ private:
     void reportCursorPosition (const CSI& params) noexcept;
 
     /**
-     * @brief Handles `CSI c` / `CSI ? c` — Device Attributes (DA1).
+     * @brief Handles CSI c / CSI ? c — Device Attributes (DA1).
      *
      * Queues a primary device attributes response identifying this terminal as
      * a VT220-compatible device.
      *
-     * @param isPrivate  `true` if the sequence was `CSI ? c` (secondary DA),
-     *                   `false` if it was `CSI c` (primary DA).
+     * @param isPrivate  @c true if the sequence was CSI ? c (secondary DA),
+     *                   @c false if it was CSI c (primary DA).
      *
      * @note READER THREAD only.
      *

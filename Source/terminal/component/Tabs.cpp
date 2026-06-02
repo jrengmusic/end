@@ -12,17 +12,6 @@
 namespace terminal
 {
 /*____________________________________________________________________________*/
-/**
- * @brief Constructs the tab container with the given tab bar orientation.
- *
- * The tab bar starts hidden
- * (depth 0) since no tabs exist yet. The first tab is added by the caller
- * (MainComponent) after construction.
- *
- * @param orientation  Tab bar position: top, bottom, left, or right.
- *
- * @note MESSAGE THREAD.
- */
 Tabs::Tabs (jam::TabbedButtonBar::Orientation orientation)
     : jam::TabbedComponent (orientation)
 {
@@ -80,19 +69,6 @@ void Tabs::addNewTab()
     addNewTab (AppModel::getContext()->getPwd(), {}, jam::Cell::Rectangle (newCols, newRows));
 }
 
-/**
- * @brief Creates a new Panes instance in a new tab, using the given cwd, UUID hint, and spawn dims.
- *
- * Used by the state restoration walker. Passes all parameters through to
- * Panes::createTerminal() so the first terminal spawns with deterministic PTY dims
- * derived from the saved split tree, rather than zero bounds.
- *
- * @param workingDirectory  Initial cwd for the first terminal.
- * @param uuid              UUID hint.
- * @param cols              Terminal column count. Must be > 0.
- * @param rows              Terminal row count. Must be > 0.
- * @note MESSAGE THREAD.
- */
 void Tabs::addNewTab (const juce::String& workingDirectory, const juce::String& uuid, jam::Cell::Rectangle dims)
 {
     jassert (dims.getWidth().value > 0 and dims.getHeight().value > 0);
@@ -150,10 +126,10 @@ Panes* Tabs::getActivePanes() const noexcept
  * @return Reference to the active pane owner, or a static empty owner.
  * @note MESSAGE THREAD.
  */
-jam::Owner<PaneComponent>& Tabs::getPanes() noexcept
+jam::Owner<PaneView>& Tabs::getPanes() noexcept
 {
-    static jam::Owner<PaneComponent> empty;
-    jam::Owner<PaneComponent>* result { &empty };
+    static jam::Owner<PaneView> empty;
+    jam::Owner<PaneView>* result { &empty };
 
     if (auto* active { getActivePanes() }; active != nullptr)
         result = &active->getPanes();
@@ -163,16 +139,13 @@ jam::Owner<PaneComponent>& Tabs::getPanes() noexcept
 
 void Tabs::globalFocusChanged (juce::Component* focusedComponent)
 {
-    if (auto* pane { dynamic_cast<PaneComponent*> (focusedComponent) }; pane != nullptr)
+    if (auto* term { dynamic_cast<terminal::Display*> (focusedComponent) }; term != nullptr)
     {
-        tabName.referTo (pane->getValueTree().getPropertyAsValue (app::id::displayName, nullptr));
-
-        if (auto* term { dynamic_cast<terminal::Display*> (focusedComponent) }; term != nullptr)
-        {
-            const auto uuid { term->getValueTree().getProperty (jam::ID::id).toString() };
-            AppModel::getContext()->setActivePaneID (uuid);
-            AppModel::getContext()->setPwd (term->getValueTree());
-        }
+        const auto uuid { term->getComponentID() };
+        auto sessionTree { term->getProcessor().getState().getRootTree() };
+        tabName.referTo (sessionTree.getPropertyAsValue (app::id::displayName, nullptr));
+        AppModel::getContext()->setActivePaneID (uuid);
+        AppModel::getContext()->setPwd (sessionTree);
     }
 }
 
@@ -259,11 +232,11 @@ terminal::Display* Tabs::getActiveTerminal() const noexcept
     return result;
 }
 
-PaneComponent* Tabs::getActivePane() const noexcept
+PaneView* Tabs::getActivePane() const noexcept
 {
     const auto activeID { AppModel::getContext()->getActivePaneID() };
     const auto activeType { AppModel::getContext()->getActivePaneType() };
-    PaneComponent* result { nullptr };
+    PaneView* result { nullptr };
 
     if (auto* active { getActivePanes() }; active != nullptr)
     {
@@ -320,15 +293,6 @@ void Tabs::resized()
     }
 }
 
-/**
- * @brief Toggles Panes visibility when the active tab changes.
- *
- * Hides all Panes, shows the newly selected one, then updates focus.
- *
- * @param newIndex  The index of the newly selected tab.
- *
- * @note MESSAGE THREAD.
- */
 void Tabs::currentTabChanged (int newIndex, const juce::String&)
 {
     for (auto& p : panes)
@@ -392,16 +356,6 @@ jam::TabbedButtonBar::Orientation Tabs::orientationFromString (const juce::Strin
     return static_cast<jam::TabbedButtonBar::Orientation> (Map::TabPosition::getContext()->get (position));
 }
 
-/**
- * @brief Returns the content rect available for Panes given a tab-bar depth.
- *
- * Reads window dimensions from AppModel (SSOT) and applies the
- * orientation-appropriate trim for the given @p depth.
- *
- * @param tabBarDepth  Tab-bar pixel depth to subtract from the base bounds.
- * @return Pixel rect available for the active Panes component.
- * @note MESSAGE THREAD.
- */
 juce::Rectangle<int> Tabs::computeContentRect (int tabBarDepth) const noexcept
 {
     const auto* ctx { AppModel::getContext() };

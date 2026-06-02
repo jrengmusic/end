@@ -70,17 +70,17 @@ juce::ValueTree AppModel::getTabs() noexcept
 
 int AppModel::getWindowWidth() const noexcept
 {
-    return static_cast<int> (jam::Model::getValueFromChildWithID (state, jam::ID::width).getValue());
+    return static_cast<int> (jam::ValueTree::getValueFromChildWithID (state, jam::ID::width).getValue());
 }
 
 int AppModel::getWindowHeight() const noexcept
 {
-    return static_cast<int> (jam::Model::getValueFromChildWithID (state, jam::ID::height).getValue());
+    return static_cast<int> (jam::ValueTree::getValueFromChildWithID (state, jam::ID::height).getValue());
 }
 
 float AppModel::getWindowZoom() const noexcept
 {
-    return static_cast<float> (static_cast<double> (jam::Model::getValueFromChildWithID (state, app::id::zoom).getValue()));
+    return static_cast<float> (static_cast<double> (jam::ValueTree::getValueFromChildWithID (state, app::id::zoom).getValue()));
 }
 
 void AppModel::setWindowSize (int width, int height)
@@ -97,7 +97,7 @@ void AppModel::setWindowZoom (float zoom)
 
 juce::String AppModel::getFontFamily() const noexcept
 {
-    return jam::Model::getValueFromChildWithID (state, app::id::fontFamily).getValue().toString();
+    return jam::ValueTree::getValueFromChildWithID (state, app::id::fontFamily).getValue().toString();
 }
 
 void AppModel::setFontFamily (const juce::String& family)
@@ -107,7 +107,7 @@ void AppModel::setFontFamily (const juce::String& family)
 
 float AppModel::getFontSize() const noexcept
 {
-    return static_cast<float> (static_cast<double> (jam::Model::getValueFromChildWithID (state, app::id::fontSize).getValue()));
+    return static_cast<float> (static_cast<double> (jam::ValueTree::getValueFromChildWithID (state, app::id::fontSize).getValue()));
 }
 
 void AppModel::setFontSize (float size)
@@ -122,7 +122,7 @@ void AppModel::setScrollbackLines (int lines)
 
 int AppModel::getCellWidth() const noexcept
 {
-    return static_cast<int> (jam::Model::getValueFromChildWithID (state, app::id::cellWidth).getValue());
+    return static_cast<int> (jam::ValueTree::getValueFromChildWithID (state, app::id::cellWidth).getValue());
 }
 
 void AppModel::setCellWidth (int width)
@@ -132,7 +132,7 @@ void AppModel::setCellWidth (int width)
 
 int AppModel::getLineHeight() const noexcept
 {
-    return static_cast<int> (jam::Model::getValueFromChildWithID (state, app::id::lineHeight).getValue());
+    return static_cast<int> (jam::ValueTree::getValueFromChildWithID (state, app::id::lineHeight).getValue());
 }
 
 void AppModel::setLineHeight (int height)
@@ -142,7 +142,7 @@ void AppModel::setLineHeight (int height)
 
 int AppModel::getCursorCodepoint() const noexcept
 {
-    return static_cast<int> (jam::Model::getValueFromChildWithID (state, app::id::cursorCodepoint).getValue());
+    return static_cast<int> (jam::ValueTree::getValueFromChildWithID (state, app::id::cursorCodepoint).getValue());
 }
 
 void AppModel::setCursorCodepoint (int codepoint)
@@ -152,7 +152,7 @@ void AppModel::setCursorCodepoint (int codepoint)
 
 int AppModel::getCursorStyle() const noexcept
 {
-    return static_cast<int> (jam::Model::getValueFromChildWithID (state, app::id::cursorStyle).getValue());
+    return static_cast<int> (jam::ValueTree::getValueFromChildWithID (state, app::id::cursorStyle).getValue());
 }
 
 void AppModel::setCursorStyle (int style)
@@ -162,7 +162,7 @@ void AppModel::setCursorStyle (int style)
 
 int AppModel::getCursorBlinkInterval() const noexcept
 {
-    return static_cast<int> (jam::Model::getValueFromChildWithID (state, app::id::cursorBlinkInterval).getValue());
+    return static_cast<int> (jam::ValueTree::getValueFromChildWithID (state, app::id::cursorBlinkInterval).getValue());
 }
 
 void AppModel::setCursorBlinkInterval (int ms)
@@ -172,22 +172,22 @@ void AppModel::setCursorBlinkInterval (int ms)
 
 int AppModel::getPaddingTop() const noexcept
 {
-    return static_cast<int> (jam::Model::getValueFromChildWithID (state, app::id::paddingTop).getValue());
+    return static_cast<int> (jam::ValueTree::getValueFromChildWithID (state, app::id::paddingTop).getValue());
 }
 
 int AppModel::getPaddingRight() const noexcept
 {
-    return static_cast<int> (jam::Model::getValueFromChildWithID (state, app::id::paddingRight).getValue());
+    return static_cast<int> (jam::ValueTree::getValueFromChildWithID (state, app::id::paddingRight).getValue());
 }
 
 int AppModel::getPaddingBottom() const noexcept
 {
-    return static_cast<int> (jam::Model::getValueFromChildWithID (state, app::id::paddingBottom).getValue());
+    return static_cast<int> (jam::ValueTree::getValueFromChildWithID (state, app::id::paddingBottom).getValue());
 }
 
 int AppModel::getPaddingLeft() const noexcept
 {
-    return static_cast<int> (jam::Model::getValueFromChildWithID (state, app::id::paddingLeft).getValue());
+    return static_cast<int> (jam::ValueTree::getValueFromChildWithID (state, app::id::paddingLeft).getValue());
 }
 
 void AppModel::setPaddingTop (int value)
@@ -222,7 +222,7 @@ bool AppModel::consumeAtlasDirty() noexcept
 
 app::RendererType AppModel::getRendererType() const noexcept
 {
-    const auto renderer { jam::Model::getValueFromChildWithID (state, app::id::renderer).getValue().toString() };
+    const auto renderer { jam::ValueTree::getValueFromChildWithID (state, app::id::renderer).getValue().toString() };
 
     if (Map::Renderer::getContext()->get (renderer) == Map::Renderer::cpu)
         return app::RendererType::cpu;
@@ -232,7 +232,7 @@ app::RendererType AppModel::getRendererType() const noexcept
 
 void AppModel::setRendererType (const juce::String& setting)
 {
-    const bool gpuAvailable { static_cast<int> (jam::Model::getValueFromChildWithID (state, app::id::gpuAvailable).getValue()) != 0 };
+    const bool gpuAvailable { static_cast<int> (jam::ValueTree::getValueFromChildWithID (state, app::id::gpuAvailable).getValue()) != 0 };
     const bool wantsGpu { Map::Gpu::getContext()->get (setting) != Map::Gpu::off };
     const juce::String resolved { wantsGpu and gpuAvailable ? Map::Renderer::getContext()->get (Map::Renderer::gpu)
                                                              : Map::Renderer::getContext()->get (Map::Renderer::cpu) };
@@ -262,7 +262,7 @@ void AppModel::setDaemonMode (bool isDaemon)
 
 bool AppModel::isDaemonMode() const noexcept
 {
-    return static_cast<int> (jam::Model::getValueFromChildWithID (state, app::id::daemonMode).getValue()) != 0;
+    return static_cast<int> (jam::ValueTree::getValueFromChildWithID (state, app::id::daemonMode).getValue()) != 0;
 }
 
 void AppModel::setPort (int activePort)
@@ -276,12 +276,12 @@ void AppModel::setPort (int activePort)
 
 int AppModel::getPort() const noexcept
 {
-    return static_cast<int> (jam::Model::getValueFromChildWithID (state, app::id::port).getValue());
+    return static_cast<int> (jam::ValueTree::getValueFromChildWithID (state, app::id::port).getValue());
 }
 
 int AppModel::getActiveTabIndex() const noexcept
 {
-    return static_cast<int> (jam::Model::getValueFromChildWithID (state, app::id::active).getValue());
+    return static_cast<int> (jam::ValueTree::getValueFromChildWithID (state, app::id::active).getValue());
 }
 
 void AppModel::setActiveTabIndex (int index)
@@ -291,7 +291,7 @@ void AppModel::setActiveTabIndex (int index)
 
 juce::String AppModel::getTabPosition() const noexcept
 {
-    return jam::Model::getValueFromChildWithID (state, app::id::position).getValue().toString();
+    return jam::ValueTree::getValueFromChildWithID (state, app::id::position).getValue().toString();
 }
 
 void AppModel::setTabPosition (const juce::String& position)
@@ -358,7 +358,7 @@ juce::ValueTree AppModel::getTab (int index) noexcept
 
 juce::String AppModel::getActivePaneID() const noexcept
 {
-    return jam::Model::getValueFromChildWithID (state, app::id::activePaneID).getValue().toString();
+    return jam::ValueTree::getValueFromChildWithID (state, app::id::activePaneID).getValue().toString();
 }
 
 void AppModel::setActivePaneID (const juce::String& uuid)
@@ -368,7 +368,7 @@ void AppModel::setActivePaneID (const juce::String& uuid)
 
 juce::String AppModel::getActivePaneType() const noexcept
 {
-    return jam::Model::getValueFromChildWithID (state, app::id::activePaneType).getValue().toString();
+    return jam::ValueTree::getValueFromChildWithID (state, app::id::activePaneType).getValue().toString();
 }
 
 void AppModel::setActivePaneType (const juce::String& type)
@@ -383,7 +383,7 @@ void AppModel::setModalType (int type)
 
 int AppModel::getModalType() const noexcept
 {
-    return static_cast<int> (jam::Model::getValueFromChildWithID (state, app::id::modalType).getValue());
+    return static_cast<int> (jam::ValueTree::getValueFromChildWithID (state, app::id::modalType).getValue());
 }
 
 void AppModel::setSelectionType (int type)
@@ -393,7 +393,7 @@ void AppModel::setSelectionType (int type)
 
 int AppModel::getSelectionType() const noexcept
 {
-    return static_cast<int> (jam::Model::getValueFromChildWithID (state, app::id::selectionType).getValue());
+    return static_cast<int> (jam::ValueTree::getValueFromChildWithID (state, app::id::selectionType).getValue());
 }
 
 juce::String AppModel::getPwd() const noexcept

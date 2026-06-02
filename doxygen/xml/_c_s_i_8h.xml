@@ -389,7 +389,7 @@
     </briefdescription>
     <detaileddescription>
 <para>CSI sequences are escape sequences that begin with ESC &apos;[&apos; (0x1B 0x5B) and control cursor movement, text attributes, and other terminal functions. They follow the format:</para>
-<para><programlisting><codeline><highlight class="normal">ESC<sp/>[<sp/>&lt;params&gt;<sp/>&lt;intermediates&gt;<sp/>&lt;</highlight><highlight class="keyword">final</highlight><highlight class="normal">&gt;</highlight></codeline>
+<para><programlisting><codeline><highlight class="normal">ESC<sp/>[<sp/>\&lt;params\&gt;<sp/>\&lt;intermediates\&gt;<sp/>\&lt;</highlight><highlight class="keyword">final</highlight><highlight class="normal">\&gt;</highlight></codeline>
 </programlisting></para>
 <para>Where &lt;params&gt; is a semicolon-separated list of decimal numbers, e.g.:<itemizedlist>
 <listitem><para><computeroutput>ESC[1;34m</computeroutput> — set bold (1) and blue foreground (34)</para>

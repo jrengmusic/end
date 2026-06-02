@@ -82,8 +82,7 @@ public:
      * child, closes the slave fd in the parent, sets the master to
      * `O_NONBLOCK`, and starts the reader thread.
      *
-     * @param cols             Initial terminal width in character columns.
-     * @param rows             Initial terminal height in character rows.
+     * @param dims             Initial terminal dimensions (cols x rows in cells).
      * @param shell            Shell program name or absolute path.  Resolved via
      *                         `$PATH` using `execvp()` when not absolute.
      * @param args             Space-separated arguments for the shell (e.g. "-l").
@@ -198,7 +197,7 @@ public:
      * @brief Reads an environment variable from the given PID's environment.
      *
      * Uses sysctl with KERN_PROCARGS2 on macOS.
-     * Reads /proc/<pid>/environ on Linux.
+     * Reads /proc/\<pid\>/environ on Linux.
      *
      * @param pid        The process ID to query.
      * @param varName    The environment variable name.
@@ -221,10 +220,8 @@ public:
      *   application can re-query the size.
      * - Updates `lastResizeCols` / `lastResizeRows`.
      *
-     * @param cols        New terminal width in character columns.
-     * @param rows        New terminal height in character rows.
-     * @param pixelWidth  Total viewport width in physical pixels (0 if unknown).
-     * @param pixelHeight Total viewport height in physical pixels (0 if unknown).
+     * @param ws  New window size (cols, rows, pixel extents). Pass 0 for pixel
+     *            extents when the display has not yet been calibrated.
      *
      * @note MESSAGE THREAD context.
      */

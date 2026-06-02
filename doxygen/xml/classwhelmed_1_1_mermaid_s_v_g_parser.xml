@@ -102,7 +102,7 @@
         <references refid="structwhelmed_1_1_mermaid_parse_result_1a97c9fd33927ab452ca180fb1c49d8372" compoundref="_mermaid_s_v_g_parser_8h" startline="50">whelmed::MermaidParseResult::viewBox</references>
         <references refid="classwhelmed_1_1_mermaid_s_v_g_parser_1af601d1859223339352edc6b89a5a7a33" compoundref="_mermaid_s_v_g_parser_8h" startline="1054" endline="1205">walkElement</references>
         <referencedby refid="classwhelmed_1_1_component_1a8775db6d1a2c1afc2e77cd3c8f39da6f" compoundref="_component_8cpp" startline="7" endline="47">whelmed::Component::Component</referencedby>
-        <referencedby refid="classwhelmed_1_1_component_1a847d8cf7cee861b4177ab98de0423214" compoundref="_component_8cpp" startline="106" endline="160">whelmed::Component::openFile</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a847d8cf7cee861b4177ab98de0423214" compoundref="_component_8cpp" startline="125" endline="179">whelmed::Component::openFile</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="private-static-func">

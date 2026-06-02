@@ -31,17 +31,6 @@ Panes::~Panes() = default;
 
 // =============================================================================
 
-/**
- * @brief Converts a pixel rect into terminal cell dimensions.
- *
- * Subtracts terminal padding from the rect, then divides by the effective
- * cell size derived from font metrics and config multipliers.
- * Resolves the typeface internally via jam::Typeface::findTypeface.
- *
- * @param paneRect  Target pixel rect for the pane (chrome already subtracted by caller).
- * @return {cols, rows}. jasserts cols > 0 and rows > 0.
- * @note Pure math — no instance state.
- */
 std::pair<cell, cell> Panes::cellsFromRect (juce::Rectangle<int> paneRect) noexcept
 {
     // Physical-pixel math — matches Screen::calc() exactly (SSOT).
@@ -78,15 +67,6 @@ std::pair<cell, cell> Panes::cellsFromRect (juce::Rectangle<int> paneRect) noexc
 
 /**
  * @brief Splits a pixel rect by direction and ratio.
- *
- * Uses jam::PaneManager::resizerBarSize as SSOT — matches layoutNode arithmetic exactly.
- * "vertical" splits width (left/right target/new). "horizontal" splits height (top/bottom).
- *
- * @param parent     Parent pixel rect.
- * @param direction  "vertical" or "horizontal".
- * @param ratio      Split ratio in (0,1).
- * @return {targetRect, newRect}.
- * @note Pure math — no instance state.
  */
 std::pair<juce::Rectangle<int>, juce::Rectangle<int>>
     Panes::splitRect (juce::Rectangle<int> parent,
@@ -120,20 +100,6 @@ std::pair<juce::Rectangle<int>, juce::Rectangle<int>>
 
 // =============================================================================
 
-/**
- * @brief Creates a new terminal session as the first (or only) leaf in this pane.
- *
- * Delegates construction to `Nexus::getContext()->create()` for mode-transparent session creation.
- * Wires callbacks, registers with PaneManager via addLeaf, and grafts the session
- * ValueTree into the corresponding PANE node.
- *
- * @param workingDirectory  Initial cwd for the shell. Empty = inherit parent cwd.
- * @param uuid              UUID hint for nexus-mode restoration. Empty = spawn new.
- * @param cols              Terminal column count. Must be > 0.
- * @param rows              Terminal row count. Must be > 0.
- * @return The UUID of the newly created terminal (its componentID).
- * @note MESSAGE THREAD.
- */
 juce::String Panes::createTerminal (const juce::String& workingDirectory,
                                      const juce::String& uuid,
                                      jam::Cell::Rectangle dims)
@@ -159,7 +125,8 @@ juce::String Panes::createTerminal (const juce::String& workingDirectory,
 
     auto paneNode { jam::PaneManager::findLeaf (paneManager.getState(), termUuid) };
     jassert (paneNode.isValid());
-    paneNode.appendChild (term->getValueTree(), nullptr);
+    // Graft SESSION tree into PANE node — Session owns the Attachment (RAII ungraft on destroy).
+    termSession.graftInto (paneNode);
 
     // Open the TTY after Display/Screen are constructed and the session ValueTree
     // is grafted, so all screen node atomics exist before the reader thread fires.
@@ -186,7 +153,7 @@ juce::String Panes::createWhelmed (const juce::File& file)
     jassert (activeID.isNotEmpty());
 
     // Find the active terminal
-    PaneComponent* activeTerminal { nullptr };
+    PaneView* activeTerminal { nullptr };
 
     for (auto& pane : panes)
     {
@@ -203,13 +170,10 @@ juce::String Panes::createWhelmed (const juce::File& file)
     component->setBounds (activeTerminal->getBounds());
     component->openFile (file);
 
-    // Graft DOCUMENT alongside SESSION in the PANE node
+    // Graft DOCUMENT alongside SESSION in the PANE node — Component owns Attachment (RAII ungraft on destroy).
     auto paneNode { jam::PaneManager::findLeaf (paneManager.getState(), activeID) };
     jassert (paneNode.isValid());
-
-    auto valueTree { component->getValueTree() };
-    jassert (valueTree.isValid());
-    paneNode.appendChild (valueTree, nullptr);
+    component->graftDocumentInto (paneNode);
 
     if (isShowing())
     {
@@ -233,8 +197,8 @@ void Panes::closeWhelmed()
     jassert (activeID.isNotEmpty());
 
     // Find whelmed and terminal with matching UUID
-    PaneComponent* whelmedPane { nullptr };
-    PaneComponent* terminalPane { nullptr };
+    PaneView* whelmedPane { nullptr };
+    PaneView* terminalPane { nullptr };
     size_t whelmedIndex { 0 };
 
     for (size_t i { 0 }; i < panes.size(); ++i)
@@ -255,15 +219,8 @@ void Panes::closeWhelmed()
     jassert (whelmedPane != nullptr);
     jassert (terminalPane != nullptr);
 
-    // Remove DOCUMENT from PANE node
-    auto paneNode { jam::PaneManager::findLeaf (paneManager.getState(), activeID) };
-    jassert (paneNode.isValid());
-
-    auto documentTree { whelmedPane->getValueTree() };
-
-    if (documentTree.isValid())
-        paneNode.removeChild (documentTree, nullptr);
-
+    // DOCUMENT is ungrafted automatically when whelmedPane is destroyed via panes.erase below
+    // (whelmed::Component owns the documentAttachment — RAII ungraft on destruction).
     removeChildComponent (whelmedPane);
     panes.erase (panes.begin() + static_cast<int> (whelmedIndex));
 
@@ -286,7 +243,7 @@ void Panes::closeWhelmed()
 void Panes::setTerminalCallbacks (terminal::Display* terminal)
 {
     const juce::String terminalUuid { terminal->getComponentID() };
-    sessionStateTrees[terminalUuid] = terminal->getValueTree();
+    sessionStateTrees[terminalUuid] = terminal->getProcessor().getState().getRootTree();
     sessionStateTrees[terminalUuid].addListener (this);
 }
 
@@ -304,7 +261,7 @@ bool Panes::isEmpty() const noexcept { return panes.isEmpty(); }
  * @return Reference to the pane owner container.
  * @note MESSAGE THREAD.
  */
-jam::Owner<PaneComponent>& Panes::getPanes() noexcept { return panes; }
+jam::Owner<PaneView>& Panes::getPanes() noexcept { return panes; }
 
 /**
  * @brief Returns the PANES ValueTree owned by PaneManager.
@@ -314,12 +271,6 @@ jam::Owner<PaneComponent>& Panes::getPanes() noexcept { return panes; }
  */
 juce::ValueTree& Panes::getState() noexcept { return paneManager.getState(); }
 
-/**
- * @brief Closes the pane with the given uuid.
- *
- * @param uuid The componentID of the terminal to close.
- * @note MESSAGE THREAD.
- */
 void Panes::closePane (const juce::String& uuid)
 {
     if (sessionStateTrees.count (uuid) > 0)
@@ -332,10 +283,10 @@ void Panes::closePane (const juce::String& uuid)
     jassert (paneNode.isValid());
 
     auto splitNode { paneNode.getParent() };
-    paneNode.removeAllChildren (nullptr);
 
     // Erase the Display first — ~Display() unwires all Session callbacks.
     // Session is removed after the Display is destroyed.
+    // SESSION tree is ungrafted automatically when Session is destroyed via Nexus::remove (RAII Attachment).
     for (auto it { panes.begin() }; it != panes.end(); ++it)
     {
         if ((*it)->getComponentID() == uuid)
@@ -410,21 +361,6 @@ void Panes::splitActiveWithRatio (const juce::String& direction, bool isVertical
     splitActive (direction, isVertical, ratio);
 }
 
-/**
- * @brief Splits a specific target pane using an explicit new UUID and cwd.
- *
- * Used by the restore walker in MainComponent to reconstruct a saved split tree,
- * and internally by splitActive() for keyboard-shortcut splits.
- *
- * @param targetUuid  UUID of the existing leaf to split.
- * @param newUuid     UUID hint for the new terminal. Empty = generate fresh.
- * @param cwd         Working directory for the new terminal. Empty = inherit.
- * @param direction   "vertical" for left/right divider; "horizontal" for top/bottom.
- * @param isVertical  True when the resizer bar is vertical (direction == "vertical").
- * @param cols        Terminal column count for the new pane. Must be > 0.
- * @param rows        Terminal row count for the new pane. Must be > 0.
- * @note MESSAGE THREAD.
- */
 void Panes::splitAt (const juce::String& targetUuid,
                      const juce::String& newUuid,
                      const juce::String& cwd,
@@ -456,7 +392,8 @@ void Panes::splitAt (const juce::String& targetUuid,
 
     auto paneNode { jam::PaneManager::findLeaf (paneManager.getState(), splitUuid) };
     jassert (paneNode.isValid());
-    paneNode.appendChild (term->getValueTree(), nullptr);
+    // Graft SESSION tree into PANE node — Session owns the Attachment (RAII ungraft on destroy).
+    splitSession.graftInto (paneNode);
 
     // Open the TTY after Display/Screen are constructed and the session ValueTree
     // is grafted, so all screen node atomics exist before the reader thread fires.
@@ -476,19 +413,6 @@ void Panes::splitAt (const juce::String& targetUuid,
     resized();
 }
 
-/**
- * @brief Shared split implementation for keyboard-shortcut splits.
- *
- * Reads the active pane's live pixel bounds (laid out at runtime), computes
- * the new pane's rect via splitRect at ratio 0.5, then derives cell dims via
- * cellsFromRect before forwarding to splitAt.
- *
- * @param direction  PaneManager direction string: "vertical" = left/right
- *                   divider; "horizontal" = top/bottom divider.
- * @param isVertical True when the resizer bar is vertical (splitHorizontal).
- * @param ratio      Split ratio (0.0–1.0). 0.5 = equal halves.
- * @note MESSAGE THREAD.
- */
 void Panes::splitActive (const juce::String& direction, bool isVertical, double ratio)
 {
     const juce::String activeID { AppModel::getContext()->getActivePaneID() };
@@ -570,12 +494,11 @@ void Panes::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identif
 
         juce::String exitedUuid;
 
-        for (size_t i { 0 }; i < panes.size(); ++i)
+        for (const auto& [uuid, tree] : sessionStateTrees)
         {
-            if (panes.at (i)->getPaneType() == Map::PaneType::getContext()->get (Map::PaneType::terminal)
-                and panes.at (i)->getValueTree() == sessionRoot)
+            if (tree == sessionRoot)
             {
-                exitedUuid = panes.at (i)->getComponentID();
+                exitedUuid = uuid;
                 break;
             }
         }
@@ -615,17 +538,10 @@ void Panes::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identif
     }
 }
 
-/**
- * @brief Focus the nearest pane in the given direction.
- *
- * @param deltaX  -1 for left, +1 for right, 0 for vertical.
- * @param deltaY  -1 for up, +1 for down, 0 for horizontal.
- * @note MESSAGE THREAD.
- */
 void Panes::focusPane (int deltaX, int deltaY)
 {
     const auto activeID { AppModel::getContext()->getActivePaneID() };
-    PaneComponent* active { nullptr };
+    PaneView* active { nullptr };
 
     for (auto& pane : panes)
     {
@@ -639,7 +555,7 @@ void Panes::focusPane (int deltaX, int deltaY)
     {
         const auto activeCentre { active->getBounds().getCentre() };
 
-        PaneComponent* best { nullptr };
+        PaneView* best { nullptr };
         int bestDistance { std::numeric_limits<int>::max() };
 
         for (auto& pane : panes)

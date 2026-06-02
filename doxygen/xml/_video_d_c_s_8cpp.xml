@@ -163,16 +163,16 @@
 <codeline lineno="121"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Post-decode<sp/>cursor<sp/>advance</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="122"><highlight class="normal"></highlight><highlight class="comment">//<sp/>============================================================================</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="123"><highlight class="normal"></highlight></codeline>
-<codeline lineno="134" refid="classterminal_1_1_video_1a8ac84e6c50ab2fbede0aba9821ce4f76" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_video_1a8ac84e6c50ab2fbede0aba9821ce4f76" kindref="member">Video::advanceCursorForImage</ref><sp/>(<ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref><sp/>numRows)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="135"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(numRows.value<sp/>&gt;<sp/>0)</highlight></codeline>
-<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
-<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1a263244eb21ddaeeb8f22408249c73809" kindref="member">cursorMoveDown</ref><sp/>(numRows.value,<sp/><ref refid="classterminal_1_1_video_1a517e79b4c1fa57209244614e40b36682" kindref="member">effectiveClampBottom</ref>());</highlight></codeline>
-<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1a294e7e0c67c33d3b320f63a088ffc2c5" kindref="member">cursorCol</ref><sp/>=<sp/>0_cell;</highlight></codeline>
-<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
-<codeline lineno="141"><highlight class="normal">}</highlight></codeline>
-<codeline lineno="142"><highlight class="normal"></highlight></codeline>
-<codeline lineno="144"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>terminal</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="124" refid="classterminal_1_1_video_1a8ac84e6c50ab2fbede0aba9821ce4f76" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_video_1a8ac84e6c50ab2fbede0aba9821ce4f76" kindref="member">Video::advanceCursorForImage</ref><sp/>(<ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref><sp/>numRows)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(numRows.value<sp/>&gt;<sp/>0)</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1a263244eb21ddaeeb8f22408249c73809" kindref="member">cursorMoveDown</ref><sp/>(numRows.value,<sp/><ref refid="classterminal_1_1_video_1a517e79b4c1fa57209244614e40b36682" kindref="member">effectiveClampBottom</ref>());</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1a294e7e0c67c33d3b320f63a088ffc2c5" kindref="member">cursorCol</ref><sp/>=<sp/>0_cell;</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="131"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"></highlight></codeline>
+<codeline lineno="134"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>terminal</highlight><highlight class="normal"></highlight></codeline>
     </programlisting>
     <location file="terminal/VideoDCS.cpp"/>
   </compounddef>

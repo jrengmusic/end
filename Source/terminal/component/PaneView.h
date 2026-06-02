@@ -1,9 +1,9 @@
 /**
- * @file PaneComponent.h
- * @brief Pure virtual base for pane-hosted components (Terminal, Whelmed).
+ * @file PaneView.h
+ * @brief Pure virtual base for pane-hosted views (Terminal, Whelmed).
  *
- * PaneComponent provides the shared interface that Panes uses to manage
- * heterogeneous pane types without type inspection.  Both terminal::Display
+ * PaneView provides the shared interface that Panes uses to manage
+ * heterogeneous pane types without type inspection. Both terminal::Display
  * and whelmed::Component inherit from this.
  *
  * @see terminal::Display
@@ -15,23 +15,23 @@
 #include "../../AppModel.h"
 
 /**
- * @class PaneComponent
- * @brief Pure virtual base for renderable pane components.
+ * @class PaneView
+ * @brief Pure virtual base for renderable pane views.
  *
  * Inherits juce::Component. Shared between Terminal and Whelmed.
  *
  * @note App-level — not in any namespace.
  */
-class PaneComponent : public juce::Component
+class PaneView : public juce::Component
 {
 public:
-    PaneComponent()
+    PaneView()
     {
         setWantsKeyboardFocus (true);
         setMouseClickGrabsKeyboardFocus (true);
     }
 
-    ~PaneComponent() override = default;
+    ~PaneView() override = default;
 
     void focusGained (FocusChangeType) override
     {
@@ -52,12 +52,6 @@ public:
     virtual juce::String getPaneType() const noexcept = 0;
 
     /**
-     * @brief Returns the pane's root ValueTree for grafting into AppModel.
-     * @note MESSAGE THREAD.
-     */
-    virtual juce::ValueTree getValueTree() noexcept = 0;
-
-    /**
      * @brief Applies the given zoom factor to the pane's rendering.
      * @param zoom  Zoom multiplier (1.0 = default).
      * @note MESSAGE THREAD.
@@ -74,5 +68,5 @@ public:
     virtual bool hasSelection() const noexcept = 0;
 
 private:
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaneComponent)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaneView)
 };

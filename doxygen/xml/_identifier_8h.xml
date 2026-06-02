@@ -489,8 +489,8 @@
         </childnode>
       </node>
       <node id="50">
-        <label>terminal/component/PaneComponent.h</label>
-        <link refid="_pane_component_8h"/>
+        <label>terminal/component/PaneView.h</label>
+        <link refid="_pane_view_8h"/>
         <childnode refid="6" relation="include">
         </childnode>
         <childnode refid="22" relation="include">

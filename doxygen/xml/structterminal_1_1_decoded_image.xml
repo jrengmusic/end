@@ -19,10 +19,10 @@
         </inbodydescription>
         <location file="terminal/SixelDecoder.h" line="45" column="21" bodyfile="terminal/SixelDecoder.h" bodystart="45" bodyend="-1"/>
         <referencedby refid="classterminal_1_1_sixel_decoder_1a911b8f11f2c6e2018ed0e75ddea855f8" compoundref="_sixel_decoder_8cpp" startline="43" endline="313">terminal::SixelDecoder::decode</referencedby>
-        <referencedby refid="classterminal_1_1_kitty_decoder_1a69159f602564bc7ed146eb78c642ef87" compoundref="_kitty_decoder_decode_8cpp" startline="133" endline="281">terminal::KittyDecoder::decodePayload</referencedby>
+        <referencedby refid="classterminal_1_1_kitty_decoder_1a69159f602564bc7ed146eb78c642ef87" compoundref="_kitty_decoder_decode_8cpp" startline="92" endline="240">terminal::KittyDecoder::decodePayload</referencedby>
         <referencedby refid="structterminal_1_1_decoded_image_1ac4a0b1eb3f19e9453ee12c36613f9a60" compoundref="_sixel_decoder_8h" startline="50" endline="53">isValid</referencedby>
-        <referencedby refid="classterminal_1_1_kitty_decoder_1aa9e64c41aa91c7794cc30a31e57bdac4" compoundref="_kitty_decoder_8cpp" startline="151" endline="329">terminal::KittyDecoder::process</referencedby>
-        <referencedby refid="classterminal_1_1_skit_1a6afae3d2d2515ad4a1956815a6b7219e" compoundref="_skit_8cpp" startline="181" endline="260">terminal::Skit::processAPC</referencedby>
+        <referencedby refid="classterminal_1_1_kitty_decoder_1aa9e64c41aa91c7794cc30a31e57bdac4" compoundref="_kitty_decoder_8cpp" startline="99" endline="277">terminal::KittyDecoder::process</referencedby>
+        <referencedby refid="classterminal_1_1_skit_1a6afae3d2d2515ad4a1956815a6b7219e" compoundref="_skit_8cpp" startline="168" endline="247">terminal::Skit::processAPC</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structterminal_1_1_decoded_image_1ab6be4c1b32e9fcac20958a41bff9d017" prot="public" static="no" mutable="no">
         <type>int</type>
@@ -40,10 +40,10 @@
         </inbodydescription>
         <location file="terminal/SixelDecoder.h" line="46" column="9" bodyfile="terminal/SixelDecoder.h" bodystart="46" bodyend="46"/>
         <referencedby refid="classterminal_1_1_sixel_decoder_1a911b8f11f2c6e2018ed0e75ddea855f8" compoundref="_sixel_decoder_8cpp" startline="43" endline="313">terminal::SixelDecoder::decode</referencedby>
-        <referencedby refid="classterminal_1_1_kitty_decoder_1a69159f602564bc7ed146eb78c642ef87" compoundref="_kitty_decoder_decode_8cpp" startline="133" endline="281">terminal::KittyDecoder::decodePayload</referencedby>
+        <referencedby refid="classterminal_1_1_kitty_decoder_1a69159f602564bc7ed146eb78c642ef87" compoundref="_kitty_decoder_decode_8cpp" startline="92" endline="240">terminal::KittyDecoder::decodePayload</referencedby>
         <referencedby refid="structterminal_1_1_decoded_image_1ac4a0b1eb3f19e9453ee12c36613f9a60" compoundref="_sixel_decoder_8h" startline="50" endline="53">isValid</referencedby>
-        <referencedby refid="classterminal_1_1_kitty_decoder_1aa9e64c41aa91c7794cc30a31e57bdac4" compoundref="_kitty_decoder_8cpp" startline="151" endline="329">terminal::KittyDecoder::process</referencedby>
-        <referencedby refid="classterminal_1_1_skit_1a6afae3d2d2515ad4a1956815a6b7219e" compoundref="_skit_8cpp" startline="181" endline="260">terminal::Skit::processAPC</referencedby>
+        <referencedby refid="classterminal_1_1_kitty_decoder_1aa9e64c41aa91c7794cc30a31e57bdac4" compoundref="_kitty_decoder_8cpp" startline="99" endline="277">terminal::KittyDecoder::process</referencedby>
+        <referencedby refid="classterminal_1_1_skit_1a6afae3d2d2515ad4a1956815a6b7219e" compoundref="_skit_8cpp" startline="168" endline="247">terminal::Skit::processAPC</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structterminal_1_1_decoded_image_1a6963439c9ddc3ba3496a3aa4d17cb256" prot="public" static="no" mutable="no">
         <type>int</type>
@@ -61,10 +61,10 @@
         </inbodydescription>
         <location file="terminal/SixelDecoder.h" line="47" column="9" bodyfile="terminal/SixelDecoder.h" bodystart="47" bodyend="47"/>
         <referencedby refid="classterminal_1_1_sixel_decoder_1a911b8f11f2c6e2018ed0e75ddea855f8" compoundref="_sixel_decoder_8cpp" startline="43" endline="313">terminal::SixelDecoder::decode</referencedby>
-        <referencedby refid="classterminal_1_1_kitty_decoder_1a69159f602564bc7ed146eb78c642ef87" compoundref="_kitty_decoder_decode_8cpp" startline="133" endline="281">terminal::KittyDecoder::decodePayload</referencedby>
+        <referencedby refid="classterminal_1_1_kitty_decoder_1a69159f602564bc7ed146eb78c642ef87" compoundref="_kitty_decoder_decode_8cpp" startline="92" endline="240">terminal::KittyDecoder::decodePayload</referencedby>
         <referencedby refid="structterminal_1_1_decoded_image_1ac4a0b1eb3f19e9453ee12c36613f9a60" compoundref="_sixel_decoder_8h" startline="50" endline="53">isValid</referencedby>
-        <referencedby refid="classterminal_1_1_kitty_decoder_1aa9e64c41aa91c7794cc30a31e57bdac4" compoundref="_kitty_decoder_8cpp" startline="151" endline="329">terminal::KittyDecoder::process</referencedby>
-        <referencedby refid="classterminal_1_1_skit_1a6afae3d2d2515ad4a1956815a6b7219e" compoundref="_skit_8cpp" startline="181" endline="260">terminal::Skit::processAPC</referencedby>
+        <referencedby refid="classterminal_1_1_kitty_decoder_1aa9e64c41aa91c7794cc30a31e57bdac4" compoundref="_kitty_decoder_8cpp" startline="99" endline="277">terminal::KittyDecoder::process</referencedby>
+        <referencedby refid="classterminal_1_1_skit_1a6afae3d2d2515ad4a1956815a6b7219e" compoundref="_skit_8cpp" startline="168" endline="247">terminal::Skit::processAPC</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">
@@ -85,7 +85,7 @@
         <references refid="structterminal_1_1_decoded_image_1a6963439c9ddc3ba3496a3aa4d17cb256" compoundref="_sixel_decoder_8h" startline="47" endline="47">height</references>
         <references refid="structterminal_1_1_decoded_image_1aed236a423eb173d5f080f049d1b02811" compoundref="_sixel_decoder_8h" startline="45">rgba</references>
         <references refid="structterminal_1_1_decoded_image_1ab6be4c1b32e9fcac20958a41bff9d017" compoundref="_sixel_decoder_8h" startline="46" endline="46">width</references>
-        <referencedby refid="classterminal_1_1_skit_1a6afae3d2d2515ad4a1956815a6b7219e" compoundref="_skit_8cpp" startline="181" endline="260">terminal::Skit::processAPC</referencedby>
+        <referencedby refid="classterminal_1_1_skit_1a6afae3d2d2515ad4a1956815a6b7219e" compoundref="_skit_8cpp" startline="168" endline="247">terminal::Skit::processAPC</referencedby>
       </memberdef>
     </sectiondef>
     <briefdescription>

@@ -56,10 +56,10 @@ namespace terminal
  *   ESC P <params> <intermediates> <final> <data> ESC \
  * @endcode
  *
- * @param params             Finalised DCS parameter accumulator (unused).
- * @param inter              Pointer to the intermediate byte buffer (unused).
- * @param interCount         Number of valid bytes in `inter` (unused).
- * @param finalByte          The DCS final byte, stored in `dcsFinalByte`.
+ * @param params            Finalised DCS parameter accumulator (unused).
+ * @param intermediates     Pointer to the intermediate byte buffer (unused).
+ * @param intermediateCount Number of valid bytes in `intermediates` (unused).
+ * @param finalByte         The DCS final byte, stored in `dcsFinalByte`.
  *
  * @note READER THREAD only.
  *
@@ -121,16 +121,6 @@ void Video::applyAPCPayload (const uint8_t* data, int length) noexcept
 // Post-decode cursor advance
 // ============================================================================
 
-/**
- * @brief Advances cursor after image placement — moves down by `numRows`, resets to column 0.
- *
- * Called by Processor after `Skit::processDCS()`, `Skit::processAPC()`, or
- * `Skit::processOSC1337()` to apply the post-decode cursor position update.
- * No-op when `numRows <= 0`.
- *
- * @param numRows  Number of cell rows to advance downward.
- * @note READER THREAD only.
- */
 void Video::advanceCursorForImage (cell numRows) noexcept
 {
     if (numRows.value > 0)

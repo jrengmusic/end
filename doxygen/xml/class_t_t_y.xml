@@ -22,7 +22,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/tty/TTY.h" line="286" column="36" bodyfile="terminal/tty/TTY.h" bodystart="286" bodyend="286"/>
+        <location file="terminal/tty/TTY.h" line="285" column="36" bodyfile="terminal/tty/TTY.h" bodystart="285" bodyend="285"/>
         <referencedby refid="class_t_t_y_1a5069e6a70b48c9e44fef6d6fd8fa2b31" compoundref="_t_t_y_8cpp" startline="53" endline="88">run</referencedby>
       </memberdef>
       <memberdef kind="variable" id="class_t_t_y_1a7a82c07385a8151bb17399ea971a00bf" prot="public" static="yes" constexpr="yes" mutable="no">
@@ -40,8 +40,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/tty/TTY.h" line="295" column="33" bodyfile="terminal/tty/TTY.h" bodystart="295" bodyend="295"/>
-        <referencedby refid="class_unix_t_t_y_1a3fb4f048230f94368b8a7e857c7d5e64" compoundref="_unix_t_t_y_8cpp" startline="252" endline="277">UnixTTY::close</referencedby>
+        <location file="terminal/tty/TTY.h" line="294" column="33" bodyfile="terminal/tty/TTY.h" bodystart="294" bodyend="294"/>
+        <referencedby refid="class_unix_t_t_y_1a3fb4f048230f94368b8a7e857c7d5e64" compoundref="_unix_t_t_y_8cpp" startline="231" endline="256">UnixTTY::close</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="user-defined">
@@ -80,18 +80,10 @@
 <para>Creates the PTY pair, forks (Unix) or spawns (Windows) the shell, sets the master fd to non-blocking, and starts the reader thread.</para>
 <para><parameterlist kind="param"><parameteritem>
 <parameternamelist>
-<parametername>cols</parametername>
+<parametername>dims</parametername>
 </parameternamelist>
 <parameterdescription>
-<para>Initial terminal width in character columns. </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>rows</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>Initial terminal height in character rows. </para>
+<para>Initial terminal dimensions (width × height in cells). </para>
 </parameterdescription>
 </parameteritem>
 <parameteritem>
@@ -127,7 +119,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/tty/TTY.h" line="96" column="18"/>
+        <location file="terminal/tty/TTY.h" line="95" column="18"/>
       </memberdef>
       <memberdef kind="function" id="class_t_t_y_1afc373cf592a31802ef4b11e48e81a7c0" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
         <type>void</type>
@@ -147,7 +139,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/tty/TTY.h" line="108" column="18"/>
+        <location file="terminal/tty/TTY.h" line="107" column="18"/>
       </memberdef>
       <memberdef kind="function" id="class_t_t_y_1ad9aab9bc4dd41c3078b9e7fb253a71f5" prot="public" static="no" const="yes" explicit="no" inline="no" virt="pure-virtual">
         <type>bool</type>
@@ -168,7 +160,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/tty/TTY.h" line="118" column="18"/>
+        <location file="terminal/tty/TTY.h" line="117" column="18"/>
       </memberdef>
       <memberdef kind="function" id="class_t_t_y_1a8a52f65440d66e007c9343ebf59ca179" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
         <type>int</type>
@@ -215,7 +207,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/tty/TTY.h" line="132" column="17"/>
+        <location file="terminal/tty/TTY.h" line="131" column="17"/>
         <referencedby refid="class_t_t_y_1a5069e6a70b48c9e44fef6d6fd8fa2b31" compoundref="_t_t_y_8cpp" startline="53" endline="88">run</referencedby>
       </memberdef>
       <memberdef kind="function" id="class_t_t_y_1aeb189ad9967e8ff1fe1fe1587ef59b9f" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
@@ -263,7 +255,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/tty/TTY.h" line="143" column="18"/>
+        <location file="terminal/tty/TTY.h" line="142" column="18"/>
       </memberdef>
       <memberdef kind="function" id="class_t_t_y_1a2cc70f25d316b04f8ef08b0cc307d2d3" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
         <type>bool</type>
@@ -298,7 +290,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/tty/TTY.h" line="156" column="18"/>
+        <location file="terminal/tty/TTY.h" line="155" column="18"/>
         <referencedby refid="class_t_t_y_1a5069e6a70b48c9e44fef6d6fd8fa2b31" compoundref="_t_t_y_8cpp" startline="53" endline="88">run</referencedby>
       </memberdef>
     </sectiondef>
@@ -349,8 +341,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/tty/TTY.h" line="177" column="10" bodyfile="terminal/tty/TTY.h" bodystart="177" bodyend="180"/>
-        <references refid="class_t_t_y_1a01ee2cbfa35948371e3f4820f9d1db90" compoundref="_t_t_y_8h" startline="330">shellIntegrationEnv</references>
+        <location file="terminal/tty/TTY.h" line="176" column="10" bodyfile="terminal/tty/TTY.h" bodystart="176" bodyend="179"/>
+        <references refid="class_t_t_y_1a01ee2cbfa35948371e3f4820f9d1db90" compoundref="_t_t_y_8h" startline="327">shellIntegrationEnv</references>
       </memberdef>
       <memberdef kind="function" id="class_t_t_y_1a968e5f85b3ac810a5edf6ce70cb83299" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
         <type>void</type>
@@ -369,8 +361,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/tty/TTY.h" line="189" column="10" bodyfile="terminal/tty/TTY.h" bodystart="189" bodyend="192"/>
-        <references refid="class_t_t_y_1a01ee2cbfa35948371e3f4820f9d1db90" compoundref="_t_t_y_8h" startline="330">shellIntegrationEnv</references>
+        <location file="terminal/tty/TTY.h" line="188" column="10" bodyfile="terminal/tty/TTY.h" bodystart="188" bodyend="191"/>
+        <references refid="class_t_t_y_1a01ee2cbfa35948371e3f4820f9d1db90" compoundref="_t_t_y_8h" startline="327">shellIntegrationEnv</references>
       </memberdef>
     </sectiondef>
     <sectiondef kind="user-defined">
@@ -397,7 +389,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/tty/TTY.h" line="207" column="17" bodyfile="terminal/tty/TTY.h" bodystart="207" bodyend="207"/>
+        <location file="terminal/tty/TTY.h" line="206" column="17" bodyfile="terminal/tty/TTY.h" bodystart="206" bodyend="206"/>
       </memberdef>
       <memberdef kind="function" id="class_t_t_y_1a9b516554940d2ca04fbe258f64bc477e" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="virtual">
         <type>int</type>
@@ -419,7 +411,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/tty/TTY.h" line="218" column="17" bodyfile="terminal/tty/TTY.h" bodystart="218" bodyend="218"/>
+        <location file="terminal/tty/TTY.h" line="217" column="17" bodyfile="terminal/tty/TTY.h" bodystart="217" bodyend="217"/>
       </memberdef>
       <memberdef kind="function" id="class_t_t_y_1afe8a9628cd26a3d18d2b7b9c11fc5286" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="virtual">
         <type>int</type>
@@ -477,7 +469,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/tty/TTY.h" line="228" column="17" bodyfile="terminal/tty/TTY.h" bodystart="228" bodyend="228"/>
+        <location file="terminal/tty/TTY.h" line="227" column="17" bodyfile="terminal/tty/TTY.h" bodystart="227" bodyend="227"/>
       </memberdef>
       <memberdef kind="function" id="class_t_t_y_1a20f4cccd74a28984f5c7903b745def0b" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="virtual">
         <type>int</type>
@@ -535,7 +527,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/tty/TTY.h" line="238" column="17" bodyfile="terminal/tty/TTY.h" bodystart="238" bodyend="238"/>
+        <location file="terminal/tty/TTY.h" line="237" column="17" bodyfile="terminal/tty/TTY.h" bodystart="237" bodyend="237"/>
       </memberdef>
       <memberdef kind="function" id="class_t_t_y_1aa1019877b88c98564a5c1a995715ad5e" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="virtual">
         <type>int</type>
@@ -607,7 +599,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/tty/TTY.h" line="251" column="17" bodyfile="terminal/tty/TTY.h" bodystart="251" bodyend="251"/>
+        <location file="terminal/tty/TTY.h" line="250" column="17" bodyfile="terminal/tty/TTY.h" bodystart="250" bodyend="250"/>
       </memberdef>
     </sectiondef>
     <sectiondef kind="user-defined">
@@ -645,12 +637,12 @@ Runs at high priority. Handles resize detection, data delivery, drain notificati
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/tty/TTY.h" line="273" column="10" bodyfile="terminal/tty/TTY.cpp" bodystart="53" bodyend="88"/>
+        <location file="terminal/tty/TTY.h" line="272" column="10" bodyfile="terminal/tty/TTY.cpp" bodystart="53" bodyend="88"/>
         <references refid="namespaceterminal_1_1id_1a893c13a3c033338535bfd80644213f05" compoundref="_identifier_8h" startline="371" endline="371">terminal::id::data</references>
         <references refid="namespaceterminal_1_1id_1a6abd4ed81f5fc69e8dfb3907c2ff7585" compoundref="_identifier_8h" startline="331" endline="331">terminal::id::drainComplete</references>
-        <references refid="class_t_t_y_1a0c7051af81a2a19123d3ffe867e04e06" compoundref="_t_t_y_8h" startline="327">events</references>
+        <references refid="class_t_t_y_1a0c7051af81a2a19123d3ffe867e04e06" compoundref="_t_t_y_8h" startline="324">events</references>
         <references refid="class_t_t_y_1a8a52f65440d66e007c9343ebf59ca179">read</references>
-        <references refid="class_t_t_y_1a82238f208ad5285d3360c7c259023376" compoundref="_t_t_y_8h" startline="286" endline="286">READ_CHUNK_SIZE</references>
+        <references refid="class_t_t_y_1a82238f208ad5285d3360c7c259023376" compoundref="_t_t_y_8h" startline="285" endline="285">READ_CHUNK_SIZE</references>
         <references refid="namespaceterminal_1_1id_1a566ae327a06bbcf031a26fdfac5968c4" compoundref="_identifier_8h" startline="327" endline="327">terminal::id::shellExited</references>
         <references refid="class_t_t_y_1a2cc70f25d316b04f8ef08b0cc307d2d3">waitForData</references>
       </memberdef>
@@ -670,7 +662,7 @@ Runs at high priority. Handles resize detection, data delivery, drain notificati
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/tty/TTY.h" line="327" column="24" bodyfile="terminal/tty/TTY.h" bodystart="327" bodyend="-1"/>
+        <location file="terminal/tty/TTY.h" line="324" column="24" bodyfile="terminal/tty/TTY.h" bodystart="324" bodyend="-1"/>
         <referencedby refid="class_t_t_y_1a5069e6a70b48c9e44fef6d6fd8fa2b31" compoundref="_t_t_y_8cpp" startline="53" endline="88">run</referencedby>
         <referencedby refid="class_t_t_y_1ac7ea8ea49db89a96afaf6eb9213999df" compoundref="_t_t_y_8h" startline="62" endline="66">TTY</referencedby>
       </memberdef>
@@ -687,10 +679,10 @@ Runs at high priority. Handles resize detection, data delivery, drain notificati
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/tty/TTY.h" line="330" column="17" bodyfile="terminal/tty/TTY.h" bodystart="330" bodyend="-1"/>
-        <referencedby refid="class_t_t_y_1aa6816f38f8ad071459cf11b1b746f34b" compoundref="_t_t_y_8h" startline="177" endline="180">addShellEnv</referencedby>
-        <referencedby refid="class_t_t_y_1a968e5f85b3ac810a5edf6ce70cb83299" compoundref="_t_t_y_8h" startline="189" endline="192">clearShellEnv</referencedby>
-        <referencedby refid="class_unix_t_t_y_1ad0e7e406b8f747bd2b48d8d08ea89954" compoundref="_unix_t_t_y_8cpp" startline="176" endline="237">UnixTTY::open</referencedby>
+        <location file="terminal/tty/TTY.h" line="327" column="17" bodyfile="terminal/tty/TTY.h" bodystart="327" bodyend="-1"/>
+        <referencedby refid="class_t_t_y_1aa6816f38f8ad071459cf11b1b746f34b" compoundref="_t_t_y_8h" startline="176" endline="179">addShellEnv</referencedby>
+        <referencedby refid="class_t_t_y_1a968e5f85b3ac810a5edf6ce70cb83299" compoundref="_t_t_y_8h" startline="188" endline="191">clearShellEnv</referencedby>
+        <referencedby refid="class_unix_t_t_y_1ad0e7e406b8f747bd2b48d8d08ea89954" compoundref="_unix_t_t_y_8cpp" startline="155" endline="216">UnixTTY::open</referencedby>
       </memberdef>
       <memberdef kind="variable" id="class_t_t_y_1a35127fabfe38b27ca01ad77f9f01e19b" prot="protected" static="no" mutable="no">
         <type>int</type>
@@ -707,9 +699,9 @@ Runs at high priority. Handles resize detection, data delivery, drain notificati
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/tty/TTY.h" line="334" column="9" bodyfile="terminal/tty/TTY.h" bodystart="334" bodyend="334"/>
+        <location file="terminal/tty/TTY.h" line="331" column="9" bodyfile="terminal/tty/TTY.h" bodystart="331" bodyend="331"/>
         <referencedby refid="class_t_t_y_1ae535a10f7fc042f6ff99a42b63b96b52" compoundref="_t_t_y_8cpp" startline="90" endline="94">rememberDimensions</referencedby>
-        <referencedby refid="class_unix_t_t_y_1a75132fbf0ba430260be493446acfcb3d" compoundref="_unix_t_t_y_8cpp" startline="398" endline="417">UnixTTY::setWinsize</referencedby>
+        <referencedby refid="class_unix_t_t_y_1a75132fbf0ba430260be493446acfcb3d" compoundref="_unix_t_t_y_8cpp" startline="328" endline="347">UnixTTY::setWinsize</referencedby>
       </memberdef>
       <memberdef kind="variable" id="class_t_t_y_1a71cd2443a214998931dc72983813b50a" prot="protected" static="no" mutable="no">
         <type>int</type>
@@ -726,9 +718,9 @@ Runs at high priority. Handles resize detection, data delivery, drain notificati
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/tty/TTY.h" line="338" column="9" bodyfile="terminal/tty/TTY.h" bodystart="338" bodyend="338"/>
+        <location file="terminal/tty/TTY.h" line="335" column="9" bodyfile="terminal/tty/TTY.h" bodystart="335" bodyend="335"/>
         <referencedby refid="class_t_t_y_1ae535a10f7fc042f6ff99a42b63b96b52" compoundref="_t_t_y_8cpp" startline="90" endline="94">rememberDimensions</referencedby>
-        <referencedby refid="class_unix_t_t_y_1a75132fbf0ba430260be493446acfcb3d" compoundref="_unix_t_t_y_8cpp" startline="398" endline="417">UnixTTY::setWinsize</referencedby>
+        <referencedby refid="class_unix_t_t_y_1a75132fbf0ba430260be493446acfcb3d" compoundref="_unix_t_t_y_8cpp" startline="328" endline="347">UnixTTY::setWinsize</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">
@@ -749,7 +741,7 @@ Runs at high priority. Handles resize detection, data delivery, drain notificati
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/tty/TTY.h" line="62" column="14" bodyfile="terminal/tty/TTY.h" bodystart="62" bodyend="66"/>
-        <references refid="class_t_t_y_1a0c7051af81a2a19123d3ffe867e04e06" compoundref="_t_t_y_8h" startline="327">events</references>
+        <references refid="class_t_t_y_1a0c7051af81a2a19123d3ffe867e04e06" compoundref="_t_t_y_8h" startline="324">events</references>
       </memberdef>
       <memberdef kind="function" id="class_t_t_y_1af0e88889a2f303c1971ea57033b0ba0d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type></type>
@@ -783,34 +775,10 @@ Runs at high priority. Handles resize detection, data delivery, drain notificati
 <para>Subclasses implement the actual <computeroutput>ioctl TIOCSWINSZ</computeroutput> (Unix) or <computeroutput>ResizePseudoConsole</computeroutput> (Windows) call. Each override must guard on <computeroutput><ref refid="class_t_t_y_1a35127fabfe38b27ca01ad77f9f01e19b" kindref="member">lastResizeCols</ref></computeroutput> / <computeroutput><ref refid="class_t_t_y_1a71cd2443a214998931dc72983813b50a" kindref="member">lastResizeRows</ref></computeroutput> to avoid redundant OS-level resize syscalls and the resulting SIGWINCH / WINDOW_BUFFER_SIZE_EVENT when callers fire on every JUCE layout pass.</para>
 <para><parameterlist kind="param"><parameteritem>
 <parameternamelist>
-<parametername>cols</parametername>
+<parametername>ws</parametername>
 </parameternamelist>
 <parameterdescription>
-<para>New terminal width in character columns. </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>rows</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>New terminal height in character rows. </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>pixelWidth</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>Total viewport width in physical pixels (0 if unknown). </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>pixelHeight</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>Total viewport height in physical pixels (0 if unknown).</para>
+<para>New window size (cols, rows, pixel extents). Pass 0 for pixel extents when the display has not yet been calibrated.</para>
 </parameterdescription>
 </parameteritem>
 </parameterlist>
@@ -820,7 +788,7 @@ Runs at high priority. Handles resize detection, data delivery, drain notificati
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/tty/TTY.h" line="315" column="18"/>
+        <location file="terminal/tty/TTY.h" line="312" column="18"/>
       </memberdef>
     </sectiondef>
     <sectiondef kind="protected-func">
@@ -846,10 +814,10 @@ Runs at high priority. Handles resize detection, data delivery, drain notificati
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/tty/TTY.h" line="324" column="10" bodyfile="terminal/tty/TTY.cpp" bodystart="90" bodyend="94"/>
-        <references refid="class_t_t_y_1a35127fabfe38b27ca01ad77f9f01e19b" compoundref="_t_t_y_8h" startline="334" endline="334">lastResizeCols</references>
-        <references refid="class_t_t_y_1a71cd2443a214998931dc72983813b50a" compoundref="_t_t_y_8h" startline="338" endline="338">lastResizeRows</references>
-        <referencedby refid="class_unix_t_t_y_1ad0e7e406b8f747bd2b48d8d08ea89954" compoundref="_unix_t_t_y_8cpp" startline="176" endline="237">UnixTTY::open</referencedby>
+        <location file="terminal/tty/TTY.h" line="321" column="10" bodyfile="terminal/tty/TTY.cpp" bodystart="90" bodyend="94"/>
+        <references refid="class_t_t_y_1a35127fabfe38b27ca01ad77f9f01e19b" compoundref="_t_t_y_8h" startline="331" endline="331">lastResizeCols</references>
+        <references refid="class_t_t_y_1a71cd2443a214998931dc72983813b50a" compoundref="_t_t_y_8h" startline="335" endline="335">lastResizeRows</references>
+        <referencedby refid="class_unix_t_t_y_1ad0e7e406b8f747bd2b48d8d08ea89954" compoundref="_unix_t_t_y_8cpp" startline="155" endline="216">UnixTTY::open</referencedby>
       </memberdef>
     </sectiondef>
     <briefdescription>
@@ -926,7 +894,7 @@ Runs at high priority. Handles resize detection, data delivery, drain notificati
         </childnode>
       </node>
     </collaborationgraph>
-    <location file="terminal/tty/TTY.h" line="59" column="1" bodyfile="terminal/tty/TTY.h" bodystart="60" bodyend="339"/>
+    <location file="terminal/tty/TTY.h" line="59" column="1" bodyfile="terminal/tty/TTY.h" bodystart="60" bodyend="336"/>
     <listofallmembers>
       <member refid="class_t_t_y_1aa6816f38f8ad071459cf11b1b746f34b" prot="public" virt="non-virtual"><scope>TTY</scope><name>addShellEnv</name></member>
       <member refid="class_t_t_y_1a968e5f85b3ac810a5edf6ce70cb83299" prot="public" virt="non-virtual"><scope>TTY</scope><name>clearShellEnv</name></member>

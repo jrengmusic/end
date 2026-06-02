@@ -392,7 +392,7 @@
 <codeline lineno="325"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bindings.push_back<sp/>({<sp/>actionEntry.id,<sp/>actionEntry.shortcut,<sp/>actionEntry.isModal<sp/>});</highlight></codeline>
 <codeline lineno="326"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
 <codeline lineno="327"><highlight class="normal"></highlight></codeline>
-<codeline lineno="328"><highlight class="normal"><sp/><sp/><sp/><sp/>registry.buildKeyMap<sp/>(<ref refid="classlua_1_1_engine_1a2fa5e83e7fb75415e78df3c694d5c3bf" kindref="member">keys</ref>.prefix,<sp/><ref refid="classlua_1_1_engine_1a2fa5e83e7fb75415e78df3c694d5c3bf" kindref="member">keys</ref>.prefixTimeout,<sp/>bindings);</highlight></codeline>
+<codeline lineno="328"><highlight class="normal"><sp/><sp/><sp/><sp/>registry.<ref refid="classaction_1_1_registry_1a8064de18edb0abfc46f5b41a08f8d638" kindref="member">buildKeyMap</ref><sp/>(<ref refid="classlua_1_1_engine_1a2fa5e83e7fb75415e78df3c694d5c3bf" kindref="member">keys</ref>.prefix,<sp/><ref refid="classlua_1_1_engine_1a2fa5e83e7fb75415e78df3c694d5c3bf" kindref="member">keys</ref>.prefixTimeout,<sp/>bindings);</highlight></codeline>
 <codeline lineno="329"><highlight class="normal">}</highlight></codeline>
 <codeline lineno="330"><highlight class="normal"></highlight></codeline>
 <codeline lineno="331"><highlight class="normal"></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>

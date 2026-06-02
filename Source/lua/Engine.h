@@ -798,7 +798,7 @@ public:
             bool isModal { false };
         };
 
-        /** @brief The prefix key shortcut string (e.g. "`"). */
+        /** @brief The prefix key shortcut string (e.g. the backtick character). */
         juce::String prefix { "`" };
 
         /** @brief Milliseconds before the waiting-for-modal-key state times out. */

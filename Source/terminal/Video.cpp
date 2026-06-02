@@ -39,26 +39,6 @@ namespace terminal
 // Public API
 // ============================================================================
 
-/**
- * @brief Constructs the Video, allocates the owned Buffer and builds Block views.
- *
- * Allocates a 2-channel Buffer (normal + alternate) with `rows` visible rows
- * and `cols` columns.  Builds per-channel Block views into the grid.
- * Internal terminal state is initialised to VT power-on defaults
- * (cursor at home, autoWrap on, cursor visible).
- *
- * The constructor does **not** call `calc()`.  The owner must call `setWinsize()`
- * after construction to synchronise internal geometry before the first process().
- *
- * @param dims    Terminal dimensions in cells.
- * @param events  Events map owned by Processor.
- *
- * @note MESSAGE THREAD — called before the reader thread starts.
- *
- * @see calc()
- * @see setWinsize()
- * @see Video.h
- */
 Video::Video (jam::Cell::Rectangle dims,
               jam::Function::Map<juce::Identifier, void>& events) noexcept
     : events (events)
@@ -85,21 +65,6 @@ void Video::calc() noexcept
     penStyleDirty = true;
 }
 
-/**
- * @brief Resizes the owned grid and resets cursor, scroll region, and tab stops.
- *
- * Resizes the owned 2-channel grid to newRows × newCols, rebuilds per-channel
- * Block views, reads ring heads from the rebuilt blocks, resets geometry state,
- * and calls calc() to synchronise internal cached geometry.
- *
- * Called by Processor::prepare() from Session's Resizer stop trigger while
- * processing is suspended (message-thread-safe under suspension), and directly
- * for cold-start initial sizing.
- *
- * @param dims  Terminal dimensions in cells.
- *
- * @note MESSAGE THREAD — called while processing is suspended.
- */
 void Video::setWinsize (jam::Cell::Rectangle dims) noexcept
 {
     cols        = dims.getWidth();
@@ -116,32 +81,12 @@ void Video::setWinsize (jam::Cell::Rectangle dims) noexcept
     calc();
 }
 
-/**
- * @brief Sets physical cell dimensions on the reader thread.
- *
- * Writes `widthPx` and `heightPx` to plain int members.  Called by
- * Processor::process() at batch start after consuming a pending cell-size
- * change — all writes occur on the reader thread, so no synchronisation is needed.
- *
- * @param widthPx   Cell width in pixels.
- * @param heightPx  Cell height in pixels.
- *
- * @note READER THREAD only.
- */
 void Video::setCellSize (int widthPx, int heightPx) noexcept
 {
     cellWidth = widthPx;
     cellHeight = heightPx;
 }
 
-/**
- * @brief Zeros all rows of the specified channel through the active blocks.
- *
- * Called by Processor's clearBuffer event handler after the screen is cleared.
- *
- * @param screen  Channel index (0 = normal, 1 = alternate).
- * @note MESSAGE THREAD.
- */
 void Video::clearChannel (int screen) noexcept
 {
     // Buffer is flat — head is always 0.
@@ -186,13 +131,6 @@ void Video::setWrapPending (bool pending) noexcept
 /**
  * @brief Returns a mutable pointer to the named mode flag, or nullptr if unknown.
  *
- * Single SSOT for mode flag lookup.  Both `getMode()` and `setMode()` delegate
- * here, eliminating the two duplicate tables that were previously required.
- * O(n) over 13 entries; negligible cost on the reader thread.
- *
- * @param id  A terminal::ID mode identifier.
- * @return    Pointer to the corresponding member, or nullptr if id is unknown.
- *
  * @note READER THREAD only.
  */
 bool* Video::modePtr (juce::Identifier id) noexcept
@@ -234,16 +172,6 @@ bool* Video::modePtr (juce::Identifier id) noexcept
     return result;
 }
 
-/**
- * @brief Returns the value of the named mode flag.
- *
- * Delegates to `modePtr()` — single SSOT for the mode table.
- *
- * @param id  A terminal::ID mode identifier.
- * @return    `true` if the mode is set, `false` if unset or the ID is unknown.
- *
- * @note READER THREAD only.
- */
 bool Video::getMode (juce::Identifier id) const noexcept
 {
     const bool* ptr { const_cast<Video*> (this)->modePtr (id) };
@@ -252,17 +180,6 @@ bool Video::getMode (juce::Identifier id) const noexcept
     return result;
 }
 
-/**
- * @brief Sets the named mode flag.
- *
- * Delegates to `modePtr()` — single SSOT for the mode table.
- * Unknown IDs are silently ignored.
- *
- * @param id     A terminal::ID mode identifier.
- * @param value  The new flag value.
- *
- * @note READER THREAD only.
- */
 void Video::setMode (juce::Identifier id, bool value) noexcept
 {
     bool* ptr { modePtr (id) };
@@ -288,14 +205,15 @@ cell Video::activeScrollBottom() const noexcept
 // ============================================================================
 
 /**
- * @brief Scrolls the region up one line and fills the bottom row with the current background.
+ * @brief Scrolls the region up and fills vacated rows with the current background.
  *
- * Single-row scroll+fill helper that eliminates the repeated pattern across
+ * Scroll+fill helper that eliminates the repeated pattern across
  * `resolveWrapPending()`, `print()`, `executeLineFeed()`, and the ESC IND/NEL handlers.
  * The fill is only performed when `penBg` is non-transparent.
  *
  * @param top     Zero-based index of the top row of the scrolling region.
  * @param bottom  Zero-based index of the bottom row of the scrolling region.
+ * @param count   Number of lines to scroll up (default 1).
  *
  * @note READER THREAD only.
  *
@@ -419,26 +337,6 @@ void Video::scrollDownAndFill (int top, int bottom) noexcept
 // VT Handler: print
 // ============================================================================
 
-/**
- * @brief Resolves a pending line wrap before writing a new character.
- *
- * When `wrapPending` is true and a new printable codepoint arrives,
- * this method is called before the cell write to commit the deferred wrap:
- *
- * 1. If auto-wrap mode (DECAWM) is active, pushes a LineFeed command and
- *    advances the cursor row.
- * 2. Resets the cursor column to 0.
- * 3. Clears the wrap-pending flag unconditionally.
- *
- * If auto-wrap is disabled, only the wrap-pending flag is cleared (step 3).
- *
- * @param scr  Target screen buffer (normal or alternate).
- *
- * @note READER THREAD only.
- *
- * @see print()
- * @see cursorGoToNextLine()
- */
 void Video::resolveWrapPending (int /*scr*/) noexcept
 {
     if (autoWrap)
@@ -644,25 +542,6 @@ void Video::print (uint32_t codepoint) noexcept
 // VT Handler: execute (C0 control codes)
 // ============================================================================
 
-/**
- * @brief Performs a line feed, advancing the cursor or scrolling the region.
- *
- * Calls `scrollUpAndFill()` if at scroll bottom, delegates cursor movement to
- * `cursorGoToNextLine()`.  If the cursor is already at `scrollBottom`,
- * the row stays in place — Grid handles the scroll via ring-buffer head advance.
- *
- * @par Sequence
- * Invoked for LF (0x0A), VT (0x0B), and FF (0x0C) via `execute()`, and
- * also directly from `escDispatchNoIntermediate()` for IND (ESC D) and
- * NEL (ESC E).
- *
- * @param scr  Target screen buffer (normal or alternate).
- *
- * @note READER THREAD only.
- *
- * @see applyControlCode()
- * @see cursorGoToNextLine()
- */
 void Video::executeLineFeed (int scr) noexcept
 {
     const cell scrollBot { activeScrollBottom() };
@@ -759,23 +638,6 @@ void Video::applyControlCode (uint8_t controlByte) noexcept
 // VT Handler: Send Response
 // ============================================================================
 
-/**
- * @brief Appends a null-terminated response string to the internal response buffer.
- *
- * Responses (device attribute replies, cursor position reports, etc.) are not
- * sent immediately during `process()`.  Instead they are accumulated here and
- * flushed after `process()` returns via `flushResponses()`.  This avoids
- * re-entrant writes to the PTY during parsing.
- *
- * If the response would overflow `responseBuf`, it is silently discarded.
- *
- * @param resp  Null-terminated C string to append.  Must not be null.
- *
- * @note READER THREAD only.
- *
- * @see flushResponses()
- * @see writeToHost
- */
 void Video::sendResponse (const char* resp) noexcept
 {
     const int len { static_cast<int> (std::strlen (resp)) };

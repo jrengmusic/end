@@ -16,8 +16,8 @@ LinkManager::LinkManager (Model& s,
                           std::function<void (const char*, int)> writeToPtyCallback) noexcept
     : state (s)
     , writeToPty (std::move (writeToPtyCallback))
-    , promptRowNode         (jam::Model::getChildWithID (state.getRootTree(), id::promptRow.toString()))
-    , activeScreenNode      (jam::Model::getChildWithID (state.getRootTree(), id::activeScreen.toString()))
+    , promptRowNode         (jam::ValueTree::getChildWithID (state.getRootTree(), id::promptRow.toString()))
+    , activeScreenNode      (jam::ValueTree::getChildWithID (state.getRootTree(), id::activeScreen.toString()))
 {
     promptRowNode.addListener (this);
     activeScreenNode.addListener (this);

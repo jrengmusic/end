@@ -1,9 +1,18 @@
 #include "Display.h"
 
 terminal::Display::Display (terminal::Session& sessionToUse)
-    : session (sessionToUse)
+    : jam::ValueTree::ComponentWithID<Display> (
+          terminal::id::DISPLAY,
+          {
+              { terminal::id::cellWidth,  0 },
+              { terminal::id::cellHeight, 0 },
+              { terminal::id::baseline,   0 },
+              { terminal::id::fontSize,   0 }
+          })
+    , session (sessionToUse)
     , processor (sessionToUse.getProcessor())
     , state (sessionToUse.getProcessor().getState())
+    , attachment (sessionToUse.getProcessor().getState().getRootTree(), *this)
     , linkManager (sessionToUse.getProcessor().getState(),
                    [&sessionToUse] (const char* data, int len)
                    {
@@ -15,17 +24,6 @@ terminal::Display::Display (terminal::Session& sessionToUse)
     // Parent CodeView (owned by Session) for rendering via the Component hierarchy.
     addAndMakeVisible (session.getTextEditor());
     session.getTextEditor().addKeyListener (this);
-
-    // Graft DISPLAY node via ComponentAttachment — registerNodeAtomics fires on appendChild
-    // and creates Parameter<int> entries in the DISPLAY group for font metrics.
-    attachment = std::make_unique<jam::ComponentAttachment> (state,
-                                                             terminal::id::DISPLAY,
-                                                             std::initializer_list<jam::ComponentAttachment::Property> {
-                                                                 { terminal::id::cellWidth,  0 },
-                                                                 { terminal::id::cellHeight, 0 },
-                                                                 { terminal::id::baseline,   0 },
-                                                                 { terminal::id::fontSize,   0 }
-    });
 
     configListener.start();
 
@@ -42,12 +40,11 @@ terminal::Display::~Display()
     session.getTextEditor().removeKeyListener (this);
 }
 
-// PaneComponent
+// PaneView
 juce::String terminal::Display::getPaneType() const noexcept
 {
     return Map::PaneType::getContext()->get (Map::PaneType::terminal);
 }
-juce::ValueTree terminal::Display::getValueTree() noexcept { return state.getRootTree(); }
 void terminal::Display::applyFromAppModel() noexcept
 {
     const auto* appState { AppModel::getContext() };
@@ -62,10 +59,10 @@ void terminal::Display::applyFromAppModel() noexcept
     session.getTextEditor().setCaretShape (appState->getCursorStyle());
     session.getTextEditor().setCaretBlinkRate (appState->getCursorBlinkInterval());
 
-    attachment->setValue (terminal::id::cellWidth, font.cellWidth);
-    attachment->setValue (terminal::id::cellHeight, font.cellHeight);
-    attachment->setValue (terminal::id::baseline, font.baseline);
-    attachment->setValue (terminal::id::fontSize, static_cast<int> (font.fontSize));
+    state.setValue (terminal::id::DISPLAY, terminal::id::cellWidth,  font.cellWidth);
+    state.setValue (terminal::id::DISPLAY, terminal::id::cellHeight, font.cellHeight);
+    state.setValue (terminal::id::DISPLAY, terminal::id::baseline,   font.baseline);
+    state.setValue (terminal::id::DISPLAY, terminal::id::fontSize,   static_cast<int> (font.fontSize));
 
     mouse.setCellSize (font.cellWidth, font.cellHeight);
     input.buildKeyMap();
@@ -174,7 +171,7 @@ void terminal::Display::valueTreePropertyChanged (juce::ValueTree& tree, const j
             const juce::Identifier screenId { Map::Screen::getContext()->get (activeScreen) };
             const auto screenNode { state.getChildWithName (screenId) };
             const CursorState cursorState { CursorState::unpack (
-                static_cast<int> (jam::Model::getValueFromChildWithID (screenNode, id::cursor).getValue())) };
+                static_cast<int> (jam::ValueTree::getValueFromChildWithID (screenNode, id::cursor).getValue())) };
 
             session.getTextEditor().setCaretPosition (jam::Cell::Point { cell (cursorState.col), cell (cursorState.row) });
         }
@@ -233,11 +230,11 @@ void terminal::Display::resized()
 
     // Display is the sole author of viewport cell dimensions.
     // Uses contentBounds (scrollbar-unaware) — scrollbar is a TextEditor rendering concern.
-    const auto& displayNode { attachment->getNode() };
+    const auto& displayNode { getValueTree() };
     const int cellW { static_cast<int> (
-        jam::Model::getValueFromChildWithID (displayNode, terminal::id::cellWidth).getValue()) };
+        jam::ValueTree::getValueFromChildWithID (displayNode, terminal::id::cellWidth).getValue()) };
     const int cellH { static_cast<int> (
-        jam::Model::getValueFromChildWithID (displayNode, terminal::id::cellHeight).getValue()) };
+        jam::ValueTree::getValueFromChildWithID (displayNode, terminal::id::cellHeight).getValue()) };
 
     if (cellW > 0 and cellH > 0)
     {

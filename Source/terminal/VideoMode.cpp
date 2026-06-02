@@ -41,24 +41,6 @@ void Video::handleCursorStyle (const CSI& params) noexcept
 // CSI Handler — Progressive Keyboard Protocol (CSI u)
 // ============================================================================
 
-/**
- * @brief Handles progressive keyboard protocol sequences (`CSI … u`).
- *
- * Dispatches based on the intermediate byte collected before the params:
- *
- * | Intermediate | Sequence              | Action                          |
- * |--------------|-----------------------|---------------------------------|
- * | `>`          | `CSI > flags u`       | Push flags onto stack           |
- * | `<`          | `CSI < count u`       | Pop count entries from stack    |
- * | `?`          | `CSI ? u`             | Query — respond `CSI ? flags u` |
- * | `=`          | `CSI = flags ; mode u`| Set / OR / AND-NOT flags        |
- * | (none)       | `CSI … u`             | No-op (future: key event input) |
- *
- * @param params      CSI parameter accumulator.
- * @param inter       Intermediate byte buffer.
- * @param interCount  Number of intermediate bytes collected.
- * @note READER THREAD only.
- */
 void Video::handleKeyboardMode (const CSI& params, const uint8_t* inter, uint8_t interCount) noexcept
 {
     if (interCount > 0)
@@ -161,21 +143,6 @@ static bool applyPrivateModeTable (Video& video, uint16_t modeValue, bool enable
     return found;
 }
 
-/**
- * @brief Handles `CSI ? Pm h` / `CSI ? Pm l` — DEC Private Mode Set/Reset (DECSET/DECRST).
- *
- * Iterates over all parameters in `params` and enables or disables the
- * corresponding private mode.  Most modes are resolved via `applyPrivateModeTable()`.
- *
- * @param params  CSI parameters containing the mode numbers.
- * @param enable  `true` to set the mode (h), `false` to reset it (l).
- *
- * @note READER THREAD only.
- *
- * @see applyPrivateModeTable()
- * @see handleMode()
- * @see setScreen()
- */
 void Video::handlePrivateMode (const CSI& params, bool enable) noexcept
 {
     // ?1049h/?1049l re-read activeScreen inline to capture pre-switch / post-switch values.
@@ -226,24 +193,6 @@ void Video::handlePrivateMode (const CSI& params, bool enable) noexcept
 // VT Handler: Mode (SM / RM)
 // ============================================================================
 
-/**
- * @brief Handles `CSI Pm h` / `CSI Pm l` — ANSI Mode Set/Reset (SM / RM).
- *
- * Iterates over all parameters in `params` and enables or disables the
- * corresponding ANSI standard mode.
- *
- * @par Supported modes
- * | Mode | Name | Effect                                                    |
- * |------|------|-----------------------------------------------------------|
- * | 4    | IRM  | Insert mode — characters shift right on input             |
- *
- * @param params  CSI parameters containing the mode numbers.
- * @param enable  `true` to set the mode (h), `false` to reset it (l).
- *
- * @note READER THREAD only.
- *
- * @see handlePrivateMode()
- */
 void Video::handleMode (const CSI& params, bool enable) noexcept
 {
     for (uint8_t i { 0 }; i < params.count; ++i)

@@ -4,12 +4,12 @@
  *
  * @see whelmed::Screen
  * @see whelmed::InputHandler
- * @see PaneComponent
+ * @see PaneView
  */
 
 #pragma once
 #include <JuceHeader.h>
-#include "../../terminal/component/PaneComponent.h"
+#include "../../terminal/component/PaneView.h"
 #include "../State.h"
 #include "../Screen.h"
 #include "../../terminal/component/LoaderOverlay.h"
@@ -27,16 +27,16 @@ namespace whelmed
 
 /**
  * @class whelmed::Component
- * @brief PaneComponent subclass that hosts the Whelmed markdown viewer.
+ * @brief PaneView subclass that hosts the Whelmed markdown viewer.
  *
  * Owns the document state, parser, Screen, and InputHandler. Implements the
- * full PaneComponent interface (selection, config) so it can occupy any split
+ * full PaneView interface (selection, config) so it can occupy any split
  * pane alongside terminal::Display instances.
  *
  * @note MESSAGE THREAD — all public methods.
  */
 class Component
-    : public PaneComponent
+    : public PaneView
     , private juce::ValueTree::Listener
 {
 public:
@@ -55,11 +55,25 @@ public:
     void enterSelectionMode() noexcept override;
     void copySelection() noexcept override;
     bool hasSelection() const noexcept override;
-    juce::ValueTree getValueTree() noexcept override;
+    juce::ValueTree getDocumentTree() noexcept { return state; }
+
+    /**
+     * @brief Grafts the DOCUMENT tree into the given PANE node via RAII Attachment.
+     *
+     * The Attachment is owned by this Component and ungrafts automatically on destruction.
+     * Panes::closeWhelmed() needs only to destroy the Component — no manual removeChild.
+     *
+     * @param paneNode  The PANE juce::ValueTree node to graft into. Must be valid.
+     * @note MESSAGE THREAD. Called by Panes::createWhelmed after component creation.
+     */
+    void graftDocumentInto (juce::ValueTree paneNode);
 
 private:
     void applyFromAppModel() noexcept;
     void valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
+
+    /** @brief RAII graft of the DOCUMENT tree into the owning PANE node. Created by graftDocumentInto(). */
+    std::unique_ptr<jam::ValueTree::Attachment> documentAttachment;
 
     State docState;
     juce::ValueTree state;

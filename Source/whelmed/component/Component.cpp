@@ -55,7 +55,26 @@ Component::~Component()
 }
 
 // ============================================================================
-// PaneComponent interface
+// Graft
+// ============================================================================
+
+/**
+ * @brief Grafts the DOCUMENT tree into the given PANE node via RAII Attachment.
+ *
+ * Destroying this Component destroys documentAttachment, which ungrafts the tree.
+ * If the PANE node was already removed from the tree by paneManager::remove(),
+ * Attachment::~Attachment performs a safe no-op (node.getParent().isValid() check).
+ *
+ * @note MESSAGE THREAD.
+ */
+void Component::graftDocumentInto (juce::ValueTree paneNode)
+{
+    jassert (paneNode.isValid());
+    documentAttachment = std::make_unique<jam::ValueTree::Attachment> (paneNode, state);
+}
+
+// ============================================================================
+// PaneView interface
 // ============================================================================
 
 bool Component::keyPressed (const juce::KeyPress& key)
@@ -208,8 +227,6 @@ bool Component::hasSelection() const noexcept
 {
     return AppModel::getContext()->getSelectionType() != static_cast<int> (SelectionType::none);
 }
-
-juce::ValueTree Component::getValueTree() noexcept { return state; }
 
 // ============================================================================
 // Private

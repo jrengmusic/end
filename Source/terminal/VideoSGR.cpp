@@ -207,52 +207,6 @@ static void resetSGRStyle (uint8_t& flags, uint16_t code) noexcept
     }
 }
 
-/**
- * @brief Dispatches an SGR sequence and applies all parameter groups to the pen.
- *
- * Iterates over every parameter in `params` and applies the corresponding
- * attribute change to `pen`.  A single SGR sequence may contain multiple
- * parameter groups separated by semicolons, e.g. `ESC[1;32;48;5;200m` sets
- * bold, green foreground, and a 256-color background in one call.
- *
- * @par Dispatch logic (per parameter code)
- *
- * | Code range  | Action                                                  |
- * |-------------|---------------------------------------------------------|
- * | (empty)     | Reset pen to default (penFg={}, penBg={}, penFlags=0)   |
- * | 0           | Reset pen to default (penFg={}, penBg={}, penFlags=0)   |
- * | 1–9         | Set style attribute via `applySGRStyle()`               |
- * | 21–29       | Clear style attribute via `resetSGRStyle()`             |
- * | 30–37       | Set fg to ANSI palette color 0–7                        |
- * | 38          | Set fg to extended color (256 or RGB) via sub-params    |
- * | 39          | Reset fg to theme default (`juce::Colour{}`)            |
- * | 40–47       | Set bg to ANSI palette color 0–7                        |
- * | 48          | Set bg to extended color (256 or RGB) via sub-params    |
- * | 49          | Reset bg to theme default (`juce::Colour{}`)            |
- * | 90–97       | Set fg to bright ANSI palette color 8–15                |
- * | 100–107     | Set bg to bright ANSI palette color 8–15                |
- *
- * @par ANSI 16-color palette mapping
- * @code
- * // Normal colors (30–37 fg, 40–47 bg) → palette indices 0–7
- * p.fg = palette256At (code - 30);
- *
- * // Bright colors (90–97 fg, 100–107 bg) → palette indices 8–15
- * p.fg = palette256At (code - 90 + 8);
- * @endcode
- *
- * @param params  The finalised CSI parameter set for the SGR sequence
- *                (final byte 'm').  An empty set (`count == 0`) is treated
- *                identically to a single parameter of 0 (full reset).
- *
- * @note READER THREAD only.
- *
- * @see applySGR()        — public entry point that calls this then `calc()`
- * @see parseExtendedColor() — handles 38;5;N and 38;2;R;G;B sub-sequences
- * @see applySGRStyle()   — sets individual style bits
- * @see resetSGRStyle()   — clears individual style bits
- * @see jam::Char         — the packed character atom being written
- */
 void Video::handleSGR (const CSI& params) noexcept
 {
     if (params.count == 0)
@@ -329,19 +283,6 @@ void Video::handleSGR (const CSI& params) noexcept
     }
 }
 
-/**
- * @brief Public SGR entry point: applies attributes to the pen.
- *
- * Delegates attribute application to `handleSGR()`.  penStyleDirty is set
- * inside handleSGR() on each mutation, so currentStyleId() will re-query
- * the Stamp table on the next cell write.
- *
- * @param params  The finalised CSI parameter set for the SGR sequence.
- *
- * @note READER THREAD only.
- *
- * @see handleSGR() — inner implementation that mutates penFg / penBg / penFlags
- */
 void Video::applySGR (const CSI& params) noexcept
 {
     handleSGR (params);

@@ -451,7 +451,7 @@ The lookup formula: <programlisting><codeline><highlight class="normal">T3[T2[(T
         <references refid="_char_props_data_8h_1a8bd283a914a2efb779a7228008fd14eb" compoundref="_char_props_data_8h" startline="381" endline="2712">charPropsT2</references>
         <references refid="_char_props_data_8h_1ade9aa1e4c3fe7933d6f75c79fe56845a" compoundref="_char_props_data_8h" startline="2715" endline="2722">charPropsT3</references>
         <references refid="_char_props_data_8h_1a7dbde061a73322be65f114febeb1c3f8" compoundref="_char_props_data_8h" startline="132" endline="132">MAX_UNICODE</references>
-        <referencedby refid="classterminal_1_1_video_1a3779e3aadc17c29652543898f4d1dfec" compoundref="_video_8cpp" startline="507" endline="641">terminal::Video::print</referencedby>
+        <referencedby refid="classterminal_1_1_video_1a3779e3aadc17c29652543898f4d1dfec" compoundref="_video_8cpp" startline="405" endline="539">terminal::Video::print</referencedby>
       </memberdef>
       <memberdef kind="function" id="_char_props_8h_1a24312066beaa69c544f6f817b55100ad" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
         <type><ref refid="struct_grapheme_segmentation_result" kindref="compound">GraphemeSegmentationResult</ref></type>
@@ -520,7 +520,7 @@ The lookup formula: <programlisting><codeline><highlight class="normal">T3[T2[(T
         <references refid="_char_props_data_8h_1a065f9befaba8e81053dd6bf34f9ac876" compoundref="_char_props_data_8h" startline="2731" endline="2835">graphemeSegT1</references>
         <references refid="_char_props_data_8h_1af871af431ce5326bb5c47b3b3d5db990" compoundref="_char_props_data_8h" startline="2838" endline="3249">graphemeSegT2</references>
         <references refid="_char_props_data_8h_1a7b2fcca679d4b42925fe96d4d3b5dc57" compoundref="_char_props_data_8h" startline="3266" endline="3295">graphemeSegT3</references>
-        <referencedby refid="classterminal_1_1_video_1a3779e3aadc17c29652543898f4d1dfec" compoundref="_video_8cpp" startline="507" endline="641">terminal::Video::print</referencedby>
+        <referencedby refid="classterminal_1_1_video_1a3779e3aadc17c29652543898f4d1dfec" compoundref="_video_8cpp" startline="405" endline="539">terminal::Video::print</referencedby>
       </memberdef>
       <memberdef kind="function" id="_char_props_8h_1a2d6e422d7964e9d70e3702c764f60ba6" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
         <type><ref refid="struct_grapheme_segmentation_result" kindref="compound">GraphemeSegmentationResult</ref></type>

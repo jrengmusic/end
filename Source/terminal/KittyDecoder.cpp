@@ -21,21 +21,6 @@ namespace terminal
 // KittyDecoder::accumulateChunk
 // ============================================================================
 
-/**
- * @brief Accumulate a mid-sequence chunk (`m=1`) into @p acc.
- *
- * On the first chunk for this image ID: records metadata from @p p.  On
- * subsequent chunks where new dimensions are provided: treats the accumulator
- * as stale, resets its data, and records the fresh metadata.  Appends
- * @p payloadPtr / @p payloadLen to `acc.data` in both cases.
- *
- * @param acc        Chunk accumulator for this image ID.
- * @param p          Parsed key=value params from the current APC packet.
- * @param payloadPtr Pointer to the base64 payload bytes.
- * @param payloadLen Number of payload bytes.
- *
- * @note READER THREAD only.
- */
 void KittyDecoder::accumulateChunk (ChunkAccumulator& acc, const KittyParams& p,
                                     const uint8_t* payloadPtr, int payloadLen) noexcept
 {
@@ -67,23 +52,6 @@ void KittyDecoder::accumulateChunk (ChunkAccumulator& acc, const KittyParams& p,
 // KittyDecoder::finalizeChunk
 // ============================================================================
 
-/**
- * @brief Finalize a chunked sequence (`m=0`): append, decode, and clean up.
- *
- * Applies a metadata fallback for the single-chunk path (when `acc` has no
- * metadata yet), appends any remaining payload bytes, then calls
- * `decodePayload()`.  On decode failure writes an error response into
- * @p result.  Erases the accumulator from `chunks` regardless of outcome.
- *
- * @param acc        Chunk accumulator for this image ID.
- * @param p          Parsed key=value params from the current APC packet.
- * @param payloadPtr Pointer to the final base64 payload bytes.
- * @param payloadLen Number of payload bytes.
- * @param result     Result being built; receives the error response on failure.
- * @return Decoded image on success; invalid DecodedImage on failure.
- *
- * @note READER THREAD only.
- */
 DecodedImage KittyDecoder::finalizeChunk (ChunkAccumulator& acc, const KittyParams& p,
                                           const uint8_t* payloadPtr, int payloadLen,
                                           Result& result) noexcept
@@ -128,26 +96,6 @@ DecodedImage KittyDecoder::finalizeChunk (ChunkAccumulator& acc, const KittyPara
 // KittyDecoder::process
 // ============================================================================
 
-/**
- * @brief Process a complete APC G payload.
- *
- * Parse steps:
- *  1. Parse key=value params from the region before `;`.
- *  2. Extract base64 payload from the region after `;`.
- *  3. Dispatch on `a=` action:
- *     - q  (query):            Return isQuery + response.
- *     - d  (delete):           Clear storedImages, return isDelete.
- *     - t  (transmit-only):    Accumulate chunks; on m=0, decode and store.
- *     - T  (transmit+display): Accumulate chunks; on m=0, decode and return with shouldDisplay.
- *     - p  (display stored):   Look up storedImages[i], return shouldDisplay.
- *
- * @param data    Raw APC payload bytes (everything after 'G').
- * @param length  Number of bytes.
- * @return Result for this payload.  Defaults (shouldDisplay=false) for
- *         mid-sequence chunks and unrecognised actions.
- *
- * @note READER THREAD only.
- */
 KittyDecoder::Result KittyDecoder::process (const uint8_t* data, int length) noexcept
 {
     Result result;

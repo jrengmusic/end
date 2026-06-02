@@ -45,31 +45,6 @@ namespace terminal
 // Buffer management
 // ============================================================================
 
-/**
- * @brief Appends a byte to a hybrid buffer with lazy allocation and geometric growth.
- *
- * Handles three cases:
- *
- * - **First call** (`capacity == 0`): allocates `initialCapacity` bytes via
- *   `juce::HeapBlock::allocate`.
- * - **Overflow** (`size >= capacity`): doubles the capacity and copies the
- *   existing content to the new block via `std::memcpy`.
- * - **Normal** (`size < capacity`): writes `byte` directly.
- *
- * After ensuring sufficient capacity, `byte` is stored at `buffer[size]` and
- * `size` is incremented.
- *
- * @param buffer           The `HeapBlock` to append to.
- * @param size             Current number of valid bytes in `buffer` (in/out).
- * @param capacity         Current allocated capacity of `buffer` (in/out).
- * @param byte             The byte to append.
- * @param initialCapacity  Capacity to allocate on the first call.
- *
- * @note READER THREAD only.
- *
- * @see oscBuffer
- * @see dcsBuffer
- */
 void Parser::appendToBuffer (juce::HeapBlock<uint8_t>& buffer, int& size, int& capacity, uint8_t byte, int initialCapacity) noexcept
 {
     if (size >= capacity)
@@ -93,25 +68,6 @@ void Parser::appendToBuffer (juce::HeapBlock<uint8_t>& buffer, int& size, int& c
 // Action dispatch
 // ============================================================================
 
-/**
- * @brief Executes the action associated with a state transition, calling
- *        Video methods directly for all semantic actions.
- *
- * Central dispatcher for all VT actions.  Parser-owned accumulation actions
- * (collect, param, put, oscPut, apcPut) are handled inline.  All semantic
- * terminal actions (applyControlCode, applyESC, applyCSI, applyOSC,
- * storeDCSHeader, applyDCSPayload, applyAPCPayload) are called directly on
- * `video`.  `handlePrintByte()` remains on Parser and internally calls
- * `video.print()`.
- *
- * @param action  The action to perform, as determined by the DispatchTable.
- * @param byte    The input byte associated with the action.
- *
- * @note READER THREAD only.
- *
- * @see handlePrintByte()
- * @see Video.h
- */
 void Parser::performAction (ParserAction action, uint8_t byte) noexcept
 {
     switch (action)
@@ -182,29 +138,6 @@ void Parser::performAction (ParserAction action, uint8_t byte) noexcept
     }
 }
 
-/**
- * @brief Performs the entry action for a newly entered parser state.
- *
- * Called by `processTransition()` immediately after `performAction()` when
- * the state changes.  Entry actions reset the accumulators that belong to
- * the new state, ensuring no stale data from a previous sequence leaks in:
- *
- * - **escape**    — `intermediateCount = 0`: clears intermediate buffer for
- *                   the new ESC sequence.
- * - **csiEntry**  — `csi.reset()` + `intermediateCount = 0`: clears both the
- *                   CSI parameter accumulator and the intermediate buffer.
- * - **dcsEntry**  — same as `csiEntry` plus `dcsBufferSize = 0`: resets the
- *                   DCS payload accumulator.
- * - **oscString** — `oscBufferSize = 0`: clears the hybrid OSC payload buffer.
- * - **apcString** — `apcBufferSize = 0`: clears the APC payload buffer.
- * - All other states have no entry action (default branch is a no-op).
- *
- * @param newState  The state being entered.
- *
- * @note READER THREAD only.
- *
- * @see processTransition()
- */
 void Parser::performEntryAction (ParserState newState) noexcept
 {
     switch (newState)
@@ -239,31 +172,6 @@ void Parser::performEntryAction (ParserState newState) noexcept
 // UTF-8 accumulation
 // ============================================================================
 
-/**
- * @brief Returns the expected total byte length of a UTF-8 sequence from its lead byte.
- *
- * Decodes the sequence length from the high bits of the lead byte using the
- * standard UTF-8 encoding rules:
- *
- * | Lead byte range | High bits | Sequence length |
- * |-----------------|-----------|-----------------|
- * | 0xF0–0xF7       | 11110xxx  | 4               |
- * | 0xE0–0xEF       | 1110xxxx  | 3               |
- * | 0xC0–0xDF       | 110xxxxx  | 2               |
- * | 0x00–0x7F       | 0xxxxxxx  | 1 (ASCII)       |
- *
- * Values in the range 0x80–0xBF (continuation bytes) are not valid lead bytes
- * and return 1 as a safe fallback.
- *
- * @param leadByte  The first byte of the UTF-8 sequence.
- *
- * @return Expected total byte count (1–4).
- *
- * @note Pure function — no side effects, no state access.
- * @note READER THREAD only.
- *
- * @see accumulateUTF8Byte()
- */
 uint8_t Parser::expectedUTF8Length (uint8_t leadByte) noexcept
 {
     static constexpr uint8_t lengths[256] = {
@@ -285,32 +193,6 @@ uint8_t Parser::expectedUTF8Length (uint8_t leadByte) noexcept
     return lengths[leadByte];
 }
 
-/**
- * @brief Accumulates a byte into the UTF-8 sequence buffer and decodes when complete.
- *
- * UTF-8 multi-byte sequences arrive one byte at a time from the PTY stream.
- * This method maintains `utf8Accumulator` and `utf8AccumulatorLength` across
- * successive calls:
- *
- * 1. **Lead byte** (≥ 0xC0): resets the accumulator and stores the byte at index 0.
- * 2. **Continuation byte** (0x80–0xBF): appended to the accumulator if a sequence
- *    is in progress (`utf8AccumulatorLength > 0`) and the buffer is not full.
- * 3. **Completion check**: after each append, if `utf8AccumulatorLength` equals
- *    `expectedUTF8Length (utf8Accumulator[0])`, the sequence is complete.
- *    `juce::CharPointer_UTF8` decodes the null-terminated buffer to a Unicode
- *    codepoint, which is dispatched via `video.print()`.  The accumulator is then reset.
- *
- * Invalid sequences (e.g. a continuation byte with no preceding lead byte, or
- * a lead byte that interrupts an in-progress sequence) are silently discarded
- * because the accumulator is only appended to when `utf8AccumulatorLength > 0`.
- *
- * @param byte  The next byte of the UTF-8 sequence (lead or continuation).
- *
- * @note READER THREAD only.
- *
- * @see expectedUTF8Length()
- * @see handlePrintByte()
- */
 void Parser::accumulateUTF8Byte (uint8_t byte) noexcept
 {
     const bool isLeadByte { byte >= 0xC0 };
@@ -341,23 +223,6 @@ void Parser::accumulateUTF8Byte (uint8_t byte) noexcept
     }
 }
 
-/**
- * @brief Routes a printable byte to `video.print()` directly or through UTF-8 accumulation.
- *
- * Called by `performAction()` for every `action::print` byte.  Two paths:
- *
- * - **ASCII** (byte ≤ 0x7F): resets `utf8AccumulatorLength` to discard any
- *   in-progress multi-byte sequence, then calls `video.print()` directly with
- *   the codepoint value.
- * - **Non-ASCII** (byte > 0x7F): delegates to `accumulateUTF8Byte()` to
- *   begin or continue a multi-byte UTF-8 sequence.
- *
- * @param byte  The printable input byte (0x20–0x7E for ASCII, ≥ 0x80 for UTF-8).
- *
- * @note READER THREAD only.
- *
- * @see accumulateUTF8Byte()
- */
 void Parser::handlePrintByte (uint8_t byte) noexcept
 {
     const bool isASCII { byte <= 0x7F };
@@ -377,25 +242,6 @@ void Parser::handlePrintByte (uint8_t byte) noexcept
 // CSI parameter accumulation
 // ============================================================================
 
-/**
- * @brief Feeds a CSI parameter byte into the CSI accumulator.
- *
- * Called by `performAction()` for every `action::param` byte.  The byte is
- * classified and forwarded to the appropriate `CSI` method:
- *
- * - **Digit** ('0'–'9'): `csi.addDigit (byte - '0')` — extends the current
- *   numeric parameter.
- * - **Separator** (';' or ':'): `csi.addSeparator (byte)` — commits the
- *   current parameter and begins the next.  Colon (`:`) is used for
- *   sub-parameters in extended SGR colour sequences (e.g. `38:2:r:g:b`).
- *
- * @param byte  The parameter byte (0x30–0x3B range per the VT spec).
- *
- * @note READER THREAD only.
- *
- * @see CSI::addDigit()
- * @see CSI::addSeparator()
- */
 void Parser::handleParam (uint8_t byte) noexcept
 {
     const bool isDigit { byte >= '0' and byte <= '9' };

@@ -20,10 +20,10 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="MainComponent.h" line="159" column="17" bodyfile="MainComponent.h" bodystart="159" bodyend="-1"/>
-        <referencedby refid="class_main_component_1af25c7785d50ec5ad96fc8149ec083f36" compoundref="_main_component_8cpp" startline="644" endline="660">initialiseOverlays</referencedby>
-        <referencedby refid="class_main_component_1a1fe9b104d3b6eb88315ace959285ead4" compoundref="_main_component_8cpp" startline="55" endline="216">MainComponent</referencedby>
-        <referencedby refid="class_main_component_1ab7554fd4973879f87d71254e5eee19d7" compoundref="_main_component_8cpp" startline="448" endline="464">registerActions</referencedby>
+        <location file="MainComponent.h" line="160" column="17" bodyfile="MainComponent.h" bodystart="160" bodyend="-1"/>
+        <referencedby refid="class_main_component_1af25c7785d50ec5ad96fc8149ec083f36" compoundref="_main_component_8cpp" startline="630" endline="646">initialiseOverlays</referencedby>
+        <referencedby refid="class_main_component_1a1fe9b104d3b6eb88315ace959285ead4" compoundref="_main_component_8cpp" startline="54" endline="215">MainComponent</referencedby>
+        <referencedby refid="class_main_component_1ab7554fd4973879f87d71254e5eee19d7" compoundref="_main_component_8cpp" startline="447" endline="463">registerActions</referencedby>
         <referencedby refid="class_main_component_1af8f4fbba4aef2485def605f4b918f46e" compoundref="_main_component_actions_8cpp" startline="71" endline="200">registerApplicationActions</referencedby>
         <referencedby refid="class_main_component_1a94eb6ae94c2dbf664de22bb5f5bb152d" compoundref="_main_component_actions_8cpp" startline="436" endline="452">showReloadMessage</referencedby>
       </memberdef>
@@ -41,17 +41,17 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="MainComponent.h" line="162" column="14" bodyfile="MainComponent.h" bodystart="162" bodyend="162"/>
-        <referencedby refid="class_main_component_1a7a32301bc3f0ca6c370fa7e3b0348e70" compoundref="_main_component_8cpp" startline="218" endline="246">applyConfig</referencedby>
-        <referencedby refid="class_main_component_1af25c7785d50ec5ad96fc8149ec083f36" compoundref="_main_component_8cpp" startline="644" endline="660">initialiseOverlays</referencedby>
-        <referencedby refid="class_main_component_1a3e048893b0fb515c367cdc2dd69de164" compoundref="_main_component_8cpp" startline="572" endline="622">initialiseTabs</referencedby>
-        <referencedby refid="class_main_component_1a1fe9b104d3b6eb88315ace959285ead4" compoundref="_main_component_8cpp" startline="55" endline="216">MainComponent</referencedby>
+        <location file="MainComponent.h" line="163" column="14" bodyfile="MainComponent.h" bodystart="163" bodyend="163"/>
+        <referencedby refid="class_main_component_1a7a32301bc3f0ca6c370fa7e3b0348e70" compoundref="_main_component_8cpp" startline="217" endline="245">applyConfig</referencedby>
+        <referencedby refid="class_main_component_1af25c7785d50ec5ad96fc8149ec083f36" compoundref="_main_component_8cpp" startline="630" endline="646">initialiseOverlays</referencedby>
+        <referencedby refid="class_main_component_1a3e048893b0fb515c367cdc2dd69de164" compoundref="_main_component_8cpp" startline="558" endline="608">initialiseTabs</referencedby>
+        <referencedby refid="class_main_component_1a1fe9b104d3b6eb88315ace959285ead4" compoundref="_main_component_8cpp" startline="54" endline="215">MainComponent</referencedby>
         <referencedby refid="class_main_component_1af8f4fbba4aef2485def605f4b918f46e" compoundref="_main_component_actions_8cpp" startline="71" endline="200">registerApplicationActions</referencedby>
         <referencedby refid="class_main_component_1a9da137e4574abb68eb9c7887a21144c9" compoundref="_main_component_actions_8cpp" startline="203" endline="274">registerTabActions</referencedby>
-        <referencedby refid="class_main_component_1a339148bc43089300e10d5883a0a80726" compoundref="_main_component_8cpp" startline="293" endline="318">resized</referencedby>
-        <referencedby refid="class_main_component_1ab003af1c38a7da38d907980bb47630dd" compoundref="_main_component_8cpp" startline="515" endline="559">showMessageOverlay</referencedby>
-        <referencedby refid="class_main_component_1ab981f8a50bedc6595965294c12796ac6" compoundref="_main_component_8cpp" startline="350" endline="394">valueTreePropertyChanged</referencedby>
-        <referencedby refid="class_main_component_1afc7d0481eafa95da42e728443102f92e" compoundref="_main_component_8cpp" startline="329" endline="340">~MainComponent</referencedby>
+        <referencedby refid="class_main_component_1a339148bc43089300e10d5883a0a80726" compoundref="_main_component_8cpp" startline="292" endline="317">resized</referencedby>
+        <referencedby refid="class_main_component_1ab003af1c38a7da38d907980bb47630dd" compoundref="_main_component_8cpp" startline="501" endline="545">showMessageOverlay</referencedby>
+        <referencedby refid="class_main_component_1ab981f8a50bedc6595965294c12796ac6" compoundref="_main_component_8cpp" startline="349" endline="393">valueTreePropertyChanged</referencedby>
+        <referencedby refid="class_main_component_1afc7d0481eafa95da42e728443102f92e" compoundref="_main_component_8cpp" startline="328" endline="339">~MainComponent</referencedby>
       </memberdef>
       <memberdef kind="variable" id="class_main_component_1a613a1f13f3771bb136f02c753b10bbad" prot="private" static="no" mutable="no">
         <type><ref refid="classterminal_1_1_look_and_feel" kindref="compound">terminal::LookAndFeel</ref></type>
@@ -66,9 +66,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="MainComponent.h" line="165" column="27" bodyfile="MainComponent.h" bodystart="165" bodyend="-1"/>
-        <referencedby refid="class_main_component_1a7a32301bc3f0ca6c370fa7e3b0348e70" compoundref="_main_component_8cpp" startline="218" endline="246">applyConfig</referencedby>
-        <referencedby refid="class_main_component_1a1fe9b104d3b6eb88315ace959285ead4" compoundref="_main_component_8cpp" startline="55" endline="216">MainComponent</referencedby>
+        <location file="MainComponent.h" line="166" column="27" bodyfile="MainComponent.h" bodystart="166" bodyend="-1"/>
+        <referencedby refid="class_main_component_1a7a32301bc3f0ca6c370fa7e3b0348e70" compoundref="_main_component_8cpp" startline="217" endline="245">applyConfig</referencedby>
+        <referencedby refid="class_main_component_1a1fe9b104d3b6eb88315ace959285ead4" compoundref="_main_component_8cpp" startline="54" endline="215">MainComponent</referencedby>
       </memberdef>
       <memberdef kind="variable" id="class_main_component_1a06c6773ec30bc15b0ac6f7ebacc08b78" prot="private" static="no" mutable="no">
         <type>juce::OpenGLContext</type>
@@ -83,9 +83,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="MainComponent.h" line="168" column="25" bodyfile="MainComponent.h" bodystart="168" bodyend="-1"/>
-        <referencedby refid="class_main_component_1ae74ad6a1f60d83dea132be37829e1496" compoundref="_main_component_8cpp" startline="248" endline="268">setRenderer</referencedby>
-        <referencedby refid="class_main_component_1afc7d0481eafa95da42e728443102f92e" compoundref="_main_component_8cpp" startline="329" endline="340">~MainComponent</referencedby>
+        <location file="MainComponent.h" line="169" column="25" bodyfile="MainComponent.h" bodystart="169" bodyend="-1"/>
+        <referencedby refid="class_main_component_1ae74ad6a1f60d83dea132be37829e1496" compoundref="_main_component_8cpp" startline="247" endline="267">setRenderer</referencedby>
+        <referencedby refid="class_main_component_1afc7d0481eafa95da42e728443102f92e" compoundref="_main_component_8cpp" startline="328" endline="339">~MainComponent</referencedby>
       </memberdef>
       <memberdef kind="variable" id="class_main_component_1a11b45d587e801c0a00bb55224b08a70c" prot="private" static="no" mutable="no">
         <type>std::unique_ptr&lt; <ref refid="classterminal_1_1_tabs" kindref="compound">terminal::Tabs</ref> &gt;</type>
@@ -100,20 +100,20 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="MainComponent.h" line="171" column="21" bodyfile="MainComponent.h" bodystart="171" bodyend="-1"/>
-        <referencedby refid="class_main_component_1a7a32301bc3f0ca6c370fa7e3b0348e70" compoundref="_main_component_8cpp" startline="218" endline="246">applyConfig</referencedby>
-        <referencedby refid="class_main_component_1a32f02fba715cf20e7684b8049b13a914" compoundref="_main_component_8cpp" startline="629" endline="636">exitActiveTerminalSelectionMode</referencedby>
-        <referencedby refid="class_main_component_1a3e048893b0fb515c367cdc2dd69de164" compoundref="_main_component_8cpp" startline="572" endline="622">initialiseTabs</referencedby>
-        <referencedby refid="class_main_component_1a1fe9b104d3b6eb88315ace959285ead4" compoundref="_main_component_8cpp" startline="55" endline="216">MainComponent</referencedby>
+        <location file="MainComponent.h" line="172" column="21" bodyfile="MainComponent.h" bodystart="172" bodyend="-1"/>
+        <referencedby refid="class_main_component_1a7a32301bc3f0ca6c370fa7e3b0348e70" compoundref="_main_component_8cpp" startline="217" endline="245">applyConfig</referencedby>
+        <referencedby refid="class_main_component_1a32f02fba715cf20e7684b8049b13a914" compoundref="_main_component_8cpp" startline="615" endline="622">exitActiveTerminalSelectionMode</referencedby>
+        <referencedby refid="class_main_component_1a3e048893b0fb515c367cdc2dd69de164" compoundref="_main_component_8cpp" startline="558" endline="608">initialiseTabs</referencedby>
+        <referencedby refid="class_main_component_1a1fe9b104d3b6eb88315ace959285ead4" compoundref="_main_component_8cpp" startline="54" endline="215">MainComponent</referencedby>
         <referencedby refid="class_main_component_1af8f4fbba4aef2485def605f4b918f46e" compoundref="_main_component_actions_8cpp" startline="71" endline="200">registerApplicationActions</referencedby>
         <referencedby refid="class_main_component_1aaf14fa21c2d5e1d85620b5eb5a5b2871" compoundref="_main_component_actions_8cpp" startline="27" endline="68">registerEditActions</referencedby>
         <referencedby refid="class_main_component_1af85917ed6d868b3d658575b1c9010271" compoundref="_main_component_actions_8cpp" startline="351" endline="433">registerNavigationActions</referencedby>
         <referencedby refid="class_main_component_1a93a8c1546659ed2852c6193fbd7581e0" compoundref="_main_component_actions_8cpp" startline="277" endline="348">registerPaneActions</referencedby>
         <referencedby refid="class_main_component_1a9da137e4574abb68eb9c7887a21144c9" compoundref="_main_component_actions_8cpp" startline="203" endline="274">registerTabActions</referencedby>
-        <referencedby refid="class_main_component_1a339148bc43089300e10d5883a0a80726" compoundref="_main_component_8cpp" startline="293" endline="318">resized</referencedby>
-        <referencedby refid="class_main_component_1ab003af1c38a7da38d907980bb47630dd" compoundref="_main_component_8cpp" startline="515" endline="559">showMessageOverlay</referencedby>
-        <referencedby refid="class_main_component_1a46cc067d6026247d03d95ceab86e687d" compoundref="_main_component_8cpp" startline="403" endline="416">valueTreeChildAdded</referencedby>
-        <referencedby refid="class_main_component_1a3e3be461ec1cc162c50cb61480aac434" compoundref="_main_component_8cpp" startline="423" endline="437">valueTreeChildRemoved</referencedby>
+        <referencedby refid="class_main_component_1a339148bc43089300e10d5883a0a80726" compoundref="_main_component_8cpp" startline="292" endline="317">resized</referencedby>
+        <referencedby refid="class_main_component_1ab003af1c38a7da38d907980bb47630dd" compoundref="_main_component_8cpp" startline="501" endline="545">showMessageOverlay</referencedby>
+        <referencedby refid="class_main_component_1a46cc067d6026247d03d95ceab86e687d" compoundref="_main_component_8cpp" startline="402" endline="415">valueTreeChildAdded</referencedby>
+        <referencedby refid="class_main_component_1a3e3be461ec1cc162c50cb61480aac434" compoundref="_main_component_8cpp" startline="422" endline="436">valueTreeChildRemoved</referencedby>
       </memberdef>
       <memberdef kind="variable" id="class_main_component_1a3cb0f6698369d66deaa8400cf8d43951" prot="private" static="no" mutable="no">
         <type>std::unique_ptr&lt; <ref refid="class_message_overlay" kindref="compound">MessageOverlay</ref> &gt;</type>
@@ -128,10 +128,10 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="MainComponent.h" line="174" column="21" bodyfile="MainComponent.h" bodystart="174" bodyend="-1"/>
-        <referencedby refid="class_main_component_1af25c7785d50ec5ad96fc8149ec083f36" compoundref="_main_component_8cpp" startline="644" endline="660">initialiseOverlays</referencedby>
-        <referencedby refid="class_main_component_1a339148bc43089300e10d5883a0a80726" compoundref="_main_component_8cpp" startline="293" endline="318">resized</referencedby>
-        <referencedby refid="class_main_component_1ab003af1c38a7da38d907980bb47630dd" compoundref="_main_component_8cpp" startline="515" endline="559">showMessageOverlay</referencedby>
+        <location file="MainComponent.h" line="175" column="21" bodyfile="MainComponent.h" bodystart="175" bodyend="-1"/>
+        <referencedby refid="class_main_component_1af25c7785d50ec5ad96fc8149ec083f36" compoundref="_main_component_8cpp" startline="630" endline="646">initialiseOverlays</referencedby>
+        <referencedby refid="class_main_component_1a339148bc43089300e10d5883a0a80726" compoundref="_main_component_8cpp" startline="292" endline="317">resized</referencedby>
+        <referencedby refid="class_main_component_1ab003af1c38a7da38d907980bb47630dd" compoundref="_main_component_8cpp" startline="501" endline="545">showMessageOverlay</referencedby>
         <referencedby refid="class_main_component_1a94eb6ae94c2dbf664de22bb5f5bb152d" compoundref="_main_component_actions_8cpp" startline="436" endline="452">showReloadMessage</referencedby>
       </memberdef>
       <memberdef kind="variable" id="class_main_component_1a9828810f1f16a744c507bd5063b25f44" prot="private" static="no" mutable="no">
@@ -147,9 +147,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="MainComponent.h" line="177" column="21" bodyfile="MainComponent.h" bodystart="177" bodyend="-1"/>
-        <referencedby refid="class_main_component_1af25c7785d50ec5ad96fc8149ec083f36" compoundref="_main_component_8cpp" startline="644" endline="660">initialiseOverlays</referencedby>
-        <referencedby refid="class_main_component_1a339148bc43089300e10d5883a0a80726" compoundref="_main_component_8cpp" startline="293" endline="318">resized</referencedby>
+        <location file="MainComponent.h" line="178" column="21" bodyfile="MainComponent.h" bodystart="178" bodyend="-1"/>
+        <referencedby refid="class_main_component_1af25c7785d50ec5ad96fc8149ec083f36" compoundref="_main_component_8cpp" startline="630" endline="646">initialiseOverlays</referencedby>
+        <referencedby refid="class_main_component_1a339148bc43089300e10d5883a0a80726" compoundref="_main_component_8cpp" startline="292" endline="317">resized</referencedby>
       </memberdef>
       <memberdef kind="variable" id="class_main_component_1a7288532a5bfc662226a8dfd4359c9bbf" prot="private" static="no" mutable="no">
         <type>juce::ValueTree</type>
@@ -165,10 +165,10 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="MainComponent.h" line="183" column="21" bodyfile="MainComponent.h" bodystart="183" bodyend="-1"/>
-        <referencedby refid="class_main_component_1a1fe9b104d3b6eb88315ace959285ead4" compoundref="_main_component_8cpp" startline="55" endline="216">MainComponent</referencedby>
-        <referencedby refid="class_main_component_1a46cc067d6026247d03d95ceab86e687d" compoundref="_main_component_8cpp" startline="403" endline="416">valueTreeChildAdded</referencedby>
-        <referencedby refid="class_main_component_1afc7d0481eafa95da42e728443102f92e" compoundref="_main_component_8cpp" startline="329" endline="340">~MainComponent</referencedby>
+        <location file="MainComponent.h" line="184" column="21" bodyfile="MainComponent.h" bodystart="184" bodyend="-1"/>
+        <referencedby refid="class_main_component_1a1fe9b104d3b6eb88315ace959285ead4" compoundref="_main_component_8cpp" startline="54" endline="215">MainComponent</referencedby>
+        <referencedby refid="class_main_component_1a46cc067d6026247d03d95ceab86e687d" compoundref="_main_component_8cpp" startline="402" endline="415">valueTreeChildAdded</referencedby>
+        <referencedby refid="class_main_component_1afc7d0481eafa95da42e728443102f92e" compoundref="_main_component_8cpp" startline="328" endline="339">~MainComponent</referencedby>
       </memberdef>
       <memberdef kind="variable" id="class_main_component_1add6236e7d1d88965f82aa3190bed6e4b" prot="private" static="no" mutable="no">
         <type>juce::ValueTree</type>
@@ -184,10 +184,10 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="MainComponent.h" line="187" column="21" bodyfile="MainComponent.h" bodystart="187" bodyend="-1"/>
-        <referencedby refid="class_main_component_1a46cc067d6026247d03d95ceab86e687d" compoundref="_main_component_8cpp" startline="403" endline="416">valueTreeChildAdded</referencedby>
-        <referencedby refid="class_main_component_1a3e3be461ec1cc162c50cb61480aac434" compoundref="_main_component_8cpp" startline="423" endline="437">valueTreeChildRemoved</referencedby>
-        <referencedby refid="class_main_component_1afc7d0481eafa95da42e728443102f92e" compoundref="_main_component_8cpp" startline="329" endline="340">~MainComponent</referencedby>
+        <location file="MainComponent.h" line="188" column="21" bodyfile="MainComponent.h" bodystart="188" bodyend="-1"/>
+        <referencedby refid="class_main_component_1a46cc067d6026247d03d95ceab86e687d" compoundref="_main_component_8cpp" startline="402" endline="415">valueTreeChildAdded</referencedby>
+        <referencedby refid="class_main_component_1a3e3be461ec1cc162c50cb61480aac434" compoundref="_main_component_8cpp" startline="422" endline="436">valueTreeChildRemoved</referencedby>
+        <referencedby refid="class_main_component_1afc7d0481eafa95da42e728443102f92e" compoundref="_main_component_8cpp" startline="328" endline="339">~MainComponent</referencedby>
       </memberdef>
       <memberdef kind="variable" id="class_main_component_1a7d0c696c06a167890fb58e3a608a0aff" prot="private" static="no" mutable="no">
         <type><ref refid="classterminal_1_1_popup" kindref="compound">terminal::Popup</ref></type>
@@ -202,8 +202,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="MainComponent.h" line="190" column="21" bodyfile="MainComponent.h" bodystart="190" bodyend="-1"/>
-        <referencedby refid="class_main_component_1a1fe9b104d3b6eb88315ace959285ead4" compoundref="_main_component_8cpp" startline="55" endline="216">MainComponent</referencedby>
+        <location file="MainComponent.h" line="191" column="21" bodyfile="MainComponent.h" bodystart="191" bodyend="-1"/>
+        <referencedby refid="class_main_component_1a1fe9b104d3b6eb88315ace959285ead4" compoundref="_main_component_8cpp" startline="54" endline="215">MainComponent</referencedby>
         <referencedby refid="class_main_component_1af8f4fbba4aef2485def605f4b918f46e" compoundref="_main_component_actions_8cpp" startline="71" endline="200">registerApplicationActions</referencedby>
       </memberdef>
     </sectiondef>
@@ -253,8 +253,8 @@ Member init order (declared in header):<itemizedlist>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="MainComponent.h" line="84" column="14" bodyfile="MainComponent.cpp" bodystart="55" bodyend="216"/>
-        <references refid="class_main_component_1a60b47af60485c2469a891d08495e1921" compoundref="_main_component_8h" startline="162" endline="162">appState</references>
+        <location file="MainComponent.h" line="85" column="14" bodyfile="MainComponent.cpp" bodystart="54" bodyend="215"/>
+        <references refid="class_main_component_1a60b47af60485c2469a891d08495e1921" compoundref="_main_component_8h" startline="163" endline="163">appState</references>
         <references refid="structjam_1_1_font_1a7eaadf8cff31c90d759339153197544e">jam::Font::cellHeight</references>
         <references refid="structjam_1_1_font_1a242a8b90fcd977d98e7bff48cbea2e29">jam::Font::cellWidth</references>
         <references refid="structlua_1_1_engine_1_1_display_callbacks_1a6e49abed9d4d128e4bff347a0310453d" compoundref="_engine_8h" startline="936">lua::Engine::DisplayCallbacks::closePane</references>
@@ -265,23 +265,23 @@ Member init order (declared in header):<itemizedlist>
         <references refid="namespace_binary_data_1aea7e95400eb0412e0eadc467d0d48c60">BinaryData::fetcher</references>
         <references refid="structlua_1_1_engine_1_1_display_callbacks_1a5ef1d4e42063125c4dc9fb57681ca9d3" compoundref="_engine_8h" startline="933">lua::Engine::DisplayCallbacks::focusPane</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
-        <references refid="class_main_component_1af25c7785d50ec5ad96fc8149ec083f36" compoundref="_main_component_8cpp" startline="644" endline="660">initialiseOverlays</references>
+        <references refid="class_main_component_1af25c7785d50ec5ad96fc8149ec083f36" compoundref="_main_component_8cpp" startline="630" endline="646">initialiseOverlays</references>
         <references refid="group__juce__core-system_1ga1f96ab6751237979b907a54f52a7296a">jassert</references>
         <references refid="structlua_1_1_engine_1_1_popup_callbacks_1ab218fe95873fdb6fc9060dfd38af817d" compoundref="_engine_8h" startline="958">lua::Engine::PopupCallbacks::launchPopup</references>
-        <references refid="class_main_component_1a7d124435a9afe4c27e922376764dcf64" compoundref="_main_component_8h" startline="159">luaEngine</references>
+        <references refid="class_main_component_1a7d124435a9afe4c27e922376764dcf64" compoundref="_main_component_8h" startline="160">luaEngine</references>
         <references refid="group__juce__audio__plugin__client-Unity_1ga010e50efcb9d6d393b9414f09f368dbc">name</references>
         <references refid="structlua_1_1_engine_1_1_display_callbacks_1a3092c8d846ab75c173dc7af54c89f820" compoundref="_engine_8h" startline="921">lua::Engine::DisplayCallbacks::newTab</references>
         <references refid="structlua_1_1_engine_1_1_display_callbacks_1af02a6a09204680af7e8b4e8c0186e090" compoundref="_engine_8h" startline="927">lua::Engine::DisplayCallbacks::nextTab</references>
-        <references refid="class_main_component_1a7288532a5bfc662226a8dfd4359c9bbf" compoundref="_main_component_8h" startline="183">nexusNode</references>
-        <references refid="class_main_component_1a7d0c696c06a167890fb58e3a608a0aff" compoundref="_main_component_8h" startline="190">popup</references>
+        <references refid="class_main_component_1a7288532a5bfc662226a8dfd4359c9bbf" compoundref="_main_component_8h" startline="184">nexusNode</references>
+        <references refid="class_main_component_1a7d0c696c06a167890fb58e3a608a0aff" compoundref="_main_component_8h" startline="191">popup</references>
         <references refid="structlua_1_1_engine_1_1_display_callbacks_1a7a14b475fe28fff5ca0d367ad990633e" compoundref="_engine_8h" startline="930">lua::Engine::DisplayCallbacks::prevTab</references>
         <references refid="structjam_1_1_typeface_1a7f356fd8d69551428c4b043ea0607692">jam::Typeface::registerTypeface</references>
         <references refid="structlua_1_1_engine_1_1_display_callbacks_1a72af807ea2ae1fe9183cadaf15577636" compoundref="_engine_8h" startline="939">lua::Engine::DisplayCallbacks::renameTab</references>
         <references refid="structlua_1_1_engine_1_1_display_callbacks_1a54af7914bf506a0479e896cb808e9d75" compoundref="_engine_8h" startline="912">lua::Engine::DisplayCallbacks::splitHorizontal</references>
         <references refid="structlua_1_1_engine_1_1_display_callbacks_1a7948e1cb5e6f15fb5ef96c7415e1be48" compoundref="_engine_8h" startline="915">lua::Engine::DisplayCallbacks::splitVertical</references>
         <references refid="structlua_1_1_engine_1_1_display_callbacks_1a3f035c63c507dfad738ddbedb14df7ff" compoundref="_engine_8h" startline="918">lua::Engine::DisplayCallbacks::splitWithRatio</references>
-        <references refid="class_main_component_1a11b45d587e801c0a00bb55224b08a70c" compoundref="_main_component_8h" startline="171">tabs</references>
-        <references refid="class_main_component_1a613a1f13f3771bb136f02c753b10bbad" compoundref="_main_component_8h" startline="165">terminalLookAndFeel</references>
+        <references refid="class_main_component_1a11b45d587e801c0a00bb55224b08a70c" compoundref="_main_component_8h" startline="172">tabs</references>
+        <references refid="class_main_component_1a613a1f13f3771bb136f02c753b10bbad" compoundref="_main_component_8h" startline="166">terminalLookAndFeel</references>
         <references refid="namespaceapp_1a53dcbfee98eca98ebb64c3486c119266" compoundref="_app_identifier_8h" startline="44" endline="44">app::titleBarHeight</references>
         <references refid="structjam_1_1_cell_1_1_rectangle_1a563d7a895a52070398f4734bee6c0988">jam::Cell::Rectangle::toPixel</references>
       </memberdef>
@@ -302,11 +302,11 @@ Member init order (declared in header):<itemizedlist>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="MainComponent.h" line="87" column="5" bodyfile="MainComponent.cpp" bodystart="329" bodyend="340"/>
-        <references refid="class_main_component_1a60b47af60485c2469a891d08495e1921" compoundref="_main_component_8h" startline="162" endline="162">appState</references>
-        <references refid="class_main_component_1a7288532a5bfc662226a8dfd4359c9bbf" compoundref="_main_component_8h" startline="183">nexusNode</references>
-        <references refid="class_main_component_1a06c6773ec30bc15b0ac6f7ebacc08b78" compoundref="_main_component_8h" startline="168">openGLContext</references>
-        <references refid="class_main_component_1add6236e7d1d88965f82aa3190bed6e4b" compoundref="_main_component_8h" startline="187">sessionsNode</references>
+        <location file="MainComponent.h" line="88" column="5" bodyfile="MainComponent.cpp" bodystart="328" bodyend="339"/>
+        <references refid="class_main_component_1a60b47af60485c2469a891d08495e1921" compoundref="_main_component_8h" startline="163" endline="163">appState</references>
+        <references refid="class_main_component_1a7288532a5bfc662226a8dfd4359c9bbf" compoundref="_main_component_8h" startline="184">nexusNode</references>
+        <references refid="class_main_component_1a06c6773ec30bc15b0ac6f7ebacc08b78" compoundref="_main_component_8h" startline="169">openGLContext</references>
+        <references refid="class_main_component_1add6236e7d1d88965f82aa3190bed6e4b" compoundref="_main_component_8h" startline="188">sessionsNode</references>
       </memberdef>
       <memberdef kind="function" id="class_main_component_1a339148bc43089300e10d5883a0a80726" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -328,18 +328,18 @@ Called by JUCE on every size change (including initial layout). Assigns full-bou
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="MainComponent.h" line="93" column="10" bodyfile="MainComponent.cpp" bodystart="293" bodyend="318"/>
-        <references refid="class_main_component_1a60b47af60485c2469a891d08495e1921" compoundref="_main_component_8h" startline="162" endline="162">appState</references>
+        <location file="MainComponent.h" line="94" column="10" bodyfile="MainComponent.cpp" bodystart="292" bodyend="317"/>
+        <references refid="class_main_component_1a60b47af60485c2469a891d08495e1921" compoundref="_main_component_8h" startline="163" endline="163">appState</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Derived &gt;::getContext</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
-        <references refid="class_main_component_1a3cb0f6698369d66deaa8400cf8d43951" compoundref="_main_component_8h" startline="174">messageOverlay</references>
-        <references refid="class_main_component_1ab003af1c38a7da38d907980bb47630dd" compoundref="_main_component_8cpp" startline="515" endline="559">showMessageOverlay</references>
-        <references refid="class_main_component_1a9828810f1f16a744c507bd5063b25f44" compoundref="_main_component_8h" startline="177">statusBarOverlay</references>
-        <references refid="class_main_component_1a11b45d587e801c0a00bb55224b08a70c" compoundref="_main_component_8h" startline="171">tabs</references>
+        <references refid="class_main_component_1a3cb0f6698369d66deaa8400cf8d43951" compoundref="_main_component_8h" startline="175">messageOverlay</references>
+        <references refid="class_main_component_1ab003af1c38a7da38d907980bb47630dd" compoundref="_main_component_8cpp" startline="501" endline="545">showMessageOverlay</references>
+        <references refid="class_main_component_1a9828810f1f16a744c507bd5063b25f44" compoundref="_main_component_8h" startline="178">statusBarOverlay</references>
+        <references refid="class_main_component_1a11b45d587e801c0a00bb55224b08a70c" compoundref="_main_component_8h" startline="172">tabs</references>
         <references refid="struct_map_1_1_position_1a1899bcf9702bf6662b620a6a59ab8deaad27921b47c62ed73861ca3948f077f11" compoundref="_map_8h" startline="175">Map::Position::top</references>
         <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682ca05b8c74cbd96fbf2de4c1a352702fbf4">window</references>
         <references refid="group__juce__audio__plugin__client-Unity_1gae9ace15db486f33243a35ce689893fd9">y</references>
-        <referencedby refid="class_main_component_1a46cc067d6026247d03d95ceab86e687d" compoundref="_main_component_8cpp" startline="403" endline="416">valueTreeChildAdded</referencedby>
+        <referencedby refid="class_main_component_1a46cc067d6026247d03d95ceab86e687d" compoundref="_main_component_8cpp" startline="402" endline="415">valueTreeChildAdded</referencedby>
       </memberdef>
       <memberdef kind="function" id="class_main_component_1a0f1717686e9ae1cd697238b41c347725" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -357,7 +357,7 @@ Called by JUCE on every size change (including initial layout). Assigns full-bou
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="MainComponent.h" line="94" column="10" bodyfile="MainComponent.cpp" bodystart="274" bodyend="280"/>
+        <location file="MainComponent.h" line="95" column="10" bodyfile="MainComponent.cpp" bodystart="273" bodyend="279"/>
       </memberdef>
       <memberdef kind="function" id="class_main_component_1a074cd47a69a9110f6e04a605d8877e66" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -371,7 +371,7 @@ Called by JUCE on every size change (including initial layout). Assigns full-bou
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="MainComponent.h" line="96" column="10" bodyfile="MainComponent.cpp" bodystart="270" bodyend="270"/>
+        <location file="MainComponent.h" line="97" column="10" bodyfile="MainComponent.cpp" bodystart="269" bodyend="269"/>
         <references refid="structjam_1_1_background_blur_1aba30ef82c71f521f855171339dc180c1">jam::BackgroundBlur::enableWindowTransparency</references>
       </memberdef>
       <memberdef kind="function" id="class_main_component_1ad4116b4b1b615c708117bd73401c659d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -386,7 +386,7 @@ Called by JUCE on every size change (including initial layout). Assigns full-bou
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="MainComponent.h" line="97" column="10" bodyfile="MainComponent.cpp" bodystart="271" bodyend="271"/>
+        <location file="MainComponent.h" line="98" column="10" bodyfile="MainComponent.cpp" bodystart="270" bodyend="270"/>
         <references refid="namespacejuce_1_1Colours_1a2d59beef8fef5d9b43c030dc5968a2bb">juce::Colours::transparentBlack</references>
       </memberdef>
       <memberdef kind="function" id="class_main_component_1afccac133c419b628b0ce0fd8c428b79d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -401,7 +401,7 @@ Called by JUCE on every size change (including initial layout). Assigns full-bou
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="MainComponent.h" line="98" column="10" bodyfile="MainComponent.cpp" bodystart="272" bodyend="272"/>
+        <location file="MainComponent.h" line="99" column="10" bodyfile="MainComponent.cpp" bodystart="271" bodyend="271"/>
       </memberdef>
       <memberdef kind="function" id="class_main_component_1a7a32301bc3f0ca6c370fa7e3b0348e70" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -422,16 +422,16 @@ Called by JUCE on every size change (including initial layout). Assigns full-bou
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="MainComponent.h" line="109" column="10" bodyfile="MainComponent.cpp" bodystart="218" bodyend="246"/>
-        <references refid="class_main_component_1a60b47af60485c2469a891d08495e1921" compoundref="_main_component_8h" startline="162" endline="162">appState</references>
+        <location file="MainComponent.h" line="110" column="10" bodyfile="MainComponent.cpp" bodystart="217" bodyend="245"/>
+        <references refid="class_main_component_1a60b47af60485c2469a891d08495e1921" compoundref="_main_component_8h" startline="163" endline="163">appState</references>
         <references refid="structjam_1_1_typeface_1a447a0f75532ae7d3b1478a06530ffb46">jam::Typeface::getAtlas</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
-        <references refid="class_main_component_1ab7554fd4973879f87d71254e5eee19d7" compoundref="_main_component_8cpp" startline="448" endline="464">registerActions</references>
+        <references refid="class_main_component_1ab7554fd4973879f87d71254e5eee19d7" compoundref="_main_component_8cpp" startline="447" endline="463">registerActions</references>
         <references refid="classjam_1_1glyph_1_1_atlas_1a0ea057fbd5dda72988e592e61d95ead5">jam::glyph::Atlas::setEmbolden</references>
-        <references refid="class_main_component_1ae74ad6a1f60d83dea132be37829e1496" compoundref="_main_component_8cpp" startline="248" endline="268">setRenderer</references>
-        <references refid="class_main_component_1a11b45d587e801c0a00bb55224b08a70c" compoundref="_main_component_8h" startline="171">tabs</references>
-        <references refid="class_main_component_1a613a1f13f3771bb136f02c753b10bbad" compoundref="_main_component_8h" startline="165">terminalLookAndFeel</references>
-        <referencedby refid="class_main_component_1ab981f8a50bedc6595965294c12796ac6" compoundref="_main_component_8cpp" startline="350" endline="394">valueTreePropertyChanged</referencedby>
+        <references refid="class_main_component_1ae74ad6a1f60d83dea132be37829e1496" compoundref="_main_component_8cpp" startline="247" endline="267">setRenderer</references>
+        <references refid="class_main_component_1a11b45d587e801c0a00bb55224b08a70c" compoundref="_main_component_8h" startline="172">tabs</references>
+        <references refid="class_main_component_1a613a1f13f3771bb136f02c753b10bbad" compoundref="_main_component_8h" startline="166">terminalLookAndFeel</references>
+        <referencedby refid="class_main_component_1ab981f8a50bedc6595965294c12796ac6" compoundref="_main_component_8cpp" startline="349" endline="393">valueTreePropertyChanged</referencedby>
       </memberdef>
       <memberdef kind="function" id="class_main_component_1a94eb6ae94c2dbf664de22bb5f5bb152d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -456,16 +456,16 @@ Called by JUCE on every size change (including initial layout). Assigns full-bou
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="MainComponent.h" line="121" column="10" bodyfile="MainComponentActions.cpp" bodystart="436" bodyend="452"/>
+        <location file="MainComponent.h" line="122" column="10" bodyfile="MainComponentActions.cpp" bodystart="436" bodyend="452"/>
         <references refid="struct_map_1_1_renderer_1aff4520f77bb5cd39cd23e30603933320a2cd594170cd7c6145427b2ec90de1fa9" compoundref="_map_8h" startline="120">Map::Renderer::cpu</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Derived &gt;::getContext</references>
         <references refid="namespaceapp_1aca40c7346938831826cf77e1b463cab4a0aa0be2a866411d9ff03515227454947" compoundref="_app_identifier_8h" startline="40">app::gpu</references>
         <references refid="struct_map_1_1_renderer_1aff4520f77bb5cd39cd23e30603933320aba27e92c101b79080b43c29ac5ff42f3" compoundref="_map_8h" startline="120">Map::Renderer::gpu</references>
-        <references refid="class_main_component_1a7d124435a9afe4c27e922376764dcf64" compoundref="_main_component_8h" startline="159">luaEngine</references>
-        <references refid="class_main_component_1a3cb0f6698369d66deaa8400cf8d43951" compoundref="_main_component_8h" startline="174">messageOverlay</references>
+        <references refid="class_main_component_1a7d124435a9afe4c27e922376764dcf64" compoundref="_main_component_8h" startline="160">luaEngine</references>
+        <references refid="class_main_component_1a3cb0f6698369d66deaa8400cf8d43951" compoundref="_main_component_8h" startline="175">messageOverlay</references>
         <referencedby refid="class_main_component_1af8f4fbba4aef2485def605f4b918f46e" compoundref="_main_component_actions_8cpp" startline="71" endline="200">registerApplicationActions</referencedby>
-        <referencedby refid="class_main_component_1ab981f8a50bedc6595965294c12796ac6" compoundref="_main_component_8cpp" startline="350" endline="394">valueTreePropertyChanged</referencedby>
+        <referencedby refid="class_main_component_1ab981f8a50bedc6595965294c12796ac6" compoundref="_main_component_8cpp" startline="349" endline="393">valueTreePropertyChanged</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="private-func">
@@ -488,15 +488,15 @@ Called by JUCE on every size change (including initial layout). Assigns full-bou
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="MainComponent.h" line="133" column="10" bodyfile="MainComponent.cpp" bodystart="448" bodyend="464"/>
+        <location file="MainComponent.h" line="134" column="10" bodyfile="MainComponent.cpp" bodystart="447" bodyend="463"/>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Registry &gt;::getContext</references>
-        <references refid="class_main_component_1a7d124435a9afe4c27e922376764dcf64" compoundref="_main_component_8h" startline="159">luaEngine</references>
+        <references refid="class_main_component_1a7d124435a9afe4c27e922376764dcf64" compoundref="_main_component_8h" startline="160">luaEngine</references>
         <references refid="class_main_component_1af8f4fbba4aef2485def605f4b918f46e" compoundref="_main_component_actions_8cpp" startline="71" endline="200">registerApplicationActions</references>
         <references refid="class_main_component_1aaf14fa21c2d5e1d85620b5eb5a5b2871" compoundref="_main_component_actions_8cpp" startline="27" endline="68">registerEditActions</references>
         <references refid="class_main_component_1af85917ed6d868b3d658575b1c9010271" compoundref="_main_component_actions_8cpp" startline="351" endline="433">registerNavigationActions</references>
         <references refid="class_main_component_1a93a8c1546659ed2852c6193fbd7581e0" compoundref="_main_component_actions_8cpp" startline="277" endline="348">registerPaneActions</references>
         <references refid="class_main_component_1a9da137e4574abb68eb9c7887a21144c9" compoundref="_main_component_actions_8cpp" startline="203" endline="274">registerTabActions</references>
-        <referencedby refid="class_main_component_1a7a32301bc3f0ca6c370fa7e3b0348e70" compoundref="_main_component_8cpp" startline="218" endline="246">applyConfig</referencedby>
+        <referencedby refid="class_main_component_1a7a32301bc3f0ca6c370fa7e3b0348e70" compoundref="_main_component_8cpp" startline="217" endline="245">applyConfig</referencedby>
       </memberdef>
       <memberdef kind="function" id="class_main_component_1aaf14fa21c2d5e1d85620b5eb5a5b2871" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -518,9 +518,9 @@ Called by JUCE on every size change (including initial layout). Assigns full-bou
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="MainComponent.h" line="136" column="10" bodyfile="MainComponentActions.cpp" bodystart="27" bodyend="68"/>
-        <references refid="class_main_component_1a11b45d587e801c0a00bb55224b08a70c" compoundref="_main_component_8h" startline="171">tabs</references>
-        <referencedby refid="class_main_component_1ab7554fd4973879f87d71254e5eee19d7" compoundref="_main_component_8cpp" startline="448" endline="464">registerActions</referencedby>
+        <location file="MainComponent.h" line="137" column="10" bodyfile="MainComponentActions.cpp" bodystart="27" bodyend="68"/>
+        <references refid="class_main_component_1a11b45d587e801c0a00bb55224b08a70c" compoundref="_main_component_8h" startline="172">tabs</references>
+        <referencedby refid="class_main_component_1ab7554fd4973879f87d71254e5eee19d7" compoundref="_main_component_8cpp" startline="447" endline="463">registerActions</referencedby>
       </memberdef>
       <memberdef kind="function" id="class_main_component_1af8f4fbba4aef2485def605f4b918f46e" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -542,15 +542,15 @@ Called by JUCE on every size change (including initial layout). Assigns full-bou
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="MainComponent.h" line="139" column="10" bodyfile="MainComponentActions.cpp" bodystart="71" bodyend="200"/>
-        <references refid="class_main_component_1a60b47af60485c2469a891d08495e1921" compoundref="_main_component_8h" startline="162" endline="162">appState</references>
+        <location file="MainComponent.h" line="140" column="10" bodyfile="MainComponentActions.cpp" bodystart="71" bodyend="200"/>
+        <references refid="class_main_component_1a60b47af60485c2469a891d08495e1921" compoundref="_main_component_8h" startline="163" endline="163">appState</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
         <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682ca10ae9fc7d453b0dd525d0edf2ede7961">list</references>
-        <references refid="class_main_component_1a7d124435a9afe4c27e922376764dcf64" compoundref="_main_component_8h" startline="159">luaEngine</references>
-        <references refid="class_main_component_1a7d0c696c06a167890fb58e3a608a0aff" compoundref="_main_component_8h" startline="190">popup</references>
+        <references refid="class_main_component_1a7d124435a9afe4c27e922376764dcf64" compoundref="_main_component_8h" startline="160">luaEngine</references>
+        <references refid="class_main_component_1a7d0c696c06a167890fb58e3a608a0aff" compoundref="_main_component_8h" startline="191">popup</references>
         <references refid="class_main_component_1a94eb6ae94c2dbf664de22bb5f5bb152d" compoundref="_main_component_actions_8cpp" startline="436" endline="452">showReloadMessage</references>
-        <references refid="class_main_component_1a11b45d587e801c0a00bb55224b08a70c" compoundref="_main_component_8h" startline="171">tabs</references>
-        <referencedby refid="class_main_component_1ab7554fd4973879f87d71254e5eee19d7" compoundref="_main_component_8cpp" startline="448" endline="464">registerActions</referencedby>
+        <references refid="class_main_component_1a11b45d587e801c0a00bb55224b08a70c" compoundref="_main_component_8h" startline="172">tabs</references>
+        <referencedby refid="class_main_component_1ab7554fd4973879f87d71254e5eee19d7" compoundref="_main_component_8cpp" startline="447" endline="463">registerActions</referencedby>
       </memberdef>
       <memberdef kind="function" id="class_main_component_1a9da137e4574abb68eb9c7887a21144c9" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -572,11 +572,11 @@ Called by JUCE on every size change (including initial layout). Assigns full-bou
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="MainComponent.h" line="142" column="10" bodyfile="MainComponentActions.cpp" bodystart="203" bodyend="274"/>
-        <references refid="class_main_component_1a60b47af60485c2469a891d08495e1921" compoundref="_main_component_8h" startline="162" endline="162">appState</references>
-        <references refid="class_main_component_1a32f02fba715cf20e7684b8049b13a914" compoundref="_main_component_8cpp" startline="629" endline="636">exitActiveTerminalSelectionMode</references>
-        <references refid="class_main_component_1a11b45d587e801c0a00bb55224b08a70c" compoundref="_main_component_8h" startline="171">tabs</references>
-        <referencedby refid="class_main_component_1ab7554fd4973879f87d71254e5eee19d7" compoundref="_main_component_8cpp" startline="448" endline="464">registerActions</referencedby>
+        <location file="MainComponent.h" line="143" column="10" bodyfile="MainComponentActions.cpp" bodystart="203" bodyend="274"/>
+        <references refid="class_main_component_1a60b47af60485c2469a891d08495e1921" compoundref="_main_component_8h" startline="163" endline="163">appState</references>
+        <references refid="class_main_component_1a32f02fba715cf20e7684b8049b13a914" compoundref="_main_component_8cpp" startline="615" endline="622">exitActiveTerminalSelectionMode</references>
+        <references refid="class_main_component_1a11b45d587e801c0a00bb55224b08a70c" compoundref="_main_component_8h" startline="172">tabs</references>
+        <referencedby refid="class_main_component_1ab7554fd4973879f87d71254e5eee19d7" compoundref="_main_component_8cpp" startline="447" endline="463">registerActions</referencedby>
       </memberdef>
       <memberdef kind="function" id="class_main_component_1a93a8c1546659ed2852c6193fbd7581e0" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -598,10 +598,10 @@ Called by JUCE on every size change (including initial layout). Assigns full-bou
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="MainComponent.h" line="145" column="10" bodyfile="MainComponentActions.cpp" bodystart="277" bodyend="348"/>
-        <references refid="class_main_component_1a32f02fba715cf20e7684b8049b13a914" compoundref="_main_component_8cpp" startline="629" endline="636">exitActiveTerminalSelectionMode</references>
-        <references refid="class_main_component_1a11b45d587e801c0a00bb55224b08a70c" compoundref="_main_component_8h" startline="171">tabs</references>
-        <referencedby refid="class_main_component_1ab7554fd4973879f87d71254e5eee19d7" compoundref="_main_component_8cpp" startline="448" endline="464">registerActions</referencedby>
+        <location file="MainComponent.h" line="146" column="10" bodyfile="MainComponentActions.cpp" bodystart="277" bodyend="348"/>
+        <references refid="class_main_component_1a32f02fba715cf20e7684b8049b13a914" compoundref="_main_component_8cpp" startline="615" endline="622">exitActiveTerminalSelectionMode</references>
+        <references refid="class_main_component_1a11b45d587e801c0a00bb55224b08a70c" compoundref="_main_component_8h" startline="172">tabs</references>
+        <referencedby refid="class_main_component_1ab7554fd4973879f87d71254e5eee19d7" compoundref="_main_component_8cpp" startline="447" endline="463">registerActions</referencedby>
       </memberdef>
       <memberdef kind="function" id="class_main_component_1af85917ed6d868b3d658575b1c9010271" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -623,9 +623,9 @@ Called by JUCE on every size change (including initial layout). Assigns full-bou
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="MainComponent.h" line="148" column="10" bodyfile="MainComponentActions.cpp" bodystart="351" bodyend="433"/>
-        <references refid="class_main_component_1a11b45d587e801c0a00bb55224b08a70c" compoundref="_main_component_8h" startline="171">tabs</references>
-        <referencedby refid="class_main_component_1ab7554fd4973879f87d71254e5eee19d7" compoundref="_main_component_8cpp" startline="448" endline="464">registerActions</referencedby>
+        <location file="MainComponent.h" line="149" column="10" bodyfile="MainComponentActions.cpp" bodystart="351" bodyend="433"/>
+        <references refid="class_main_component_1a11b45d587e801c0a00bb55224b08a70c" compoundref="_main_component_8h" startline="172">tabs</references>
+        <referencedby refid="class_main_component_1ab7554fd4973879f87d71254e5eee19d7" compoundref="_main_component_8cpp" startline="447" endline="463">registerActions</referencedby>
       </memberdef>
       <memberdef kind="function" id="class_main_component_1ae74ad6a1f60d83dea132be37829e1496" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -656,12 +656,12 @@ Called by JUCE on every size change (including initial layout). Assigns full-bou
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="MainComponent.h" line="156" column="10" bodyfile="MainComponent.cpp" bodystart="248" bodyend="268"/>
+        <location file="MainComponent.h" line="157" column="10" bodyfile="MainComponent.cpp" bodystart="247" bodyend="267"/>
         <references refid="namespaceapp_1aca40c7346938831826cf77e1b463cab4a0aa0be2a866411d9ff03515227454947" compoundref="_app_identifier_8h" startline="40">app::gpu</references>
-        <references refid="class_main_component_1a06c6773ec30bc15b0ac6f7ebacc08b78" compoundref="_main_component_8h" startline="168">openGLContext</references>
+        <references refid="class_main_component_1a06c6773ec30bc15b0ac6f7ebacc08b78" compoundref="_main_component_8h" startline="169">openGLContext</references>
         <references refid="structjam_1_1_typeface_1aab869dd4ffb38331e2549f81883870af">jam::Typeface::setAtlasSize</references>
-        <referencedby refid="class_main_component_1a7a32301bc3f0ca6c370fa7e3b0348e70" compoundref="_main_component_8cpp" startline="218" endline="246">applyConfig</referencedby>
-        <referencedby refid="class_main_component_1a3e048893b0fb515c367cdc2dd69de164" compoundref="_main_component_8cpp" startline="572" endline="622">initialiseTabs</referencedby>
+        <referencedby refid="class_main_component_1a7a32301bc3f0ca6c370fa7e3b0348e70" compoundref="_main_component_8cpp" startline="217" endline="245">applyConfig</referencedby>
+        <referencedby refid="class_main_component_1a3e048893b0fb515c367cdc2dd69de164" compoundref="_main_component_8cpp" startline="558" endline="608">initialiseTabs</referencedby>
       </memberdef>
       <memberdef kind="function" id="class_main_component_1a3e048893b0fb515c367cdc2dd69de164" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -690,18 +690,18 @@ Reads the saved tab count from <ref refid="struct_app_model" kindref="compound">
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="MainComponent.h" line="211" column="10" bodyfile="MainComponent.cpp" bodystart="572" bodyend="622"/>
-        <references refid="class_main_component_1a60b47af60485c2469a891d08495e1921" compoundref="_main_component_8h" startline="162" endline="162">appState</references>
-        <references refid="class_main_component_1a2887187bf68d26044bb55e5d4a6456f0" compoundref="_main_component_8cpp" startline="479" endline="503">getContentRect</references>
+        <location file="MainComponent.h" line="212" column="10" bodyfile="MainComponent.cpp" bodystart="558" bodyend="608"/>
+        <references refid="class_main_component_1a60b47af60485c2469a891d08495e1921" compoundref="_main_component_8h" startline="163" endline="163">appState</references>
+        <references refid="class_main_component_1a2887187bf68d26044bb55e5d4a6456f0" compoundref="_main_component_8cpp" startline="465" endline="489">getContentRect</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Derived &gt;::getContext</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
-        <references refid="classterminal_1_1_tabs_1af9554bcebf7a4a22da705a401b700e67" compoundref="_tabs_8cpp" startline="390" endline="393">terminal::Tabs::orientationFromString</references>
-        <references refid="class_main_component_1ae74ad6a1f60d83dea132be37829e1496" compoundref="_main_component_8cpp" startline="248" endline="268">setRenderer</references>
+        <references refid="classterminal_1_1_tabs_1af9554bcebf7a4a22da705a401b700e67" compoundref="_tabs_8cpp" startline="354" endline="357">terminal::Tabs::orientationFromString</references>
+        <references refid="class_main_component_1ae74ad6a1f60d83dea132be37829e1496" compoundref="_main_component_8cpp" startline="247" endline="267">setRenderer</references>
         <references refid="namespaceapp_1_1id_1aa5522fd872a6a64424e5bed786eeb4c2" compoundref="_app_identifier_8h" startline="62" endline="62">app::id::TAB</references>
-        <references refid="class_main_component_1a11b45d587e801c0a00bb55224b08a70c" compoundref="_main_component_8h" startline="171">tabs</references>
+        <references refid="class_main_component_1a11b45d587e801c0a00bb55224b08a70c" compoundref="_main_component_8h" startline="172">tabs</references>
         <references refid="struct_map_1_1_pane_type_1a26b29bb01d0ebc96052d9f071b2794ceac0919083fc9d573f2caea390a3625410" compoundref="_map_8h" startline="138">Map::PaneType::terminal</references>
-        <referencedby refid="class_main_component_1a46cc067d6026247d03d95ceab86e687d" compoundref="_main_component_8cpp" startline="403" endline="416">valueTreeChildAdded</referencedby>
+        <referencedby refid="class_main_component_1a46cc067d6026247d03d95ceab86e687d" compoundref="_main_component_8cpp" startline="402" endline="415">valueTreeChildAdded</referencedby>
       </memberdef>
       <memberdef kind="function" id="class_main_component_1a2887187bf68d26044bb55e5d4a6456f0" prot="private" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
         <type>juce::Rectangle&lt; int &gt;</type>
@@ -725,7 +725,6 @@ Reads the saved tab count from <ref refid="struct_app_model" kindref="compound">
 <para>Returns the content area available for terminal panes after subtracting chrome. </para>
         </briefdescription>
         <detaileddescription>
-<para>Returns the pixel rect available for terminal panes after subtracting chrome.</para>
 <para>Subtracts: title bar (when windowButtons is enabled), tab bar (when multiple tabs shown), and terminal padding from each edge. Used by the restore walker and fresh-tab dim computation to guarantee deterministic spawn dims from <ref refid="struct_app_model" kindref="compound">AppModel</ref> window size.</para>
 <para><parameterlist kind="param"><parameteritem>
 <parameternamelist>
@@ -754,51 +753,21 @@ Reads the saved tab count from <ref refid="struct_app_model" kindref="compound">
 </parameterlist>
 <simplesect kind="return"><para>Content rect with chrome removed, ready to pass to Panes::cellsFromRect. </para>
 </simplesect>
-<simplesect kind="note"><para>MESSAGE THREAD.</para>
-</simplesect>
-Subtracts: title bar (when windowButtons is enabled) and tab bar (when tabCount &gt; 1). Tab bar depth and orientation are derived from <ref refid="classLookAndFeel" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">LookAndFeel</ref> and the configured tab position. Terminal padding is NOT subtracted here — that is done inside Panes::cellsFromRect.</para>
-<para><parameterlist kind="param"><parameteritem>
-<parameternamelist>
-<parametername>windowWidth</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>Window pixel width. </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>windowHeight</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>Window pixel height. </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>tabCount</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>Number of tabs (determines tab bar visibility). </para>
-</parameterdescription>
-</parameteritem>
-</parameterlist>
-<simplesect kind="return"><para>Content rect for the panes area. </para>
-</simplesect>
 <simplesect kind="note"><para>MESSAGE THREAD. </para>
 </simplesect>
 </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="MainComponent.h" line="226" column="21" bodyfile="MainComponent.cpp" bodystart="479" bodyend="503"/>
+        <location file="MainComponent.h" line="227" column="21" bodyfile="MainComponent.cpp" bodystart="465" bodyend="489"/>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
         <references refid="classterminal_1_1_look_and_feel_1a68b26f555aca509e3fb071b489e70672" compoundref="_look_and_feel_8cpp" startline="190" endline="197">terminal::LookAndFeel::getTabBarHeight</references>
-        <references refid="classterminal_1_1_tabs_1af9554bcebf7a4a22da705a401b700e67" compoundref="_tabs_8cpp" startline="390" endline="393">terminal::Tabs::orientationFromString</references>
+        <references refid="classterminal_1_1_tabs_1af9554bcebf7a4a22da705a401b700e67" compoundref="_tabs_8cpp" startline="354" endline="357">terminal::Tabs::orientationFromString</references>
         <references refid="classjam_1_1_tabbed_button_bar_1a40dc5ec5bacd6a80521f5fb9105e0d8fadfa45cbf80c04d1f22aa7d38d9bdf0b8">jam::TabbedButtonBar::TabsAtBottom</references>
         <references refid="classjam_1_1_tabbed_button_bar_1a40dc5ec5bacd6a80521f5fb9105e0d8fac5aaf09ba9400de3d68f9f4ac60d3fd6">jam::TabbedButtonBar::TabsAtLeft</references>
         <references refid="classjam_1_1_tabbed_button_bar_1a40dc5ec5bacd6a80521f5fb9105e0d8faa27bb84c867cd012138341a310d93414">jam::TabbedButtonBar::TabsAtRight</references>
         <references refid="classjam_1_1_tabbed_button_bar_1a40dc5ec5bacd6a80521f5fb9105e0d8fa75d007437dc3b0264e635bf4402f1674">jam::TabbedButtonBar::TabsAtTop</references>
-        <referencedby refid="class_main_component_1a3e048893b0fb515c367cdc2dd69de164" compoundref="_main_component_8cpp" startline="572" endline="622">initialiseTabs</referencedby>
+        <referencedby refid="class_main_component_1a3e048893b0fb515c367cdc2dd69de164" compoundref="_main_component_8cpp" startline="558" endline="608">initialiseTabs</referencedby>
       </memberdef>
       <memberdef kind="function" id="class_main_component_1ab981f8a50bedc6595965294c12796ac6" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -827,9 +796,9 @@ All connection and loading signals are now driven by child-add/remove events. Th
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="MainComponent.h" line="233" column="10" bodyfile="MainComponent.cpp" bodystart="350" bodyend="394"/>
-        <references refid="class_main_component_1a7a32301bc3f0ca6c370fa7e3b0348e70" compoundref="_main_component_8cpp" startline="218" endline="246">applyConfig</references>
-        <references refid="class_main_component_1a60b47af60485c2469a891d08495e1921" compoundref="_main_component_8h" startline="162" endline="162">appState</references>
+        <location file="MainComponent.h" line="234" column="10" bodyfile="MainComponent.cpp" bodystart="349" bodyend="393"/>
+        <references refid="class_main_component_1a7a32301bc3f0ca6c370fa7e3b0348e70" compoundref="_main_component_8cpp" startline="217" endline="245">applyConfig</references>
+        <references refid="class_main_component_1a60b47af60485c2469a891d08495e1921" compoundref="_main_component_8h" startline="163" endline="163">appState</references>
         <references refid="namespaceapp_1_1id_1a3c5736b11e8d56b0350faf9c6412996e" compoundref="_app_identifier_8h" startline="94" endline="94">app::id::configGeneration</references>
         <references refid="namespaceapp_1aca40c7346938831826cf77e1b463cab4ad9747e2da342bdb995f6389533ad1a3d" compoundref="_app_identifier_8h" startline="41">app::cpu</references>
         <references refid="structjam_1_1_typeface_1a32392fad93a74ee16db50b0efdbb4814">jam::Typeface::findTypeface</references>
@@ -874,13 +843,13 @@ All connection and loading signals are now driven by child-add/remove events. Th
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="MainComponent.h" line="243" column="10" bodyfile="MainComponent.cpp" bodystart="403" bodyend="416"/>
-        <references refid="class_main_component_1a3e048893b0fb515c367cdc2dd69de164" compoundref="_main_component_8cpp" startline="572" endline="622">initialiseTabs</references>
-        <references refid="class_main_component_1a7288532a5bfc662226a8dfd4359c9bbf" compoundref="_main_component_8h" startline="183">nexusNode</references>
-        <references refid="class_main_component_1a339148bc43089300e10d5883a0a80726" compoundref="_main_component_8cpp" startline="293" endline="318">resized</references>
+        <location file="MainComponent.h" line="244" column="10" bodyfile="MainComponent.cpp" bodystart="402" bodyend="415"/>
+        <references refid="class_main_component_1a3e048893b0fb515c367cdc2dd69de164" compoundref="_main_component_8cpp" startline="558" endline="608">initialiseTabs</references>
+        <references refid="class_main_component_1a7288532a5bfc662226a8dfd4359c9bbf" compoundref="_main_component_8h" startline="184">nexusNode</references>
+        <references refid="class_main_component_1a339148bc43089300e10d5883a0a80726" compoundref="_main_component_8cpp" startline="292" endline="317">resized</references>
         <references refid="namespaceapp_1_1id_1aa60f9b102fa5d09dd2b820fa8ec607a9" compoundref="_app_identifier_8h" startline="57" endline="57">app::id::SESSIONS</references>
-        <references refid="class_main_component_1add6236e7d1d88965f82aa3190bed6e4b" compoundref="_main_component_8h" startline="187">sessionsNode</references>
-        <references refid="class_main_component_1a11b45d587e801c0a00bb55224b08a70c" compoundref="_main_component_8h" startline="171">tabs</references>
+        <references refid="class_main_component_1add6236e7d1d88965f82aa3190bed6e4b" compoundref="_main_component_8h" startline="188">sessionsNode</references>
+        <references refid="class_main_component_1a11b45d587e801c0a00bb55224b08a70c" compoundref="_main_component_8h" startline="172">tabs</references>
       </memberdef>
       <memberdef kind="function" id="class_main_component_1a3e3be461ec1cc162c50cb61480aac434" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -910,10 +879,10 @@ All connection and loading signals are now driven by child-add/remove events. Th
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="MainComponent.h" line="250" column="10" bodyfile="MainComponent.cpp" bodystart="423" bodyend="437"/>
+        <location file="MainComponent.h" line="251" column="10" bodyfile="MainComponent.cpp" bodystart="422" bodyend="436"/>
         <references refid="structjam_1_1_i_d_1a94afe032a3af21e6f22fb73c9625b60a">jam::ID::id</references>
-        <references refid="class_main_component_1add6236e7d1d88965f82aa3190bed6e4b" compoundref="_main_component_8h" startline="187">sessionsNode</references>
-        <references refid="class_main_component_1a11b45d587e801c0a00bb55224b08a70c" compoundref="_main_component_8h" startline="171">tabs</references>
+        <references refid="class_main_component_1add6236e7d1d88965f82aa3190bed6e4b" compoundref="_main_component_8h" startline="188">sessionsNode</references>
+        <references refid="class_main_component_1a11b45d587e801c0a00bb55224b08a70c" compoundref="_main_component_8h" startline="172">tabs</references>
       </memberdef>
       <memberdef kind="function" id="class_main_component_1a32f02fba715cf20e7684b8049b13a914" prot="private" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
         <type>void</type>
@@ -936,8 +905,8 @@ All connection and loading signals are now driven by child-add/remove events. Th
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="MainComponent.h" line="261" column="10" bodyfile="MainComponent.cpp" bodystart="629" bodyend="636"/>
-        <references refid="class_main_component_1a11b45d587e801c0a00bb55224b08a70c" compoundref="_main_component_8h" startline="171">tabs</references>
+        <location file="MainComponent.h" line="262" column="10" bodyfile="MainComponent.cpp" bodystart="615" bodyend="622"/>
+        <references refid="class_main_component_1a11b45d587e801c0a00bb55224b08a70c" compoundref="_main_component_8h" startline="172">tabs</references>
         <referencedby refid="class_main_component_1a93a8c1546659ed2852c6193fbd7581e0" compoundref="_main_component_actions_8cpp" startline="277" endline="348">registerPaneActions</referencedby>
         <referencedby refid="class_main_component_1a9da137e4574abb68eb9c7887a21144c9" compoundref="_main_component_actions_8cpp" startline="203" endline="274">registerTabActions</referencedby>
       </memberdef>
@@ -961,12 +930,12 @@ All connection and loading signals are now driven by child-add/remove events. Th
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="MainComponent.h" line="269" column="10" bodyfile="MainComponent.cpp" bodystart="644" bodyend="660"/>
-        <references refid="class_main_component_1a60b47af60485c2469a891d08495e1921" compoundref="_main_component_8h" startline="162" endline="162">appState</references>
-        <references refid="class_main_component_1a7d124435a9afe4c27e922376764dcf64" compoundref="_main_component_8h" startline="159">luaEngine</references>
-        <references refid="class_main_component_1a3cb0f6698369d66deaa8400cf8d43951" compoundref="_main_component_8h" startline="174">messageOverlay</references>
-        <references refid="class_main_component_1a9828810f1f16a744c507bd5063b25f44" compoundref="_main_component_8h" startline="177">statusBarOverlay</references>
-        <referencedby refid="class_main_component_1a1fe9b104d3b6eb88315ace959285ead4" compoundref="_main_component_8cpp" startline="55" endline="216">MainComponent</referencedby>
+        <location file="MainComponent.h" line="270" column="10" bodyfile="MainComponent.cpp" bodystart="630" bodyend="646"/>
+        <references refid="class_main_component_1a60b47af60485c2469a891d08495e1921" compoundref="_main_component_8h" startline="163" endline="163">appState</references>
+        <references refid="class_main_component_1a7d124435a9afe4c27e922376764dcf64" compoundref="_main_component_8h" startline="160">luaEngine</references>
+        <references refid="class_main_component_1a3cb0f6698369d66deaa8400cf8d43951" compoundref="_main_component_8h" startline="175">messageOverlay</references>
+        <references refid="class_main_component_1a9828810f1f16a744c507bd5063b25f44" compoundref="_main_component_8h" startline="178">statusBarOverlay</references>
+        <referencedby refid="class_main_component_1a1fe9b104d3b6eb88315ace959285ead4" compoundref="_main_component_8cpp" startline="54" endline="215">MainComponent</referencedby>
       </memberdef>
       <memberdef kind="function" id="class_main_component_1ab003af1c38a7da38d907980bb47630dd" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -996,16 +965,16 @@ Bounds are set by <computeroutput><ref refid="class_main_component_1a339148bc430
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="MainComponent.h" line="277" column="10" bodyfile="MainComponent.cpp" bodystart="515" bodyend="559"/>
-        <references refid="class_main_component_1a60b47af60485c2469a891d08495e1921" compoundref="_main_component_8h" startline="162" endline="162">appState</references>
+        <location file="MainComponent.h" line="278" column="10" bodyfile="MainComponent.cpp" bodystart="501" bodyend="545"/>
+        <references refid="class_main_component_1a60b47af60485c2469a891d08495e1921" compoundref="_main_component_8h" startline="163" endline="163">appState</references>
         <references refid="structjam_1_1_font_1a7eaadf8cff31c90d759339153197544e">jam::Font::cellHeight</references>
         <references refid="structjam_1_1_font_1a242a8b90fcd977d98e7bff48cbea2e29">jam::Font::cellWidth</references>
         <references refid="structjam_1_1_cell_1_1_rectangle_1aabcbe216a06a05584c753c346ccd769b">jam::Cell::Rectangle::fromPixel</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
-        <references refid="class_main_component_1a3cb0f6698369d66deaa8400cf8d43951" compoundref="_main_component_8h" startline="174">messageOverlay</references>
-        <references refid="class_main_component_1a11b45d587e801c0a00bb55224b08a70c" compoundref="_main_component_8h" startline="171">tabs</references>
+        <references refid="class_main_component_1a3cb0f6698369d66deaa8400cf8d43951" compoundref="_main_component_8h" startline="175">messageOverlay</references>
+        <references refid="class_main_component_1a11b45d587e801c0a00bb55224b08a70c" compoundref="_main_component_8h" startline="172">tabs</references>
         <references refid="namespaceapp_1a53dcbfee98eca98ebb64c3486c119266" compoundref="_app_identifier_8h" startline="44" endline="44">app::titleBarHeight</references>
-        <referencedby refid="class_main_component_1a339148bc43089300e10d5883a0a80726" compoundref="_main_component_8cpp" startline="293" endline="318">resized</referencedby>
+        <referencedby refid="class_main_component_1a339148bc43089300e10d5883a0a80726" compoundref="_main_component_8cpp" startline="292" endline="317">resized</referencedby>
       </memberdef>
     </sectiondef>
     <briefdescription>
@@ -1047,37 +1016,37 @@ Bounds are set by <computeroutput><ref refid="class_main_component_1a339148bc430
       </node>
     </inheritancegraph>
     <collaborationgraph>
-      <node id="63">
+      <node id="66">
         <label>AppModel</label>
         <link refid="struct_app_model"/>
-        <childnode refid="64" relation="public-inheritance">
+        <childnode refid="67" relation="public-inheritance">
         </childnode>
-        <childnode refid="70" relation="public-inheritance">
+        <childnode refid="73" relation="public-inheritance">
         </childnode>
       </node>
-      <node id="50">
+      <node id="53">
         <label>CallInfo</label>
         <link refid="struct_call_info" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="40" relation="usage">
+        <childnode refid="43" relation="usage">
           <edgelabel>func</edgelabel>
           <edgelabel>top</edgelabel>
         </childnode>
-        <childnode refid="50" relation="usage">
+        <childnode refid="53" relation="usage">
           <edgelabel>next</edgelabel>
           <edgelabel>previous</edgelabel>
         </childnode>
-        <childnode refid="38" relation="usage">
+        <childnode refid="41" relation="usage">
           <edgelabel>k</edgelabel>
         </childnode>
       </node>
-      <node id="39">
+      <node id="42">
         <label>GCObject</label>
         <link refid="struct_g_c_object" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="39" relation="usage">
+        <childnode refid="42" relation="usage">
           <edgelabel>next</edgelabel>
         </childnode>
       </node>
-      <node id="137">
+      <node id="142">
         <label>GraphemeSegmentationResult</label>
         <link refid="struct_grapheme_segmentation_result"/>
       </node>
@@ -1093,66 +1062,66 @@ Bounds are set by <computeroutput><ref refid="class_main_component_1a339148bc430
         <childnode refid="5" relation="usage">
           <edgelabel>luaEngine</edgelabel>
         </childnode>
-        <childnode refid="63" relation="usage">
+        <childnode refid="66" relation="usage">
           <edgelabel>appState</edgelabel>
         </childnode>
-        <childnode refid="71" relation="usage">
+        <childnode refid="74" relation="usage">
           <edgelabel>terminalLookAndFeel</edgelabel>
         </childnode>
-        <childnode refid="74" relation="usage">
+        <childnode refid="77" relation="usage">
           <edgelabel>tabs</edgelabel>
         </childnode>
-        <childnode refid="85" relation="usage">
+        <childnode refid="88" relation="usage">
           <edgelabel>messageOverlay</edgelabel>
         </childnode>
-        <childnode refid="88" relation="usage">
+        <childnode refid="91" relation="usage">
           <edgelabel>statusBarOverlay</edgelabel>
         </childnode>
-        <childnode refid="90" relation="usage">
+        <childnode refid="93" relation="usage">
           <edgelabel>popup</edgelabel>
         </childnode>
       </node>
-      <node id="86">
+      <node id="89">
         <label>MessageOverlay</label>
         <link refid="class_message_overlay"/>
         <childnode refid="2" relation="public-inheritance">
         </childnode>
-        <childnode refid="87" relation="private-inheritance">
+        <childnode refid="90" relation="private-inheritance">
         </childnode>
         <childnode refid="15" relation="usage">
           <edgelabel>resizeCols</edgelabel>
           <edgelabel>resizeRows</edgelabel>
         </childnode>
       </node>
-      <node id="48">
+      <node id="51">
         <label>Node</label>
         <link refid="union_node" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="49" relation="usage">
+        <childnode refid="52" relation="usage">
           <edgelabel>u</edgelabel>
         </childnode>
-        <childnode refid="42" relation="usage">
+        <childnode refid="45" relation="usage">
           <edgelabel>i_val</edgelabel>
         </childnode>
       </node>
-      <node id="49">
+      <node id="52">
         <label>Node::NodeKey</label>
         <link refid="struct_node_1_1_node_key" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="43" relation="usage">
+        <childnode refid="46" relation="usage">
           <edgelabel>key_val</edgelabel>
           <edgelabel>value_</edgelabel>
         </childnode>
       </node>
-      <node id="41">
+      <node id="44">
         <label>StackValue</label>
         <link refid="union_stack_value" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="42" relation="usage">
+        <childnode refid="45" relation="usage">
           <edgelabel>val</edgelabel>
         </childnode>
-        <childnode refid="43" relation="usage">
+        <childnode refid="46" relation="usage">
           <edgelabel>value_</edgelabel>
         </childnode>
       </node>
-      <node id="89">
+      <node id="92">
         <label>StatusBarOverlay</label>
         <link refid="class_status_bar_overlay"/>
         <childnode refid="2" relation="public-inheritance">
@@ -1160,94 +1129,94 @@ Bounds are set by <computeroutput><ref refid="class_main_component_1a339148bc430
         <childnode refid="3" relation="public-inheritance">
         </childnode>
       </node>
-      <node id="40">
+      <node id="43">
         <label>StkIdRel</label>
         <link refid="union_stk_id_rel" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="41" relation="usage">
+        <childnode refid="44" relation="usage">
           <edgelabel>p</edgelabel>
         </childnode>
       </node>
-      <node id="46">
+      <node id="49">
         <label>TString</label>
         <link refid="struct_t_string" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="39" relation="usage">
+        <childnode refid="42" relation="usage">
           <edgelabel>next</edgelabel>
         </childnode>
-        <childnode refid="46" relation="usage">
+        <childnode refid="49" relation="usage">
           <edgelabel>hnext</edgelabel>
         </childnode>
       </node>
-      <node id="121">
+      <node id="126">
         <label>TTY</label>
         <link refid="class_t_t_y"/>
-        <childnode refid="122" relation="public-inheritance">
+        <childnode refid="127" relation="public-inheritance">
         </childnode>
-        <childnode refid="123" relation="usage">
+        <childnode refid="128" relation="usage">
           <edgelabel>events</edgelabel>
         </childnode>
-        <childnode refid="124" relation="usage">
+        <childnode refid="129" relation="usage">
           <edgelabel>shellIntegrationEnv</edgelabel>
         </childnode>
       </node>
-      <node id="42">
+      <node id="45">
         <label>TValue</label>
         <link refid="struct_t_value" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="43" relation="usage">
+        <childnode refid="46" relation="usage">
           <edgelabel>value_</edgelabel>
         </childnode>
       </node>
-      <node id="47">
+      <node id="50">
         <label>Table</label>
         <link refid="struct_table" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="39" relation="usage">
+        <childnode refid="42" relation="usage">
           <edgelabel>gclist</edgelabel>
           <edgelabel>next</edgelabel>
         </childnode>
-        <childnode refid="42" relation="usage">
+        <childnode refid="45" relation="usage">
           <edgelabel>array</edgelabel>
         </childnode>
-        <childnode refid="48" relation="usage">
+        <childnode refid="51" relation="usage">
           <edgelabel>lastfree</edgelabel>
           <edgelabel>node</edgelabel>
         </childnode>
-        <childnode refid="47" relation="usage">
+        <childnode refid="50" relation="usage">
           <edgelabel>metatable</edgelabel>
         </childnode>
       </node>
-      <node id="51">
+      <node id="54">
         <label>UpVal</label>
         <link refid="struct_up_val" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="39" relation="usage">
+        <childnode refid="42" relation="usage">
           <edgelabel>next</edgelabel>
         </childnode>
-        <childnode refid="51" relation="usage">
+        <childnode refid="54" relation="usage">
           <edgelabel>next</edgelabel>
           <edgelabel>previous</edgelabel>
         </childnode>
-        <childnode refid="42" relation="usage">
+        <childnode refid="45" relation="usage">
           <edgelabel>p</edgelabel>
           <edgelabel>value</edgelabel>
         </childnode>
       </node>
-      <node id="43">
+      <node id="46">
         <label>Value</label>
         <link refid="classValue" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag"/>
       </node>
-      <node id="83">
+      <node id="86">
         <label>Value::Listener</label>
         <link refid="classValue_1_1Listener" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag"/>
       </node>
-      <node id="44">
+      <node id="47">
         <label>global_State</label>
         <link refid="structglobal___state" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="45" relation="usage">
+        <childnode refid="48" relation="usage">
           <edgelabel>strt</edgelabel>
         </childnode>
-        <childnode refid="42" relation="usage">
+        <childnode refid="45" relation="usage">
           <edgelabel>l_registry</edgelabel>
           <edgelabel>nilvalue</edgelabel>
         </childnode>
-        <childnode refid="39" relation="usage">
+        <childnode refid="42" relation="usage">
           <edgelabel>allgc</edgelabel>
           <edgelabel>allweak</edgelabel>
           <edgelabel>ephemeron</edgelabel>
@@ -1260,49 +1229,49 @@ Bounds are set by <computeroutput><ref refid="class_main_component_1a339148bc430
           <edgelabel>gray</edgelabel>
           <edgelabel>  ...</edgelabel>
         </childnode>
-        <childnode refid="38" relation="usage">
+        <childnode refid="41" relation="usage">
           <edgelabel>mainthread</edgelabel>
           <edgelabel>panic</edgelabel>
           <edgelabel>twups</edgelabel>
         </childnode>
-        <childnode refid="46" relation="usage">
+        <childnode refid="49" relation="usage">
           <edgelabel>memerrmsg</edgelabel>
           <edgelabel>strcache</edgelabel>
           <edgelabel>tmname</edgelabel>
         </childnode>
-        <childnode refid="47" relation="usage">
+        <childnode refid="50" relation="usage">
           <edgelabel>mt</edgelabel>
         </childnode>
       </node>
-      <node id="65">
+      <node id="68">
         <label>jam::AnyMap</label>
         <link refid="classjam_1_1_any_map" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="66" relation="usage">
+        <childnode refid="69" relation="usage">
           <edgelabel>entries</edgelabel>
         </childnode>
-        <childnode refid="68" relation="usage">
+        <childnode refid="71" relation="usage">
           <edgelabel>types</edgelabel>
         </childnode>
       </node>
-      <node id="134">
+      <node id="139">
         <label>jam::Block&lt; jam::Row &gt;</label>
         <link refid="classjam_1_1_block" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="132">
+      <node id="137">
         <label>jam::Buffer&lt; jam::Row &gt;</label>
         <link refid="classjam_1_1_buffer" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="129">
+      <node id="134">
         <label>jam::BufferSPSC</label>
         <link refid="classjam_1_1_buffer_s_p_s_c" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="101" relation="usage">
+        <childnode refid="104" relation="usage">
           <edgelabel>validStart</edgelabel>
         </childnode>
       </node>
-      <node id="110">
+      <node id="115">
         <label>jam::CaretComponent</label>
         <link refid="classjam_1_1_caret_component" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="108" relation="usage">
+        <childnode refid="113" relation="usage">
           <edgelabel>font</edgelabel>
         </childnode>
       </node>
@@ -1310,70 +1279,65 @@ Bounds are set by <computeroutput><ref refid="class_main_component_1a339148bc430
         <label>jam::Cell</label>
         <link refid="structjam_1_1_cell" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="130">
+      <node id="135">
         <label>jam::CodeLine</label>
         <link refid="structjam_1_1_code_line" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="104">
+      <node id="107">
         <label>jam::CodeModel</label>
         <link refid="classjam_1_1_code_model" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="105" relation="usage">
+        <childnode refid="108" relation="usage">
           <edgelabel>screens</edgelabel>
         </childnode>
       </node>
-      <node id="106">
+      <node id="109">
         <label>jam::CodeView</label>
         <link refid="classjam_1_1_code_view" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="107" relation="usage">
-          <edgelabel>properties</edgelabel>
-        </childnode>
-        <childnode refid="108" relation="usage">
-          <edgelabel>font</edgelabel>
-        </childnode>
-        <childnode refid="104" relation="usage">
-          <edgelabel>document</edgelabel>
-        </childnode>
-        <childnode refid="109" relation="usage">
-          <edgelabel>caret</edgelabel>
-        </childnode>
-        <childnode refid="111" relation="usage">
-          <edgelabel>stateAttachment</edgelabel>
+        <childnode refid="110" relation="public-inheritance">
         </childnode>
         <childnode refid="112" relation="usage">
-          <edgelabel>contentView</edgelabel>
+          <edgelabel>properties</edgelabel>
+        </childnode>
+        <childnode refid="113" relation="usage">
+          <edgelabel>font</edgelabel>
+        </childnode>
+        <childnode refid="107" relation="usage">
+          <edgelabel>document</edgelabel>
         </childnode>
         <childnode refid="114" relation="usage">
-          <edgelabel>viewport</edgelabel>
+          <edgelabel>caret</edgelabel>
         </childnode>
         <childnode refid="116" relation="usage">
-          <edgelabel>arrangement</edgelabel>
+          <edgelabel>stateAttachment</edgelabel>
         </childnode>
         <childnode refid="117" relation="usage">
+          <edgelabel>contentView</edgelabel>
+        </childnode>
+        <childnode refid="119" relation="usage">
+          <edgelabel>viewport</edgelabel>
+        </childnode>
+        <childnode refid="121" relation="usage">
+          <edgelabel>arrangement</edgelabel>
+        </childnode>
+        <childnode refid="122" relation="usage">
           <edgelabel>glyphGraphics</edgelabel>
         </childnode>
       </node>
-      <node id="115">
+      <node id="120">
         <label>jam::CodeView::CodeViewViewport</label>
         <link refid="structjam_1_1_code_view_1_1_code_view_viewport" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="106" relation="usage">
+        <childnode refid="109" relation="usage">
           <edgelabel>owner</edgelabel>
         </childnode>
       </node>
-      <node id="113">
+      <node id="118">
         <label>jam::CodeView::ContentView</label>
         <link refid="structjam_1_1_code_view_1_1_content_view" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="106" relation="usage">
+        <childnode refid="109" relation="usage">
           <edgelabel>owner</edgelabel>
         </childnode>
       </node>
-      <node id="111">
-        <label>jam::ComponentAttachment</label>
-        <link refid="classjam_1_1_component_attachment" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="64" relation="usage">
-          <edgelabel>parentTree</edgelabel>
-        </childnode>
-      </node>
-      <node id="70">
+      <node id="73">
         <label>jam::Context&lt; AppModel &gt;</label>
         <link refid="structjam_1_1_context" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
@@ -1381,17 +1345,17 @@ Bounds are set by <computeroutput><ref refid="class_main_component_1a339148bc430
         <label>jam::Context&lt; Engine &gt;</label>
         <link refid="structjam_1_1_context" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="57">
+      <node id="60">
         <label>jam::File::Watcher</label>
         <link refid="structjam_1_1_file_1_1_watcher" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="58" relation="usage">
+        <childnode refid="61" relation="usage">
           <edgelabel>timers</edgelabel>
         </childnode>
       </node>
-      <node id="60">
+      <node id="63">
         <label>jam::File::Watcher::CoalesceTimer</label>
         <link refid="structjam_1_1_file_1_1_watcher_1_1_coalesce_timer" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="57" relation="usage">
+        <childnode refid="60" relation="usage">
           <edgelabel>owner</edgelabel>
         </childnode>
       </node>
@@ -1399,121 +1363,135 @@ Bounds are set by <computeroutput><ref refid="class_main_component_1a339148bc430
         <label>jam::File::Watcher::Listener</label>
         <link refid="classjam_1_1_file_1_1_watcher_1_1_listener" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="108">
+      <node id="113">
         <label>jam::Font</label>
         <link refid="structjam_1_1_font" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="123">
+      <node id="128">
         <label>jam::Function::Map&lt; juce::Identifier, void &gt;</label>
         <link refid="structjam_1_1_function_1_1_map" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="93">
+      <node id="96">
         <label>jam::ModalWindow</label>
         <link refid="classjam_1_1_modal_window" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="94" relation="public-inheritance">
+        <childnode refid="97" relation="public-inheritance">
         </childnode>
       </node>
-      <node id="64">
+      <node id="67">
         <label>jam::Model</label>
         <link refid="classjam_1_1_model" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="65" relation="usage">
+        <childnode refid="68" relation="usage">
           <edgelabel>params</edgelabel>
         </childnode>
-        <childnode refid="69" relation="usage">
+        <childnode refid="72" relation="usage">
           <edgelabel>uniqueNodeMap</edgelabel>
         </childnode>
       </node>
-      <node id="105">
+      <node id="108">
         <label>jam::Owner&lt; jam::CodeModel::Screen &gt;</label>
         <link refid="classjam_1_1_owner" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="84">
+      <node id="87">
         <label>jam::Owner&lt; terminal::Panes &gt;</label>
         <link refid="classjam_1_1_owner" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="154">
+      <node id="160">
         <label>jam::Resizer</label>
         <link refid="classjam_1_1_resizer" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="123" relation="usage">
+        <childnode refid="128" relation="usage">
           <edgelabel>triggers</edgelabel>
         </childnode>
       </node>
-      <node id="78">
+      <node id="81">
         <label>jam::TabbedButtonBar</label>
         <link refid="classjam_1_1_tabbed_button_bar" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="79" relation="usage">
+        <childnode refid="82" relation="usage">
           <edgelabel>behindFrontTab</edgelabel>
         </childnode>
-        <childnode refid="81" relation="usage">
+        <childnode refid="84" relation="usage">
           <edgelabel>extraTabsButton</edgelabel>
         </childnode>
       </node>
-      <node id="80">
+      <node id="83">
         <label>jam::TabbedButtonBar::BehindFrontTabComp</label>
         <link refid="classjam_1_1_tabbed_button_bar_1_1_behind_front_tab_comp" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="78" relation="usage">
+        <childnode refid="81" relation="usage">
           <edgelabel>owner</edgelabel>
         </childnode>
       </node>
-      <node id="73">
+      <node id="76">
         <label>jam::TabbedButtonBar::LookAndFeelMethods</label>
         <link refid="structjam_1_1_tabbed_button_bar_1_1_look_and_feel_methods" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="76">
+      <node id="79">
         <label>jam::TabbedComponent</label>
         <link refid="classjam_1_1_tabbed_component" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="77" relation="usage">
+        <childnode refid="80" relation="usage">
           <edgelabel>tabs</edgelabel>
         </childnode>
       </node>
-      <node id="94">
+      <node id="116">
+        <label>jam::ValueTree::Attachment</label>
+        <link refid="classjam_1_1_value_tree_1_1_attachment" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+      <node id="111">
+        <label>jam::ValueTree::Component</label>
+        <link refid="structjam_1_1_value_tree_1_1_component" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+      <node id="110">
+        <label>jam::ValueTree::ComponentWithID&lt; CodeView &gt;</label>
+        <link refid="structjam_1_1_value_tree_1_1_component_with_i_d" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="111" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="97">
         <label>jam::Window</label>
         <link refid="classjam_1_1_window" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="116">
+      <node id="121">
         <label>jam::glyph::Arrangement</label>
         <link refid="classjam_1_1glyph_1_1_arrangement" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="117">
+      <node id="122">
         <label>jam::glyph::Graphics</label>
         <link refid="classjam_1_1glyph_1_1_graphics" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="37">
+      <node id="40">
         <label>jam::lua::Function</label>
         <link refid="classjam_1_1lua_1_1_function" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="38" relation="usage">
+        <childnode refid="41" relation="usage">
           <edgelabel>luaState</edgelabel>
         </childnode>
       </node>
-      <node id="54">
+      <node id="57">
         <label>jam::lua::State</label>
         <link refid="classjam_1_1lua_1_1_state" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="38" relation="usage">
+        <childnode refid="41" relation="usage">
           <edgelabel>luaState</edgelabel>
         </childnode>
-        <childnode refid="55" relation="usage">
+        <childnode refid="58" relation="usage">
           <edgelabel>registeredFunctions</edgelabel>
         </childnode>
-        <childnode refid="56" relation="usage">
+        <childnode refid="59" relation="usage">
           <edgelabel>registeredRawFunctions</edgelabel>
         </childnode>
       </node>
       <node id="2">
         <label>juce::Component</label>
       </node>
-      <node id="82">
+      <node id="85">
         <label>juce::FocusChangeListener</label>
       </node>
-      <node id="72">
+      <node id="75">
         <label>juce::LookAndFeel_V4</label>
       </node>
       <node id="4">
         <label>juce::OpenGLRenderer</label>
       </node>
-      <node id="122">
+      <node id="127">
         <label>juce::Thread</label>
       </node>
-      <node id="87">
+      <node id="90">
         <label>juce::Timer</label>
       </node>
       <node id="3">
@@ -1538,39 +1516,39 @@ Bounds are set by <computeroutput><ref refid="class_main_component_1a339148bc430
         <childnode refid="30" relation="usage">
           <edgelabel>keys</edgelabel>
         </childnode>
-        <childnode refid="31" relation="usage">
+        <childnode refid="34" relation="usage">
           <edgelabel>popup</edgelabel>
         </childnode>
-        <childnode refid="34" relation="usage">
+        <childnode refid="37" relation="usage">
           <edgelabel>action</edgelabel>
         </childnode>
-        <childnode refid="52" relation="usage">
+        <childnode refid="55" relation="usage">
           <edgelabel>keyMappings</edgelabel>
         </childnode>
-        <childnode refid="54" relation="usage">
+        <childnode refid="57" relation="usage">
           <edgelabel>lua</edgelabel>
         </childnode>
-        <childnode refid="57" relation="usage">
+        <childnode refid="60" relation="usage">
           <edgelabel>watcher</edgelabel>
         </childnode>
-        <childnode refid="61" relation="usage">
+        <childnode refid="64" relation="usage">
           <edgelabel>displayCallbacks</edgelabel>
         </childnode>
-        <childnode refid="62" relation="usage">
+        <childnode refid="65" relation="usage">
           <edgelabel>popupCallbacks</edgelabel>
         </childnode>
       </node>
-      <node id="34">
+      <node id="37">
         <label>lua::Engine::Action</label>
         <link refid="structlua_1_1_engine_1_1_action"/>
-        <childnode refid="35" relation="usage">
+        <childnode refid="38" relation="usage">
           <edgelabel>entries</edgelabel>
         </childnode>
       </node>
-      <node id="36">
+      <node id="39">
         <label>lua::Engine::Action::Entry</label>
         <link refid="structlua_1_1_engine_1_1_action_1_1_entry"/>
-        <childnode refid="37" relation="usage">
+        <childnode refid="40" relation="usage">
           <edgelabel>execute</edgelabel>
         </childnode>
       </node>
@@ -1658,17 +1636,27 @@ Bounds are set by <computeroutput><ref refid="class_main_component_1a339148bc430
         <label>lua::Engine::Display::Window</label>
         <link refid="structlua_1_1_engine_1_1_display_1_1_window"/>
       </node>
-      <node id="61">
+      <node id="64">
         <label>lua::Engine::DisplayCallbacks</label>
         <link refid="structlua_1_1_engine_1_1_display_callbacks"/>
       </node>
-      <node id="53">
+      <node id="56">
         <label>lua::Engine::KeyMapping</label>
         <link refid="structlua_1_1_engine_1_1_key_mapping"/>
       </node>
       <node id="30">
         <label>lua::Engine::Keys</label>
         <link refid="structlua_1_1_engine_1_1_keys"/>
+        <childnode refid="31" relation="usage">
+          <edgelabel>bindings</edgelabel>
+        </childnode>
+        <childnode refid="33" relation="usage">
+          <edgelabel>selection</edgelabel>
+        </childnode>
+      </node>
+      <node id="32">
+        <label>lua::Engine::Keys::Binding</label>
+        <link refid="structlua_1_1_engine_1_1_keys_1_1_binding"/>
       </node>
       <node id="8">
         <label>lua::Engine::Nexus</label>
@@ -1712,18 +1700,18 @@ Bounds are set by <computeroutput><ref refid="class_main_component_1a339148bc430
         <label>lua::Engine::Nexus::Terminal</label>
         <link refid="structlua_1_1_engine_1_1_nexus_1_1_terminal"/>
       </node>
-      <node id="31">
+      <node id="34">
         <label>lua::Engine::Popup</label>
         <link refid="structlua_1_1_engine_1_1_popup"/>
         <childnode refid="15" relation="usage">
           <edgelabel>defaultCols</edgelabel>
           <edgelabel>defaultRows</edgelabel>
         </childnode>
-        <childnode refid="32" relation="usage">
+        <childnode refid="35" relation="usage">
           <edgelabel>entries</edgelabel>
         </childnode>
       </node>
-      <node id="33">
+      <node id="36">
         <label>lua::Engine::Popup::Entry</label>
         <link refid="structlua_1_1_engine_1_1_popup_1_1_entry"/>
         <childnode refid="15" relation="usage">
@@ -1731,436 +1719,455 @@ Bounds are set by <computeroutput><ref refid="class_main_component_1a339148bc430
           <edgelabel>rows</edgelabel>
         </childnode>
       </node>
-      <node id="62">
+      <node id="65">
         <label>lua::Engine::PopupCallbacks</label>
         <link refid="structlua_1_1_engine_1_1_popup_callbacks"/>
+      </node>
+      <node id="33">
+        <label>lua::Engine::SelectionKeys</label>
+        <link refid="structlua_1_1_engine_1_1_selection_keys"/>
       </node>
       <node id="29">
         <label>lua::Engine::Whelmed</label>
         <link refid="structlua_1_1_engine_1_1_whelmed"/>
       </node>
-      <node id="38">
+      <node id="41">
         <label>lua_State</label>
         <link refid="structlua___state" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="39" relation="usage">
+        <childnode refid="42" relation="usage">
           <edgelabel>gclist</edgelabel>
           <edgelabel>next</edgelabel>
         </childnode>
-        <childnode refid="40" relation="usage">
+        <childnode refid="43" relation="usage">
           <edgelabel>stack</edgelabel>
           <edgelabel>stack_last</edgelabel>
           <edgelabel>tbclist</edgelabel>
           <edgelabel>top</edgelabel>
         </childnode>
-        <childnode refid="44" relation="usage">
+        <childnode refid="47" relation="usage">
           <edgelabel>l_G</edgelabel>
         </childnode>
-        <childnode refid="50" relation="usage">
+        <childnode refid="53" relation="usage">
           <edgelabel>base_ci</edgelabel>
           <edgelabel>ci</edgelabel>
         </childnode>
-        <childnode refid="51" relation="usage">
+        <childnode refid="54" relation="usage">
           <edgelabel>openupval</edgelabel>
         </childnode>
-        <childnode refid="38" relation="usage">
+        <childnode refid="41" relation="usage">
           <edgelabel>twups</edgelabel>
         </childnode>
       </node>
-      <node id="148">
+      <node id="153">
         <label>std::array&lt; StateRow, STATE_COUNT &gt;</label>
       </node>
-      <node id="152">
+      <node id="157">
         <label>std::array&lt; int, 2 &gt;</label>
       </node>
-      <node id="133">
+      <node id="138">
         <label>std::array&lt; jam::Block&lt; jam::Row &gt;, 2 &gt;</label>
-        <childnode refid="134" relation="usage">
+        <childnode refid="139" relation="usage">
           <edgelabel>elements</edgelabel>
         </childnode>
       </node>
       <node id="19">
         <label>std::array&lt; juce::Colour, 16 &gt;</label>
       </node>
-      <node id="107">
+      <node id="112">
         <label>std::array&lt; juce::Identifier, propertyCount &gt;</label>
       </node>
-      <node id="52">
+      <node id="55">
         <label>std::array&lt; lua::Engine::KeyMapping, keyMappingCount &gt;</label>
-        <childnode refid="53" relation="usage">
+        <childnode refid="56" relation="usage">
           <edgelabel>elements</edgelabel>
         </childnode>
       </node>
-      <node id="135">
+      <node id="140">
         <label>std::array&lt; terminal::Video::SavedCursor, 2 &gt;</label>
-        <childnode refid="136" relation="usage">
+        <childnode refid="141" relation="usage">
           <edgelabel>elements</edgelabel>
         </childnode>
       </node>
-      <node id="150">
+      <node id="155">
         <label>std::array&lt; uint16_t, MAX_PARAMS &gt;</label>
       </node>
-      <node id="151">
+      <node id="156">
         <label>std::array&lt; uint32_t, 2 *maxKeyboardStackDepth &gt;</label>
       </node>
-      <node id="101">
+      <node id="104">
         <label>std::atomic&lt; int &gt;</label>
       </node>
-      <node id="127">
+      <node id="132">
         <label>std::basic_string&lt; Char &gt;</label>
       </node>
-      <node id="56">
+      <node id="59">
         <label>std::list&lt; std::function&lt; int(lua_State *)&gt; &gt;</label>
       </node>
-      <node id="55">
+      <node id="58">
         <label>std::list&lt; std::function&lt; void()&gt; &gt;</label>
       </node>
-      <node id="58">
+      <node id="61">
         <label>std::map&lt; juce::File, std::unique_ptr&lt; jam::File::Watcher::CoalesceTimer &gt; &gt;</label>
-        <childnode refid="59" relation="usage">
+        <childnode refid="62" relation="usage">
           <edgelabel>elements</edgelabel>
         </childnode>
       </node>
-      <node id="125">
+      <node id="130">
         <label>std::pair&lt; std::string, std::string &gt;</label>
-        <childnode refid="126" relation="usage">
+        <childnode refid="131" relation="usage">
           <edgelabel>first_type</edgelabel>
           <edgelabel>second_type</edgelabel>
         </childnode>
       </node>
-      <node id="126">
+      <node id="131">
         <label>std::string</label>
-        <childnode refid="127" relation="public-inheritance">
-        </childnode>
-      </node>
-      <node id="85">
-        <label>std::unique_ptr&lt; MessageOverlay &gt;</label>
-        <childnode refid="86" relation="usage">
-          <edgelabel>ptr</edgelabel>
+        <childnode refid="132" relation="public-inheritance">
         </childnode>
       </node>
       <node id="88">
-        <label>std::unique_ptr&lt; StatusBarOverlay &gt;</label>
+        <label>std::unique_ptr&lt; MessageOverlay &gt;</label>
         <childnode refid="89" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
-      <node id="120">
-        <label>std::unique_ptr&lt; TTY &gt;</label>
-        <childnode refid="121" relation="usage">
-          <edgelabel>ptr</edgelabel>
-        </childnode>
-      </node>
-      <node id="109">
-        <label>std::unique_ptr&lt; jam::CaretComponent &gt;</label>
-        <childnode refid="110" relation="usage">
-          <edgelabel>ptr</edgelabel>
-        </childnode>
-      </node>
-      <node id="114">
-        <label>std::unique_ptr&lt; jam::CodeView::CodeViewViewport &gt;</label>
-        <childnode refid="115" relation="usage">
-          <edgelabel>ptr</edgelabel>
-        </childnode>
-      </node>
-      <node id="112">
-        <label>std::unique_ptr&lt; jam::CodeView::ContentView &gt;</label>
-        <childnode refid="113" relation="usage">
-          <edgelabel>ptr</edgelabel>
-        </childnode>
-      </node>
-      <node id="59">
-        <label>std::unique_ptr&lt; jam::File::Watcher::CoalesceTimer &gt;</label>
-        <childnode refid="60" relation="usage">
-          <edgelabel>ptr</edgelabel>
-        </childnode>
-      </node>
-      <node id="153">
-        <label>std::unique_ptr&lt; jam::Resizer &gt;</label>
-        <childnode refid="154" relation="usage">
-          <edgelabel>ptr</edgelabel>
-        </childnode>
-      </node>
-      <node id="77">
-        <label>std::unique_ptr&lt; jam::TabbedButtonBar &gt;</label>
-        <childnode refid="78" relation="usage">
-          <edgelabel>ptr</edgelabel>
-        </childnode>
-      </node>
-      <node id="79">
-        <label>std::unique_ptr&lt; jam::TabbedButtonBar::BehindFrontTabComp &gt;</label>
-        <childnode refid="80" relation="usage">
-          <edgelabel>ptr</edgelabel>
-        </childnode>
-      </node>
-      <node id="81">
-        <label>std::unique_ptr&lt; juce::Button &gt;</label>
-      </node>
-      <node id="103">
-        <label>std::unique_ptr&lt; std::atomic&lt; int &gt;[]&gt;</label>
-        <childnode refid="101" relation="usage">
-          <edgelabel>ptr</edgelabel>
-        </childnode>
-      </node>
       <node id="91">
-        <label>std::unique_ptr&lt; terminal::ModalWindow &gt;</label>
+        <label>std::unique_ptr&lt; StatusBarOverlay &gt;</label>
         <childnode refid="92" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
-      <node id="145">
+      <node id="125">
+        <label>std::unique_ptr&lt; TTY &gt;</label>
+        <childnode refid="126" relation="usage">
+          <edgelabel>ptr</edgelabel>
+        </childnode>
+      </node>
+      <node id="114">
+        <label>std::unique_ptr&lt; jam::CaretComponent &gt;</label>
+        <childnode refid="115" relation="usage">
+          <edgelabel>ptr</edgelabel>
+        </childnode>
+      </node>
+      <node id="119">
+        <label>std::unique_ptr&lt; jam::CodeView::CodeViewViewport &gt;</label>
+        <childnode refid="120" relation="usage">
+          <edgelabel>ptr</edgelabel>
+        </childnode>
+      </node>
+      <node id="117">
+        <label>std::unique_ptr&lt; jam::CodeView::ContentView &gt;</label>
+        <childnode refid="118" relation="usage">
+          <edgelabel>ptr</edgelabel>
+        </childnode>
+      </node>
+      <node id="62">
+        <label>std::unique_ptr&lt; jam::File::Watcher::CoalesceTimer &gt;</label>
+        <childnode refid="63" relation="usage">
+          <edgelabel>ptr</edgelabel>
+        </childnode>
+      </node>
+      <node id="159">
+        <label>std::unique_ptr&lt; jam::Resizer &gt;</label>
+        <childnode refid="160" relation="usage">
+          <edgelabel>ptr</edgelabel>
+        </childnode>
+      </node>
+      <node id="80">
+        <label>std::unique_ptr&lt; jam::TabbedButtonBar &gt;</label>
+        <childnode refid="81" relation="usage">
+          <edgelabel>ptr</edgelabel>
+        </childnode>
+      </node>
+      <node id="82">
+        <label>std::unique_ptr&lt; jam::TabbedButtonBar::BehindFrontTabComp &gt;</label>
+        <childnode refid="83" relation="usage">
+          <edgelabel>ptr</edgelabel>
+        </childnode>
+      </node>
+      <node id="158">
+        <label>std::unique_ptr&lt; jam::ValueTree::Attachment &gt;</label>
+        <childnode refid="116" relation="usage">
+          <edgelabel>ptr</edgelabel>
+        </childnode>
+      </node>
+      <node id="84">
+        <label>std::unique_ptr&lt; juce::Button &gt;</label>
+      </node>
+      <node id="106">
+        <label>std::unique_ptr&lt; std::atomic&lt; int &gt;[]&gt;</label>
+        <childnode refid="104" relation="usage">
+          <edgelabel>ptr</edgelabel>
+        </childnode>
+      </node>
+      <node id="94">
+        <label>std::unique_ptr&lt; terminal::ModalWindow &gt;</label>
+        <childnode refid="95" relation="usage">
+          <edgelabel>ptr</edgelabel>
+        </childnode>
+      </node>
+      <node id="150">
         <label>std::unique_ptr&lt; terminal::Parser &gt;</label>
-        <childnode refid="146" relation="usage">
+        <childnode refid="151" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
-      <node id="118">
+      <node id="123">
         <label>std::unique_ptr&lt; terminal::Processor &gt;</label>
-        <childnode refid="119" relation="usage">
+        <childnode refid="124" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
-      </node>
-      <node id="95">
-        <label>std::unique_ptr&lt; terminal::Session &gt;</label>
-        <childnode refid="96" relation="usage">
-          <edgelabel>ptr</edgelabel>
-        </childnode>
-      </node>
-      <node id="74">
-        <label>std::unique_ptr&lt; terminal::Tabs &gt;</label>
-        <childnode refid="75" relation="usage">
-          <edgelabel>ptr</edgelabel>
-        </childnode>
-      </node>
-      <node id="99">
-        <label>std::unique_ptr&lt; terminal::TextSlot &gt;</label>
-        <childnode refid="100" relation="usage">
-          <edgelabel>ptr</edgelabel>
-        </childnode>
-      </node>
-      <node id="67">
-        <label>std::unique_ptr&lt; void, Deleter &gt;</label>
-      </node>
-      <node id="68">
-        <label>std::unordered_map&lt; juce::Identifier, std::type_index &gt;</label>
       </node>
       <node id="98">
-        <label>std::unordered_map&lt; juce::Identifier, std::unique_ptr&lt; terminal::TextSlot &gt; &gt;</label>
+        <label>std::unique_ptr&lt; terminal::Session &gt;</label>
         <childnode refid="99" relation="usage">
+          <edgelabel>ptr</edgelabel>
+        </childnode>
+      </node>
+      <node id="77">
+        <label>std::unique_ptr&lt; terminal::Tabs &gt;</label>
+        <childnode refid="78" relation="usage">
+          <edgelabel>ptr</edgelabel>
+        </childnode>
+      </node>
+      <node id="102">
+        <label>std::unique_ptr&lt; terminal::TextSlot &gt;</label>
+        <childnode refid="103" relation="usage">
+          <edgelabel>ptr</edgelabel>
+        </childnode>
+      </node>
+      <node id="70">
+        <label>std::unique_ptr&lt; void, Deleter &gt;</label>
+      </node>
+      <node id="71">
+        <label>std::unordered_map&lt; juce::Identifier, std::type_index &gt;</label>
+      </node>
+      <node id="101">
+        <label>std::unordered_map&lt; juce::Identifier, std::unique_ptr&lt; terminal::TextSlot &gt; &gt;</label>
+        <childnode refid="102" relation="usage">
           <edgelabel>elements</edgelabel>
         </childnode>
       </node>
-      <node id="66">
+      <node id="69">
         <label>std::unordered_map&lt; juce::Identifier, std::unique_ptr&lt; void, Deleter &gt; &gt;</label>
-        <childnode refid="67" relation="usage">
+        <childnode refid="70" relation="usage">
           <edgelabel>elements</edgelabel>
         </childnode>
       </node>
       <node id="12">
         <label>std::unordered_map&lt; juce::String, juce::String &gt;</label>
       </node>
-      <node id="69">
+      <node id="72">
         <label>std::unordered_map&lt; juce::String, juce::ValueTree &gt;</label>
       </node>
-      <node id="141">
+      <node id="146">
         <label>std::unordered_map&lt; uint32_t, terminal::KittyDecoder::ChunkAccumulator &gt;</label>
-        <childnode refid="142" relation="usage">
+        <childnode refid="147" relation="usage">
           <edgelabel>elements</edgelabel>
         </childnode>
       </node>
-      <node id="143">
+      <node id="148">
         <label>std::unordered_map&lt; uint32_t, terminal::KittyDecoder::StoredImage &gt;</label>
-        <childnode refid="144" relation="usage">
+        <childnode refid="149" relation="usage">
           <edgelabel>elements</edgelabel>
         </childnode>
       </node>
       <node id="13">
         <label>std::unordered_set&lt; juce::String &gt;</label>
       </node>
-      <node id="138">
+      <node id="143">
         <label>std::vector&lt; char &gt;</label>
       </node>
-      <node id="35">
+      <node id="38">
         <label>std::vector&lt; lua::Engine::Action::Entry &gt;</label>
+        <childnode refid="39" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+      <node id="31">
+        <label>std::vector&lt; lua::Engine::Keys::Binding &gt;</label>
+        <childnode refid="32" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+      <node id="35">
+        <label>std::vector&lt; lua::Engine::Popup::Entry &gt;</label>
         <childnode refid="36" relation="usage">
           <edgelabel>elements</edgelabel>
         </childnode>
       </node>
-      <node id="32">
-        <label>std::vector&lt; lua::Engine::Popup::Entry &gt;</label>
-        <childnode refid="33" relation="usage">
-          <edgelabel>elements</edgelabel>
-        </childnode>
-      </node>
-      <node id="124">
+      <node id="129">
         <label>std::vector&lt; std::pair&lt; std::string, std::string &gt; &gt;</label>
-        <childnode refid="125" relation="usage">
+        <childnode refid="130" relation="usage">
           <edgelabel>elements</edgelabel>
         </childnode>
       </node>
-      <node id="45">
+      <node id="48">
         <label>stringtable</label>
         <link refid="structstringtable" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="46" relation="usage">
+        <childnode refid="49" relation="usage">
           <edgelabel>hash</edgelabel>
         </childnode>
       </node>
-      <node id="149">
+      <node id="154">
         <label>terminal::CSI</label>
         <link refid="structterminal_1_1_c_s_i"/>
-        <childnode refid="150" relation="usage">
+        <childnode refid="155" relation="usage">
           <edgelabel>values</edgelabel>
         </childnode>
       </node>
-      <node id="128">
+      <node id="133">
         <label>terminal::CellFifo</label>
         <link refid="classterminal_1_1_cell_fifo"/>
-        <childnode refid="129" relation="usage">
+        <childnode refid="134" relation="usage">
           <edgelabel>activeRing</edgelabel>
           <edgelabel>historyRing</edgelabel>
         </childnode>
-        <childnode refid="130" relation="usage">
+        <childnode refid="135" relation="usage">
           <edgelabel>pending</edgelabel>
         </childnode>
       </node>
-      <node id="147">
+      <node id="152">
         <label>terminal::DispatchTable</label>
         <link refid="classterminal_1_1_dispatch_table"/>
-        <childnode refid="148" relation="usage">
+        <childnode refid="153" relation="usage">
           <edgelabel>table</edgelabel>
         </childnode>
       </node>
-      <node id="140">
+      <node id="145">
         <label>terminal::KittyDecoder</label>
         <link refid="classterminal_1_1_kitty_decoder"/>
-        <childnode refid="141" relation="usage">
+        <childnode refid="146" relation="usage">
           <edgelabel>chunks</edgelabel>
         </childnode>
-        <childnode refid="143" relation="usage">
+        <childnode refid="148" relation="usage">
           <edgelabel>storedImages</edgelabel>
         </childnode>
       </node>
-      <node id="142">
+      <node id="147">
         <label>terminal::KittyDecoder::ChunkAccumulator</label>
         <link refid="structterminal_1_1_kitty_decoder_1_1_chunk_accumulator"/>
       </node>
-      <node id="144">
+      <node id="149">
         <label>terminal::KittyDecoder::StoredImage</label>
         <link refid="structterminal_1_1_kitty_decoder_1_1_stored_image"/>
       </node>
-      <node id="71">
+      <node id="74">
         <label>terminal::LookAndFeel</label>
         <link refid="classterminal_1_1_look_and_feel"/>
-        <childnode refid="72" relation="public-inheritance">
+        <childnode refid="75" relation="public-inheritance">
         </childnode>
-        <childnode refid="73" relation="public-inheritance">
+        <childnode refid="76" relation="public-inheritance">
         </childnode>
       </node>
-      <node id="92">
+      <node id="95">
         <label>terminal::ModalWindow</label>
         <link refid="classterminal_1_1_modal_window"/>
-        <childnode refid="93" relation="public-inheritance">
+        <childnode refid="96" relation="public-inheritance">
         </childnode>
       </node>
-      <node id="102">
+      <node id="105">
         <label>terminal::Model</label>
         <link refid="structterminal_1_1_model"/>
-        <childnode refid="64" relation="public-inheritance">
+        <childnode refid="67" relation="public-inheritance">
         </childnode>
         <childnode refid="3" relation="private-inheritance">
         </childnode>
-        <childnode refid="103" relation="usage">
+        <childnode refid="106" relation="usage">
           <edgelabel>rowDirtyFlags</edgelabel>
         </childnode>
-        <childnode refid="97" relation="usage">
+        <childnode refid="100" relation="usage">
           <edgelabel>textBuffer</edgelabel>
         </childnode>
       </node>
-      <node id="146">
+      <node id="151">
         <label>terminal::Parser</label>
         <link refid="classterminal_1_1_parser"/>
-        <childnode refid="131" relation="usage">
+        <childnode refid="136" relation="usage">
           <edgelabel>video</edgelabel>
         </childnode>
-        <childnode refid="147" relation="usage">
+        <childnode refid="152" relation="usage">
           <edgelabel>dispatchTable</edgelabel>
         </childnode>
-        <childnode refid="149" relation="usage">
+        <childnode refid="154" relation="usage">
           <edgelabel>csi</edgelabel>
         </childnode>
       </node>
-      <node id="90">
+      <node id="93">
         <label>terminal::Popup</label>
         <link refid="classterminal_1_1_popup"/>
         <childnode refid="3" relation="public-inheritance">
         </childnode>
-        <childnode refid="91" relation="usage">
+        <childnode refid="94" relation="usage">
           <edgelabel>window</edgelabel>
         </childnode>
-        <childnode refid="95" relation="usage">
+        <childnode refid="98" relation="usage">
           <edgelabel>terminalSession</edgelabel>
         </childnode>
       </node>
-      <node id="119">
+      <node id="124">
         <label>terminal::Processor</label>
         <link refid="classterminal_1_1_processor"/>
         <childnode refid="3" relation="public-inheritance">
         </childnode>
-        <childnode refid="120" relation="usage">
+        <childnode refid="125" relation="usage">
           <edgelabel>tty</edgelabel>
         </childnode>
-        <childnode refid="97" relation="usage">
+        <childnode refid="100" relation="usage">
           <edgelabel>textBuffer</edgelabel>
         </childnode>
-        <childnode refid="128" relation="usage">
+        <childnode refid="133" relation="usage">
           <edgelabel>cellFifo</edgelabel>
         </childnode>
-        <childnode refid="102" relation="usage">
+        <childnode refid="105" relation="usage">
           <edgelabel>state</edgelabel>
         </childnode>
-        <childnode refid="123" relation="usage">
+        <childnode refid="128" relation="usage">
           <edgelabel>events</edgelabel>
           <edgelabel>parameters</edgelabel>
         </childnode>
-        <childnode refid="131" relation="usage">
+        <childnode refid="136" relation="usage">
           <edgelabel>video</edgelabel>
         </childnode>
-        <childnode refid="139" relation="usage">
+        <childnode refid="144" relation="usage">
           <edgelabel>skit</edgelabel>
         </childnode>
-        <childnode refid="145" relation="usage">
+        <childnode refid="150" relation="usage">
           <edgelabel>parser</edgelabel>
         </childnode>
-        <childnode refid="151" relation="usage">
+        <childnode refid="156" relation="usage">
           <edgelabel>keyboardModeStack</edgelabel>
         </childnode>
-        <childnode refid="152" relation="usage">
+        <childnode refid="157" relation="usage">
           <edgelabel>keyboardModeStackSize</edgelabel>
         </childnode>
       </node>
-      <node id="96">
+      <node id="99">
         <label>terminal::Session</label>
         <link refid="classterminal_1_1_session"/>
-        <childnode refid="83" relation="private-inheritance">
+        <childnode refid="86" relation="private-inheritance">
         </childnode>
-        <childnode refid="97" relation="usage">
+        <childnode refid="100" relation="usage">
           <edgelabel>textBuffer</edgelabel>
         </childnode>
-        <childnode refid="102" relation="usage">
+        <childnode refid="105" relation="usage">
           <edgelabel>model</edgelabel>
         </childnode>
-        <childnode refid="104" relation="usage">
+        <childnode refid="107" relation="usage">
           <edgelabel>codeModel</edgelabel>
         </childnode>
-        <childnode refid="106" relation="usage">
+        <childnode refid="109" relation="usage">
           <edgelabel>textEditor</edgelabel>
         </childnode>
-        <childnode refid="118" relation="usage">
+        <childnode refid="123" relation="usage">
           <edgelabel>processor</edgelabel>
         </childnode>
-        <childnode refid="153" relation="usage">
+        <childnode refid="158" relation="usage">
+          <edgelabel>sessionAttachment</edgelabel>
+        </childnode>
+        <childnode refid="159" relation="usage">
           <edgelabel>resizer</edgelabel>
         </childnode>
-        <childnode refid="43" relation="usage">
+        <childnode refid="46" relation="usage">
           <edgelabel>winsize</edgelabel>
         </childnode>
         <childnode refid="15" relation="usage">
@@ -2168,61 +2175,61 @@ Bounds are set by <computeroutput><ref refid="class_main_component_1a339148bc430
           <edgelabel>startRows</edgelabel>
         </childnode>
       </node>
-      <node id="139">
+      <node id="144">
         <label>terminal::Skit</label>
         <link refid="classterminal_1_1_skit"/>
-        <childnode refid="123" relation="usage">
+        <childnode refid="128" relation="usage">
           <edgelabel>events</edgelabel>
         </childnode>
-        <childnode refid="140" relation="usage">
+        <childnode refid="145" relation="usage">
           <edgelabel>kittyDecoder</edgelabel>
         </childnode>
         <childnode refid="15" relation="usage">
           <edgelabel>lastImageRows</edgelabel>
         </childnode>
       </node>
-      <node id="75">
+      <node id="78">
         <label>terminal::Tabs</label>
         <link refid="classterminal_1_1_tabs"/>
-        <childnode refid="76" relation="public-inheritance">
+        <childnode refid="79" relation="public-inheritance">
         </childnode>
-        <childnode refid="82" relation="private-inheritance">
+        <childnode refid="85" relation="private-inheritance">
         </childnode>
-        <childnode refid="83" relation="private-inheritance">
+        <childnode refid="86" relation="private-inheritance">
         </childnode>
         <childnode refid="3" relation="private-inheritance">
         </childnode>
-        <childnode refid="43" relation="usage">
+        <childnode refid="46" relation="usage">
           <edgelabel>tabName</edgelabel>
         </childnode>
-        <childnode refid="84" relation="usage">
+        <childnode refid="87" relation="usage">
           <edgelabel>panes</edgelabel>
         </childnode>
       </node>
-      <node id="97">
+      <node id="100">
         <label>terminal::TextBuffer</label>
         <link refid="structterminal_1_1_text_buffer"/>
-        <childnode refid="98" relation="usage">
+        <childnode refid="101" relation="usage">
           <edgelabel>slots</edgelabel>
         </childnode>
       </node>
-      <node id="100">
+      <node id="103">
         <label>terminal::TextSlot</label>
         <link refid="structterminal_1_1_text_slot"/>
-        <childnode refid="101" relation="usage">
+        <childnode refid="104" relation="usage">
           <edgelabel>active</edgelabel>
         </childnode>
       </node>
-      <node id="131">
+      <node id="136">
         <label>terminal::Video</label>
         <link refid="classterminal_1_1_video"/>
-        <childnode refid="132" relation="usage">
+        <childnode refid="137" relation="usage">
           <edgelabel>grid</edgelabel>
         </childnode>
-        <childnode refid="133" relation="usage">
+        <childnode refid="138" relation="usage">
           <edgelabel>blocks</edgelabel>
         </childnode>
-        <childnode refid="123" relation="usage">
+        <childnode refid="128" relation="usage">
           <edgelabel>events</edgelabel>
         </childnode>
         <childnode refid="15" relation="usage">
@@ -2233,17 +2240,17 @@ Bounds are set by <computeroutput><ref refid="class_main_component_1a339148bc430
           <edgelabel>scrollTop</edgelabel>
           <edgelabel>visibleRows</edgelabel>
         </childnode>
-        <childnode refid="135" relation="usage">
+        <childnode refid="140" relation="usage">
           <edgelabel>savedCursor</edgelabel>
         </childnode>
-        <childnode refid="137" relation="usage">
+        <childnode refid="142" relation="usage">
           <edgelabel>graphemeState</edgelabel>
         </childnode>
-        <childnode refid="138" relation="usage">
+        <childnode refid="143" relation="usage">
           <edgelabel>tabStops</edgelabel>
         </childnode>
       </node>
-      <node id="136">
+      <node id="141">
         <label>terminal::Video::SavedCursor</label>
         <link refid="structterminal_1_1_video_1_1_saved_cursor"/>
         <childnode refid="15" relation="usage">
@@ -2252,7 +2259,7 @@ Bounds are set by <computeroutput><ref refid="class_main_component_1a339148bc430
         </childnode>
       </node>
     </collaborationgraph>
-    <location file="MainComponent.h" line="74" column="1" bodyfile="MainComponent.h" bodystart="78" bodyend="287"/>
+    <location file="MainComponent.h" line="75" column="1" bodyfile="MainComponent.h" bodystart="79" bodyend="288"/>
     <listofallmembers>
       <member refid="class_main_component_1a7a32301bc3f0ca6c370fa7e3b0348e70" prot="public" virt="non-virtual"><scope>MainComponent</scope><name>applyConfig</name></member>
       <member refid="class_main_component_1a60b47af60485c2469a891d08495e1921" prot="private" virt="non-virtual"><scope>MainComponent</scope><name>appState</name></member>

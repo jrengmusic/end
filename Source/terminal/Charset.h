@@ -41,7 +41,7 @@ namespace terminal
  * Mapping table index: codepoint - 0x60
  *
  * Example characters:
- * - 0x60 (`) -> ◆ (U+25C6) - Diamond
+ * - 0x60 (grave accent) -> ◆ (U+25C6) - Diamond
  * - 0x6A (j) -> ┘ (U+2518) - Lower right corner
  * - 0x6C (l) -> ┌ (U+250C) - Upper left corner
  * - 0x71 (q) -> ─ (U+2500) - Horizontal line

@@ -10,7 +10,7 @@
  *
  * Split operations delegate to splitActive. Leaf lookup delegates to
  * jam::PaneManager::findLeaf. Panes are owned by
- * jam::Owner<PaneComponent>; each pane's componentID is its UUID.
+ * jam::Owner<PaneView>; each pane's componentID is its UUID.
  *
  * @see terminal::Display
  * @see terminal::Tabs
@@ -19,7 +19,7 @@
 
 #pragma once
 #include <JuceHeader.h>
-#include "PaneComponent.h"
+#include "PaneView.h"
 #include "Display.h"
 #include "../Processor.h"
 #include "../../AppModel.h"
@@ -106,8 +106,7 @@ public:
      * @param uuid              UUID hint for state restoration. In client mode, if this
      *                          UUID is live on the host the session is attached; otherwise
      *                          a new session is spawned. Empty = always spawn new.
-     * @param cols              Terminal column count. Must be > 0.
-     * @param rows              Terminal row count. Must be > 0.
+     * @param dims              Terminal dimensions (cols × rows). Must be > 0.
      * @return The UUID of the newly created terminal (its componentID).
      * @note MESSAGE THREAD.
      */
@@ -146,7 +145,7 @@ public:
      * @return Reference to the pane owner container.
      * @note MESSAGE THREAD.
      */
-    jam::Owner<PaneComponent>& getPanes() noexcept;
+    jam::Owner<PaneView>& getPanes() noexcept;
 
     /**
      * @brief Access the PANES ValueTree for attachment to AppModel.
@@ -184,6 +183,7 @@ public:
      * @param isVertical  True when the resizer bar is vertical (direction == "vertical").
      * @param cols        Terminal column count for the new pane. Must be > 0.
      * @param rows        Terminal row count for the new pane. Must be > 0.
+     * @param ratio       Split ratio (0.0–1.0). 0.5 = equal halves.
      * @note MESSAGE THREAD.
      */
     void splitAt (const juce::String& targetUuid,
@@ -271,11 +271,12 @@ private:
      *                   left/right divider (side-by-side columns); "horizontal"
      *                   produces a top/bottom divider (stacked rows).
      * @param isVertical True when the resizer bar is vertical (splitHorizontal).
+     * @param ratio      Split ratio (0.0-1.0). 0.5 = equal halves.
      * @note MESSAGE THREAD.
      */
     void splitActive (const juce::String& direction, bool isVertical, double ratio);
 
-    jam::Owner<PaneComponent> panes;
+    jam::Owner<PaneView> panes;
     jam::PaneManager paneManager;
     jam::Owner<jam::PaneResizerBar> resizerBars;
     std::unordered_map<juce::String, juce::ValueTree> sessionStateTrees;

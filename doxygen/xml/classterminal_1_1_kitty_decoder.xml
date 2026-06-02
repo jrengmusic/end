@@ -22,9 +22,9 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/KittyDecoder.h" line="154" column="24" bodyfile="terminal/KittyDecoder.h" bodystart="154" bodyend="-1"/>
-        <referencedby refid="classterminal_1_1_kitty_decoder_1ae7a67c183d5208962274bcb38981d156" compoundref="_kitty_decoder_8cpp" startline="340" endline="344">clear</referencedby>
-        <referencedby refid="classterminal_1_1_kitty_decoder_1a34ed7e0aa33e4163e071759f6fc5a52e" compoundref="_kitty_decoder_8cpp" startline="87" endline="125">finalizeChunk</referencedby>
-        <referencedby refid="classterminal_1_1_kitty_decoder_1aa9e64c41aa91c7794cc30a31e57bdac4" compoundref="_kitty_decoder_8cpp" startline="151" endline="329">process</referencedby>
+        <referencedby refid="classterminal_1_1_kitty_decoder_1ae7a67c183d5208962274bcb38981d156" compoundref="_kitty_decoder_8cpp" startline="288" endline="292">clear</referencedby>
+        <referencedby refid="classterminal_1_1_kitty_decoder_1a34ed7e0aa33e4163e071759f6fc5a52e" compoundref="_kitty_decoder_8cpp" startline="55" endline="93">finalizeChunk</referencedby>
+        <referencedby refid="classterminal_1_1_kitty_decoder_1aa9e64c41aa91c7794cc30a31e57bdac4" compoundref="_kitty_decoder_8cpp" startline="99" endline="277">process</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classterminal_1_1_kitty_decoder_1a54a3213f7f0d7d6ce00bad43c924f2cd" prot="private" static="no" mutable="no">
         <type>std::unordered_map&lt; uint32_t, <ref refid="structterminal_1_1_kitty_decoder_1_1_stored_image" kindref="compound">StoredImage</ref> &gt;</type>
@@ -40,8 +40,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/KittyDecoder.h" line="157" column="24" bodyfile="terminal/KittyDecoder.h" bodystart="157" bodyend="-1"/>
-        <referencedby refid="classterminal_1_1_kitty_decoder_1ae7a67c183d5208962274bcb38981d156" compoundref="_kitty_decoder_8cpp" startline="340" endline="344">clear</referencedby>
-        <referencedby refid="classterminal_1_1_kitty_decoder_1aa9e64c41aa91c7794cc30a31e57bdac4" compoundref="_kitty_decoder_8cpp" startline="151" endline="329">process</referencedby>
+        <referencedby refid="classterminal_1_1_kitty_decoder_1ae7a67c183d5208962274bcb38981d156" compoundref="_kitty_decoder_8cpp" startline="288" endline="292">clear</referencedby>
+        <referencedby refid="classterminal_1_1_kitty_decoder_1aa9e64c41aa91c7794cc30a31e57bdac4" compoundref="_kitty_decoder_8cpp" startline="99" endline="277">process</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">
@@ -97,53 +97,19 @@
 </parameterlist>
 <simplesect kind="return"><para><ref refid="structterminal_1_1_kitty_decoder_1_1_result" kindref="compound">Result</ref> with <computeroutput>shouldDisplay=true</computeroutput> on final transmit+display. Returns a default-constructed <ref refid="structterminal_1_1_kitty_decoder_1_1_result" kindref="compound">Result</ref> otherwise (query, delete, or mid-chunk accumulation).</para>
 </simplesect>
-<simplesect kind="note"><para>READER THREAD only.</para>
-</simplesect>
-Parse steps:<orderedlist>
-<listitem><para>Parse key=value params from the region before <computeroutput>;</computeroutput>.</para>
-</listitem><listitem><para>Extract base64 payload from the region after <computeroutput>;</computeroutput>.</para>
-</listitem><listitem><para>Dispatch on <computeroutput>a=</computeroutput> action:<itemizedlist>
-<listitem><para>q (query): Return isQuery + response.</para>
-</listitem><listitem><para>d (delete): Clear storedImages, return isDelete.</para>
-</listitem><listitem><para>t (transmit-only): Accumulate chunks; on m=0, decode and store.</para>
-</listitem><listitem><para>T (transmit+display): Accumulate chunks; on m=0, decode and return with shouldDisplay.</para>
-</listitem><listitem><para>p (display stored): Look up storedImages[i], return shouldDisplay.</para>
-</listitem></itemizedlist>
-</para>
-</listitem></orderedlist>
-</para>
-<para><parameterlist kind="param"><parameteritem>
-<parameternamelist>
-<parametername>data</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>Raw APC payload bytes (everything after &apos;G&apos;). </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>length</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>Number of bytes. </para>
-</parameterdescription>
-</parameteritem>
-</parameterlist>
-<simplesect kind="return"><para><ref refid="structterminal_1_1_kitty_decoder_1_1_result" kindref="compound">Result</ref> for this payload. Defaults (shouldDisplay=false) for mid-sequence chunks and unrecognised actions.</para>
-</simplesect>
 <simplesect kind="note"><para>READER THREAD only. </para>
 </simplesect>
 </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/KittyDecoder.h" line="91" column="12" bodyfile="terminal/KittyDecoder.cpp" bodystart="151" bodyend="329"/>
-        <references refid="classterminal_1_1_kitty_decoder_1a3710aaa0e727f2e6321e347b955ad5bd" compoundref="_kitty_decoder_8cpp" startline="39" endline="64">accumulateChunk</references>
+        <location file="terminal/KittyDecoder.h" line="91" column="12" bodyfile="terminal/KittyDecoder.cpp" bodystart="99" bodyend="277"/>
+        <references refid="classterminal_1_1_kitty_decoder_1a3710aaa0e727f2e6321e347b955ad5bd" compoundref="_kitty_decoder_8cpp" startline="24" endline="49">accumulateChunk</references>
         <references refid="structterminal_1_1_kitty_decoder_1_1_kitty_params_1a2d17a256f7b2264402a684cd73d7fd3a" compoundref="_kitty_decoder_8h" startline="110" endline="110">terminal::KittyDecoder::KittyParams::action</references>
-        <references refid="classterminal_1_1_kitty_decoder_1a1d8911d4dbab86409f3d916650f5f9c6" compoundref="_kitty_decoder_decode_8cpp" startline="333" endline="345">buildKittyErrorResponse</references>
-        <references refid="classterminal_1_1_kitty_decoder_1a37e8aa99aea5e577b8c6c938a9936842" compoundref="_kitty_decoder_decode_8cpp" startline="301" endline="316">buildKittyResponse</references>
+        <references refid="classterminal_1_1_kitty_decoder_1a1d8911d4dbab86409f3d916650f5f9c6" compoundref="_kitty_decoder_decode_8cpp" startline="278" endline="290">buildKittyErrorResponse</references>
+        <references refid="classterminal_1_1_kitty_decoder_1a37e8aa99aea5e577b8c6c938a9936842" compoundref="_kitty_decoder_decode_8cpp" startline="246" endline="261">buildKittyResponse</references>
         <references refid="classterminal_1_1_kitty_decoder_1a3e23b6c0130a36864768e0a5f1e6847f" compoundref="_kitty_decoder_8h" startline="154">chunks</references>
-        <references refid="classterminal_1_1_kitty_decoder_1a34ed7e0aa33e4163e071759f6fc5a52e" compoundref="_kitty_decoder_8cpp" startline="87" endline="125">finalizeChunk</references>
+        <references refid="classterminal_1_1_kitty_decoder_1a34ed7e0aa33e4163e071759f6fc5a52e" compoundref="_kitty_decoder_8cpp" startline="55" endline="93">finalizeChunk</references>
         <references refid="group__juce__audio__plugin__client-Unity_1ga2ee4d4f298ba1bf1bc2f45c681c40ca3">h</references>
         <references refid="structterminal_1_1_kitty_decoder_1_1_chunk_accumulator_1ad618f200cfcc4f864e52da30230a1580" compoundref="_kitty_decoder_8h" startline="138" endline="138">terminal::KittyDecoder::ChunkAccumulator::hasMetadata</references>
         <references refid="structterminal_1_1_decoded_image_1a6963439c9ddc3ba3496a3aa4d17cb256" compoundref="_sixel_decoder_8h" startline="47" endline="47">terminal::DecodedImage::height</references>
@@ -156,7 +122,7 @@ Parse steps:<orderedlist>
         <references refid="structterminal_1_1_kitty_decoder_1_1_result_1ad5907c92a26ca54d1a72605a3e071a26" compoundref="_kitty_decoder_8h" startline="70" endline="70">terminal::KittyDecoder::Result::isVirtualPlacement</references>
         <references refid="structterminal_1_1_kitty_decoder_1_1_result_1a57c241ac7855214ca1b7caae0bd2e67e" compoundref="_kitty_decoder_8h" startline="73" endline="73">terminal::KittyDecoder::Result::kittyImageId</references>
         <references refid="structterminal_1_1_kitty_decoder_1_1_kitty_params_1a87716c5e87feb397fe8529453fcf423a" compoundref="_kitty_decoder_8h" startline="115" endline="115">terminal::KittyDecoder::KittyParams::more</references>
-        <references refid="classterminal_1_1_kitty_decoder_1a8d2d7444c9198c350c0d13edeb386232" compoundref="_kitty_decoder_decode_8cpp" startline="35" endline="102">parseKittyParams</references>
+        <references refid="classterminal_1_1_kitty_decoder_1a8d2d7444c9198c350c0d13edeb386232" compoundref="_kitty_decoder_decode_8cpp" startline="19" endline="86">parseKittyParams</references>
         <references refid="structterminal_1_1_kitty_decoder_1_1_kitty_params_1a0cc79703a356c2d1614dbf5b1b31afc4" compoundref="_kitty_decoder_8h" startline="121" endline="121">terminal::KittyDecoder::KittyParams::payloadStart</references>
         <references refid="structterminal_1_1_kitty_decoder_1_1_kitty_params_1ad6673de4eb4f8b5cb58562a180c04ea3" compoundref="_kitty_decoder_8h" startline="119" endline="119">terminal::KittyDecoder::KittyParams::placementCols</references>
         <references refid="structterminal_1_1_kitty_decoder_1_1_result_1aac135bedbd19160166cda4e95dda2a92" compoundref="_kitty_decoder_8h" startline="71" endline="71">terminal::KittyDecoder::Result::placementCols</references>
@@ -190,7 +156,7 @@ Parse steps:<orderedlist>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/KittyDecoder.h" line="98" column="10" bodyfile="terminal/KittyDecoder.cpp" bodystart="340" bodyend="344"/>
+        <location file="terminal/KittyDecoder.h" line="98" column="10" bodyfile="terminal/KittyDecoder.cpp" bodystart="288" bodyend="292"/>
         <references refid="classterminal_1_1_kitty_decoder_1a3e23b6c0130a36864768e0a5f1e6847f" compoundref="_kitty_decoder_8h" startline="154">chunks</references>
         <references refid="classterminal_1_1_kitty_decoder_1a54a3213f7f0d7d6ce00bad43c924f2cd" compoundref="_kitty_decoder_8h" startline="157">storedImages</references>
       </memberdef>
@@ -236,37 +202,13 @@ Parse steps:<orderedlist>
 </simplesect>
 <simplesect kind="note"><para>Pure function — no side effects. </para>
 </simplesect>
-<simplesect kind="note"><para>READER THREAD only.</para>
-</simplesect>
-Scans from byte 0 looking for comma-separated <computeroutput>key=value</computeroutput> pairs. Stops when a <computeroutput>;</computeroutput> delimiter is found (which marks the start of the base64 payload) or when <computeroutput>length</computeroutput> is exhausted. Single-character keys only; value is every character up to the next <computeroutput>,</computeroutput> or <computeroutput>;</computeroutput>.</para>
-<para><parameterlist kind="param"><parameteritem>
-<parameternamelist>
-<parametername>data</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>Pointer to APC payload bytes (everything after &apos;G&apos;). </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>length</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>Number of bytes. </para>
-</parameterdescription>
-</parameteritem>
-</parameterlist>
-<simplesect kind="return"><para>Populated <ref refid="structterminal_1_1_kitty_decoder_1_1_kitty_params" kindref="compound">KittyParams</ref>. <computeroutput>payloadStart</computeroutput> is set to the index after the <computeroutput>;</computeroutput> delimiter, or <computeroutput>length</computeroutput> if no <computeroutput>;</computeroutput> was found.</para>
-</simplesect>
-<simplesect kind="note"><para>Pure function — no side effects. </para>
-</simplesect>
 <simplesect kind="note"><para>READER THREAD only. </para>
 </simplesect>
 </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/KittyDecoder.h" line="175" column="24" bodyfile="terminal/KittyDecoderDecode.cpp" bodystart="35" bodyend="102"/>
+        <location file="terminal/KittyDecoder.h" line="175" column="24" bodyfile="terminal/KittyDecoderDecode.cpp" bodystart="19" bodyend="86"/>
         <references refid="structterminal_1_1_kitty_decoder_1_1_kitty_params_1a2d17a256f7b2264402a684cd73d7fd3a" compoundref="_kitty_decoder_8h" startline="110" endline="110">terminal::KittyDecoder::KittyParams::action</references>
         <references refid="structterminal_1_1_kitty_decoder_1_1_kitty_params_1a1c9e096560fa0262f3c0a2cf1692d7b7" compoundref="_kitty_decoder_8h" startline="116" endline="116">terminal::KittyDecoder::KittyParams::compressed</references>
         <references refid="structterminal_1_1_kitty_decoder_1_1_kitty_params_1a5301638670040ce8d7c9d43475916fc8" compoundref="_kitty_decoder_8h" startline="111" endline="111">terminal::KittyDecoder::KittyParams::format</references>
@@ -279,7 +221,7 @@ Scans from byte 0 looking for comma-separated <computeroutput>key=value</compute
         <references refid="structterminal_1_1_kitty_decoder_1_1_kitty_params_1a3b6e74dee42b912a47e3a74bc36d078e" compoundref="_kitty_decoder_8h" startline="120" endline="120">terminal::KittyDecoder::KittyParams::placementRows</references>
         <references refid="structterminal_1_1_kitty_decoder_1_1_kitty_params_1a2ae4be920e832704e94951e1b60e14f1" compoundref="_kitty_decoder_8h" startline="117" endline="117">terminal::KittyDecoder::KittyParams::quiet</references>
         <references refid="structterminal_1_1_kitty_decoder_1_1_kitty_params_1a889fc9ac484724ee3118055afaaaf27b" compoundref="_kitty_decoder_8h" startline="118" endline="118">terminal::KittyDecoder::KittyParams::virtualPlacement</references>
-        <referencedby refid="classterminal_1_1_kitty_decoder_1aa9e64c41aa91c7794cc30a31e57bdac4" compoundref="_kitty_decoder_8cpp" startline="151" endline="329">process</referencedby>
+        <referencedby refid="classterminal_1_1_kitty_decoder_1aa9e64c41aa91c7794cc30a31e57bdac4" compoundref="_kitty_decoder_8cpp" startline="99" endline="277">process</referencedby>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_kitty_decoder_1a37e8aa99aea5e577b8c6c938a9936842" prot="private" static="yes" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
         <type>juce::String</type>
@@ -331,44 +273,14 @@ Scans from byte 0 looking for comma-separated <computeroutput>key=value</compute
 </parameterlist>
 <simplesect kind="return"><para>APC-framed response string, or empty string if suppressed.</para>
 </simplesect>
-<simplesect kind="note"><para>Pure function — no side effects.</para>
-</simplesect>
-Returns an empty string when <computeroutput>quiet &gt;= 2</computeroutput> (suppress all). Returns an empty string when <computeroutput>quiet == 1</computeroutput> and <computeroutput>suppressOk</computeroutput> is true (suppress OK response). Otherwise returns the APC-framed OK response.</para>
-<para><parameterlist kind="param"><parameteritem>
-<parameternamelist>
-<parametername>imageId</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>Kitty image ID to embed in the response. </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>quiet</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>Quiet level from the <computeroutput>q=</computeroutput> parameter. </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>suppressOk</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>True to suppress OK-level responses (quiet=1 case). </para>
-</parameterdescription>
-</parameteritem>
-</parameterlist>
-<simplesect kind="return"><para>APC-framed response string, or empty string if suppressed.</para>
-</simplesect>
 <simplesect kind="note"><para>Pure function — no side effects. </para>
 </simplesect>
 </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/KittyDecoder.h" line="259" column="25" bodyfile="terminal/KittyDecoderDecode.cpp" bodystart="301" bodyend="316"/>
-        <referencedby refid="classterminal_1_1_kitty_decoder_1aa9e64c41aa91c7794cc30a31e57bdac4" compoundref="_kitty_decoder_8cpp" startline="151" endline="329">process</referencedby>
+        <location file="terminal/KittyDecoder.h" line="259" column="25" bodyfile="terminal/KittyDecoderDecode.cpp" bodystart="246" bodyend="261"/>
+        <referencedby refid="classterminal_1_1_kitty_decoder_1aa9e64c41aa91c7794cc30a31e57bdac4" compoundref="_kitty_decoder_8cpp" startline="99" endline="277">process</referencedby>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_kitty_decoder_1a1d8911d4dbab86409f3d916650f5f9c6" prot="private" static="yes" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
         <type>juce::String</type>
@@ -414,9 +326,9 @@ Returns an empty string when <computeroutput>quiet &gt;= 2</computeroutput> (sup
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/KittyDecoder.h" line="273" column="25" bodyfile="terminal/KittyDecoderDecode.cpp" bodystart="333" bodyend="345"/>
-        <referencedby refid="classterminal_1_1_kitty_decoder_1a34ed7e0aa33e4163e071759f6fc5a52e" compoundref="_kitty_decoder_8cpp" startline="87" endline="125">finalizeChunk</referencedby>
-        <referencedby refid="classterminal_1_1_kitty_decoder_1aa9e64c41aa91c7794cc30a31e57bdac4" compoundref="_kitty_decoder_8cpp" startline="151" endline="329">process</referencedby>
+        <location file="terminal/KittyDecoder.h" line="273" column="25" bodyfile="terminal/KittyDecoderDecode.cpp" bodystart="278" bodyend="290"/>
+        <referencedby refid="classterminal_1_1_kitty_decoder_1a34ed7e0aa33e4163e071759f6fc5a52e" compoundref="_kitty_decoder_8cpp" startline="55" endline="93">finalizeChunk</referencedby>
+        <referencedby refid="classterminal_1_1_kitty_decoder_1aa9e64c41aa91c7794cc30a31e57bdac4" compoundref="_kitty_decoder_8cpp" startline="99" endline="277">process</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="private-func">
@@ -454,7 +366,6 @@ Returns an empty string when <computeroutput>quiet &gt;= 2</computeroutput> (sup
 <para>Decode a Kitty image payload to RGBA8. </para>
         </briefdescription>
         <detaileddescription>
-<para>Decode a Kitty image payload to RGBA8 pixels.</para>
 <para>Performs base64 decode, optional zlib decompression, then pixel extraction per the given format.</para>
 <para><parameterlist kind="param"><parameteritem>
 <parameternamelist>
@@ -507,79 +418,13 @@ Returns an empty string when <computeroutput>quiet &gt;= 2</computeroutput> (sup
 </parameterlist>
 <simplesect kind="return"><para>Populated <ref refid="structterminal_1_1_decoded_image" kindref="compound">DecodedImage</ref> on success, or invalid on any failure.</para>
 </simplesect>
-<simplesect kind="note"><para>READER THREAD only.</para>
-</simplesect>
-Steps:<orderedlist>
-<listitem><para>Base64-decode the raw bytes via <computeroutput>juce::Base64::convertFromBase64()</computeroutput>.</para>
-</listitem><listitem><para>If compressed (o=z): decompress with <computeroutput><ref refid="classGZIPDecompressorInputStream" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">GZIPDecompressorInputStream</ref></computeroutput> (zlib).</para>
-</listitem><listitem><para>Auto-detect PNG/JPEG: if format is f=32 or f=24 AND dimensions are unknown (pixelWidth==0 or pixelHeight==0), inspect the magic bytes and override format to 100 so JUCE handles the container decode.</para>
-</listitem><listitem><para>Dispatch on format:<itemizedlist>
-<listitem><para>f=100 (PNG/JPEG/auto): JUCE image load → ARGB convert → swizzle + un-premultiply via swizzleARGBToRGBA.</para>
-</listitem><listitem><para>f=32 (RGBA): raw pixels, copy directly.</para>
-</listitem><listitem><para>f=24 (RGB): raw pixels, expand to RGBA (alpha=255).</para>
-</listitem></itemizedlist>
-</para>
-</listitem><listitem><para>Return populated <ref refid="structterminal_1_1_decoded_image" kindref="compound">DecodedImage</ref>, or invalid on any failure.</para>
-</listitem></orderedlist>
-</para>
-<para><parameterlist kind="param"><parameteritem>
-<parameternamelist>
-<parametername>base64Data</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>Pointer to base64-encoded bytes. </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>base64Length</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>Number of base64 bytes. </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>format</parametername>
-</parameternamelist>
-<parameterdescription>
-<para><ref refid="classImage" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Image</ref> format: 24=RGB, 32=RGBA, 100=PNG. </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>pixelWidth</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>Declared pixel width (required for f=24/32). </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>pixelHeight</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>Declared pixel height (required for f=24/32). </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>compressed</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>True if payload is zlib-compressed before base64. </para>
-</parameterdescription>
-</parameteritem>
-</parameterlist>
-<simplesect kind="return"><para>Populated <ref refid="structterminal_1_1_decoded_image" kindref="compound">DecodedImage</ref> on success, or invalid on any failure.</para>
-</simplesect>
 <simplesect kind="note"><para>READER THREAD only. </para>
 </simplesect>
 </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/KittyDecoder.h" line="193" column="18" bodyfile="terminal/KittyDecoderDecode.cpp" bodystart="133" bodyend="281"/>
+        <location file="terminal/KittyDecoder.h" line="193" column="18" bodyfile="terminal/KittyDecoderDecode.cpp" bodystart="92" bodyend="240"/>
         <references refid="group__juce__audio__plugin__client-Unity_1ga2ee4d4f298ba1bf1bc2f45c681c40ca3">h</references>
         <references refid="structterminal_1_1_decoded_image_1a6963439c9ddc3ba3496a3aa4d17cb256" compoundref="_sixel_decoder_8h" startline="47" endline="47">terminal::DecodedImage::height</references>
         <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682ca78805a221a988e79ef3f42d7c5bfd418">image</references>
@@ -588,7 +433,7 @@ Steps:<orderedlist>
         <references refid="namespaceterminal_1a7b9c9dd44feef553c5420b76fc8d54ad" compoundref="_image_decode_8cpp" startline="14" endline="68">terminal::swizzleARGBToRGBA</references>
         <references refid="group__juce__audio__plugin__client-Unity_1ga9c08bc30636cc52269cf06d61cf5d4e8">w</references>
         <references refid="structterminal_1_1_decoded_image_1ab6be4c1b32e9fcac20958a41bff9d017" compoundref="_sixel_decoder_8h" startline="46" endline="46">terminal::DecodedImage::width</references>
-        <referencedby refid="classterminal_1_1_kitty_decoder_1a34ed7e0aa33e4163e071759f6fc5a52e" compoundref="_kitty_decoder_8cpp" startline="87" endline="125">finalizeChunk</referencedby>
+        <referencedby refid="classterminal_1_1_kitty_decoder_1a34ed7e0aa33e4163e071759f6fc5a52e" compoundref="_kitty_decoder_8cpp" startline="55" endline="93">finalizeChunk</referencedby>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_kitty_decoder_1a3710aaa0e727f2e6321e347b955ad5bd" prot="private" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
         <type>void</type>
@@ -651,50 +496,14 @@ Steps:<orderedlist>
 </parameterdescription>
 </parameteritem>
 </parameterlist>
-<simplesect kind="note"><para>READER THREAD only.</para>
-</simplesect>
-On the first chunk for this image ID: records metadata from <computeroutput>p</computeroutput>. On subsequent chunks where new dimensions are provided: treats the accumulator as stale, resets its data, and records the fresh metadata. Appends <computeroutput>payloadPtr</computeroutput> / <computeroutput>payloadLen</computeroutput> to <computeroutput>acc.data</computeroutput> in both cases.</para>
-<para><parameterlist kind="param"><parameteritem>
-<parameternamelist>
-<parametername>acc</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>Chunk accumulator for this image ID. </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>p</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>Parsed key=value params from the current APC packet. </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>payloadPtr</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>Pointer to the base64 payload bytes. </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>payloadLen</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>Number of payload bytes.</para>
-</parameterdescription>
-</parameteritem>
-</parameterlist>
 <simplesect kind="note"><para>READER THREAD only. </para>
 </simplesect>
 </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/KittyDecoder.h" line="218" column="10" bodyfile="terminal/KittyDecoder.cpp" bodystart="39" bodyend="64"/>
-        <referencedby refid="classterminal_1_1_kitty_decoder_1aa9e64c41aa91c7794cc30a31e57bdac4" compoundref="_kitty_decoder_8cpp" startline="151" endline="329">process</referencedby>
+        <location file="terminal/KittyDecoder.h" line="218" column="10" bodyfile="terminal/KittyDecoder.cpp" bodystart="24" bodyend="49"/>
+        <referencedby refid="classterminal_1_1_kitty_decoder_1aa9e64c41aa91c7794cc30a31e57bdac4" compoundref="_kitty_decoder_8cpp" startline="99" endline="277">process</referencedby>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_kitty_decoder_1a34ed7e0aa33e4163e071759f6fc5a52e" prot="private" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
         <type><ref refid="structterminal_1_1_decoded_image" kindref="compound">DecodedImage</ref></type>
@@ -771,64 +580,18 @@ On the first chunk for this image ID: records metadata from <computeroutput>p</c
 </parameterlist>
 <simplesect kind="return"><para>Decoded image on success; invalid <ref refid="structterminal_1_1_decoded_image" kindref="compound">DecodedImage</ref> on failure.</para>
 </simplesect>
-<simplesect kind="note"><para>READER THREAD only.</para>
-</simplesect>
-Applies a metadata fallback for the single-chunk path (when <computeroutput>acc</computeroutput> has no metadata yet), appends any remaining payload bytes, then calls <computeroutput><ref refid="classterminal_1_1_kitty_decoder_1a69159f602564bc7ed146eb78c642ef87" kindref="member">decodePayload()</ref></computeroutput>. On decode failure writes an error response into <computeroutput>result</computeroutput>. Erases the accumulator from <computeroutput><ref refid="classterminal_1_1_kitty_decoder_1a3e23b6c0130a36864768e0a5f1e6847f" kindref="member">chunks</ref></computeroutput> regardless of outcome.</para>
-<para><parameterlist kind="param"><parameteritem>
-<parameternamelist>
-<parametername>acc</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>Chunk accumulator for this image ID. </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>p</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>Parsed key=value params from the current APC packet. </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>payloadPtr</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>Pointer to the final base64 payload bytes. </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>payloadLen</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>Number of payload bytes. </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>result</parametername>
-</parameternamelist>
-<parameterdescription>
-<para><ref refid="structterminal_1_1_kitty_decoder_1_1_result" kindref="compound">Result</ref> being built; receives the error response on failure. </para>
-</parameterdescription>
-</parameteritem>
-</parameterlist>
-<simplesect kind="return"><para>Decoded image on success; invalid <ref refid="structterminal_1_1_decoded_image" kindref="compound">DecodedImage</ref> on failure.</para>
-</simplesect>
 <simplesect kind="note"><para>READER THREAD only. </para>
 </simplesect>
 </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/KittyDecoder.h" line="241" column="18" bodyfile="terminal/KittyDecoder.cpp" bodystart="87" bodyend="125"/>
-        <references refid="classterminal_1_1_kitty_decoder_1a1d8911d4dbab86409f3d916650f5f9c6" compoundref="_kitty_decoder_decode_8cpp" startline="333" endline="345">buildKittyErrorResponse</references>
+        <location file="terminal/KittyDecoder.h" line="241" column="18" bodyfile="terminal/KittyDecoder.cpp" bodystart="55" bodyend="93"/>
+        <references refid="classterminal_1_1_kitty_decoder_1a1d8911d4dbab86409f3d916650f5f9c6" compoundref="_kitty_decoder_decode_8cpp" startline="278" endline="290">buildKittyErrorResponse</references>
         <references refid="classterminal_1_1_kitty_decoder_1a3e23b6c0130a36864768e0a5f1e6847f" compoundref="_kitty_decoder_8h" startline="154">chunks</references>
-        <references refid="classterminal_1_1_kitty_decoder_1a69159f602564bc7ed146eb78c642ef87" compoundref="_kitty_decoder_decode_8cpp" startline="133" endline="281">decodePayload</references>
+        <references refid="classterminal_1_1_kitty_decoder_1a69159f602564bc7ed146eb78c642ef87" compoundref="_kitty_decoder_decode_8cpp" startline="92" endline="240">decodePayload</references>
         <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682ca78805a221a988e79ef3f42d7c5bfd418">image</references>
-        <referencedby refid="classterminal_1_1_kitty_decoder_1aa9e64c41aa91c7794cc30a31e57bdac4" compoundref="_kitty_decoder_8cpp" startline="151" endline="329">process</referencedby>
+        <referencedby refid="classterminal_1_1_kitty_decoder_1aa9e64c41aa91c7794cc30a31e57bdac4" compoundref="_kitty_decoder_8cpp" startline="99" endline="277">process</referencedby>
       </memberdef>
     </sectiondef>
     <briefdescription>

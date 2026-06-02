@@ -131,7 +131,7 @@
 <para>Immutable descriptor for a single user-performable action. </para>
     </briefdescription>
     <detaileddescription>
-<para>Populated once via <computeroutput><ref refid="classaction_1_1_registry_1ad42f0b09f237c365063fa087c6c393c0" kindref="member">registerAction()</ref></computeroutput> and never modified afterwards. The <computeroutput><ref refid="structaction_1_1_registry_1_1_entry_1a5cc3a0259f7939a7d44b7ea4473871c1" kindref="member">shortcut</ref></computeroutput> field is the only member updated indirectly: it is re-resolved from Config during <computeroutput>buildKeyMap()</computeroutput>, but the <ref refid="structaction_1_1_registry_1_1_entry" kindref="compound">Entry</ref> itself is not mutated — the key maps are rebuilt from scratch. </para>
+<para>Populated once via <computeroutput><ref refid="classaction_1_1_registry_1ad42f0b09f237c365063fa087c6c393c0" kindref="member">registerAction()</ref></computeroutput> and never modified afterwards. The <computeroutput><ref refid="structaction_1_1_registry_1_1_entry_1a5cc3a0259f7939a7d44b7ea4473871c1" kindref="member">shortcut</ref></computeroutput> field is the only member updated indirectly: it is re-resolved from Config during <computeroutput><ref refid="classaction_1_1_registry_1a8064de18edb0abfc46f5b41a08f8d638" kindref="member">buildKeyMap()</ref></computeroutput>, but the <ref refid="structaction_1_1_registry_1_1_entry" kindref="compound">Entry</ref> itself is not mutated — the key maps are rebuilt from scratch. </para>
     </detaileddescription>
     <location file="terminal/action/Action.h" line="88" column="5" bodyfile="terminal/action/Action.h" bodystart="89" bodyend="116"/>
     <listofallmembers>

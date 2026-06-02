@@ -183,7 +183,7 @@ public:
      * Replaces the old Config-reading buildKeyMap. All binding data comes
      * from lua::Engine which parses keys.lua, popups.lua, and actions.lua.
      *
-     * @param prefixShortcut   The prefix key shortcut string (e.g. "`").
+     * @param prefixShortcut   The prefix key shortcut string (e.g. the backtick character).
      * @param prefixTimeout    Prefix timeout in milliseconds.
      * @param bindings         All key bindings (built-in, popup, custom).
      */

@@ -51,6 +51,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/action/Action.h" line="231" column="17" bodyfile="terminal/action/Action.h" bodystart="231" bodyend="-1"/>
+        <referencedby refid="classaction_1_1_registry_1a8064de18edb0abfc46f5b41a08f8d638" compoundref="_action_8cpp" startline="130" endline="167">buildKeyMap</referencedby>
         <referencedby refid="classaction_1_1_registry_1a01c6a9ecea9e1780a7e36c3ac4e7a909" compoundref="_action_8cpp" startline="114" endline="121">clear</referencedby>
         <referencedby refid="classaction_1_1_registry_1a9293bb3cd16657bb8f5f66a6d0c4a4c1" compoundref="_action_8cpp" startline="124" endline="127">getEntries</referencedby>
         <referencedby refid="classaction_1_1_registry_1a2231016d02d69811ca59394703f1ee12" compoundref="_action_8cpp" startline="39" endline="111">handleKeyPress</referencedby>
@@ -70,6 +71,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/action/Action.h" line="234" column="24" bodyfile="terminal/action/Action.h" bodystart="234" bodyend="-1"/>
+        <referencedby refid="classaction_1_1_registry_1a8064de18edb0abfc46f5b41a08f8d638" compoundref="_action_8cpp" startline="130" endline="167">buildKeyMap</referencedby>
         <referencedby refid="classaction_1_1_registry_1a01c6a9ecea9e1780a7e36c3ac4e7a909" compoundref="_action_8cpp" startline="114" endline="121">clear</referencedby>
         <referencedby refid="classaction_1_1_registry_1a2231016d02d69811ca59394703f1ee12" compoundref="_action_8cpp" startline="39" endline="111">handleKeyPress</referencedby>
       </memberdef>
@@ -87,6 +89,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/action/Action.h" line="237" column="24" bodyfile="terminal/action/Action.h" bodystart="237" bodyend="-1"/>
+        <referencedby refid="classaction_1_1_registry_1a8064de18edb0abfc46f5b41a08f8d638" compoundref="_action_8cpp" startline="130" endline="167">buildKeyMap</referencedby>
         <referencedby refid="classaction_1_1_registry_1a01c6a9ecea9e1780a7e36c3ac4e7a909" compoundref="_action_8cpp" startline="114" endline="121">clear</referencedby>
         <referencedby refid="classaction_1_1_registry_1a2231016d02d69811ca59394703f1ee12" compoundref="_action_8cpp" startline="39" endline="111">handleKeyPress</referencedby>
       </memberdef>
@@ -124,6 +127,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/action/Action.h" line="251" column="20" bodyfile="terminal/action/Action.h" bodystart="251" bodyend="-1"/>
+        <referencedby refid="classaction_1_1_registry_1a8064de18edb0abfc46f5b41a08f8d638" compoundref="_action_8cpp" startline="130" endline="167">buildKeyMap</referencedby>
         <referencedby refid="classaction_1_1_registry_1a2231016d02d69811ca59394703f1ee12" compoundref="_action_8cpp" startline="39" endline="111">handleKeyPress</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classaction_1_1_registry_1ac48bb89a0eab376950bc4c7d2c862eb0" prot="private" static="no" mutable="no">
@@ -141,6 +145,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/action/Action.h" line="254" column="9" bodyfile="terminal/action/Action.h" bodystart="254" bodyend="254"/>
+        <referencedby refid="classaction_1_1_registry_1a8064de18edb0abfc46f5b41a08f8d638" compoundref="_action_8cpp" startline="130" endline="167">buildKeyMap</referencedby>
         <referencedby refid="classaction_1_1_registry_1a2231016d02d69811ca59394703f1ee12" compoundref="_action_8cpp" startline="39" endline="111">handleKeyPress</referencedby>
       </memberdef>
     </sectiondef>
@@ -155,7 +160,7 @@
 <para>Constructs the registry. </para>
         </briefdescription>
         <detaileddescription>
-<para>Key map must be built after actions are registered via <computeroutput>buildKeyMap()</computeroutput>. </para>
+<para>Key map must be built after actions are registered via <computeroutput><ref refid="classaction_1_1_registry_1a8064de18edb0abfc46f5b41a08f8d638" kindref="member">buildKeyMap()</ref></computeroutput>. </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
@@ -344,12 +349,24 @@
         <references refid="classaction_1_1_registry_1a49411c88e0c43e1333a7d40e263e2b79" compoundref="_action_8h" startline="237">modalBindings</references>
         <references refid="classaction_1_1_registry_1adc381b3d69ef809e64230e3491e9e8d4" compoundref="_action_8h" startline="248" endline="248">prefixState</references>
       </memberdef>
-      <memberdef kind="function" id="classaction_1_1_registry_1a9293bb3cd16657bb8f5f66a6d0c4a4c1" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
-        <type>const std::vector&lt; <ref refid="structaction_1_1_registry_1_1_entry" kindref="compound">Entry</ref> &gt; &amp;</type>
-        <definition>const std::vector&lt; Registry::Entry &gt; &amp; action::Registry::getEntries</definition>
-        <argsstring>() const noexcept</argsstring>
-        <name>getEntries</name>
-        <qualifiedname>action::Registry::getEntries</qualifiedname>
+      <memberdef kind="function" id="classaction_1_1_registry_1a8064de18edb0abfc46f5b41a08f8d638" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void action::Registry::buildKeyMap</definition>
+        <argsstring>(const juce::String &amp;prefixShortcut, int prefixTimeout, const std::vector&lt; Binding &gt; &amp;bindings)</argsstring>
+        <name>buildKeyMap</name>
+        <qualifiedname>action::Registry::buildKeyMap</qualifiedname>
+        <param>
+          <type>const juce::String &amp;</type>
+          <declname>prefixShortcut</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>prefixTimeout</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; <ref refid="structaction_1_1_registry_1_1_binding" kindref="compound">Binding</ref> &gt; &amp;</type>
+          <declname>bindings</declname>
+        </param>
         <briefdescription>
 <para>Populates key maps from externally provided bindings. </para>
         </briefdescription>
@@ -360,7 +377,7 @@
 <parametername>prefixShortcut</parametername>
 </parameternamelist>
 <parameterdescription>
-<para>The prefix key shortcut string (e.g. &quot;`&quot;). </para>
+<para>The prefix key shortcut string (e.g. the backtick character). </para>
 </parameterdescription>
 </parameteritem>
 <parameteritem>
@@ -376,12 +393,33 @@
 <parametername>bindings</parametername>
 </parameternamelist>
 <parameterdescription>
-<para>All key bindings (built-in, popup, custom). */ void buildKeyMap (const juce::String&amp; prefixShortcut, int prefixTimeout, const std::vector&lt;Binding&gt;&amp; bindings);</para>
+<para>All key bindings (built-in, popup, custom). </para>
 </parameterdescription>
 </parameteritem>
 </parameterlist>
-/**</para>
-<para>Returns the full action table (read-only).</para>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/Action.h" line="190" column="10" bodyfile="terminal/action/Action.cpp" bodystart="130" bodyend="167"/>
+        <references refid="classaction_1_1_registry_1a0921dcccbdd21ed88d913076920a7708" compoundref="_action_8h" startline="231">entries</references>
+        <references refid="classaction_1_1_registry_1aeed00dcaf6ae66f1608b3d966c7599f5" compoundref="_action_8h" startline="234">globalBindings</references>
+        <references refid="classaction_1_1_registry_1a49411c88e0c43e1333a7d40e263e2b79" compoundref="_action_8h" startline="237">modalBindings</references>
+        <references refid="classaction_1_1_registry_1af372257d1327b42884e18285f2a8a8e2" compoundref="_action_8cpp" startline="170" endline="244">parseShortcut</references>
+        <references refid="classaction_1_1_registry_1ad6d4755e2636d32124eeca007dbe7f91" compoundref="_action_8h" startline="251">prefixKey</references>
+        <references refid="classaction_1_1_registry_1ac48bb89a0eab376950bc4c7d2c862eb0" compoundref="_action_8h" startline="254" endline="254">prefixTimeoutMs</references>
+        <referencedby refid="classlua_1_1_engine_1ac144ae5680da1b7c307bb15c8f87af80" compoundref="_engine_8cpp" startline="302" endline="329">lua::Engine::buildKeyMap</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classaction_1_1_registry_1a9293bb3cd16657bb8f5f66a6d0c4a4c1" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>const std::vector&lt; <ref refid="structaction_1_1_registry_1_1_entry" kindref="compound">Entry</ref> &gt; &amp;</type>
+        <definition>const std::vector&lt; Registry::Entry &gt; &amp; action::Registry::getEntries</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>getEntries</name>
+        <qualifiedname>action::Registry::getEntries</qualifiedname>
+        <briefdescription>
+<para>Returns the full action table (read-only). </para>
+        </briefdescription>
+        <detaileddescription>
 <para>Intended for the command palette / action list UI.</para>
 <para><simplesect kind="return"><para>Const reference to the internal entries vector. </para>
 </simplesect>
@@ -426,6 +464,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/action/Action.h" line="214" column="27" bodyfile="terminal/action/Action.cpp" bodystart="170" bodyend="244"/>
+        <referencedby refid="classaction_1_1_registry_1a8064de18edb0abfc46f5b41a08f8d638" compoundref="_action_8cpp" startline="130" endline="167">buildKeyMap</referencedby>
         <referencedby refid="classaction_1_1_list_1ab1563b5c6c86287d88a50b7230c157bd" compoundref="_action_list_8cpp" startline="141" endline="252">action::List::buildRows</referencedby>
         <referencedby refid="classlua_1_1_engine_1a66d36bb90d77ffe66a9c7e80853207ba" compoundref="_engine_parse_8cpp" startline="50" endline="101">lua::Engine::parseSelectionKeys</referencedby>
         <referencedby refid="classaction_1_1_registry_1ab459c431a149a647f9ed43f58e370198">Registry</referencedby>
@@ -554,6 +593,7 @@
     </collaborationgraph>
     <location file="terminal/action/Action.h" line="73" column="1" bodyfile="terminal/action/Action.h" bodystart="76" bodyend="266"/>
     <listofallmembers>
+      <member refid="classaction_1_1_registry_1a8064de18edb0abfc46f5b41a08f8d638" prot="public" virt="non-virtual"><scope>action::Registry</scope><name>buildKeyMap</name></member>
       <member refid="classaction_1_1_registry_1a01c6a9ecea9e1780a7e36c3ac4e7a909" prot="public" virt="non-virtual"><scope>action::Registry</scope><name>clear</name></member>
       <member refid="structjam_1_1_context_1a6e3f38a234db8ff2a9acb5986e72a2de" prot="public" virt="non-virtual"><scope>action::Registry</scope><name>Context</name></member>
       <member refid="classaction_1_1_registry_1a0921dcccbdd21ed88d913076920a7708" prot="private" virt="non-virtual"><scope>action::Registry</scope><name>entries</name></member>

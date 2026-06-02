@@ -18,8 +18,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/KittyDecoder.h" line="66" column="22" bodyfile="terminal/KittyDecoder.h" bodystart="66" bodyend="-1"/>
-        <referencedby refid="classterminal_1_1_kitty_decoder_1aa9e64c41aa91c7794cc30a31e57bdac4" compoundref="_kitty_decoder_8cpp" startline="151" endline="329">terminal::KittyDecoder::process</referencedby>
-        <referencedby refid="classterminal_1_1_skit_1a6afae3d2d2515ad4a1956815a6b7219e" compoundref="_skit_8cpp" startline="181" endline="260">terminal::Skit::processAPC</referencedby>
+        <referencedby refid="classterminal_1_1_kitty_decoder_1aa9e64c41aa91c7794cc30a31e57bdac4" compoundref="_kitty_decoder_8cpp" startline="99" endline="277">terminal::KittyDecoder::process</referencedby>
+        <referencedby refid="classterminal_1_1_skit_1a6afae3d2d2515ad4a1956815a6b7219e" compoundref="_skit_8cpp" startline="168" endline="247">terminal::Skit::processAPC</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structterminal_1_1_kitty_decoder_1_1_result_1ad41458cb2a400324fc6231e933a67791" prot="public" static="no" mutable="no">
         <type>bool</type>
@@ -36,8 +36,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/KittyDecoder.h" line="67" column="14" bodyfile="terminal/KittyDecoder.h" bodystart="67" bodyend="67"/>
-        <referencedby refid="classterminal_1_1_kitty_decoder_1aa9e64c41aa91c7794cc30a31e57bdac4" compoundref="_kitty_decoder_8cpp" startline="151" endline="329">terminal::KittyDecoder::process</referencedby>
-        <referencedby refid="classterminal_1_1_skit_1a6afae3d2d2515ad4a1956815a6b7219e" compoundref="_skit_8cpp" startline="181" endline="260">terminal::Skit::processAPC</referencedby>
+        <referencedby refid="classterminal_1_1_kitty_decoder_1aa9e64c41aa91c7794cc30a31e57bdac4" compoundref="_kitty_decoder_8cpp" startline="99" endline="277">terminal::KittyDecoder::process</referencedby>
+        <referencedby refid="classterminal_1_1_skit_1a6afae3d2d2515ad4a1956815a6b7219e" compoundref="_skit_8cpp" startline="168" endline="247">terminal::Skit::processAPC</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structterminal_1_1_kitty_decoder_1_1_result_1ad66233bb66b2ad4110e50df05e4cefa7" prot="public" static="no" mutable="no">
         <type>bool</type>
@@ -54,7 +54,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/KittyDecoder.h" line="68" column="14" bodyfile="terminal/KittyDecoder.h" bodystart="68" bodyend="68"/>
-        <referencedby refid="classterminal_1_1_kitty_decoder_1aa9e64c41aa91c7794cc30a31e57bdac4" compoundref="_kitty_decoder_8cpp" startline="151" endline="329">terminal::KittyDecoder::process</referencedby>
+        <referencedby refid="classterminal_1_1_kitty_decoder_1aa9e64c41aa91c7794cc30a31e57bdac4" compoundref="_kitty_decoder_8cpp" startline="99" endline="277">terminal::KittyDecoder::process</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structterminal_1_1_kitty_decoder_1_1_result_1abdbd6e6c9c5997e9382d2af999f68588" prot="public" static="no" mutable="no">
         <type>bool</type>
@@ -71,7 +71,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/KittyDecoder.h" line="69" column="14" bodyfile="terminal/KittyDecoder.h" bodystart="69" bodyend="69"/>
-        <referencedby refid="classterminal_1_1_kitty_decoder_1aa9e64c41aa91c7794cc30a31e57bdac4" compoundref="_kitty_decoder_8cpp" startline="151" endline="329">terminal::KittyDecoder::process</referencedby>
+        <referencedby refid="classterminal_1_1_kitty_decoder_1aa9e64c41aa91c7794cc30a31e57bdac4" compoundref="_kitty_decoder_8cpp" startline="99" endline="277">terminal::KittyDecoder::process</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structterminal_1_1_kitty_decoder_1_1_result_1ad5907c92a26ca54d1a72605a3e071a26" prot="public" static="no" mutable="no">
         <type>bool</type>
@@ -88,7 +88,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/KittyDecoder.h" line="70" column="14" bodyfile="terminal/KittyDecoder.h" bodystart="70" bodyend="70"/>
-        <referencedby refid="classterminal_1_1_kitty_decoder_1aa9e64c41aa91c7794cc30a31e57bdac4" compoundref="_kitty_decoder_8cpp" startline="151" endline="329">terminal::KittyDecoder::process</referencedby>
+        <referencedby refid="classterminal_1_1_kitty_decoder_1aa9e64c41aa91c7794cc30a31e57bdac4" compoundref="_kitty_decoder_8cpp" startline="99" endline="277">terminal::KittyDecoder::process</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structterminal_1_1_kitty_decoder_1_1_result_1aac135bedbd19160166cda4e95dda2a92" prot="public" static="no" mutable="no">
         <type>int</type>
@@ -105,7 +105,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/KittyDecoder.h" line="71" column="13" bodyfile="terminal/KittyDecoder.h" bodystart="71" bodyend="71"/>
-        <referencedby refid="classterminal_1_1_kitty_decoder_1aa9e64c41aa91c7794cc30a31e57bdac4" compoundref="_kitty_decoder_8cpp" startline="151" endline="329">terminal::KittyDecoder::process</referencedby>
+        <referencedby refid="classterminal_1_1_kitty_decoder_1aa9e64c41aa91c7794cc30a31e57bdac4" compoundref="_kitty_decoder_8cpp" startline="99" endline="277">terminal::KittyDecoder::process</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structterminal_1_1_kitty_decoder_1_1_result_1a4a390ec8e072778c35ca786a4c7f2349" prot="public" static="no" mutable="no">
         <type>int</type>
@@ -122,8 +122,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/KittyDecoder.h" line="72" column="13" bodyfile="terminal/KittyDecoder.h" bodystart="72" bodyend="72"/>
-        <referencedby refid="classterminal_1_1_kitty_decoder_1aa9e64c41aa91c7794cc30a31e57bdac4" compoundref="_kitty_decoder_8cpp" startline="151" endline="329">terminal::KittyDecoder::process</referencedby>
-        <referencedby refid="classterminal_1_1_skit_1a6afae3d2d2515ad4a1956815a6b7219e" compoundref="_skit_8cpp" startline="181" endline="260">terminal::Skit::processAPC</referencedby>
+        <referencedby refid="classterminal_1_1_kitty_decoder_1aa9e64c41aa91c7794cc30a31e57bdac4" compoundref="_kitty_decoder_8cpp" startline="99" endline="277">terminal::KittyDecoder::process</referencedby>
+        <referencedby refid="classterminal_1_1_skit_1a6afae3d2d2515ad4a1956815a6b7219e" compoundref="_skit_8cpp" startline="168" endline="247">terminal::Skit::processAPC</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structterminal_1_1_kitty_decoder_1_1_result_1a57c241ac7855214ca1b7caae0bd2e67e" prot="public" static="no" mutable="no">
         <type>uint32_t</type>
@@ -140,7 +140,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/KittyDecoder.h" line="73" column="18" bodyfile="terminal/KittyDecoder.h" bodystart="73" bodyend="73"/>
-        <referencedby refid="classterminal_1_1_kitty_decoder_1aa9e64c41aa91c7794cc30a31e57bdac4" compoundref="_kitty_decoder_8cpp" startline="151" endline="329">terminal::KittyDecoder::process</referencedby>
+        <referencedby refid="classterminal_1_1_kitty_decoder_1aa9e64c41aa91c7794cc30a31e57bdac4" compoundref="_kitty_decoder_8cpp" startline="99" endline="277">terminal::KittyDecoder::process</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structterminal_1_1_kitty_decoder_1_1_result_1af709136f3aeea21b82e3b6c0e674ae54" prot="public" static="no" mutable="no">
         <type>juce::String</type>
@@ -156,8 +156,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/KittyDecoder.h" line="74" column="22" bodyfile="terminal/KittyDecoder.h" bodystart="74" bodyend="-1"/>
-        <referencedby refid="classterminal_1_1_kitty_decoder_1aa9e64c41aa91c7794cc30a31e57bdac4" compoundref="_kitty_decoder_8cpp" startline="151" endline="329">terminal::KittyDecoder::process</referencedby>
-        <referencedby refid="classterminal_1_1_skit_1a6afae3d2d2515ad4a1956815a6b7219e" compoundref="_skit_8cpp" startline="181" endline="260">terminal::Skit::processAPC</referencedby>
+        <referencedby refid="classterminal_1_1_kitty_decoder_1aa9e64c41aa91c7794cc30a31e57bdac4" compoundref="_kitty_decoder_8cpp" startline="99" endline="277">terminal::KittyDecoder::process</referencedby>
+        <referencedby refid="classterminal_1_1_skit_1a6afae3d2d2515ad4a1956815a6b7219e" compoundref="_skit_8cpp" startline="168" endline="247">terminal::Skit::processAPC</referencedby>
       </memberdef>
     </sectiondef>
     <briefdescription>

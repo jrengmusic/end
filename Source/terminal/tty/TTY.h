@@ -78,8 +78,7 @@ public:
      * Creates the PTY pair, forks (Unix) or spawns (Windows) the shell, sets
      * the master fd to non-blocking, and starts the reader thread.
      *
-     * @param cols             Initial terminal width in character columns.
-     * @param rows             Initial terminal height in character rows.
+     * @param dims             Initial terminal dimensions (width × height in cells).
      * @param shell            Shell program name or absolute path (e.g. "zsh",
      *                         "/opt/homebrew/bin/fish").  Resolved via `$PATH` when
      *                         not an absolute path.
@@ -305,10 +304,8 @@ public:
      * syscalls and the resulting SIGWINCH / WINDOW_BUFFER_SIZE_EVENT when
      * callers fire on every JUCE layout pass.
      *
-     * @param cols        New terminal width in character columns.
-     * @param rows        New terminal height in character rows.
-     * @param pixelWidth  Total viewport width in physical pixels (0 if unknown).
-     * @param pixelHeight Total viewport height in physical pixels (0 if unknown).
+     * @param ws  New window size (cols, rows, pixel extents). Pass 0 for pixel
+     *            extents when the display has not yet been calibrated.
      *
      * @note MESSAGE THREAD.
      */

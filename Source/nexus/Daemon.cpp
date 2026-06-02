@@ -19,8 +19,8 @@ namespace nexus
 /**
  * @brief Constructs the Daemon with a reference to the owning Nexus instance.
  *
- * @param host_  Owning Nexus — passed through to each Channel and used for
- *               session list queries in buildSessionsPayload.
+ * @param host  Owning Nexus — passed through to each Channel and used for
+ *              session list queries in buildSessionsPayload.
  */
 Daemon::Daemon (Nexus& host)
     : nexus (host)
@@ -39,18 +39,6 @@ Daemon::~Daemon()
 
 // =============================================================================
 
-/**
- * @brief Starts listening and writes the bound port to AppModel.
- *
- * Calls `beginWaitingForSocket (port, "127.0.0.1")`.  After a successful
- * bind, `getBoundPort()` returns the actual port (useful when @p port == 0).
- * On success, calls `AppModel::getContext()->setPort(activePort)` which
- * persists the port to `~/.config/end/nexus/<uuid>.nexus`.
- *
- * @param port  Preferred port.  0 = OS-assigned.
- * @return `true` if the daemon started listening successfully.
- * @note NEXUS PROCESS MESSAGE THREAD.
- */
 bool Daemon::start (int port)
 {
     installPlatformProcessCleanup();
@@ -118,15 +106,6 @@ juce::InterprocessConnection* Daemon::createConnectionObject()
     return connections.add (std::make_unique<Channel> (*this, nexus)).get();
 }
 
-/**
- * @brief Removes and destroys the given Channel.
- *
- * Called from Channel::connectionLost() on the message thread.
- * Locates @p connection by raw pointer in the owner and removes (destroys) it.
- *
- * @param connection  Raw pointer to the connection to destroy.
- * @note NEXUS PROCESS MESSAGE THREAD.
- */
 void Daemon::removeConnection (Channel* connection)
 {
     const int index { connections.indexOf (connection) };
@@ -317,21 +296,6 @@ void Daemon::detachSession (const juce::String& uuid, Channel& connection)
 
 // =============================================================================
 
-/**
- * @brief Wires daemon-mode IPC callbacks on a newly created terminal::Session.
- *
- * Delegates to two helpers:
- * - wireOnBytes → `session.getProcessor().registerEvent<const char*, int> (id::bytesReceived, ...)`
- * - wireOnExit  → registers Daemon as VT listener on session State
- *
- * State updates (cwd, foregroundProcess) are broadcast from valueTreePropertyChanged.
- *
- * Called by Nexus::create (TTY overload) when an nexus::Daemon is attached.
- *
- * @param uuid     UUID of the session (used in closures for routing).
- * @param session  The terminal::Session to wire.
- * @note NEXUS PROCESS MESSAGE THREAD.
- */
 void Daemon::wireSessionCallbacks (const juce::String& uuid, terminal::Session& session)
 {
     wireOnBytes (uuid, session);
@@ -340,17 +304,6 @@ void Daemon::wireSessionCallbacks (const juce::String& uuid, terminal::Session& 
 
 // =============================================================================
 
-/**
- * @brief Registers id::bytesReceived on the session Processor to broadcast output PDUs to per-session subscribers.
- *
- * Builds a `Message::output` PDU (uuid prefix + raw bytes) and pushes it to
- * every Channel registered in the subscriber list for @p uuid.  The lambda runs
- * on the reader thread and acquires `connectionsLock` for the subscriber lookup.
- *
- * @param uuid     Session UUID used as the PDU routing key.
- * @param session  terminal::Session whose Processor receives the id::bytesReceived registration.
- * @note NEXUS PROCESS MESSAGE THREAD (called at wire time; lambda fires on READER THREAD).
- */
 void Daemon::wireOnBytes (const juce::String& uuid, terminal::Session& session)
 {
     jassert (session.getProcessor().getState().getRootTree().isValid());
@@ -374,18 +327,6 @@ void Daemon::wireOnBytes (const juce::String& uuid, terminal::Session& session)
 
 // =============================================================================
 
-/**
- * @brief Registers Daemon as a ValueTree::Listener on the session's State and maps
- *        the session root VT to @p uuid for routing in valueTreePropertyChanged.
- *
- * Inserts the session's State root into sessionStateRoots keyed by @p uuid,
- * then registers Daemon as a listener on that VT.  The actual exit handling
- * runs in valueTreePropertyChanged when shellExited is detected.
- *
- * @param uuid     Session UUID used as the PDU routing key.
- * @param session  terminal::Session whose State ValueTree is being listened to.
- * @note NEXUS PROCESS MESSAGE THREAD.
- */
 void Daemon::wireOnExit (const juce::String& uuid, terminal::Session& session)
 {
     jassert (session.getProcessor().getState().getRootTree().isValid());

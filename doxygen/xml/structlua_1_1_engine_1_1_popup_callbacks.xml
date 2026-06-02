@@ -18,7 +18,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="lua/Engine.h" line="958" column="13" bodyfile="lua/Engine.h" bodystart="958" bodyend="-1"/>
-        <referencedby refid="class_main_component_1a1fe9b104d3b6eb88315ace959285ead4" compoundref="_main_component_8cpp" startline="55" endline="216">MainComponent::MainComponent</referencedby>
+        <referencedby refid="class_main_component_1a1fe9b104d3b6eb88315ace959285ead4" compoundref="_main_component_8cpp" startline="54" endline="215">MainComponent::MainComponent</referencedby>
       </memberdef>
     </sectiondef>
     <briefdescription>

@@ -31,7 +31,7 @@ void Popup::show (juce::Component& caller,
     if (auto* terminal { dynamic_cast<terminal::Display*> (content.get()) })
     {
         popupSessionUuid = terminal->getComponentID();
-        watchedStateRoot = terminal->getValueTree();
+        watchedStateRoot = terminal->getProcessor().getState().getRootTree();
         watchedStateRoot.addListener (this);
     }
 

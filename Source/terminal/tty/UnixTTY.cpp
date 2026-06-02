@@ -57,6 +57,7 @@
  * @param shell            Shell program name or absolute path (C string, must outlive fork).
  * @param argv             Null-terminated argument vector (argv[0] = shell).
  * @param workingDirectory Optional working directory to chdir to before exec.
+ * @param shellEnvVars     Additional environment variable pairs to export in the child.
  *
  * @note Runs in the child process only.  Must not return.
  */
@@ -151,28 +152,6 @@ UnixTTY::~UnixTTY()
     close();
 }
 
-/**
- * @brief Open the PTY pair and spawn the shell process.
- *
- * @par Sequence
- * 1. Build a `winsize` struct from @p cols / @p rows.
- * 2. `openpty()` — allocate master and slave fds with the initial window size.
- * 3. Convert @p shell and @p workingDirectory to C strings (must happen before `fork()`).
- * 4. `fork()` — child calls `runChildProcess()`; parent continues.
- * 5. Parent closes the slave fd (only the child needs it).
- * 6. `fcntl(O_NONBLOCK)` — make the master fd non-blocking for the reader thread.
- * 7. `startThread()` — begin the TTY reader loop.
- *
- * @param cols             Initial terminal width in character columns.
- * @param rows             Initial terminal height in character rows.
- * @param shell            Shell program name or absolute path.  Resolved via `$PATH`
- *                         using `execvp()` when not absolute.
- * @param args             Space-separated arguments for the shell (e.g. "-l").
- * @param workingDirectory Optional initial working directory for the shell.
- * @return                 `true` on success; `false` if `openpty()` or `fork()` fails.
- *
- * @note MESSAGE THREAD context.
- */
 bool UnixTTY::open (jam::Cell::Rectangle dims, const juce::String& shell,
                     const juce::String& args, const juce::String& workingDirectory)
 {
@@ -298,22 +277,6 @@ bool UnixTTY::isRunning() const
     return running;
 }
 
-/**
- * @brief Read available bytes from the PTY master fd.
- *
- * The master fd is `O_NONBLOCK`.  Maps POSIX `read()` return values to the
- * TTY contract:
- * - `n > 0` → return n (bytes read)
- * - `n == 0` → return -1 (EOF — PTY closed)
- * - `errno == EAGAIN / EWOULDBLOCK` → return 0 (no data yet)
- * - other error → return -1 (treat as EOF / fatal)
- *
- * @param buf       Destination buffer.
- * @param maxBytes  Maximum bytes to read.
- * @return          Bytes read (> 0), 0 if no data available, -1 on EOF or error.
- *
- * @note READER THREAD context.
- */
 int UnixTTY::read (char* buf, int maxBytes)
 {
     const ssize_t n { ::read (master, buf, maxBytes) };
@@ -336,19 +299,6 @@ int UnixTTY::read (char* buf, int maxBytes)
     return result;
 }
 
-/**
- * @brief Write bytes to the PTY master fd (keyboard input to the shell).
- *
- * Retries on partial writes and EAGAIN/EWOULDBLOCK until all bytes are
- * delivered or an unrecoverable error occurs.  This prevents bracketed
- * paste sequences from being truncated when the PTY kernel buffer is full.
- *
- * @param buf  Data to write.
- * @param len  Number of bytes.
- * @return     `true` if all bytes were written successfully.
- *
- * @note MESSAGE THREAD context.
- */
 bool UnixTTY::write (const char* buf, int len)
 {
     int written { 0 };
@@ -375,26 +325,6 @@ bool UnixTTY::write (const char* buf, int len)
     return success;
 }
 
-/**
- * @brief Notify the kernel PTY of a new window size via ioctl and SIGWINCH.
- *
- * Skipped when @p cols / @p rows match the last successful call.
- * When dims change, updates the kernel `winsize` record via `TIOCSWINSZ`,
- * including physical pixel extents in `ws_xpixel` / `ws_ypixel` so that
- * pixel-aware programs (e.g. chafa) can determine cell size by querying
- * `CSI 14 t` or `CSI 16 t` directly from the kernel.  Sends `SIGWINCH` to
- * the child process so the shell and any foreground TUI application can
- * re-query the size.
- *
- * @param cols        New terminal width in character columns.
- * @param rows        New terminal height in character rows.
- * @param pixelWidth  Total viewport width in physical pixels (`ws_xpixel`).
- *                    Pass 0 when the display has not yet been calibrated.
- * @param pixelHeight Total viewport height in physical pixels (`ws_ypixel`).
- *                    Pass 0 when the display has not yet been calibrated.
- *
- * @note MESSAGE THREAD context.
- */
 void UnixTTY::setWinsize (terminal::Winsize ws)
 {
     if (ws.cols != lastResizeCols or ws.rows != lastResizeRows)
@@ -416,19 +346,6 @@ void UnixTTY::setWinsize (terminal::Winsize ws)
     }
 }
 
-/**
- * @brief Block until data is available on the master fd or the timeout expires.
- *
- * Uses `poll()` with `POLLIN` on the master fd.  A 100 ms timeout (the value
- * passed by TTY::run) keeps the reader thread responsive to resize requests
- * and thread-exit signals without burning CPU.
- *
- * @param timeoutMs  Maximum wait time in milliseconds.
- * @return           `true` if `POLLIN` is set on the master fd; `false` on
- *                   timeout, error, or if the master fd is not open.
- *
- * @note READER THREAD context.
- */
 bool UnixTTY::waitForData (int timeoutMs)
 {
     bool result { false };

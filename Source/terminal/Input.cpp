@@ -167,7 +167,7 @@ bool Input::handleSelectionKey (const juce::KeyPress& key) noexcept
 
                 if (current == terminal::SelectionType::none)
                 {
-                    const terminal::CursorState vbCursor { terminal::CursorState::unpack (static_cast<int> (jam::Model::getValueFromChildWithID (selScreenNode, id::cursor).getValue())) };
+                    const terminal::CursorState vbCursor { terminal::CursorState::unpack (static_cast<int> (jam::ValueTree::getValueFromChildWithID (selScreenNode, id::cursor).getValue())) };
                     node.setProperty (anchorRowId,    vbCursor.row, nullptr);
                     node.setProperty (anchorColId,    vbCursor.col, nullptr);
                     node.setProperty (selCursorRowId, vbCursor.row, nullptr);
@@ -210,7 +210,7 @@ bool Input::handleSelectionKey (const juce::KeyPress& key) noexcept
 
                 if (current == terminal::SelectionType::none)
                 {
-                    const terminal::CursorState vlCursor { terminal::CursorState::unpack (static_cast<int> (jam::Model::getValueFromChildWithID (selScreenNode, id::cursor).getValue())) };
+                    const terminal::CursorState vlCursor { terminal::CursorState::unpack (static_cast<int> (jam::ValueTree::getValueFromChildWithID (selScreenNode, id::cursor).getValue())) };
                     node.setProperty (anchorRowId,    vlCursor.row, nullptr);
                     node.setProperty (anchorColId,    0,            nullptr);
                     node.setProperty (selCursorRowId, vlCursor.row, nullptr);
@@ -233,7 +233,7 @@ bool Input::handleSelectionKey (const juce::KeyPress& key) noexcept
 
                 if (current == terminal::SelectionType::none)
                 {
-                    const terminal::CursorState vCursor { terminal::CursorState::unpack (static_cast<int> (jam::Model::getValueFromChildWithID (selScreenNode, id::cursor).getValue())) };
+                    const terminal::CursorState vCursor { terminal::CursorState::unpack (static_cast<int> (jam::ValueTree::getValueFromChildWithID (selScreenNode, id::cursor).getValue())) };
                     node.setProperty (anchorRowId,    vCursor.row, nullptr);
                     node.setProperty (anchorColId,    vCursor.col, nullptr);
                     node.setProperty (selCursorRowId, vCursor.row, nullptr);

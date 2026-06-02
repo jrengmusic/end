@@ -144,8 +144,7 @@ public:
      *
      * @param cwd   Initial working directory.  Empty = inherit.
      * @param uuid  Explicit UUID to assign.  Must be non-empty.
-     * @param cols  Initial column count.  Must be > 0.
-     * @param rows  Initial row count.  Must be > 0.
+     * @param dims  Terminal dimensions (cols × rows). Must be valid and > 0.
      * @return Mutable reference to the terminal::Session (use getProcessor() for the Processor).
      * @note NEXUS PROCESS MESSAGE THREAD.
      */

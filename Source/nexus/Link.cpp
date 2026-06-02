@@ -354,7 +354,7 @@ void Link::handleSessionKilled (const uint8_t* payload, int payloadSize)
     if (uuid.isNotEmpty())
     {
         auto sessionsNode { AppModel::getContext()->getSessionsNode() };
-        auto exitedSession { jam::Model::getChildWithID (sessionsNode, uuid) };
+        auto exitedSession { jam::ValueTree::getChildWithID (sessionsNode, uuid) };
 
         if (exitedSession.isValid())
             exitedSession.getParent().removeChild (exitedSession, nullptr);

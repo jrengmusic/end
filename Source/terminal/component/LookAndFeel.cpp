@@ -212,19 +212,6 @@ juce::Font LookAndFeel::getPopupMenuFont()
                             .withPointHeight (cfg->display.tab.size) };
 }
 
-/**
- * @brief Dispatches text button fonts via component property inspection.
- *
- * Reads the `font` property from the button's property map.  A value equal to
- * `jam::ID::name` selects the action list name font (same branch as
- * getLabelFont's `name`-role path).  All other buttons fall back to the
- * configured tab font at 60 % of the button height.
- *
- * @param button       The text button being queried.
- * @param buttonHeight The button height in pixels.
- * @return             The resolved font for the given button.
- * @note MESSAGE THREAD.
- */
 juce::Font LookAndFeel::getTextButtonFont (juce::TextButton& button, int buttonHeight)
 {
     const auto* cfg { lua::Engine::getContext() };
@@ -243,18 +230,6 @@ juce::Font LookAndFeel::getTextButtonFont (juce::TextButton& button, int buttonH
     return result;
 }
 
-/**
- * @brief Dispatches label fonts via component property inspection.
- *
- * Reads the `font` property from the label's property map.  A value equal to
- * `jam::ID::name` selects the action list name font; a value equal to
- * `jam::ID::keyPress` selects the action list shortcut font.  All other labels
- * fall back to LookAndFeel_V4 default behaviour.
- *
- * @param label  The label being queried.
- * @return       The resolved font for the given label.
- * @note MESSAGE THREAD.
- */
 juce::Font LookAndFeel::getLabelFont (juce::Label& label)
 {
     juce::Font result { juce::LookAndFeel_V4::getLabelFont (label) };

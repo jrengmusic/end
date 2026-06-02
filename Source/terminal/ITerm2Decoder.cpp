@@ -15,25 +15,6 @@ namespace terminal
 // ITerm2Decoder::decode
 // ============================================================================
 
-/**
- * @brief Decode an OSC 1337 File= payload into an ImageSequence.
- *
- * Parse steps:
- *  1. Validate and skip the "File=" prefix.
- *  2. Scan key=value params up to the ':' delimiter, extracting `inline`.
- *  3. Return invalid when `inline != 1`.
- *  4. Base64-decode everything after ':'.
- *  5. Attempt native multi-frame decode via `loadImageSequenceNative`.
- *  6. If native decode fails, fall back to JUCE `ImageFileFormat::loadFrom`
- *     followed by `swizzleARGBToRGBA` to produce a single-frame sequence.
- *  7. Return the ImageSequence.
- *
- * @param data    Raw OSC payload bytes after "1337;".
- * @param length  Number of bytes.
- * @return ImageSequence with RGBA8 pixels, or invalid on any failure.
- *
- * @note READER THREAD only.
- */
 ImageSequence ITerm2Decoder::decode (const uint8_t* data, int length) noexcept
 {
     ImageSequence result;

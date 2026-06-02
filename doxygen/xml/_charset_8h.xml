@@ -410,7 +410,7 @@
 <codeline lineno="28"><highlight class="normal">{</highlight></codeline>
 <codeline lineno="29"><highlight class="normal"></highlight><highlight class="comment">/*____________________________________________________________________________*/</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="30"><highlight class="normal"></highlight></codeline>
-<codeline lineno="49"><highlight class="normal"></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">constexpr</highlight><highlight class="normal"><sp/>std::array&lt;uint32_t,<sp/>32&gt;<sp/>DEC_LINE_DRAWING</highlight></codeline>
+<codeline lineno="49" refid="namespaceterminal_1ae94065e2814123f68d41ee5b3d1ca68d" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">constexpr</highlight><highlight class="normal"><sp/>std::array&lt;uint32_t,<sp/>32&gt;<sp/><ref refid="namespaceterminal_1ae94065e2814123f68d41ee5b3d1ca68d" kindref="member">DEC_LINE_DRAWING</ref></highlight></codeline>
 <codeline lineno="50"><highlight class="normal">{</highlight></codeline>
 <codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/>0x25C6,<sp/>0x2592,<sp/>0x2409,<sp/>0x240C,<sp/>0x240D,<sp/>0x240A,<sp/>0x00B0,<sp/>0x00B1,</highlight></codeline>
 <codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/>0x2424,<sp/>0x240B,<sp/>0x2518,<sp/>0x2510,<sp/>0x250C,<sp/>0x2514,<sp/>0x253C,<sp/>0x23BA,</highlight></codeline>
@@ -424,7 +424,7 @@
 <codeline lineno="80"><highlight class="normal"></highlight></codeline>
 <codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(lineDrawing<sp/>and<sp/>codepoint<sp/>&gt;=<sp/>0x60<sp/>and<sp/>codepoint<sp/>&lt;=<sp/>0x7E)</highlight></codeline>
 <codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
-<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/>DEC_LINE_DRAWING.at<sp/>(codepoint<sp/>-<sp/>0x60);</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/><ref refid="namespaceterminal_1ae94065e2814123f68d41ee5b3d1ca68d" kindref="member">DEC_LINE_DRAWING</ref>.at<sp/>(codepoint<sp/>-<sp/>0x60);</highlight></codeline>
 <codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
 <codeline lineno="85"><highlight class="normal"></highlight></codeline>
 <codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>result;</highlight></codeline>

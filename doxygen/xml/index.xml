@@ -263,6 +263,7 @@
     <member refid="structwhelmed_1_1_table_block_1_1_colour_scheme_1a56838261a5279c1d3537e210a933af89" kind="variable"><name>cellText</name></member>
   </compound>
   <compound refid="classwhelmed_1_1_component" kind="class"><name>whelmed::Component</name>
+    <member refid="classwhelmed_1_1_component_1a3382319ca77bd3fd529003683a9aeec2" kind="variable"><name>documentAttachment</name></member>
     <member refid="classwhelmed_1_1_component_1a6785371364f21ac36c7cf39e155a4f08" kind="variable"><name>docState</name></member>
     <member refid="classwhelmed_1_1_component_1a8e3953bddc99a229d57063cc096b3686" kind="variable"><name>state</name></member>
     <member refid="classwhelmed_1_1_component_1a8e96d42e97ced5ad89bfc77e02f6b95d" kind="variable"><name>parser</name></member>
@@ -283,7 +284,8 @@
     <member refid="classwhelmed_1_1_component_1a86f04f40924c6a7c074d4200c95f7377" kind="function"><name>enterSelectionMode</name></member>
     <member refid="classwhelmed_1_1_component_1abd70119f118c4b0e82842f01129d8c0a" kind="function"><name>copySelection</name></member>
     <member refid="classwhelmed_1_1_component_1a25ca3a9b8aeb7f125d2ca8c46851743a" kind="function"><name>hasSelection</name></member>
-    <member refid="classwhelmed_1_1_component_1af53695aa06057aeac931fb7c8c6cfcaf" kind="function"><name>getValueTree</name></member>
+    <member refid="classwhelmed_1_1_component_1a482d97622a31a99d3c7a7e528585c35b" kind="function"><name>getDocumentTree</name></member>
+    <member refid="classwhelmed_1_1_component_1a05a7199a25806394c1dcc70afaf5ad16" kind="function"><name>graftDocumentInto</name></member>
     <member refid="classwhelmed_1_1_component_1a2940a683822f0f372d38b8f285237d5c" kind="function"><name>applyFromAppModel</name></member>
     <member refid="classwhelmed_1_1_component_1ab33051f05dd5e6585dc190b4fb0b733b" kind="function"><name>valueTreePropertyChanged</name></member>
   </compound>
@@ -494,7 +496,7 @@
     <member refid="classterminal_1_1_display_1a84cccc586dafd4010281887d9c5a8a86" kind="variable"><name>session</name></member>
     <member refid="classterminal_1_1_display_1ac9742b57e514bca8ba57639a1b28928f" kind="variable"><name>processor</name></member>
     <member refid="classterminal_1_1_display_1ab4df5fcfe2827a6f52aaae7d48935bb7" kind="variable"><name>state</name></member>
-    <member refid="classterminal_1_1_display_1af0d7d75128d9a9bc0a62e430a94d737c" kind="variable"><name>attachment</name></member>
+    <member refid="classterminal_1_1_display_1a7eac961b34ffac9bb911f6702561fd7e" kind="variable"><name>attachment</name></member>
     <member refid="classterminal_1_1_display_1a433ce38b90249658cdee6201a0cd0b86" kind="variable"><name>liveTailExtent</name></member>
     <member refid="classterminal_1_1_display_1aa29d50a3ba2b5ac9b6a1f6921189f31b" kind="variable"><name>linkManager</name></member>
     <member refid="classterminal_1_1_display_1a56902129be2ac08d4fd6b026387f3c30" kind="variable"><name>input</name></member>
@@ -503,7 +505,6 @@
     <member refid="classterminal_1_1_display_1aba2b9e271d38ad4e5268333aaac31d8d" kind="function"><name>Display</name></member>
     <member refid="classterminal_1_1_display_1a33d13f29e268c4641b6d79f077bab78a" kind="function"><name>~Display</name></member>
     <member refid="classterminal_1_1_display_1afb467cdeee6e7bed23e32fcc1a31be38" kind="function"><name>getPaneType</name></member>
-    <member refid="classterminal_1_1_display_1a2f1c265247307e3189f1b639c7a38361" kind="function"><name>getValueTree</name></member>
     <member refid="classterminal_1_1_display_1aaafdfb7ab2395946be6b70e0e189bcf8" kind="function"><name>applyZoom</name></member>
     <member refid="classterminal_1_1_display_1a51e40f907d1725afc433513c8b5e2bc1" kind="function"><name>enterSelectionMode</name></member>
     <member refid="classterminal_1_1_display_1a22a44a31c7bc528a6a584408ddfc7cf8" kind="function"><name>copySelection</name></member>
@@ -799,6 +800,8 @@
     <member refid="structterminal_1_1_keyboard_1ab8e828d9d60df1a92c6dc16fc2476873" kind="function"><name>modifierCode</name></member>
     <member refid="structterminal_1_1_keyboard_1afa9cf634fe512cbd987b97d8ff1c56f8" kind="function"><name>encodeCsiU</name></member>
     <member refid="structterminal_1_1_keyboard_1acbf0a12222fecd9e71ab16d1945ac7a3" kind="function"><name>shouldUseCsiU</name></member>
+    <member refid="structterminal_1_1_keyboard_1a3b1743e192a935f9bcd02176356bd153" kind="function"><name>isTextKey</name></member>
+    <member refid="structterminal_1_1_keyboard_1aed0a25c2589f2672c2d1a93d71d0bca2" kind="function"><name>cursorKey</name></member>
     <member refid="structterminal_1_1_keyboard_1a08b40cc6b39e2fca6756dabe9b39b46a" kind="function"><name>functionKey</name></member>
     <member refid="structterminal_1_1_keyboard_1ab20318d26cba31889f6cb38ef48995e1" kind="function"><name>editingKey</name></member>
   </compound>
@@ -819,6 +822,10 @@
     <member refid="structlua_1_1_engine_1_1_key_mapping_1a931a16ba333c1e38acda59172aaee151" kind="variable"><name>isModal</name></member>
   </compound>
   <compound refid="structlua_1_1_engine_1_1_keys" kind="struct"><name>lua::Engine::Keys</name>
+    <member refid="structlua_1_1_engine_1_1_keys_1aee5fe8a4d97b7219d8c4bd7752615c58" kind="variable"><name>prefix</name></member>
+    <member refid="structlua_1_1_engine_1_1_keys_1a734505d6e2ec86eafe4aa71cc8bd988f" kind="variable"><name>prefixTimeout</name></member>
+    <member refid="structlua_1_1_engine_1_1_keys_1afb89757287d37b3b14d08d6df7e64f5e" kind="variable"><name>bindings</name></member>
+    <member refid="structlua_1_1_engine_1_1_keys_1acfff04ddb56741df32f6092c1fea73f2" kind="variable"><name>selection</name></member>
   </compound>
   <compound refid="classterminal_1_1_kitty_decoder" kind="class"><name>terminal::KittyDecoder</name>
     <member refid="classterminal_1_1_kitty_decoder_1a3e23b6c0130a36864768e0a5f1e6847f" kind="variable"><name>chunks</name></member>
@@ -1344,19 +1351,8 @@
     <member refid="structlua_1_1_engine_1_1_display_1_1_pane_1a6f2bc93e7f5d09034ebed6baf6201bd5" kind="variable"><name>barColour</name></member>
     <member refid="structlua_1_1_engine_1_1_display_1_1_pane_1aa117515e820e15957102471807752d07" kind="variable"><name>barHighlight</name></member>
   </compound>
-  <compound refid="class_pane_component" kind="class"><name>PaneComponent</name>
-    <member refid="class_pane_component_1af5de35725b5161afb926fd6923417600" kind="function"><name>PaneComponent</name></member>
-    <member refid="class_pane_component_1ae14089c7d24e0f809a55cc6f7e56aa98" kind="function"><name>~PaneComponent</name></member>
-    <member refid="class_pane_component_1ac96c887b7a0f09f129a6c258b710f0b1" kind="function"><name>focusGained</name></member>
-    <member refid="class_pane_component_1a1c77b11fdb0a53c438872fc7ec03553d" kind="function"><name>getPaneType</name></member>
-    <member refid="class_pane_component_1a00cf3614e041e534cf0c631df573c5cb" kind="function"><name>getValueTree</name></member>
-    <member refid="class_pane_component_1a5754a5ad90eff33aefeaf972e609ac06" kind="function"><name>applyZoom</name></member>
-    <member refid="class_pane_component_1aa1f15568c84debd32630ccfba2aa2801" kind="function"><name>enterSelectionMode</name></member>
-    <member refid="class_pane_component_1a9ef4d9180f4618bfa92727a1191659b8" kind="function"><name>copySelection</name></member>
-    <member refid="class_pane_component_1a24ffa54e82c421a664da37f7aee799c8" kind="function"><name>hasSelection</name></member>
-  </compound>
   <compound refid="classterminal_1_1_panes" kind="class"><name>terminal::Panes</name>
-    <member refid="classterminal_1_1_panes_1ab30348b8721efd203c2475500da1e84c" kind="variable"><name>panes</name></member>
+    <member refid="classterminal_1_1_panes_1a92e830507d3791c610edb752f9436fd0" kind="variable"><name>panes</name></member>
     <member refid="classterminal_1_1_panes_1a1a0aafbe9647720713c2c25a56583398" kind="variable"><name>paneManager</name></member>
     <member refid="classterminal_1_1_panes_1af57f298d699f5b8f235fbfa08db7a061" kind="variable"><name>resizerBars</name></member>
     <member refid="classterminal_1_1_panes_1a8f08d295d7a65b3a411d3bd21486931b" kind="variable"><name>sessionStateTrees</name></member>
@@ -1366,7 +1362,7 @@
     <member refid="classterminal_1_1_panes_1ad789e421f3f053d4acc0393b6a0113eb" kind="function"><name>createWhelmed</name></member>
     <member refid="classterminal_1_1_panes_1a545b7ac2fc793c6d53763d94ac31bc13" kind="function"><name>closeWhelmed</name></member>
     <member refid="classterminal_1_1_panes_1a70d784186f382abaca5ca5712de25b0f" kind="function"><name>isEmpty</name></member>
-    <member refid="classterminal_1_1_panes_1aa97dddb32216283d752434f70e10dcc5" kind="function"><name>getPanes</name></member>
+    <member refid="classterminal_1_1_panes_1abe18f6e6e0a26157ecfd131c32567a35" kind="function"><name>getPanes</name></member>
     <member refid="classterminal_1_1_panes_1afff2c75cecbe22591842bdb6eda8cc61" kind="function"><name>getState</name></member>
     <member refid="classterminal_1_1_panes_1a44a61d2e4234947bee7481e31eb583d8" kind="function"><name>closePane</name></member>
     <member refid="classterminal_1_1_panes_1a84ce2b04c95990c03a7f21f76da89dbc" kind="function"><name>splitAt</name></member>
@@ -1388,6 +1384,16 @@
     <member refid="struct_map_1_1_pane_type_1a26b29bb01d0ebc96052d9f071b2794cea18f46a8540c5418cc6372fb1e7b83d92" kind="enumvalue"><name>document</name></member>
     <member refid="struct_map_1_1_pane_type_1aee1446f017f2c3c41e5c2a4b9089f24b" kind="function"><name>PaneType</name></member>
     <member refid="struct_map_1_1_pane_type_1a9a2d36037f89e9eba79ed23a5ddcb781" kind="function"><name>getDefault</name></member>
+  </compound>
+  <compound refid="class_pane_view" kind="class"><name>PaneView</name>
+    <member refid="class_pane_view_1aca153b6096a1356c483d81f2dc081491" kind="function"><name>PaneView</name></member>
+    <member refid="class_pane_view_1ac9f88cfd0c1888888e26a1a1e7a18a1f" kind="function"><name>~PaneView</name></member>
+    <member refid="class_pane_view_1a3c036edb5c5db2ef9ab0a5e807b95bcf" kind="function"><name>focusGained</name></member>
+    <member refid="class_pane_view_1ae57da3aa6719f166963269be19d81ef2" kind="function"><name>getPaneType</name></member>
+    <member refid="class_pane_view_1a5dc13a70b2845f4a44e2bf0e7913782f" kind="function"><name>applyZoom</name></member>
+    <member refid="class_pane_view_1a3b154dde48bee6aa5032b0b8288fc06a" kind="function"><name>enterSelectionMode</name></member>
+    <member refid="class_pane_view_1ab0eb542e3a463fce3b4da3117b3ac9c2" kind="function"><name>copySelection</name></member>
+    <member refid="class_pane_view_1a5b522ca7d6365011ec218909618c0cc5" kind="function"><name>hasSelection</name></member>
   </compound>
   <compound refid="structterminal_1_1_parameter" kind="struct"><name>terminal::Parameter</name>
   </compound>
@@ -1574,6 +1580,7 @@
     <member refid="classaction_1_1_registry_1ad42f0b09f237c365063fa087c6c393c0" kind="function"><name>registerAction</name></member>
     <member refid="classaction_1_1_registry_1a2231016d02d69811ca59394703f1ee12" kind="function"><name>handleKeyPress</name></member>
     <member refid="classaction_1_1_registry_1a01c6a9ecea9e1780a7e36c3ac4e7a909" kind="function"><name>clear</name></member>
+    <member refid="classaction_1_1_registry_1a8064de18edb0abfc46f5b41a08f8d638" kind="function"><name>buildKeyMap</name></member>
     <member refid="classaction_1_1_registry_1a9293bb3cd16657bb8f5f66a6d0c4a4c1" kind="function"><name>getEntries</name></member>
     <member refid="classaction_1_1_registry_1af372257d1327b42884e18285f2a8a8e2" kind="function"><name>parseShortcut</name></member>
     <member refid="classaction_1_1_registry_1aa0baadfadc5b0e64b4a903e64012fced" kind="function"><name>shortcutToString</name></member>
@@ -1761,6 +1768,7 @@
     <member refid="classterminal_1_1_session_1a474b13fc8444f0c79cc4304cdb865fe9" kind="variable"><name>codeModel</name></member>
     <member refid="classterminal_1_1_session_1a079b742836a2110e1970f200bea45bb0" kind="variable"><name>textEditor</name></member>
     <member refid="classterminal_1_1_session_1a89a22fa57c22d9b68b8c12c801aebb78" kind="variable"><name>processor</name></member>
+    <member refid="classterminal_1_1_session_1ab7a2717d54a546881309a5579ed44a50" kind="variable"><name>sessionAttachment</name></member>
     <member refid="classterminal_1_1_session_1a0a15cbfbe5635fc8f94a49a3eb736af3" kind="variable"><name>resizer</name></member>
     <member refid="classterminal_1_1_session_1aa67b74cc1034c4e2988805eebf9f9b76" kind="variable"><name>winsize</name></member>
     <member refid="classterminal_1_1_session_1aec4bbe29c4a930a2eef719c0355ae774" kind="variable"><name>startCols</name></member>
@@ -1775,6 +1783,7 @@
     <member refid="classterminal_1_1_session_1ab2d43b9e6373d8a3899cd823b0a4c48f" kind="function"><name>Session</name></member>
     <member refid="classterminal_1_1_session_1af962daaaee0103cc100a1661f4a1c32a" kind="function"><name>Session</name></member>
     <member refid="classterminal_1_1_session_1abae9d46c15abb3fdf28ce45a5ace2893" kind="function"><name>~Session</name></member>
+    <member refid="classterminal_1_1_session_1a3c1867e57ecc25b8eceddb05a6a79b81" kind="function"><name>graftInto</name></member>
     <member refid="classterminal_1_1_session_1a2cc000f4ffcb31cb35195118eb542404" kind="function"><name>start</name></member>
     <member refid="classterminal_1_1_session_1a3f21b6d7927e70a7f9966c5079837da1" kind="function"><name>stop</name></member>
     <member refid="classterminal_1_1_session_1abb0ae0c49ab531409e6b37b8568a9196" kind="function"><name>process</name></member>
@@ -1959,12 +1968,12 @@
     <member refid="classterminal_1_1_tabs_1a2bac937d3b231e367f5e7bc1f9e17b32" kind="function"><name>selectNextTab</name></member>
     <member refid="classterminal_1_1_tabs_1a0a9de59ecea2f3ae172b09da8a6b68f8" kind="function"><name>getTabCount</name></member>
     <member refid="classterminal_1_1_tabs_1a3b7e33a2cc052273a807425378f336ae" kind="function"><name>getActiveTerminal</name></member>
-    <member refid="classterminal_1_1_tabs_1ad463d2be8a9b8c53f9b21db158e6c8a8" kind="function"><name>getPanes</name></member>
+    <member refid="classterminal_1_1_tabs_1a1c3dff3c481ed80c98e26acf79843f5c" kind="function"><name>getPanes</name></member>
     <member refid="classterminal_1_1_tabs_1a0abe28bd37aef6df7f43f8f5335e3737" kind="function"><name>getActivePanes</name></member>
     <member refid="classterminal_1_1_tabs_1a64d8c71ad859288ebd12d6cacb3671e3" kind="function"><name>openMarkdown</name></member>
     <member refid="classterminal_1_1_tabs_1a149a8a3f7cdfc1171b2bc4f768715a9b" kind="function"><name>showRenameEditor</name></member>
     <member refid="classterminal_1_1_tabs_1ae255fc335cf4f9f8e71789831717b4bc" kind="function"><name>renameActiveTab</name></member>
-    <member refid="classterminal_1_1_tabs_1a874c436b9048373baeb965c32cd403af" kind="function"><name>getActivePane</name></member>
+    <member refid="classterminal_1_1_tabs_1a1aa9d932fe786e8537ff3f11f0d7da53" kind="function"><name>getActivePane</name></member>
     <member refid="classterminal_1_1_tabs_1a9394d47d7d7fdfcbc057bb56fde1bcb3" kind="function"><name>hasSelection</name></member>
     <member refid="classterminal_1_1_tabs_1a83317088a1d6a4c55900f8a460b71c9f" kind="function"><name>copySelection</name></member>
     <member refid="classterminal_1_1_tabs_1afc39ab8f8a5d663f9dafeb76210facbe" kind="function"><name>pasteClipboard</name></member>
@@ -2151,7 +2160,7 @@
     <member refid="classterminal_1_1_video_1a205154e0a4039b931fb5b8ced9ee3725" kind="function"><name>setActiveLinkId</name></member>
     <member refid="classterminal_1_1_video_1a3779e3aadc17c29652543898f4d1dfec" kind="function"><name>print</name></member>
     <member refid="classterminal_1_1_video_1a76783d31ddf7702ac3562dbccb719192" kind="function"><name>applyControlCode</name></member>
-    <member refid="classterminal_1_1_video_1a4fbd1073accb9fbd180aba6a4f49bf74" kind="function"><name>applyCSI</name></member>
+    <member refid="classterminal_1_1_video_1ab478e225470f4025149b7c4c3e73a9f8" kind="function"><name>applyCSI</name></member>
     <member refid="classterminal_1_1_video_1a61c748ab4f66282b063b1d4145a3fc63" kind="function"><name>applyESC</name></member>
     <member refid="classterminal_1_1_video_1a50a8fcff04f246ead6f978728f799fe2" kind="function"><name>applyOSC</name></member>
     <member refid="classterminal_1_1_video_1a92e80829c0ad42c69dc6f0982eebb892" kind="function"><name>storeDCSHeader</name></member>
@@ -2200,23 +2209,23 @@
     <member refid="classterminal_1_1_video_1a256efb55698f24cc68124ce3093c0921" kind="function"><name>handleOscResetCursorColor</name></member>
     <member refid="classterminal_1_1_video_1a82ade958d45e1e453781d91589e417d7" kind="function"><name>handleOsc133</name></member>
     <member refid="classterminal_1_1_video_1a7e93780ff44dea5af482fbbff1e30d0e" kind="function"><name>handleOsc1337</name></member>
-    <member refid="classterminal_1_1_video_1afc36976c57f133e136da7873c4e87d6f" kind="function"><name>moveCursorUp</name></member>
-    <member refid="classterminal_1_1_video_1a770003a15ccb5f20849ca91630e17cd1" kind="function"><name>moveCursorDown</name></member>
-    <member refid="classterminal_1_1_video_1acaea153c14d507924f189521f9fcac2d" kind="function"><name>moveCursorForward</name></member>
-    <member refid="classterminal_1_1_video_1a145bb64877070b976372d4a89672456e" kind="function"><name>moveCursorBackward</name></member>
-    <member refid="classterminal_1_1_video_1a231e9694872ebd5e7cda0b0c2e7572a3" kind="function"><name>moveCursorNextLine</name></member>
-    <member refid="classterminal_1_1_video_1a93145aa03dc97bbe88281c08dfa8470d" kind="function"><name>moveCursorPrevLine</name></member>
-    <member refid="classterminal_1_1_video_1a1c96b1189ab42ae1d4871a80fe5ebc87" kind="function"><name>cursorForwardTab</name></member>
-    <member refid="classterminal_1_1_video_1a1e0935acdf8d90360cede77bed17eec2" kind="function"><name>cursorBackTab</name></member>
-    <member refid="classterminal_1_1_video_1af281fc8588b03dce02d4bc1461a5c4c8" kind="function"><name>setCursorColumn</name></member>
-    <member refid="classterminal_1_1_video_1a7c6a4c4148ce43665e38e690a7d22816" kind="function"><name>setCursorPosition</name></member>
-    <member refid="classterminal_1_1_video_1a9f61c9569f2488191864189296477ee4" kind="function"><name>setCursorLine</name></member>
-    <member refid="classterminal_1_1_video_1a495b9bb65198ececb735f2639f870fc1" kind="function"><name>moveCursorTo</name></member>
-    <member refid="classterminal_1_1_video_1a88b343f06bebd97a2f19384b5a15f48b" kind="function"><name>scrollUp</name></member>
-    <member refid="classterminal_1_1_video_1aad414bb05f457e6e772236e5affc75d8" kind="function"><name>scrollDown</name></member>
-    <member refid="classterminal_1_1_video_1a2ec83665aec1b71de5889e2e8b7d2910" kind="function"><name>setScrollRegion</name></member>
-    <member refid="classterminal_1_1_video_1a82bd6e4e458317f7f7a3bf8a0d3a0662" kind="function"><name>reportCursorPosition</name></member>
-    <member refid="classterminal_1_1_video_1afaeffb75a9f88da66117eb192ba27f99" kind="function"><name>reportDeviceAttributes</name></member>
+    <member refid="classterminal_1_1_video_1ae82af411c176228afd8911f02dd9221e" kind="function"><name>moveCursorUp</name></member>
+    <member refid="classterminal_1_1_video_1a69eae4d33d581cff7d114f61c2f61233" kind="function"><name>moveCursorDown</name></member>
+    <member refid="classterminal_1_1_video_1ac4b082b140c2a5771c1393534eeb8d83" kind="function"><name>moveCursorForward</name></member>
+    <member refid="classterminal_1_1_video_1af78a111baabf73d9e4abfdbf77ab9df5" kind="function"><name>moveCursorBackward</name></member>
+    <member refid="classterminal_1_1_video_1a57e96c3f7e3ec212addeee96d45dfde2" kind="function"><name>moveCursorNextLine</name></member>
+    <member refid="classterminal_1_1_video_1ab4bff6a7620b3e0ead3e85f0b3b386b3" kind="function"><name>moveCursorPrevLine</name></member>
+    <member refid="classterminal_1_1_video_1a9ffe46b454816a14621e476ea5654b11" kind="function"><name>cursorForwardTab</name></member>
+    <member refid="classterminal_1_1_video_1a0c4401b6f0d957e7b84724b6e6cbd966" kind="function"><name>cursorBackTab</name></member>
+    <member refid="classterminal_1_1_video_1a836d0c296bce7dbf2d81e0221f834ab1" kind="function"><name>setCursorColumn</name></member>
+    <member refid="classterminal_1_1_video_1a10a79b96185624270a1725404466ceb6" kind="function"><name>setCursorPosition</name></member>
+    <member refid="classterminal_1_1_video_1a0f9d0009f44bb16abe6880d5a62e6ce3" kind="function"><name>setCursorLine</name></member>
+    <member refid="classterminal_1_1_video_1aa4bf516be030db251aed596b23c373da" kind="function"><name>moveCursorTo</name></member>
+    <member refid="classterminal_1_1_video_1ab2f32f09ac7ffff21d24e176ebabee63" kind="function"><name>scrollUp</name></member>
+    <member refid="classterminal_1_1_video_1a690daa19776935f02dd215b8887a7594" kind="function"><name>scrollDown</name></member>
+    <member refid="classterminal_1_1_video_1a88083f70d4a36caab5a1da988d5b4ae8" kind="function"><name>setScrollRegion</name></member>
+    <member refid="classterminal_1_1_video_1adf6dc115f74f164d66382250094e0a8c" kind="function"><name>reportCursorPosition</name></member>
+    <member refid="classterminal_1_1_video_1ae571526be607d38940abe191bdce47dd" kind="function"><name>reportDeviceAttributes</name></member>
     <member refid="classterminal_1_1_video_1adb079fc21af2881b5bedb8f70da24e53" kind="function"><name>eraseInDisplay</name></member>
     <member refid="classterminal_1_1_video_1afeae492c2afdbe4dde2cbdcb8525da3e" kind="function"><name>eraseInLine</name></member>
     <member refid="classterminal_1_1_video_1a37c630428631d2f53b06378d253c1351" kind="function"><name>shiftLinesDown</name></member>
@@ -2496,6 +2505,7 @@
     <member refid="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11a264c8dc38a7e3959c763427c895f821c" kind="enumvalue"><name>apcEnd</name></member>
     <member refid="namespaceterminal_1a1878c47fb0486dfcf512d127b5342816" kind="enum"><name>ModalType</name></member>
     <member refid="namespaceterminal_1acffca3b33fddce63d3220bc7487e879d" kind="enum"><name>SelectionType</name></member>
+    <member refid="namespaceterminal_1ae94065e2814123f68d41ee5b3d1ca68d" kind="variable"><name>DEC_LINE_DRAWING</name></member>
     <member refid="namespaceterminal_1a7c280ac96375daa7306ea3309285fc8f" kind="variable"><name>ANSI_16</name></member>
     <member refid="namespaceterminal_1a461c0a8627fa66daee729e5610ff1803" kind="variable"><name>CUBE_START</name></member>
     <member refid="namespaceterminal_1ad37701f15f42c023d663ed5af0d4be6f" kind="variable"><name>CUBE_END</name></member>
@@ -2522,6 +2532,8 @@
     <member refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kind="function"><name>cubeEntry</name></member>
     <member refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kind="function"><name>grayComponent</name></member>
     <member refid="namespaceterminal_1a6ee303b5da8f6de02fc025255997ea2a" kind="function"><name>palette256At</name></member>
+    <member refid="namespaceterminal_1ac830268d7c30f533eb7d713374a73c28" kind="function"><name>paramToIndex</name></member>
+    <member refid="namespaceterminal_1a7920a54ebb69d208c49fe07cd19bce23" kind="function"><name>indexToParam</name></member>
     <member refid="namespaceterminal_1aed214bc5b60ecbd71f4fa932c014b6e5" kind="function"><name>applyPrivateModeTable</name></member>
     <member refid="namespaceterminal_1af99945f0d6a4e0c9e6fb537cd03db47d" kind="function"><name>parseOscHeader</name></member>
     <member refid="namespaceterminal_1a255498a29b2d29efaf8fbd0124827a9c" kind="function"><name>parseExtendedColor</name></member>
@@ -2825,11 +2837,11 @@
   </compound>
   <compound refid="_overlay_8h" kind="file"><name>Overlay.h</name>
   </compound>
-  <compound refid="_pane_component_8h" kind="file"><name>PaneComponent.h</name>
-  </compound>
   <compound refid="_panes_8cpp" kind="file"><name>Panes.cpp</name>
   </compound>
   <compound refid="_panes_8h" kind="file"><name>Panes.h</name>
+  </compound>
+  <compound refid="_pane_view_8h" kind="file"><name>PaneView.h</name>
   </compound>
   <compound refid="_popup_8cpp" kind="file"><name>Popup.cpp</name>
   </compound>
@@ -2968,8 +2980,6 @@
   <compound refid="_video_8h" kind="file"><name>Video.h</name>
   </compound>
   <compound refid="_video_c_s_i_8cpp" kind="file"><name>VideoCSI.cpp</name>
-    <member refid="_video_c_s_i_8cpp_1a4508a5afc20ab7f35680cc0835351ec4" kind="function"><name>paramToIndex</name></member>
-    <member refid="_video_c_s_i_8cpp_1a189720dd06b7085a6b9c3dba898e9dfb" kind="function"><name>indexToParam</name></member>
   </compound>
   <compound refid="_video_d_c_s_8cpp" kind="file"><name>VideoDCS.cpp</name>
   </compound>

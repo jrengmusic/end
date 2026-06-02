@@ -21,7 +21,7 @@
         <referencedby refid="classterminal_1_1_input_1ace1c358d34fc58663db236f8da1a457e" compoundref="_input_8cpp" startline="127" endline="280">terminal::Input::handleSelectionKey</referencedby>
         <referencedby refid="structterminal_1_1_cursor_state_1ab4f0812ec43fbc7fa59af39d8d28064f" compoundref="_identifier_8h" startline="51" endline="51">isValid</referencedby>
         <referencedby refid="structterminal_1_1_cursor_state_1aea059eba9f1a5b49c2d1756219e402c6" compoundref="_identifier_8h" startline="41" endline="44">pack</referencedby>
-        <referencedby refid="classterminal_1_1_display_1a96f58201d64de70c95725f3ec9f44676" compoundref="_display_8cpp" startline="91" endline="182">terminal::Display::valueTreePropertyChanged</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a96f58201d64de70c95725f3ec9f44676" compoundref="_display_8cpp" startline="88" endline="179">terminal::Display::valueTreePropertyChanged</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structterminal_1_1_cursor_state_1a0587fa8ea4ad47b6fbfc71675f94796e" prot="public" static="no" mutable="no">
         <type>int</type>
@@ -40,7 +40,7 @@
         <referencedby refid="classterminal_1_1_input_1ace1c358d34fc58663db236f8da1a457e" compoundref="_input_8cpp" startline="127" endline="280">terminal::Input::handleSelectionKey</referencedby>
         <referencedby refid="structterminal_1_1_cursor_state_1ab4f0812ec43fbc7fa59af39d8d28064f" compoundref="_identifier_8h" startline="51" endline="51">isValid</referencedby>
         <referencedby refid="structterminal_1_1_cursor_state_1aea059eba9f1a5b49c2d1756219e402c6" compoundref="_identifier_8h" startline="41" endline="44">pack</referencedby>
-        <referencedby refid="classterminal_1_1_display_1a96f58201d64de70c95725f3ec9f44676" compoundref="_display_8cpp" startline="91" endline="182">terminal::Display::valueTreePropertyChanged</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a96f58201d64de70c95725f3ec9f44676" compoundref="_display_8cpp" startline="88" endline="179">terminal::Display::valueTreePropertyChanged</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structterminal_1_1_cursor_state_1a7d70e2b5373d17cd8addf9174a63dfa4" prot="public" static="no" mutable="no">
         <type>int</type>
@@ -93,7 +93,7 @@
         <references refid="structterminal_1_1_cursor_state_1a402852ae8a7b1dad5428938c3bf77614" compoundref="_identifier_8h" startline="39" endline="39">kbFlags</references>
         <references refid="structterminal_1_1_cursor_state_1ae4f82825616474ab86e036ce130d65ef" compoundref="_identifier_8h" startline="36" endline="36">row</references>
         <references refid="structterminal_1_1_cursor_state_1a7d70e2b5373d17cd8addf9174a63dfa4" compoundref="_identifier_8h" startline="38" endline="38">visible</references>
-        <referencedby refid="classterminal_1_1_video_1ab8c186d04c9a33e4fc6f64892ab05734" compoundref="_video_8cpp" startline="154" endline="171">terminal::Video::flush</referencedby>
+        <referencedby refid="classterminal_1_1_video_1ab8c186d04c9a33e4fc6f64892ab05734" compoundref="_video_8cpp" startline="99" endline="116">terminal::Video::flush</referencedby>
       </memberdef>
       <memberdef kind="function" id="structterminal_1_1_cursor_state_1ab4f0812ec43fbc7fa59af39d8d28064f" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
         <type>bool</type>
@@ -131,7 +131,7 @@
         </inbodydescription>
         <location file="terminal/Identifier.h" line="46" column="24" bodyfile="terminal/Identifier.h" bodystart="46" bodyend="49"/>
         <referencedby refid="classterminal_1_1_input_1ace1c358d34fc58663db236f8da1a457e" compoundref="_input_8cpp" startline="127" endline="280">terminal::Input::handleSelectionKey</referencedby>
-        <referencedby refid="classterminal_1_1_display_1a96f58201d64de70c95725f3ec9f44676" compoundref="_display_8cpp" startline="91" endline="182">terminal::Display::valueTreePropertyChanged</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a96f58201d64de70c95725f3ec9f44676" compoundref="_display_8cpp" startline="88" endline="179">terminal::Display::valueTreePropertyChanged</referencedby>
       </memberdef>
     </sectiondef>
     <briefdescription>

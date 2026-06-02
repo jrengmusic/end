@@ -223,7 +223,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Model.h" line="101" column="10" bodyfile="terminal/Model.cpp" bodystart="224" bodyend="229"/>
-        <references refid="classjam_1_1_model_1a2f037e88407eb8b95b9ab7daf7c0b15c">jam::Model::getValueFromChildWithID</references>
+        <references refid="structjam_1_1_value_tree_1a7cd25c35d555eb38c4788e72ed7aa95b">jam::ValueTree::getValueFromChildWithID</references>
         <references refid="group__juce__events-messages_1gad2ae2032071a26beb5fb05a3745b8faf">JUCE_ASSERT_MESSAGE_THREAD</references>
         <references refid="namespaceterminal_1_1id_1a79a59a405b5e0ea4bd4bdc099abf47b2" compoundref="_identifier_8h" startline="85" endline="85">terminal::id::MODES</references>
         <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
@@ -242,7 +242,7 @@
         </inbodydescription>
         <location file="terminal/Model.h" line="102" column="9" bodyfile="terminal/Model.cpp" bodystart="231" bodyend="235"/>
         <references refid="namespaceterminal_1_1id_1ad9fd72b61b4ec96b2a652a7762f89ac3" compoundref="_identifier_8h" startline="129" endline="129">terminal::id::activeScreen</references>
-        <references refid="classjam_1_1_model_1a2f037e88407eb8b95b9ab7daf7c0b15c">jam::Model::getValueFromChildWithID</references>
+        <references refid="structjam_1_1_value_tree_1a7cd25c35d555eb38c4788e72ed7aa95b">jam::ValueTree::getValueFromChildWithID</references>
         <references refid="group__juce__events-messages_1gad2ae2032071a26beb5fb05a3745b8faf">JUCE_ASSERT_MESSAGE_THREAD</references>
         <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
         <referencedby refid="structterminal_1_1_model_1a08662bcf8f5c5e2abbd0a5350dc09037" compoundref="_model_8cpp" startline="348" endline="357">hasOutputBlock</referencedby>
@@ -1437,24 +1437,18 @@
       <member refid="classjam_1_1_model_1aa75f9afb83415f989c962cf77022bcf3" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>addParameter</name></member>
       <member refid="structterminal_1_1_model_1aef97b8774a8b4bd87be42862a1693c40" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>addTextParameter</name></member>
       <member refid="classjam_1_1_model_1ae0cb2cc2b04acb47eb9760d92dcedc46" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>appendChild</name></member>
-      <member refid="classjam_1_1_model_1a59b57627d856a11d756eabe1690a7213" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>applyFunctionRecursively</name></member>
       <member refid="classjam_1_1_model_1a453ba02a04d3f7afd493d83a35f2d42e" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>attach</name></member>
-      <member refid="classjam_1_1_model_1a16dac6b0bd63f3fd05a7bce45217ec99" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>attach</name></member>
       <member refid="structterminal_1_1_model_1a7ab986ba96c3d9b8b1c8088318bc3591" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>buildLayout</name></member>
-      <member refid="classjam_1_1_model_1a4b90d140f00ee8c4ceb46aa411c3fc30" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>buildUniqueNodeMap</name></member>
       <member refid="structterminal_1_1_model_1a75d2bb097066b5073e7b135d2ba08412" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>clearPasteEchoGate</name></member>
       <member refid="structterminal_1_1_model_1a3ec5532dfaeb0582a45b350e17aea607" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>consumePasteEcho</name></member>
       <member refid="structterminal_1_1_model_1a5e3b83e26af6c6c7be7c16c8cd2f7cee" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>consumeRowDirty</name></member>
       <member refid="structterminal_1_1_model_1ab92732c6050593b13cf3d060f9755ef9" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>consumeSnapshotDirty</name></member>
       <member refid="structterminal_1_1_model_1aad782d12a0ce3e431da6a125d053a174" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>dismissPreview</name></member>
       <member refid="structterminal_1_1_model_1a1bcc24d11a98aa621b738ce796a8cecc" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>extendOutputBlock</name></member>
-      <member refid="classjam_1_1_model_1a0c6c6dcf22bdf37d65dced08a8dcdefc" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>findAndRemoveChild</name></member>
       <member refid="classjam_1_1_model_1a9eb2e927e025645e46609f37aa6f9304" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>flush</name></member>
       <member refid="classjam_1_1_model_1aaa8b722daed8928b8d587ec30662ac34" prot="private" virt="non-virtual"><scope>terminal::Model</scope><name>flushHz</name></member>
       <member refid="structterminal_1_1_model_1aded6fea0a6e67962a83f0b00f605d610" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getActiveScreen</name></member>
-      <member refid="classjam_1_1_model_1ac0204402c1739f45230319069868ab23" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getChildWithID</name></member>
       <member refid="classjam_1_1_model_1aecef6b658fc1de8bd8642ce3c0011036" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getChildWithName</name></member>
-      <member refid="classjam_1_1_model_1a7c77bf75e42b16586ae50b355668f2e0" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getChildWithName</name></member>
       <member refid="structterminal_1_1_model_1a735f6c3e59fb6898d1f750e2a9eab94f" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getCols</name></member>
       <member refid="structterminal_1_1_model_1a25ba72627e3bd4ab113b200db5db3e94" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getCwd</name></member>
       <member refid="structterminal_1_1_model_1a5ed4c561122970956425e400560a2b54" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getForegroundProcess</name></member>
@@ -1463,7 +1457,6 @@
       <member refid="structterminal_1_1_model_1a53828b6636d849052725267c32d768a3" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getModalType</name></member>
       <member refid="structterminal_1_1_model_1a34ae5e9c536e91f0f0058bdbf3f6ef84" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getMode</name></member>
       <member refid="classjam_1_1_model_1a322c866d6fc435eb6799562d6d6db8b1" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getOrCreateChildWithName</name></member>
-      <member refid="classjam_1_1_model_1a4d93df7249f679710c1ac1c5f288147c" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getOrCreateChildWithName</name></member>
       <member refid="structterminal_1_1_model_1a9d77594f5ccf9ac9eb0b306b0fb2147d" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getOutputBlockBottom</name></member>
       <member refid="structterminal_1_1_model_1a7f3c8d52e5b62960ea217e70f83439d1" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getOutputBlockTop</name></member>
       <member refid="structterminal_1_1_model_1aac6ceeff8f0e530370b29d8dcf8be665" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getPromptRow</name></member>
@@ -1476,8 +1469,6 @@
       <member refid="classjam_1_1_model_1ac922db931cd481a9cf483c90e4de2543" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getType</name></member>
       <member refid="classjam_1_1_model_1a39b0cc13737eca194351a246bd88b615" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getUniqueNodeMap</name></member>
       <member refid="classjam_1_1_model_1a0116dc2885feeb67b5f875d93dd109df" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getValue</name></member>
-      <member refid="classjam_1_1_model_1a2f037e88407eb8b95b9ab7daf7c0b15c" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getValueFromChildWithID</name></member>
-      <member refid="classjam_1_1_model_1a4d4ed473066b67b001ced0f5296f577f" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getValueFromChildWithName</name></member>
       <member refid="structterminal_1_1_model_1a72a57e537581551b615687dabaa15c53" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getVisibleRows</name></member>
       <member refid="classjam_1_1_model_1a710fd55b83d2e5657e48d49ce5225ea2" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getXml</name></member>
       <member refid="structterminal_1_1_model_1a08662bcf8f5c5e2abbd0a5350dc09037" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>hasOutputBlock</name></member>
@@ -1486,8 +1477,6 @@
       <member refid="structterminal_1_1_model_1ae8d00e9ca1dc650b197c56cd055a36d7" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>isPreviewActive</name></member>
       <member refid="structterminal_1_1_model_1aaca46e7c6a6408bce096a44ebbc48c55" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>isSyncOutputActive</name></member>
       <member refid="structterminal_1_1_model_1ac251b9d586797bd952935e1f79aaafac" prot="private" virt="non-virtual"><scope>terminal::Model</scope><name>listenedTree</name></member>
-      <member refid="classjam_1_1_model_1afb401fb24025fa7fddf2740e374df4aa" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>loadState</name></member>
-      <member refid="classjam_1_1_model_1a6662822c6b2f2539b5839a41daa668c9" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>loadState</name></member>
       <member refid="structterminal_1_1_model_1a572e69bbfff16e9707bfecafdc0a4df2" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>loadValue</name></member>
       <member refid="structterminal_1_1_model_1a427730d8b641247c8c4015b740f7c3c3" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>Model</name></member>
       <member refid="classjam_1_1_model_1afbe837fa9d9c8086381333783bb1db3b" prot="public" virt="non-virtual" ambiguityscope="jam::Model::"><scope>terminal::Model</scope><name>Model</name></member>

@@ -28,22 +28,6 @@ namespace terminal
 {
 /*____________________________________________________________________________*/
 
-/**
- * @brief Handles OSC 8 — explicit hyperlink start/end.
- *
- * Payload (the data after the "8;" separator) has the form:
- *   params ; uri
- *
- * - Non-empty URI: registers the URI and stores the ID in `activeLinkId` so
- *                  that subsequent cell writes are stamped.
- * - Empty URI:     clears `activeLinkId` to 0, ending the stamp run.
- * - Malformed:     no separator found; clears `activeLinkId` to 0.
- *
- * @param data        Pointer to OSC payload bytes (after the "8;" separator).
- * @param dataLength  Number of bytes in `data`.
- *
- * @note READER THREAD only.
- */
 void Video::handleOsc8 (const uint8_t* data, int dataLength) noexcept
 {
     // READER THREAD
@@ -86,22 +70,6 @@ void Video::handleOsc8 (const uint8_t* data, int dataLength) noexcept
     }
 }
 
-/**
- * @brief Handles OSC 133 — shell integration semantic prompt markers.
- *
- * Subcommands A and B are accepted and silently ignored; they exist in the
- * protocol but carry no information needed for output-block tracking.
- * Subcommand C marks the start of command output: the current cursor row is
- * recorded as the output block top and the scan-active flag is set, so that
- * subsequent LF events extend the tracked row range.  Subcommand D marks the
- * end of command output: the current cursor row is recorded as the block
- * bottom and the scan flag is cleared.
- *
- * @param scr         Active screen buffer selected at dispatch time.
- * @param data        Pointer to the OSC 133 subcommand byte(s) after `"133;"`.
- * @param dataLength  Number of bytes in `data` (must be >= 1 for a valid subcommand).
- * @note READER THREAD only.
- */
 void Video::handleOsc133 (int scr, const uint8_t* data, int dataLength) noexcept
 {
     if (dataLength >= 1)
@@ -133,28 +101,6 @@ void Video::handleOsc133 (int scr, const uint8_t* data, int dataLength) noexcept
     }
 }
 
-/**
- * @brief Handles OSC 1337 — iTerm2 inline image display or SKiT filepath signal.
- *
- * Fires the `"osc1337Raw"` event with the raw payload, payload length, and
- * current cursor position.  The Processor handler receives this event and
- * delegates to `Skit::processOSC1337()` for image decode and SKiT filepath
- * handling, then calls `Video::advanceCursorForImage()` with the result.
- *
- * @par Sequence
- * @code
- *   ESC ] 1337 ; File=[key=value;...] : <base64> BEL
- * @endcode
- *
- * @param data        Pointer to OSC payload bytes after "1337;".
- *                    Expected to begin with "File=" or "END;".
- * @param dataLength  Number of bytes in @p data.
- *
- * @note READER THREAD only.
- *
- * @see Skit::processOSC1337()
- * @see advanceCursorForImage()
- */
 void Video::handleOsc1337 (const uint8_t* data, int dataLength) noexcept
 {
     if (dataLength > 0 and events.contains (id::osc1337Raw))

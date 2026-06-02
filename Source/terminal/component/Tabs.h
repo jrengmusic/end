@@ -94,8 +94,7 @@ public:
      *
      * @param workingDirectory  Initial cwd for the first terminal.
      * @param uuid              UUID hint passed through to Panes::createTerminal().
-     * @param cols              Terminal column count. Must be > 0.
-     * @param rows              Terminal row count. Must be > 0.
+     * @param dims              Terminal dimensions (cols × rows). Must be > 0.
      * @note MESSAGE THREAD.
      */
     void addNewTab (const juce::String& workingDirectory, const juce::String& uuid,
@@ -159,7 +158,7 @@ public:
      * @return Reference to the active pane owner, or a static empty owner.
      * @note MESSAGE THREAD.
      */
-    jam::Owner<PaneComponent>& getPanes() noexcept;
+    jam::Owner<PaneView>& getPanes() noexcept;
 
     /**
      * @brief Returns the Panes instance for the currently active tab.
@@ -198,12 +197,12 @@ public:
     /**
      * @brief Returns the active pane component regardless of type. @note MESSAGE THREAD.
      */
-    PaneComponent* getActivePane() const noexcept;
+    PaneView* getActivePane() const noexcept;
 
     /**
      * @brief Returns `true` if the active pane has a non-degenerate selection.
      *
-     * Forwards to the active PaneComponent::hasSelection().
+     * Forwards to the active PaneView::hasSelection().
      * Returns `false` if there is no active pane.
      *
      * @return `true` if a selection is active and can be copied.
@@ -214,7 +213,7 @@ public:
     /**
      * @brief Copy the current selection to clipboard.
      *
-     * Forwards to the active PaneComponent::copySelection().
+     * Forwards to the active PaneView::copySelection().
      *
      * @note MESSAGE THREAD.
      */

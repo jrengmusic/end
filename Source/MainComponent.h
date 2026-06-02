@@ -34,13 +34,14 @@
 
 #pragma once
 #include <JuceHeader.h>
+#include <JamFontsBinaryData.h>
 #include "AppModel.h"
 #include "nexus/Nexus.h"
 #include "terminal/Identifier.h"
 #include "terminal/component/Dialog.h"
 #include "terminal/component/LookAndFeel.h"
 #include "terminal/component/TerminalWindow.h"
-#include "terminal/component/PaneComponent.h"
+#include "terminal/component/PaneView.h"
 #include "terminal/component/MessageOverlay.h"
 #include "terminal/component/Popup.h"
 #include "terminal/component/Tabs.h"
@@ -277,11 +278,11 @@ private:
     void showMessageOverlay();
 
     //==============================================================================
-#if JUCE_DEBUG
-    /** Debug widget for development. */
-    juce::ValueTree debugState { appState.getRootTree() };
-    jam::debug::Widget debug { this, debugState, true };
-#endif// JUCE_DEBUG
+// #if JUCE_DEBUG
+//     /** Debug widget for development. */
+//     juce::ValueTree debugState { appState.getRootTree() };
+//     jam::debug::Widget debug { this, debugState, true };
+// #endif// JUCE_DEBUG
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

@@ -1,5 +1,62 @@
 # SPRINT-LOG
 
+## Sprint 40: Architectural Hygiene — Blast C+D: ValueTree Bag, Attachment Grafting, Doxygen
+
+**Date:** 2026-06-02
+
+### Agents Participated
+- COUNSELOR: orchestration, inheritance design discussion (PaneView/ComponentWithID topology, getValueTree() removal), Blast D design
+- Engineer: Blast C (jam::ValueTree bag + statics migration + PaneView rename + ComponentAttachment deletion), Blast D (Attachment-based grafting for Session + whelmed), doxygen fix (286 warnings → 0)
+- Pathfinder: getValueTree() call site survey, git diff stats
+
+### Files Modified (jam — 6 total)
+- `jam_data_structures/value_tree/jam_value_tree.h` — NEW: `jam::ValueTree` struct with `Component`, `ComponentWithID<Derived>`, `Attachment` (two ctors: Component-based + raw tree), static tree utilities
+- `jam_data_structures/value_tree/jam_value_tree_utils.cpp` — all `Model::` static defs → `ValueTree::`
+- `jam_data_structures/value_tree/jam_component_attachment.h` — DELETED (subsumed by `jam::ValueTree::Attachment`)
+- `jam_data_structures/model/jam_model.h` — moved static declarations to `jam::ValueTree`; kept PARAM, Model-specific attach, instance proxies
+- `jam_data_structures/model/jam_model.cpp` — unqualified static calls → `ValueTree::`
+- `jam_data_structures/model/jam_audio_model.cpp` — `Model::` static calls → `ValueTree::`
+- `jam_data_structures/jam_data_structures.h` — include path: removed jam_component_attachment, added jam_value_tree
+- `jam_gui/view/jam_view_panel.h` — `jam::Model::attach` → `jam::ValueTree::attach`
+
+### Files Modified (end — 50+ total)
+- `Source/terminal/component/PaneView.h` (renamed from PaneComponent.h) — `PaneComponent` → `PaneView`, removed `getValueTree()` from public interface
+- `Source/terminal/component/Display.h` — added `ComponentWithID<Display>` base, `getValueTree()` override delegates to Component, `attachment` → `jam::ValueTree::Attachment` direct member
+- `Source/terminal/component/Display.cpp` — ctor: ComponentWithID base init with seed properties, Attachment in init list, `state.setValue(DISPLAY,...)` replaces `attachment->setValue`, all `jam::Model::` statics → `jam::ValueTree::`
+- `Source/terminal/Session.h` — added `graftInto(juce::ValueTree)` + `sessionAttachment` member
+- `Source/terminal/Session.cpp` — `graftInto` implementation; CodeView ctor param → `model.getRootTree()`
+- `Source/terminal/component/Panes.h/cpp` — all `PaneComponent` → `PaneView`; manual `appendChild` for SESSION/DOCUMENT → `session.graftInto(paneNode)` / `component->graftDocumentInto(paneNode)`; manual `removeChild` in closeWhelmed deleted (Attachment RAII)
+- `Source/terminal/component/Tabs.h/cpp` — `PaneComponent` → `PaneView`; `getValueTree()` calls → `getProcessor().getState().getRootTree()` or tree navigation by UUID
+- `Source/terminal/component/Popup.cpp` — `getValueTree()` → `getProcessor().getState().getRootTree()`
+- `Source/whelmed/component/Component.h/cpp` — removed `getValueTree()` override, added `getDocumentTree()` + `graftDocumentInto()` + `documentAttachment`
+- `Source/MainComponent.h` — `PaneComponent` → `PaneView`
+- `Source/AppModel.cpp` — all `jam::Model::` statics → `jam::ValueTree::`
+- `Source/terminal/Model.cpp` — all `jam::Model::` statics → `jam::ValueTree::`
+- `Source/terminal/Input.cpp`, `Mouse.cpp`, `Processor.cpp`, `LinkManager.cpp` — `jam::Model::` → `jam::ValueTree::`
+- `Source/nexus/Link.cpp`, `Daemon.cpp`, `Channel.cpp` — `jam::Model::` → `jam::ValueTree::`
+- `Source/terminal/action/ActionList.h/cpp`, `ActionListBinding.cpp`, `ActionRow.cpp` — `jam::Model::` → `jam::ValueTree::`
+- 43 files — doxygen warning fixes (backtick blocks, `<tt>` tags, HTML tags, @param mismatches, duplicate .cpp doc blocks)
+
+### Alignment Check
+- [x] BLESSED principles followed (E — Attachment RAII, no manual graft; S-SSOT — tree is the single truth, callers navigate by UUID; L — deleted ComponentAttachment + getValueTree() from PaneView interface)
+- [x] NAMES.md adhered (jam::ValueTree bag coherent with jam::Value bag; PaneView matches the view role)
+- [x] MANIFESTO.md principles applied (Encapsulation — getValueTree() internal only; Deterministic — Attachment lifecycle = graft/ungraft determinism)
+
+### Problems Solved
+- `jam::ComponentAttachment` was a custom graft type — replaced by `jam::ValueTree::Attachment` (two ctors: Component-based and raw-tree)
+- `PaneView::getValueTree()` leaked SESSION tree to external callers — removed from public interface; callers navigate tree by UUID
+- 286 doxygen warnings across 43 files — all resolved (backtick blocks, duplicate @param, stale parameter names, unsupported HTML tags)
+- `jam::Model` statics were tree utilities on the wrong type — migrated to `jam::ValueTree`
+- Manual `appendChild`/`removeChild` for SESSION/DOCUMENT grafting — replaced with RAII Attachment on Session and whelmed::Component
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 39: Architectural Hygiene — Blast A+B: Type Separation + Rename Cascade + Delete get()
 
 **Date:** 2026-06-02

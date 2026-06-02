@@ -16,22 +16,6 @@ namespace terminal
 // KittyDecoder::parseKittyParams
 // ============================================================================
 
-/**
- * @brief Parses the key=value region of a Kitty APC payload.
- *
- * Scans from byte 0 looking for comma-separated `key=value` pairs.  Stops
- * when a `;` delimiter is found (which marks the start of the base64 payload)
- * or when `length` is exhausted.  Single-character keys only; value is every
- * character up to the next `,` or `;`.
- *
- * @param data    Pointer to APC payload bytes (everything after 'G').
- * @param length  Number of bytes.
- * @return Populated KittyParams.  `payloadStart` is set to the index after
- *         the `;` delimiter, or `length` if no `;` was found.
- *
- * @note Pure function — no side effects.
- * @note READER THREAD only.
- */
 KittyDecoder::KittyParams KittyDecoder::parseKittyParams (const uint8_t* data, int length) noexcept
 {
     KittyParams p;
@@ -105,31 +89,6 @@ KittyDecoder::KittyParams KittyDecoder::parseKittyParams (const uint8_t* data, i
 // KittyDecoder::decodePayload
 // ============================================================================
 
-/**
- * @brief Decode a Kitty image payload to RGBA8 pixels.
- *
- * Steps:
- *  1. Base64-decode the raw bytes via `juce::Base64::convertFromBase64()`.
- *  2. If compressed (o=z): decompress with `GZIPDecompressorInputStream` (zlib).
- *  3. Auto-detect PNG/JPEG: if format is f=32 or f=24 AND dimensions are unknown
- *     (pixelWidth==0 or pixelHeight==0), inspect the magic bytes and override
- *     format to 100 so JUCE handles the container decode.
- *  4. Dispatch on format:
- *     - f=100 (PNG/JPEG/auto): JUCE image load → ARGB convert → swizzle + un-premultiply via swizzleARGBToRGBA.
- *     - f=32  (RGBA): raw pixels, copy directly.
- *     - f=24  (RGB): raw pixels, expand to RGBA (alpha=255).
- *  5. Return populated DecodedImage, or invalid on any failure.
- *
- * @param base64Data    Pointer to base64-encoded bytes.
- * @param base64Length  Number of base64 bytes.
- * @param format        Image format: 24=RGB, 32=RGBA, 100=PNG.
- * @param pixelWidth    Declared pixel width (required for f=24/32).
- * @param pixelHeight   Declared pixel height (required for f=24/32).
- * @param compressed    True if payload is zlib-compressed before base64.
- * @return Populated DecodedImage on success, or invalid on any failure.
- *
- * @note READER THREAD only.
- */
 DecodedImage KittyDecoder::decodePayload (const uint8_t* base64Data, int base64Length,
                                           int format, int pixelWidth, int pixelHeight,
                                           bool compressed) noexcept
@@ -284,20 +243,6 @@ DecodedImage KittyDecoder::decodePayload (const uint8_t* base64Data, int base64L
 // KittyDecoder::buildKittyResponse
 // ============================================================================
 
-/**
- * @brief Builds a Kitty OK response string for the given image ID and quiet level.
- *
- * Returns an empty string when `quiet >= 2` (suppress all).  Returns an empty
- * string when `quiet == 1` and `suppressOk` is true (suppress OK response).
- * Otherwise returns the APC-framed OK response.
- *
- * @param imageId    Kitty image ID to embed in the response.
- * @param quiet      Quiet level from the `q=` parameter.
- * @param suppressOk True to suppress OK-level responses (quiet=1 case).
- * @return APC-framed response string, or empty string if suppressed.
- *
- * @note Pure function — no side effects.
- */
 juce::String KittyDecoder::buildKittyResponse (uint32_t imageId, int quiet, bool suppressOk) noexcept
 {
     juce::String result;

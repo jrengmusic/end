@@ -1008,126 +1008,126 @@
       </node>
     </inheritancegraph>
     <collaborationgraph>
-      <node id="49">
+      <node id="52">
         <label>CallInfo</label>
         <link refid="struct_call_info" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="39" relation="usage">
+        <childnode refid="42" relation="usage">
           <edgelabel>func</edgelabel>
           <edgelabel>top</edgelabel>
         </childnode>
-        <childnode refid="49" relation="usage">
+        <childnode refid="52" relation="usage">
           <edgelabel>next</edgelabel>
           <edgelabel>previous</edgelabel>
         </childnode>
-        <childnode refid="37" relation="usage">
+        <childnode refid="40" relation="usage">
           <edgelabel>k</edgelabel>
         </childnode>
       </node>
-      <node id="38">
+      <node id="41">
         <label>GCObject</label>
         <link refid="struct_g_c_object" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="38" relation="usage">
+        <childnode refid="41" relation="usage">
           <edgelabel>next</edgelabel>
         </childnode>
       </node>
-      <node id="69">
+      <node id="72">
         <label>MessageOverlay</label>
         <link refid="class_message_overlay"/>
         <childnode refid="2" relation="public-inheritance">
         </childnode>
-        <childnode refid="70" relation="private-inheritance">
+        <childnode refid="73" relation="private-inheritance">
         </childnode>
         <childnode refid="14" relation="usage">
           <edgelabel>resizeCols</edgelabel>
           <edgelabel>resizeRows</edgelabel>
         </childnode>
       </node>
-      <node id="47">
+      <node id="50">
         <label>Node</label>
         <link refid="union_node" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="48" relation="usage">
+        <childnode refid="51" relation="usage">
           <edgelabel>u</edgelabel>
         </childnode>
-        <childnode refid="41" relation="usage">
+        <childnode refid="44" relation="usage">
           <edgelabel>i_val</edgelabel>
         </childnode>
       </node>
-      <node id="48">
+      <node id="51">
         <label>Node::NodeKey</label>
         <link refid="struct_node_1_1_node_key" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="42" relation="usage">
+        <childnode refid="45" relation="usage">
           <edgelabel>key_val</edgelabel>
           <edgelabel>value_</edgelabel>
         </childnode>
       </node>
-      <node id="40">
+      <node id="43">
         <label>StackValue</label>
         <link refid="union_stack_value" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="41" relation="usage">
+        <childnode refid="44" relation="usage">
           <edgelabel>val</edgelabel>
         </childnode>
-        <childnode refid="42" relation="usage">
+        <childnode refid="45" relation="usage">
           <edgelabel>value_</edgelabel>
         </childnode>
       </node>
-      <node id="39">
+      <node id="42">
         <label>StkIdRel</label>
         <link refid="union_stk_id_rel" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="40" relation="usage">
+        <childnode refid="43" relation="usage">
           <edgelabel>p</edgelabel>
         </childnode>
       </node>
-      <node id="45">
+      <node id="48">
         <label>TString</label>
         <link refid="struct_t_string" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="38" relation="usage">
+        <childnode refid="41" relation="usage">
           <edgelabel>next</edgelabel>
         </childnode>
-        <childnode refid="45" relation="usage">
+        <childnode refid="48" relation="usage">
           <edgelabel>hnext</edgelabel>
         </childnode>
       </node>
-      <node id="41">
+      <node id="44">
         <label>TValue</label>
         <link refid="struct_t_value" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="42" relation="usage">
+        <childnode refid="45" relation="usage">
           <edgelabel>value_</edgelabel>
         </childnode>
       </node>
-      <node id="46">
+      <node id="49">
         <label>Table</label>
         <link refid="struct_table" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="38" relation="usage">
+        <childnode refid="41" relation="usage">
           <edgelabel>gclist</edgelabel>
           <edgelabel>next</edgelabel>
         </childnode>
-        <childnode refid="41" relation="usage">
+        <childnode refid="44" relation="usage">
           <edgelabel>array</edgelabel>
         </childnode>
-        <childnode refid="47" relation="usage">
+        <childnode refid="50" relation="usage">
           <edgelabel>lastfree</edgelabel>
           <edgelabel>node</edgelabel>
         </childnode>
-        <childnode refid="46" relation="usage">
+        <childnode refid="49" relation="usage">
           <edgelabel>metatable</edgelabel>
         </childnode>
       </node>
-      <node id="50">
+      <node id="53">
         <label>UpVal</label>
         <link refid="struct_up_val" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="38" relation="usage">
+        <childnode refid="41" relation="usage">
           <edgelabel>next</edgelabel>
         </childnode>
-        <childnode refid="50" relation="usage">
+        <childnode refid="53" relation="usage">
           <edgelabel>next</edgelabel>
           <edgelabel>previous</edgelabel>
         </childnode>
-        <childnode refid="41" relation="usage">
+        <childnode refid="44" relation="usage">
           <edgelabel>p</edgelabel>
           <edgelabel>value</edgelabel>
         </childnode>
       </node>
-      <node id="42">
+      <node id="45">
         <label>Value</label>
         <link refid="classValue" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag"/>
       </node>
@@ -1141,27 +1141,27 @@
         <childnode refid="4" relation="usage">
           <edgelabel>luaEngine</edgelabel>
         </childnode>
-        <childnode refid="62" relation="usage">
+        <childnode refid="65" relation="usage">
           <edgelabel>state</edgelabel>
         </childnode>
-        <childnode refid="68" relation="usage">
+        <childnode refid="71" relation="usage">
           <edgelabel>rows</edgelabel>
         </childnode>
-        <childnode refid="69" relation="usage">
+        <childnode refid="72" relation="usage">
           <edgelabel>messageOverlay</edgelabel>
         </childnode>
       </node>
-      <node id="43">
+      <node id="46">
         <label>global_State</label>
         <link refid="structglobal___state" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="44" relation="usage">
+        <childnode refid="47" relation="usage">
           <edgelabel>strt</edgelabel>
         </childnode>
-        <childnode refid="41" relation="usage">
+        <childnode refid="44" relation="usage">
           <edgelabel>l_registry</edgelabel>
           <edgelabel>nilvalue</edgelabel>
         </childnode>
-        <childnode refid="38" relation="usage">
+        <childnode refid="41" relation="usage">
           <edgelabel>allgc</edgelabel>
           <edgelabel>allweak</edgelabel>
           <edgelabel>ephemeron</edgelabel>
@@ -1174,27 +1174,27 @@
           <edgelabel>gray</edgelabel>
           <edgelabel>  ...</edgelabel>
         </childnode>
-        <childnode refid="37" relation="usage">
+        <childnode refid="40" relation="usage">
           <edgelabel>mainthread</edgelabel>
           <edgelabel>panic</edgelabel>
           <edgelabel>twups</edgelabel>
         </childnode>
-        <childnode refid="45" relation="usage">
+        <childnode refid="48" relation="usage">
           <edgelabel>memerrmsg</edgelabel>
           <edgelabel>strcache</edgelabel>
           <edgelabel>tmname</edgelabel>
         </childnode>
-        <childnode refid="46" relation="usage">
+        <childnode refid="49" relation="usage">
           <edgelabel>mt</edgelabel>
         </childnode>
       </node>
-      <node id="63">
+      <node id="66">
         <label>jam::AnyMap</label>
         <link refid="classjam_1_1_any_map" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="64" relation="usage">
+        <childnode refid="67" relation="usage">
           <edgelabel>entries</edgelabel>
         </childnode>
-        <childnode refid="66" relation="usage">
+        <childnode refid="69" relation="usage">
           <edgelabel>types</edgelabel>
         </childnode>
       </node>
@@ -1206,17 +1206,17 @@
         <label>jam::Context&lt; Engine &gt;</label>
         <link refid="structjam_1_1_context" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="56">
+      <node id="59">
         <label>jam::File::Watcher</label>
         <link refid="structjam_1_1_file_1_1_watcher" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="57" relation="usage">
+        <childnode refid="60" relation="usage">
           <edgelabel>timers</edgelabel>
         </childnode>
       </node>
-      <node id="59">
+      <node id="62">
         <label>jam::File::Watcher::CoalesceTimer</label>
         <link refid="structjam_1_1_file_1_1_watcher_1_1_coalesce_timer" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="56" relation="usage">
+        <childnode refid="59" relation="usage">
           <edgelabel>owner</edgelabel>
         </childnode>
       </node>
@@ -1224,44 +1224,44 @@
         <label>jam::File::Watcher::Listener</label>
         <link refid="classjam_1_1_file_1_1_watcher_1_1_listener" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="62">
+      <node id="65">
         <label>jam::Model</label>
         <link refid="classjam_1_1_model" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="63" relation="usage">
+        <childnode refid="66" relation="usage">
           <edgelabel>params</edgelabel>
         </childnode>
-        <childnode refid="67" relation="usage">
+        <childnode refid="70" relation="usage">
           <edgelabel>uniqueNodeMap</edgelabel>
         </childnode>
       </node>
-      <node id="68">
+      <node id="71">
         <label>jam::Owner&lt; action::Row &gt;</label>
         <link refid="classjam_1_1_owner" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="36">
+      <node id="39">
         <label>jam::lua::Function</label>
         <link refid="classjam_1_1lua_1_1_function" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="37" relation="usage">
+        <childnode refid="40" relation="usage">
           <edgelabel>luaState</edgelabel>
         </childnode>
       </node>
-      <node id="53">
+      <node id="56">
         <label>jam::lua::State</label>
         <link refid="classjam_1_1lua_1_1_state" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="37" relation="usage">
+        <childnode refid="40" relation="usage">
           <edgelabel>luaState</edgelabel>
         </childnode>
-        <childnode refid="54" relation="usage">
+        <childnode refid="57" relation="usage">
           <edgelabel>registeredFunctions</edgelabel>
         </childnode>
-        <childnode refid="55" relation="usage">
+        <childnode refid="58" relation="usage">
           <edgelabel>registeredRawFunctions</edgelabel>
         </childnode>
       </node>
       <node id="2">
         <label>juce::Component</label>
       </node>
-      <node id="70">
+      <node id="73">
         <label>juce::Timer</label>
       </node>
       <node id="3">
@@ -1286,39 +1286,39 @@
         <childnode refid="29" relation="usage">
           <edgelabel>keys</edgelabel>
         </childnode>
-        <childnode refid="30" relation="usage">
+        <childnode refid="33" relation="usage">
           <edgelabel>popup</edgelabel>
         </childnode>
-        <childnode refid="33" relation="usage">
+        <childnode refid="36" relation="usage">
           <edgelabel>action</edgelabel>
         </childnode>
-        <childnode refid="51" relation="usage">
+        <childnode refid="54" relation="usage">
           <edgelabel>keyMappings</edgelabel>
         </childnode>
-        <childnode refid="53" relation="usage">
+        <childnode refid="56" relation="usage">
           <edgelabel>lua</edgelabel>
         </childnode>
-        <childnode refid="56" relation="usage">
+        <childnode refid="59" relation="usage">
           <edgelabel>watcher</edgelabel>
         </childnode>
-        <childnode refid="60" relation="usage">
+        <childnode refid="63" relation="usage">
           <edgelabel>displayCallbacks</edgelabel>
         </childnode>
-        <childnode refid="61" relation="usage">
+        <childnode refid="64" relation="usage">
           <edgelabel>popupCallbacks</edgelabel>
         </childnode>
       </node>
-      <node id="33">
+      <node id="36">
         <label>lua::Engine::Action</label>
         <link refid="structlua_1_1_engine_1_1_action"/>
-        <childnode refid="34" relation="usage">
+        <childnode refid="37" relation="usage">
           <edgelabel>entries</edgelabel>
         </childnode>
       </node>
-      <node id="35">
+      <node id="38">
         <label>lua::Engine::Action::Entry</label>
         <link refid="structlua_1_1_engine_1_1_action_1_1_entry"/>
-        <childnode refid="36" relation="usage">
+        <childnode refid="39" relation="usage">
           <edgelabel>execute</edgelabel>
         </childnode>
       </node>
@@ -1406,17 +1406,27 @@
         <label>lua::Engine::Display::Window</label>
         <link refid="structlua_1_1_engine_1_1_display_1_1_window"/>
       </node>
-      <node id="60">
+      <node id="63">
         <label>lua::Engine::DisplayCallbacks</label>
         <link refid="structlua_1_1_engine_1_1_display_callbacks"/>
       </node>
-      <node id="52">
+      <node id="55">
         <label>lua::Engine::KeyMapping</label>
         <link refid="structlua_1_1_engine_1_1_key_mapping"/>
       </node>
       <node id="29">
         <label>lua::Engine::Keys</label>
         <link refid="structlua_1_1_engine_1_1_keys"/>
+        <childnode refid="30" relation="usage">
+          <edgelabel>bindings</edgelabel>
+        </childnode>
+        <childnode refid="32" relation="usage">
+          <edgelabel>selection</edgelabel>
+        </childnode>
+      </node>
+      <node id="31">
+        <label>lua::Engine::Keys::Binding</label>
+        <link refid="structlua_1_1_engine_1_1_keys_1_1_binding"/>
       </node>
       <node id="7">
         <label>lua::Engine::Nexus</label>
@@ -1460,18 +1470,18 @@
         <label>lua::Engine::Nexus::Terminal</label>
         <link refid="structlua_1_1_engine_1_1_nexus_1_1_terminal"/>
       </node>
-      <node id="30">
+      <node id="33">
         <label>lua::Engine::Popup</label>
         <link refid="structlua_1_1_engine_1_1_popup"/>
         <childnode refid="14" relation="usage">
           <edgelabel>defaultCols</edgelabel>
           <edgelabel>defaultRows</edgelabel>
         </childnode>
-        <childnode refid="31" relation="usage">
+        <childnode refid="34" relation="usage">
           <edgelabel>entries</edgelabel>
         </childnode>
       </node>
-      <node id="32">
+      <node id="35">
         <label>lua::Engine::Popup::Entry</label>
         <link refid="structlua_1_1_engine_1_1_popup_1_1_entry"/>
         <childnode refid="14" relation="usage">
@@ -1479,105 +1489,115 @@
           <edgelabel>rows</edgelabel>
         </childnode>
       </node>
-      <node id="61">
+      <node id="64">
         <label>lua::Engine::PopupCallbacks</label>
         <link refid="structlua_1_1_engine_1_1_popup_callbacks"/>
+      </node>
+      <node id="32">
+        <label>lua::Engine::SelectionKeys</label>
+        <link refid="structlua_1_1_engine_1_1_selection_keys"/>
       </node>
       <node id="28">
         <label>lua::Engine::Whelmed</label>
         <link refid="structlua_1_1_engine_1_1_whelmed"/>
       </node>
-      <node id="37">
+      <node id="40">
         <label>lua_State</label>
         <link refid="structlua___state" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="38" relation="usage">
+        <childnode refid="41" relation="usage">
           <edgelabel>gclist</edgelabel>
           <edgelabel>next</edgelabel>
         </childnode>
-        <childnode refid="39" relation="usage">
+        <childnode refid="42" relation="usage">
           <edgelabel>stack</edgelabel>
           <edgelabel>stack_last</edgelabel>
           <edgelabel>tbclist</edgelabel>
           <edgelabel>top</edgelabel>
         </childnode>
-        <childnode refid="43" relation="usage">
+        <childnode refid="46" relation="usage">
           <edgelabel>l_G</edgelabel>
         </childnode>
-        <childnode refid="49" relation="usage">
+        <childnode refid="52" relation="usage">
           <edgelabel>base_ci</edgelabel>
           <edgelabel>ci</edgelabel>
         </childnode>
-        <childnode refid="50" relation="usage">
+        <childnode refid="53" relation="usage">
           <edgelabel>openupval</edgelabel>
         </childnode>
-        <childnode refid="37" relation="usage">
+        <childnode refid="40" relation="usage">
           <edgelabel>twups</edgelabel>
         </childnode>
       </node>
       <node id="18">
         <label>std::array&lt; juce::Colour, 16 &gt;</label>
       </node>
-      <node id="51">
-        <label>std::array&lt; lua::Engine::KeyMapping, keyMappingCount &gt;</label>
-        <childnode refid="52" relation="usage">
-          <edgelabel>elements</edgelabel>
-        </childnode>
-      </node>
-      <node id="55">
-        <label>std::list&lt; std::function&lt; int(lua_State *)&gt; &gt;</label>
-      </node>
       <node id="54">
-        <label>std::list&lt; std::function&lt; void()&gt; &gt;</label>
-      </node>
-      <node id="57">
-        <label>std::map&lt; juce::File, std::unique_ptr&lt; jam::File::Watcher::CoalesceTimer &gt; &gt;</label>
-        <childnode refid="58" relation="usage">
+        <label>std::array&lt; lua::Engine::KeyMapping, keyMappingCount &gt;</label>
+        <childnode refid="55" relation="usage">
           <edgelabel>elements</edgelabel>
         </childnode>
       </node>
       <node id="58">
+        <label>std::list&lt; std::function&lt; int(lua_State *)&gt; &gt;</label>
+      </node>
+      <node id="57">
+        <label>std::list&lt; std::function&lt; void()&gt; &gt;</label>
+      </node>
+      <node id="60">
+        <label>std::map&lt; juce::File, std::unique_ptr&lt; jam::File::Watcher::CoalesceTimer &gt; &gt;</label>
+        <childnode refid="61" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+      <node id="61">
         <label>std::unique_ptr&lt; jam::File::Watcher::CoalesceTimer &gt;</label>
-        <childnode refid="59" relation="usage">
+        <childnode refid="62" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
-      <node id="65">
+      <node id="68">
         <label>std::unique_ptr&lt; void, Deleter &gt;</label>
       </node>
-      <node id="66">
+      <node id="69">
         <label>std::unordered_map&lt; juce::Identifier, std::type_index &gt;</label>
       </node>
-      <node id="64">
+      <node id="67">
         <label>std::unordered_map&lt; juce::Identifier, std::unique_ptr&lt; void, Deleter &gt; &gt;</label>
-        <childnode refid="65" relation="usage">
+        <childnode refid="68" relation="usage">
           <edgelabel>elements</edgelabel>
         </childnode>
       </node>
       <node id="11">
         <label>std::unordered_map&lt; juce::String, juce::String &gt;</label>
       </node>
-      <node id="67">
+      <node id="70">
         <label>std::unordered_map&lt; juce::String, juce::ValueTree &gt;</label>
       </node>
       <node id="12">
         <label>std::unordered_set&lt; juce::String &gt;</label>
       </node>
-      <node id="34">
+      <node id="37">
         <label>std::vector&lt; lua::Engine::Action::Entry &gt;</label>
+        <childnode refid="38" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+      <node id="30">
+        <label>std::vector&lt; lua::Engine::Keys::Binding &gt;</label>
+        <childnode refid="31" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+      <node id="34">
+        <label>std::vector&lt; lua::Engine::Popup::Entry &gt;</label>
         <childnode refid="35" relation="usage">
           <edgelabel>elements</edgelabel>
         </childnode>
       </node>
-      <node id="31">
-        <label>std::vector&lt; lua::Engine::Popup::Entry &gt;</label>
-        <childnode refid="32" relation="usage">
-          <edgelabel>elements</edgelabel>
-        </childnode>
-      </node>
-      <node id="44">
+      <node id="47">
         <label>stringtable</label>
         <link refid="structstringtable" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="45" relation="usage">
+        <childnode refid="48" relation="usage">
           <edgelabel>hash</edgelabel>
         </childnode>
       </node>

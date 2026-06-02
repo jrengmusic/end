@@ -19,8 +19,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/MessageOverlay.h" line="413" column="18" bodyfile="terminal/component/MessageOverlay.h" bodystart="413" bodyend="-1"/>
-        <referencedby refid="class_message_overlay_1aeaea2831b40866641f24efffb547e2c4" compoundref="_message_overlay_8h" startline="213" endline="269">paint</referencedby>
+        <location file="terminal/component/MessageOverlay.h" line="412" column="18" bodyfile="terminal/component/MessageOverlay.h" bodystart="412" bodyend="-1"/>
+        <referencedby refid="class_message_overlay_1aeaea2831b40866641f24efffb547e2c4" compoundref="_message_overlay_8h" startline="212" endline="268">paint</referencedby>
         <referencedby refid="class_message_overlay_1a029aa998752f874b2d3b33cda65bf30e" compoundref="_message_overlay_8h" startline="93" endline="101">showMessage</referencedby>
       </memberdef>
       <memberdef kind="variable" id="class_message_overlay_1a7d2f97313776d32a1f46bf5e1a0e7091" prot="private" static="no" mutable="no">
@@ -37,10 +37,10 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/MessageOverlay.h" line="416" column="10" bodyfile="terminal/component/MessageOverlay.h" bodystart="416" bodyend="416"/>
-        <referencedby refid="class_message_overlay_1aeaea2831b40866641f24efffb547e2c4" compoundref="_message_overlay_8h" startline="213" endline="269">paint</referencedby>
+        <location file="terminal/component/MessageOverlay.h" line="415" column="10" bodyfile="terminal/component/MessageOverlay.h" bodystart="415" bodyend="415"/>
+        <referencedby refid="class_message_overlay_1aeaea2831b40866641f24efffb547e2c4" compoundref="_message_overlay_8h" startline="212" endline="268">paint</referencedby>
         <referencedby refid="class_message_overlay_1a029aa998752f874b2d3b33cda65bf30e" compoundref="_message_overlay_8h" startline="93" endline="101">showMessage</referencedby>
-        <referencedby refid="class_message_overlay_1a2bef24631d22fe8ea6a012b7c142c1f2" compoundref="_message_overlay_8h" startline="121" endline="134">showResize</referencedby>
+        <referencedby refid="class_message_overlay_1a2bef24631d22fe8ea6a012b7c142c1f2" compoundref="_message_overlay_8h" startline="120" endline="133">showResize</referencedby>
       </memberdef>
       <memberdef kind="variable" id="class_message_overlay_1a8e0703b29060cf8b49e791c0bcb0a2d0" prot="private" static="no" mutable="no">
         <type>bool</type>
@@ -56,12 +56,12 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/MessageOverlay.h" line="419" column="10" bodyfile="terminal/component/MessageOverlay.h" bodystart="419" bodyend="419"/>
-        <referencedby refid="class_message_overlay_1acda2f2ad43d6ed3b9dc6399806a84c1b" compoundref="_message_overlay_8h" startline="167" endline="176">dismissImage</referencedby>
-        <referencedby refid="class_message_overlay_1afd164b97203566165720aaf394b7e65b" compoundref="_message_overlay_8h" startline="193" endline="201">keyPressed</referencedby>
-        <referencedby refid="class_message_overlay_1a5cb15775d6979e3a9eb1b7b99f5a7d3c" compoundref="_message_overlay_8h" startline="182" endline="186">mouseDown</referencedby>
-        <referencedby refid="class_message_overlay_1aeaea2831b40866641f24efffb547e2c4" compoundref="_message_overlay_8h" startline="213" endline="269">paint</referencedby>
-        <referencedby refid="class_message_overlay_1a59970a814e8857f3de9170a371043702" compoundref="_message_overlay_8h" startline="146" endline="157">showImage</referencedby>
+        <location file="terminal/component/MessageOverlay.h" line="418" column="10" bodyfile="terminal/component/MessageOverlay.h" bodystart="418" bodyend="418"/>
+        <referencedby refid="class_message_overlay_1acda2f2ad43d6ed3b9dc6399806a84c1b" compoundref="_message_overlay_8h" startline="166" endline="175">dismissImage</referencedby>
+        <referencedby refid="class_message_overlay_1afd164b97203566165720aaf394b7e65b" compoundref="_message_overlay_8h" startline="192" endline="200">keyPressed</referencedby>
+        <referencedby refid="class_message_overlay_1a5cb15775d6979e3a9eb1b7b99f5a7d3c" compoundref="_message_overlay_8h" startline="181" endline="185">mouseDown</referencedby>
+        <referencedby refid="class_message_overlay_1aeaea2831b40866641f24efffb547e2c4" compoundref="_message_overlay_8h" startline="212" endline="268">paint</referencedby>
+        <referencedby refid="class_message_overlay_1a59970a814e8857f3de9170a371043702" compoundref="_message_overlay_8h" startline="145" endline="156">showImage</referencedby>
       </memberdef>
       <memberdef kind="variable" id="class_message_overlay_1a343848d12b3fc0e5cae342535e1af772" prot="private" static="no" mutable="no">
         <type>juce::Image</type>
@@ -76,10 +76,10 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/MessageOverlay.h" line="422" column="17" bodyfile="terminal/component/MessageOverlay.h" bodystart="422" bodyend="-1"/>
-        <referencedby refid="class_message_overlay_1acda2f2ad43d6ed3b9dc6399806a84c1b" compoundref="_message_overlay_8h" startline="167" endline="176">dismissImage</referencedby>
-        <referencedby refid="class_message_overlay_1aeaea2831b40866641f24efffb547e2c4" compoundref="_message_overlay_8h" startline="213" endline="269">paint</referencedby>
-        <referencedby refid="class_message_overlay_1a59970a814e8857f3de9170a371043702" compoundref="_message_overlay_8h" startline="146" endline="157">showImage</referencedby>
+        <location file="terminal/component/MessageOverlay.h" line="421" column="17" bodyfile="terminal/component/MessageOverlay.h" bodystart="421" bodyend="-1"/>
+        <referencedby refid="class_message_overlay_1acda2f2ad43d6ed3b9dc6399806a84c1b" compoundref="_message_overlay_8h" startline="166" endline="175">dismissImage</referencedby>
+        <referencedby refid="class_message_overlay_1aeaea2831b40866641f24efffb547e2c4" compoundref="_message_overlay_8h" startline="212" endline="268">paint</referencedby>
+        <referencedby refid="class_message_overlay_1a59970a814e8857f3de9170a371043702" compoundref="_message_overlay_8h" startline="145" endline="156">showImage</referencedby>
       </memberdef>
       <memberdef kind="variable" id="class_message_overlay_1af55ed5abc74accddc32297470a34b8d5" prot="private" static="no" mutable="no">
         <type><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref></type>
@@ -95,9 +95,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/MessageOverlay.h" line="425" column="10" bodyfile="terminal/component/MessageOverlay.h" bodystart="425" bodyend="425"/>
-        <referencedby refid="class_message_overlay_1aeaea2831b40866641f24efffb547e2c4" compoundref="_message_overlay_8h" startline="213" endline="269">paint</referencedby>
-        <referencedby refid="class_message_overlay_1a2bef24631d22fe8ea6a012b7c142c1f2" compoundref="_message_overlay_8h" startline="121" endline="134">showResize</referencedby>
+        <location file="terminal/component/MessageOverlay.h" line="424" column="10" bodyfile="terminal/component/MessageOverlay.h" bodystart="424" bodyend="424"/>
+        <referencedby refid="class_message_overlay_1aeaea2831b40866641f24efffb547e2c4" compoundref="_message_overlay_8h" startline="212" endline="268">paint</referencedby>
+        <referencedby refid="class_message_overlay_1a2bef24631d22fe8ea6a012b7c142c1f2" compoundref="_message_overlay_8h" startline="120" endline="133">showResize</referencedby>
       </memberdef>
       <memberdef kind="variable" id="class_message_overlay_1ab5db45944e4b5971b0fe6d2e326e40f2" prot="private" static="no" mutable="no">
         <type><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref></type>
@@ -113,9 +113,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/MessageOverlay.h" line="428" column="10" bodyfile="terminal/component/MessageOverlay.h" bodystart="428" bodyend="428"/>
-        <referencedby refid="class_message_overlay_1aeaea2831b40866641f24efffb547e2c4" compoundref="_message_overlay_8h" startline="213" endline="269">paint</referencedby>
-        <referencedby refid="class_message_overlay_1a2bef24631d22fe8ea6a012b7c142c1f2" compoundref="_message_overlay_8h" startline="121" endline="134">showResize</referencedby>
+        <location file="terminal/component/MessageOverlay.h" line="427" column="10" bodyfile="terminal/component/MessageOverlay.h" bodystart="427" bodyend="427"/>
+        <referencedby refid="class_message_overlay_1aeaea2831b40866641f24efffb547e2c4" compoundref="_message_overlay_8h" startline="212" endline="268">paint</referencedby>
+        <referencedby refid="class_message_overlay_1a2bef24631d22fe8ea6a012b7c142c1f2" compoundref="_message_overlay_8h" startline="120" endline="133">showResize</referencedby>
       </memberdef>
       <memberdef kind="variable" id="class_message_overlay_1a9d5b8e881f0b933f9f2ce9682223fa7c" prot="private" static="no" mutable="no">
         <type>int</type>
@@ -131,9 +131,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/MessageOverlay.h" line="431" column="9" bodyfile="terminal/component/MessageOverlay.h" bodystart="431" bodyend="431"/>
-        <referencedby refid="class_message_overlay_1aeaea2831b40866641f24efffb547e2c4" compoundref="_message_overlay_8h" startline="213" endline="269">paint</referencedby>
-        <referencedby refid="class_message_overlay_1a2bef24631d22fe8ea6a012b7c142c1f2" compoundref="_message_overlay_8h" startline="121" endline="134">showResize</referencedby>
+        <location file="terminal/component/MessageOverlay.h" line="430" column="9" bodyfile="terminal/component/MessageOverlay.h" bodystart="430" bodyend="430"/>
+        <referencedby refid="class_message_overlay_1aeaea2831b40866641f24efffb547e2c4" compoundref="_message_overlay_8h" startline="212" endline="268">paint</referencedby>
+        <referencedby refid="class_message_overlay_1a2bef24631d22fe8ea6a012b7c142c1f2" compoundref="_message_overlay_8h" startline="120" endline="133">showResize</referencedby>
       </memberdef>
       <memberdef kind="variable" id="class_message_overlay_1a72c3bf29f046bc9c0ed8d0efa9089857" prot="private" static="no" mutable="no">
         <type>int</type>
@@ -149,9 +149,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/MessageOverlay.h" line="434" column="9" bodyfile="terminal/component/MessageOverlay.h" bodystart="434" bodyend="434"/>
-        <referencedby refid="class_message_overlay_1aeaea2831b40866641f24efffb547e2c4" compoundref="_message_overlay_8h" startline="213" endline="269">paint</referencedby>
-        <referencedby refid="class_message_overlay_1a2bef24631d22fe8ea6a012b7c142c1f2" compoundref="_message_overlay_8h" startline="121" endline="134">showResize</referencedby>
+        <location file="terminal/component/MessageOverlay.h" line="433" column="9" bodyfile="terminal/component/MessageOverlay.h" bodystart="433" bodyend="433"/>
+        <referencedby refid="class_message_overlay_1aeaea2831b40866641f24efffb547e2c4" compoundref="_message_overlay_8h" startline="212" endline="268">paint</referencedby>
+        <referencedby refid="class_message_overlay_1a2bef24631d22fe8ea6a012b7c142c1f2" compoundref="_message_overlay_8h" startline="120" endline="133">showResize</referencedby>
       </memberdef>
       <memberdef kind="variable" id="class_message_overlay_1ac6d3fb04c619428d82a63855b9a4473e" prot="private" static="no" mutable="no">
         <type>int</type>
@@ -167,9 +167,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/MessageOverlay.h" line="437" column="9" bodyfile="terminal/component/MessageOverlay.h" bodystart="437" bodyend="437"/>
-        <referencedby refid="class_message_overlay_1aeaea2831b40866641f24efffb547e2c4" compoundref="_message_overlay_8h" startline="213" endline="269">paint</referencedby>
-        <referencedby refid="class_message_overlay_1a2bef24631d22fe8ea6a012b7c142c1f2" compoundref="_message_overlay_8h" startline="121" endline="134">showResize</referencedby>
+        <location file="terminal/component/MessageOverlay.h" line="436" column="9" bodyfile="terminal/component/MessageOverlay.h" bodystart="436" bodyend="436"/>
+        <referencedby refid="class_message_overlay_1aeaea2831b40866641f24efffb547e2c4" compoundref="_message_overlay_8h" startline="212" endline="268">paint</referencedby>
+        <referencedby refid="class_message_overlay_1a2bef24631d22fe8ea6a012b7c142c1f2" compoundref="_message_overlay_8h" startline="120" endline="133">showResize</referencedby>
       </memberdef>
       <memberdef kind="variable" id="class_message_overlay_1a81ece1ee073d2b69d6c156c4f452df8f" prot="private" static="no" mutable="no">
         <type>int</type>
@@ -185,9 +185,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/MessageOverlay.h" line="440" column="9" bodyfile="terminal/component/MessageOverlay.h" bodystart="440" bodyend="440"/>
-        <referencedby refid="class_message_overlay_1aeaea2831b40866641f24efffb547e2c4" compoundref="_message_overlay_8h" startline="213" endline="269">paint</referencedby>
-        <referencedby refid="class_message_overlay_1a2bef24631d22fe8ea6a012b7c142c1f2" compoundref="_message_overlay_8h" startline="121" endline="134">showResize</referencedby>
+        <location file="terminal/component/MessageOverlay.h" line="439" column="9" bodyfile="terminal/component/MessageOverlay.h" bodystart="439" bodyend="439"/>
+        <referencedby refid="class_message_overlay_1aeaea2831b40866641f24efffb547e2c4" compoundref="_message_overlay_8h" startline="212" endline="268">paint</referencedby>
+        <referencedby refid="class_message_overlay_1a2bef24631d22fe8ea6a012b7c142c1f2" compoundref="_message_overlay_8h" startline="120" endline="133">showResize</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="private-static-attrib">
@@ -205,8 +205,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/MessageOverlay.h" line="444" column="28" bodyfile="terminal/component/MessageOverlay.h" bodystart="444" bodyend="444"/>
-        <referencedby refid="class_message_overlay_1aeaea2831b40866641f24efffb547e2c4" compoundref="_message_overlay_8h" startline="213" endline="269">paint</referencedby>
+        <location file="terminal/component/MessageOverlay.h" line="443" column="28" bodyfile="terminal/component/MessageOverlay.h" bodystart="443" bodyend="443"/>
+        <referencedby refid="class_message_overlay_1aeaea2831b40866641f24efffb547e2c4" compoundref="_message_overlay_8h" startline="212" endline="268">paint</referencedby>
       </memberdef>
       <memberdef kind="variable" id="class_message_overlay_1aa7983b724070057d8ccc859e42dd9245" prot="private" static="yes" constexpr="yes" mutable="no">
         <type>float</type>
@@ -222,8 +222,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/MessageOverlay.h" line="447" column="28" bodyfile="terminal/component/MessageOverlay.h" bodystart="447" bodyend="447"/>
-        <referencedby refid="class_message_overlay_1aeaea2831b40866641f24efffb547e2c4" compoundref="_message_overlay_8h" startline="213" endline="269">paint</referencedby>
+        <location file="terminal/component/MessageOverlay.h" line="446" column="28" bodyfile="terminal/component/MessageOverlay.h" bodystart="446" bodyend="446"/>
+        <referencedby refid="class_message_overlay_1aeaea2831b40866641f24efffb547e2c4" compoundref="_message_overlay_8h" startline="212" endline="268">paint</referencedby>
       </memberdef>
       <memberdef kind="variable" id="class_message_overlay_1a66ef06abef3c6476cb00313ad30e3d42" prot="private" static="yes" constexpr="yes" mutable="no">
         <type>int</type>
@@ -239,8 +239,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/MessageOverlay.h" line="450" column="26" bodyfile="terminal/component/MessageOverlay.h" bodystart="450" bodyend="450"/>
-        <referencedby refid="class_message_overlay_1aeaea2831b40866641f24efffb547e2c4" compoundref="_message_overlay_8h" startline="213" endline="269">paint</referencedby>
+        <location file="terminal/component/MessageOverlay.h" line="449" column="26" bodyfile="terminal/component/MessageOverlay.h" bodystart="449" bodyend="449"/>
+        <referencedby refid="class_message_overlay_1aeaea2831b40866641f24efffb547e2c4" compoundref="_message_overlay_8h" startline="212" endline="268">paint</referencedby>
       </memberdef>
       <memberdef kind="variable" id="class_message_overlay_1ac8115e493047cbdf11bdd36c62248229" prot="private" static="yes" constexpr="yes" mutable="no">
         <type>int</type>
@@ -256,8 +256,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/MessageOverlay.h" line="453" column="26" bodyfile="terminal/component/MessageOverlay.h" bodystart="453" bodyend="453"/>
-        <referencedby refid="class_message_overlay_1aeaea2831b40866641f24efffb547e2c4" compoundref="_message_overlay_8h" startline="213" endline="269">paint</referencedby>
+        <location file="terminal/component/MessageOverlay.h" line="452" column="26" bodyfile="terminal/component/MessageOverlay.h" bodystart="452" bodyend="452"/>
+        <referencedby refid="class_message_overlay_1aeaea2831b40866641f24efffb547e2c4" compoundref="_message_overlay_8h" startline="212" endline="268">paint</referencedby>
       </memberdef>
       <memberdef kind="variable" id="class_message_overlay_1a831d894ddbb4304c6e6ac682ca0f83de" prot="private" static="yes" constexpr="yes" mutable="no">
         <type>int</type>
@@ -273,10 +273,10 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/MessageOverlay.h" line="456" column="26" bodyfile="terminal/component/MessageOverlay.h" bodystart="456" bodyend="456"/>
-        <referencedby refid="class_message_overlay_1a59970a814e8857f3de9170a371043702" compoundref="_message_overlay_8h" startline="146" endline="157">showImage</referencedby>
+        <location file="terminal/component/MessageOverlay.h" line="455" column="26" bodyfile="terminal/component/MessageOverlay.h" bodystart="455" bodyend="455"/>
+        <referencedby refid="class_message_overlay_1a59970a814e8857f3de9170a371043702" compoundref="_message_overlay_8h" startline="145" endline="156">showImage</referencedby>
         <referencedby refid="class_message_overlay_1a029aa998752f874b2d3b33cda65bf30e" compoundref="_message_overlay_8h" startline="93" endline="101">showMessage</referencedby>
-        <referencedby refid="class_message_overlay_1a2bef24631d22fe8ea6a012b7c142c1f2" compoundref="_message_overlay_8h" startline="121" endline="134">showResize</referencedby>
+        <referencedby refid="class_message_overlay_1a2bef24631d22fe8ea6a012b7c142c1f2" compoundref="_message_overlay_8h" startline="120" endline="133">showResize</referencedby>
       </memberdef>
       <memberdef kind="variable" id="class_message_overlay_1a95b9ddbacb59085c54daa2c261acc452" prot="private" static="yes" constexpr="yes" mutable="no">
         <type>int</type>
@@ -292,7 +292,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/MessageOverlay.h" line="459" column="26" bodyfile="terminal/component/MessageOverlay.h" bodystart="459" bodyend="459"/>
+        <location file="terminal/component/MessageOverlay.h" line="458" column="26" bodyfile="terminal/component/MessageOverlay.h" bodystart="458" bodyend="458"/>
         <referencedby refid="class_message_overlay_1a029aa998752f874b2d3b33cda65bf30e" compoundref="_message_overlay_8h" startline="93" endline="101">showMessage</referencedby>
       </memberdef>
       <memberdef kind="variable" id="class_message_overlay_1a567ce5bfe55f4e809de3e67a9cf98fed" prot="private" static="yes" constexpr="yes" mutable="no">
@@ -309,8 +309,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/MessageOverlay.h" line="462" column="26" bodyfile="terminal/component/MessageOverlay.h" bodystart="462" bodyend="462"/>
-        <referencedby refid="class_message_overlay_1a2bef24631d22fe8ea6a012b7c142c1f2" compoundref="_message_overlay_8h" startline="121" endline="134">showResize</referencedby>
+        <location file="terminal/component/MessageOverlay.h" line="461" column="26" bodyfile="terminal/component/MessageOverlay.h" bodystart="461" bodyend="461"/>
+        <referencedby refid="class_message_overlay_1a2bef24631d22fe8ea6a012b7c142c1f2" compoundref="_message_overlay_8h" startline="120" endline="133">showResize</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">
@@ -379,10 +379,10 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/component/MessageOverlay.h" line="93" column="10" bodyfile="terminal/component/MessageOverlay.h" bodystart="93" bodyend="101"/>
-        <references refid="class_message_overlay_1a831d894ddbb4304c6e6ac682ca0f83de" compoundref="_message_overlay_8h" startline="456" endline="456">fadeInMs</references>
-        <references refid="class_message_overlay_1a9ac4daa8553d9ff9b9b36993ac9733e8" compoundref="_message_overlay_8h" startline="413">message</references>
-        <references refid="class_message_overlay_1a95b9ddbacb59085c54daa2c261acc452" compoundref="_message_overlay_8h" startline="459" endline="459">messageDelayMs</references>
-        <references refid="class_message_overlay_1a7d2f97313776d32a1f46bf5e1a0e7091" compoundref="_message_overlay_8h" startline="416" endline="416">resizeMode</references>
+        <references refid="class_message_overlay_1a831d894ddbb4304c6e6ac682ca0f83de" compoundref="_message_overlay_8h" startline="455" endline="455">fadeInMs</references>
+        <references refid="class_message_overlay_1a9ac4daa8553d9ff9b9b36993ac9733e8" compoundref="_message_overlay_8h" startline="412">message</references>
+        <references refid="class_message_overlay_1a95b9ddbacb59085c54daa2c261acc452" compoundref="_message_overlay_8h" startline="458" endline="458">messageDelayMs</references>
+        <references refid="class_message_overlay_1a7d2f97313776d32a1f46bf5e1a0e7091" compoundref="_message_overlay_8h" startline="415" endline="415">resizeMode</references>
         <references refid="structjam_1_1_animator_1a9b25beac56ffed8693b54cf2e594fa6a">jam::Animator::toggleFade</references>
       </memberdef>
       <memberdef kind="function" id="class_message_overlay_1a2bef24631d22fe8ea6a012b7c142c1f2" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
@@ -418,18 +418,10 @@
 <para>Switches the overlay into ruler mode: <computeroutput><ref refid="class_message_overlay_1aeaea2831b40866641f24efffb547e2c4" kindref="member">paint()</ref></computeroutput> calls <computeroutput><ref refid="class_message_overlay_1a05db852ad61501a3dd8cb4cdcc93600d" kindref="member">paintRulers()</ref></computeroutput> instead of drawing centred text. The rulers are inset by the terminal grid padding so they align with the actual grid edges rather than the raw window edge.</para>
 <para><parameterlist kind="param"><parameteritem>
 <parameternamelist>
-<parametername>cols</parametername>
+<parametername>dims</parametername>
 </parameternamelist>
 <parameterdescription>
-<para>Current terminal column count (cell units). </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>rows</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>Current terminal row count (cell units). </para>
+<para>Current terminal dimensions (cols × rows in cell units). </para>
 </parameterdescription>
 </parameteritem>
 <parameteritem>
@@ -473,18 +465,18 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/MessageOverlay.h" line="121" column="10" bodyfile="terminal/component/MessageOverlay.h" bodystart="121" bodyend="134"/>
-        <references refid="class_message_overlay_1a831d894ddbb4304c6e6ac682ca0f83de" compoundref="_message_overlay_8h" startline="456" endline="456">fadeInMs</references>
+        <location file="terminal/component/MessageOverlay.h" line="120" column="10" bodyfile="terminal/component/MessageOverlay.h" bodystart="120" bodyend="133"/>
+        <references refid="class_message_overlay_1a831d894ddbb4304c6e6ac682ca0f83de" compoundref="_message_overlay_8h" startline="455" endline="455">fadeInMs</references>
         <references refid="structjam_1_1_cell_1_1_rectangle_1a6fd3c1980b15bde3963479e0d23a938f">jam::Cell::Rectangle::getHeight</references>
         <references refid="structjam_1_1_cell_1_1_rectangle_1a840c42ca4c36a43986eb1c931bc5f7d0">jam::Cell::Rectangle::getWidth</references>
-        <references refid="class_message_overlay_1af55ed5abc74accddc32297470a34b8d5" compoundref="_message_overlay_8h" startline="425" endline="425">resizeCols</references>
-        <references refid="class_message_overlay_1a567ce5bfe55f4e809de3e67a9cf98fed" compoundref="_message_overlay_8h" startline="462" endline="462">resizeDelayMs</references>
-        <references refid="class_message_overlay_1a7d2f97313776d32a1f46bf5e1a0e7091" compoundref="_message_overlay_8h" startline="416" endline="416">resizeMode</references>
-        <references refid="class_message_overlay_1ac6d3fb04c619428d82a63855b9a4473e" compoundref="_message_overlay_8h" startline="437" endline="437">resizePadBottom</references>
-        <references refid="class_message_overlay_1a81ece1ee073d2b69d6c156c4f452df8f" compoundref="_message_overlay_8h" startline="440" endline="440">resizePadLeft</references>
-        <references refid="class_message_overlay_1a72c3bf29f046bc9c0ed8d0efa9089857" compoundref="_message_overlay_8h" startline="434" endline="434">resizePadRight</references>
-        <references refid="class_message_overlay_1a9d5b8e881f0b933f9f2ce9682223fa7c" compoundref="_message_overlay_8h" startline="431" endline="431">resizePadTop</references>
-        <references refid="class_message_overlay_1ab5db45944e4b5971b0fe6d2e326e40f2" compoundref="_message_overlay_8h" startline="428" endline="428">resizeRows</references>
+        <references refid="class_message_overlay_1af55ed5abc74accddc32297470a34b8d5" compoundref="_message_overlay_8h" startline="424" endline="424">resizeCols</references>
+        <references refid="class_message_overlay_1a567ce5bfe55f4e809de3e67a9cf98fed" compoundref="_message_overlay_8h" startline="461" endline="461">resizeDelayMs</references>
+        <references refid="class_message_overlay_1a7d2f97313776d32a1f46bf5e1a0e7091" compoundref="_message_overlay_8h" startline="415" endline="415">resizeMode</references>
+        <references refid="class_message_overlay_1ac6d3fb04c619428d82a63855b9a4473e" compoundref="_message_overlay_8h" startline="436" endline="436">resizePadBottom</references>
+        <references refid="class_message_overlay_1a81ece1ee073d2b69d6c156c4f452df8f" compoundref="_message_overlay_8h" startline="439" endline="439">resizePadLeft</references>
+        <references refid="class_message_overlay_1a72c3bf29f046bc9c0ed8d0efa9089857" compoundref="_message_overlay_8h" startline="433" endline="433">resizePadRight</references>
+        <references refid="class_message_overlay_1a9d5b8e881f0b933f9f2ce9682223fa7c" compoundref="_message_overlay_8h" startline="430" endline="430">resizePadTop</references>
+        <references refid="class_message_overlay_1ab5db45944e4b5971b0fe6d2e326e40f2" compoundref="_message_overlay_8h" startline="427" endline="427">resizeRows</references>
         <references refid="structjam_1_1_animator_1a9b25beac56ffed8693b54cf2e594fa6a">jam::Animator::toggleFade</references>
       </memberdef>
       <memberdef kind="function" id="class_message_overlay_1a59970a814e8857f3de9170a371043702" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
@@ -517,10 +509,10 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/MessageOverlay.h" line="146" column="10" bodyfile="terminal/component/MessageOverlay.h" bodystart="146" bodyend="157"/>
-        <references refid="class_message_overlay_1a831d894ddbb4304c6e6ac682ca0f83de" compoundref="_message_overlay_8h" startline="456" endline="456">fadeInMs</references>
-        <references refid="class_message_overlay_1a8e0703b29060cf8b49e791c0bcb0a2d0" compoundref="_message_overlay_8h" startline="419" endline="419">imageMode</references>
-        <references refid="class_message_overlay_1a343848d12b3fc0e5cae342535e1af772" compoundref="_message_overlay_8h" startline="422">previewImage</references>
+        <location file="terminal/component/MessageOverlay.h" line="145" column="10" bodyfile="terminal/component/MessageOverlay.h" bodystart="145" bodyend="156"/>
+        <references refid="class_message_overlay_1a831d894ddbb4304c6e6ac682ca0f83de" compoundref="_message_overlay_8h" startline="455" endline="455">fadeInMs</references>
+        <references refid="class_message_overlay_1a8e0703b29060cf8b49e791c0bcb0a2d0" compoundref="_message_overlay_8h" startline="418" endline="418">imageMode</references>
+        <references refid="class_message_overlay_1a343848d12b3fc0e5cae342535e1af772" compoundref="_message_overlay_8h" startline="421">previewImage</references>
         <references refid="structjam_1_1_animator_1a9b25beac56ffed8693b54cf2e594fa6a">jam::Animator::toggleFade</references>
       </memberdef>
       <memberdef kind="function" id="class_message_overlay_1acda2f2ad43d6ed3b9dc6399806a84c1b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
@@ -540,12 +532,12 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/MessageOverlay.h" line="167" column="10" bodyfile="terminal/component/MessageOverlay.h" bodystart="167" bodyend="176"/>
-        <references refid="class_message_overlay_1a8e0703b29060cf8b49e791c0bcb0a2d0" compoundref="_message_overlay_8h" startline="419" endline="419">imageMode</references>
-        <references refid="class_message_overlay_1a343848d12b3fc0e5cae342535e1af772" compoundref="_message_overlay_8h" startline="422">previewImage</references>
+        <location file="terminal/component/MessageOverlay.h" line="166" column="10" bodyfile="terminal/component/MessageOverlay.h" bodystart="166" bodyend="175"/>
+        <references refid="class_message_overlay_1a8e0703b29060cf8b49e791c0bcb0a2d0" compoundref="_message_overlay_8h" startline="418" endline="418">imageMode</references>
+        <references refid="class_message_overlay_1a343848d12b3fc0e5cae342535e1af772" compoundref="_message_overlay_8h" startline="421">previewImage</references>
         <references refid="structjam_1_1_animator_1a9b25beac56ffed8693b54cf2e594fa6a">jam::Animator::toggleFade</references>
-        <referencedby refid="class_message_overlay_1afd164b97203566165720aaf394b7e65b" compoundref="_message_overlay_8h" startline="193" endline="201">keyPressed</referencedby>
-        <referencedby refid="class_message_overlay_1a5cb15775d6979e3a9eb1b7b99f5a7d3c" compoundref="_message_overlay_8h" startline="182" endline="186">mouseDown</referencedby>
+        <referencedby refid="class_message_overlay_1afd164b97203566165720aaf394b7e65b" compoundref="_message_overlay_8h" startline="192" endline="200">keyPressed</referencedby>
+        <referencedby refid="class_message_overlay_1a5cb15775d6979e3a9eb1b7b99f5a7d3c" compoundref="_message_overlay_8h" startline="181" endline="185">mouseDown</referencedby>
       </memberdef>
       <memberdef kind="function" id="class_message_overlay_1a5cb15775d6979e3a9eb1b7b99f5a7d3c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
         <type>void</type>
@@ -566,9 +558,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/MessageOverlay.h" line="182" column="10" bodyfile="terminal/component/MessageOverlay.h" bodystart="182" bodyend="186"/>
-        <references refid="class_message_overlay_1acda2f2ad43d6ed3b9dc6399806a84c1b" compoundref="_message_overlay_8h" startline="167" endline="176">dismissImage</references>
-        <references refid="class_message_overlay_1a8e0703b29060cf8b49e791c0bcb0a2d0" compoundref="_message_overlay_8h" startline="419" endline="419">imageMode</references>
+        <location file="terminal/component/MessageOverlay.h" line="181" column="10" bodyfile="terminal/component/MessageOverlay.h" bodystart="181" bodyend="185"/>
+        <references refid="class_message_overlay_1acda2f2ad43d6ed3b9dc6399806a84c1b" compoundref="_message_overlay_8h" startline="166" endline="175">dismissImage</references>
+        <references refid="class_message_overlay_1a8e0703b29060cf8b49e791c0bcb0a2d0" compoundref="_message_overlay_8h" startline="418" endline="418">imageMode</references>
       </memberdef>
       <memberdef kind="function" id="class_message_overlay_1afd164b97203566165720aaf394b7e65b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
         <type>bool</type>
@@ -591,9 +583,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/MessageOverlay.h" line="193" column="10" bodyfile="terminal/component/MessageOverlay.h" bodystart="193" bodyend="201"/>
-        <references refid="class_message_overlay_1acda2f2ad43d6ed3b9dc6399806a84c1b" compoundref="_message_overlay_8h" startline="167" endline="176">dismissImage</references>
-        <references refid="class_message_overlay_1a8e0703b29060cf8b49e791c0bcb0a2d0" compoundref="_message_overlay_8h" startline="419" endline="419">imageMode</references>
+        <location file="terminal/component/MessageOverlay.h" line="192" column="10" bodyfile="terminal/component/MessageOverlay.h" bodystart="192" bodyend="200"/>
+        <references refid="class_message_overlay_1acda2f2ad43d6ed3b9dc6399806a84c1b" compoundref="_message_overlay_8h" startline="166" endline="175">dismissImage</references>
+        <references refid="class_message_overlay_1a8e0703b29060cf8b49e791c0bcb0a2d0" compoundref="_message_overlay_8h" startline="418" endline="418">imageMode</references>
       </memberdef>
       <memberdef kind="function" id="class_message_overlay_1aeaea2831b40866641f24efffb547e2c4" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
         <type>void</type>
@@ -625,23 +617,23 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/MessageOverlay.h" line="213" column="10" bodyfile="terminal/component/MessageOverlay.h" bodystart="213" bodyend="269"/>
-        <references refid="class_message_overlay_1ad83f82b4333072775aeb7ca04e7f2dc3" compoundref="_message_overlay_8h" startline="444" endline="444">backgroundAlpha</references>
+        <location file="terminal/component/MessageOverlay.h" line="212" column="10" bodyfile="terminal/component/MessageOverlay.h" bodystart="212" bodyend="268"/>
+        <references refid="class_message_overlay_1ad83f82b4333072775aeb7ca04e7f2dc3" compoundref="_message_overlay_8h" startline="443" endline="443">backgroundAlpha</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
-        <references refid="class_message_overlay_1a8e0703b29060cf8b49e791c0bcb0a2d0" compoundref="_message_overlay_8h" startline="419" endline="419">imageMode</references>
-        <references refid="class_message_overlay_1aa7983b724070057d8ccc859e42dd9245" compoundref="_message_overlay_8h" startline="447" endline="447">imagePaddingPx</references>
-        <references refid="class_message_overlay_1ac8115e493047cbdf11bdd36c62248229" compoundref="_message_overlay_8h" startline="453" endline="453">maxLines</references>
-        <references refid="class_message_overlay_1a9ac4daa8553d9ff9b9b36993ac9733e8" compoundref="_message_overlay_8h" startline="413">message</references>
-        <references refid="class_message_overlay_1a05db852ad61501a3dd8cb4cdcc93600d" compoundref="_message_overlay_8h" startline="300" endline="401">paintRulers</references>
-        <references refid="class_message_overlay_1a343848d12b3fc0e5cae342535e1af772" compoundref="_message_overlay_8h" startline="422">previewImage</references>
-        <references refid="class_message_overlay_1af55ed5abc74accddc32297470a34b8d5" compoundref="_message_overlay_8h" startline="425" endline="425">resizeCols</references>
-        <references refid="class_message_overlay_1a7d2f97313776d32a1f46bf5e1a0e7091" compoundref="_message_overlay_8h" startline="416" endline="416">resizeMode</references>
-        <references refid="class_message_overlay_1ac6d3fb04c619428d82a63855b9a4473e" compoundref="_message_overlay_8h" startline="437" endline="437">resizePadBottom</references>
-        <references refid="class_message_overlay_1a81ece1ee073d2b69d6c156c4f452df8f" compoundref="_message_overlay_8h" startline="440" endline="440">resizePadLeft</references>
-        <references refid="class_message_overlay_1a72c3bf29f046bc9c0ed8d0efa9089857" compoundref="_message_overlay_8h" startline="434" endline="434">resizePadRight</references>
-        <references refid="class_message_overlay_1a9d5b8e881f0b933f9f2ce9682223fa7c" compoundref="_message_overlay_8h" startline="431" endline="431">resizePadTop</references>
-        <references refid="class_message_overlay_1ab5db45944e4b5971b0fe6d2e326e40f2" compoundref="_message_overlay_8h" startline="428" endline="428">resizeRows</references>
-        <references refid="class_message_overlay_1a66ef06abef3c6476cb00313ad30e3d42" compoundref="_message_overlay_8h" startline="450" endline="450">textPadding</references>
+        <references refid="class_message_overlay_1a8e0703b29060cf8b49e791c0bcb0a2d0" compoundref="_message_overlay_8h" startline="418" endline="418">imageMode</references>
+        <references refid="class_message_overlay_1aa7983b724070057d8ccc859e42dd9245" compoundref="_message_overlay_8h" startline="446" endline="446">imagePaddingPx</references>
+        <references refid="class_message_overlay_1ac8115e493047cbdf11bdd36c62248229" compoundref="_message_overlay_8h" startline="452" endline="452">maxLines</references>
+        <references refid="class_message_overlay_1a9ac4daa8553d9ff9b9b36993ac9733e8" compoundref="_message_overlay_8h" startline="412">message</references>
+        <references refid="class_message_overlay_1a05db852ad61501a3dd8cb4cdcc93600d" compoundref="_message_overlay_8h" startline="299" endline="400">paintRulers</references>
+        <references refid="class_message_overlay_1a343848d12b3fc0e5cae342535e1af772" compoundref="_message_overlay_8h" startline="421">previewImage</references>
+        <references refid="class_message_overlay_1af55ed5abc74accddc32297470a34b8d5" compoundref="_message_overlay_8h" startline="424" endline="424">resizeCols</references>
+        <references refid="class_message_overlay_1a7d2f97313776d32a1f46bf5e1a0e7091" compoundref="_message_overlay_8h" startline="415" endline="415">resizeMode</references>
+        <references refid="class_message_overlay_1ac6d3fb04c619428d82a63855b9a4473e" compoundref="_message_overlay_8h" startline="436" endline="436">resizePadBottom</references>
+        <references refid="class_message_overlay_1a81ece1ee073d2b69d6c156c4f452df8f" compoundref="_message_overlay_8h" startline="439" endline="439">resizePadLeft</references>
+        <references refid="class_message_overlay_1a72c3bf29f046bc9c0ed8d0efa9089857" compoundref="_message_overlay_8h" startline="433" endline="433">resizePadRight</references>
+        <references refid="class_message_overlay_1a9d5b8e881f0b933f9f2ce9682223fa7c" compoundref="_message_overlay_8h" startline="430" endline="430">resizePadTop</references>
+        <references refid="class_message_overlay_1ab5db45944e4b5971b0fe6d2e326e40f2" compoundref="_message_overlay_8h" startline="427" endline="427">resizeRows</references>
+        <references refid="class_message_overlay_1a66ef06abef3c6476cb00313ad30e3d42" compoundref="_message_overlay_8h" startline="449" endline="449">textPadding</references>
       </memberdef>
     </sectiondef>
     <sectiondef kind="private-static-func">
@@ -791,12 +783,12 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/MessageOverlay.h" line="300" column="17" bodyfile="terminal/component/MessageOverlay.h" bodystart="300" bodyend="401"/>
+        <location file="terminal/component/MessageOverlay.h" line="299" column="17" bodyfile="terminal/component/MessageOverlay.h" bodystart="299" bodyend="400"/>
         <references refid="group__juce__audio__plugin__client-Unity_1ga2ee4d4f298ba1bf1bc2f45c681c40ca3">h</references>
         <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682cad304ba20e96d87411588eeabac850e34">label</references>
         <references refid="structjam_1_1_cell_1aecd8f8ae6d8912e9b0689382ac96cbb4">jam::Cell::value</references>
         <references refid="group__juce__audio__plugin__client-Unity_1ga9c08bc30636cc52269cf06d61cf5d4e8">w</references>
-        <referencedby refid="class_message_overlay_1aeaea2831b40866641f24efffb547e2c4" compoundref="_message_overlay_8h" startline="213" endline="269">paint</referencedby>
+        <referencedby refid="class_message_overlay_1aeaea2831b40866641f24efffb547e2c4" compoundref="_message_overlay_8h" startline="212" endline="268">paint</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="private-func">
@@ -813,7 +805,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/MessageOverlay.h" line="405" column="10" bodyfile="terminal/component/MessageOverlay.h" bodystart="405" bodyend="409"/>
+        <location file="terminal/component/MessageOverlay.h" line="404" column="10" bodyfile="terminal/component/MessageOverlay.h" bodystart="404" bodyend="408"/>
         <references refid="structjam_1_1_animator_1a9b25beac56ffed8693b54cf2e594fa6a">jam::Animator::toggleFade</references>
       </memberdef>
     </sectiondef>
@@ -868,7 +860,7 @@
         <label>juce::Timer</label>
       </node>
     </collaborationgraph>
-    <location file="terminal/component/MessageOverlay.h" line="61" column="1" bodyfile="terminal/component/MessageOverlay.h" bodystart="64" bodyend="466"/>
+    <location file="terminal/component/MessageOverlay.h" line="61" column="1" bodyfile="terminal/component/MessageOverlay.h" bodystart="64" bodyend="465"/>
     <listofallmembers>
       <member refid="class_message_overlay_1ad83f82b4333072775aeb7ca04e7f2dc3" prot="private" virt="non-virtual"><scope>MessageOverlay</scope><name>backgroundAlpha</name></member>
       <member refid="class_message_overlay_1acda2f2ad43d6ed3b9dc6399806a84c1b" prot="public" virt="non-virtual"><scope>MessageOverlay</scope><name>dismissImage</name></member>

@@ -188,16 +188,6 @@ std::unique_ptr<Session> Session::create (const juce::String& cwd,
     return session;
 }
 
-/**
- * @brief Constructs the Session and stores deferred TTY open parameters.
- *
- * Creates Processor (VT pipeline orchestrator).
- * Stores shell/args/cwd/env for start().
- * Does NOT create the TTY — that happens in start() via Processor::startTTY() so
- * screen node atomics exist before the reader thread fires.
- *
- * @note MESSAGE THREAD.
- */
 Session::Session (jam::Cell::Rectangle dims,
                   const juce::String& shell,
                   const juce::String& args,
@@ -208,7 +198,7 @@ Session::Session (jam::Cell::Rectangle dims,
     : textBuffer {}
     , model (textBuffer)
     , codeModel (Map::Screen::count)
-    , textEditor (font, codeModel, model)
+    , textEditor (font, codeModel, model.getRootTree())
 {
     const juce::String effectiveUuid { uuid.isNotEmpty() ? uuid : juce::Uuid().toString() };
     processor = std::make_unique<terminal::Processor> (model, dims, textBuffer, effectiveUuid);
@@ -228,16 +218,6 @@ Session::Session (jam::Cell::Rectangle dims,
     startEnv   = seedEnv;
 }
 
-/**
- * @brief Constructs a remote Session — Processor + Model only, no TTY.
- *
- * Creates Processor (VT pipeline orchestrator).
- * Wires CWD into Model so display logic (tab title, cwd badge)
- * works identically to a local session.  TTY is not created.  Bytes must be
- * fed externally via getProcessor().process().
- *
- * @note MESSAGE THREAD.
- */
 Session::Session (jam::Cell::Rectangle dims,
                   const juce::String& cwd,
                   const juce::String& shell,
@@ -246,7 +226,7 @@ Session::Session (jam::Cell::Rectangle dims,
     : textBuffer {}
     , model (textBuffer)
     , codeModel (Map::Screen::count)
-    , textEditor (font, codeModel, model)
+    , textEditor (font, codeModel, model.getRootTree())
 {
     jassert (dims.isValid());
 
@@ -429,6 +409,22 @@ jam::CodeView& Session::getTextEditor() noexcept { return textEditor; }
  * @note MESSAGE THREAD.
  */
 jam::CodeModel& Session::getCodeModel() noexcept { return codeModel; }
+
+/**
+ * @brief Grafts the SESSION tree into the given PANE node via RAII Attachment.
+ *
+ * The Attachment is owned by this Session and ungrafts automatically on destruction.
+ * Destruction order: Session dtor fires → sessionAttachment dtor calls removeChild on the
+ * PANE node. If paneManager::remove() has already removed the PANE node from the tree,
+ * Attachment::~Attachment checks node.getParent().isValid() and performs a safe no-op.
+ *
+ * @note MESSAGE THREAD.
+ */
+void Session::graftInto (juce::ValueTree paneNode)
+{
+    jassert (paneNode.isValid());
+    sessionAttachment = std::make_unique<jam::ValueTree::Attachment> (paneNode, model.getRootTree());
+}
 
 /**
  * @brief Creates the TTY via Processor::startTTY and starts the reader thread.

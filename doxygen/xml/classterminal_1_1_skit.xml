@@ -19,10 +19,10 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Skit.h" line="120" column="24" bodyfile="terminal/Skit.h" bodystart="120" bodyend="-1"/>
-        <referencedby refid="classterminal_1_1_skit_1ad615d563dfc05d16336ee791d20b8819" compoundref="_skit_8cpp" startline="63" endline="68">handleSkitFilepath</referencedby>
-        <referencedby refid="classterminal_1_1_skit_1a6afae3d2d2515ad4a1956815a6b7219e" compoundref="_skit_8cpp" startline="181" endline="260">processAPC</referencedby>
-        <referencedby refid="classterminal_1_1_skit_1adb7fd09d2f0fb5ac03184a4acd1be344" compoundref="_skit_8cpp" startline="86" endline="161">processDCS</referencedby>
-        <referencedby refid="classterminal_1_1_skit_1ad5e4cea2ff02af101b376bc4c6b23e44" compoundref="_skit_8cpp" startline="278" endline="353">processOSC1337</referencedby>
+        <referencedby refid="classterminal_1_1_skit_1ad615d563dfc05d16336ee791d20b8819" compoundref="_skit_8cpp" startline="50" endline="55">handleSkitFilepath</referencedby>
+        <referencedby refid="classterminal_1_1_skit_1a6afae3d2d2515ad4a1956815a6b7219e" compoundref="_skit_8cpp" startline="168" endline="247">processAPC</referencedby>
+        <referencedby refid="classterminal_1_1_skit_1adb7fd09d2f0fb5ac03184a4acd1be344" compoundref="_skit_8cpp" startline="73" endline="148">processDCS</referencedby>
+        <referencedby refid="classterminal_1_1_skit_1ad5e4cea2ff02af101b376bc4c6b23e44" compoundref="_skit_8cpp" startline="265" endline="340">processOSC1337</referencedby>
         <referencedby refid="classterminal_1_1_skit_1a51dc47859dd61ff5558e49c37138c852" compoundref="_skit_8cpp" startline="35" endline="38">Skit</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classterminal_1_1_skit_1a4169ed5c211adbf81f9035a53e3eb54c" prot="private" static="no" mutable="no">
@@ -39,7 +39,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Skit.h" line="123" column="18" bodyfile="terminal/Skit.h" bodystart="123" bodyend="-1"/>
-        <referencedby refid="classterminal_1_1_skit_1a6afae3d2d2515ad4a1956815a6b7219e" compoundref="_skit_8cpp" startline="181" endline="260">processAPC</referencedby>
+        <referencedby refid="classterminal_1_1_skit_1a6afae3d2d2515ad4a1956815a6b7219e" compoundref="_skit_8cpp" startline="168" endline="247">processAPC</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classterminal_1_1_skit_1a7437f1852ccd4a11de6ab75cd3c7942f" prot="private" static="no" mutable="no">
         <type>int</type>
@@ -57,9 +57,9 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Skit.h" line="126" column="9" bodyfile="terminal/Skit.h" bodystart="126" bodyend="126"/>
-        <referencedby refid="classterminal_1_1_skit_1a6afae3d2d2515ad4a1956815a6b7219e" compoundref="_skit_8cpp" startline="181" endline="260">processAPC</referencedby>
-        <referencedby refid="classterminal_1_1_skit_1adb7fd09d2f0fb5ac03184a4acd1be344" compoundref="_skit_8cpp" startline="86" endline="161">processDCS</referencedby>
-        <referencedby refid="classterminal_1_1_skit_1ad5e4cea2ff02af101b376bc4c6b23e44" compoundref="_skit_8cpp" startline="278" endline="353">processOSC1337</referencedby>
+        <referencedby refid="classterminal_1_1_skit_1a6afae3d2d2515ad4a1956815a6b7219e" compoundref="_skit_8cpp" startline="168" endline="247">processAPC</referencedby>
+        <referencedby refid="classterminal_1_1_skit_1adb7fd09d2f0fb5ac03184a4acd1be344" compoundref="_skit_8cpp" startline="73" endline="148">processDCS</referencedby>
+        <referencedby refid="classterminal_1_1_skit_1ad5e4cea2ff02af101b376bc4c6b23e44" compoundref="_skit_8cpp" startline="265" endline="340">processOSC1337</referencedby>
         <referencedby refid="classterminal_1_1_skit_1aa2ecb70ed6b7f1a0376921150fa3b4c2" compoundref="_skit_8cpp" startline="42" endline="46">setCellSize</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classterminal_1_1_skit_1a3ae95e857df7bc95a1aebecf810eee30" prot="private" static="no" mutable="no">
@@ -78,9 +78,9 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Skit.h" line="129" column="9" bodyfile="terminal/Skit.h" bodystart="129" bodyend="129"/>
-        <referencedby refid="classterminal_1_1_skit_1a6afae3d2d2515ad4a1956815a6b7219e" compoundref="_skit_8cpp" startline="181" endline="260">processAPC</referencedby>
-        <referencedby refid="classterminal_1_1_skit_1adb7fd09d2f0fb5ac03184a4acd1be344" compoundref="_skit_8cpp" startline="86" endline="161">processDCS</referencedby>
-        <referencedby refid="classterminal_1_1_skit_1ad5e4cea2ff02af101b376bc4c6b23e44" compoundref="_skit_8cpp" startline="278" endline="353">processOSC1337</referencedby>
+        <referencedby refid="classterminal_1_1_skit_1a6afae3d2d2515ad4a1956815a6b7219e" compoundref="_skit_8cpp" startline="168" endline="247">processAPC</referencedby>
+        <referencedby refid="classterminal_1_1_skit_1adb7fd09d2f0fb5ac03184a4acd1be344" compoundref="_skit_8cpp" startline="73" endline="148">processDCS</referencedby>
+        <referencedby refid="classterminal_1_1_skit_1ad5e4cea2ff02af101b376bc4c6b23e44" compoundref="_skit_8cpp" startline="265" endline="340">processOSC1337</referencedby>
         <referencedby refid="classterminal_1_1_skit_1aa2ecb70ed6b7f1a0376921150fa3b4c2" compoundref="_skit_8cpp" startline="42" endline="46">setCellSize</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classterminal_1_1_skit_1ad3b5fece4c7abc0f059b1f831da72feb" prot="private" static="no" mutable="no">
@@ -100,9 +100,9 @@
         </inbodydescription>
         <location file="terminal/Skit.h" line="132" column="10" bodyfile="terminal/Skit.h" bodystart="132" bodyend="132"/>
         <referencedby refid="classterminal_1_1_skit_1aa53666061769a2b635389ba1ed374c90" compoundref="_skit_8h" startline="110" endline="110">getLastImageRows</referencedby>
-        <referencedby refid="classterminal_1_1_skit_1a6afae3d2d2515ad4a1956815a6b7219e" compoundref="_skit_8cpp" startline="181" endline="260">processAPC</referencedby>
-        <referencedby refid="classterminal_1_1_skit_1adb7fd09d2f0fb5ac03184a4acd1be344" compoundref="_skit_8cpp" startline="86" endline="161">processDCS</referencedby>
-        <referencedby refid="classterminal_1_1_skit_1ad5e4cea2ff02af101b376bc4c6b23e44" compoundref="_skit_8cpp" startline="278" endline="353">processOSC1337</referencedby>
+        <referencedby refid="classterminal_1_1_skit_1a6afae3d2d2515ad4a1956815a6b7219e" compoundref="_skit_8cpp" startline="168" endline="247">processAPC</referencedby>
+        <referencedby refid="classterminal_1_1_skit_1adb7fd09d2f0fb5ac03184a4acd1be344" compoundref="_skit_8cpp" startline="73" endline="148">processDCS</referencedby>
+        <referencedby refid="classterminal_1_1_skit_1ad5e4cea2ff02af101b376bc4c6b23e44" compoundref="_skit_8cpp" startline="265" endline="340">processOSC1337</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classterminal_1_1_skit_1a145dda64196c7ef4b6825204f61bce61" prot="private" static="no" mutable="no">
         <type>juce::String</type>
@@ -120,9 +120,9 @@
         </inbodydescription>
         <location file="terminal/Skit.h" line="135" column="18" bodyfile="terminal/Skit.h" bodystart="135" bodyend="-1"/>
         <referencedby refid="classterminal_1_1_skit_1a8cb5e39d89c846689781dd504ccace5a" compoundref="_skit_8h" startline="116" endline="116">getLastResponse</referencedby>
-        <referencedby refid="classterminal_1_1_skit_1a6afae3d2d2515ad4a1956815a6b7219e" compoundref="_skit_8cpp" startline="181" endline="260">processAPC</referencedby>
-        <referencedby refid="classterminal_1_1_skit_1adb7fd09d2f0fb5ac03184a4acd1be344" compoundref="_skit_8cpp" startline="86" endline="161">processDCS</referencedby>
-        <referencedby refid="classterminal_1_1_skit_1ad5e4cea2ff02af101b376bc4c6b23e44" compoundref="_skit_8cpp" startline="278" endline="353">processOSC1337</referencedby>
+        <referencedby refid="classterminal_1_1_skit_1a6afae3d2d2515ad4a1956815a6b7219e" compoundref="_skit_8cpp" startline="168" endline="247">processAPC</referencedby>
+        <referencedby refid="classterminal_1_1_skit_1adb7fd09d2f0fb5ac03184a4acd1be344" compoundref="_skit_8cpp" startline="73" endline="148">processDCS</referencedby>
+        <referencedby refid="classterminal_1_1_skit_1ad5e4cea2ff02af101b376bc4c6b23e44" compoundref="_skit_8cpp" startline="265" endline="340">processOSC1337</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">
@@ -278,13 +278,13 @@ When <computeroutput>finalByte == &apos;q&apos;</computeroutput> and <computerou
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/Skit.h" line="73" column="10" bodyfile="terminal/Skit.cpp" bodystart="86" bodyend="161"/>
+        <location file="terminal/Skit.h" line="73" column="10" bodyfile="terminal/Skit.cpp" bodystart="73" bodyend="148"/>
         <references refid="classterminal_1_1_skit_1a3ae95e857df7bc95a1aebecf810eee30" compoundref="_skit_8h" startline="129" endline="129">cellHeight</references>
         <references refid="classterminal_1_1_skit_1a7437f1852ccd4a11de6ab75cd3c7942f" compoundref="_skit_8h" startline="126" endline="126">cellWidth</references>
         <references refid="classterminal_1_1_sixel_decoder_1a911b8f11f2c6e2018ed0e75ddea855f8" compoundref="_sixel_decoder_8cpp" startline="43" endline="313">terminal::SixelDecoder::decode</references>
         <references refid="classterminal_1_1_skit_1aad10529834ae527de4337d1409103992" compoundref="_skit_8h" startline="120">events</references>
         <references refid="structjam_1_1_cell_1_1_rectangle_1aedfd61555e45ee5da4f24746a658c0b8">jam::Cell::Rectangle::fromPixelCeiling</references>
-        <references refid="classterminal_1_1_skit_1ad615d563dfc05d16336ee791d20b8819" compoundref="_skit_8cpp" startline="63" endline="68">handleSkitFilepath</references>
+        <references refid="classterminal_1_1_skit_1ad615d563dfc05d16336ee791d20b8819" compoundref="_skit_8cpp" startline="50" endline="55">handleSkitFilepath</references>
         <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682ca78805a221a988e79ef3f42d7c5bfd418">image</references>
         <references refid="namespaceterminal_1_1id_1a1aca9147185acfc267d6ca08339aef97" compoundref="_identifier_8h" startline="315" endline="315">terminal::id::imageDecoded</references>
         <references refid="classterminal_1_1_skit_1ad3b5fece4c7abc0f059b1f831da72feb" compoundref="_skit_8h" startline="132" endline="132">lastImageRows</references>
@@ -365,12 +365,12 @@ Checks for the SKiT <computeroutput>GEND;</computeroutput> prefix first. If pres
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/Skit.h" line="88" column="10" bodyfile="terminal/Skit.cpp" bodystart="181" bodyend="260"/>
+        <location file="terminal/Skit.h" line="88" column="10" bodyfile="terminal/Skit.cpp" bodystart="168" bodyend="247"/>
         <references refid="classterminal_1_1_skit_1a3ae95e857df7bc95a1aebecf810eee30" compoundref="_skit_8h" startline="129" endline="129">cellHeight</references>
         <references refid="classterminal_1_1_skit_1a7437f1852ccd4a11de6ab75cd3c7942f" compoundref="_skit_8h" startline="126" endline="126">cellWidth</references>
         <references refid="classterminal_1_1_skit_1aad10529834ae527de4337d1409103992" compoundref="_skit_8h" startline="120">events</references>
         <references refid="structjam_1_1_cell_1_1_rectangle_1aedfd61555e45ee5da4f24746a658c0b8">jam::Cell::Rectangle::fromPixelCeiling</references>
-        <references refid="classterminal_1_1_skit_1ad615d563dfc05d16336ee791d20b8819" compoundref="_skit_8cpp" startline="63" endline="68">handleSkitFilepath</references>
+        <references refid="classterminal_1_1_skit_1ad615d563dfc05d16336ee791d20b8819" compoundref="_skit_8cpp" startline="50" endline="55">handleSkitFilepath</references>
         <references refid="structterminal_1_1_decoded_image_1a6963439c9ddc3ba3496a3aa4d17cb256" compoundref="_sixel_decoder_8h" startline="47" endline="47">terminal::DecodedImage::height</references>
         <references refid="structterminal_1_1_kitty_decoder_1_1_result_1a37aeac000935226d80265dcb3f15d0e6" compoundref="_kitty_decoder_8h" startline="66">terminal::KittyDecoder::Result::image</references>
         <references refid="namespaceterminal_1_1id_1a1aca9147185acfc267d6ca08339aef97" compoundref="_identifier_8h" startline="315" endline="315">terminal::id::imageDecoded</references>
@@ -459,15 +459,15 @@ Checks for the SKiT <computeroutput>END;</computeroutput> prefix first. If prese
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/Skit.h" line="103" column="10" bodyfile="terminal/Skit.cpp" bodystart="278" bodyend="353"/>
+        <location file="terminal/Skit.h" line="103" column="10" bodyfile="terminal/Skit.cpp" bodystart="265" bodyend="340"/>
         <references refid="classterminal_1_1_skit_1a3ae95e857df7bc95a1aebecf810eee30" compoundref="_skit_8h" startline="129" endline="129">cellHeight</references>
         <references refid="classterminal_1_1_skit_1a7437f1852ccd4a11de6ab75cd3c7942f" compoundref="_skit_8h" startline="126" endline="126">cellWidth</references>
-        <references refid="classterminal_1_1_i_term2_decoder_1acaef645d14f1c590d18e79e098ac73c1" compoundref="_i_term2_decoder_8cpp" startline="37" endline="147">terminal::ITerm2Decoder::decode</references>
+        <references refid="classterminal_1_1_i_term2_decoder_1acaef645d14f1c590d18e79e098ac73c1" compoundref="_i_term2_decoder_8cpp" startline="18" endline="128">terminal::ITerm2Decoder::decode</references>
         <references refid="structterminal_1_1_image_sequence_1a896e2c074b680a3bbfa3fbc510ee1922" compoundref="_image_decode_8h" startline="69">terminal::ImageSequence::delays</references>
         <references refid="classterminal_1_1_skit_1aad10529834ae527de4337d1409103992" compoundref="_skit_8h" startline="120">events</references>
         <references refid="structterminal_1_1_image_sequence_1a403b07c2785e3391269fab4d837df14a" compoundref="_image_decode_8h" startline="70" endline="70">terminal::ImageSequence::frameCount</references>
         <references refid="structjam_1_1_cell_1_1_rectangle_1aedfd61555e45ee5da4f24746a658c0b8">jam::Cell::Rectangle::fromPixelCeiling</references>
-        <references refid="classterminal_1_1_skit_1ad615d563dfc05d16336ee791d20b8819" compoundref="_skit_8cpp" startline="63" endline="68">handleSkitFilepath</references>
+        <references refid="classterminal_1_1_skit_1ad615d563dfc05d16336ee791d20b8819" compoundref="_skit_8cpp" startline="50" endline="55">handleSkitFilepath</references>
         <references refid="structterminal_1_1_image_sequence_1af9713bee691d18a64d3b47e70ec9a32c" compoundref="_image_decode_8h" startline="72" endline="72">terminal::ImageSequence::height</references>
         <references refid="namespaceterminal_1_1id_1a1aca9147185acfc267d6ca08339aef97" compoundref="_identifier_8h" startline="315" endline="315">terminal::id::imageDecoded</references>
         <references refid="structterminal_1_1_image_sequence_1ac3df5110441d642fc1ee0a42941046be" compoundref="_image_decode_8h" startline="75" endline="75">terminal::ImageSequence::isValid</references>
@@ -584,62 +584,18 @@ Checks for the SKiT <computeroutput>END;</computeroutput> prefix first. If prese
 </parameterdescription>
 </parameteritem>
 </parameterlist>
-<simplesect kind="note"><para>READER THREAD only.</para>
-</simplesect>
-Fires the <computeroutput>"previewFile"</computeroutput> event with the filepath, cursor row, cursor column, and optional protocol bounds. An empty filepath signals preview dismissal.</para>
-<para><parameterlist kind="param"><parameteritem>
-<parameternamelist>
-<parametername>filepath</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>Absolute path extracted after the END;/GEND; marker. Empty = dismiss. </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>cols</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>Protocol-specified overlay width in cells; 0 = use config. </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>lines</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>Protocol-specified overlay height in cells; 0 = use config. </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>cursorRow</parametername>
-</parameternamelist>
-<parameterdescription>
-<para><ref refid="struct_cursor" kindref="compound">Cursor</ref> row at signal time (screen-relative). </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>cursorCol</parametername>
-</parameternamelist>
-<parameterdescription>
-<para><ref refid="struct_cursor" kindref="compound">Cursor</ref> column at signal time. </para>
-</parameterdescription>
-</parameteritem>
-</parameterlist>
 <simplesect kind="note"><para>READER THREAD only. </para>
 </simplesect>
 </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/Skit.h" line="150" column="10" bodyfile="terminal/Skit.cpp" bodystart="63" bodyend="68"/>
+        <location file="terminal/Skit.h" line="150" column="10" bodyfile="terminal/Skit.cpp" bodystart="50" bodyend="55"/>
         <references refid="classterminal_1_1_skit_1aad10529834ae527de4337d1409103992" compoundref="_skit_8h" startline="120">events</references>
         <references refid="namespaceterminal_1_1id_1abd6243b05c24315adfed5fa2ba1b0463" compoundref="_identifier_8h" startline="318" endline="318">terminal::id::previewFile</references>
-        <referencedby refid="classterminal_1_1_skit_1a6afae3d2d2515ad4a1956815a6b7219e" compoundref="_skit_8cpp" startline="181" endline="260">processAPC</referencedby>
-        <referencedby refid="classterminal_1_1_skit_1adb7fd09d2f0fb5ac03184a4acd1be344" compoundref="_skit_8cpp" startline="86" endline="161">processDCS</referencedby>
-        <referencedby refid="classterminal_1_1_skit_1ad5e4cea2ff02af101b376bc4c6b23e44" compoundref="_skit_8cpp" startline="278" endline="353">processOSC1337</referencedby>
+        <referencedby refid="classterminal_1_1_skit_1a6afae3d2d2515ad4a1956815a6b7219e" compoundref="_skit_8cpp" startline="168" endline="247">processAPC</referencedby>
+        <referencedby refid="classterminal_1_1_skit_1adb7fd09d2f0fb5ac03184a4acd1be344" compoundref="_skit_8cpp" startline="73" endline="148">processDCS</referencedby>
+        <referencedby refid="classterminal_1_1_skit_1ad5e4cea2ff02af101b376bc4c6b23e44" compoundref="_skit_8cpp" startline="265" endline="340">processOSC1337</referencedby>
       </memberdef>
     </sectiondef>
     <briefdescription>

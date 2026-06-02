@@ -47,16 +47,6 @@ static void drawSubmenuArrow (juce::Graphics& g, const juce::Rectangle<int>& are
     g.strokePath (arrow, juce::PathStrokeType (fontHeight * 0.15f));
 }
 
-/**
- * @brief Prepares a popup menu window for display with background blur.
- *
- * Applies platform-specific background blur to the popup menu window
- * asynchronously after the window is created. Only available on Mac
- * and Windows platforms.
- *
- * @param newWindow  The popup menu window to prepare.
- * @note MESSAGE THREAD — called from UI show logic.
- */
 void LookAndFeel::preparePopupMenuWindow (juce::Component& newWindow)
 {
     newWindow.setOpaque (false);
@@ -78,26 +68,6 @@ void LookAndFeel::preparePopupMenuWindow (juce::Component& newWindow)
 #endif
 }
 
-/**
- * @brief Draws a single popup menu item with theme styling.
- *
- * Handles normal, highlighted, active, separator, ticked, and disabled
- * states. Uses foreground colour for text, selection colour for highlights,
- * and cursor colour for ticked items.
- *
- * @param g                  Graphics context.
- * @param area               Bounding rectangle for the item.
- * @param isSeparator        True if this item is a separator.
- * @param isActive           True if the item is enabled.
- * @param isHighlighted      True if the item is hovered.
- * @param isTicked           True if the item is checked.
- * @param hasSubMenu         True if the item has a submenu.
- * @param text               Item text.
- * @param shortcutKeyText    Optional keyboard shortcut text.
- * @param icon               Optional icon drawable.
- * @param textColourToUse    Optional text colour override.
- * @note MESSAGE THREAD — called by JUCE popup menu item painting.
- */
 void LookAndFeel::drawPopupMenuItem (juce::Graphics& g,
                                      const juce::Rectangle<int>& area,
                                      const bool isSeparator,

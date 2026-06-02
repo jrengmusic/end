@@ -114,22 +114,6 @@ void Tabs::focusPaneRight()
         active->focusPane (1, 0);
 }
 
-/**
- * @brief Walks saved TAB nodes, creates tabs, and replays splits.
- *
- * Caller must pass a deep copy of the saved TABS tree detached from the live
- * AppModel tree — this method walks it directly without aliasing live state.
- *
- * For each TAB child: locates the first PANE leaf (DFS, left-first) to obtain
- * uuid and cwd for addNewTab, then recursively descends the PANES subtree
- * pre-order, deriving child rects via Panes::splitRect and emitting one
- * splitAt call per internal PANES node with 2 children. Overwrites the default
- * ratio on each new split node with the saved value.
- *
- * @param savedTabs   Deep copy of the TABS node — not aliased with live AppModel.
- * @param contentRect Chrome-subtracted pixel rect for dim computation.
- * @note MESSAGE THREAD.
- */
 void Tabs::restore (juce::ValueTree savedTabs, juce::Rectangle<int> contentRect)
 {
     // Recursive leaf finder — returns {uuid, cwd} of the first PANE with a SESSION.

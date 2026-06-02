@@ -1,0 +1,242 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="class_pane_view" kind="class" language="C++" prot="public" abstract="yes">
+    <compoundname>PaneView</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">juce::Component</basecompoundref>
+    <derivedcompoundref refid="classterminal_1_1_display" prot="public" virt="non-virtual">terminal::Display</derivedcompoundref>
+    <derivedcompoundref refid="classwhelmed_1_1_component" prot="public" virt="non-virtual">whelmed::Component</derivedcompoundref>
+    <includes refid="_pane_view_8h" local="no">PaneView.h</includes>
+    <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_pane_view_1aca153b6096a1356c483d81f2dc081491" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>PaneView::PaneView</definition>
+        <argsstring>()</argsstring>
+        <name>PaneView</name>
+        <qualifiedname>PaneView::PaneView</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/component/PaneView.h" line="28" column="5" bodyfile="terminal/component/PaneView.h" bodystart="28" bodyend="32"/>
+        <referencedby refid="class_pane_view_1a5b522ca7d6365011ec218909618c0cc5">hasSelection</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="class_pane_view_1ac9f88cfd0c1888888e26a1a1e7a18a1f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>PaneView::~PaneView</definition>
+        <argsstring>() override=default</argsstring>
+        <name>~PaneView</name>
+        <qualifiedname>PaneView::~PaneView</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/component/PaneView.h" line="34" column="5"/>
+      </memberdef>
+      <memberdef kind="function" id="class_pane_view_1a3c036edb5c5db2ef9ab0a5e807b95bcf" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void PaneView::focusGained</definition>
+        <argsstring>(FocusChangeType) override</argsstring>
+        <name>focusGained</name>
+        <qualifiedname>PaneView::focusGained</qualifiedname>
+        <param>
+          <type>FocusChangeType</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/component/PaneView.h" line="36" column="10" bodyfile="terminal/component/PaneView.h" bodystart="36" bodyend="42"/>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
+        <references refid="class_pane_view_1ae57da3aa6719f166963269be19d81ef2">getPaneType</references>
+      </memberdef>
+      <memberdef kind="function" id="class_pane_view_1ae57da3aa6719f166963269be19d81ef2" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="pure-virtual">
+        <type>juce::String</type>
+        <definition>virtual juce::String PaneView::getPaneType</definition>
+        <argsstring>() const noexcept=0</argsstring>
+        <name>getPaneType</name>
+        <qualifiedname>PaneView::getPaneType</qualifiedname>
+        <reimplementedby refid="classterminal_1_1_display_1afb467cdeee6e7bed23e32fcc1a31be38">getPaneType</reimplementedby>
+        <reimplementedby refid="classwhelmed_1_1_component_1a606813bda5c715e4a4b0d825b4190167">getPaneType</reimplementedby>
+        <briefdescription>
+<para>Returns a string identifier for the pane type (&quot;terminal&quot; or &quot;document&quot;). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Used by Panes and Tabs to distinguish component types without RTTI.</para>
+<para><simplesect kind="return"><para>The pane type string — see <ref refid="struct_map_1_1_pane_type" kindref="compound">Map::PaneType</ref>. </para>
+</simplesect>
+<simplesect kind="note"><para>MESSAGE THREAD. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/component/PaneView.h" line="52" column="26"/>
+        <referencedby refid="class_pane_view_1a3c036edb5c5db2ef9ab0a5e807b95bcf" compoundref="_pane_view_8h" startline="36" endline="42">focusGained</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="class_pane_view_1a5dc13a70b2845f4a44e2bf0e7913782f" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="pure-virtual">
+        <type>void</type>
+        <definition>virtual void PaneView::applyZoom</definition>
+        <argsstring>(float zoom) noexcept=0</argsstring>
+        <name>applyZoom</name>
+        <qualifiedname>PaneView::applyZoom</qualifiedname>
+        <reimplementedby refid="classterminal_1_1_display_1aaafdfb7ab2395946be6b70e0e189bcf8">applyZoom</reimplementedby>
+        <reimplementedby refid="classwhelmed_1_1_component_1a69e614725f77bf9d2a5e1bb95e694e42">applyZoom</reimplementedby>
+        <param>
+          <type>float</type>
+          <declname>zoom</declname>
+        </param>
+        <briefdescription>
+<para>Applies the given zoom factor to the pane&apos;s rendering. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>zoom</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Zoom multiplier (1.0 = default). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="note"><para>MESSAGE THREAD. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/component/PaneView.h" line="59" column="18"/>
+        <references refid="class_pane_view_1a5dc13a70b2845f4a44e2bf0e7913782f">applyZoom</references>
+        <referencedby refid="class_pane_view_1a5dc13a70b2845f4a44e2bf0e7913782f">applyZoom</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="class_pane_view_1a3b154dde48bee6aa5032b0b8288fc06a" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="pure-virtual">
+        <type>void</type>
+        <definition>virtual void PaneView::enterSelectionMode</definition>
+        <argsstring>() noexcept=0</argsstring>
+        <name>enterSelectionMode</name>
+        <qualifiedname>PaneView::enterSelectionMode</qualifiedname>
+        <reimplementedby refid="classterminal_1_1_display_1a51e40f907d1725afc433513c8b5e2bc1">enterSelectionMode</reimplementedby>
+        <reimplementedby refid="classwhelmed_1_1_component_1a86f04f40924c6a7c074d4200c95f7377">enterSelectionMode</reimplementedby>
+        <briefdescription>
+<para>Enters vim-style keyboard selection mode. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="note"><para>MESSAGE THREAD. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/component/PaneView.h" line="62" column="18"/>
+        <references refid="class_pane_view_1a3b154dde48bee6aa5032b0b8288fc06a">enterSelectionMode</references>
+        <referencedby refid="class_pane_view_1a3b154dde48bee6aa5032b0b8288fc06a">enterSelectionMode</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="class_pane_view_1ab0eb542e3a463fce3b4da3117b3ac9c2" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="pure-virtual">
+        <type>void</type>
+        <definition>virtual void PaneView::copySelection</definition>
+        <argsstring>() noexcept=0</argsstring>
+        <name>copySelection</name>
+        <qualifiedname>PaneView::copySelection</qualifiedname>
+        <reimplementedby refid="classterminal_1_1_display_1a22a44a31c7bc528a6a584408ddfc7cf8">copySelection</reimplementedby>
+        <reimplementedby refid="classwhelmed_1_1_component_1abd70119f118c4b0e82842f01129d8c0a">copySelection</reimplementedby>
+        <briefdescription>
+<para>Copies the active selection to the system clipboard and clears selection. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="note"><para>MESSAGE THREAD. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/component/PaneView.h" line="65" column="18"/>
+        <references refid="class_pane_view_1ab0eb542e3a463fce3b4da3117b3ac9c2">copySelection</references>
+        <referencedby refid="class_pane_view_1ab0eb542e3a463fce3b4da3117b3ac9c2">copySelection</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="class_pane_view_1a5b522ca7d6365011ec218909618c0cc5" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="pure-virtual">
+        <type>bool</type>
+        <definition>virtual bool PaneView::hasSelection</definition>
+        <argsstring>() const noexcept=0</argsstring>
+        <name>hasSelection</name>
+        <qualifiedname>PaneView::hasSelection</qualifiedname>
+        <reimplementedby refid="classterminal_1_1_display_1a858679ef9dc232b5406fe94c5f6c79cb">hasSelection</reimplementedby>
+        <reimplementedby refid="classwhelmed_1_1_component_1a25ca3a9b8aeb7f125d2ca8c46851743a">hasSelection</reimplementedby>
+        <briefdescription>
+<para>Returns true if there is an active text selection. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="note"><para>MESSAGE THREAD. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/component/PaneView.h" line="68" column="18"/>
+        <references refid="class_pane_view_1a5b522ca7d6365011ec218909618c0cc5">hasSelection</references>
+        <references refid="group__juce__core-system_1ga851b02724a8158a7f746c66b5758b3dd">JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR</references>
+        <references refid="class_pane_view_1aca153b6096a1356c483d81f2dc081491" compoundref="_pane_view_8h" startline="28" endline="32">PaneView</references>
+        <referencedby refid="class_pane_view_1a5b522ca7d6365011ec218909618c0cc5">hasSelection</referencedby>
+        <referencedby refid="classterminal_1_1_tabs_1a9394d47d7d7fdfcbc057bb56fde1bcb3" compoundref="_tabs_8cpp" startline="253" endline="261">terminal::Tabs::hasSelection</referencedby>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Pure virtual base for renderable pane views. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Inherits juce::Component. Shared between Terminal and Whelmed.</para>
+<para><simplesect kind="note"><para>App-level — not in any namespace. </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>PaneView</label>
+        <link refid="class_pane_view"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>juce::Component</label>
+      </node>
+      <node id="3">
+        <label>terminal::Display</label>
+        <link refid="classterminal_1_1_display"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>whelmed::Component</label>
+        <link refid="classwhelmed_1_1_component"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>PaneView</label>
+        <link refid="class_pane_view"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>juce::Component</label>
+      </node>
+    </collaborationgraph>
+    <location file="terminal/component/PaneView.h" line="25" column="1" bodyfile="terminal/component/PaneView.h" bodystart="26" bodyend="72"/>
+    <listofallmembers>
+      <member refid="class_pane_view_1a5dc13a70b2845f4a44e2bf0e7913782f" prot="public" virt="pure-virtual"><scope>PaneView</scope><name>applyZoom</name></member>
+      <member refid="class_pane_view_1ab0eb542e3a463fce3b4da3117b3ac9c2" prot="public" virt="pure-virtual"><scope>PaneView</scope><name>copySelection</name></member>
+      <member refid="class_pane_view_1a3b154dde48bee6aa5032b0b8288fc06a" prot="public" virt="pure-virtual"><scope>PaneView</scope><name>enterSelectionMode</name></member>
+      <member refid="class_pane_view_1a3c036edb5c5db2ef9ab0a5e807b95bcf" prot="public" virt="non-virtual"><scope>PaneView</scope><name>focusGained</name></member>
+      <member refid="class_pane_view_1ae57da3aa6719f166963269be19d81ef2" prot="public" virt="pure-virtual"><scope>PaneView</scope><name>getPaneType</name></member>
+      <member refid="class_pane_view_1a5b522ca7d6365011ec218909618c0cc5" prot="public" virt="pure-virtual"><scope>PaneView</scope><name>hasSelection</name></member>
+      <member refid="class_pane_view_1aca153b6096a1356c483d81f2dc081491" prot="public" virt="non-virtual"><scope>PaneView</scope><name>PaneView</name></member>
+      <member refid="class_pane_view_1ac9f88cfd0c1888888e26a1a1e7a18a1f" prot="public" virt="non-virtual"><scope>PaneView</scope><name>~PaneView</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

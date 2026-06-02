@@ -384,7 +384,7 @@
         <references refid="structterminal_1_1_cursor_state_1a0587fa8ea4ad47b6fbfc71675f94796e" compoundref="_identifier_8h" startline="37" endline="37">terminal::CursorState::col</references>
         <references refid="namespaceterminal_1_1id_1a30123845e4ea3907ed59d354a9a8dfcf" compoundref="_identifier_8h" startline="215" endline="215">terminal::id::cursor</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Derived &gt;::getContext</references>
-        <references refid="classjam_1_1_model_1a2f037e88407eb8b95b9ab7daf7c0b15c">jam::Model::getValueFromChildWithID</references>
+        <references refid="structjam_1_1_value_tree_1a7cd25c35d555eb38c4788e72ed7aa95b">jam::ValueTree::getValueFromChildWithID</references>
         <references refid="classterminal_1_1_input_1a3a29cd16b96c01ca3c45dbd7f7162b5f" compoundref="_input_8h" startline="186" endline="186">pendingG</references>
         <references refid="classterminal_1_1_input_1ab65ee160a87332559c5502011776ac4d" compoundref="_input_8h" startline="174">processor</references>
         <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d">row</references>

@@ -55,44 +55,13 @@
 </parameterlist>
 <simplesect kind="return"><para><ref refid="structterminal_1_1_image_sequence" kindref="compound">ImageSequence</ref> with RGBA8 pixels for all frames, or invalid if decode fails or inline=0.</para>
 </simplesect>
-<simplesect kind="note"><para>READER THREAD only.</para>
-</simplesect>
-Parse steps:<orderedlist>
-<listitem><para>Validate and skip the &quot;File=&quot; prefix.</para>
-</listitem><listitem><para>Scan key=value params up to the &apos;:&apos; delimiter, extracting <computeroutput>inline</computeroutput>.</para>
-</listitem><listitem><para>Return invalid when <computeroutput>inline != 1</computeroutput>.</para>
-</listitem><listitem><para>Base64-decode everything after &apos;:&apos;.</para>
-</listitem><listitem><para>Attempt native multi-frame decode via <computeroutput><ref refid="namespaceterminal_1ab8471c5f4a063b7f05350297f06c862f" kindref="member">loadImageSequenceNative</ref></computeroutput>.</para>
-</listitem><listitem><para>If native decode fails, fall back to JUCE <computeroutput><ref refid="classImageFileFormat_1a1ce6ae82e06b40e9149d1ab73951ce1c" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ImageFileFormat::loadFrom</ref></computeroutput> followed by <computeroutput><ref refid="namespaceterminal_1a7b9c9dd44feef553c5420b76fc8d54ad" kindref="member">swizzleARGBToRGBA</ref></computeroutput> to produce a single-frame sequence.</para>
-</listitem><listitem><para>Return the <ref refid="structterminal_1_1_image_sequence" kindref="compound">ImageSequence</ref>.</para>
-</listitem></orderedlist>
-</para>
-<para><parameterlist kind="param"><parameteritem>
-<parameternamelist>
-<parametername>data</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>Raw OSC payload bytes after &quot;1337;&quot;. </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>length</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>Number of bytes. </para>
-</parameterdescription>
-</parameteritem>
-</parameterlist>
-<simplesect kind="return"><para><ref refid="structterminal_1_1_image_sequence" kindref="compound">ImageSequence</ref> with RGBA8 pixels, or invalid on any failure.</para>
-</simplesect>
 <simplesect kind="note"><para>READER THREAD only. </para>
 </simplesect>
 </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/ITerm2Decoder.h" line="65" column="19" bodyfile="terminal/ITerm2Decoder.cpp" bodystart="37" bodyend="147"/>
+        <location file="terminal/ITerm2Decoder.h" line="65" column="19" bodyfile="terminal/ITerm2Decoder.cpp" bodystart="18" bodyend="128"/>
         <references refid="structterminal_1_1_image_sequence_1a403b07c2785e3391269fab4d837df14a" compoundref="_image_decode_8h" startline="70" endline="70">terminal::ImageSequence::frameCount</references>
         <references refid="structterminal_1_1_image_sequence_1af9713bee691d18a64d3b47e70ec9a32c" compoundref="_image_decode_8h" startline="72" endline="72">terminal::ImageSequence::height</references>
         <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682ca78805a221a988e79ef3f42d7c5bfd418">image</references>
@@ -101,7 +70,7 @@ Parse steps:<orderedlist>
         <references refid="structterminal_1_1_image_sequence_1a950cadf179eb7f70a0e665eaf834d0d4" compoundref="_image_decode_8h" startline="68">terminal::ImageSequence::pixels</references>
         <references refid="namespaceterminal_1a7b9c9dd44feef553c5420b76fc8d54ad" compoundref="_image_decode_8cpp" startline="14" endline="68">terminal::swizzleARGBToRGBA</references>
         <references refid="structterminal_1_1_image_sequence_1a61e703d2998e97f05b524980bb1f4e7a" compoundref="_image_decode_8h" startline="71" endline="71">terminal::ImageSequence::width</references>
-        <referencedby refid="classterminal_1_1_skit_1ad5e4cea2ff02af101b376bc4c6b23e44" compoundref="_skit_8cpp" startline="278" endline="353">terminal::Skit::processOSC1337</referencedby>
+        <referencedby refid="classterminal_1_1_skit_1ad5e4cea2ff02af101b376bc4c6b23e44" compoundref="_skit_8cpp" startline="265" endline="340">terminal::Skit::processOSC1337</referencedby>
       </memberdef>
     </sectiondef>
     <briefdescription>

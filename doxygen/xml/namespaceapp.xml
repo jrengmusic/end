@@ -46,8 +46,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="AppIdentifier.h" line="44" column="26" bodyfile="AppIdentifier.h" bodystart="44" bodyend="44"/>
-        <referencedby refid="class_main_component_1a1fe9b104d3b6eb88315ace959285ead4" compoundref="_main_component_8cpp" startline="55" endline="216">MainComponent::MainComponent</referencedby>
-        <referencedby refid="class_main_component_1ab003af1c38a7da38d907980bb47630dd" compoundref="_main_component_8cpp" startline="515" endline="559">MainComponent::showMessageOverlay</referencedby>
+        <referencedby refid="class_main_component_1a1fe9b104d3b6eb88315ace959285ead4" compoundref="_main_component_8cpp" startline="54" endline="215">MainComponent::MainComponent</referencedby>
+        <referencedby refid="class_main_component_1ab003af1c38a7da38d907980bb47630dd" compoundref="_main_component_8cpp" startline="501" endline="545">MainComponent::showMessageOverlay</referencedby>
       </memberdef>
     </sectiondef>
     <briefdescription>
