@@ -5,7 +5,7 @@
     <basecompoundref prot="private" virt="non-virtual">juce::ValueTree::Listener</basecompoundref>
     <sectiondef kind="private-attrib">
       <memberdef kind="variable" id="structterminal_1_1_display_1_1_config_listener_1a800c7d8dc8dd5f5b3aff7b1b7b0da769" prot="private" static="no" mutable="no">
-        <type><ref refid="class_display" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Display</ref> &amp;</type>
+        <type><ref refid="classterminal_1_1_display_1a795559c55785fb2637b1a3b873d84515" kindref="member">Display</ref> &amp;</type>
         <definition>Display&amp; terminal::Display::ConfigListener::display</definition>
         <argsstring></argsstring>
         <name>display</name>
@@ -17,7 +17,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/component/Display.h" line="122" column="17" bodyfile="terminal/component/Display.h" bodystart="122" bodyend="-1"/>
-        <referencedby refid="structterminal_1_1_display_1_1_config_listener_1a10c2d53b02019034a43005814278a391" compoundref="_display_8cpp" startline="82" endline="86">valueTreePropertyChanged</referencedby>
+        <referencedby refid="structterminal_1_1_display_1_1_config_listener_1a10c2d53b02019034a43005814278a391" compoundref="_display_8cpp" startline="85" endline="89">valueTreePropertyChanged</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structterminal_1_1_display_1_1_config_listener_1a902ac720324f356942feb46e3c0c208d" prot="private" static="no" mutable="no">
         <type>juce::ValueTree</type>
@@ -32,9 +32,9 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/component/Display.h" line="123" column="25" bodyfile="terminal/component/Display.h" bodystart="123" bodyend="-1"/>
-        <referencedby refid="structterminal_1_1_display_1_1_config_listener_1aff3bc9ae4a92be4a5768f72f09d3af89" compoundref="_display_8cpp" startline="71" endline="75">start</referencedby>
-        <referencedby refid="structterminal_1_1_display_1_1_config_listener_1a3f4b874e3064af96f4ada315eaa4e470" compoundref="_display_8cpp" startline="77" endline="80">stop</referencedby>
-        <referencedby refid="structterminal_1_1_display_1_1_config_listener_1a10c2d53b02019034a43005814278a391" compoundref="_display_8cpp" startline="82" endline="86">valueTreePropertyChanged</referencedby>
+        <referencedby refid="structterminal_1_1_display_1_1_config_listener_1aff3bc9ae4a92be4a5768f72f09d3af89" compoundref="_display_8cpp" startline="74" endline="78">start</referencedby>
+        <referencedby refid="structterminal_1_1_display_1_1_config_listener_1a3f4b874e3064af96f4ada315eaa4e470" compoundref="_display_8cpp" startline="80" endline="83">stop</referencedby>
+        <referencedby refid="structterminal_1_1_display_1_1_config_listener_1a10c2d53b02019034a43005814278a391" compoundref="_display_8cpp" startline="85" endline="89">valueTreePropertyChanged</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">
@@ -45,7 +45,7 @@
         <name>ConfigListener</name>
         <qualifiedname>terminal::Display::ConfigListener::ConfigListener</qualifiedname>
         <param>
-          <type><ref refid="class_display" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Display</ref> &amp;</type>
+          <type><ref refid="classterminal_1_1_display_1a795559c55785fb2637b1a3b873d84515" kindref="member">Display</ref> &amp;</type>
           <declname>d</declname>
         </param>
         <briefdescription>
@@ -55,7 +55,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/component/Display.h" line="118" column="18" bodyfile="terminal/component/Display.h" bodystart="118" bodyend="118"/>
-        <references refid="classterminal_1_1_display_1aba2b9e271d38ad4e5268333aaac31d8d" compoundref="_display_8cpp" startline="3" endline="34">terminal::Display::Display</references>
+        <references refid="classterminal_1_1_display_1a795559c55785fb2637b1a3b873d84515" compoundref="_display_8cpp" startline="3" endline="37">terminal::Display::Display</references>
       </memberdef>
       <memberdef kind="function" id="structterminal_1_1_display_1_1_config_listener_1aff3bc9ae4a92be4a5768f72f09d3af89" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
         <type>void</type>
@@ -69,7 +69,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="119" column="14" bodyfile="terminal/component/Display.cpp" bodystart="71" bodyend="75"/>
+        <location file="terminal/component/Display.h" line="119" column="14" bodyfile="terminal/component/Display.cpp" bodystart="74" bodyend="78"/>
         <references refid="structterminal_1_1_display_1_1_config_listener_1a902ac720324f356942feb46e3c0c208d" compoundref="_display_8h" startline="123">appState</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
       </memberdef>
@@ -85,7 +85,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="120" column="14" bodyfile="terminal/component/Display.cpp" bodystart="77" bodyend="80"/>
+        <location file="terminal/component/Display.h" line="120" column="14" bodyfile="terminal/component/Display.cpp" bodystart="80" bodyend="83"/>
         <references refid="structterminal_1_1_display_1_1_config_listener_1a902ac720324f356942feb46e3c0c208d" compoundref="_display_8h" startline="123">appState</references>
       </memberdef>
     </sectiondef>
@@ -110,7 +110,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="124" column="14" bodyfile="terminal/component/Display.cpp" bodystart="82" bodyend="86"/>
+        <location file="terminal/component/Display.h" line="124" column="14" bodyfile="terminal/component/Display.cpp" bodystart="85" bodyend="89"/>
         <references refid="structterminal_1_1_display_1_1_config_listener_1a902ac720324f356942feb46e3c0c208d" compoundref="_display_8h" startline="123">appState</references>
         <references refid="structterminal_1_1_display_1_1_config_listener_1a800c7d8dc8dd5f5b3aff7b1b7b0da769" compoundref="_display_8h" startline="122">display</references>
         <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682cac0af77cf8294ff93a5cdb2963ca9f038">tree</references>
@@ -623,8 +623,6 @@
         <label>terminal::Model</label>
         <link refid="structterminal_1_1_model"/>
         <childnode refid="17" relation="public-inheritance">
-        </childnode>
-        <childnode refid="2" relation="private-inheritance">
         </childnode>
         <childnode refid="23" relation="usage">
           <edgelabel>rowDirtyFlags</edgelabel>

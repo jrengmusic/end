@@ -93,7 +93,7 @@
         <location file="lua/Engine.h" line="1195" column="11" bodyfile="lua/Engine.h" bodystart="1195" bodyend="-1"/>
       </memberdef>
       <memberdef kind="variable" id="classlua_1_1_engine_1a487998fa6e9865337ece55987c2c336f" prot="public" static="no" mutable="no">
-        <type><ref refid="class_display" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Display</ref></type>
+        <type><ref refid="structlua_1_1_engine_1_1_display" kindref="compound">Display</ref></type>
         <definition>Display lua::Engine::display</definition>
         <argsstring></argsstring>
         <name>display</name>

@@ -20,7 +20,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Mouse.h" line="57" column="28" bodyfile="terminal/Mouse.h" bodystart="57" bodyend="57"/>
-        <referencedby refid="classterminal_1_1_mouse_1a7afe6147427be322e1171a6556a0868e" compoundref="_mouse_8cpp" startline="221" endline="286">handleWheel</referencedby>
+        <referencedby refid="classterminal_1_1_mouse_1a7afe6147427be322e1171a6556a0868e" compoundref="_mouse_8cpp" startline="231" endline="296">handleWheel</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="private-attrib">
@@ -38,14 +38,13 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Mouse.h" line="176" column="15" bodyfile="terminal/Mouse.h" bodystart="176" bodyend="-1"/>
-        <referencedby refid="classterminal_1_1_mouse_1a22e61d773a989b6890123abcc9347232" compoundref="_mouse_8cpp" startline="106" endline="135">handleDoubleClick</referencedby>
-        <referencedby refid="classterminal_1_1_mouse_1a7c0ca20075990ed9f26d06ac07a29fd5" compoundref="_mouse_8cpp" startline="35" endline="104">handleDown</referencedby>
-        <referencedby refid="classterminal_1_1_mouse_1ae9d07cb34c0de02b791dd2b4b0042c13" compoundref="_mouse_8cpp" startline="137" endline="182">handleDrag</referencedby>
-        <referencedby refid="classterminal_1_1_mouse_1a2316e9263b82cafe1023f5a1deb28382" compoundref="_mouse_8cpp" startline="199" endline="219">handleMove</referencedby>
-        <referencedby refid="classterminal_1_1_mouse_1a8bba59e3896f7f1c3b737912cb6803f4" compoundref="_mouse_8cpp" startline="184" endline="197">handleUp</referencedby>
-        <referencedby refid="classterminal_1_1_mouse_1a7afe6147427be322e1171a6556a0868e" compoundref="_mouse_8cpp" startline="221" endline="286">handleWheel</referencedby>
+        <referencedby refid="classterminal_1_1_mouse_1a22e61d773a989b6890123abcc9347232" compoundref="_mouse_8cpp" startline="111" endline="140">handleDoubleClick</referencedby>
+        <referencedby refid="classterminal_1_1_mouse_1a7c0ca20075990ed9f26d06ac07a29fd5" compoundref="_mouse_8cpp" startline="35" endline="109">handleDown</referencedby>
+        <referencedby refid="classterminal_1_1_mouse_1ae9d07cb34c0de02b791dd2b4b0042c13" compoundref="_mouse_8cpp" startline="142" endline="191">handleDrag</referencedby>
+        <referencedby refid="classterminal_1_1_mouse_1a8bba59e3896f7f1c3b737912cb6803f4" compoundref="_mouse_8cpp" startline="193" endline="206">handleUp</referencedby>
+        <referencedby refid="classterminal_1_1_mouse_1a7afe6147427be322e1171a6556a0868e" compoundref="_mouse_8cpp" startline="231" endline="296">handleWheel</referencedby>
         <referencedby refid="classterminal_1_1_mouse_1a91ada3e20b0db93267f74ae513d70fa3" compoundref="_mouse_8cpp" startline="18" endline="27">Mouse</referencedby>
-        <referencedby refid="classterminal_1_1_mouse_1a121ba6baba449a38de550335155c381e" compoundref="_mouse_8cpp" startline="288" endline="294">shouldForwardToPty</referencedby>
+        <referencedby refid="classterminal_1_1_mouse_1a121ba6baba449a38de550335155c381e" compoundref="_mouse_8cpp" startline="298" endline="305">shouldForwardToPty</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classterminal_1_1_mouse_1ac5b8c6919a35297673b7524b05d3e33a" prot="private" static="no" mutable="no">
         <type>int</type>
@@ -61,12 +60,12 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Mouse.h" line="179" column="9" bodyfile="terminal/Mouse.h" bodystart="179" bodyend="-1"/>
-        <referencedby refid="classterminal_1_1_mouse_1a22e61d773a989b6890123abcc9347232" compoundref="_mouse_8cpp" startline="106" endline="135">handleDoubleClick</referencedby>
-        <referencedby refid="classterminal_1_1_mouse_1a7c0ca20075990ed9f26d06ac07a29fd5" compoundref="_mouse_8cpp" startline="35" endline="104">handleDown</referencedby>
-        <referencedby refid="classterminal_1_1_mouse_1ae9d07cb34c0de02b791dd2b4b0042c13" compoundref="_mouse_8cpp" startline="137" endline="182">handleDrag</referencedby>
-        <referencedby refid="classterminal_1_1_mouse_1a2316e9263b82cafe1023f5a1deb28382" compoundref="_mouse_8cpp" startline="199" endline="219">handleMove</referencedby>
-        <referencedby refid="classterminal_1_1_mouse_1a8bba59e3896f7f1c3b737912cb6803f4" compoundref="_mouse_8cpp" startline="184" endline="197">handleUp</referencedby>
-        <referencedby refid="classterminal_1_1_mouse_1a7afe6147427be322e1171a6556a0868e" compoundref="_mouse_8cpp" startline="221" endline="286">handleWheel</referencedby>
+        <referencedby refid="classterminal_1_1_mouse_1a22e61d773a989b6890123abcc9347232" compoundref="_mouse_8cpp" startline="111" endline="140">handleDoubleClick</referencedby>
+        <referencedby refid="classterminal_1_1_mouse_1a7c0ca20075990ed9f26d06ac07a29fd5" compoundref="_mouse_8cpp" startline="35" endline="109">handleDown</referencedby>
+        <referencedby refid="classterminal_1_1_mouse_1ae9d07cb34c0de02b791dd2b4b0042c13" compoundref="_mouse_8cpp" startline="142" endline="191">handleDrag</referencedby>
+        <referencedby refid="classterminal_1_1_mouse_1a2316e9263b82cafe1023f5a1deb28382" compoundref="_mouse_8cpp" startline="208" endline="229">handleMove</referencedby>
+        <referencedby refid="classterminal_1_1_mouse_1a8bba59e3896f7f1c3b737912cb6803f4" compoundref="_mouse_8cpp" startline="193" endline="206">handleUp</referencedby>
+        <referencedby refid="classterminal_1_1_mouse_1a7afe6147427be322e1171a6556a0868e" compoundref="_mouse_8cpp" startline="231" endline="296">handleWheel</referencedby>
         <referencedby refid="classterminal_1_1_mouse_1a91ada3e20b0db93267f74ae513d70fa3" compoundref="_mouse_8cpp" startline="18" endline="27">Mouse</referencedby>
         <referencedby refid="classterminal_1_1_mouse_1a7a6c76efde85b0e1fb959af34b231afd" compoundref="_mouse_8cpp" startline="29" endline="33">setCellSize</referencedby>
       </memberdef>
@@ -84,12 +83,12 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Mouse.h" line="182" column="9" bodyfile="terminal/Mouse.h" bodystart="182" bodyend="-1"/>
-        <referencedby refid="classterminal_1_1_mouse_1a22e61d773a989b6890123abcc9347232" compoundref="_mouse_8cpp" startline="106" endline="135">handleDoubleClick</referencedby>
-        <referencedby refid="classterminal_1_1_mouse_1a7c0ca20075990ed9f26d06ac07a29fd5" compoundref="_mouse_8cpp" startline="35" endline="104">handleDown</referencedby>
-        <referencedby refid="classterminal_1_1_mouse_1ae9d07cb34c0de02b791dd2b4b0042c13" compoundref="_mouse_8cpp" startline="137" endline="182">handleDrag</referencedby>
-        <referencedby refid="classterminal_1_1_mouse_1a2316e9263b82cafe1023f5a1deb28382" compoundref="_mouse_8cpp" startline="199" endline="219">handleMove</referencedby>
-        <referencedby refid="classterminal_1_1_mouse_1a8bba59e3896f7f1c3b737912cb6803f4" compoundref="_mouse_8cpp" startline="184" endline="197">handleUp</referencedby>
-        <referencedby refid="classterminal_1_1_mouse_1a7afe6147427be322e1171a6556a0868e" compoundref="_mouse_8cpp" startline="221" endline="286">handleWheel</referencedby>
+        <referencedby refid="classterminal_1_1_mouse_1a22e61d773a989b6890123abcc9347232" compoundref="_mouse_8cpp" startline="111" endline="140">handleDoubleClick</referencedby>
+        <referencedby refid="classterminal_1_1_mouse_1a7c0ca20075990ed9f26d06ac07a29fd5" compoundref="_mouse_8cpp" startline="35" endline="109">handleDown</referencedby>
+        <referencedby refid="classterminal_1_1_mouse_1ae9d07cb34c0de02b791dd2b4b0042c13" compoundref="_mouse_8cpp" startline="142" endline="191">handleDrag</referencedby>
+        <referencedby refid="classterminal_1_1_mouse_1a2316e9263b82cafe1023f5a1deb28382" compoundref="_mouse_8cpp" startline="208" endline="229">handleMove</referencedby>
+        <referencedby refid="classterminal_1_1_mouse_1a8bba59e3896f7f1c3b737912cb6803f4" compoundref="_mouse_8cpp" startline="193" endline="206">handleUp</referencedby>
+        <referencedby refid="classterminal_1_1_mouse_1a7afe6147427be322e1171a6556a0868e" compoundref="_mouse_8cpp" startline="231" endline="296">handleWheel</referencedby>
         <referencedby refid="classterminal_1_1_mouse_1a91ada3e20b0db93267f74ae513d70fa3" compoundref="_mouse_8cpp" startline="18" endline="27">Mouse</referencedby>
         <referencedby refid="classterminal_1_1_mouse_1a7a6c76efde85b0e1fb959af34b231afd" compoundref="_mouse_8cpp" startline="29" endline="33">setCellSize</referencedby>
       </memberdef>
@@ -107,8 +106,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Mouse.h" line="185" column="17" bodyfile="terminal/Mouse.h" bodystart="185" bodyend="-1"/>
-        <referencedby refid="classterminal_1_1_mouse_1a7c0ca20075990ed9f26d06ac07a29fd5" compoundref="_mouse_8cpp" startline="35" endline="104">handleDown</referencedby>
-        <referencedby refid="classterminal_1_1_mouse_1a2316e9263b82cafe1023f5a1deb28382" compoundref="_mouse_8cpp" startline="199" endline="219">handleMove</referencedby>
+        <referencedby refid="classterminal_1_1_mouse_1a7c0ca20075990ed9f26d06ac07a29fd5" compoundref="_mouse_8cpp" startline="35" endline="109">handleDown</referencedby>
+        <referencedby refid="classterminal_1_1_mouse_1a2316e9263b82cafe1023f5a1deb28382" compoundref="_mouse_8cpp" startline="208" endline="229">handleMove</referencedby>
         <referencedby refid="classterminal_1_1_mouse_1a91ada3e20b0db93267f74ae513d70fa3" compoundref="_mouse_8cpp" startline="18" endline="27">Mouse</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classterminal_1_1_mouse_1a39e0ff84720e354ce444c7c223589f03" prot="private" static="no" mutable="no">
@@ -127,7 +126,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Mouse.h" line="193" column="11" bodyfile="terminal/Mouse.h" bodystart="193" bodyend="193"/>
-        <referencedby refid="classterminal_1_1_mouse_1a7afe6147427be322e1171a6556a0868e" compoundref="_mouse_8cpp" startline="221" endline="286">handleWheel</referencedby>
+        <referencedby refid="classterminal_1_1_mouse_1a7afe6147427be322e1171a6556a0868e" compoundref="_mouse_8cpp" startline="231" endline="296">handleWheel</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classterminal_1_1_mouse_1af224d6267bde935aae15ceffcff98613" prot="private" static="no" mutable="no">
         <type>juce::Point&lt; int &gt;</type>
@@ -144,9 +143,9 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Mouse.h" line="196" column="17" bodyfile="terminal/Mouse.h" bodystart="196" bodyend="196"/>
-        <referencedby refid="classterminal_1_1_mouse_1a22e61d773a989b6890123abcc9347232" compoundref="_mouse_8cpp" startline="106" endline="135">handleDoubleClick</referencedby>
-        <referencedby refid="classterminal_1_1_mouse_1a7c0ca20075990ed9f26d06ac07a29fd5" compoundref="_mouse_8cpp" startline="35" endline="104">handleDown</referencedby>
-        <referencedby refid="classterminal_1_1_mouse_1ae9d07cb34c0de02b791dd2b4b0042c13" compoundref="_mouse_8cpp" startline="137" endline="182">handleDrag</referencedby>
+        <referencedby refid="classterminal_1_1_mouse_1a22e61d773a989b6890123abcc9347232" compoundref="_mouse_8cpp" startline="111" endline="140">handleDoubleClick</referencedby>
+        <referencedby refid="classterminal_1_1_mouse_1a7c0ca20075990ed9f26d06ac07a29fd5" compoundref="_mouse_8cpp" startline="35" endline="109">handleDown</referencedby>
+        <referencedby refid="classterminal_1_1_mouse_1ae9d07cb34c0de02b791dd2b4b0042c13" compoundref="_mouse_8cpp" startline="142" endline="191">handleDrag</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classterminal_1_1_mouse_1a28f99a89abff8239228b012bd4b4d7f9" prot="private" static="no" mutable="no">
         <type>bool</type>
@@ -163,10 +162,10 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Mouse.h" line="199" column="10" bodyfile="terminal/Mouse.h" bodystart="199" bodyend="199"/>
-        <referencedby refid="classterminal_1_1_mouse_1a22e61d773a989b6890123abcc9347232" compoundref="_mouse_8cpp" startline="106" endline="135">handleDoubleClick</referencedby>
-        <referencedby refid="classterminal_1_1_mouse_1a7c0ca20075990ed9f26d06ac07a29fd5" compoundref="_mouse_8cpp" startline="35" endline="104">handleDown</referencedby>
-        <referencedby refid="classterminal_1_1_mouse_1ae9d07cb34c0de02b791dd2b4b0042c13" compoundref="_mouse_8cpp" startline="137" endline="182">handleDrag</referencedby>
-        <referencedby refid="classterminal_1_1_mouse_1a8bba59e3896f7f1c3b737912cb6803f4" compoundref="_mouse_8cpp" startline="184" endline="197">handleUp</referencedby>
+        <referencedby refid="classterminal_1_1_mouse_1a22e61d773a989b6890123abcc9347232" compoundref="_mouse_8cpp" startline="111" endline="140">handleDoubleClick</referencedby>
+        <referencedby refid="classterminal_1_1_mouse_1a7c0ca20075990ed9f26d06ac07a29fd5" compoundref="_mouse_8cpp" startline="35" endline="109">handleDown</referencedby>
+        <referencedby refid="classterminal_1_1_mouse_1ae9d07cb34c0de02b791dd2b4b0042c13" compoundref="_mouse_8cpp" startline="142" endline="191">handleDrag</referencedby>
+        <referencedby refid="classterminal_1_1_mouse_1a8bba59e3896f7f1c3b737912cb6803f4" compoundref="_mouse_8cpp" startline="193" endline="206">handleUp</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">
@@ -277,14 +276,18 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/Mouse.h" line="83" column="10" bodyfile="terminal/Mouse.cpp" bodystart="35" bodyend="104"/>
+        <location file="terminal/Mouse.h" line="83" column="10" bodyfile="terminal/Mouse.cpp" bodystart="35" bodyend="109"/>
         <references refid="classjam_1_1_code_view_1a93a5ced4b1717717dac8f5d07a4a4f9ca921134cac19521591ed4ad00784c9ea9">jam::CodeView::codeViewId</references>
         <references refid="classterminal_1_1_mouse_1a28f99a89abff8239228b012bd4b4d7f9" compoundref="_mouse_8h" startline="199" endline="199">dragActive</references>
         <references refid="classterminal_1_1_mouse_1af224d6267bde935aae15ceffcff98613" compoundref="_mouse_8h" startline="196" endline="196">dragAnchor</references>
         <references refid="structjam_1_1_cell_1_1_point_1ac7506dac0a51f233aa37fd65f3049e64">jam::Cell::Point::fromPixel</references>
+        <references refid="structjam_1_1_value_tree_1ac7c592a1eba42ac3b0628a2ada9ab4e7">jam::ValueTree::getChildWithID</references>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
         <references refid="classterminal_1_1_mouse_1a24584e961265ca928a01d67f2afba79c" compoundref="_mouse_8h" startline="185">linkManager</references>
+        <references refid="_modal_type_8h_1a1878c47fb0486dfcf512d127b5342816a334c4a4c42fdb79d7ebc3e73b517e6f8" compoundref="_modal_type_8h" startline="28">none</references>
         <references refid="classterminal_1_1_mouse_1a305aba1f03edc1f2885a8b53fd566846" compoundref="_mouse_8h" startline="182">physCellHeight</references>
         <references refid="classterminal_1_1_mouse_1ac5b8c6919a35297673b7524b05d3e33a" compoundref="_mouse_8h" startline="179">physCellWidth</references>
+        <references refid="namespaceterminal_1_1id_1a43eed2af41c8ffc8477921edddb6b50c" compoundref="_identifier_8h" startline="261" endline="261">terminal::id::preview</references>
         <references refid="classterminal_1_1_mouse_1a3c3210a6136f467813d918fe6757c8ec" compoundref="_mouse_8h" startline="176">processor</references>
         <references refid="classjam_1_1_code_view_1a6360f1b4243ed6ade7dde533ed2624bb">jam::CodeView::properties</references>
         <references refid="classjam_1_1_code_view_1a93a5ced4b1717717dac8f5d07a4a4f9ca55f84371c942defb97bc2ec32f41c4a7">jam::CodeView::selectionAnchorColId</references>
@@ -292,8 +295,9 @@
         <references refid="classjam_1_1_code_view_1a93a5ced4b1717717dac8f5d07a4a4f9cadd865eb0bb17b6820836db01129de550">jam::CodeView::selectionCursorColId</references>
         <references refid="classjam_1_1_code_view_1a93a5ced4b1717717dac8f5d07a4a4f9caab9ff043e0800fe8cf05ccd6201c0b55">jam::CodeView::selectionCursorRowId</references>
         <references refid="classjam_1_1_code_view_1a93a5ced4b1717717dac8f5d07a4a4f9ca9025212cef75f42667371ef36fabc880">jam::CodeView::selectionTypeId</references>
-        <references refid="classterminal_1_1_mouse_1a121ba6baba449a38de550335155c381e" compoundref="_mouse_8cpp" startline="288" endline="294">shouldForwardToPty</references>
-        <references refid="classterminal_1_1_mouse_1aec8658c1e313d498211b237c03867ceb" compoundref="_mouse_8cpp" startline="296" endline="299">toAbsoluteRow</references>
+        <references refid="classterminal_1_1_mouse_1a121ba6baba449a38de550335155c381e" compoundref="_mouse_8cpp" startline="298" endline="305">shouldForwardToPty</references>
+        <references refid="classterminal_1_1_mouse_1aec8658c1e313d498211b237c03867ceb" compoundref="_mouse_8cpp" startline="307" endline="310">toAbsoluteRow</references>
+        <references refid="namespaceterminal_1_1id_1a2b8b3a15901c16432311d99e99a34d67" compoundref="_identifier_8h" startline="110" endline="110">terminal::id::value</references>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_mouse_1a22e61d773a989b6890123abcc9347232" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -329,7 +333,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/Mouse.h" line="94" column="10" bodyfile="terminal/Mouse.cpp" bodystart="106" bodyend="135"/>
+        <location file="terminal/Mouse.h" line="94" column="10" bodyfile="terminal/Mouse.cpp" bodystart="111" bodyend="140"/>
         <references refid="classjam_1_1_code_view_1a93a5ced4b1717717dac8f5d07a4a4f9ca921134cac19521591ed4ad00784c9ea9">jam::CodeView::codeViewId</references>
         <references refid="classterminal_1_1_mouse_1a28f99a89abff8239228b012bd4b4d7f9" compoundref="_mouse_8h" startline="199" endline="199">dragActive</references>
         <references refid="classterminal_1_1_mouse_1af224d6267bde935aae15ceffcff98613" compoundref="_mouse_8h" startline="196" endline="196">dragAnchor</references>
@@ -343,8 +347,8 @@
         <references refid="classjam_1_1_code_view_1a93a5ced4b1717717dac8f5d07a4a4f9cadd865eb0bb17b6820836db01129de550">jam::CodeView::selectionCursorColId</references>
         <references refid="classjam_1_1_code_view_1a93a5ced4b1717717dac8f5d07a4a4f9caab9ff043e0800fe8cf05ccd6201c0b55">jam::CodeView::selectionCursorRowId</references>
         <references refid="classjam_1_1_code_view_1a93a5ced4b1717717dac8f5d07a4a4f9ca9025212cef75f42667371ef36fabc880">jam::CodeView::selectionTypeId</references>
-        <references refid="classterminal_1_1_mouse_1a121ba6baba449a38de550335155c381e" compoundref="_mouse_8cpp" startline="288" endline="294">shouldForwardToPty</references>
-        <references refid="classterminal_1_1_mouse_1aec8658c1e313d498211b237c03867ceb" compoundref="_mouse_8cpp" startline="296" endline="299">toAbsoluteRow</references>
+        <references refid="classterminal_1_1_mouse_1a121ba6baba449a38de550335155c381e" compoundref="_mouse_8cpp" startline="298" endline="305">shouldForwardToPty</references>
+        <references refid="classterminal_1_1_mouse_1aec8658c1e313d498211b237c03867ceb" compoundref="_mouse_8cpp" startline="307" endline="310">toAbsoluteRow</references>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_mouse_1ae9d07cb34c0de02b791dd2b4b0042c13" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -380,7 +384,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/Mouse.h" line="106" column="10" bodyfile="terminal/Mouse.cpp" bodystart="137" bodyend="182"/>
+        <location file="terminal/Mouse.h" line="106" column="10" bodyfile="terminal/Mouse.cpp" bodystart="142" bodyend="191"/>
         <references refid="classjam_1_1_code_view_1a93a5ced4b1717717dac8f5d07a4a4f9ca921134cac19521591ed4ad00784c9ea9">jam::CodeView::codeViewId</references>
         <references refid="classterminal_1_1_mouse_1a28f99a89abff8239228b012bd4b4d7f9" compoundref="_mouse_8h" startline="199" endline="199">dragActive</references>
         <references refid="classterminal_1_1_mouse_1af224d6267bde935aae15ceffcff98613" compoundref="_mouse_8h" startline="196" endline="196">dragAnchor</references>
@@ -394,8 +398,10 @@
         <references refid="classjam_1_1_code_view_1a93a5ced4b1717717dac8f5d07a4a4f9cadd865eb0bb17b6820836db01129de550">jam::CodeView::selectionCursorColId</references>
         <references refid="classjam_1_1_code_view_1a93a5ced4b1717717dac8f5d07a4a4f9caab9ff043e0800fe8cf05ccd6201c0b55">jam::CodeView::selectionCursorRowId</references>
         <references refid="classjam_1_1_code_view_1a93a5ced4b1717717dac8f5d07a4a4f9ca9025212cef75f42667371ef36fabc880">jam::CodeView::selectionTypeId</references>
-        <references refid="classterminal_1_1_mouse_1a121ba6baba449a38de550335155c381e" compoundref="_mouse_8cpp" startline="288" endline="294">shouldForwardToPty</references>
-        <references refid="classterminal_1_1_mouse_1aec8658c1e313d498211b237c03867ceb" compoundref="_mouse_8cpp" startline="296" endline="299">toAbsoluteRow</references>
+        <references refid="classterminal_1_1_mouse_1a121ba6baba449a38de550335155c381e" compoundref="_mouse_8cpp" startline="298" endline="305">shouldForwardToPty</references>
+        <references refid="classterminal_1_1_mouse_1aec8658c1e313d498211b237c03867ceb" compoundref="_mouse_8cpp" startline="307" endline="310">toAbsoluteRow</references>
+        <references refid="structjam_1_1_cell_1_1_rectangle_1a746f7df97a44a4bbd261a8362b7f696a">jam::Cell::Rectangle::unpack</references>
+        <references refid="classjam_1_1_code_view_1a93a5ced4b1717717dac8f5d07a4a4f9ca135d88d1984394ef6f9b2da476de4e03">jam::CodeView::viewportId</references>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_mouse_1a8bba59e3896f7f1c3b737912cb6803f4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -431,13 +437,13 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/Mouse.h" line="118" column="10" bodyfile="terminal/Mouse.cpp" bodystart="184" bodyend="197"/>
+        <location file="terminal/Mouse.h" line="118" column="10" bodyfile="terminal/Mouse.cpp" bodystart="193" bodyend="206"/>
         <references refid="classterminal_1_1_mouse_1a28f99a89abff8239228b012bd4b4d7f9" compoundref="_mouse_8h" startline="199" endline="199">dragActive</references>
         <references refid="structjam_1_1_cell_1_1_point_1ac7506dac0a51f233aa37fd65f3049e64">jam::Cell::Point::fromPixel</references>
         <references refid="classterminal_1_1_mouse_1a305aba1f03edc1f2885a8b53fd566846" compoundref="_mouse_8h" startline="182">physCellHeight</references>
         <references refid="classterminal_1_1_mouse_1ac5b8c6919a35297673b7524b05d3e33a" compoundref="_mouse_8h" startline="179">physCellWidth</references>
         <references refid="classterminal_1_1_mouse_1a3c3210a6136f467813d918fe6757c8ec" compoundref="_mouse_8h" startline="176">processor</references>
-        <references refid="classterminal_1_1_mouse_1a121ba6baba449a38de550335155c381e" compoundref="_mouse_8cpp" startline="288" endline="294">shouldForwardToPty</references>
+        <references refid="classterminal_1_1_mouse_1a121ba6baba449a38de550335155c381e" compoundref="_mouse_8cpp" startline="298" endline="305">shouldForwardToPty</references>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_mouse_1a2316e9263b82cafe1023f5a1deb28382" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -481,13 +487,14 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/Mouse.h" line="131" column="10" bodyfile="terminal/Mouse.cpp" bodystart="199" bodyend="219"/>
+        <location file="terminal/Mouse.h" line="131" column="10" bodyfile="terminal/Mouse.cpp" bodystart="208" bodyend="229"/>
         <references refid="structjam_1_1_cell_1_1_point_1ac7506dac0a51f233aa37fd65f3049e64">jam::Cell::Point::fromPixel</references>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
         <references refid="classterminal_1_1_mouse_1a24584e961265ca928a01d67f2afba79c" compoundref="_mouse_8h" startline="185">linkManager</references>
+        <references refid="_modal_type_8h_1a1878c47fb0486dfcf512d127b5342816a334c4a4c42fdb79d7ebc3e73b517e6f8" compoundref="_modal_type_8h" startline="28">none</references>
         <references refid="classterminal_1_1_mouse_1a305aba1f03edc1f2885a8b53fd566846" compoundref="_mouse_8h" startline="182">physCellHeight</references>
         <references refid="classterminal_1_1_mouse_1ac5b8c6919a35297673b7524b05d3e33a" compoundref="_mouse_8h" startline="179">physCellWidth</references>
-        <references refid="classterminal_1_1_mouse_1a3c3210a6136f467813d918fe6757c8ec" compoundref="_mouse_8h" startline="176">processor</references>
-        <references refid="classterminal_1_1_mouse_1a121ba6baba449a38de550335155c381e" compoundref="_mouse_8cpp" startline="288" endline="294">shouldForwardToPty</references>
+        <references refid="classterminal_1_1_mouse_1a121ba6baba449a38de550335155c381e" compoundref="_mouse_8cpp" startline="298" endline="305">shouldForwardToPty</references>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_mouse_1a7afe6147427be322e1171a6556a0868e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -548,16 +555,18 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/Mouse.h" line="145" column="10" bodyfile="terminal/Mouse.cpp" bodystart="221" bodyend="286"/>
+        <location file="terminal/Mouse.h" line="145" column="10" bodyfile="terminal/Mouse.cpp" bodystart="231" bodyend="296"/>
+        <references refid="namespaceterminal_1_1id_1ad9fd72b61b4ec96b2a652a7762f89ac3" compoundref="_identifier_8h" startline="129" endline="129">terminal::id::activeScreen</references>
         <references refid="struct_map_1_1_screen_1ae896a8da63494212bf03476a7240bcd7a1496f93865164852b01cd516fa71a3e8" compoundref="_map_8h" startline="42">Map::Screen::alternate</references>
         <references refid="group__juce__audio__plugin__client-Unity_1gac9a690ac771d86f797f87594f6dfa694">button</references>
         <references refid="structjam_1_1_cell_1_1_point_1ac7506dac0a51f233aa37fd65f3049e64">jam::Cell::Point::fromPixel</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
+        <references refid="structjam_1_1_value_tree_1a7cd25c35d555eb38c4788e72ed7aa95b">jam::ValueTree::getValueFromChildWithID</references>
         <references refid="classterminal_1_1_mouse_1a305aba1f03edc1f2885a8b53fd566846" compoundref="_mouse_8h" startline="182">physCellHeight</references>
         <references refid="classterminal_1_1_mouse_1ac5b8c6919a35297673b7524b05d3e33a" compoundref="_mouse_8h" startline="179">physCellWidth</references>
         <references refid="classterminal_1_1_mouse_1a3c3210a6136f467813d918fe6757c8ec" compoundref="_mouse_8h" startline="176">processor</references>
         <references refid="classterminal_1_1_mouse_1a39e0ff84720e354ce444c7c223589f03" compoundref="_mouse_8h" startline="193" endline="193">scrollAccumulator</references>
-        <references refid="classterminal_1_1_mouse_1a121ba6baba449a38de550335155c381e" compoundref="_mouse_8cpp" startline="288" endline="294">shouldForwardToPty</references>
+        <references refid="classterminal_1_1_mouse_1a121ba6baba449a38de550335155c381e" compoundref="_mouse_8cpp" startline="298" endline="305">shouldForwardToPty</references>
         <references refid="classterminal_1_1_mouse_1a720b88385c6c2e3c09264f380bb6531e" compoundref="_mouse_8h" startline="57" endline="57">trackpadDeltaScale</references>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_mouse_1a7a6c76efde85b0e1fb959af34b231afd" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
@@ -607,17 +616,19 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/Mouse.h" line="162" column="10" bodyfile="terminal/Mouse.cpp" bodystart="288" bodyend="294"/>
+        <location file="terminal/Mouse.h" line="162" column="10" bodyfile="terminal/Mouse.cpp" bodystart="298" bodyend="305"/>
+        <references refid="structjam_1_1_value_tree_1a7cd25c35d555eb38c4788e72ed7aa95b">jam::ValueTree::getValueFromChildWithID</references>
+        <references refid="namespaceterminal_1_1id_1a79a59a405b5e0ea4bd4bdc099abf47b2" compoundref="_identifier_8h" startline="85" endline="85">terminal::id::MODES</references>
         <references refid="namespaceterminal_1_1id_1acf7c6273c18a0ca7153b11da1e5f98bb" compoundref="_identifier_8h" startline="188" endline="188">terminal::id::mouseAllTracking</references>
         <references refid="namespaceterminal_1_1id_1abc2401b51dd58e607877f57caa34fcf5" compoundref="_identifier_8h" startline="185" endline="185">terminal::id::mouseMotionTracking</references>
         <references refid="namespaceterminal_1_1id_1a763f34f3777ae9891c42b31ff8b54ec9" compoundref="_identifier_8h" startline="182" endline="182">terminal::id::mouseTracking</references>
         <references refid="classterminal_1_1_mouse_1a3c3210a6136f467813d918fe6757c8ec" compoundref="_mouse_8h" startline="176">processor</references>
-        <referencedby refid="classterminal_1_1_mouse_1a22e61d773a989b6890123abcc9347232" compoundref="_mouse_8cpp" startline="106" endline="135">handleDoubleClick</referencedby>
-        <referencedby refid="classterminal_1_1_mouse_1a7c0ca20075990ed9f26d06ac07a29fd5" compoundref="_mouse_8cpp" startline="35" endline="104">handleDown</referencedby>
-        <referencedby refid="classterminal_1_1_mouse_1ae9d07cb34c0de02b791dd2b4b0042c13" compoundref="_mouse_8cpp" startline="137" endline="182">handleDrag</referencedby>
-        <referencedby refid="classterminal_1_1_mouse_1a2316e9263b82cafe1023f5a1deb28382" compoundref="_mouse_8cpp" startline="199" endline="219">handleMove</referencedby>
-        <referencedby refid="classterminal_1_1_mouse_1a8bba59e3896f7f1c3b737912cb6803f4" compoundref="_mouse_8cpp" startline="184" endline="197">handleUp</referencedby>
-        <referencedby refid="classterminal_1_1_mouse_1a7afe6147427be322e1171a6556a0868e" compoundref="_mouse_8cpp" startline="221" endline="286">handleWheel</referencedby>
+        <referencedby refid="classterminal_1_1_mouse_1a22e61d773a989b6890123abcc9347232" compoundref="_mouse_8cpp" startline="111" endline="140">handleDoubleClick</referencedby>
+        <referencedby refid="classterminal_1_1_mouse_1a7c0ca20075990ed9f26d06ac07a29fd5" compoundref="_mouse_8cpp" startline="35" endline="109">handleDown</referencedby>
+        <referencedby refid="classterminal_1_1_mouse_1ae9d07cb34c0de02b791dd2b4b0042c13" compoundref="_mouse_8cpp" startline="142" endline="191">handleDrag</referencedby>
+        <referencedby refid="classterminal_1_1_mouse_1a2316e9263b82cafe1023f5a1deb28382" compoundref="_mouse_8cpp" startline="208" endline="229">handleMove</referencedby>
+        <referencedby refid="classterminal_1_1_mouse_1a8bba59e3896f7f1c3b737912cb6803f4" compoundref="_mouse_8cpp" startline="193" endline="206">handleUp</referencedby>
+        <referencedby refid="classterminal_1_1_mouse_1a7afe6147427be322e1171a6556a0868e" compoundref="_mouse_8cpp" startline="231" endline="296">handleWheel</referencedby>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_mouse_1aec8658c1e313d498211b237c03867ceb" prot="private" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
         <type>int</type>
@@ -649,10 +660,10 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/Mouse.h" line="173" column="9" bodyfile="terminal/Mouse.cpp" bodystart="296" bodyend="299"/>
-        <referencedby refid="classterminal_1_1_mouse_1a22e61d773a989b6890123abcc9347232" compoundref="_mouse_8cpp" startline="106" endline="135">handleDoubleClick</referencedby>
-        <referencedby refid="classterminal_1_1_mouse_1a7c0ca20075990ed9f26d06ac07a29fd5" compoundref="_mouse_8cpp" startline="35" endline="104">handleDown</referencedby>
-        <referencedby refid="classterminal_1_1_mouse_1ae9d07cb34c0de02b791dd2b4b0042c13" compoundref="_mouse_8cpp" startline="137" endline="182">handleDrag</referencedby>
+        <location file="terminal/Mouse.h" line="173" column="9" bodyfile="terminal/Mouse.cpp" bodystart="307" bodyend="310"/>
+        <referencedby refid="classterminal_1_1_mouse_1a22e61d773a989b6890123abcc9347232" compoundref="_mouse_8cpp" startline="111" endline="140">handleDoubleClick</referencedby>
+        <referencedby refid="classterminal_1_1_mouse_1a7c0ca20075990ed9f26d06ac07a29fd5" compoundref="_mouse_8cpp" startline="35" endline="109">handleDown</referencedby>
+        <referencedby refid="classterminal_1_1_mouse_1ae9d07cb34c0de02b791dd2b4b0042c13" compoundref="_mouse_8cpp" startline="142" endline="191">handleDrag</referencedby>
       </memberdef>
     </sectiondef>
     <briefdescription>
@@ -923,8 +934,6 @@
         <label>terminal::Model</label>
         <link refid="structterminal_1_1_model"/>
         <childnode refid="21" relation="public-inheritance">
-        </childnode>
-        <childnode refid="3" relation="private-inheritance">
         </childnode>
         <childnode refid="27" relation="usage">
           <edgelabel>rowDirtyFlags</edgelabel>

@@ -40,12 +40,22 @@ bool Input::handleKey (const juce::KeyPress& key) noexcept
      */
     const bool result
     {
-        (processor.getState().isPreviewActive() and processor.getState().getSplitCol() > 0 and [this]
+        ([this]
             {
-                processor.getState().dismissPreview();
-                return true;
+                // Replaces isPreviewActive() / getSplitCol() — reads SESSION PARAMs directly.
+                const juce::ValueTree inputRoot { processor.getState().getRootTree() };
+                auto previewNode  { jam::ValueTree::getChildWithID (inputRoot, terminal::id::preview.toString()) };
+                auto splitColNode { jam::ValueTree::getChildWithID (inputRoot, terminal::id::splitCol.toString()) };
+                const bool previewActive { previewNode.isValid() and static_cast<int> (previewNode.getProperty (terminal::id::value)) != 0 };
+                const int  splitCol      { splitColNode.isValid() ? static_cast<int> (splitColNode.getProperty (terminal::id::value)) : 0 };
+                return previewActive and splitCol > 0 and [this] { processor.getState().dismissPreview(); return true; }();
             }())
-        or (processor.getState().isModal() and handleModalKey (key))
+        or ([this, &key]
+            {
+                // Replaces isModal() — reads AppModel modalType directly.
+                const bool modal { static_cast<ModalType> (AppModel::getContext()->getModalType()) != ModalType::none };
+                return modal and handleModalKey (key);
+            }())
         or action::Registry::getContext()->handleKeyPress (key)
         or [this, &key]
             {
@@ -109,7 +119,7 @@ bool Input::isSelectionCopyKey (const juce::KeyPress& key) const noexcept
 
 bool Input::handleModalKey (const juce::KeyPress& key) noexcept
 {
-    const auto type { processor.getState().getModalType() };
+    const auto type { static_cast<terminal::ModalType> (AppModel::getContext()->getModalType()) };
     bool handled { false };
 
     if (type == terminal::ModalType::selection)
@@ -126,8 +136,13 @@ bool Input::handleModalKey (const juce::KeyPress& key) noexcept
 
 bool Input::handleSelectionKey (const juce::KeyPress& key) noexcept
 {
-    const int maxRow { processor.getState().getVisibleRows().value - 1 };
-    const int maxCol { processor.getState().getCols().value - 1 };
+    // Replaces getVisibleRows() / getCols() — reads CODE_VIEW viewport packed rect directly.
+    const auto& selSt     { processor.getState() };
+    const auto  cvNode    { selSt.getChildWithName (jam::CodeView::properties.at (jam::CodeView::codeViewId)) };
+    const int64_t selPacked { static_cast<int64_t> (cvNode.getProperty (jam::CodeView::properties.at (jam::CodeView::viewportId), 0)) };
+    const auto selRect    { jam::Cell::Rectangle::unpack (selPacked) };
+    const int maxRow { selRect.getHeight().value - 1 };
+    const int maxCol { selRect.getWidth().value - 1 };
 
     using TE = jam::CodeView;
     const auto& teId            { TE::properties.at (TE::codeViewId) };
@@ -140,7 +155,7 @@ bool Input::handleSelectionKey (const juce::KeyPress& key) noexcept
     auto& st { processor.getState() };
     auto node { st.getChildWithName (teId) };
 
-    const int activeScreen { st.getActiveScreen() };
+    const int activeScreen { static_cast<int> (jam::ValueTree::getValueFromChildWithID (st.getRootTree(), terminal::id::activeScreen).getValue()) };
     const juce::Identifier selScreenId { Map::Screen::getContext()->get (activeScreen) };
     auto selScreenNode { st.getChildWithName (selScreenId) };
 
@@ -149,7 +164,7 @@ bool Input::handleSelectionKey (const juce::KeyPress& key) noexcept
         if (key == selectionKeys.exit)
         {
             node.setProperty (selTypeId, static_cast<int> (terminal::SelectionType::none), nullptr);
-            st.setModalType (terminal::ModalType::none);
+            AppModel::getContext()->setModalType (static_cast<int> (terminal::ModalType::none));
             pendingG = false;
         }
         else if (key == selectionKeys.visualBlock)
@@ -159,7 +174,7 @@ bool Input::handleSelectionKey (const juce::KeyPress& key) noexcept
             if (current == terminal::SelectionType::visualBlock)
             {
                 node.setProperty (selTypeId, static_cast<int> (terminal::SelectionType::none), nullptr);
-                st.setModalType (terminal::ModalType::none);
+                AppModel::getContext()->setModalType (static_cast<int> (terminal::ModalType::none));
             }
             else
             {
@@ -202,7 +217,7 @@ bool Input::handleSelectionKey (const juce::KeyPress& key) noexcept
             if (current == terminal::SelectionType::visualLine)
             {
                 node.setProperty (selTypeId, static_cast<int> (terminal::SelectionType::none), nullptr);
-                st.setModalType (terminal::ModalType::none);
+                AppModel::getContext()->setModalType (static_cast<int> (terminal::ModalType::none));
             }
             else
             {
@@ -225,7 +240,7 @@ bool Input::handleSelectionKey (const juce::KeyPress& key) noexcept
             if (current == terminal::SelectionType::visual)
             {
                 node.setProperty (selTypeId, static_cast<int> (terminal::SelectionType::none), nullptr);
-                st.setModalType (terminal::ModalType::none);
+                AppModel::getContext()->setModalType (static_cast<int> (terminal::ModalType::none));
             }
             else
             {
@@ -247,7 +262,7 @@ bool Input::handleSelectionKey (const juce::KeyPress& key) noexcept
             juce::SystemClipboard::copyTextToClipboard ({});
 
             node.setProperty (selTypeId, static_cast<int> (terminal::SelectionType::none), nullptr);
-            st.setModalType (terminal::ModalType::none);
+            AppModel::getContext()->setModalType (static_cast<int> (terminal::ModalType::none));
             pendingG = false;
         }
         else if (key == selectionKeys.bottom)
@@ -284,7 +299,7 @@ bool Input::handleOpenFileKey (const juce::KeyPress& key) noexcept
     if (key == juce::KeyPress::escapeKey)
     {
         linkManager.clearHints();
-        processor.getState().setModalType (terminal::ModalType::none);
+        AppModel::getContext()->setModalType (static_cast<int> (terminal::ModalType::none));
     }
     else if (key.getKeyCode() == juce::KeyPress::spaceKey)
     {
@@ -304,7 +319,7 @@ bool Input::handleOpenFileKey (const juce::KeyPress& key) noexcept
             {
                 linkManager.dispatch (*matched);
                 linkManager.clearHints();
-                processor.getState().setModalType (terminal::ModalType::none);
+                AppModel::getContext()->setModalType (static_cast<int> (terminal::ModalType::none));
             }
         }
     }

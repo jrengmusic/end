@@ -201,7 +201,7 @@
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Nexus &gt;::getContext</references>
         <references refid="structjam_1_1_cell_1_1_rectangle_1a6fd3c1980b15bde3963479e0d23a938f">jam::Cell::Rectangle::getHeight</references>
         <references refid="classterminal_1_1_session_1a3564c58fc509e22d7e900071233cea5e" compoundref="_session_8cpp" startline="386" endline="390">terminal::Session::getProcessor</references>
-        <references refid="classterminal_1_1_processor_1ace3fe08e06ad8427e1275f8b195d9373" compoundref="_processor_8cpp" startline="370" endline="370">terminal::Processor::getUuid</references>
+        <references refid="classterminal_1_1_processor_1ace3fe08e06ad8427e1275f8b195d9373" compoundref="_processor_8cpp" startline="375" endline="375">terminal::Processor::getUuid</references>
         <references refid="structjam_1_1_cell_1_1_rectangle_1a840c42ca4c36a43986eb1c931bc5f7d0">jam::Cell::Rectangle::getWidth</references>
         <references refid="classterminal_1_1_session_1a3c1867e57ecc25b8eceddb05a6a79b81" compoundref="_session_8cpp" startline="423" endline="427">terminal::Session::graftInto</references>
         <references refid="group__juce__core-system_1ga1f96ab6751237979b907a54f52a7296a">jassert</references>
@@ -518,7 +518,7 @@
         <references refid="classjam_1_1_pane_manager_1a5318bac989d380aa730755d6b135f7f1">jam::PaneManager::findLeaf</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Nexus &gt;::getContext</references>
         <references refid="classterminal_1_1_session_1a3564c58fc509e22d7e900071233cea5e" compoundref="_session_8cpp" startline="386" endline="390">terminal::Session::getProcessor</references>
-        <references refid="classterminal_1_1_processor_1ace3fe08e06ad8427e1275f8b195d9373" compoundref="_processor_8cpp" startline="370" endline="370">terminal::Processor::getUuid</references>
+        <references refid="classterminal_1_1_processor_1ace3fe08e06ad8427e1275f8b195d9373" compoundref="_processor_8cpp" startline="375" endline="375">terminal::Processor::getUuid</references>
         <references refid="classterminal_1_1_session_1a3c1867e57ecc25b8eceddb05a6a79b81" compoundref="_session_8cpp" startline="423" endline="427">terminal::Session::graftInto</references>
         <references refid="group__juce__core-system_1ga1f96ab6751237979b907a54f52a7296a">jassert</references>
         <references refid="classterminal_1_1_panes_1a1a0aafbe9647720713c2c25a56583398" compoundref="_panes_8h" startline="280">paneManager</references>

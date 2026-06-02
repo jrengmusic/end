@@ -14,15 +14,9 @@ Model::Model (TextBuffer& tb)
     buildLayout (*xml, textBuffer);
 
     startTimerHz (60);
-
-    listenedTree = state;
-    listenedTree.addListener (this);
 }
 
-Model::~Model()
-{
-    listenedTree.removeListener (this);
-}
+Model::~Model() = default;
 
 //==========================================================================
 // SSOT registration
@@ -118,6 +112,8 @@ void Model::buildLayout (const juce::XmlElement& xml, TextBuffer& tb)
                 }
 
                 rootNode.appendChild (screenNode, nullptr);
+                // Explicit registration replacing the removed self-listener path.
+                jam::ValueTree::Attachment::registerAtomics (*this, screenNode);
             }
         }
         else if (tag == id::TEXT.toString())
@@ -136,38 +132,6 @@ void Model::addTextParameter (const juce::Identifier& id, juce::ValueTree& rootN
 {
     auto* sessionGroup { params.get<jam::AnyMap> (id::SESSION) };
     sessionGroup->add<Parameter<const char*>> (id, id, rootNode, id);
-}
-
-void Model::valueTreeChildAdded (juce::ValueTree& parent, juce::ValueTree& child)
-{
-    if (parent == state)
-        registerNodeAtomics (child);
-}
-
-void Model::registerNodeAtomics (juce::ValueTree& node) noexcept
-{
-    const juce::Identifier groupId { node.getType() };
-
-    if (not params.contains (groupId))
-        params.add<jam::AnyMap> (groupId);
-
-    auto& group { *params.get<jam::AnyMap> (groupId) };
-
-    for (int i { node.getNumProperties() - 1 }; i >= 0; --i)
-    {
-        const auto propId { node.getPropertyName (i) };
-        const auto prop { node.getProperty (propId) };
-
-        if (not group.contains (propId))
-        {
-            if (prop.isDouble())
-                addParameter<float> (propId, static_cast<float> (prop), group, node);
-            else
-                addParameter<int> (propId, static_cast<int> (prop), group, node);
-        }
-
-        node.removeProperty (propId, nullptr);
-    }
 }
 
 //==========================================================================
@@ -215,70 +179,6 @@ void Model::rebuildRowDirtyFlags (int newVisibleRows) noexcept
 void Model::storeTextValue (const juce::Identifier& groupId, const juce::Identifier& paramId, const char* ptr) noexcept
 {
     params.get<jam::AnyMap> (groupId)->get<Parameter<const char*>> (paramId)->store (ptr);
-}
-
-//==========================================================================
-// ValueTree access — MESSAGE THREAD
-//==========================================================================
-
-bool Model::getMode (const juce::Identifier& id) const noexcept
-{
-    JUCE_ASSERT_MESSAGE_THREAD
-    auto modesNode { state.getChildWithName (id::MODES) };
-    return static_cast<int> (jam::ValueTree::getValueFromChildWithID (modesNode, id).getValue()) != 0;
-}
-
-int Model::getActiveScreen() const noexcept
-{
-    JUCE_ASSERT_MESSAGE_THREAD
-    return static_cast<int> (jam::ValueTree::getValueFromChildWithID (state, id::activeScreen).getValue());
-}
-
-static int
-getSessionParamInt (const juce::ValueTree& root, const juce::Identifier& paramId, int defaultValue = 0) noexcept
-{
-    JUCE_ASSERT_MESSAGE_THREAD
-    auto param { jam::ValueTree::getChildWithID (root, paramId.toString()) };
-    int result { defaultValue };
-
-    if (param.isValid())
-    {
-        result = static_cast<int> (param.getProperty (terminal::id::value));
-    }
-
-    return result;
-}
-
-cell Model::getCols() const noexcept
-{
-    const auto teNode { state.getChildWithName (jam::CodeView::properties.at (jam::CodeView::codeViewId)) };
-    const int64_t packed { static_cast<int64_t> (teNode.getProperty (jam::CodeView::properties.at (jam::CodeView::viewportId), 0)) };
-    return jam::Cell::Rectangle::unpack (packed).getWidth();
-}
-
-cell Model::getVisibleRows() const noexcept
-{
-    const auto teNode { state.getChildWithName (jam::CodeView::properties.at (jam::CodeView::codeViewId)) };
-    const int64_t packed { static_cast<int64_t> (teNode.getProperty (jam::CodeView::properties.at (jam::CodeView::viewportId), 0)) };
-    return jam::Cell::Rectangle::unpack (packed).getHeight();
-}
-
-juce::String Model::getTitle() const noexcept
-{
-    JUCE_ASSERT_MESSAGE_THREAD
-    return state.getProperty (id::title).toString();
-}
-
-juce::String Model::getCwd() const noexcept
-{
-    JUCE_ASSERT_MESSAGE_THREAD
-    return state.getProperty (id::cwd).toString();
-}
-
-juce::String Model::getForegroundProcess() const noexcept
-{
-    JUCE_ASSERT_MESSAGE_THREAD
-    return state.getProperty (id::foregroundProcess).toString();
 }
 
 //==========================================================================
@@ -336,26 +236,6 @@ void Model::extendOutputBlock (cell row) noexcept
 
 void Model::setPromptRow (cell row) noexcept { storeValue (id::SESSION, id::promptRow, row.value); }
 
-cell Model::getOutputBlockTop() const noexcept { return cell (getSessionParamInt (state, id::outputBlockTop, -1)); }
-
-cell Model::getOutputBlockBottom() const noexcept
-{
-    return cell (getSessionParamInt (state, id::outputBlockBottom, -1));
-}
-
-cell Model::getPromptRow() const noexcept { return cell (getSessionParamInt (state, id::promptRow, -1)); }
-
-bool Model::hasOutputBlock() const noexcept
-{
-    JUCE_ASSERT_MESSAGE_THREAD
-    const cell blockTop { getOutputBlockTop() };
-    const cell prompt { getPromptRow() };
-    const int screenVal { getActiveScreen() };
-    const bool normalScreen { screenVal == Map::Screen::normal };
-
-    return blockTop.value >= 0 and prompt > blockTop and normalScreen;
-}
-
 //==========================================================================
 // Shell exit signal
 //==========================================================================
@@ -374,10 +254,6 @@ void Model::setSnapshotDirty() noexcept
     }
 }
 
-bool Model::consumeSnapshotDirty() noexcept
-{
-    return params.get<jam::AnyMap> (id::SESSION)->get<Parameter<int>> (id::snapshotDirty)->exchangeAcquire (0) != 0;
-}
 
 //==========================================================================
 // Paste echo gate
@@ -428,26 +304,10 @@ void Model::setSyncOutput (bool active) noexcept
     }
 }
 
-bool Model::isSyncOutputActive() const noexcept
-{
-    return params.get<jam::AnyMap> (id::SESSION)->get<Parameter<int>> (id::syncOutputActive)->load() != 0;
-}
 
 //==========================================================================
 // Preview
 //==========================================================================
-
-bool Model::isPreviewActive() const noexcept
-{
-    JUCE_ASSERT_MESSAGE_THREAD
-    return getSessionParamInt (state, id::preview) != 0;
-}
-
-int Model::getSplitCol() const noexcept
-{
-    JUCE_ASSERT_MESSAGE_THREAD
-    return getSessionParamInt (state, id::splitCol);
-}
 
 void Model::dismissPreview() noexcept
 {
@@ -462,41 +322,12 @@ void Model::dismissPreview() noexcept
 
 void Model::setHintPage (int page) noexcept { storeValue (id::SESSION, id::hintPage, page); }
 
-int Model::getHintPage() const noexcept
-{
-    JUCE_ASSERT_MESSAGE_THREAD
-    return getSessionParamInt (state, id::hintPage);
-}
-
 void Model::setHintTotalPages (int total) noexcept { storeValue (id::SESSION, id::hintTotalPages, total); }
-
-int Model::getHintTotalPages() const noexcept
-{
-    JUCE_ASSERT_MESSAGE_THREAD
-    return getSessionParamInt (state, id::hintTotalPages);
-}
 
 //==========================================================================
 // Modal
 //==========================================================================
 
-void Model::setModalType (ModalType type) noexcept
-{
-    AppModel::getContext()->setModalType (static_cast<int> (type));
-    params.get<jam::AnyMap> (id::SESSION)->get<Parameter<int>> (id::snapshotDirty)->storeRelease (1);
-}
-
-ModalType Model::getModalType() const noexcept
-{
-    JUCE_ASSERT_MESSAGE_THREAD
-    return static_cast<ModalType> (AppModel::getContext()->getModalType());
-}
-
-bool Model::isModal() const noexcept
-{
-    JUCE_ASSERT_MESSAGE_THREAD
-    return getModalType() != ModalType::none;
-}
 
 /**______________________________END OF NAMESPACE______________________________*/
 } // namespace terminal

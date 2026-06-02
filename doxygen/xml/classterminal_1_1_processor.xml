@@ -22,7 +22,7 @@
         <location file="terminal/Processor.h" line="330" column="27" bodyfile="terminal/Processor.h" bodystart="330" bodyend="-1"/>
         <referencedby refid="classterminal_1_1_processor_1a1a3cc6a754ce1b7c6d4a81b3f9e48bb9" compoundref="_processor_8h" startline="230" endline="230">getCallbackLock</referencedby>
         <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">registerEvents</referencedby>
-        <referencedby refid="classterminal_1_1_processor_1a08efeebe81dbc51fb797be923eca9f63" compoundref="_processor_8cpp" startline="361" endline="365">suspendProcessing</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a08efeebe81dbc51fb797be923eca9f63" compoundref="_processor_8cpp" startline="366" endline="370">suspendProcessing</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classterminal_1_1_processor_1a2b62f523aeca583458eda8d1121aeb7d" prot="private" static="no" mutable="no">
         <type>bool</type>
@@ -42,7 +42,7 @@
         <location file="terminal/Processor.h" line="334" column="10" bodyfile="terminal/Processor.h" bodystart="334" bodyend="334"/>
         <referencedby refid="classterminal_1_1_processor_1aa9dc87522b98f833e604e2de9517c462" compoundref="_processor_8h" startline="226" endline="226">isSuspended</referencedby>
         <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">registerEvents</referencedby>
-        <referencedby refid="classterminal_1_1_processor_1a08efeebe81dbc51fb797be923eca9f63" compoundref="_processor_8cpp" startline="361" endline="365">suspendProcessing</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a08efeebe81dbc51fb797be923eca9f63" compoundref="_processor_8cpp" startline="366" endline="370">suspendProcessing</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classterminal_1_1_processor_1a4534de76e2da21696a636f73aba6bbe4" prot="private" static="no" mutable="no">
         <type>std::unique_ptr&lt; <ref refid="class_t_t_y" kindref="compound">TTY</ref> &gt;</type>
@@ -59,9 +59,9 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Processor.h" line="337" column="21" bodyfile="terminal/Processor.h" bodystart="337" bodyend="-1"/>
-        <referencedby refid="classterminal_1_1_processor_1a89b0c1dfe9423a1dada6158717e3d680" compoundref="_processor_8cpp" startline="409" endline="416">prepare</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a89b0c1dfe9423a1dada6158717e3d680" compoundref="_processor_8cpp" startline="414" endline="421">prepare</referencedby>
         <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">registerEvents</referencedby>
-        <referencedby refid="classterminal_1_1_processor_1a9ca3ff5dd10b9b5e05144dc762b58d69" compoundref="_processor_8cpp" startline="374" endline="407">startTTY</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a9ca3ff5dd10b9b5e05144dc762b58d69" compoundref="_processor_8cpp" startline="379" endline="412">startTTY</referencedby>
         <referencedby refid="classterminal_1_1_processor_1a922912d666c99384f62557062cb96085" compoundref="_processor_8cpp" startline="60" endline="66">~Processor</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classterminal_1_1_processor_1a3b05a9e67a6a3b36afda303ee5414010" prot="private" static="no" mutable="no">
@@ -115,14 +115,14 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Processor.h" line="349" column="11" bodyfile="terminal/Processor.h" bodystart="349" bodyend="-1"/>
-        <referencedby refid="classterminal_1_1_processor_1ada78f7637abbbf289a1e78b13c09d117" compoundref="_processor_8cpp" startline="303" endline="314">encodeFocusEvent</referencedby>
-        <referencedby refid="classterminal_1_1_processor_1ac27d1456511a72a12a478c90f90eda0e" compoundref="_processor_8cpp" startline="241" endline="263">encodeKeyPress</referencedby>
-        <referencedby refid="classterminal_1_1_processor_1a7e952949b06abd72a91595e5d664c8d0" compoundref="_processor_8cpp" startline="272" endline="294">encodePaste</referencedby>
-        <referencedby refid="classterminal_1_1_processor_1ab560dd9d6a1261d6a1a24d1589f899cf" compoundref="_processor_8cpp" startline="368" endline="368">getState</referencedby>
-        <referencedby refid="classterminal_1_1_processor_1af4826b9ede2a6ed6737316d0706ba455" compoundref="_processor_8cpp" startline="367" endline="367">getState</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1ada78f7637abbbf289a1e78b13c09d117" compoundref="_processor_8cpp" startline="307" endline="319">encodeFocusEvent</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1ac27d1456511a72a12a478c90f90eda0e" compoundref="_processor_8cpp" startline="241" endline="266">encodeKeyPress</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a7e952949b06abd72a91595e5d664c8d0" compoundref="_processor_8cpp" startline="275" endline="298">encodePaste</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1ab560dd9d6a1261d6a1a24d1589f899cf" compoundref="_processor_8cpp" startline="373" endline="373">getState</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1af4826b9ede2a6ed6737316d0706ba455" compoundref="_processor_8cpp" startline="372" endline="372">getState</referencedby>
         <referencedby refid="classterminal_1_1_processor_1acf5bcebd2a5d593ce1d4f1c9c7c9657e" compoundref="_processor_8cpp" startline="99" endline="111">popKeyboardMode</referencedby>
-        <referencedby refid="classterminal_1_1_processor_1a89b0c1dfe9423a1dada6158717e3d680" compoundref="_processor_8cpp" startline="409" endline="416">prepare</referencedby>
-        <referencedby refid="classterminal_1_1_processor_1a96b8cb76bde26b5b5d00737477746e6c" compoundref="_processor_8cpp" startline="339" endline="351">process</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a89b0c1dfe9423a1dada6158717e3d680" compoundref="_processor_8cpp" startline="414" endline="421">prepare</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a96b8cb76bde26b5b5d00737477746e6c" compoundref="_processor_8cpp" startline="344" endline="356">process</referencedby>
         <referencedby refid="classterminal_1_1_processor_1a55c3277d5426fc60a5318834bc630226" compoundref="_processor_8cpp" startline="22" endline="44">Processor</referencedby>
         <referencedby refid="classterminal_1_1_processor_1abd084da839dd83c344822114205ac194" compoundref="_processor_8cpp" startline="74" endline="97">pushKeyboardMode</referencedby>
         <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">registerEvents</referencedby>
@@ -166,8 +166,8 @@
         <referencedby refid="classterminal_1_1_processor_1a55c3277d5426fc60a5318834bc630226" compoundref="_processor_8cpp" startline="22" endline="44">Processor</referencedby>
         <referencedby refid="classterminal_1_1_processor_1a90b588fb79485f03eca579538ccc9619" compoundref="_processor_8h" startline="277" endline="280">registerEvent</referencedby>
         <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">registerEvents</referencedby>
-        <referencedby refid="classterminal_1_1_processor_1a9ca3ff5dd10b9b5e05144dc762b58d69" compoundref="_processor_8cpp" startline="374" endline="407">startTTY</referencedby>
-        <referencedby refid="classterminal_1_1_processor_1ab7fc9fa8835b9002af38eea90169bab8" compoundref="_processor_8cpp" startline="426" endline="430">writeInput</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a9ca3ff5dd10b9b5e05144dc762b58d69" compoundref="_processor_8cpp" startline="379" endline="412">startTTY</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1ab7fc9fa8835b9002af38eea90169bab8" compoundref="_processor_8cpp" startline="431" endline="435">writeInput</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classterminal_1_1_processor_1a554dae80a44aff3c74fcba9b9a6e76e1" prot="private" static="no" mutable="no">
         <type><ref refid="structjam_1_1_function_1_1_map" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Function::Map</ref>&lt; juce::Identifier, void &gt;</type>
@@ -201,9 +201,9 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Processor.h" line="375" column="11" bodyfile="terminal/Processor.h" bodystart="375" bodyend="-1"/>
-        <referencedby refid="classterminal_1_1_processor_1a5c31152d2b007743b77d5b3ea87ee8f7" compoundref="_processor_8cpp" startline="372" endline="372">flushResponses</referencedby>
-        <referencedby refid="classterminal_1_1_processor_1a89b0c1dfe9423a1dada6158717e3d680" compoundref="_processor_8cpp" startline="409" endline="416">prepare</referencedby>
-        <referencedby refid="classterminal_1_1_processor_1a96b8cb76bde26b5b5d00737477746e6c" compoundref="_processor_8cpp" startline="339" endline="351">process</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a5c31152d2b007743b77d5b3ea87ee8f7" compoundref="_processor_8cpp" startline="377" endline="377">flushResponses</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a89b0c1dfe9423a1dada6158717e3d680" compoundref="_processor_8cpp" startline="414" endline="421">prepare</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a96b8cb76bde26b5b5d00737477746e6c" compoundref="_processor_8cpp" startline="344" endline="356">process</referencedby>
         <referencedby refid="classterminal_1_1_processor_1a55c3277d5426fc60a5318834bc630226" compoundref="_processor_8cpp" startline="22" endline="44">Processor</referencedby>
         <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">registerEvents</referencedby>
         <referencedby refid="classterminal_1_1_processor_1a47a73ee5512a61ccbc27086ba67a4d4b" compoundref="_processor_8cpp" startline="191" endline="199">setCellSize</referencedby>
@@ -249,7 +249,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Processor.h" line="392" column="24" bodyfile="terminal/Processor.h" bodystart="392" bodyend="-1"/>
-        <referencedby refid="classterminal_1_1_processor_1ace3fe08e06ad8427e1275f8b195d9373" compoundref="_processor_8cpp" startline="370" endline="370">getUuid</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1ace3fe08e06ad8427e1275f8b195d9373" compoundref="_processor_8cpp" startline="375" endline="375">getUuid</referencedby>
         <referencedby refid="classterminal_1_1_processor_1a55c3277d5426fc60a5318834bc630226" compoundref="_processor_8cpp" startline="22" endline="44">Processor</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classterminal_1_1_processor_1a8157adb010a425ac34995059c64e0f14" prot="private" static="no" mutable="no">
@@ -266,7 +266,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Processor.h" line="395" column="21" bodyfile="terminal/Processor.h" bodystart="395" bodyend="-1"/>
-        <referencedby refid="classterminal_1_1_processor_1a96b8cb76bde26b5b5d00737477746e6c" compoundref="_processor_8cpp" startline="339" endline="351">process</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a96b8cb76bde26b5b5d00737477746e6c" compoundref="_processor_8cpp" startline="344" endline="356">process</referencedby>
         <referencedby refid="classterminal_1_1_processor_1a55c3277d5426fc60a5318834bc630226" compoundref="_processor_8cpp" startline="22" endline="44">Processor</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classterminal_1_1_processor_1ab284e95d4c0053c7913b64a60feb2678" prot="private" static="no" mutable="no">
@@ -472,12 +472,14 @@ Const — no side effects, does NOT write to any PTY.</para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/Processor.h" line="149" column="18" bodyfile="terminal/Processor.cpp" bodystart="241" bodyend="263"/>
+        <location file="terminal/Processor.h" line="149" column="18" bodyfile="terminal/Processor.cpp" bodystart="241" bodyend="266"/>
+        <references refid="namespaceterminal_1_1id_1ad9fd72b61b4ec96b2a652a7762f89ac3" compoundref="_identifier_8h" startline="129" endline="129">terminal::id::activeScreen</references>
         <references refid="namespaceterminal_1_1id_1a835b984d142092f0e66c3b84a7592e50" compoundref="_identifier_8h" startline="173" endline="173">terminal::id::applicationCursor</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Derived &gt;::getContext</references>
         <references refid="structjam_1_1_value_tree_1a7cd25c35d555eb38c4788e72ed7aa95b">jam::ValueTree::getValueFromChildWithID</references>
         <references refid="namespaceterminal_1_1id_1a301392a312f5ccaa0983093a5db6b3cf" compoundref="_identifier_8h" startline="221" endline="221">terminal::id::keyboardFlags</references>
         <references refid="structterminal_1_1_keyboard_1ae7cc6f2917cf1b16c98de57bfe88bb8c" compoundref="_keyboard_8h" startline="95" endline="116">terminal::Keyboard::map</references>
+        <references refid="namespaceterminal_1_1id_1a79a59a405b5e0ea4bd4bdc099abf47b2" compoundref="_identifier_8h" startline="85" endline="85">terminal::id::MODES</references>
         <references refid="classterminal_1_1_processor_1ac2b32187140bb9bc999e907bd9a569ed" compoundref="_processor_8h" startline="349">state</references>
         <references refid="namespaceterminal_1_1id_1a7102a916dd94fc53d9661b2a21f40c6e" compoundref="_identifier_8h" startline="206" endline="206">terminal::id::win32InputMode</references>
       </memberdef>
@@ -517,8 +519,10 @@ Const — no side effects, does NOT write to any PTY.</para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/Processor.h" line="162" column="18" bodyfile="terminal/Processor.cpp" bodystart="272" bodyend="294"/>
+        <location file="terminal/Processor.h" line="162" column="18" bodyfile="terminal/Processor.cpp" bodystart="275" bodyend="298"/>
         <references refid="namespaceterminal_1_1id_1a3c3cd20cca6ef6297d7a9823a5a14fa6" compoundref="_identifier_8h" startline="176" endline="176">terminal::id::bracketedPaste</references>
+        <references refid="structjam_1_1_value_tree_1a7cd25c35d555eb38c4788e72ed7aa95b">jam::ValueTree::getValueFromChildWithID</references>
+        <references refid="namespaceterminal_1_1id_1a79a59a405b5e0ea4bd4bdc099abf47b2" compoundref="_identifier_8h" startline="85" endline="85">terminal::id::MODES</references>
         <references refid="classterminal_1_1_processor_1ac2b32187140bb9bc999e907bd9a569ed" compoundref="_processor_8h" startline="349">state</references>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_processor_1af8f81a08993b2377086767c36da4a8ac" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
@@ -593,7 +597,7 @@ Const — no side effects, does NOT write to any PTY.</para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/Processor.h" line="177" column="18" bodyfile="terminal/Processor.cpp" bodystart="323" bodyend="328"/>
+        <location file="terminal/Processor.h" line="177" column="18" bodyfile="terminal/Processor.cpp" bodystart="328" bodyend="333"/>
         <references refid="group__juce__audio__plugin__client-Unity_1gac9a690ac771d86f797f87594f6dfa694">button</references>
         <references refid="group__juce__gui__basics-accessibility_1gaf0f9b00728b0562960667eb5539bfd9ca5f0038e170564c7ad98d949c741a4da2">press</references>
         <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d">row</references>
@@ -633,8 +637,10 @@ Const — no side effects, does NOT write to any PTY.</para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/Processor.h" line="190" column="18" bodyfile="terminal/Processor.cpp" bodystart="303" bodyend="314"/>
+        <location file="terminal/Processor.h" line="190" column="18" bodyfile="terminal/Processor.cpp" bodystart="307" bodyend="319"/>
         <references refid="namespaceterminal_1_1id_1a2f8f090a0ef139ccdf5d295861e923e4" compoundref="_identifier_8h" startline="194" endline="194">terminal::id::focusEvents</references>
+        <references refid="structjam_1_1_value_tree_1a7cd25c35d555eb38c4788e72ed7aa95b">jam::ValueTree::getValueFromChildWithID</references>
+        <references refid="namespaceterminal_1_1id_1a79a59a405b5e0ea4bd4bdc099abf47b2" compoundref="_identifier_8h" startline="85" endline="85">terminal::id::MODES</references>
         <references refid="classterminal_1_1_processor_1ac2b32187140bb9bc999e907bd9a569ed" compoundref="_processor_8h" startline="349">state</references>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_processor_1a96b8cb76bde26b5b5d00737477746e6c" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
@@ -682,7 +688,7 @@ Clean pipeline — lock and suspend check are the caller&apos;s responsibility (
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/Processor.h" line="203" column="10" bodyfile="terminal/Processor.cpp" bodystart="339" bodyend="351"/>
+        <location file="terminal/Processor.h" line="203" column="10" bodyfile="terminal/Processor.cpp" bodystart="344" bodyend="356"/>
         <references refid="group__juce__core-system_1ga1f96ab6751237979b907a54f52a7296a">jassert</references>
         <references refid="classterminal_1_1_processor_1a8157adb010a425ac34995059c64e0f14" compoundref="_processor_8h" startline="395">parser</references>
         <references refid="classterminal_1_1_processor_1ac2b32187140bb9bc999e907bd9a569ed" compoundref="_processor_8h" startline="349">state</references>
@@ -707,7 +713,7 @@ Clean pipeline — lock and suspend check are the caller&apos;s responsibility (
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/Processor.h" line="210" column="11" bodyfile="terminal/Processor.cpp" bodystart="367" bodyend="367"/>
+        <location file="terminal/Processor.h" line="210" column="11" bodyfile="terminal/Processor.cpp" bodystart="372" bodyend="372"/>
         <references refid="classterminal_1_1_processor_1ac2b32187140bb9bc999e907bd9a569ed" compoundref="_processor_8h" startline="349">state</references>
         <referencedby refid="classnexus_1_1_daemon_1a57bf4ccda740f0bff5e33a57592c0c14" compoundref="_daemon_8cpp" startline="307" endline="326">nexus::Daemon::wireOnBytes</referencedby>
         <referencedby refid="classnexus_1_1_daemon_1a7744d5c04e1bd302d18a1359d6d703f2" compoundref="_daemon_8cpp" startline="330" endline="337">nexus::Daemon::wireOnExit</referencedby>
@@ -730,7 +736,7 @@ Clean pipeline — lock and suspend check are the caller&apos;s responsibility (
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/Processor.h" line="217" column="17" bodyfile="terminal/Processor.cpp" bodystart="368" bodyend="368"/>
+        <location file="terminal/Processor.h" line="217" column="17" bodyfile="terminal/Processor.cpp" bodystart="373" bodyend="373"/>
         <references refid="classterminal_1_1_processor_1ac2b32187140bb9bc999e907bd9a569ed" compoundref="_processor_8h" startline="349">state</references>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_processor_1a08efeebe81dbc51fb797be923eca9f63" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
@@ -757,7 +763,7 @@ Acquires callbackLock before writing the flag — blocks until any in-progress <
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/Processor.h" line="222" column="10" bodyfile="terminal/Processor.cpp" bodystart="361" bodyend="365"/>
+        <location file="terminal/Processor.h" line="222" column="10" bodyfile="terminal/Processor.cpp" bodystart="366" bodyend="370"/>
         <references refid="classterminal_1_1_processor_1abf031ef650e3f70cc79ca29dd55a2c4e" compoundref="_processor_8h" startline="330">callbackLock</references>
         <references refid="classterminal_1_1_processor_1a2b62f523aeca583458eda8d1121aeb7d" compoundref="_processor_8h" startline="334" endline="334">suspended</references>
       </memberdef>
@@ -815,7 +821,7 @@ Acquires callbackLock before writing the flag — blocks until any in-progress <
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/Processor.h" line="237" column="24" bodyfile="terminal/Processor.cpp" bodystart="370" bodyend="370"/>
+        <location file="terminal/Processor.h" line="237" column="24" bodyfile="terminal/Processor.cpp" bodystart="375" bodyend="375"/>
         <references refid="classterminal_1_1_processor_1a74b0b2b77f89e70ab14464363e675fb5" compoundref="_processor_8h" startline="392">uuid</references>
         <referencedby refid="classterminal_1_1_panes_1ae621cef26f4911722fb51c0d376ef2eb" compoundref="_panes_8cpp" startline="103" endline="141">terminal::Panes::createTerminal</referencedby>
         <referencedby refid="classterminal_1_1_panes_1a84ce2b04c95990c03a7f21f76da89dbc" compoundref="_panes_8cpp" startline="364" endline="414">terminal::Panes::splitAt</referencedby>
@@ -836,7 +842,7 @@ Acquires callbackLock before writing the flag — blocks until any in-progress <
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/Processor.h" line="241" column="10" bodyfile="terminal/Processor.cpp" bodystart="372" bodyend="372"/>
+        <location file="terminal/Processor.h" line="241" column="10" bodyfile="terminal/Processor.cpp" bodystart="377" bodyend="377"/>
         <references refid="classterminal_1_1_processor_1aada20128c5d7e8e4eca467b87a09e7e0" compoundref="_processor_8h" startline="375">video</references>
         <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">registerEvents</referencedby>
       </memberdef>
@@ -919,7 +925,7 @@ Acquires callbackLock before writing the flag — blocks until any in-progress <
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/Processor.h" line="260" column="10" bodyfile="terminal/Processor.cpp" bodystart="374" bodyend="407"/>
+        <location file="terminal/Processor.h" line="260" column="10" bodyfile="terminal/Processor.cpp" bodystart="379" bodyend="412"/>
         <references refid="classterminal_1_1_processor_1a02a0d4f4dd8580a7ca241f7f0387b4a0" compoundref="_processor_8h" startline="367">events</references>
         <references refid="classterminal_1_1_processor_1a4534de76e2da21696a636f73aba6bbe4" compoundref="_processor_8h" startline="337">tty</references>
         <references refid="namespaceterminal_1_1id_1af5e7d65d07f123d4560efebf453d21f8" compoundref="_identifier_8h" startline="334" endline="334">terminal::id::writeInput</references>
@@ -1013,7 +1019,7 @@ Acquires callbackLock before writing the flag — blocks until any in-progress <
 <parametername>outLine</parametername>
 </parameternamelist>
 <parameterdescription>
-<para>Receives the joined <ref refid="structjam_1_1_code_line" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::CodeLine</ref> built from <ref refid="struct_char" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Char</ref> data and flags. </para>
+<para>Receives the joined <ref refid="structjam_1_1_code_line" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::CodeLine</ref> built from Char data and flags. </para>
 </parameterdescription>
 </parameteritem>
 </parameterlist>
@@ -1049,7 +1055,7 @@ Acquires callbackLock before writing the flag — blocks until any in-progress <
 <parametername>outLine</parametername>
 </parameternamelist>
 <parameterdescription>
-<para>Receives the viewport row <ref refid="structjam_1_1_code_line" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::CodeLine</ref> built from <ref refid="struct_char" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Char</ref> data and flags. </para>
+<para>Receives the viewport row <ref refid="structjam_1_1_code_line" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::CodeLine</ref> built from Char data and flags. </para>
 </parameterdescription>
 </parameteritem>
 </parameterlist>
@@ -1093,7 +1099,7 @@ Acquires callbackLock before writing the flag — blocks until any in-progress <
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/Processor.h" line="310" column="10" bodyfile="terminal/Processor.cpp" bodystart="409" bodyend="416"/>
+        <location file="terminal/Processor.h" line="310" column="10" bodyfile="terminal/Processor.cpp" bodystart="414" bodyend="421"/>
         <references refid="classterminal_1_1_processor_1ac2b32187140bb9bc999e907bd9a569ed" compoundref="_processor_8h" startline="349">state</references>
         <references refid="classterminal_1_1_processor_1a4534de76e2da21696a636f73aba6bbe4" compoundref="_processor_8h" startline="337">tty</references>
         <references refid="classterminal_1_1_processor_1aada20128c5d7e8e4eca467b87a09e7e0" compoundref="_processor_8h" startline="375">video</references>
@@ -1144,7 +1150,7 @@ No-op when writeInput is not registered (remote sessions with no <ref refid="cla
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/Processor.h" line="324" column="10" bodyfile="terminal/Processor.cpp" bodystart="426" bodyend="430"/>
+        <location file="terminal/Processor.h" line="324" column="10" bodyfile="terminal/Processor.cpp" bodystart="431" bodyend="435"/>
         <references refid="classterminal_1_1_processor_1a02a0d4f4dd8580a7ca241f7f0387b4a0" compoundref="_processor_8h" startline="367">events</references>
         <references refid="namespaceterminal_1_1id_1af5e7d65d07f123d4560efebf453d21f8" compoundref="_identifier_8h" startline="334" endline="334">terminal::id::writeInput</references>
       </memberdef>
@@ -1335,7 +1341,7 @@ No-op when writeInput is not registered (remote sessions with no <ref refid="cla
         <references refid="namespaceterminal_1_1id_1a8b0f3fe7eebabafb7c48f8e3fba08a9e" compoundref="_identifier_8h" startline="309" endline="309">terminal::id::extendOutputBlock</references>
         <references refid="structjam_1_1_row_1a0147573a0c76c1df534789f7545414a4">jam::Row::flags</references>
         <references refid="structjam_1_1_row_1adf7497b6cc868cb40ee2b2ed6979d583">jam::Row::flexWrap</references>
-        <references refid="classterminal_1_1_processor_1a5c31152d2b007743b77d5b3ea87ee8f7" compoundref="_processor_8cpp" startline="372" endline="372">flushResponses</references>
+        <references refid="classterminal_1_1_processor_1a5c31152d2b007743b77d5b3ea87ee8f7" compoundref="_processor_8cpp" startline="377" endline="377">flushResponses</references>
         <references refid="namespaceterminal_1_1id_1a2f8f090a0ef139ccdf5d295861e923e4" compoundref="_identifier_8h" startline="194" endline="194">terminal::id::focusEvents</references>
         <references refid="classjam_1_1_buffer_1a99e87e7d14f8597727a000e31c82fb93">jam::Buffer&lt; typename ElementType &gt;::getChannelPointer</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
@@ -1356,7 +1362,7 @@ No-op when writeInput is not registered (remote sessions with no <ref refid="cla
         <references refid="namespaceterminal_1_1id_1a61790115efca8d3461b73ce69c6bd3a6" compoundref="_identifier_8h" startline="303" endline="303">terminal::id::outputBlockStart</references>
         <references refid="namespaceterminal_1_1id_1a09df3107586eb50a0df4d72180e224b6" compoundref="_identifier_8h" startline="324" endline="324">terminal::id::popKeyboardMode</references>
         <references refid="classterminal_1_1_processor_1acf5bcebd2a5d593ce1d4f1c9c7c9657e" compoundref="_processor_8cpp" startline="99" endline="111">popKeyboardMode</references>
-        <references refid="classterminal_1_1_processor_1a96b8cb76bde26b5b5d00737477746e6c" compoundref="_processor_8cpp" startline="339" endline="351">process</references>
+        <references refid="classterminal_1_1_processor_1a96b8cb76bde26b5b5d00737477746e6c" compoundref="_processor_8cpp" startline="344" endline="356">process</references>
         <references refid="namespaceterminal_1_1id_1afb69df17fc87c56e23116b7df4409258" compoundref="_identifier_8h" startline="243" endline="243">terminal::id::promptRow</references>
         <references refid="namespaceterminal_1_1id_1aacbe6171c0bf328a18398dda200008f9" compoundref="_identifier_8h" startline="321" endline="321">terminal::id::pushKeyboardMode</references>
         <references refid="classterminal_1_1_processor_1abd084da839dd83c344822114205ac194" compoundref="_processor_8cpp" startline="74" endline="97">pushKeyboardMode</references>
@@ -1476,7 +1482,7 @@ Fires on the message thread when <ref refid="structterminal_1_1_model" kindref="
     </briefdescription>
     <detaileddescription>
 <para><ref refid="classterminal_1_1_processor" kindref="compound">Processor</ref> owns <ref refid="classterminal_1_1_parser" kindref="compound">Parser</ref>, <ref refid="classterminal_1_1_video" kindref="compound">Video</ref>, <ref refid="classterminal_1_1_cell_fifo" kindref="compound">CellFifo</ref>, and holds <ref refid="structterminal_1_1_model" kindref="compound">Model</ref>&amp; from <ref refid="classterminal_1_1_session" kindref="compound">Session</ref>. <ref refid="classterminal_1_1_video" kindref="compound">Video</ref> owns Buffer&lt;Row&gt; — the flat cell buffer (reader thread, volatile). <ref refid="classterminal_1_1_processor" kindref="compound">Processor</ref> is the only object that orchestrates the reader→message bridge:<itemizedlist>
-<listitem><para>Reader-thread event handlers push <ref refid="struct_char" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Char</ref> rows into <ref refid="classterminal_1_1_cell_fifo" kindref="compound">CellFifo</ref>.</para>
+<listitem><para>Reader-thread event handlers push Char rows into <ref refid="classterminal_1_1_cell_fifo" kindref="compound">CellFifo</ref>.</para>
 </listitem><listitem><para><ref refid="classterminal_1_1_processor_1ab29f597ce6f470cb711a46b3bddf3ad0" kindref="member">drainHistory()</ref>/drainActive() expose history and active entries to the View (message thread).</para>
 </listitem><listitem><para>The View (<ref refid="classterminal_1_1_display" kindref="compound">Display</ref>) owns CodeView and applies the drained entries — <ref refid="classterminal_1_1_processor" kindref="compound">Processor</ref> never names CodeView (no Controller→View poking).</para>
 </listitem></itemizedlist>
@@ -1747,8 +1753,6 @@ Fires on the message thread when <ref refid="structterminal_1_1_model" kindref="
         <label>terminal::Model</label>
         <link refid="structterminal_1_1_model"/>
         <childnode refid="20" relation="public-inheritance">
-        </childnode>
-        <childnode refid="2" relation="private-inheritance">
         </childnode>
         <childnode refid="26" relation="usage">
           <edgelabel>rowDirtyFlags</edgelabel>

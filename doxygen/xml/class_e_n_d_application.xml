@@ -270,7 +270,7 @@
 <para>Session pool — owns all <ref refid="classterminal_1_1_session" kindref="compound">terminal::Session</ref> objects. </para>
         </briefdescription>
         <detaileddescription>
-<para>Destroyed after mainWindow — <ref refid="class_display" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Display</ref> must die before Sessions. </para>
+<para>Destroyed after mainWindow — Display must die before Sessions. </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
@@ -286,7 +286,7 @@
 <para>The native OS window. </para>
         </briefdescription>
         <detaileddescription>
-<para>Destroyed before nexus (<ref refid="class_display" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Display</ref> → Session dependency). </para>
+<para>Destroyed before nexus (Display → Session dependency). </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
@@ -480,7 +480,7 @@
 <para>Destruction order:<orderedlist>
 <listitem><para>link — disconnect IPC before sessions die.</para>
 </listitem><listitem><para>daemon — stop server.</para>
-</listitem><listitem><para>mainWindow — tears down component tree (<ref refid="class_display" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Display</ref> → Processor refs).</para>
+</listitem><listitem><para>mainWindow — tears down component tree (Display → Processor refs).</para>
 </listitem><listitem><para>nexus — releases all <ref refid="classterminal_1_1_session" kindref="compound">terminal::Session</ref> objects.</para>
 </listitem></orderedlist>
 </para>
@@ -943,10 +943,10 @@ For each .nexus file: tries an <ref refid="classInterProcessLock" kindref="compo
           <edgelabel>validStart</edgelabel>
         </childnode>
       </node>
-      <node id="140">
+      <node id="139">
         <label>jam::CaretComponent</label>
         <link refid="classjam_1_1_caret_component" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="138" relation="usage">
+        <childnode refid="137" relation="usage">
           <edgelabel>font</edgelabel>
         </childnode>
       </node>
@@ -958,57 +958,57 @@ For each .nexus file: tries an <ref refid="classInterProcessLock" kindref="compo
         <label>jam::CodeLine</label>
         <link refid="structjam_1_1_code_line" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="132">
+      <node id="131">
         <label>jam::CodeModel</label>
         <link refid="classjam_1_1_code_model" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="133" relation="usage">
+        <childnode refid="132" relation="usage">
           <edgelabel>screens</edgelabel>
         </childnode>
       </node>
-      <node id="134">
+      <node id="133">
         <label>jam::CodeView</label>
         <link refid="classjam_1_1_code_view" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="135" relation="public-inheritance">
+        <childnode refid="134" relation="public-inheritance">
         </childnode>
-        <childnode refid="137" relation="usage">
+        <childnode refid="136" relation="usage">
           <edgelabel>properties</edgelabel>
         </childnode>
-        <childnode refid="138" relation="usage">
+        <childnode refid="137" relation="usage">
           <edgelabel>font</edgelabel>
         </childnode>
-        <childnode refid="132" relation="usage">
+        <childnode refid="131" relation="usage">
           <edgelabel>document</edgelabel>
         </childnode>
-        <childnode refid="139" relation="usage">
+        <childnode refid="138" relation="usage">
           <edgelabel>caret</edgelabel>
         </childnode>
-        <childnode refid="141" relation="usage">
+        <childnode refid="140" relation="usage">
           <edgelabel>stateAttachment</edgelabel>
         </childnode>
-        <childnode refid="142" relation="usage">
+        <childnode refid="141" relation="usage">
           <edgelabel>contentView</edgelabel>
         </childnode>
-        <childnode refid="144" relation="usage">
+        <childnode refid="143" relation="usage">
           <edgelabel>viewport</edgelabel>
         </childnode>
-        <childnode refid="146" relation="usage">
+        <childnode refid="145" relation="usage">
           <edgelabel>arrangement</edgelabel>
         </childnode>
-        <childnode refid="147" relation="usage">
+        <childnode refid="146" relation="usage">
           <edgelabel>glyphGraphics</edgelabel>
         </childnode>
       </node>
-      <node id="145">
+      <node id="144">
         <label>jam::CodeView::CodeViewViewport</label>
         <link refid="structjam_1_1_code_view_1_1_code_view_viewport" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="134" relation="usage">
+        <childnode refid="133" relation="usage">
           <edgelabel>owner</edgelabel>
         </childnode>
       </node>
-      <node id="143">
+      <node id="142">
         <label>jam::CodeView::ContentView</label>
         <link refid="structjam_1_1_code_view_1_1_content_view" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="134" relation="usage">
+        <childnode refid="133" relation="usage">
           <edgelabel>owner</edgelabel>
         </childnode>
       </node>
@@ -1050,7 +1050,7 @@ For each .nexus file: tries an <ref refid="classInterProcessLock" kindref="compo
         <label>jam::File::Watcher::Listener</label>
         <link refid="classjam_1_1_file_1_1_watcher_1_1_listener" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="138">
+      <node id="137">
         <label>jam::Font</label>
         <link refid="structjam_1_1_font" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
@@ -1168,7 +1168,7 @@ For each .nexus file: tries an <ref refid="classInterProcessLock" kindref="compo
         <label>jam::Owner&lt; EntryType &gt;</label>
         <link refid="classjam_1_1_owner" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="133">
+      <node id="132">
         <label>jam::Owner&lt; jam::CodeModel::Screen &gt;</label>
         <link refid="classjam_1_1_owner" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
@@ -1225,18 +1225,18 @@ For each .nexus file: tries an <ref refid="classInterProcessLock" kindref="compo
           <edgelabel>atlas</edgelabel>
         </childnode>
       </node>
-      <node id="141">
+      <node id="140">
         <label>jam::ValueTree::Attachment</label>
         <link refid="classjam_1_1_value_tree_1_1_attachment" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="136">
+      <node id="135">
         <label>jam::ValueTree::Component</label>
         <link refid="structjam_1_1_value_tree_1_1_component" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="135">
+      <node id="134">
         <label>jam::ValueTree::ComponentWithID&lt; CodeView &gt;</label>
         <link refid="structjam_1_1_value_tree_1_1_component_with_i_d" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="136" relation="public-inheritance">
+        <childnode refid="135" relation="public-inheritance">
         </childnode>
       </node>
       <node id="188">
@@ -1247,7 +1247,7 @@ For each .nexus file: tries an <ref refid="classInterProcessLock" kindref="compo
         <label>jam::debug::Log::Scope</label>
         <link refid="structjam_1_1debug_1_1_log_1_1_scope" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="146">
+      <node id="145">
         <label>jam::glyph::Arrangement</label>
         <link refid="classjam_1_1glyph_1_1_arrangement" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
@@ -1285,7 +1285,7 @@ For each .nexus file: tries an <ref refid="classInterProcessLock" kindref="compo
         <label>jam::glyph::AtlasPacker</label>
         <link refid="structjam_1_1glyph_1_1_atlas_packer" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="147">
+      <node id="146">
         <label>jam::glyph::Graphics</label>
         <link refid="classjam_1_1glyph_1_1_graphics" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
@@ -1338,7 +1338,7 @@ For each .nexus file: tries an <ref refid="classInterProcessLock" kindref="compo
       <node id="113">
         <label>juce::Timer</label>
       </node>
-      <node id="130">
+      <node id="149">
         <label>juce::ValueTree::Listener</label>
       </node>
       <node id="42">
@@ -1607,7 +1607,7 @@ For each .nexus file: tries an <ref refid="classInterProcessLock" kindref="compo
         <link refid="classnexus_1_1_daemon"/>
         <childnode refid="191" relation="public-inheritance">
         </childnode>
-        <childnode refid="130" relation="public-inheritance">
+        <childnode refid="149" relation="public-inheritance">
         </childnode>
         <childnode refid="118" relation="usage">
           <edgelabel>nexus</edgelabel>
@@ -1642,7 +1642,7 @@ For each .nexus file: tries an <ref refid="classInterProcessLock" kindref="compo
         <link refid="classnexus_1_1_link"/>
         <childnode refid="195" relation="public-inheritance">
         </childnode>
-        <childnode refid="130" relation="public-inheritance">
+        <childnode refid="149" relation="public-inheritance">
         </childnode>
         <childnode refid="200" relation="usage">
           <edgelabel>connectTimer</edgelabel>
@@ -1675,7 +1675,7 @@ For each .nexus file: tries an <ref refid="classInterProcessLock" kindref="compo
       <node id="56">
         <label>std::array&lt; juce::Colour, 16 &gt;</label>
       </node>
-      <node id="137">
+      <node id="136">
         <label>std::array&lt; juce::Identifier, propertyCount &gt;</label>
       </node>
       <node id="92">
@@ -1741,21 +1741,21 @@ For each .nexus file: tries an <ref refid="classInterProcessLock" kindref="compo
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
-      <node id="139">
+      <node id="138">
         <label>std::unique_ptr&lt; jam::CaretComponent &gt;</label>
-        <childnode refid="140" relation="usage">
+        <childnode refid="139" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
-      <node id="144">
+      <node id="143">
         <label>std::unique_ptr&lt; jam::CodeView::CodeViewViewport &gt;</label>
-        <childnode refid="145" relation="usage">
+        <childnode refid="144" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
-      <node id="142">
+      <node id="141">
         <label>std::unique_ptr&lt; jam::CodeView::ContentView &gt;</label>
-        <childnode refid="143" relation="usage">
+        <childnode refid="142" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
@@ -1773,7 +1773,7 @@ For each .nexus file: tries an <ref refid="classInterProcessLock" kindref="compo
       </node>
       <node id="183">
         <label>std::unique_ptr&lt; jam::ValueTree::Attachment &gt;</label>
-        <childnode refid="141" relation="usage">
+        <childnode refid="140" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
@@ -1804,7 +1804,7 @@ For each .nexus file: tries an <ref refid="classInterProcessLock" kindref="compo
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
-      <node id="131">
+      <node id="130">
         <label>std::unique_ptr&lt; std::atomic&lt; int &gt;[]&gt;</label>
         <childnode refid="128" relation="usage">
           <edgelabel>ptr</edgelabel>
@@ -1816,9 +1816,9 @@ For each .nexus file: tries an <ref refid="classInterProcessLock" kindref="compo
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
-      <node id="148">
+      <node id="147">
         <label>std::unique_ptr&lt; terminal::Processor &gt;</label>
-        <childnode refid="149" relation="usage">
+        <childnode refid="148" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
@@ -1997,9 +1997,7 @@ For each .nexus file: tries an <ref refid="classInterProcessLock" kindref="compo
         <link refid="structterminal_1_1_model"/>
         <childnode refid="104" relation="public-inheritance">
         </childnode>
-        <childnode refid="130" relation="private-inheritance">
-        </childnode>
-        <childnode refid="131" relation="usage">
+        <childnode refid="130" relation="usage">
           <edgelabel>rowDirtyFlags</edgelabel>
         </childnode>
         <childnode refid="124" relation="usage">
@@ -2019,10 +2017,10 @@ For each .nexus file: tries an <ref refid="classInterProcessLock" kindref="compo
           <edgelabel>csi</edgelabel>
         </childnode>
       </node>
-      <node id="149">
+      <node id="148">
         <label>terminal::Processor</label>
         <link refid="classterminal_1_1_processor"/>
-        <childnode refid="130" relation="public-inheritance">
+        <childnode refid="149" relation="public-inheritance">
         </childnode>
         <childnode refid="150" relation="usage">
           <edgelabel>tty</edgelabel>
@@ -2067,13 +2065,13 @@ For each .nexus file: tries an <ref refid="classInterProcessLock" kindref="compo
         <childnode refid="129" relation="usage">
           <edgelabel>model</edgelabel>
         </childnode>
-        <childnode refid="132" relation="usage">
+        <childnode refid="131" relation="usage">
           <edgelabel>codeModel</edgelabel>
         </childnode>
-        <childnode refid="134" relation="usage">
+        <childnode refid="133" relation="usage">
           <edgelabel>textEditor</edgelabel>
         </childnode>
-        <childnode refid="148" relation="usage">
+        <childnode refid="147" relation="usage">
           <edgelabel>processor</edgelabel>
         </childnode>
         <childnode refid="183" relation="usage">

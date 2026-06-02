@@ -899,7 +899,7 @@ All connection and loading signals are now driven by child-add/remove events. Th
 </simplesect>
 <simplesect kind="note"><para>MESSAGE THREAD. </para>
 </simplesect>
-<simplesect kind="see"><para><ref refid="classterminal_1_1_display_1a802ea0d464c73e490108e174c75009be" kindref="member">terminal::Display::exitSelectionMode</ref> </para>
+<simplesect kind="see"><para><ref refid="classterminal_1_1_display_1af6f874a38acda8584b9c43e91d68de74" kindref="member">terminal::Display::exitSelectionMode</ref> </para>
 </simplesect>
 </para>
         </detaileddescription>
@@ -2069,8 +2069,6 @@ Bounds are set by <computeroutput><ref refid="class_main_component_1a339148bc430
         <label>terminal::Model</label>
         <link refid="structterminal_1_1_model"/>
         <childnode refid="67" relation="public-inheritance">
-        </childnode>
-        <childnode refid="3" relation="private-inheritance">
         </childnode>
         <childnode refid="106" relation="usage">
           <edgelabel>rowDirtyFlags</edgelabel>

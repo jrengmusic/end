@@ -1341,7 +1341,7 @@ Corresponds to <computeroutput><ref refid="structterminal_1_1_c_s_i" kindref="co
 <simplesect kind="par"><title>Case 2 — New grapheme cluster (normal codepoint)</title><para><orderedlist>
 <listitem><para>Any pending wrap is resolved via <computeroutput><ref refid="classterminal_1_1_video_1abd0e47c0842b3d01d9a72e2da5fb92ae" kindref="member">resolveWrapPending()</ref></computeroutput>.</para>
 </listitem><listitem><para>If the character is wide (width 2) and would overflow the right margin, the cursor wraps to the next line (if auto-wrap is enabled).</para>
-</listitem><listitem><para>A packed <computeroutput>jam::Char</computeroutput> is built from the codepoint, styleId (via Stamp), and wide hint. The cell is written to <ref refid="classGrid" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Grid</ref> via getWritePointer().</para>
+</listitem><listitem><para>A packed <computeroutput><ref refid="structjam_1_1_char" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Char</ref></computeroutput> is built from the codepoint, styleId (via Stamp), and wide hint. The cell is written to <ref refid="classGrid" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Grid</ref> via getWritePointer().</para>
 </listitem><listitem><para>For wide characters, a second cell with SPACER_TAIL is written to the adjacent column.</para>
 </listitem><listitem><para>The cursor is advanced by <computeroutput><ref refid="classterminal_1_1_video_1ac40054cd71f9d56501dc1c56315ae22c" kindref="member">cellWidth</ref></computeroutput> columns, or <computeroutput><ref refid="classterminal_1_1_video_1aa44cde2a38d72fbcb5bd34a63c98a646" kindref="member">wrapPending</ref></computeroutput> is set if the cursor has reached the right margin.</para>
 </listitem></orderedlist>
@@ -1379,21 +1379,28 @@ Corresponds to <computeroutput><ref refid="structterminal_1_1_c_s_i" kindref="co
         <references refid="classterminal_1_1_video_1a588795f5bf9b1dffe5ea7cb9d73b8d85" compoundref="_video_8h" startline="406" endline="406">autoWrap</references>
         <references refid="classterminal_1_1_video_1af97e822f9a504777db6c00ef9ec67e8b" compoundref="_video_8h" startline="342">blocks</references>
         <references refid="structjam_1_1_row_1aad459cf0591ea1843e6889e9d777167b">jam::Row::cells</references>
-        <references refid="_char_props_8h_1a7bdc2c8b0aa8edbd7dad4d7d4fe2c1c9" compoundref="_char_props_8h" startline="316" endline="331">charPropsFor</references>
+        <references refid="_char_props_8h_1a7bdc2c8b0aa8edbd7dad4d7d4fe2c1c9" compoundref="_char_props_8h" startline="307" endline="318">charPropsFor</references>
+        <references refid="structjam_1_1_char_1aea8638b84280e3ec4839b8b6c4aef8e3">jam::Char::codepoint</references>
         <references refid="structjam_1_1_grapheme_entry_1a9155ebcdd92cdaa9440d5b191602b0b6">jam::GraphemeEntry::codepoints</references>
         <references refid="classterminal_1_1_video_1a7d86e6ae19b47069012f77b693b8943e" compoundref="_video_8h" startline="375" endline="375">cols</references>
+        <references refid="structjam_1_1_char_1a028cbd3dc70cd482c9cdafffa1e45859">jam::Char::CONTENT_CODEPOINT</references>
+        <references refid="structjam_1_1_char_1a99043e635ffc541d4e7baf609c1493ef">jam::Char::CONTENT_GRAPHEME</references>
+        <references refid="structjam_1_1_char_1a1ab6092d93272fe1dba45cc26b2ae2be">jam::Char::contentTag</references>
         <references refid="structjam_1_1_grapheme_entry_1ad7570ca502ad1d6cc1be898dc5d50ae4">jam::GraphemeEntry::count</references>
         <references refid="classterminal_1_1_video_1a24cc841184d4aa125eecb93f225c8300" compoundref="_video_8h" startline="459" endline="468">currentStyleId</references>
         <references refid="classterminal_1_1_video_1a294e7e0c67c33d3b320f63a088ffc2c5" compoundref="_video_8h" startline="390" endline="390">cursorCol</references>
         <references refid="classterminal_1_1_video_1a9bec450cc3eff3266ec6fdb6ec827f02" compoundref="_video_8h" startline="387" endline="387">cursorRow</references>
         <references refid="structjam_1_1_row_1a0147573a0c76c1df534789f7545414a4">jam::Row::flags</references>
+        <references refid="structjam_1_1_char_1a1ed16e3687d3e5180f28e6b0493ebd27">jam::Char::FLEX_GAP</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Derived &gt;::getContext</references>
-        <references refid="_char_props_8h_1a24312066beaa69c544f6f817b55100ad" compoundref="_char_props_8h" startline="416" endline="432">graphemeSegmentationStep</references>
+        <references refid="_char_props_8h_1a24312066beaa69c544f6f817b55100ad" compoundref="_char_props_8h" startline="403" endline="413">graphemeSegmentationStep</references>
         <references refid="classterminal_1_1_video_1a2608501f8d3a128dd6f502e2a915b2ae" compoundref="_video_8h" startline="549" endline="549">graphemeState</references>
         <references refid="structjam_1_1_row_1ad82d53b3c5fa0ea4618d96f41eec16f7">jam::Row::justify</references>
         <references refid="classterminal_1_1_video_1a34545cf7f6c96c61d60ccbea91a9d54e" compoundref="_video_8h" startline="507" endline="507">lastGraphicChar</references>
         <references refid="classterminal_1_1_video_1ac9e4a9981082c5a7104748578a775d70" compoundref="_video_8h" startline="513" endline="513">lastWriteCol</references>
         <references refid="classterminal_1_1_video_1a0587065c8d266aa4f2c2730eea0eb22a" compoundref="_video_8h" startline="510" endline="510">lastWriteRow</references>
+        <references refid="structjam_1_1_char_1a2b2ed2c9d2a30fa2b62add2bb5485614">jam::Char::make</references>
+        <references refid="structjam_1_1_char_1a271315eeefc9395f6b729b8c393e5a56">jam::Char::NARROW</references>
         <references refid="classterminal_1_1_video_1ad5cd3899a39d4556fe7d99a5ad3c55ae" compoundref="_video_8h" startline="439" endline="439">penBg</references>
         <references refid="classterminal_1_1_video_1abe66dfac19719c2c0d33e4e2f616bd5b" compoundref="_video_8h" startline="436" endline="436">penFg</references>
         <references refid="classterminal_1_1_video_1ac12308ab57acd8047cbeecdd7597fa1f" compoundref="_video_8h" startline="442" endline="442">penFlags</references>
@@ -1401,12 +1408,16 @@ Corresponds to <computeroutput><ref refid="structterminal_1_1_c_s_i" kindref="co
         <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d">row</references>
         <references refid="classterminal_1_1_video_1a4ef5f16ccd7763aaf3f6f586009acace" compoundref="_video_8h" startline="396" endline="396">scrollTop</references>
         <references refid="classterminal_1_1_video_1a50705f6ab1944f44d361b3d4fe435217" compoundref="_video_8cpp" startline="223" endline="282">scrollUpAndFill</references>
+        <references refid="structjam_1_1_char_1ad5826df1c58286d01784fb6f5588f8c6">jam::Char::SPACER_TAIL</references>
+        <references refid="structjam_1_1_char_1a24b22cdef5298570c6c791c4223d9bbc">jam::Char::styleId</references>
         <references refid="namespaceterminal_1a1c6757b85fd739f5746d024e4ff76a93" compoundref="_charset_8h" startline="77" endline="87">terminal::translateCharset</references>
         <references refid="structjam_1_1_stamp_1ac62f235cf4629d93e25651cafad3c6d4">jam::Stamp::UNDERLINE</references>
         <references refid="structjam_1_1_row_1a4236375999ea5a7b5fa8b5cbb378b054">jam::Row::usedCols</references>
         <references refid="classterminal_1_1_video_1afdf079a9580be379fa862953d6403667" compoundref="_video_8h" startline="531" endline="531">useLineDrawing</references>
         <references refid="structjam_1_1_cell_1aecd8f8ae6d8912e9b0689382ac96cbb4">jam::Cell::value</references>
         <references refid="classterminal_1_1_video_1afc683933d2fd1743fcedd80bac34496b" compoundref="_video_8h" startline="378" endline="378">visibleRows</references>
+        <references refid="structjam_1_1_char_1a883e7e2a416fde7ba2f77cc82ed536ff">jam::Char::WIDE</references>
+        <references refid="structjam_1_1_char_1aa6be07df1ff8803593a6cb9b14f7a41f">jam::Char::wide</references>
         <references refid="classterminal_1_1_video_1aa44cde2a38d72fbcb5bd34a63c98a646" compoundref="_video_8h" startline="393" endline="393">wrapPending</references>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_video_1a76783d31ddf7702ac3562dbccb719192" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
@@ -2947,6 +2958,7 @@ Clears penFg and penBg to alpha-zero (theme default sentinel) and sets penFlags 
         <references refid="classterminal_1_1_video_1af97e822f9a504777db6c00ef9ec67e8b" compoundref="_video_8h" startline="342">blocks</references>
         <references refid="structjam_1_1_row_1aad459cf0591ea1843e6889e9d777167b">jam::Row::cells</references>
         <references refid="classterminal_1_1_video_1a7d86e6ae19b47069012f77b693b8943e" compoundref="_video_8h" startline="375" endline="375">cols</references>
+        <references refid="structjam_1_1_char_1a7b9d8986d128fb1bc81735ff686e6d31">jam::Char::erase</references>
         <references refid="classterminal_1_1_video_1a0e981e6f4c1d048a9b953fd890f5e6d9" compoundref="_video_8h" startline="479" endline="482">eraseStyleId</references>
         <references refid="classterminal_1_1_video_1a3fc5bdf1eeaa99b1ddcbe48948d4afef" compoundref="_video_8h" startline="363">events</references>
         <references refid="classterminal_1_1_video_1ad5cd3899a39d4556fe7d99a5ad3c55ae" compoundref="_video_8h" startline="439" endline="439">penBg</references>
@@ -3007,8 +3019,8 @@ Clears penFg and penBg to alpha-zero (theme default sentinel) and sets penFlags 
         <location file="terminal/Video.h" line="962" column="10" bodyfile="terminal/Video.cpp" bodystart="297" bodyend="334"/>
         <references refid="classterminal_1_1_video_1a417c4b5b0134b46c8c4fc2808d5a969f" compoundref="_video_8h" startline="372" endline="372">activeScreen</references>
         <references refid="classterminal_1_1_video_1af97e822f9a504777db6c00ef9ec67e8b" compoundref="_video_8h" startline="342">blocks</references>
-        <references refid="structjam_1_1_row_1aad459cf0591ea1843e6889e9d777167b">jam::Row::cells</references>
         <references refid="classterminal_1_1_video_1a7d86e6ae19b47069012f77b693b8943e" compoundref="_video_8h" startline="375" endline="375">cols</references>
+        <references refid="structjam_1_1_char_1a7b9d8986d128fb1bc81735ff686e6d31">jam::Char::erase</references>
         <references refid="classterminal_1_1_video_1a0e981e6f4c1d048a9b953fd890f5e6d9" compoundref="_video_8h" startline="479" endline="482">eraseStyleId</references>
         <references refid="classterminal_1_1_video_1a3fc5bdf1eeaa99b1ddcbe48948d4afef" compoundref="_video_8h" startline="363">events</references>
         <references refid="classterminal_1_1_video_1ad5cd3899a39d4556fe7d99a5ad3c55ae" compoundref="_video_8h" startline="439" endline="439">penBg</references>
@@ -3282,9 +3294,12 @@ Clears penFg and penBg to alpha-zero (theme default sentinel) and sets penFlags 
         <references refid="classterminal_1_1_video_1af97e822f9a504777db6c00ef9ec67e8b" compoundref="_video_8h" startline="342">blocks</references>
         <references refid="structjam_1_1_row_1aad459cf0591ea1843e6889e9d777167b">jam::Row::cells</references>
         <references refid="classterminal_1_1_video_1a7d86e6ae19b47069012f77b693b8943e" compoundref="_video_8h" startline="375" endline="375">cols</references>
+        <references refid="structjam_1_1_char_1a028cbd3dc70cd482c9cdafffa1e45859">jam::Char::CONTENT_CODEPOINT</references>
         <references refid="classterminal_1_1_video_1a24cc841184d4aa125eecb93f225c8300" compoundref="_video_8h" startline="459" endline="468">currentStyleId</references>
         <references refid="classterminal_1_1_video_1aacbab21b45d7b2590e205e5686551192" compoundref="_video_ops_8cpp" startline="116" endline="121">cursorSetPosition</references>
         <references refid="structjam_1_1_row_1a0147573a0c76c1df534789f7545414a4">jam::Row::flags</references>
+        <references refid="structjam_1_1_char_1a2b2ed2c9d2a30fa2b62add2bb5485614">jam::Char::make</references>
+        <references refid="structjam_1_1_char_1a271315eeefc9395f6b729b8c393e5a56">jam::Char::NARROW</references>
         <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d">row</references>
         <references refid="structjam_1_1_row_1a4236375999ea5a7b5fa8b5cbb378b054">jam::Row::usedCols</references>
         <references refid="classterminal_1_1_video_1afc683933d2fd1743fcedd80bac34496b" compoundref="_video_8h" startline="378" endline="378">visibleRows</references>
@@ -4719,6 +4734,7 @@ Clears penFg and penBg to alpha-zero (theme default sentinel) and sets penFlags 
         <references refid="classterminal_1_1_video_1a7d86e6ae19b47069012f77b693b8943e" compoundref="_video_8h" startline="375" endline="375">cols</references>
         <references refid="classterminal_1_1_video_1a294e7e0c67c33d3b320f63a088ffc2c5" compoundref="_video_8h" startline="390" endline="390">cursorCol</references>
         <references refid="classterminal_1_1_video_1a9bec450cc3eff3266ec6fdb6ec827f02" compoundref="_video_8h" startline="387" endline="387">cursorRow</references>
+        <references refid="structjam_1_1_char_1a7b9d8986d128fb1bc81735ff686e6d31">jam::Char::erase</references>
         <references refid="classterminal_1_1_video_1a0e981e6f4c1d048a9b953fd890f5e6d9" compoundref="_video_8h" startline="479" endline="482">eraseStyleId</references>
         <references refid="classterminal_1_1_video_1a3fc5bdf1eeaa99b1ddcbe48948d4afef" compoundref="_video_8h" startline="363">events</references>
         <references refid="structjam_1_1_row_1a0147573a0c76c1df534789f7545414a4">jam::Row::flags</references>
@@ -4781,6 +4797,7 @@ Clears penFg and penBg to alpha-zero (theme default sentinel) and sets penFlags 
         <references refid="classterminal_1_1_video_1a7d86e6ae19b47069012f77b693b8943e" compoundref="_video_8h" startline="375" endline="375">cols</references>
         <references refid="classterminal_1_1_video_1a294e7e0c67c33d3b320f63a088ffc2c5" compoundref="_video_8h" startline="390" endline="390">cursorCol</references>
         <references refid="classterminal_1_1_video_1a9bec450cc3eff3266ec6fdb6ec827f02" compoundref="_video_8h" startline="387" endline="387">cursorRow</references>
+        <references refid="structjam_1_1_char_1a7b9d8986d128fb1bc81735ff686e6d31">jam::Char::erase</references>
         <references refid="classterminal_1_1_video_1a0e981e6f4c1d048a9b953fd890f5e6d9" compoundref="_video_8h" startline="479" endline="482">eraseStyleId</references>
         <references refid="structjam_1_1_row_1a0147573a0c76c1df534789f7545414a4">jam::Row::flags</references>
         <references refid="classterminal_1_1_video_1ad5cd3899a39d4556fe7d99a5ad3c55ae" compoundref="_video_8h" startline="439" endline="439">penBg</references>
@@ -4916,6 +4933,7 @@ Clears penFg and penBg to alpha-zero (theme default sentinel) and sets penFlags 
         <references refid="classterminal_1_1_video_1a7d86e6ae19b47069012f77b693b8943e" compoundref="_video_8h" startline="375" endline="375">cols</references>
         <references refid="classterminal_1_1_video_1a294e7e0c67c33d3b320f63a088ffc2c5" compoundref="_video_8h" startline="390" endline="390">cursorCol</references>
         <references refid="classterminal_1_1_video_1a9bec450cc3eff3266ec6fdb6ec827f02" compoundref="_video_8h" startline="387" endline="387">cursorRow</references>
+        <references refid="structjam_1_1_char_1a7b9d8986d128fb1bc81735ff686e6d31">jam::Char::erase</references>
         <references refid="classterminal_1_1_video_1a0e981e6f4c1d048a9b953fd890f5e6d9" compoundref="_video_8h" startline="479" endline="482">eraseStyleId</references>
         <references refid="structjam_1_1_row_1a0147573a0c76c1df534789f7545414a4">jam::Row::flags</references>
         <references refid="classterminal_1_1_video_1ad5cd3899a39d4556fe7d99a5ad3c55ae" compoundref="_video_8h" startline="439" endline="439">penBg</references>
@@ -4962,6 +4980,7 @@ Clears penFg and penBg to alpha-zero (theme default sentinel) and sets penFlags 
         <references refid="classterminal_1_1_video_1a7d86e6ae19b47069012f77b693b8943e" compoundref="_video_8h" startline="375" endline="375">cols</references>
         <references refid="classterminal_1_1_video_1a294e7e0c67c33d3b320f63a088ffc2c5" compoundref="_video_8h" startline="390" endline="390">cursorCol</references>
         <references refid="classterminal_1_1_video_1a9bec450cc3eff3266ec6fdb6ec827f02" compoundref="_video_8h" startline="387" endline="387">cursorRow</references>
+        <references refid="structjam_1_1_char_1a7b9d8986d128fb1bc81735ff686e6d31">jam::Char::erase</references>
         <references refid="classterminal_1_1_video_1a0e981e6f4c1d048a9b953fd890f5e6d9" compoundref="_video_8h" startline="479" endline="482">eraseStyleId</references>
         <referencedby refid="classterminal_1_1_video_1ab478e225470f4025149b7c4c3e73a9f8" compoundref="_video_c_s_i_8cpp" startline="136" endline="235">applyCSI</referencedby>
       </memberdef>
@@ -5002,6 +5021,7 @@ Clears penFg and penBg to alpha-zero (theme default sentinel) and sets penFlags 
         <references refid="classterminal_1_1_video_1a7d86e6ae19b47069012f77b693b8943e" compoundref="_video_8h" startline="375" endline="375">cols</references>
         <references refid="classterminal_1_1_video_1a294e7e0c67c33d3b320f63a088ffc2c5" compoundref="_video_8h" startline="390" endline="390">cursorCol</references>
         <references refid="classterminal_1_1_video_1a9bec450cc3eff3266ec6fdb6ec827f02" compoundref="_video_8h" startline="387" endline="387">cursorRow</references>
+        <references refid="structjam_1_1_char_1a7b9d8986d128fb1bc81735ff686e6d31">jam::Char::erase</references>
         <references refid="classterminal_1_1_video_1a0e981e6f4c1d048a9b953fd890f5e6d9" compoundref="_video_8h" startline="479" endline="482">eraseStyleId</references>
         <referencedby refid="classterminal_1_1_video_1ab478e225470f4025149b7c4c3e73a9f8" compoundref="_video_c_s_i_8cpp" startline="136" endline="235">applyCSI</referencedby>
       </memberdef>
@@ -5042,6 +5062,7 @@ Clears penFg and penBg to alpha-zero (theme default sentinel) and sets penFlags 
         <references refid="classterminal_1_1_video_1a7d86e6ae19b47069012f77b693b8943e" compoundref="_video_8h" startline="375" endline="375">cols</references>
         <references refid="classterminal_1_1_video_1a294e7e0c67c33d3b320f63a088ffc2c5" compoundref="_video_8h" startline="390" endline="390">cursorCol</references>
         <references refid="classterminal_1_1_video_1a9bec450cc3eff3266ec6fdb6ec827f02" compoundref="_video_8h" startline="387" endline="387">cursorRow</references>
+        <references refid="structjam_1_1_char_1a7b9d8986d128fb1bc81735ff686e6d31">jam::Char::erase</references>
         <references refid="classterminal_1_1_video_1a0e981e6f4c1d048a9b953fd890f5e6d9" compoundref="_video_8h" startline="479" endline="482">eraseStyleId</references>
         <referencedby refid="classterminal_1_1_video_1ab478e225470f4025149b7c4c3e73a9f8" compoundref="_video_c_s_i_8cpp" startline="136" endline="235">applyCSI</referencedby>
       </memberdef>

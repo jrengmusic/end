@@ -286,7 +286,7 @@
         <qualifiedname>MessageOverlay::messageDelayMs</qualifiedname>
         <initializer>{ 5000 }</initializer>
         <briefdescription>
-<para><ref refid="class_display" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Display</ref> duration for plain messages in milliseconds. </para>
+<para>Display duration for plain messages in milliseconds. </para>
         </briefdescription>
         <detaileddescription>
         </detaileddescription>
@@ -303,7 +303,7 @@
         <qualifiedname>MessageOverlay::resizeDelayMs</qualifiedname>
         <initializer>{ 1000 }</initializer>
         <briefdescription>
-<para><ref refid="class_display" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Display</ref> duration for the resize ruler in milliseconds. </para>
+<para>Display duration for the resize ruler in milliseconds. </para>
         </briefdescription>
         <detaileddescription>
         </detaileddescription>

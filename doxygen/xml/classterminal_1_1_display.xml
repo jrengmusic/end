@@ -204,12 +204,12 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/component/Display.h" line="96" column="23" bodyfile="terminal/component/Display.h" bodystart="96" bodyend="-1"/>
-        <referencedby refid="classterminal_1_1_display_1a4d5c9e51f93d6251bd8cdf81b8a9bd75" compoundref="_display_8cpp" startline="48" endline="69">applyFromAppModel</referencedby>
-        <referencedby refid="classterminal_1_1_display_1aff07d87262395ee3597d012cbae48b57" compoundref="_display_8cpp" startline="213" endline="213">focusGained</referencedby>
-        <referencedby refid="classterminal_1_1_display_1ac7671d2f5e124fe1d0002c19440229fd" compoundref="_display_8cpp" startline="256" endline="264">keyPressed</referencedby>
-        <referencedby refid="classterminal_1_1_display_1afd5758511197f47a6bf7fb96d9886b5a" compoundref="_display_8cpp" startline="215" endline="253">resized</referencedby>
-        <referencedby refid="classterminal_1_1_display_1a96f58201d64de70c95725f3ec9f44676" compoundref="_display_8cpp" startline="88" endline="179">valueTreePropertyChanged</referencedby>
-        <referencedby refid="classterminal_1_1_display_1a33d13f29e268c4641b6d79f077bab78a" compoundref="_display_8cpp" startline="36" endline="41">~Display</referencedby>
+        <referencedby refid="classterminal_1_1_display_1add336f50de49e963b5491ad266173662" compoundref="_display_8cpp" startline="51" endline="72">applyFromAppModel</referencedby>
+        <referencedby refid="classterminal_1_1_display_1abd20e1e977ffafcb77224badb70d482d" compoundref="_display_8cpp" startline="216" endline="216">focusGained</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a0b0738075a51a67a57b47b47890dffb3" compoundref="_display_8cpp" startline="259" endline="267">keyPressed</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a82fd0968bf27d37e421cae3489d14bb3" compoundref="_display_8cpp" startline="218" endline="256">resized</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a03eba79fe456af4968d7f483d9f240f0" compoundref="_display_8cpp" startline="91" endline="182">valueTreePropertyChanged</referencedby>
+        <referencedby refid="classterminal_1_1_display_1accefc1db87d2bb3984c7aed643255470" compoundref="_display_8cpp" startline="39" endline="44">~Display</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classterminal_1_1_display_1ac9742b57e514bca8ba57639a1b28928f" prot="private" static="no" mutable="no">
         <type><ref refid="classterminal_1_1_processor" kindref="compound">terminal::Processor</ref> &amp;</type>
@@ -225,8 +225,8 @@
         </inbodydescription>
         <location file="terminal/component/Display.h" line="97" column="25" bodyfile="terminal/component/Display.h" bodystart="97" bodyend="-1"/>
         <referencedby refid="classterminal_1_1_display_1a828a78229475e8213a7753f212806fbc" compoundref="_display_8h" startline="79" endline="79">getProcessor</referencedby>
-        <referencedby refid="classterminal_1_1_display_1a96f58201d64de70c95725f3ec9f44676" compoundref="_display_8cpp" startline="88" endline="179">valueTreePropertyChanged</referencedby>
-        <referencedby refid="classterminal_1_1_display_1a3d6f1c19739fa330d758951a7be249dd" compoundref="_display_8cpp" startline="208" endline="208">writeToPty</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a03eba79fe456af4968d7f483d9f240f0" compoundref="_display_8cpp" startline="91" endline="182">valueTreePropertyChanged</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a49d1389c5e60067c7c4a07194347a507" compoundref="_display_8cpp" startline="211" endline="211">writeToPty</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classterminal_1_1_display_1ab4df5fcfe2827a6f52aaae7d48935bb7" prot="private" static="no" mutable="no">
         <type><ref refid="structterminal_1_1_model" kindref="compound">terminal::Model</ref> &amp;</type>
@@ -241,13 +241,11 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/component/Display.h" line="98" column="21" bodyfile="terminal/component/Display.h" bodystart="98" bodyend="-1"/>
-        <referencedby refid="classterminal_1_1_display_1a4d5c9e51f93d6251bd8cdf81b8a9bd75" compoundref="_display_8cpp" startline="48" endline="69">applyFromAppModel</referencedby>
-        <referencedby refid="classterminal_1_1_display_1a22a44a31c7bc528a6a584408ddfc7cf8" compoundref="_display_8cpp" startline="184" endline="189">copySelection</referencedby>
-        <referencedby refid="classterminal_1_1_display_1a51e40f907d1725afc433513c8b5e2bc1" compoundref="_display_8cpp" startline="182" endline="182">enterSelectionMode</referencedby>
-        <referencedby refid="classterminal_1_1_display_1a858679ef9dc232b5406fe94c5f6c79cb" compoundref="_display_8cpp" startline="191" endline="201">hasSelection</referencedby>
-        <referencedby refid="classterminal_1_1_display_1afd5758511197f47a6bf7fb96d9886b5a" compoundref="_display_8cpp" startline="215" endline="253">resized</referencedby>
-        <referencedby refid="classterminal_1_1_display_1a96f58201d64de70c95725f3ec9f44676" compoundref="_display_8cpp" startline="88" endline="179">valueTreePropertyChanged</referencedby>
-        <referencedby refid="classterminal_1_1_display_1a33d13f29e268c4641b6d79f077bab78a" compoundref="_display_8cpp" startline="36" endline="41">~Display</referencedby>
+        <referencedby refid="classterminal_1_1_display_1add336f50de49e963b5491ad266173662" compoundref="_display_8cpp" startline="51" endline="72">applyFromAppModel</referencedby>
+        <referencedby refid="classterminal_1_1_display_1af394e5c42a3c90f3fc56e3e4c54903a4" compoundref="_display_8cpp" startline="194" endline="204">hasSelection</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a82fd0968bf27d37e421cae3489d14bb3" compoundref="_display_8cpp" startline="218" endline="256">resized</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a03eba79fe456af4968d7f483d9f240f0" compoundref="_display_8cpp" startline="91" endline="182">valueTreePropertyChanged</referencedby>
+        <referencedby refid="classterminal_1_1_display_1accefc1db87d2bb3984c7aed643255470" compoundref="_display_8cpp" startline="39" endline="44">~Display</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classterminal_1_1_display_1a7eac961b34ffac9bb911f6702561fd7e" prot="private" static="no" mutable="no">
         <type><ref refid="classjam_1_1_value_tree_1_1_attachment" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::ValueTree::Attachment</ref></type>
@@ -279,7 +277,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/component/Display.h" line="106" column="16" bodyfile="terminal/component/Display.h" bodystart="106" bodyend="106"/>
-        <referencedby refid="classterminal_1_1_display_1a96f58201d64de70c95725f3ec9f44676" compoundref="_display_8cpp" startline="88" endline="179">valueTreePropertyChanged</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a03eba79fe456af4968d7f483d9f240f0" compoundref="_display_8cpp" startline="91" endline="182">valueTreePropertyChanged</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classterminal_1_1_display_1aa29d50a3ba2b5ac9b6a1f6921189f31b" prot="private" static="no" mutable="no">
         <type><ref refid="classterminal_1_1_link_manager" kindref="compound">terminal::LinkManager</ref></type>
@@ -308,8 +306,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/component/Display.h" line="109" column="21" bodyfile="terminal/component/Display.h" bodystart="109" bodyend="-1"/>
-        <referencedby refid="classterminal_1_1_display_1a4d5c9e51f93d6251bd8cdf81b8a9bd75" compoundref="_display_8cpp" startline="48" endline="69">applyFromAppModel</referencedby>
-        <referencedby refid="classterminal_1_1_display_1ac7671d2f5e124fe1d0002c19440229fd" compoundref="_display_8cpp" startline="256" endline="264">keyPressed</referencedby>
+        <referencedby refid="classterminal_1_1_display_1add336f50de49e963b5491ad266173662" compoundref="_display_8cpp" startline="51" endline="72">applyFromAppModel</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a0b0738075a51a67a57b47b47890dffb3" compoundref="_display_8cpp" startline="259" endline="267">keyPressed</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classterminal_1_1_display_1a76b9f59f3f9b03f6b34d92f73e38b657" prot="private" static="no" mutable="no">
         <type><ref refid="classterminal_1_1_mouse" kindref="compound">terminal::Mouse</ref></type>
@@ -324,12 +322,12 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/component/Display.h" line="110" column="21" bodyfile="terminal/component/Display.h" bodystart="110" bodyend="-1"/>
-        <referencedby refid="classterminal_1_1_display_1a4d5c9e51f93d6251bd8cdf81b8a9bd75" compoundref="_display_8cpp" startline="48" endline="69">applyFromAppModel</referencedby>
-        <referencedby refid="classterminal_1_1_display_1a601d4f2075e743c2757ede96e1c200dd" compoundref="_display_8cpp" startline="268" endline="268">mouseDoubleClick</referencedby>
-        <referencedby refid="classterminal_1_1_display_1aad5cb90dff1a5da0b038c4d508ebff7d" compoundref="_display_8cpp" startline="267" endline="267">mouseDown</referencedby>
-        <referencedby refid="classterminal_1_1_display_1a9b83dcb0b85f61952747b2c9c561e31d" compoundref="_display_8cpp" startline="269" endline="269">mouseDrag</referencedby>
-        <referencedby refid="classterminal_1_1_display_1a818cf50c6edd518f5c383ca09ae8b5e2" compoundref="_display_8cpp" startline="271" endline="271">mouseMove</referencedby>
-        <referencedby refid="classterminal_1_1_display_1ab28c97970e1f0bc8137613d4f12d4416" compoundref="_display_8cpp" startline="270" endline="270">mouseUp</referencedby>
+        <referencedby refid="classterminal_1_1_display_1add336f50de49e963b5491ad266173662" compoundref="_display_8cpp" startline="51" endline="72">applyFromAppModel</referencedby>
+        <referencedby refid="classterminal_1_1_display_1ab8d3ef20d471f8f820df3bc72e1b7422" compoundref="_display_8cpp" startline="271" endline="271">mouseDoubleClick</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a9f021c3a8e14f6082c0892529c76cac1" compoundref="_display_8cpp" startline="270" endline="270">mouseDown</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a5842e4fc854cec2d5bfd1c065596d052" compoundref="_display_8cpp" startline="272" endline="272">mouseDrag</referencedby>
+        <referencedby refid="classterminal_1_1_display_1ad63a8688a5f8134792125bb6850c3aaa" compoundref="_display_8cpp" startline="274" endline="274">mouseMove</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a849a0f93e5fca3755cf5f150b2bcd022" compoundref="_display_8cpp" startline="273" endline="273">mouseUp</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classterminal_1_1_display_1a2dd6e6eb013b7d0a9302c321d5d75c4d" prot="private" static="no" mutable="no">
         <type><ref refid="structterminal_1_1_display_1_1_config_listener" kindref="compound">ConfigListener</ref></type>
@@ -345,13 +343,13 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/component/Display.h" line="126" column="20" bodyfile="terminal/component/Display.h" bodystart="126" bodyend="126"/>
-        <referencedby refid="classterminal_1_1_display_1a33d13f29e268c4641b6d79f077bab78a" compoundref="_display_8cpp" startline="36" endline="41">~Display</referencedby>
+        <referencedby refid="classterminal_1_1_display_1accefc1db87d2bb3984c7aed643255470" compoundref="_display_8cpp" startline="39" endline="44">~Display</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">
-      <memberdef kind="function" id="classterminal_1_1_display_1aba2b9e271d38ad4e5268333aaac31d8d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+      <memberdef kind="function" id="classterminal_1_1_display_1a795559c55785fb2637b1a3b873d84515" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type></type>
-        <definition>Display::Display</definition>
+        <definition>terminal::Display::Display</definition>
         <argsstring>(terminal::Session &amp;session)</argsstring>
         <name>Display</name>
         <qualifiedname>terminal::Display::Display</qualifiedname>
@@ -379,19 +377,19 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="57" column="5" bodyfile="terminal/component/Display.cpp" bodystart="3" bodyend="34"/>
+        <location file="terminal/component/Display.h" line="57" column="5" bodyfile="terminal/component/Display.cpp" bodystart="3" bodyend="37"/>
         <references refid="namespaceterminal_1_1id_1a0e30c34b95c11793be83bc3c6adb0c27" compoundref="_identifier_8h" startline="138" endline="138">terminal::id::baseline</references>
         <references refid="namespaceterminal_1_1id_1a90a87bb834cd3d8010472103526b0e6f" compoundref="_identifier_8h" startline="135" endline="135">terminal::id::cellHeight</references>
         <references refid="namespaceterminal_1_1id_1a24851586253954da0bdefe155b4bda44" compoundref="_identifier_8h" startline="132" endline="132">terminal::id::cellWidth</references>
         <references refid="structjam_1_1_value_tree_1_1_component_with_i_d_1a1b1614733807b69868cd6a6f417af0ae">jam::ValueTree::ComponentWithID&lt; Display &gt;::ComponentWithID</references>
-        <references refid="classterminal_1_1_display_1aba2b9e271d38ad4e5268333aaac31d8d" compoundref="_display_8cpp" startline="3" endline="34">Display</references>
+        <references refid="classterminal_1_1_display_1a795559c55785fb2637b1a3b873d84515" compoundref="_display_8cpp" startline="3" endline="37">Display</references>
         <references refid="namespaceterminal_1_1id_1a74ede1ffd0ee235b77447a91e4965995" compoundref="_identifier_8h" startline="141" endline="141">terminal::id::fontSize</references>
         <referencedby refid="structterminal_1_1_display_1_1_config_listener_1ab2321b389d513daaf39861a62605bc1e" compoundref="_display_8h" startline="118" endline="118">terminal::Display::ConfigListener::ConfigListener</referencedby>
-        <referencedby refid="classterminal_1_1_display_1aba2b9e271d38ad4e5268333aaac31d8d" compoundref="_display_8cpp" startline="3" endline="34">Display</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a795559c55785fb2637b1a3b873d84515" compoundref="_display_8cpp" startline="3" endline="37">Display</referencedby>
       </memberdef>
-      <memberdef kind="function" id="classterminal_1_1_display_1a33d13f29e268c4641b6d79f077bab78a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+      <memberdef kind="function" id="classterminal_1_1_display_1accefc1db87d2bb3984c7aed643255470" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type></type>
-        <definition>Display::~Display</definition>
+        <definition>terminal::Display::~Display</definition>
         <argsstring>() override</argsstring>
         <name>~Display</name>
         <qualifiedname>terminal::Display::~Display</qualifiedname>
@@ -401,14 +399,14 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="59" column="5" bodyfile="terminal/component/Display.cpp" bodystart="36" bodyend="41"/>
+        <location file="terminal/component/Display.h" line="59" column="5" bodyfile="terminal/component/Display.cpp" bodystart="39" bodyend="44"/>
         <references refid="classterminal_1_1_display_1a2dd6e6eb013b7d0a9302c321d5d75c4d" compoundref="_display_8h" startline="126" endline="126">configListener</references>
         <references refid="classterminal_1_1_display_1a84cccc586dafd4010281887d9c5a8a86" compoundref="_display_8h" startline="96">session</references>
         <references refid="classterminal_1_1_display_1ab4df5fcfe2827a6f52aaae7d48935bb7" compoundref="_display_8h" startline="98">state</references>
       </memberdef>
-      <memberdef kind="function" id="classterminal_1_1_display_1afb467cdeee6e7bed23e32fcc1a31be38" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="virtual">
+      <memberdef kind="function" id="classterminal_1_1_display_1a2e77bd710b79769f795c1a09d65775e9" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="virtual">
         <type>juce::String</type>
-        <definition>juce::String Display::getPaneType</definition>
+        <definition>juce::String terminal::Display::getPaneType</definition>
         <argsstring>() const noexcept override</argsstring>
         <name>getPaneType</name>
         <qualifiedname>terminal::Display::getPaneType</qualifiedname>
@@ -426,13 +424,13 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="62" column="18" bodyfile="terminal/component/Display.cpp" bodystart="44" bodyend="47"/>
+        <location file="terminal/component/Display.h" line="62" column="18" bodyfile="terminal/component/Display.cpp" bodystart="47" bodyend="50"/>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Derived &gt;::getContext</references>
         <references refid="struct_map_1_1_pane_type_1a26b29bb01d0ebc96052d9f071b2794ceac0919083fc9d573f2caea390a3625410" compoundref="_map_8h" startline="138">Map::PaneType::terminal</references>
       </memberdef>
-      <memberdef kind="function" id="classterminal_1_1_display_1aaafdfb7ab2395946be6b70e0e189bcf8" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="virtual">
+      <memberdef kind="function" id="classterminal_1_1_display_1a63b26382f17289e78b18abc54275cebc" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="virtual">
         <type>void</type>
-        <definition>void Display::applyZoom</definition>
+        <definition>void terminal::Display::applyZoom</definition>
         <argsstring>(float zoom) noexcept override</argsstring>
         <name>applyZoom</name>
         <qualifiedname>terminal::Display::applyZoom</qualifiedname>
@@ -460,11 +458,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="63" column="10" bodyfile="terminal/component/Display.cpp" bodystart="181" bodyend="181"/>
+        <location file="terminal/component/Display.h" line="63" column="10" bodyfile="terminal/component/Display.cpp" bodystart="184" bodyend="184"/>
       </memberdef>
-      <memberdef kind="function" id="classterminal_1_1_display_1a51e40f907d1725afc433513c8b5e2bc1" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="virtual">
+      <memberdef kind="function" id="classterminal_1_1_display_1a1f6b51c111d5267023843324b21eff34" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="virtual">
         <type>void</type>
-        <definition>void Display::enterSelectionMode</definition>
+        <definition>void terminal::Display::enterSelectionMode</definition>
         <argsstring>() noexcept override</argsstring>
         <name>enterSelectionMode</name>
         <qualifiedname>terminal::Display::enterSelectionMode</qualifiedname>
@@ -479,12 +477,12 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="64" column="10" bodyfile="terminal/component/Display.cpp" bodystart="182" bodyend="182"/>
-        <references refid="classterminal_1_1_display_1ab4df5fcfe2827a6f52aaae7d48935bb7" compoundref="_display_8h" startline="98">state</references>
+        <location file="terminal/component/Display.h" line="64" column="10" bodyfile="terminal/component/Display.cpp" bodystart="185" bodyend="185"/>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
       </memberdef>
-      <memberdef kind="function" id="classterminal_1_1_display_1a22a44a31c7bc528a6a584408ddfc7cf8" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="virtual">
+      <memberdef kind="function" id="classterminal_1_1_display_1ae8057b64f9373f3ca63f69edb1e7dc9a" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="virtual">
         <type>void</type>
-        <definition>void Display::copySelection</definition>
+        <definition>void terminal::Display::copySelection</definition>
         <argsstring>() noexcept override</argsstring>
         <name>copySelection</name>
         <qualifiedname>terminal::Display::copySelection</qualifiedname>
@@ -499,12 +497,12 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="65" column="10" bodyfile="terminal/component/Display.cpp" bodystart="184" bodyend="189"/>
-        <references refid="classterminal_1_1_display_1ab4df5fcfe2827a6f52aaae7d48935bb7" compoundref="_display_8h" startline="98">state</references>
+        <location file="terminal/component/Display.h" line="65" column="10" bodyfile="terminal/component/Display.cpp" bodystart="187" bodyend="192"/>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
       </memberdef>
-      <memberdef kind="function" id="classterminal_1_1_display_1a858679ef9dc232b5406fe94c5f6c79cb" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="virtual">
+      <memberdef kind="function" id="classterminal_1_1_display_1af394e5c42a3c90f3fc56e3e4c54903a4" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="virtual">
         <type>bool</type>
-        <definition>bool Display::hasSelection</definition>
+        <definition>bool terminal::Display::hasSelection</definition>
         <argsstring>() const noexcept override</argsstring>
         <name>hasSelection</name>
         <qualifiedname>terminal::Display::hasSelection</qualifiedname>
@@ -519,16 +517,16 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="66" column="10" bodyfile="terminal/component/Display.cpp" bodystart="191" bodyend="201"/>
+        <location file="terminal/component/Display.h" line="66" column="10" bodyfile="terminal/component/Display.cpp" bodystart="194" bodyend="204"/>
         <references refid="classjam_1_1_code_view_1a93a5ced4b1717717dac8f5d07a4a4f9ca921134cac19521591ed4ad00784c9ea9">jam::CodeView::codeViewId</references>
         <references refid="structjam_1_1_value_tree_1_1_component_1ab587799358050ce53720ef28f33e01eb">jam::ValueTree::Component::node</references>
         <references refid="classjam_1_1_code_view_1a6360f1b4243ed6ade7dde533ed2624bb">jam::CodeView::properties</references>
         <references refid="classjam_1_1_code_view_1a93a5ced4b1717717dac8f5d07a4a4f9ca9025212cef75f42667371ef36fabc880">jam::CodeView::selectionTypeId</references>
         <references refid="classterminal_1_1_display_1ab4df5fcfe2827a6f52aaae7d48935bb7" compoundref="_display_8h" startline="98">state</references>
       </memberdef>
-      <memberdef kind="function" id="classterminal_1_1_display_1a20094a4c7056ec2091558137651a614b" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+      <memberdef kind="function" id="classterminal_1_1_display_1a0bbc49c8f9bc2657350bf484d230e2ce" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
         <type>bool</type>
-        <definition>bool Display::isInSelectionMode</definition>
+        <definition>bool terminal::Display::isInSelectionMode</definition>
         <argsstring>() const noexcept</argsstring>
         <name>isInSelectionMode</name>
         <qualifiedname>terminal::Display::isInSelectionMode</qualifiedname>
@@ -538,11 +536,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="69" column="10" bodyfile="terminal/component/Display.cpp" bodystart="204" bodyend="204"/>
+        <location file="terminal/component/Display.h" line="69" column="10" bodyfile="terminal/component/Display.cpp" bodystart="207" bodyend="207"/>
       </memberdef>
-      <memberdef kind="function" id="classterminal_1_1_display_1a802ea0d464c73e490108e174c75009be" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+      <memberdef kind="function" id="classterminal_1_1_display_1af6f874a38acda8584b9c43e91d68de74" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
         <type>void</type>
-        <definition>void Display::exitSelectionMode</definition>
+        <definition>void terminal::Display::exitSelectionMode</definition>
         <argsstring>() noexcept</argsstring>
         <name>exitSelectionMode</name>
         <qualifiedname>terminal::Display::exitSelectionMode</qualifiedname>
@@ -552,11 +550,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="70" column="10" bodyfile="terminal/component/Display.cpp" bodystart="205" bodyend="205"/>
+        <location file="terminal/component/Display.h" line="70" column="10" bodyfile="terminal/component/Display.cpp" bodystart="208" bodyend="208"/>
       </memberdef>
-      <memberdef kind="function" id="classterminal_1_1_display_1aa9aa883d0643ce237cd9f3f39e2a38f7" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+      <memberdef kind="function" id="classterminal_1_1_display_1afaa5bfe12b7aa78514c69ffbf967b3e9" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
         <type>void</type>
-        <definition>void Display::enterOpenFileMode</definition>
+        <definition>void terminal::Display::enterOpenFileMode</definition>
         <argsstring>() noexcept</argsstring>
         <name>enterOpenFileMode</name>
         <qualifiedname>terminal::Display::enterOpenFileMode</qualifiedname>
@@ -566,11 +564,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="71" column="10" bodyfile="terminal/component/Display.cpp" bodystart="206" bodyend="206"/>
+        <location file="terminal/component/Display.h" line="71" column="10" bodyfile="terminal/component/Display.cpp" bodystart="209" bodyend="209"/>
       </memberdef>
-      <memberdef kind="function" id="classterminal_1_1_display_1a72c3a3308d4683cf57ef4ce35c7c85b0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+      <memberdef kind="function" id="classterminal_1_1_display_1a6d0e0d189c561afe4f7bff7a1d0cfe27" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
-        <definition>void Display::pasteClipboard</definition>
+        <definition>void terminal::Display::pasteClipboard</definition>
         <argsstring>()</argsstring>
         <name>pasteClipboard</name>
         <qualifiedname>terminal::Display::pasteClipboard</qualifiedname>
@@ -580,11 +578,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="72" column="10" bodyfile="terminal/component/Display.cpp" bodystart="207" bodyend="207"/>
+        <location file="terminal/component/Display.h" line="72" column="10" bodyfile="terminal/component/Display.cpp" bodystart="210" bodyend="210"/>
       </memberdef>
-      <memberdef kind="function" id="classterminal_1_1_display_1a3d6f1c19739fa330d758951a7be249dd" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+      <memberdef kind="function" id="classterminal_1_1_display_1a49d1389c5e60067c7c4a07194347a507" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
         <type>void</type>
-        <definition>void Display::writeToPty</definition>
+        <definition>void terminal::Display::writeToPty</definition>
         <argsstring>(const char *data, int len) noexcept</argsstring>
         <name>writeToPty</name>
         <qualifiedname>terminal::Display::writeToPty</qualifiedname>
@@ -602,12 +600,12 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="73" column="10" bodyfile="terminal/component/Display.cpp" bodystart="208" bodyend="208"/>
+        <location file="terminal/component/Display.h" line="73" column="10" bodyfile="terminal/component/Display.cpp" bodystart="211" bodyend="211"/>
         <references refid="classterminal_1_1_display_1ac9742b57e514bca8ba57639a1b28928f" compoundref="_display_8h" startline="97">processor</references>
       </memberdef>
-      <memberdef kind="function" id="classterminal_1_1_display_1ad16cf74242003393eb446e80586cca69" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+      <memberdef kind="function" id="classterminal_1_1_display_1a359fd222637999defeba69ef99d956a0" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
         <type>int</type>
-        <definition>int Display::getHintPage</definition>
+        <definition>int terminal::Display::getHintPage</definition>
         <argsstring>() const noexcept</argsstring>
         <name>getHintPage</name>
         <qualifiedname>terminal::Display::getHintPage</qualifiedname>
@@ -617,11 +615,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="74" column="9" bodyfile="terminal/component/Display.cpp" bodystart="209" bodyend="209"/>
+        <location file="terminal/component/Display.h" line="74" column="9" bodyfile="terminal/component/Display.cpp" bodystart="212" bodyend="212"/>
       </memberdef>
-      <memberdef kind="function" id="classterminal_1_1_display_1a79e9528da6877aa69600dc0db4ab6686" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+      <memberdef kind="function" id="classterminal_1_1_display_1a754b3cf1a3999dd40f68973ea0912fb9" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
         <type>int</type>
-        <definition>int Display::getHintTotalPages</definition>
+        <definition>int terminal::Display::getHintTotalPages</definition>
         <argsstring>() const noexcept</argsstring>
         <name>getHintTotalPages</name>
         <qualifiedname>terminal::Display::getHintTotalPages</qualifiedname>
@@ -631,7 +629,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="75" column="9" bodyfile="terminal/component/Display.cpp" bodystart="210" bodyend="210"/>
+        <location file="terminal/component/Display.h" line="75" column="9" bodyfile="terminal/component/Display.cpp" bodystart="213" bodyend="213"/>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_display_1a828a78229475e8213a7753f212806fbc" prot="public" static="no" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
         <type><ref refid="classterminal_1_1_processor" kindref="compound">terminal::Processor</ref> &amp;</type>
@@ -654,9 +652,9 @@
         <references refid="classterminal_1_1_display_1ac9742b57e514bca8ba57639a1b28928f" compoundref="_display_8h" startline="97">processor</references>
         <referencedby refid="classterminal_1_1_display_1a828a78229475e8213a7753f212806fbc" compoundref="_display_8h" startline="79" endline="79">getProcessor</referencedby>
       </memberdef>
-      <memberdef kind="function" id="classterminal_1_1_display_1afd5758511197f47a6bf7fb96d9886b5a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+      <memberdef kind="function" id="classterminal_1_1_display_1a82fd0968bf27d37e421cae3489d14bb3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
-        <definition>void Display::resized</definition>
+        <definition>void terminal::Display::resized</definition>
         <argsstring>() override</argsstring>
         <name>resized</name>
         <qualifiedname>terminal::Display::resized</qualifiedname>
@@ -666,7 +664,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="82" column="10" bodyfile="terminal/component/Display.cpp" bodystart="215" bodyend="253"/>
+        <location file="terminal/component/Display.h" line="82" column="10" bodyfile="terminal/component/Display.cpp" bodystart="218" bodyend="256"/>
         <references refid="namespaceterminal_1_1id_1a90a87bb834cd3d8010472103526b0e6f" compoundref="_identifier_8h" startline="135" endline="135">terminal::id::cellHeight</references>
         <references refid="namespaceterminal_1_1id_1a24851586253954da0bdefe155b4bda44" compoundref="_identifier_8h" startline="132" endline="132">terminal::id::cellWidth</references>
         <references refid="classjam_1_1_code_view_1a93a5ced4b1717717dac8f5d07a4a4f9ca921134cac19521591ed4ad00784c9ea9">jam::CodeView::codeViewId</references>
@@ -681,9 +679,9 @@
         <references refid="classjam_1_1_code_view_1a93a5ced4b1717717dac8f5d07a4a4f9ca135d88d1984394ef6f9b2da476de4e03">jam::CodeView::viewportId</references>
         <references refid="structjam_1_1_i_d_1a3d0d8290681c62b75160843928ff3689">jam::ID::width</references>
       </memberdef>
-      <memberdef kind="function" id="classterminal_1_1_display_1aff07d87262395ee3597d012cbae48b57" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+      <memberdef kind="function" id="classterminal_1_1_display_1abd20e1e977ffafcb77224badb70d482d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
-        <definition>void Display::focusGained</definition>
+        <definition>void terminal::Display::focusGained</definition>
         <argsstring>(FocusChangeType cause) override</argsstring>
         <name>focusGained</name>
         <qualifiedname>terminal::Display::focusGained</qualifiedname>
@@ -697,12 +695,12 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="83" column="10" bodyfile="terminal/component/Display.cpp" bodystart="213" bodyend="213"/>
+        <location file="terminal/component/Display.h" line="83" column="10" bodyfile="terminal/component/Display.cpp" bodystart="216" bodyend="216"/>
         <references refid="classterminal_1_1_display_1a84cccc586dafd4010281887d9c5a8a86" compoundref="_display_8h" startline="96">session</references>
       </memberdef>
-      <memberdef kind="function" id="classterminal_1_1_display_1ac7671d2f5e124fe1d0002c19440229fd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+      <memberdef kind="function" id="classterminal_1_1_display_1a0b0738075a51a67a57b47b47890dffb3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>bool</type>
-        <definition>bool Display::keyPressed</definition>
+        <definition>bool terminal::Display::keyPressed</definition>
         <argsstring>(const juce::KeyPress &amp;key, juce::Component *originatingComponent) override</argsstring>
         <name>keyPressed</name>
         <qualifiedname>terminal::Display::keyPressed</qualifiedname>
@@ -720,13 +718,13 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="86" column="10" bodyfile="terminal/component/Display.cpp" bodystart="256" bodyend="264"/>
+        <location file="terminal/component/Display.h" line="86" column="10" bodyfile="terminal/component/Display.cpp" bodystart="259" bodyend="267"/>
         <references refid="classterminal_1_1_display_1a56902129be2ac08d4fd6b026387f3c30" compoundref="_display_8h" startline="109">input</references>
         <references refid="classterminal_1_1_display_1a84cccc586dafd4010281887d9c5a8a86" compoundref="_display_8h" startline="96">session</references>
       </memberdef>
-      <memberdef kind="function" id="classterminal_1_1_display_1aad5cb90dff1a5da0b038c4d508ebff7d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+      <memberdef kind="function" id="classterminal_1_1_display_1a9f021c3a8e14f6082c0892529c76cac1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
-        <definition>void Display::mouseDown</definition>
+        <definition>void terminal::Display::mouseDown</definition>
         <argsstring>(const juce::MouseEvent &amp;event) override</argsstring>
         <name>mouseDown</name>
         <qualifiedname>terminal::Display::mouseDown</qualifiedname>
@@ -740,12 +738,12 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="89" column="10" bodyfile="terminal/component/Display.cpp" bodystart="267" bodyend="267"/>
+        <location file="terminal/component/Display.h" line="89" column="10" bodyfile="terminal/component/Display.cpp" bodystart="270" bodyend="270"/>
         <references refid="classterminal_1_1_display_1a76b9f59f3f9b03f6b34d92f73e38b657" compoundref="_display_8h" startline="110">mouse</references>
       </memberdef>
-      <memberdef kind="function" id="classterminal_1_1_display_1a601d4f2075e743c2757ede96e1c200dd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+      <memberdef kind="function" id="classterminal_1_1_display_1ab8d3ef20d471f8f820df3bc72e1b7422" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
-        <definition>void Display::mouseDoubleClick</definition>
+        <definition>void terminal::Display::mouseDoubleClick</definition>
         <argsstring>(const juce::MouseEvent &amp;event) override</argsstring>
         <name>mouseDoubleClick</name>
         <qualifiedname>terminal::Display::mouseDoubleClick</qualifiedname>
@@ -759,12 +757,12 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="90" column="10" bodyfile="terminal/component/Display.cpp" bodystart="268" bodyend="268"/>
+        <location file="terminal/component/Display.h" line="90" column="10" bodyfile="terminal/component/Display.cpp" bodystart="271" bodyend="271"/>
         <references refid="classterminal_1_1_display_1a76b9f59f3f9b03f6b34d92f73e38b657" compoundref="_display_8h" startline="110">mouse</references>
       </memberdef>
-      <memberdef kind="function" id="classterminal_1_1_display_1a9b83dcb0b85f61952747b2c9c561e31d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+      <memberdef kind="function" id="classterminal_1_1_display_1a5842e4fc854cec2d5bfd1c065596d052" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
-        <definition>void Display::mouseDrag</definition>
+        <definition>void terminal::Display::mouseDrag</definition>
         <argsstring>(const juce::MouseEvent &amp;event) override</argsstring>
         <name>mouseDrag</name>
         <qualifiedname>terminal::Display::mouseDrag</qualifiedname>
@@ -778,12 +776,12 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="91" column="10" bodyfile="terminal/component/Display.cpp" bodystart="269" bodyend="269"/>
+        <location file="terminal/component/Display.h" line="91" column="10" bodyfile="terminal/component/Display.cpp" bodystart="272" bodyend="272"/>
         <references refid="classterminal_1_1_display_1a76b9f59f3f9b03f6b34d92f73e38b657" compoundref="_display_8h" startline="110">mouse</references>
       </memberdef>
-      <memberdef kind="function" id="classterminal_1_1_display_1ab28c97970e1f0bc8137613d4f12d4416" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+      <memberdef kind="function" id="classterminal_1_1_display_1a849a0f93e5fca3755cf5f150b2bcd022" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
-        <definition>void Display::mouseUp</definition>
+        <definition>void terminal::Display::mouseUp</definition>
         <argsstring>(const juce::MouseEvent &amp;event) override</argsstring>
         <name>mouseUp</name>
         <qualifiedname>terminal::Display::mouseUp</qualifiedname>
@@ -797,12 +795,12 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="92" column="10" bodyfile="terminal/component/Display.cpp" bodystart="270" bodyend="270"/>
+        <location file="terminal/component/Display.h" line="92" column="10" bodyfile="terminal/component/Display.cpp" bodystart="273" bodyend="273"/>
         <references refid="classterminal_1_1_display_1a76b9f59f3f9b03f6b34d92f73e38b657" compoundref="_display_8h" startline="110">mouse</references>
       </memberdef>
-      <memberdef kind="function" id="classterminal_1_1_display_1a818cf50c6edd518f5c383ca09ae8b5e2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+      <memberdef kind="function" id="classterminal_1_1_display_1ad63a8688a5f8134792125bb6850c3aaa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
-        <definition>void Display::mouseMove</definition>
+        <definition>void terminal::Display::mouseMove</definition>
         <argsstring>(const juce::MouseEvent &amp;event) override</argsstring>
         <name>mouseMove</name>
         <qualifiedname>terminal::Display::mouseMove</qualifiedname>
@@ -816,14 +814,14 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="93" column="10" bodyfile="terminal/component/Display.cpp" bodystart="271" bodyend="271"/>
+        <location file="terminal/component/Display.h" line="93" column="10" bodyfile="terminal/component/Display.cpp" bodystart="274" bodyend="274"/>
         <references refid="classterminal_1_1_display_1a76b9f59f3f9b03f6b34d92f73e38b657" compoundref="_display_8h" startline="110">mouse</references>
       </memberdef>
     </sectiondef>
     <sectiondef kind="private-func">
-      <memberdef kind="function" id="classterminal_1_1_display_1a4d5c9e51f93d6251bd8cdf81b8a9bd75" prot="private" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+      <memberdef kind="function" id="classterminal_1_1_display_1add336f50de49e963b5491ad266173662" prot="private" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
         <type>void</type>
-        <definition>void Display::applyFromAppModel</definition>
+        <definition>void terminal::Display::applyFromAppModel</definition>
         <argsstring>() noexcept</argsstring>
         <name>applyFromAppModel</name>
         <qualifiedname>terminal::Display::applyFromAppModel</qualifiedname>
@@ -833,7 +831,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="128" column="10" bodyfile="terminal/component/Display.cpp" bodystart="48" bodyend="69"/>
+        <location file="terminal/component/Display.h" line="128" column="10" bodyfile="terminal/component/Display.cpp" bodystart="51" bodyend="72"/>
         <references refid="structjam_1_1_font_1abeb932a23dd7582bc4e537dd1a78ca20">jam::Font::baseline</references>
         <references refid="namespaceterminal_1_1id_1a0e30c34b95c11793be83bc3c6adb0c27" compoundref="_identifier_8h" startline="138" endline="138">terminal::id::baseline</references>
         <references refid="structjam_1_1_font_1a7eaadf8cff31c90d759339153197544e">jam::Font::cellHeight</references>
@@ -850,9 +848,9 @@
         <references refid="classterminal_1_1_display_1ab4df5fcfe2827a6f52aaae7d48935bb7" compoundref="_display_8h" startline="98">state</references>
         <references refid="namespacejam_1aa855f56f0be351b996daf527406a3ca8">jam::toChar</references>
       </memberdef>
-      <memberdef kind="function" id="classterminal_1_1_display_1a96f58201d64de70c95725f3ec9f44676" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+      <memberdef kind="function" id="classterminal_1_1_display_1a03eba79fe456af4968d7f483d9f240f0" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
-        <definition>void Display::valueTreePropertyChanged</definition>
+        <definition>void terminal::Display::valueTreePropertyChanged</definition>
         <argsstring>(juce::ValueTree &amp;tree, const juce::Identifier &amp;property) override</argsstring>
         <name>valueTreePropertyChanged</name>
         <qualifiedname>terminal::Display::valueTreePropertyChanged</qualifiedname>
@@ -870,7 +868,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Display.h" line="129" column="10" bodyfile="terminal/component/Display.cpp" bodystart="88" bodyend="179"/>
+        <location file="terminal/component/Display.h" line="129" column="10" bodyfile="terminal/component/Display.cpp" bodystart="91" bodyend="182"/>
         <references refid="namespaceterminal_1_1id_1ad9fd72b61b4ec96b2a652a7762f89ac3" compoundref="_identifier_8h" startline="129" endline="129">terminal::id::activeScreen</references>
         <references refid="struct_map_1_1_screen_1ae896a8da63494212bf03476a7240bcd7a1496f93865164852b01cd516fa71a3e8" compoundref="_map_8h" startline="42">Map::Screen::alternate</references>
         <references refid="classjam_1_1_code_model_1a33e542fc5e9c5a94f049d723e85a6cfc">jam::CodeModel::append</references>
@@ -1432,8 +1430,6 @@
         <link refid="structterminal_1_1_model"/>
         <childnode refid="16" relation="public-inheritance">
         </childnode>
-        <childnode refid="7" relation="private-inheritance">
-        </childnode>
         <childnode refid="22" relation="usage">
           <edgelabel>rowDirtyFlags</edgelabel>
         </childnode>
@@ -1619,54 +1615,54 @@
       <member refid="classterminal_1_1_display_1ae191378e54e5671c8f04a878881bcbf1aaa9168642aa84a367f846986bfe4ebf5" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>ansi7ColourId</name></member>
       <member refid="classterminal_1_1_display_1ae191378e54e5671c8f04a878881bcbf1a05cacfc7b16a2a0c6c63078504c35349" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>ansi8ColourId</name></member>
       <member refid="classterminal_1_1_display_1ae191378e54e5671c8f04a878881bcbf1aaec9283a201d3132290e8c0d56952470" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>ansi9ColourId</name></member>
-      <member refid="classterminal_1_1_display_1a4d5c9e51f93d6251bd8cdf81b8a9bd75" prot="private" virt="non-virtual"><scope>terminal::Display</scope><name>applyFromAppModel</name></member>
-      <member refid="classterminal_1_1_display_1aaafdfb7ab2395946be6b70e0e189bcf8" prot="public" virt="virtual"><scope>terminal::Display</scope><name>applyZoom</name></member>
+      <member refid="classterminal_1_1_display_1add336f50de49e963b5491ad266173662" prot="private" virt="non-virtual"><scope>terminal::Display</scope><name>applyFromAppModel</name></member>
+      <member refid="classterminal_1_1_display_1a63b26382f17289e78b18abc54275cebc" prot="public" virt="virtual"><scope>terminal::Display</scope><name>applyZoom</name></member>
       <member refid="classterminal_1_1_display_1a7eac961b34ffac9bb911f6702561fd7e" prot="private" virt="non-virtual"><scope>terminal::Display</scope><name>attachment</name></member>
       <member refid="classterminal_1_1_display_1ae191378e54e5671c8f04a878881bcbf1" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>ColourIds</name></member>
       <member refid="structjam_1_1_value_tree_1_1_component_1a7f12afb19c9e03ae2797eadeb90917be" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>Component</name></member>
       <member refid="structjam_1_1_value_tree_1_1_component_1aaa3f3062a1c039af8f0ee1673fc06775" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>Component</name></member>
       <member refid="structjam_1_1_value_tree_1_1_component_with_i_d_1a1b1614733807b69868cd6a6f417af0ae" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>ComponentWithID</name></member>
       <member refid="classterminal_1_1_display_1a2dd6e6eb013b7d0a9302c321d5d75c4d" prot="private" virt="non-virtual"><scope>terminal::Display</scope><name>configListener</name></member>
-      <member refid="classterminal_1_1_display_1a22a44a31c7bc528a6a584408ddfc7cf8" prot="public" virt="virtual"><scope>terminal::Display</scope><name>copySelection</name></member>
+      <member refid="classterminal_1_1_display_1ae8057b64f9373f3ca63f69edb1e7dc9a" prot="public" virt="virtual"><scope>terminal::Display</scope><name>copySelection</name></member>
       <member refid="classterminal_1_1_display_1ae191378e54e5671c8f04a878881bcbf1aedcf556d8c0c7b2c66f6e1c58bf5a3ac" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>cursorColourId</name></member>
-      <member refid="classterminal_1_1_display_1aba2b9e271d38ad4e5268333aaac31d8d" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>Display</name></member>
-      <member refid="classterminal_1_1_display_1aa9aa883d0643ce237cd9f3f39e2a38f7" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>enterOpenFileMode</name></member>
-      <member refid="classterminal_1_1_display_1a51e40f907d1725afc433513c8b5e2bc1" prot="public" virt="virtual"><scope>terminal::Display</scope><name>enterSelectionMode</name></member>
-      <member refid="classterminal_1_1_display_1a802ea0d464c73e490108e174c75009be" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>exitSelectionMode</name></member>
-      <member refid="classterminal_1_1_display_1aff07d87262395ee3597d012cbae48b57" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>focusGained</name></member>
-      <member refid="classterminal_1_1_display_1ad16cf74242003393eb446e80586cca69" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>getHintPage</name></member>
-      <member refid="classterminal_1_1_display_1a79e9528da6877aa69600dc0db4ab6686" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>getHintTotalPages</name></member>
-      <member refid="classterminal_1_1_display_1afb467cdeee6e7bed23e32fcc1a31be38" prot="public" virt="virtual"><scope>terminal::Display</scope><name>getPaneType</name></member>
+      <member refid="classterminal_1_1_display_1a795559c55785fb2637b1a3b873d84515" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>Display</name></member>
+      <member refid="classterminal_1_1_display_1afaa5bfe12b7aa78514c69ffbf967b3e9" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>enterOpenFileMode</name></member>
+      <member refid="classterminal_1_1_display_1a1f6b51c111d5267023843324b21eff34" prot="public" virt="virtual"><scope>terminal::Display</scope><name>enterSelectionMode</name></member>
+      <member refid="classterminal_1_1_display_1af6f874a38acda8584b9c43e91d68de74" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>exitSelectionMode</name></member>
+      <member refid="classterminal_1_1_display_1abd20e1e977ffafcb77224badb70d482d" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>focusGained</name></member>
+      <member refid="classterminal_1_1_display_1a359fd222637999defeba69ef99d956a0" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>getHintPage</name></member>
+      <member refid="classterminal_1_1_display_1a754b3cf1a3999dd40f68973ea0912fb9" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>getHintTotalPages</name></member>
+      <member refid="classterminal_1_1_display_1a2e77bd710b79769f795c1a09d65775e9" prot="public" virt="virtual"><scope>terminal::Display</scope><name>getPaneType</name></member>
       <member refid="classterminal_1_1_display_1a828a78229475e8213a7753f212806fbc" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>getProcessor</name></member>
       <member refid="structjam_1_1_value_tree_1_1_component_1af113c64ae0452249b0ebf97fbdb8c0a8" prot="public" virt="virtual"><scope>terminal::Display</scope><name>getValueTree</name></member>
-      <member refid="classterminal_1_1_display_1a858679ef9dc232b5406fe94c5f6c79cb" prot="public" virt="virtual"><scope>terminal::Display</scope><name>hasSelection</name></member>
+      <member refid="classterminal_1_1_display_1af394e5c42a3c90f3fc56e3e4c54903a4" prot="public" virt="virtual"><scope>terminal::Display</scope><name>hasSelection</name></member>
       <member refid="classterminal_1_1_display_1ae191378e54e5671c8f04a878881bcbf1a00194958321be2f16223ff149530cbf9" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>hintLabelBgColourId</name></member>
       <member refid="classterminal_1_1_display_1ae191378e54e5671c8f04a878881bcbf1ab9748aac2975feda9bfcfc6d287fa875" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>hintLabelFgColourId</name></member>
       <member refid="classterminal_1_1_display_1a56902129be2ac08d4fd6b026387f3c30" prot="private" virt="non-virtual"><scope>terminal::Display</scope><name>input</name></member>
-      <member refid="classterminal_1_1_display_1a20094a4c7056ec2091558137651a614b" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>isInSelectionMode</name></member>
-      <member refid="classterminal_1_1_display_1ac7671d2f5e124fe1d0002c19440229fd" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>keyPressed</name></member>
+      <member refid="classterminal_1_1_display_1a0bbc49c8f9bc2657350bf484d230e2ce" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>isInSelectionMode</name></member>
+      <member refid="classterminal_1_1_display_1a0b0738075a51a67a57b47b47890dffb3" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>keyPressed</name></member>
       <member refid="classterminal_1_1_display_1aa29d50a3ba2b5ac9b6a1f6921189f31b" prot="private" virt="non-virtual"><scope>terminal::Display</scope><name>linkManager</name></member>
       <member refid="classterminal_1_1_display_1a433ce38b90249658cdee6201a0cd0b86" prot="private" virt="non-virtual"><scope>terminal::Display</scope><name>liveTailExtent</name></member>
       <member refid="classterminal_1_1_display_1a76b9f59f3f9b03f6b34d92f73e38b657" prot="private" virt="non-virtual"><scope>terminal::Display</scope><name>mouse</name></member>
-      <member refid="classterminal_1_1_display_1a601d4f2075e743c2757ede96e1c200dd" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>mouseDoubleClick</name></member>
-      <member refid="classterminal_1_1_display_1aad5cb90dff1a5da0b038c4d508ebff7d" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>mouseDown</name></member>
-      <member refid="classterminal_1_1_display_1a9b83dcb0b85f61952747b2c9c561e31d" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>mouseDrag</name></member>
-      <member refid="classterminal_1_1_display_1a818cf50c6edd518f5c383ca09ae8b5e2" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>mouseMove</name></member>
-      <member refid="classterminal_1_1_display_1ab28c97970e1f0bc8137613d4f12d4416" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>mouseUp</name></member>
+      <member refid="classterminal_1_1_display_1ab8d3ef20d471f8f820df3bc72e1b7422" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>mouseDoubleClick</name></member>
+      <member refid="classterminal_1_1_display_1a9f021c3a8e14f6082c0892529c76cac1" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>mouseDown</name></member>
+      <member refid="classterminal_1_1_display_1a5842e4fc854cec2d5bfd1c065596d052" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>mouseDrag</name></member>
+      <member refid="classterminal_1_1_display_1ad63a8688a5f8134792125bb6850c3aaa" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>mouseMove</name></member>
+      <member refid="classterminal_1_1_display_1a849a0f93e5fca3755cf5f150b2bcd022" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>mouseUp</name></member>
       <member refid="structjam_1_1_value_tree_1_1_component_1ab587799358050ce53720ef28f33e01eb" prot="protected" virt="non-virtual"><scope>terminal::Display</scope><name>node</name></member>
       <member refid="structjam_1_1_value_tree_1_1_component_1ae5c294c6f2e32f37ca3fea0030062da4" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>onAttachment</name></member>
       <member refid="class_pane_view_1aca153b6096a1356c483d81f2dc081491" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>PaneView</name></member>
-      <member refid="classterminal_1_1_display_1a72c3a3308d4683cf57ef4ce35c7c85b0" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>pasteClipboard</name></member>
+      <member refid="classterminal_1_1_display_1a6d0e0d189c561afe4f7bff7a1d0cfe27" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>pasteClipboard</name></member>
       <member refid="classterminal_1_1_display_1ac9742b57e514bca8ba57639a1b28928f" prot="private" virt="non-virtual"><scope>terminal::Display</scope><name>processor</name></member>
-      <member refid="classterminal_1_1_display_1afd5758511197f47a6bf7fb96d9886b5a" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>resized</name></member>
+      <member refid="classterminal_1_1_display_1a82fd0968bf27d37e421cae3489d14bb3" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>resized</name></member>
       <member refid="classterminal_1_1_display_1ae191378e54e5671c8f04a878881bcbf1a9782dc018263b1e8947ea35bf84e8bc1" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>selectionColourId</name></member>
       <member refid="classterminal_1_1_display_1ae191378e54e5671c8f04a878881bcbf1a2b81934748fc39c35826b14d142b0901" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>selectionCursorColourId</name></member>
       <member refid="classterminal_1_1_display_1a84cccc586dafd4010281887d9c5a8a86" prot="private" virt="non-virtual"><scope>terminal::Display</scope><name>session</name></member>
       <member refid="classterminal_1_1_display_1ab4df5fcfe2827a6f52aaae7d48935bb7" prot="private" virt="non-virtual"><scope>terminal::Display</scope><name>state</name></member>
-      <member refid="classterminal_1_1_display_1a96f58201d64de70c95725f3ec9f44676" prot="private" virt="non-virtual"><scope>terminal::Display</scope><name>valueTreePropertyChanged</name></member>
-      <member refid="classterminal_1_1_display_1a3d6f1c19739fa330d758951a7be249dd" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>writeToPty</name></member>
+      <member refid="classterminal_1_1_display_1a03eba79fe456af4968d7f483d9f240f0" prot="private" virt="non-virtual"><scope>terminal::Display</scope><name>valueTreePropertyChanged</name></member>
+      <member refid="classterminal_1_1_display_1a49d1389c5e60067c7c4a07194347a507" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>writeToPty</name></member>
       <member refid="structjam_1_1_value_tree_1_1_component_1a48477791e420a062998e98410e699180" prot="public" virt="virtual"><scope>terminal::Display</scope><name>~Component</name></member>
-      <member refid="classterminal_1_1_display_1a33d13f29e268c4641b6d79f077bab78a" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>~Display</name></member>
+      <member refid="classterminal_1_1_display_1accefc1db87d2bb3984c7aed643255470" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>~Display</name></member>
       <member refid="class_pane_view_1ac9f88cfd0c1888888e26a1a1e7a18a1f" prot="public" virt="non-virtual"><scope>terminal::Display</scope><name>~PaneView</name></member>
     </listofallmembers>
   </compounddef>

@@ -749,8 +749,6 @@
         <link refid="structterminal_1_1_model"/>
         <childnode refid="16" relation="public-inheritance">
         </childnode>
-        <childnode refid="2" relation="private-inheritance">
-        </childnode>
         <childnode refid="22" relation="usage">
           <edgelabel>rowDirtyFlags</edgelabel>
         </childnode>

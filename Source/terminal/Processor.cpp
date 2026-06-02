@@ -243,15 +243,18 @@ juce::String Processor::encodeKeyPress (const juce::KeyPress& key) const noexcep
     juce::String seq;
 
 #if JUCE_WINDOWS
-    if (state.getMode (id::win32InputMode))
+    const juce::ValueTree win32Modes { state.getChildWithName (id::MODES) };
+    const bool win32Input { static_cast<int> (jam::ValueTree::getValueFromChildWithID (win32Modes, id::win32InputMode).getValue()) != 0 };
+    if (win32Input)
     {
         seq = Keyboard::encodeWin32Input (key);
     }
     else
 #endif
     {
-        const bool applicationCursor { state.getMode (id::applicationCursor) };
-        const int activeScr { state.getActiveScreen() };
+        const juce::ValueTree modNodes { state.getChildWithName (id::MODES) };
+        const bool applicationCursor { static_cast<int> (jam::ValueTree::getValueFromChildWithID (modNodes, id::applicationCursor).getValue()) != 0 };
+        const int activeScr { static_cast<int> (jam::ValueTree::getValueFromChildWithID (state.getRootTree(), id::activeScreen).getValue()) };
         const juce::Identifier kbScreenId { Map::Screen::getContext()->get (activeScr) };
         auto kbScreenNode { state.getChildWithName (kbScreenId) };
         const uint32_t keyboardFlags { static_cast<uint32_t> (
@@ -275,7 +278,8 @@ juce::String Processor::encodePaste (const juce::String& text) const noexcept
 
     if (text.isNotEmpty())
     {
-        const bool bracketed { state.getMode (id::bracketedPaste) };
+        const juce::ValueTree pasteModNodes { state.getChildWithName (id::MODES) };
+        const bool bracketed { static_cast<int> (jam::ValueTree::getValueFromChildWithID (pasteModNodes, id::bracketedPaste).getValue()) != 0 };
 
         if (bracketed)
         {
@@ -304,7 +308,8 @@ juce::String Processor::encodeFocusEvent (bool gained) const noexcept
 {
     juce::String result;
 
-    if (state.getMode (id::focusEvents))
+    const juce::ValueTree focusModNodes { state.getChildWithName (id::MODES) };
+    if (static_cast<int> (jam::ValueTree::getValueFromChildWithID (focusModNodes, id::focusEvents).getValue()) != 0)
     {
         const char seq[4] { '\x1b', '[', gained ? 'I' : 'O', '\0' };
         result = juce::String (seq);

@@ -21,6 +21,9 @@ terminal::Display::Display (terminal::Session& sessionToUse)
     , input (sessionToUse.getProcessor(), linkManager)
     , mouse (sessionToUse.getProcessor(), 0, 0, linkManager)
 {
+    // Register DISPLAY node properties as atomics — replaces the removed self-listener path.
+    jam::ValueTree::Attachment::registerAtomics (state, attachment.getNode());
+
     // Parent CodeView (owned by Session) for rendering via the Component hierarchy.
     addAndMakeVisible (session.getTextEditor());
     session.getTextEditor().addKeyListener (this);
@@ -90,7 +93,7 @@ void terminal::Display::valueTreePropertyChanged (juce::ValueTree& tree, const j
     if (property == id::value and tree.getType() == jam::Model::PARAM)
     {
         const juce::Identifier paramId { tree.getProperty (id::id).toString() };
-        const int activeScreen { state.getActiveScreen() };
+        const int activeScreen { static_cast<int> (jam::ValueTree::getValueFromChildWithID (state.getRootTree(), id::activeScreen).getValue()) };
 
         if (paramId == id::screenDirty or paramId == id::activeScreen)
         {
@@ -179,13 +182,13 @@ void terminal::Display::valueTreePropertyChanged (juce::ValueTree& tree, const j
 }
 
 void terminal::Display::applyZoom (float) noexcept {}
-void terminal::Display::enterSelectionMode() noexcept { state.setModalType (terminal::ModalType::selection); }
+void terminal::Display::enterSelectionMode() noexcept { AppModel::getContext()->setModalType (static_cast<int> (terminal::ModalType::selection)); }
 
 void terminal::Display::copySelection() noexcept
 {
     // Stub — text extraction pending Screen grid accessor.
     juce::SystemClipboard::copyTextToClipboard ({});
-    state.setModalType (terminal::ModalType::none);
+    AppModel::getContext()->setModalType (static_cast<int> (terminal::ModalType::none));
 }
 
 bool terminal::Display::hasSelection() const noexcept

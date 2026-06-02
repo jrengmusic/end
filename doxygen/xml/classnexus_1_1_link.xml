@@ -76,9 +76,9 @@
         <inbodydescription>
         </inbodydescription>
         <location file="nexus/Link.h" line="226" column="24" bodyfile="nexus/Link.h" bodystart="226" bodyend="-1"/>
-        <referencedby refid="classnexus_1_1_link_1a95544f46cbd78a386671c2339ff34eb7" compoundref="_link_8cpp" startline="478" endline="507">valueTreeChildAdded</referencedby>
-        <referencedby refid="classnexus_1_1_link_1aefdeb1dd11d616364fa93ae4959e5648" compoundref="_link_8cpp" startline="517" endline="536">valueTreeChildRemoved</referencedby>
-        <referencedby refid="classnexus_1_1_link_1a6d550706014560c082ba133c802f5501" compoundref="_link_8cpp" startline="548" endline="572">valueTreePropertyChanged</referencedby>
+        <referencedby refid="classnexus_1_1_link_1a95544f46cbd78a386671c2339ff34eb7" compoundref="_link_8cpp" startline="478" endline="511">valueTreeChildAdded</referencedby>
+        <referencedby refid="classnexus_1_1_link_1aefdeb1dd11d616364fa93ae4959e5648" compoundref="_link_8cpp" startline="521" endline="540">valueTreeChildRemoved</referencedby>
+        <referencedby refid="classnexus_1_1_link_1a6d550706014560c082ba133c802f5501" compoundref="_link_8cpp" startline="552" endline="576">valueTreePropertyChanged</referencedby>
         <referencedby refid="classnexus_1_1_link_1aee21667f21bc2d0d3106f12783ff81b8" compoundref="_link_8cpp" startline="35" endline="44">~Link</referencedby>
       </memberdef>
     </sectiondef>
@@ -289,7 +289,7 @@ Payload: uuid (length-prefixed) | raw input bytes.</para>
         <references refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558aa43c1b0aa53a0c908810c06ab1ff3967" compoundref="_message_8h" startline="54">nexus::input</references>
         <references refid="classnexus_1_1_link_1a4a8a5ab27bb9640d9db34f4712277a52" compoundref="_link_8cpp" startline="245" endline="248">sendPdu</references>
         <references refid="structjam_1_1_binary_codec_1a203a1f410e86b1c1868ef8227772bba6">jam::BinaryCodec::writeString</references>
-        <referencedby refid="classnexus_1_1_link_1a95544f46cbd78a386671c2339ff34eb7" compoundref="_link_8cpp" startline="478" endline="507">valueTreeChildAdded</referencedby>
+        <referencedby refid="classnexus_1_1_link_1a95544f46cbd78a386671c2339ff34eb7" compoundref="_link_8cpp" startline="478" endline="511">valueTreeChildAdded</referencedby>
       </memberdef>
       <memberdef kind="function" id="classnexus_1_1_link_1a9b023e5e8784c314aa35cfd85a3797f4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -352,7 +352,7 @@ Payload: uuid (length-prefixed) | cols (uint16_t LE) | rows (uint16_t LE).</para
         <references refid="classnexus_1_1_link_1a4a8a5ab27bb9640d9db34f4712277a52" compoundref="_link_8cpp" startline="245" endline="248">sendPdu</references>
         <references refid="structjam_1_1_binary_codec_1a203a1f410e86b1c1868ef8227772bba6">jam::BinaryCodec::writeString</references>
         <references refid="structjam_1_1_binary_codec_1adf11734f6b3f39f491a6f79896e5753f">jam::BinaryCodec::writeUint16</references>
-        <referencedby refid="classnexus_1_1_link_1a6d550706014560c082ba133c802f5501" compoundref="_link_8cpp" startline="548" endline="572">valueTreePropertyChanged</referencedby>
+        <referencedby refid="classnexus_1_1_link_1a6d550706014560c082ba133c802f5501" compoundref="_link_8cpp" startline="552" endline="576">valueTreePropertyChanged</referencedby>
       </memberdef>
       <memberdef kind="function" id="classnexus_1_1_link_1ae912008a21a2072be4dafb1c96c0c7da" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -428,7 +428,7 @@ Payload: cwd (length-prefixed) | uuid (length-prefixed) | cols (uint16_t LE) | r
         <references refid="classnexus_1_1_link_1a4a8a5ab27bb9640d9db34f4712277a52" compoundref="_link_8cpp" startline="245" endline="248">sendPdu</references>
         <references refid="structjam_1_1_binary_codec_1a203a1f410e86b1c1868ef8227772bba6">jam::BinaryCodec::writeString</references>
         <references refid="structjam_1_1_binary_codec_1adf11734f6b3f39f491a6f79896e5753f">jam::BinaryCodec::writeUint16</references>
-        <referencedby refid="classnexus_1_1_link_1a95544f46cbd78a386671c2339ff34eb7" compoundref="_link_8cpp" startline="478" endline="507">valueTreeChildAdded</referencedby>
+        <referencedby refid="classnexus_1_1_link_1a95544f46cbd78a386671c2339ff34eb7" compoundref="_link_8cpp" startline="478" endline="511">valueTreeChildAdded</referencedby>
       </memberdef>
       <memberdef kind="function" id="classnexus_1_1_link_1a0ec23dd454adbb8ec26e654a6193b127" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -467,7 +467,7 @@ Payload: uuid (length-prefixed string).</para>
         <references refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558a6c74b0d01e23e4df356de8e12358221e" compoundref="_message_8h" startline="55">nexus::killSession</references>
         <references refid="classnexus_1_1_link_1a4a8a5ab27bb9640d9db34f4712277a52" compoundref="_link_8cpp" startline="245" endline="248">sendPdu</references>
         <references refid="structjam_1_1_binary_codec_1a203a1f410e86b1c1868ef8227772bba6">jam::BinaryCodec::writeString</references>
-        <referencedby refid="classnexus_1_1_link_1aefdeb1dd11d616364fa93ae4959e5648" compoundref="_link_8cpp" startline="517" endline="536">valueTreeChildRemoved</referencedby>
+        <referencedby refid="classnexus_1_1_link_1aefdeb1dd11d616364fa93ae4959e5648" compoundref="_link_8cpp" startline="521" endline="540">valueTreeChildRemoved</referencedby>
       </memberdef>
       <memberdef kind="function" id="classnexus_1_1_link_1a4a8a5ab27bb9640d9db34f4712277a52" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -638,14 +638,19 @@ Reads the port from the <computeroutput>.<ref refid="namespacenexus" kindref="co
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="nexus/Link.h" line="171" column="10" bodyfile="nexus/Link.cpp" bodystart="478" bodyend="507"/>
+        <location file="nexus/Link.h" line="171" column="10" bodyfile="nexus/Link.cpp" bodystart="478" bodyend="511"/>
         <references refid="classnexus_1_1_link_1aa76caa2b70e6a7e2da4598bd9484b1d7" compoundref="_link_8h" startline="226">clientSessionStateRoots</references>
+        <references refid="classjam_1_1_code_view_1a93a5ced4b1717717dac8f5d07a4a4f9ca921134cac19521591ed4ad00784c9ea9">jam::CodeView::codeViewId</references>
+        <references refid="namespaceterminal_1_1id_1a0d551d759a87363c22a6d1712cf26cd9" compoundref="_identifier_8h" startline="157" endline="157">terminal::id::cwd</references>
         <references refid="class_nexus_1a9ad908d99f7c23d12cafae8926008656" compoundref="_nexus_8cpp" startline="172" endline="184">Nexus::get</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Nexus &gt;::getContext</references>
         <references refid="class_nexus_1ade6dadb309a76f68f71c07e0cfbfd91a" compoundref="_nexus_8cpp" startline="191" endline="194">Nexus::has</references>
         <references refid="structjam_1_1_i_d_1a94afe032a3af21e6f22fb73c9625b60a">jam::ID::id</references>
+        <references refid="classjam_1_1_code_view_1a6360f1b4243ed6ade7dde533ed2624bb">jam::CodeView::properties</references>
         <references refid="classnexus_1_1_link_1ae912008a21a2072be4dafb1c96c0c7da" compoundref="_link_8cpp" startline="212" endline="220">sendCreateSession</references>
         <references refid="classnexus_1_1_link_1a409c102ee72ccf7930a20a3fafe22613" compoundref="_link_8cpp" startline="178" endline="187">sendInput</references>
+        <references refid="structjam_1_1_cell_1_1_rectangle_1a746f7df97a44a4bbd261a8362b7f696a">jam::Cell::Rectangle::unpack</references>
+        <references refid="classjam_1_1_code_view_1a93a5ced4b1717717dac8f5d07a4a4f9ca135d88d1984394ef6f9b2da476de4e03">jam::CodeView::viewportId</references>
         <references refid="namespaceterminal_1_1id_1af5e7d65d07f123d4560efebf453d21f8" compoundref="_identifier_8h" startline="334" endline="334">terminal::id::writeInput</references>
       </memberdef>
       <memberdef kind="function" id="classnexus_1_1_link_1aefdeb1dd11d616364fa93ae4959e5648" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -677,7 +682,7 @@ Reads the port from the <computeroutput>.<ref refid="namespacenexus" kindref="co
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="nexus/Link.h" line="172" column="10" bodyfile="nexus/Link.cpp" bodystart="517" bodyend="536"/>
+        <location file="nexus/Link.h" line="172" column="10" bodyfile="nexus/Link.cpp" bodystart="521" bodyend="540"/>
         <references refid="classnexus_1_1_link_1aa76caa2b70e6a7e2da4598bd9484b1d7" compoundref="_link_8h" startline="226">clientSessionStateRoots</references>
         <references refid="structjam_1_1_i_d_1a94afe032a3af21e6f22fb73c9625b60a">jam::ID::id</references>
         <references refid="classnexus_1_1_link_1a0ec23dd454adbb8ec26e654a6193b127" compoundref="_link_8cpp" startline="229" endline="234">sendRemove</references>
@@ -707,7 +712,7 @@ Reads the port from the <computeroutput>.<ref refid="namespacenexus" kindref="co
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="nexus/Link.h" line="173" column="10" bodyfile="nexus/Link.cpp" bodystart="548" bodyend="572"/>
+        <location file="nexus/Link.h" line="173" column="10" bodyfile="nexus/Link.cpp" bodystart="552" bodyend="576"/>
         <references refid="classnexus_1_1_link_1aa76caa2b70e6a7e2da4598bd9484b1d7" compoundref="_link_8h" startline="226">clientSessionStateRoots</references>
         <references refid="classjam_1_1_code_view_1a93a5ced4b1717717dac8f5d07a4a4f9ca921134cac19521591ed4ad00784c9ea9">jam::CodeView::codeViewId</references>
         <references refid="classjam_1_1_code_view_1a6360f1b4243ed6ade7dde533ed2624bb">jam::CodeView::properties</references>

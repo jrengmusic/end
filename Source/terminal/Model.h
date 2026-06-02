@@ -62,7 +62,6 @@ using ::SelectionType;
  */
 struct Model
     : public jam::Model
-    , private juce::ValueTree::Listener
 {
     /**
      * @brief Constructs the Model, walks Parameters.xml via buildLayout,
@@ -90,24 +89,6 @@ struct Model
      */
     void addTextParameter (const juce::Identifier& id, juce::ValueTree& rootNode) noexcept;
 
-    /** @brief Registers atomic mirrors for all int properties on a grafted node.
-     *         Group key = node type. Called automatically on child addition. */
-    void registerNodeAtomics (juce::ValueTree& node) noexcept;
-
-    //==========================================================================
-    // ValueTree access — MESSAGE THREAD only
-    //==========================================================================
-
-    bool getMode (const juce::Identifier& id) const noexcept;
-    int getActiveScreen() const noexcept;
-
-    cell getCols() const noexcept;
-    cell getVisibleRows() const noexcept;
-
-    juce::String getTitle() const noexcept;
-    juce::String getCwd() const noexcept;
-    juce::String getForegroundProcess() const noexcept;
-
     //==========================================================================
     // Reader-thread setters — lock-free, noexcept
     //==========================================================================
@@ -132,17 +113,12 @@ struct Model
     void setOutputBlockEnd (cell row) noexcept;
     void extendOutputBlock (cell row) noexcept;
     void setPromptRow (cell row) noexcept;
-    cell getOutputBlockTop() const noexcept;
-    cell getOutputBlockBottom() const noexcept;
-    cell getPromptRow() const noexcept;
-    bool hasOutputBlock() const noexcept;
 
     // Shell exit signal
     void setShellExited (bool exited) noexcept;
 
     // Snapshot signal
     void setSnapshotDirty() noexcept;
-    bool consumeSnapshotDirty() noexcept;
 
     // Paste echo gate
     void setPasteEchoGate (int bytes) noexcept;
@@ -151,23 +127,13 @@ struct Model
 
     // Sync output (mode 2026)
     void setSyncOutput (bool active) noexcept;
-    bool isSyncOutputActive() const noexcept;
 
     // Preview split-viewport
     void dismissPreview() noexcept;
-    bool isPreviewActive() const noexcept;
-    int getSplitCol() const noexcept;
 
     // Hints
     void setHintPage (int page) noexcept;
-    int getHintPage() const noexcept;
     void setHintTotalPages (int total) noexcept;
-    int getHintTotalPages() const noexcept;
-
-    // Modal
-    void setModalType (ModalType type) noexcept;
-    ModalType getModalType() const noexcept;
-    bool isModal() const noexcept;
 
     // Cross-thread read/write — any thread, lock-free.
     void storeValue (const juce::Identifier& groupId, const juce::Identifier& paramId, int value) noexcept;
@@ -182,12 +148,9 @@ struct Model
     bool refresh() noexcept;
 
 private:
-    juce::ValueTree listenedTree;
     std::unique_ptr<std::atomic<int>[]> rowDirtyFlags;
     int rowDirtyCount { 0 };
     static int resolveLayoutDefault (const juce::XmlElement& elem) noexcept;
-
-    void valueTreeChildAdded (juce::ValueTree& parent, juce::ValueTree& child) override;
 
     void storeTextValue (const juce::Identifier& groupId, const juce::Identifier& paramId, const char* ptr) noexcept;
 

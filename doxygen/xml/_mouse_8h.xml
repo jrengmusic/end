@@ -494,7 +494,7 @@
 <para>Handles all mouse input routing for a terminal processor. </para>
     </briefdescription>
     <detaileddescription>
-<para><ref refid="classterminal_1_1_mouse" kindref="compound">terminal::Mouse</ref> centralises all mouse event logic previously spread across <ref refid="class_display" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Display</ref>: PTY forwarding, selection anchor/drag, link hit-testing, scroll accumulation for smooth trackpad input, and word/line selection.</para>
+<para><ref refid="classterminal_1_1_mouse" kindref="compound">terminal::Mouse</ref> centralises all mouse event logic previously spread across Display: PTY forwarding, selection anchor/drag, link hit-testing, scroll accumulation for smooth trackpad input, and word/line selection.</para>
 <para>Selection state is written to <ref refid="classTextEditor" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">TextEditor</ref>&apos;s grafted node. <computeroutput>ScreenSelection</computeroutput> is rebuilt on the message thread during render from those node params — Mouse never writes to <computeroutput>ScreenSelection</computeroutput> directly.</para>
 <sect1 id="_mouse_8h_1autotoc_md48_1s1"><sect2 id="_mouse_8h_1autotoc_md48_1s2"><sect3 id="_mouse_8h_1autotoc_md48">
 <title>Coordinate convention</title><para><ref refid="classGrid" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Grid</ref> positions are <bold>visible-row</bold> coordinates (0 = topmost visible row). Selection state operates in visible-row coordinates, matching the keyboard selection path in Input.</para>

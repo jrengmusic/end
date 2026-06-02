@@ -17,9 +17,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/CharProps.h" line="362" column="14" bodyfile="terminal/CharProps.h" bodystart="362" bodyend="362"/>
-        <referencedby refid="struct_grapheme_segmentation_result_1a14f8e5ed66e56f98705971672fde5883" compoundref="_char_props_8h" startline="370" endline="370">addToCurrentCell</referencedby>
-        <referencedby refid="struct_grapheme_segmentation_result_1a459a1ac9c9b70818f8318ed3ea84539d" compoundref="_char_props_8h" startline="377" endline="377">state</referencedby>
+        <location file="terminal/CharProps.h" line="349" column="14" bodyfile="terminal/CharProps.h" bodystart="349" bodyend="349"/>
+        <referencedby refid="struct_grapheme_segmentation_result_1a14f8e5ed66e56f98705971672fde5883" compoundref="_char_props_8h" startline="357" endline="357">addToCurrentCell</referencedby>
+        <referencedby refid="struct_grapheme_segmentation_result_1a459a1ac9c9b70818f8318ed3ea84539d" compoundref="_char_props_8h" startline="364" endline="364">state</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">
@@ -39,8 +39,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/CharProps.h" line="370" column="10" bodyfile="terminal/CharProps.h" bodystart="370" bodyend="370"/>
-        <references refid="struct_grapheme_segmentation_result_1a5f67942bdf76dcd24367786898beb56d" compoundref="_char_props_8h" startline="362" endline="362">val</references>
+        <location file="terminal/CharProps.h" line="357" column="10" bodyfile="terminal/CharProps.h" bodystart="357" bodyend="357"/>
+        <references refid="struct_grapheme_segmentation_result_1a5f67942bdf76dcd24367786898beb56d" compoundref="_char_props_8h" startline="349" endline="349">val</references>
       </memberdef>
       <memberdef kind="function" id="struct_grapheme_segmentation_result_1a459a1ac9c9b70818f8318ed3ea84539d" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
         <type>uint16_t</type>
@@ -58,8 +58,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/CharProps.h" line="377" column="14" bodyfile="terminal/CharProps.h" bodystart="377" bodyend="377"/>
-        <references refid="struct_grapheme_segmentation_result_1a5f67942bdf76dcd24367786898beb56d" compoundref="_char_props_8h" startline="362" endline="362">val</references>
+        <location file="terminal/CharProps.h" line="364" column="14" bodyfile="terminal/CharProps.h" bodystart="364" bodyend="364"/>
+        <references refid="struct_grapheme_segmentation_result_1a5f67942bdf76dcd24367786898beb56d" compoundref="_char_props_8h" startline="349" endline="349">val</references>
       </memberdef>
     </sectiondef>
     <briefdescription>
@@ -85,7 +85,7 @@
 </simplesect>
 </para>
     </detaileddescription>
-    <location file="terminal/CharProps.h" line="360" column="1" bodyfile="terminal/CharProps.h" bodystart="361" bodyend="378"/>
+    <location file="terminal/CharProps.h" line="347" column="1" bodyfile="terminal/CharProps.h" bodystart="348" bodyend="365"/>
     <listofallmembers>
       <member refid="struct_grapheme_segmentation_result_1a14f8e5ed66e56f98705971672fde5883" prot="public" virt="non-virtual"><scope>GraphemeSegmentationResult</scope><name>addToCurrentCell</name></member>
       <member refid="struct_grapheme_segmentation_result_1a459a1ac9c9b70818f8318ed3ea84539d" prot="public" virt="non-virtual"><scope>GraphemeSegmentationResult</scope><name>state</name></member>

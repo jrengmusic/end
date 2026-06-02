@@ -502,31 +502,31 @@
     <member refid="classterminal_1_1_display_1a56902129be2ac08d4fd6b026387f3c30" kind="variable"><name>input</name></member>
     <member refid="classterminal_1_1_display_1a76b9f59f3f9b03f6b34d92f73e38b657" kind="variable"><name>mouse</name></member>
     <member refid="classterminal_1_1_display_1a2dd6e6eb013b7d0a9302c321d5d75c4d" kind="variable"><name>configListener</name></member>
-    <member refid="classterminal_1_1_display_1aba2b9e271d38ad4e5268333aaac31d8d" kind="function"><name>Display</name></member>
-    <member refid="classterminal_1_1_display_1a33d13f29e268c4641b6d79f077bab78a" kind="function"><name>~Display</name></member>
-    <member refid="classterminal_1_1_display_1afb467cdeee6e7bed23e32fcc1a31be38" kind="function"><name>getPaneType</name></member>
-    <member refid="classterminal_1_1_display_1aaafdfb7ab2395946be6b70e0e189bcf8" kind="function"><name>applyZoom</name></member>
-    <member refid="classterminal_1_1_display_1a51e40f907d1725afc433513c8b5e2bc1" kind="function"><name>enterSelectionMode</name></member>
-    <member refid="classterminal_1_1_display_1a22a44a31c7bc528a6a584408ddfc7cf8" kind="function"><name>copySelection</name></member>
-    <member refid="classterminal_1_1_display_1a858679ef9dc232b5406fe94c5f6c79cb" kind="function"><name>hasSelection</name></member>
-    <member refid="classterminal_1_1_display_1a20094a4c7056ec2091558137651a614b" kind="function"><name>isInSelectionMode</name></member>
-    <member refid="classterminal_1_1_display_1a802ea0d464c73e490108e174c75009be" kind="function"><name>exitSelectionMode</name></member>
-    <member refid="classterminal_1_1_display_1aa9aa883d0643ce237cd9f3f39e2a38f7" kind="function"><name>enterOpenFileMode</name></member>
-    <member refid="classterminal_1_1_display_1a72c3a3308d4683cf57ef4ce35c7c85b0" kind="function"><name>pasteClipboard</name></member>
-    <member refid="classterminal_1_1_display_1a3d6f1c19739fa330d758951a7be249dd" kind="function"><name>writeToPty</name></member>
-    <member refid="classterminal_1_1_display_1ad16cf74242003393eb446e80586cca69" kind="function"><name>getHintPage</name></member>
-    <member refid="classterminal_1_1_display_1a79e9528da6877aa69600dc0db4ab6686" kind="function"><name>getHintTotalPages</name></member>
+    <member refid="classterminal_1_1_display_1a795559c55785fb2637b1a3b873d84515" kind="function"><name>Display</name></member>
+    <member refid="classterminal_1_1_display_1accefc1db87d2bb3984c7aed643255470" kind="function"><name>~Display</name></member>
+    <member refid="classterminal_1_1_display_1a2e77bd710b79769f795c1a09d65775e9" kind="function"><name>getPaneType</name></member>
+    <member refid="classterminal_1_1_display_1a63b26382f17289e78b18abc54275cebc" kind="function"><name>applyZoom</name></member>
+    <member refid="classterminal_1_1_display_1a1f6b51c111d5267023843324b21eff34" kind="function"><name>enterSelectionMode</name></member>
+    <member refid="classterminal_1_1_display_1ae8057b64f9373f3ca63f69edb1e7dc9a" kind="function"><name>copySelection</name></member>
+    <member refid="classterminal_1_1_display_1af394e5c42a3c90f3fc56e3e4c54903a4" kind="function"><name>hasSelection</name></member>
+    <member refid="classterminal_1_1_display_1a0bbc49c8f9bc2657350bf484d230e2ce" kind="function"><name>isInSelectionMode</name></member>
+    <member refid="classterminal_1_1_display_1af6f874a38acda8584b9c43e91d68de74" kind="function"><name>exitSelectionMode</name></member>
+    <member refid="classterminal_1_1_display_1afaa5bfe12b7aa78514c69ffbf967b3e9" kind="function"><name>enterOpenFileMode</name></member>
+    <member refid="classterminal_1_1_display_1a6d0e0d189c561afe4f7bff7a1d0cfe27" kind="function"><name>pasteClipboard</name></member>
+    <member refid="classterminal_1_1_display_1a49d1389c5e60067c7c4a07194347a507" kind="function"><name>writeToPty</name></member>
+    <member refid="classterminal_1_1_display_1a359fd222637999defeba69ef99d956a0" kind="function"><name>getHintPage</name></member>
+    <member refid="classterminal_1_1_display_1a754b3cf1a3999dd40f68973ea0912fb9" kind="function"><name>getHintTotalPages</name></member>
     <member refid="classterminal_1_1_display_1a828a78229475e8213a7753f212806fbc" kind="function"><name>getProcessor</name></member>
-    <member refid="classterminal_1_1_display_1afd5758511197f47a6bf7fb96d9886b5a" kind="function"><name>resized</name></member>
-    <member refid="classterminal_1_1_display_1aff07d87262395ee3597d012cbae48b57" kind="function"><name>focusGained</name></member>
-    <member refid="classterminal_1_1_display_1ac7671d2f5e124fe1d0002c19440229fd" kind="function"><name>keyPressed</name></member>
-    <member refid="classterminal_1_1_display_1aad5cb90dff1a5da0b038c4d508ebff7d" kind="function"><name>mouseDown</name></member>
-    <member refid="classterminal_1_1_display_1a601d4f2075e743c2757ede96e1c200dd" kind="function"><name>mouseDoubleClick</name></member>
-    <member refid="classterminal_1_1_display_1a9b83dcb0b85f61952747b2c9c561e31d" kind="function"><name>mouseDrag</name></member>
-    <member refid="classterminal_1_1_display_1ab28c97970e1f0bc8137613d4f12d4416" kind="function"><name>mouseUp</name></member>
-    <member refid="classterminal_1_1_display_1a818cf50c6edd518f5c383ca09ae8b5e2" kind="function"><name>mouseMove</name></member>
-    <member refid="classterminal_1_1_display_1a4d5c9e51f93d6251bd8cdf81b8a9bd75" kind="function"><name>applyFromAppModel</name></member>
-    <member refid="classterminal_1_1_display_1a96f58201d64de70c95725f3ec9f44676" kind="function"><name>valueTreePropertyChanged</name></member>
+    <member refid="classterminal_1_1_display_1a82fd0968bf27d37e421cae3489d14bb3" kind="function"><name>resized</name></member>
+    <member refid="classterminal_1_1_display_1abd20e1e977ffafcb77224badb70d482d" kind="function"><name>focusGained</name></member>
+    <member refid="classterminal_1_1_display_1a0b0738075a51a67a57b47b47890dffb3" kind="function"><name>keyPressed</name></member>
+    <member refid="classterminal_1_1_display_1a9f021c3a8e14f6082c0892529c76cac1" kind="function"><name>mouseDown</name></member>
+    <member refid="classterminal_1_1_display_1ab8d3ef20d471f8f820df3bc72e1b7422" kind="function"><name>mouseDoubleClick</name></member>
+    <member refid="classterminal_1_1_display_1a5842e4fc854cec2d5bfd1c065596d052" kind="function"><name>mouseDrag</name></member>
+    <member refid="classterminal_1_1_display_1a849a0f93e5fca3755cf5f150b2bcd022" kind="function"><name>mouseUp</name></member>
+    <member refid="classterminal_1_1_display_1ad63a8688a5f8134792125bb6850c3aaa" kind="function"><name>mouseMove</name></member>
+    <member refid="classterminal_1_1_display_1add336f50de49e963b5491ad266173662" kind="function"><name>applyFromAppModel</name></member>
+    <member refid="classterminal_1_1_display_1a03eba79fe456af4968d7f483d9f240f0" kind="function"><name>valueTreePropertyChanged</name></member>
   </compound>
   <compound refid="structlua_1_1_engine_1_1_display_callbacks" kind="struct"><name>lua::Engine::DisplayCallbacks</name>
     <member refid="structlua_1_1_engine_1_1_display_callbacks_1a54af7914bf506a0479e896cb808e9d75" kind="variable"><name>splitHorizontal</name></member>
@@ -1202,21 +1202,12 @@
     <member refid="classterminal_1_1_modal_window_1a09144f154716c78f450ad9f9effe624e" kind="function"><name>keyPressed</name></member>
   </compound>
   <compound refid="structterminal_1_1_model" kind="struct"><name>terminal::Model</name>
-    <member refid="structterminal_1_1_model_1ac251b9d586797bd952935e1f79aaafac" kind="variable"><name>listenedTree</name></member>
     <member refid="structterminal_1_1_model_1aec857d602404999be9e38047f195cc6c" kind="variable"><name>rowDirtyFlags</name></member>
     <member refid="structterminal_1_1_model_1a8f9bf2233d109cf4da3fdc8904b44c47" kind="variable"><name>rowDirtyCount</name></member>
     <member refid="structterminal_1_1_model_1a4a59e2e5bdad31dfced6e8f753dd4251" kind="variable"><name>textBuffer</name></member>
     <member refid="structterminal_1_1_model_1a427730d8b641247c8c4015b740f7c3c3" kind="function"><name>Model</name></member>
     <member refid="structterminal_1_1_model_1a5910f5e7a2b8f617cd42d07fa9d9d57b" kind="function"><name>~Model</name></member>
     <member refid="structterminal_1_1_model_1aef97b8774a8b4bd87be42862a1693c40" kind="function"><name>addTextParameter</name></member>
-    <member refid="structterminal_1_1_model_1a5a968e0265a15111364653f43364c782" kind="function"><name>registerNodeAtomics</name></member>
-    <member refid="structterminal_1_1_model_1a34ae5e9c536e91f0f0058bdbf3f6ef84" kind="function"><name>getMode</name></member>
-    <member refid="structterminal_1_1_model_1aded6fea0a6e67962a83f0b00f605d610" kind="function"><name>getActiveScreen</name></member>
-    <member refid="structterminal_1_1_model_1a735f6c3e59fb6898d1f750e2a9eab94f" kind="function"><name>getCols</name></member>
-    <member refid="structterminal_1_1_model_1a72a57e537581551b615687dabaa15c53" kind="function"><name>getVisibleRows</name></member>
-    <member refid="structterminal_1_1_model_1a87aa381a2183e84203b6e366f5ea9a03" kind="function"><name>getTitle</name></member>
-    <member refid="structterminal_1_1_model_1a25ba72627e3bd4ab113b200db5db3e94" kind="function"><name>getCwd</name></member>
-    <member refid="structterminal_1_1_model_1a5ed4c561122970956425e400560a2b54" kind="function"><name>getForegroundProcess</name></member>
     <member refid="structterminal_1_1_model_1a3a0252dd50dd3de170de4f60cf00a6e6" kind="function"><name>setId</name></member>
     <member refid="structterminal_1_1_model_1ab66e64775abf6c51f8250df8c50461cb" kind="function"><name>setScreen</name></member>
     <member refid="structterminal_1_1_model_1ad500ddcb5ed1166edddc88c7b4e089c0" kind="function"><name>setMode</name></member>
@@ -1228,28 +1219,15 @@
     <member refid="structterminal_1_1_model_1af0e21e00d90bbc9b343143edccc328f4" kind="function"><name>setOutputBlockEnd</name></member>
     <member refid="structterminal_1_1_model_1a1bcc24d11a98aa621b738ce796a8cecc" kind="function"><name>extendOutputBlock</name></member>
     <member refid="structterminal_1_1_model_1a830c4954526c2fee16df30f8c213917f" kind="function"><name>setPromptRow</name></member>
-    <member refid="structterminal_1_1_model_1a7f3c8d52e5b62960ea217e70f83439d1" kind="function"><name>getOutputBlockTop</name></member>
-    <member refid="structterminal_1_1_model_1a9d77594f5ccf9ac9eb0b306b0fb2147d" kind="function"><name>getOutputBlockBottom</name></member>
-    <member refid="structterminal_1_1_model_1aac6ceeff8f0e530370b29d8dcf8be665" kind="function"><name>getPromptRow</name></member>
-    <member refid="structterminal_1_1_model_1a08662bcf8f5c5e2abbd0a5350dc09037" kind="function"><name>hasOutputBlock</name></member>
     <member refid="structterminal_1_1_model_1a2c0394042e5183dfd9c509f67b749c64" kind="function"><name>setShellExited</name></member>
     <member refid="structterminal_1_1_model_1abb78d85d14fe48e4a3e22c90360345a8" kind="function"><name>setSnapshotDirty</name></member>
-    <member refid="structterminal_1_1_model_1ab92732c6050593b13cf3d060f9755ef9" kind="function"><name>consumeSnapshotDirty</name></member>
     <member refid="structterminal_1_1_model_1a5de132a550efcc6f316a568e39355148" kind="function"><name>setPasteEchoGate</name></member>
     <member refid="structterminal_1_1_model_1a3ec5532dfaeb0582a45b350e17aea607" kind="function"><name>consumePasteEcho</name></member>
     <member refid="structterminal_1_1_model_1a75d2bb097066b5073e7b135d2ba08412" kind="function"><name>clearPasteEchoGate</name></member>
     <member refid="structterminal_1_1_model_1a9ae703cf77731ff7ca6af000feb05f84" kind="function"><name>setSyncOutput</name></member>
-    <member refid="structterminal_1_1_model_1aaca46e7c6a6408bce096a44ebbc48c55" kind="function"><name>isSyncOutputActive</name></member>
     <member refid="structterminal_1_1_model_1aad782d12a0ce3e431da6a125d053a174" kind="function"><name>dismissPreview</name></member>
-    <member refid="structterminal_1_1_model_1ae8d00e9ca1dc650b197c56cd055a36d7" kind="function"><name>isPreviewActive</name></member>
-    <member refid="structterminal_1_1_model_1a7b52321fc962b551dc053e138512494d" kind="function"><name>getSplitCol</name></member>
     <member refid="structterminal_1_1_model_1a530c92941be8fb977d50c971db120b20" kind="function"><name>setHintPage</name></member>
-    <member refid="structterminal_1_1_model_1a79c2f1763b4446d250dcd8cf8536f5e7" kind="function"><name>getHintPage</name></member>
     <member refid="structterminal_1_1_model_1aa943b54264f59c5d38862e3fbf9e54d9" kind="function"><name>setHintTotalPages</name></member>
-    <member refid="structterminal_1_1_model_1aac24f406754f3362c2b6bfa0af234ae0" kind="function"><name>getHintTotalPages</name></member>
-    <member refid="structterminal_1_1_model_1a6ec8eb9951670cab685bccb43b092c3d" kind="function"><name>setModalType</name></member>
-    <member refid="structterminal_1_1_model_1a53828b6636d849052725267c32d768a3" kind="function"><name>getModalType</name></member>
-    <member refid="structterminal_1_1_model_1a73fb855ebf06dbc1194d84324ee187b9" kind="function"><name>isModal</name></member>
     <member refid="structterminal_1_1_model_1ae2ada044b1923f232b03ba371f1fa578" kind="function"><name>storeValue</name></member>
     <member refid="structterminal_1_1_model_1a572e69bbfff16e9707bfecafdc0a4df2" kind="function"><name>loadValue</name></member>
     <member refid="structterminal_1_1_model_1af9ce5323e3f635afa5176b9f0c250904" kind="function"><name>setRowDirty</name></member>
@@ -1257,7 +1235,6 @@
     <member refid="structterminal_1_1_model_1a2e55cbe6698f6b3b9a5517d78bb398eb" kind="function"><name>rebuildRowDirtyFlags</name></member>
     <member refid="structterminal_1_1_model_1a9c4e8559c3bc543dc4529e497dcfaf27" kind="function"><name>refresh</name></member>
     <member refid="structterminal_1_1_model_1a5519c794b349ea904e4a2bf7b41dc037" kind="function"><name>resolveLayoutDefault</name></member>
-    <member refid="structterminal_1_1_model_1a03923f3203c09d898e0c6d67c037593d" kind="function"><name>valueTreeChildAdded</name></member>
     <member refid="structterminal_1_1_model_1ae49c1f8c5de0987061e27c6be212f248" kind="function"><name>storeTextValue</name></member>
   </compound>
   <compound refid="classterminal_1_1_mouse" kind="class"><name>terminal::Mouse</name>
@@ -2524,7 +2501,6 @@
     <member refid="namespaceterminal_1a7b9c9dd44feef553c5420b76fc8d54ad" kind="function"><name>swizzleARGBToRGBA</name></member>
     <member refid="namespaceterminal_1aa8b3c517475e377f8673a42bbbf1128b" kind="function"><name>loadImageNative</name></member>
     <member refid="namespaceterminal_1ab8471c5f4a063b7f05350297f06c862f" kind="function"><name>loadImageSequenceNative</name></member>
-    <member refid="namespaceterminal_1ad3581f9d2e9f579bf01422fe6fe04958" kind="function"><name>getSessionParamInt</name></member>
     <member refid="namespaceterminal_1addcf6bd172238cb414fb733f064ab40f" kind="function"><name>showNotification</name></member>
     <member refid="namespaceterminal_1a7150de9530263cc14bf60f813543623a" kind="function"><name>ensureDelegate</name></member>
     <member refid="namespaceterminal_1aa34b7c27f3d55a46829786eb96ffb5df" kind="function"><name>setAnsi16Colour</name></member>

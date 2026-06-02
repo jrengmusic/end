@@ -398,7 +398,7 @@ jasserts if no session with <computeroutput>uuid</computeroutput> exists.</para>
         <referencedby refid="classnexus_1_1_link_1a45210ea6cd6ff4cbbda9ad056c3ec41c" compoundref="_link_8cpp" startline="400" endline="421">nexus::Link::handleLoading</referencedby>
         <referencedby refid="classnexus_1_1_link_1ab161fd3b32924eb7651b489d546c1b18" compoundref="_link_8cpp" startline="371" endline="390">nexus::Link::handleOutput</referencedby>
         <referencedby refid="classnexus_1_1_link_1a90d54f4bafa0d44a37b998c844f931d3" compoundref="_link_8cpp" startline="434" endline="465">nexus::Link::handleStateUpdate</referencedby>
-        <referencedby refid="classnexus_1_1_link_1a95544f46cbd78a386671c2339ff34eb7" compoundref="_link_8cpp" startline="478" endline="507">nexus::Link::valueTreeChildAdded</referencedby>
+        <referencedby refid="classnexus_1_1_link_1a95544f46cbd78a386671c2339ff34eb7" compoundref="_link_8cpp" startline="478" endline="511">nexus::Link::valueTreeChildAdded</referencedby>
         <referencedby refid="class_nexus_1afea0a53a1851b0d1ee3568170031f3d5">~Nexus</referencedby>
       </memberdef>
       <memberdef kind="function" id="class_nexus_1ade6dadb309a76f68f71c07e0cfbfd91a" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
@@ -439,7 +439,7 @@ jasserts if no session with <computeroutput>uuid</computeroutput> exists.</para>
         <referencedby refid="classnexus_1_1_link_1a45210ea6cd6ff4cbbda9ad056c3ec41c" compoundref="_link_8cpp" startline="400" endline="421">nexus::Link::handleLoading</referencedby>
         <referencedby refid="classnexus_1_1_link_1ab161fd3b32924eb7651b489d546c1b18" compoundref="_link_8cpp" startline="371" endline="390">nexus::Link::handleOutput</referencedby>
         <referencedby refid="classnexus_1_1_link_1a90d54f4bafa0d44a37b998c844f931d3" compoundref="_link_8cpp" startline="434" endline="465">nexus::Link::handleStateUpdate</referencedby>
-        <referencedby refid="classnexus_1_1_link_1a95544f46cbd78a386671c2339ff34eb7" compoundref="_link_8cpp" startline="478" endline="507">nexus::Link::valueTreeChildAdded</referencedby>
+        <referencedby refid="classnexus_1_1_link_1a95544f46cbd78a386671c2339ff34eb7" compoundref="_link_8cpp" startline="478" endline="511">nexus::Link::valueTreeChildAdded</referencedby>
         <referencedby refid="class_nexus_1afea0a53a1851b0d1ee3568170031f3d5">~Nexus</referencedby>
       </memberdef>
       <memberdef kind="function" id="class_nexus_1a083c63cde460c368b4cfd380c7e740eb" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
@@ -610,7 +610,7 @@ jasserts if no session with <computeroutput>uuid</computeroutput> exists.</para>
 <para>Session manager — owns <ref refid="classterminal_1_1_session" kindref="compound">terminal::Session</ref> instances and routes data flow. </para>
     </briefdescription>
     <detaileddescription>
-<para>Constructed once by <computeroutput><ref refid="class_e_n_d_application" kindref="compound">ENDApplication</ref></computeroutput>. Destroyed after the main window so that all <ref refid="class_display" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Display</ref> objects are torn down before sessions are destroyed.</para>
+<para>Constructed once by <computeroutput><ref refid="class_e_n_d_application" kindref="compound">ENDApplication</ref></computeroutput>. Destroyed after the main window so that all Display objects are torn down before sessions are destroyed.</para>
 <para><simplesect kind="par"><title>Thread context</title><para>All session-management methods: <bold>NEXUS PROCESS MESSAGE THREAD</bold>. <computeroutput><ref refid="class_nexus_1a20348d03b8bf34d7959322970374cfac" kindref="member">setMode</ref></computeroutput> — any thread (atomic store only). </para>
 </simplesect>
 </para>
@@ -686,10 +686,10 @@ jasserts if no session with <computeroutput>uuid</computeroutput> exists.</para>
           <edgelabel>validStart</edgelabel>
         </childnode>
       </node>
-      <node id="29">
+      <node id="28">
         <label>jam::CaretComponent</label>
         <link refid="classjam_1_1_caret_component" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="27" relation="usage">
+        <childnode refid="26" relation="usage">
           <edgelabel>font</edgelabel>
         </childnode>
       </node>
@@ -701,57 +701,57 @@ jasserts if no session with <computeroutput>uuid</computeroutput> exists.</para>
         <label>jam::CodeLine</label>
         <link refid="structjam_1_1_code_line" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="21">
+      <node id="20">
         <label>jam::CodeModel</label>
         <link refid="classjam_1_1_code_model" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="22" relation="usage">
+        <childnode refid="21" relation="usage">
           <edgelabel>screens</edgelabel>
         </childnode>
       </node>
-      <node id="23">
+      <node id="22">
         <label>jam::CodeView</label>
         <link refid="classjam_1_1_code_view" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="24" relation="public-inheritance">
+        <childnode refid="23" relation="public-inheritance">
         </childnode>
-        <childnode refid="26" relation="usage">
+        <childnode refid="25" relation="usage">
           <edgelabel>properties</edgelabel>
         </childnode>
-        <childnode refid="27" relation="usage">
+        <childnode refid="26" relation="usage">
           <edgelabel>font</edgelabel>
         </childnode>
-        <childnode refid="21" relation="usage">
+        <childnode refid="20" relation="usage">
           <edgelabel>document</edgelabel>
         </childnode>
-        <childnode refid="28" relation="usage">
+        <childnode refid="27" relation="usage">
           <edgelabel>caret</edgelabel>
         </childnode>
-        <childnode refid="30" relation="usage">
+        <childnode refid="29" relation="usage">
           <edgelabel>stateAttachment</edgelabel>
         </childnode>
-        <childnode refid="31" relation="usage">
+        <childnode refid="30" relation="usage">
           <edgelabel>contentView</edgelabel>
         </childnode>
-        <childnode refid="33" relation="usage">
+        <childnode refid="32" relation="usage">
           <edgelabel>viewport</edgelabel>
         </childnode>
-        <childnode refid="35" relation="usage">
+        <childnode refid="34" relation="usage">
           <edgelabel>arrangement</edgelabel>
         </childnode>
-        <childnode refid="36" relation="usage">
+        <childnode refid="35" relation="usage">
           <edgelabel>glyphGraphics</edgelabel>
         </childnode>
       </node>
-      <node id="34">
+      <node id="33">
         <label>jam::CodeView::CodeViewViewport</label>
         <link refid="structjam_1_1_code_view_1_1_code_view_viewport" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="23" relation="usage">
+        <childnode refid="22" relation="usage">
           <edgelabel>owner</edgelabel>
         </childnode>
       </node>
-      <node id="32">
+      <node id="31">
         <label>jam::CodeView::ContentView</label>
         <link refid="structjam_1_1_code_view_1_1_content_view" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="23" relation="usage">
+        <childnode refid="22" relation="usage">
           <edgelabel>owner</edgelabel>
         </childnode>
       </node>
@@ -759,7 +759,7 @@ jasserts if no session with <computeroutput>uuid</computeroutput> exists.</para>
         <label>jam::Context&lt; Nexus &gt;</label>
         <link refid="structjam_1_1_context" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="27">
+      <node id="26">
         <label>jam::Font</label>
         <link refid="structjam_1_1_font" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
@@ -777,7 +777,7 @@ jasserts if no session with <computeroutput>uuid</computeroutput> exists.</para>
           <edgelabel>uniqueNodeMap</edgelabel>
         </childnode>
       </node>
-      <node id="22">
+      <node id="21">
         <label>jam::Owner&lt; jam::CodeModel::Screen &gt;</label>
         <link refid="classjam_1_1_owner" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
@@ -788,32 +788,32 @@ jasserts if no session with <computeroutput>uuid</computeroutput> exists.</para>
           <edgelabel>triggers</edgelabel>
         </childnode>
       </node>
-      <node id="30">
+      <node id="29">
         <label>jam::ValueTree::Attachment</label>
         <link refid="classjam_1_1_value_tree_1_1_attachment" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="25">
+      <node id="24">
         <label>jam::ValueTree::Component</label>
         <link refid="structjam_1_1_value_tree_1_1_component" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="24">
+      <node id="23">
         <label>jam::ValueTree::ComponentWithID&lt; CodeView &gt;</label>
         <link refid="structjam_1_1_value_tree_1_1_component_with_i_d" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="25" relation="public-inheritance">
+        <childnode refid="24" relation="public-inheritance">
         </childnode>
       </node>
-      <node id="35">
+      <node id="34">
         <label>jam::glyph::Arrangement</label>
         <link refid="classjam_1_1glyph_1_1_arrangement" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="36">
+      <node id="35">
         <label>jam::glyph::Graphics</label>
         <link refid="classjam_1_1glyph_1_1_graphics" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
       <node id="41">
         <label>juce::Thread</label>
       </node>
-      <node id="19">
+      <node id="38">
         <label>juce::ValueTree::Listener</label>
       </node>
       <node id="68">
@@ -828,7 +828,7 @@ jasserts if no session with <computeroutput>uuid</computeroutput> exists.</para>
           <edgelabel>elements</edgelabel>
         </childnode>
       </node>
-      <node id="26">
+      <node id="25">
         <label>std::array&lt; juce::Identifier, propertyCount &gt;</label>
       </node>
       <node id="55">
@@ -867,21 +867,21 @@ jasserts if no session with <computeroutput>uuid</computeroutput> exists.</para>
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
-      <node id="28">
+      <node id="27">
         <label>std::unique_ptr&lt; jam::CaretComponent &gt;</label>
-        <childnode refid="29" relation="usage">
+        <childnode refid="28" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
-      <node id="33">
+      <node id="32">
         <label>std::unique_ptr&lt; jam::CodeView::CodeViewViewport &gt;</label>
-        <childnode refid="34" relation="usage">
+        <childnode refid="33" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
-      <node id="31">
+      <node id="30">
         <label>std::unique_ptr&lt; jam::CodeView::ContentView &gt;</label>
-        <childnode refid="32" relation="usage">
+        <childnode refid="31" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
@@ -893,11 +893,11 @@ jasserts if no session with <computeroutput>uuid</computeroutput> exists.</para>
       </node>
       <node id="73">
         <label>std::unique_ptr&lt; jam::ValueTree::Attachment &gt;</label>
-        <childnode refid="30" relation="usage">
+        <childnode refid="29" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
-      <node id="20">
+      <node id="19">
         <label>std::unique_ptr&lt; std::atomic&lt; int &gt;[]&gt;</label>
         <childnode refid="11" relation="usage">
           <edgelabel>ptr</edgelabel>
@@ -909,9 +909,9 @@ jasserts if no session with <computeroutput>uuid</computeroutput> exists.</para>
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
-      <node id="37">
+      <node id="36">
         <label>std::unique_ptr&lt; terminal::Processor &gt;</label>
-        <childnode refid="38" relation="usage">
+        <childnode refid="37" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
@@ -1023,9 +1023,7 @@ jasserts if no session with <computeroutput>uuid</computeroutput> exists.</para>
         <link refid="structterminal_1_1_model"/>
         <childnode refid="13" relation="public-inheritance">
         </childnode>
-        <childnode refid="19" relation="private-inheritance">
-        </childnode>
-        <childnode refid="20" relation="usage">
+        <childnode refid="19" relation="usage">
           <edgelabel>rowDirtyFlags</edgelabel>
         </childnode>
         <childnode refid="7" relation="usage">
@@ -1045,10 +1043,10 @@ jasserts if no session with <computeroutput>uuid</computeroutput> exists.</para>
           <edgelabel>csi</edgelabel>
         </childnode>
       </node>
-      <node id="38">
+      <node id="37">
         <label>terminal::Processor</label>
         <link refid="classterminal_1_1_processor"/>
-        <childnode refid="19" relation="public-inheritance">
+        <childnode refid="38" relation="public-inheritance">
         </childnode>
         <childnode refid="39" relation="usage">
           <edgelabel>tty</edgelabel>
@@ -1093,13 +1091,13 @@ jasserts if no session with <computeroutput>uuid</computeroutput> exists.</para>
         <childnode refid="12" relation="usage">
           <edgelabel>model</edgelabel>
         </childnode>
-        <childnode refid="21" relation="usage">
+        <childnode refid="20" relation="usage">
           <edgelabel>codeModel</edgelabel>
         </childnode>
-        <childnode refid="23" relation="usage">
+        <childnode refid="22" relation="usage">
           <edgelabel>textEditor</edgelabel>
         </childnode>
-        <childnode refid="37" relation="usage">
+        <childnode refid="36" relation="usage">
           <edgelabel>processor</edgelabel>
         </childnode>
         <childnode refid="73" relation="usage">

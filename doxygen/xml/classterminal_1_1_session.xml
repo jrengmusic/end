@@ -1174,10 +1174,10 @@ Idempotent.</para>
           <edgelabel>validStart</edgelabel>
         </childnode>
       </node>
-      <node id="25">
+      <node id="24">
         <label>jam::CaretComponent</label>
         <link refid="classjam_1_1_caret_component" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="23" relation="usage">
+        <childnode refid="22" relation="usage">
           <edgelabel>font</edgelabel>
         </childnode>
       </node>
@@ -1189,61 +1189,61 @@ Idempotent.</para>
         <label>jam::CodeLine</label>
         <link refid="structjam_1_1_code_line" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="17">
+      <node id="16">
         <label>jam::CodeModel</label>
         <link refid="classjam_1_1_code_model" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="18" relation="usage">
+        <childnode refid="17" relation="usage">
           <edgelabel>screens</edgelabel>
         </childnode>
       </node>
-      <node id="19">
+      <node id="18">
         <label>jam::CodeView</label>
         <link refid="classjam_1_1_code_view" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="20" relation="public-inheritance">
+        <childnode refid="19" relation="public-inheritance">
         </childnode>
-        <childnode refid="22" relation="usage">
+        <childnode refid="21" relation="usage">
           <edgelabel>properties</edgelabel>
         </childnode>
-        <childnode refid="23" relation="usage">
+        <childnode refid="22" relation="usage">
           <edgelabel>font</edgelabel>
         </childnode>
-        <childnode refid="17" relation="usage">
+        <childnode refid="16" relation="usage">
           <edgelabel>document</edgelabel>
         </childnode>
-        <childnode refid="24" relation="usage">
+        <childnode refid="23" relation="usage">
           <edgelabel>caret</edgelabel>
         </childnode>
-        <childnode refid="26" relation="usage">
+        <childnode refid="25" relation="usage">
           <edgelabel>stateAttachment</edgelabel>
         </childnode>
-        <childnode refid="27" relation="usage">
+        <childnode refid="26" relation="usage">
           <edgelabel>contentView</edgelabel>
         </childnode>
-        <childnode refid="29" relation="usage">
+        <childnode refid="28" relation="usage">
           <edgelabel>viewport</edgelabel>
         </childnode>
-        <childnode refid="31" relation="usage">
+        <childnode refid="30" relation="usage">
           <edgelabel>arrangement</edgelabel>
         </childnode>
-        <childnode refid="32" relation="usage">
+        <childnode refid="31" relation="usage">
           <edgelabel>glyphGraphics</edgelabel>
         </childnode>
       </node>
-      <node id="30">
+      <node id="29">
         <label>jam::CodeView::CodeViewViewport</label>
         <link refid="structjam_1_1_code_view_1_1_code_view_viewport" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="19" relation="usage">
+        <childnode refid="18" relation="usage">
           <edgelabel>owner</edgelabel>
         </childnode>
       </node>
-      <node id="28">
+      <node id="27">
         <label>jam::CodeView::ContentView</label>
         <link refid="structjam_1_1_code_view_1_1_content_view" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="19" relation="usage">
+        <childnode refid="18" relation="usage">
           <edgelabel>owner</edgelabel>
         </childnode>
       </node>
-      <node id="23">
+      <node id="22">
         <label>jam::Font</label>
         <link refid="structjam_1_1_font" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
@@ -1261,7 +1261,7 @@ Idempotent.</para>
           <edgelabel>uniqueNodeMap</edgelabel>
         </childnode>
       </node>
-      <node id="18">
+      <node id="17">
         <label>jam::Owner&lt; jam::CodeModel::Screen &gt;</label>
         <link refid="classjam_1_1_owner" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
@@ -1272,32 +1272,32 @@ Idempotent.</para>
           <edgelabel>triggers</edgelabel>
         </childnode>
       </node>
-      <node id="26">
+      <node id="25">
         <label>jam::ValueTree::Attachment</label>
         <link refid="classjam_1_1_value_tree_1_1_attachment" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="21">
+      <node id="20">
         <label>jam::ValueTree::Component</label>
         <link refid="structjam_1_1_value_tree_1_1_component" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="20">
+      <node id="19">
         <label>jam::ValueTree::ComponentWithID&lt; CodeView &gt;</label>
         <link refid="structjam_1_1_value_tree_1_1_component_with_i_d" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="21" relation="public-inheritance">
+        <childnode refid="20" relation="public-inheritance">
         </childnode>
       </node>
-      <node id="31">
+      <node id="30">
         <label>jam::glyph::Arrangement</label>
         <link refid="classjam_1_1glyph_1_1_arrangement" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="32">
+      <node id="31">
         <label>jam::glyph::Graphics</label>
         <link refid="classjam_1_1glyph_1_1_graphics" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
       <node id="37">
         <label>juce::Thread</label>
       </node>
-      <node id="15">
+      <node id="34">
         <label>juce::ValueTree::Listener</label>
       </node>
       <node id="64">
@@ -1312,7 +1312,7 @@ Idempotent.</para>
           <edgelabel>elements</edgelabel>
         </childnode>
       </node>
-      <node id="22">
+      <node id="21">
         <label>std::array&lt; juce::Identifier, propertyCount &gt;</label>
       </node>
       <node id="51">
@@ -1351,21 +1351,21 @@ Idempotent.</para>
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
-      <node id="24">
+      <node id="23">
         <label>std::unique_ptr&lt; jam::CaretComponent &gt;</label>
-        <childnode refid="25" relation="usage">
+        <childnode refid="24" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
-      <node id="29">
+      <node id="28">
         <label>std::unique_ptr&lt; jam::CodeView::CodeViewViewport &gt;</label>
-        <childnode refid="30" relation="usage">
+        <childnode refid="29" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
-      <node id="27">
+      <node id="26">
         <label>std::unique_ptr&lt; jam::CodeView::ContentView &gt;</label>
-        <childnode refid="28" relation="usage">
+        <childnode refid="27" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
@@ -1377,11 +1377,11 @@ Idempotent.</para>
       </node>
       <node id="69">
         <label>std::unique_ptr&lt; jam::ValueTree::Attachment &gt;</label>
-        <childnode refid="26" relation="usage">
+        <childnode refid="25" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
-      <node id="16">
+      <node id="15">
         <label>std::unique_ptr&lt; std::atomic&lt; int &gt;[]&gt;</label>
         <childnode refid="7" relation="usage">
           <edgelabel>ptr</edgelabel>
@@ -1393,9 +1393,9 @@ Idempotent.</para>
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
-      <node id="33">
+      <node id="32">
         <label>std::unique_ptr&lt; terminal::Processor &gt;</label>
-        <childnode refid="34" relation="usage">
+        <childnode refid="33" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
@@ -1495,9 +1495,7 @@ Idempotent.</para>
         <link refid="structterminal_1_1_model"/>
         <childnode refid="9" relation="public-inheritance">
         </childnode>
-        <childnode refid="15" relation="private-inheritance">
-        </childnode>
-        <childnode refid="16" relation="usage">
+        <childnode refid="15" relation="usage">
           <edgelabel>rowDirtyFlags</edgelabel>
         </childnode>
         <childnode refid="3" relation="usage">
@@ -1517,10 +1515,10 @@ Idempotent.</para>
           <edgelabel>csi</edgelabel>
         </childnode>
       </node>
-      <node id="34">
+      <node id="33">
         <label>terminal::Processor</label>
         <link refid="classterminal_1_1_processor"/>
-        <childnode refid="15" relation="public-inheritance">
+        <childnode refid="34" relation="public-inheritance">
         </childnode>
         <childnode refid="35" relation="usage">
           <edgelabel>tty</edgelabel>
@@ -1565,13 +1563,13 @@ Idempotent.</para>
         <childnode refid="8" relation="usage">
           <edgelabel>model</edgelabel>
         </childnode>
-        <childnode refid="17" relation="usage">
+        <childnode refid="16" relation="usage">
           <edgelabel>codeModel</edgelabel>
         </childnode>
-        <childnode refid="19" relation="usage">
+        <childnode refid="18" relation="usage">
           <edgelabel>textEditor</edgelabel>
         </childnode>
-        <childnode refid="33" relation="usage">
+        <childnode refid="32" relation="usage">
           <edgelabel>processor</edgelabel>
         </childnode>
         <childnode refid="69" relation="usage">

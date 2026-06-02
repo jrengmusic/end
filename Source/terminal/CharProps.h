@@ -84,10 +84,7 @@ struct CharProps
      * CharProps props = charPropsFor(0x0301); // combining accent, width() returns 0
      * @endcode
      */
-    int width() const noexcept
-    {
-        return static_cast<int> ((val >> 9) & 0x7) - WIDTH_SHIFT;
-    }
+    int width() const noexcept { return static_cast<int> ((val >> 9) & 0x7) - WIDTH_SHIFT; }
 
     /**
      * @brief Checks if this character should render as emoji by default.
@@ -104,7 +101,7 @@ struct CharProps
      * charPropsFor(0x0041).isEmojiPresentation()  // false (letter A)
      * @endcode
      */
-    bool isEmojiPresentation() const noexcept     { return val & 1; }
+    bool isEmojiPresentation() const noexcept { return val & 1; }
 
     /**
      * @brief Checks if this character is in the Unicode Emoji category.
@@ -115,7 +112,7 @@ struct CharProps
      *
      * @return true if the character is an emoji character
      */
-    bool isEmoji() const noexcept                  { return (val >> 12) & 1; }
+    bool isEmoji() const noexcept { return (val >> 12) & 1; }
 
     /**
      * @brief Checks if this character can serve as an emoji variation base.
@@ -125,7 +122,7 @@ struct CharProps
      *
      * @return true if the character can be used with emoji variation selectors
      */
-    bool isEmojiVariationBase() const noexcept  { return (val >> 18) & 1; }
+    bool isEmojiVariationBase() const noexcept { return (val >> 18) & 1; }
 
     /**
      * @brief Checks if this codepoint is invalid (unassigned or surrogate).
@@ -136,7 +133,7 @@ struct CharProps
      *
      * @return true if the codepoint should not be rendered
      */
-    bool isInvalid() const noexcept                { return (val >> 19) & 1; }
+    bool isInvalid() const noexcept { return (val >> 19) & 1; }
 
     /**
      * @brief Checks if this character should not be visually rendered.
@@ -147,7 +144,7 @@ struct CharProps
      *
      * @return true if the character should not be displayed
      */
-    bool isNonRendered() const noexcept            { return (val >> 20) & 1; }
+    bool isNonRendered() const noexcept { return (val >> 20) & 1; }
 
     /**
      * @brief Checks if this character is a symbol.
@@ -160,7 +157,7 @@ struct CharProps
      *
      * @return true if the character is a symbol
      */
-    bool isSymbol() const noexcept                 { return (val >> 21) & 1; }
+    bool isSymbol() const noexcept { return (val >> 21) & 1; }
 
     /**
      * @brief Checks if this character is a combining character.
@@ -175,7 +172,7 @@ struct CharProps
      *
      * @return true if the character is a combining mark
      */
-    bool isCombiningChar() const noexcept          { return (val >> 22) & 1; }
+    bool isCombiningChar() const noexcept { return (val >> 22) & 1; }
 
     /**
      * @brief Checks if this character is a word-forming character.
@@ -186,7 +183,7 @@ struct CharProps
      *
      * @return true if the character participates in word boundaries
      */
-    bool isWordChar() const noexcept               { return (val >> 23) & 1; }
+    bool isWordChar() const noexcept { return (val >> 23) & 1; }
 
     /**
      * @brief Checks if this character is punctuation.
@@ -202,7 +199,7 @@ struct CharProps
      *
      * @return true if the character is punctuation
      */
-    bool isPunctuation() const noexcept            { return (val >> 24) & 1; }
+    bool isPunctuation() const noexcept { return (val >> 24) & 1; }
 
     /**
      * @brief Checks if this character is extended pictographic.
@@ -214,7 +211,7 @@ struct CharProps
      *
      * @return true if the character is extended pictographic
      */
-    bool isExtendedPictographic() const noexcept   { return (val >> 31) & 1; }
+    bool isExtendedPictographic() const noexcept { return (val >> 31) & 1; }
 
     /**
      * @brief Returns the 7-bit grapheme segmentation property.
@@ -225,10 +222,7 @@ struct CharProps
      *
      * @return 7-bit value encoding the grapheme segmentation property
      */
-    uint8_t graphemeSegmentationProperty() const noexcept
-    {
-        return static_cast<uint8_t> (val >> 25);
-    }
+    uint8_t graphemeSegmentationProperty() const noexcept { return static_cast<uint8_t> (val >> 25); }
 
     /**
      * @brief Returns the Unicode Grapheme Break property.
@@ -267,10 +261,7 @@ struct CharProps
      *
      * @return UnicodeCategory value
      */
-    UnicodeCategory category() const noexcept
-    {
-        return static_cast<UnicodeCategory> ((val >> 13) & 0x1F);
-    }
+    UnicodeCategory category() const noexcept { return static_cast<UnicodeCategory> ((val >> 13) & 0x1F); }
 };
 
 // Ensure CharProps remains exactly 32 bits to maintain memory layout guarantees
@@ -321,12 +312,8 @@ static inline CharProps charPropsFor (uint32_t cp) noexcept
     cp = cp & mask;
 
     return CharProps {
-        charPropsT3[
-            charPropsT2[
-                (static_cast<uint32_t> (charPropsT1[cp >> CHAR_PROPS_SHIFT]) << CHAR_PROPS_SHIFT)
-                + (cp & CHAR_PROPS_MASK)
-            ]
-        ]
+        charPropsT3[charPropsT2[(static_cast<uint32_t> (charPropsT1[cp >> CHAR_PROPS_SHIFT]) << CHAR_PROPS_SHIFT)
+                                + (cp & CHAR_PROPS_MASK)]]
     };
 }
 
@@ -378,8 +365,7 @@ struct GraphemeSegmentationResult
 };
 
 // Ensure GraphemeSegmentationResult remains exactly 16 bits
-static_assert (sizeof (GraphemeSegmentationResult) == sizeof (uint16_t),
-               "GraphemeSegmentationResult must be 16 bits");
+static_assert (sizeof (GraphemeSegmentationResult) == sizeof (uint16_t), "GraphemeSegmentationResult must be 16 bits");
 
 /**
  * @brief Performs one state machine transition for grapheme segmentation.
@@ -413,21 +399,16 @@ static_assert (sizeof (GraphemeSegmentationResult) == sizeof (uint16_t),
  * @sa UAX #29: Unicode Text Segmentation
  * @sa GraphemeBreakProperty for the possible character classes
  */
-static inline GraphemeSegmentationResult graphemeSegmentationStep (
-    GraphemeSegmentationResult prev, CharProps cp) noexcept
+static inline GraphemeSegmentationResult
+graphemeSegmentationStep (GraphemeSegmentationResult prev, CharProps cp) noexcept
 {
-    const uint32_t key {
-        (static_cast<uint32_t> (prev.state()) << 7)
-        | static_cast<uint32_t> (cp.graphemeSegmentationProperty())
-    };
+    const uint32_t key { (static_cast<uint32_t> (prev.state()) << 7)
+                         | static_cast<uint32_t> (cp.graphemeSegmentationProperty()) };
 
     return GraphemeSegmentationResult {
-        graphemeSegT3[
-            graphemeSegT2[
-                (static_cast<uint32_t> (graphemeSegT1[key >> GRAPHEME_SEG_SHIFT]) << GRAPHEME_SEG_SHIFT)
-                + (key & GRAPHEME_SEG_MASK)
-            ]
-        ]
+        graphemeSegT3[graphemeSegT2[(static_cast<uint32_t> (graphemeSegT1[key >> GRAPHEME_SEG_SHIFT])
+                                     << GRAPHEME_SEG_SHIFT)
+                                    + (key & GRAPHEME_SEG_MASK)]]
     };
 }
 

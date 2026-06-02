@@ -61,7 +61,7 @@
         <argsstring>() const noexcept=0</argsstring>
         <name>getPaneType</name>
         <qualifiedname>PaneView::getPaneType</qualifiedname>
-        <reimplementedby refid="classterminal_1_1_display_1afb467cdeee6e7bed23e32fcc1a31be38">getPaneType</reimplementedby>
+        <reimplementedby refid="classterminal_1_1_display_1a2e77bd710b79769f795c1a09d65775e9">getPaneType</reimplementedby>
         <reimplementedby refid="classwhelmed_1_1_component_1a606813bda5c715e4a4b0d825b4190167">getPaneType</reimplementedby>
         <briefdescription>
 <para>Returns a string identifier for the pane type (&quot;terminal&quot; or &quot;document&quot;). </para>
@@ -85,7 +85,7 @@
         <argsstring>(float zoom) noexcept=0</argsstring>
         <name>applyZoom</name>
         <qualifiedname>PaneView::applyZoom</qualifiedname>
-        <reimplementedby refid="classterminal_1_1_display_1aaafdfb7ab2395946be6b70e0e189bcf8">applyZoom</reimplementedby>
+        <reimplementedby refid="classterminal_1_1_display_1a63b26382f17289e78b18abc54275cebc">applyZoom</reimplementedby>
         <reimplementedby refid="classwhelmed_1_1_component_1a69e614725f77bf9d2a5e1bb95e694e42">applyZoom</reimplementedby>
         <param>
           <type>float</type>
@@ -120,7 +120,7 @@
         <argsstring>() noexcept=0</argsstring>
         <name>enterSelectionMode</name>
         <qualifiedname>PaneView::enterSelectionMode</qualifiedname>
-        <reimplementedby refid="classterminal_1_1_display_1a51e40f907d1725afc433513c8b5e2bc1">enterSelectionMode</reimplementedby>
+        <reimplementedby refid="classterminal_1_1_display_1a1f6b51c111d5267023843324b21eff34">enterSelectionMode</reimplementedby>
         <reimplementedby refid="classwhelmed_1_1_component_1a86f04f40924c6a7c074d4200c95f7377">enterSelectionMode</reimplementedby>
         <briefdescription>
 <para>Enters vim-style keyboard selection mode. </para>
@@ -142,7 +142,7 @@
         <argsstring>() noexcept=0</argsstring>
         <name>copySelection</name>
         <qualifiedname>PaneView::copySelection</qualifiedname>
-        <reimplementedby refid="classterminal_1_1_display_1a22a44a31c7bc528a6a584408ddfc7cf8">copySelection</reimplementedby>
+        <reimplementedby refid="classterminal_1_1_display_1ae8057b64f9373f3ca63f69edb1e7dc9a">copySelection</reimplementedby>
         <reimplementedby refid="classwhelmed_1_1_component_1abd70119f118c4b0e82842f01129d8c0a">copySelection</reimplementedby>
         <briefdescription>
 <para>Copies the active selection to the system clipboard and clears selection. </para>
@@ -164,7 +164,7 @@
         <argsstring>() const noexcept=0</argsstring>
         <name>hasSelection</name>
         <qualifiedname>PaneView::hasSelection</qualifiedname>
-        <reimplementedby refid="classterminal_1_1_display_1a858679ef9dc232b5406fe94c5f6c79cb">hasSelection</reimplementedby>
+        <reimplementedby refid="classterminal_1_1_display_1af394e5c42a3c90f3fc56e3e4c54903a4">hasSelection</reimplementedby>
         <reimplementedby refid="classwhelmed_1_1_component_1a25ca3a9b8aeb7f125d2ca8c46851743a">hasSelection</reimplementedby>
         <briefdescription>
 <para>Returns true if there is an active text selection. </para>

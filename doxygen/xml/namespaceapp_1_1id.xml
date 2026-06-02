@@ -599,7 +599,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="AppIdentifier.h" line="98" column="35" bodyfile="AppIdentifier.h" bodystart="98" bodyend="98"/>
-        <referencedby refid="classterminal_1_1_link_manager_1a31972897ab13d8ab670c6c5abd749e57" compoundref="_link_manager_8cpp" startline="139" endline="187">terminal::LinkManager::dispatch</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1a31972897ab13d8ab670c6c5abd749e57" compoundref="_link_manager_8cpp" startline="146" endline="196">terminal::LinkManager::dispatch</referencedby>
         <referencedby refid="classterminal_1_1_tabs_1ae3fe96dd1a1b0e229d60c7871b0a438b" compoundref="_tabs_8cpp" startline="458" endline="479">terminal::Tabs::valueTreePropertyChanged</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceapp_1_1id_1af4b579159e05cc121f8ba57c25cf6a42" prot="public" static="yes" mutable="no">
@@ -618,7 +618,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="AppIdentifier.h" line="102" column="35" bodyfile="AppIdentifier.h" bodystart="102" bodyend="102"/>
-        <referencedby refid="classterminal_1_1_link_manager_1a31972897ab13d8ab670c6c5abd749e57" compoundref="_link_manager_8cpp" startline="139" endline="187">terminal::LinkManager::dispatch</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1a31972897ab13d8ab670c6c5abd749e57" compoundref="_link_manager_8cpp" startline="146" endline="196">terminal::LinkManager::dispatch</referencedby>
         <referencedby refid="classterminal_1_1_tabs_1ae3fe96dd1a1b0e229d60c7871b0a438b" compoundref="_tabs_8cpp" startline="458" endline="479">terminal::Tabs::valueTreePropertyChanged</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceapp_1_1id_1a85c1e78989b72416aac80246796ad6a1" prot="public" static="yes" mutable="no">
@@ -993,7 +993,7 @@
         </inbodydescription>
         <location file="AppIdentifier.h" line="128" column="35" bodyfile="AppIdentifier.h" bodystart="128" bodyend="128"/>
         <referencedby refid="struct_app_model_1adc4141a6e63d9801a6e3c027f729f74d" compoundref="_app_model_8cpp" startline="542" endline="606">AppModel::build</referencedby>
-        <referencedby refid="structterminal_1_1_model_1a7ab986ba96c3d9b8b1c8088318bc3591" compoundref="_model_8cpp" startline="49" endline="133">terminal::Model::buildLayout</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a7ab986ba96c3d9b8b1c8088318bc3591" compoundref="_model_8cpp" startline="43" endline="129">terminal::Model::buildLayout</referencedby>
         <referencedby refid="struct_app_model_1ac12d30deb94ace7428cfa1260a6f69d1" compoundref="_app_model_8cpp" startline="516" endline="540">AppModel::resolveAppLayoutDefault</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceapp_1_1id_1a928eb12cf0df28db87da4015df4bbfb0" prot="public" static="yes" mutable="no">

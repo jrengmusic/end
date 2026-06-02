@@ -49,7 +49,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="Map.h" line="37" column="30" bodyfile="Map.h" bodystart="37" bodyend="37"/>
-        <referencedby refid="structterminal_1_1_model_1a7ab986ba96c3d9b8b1c8088318bc3591" compoundref="_model_8cpp" startline="49" endline="133">terminal::Model::buildLayout</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a7ab986ba96c3d9b8b1c8088318bc3591" compoundref="_model_8cpp" startline="43" endline="129">terminal::Model::buildLayout</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">

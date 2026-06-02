@@ -596,7 +596,7 @@
     </briefdescription>
     <detaileddescription>
 <para>Processor is the Controller in the audio-plugin architecture:</para>
-<para><programlisting><codeline><highlight class="normal">bytes<sp/>→<sp/>process()<sp/>→<sp/>Parser<sp/>→<sp/>Video<sp/>→<sp/>events<sp/>→<sp/>Processor<sp/>handlers<sp/>→<sp/>CellFifo<sp/>→<sp/>drainHistory()/drainActive()<sp/>→<sp/><ref refid="class_display" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Display</ref></highlight></codeline>
+<para><programlisting><codeline><highlight class="normal">bytes<sp/>→<sp/>process()<sp/>→<sp/>Parser<sp/>→<sp/>Video<sp/>→<sp/>events<sp/>→<sp/>Processor<sp/>handlers<sp/>→<sp/>CellFifo<sp/>→<sp/>drainHistory()/drainActive()<sp/>→<sp/>Display</highlight></codeline>
 </programlisting></para>
 <para>The PTY-side <ref refid="class_t_t_y" kindref="compound">TTY</ref> lives in <computeroutput><ref refid="classterminal_1_1_processor" kindref="compound">terminal::Processor</ref></computeroutput> (created by startTTY()). Processor is data-source agnostic — it receives bytes via <computeroutput>process()</computeroutput> whether they come from a local PTY callback, an IPC byte-forward, or a history replay.</para>
 <sect1 id="_processor_8h_1autotoc_md58_1s1"><sect2 id="_processor_8h_1autotoc_md58_1s2"><sect3 id="_processor_8h_1autotoc_md58">
@@ -606,8 +606,8 @@
 </listitem><listitem><para>The parser decodes VT sequences and calls Video action methods directly.</para>
 </listitem><listitem><para>Video writes cells to <computeroutput>Buffer&lt;Row&gt;</computeroutput> and fires events.</para>
 </listitem><listitem><para>Processor reader-thread handlers push departing rows into the history ring via pushHistory() (on pushLine) and live viewport rows into the active ring via pushActive() (on screenDirty), then bump the screenDirty <ref refid="classValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ValueTree</ref> counter.</para>
-</listitem><listitem><para>Model::flush() propagates atomic values to the <ref refid="classValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ValueTree</ref> on the timer tick, notifying <ref refid="class_display" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Display</ref> via <computeroutput>juce::ValueTree::Listener</computeroutput>.</para>
-</listitem><listitem><para><ref refid="class_display" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Display</ref> pulls via drainHistory()/drainActive() on the message thread and feeds its own CodeView.</para>
+</listitem><listitem><para>Model::flush() propagates atomic values to the <ref refid="classValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ValueTree</ref> on the timer tick, notifying Display via <computeroutput>juce::ValueTree::Listener</computeroutput>.</para>
+</listitem><listitem><para>Display pulls via drainHistory()/drainActive() on the message thread and feeds its own CodeView.</para>
 </listitem><listitem><para>Resize: prepare() resizes Video&apos;s grid only — CellFifo and CodeView untouched. Cell pixel changes are applied to Video directly.</para>
 </listitem></orderedlist>
 </para>
@@ -632,7 +632,7 @@
 </simplesect>
 <simplesect kind="see"><para>Model — atomic <ref refid="namespaceterminal" kindref="compound">terminal</ref> parameter store. </para>
 </simplesect>
-<simplesect kind="see"><para>CellFifo — SPSC ring: reader pushes <ref refid="struct_char" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Char</ref> rows, message thread drains <ref refid="structjam_1_1_code_line" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::CodeLine</ref>. </para>
+<simplesect kind="see"><para>CellFifo — SPSC ring: reader pushes Char rows, message thread drains <ref refid="structjam_1_1_code_line" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::CodeLine</ref>. </para>
 </simplesect>
 </para>
 </sect3></sect2></sect1>

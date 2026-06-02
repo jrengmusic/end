@@ -1048,44 +1048,6 @@
         <references refid="structterminal_1_1_image_sequence_1a61e703d2998e97f05b524980bb1f4e7a" compoundref="_image_decode_8h" startline="71" endline="71">terminal::ImageSequence::width</references>
         <referencedby refid="classterminal_1_1_i_term2_decoder_1acaef645d14f1c590d18e79e098ac73c1" compoundref="_i_term2_decoder_8cpp" startline="18" endline="128">terminal::ITerm2Decoder::decode</referencedby>
       </memberdef>
-      <memberdef kind="function" id="namespaceterminal_1ad3581f9d2e9f579bf01422fe6fe04958" prot="public" static="yes" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
-        <type>int</type>
-        <definition>static int terminal::getSessionParamInt</definition>
-        <argsstring>(const juce::ValueTree &amp;root, const juce::Identifier &amp;paramId, int defaultValue=0) noexcept</argsstring>
-        <name>getSessionParamInt</name>
-        <qualifiedname>terminal::getSessionParamInt</qualifiedname>
-        <param>
-          <type>const juce::ValueTree &amp;</type>
-          <declname>root</declname>
-        </param>
-        <param>
-          <type>const juce::Identifier &amp;</type>
-          <declname>paramId</declname>
-        </param>
-        <param>
-          <type>int</type>
-          <declname>defaultValue</declname>
-          <defval>0</defval>
-        </param>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="terminal/Model.cpp" line="238" column="1" bodyfile="terminal/Model.cpp" bodystart="238" bodyend="250"/>
-        <references refid="structjam_1_1_value_tree_1ac7c592a1eba42ac3b0628a2ada9ab4e7">jam::ValueTree::getChildWithID</references>
-        <references refid="group__juce__events-messages_1gad2ae2032071a26beb5fb05a3745b8faf">JUCE_ASSERT_MESSAGE_THREAD</references>
-        <references refid="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11aeca07335a33c5aeb5e1bc7c98b4b9d80" compoundref="_dispatch_table_8h" startline="87">param</references>
-        <references refid="namespaceterminal_1_1id_1a2b8b3a15901c16432311d99e99a34d67" compoundref="_identifier_8h" startline="110" endline="110">terminal::id::value</references>
-        <referencedby refid="structterminal_1_1_model_1a79c2f1763b4446d250dcd8cf8536f5e7" compoundref="_model_8cpp" startline="465" endline="469">terminal::Model::getHintPage</referencedby>
-        <referencedby refid="structterminal_1_1_model_1aac24f406754f3362c2b6bfa0af234ae0" compoundref="_model_8cpp" startline="473" endline="477">terminal::Model::getHintTotalPages</referencedby>
-        <referencedby refid="structterminal_1_1_model_1a9d77594f5ccf9ac9eb0b306b0fb2147d" compoundref="_model_8cpp" startline="341" endline="344">terminal::Model::getOutputBlockBottom</referencedby>
-        <referencedby refid="structterminal_1_1_model_1a7f3c8d52e5b62960ea217e70f83439d1" compoundref="_model_8cpp" startline="339" endline="339">terminal::Model::getOutputBlockTop</referencedby>
-        <referencedby refid="structterminal_1_1_model_1aac6ceeff8f0e530370b29d8dcf8be665" compoundref="_model_8cpp" startline="346" endline="346">terminal::Model::getPromptRow</referencedby>
-        <referencedby refid="structterminal_1_1_model_1a7b52321fc962b551dc053e138512494d" compoundref="_model_8cpp" startline="446" endline="450">terminal::Model::getSplitCol</referencedby>
-        <referencedby refid="structterminal_1_1_model_1ae8d00e9ca1dc650b197c56cd055a36d7" compoundref="_model_8cpp" startline="440" endline="444">terminal::Model::isPreviewActive</referencedby>
-      </memberdef>
       <memberdef kind="function" id="namespaceterminal_1addcf6bd172238cb414fb733f064ab40f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
         <definition>void terminal::showNotification</definition>

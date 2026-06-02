@@ -44,7 +44,7 @@
         </inbodydescription>
         <location file="terminal/TextBuffer.h" line="37" column="10" bodyfile="terminal/TextBuffer.h" bodystart="37" bodyend="40"/>
         <references refid="structterminal_1_1_text_buffer_1abeb17b64667c3a82a8545a0f9eda0e35" compoundref="_text_buffer_8h" startline="49">slots</references>
-        <referencedby refid="structterminal_1_1_model_1a7ab986ba96c3d9b8b1c8088318bc3591" compoundref="_model_8cpp" startline="49" endline="133">terminal::Model::buildLayout</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a7ab986ba96c3d9b8b1c8088318bc3591" compoundref="_model_8cpp" startline="43" endline="129">terminal::Model::buildLayout</referencedby>
       </memberdef>
       <memberdef kind="function" id="structterminal_1_1_text_buffer_1a749580d10b9f5a103fdfe022f62b51f2" prot="public" static="no" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
         <type>const char *</type>

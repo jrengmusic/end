@@ -19,13 +19,13 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/LinkManager.h" line="236" column="11" bodyfile="terminal/LinkManager.h" bodystart="236" bodyend="-1"/>
-        <referencedby refid="classterminal_1_1_link_manager_1a9d462e9d09f9ee4426eaede532210a75" compoundref="_link_manager_8cpp" startline="54" endline="64">advanceHintPage</referencedby>
-        <referencedby refid="classterminal_1_1_link_manager_1a0e2c614fae978d980c9f8087b7724ab1" compoundref="_link_manager_8cpp" startline="96" endline="105">assignCurrentPage</referencedby>
-        <referencedby refid="classterminal_1_1_link_manager_1ace7b575fc8bbeb4e12f2cb4b1542ab84" compoundref="_link_manager_8cpp" startline="66" endline="94">buildPages</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1a9d462e9d09f9ee4426eaede532210a75" compoundref="_link_manager_8cpp" startline="54" endline="68">advanceHintPage</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1a0e2c614fae978d980c9f8087b7724ab1" compoundref="_link_manager_8cpp" startline="100" endline="112">assignCurrentPage</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1ace7b575fc8bbeb4e12f2cb4b1542ab84" compoundref="_link_manager_8cpp" startline="70" endline="98">buildPages</referencedby>
         <referencedby refid="classterminal_1_1_link_manager_1a7447cd4243683a53c162b81965b1ce27" compoundref="_link_manager_8cpp" startline="44" endline="52">clearHints</referencedby>
-        <referencedby refid="classterminal_1_1_link_manager_1a31972897ab13d8ab670c6c5abd749e57" compoundref="_link_manager_8cpp" startline="139" endline="187">dispatch</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1a31972897ab13d8ab670c6c5abd749e57" compoundref="_link_manager_8cpp" startline="146" endline="196">dispatch</referencedby>
         <referencedby refid="classterminal_1_1_link_manager_1a927ddc099855370ea7783bb9b97aef83" compoundref="_link_manager_8cpp" startline="15" endline="24">LinkManager</referencedby>
-        <referencedby refid="classterminal_1_1_link_manager_1af86d53af2040b8744eb7aed1fccf47c9" compoundref="_link_manager_8cpp" startline="207" endline="223">valueTreePropertyChanged</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1af86d53af2040b8744eb7aed1fccf47c9" compoundref="_link_manager_8cpp" startline="216" endline="243">valueTreePropertyChanged</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classterminal_1_1_link_manager_1a54509d4ab2f923c9a0271521011a526b" prot="private" static="no" mutable="no">
         <type>std::function&lt; void(const char *, int)&gt;</type>
@@ -41,7 +41,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/LinkManager.h" line="239" column="19" bodyfile="terminal/LinkManager.h" bodystart="239" bodyend="-1"/>
-        <referencedby refid="classterminal_1_1_link_manager_1a31972897ab13d8ab670c6c5abd749e57" compoundref="_link_manager_8cpp" startline="139" endline="187">dispatch</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1a31972897ab13d8ab670c6c5abd749e57" compoundref="_link_manager_8cpp" startline="146" endline="196">dispatch</referencedby>
         <referencedby refid="classterminal_1_1_link_manager_1a927ddc099855370ea7783bb9b97aef83" compoundref="_link_manager_8cpp" startline="15" endline="24">LinkManager</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classterminal_1_1_link_manager_1a920d095d1d8031152edb52c882dd3e05" prot="private" static="no" mutable="no">
@@ -59,9 +59,9 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/LinkManager.h" line="242" column="17" bodyfile="terminal/LinkManager.h" bodystart="242" bodyend="-1"/>
-        <referencedby refid="classterminal_1_1_link_manager_1ac3eb5bfc2e4c78c6c39d00681cd0c443" compoundref="_link_manager_8cpp" startline="189" endline="189">getClickableLinks</referencedby>
-        <referencedby refid="classterminal_1_1_link_manager_1a12e5a0055f7b5acc0ef8d79149b9b2e8" compoundref="_link_manager_8cpp" startline="107" endline="121">hitTest</referencedby>
-        <referencedby refid="classterminal_1_1_link_manager_1af86d53af2040b8744eb7aed1fccf47c9" compoundref="_link_manager_8cpp" startline="207" endline="223">valueTreePropertyChanged</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1ac3eb5bfc2e4c78c6c39d00681cd0c443" compoundref="_link_manager_8cpp" startline="198" endline="198">getClickableLinks</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1a12e5a0055f7b5acc0ef8d79149b9b2e8" compoundref="_link_manager_8cpp" startline="114" endline="128">hitTest</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1af86d53af2040b8744eb7aed1fccf47c9" compoundref="_link_manager_8cpp" startline="216" endline="243">valueTreePropertyChanged</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classterminal_1_1_link_manager_1a642a0a293231c3fb1372ca60f2142516" prot="private" static="no" mutable="no">
         <type>std::vector&lt; <ref refid="structterminal_1_1_link_span" kindref="compound">LinkSpan</ref> &gt;</type>
@@ -78,12 +78,12 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/LinkManager.h" line="245" column="17" bodyfile="terminal/LinkManager.h" bodystart="245" bodyend="-1"/>
-        <referencedby refid="classterminal_1_1_link_manager_1a0e2c614fae978d980c9f8087b7724ab1" compoundref="_link_manager_8cpp" startline="96" endline="105">assignCurrentPage</referencedby>
-        <referencedby refid="classterminal_1_1_link_manager_1ace7b575fc8bbeb4e12f2cb4b1542ab84" compoundref="_link_manager_8cpp" startline="66" endline="94">buildPages</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1a0e2c614fae978d980c9f8087b7724ab1" compoundref="_link_manager_8cpp" startline="100" endline="112">assignCurrentPage</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1ace7b575fc8bbeb4e12f2cb4b1542ab84" compoundref="_link_manager_8cpp" startline="70" endline="98">buildPages</referencedby>
         <referencedby refid="classterminal_1_1_link_manager_1a7447cd4243683a53c162b81965b1ce27" compoundref="_link_manager_8cpp" startline="44" endline="52">clearHints</referencedby>
-        <referencedby refid="classterminal_1_1_link_manager_1a6cb483a8a7e03d5b59392189ca26543b" compoundref="_link_manager_8cpp" startline="193" endline="193">getActiveHintsData</referencedby>
-        <referencedby refid="classterminal_1_1_link_manager_1a4965588593295585d637a54b26cbea12" compoundref="_link_manager_8cpp" startline="191" endline="191">getHintLinks</referencedby>
-        <referencedby refid="classterminal_1_1_link_manager_1add709a6c08650e13c0061303c2b14800" compoundref="_link_manager_8cpp" startline="123" endline="137">hitTestHint</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1a6cb483a8a7e03d5b59392189ca26543b" compoundref="_link_manager_8cpp" startline="202" endline="202">getActiveHintsData</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1a4965588593295585d637a54b26cbea12" compoundref="_link_manager_8cpp" startline="200" endline="200">getHintLinks</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1add709a6c08650e13c0061303c2b14800" compoundref="_link_manager_8cpp" startline="130" endline="144">hitTestHint</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classterminal_1_1_link_manager_1ab8e7a3ce2b732c42f9c9fcc27173efe9" prot="private" static="no" mutable="no">
         <type>int</type>
@@ -100,10 +100,10 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/LinkManager.h" line="248" column="9" bodyfile="terminal/LinkManager.h" bodystart="248" bodyend="248"/>
-        <referencedby refid="classterminal_1_1_link_manager_1a0e2c614fae978d980c9f8087b7724ab1" compoundref="_link_manager_8cpp" startline="96" endline="105">assignCurrentPage</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1a0e2c614fae978d980c9f8087b7724ab1" compoundref="_link_manager_8cpp" startline="100" endline="112">assignCurrentPage</referencedby>
         <referencedby refid="classterminal_1_1_link_manager_1a7447cd4243683a53c162b81965b1ce27" compoundref="_link_manager_8cpp" startline="44" endline="52">clearHints</referencedby>
-        <referencedby refid="classterminal_1_1_link_manager_1a6cb483a8a7e03d5b59392189ca26543b" compoundref="_link_manager_8cpp" startline="193" endline="193">getActiveHintsData</referencedby>
-        <referencedby refid="classterminal_1_1_link_manager_1add709a6c08650e13c0061303c2b14800" compoundref="_link_manager_8cpp" startline="123" endline="137">hitTestHint</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1a6cb483a8a7e03d5b59392189ca26543b" compoundref="_link_manager_8cpp" startline="202" endline="202">getActiveHintsData</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1add709a6c08650e13c0061303c2b14800" compoundref="_link_manager_8cpp" startline="130" endline="144">hitTestHint</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classterminal_1_1_link_manager_1a1ffddfe5109268fe599c20664b8fac46" prot="private" static="no" mutable="no">
         <type>int</type>
@@ -120,10 +120,10 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/LinkManager.h" line="251" column="9" bodyfile="terminal/LinkManager.h" bodystart="251" bodyend="251"/>
-        <referencedby refid="classterminal_1_1_link_manager_1a0e2c614fae978d980c9f8087b7724ab1" compoundref="_link_manager_8cpp" startline="96" endline="105">assignCurrentPage</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1a0e2c614fae978d980c9f8087b7724ab1" compoundref="_link_manager_8cpp" startline="100" endline="112">assignCurrentPage</referencedby>
         <referencedby refid="classterminal_1_1_link_manager_1a7447cd4243683a53c162b81965b1ce27" compoundref="_link_manager_8cpp" startline="44" endline="52">clearHints</referencedby>
-        <referencedby refid="classterminal_1_1_link_manager_1ad35ace586eb887540936097d4bbefe99" compoundref="_link_manager_8cpp" startline="194" endline="194">getActiveHintsCount</referencedby>
-        <referencedby refid="classterminal_1_1_link_manager_1add709a6c08650e13c0061303c2b14800" compoundref="_link_manager_8cpp" startline="123" endline="137">hitTestHint</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1ad35ace586eb887540936097d4bbefe99" compoundref="_link_manager_8cpp" startline="203" endline="203">getActiveHintsCount</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1add709a6c08650e13c0061303c2b14800" compoundref="_link_manager_8cpp" startline="130" endline="144">hitTestHint</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classterminal_1_1_link_manager_1ab6ab75e7defa8a3330fa375c3c10f73e" prot="private" static="no" mutable="no">
         <type>std::vector&lt; int &gt;</type>
@@ -140,8 +140,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/LinkManager.h" line="254" column="17" bodyfile="terminal/LinkManager.h" bodystart="254" bodyend="-1"/>
-        <referencedby refid="classterminal_1_1_link_manager_1a0e2c614fae978d980c9f8087b7724ab1" compoundref="_link_manager_8cpp" startline="96" endline="105">assignCurrentPage</referencedby>
-        <referencedby refid="classterminal_1_1_link_manager_1ace7b575fc8bbeb4e12f2cb4b1542ab84" compoundref="_link_manager_8cpp" startline="66" endline="94">buildPages</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1a0e2c614fae978d980c9f8087b7724ab1" compoundref="_link_manager_8cpp" startline="100" endline="112">assignCurrentPage</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1ace7b575fc8bbeb4e12f2cb4b1542ab84" compoundref="_link_manager_8cpp" startline="70" endline="98">buildPages</referencedby>
         <referencedby refid="classterminal_1_1_link_manager_1a7447cd4243683a53c162b81965b1ce27" compoundref="_link_manager_8cpp" startline="44" endline="52">clearHints</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classterminal_1_1_link_manager_1a7a4c7f58ab6a1fbf68b2718ff7c75240" prot="private" static="no" mutable="no">
@@ -289,7 +289,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/LinkManager.h" line="68" column="10" bodyfile="terminal/LinkManager.cpp" bodystart="32" bodyend="36"/>
-        <referencedby refid="classterminal_1_1_link_manager_1af86d53af2040b8744eb7aed1fccf47c9" compoundref="_link_manager_8cpp" startline="207" endline="223">valueTreePropertyChanged</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1af86d53af2040b8744eb7aed1fccf47c9" compoundref="_link_manager_8cpp" startline="216" endline="243">valueTreePropertyChanged</referencedby>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_link_manager_1a82acfb928e5f47f485934264e54c689a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -344,7 +344,10 @@
         <references refid="classterminal_1_1_link_manager_1a1ffddfe5109268fe599c20664b8fac46" compoundref="_link_manager_8h" startline="251" endline="251">activeCount</references>
         <references refid="classterminal_1_1_link_manager_1ab8e7a3ce2b732c42f9c9fcc27173efe9" compoundref="_link_manager_8h" startline="248" endline="248">activeStart</references>
         <references refid="classterminal_1_1_link_manager_1a642a0a293231c3fb1372ca60f2142516" compoundref="_link_manager_8h" startline="245">hintLinks</references>
+        <references refid="namespaceterminal_1_1id_1a456802ad45a86367448f081a7d52eaf7" compoundref="_identifier_8h" startline="144" endline="144">terminal::id::hintPage</references>
+        <references refid="namespaceterminal_1_1id_1aa4006061c863080a7f3920bbce114dc2" compoundref="_identifier_8h" startline="147" endline="147">terminal::id::hintTotalPages</references>
         <references refid="classterminal_1_1_link_manager_1ab6ab75e7defa8a3330fa375c3c10f73e" compoundref="_link_manager_8h" startline="254">pageBreaks</references>
+        <references refid="namespaceterminal_1_1id_1a9ca6b6efc0a9c3a15bc0d0f78b60e90d" compoundref="_identifier_8h" startline="82" endline="82">terminal::id::SESSION</references>
         <references refid="classterminal_1_1_link_manager_1aa045fa44879bd1d877ed867e9e5768f7" compoundref="_link_manager_8h" startline="236">state</references>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_link_manager_1a9d462e9d09f9ee4426eaede532210a75" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
@@ -364,9 +367,14 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/LinkManager.h" line="99" column="10" bodyfile="terminal/LinkManager.cpp" bodystart="54" bodyend="64"/>
-        <references refid="classterminal_1_1_link_manager_1a0e2c614fae978d980c9f8087b7724ab1" compoundref="_link_manager_8cpp" startline="96" endline="105">assignCurrentPage</references>
+        <location file="terminal/LinkManager.h" line="99" column="10" bodyfile="terminal/LinkManager.cpp" bodystart="54" bodyend="68"/>
+        <references refid="classterminal_1_1_link_manager_1a0e2c614fae978d980c9f8087b7724ab1" compoundref="_link_manager_8cpp" startline="100" endline="112">assignCurrentPage</references>
+        <references refid="structjam_1_1_value_tree_1ac7c592a1eba42ac3b0628a2ada9ab4e7">jam::ValueTree::getChildWithID</references>
+        <references refid="namespaceterminal_1_1id_1a456802ad45a86367448f081a7d52eaf7" compoundref="_identifier_8h" startline="144" endline="144">terminal::id::hintPage</references>
+        <references refid="namespaceterminal_1_1id_1aa4006061c863080a7f3920bbce114dc2" compoundref="_identifier_8h" startline="147" endline="147">terminal::id::hintTotalPages</references>
+        <references refid="namespaceterminal_1_1id_1a9ca6b6efc0a9c3a15bc0d0f78b60e90d" compoundref="_identifier_8h" startline="82" endline="82">terminal::id::SESSION</references>
         <references refid="classterminal_1_1_link_manager_1aa045fa44879bd1d877ed867e9e5768f7" compoundref="_link_manager_8h" startline="236">state</references>
+        <references refid="namespaceterminal_1_1id_1a2b8b3a15901c16432311d99e99a34d67" compoundref="_identifier_8h" startline="110" endline="110">terminal::id::value</references>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_link_manager_1a12e5a0055f7b5acc0ef8d79149b9b2e8" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
         <type>const <ref refid="structterminal_1_1_link_span" kindref="compound">LinkSpan</ref> *</type>
@@ -411,7 +419,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/LinkManager.h" line="109" column="20" bodyfile="terminal/LinkManager.cpp" bodystart="107" bodyend="121"/>
+        <location file="terminal/LinkManager.h" line="109" column="20" bodyfile="terminal/LinkManager.cpp" bodystart="114" bodyend="128"/>
         <references refid="classterminal_1_1_link_manager_1a920d095d1d8031152edb52c882dd3e05" compoundref="_link_manager_8h" startline="242">clickableLinks</references>
         <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d">row</references>
       </memberdef>
@@ -447,7 +455,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/LinkManager.h" line="121" column="20" bodyfile="terminal/LinkManager.cpp" bodystart="123" bodyend="137"/>
+        <location file="terminal/LinkManager.h" line="121" column="20" bodyfile="terminal/LinkManager.cpp" bodystart="130" bodyend="144"/>
         <references refid="classterminal_1_1_link_manager_1a1ffddfe5109268fe599c20664b8fac46" compoundref="_link_manager_8h" startline="251" endline="251">activeCount</references>
         <references refid="classterminal_1_1_link_manager_1ab8e7a3ce2b732c42f9c9fcc27173efe9" compoundref="_link_manager_8h" startline="248" endline="248">activeStart</references>
         <references refid="classterminal_1_1_link_manager_1a642a0a293231c3fb1372ca60f2142516" compoundref="_link_manager_8h" startline="245">hintLinks</references>
@@ -483,13 +491,15 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/LinkManager.h" line="134" column="10" bodyfile="terminal/LinkManager.cpp" bodystart="139" bodyend="187"/>
+        <location file="terminal/LinkManager.h" line="134" column="10" bodyfile="terminal/LinkManager.cpp" bodystart="146" bodyend="196"/>
         <references refid="namespaceterminal_1_1id_1a3c3cd20cca6ef6297d7a9823a5a14fa6" compoundref="_identifier_8h" startline="176" endline="176">terminal::id::bracketedPaste</references>
         <references refid="group__juce__audio__plugin__client-Unity_1gga485dc2a0e5ed7da3d9f826367b36ee55a6440030ae8284cee96c1c88b356c45a7">command</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Derived &gt;::getContext</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
+        <references refid="structjam_1_1_value_tree_1a7cd25c35d555eb38c4788e72ed7aa95b">jam::ValueTree::getValueFromChildWithID</references>
         <references refid="struct_map_1_1_link_handler_1a203964f6df9e945f861cfd764d003358aba8985a5769b2f12dd30f5f614297e0b" compoundref="_map_8h" startline="193">Map::LinkHandler::image</references>
+        <references refid="namespaceterminal_1_1id_1a79a59a405b5e0ea4bd4bdc099abf47b2" compoundref="_identifier_8h" startline="85" endline="85">terminal::id::MODES</references>
         <references refid="namespaceapp_1_1id_1af4b579159e05cc121f8ba57c25cf6a42" compoundref="_app_identifier_8h" startline="102" endline="102">app::id::pendingImageFile</references>
         <references refid="namespaceapp_1_1id_1aceb488e669313b802438e6366c5d36cd" compoundref="_app_identifier_8h" startline="98" endline="98">app::id::pendingMarkdownFile</references>
         <references refid="classterminal_1_1_link_manager_1aa045fa44879bd1d877ed867e9e5768f7" compoundref="_link_manager_8h" startline="236">state</references>
@@ -517,7 +527,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/LinkManager.h" line="141" column="23" bodyfile="terminal/LinkManager.cpp" bodystart="189" bodyend="189"/>
+        <location file="terminal/LinkManager.h" line="141" column="23" bodyfile="terminal/LinkManager.cpp" bodystart="198" bodyend="198"/>
         <references refid="classterminal_1_1_link_manager_1a920d095d1d8031152edb52c882dd3e05" compoundref="_link_manager_8h" startline="242">clickableLinks</references>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_link_manager_1a4965588593295585d637a54b26cbea12" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
@@ -538,7 +548,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/LinkManager.h" line="148" column="23" bodyfile="terminal/LinkManager.cpp" bodystart="191" bodyend="191"/>
+        <location file="terminal/LinkManager.h" line="148" column="23" bodyfile="terminal/LinkManager.cpp" bodystart="200" bodyend="200"/>
         <references refid="classterminal_1_1_link_manager_1a642a0a293231c3fb1372ca60f2142516" compoundref="_link_manager_8h" startline="245">hintLinks</references>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_link_manager_1a6cb483a8a7e03d5b59392189ca26543b" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
@@ -560,7 +570,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/LinkManager.h" line="159" column="20" bodyfile="terminal/LinkManager.cpp" bodystart="193" bodyend="193"/>
+        <location file="terminal/LinkManager.h" line="159" column="20" bodyfile="terminal/LinkManager.cpp" bodystart="202" bodyend="202"/>
         <references refid="classterminal_1_1_link_manager_1ab8e7a3ce2b732c42f9c9fcc27173efe9" compoundref="_link_manager_8h" startline="248" endline="248">activeStart</references>
         <references refid="classterminal_1_1_link_manager_1a642a0a293231c3fb1372ca60f2142516" compoundref="_link_manager_8h" startline="245">hintLinks</references>
       </memberdef>
@@ -576,7 +586,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/LinkManager.h" line="160" column="9" bodyfile="terminal/LinkManager.cpp" bodystart="194" bodyend="194"/>
+        <location file="terminal/LinkManager.h" line="160" column="9" bodyfile="terminal/LinkManager.cpp" bodystart="203" bodyend="203"/>
         <references refid="classterminal_1_1_link_manager_1a1ffddfe5109268fe599c20664b8fac46" compoundref="_link_manager_8h" startline="251" endline="251">activeCount</references>
       </memberdef>
     </sectiondef>
@@ -622,7 +632,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/LinkManager.h" line="170" column="17" bodyfile="terminal/LinkManager.cpp" bodystart="196" bodyend="201"/>
+        <location file="terminal/LinkManager.h" line="170" column="17" bodyfile="terminal/LinkManager.cpp" bodystart="205" bodyend="210"/>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_link_manager_1ae8b67101078bdc73e50134d440659d92" prot="private" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -890,7 +900,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/LinkManager.h" line="213" column="10" bodyfile="terminal/LinkManagerScan.cpp" bodystart="37" bodyend="41"/>
-        <referencedby refid="classterminal_1_1_link_manager_1ace7b575fc8bbeb4e12f2cb4b1542ab84" compoundref="_link_manager_8cpp" startline="66" endline="94">buildPages</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1ace7b575fc8bbeb4e12f2cb4b1542ab84" compoundref="_link_manager_8cpp" startline="70" endline="98">buildPages</referencedby>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_link_manager_1ace7b575fc8bbeb4e12f2cb4b1542ab84" prot="private" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
         <type>void</type>
@@ -909,11 +919,13 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/LinkManager.h" line="223" column="10" bodyfile="terminal/LinkManager.cpp" bodystart="66" bodyend="94"/>
+        <location file="terminal/LinkManager.h" line="223" column="10" bodyfile="terminal/LinkManager.cpp" bodystart="70" bodyend="98"/>
         <references refid="classterminal_1_1_link_manager_1a825e35f252eaa2e19b3b4c76af5ff536" compoundref="_link_manager_scan_8cpp" startline="37" endline="41">assignHintLabels</references>
         <references refid="classterminal_1_1_link_manager_1a642a0a293231c3fb1372ca60f2142516" compoundref="_link_manager_8h" startline="245">hintLinks</references>
+        <references refid="namespaceterminal_1_1id_1aa4006061c863080a7f3920bbce114dc2" compoundref="_identifier_8h" startline="147" endline="147">terminal::id::hintTotalPages</references>
         <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682cad304ba20e96d87411588eeabac850e34">label</references>
         <references refid="classterminal_1_1_link_manager_1ab6ab75e7defa8a3330fa375c3c10f73e" compoundref="_link_manager_8h" startline="254">pageBreaks</references>
+        <references refid="namespaceterminal_1_1id_1a9ca6b6efc0a9c3a15bc0d0f78b60e90d" compoundref="_identifier_8h" startline="82" endline="82">terminal::id::SESSION</references>
         <references refid="classterminal_1_1_link_manager_1aa045fa44879bd1d877ed867e9e5768f7" compoundref="_link_manager_8h" startline="236">state</references>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_link_manager_1a0e2c614fae978d980c9f8087b7724ab1" prot="private" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
@@ -933,13 +945,17 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/LinkManager.h" line="233" column="10" bodyfile="terminal/LinkManager.cpp" bodystart="96" bodyend="105"/>
+        <location file="terminal/LinkManager.h" line="233" column="10" bodyfile="terminal/LinkManager.cpp" bodystart="100" bodyend="112"/>
         <references refid="classterminal_1_1_link_manager_1a1ffddfe5109268fe599c20664b8fac46" compoundref="_link_manager_8h" startline="251" endline="251">activeCount</references>
         <references refid="classterminal_1_1_link_manager_1ab8e7a3ce2b732c42f9c9fcc27173efe9" compoundref="_link_manager_8h" startline="248" endline="248">activeStart</references>
+        <references refid="structjam_1_1_value_tree_1ac7c592a1eba42ac3b0628a2ada9ab4e7">jam::ValueTree::getChildWithID</references>
         <references refid="classterminal_1_1_link_manager_1a642a0a293231c3fb1372ca60f2142516" compoundref="_link_manager_8h" startline="245">hintLinks</references>
+        <references refid="namespaceterminal_1_1id_1a456802ad45a86367448f081a7d52eaf7" compoundref="_identifier_8h" startline="144" endline="144">terminal::id::hintPage</references>
+        <references refid="namespaceterminal_1_1id_1aa4006061c863080a7f3920bbce114dc2" compoundref="_identifier_8h" startline="147" endline="147">terminal::id::hintTotalPages</references>
         <references refid="classterminal_1_1_link_manager_1ab6ab75e7defa8a3330fa375c3c10f73e" compoundref="_link_manager_8h" startline="254">pageBreaks</references>
         <references refid="classterminal_1_1_link_manager_1aa045fa44879bd1d877ed867e9e5768f7" compoundref="_link_manager_8h" startline="236">state</references>
-        <referencedby refid="classterminal_1_1_link_manager_1a9d462e9d09f9ee4426eaede532210a75" compoundref="_link_manager_8cpp" startline="54" endline="64">advanceHintPage</referencedby>
+        <references refid="namespaceterminal_1_1id_1a2b8b3a15901c16432311d99e99a34d67" compoundref="_identifier_8h" startline="110" endline="110">terminal::id::value</references>
+        <referencedby refid="classterminal_1_1_link_manager_1a9d462e9d09f9ee4426eaede532210a75" compoundref="_link_manager_8cpp" startline="54" endline="68">advanceHintPage</referencedby>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_link_manager_1af86d53af2040b8744eb7aed1fccf47c9" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -961,8 +977,14 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/LinkManager.h" line="266" column="10" bodyfile="terminal/LinkManager.cpp" bodystart="207" bodyend="223"/>
+        <location file="terminal/LinkManager.h" line="266" column="10" bodyfile="terminal/LinkManager.cpp" bodystart="216" bodyend="243"/>
+        <references refid="namespaceterminal_1_1id_1ad9fd72b61b4ec96b2a652a7762f89ac3" compoundref="_identifier_8h" startline="129" endline="129">terminal::id::activeScreen</references>
         <references refid="classterminal_1_1_link_manager_1a920d095d1d8031152edb52c882dd3e05" compoundref="_link_manager_8h" startline="242">clickableLinks</references>
+        <references refid="namespaceterminal_1_1id_1a0d551d759a87363c22a6d1712cf26cd9" compoundref="_identifier_8h" startline="157" endline="157">terminal::id::cwd</references>
+        <references refid="structjam_1_1_value_tree_1ac7c592a1eba42ac3b0628a2ada9ab4e7">jam::ValueTree::getChildWithID</references>
+        <references refid="struct_map_1_1_screen_1ae896a8da63494212bf03476a7240bcd7a52c265899cc5ae22da8996f5f35e32b7" compoundref="_map_8h" startline="41">Map::Screen::normal</references>
+        <references refid="namespaceterminal_1_1id_1a2543ac3ae5aeaafa5ab1bf26cbdfb3f7" compoundref="_identifier_8h" startline="234" endline="234">terminal::id::outputBlockTop</references>
+        <references refid="namespaceterminal_1_1id_1afb69df17fc87c56e23116b7df4409258" compoundref="_identifier_8h" startline="243" endline="243">terminal::id::promptRow</references>
         <references refid="classterminal_1_1_link_manager_1a4260ba678cf95251306cf108e879864f" compoundref="_link_manager_8cpp" startline="32" endline="36">scan</references>
         <references refid="classterminal_1_1_link_manager_1aa045fa44879bd1d877ed867e9e5768f7" compoundref="_link_manager_8h" startline="236">state</references>
         <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682cac0af77cf8294ff93a5cdb2963ca9f038">tree</references>
@@ -1091,8 +1113,6 @@
         <label>terminal::Model</label>
         <link refid="structterminal_1_1_model"/>
         <childnode refid="4" relation="public-inheritance">
-        </childnode>
-        <childnode refid="2" relation="private-inheritance">
         </childnode>
         <childnode refid="10" relation="usage">
           <edgelabel>rowDirtyFlags</edgelabel>

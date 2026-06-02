@@ -18,30 +18,30 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Identifier.h" line="82" column="35" bodyfile="terminal/Identifier.h" bodystart="82" bodyend="82"/>
-        <referencedby refid="structterminal_1_1_model_1aef97b8774a8b4bd87be42862a1693c40" compoundref="_model_8cpp" startline="135" endline="139">terminal::Model::addTextParameter</referencedby>
-        <referencedby refid="structterminal_1_1_model_1a7ab986ba96c3d9b8b1c8088318bc3591" compoundref="_model_8cpp" startline="49" endline="133">terminal::Model::buildLayout</referencedby>
-        <referencedby refid="structterminal_1_1_model_1a75d2bb097066b5073e7b135d2ba08412" compoundref="_model_8cpp" startline="407" endline="415">terminal::Model::clearPasteEchoGate</referencedby>
-        <referencedby refid="structterminal_1_1_model_1a3ec5532dfaeb0582a45b350e17aea607" compoundref="_model_8cpp" startline="391" endline="405">terminal::Model::consumePasteEcho</referencedby>
-        <referencedby refid="structterminal_1_1_model_1ab92732c6050593b13cf3d060f9755ef9" compoundref="_model_8cpp" startline="377" endline="380">terminal::Model::consumeSnapshotDirty</referencedby>
-        <referencedby refid="structterminal_1_1_model_1aad782d12a0ce3e431da6a125d053a174" compoundref="_model_8cpp" startline="452" endline="457">terminal::Model::dismissPreview</referencedby>
-        <referencedby refid="structterminal_1_1_model_1a1bcc24d11a98aa621b738ce796a8cecc" compoundref="_model_8cpp" startline="329" endline="335">terminal::Model::extendOutputBlock</referencedby>
-        <referencedby refid="structterminal_1_1_model_1aaca46e7c6a6408bce096a44ebbc48c55" compoundref="_model_8cpp" startline="431" endline="434">terminal::Model::isSyncOutputActive</referencedby>
+        <referencedby refid="structterminal_1_1_model_1aef97b8774a8b4bd87be42862a1693c40" compoundref="_model_8cpp" startline="131" endline="135">terminal::Model::addTextParameter</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1a9d462e9d09f9ee4426eaede532210a75" compoundref="_link_manager_8cpp" startline="54" endline="68">terminal::LinkManager::advanceHintPage</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a7ab986ba96c3d9b8b1c8088318bc3591" compoundref="_model_8cpp" startline="43" endline="129">terminal::Model::buildLayout</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1ace7b575fc8bbeb4e12f2cb4b1542ab84" compoundref="_link_manager_8cpp" startline="70" endline="98">terminal::LinkManager::buildPages</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1a7447cd4243683a53c162b81965b1ce27" compoundref="_link_manager_8cpp" startline="44" endline="52">terminal::LinkManager::clearHints</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a75d2bb097066b5073e7b135d2ba08412" compoundref="_model_8cpp" startline="283" endline="291">terminal::Model::clearPasteEchoGate</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a3ec5532dfaeb0582a45b350e17aea607" compoundref="_model_8cpp" startline="267" endline="281">terminal::Model::consumePasteEcho</referencedby>
+        <referencedby refid="structterminal_1_1_model_1aad782d12a0ce3e431da6a125d053a174" compoundref="_model_8cpp" startline="312" endline="317">terminal::Model::dismissPreview</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a1bcc24d11a98aa621b738ce796a8cecc" compoundref="_model_8cpp" startline="229" endline="235">terminal::Model::extendOutputBlock</referencedby>
         <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
         <referencedby refid="classterminal_1_1_tabs_1a729530e36f5facd240fdf7fc725f9be4" compoundref="_tabs_actions_8cpp" startline="117" endline="226">terminal::Tabs::restore</referencedby>
-        <referencedby refid="structterminal_1_1_model_1a77b39c03cb2601687a4978d8df3d3415" compoundref="_model_8cpp" startline="300" endline="304">terminal::Model::setCwd</referencedby>
-        <referencedby refid="structterminal_1_1_model_1a8bc5f83f625fe7cd18314d199f0cc500" compoundref="_model_8cpp" startline="306" endline="310">terminal::Model::setForegroundProcess</referencedby>
-        <referencedby refid="structterminal_1_1_model_1a530c92941be8fb977d50c971db120b20" compoundref="_model_8cpp" startline="463" endline="463">terminal::Model::setHintPage</referencedby>
-        <referencedby refid="structterminal_1_1_model_1aa943b54264f59c5d38862e3fbf9e54d9" compoundref="_model_8cpp" startline="471" endline="471">terminal::Model::setHintTotalPages</referencedby>
-        <referencedby refid="structterminal_1_1_model_1a6ec8eb9951670cab685bccb43b092c3d" compoundref="_model_8cpp" startline="483" endline="487">terminal::Model::setModalType</referencedby>
-        <referencedby refid="structterminal_1_1_model_1af0e21e00d90bbc9b343143edccc328f4" compoundref="_model_8cpp" startline="323" endline="327">terminal::Model::setOutputBlockEnd</referencedby>
-        <referencedby refid="structterminal_1_1_model_1ab9c597923e8fdcb8240709c4d856f160" compoundref="_model_8cpp" startline="316" endline="321">terminal::Model::setOutputBlockStart</referencedby>
-        <referencedby refid="structterminal_1_1_model_1a5de132a550efcc6f316a568e39355148" compoundref="_model_8cpp" startline="386" endline="389">terminal::Model::setPasteEchoGate</referencedby>
-        <referencedby refid="structterminal_1_1_model_1a830c4954526c2fee16df30f8c213917f" compoundref="_model_8cpp" startline="337" endline="337">terminal::Model::setPromptRow</referencedby>
-        <referencedby refid="structterminal_1_1_model_1ab66e64775abf6c51f8250df8c50461cb" compoundref="_model_8cpp" startline="290" endline="290">terminal::Model::setScreen</referencedby>
-        <referencedby refid="structterminal_1_1_model_1a2c0394042e5183dfd9c509f67b749c64" compoundref="_model_8cpp" startline="363" endline="363">terminal::Model::setShellExited</referencedby>
-        <referencedby refid="structterminal_1_1_model_1abb78d85d14fe48e4a3e22c90360345a8" compoundref="_model_8cpp" startline="369" endline="375">terminal::Model::setSnapshotDirty</referencedby>
-        <referencedby refid="structterminal_1_1_model_1a9ae703cf77731ff7ca6af000feb05f84" compoundref="_model_8cpp" startline="421" endline="429">terminal::Model::setSyncOutput</referencedby>
-        <referencedby refid="structterminal_1_1_model_1aa0e2b35761335b2e03a4ba2f5a4abff5" compoundref="_model_8cpp" startline="294" endline="298">terminal::Model::setTitle</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a77b39c03cb2601687a4978d8df3d3415" compoundref="_model_8cpp" startline="200" endline="204">terminal::Model::setCwd</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a8bc5f83f625fe7cd18314d199f0cc500" compoundref="_model_8cpp" startline="206" endline="210">terminal::Model::setForegroundProcess</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a530c92941be8fb977d50c971db120b20" compoundref="_model_8cpp" startline="323" endline="323">terminal::Model::setHintPage</referencedby>
+        <referencedby refid="structterminal_1_1_model_1aa943b54264f59c5d38862e3fbf9e54d9" compoundref="_model_8cpp" startline="325" endline="325">terminal::Model::setHintTotalPages</referencedby>
+        <referencedby refid="structterminal_1_1_model_1af0e21e00d90bbc9b343143edccc328f4" compoundref="_model_8cpp" startline="223" endline="227">terminal::Model::setOutputBlockEnd</referencedby>
+        <referencedby refid="structterminal_1_1_model_1ab9c597923e8fdcb8240709c4d856f160" compoundref="_model_8cpp" startline="216" endline="221">terminal::Model::setOutputBlockStart</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a5de132a550efcc6f316a568e39355148" compoundref="_model_8cpp" startline="262" endline="265">terminal::Model::setPasteEchoGate</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a830c4954526c2fee16df30f8c213917f" compoundref="_model_8cpp" startline="237" endline="237">terminal::Model::setPromptRow</referencedby>
+        <referencedby refid="structterminal_1_1_model_1ab66e64775abf6c51f8250df8c50461cb" compoundref="_model_8cpp" startline="190" endline="190">terminal::Model::setScreen</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a2c0394042e5183dfd9c509f67b749c64" compoundref="_model_8cpp" startline="243" endline="243">terminal::Model::setShellExited</referencedby>
+        <referencedby refid="structterminal_1_1_model_1abb78d85d14fe48e4a3e22c90360345a8" compoundref="_model_8cpp" startline="249" endline="255">terminal::Model::setSnapshotDirty</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a9ae703cf77731ff7ca6af000feb05f84" compoundref="_model_8cpp" startline="297" endline="305">terminal::Model::setSyncOutput</referencedby>
+        <referencedby refid="structterminal_1_1_model_1aa0e2b35761335b2e03a4ba2f5a4abff5" compoundref="_model_8cpp" startline="194" endline="198">terminal::Model::setTitle</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceterminal_1_1id_1a79a59a405b5e0ea4bd4bdc099abf47b2" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>
@@ -58,9 +58,13 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Identifier.h" line="85" column="35" bodyfile="terminal/Identifier.h" bodystart="85" bodyend="85"/>
-        <referencedby refid="structterminal_1_1_model_1a7ab986ba96c3d9b8b1c8088318bc3591" compoundref="_model_8cpp" startline="49" endline="133">terminal::Model::buildLayout</referencedby>
-        <referencedby refid="structterminal_1_1_model_1a34ae5e9c536e91f0f0058bdbf3f6ef84" compoundref="_model_8cpp" startline="224" endline="229">terminal::Model::getMode</referencedby>
-        <referencedby refid="structterminal_1_1_model_1ad500ddcb5ed1166edddc88c7b4e089c0" compoundref="_model_8cpp" startline="292" endline="292">terminal::Model::setMode</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a7ab986ba96c3d9b8b1c8088318bc3591" compoundref="_model_8cpp" startline="43" endline="129">terminal::Model::buildLayout</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1a31972897ab13d8ab670c6c5abd749e57" compoundref="_link_manager_8cpp" startline="146" endline="196">terminal::LinkManager::dispatch</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1ada78f7637abbbf289a1e78b13c09d117" compoundref="_processor_8cpp" startline="307" endline="319">terminal::Processor::encodeFocusEvent</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1ac27d1456511a72a12a478c90f90eda0e" compoundref="_processor_8cpp" startline="241" endline="266">terminal::Processor::encodeKeyPress</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a7e952949b06abd72a91595e5d664c8d0" compoundref="_processor_8cpp" startline="275" endline="298">terminal::Processor::encodePaste</referencedby>
+        <referencedby refid="structterminal_1_1_model_1ad500ddcb5ed1166edddc88c7b4e089c0" compoundref="_model_8cpp" startline="192" endline="192">terminal::Model::setMode</referencedby>
+        <referencedby refid="classterminal_1_1_mouse_1a121ba6baba449a38de550335155c381e" compoundref="_mouse_8cpp" startline="298" endline="305">terminal::Mouse::shouldForwardToPty</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceterminal_1_1id_1a524696f5c8e1fc1e4abc0a43b07a7298" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>
@@ -111,7 +115,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Identifier.h" line="94" column="35" bodyfile="terminal/Identifier.h" bodystart="94" bodyend="94"/>
-        <referencedby refid="structterminal_1_1_model_1a7ab986ba96c3d9b8b1c8088318bc3591" compoundref="_model_8cpp" startline="49" endline="133">terminal::Model::buildLayout</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a7ab986ba96c3d9b8b1c8088318bc3591" compoundref="_model_8cpp" startline="43" endline="129">terminal::Model::buildLayout</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceterminal_1_1id_1a691c402e18573ecfd2ea1d4853623309" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>
@@ -128,7 +132,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Identifier.h" line="97" column="35" bodyfile="terminal/Identifier.h" bodystart="97" bodyend="97"/>
-        <referencedby refid="structterminal_1_1_model_1a7ab986ba96c3d9b8b1c8088318bc3591" compoundref="_model_8cpp" startline="49" endline="133">terminal::Model::buildLayout</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a7ab986ba96c3d9b8b1c8088318bc3591" compoundref="_model_8cpp" startline="43" endline="129">terminal::Model::buildLayout</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceterminal_1_1id_1ac60aa22c1be553aa55cbd312cb0ef0df" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>
@@ -145,7 +149,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Identifier.h" line="100" column="35" bodyfile="terminal/Identifier.h" bodystart="100" bodyend="100"/>
-        <referencedby refid="classterminal_1_1_display_1a4d5c9e51f93d6251bd8cdf81b8a9bd75" compoundref="_display_8cpp" startline="48" endline="69">terminal::Display::applyFromAppModel</referencedby>
+        <referencedby refid="classterminal_1_1_display_1add336f50de49e963b5491ad266173662" compoundref="_display_8cpp" startline="51" endline="72">terminal::Display::applyFromAppModel</referencedby>
         <referencedby refid="classterminal_1_1_processor_1a47a73ee5512a61ccbc27086ba67a4d4b" compoundref="_processor_8cpp" startline="191" endline="199">terminal::Processor::setCellSize</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceterminal_1_1id_1a4cea21a405bc847e5f7b62e8957dda2f" prot="public" static="yes" mutable="no">
@@ -163,9 +167,9 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Identifier.h" line="107" column="35" bodyfile="terminal/Identifier.h" bodystart="107" bodyend="107"/>
-        <referencedby refid="structterminal_1_1_model_1a7ab986ba96c3d9b8b1c8088318bc3591" compoundref="_model_8cpp" startline="49" endline="133">terminal::Model::buildLayout</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a7ab986ba96c3d9b8b1c8088318bc3591" compoundref="_model_8cpp" startline="43" endline="129">terminal::Model::buildLayout</referencedby>
         <referencedby refid="classnexus_1_1_daemon_1a926bf8b33d96803c18cfbf7516da1e5b" compoundref="_daemon_8cpp" startline="356" endline="432">nexus::Daemon::valueTreePropertyChanged</referencedby>
-        <referencedby refid="classterminal_1_1_display_1a96f58201d64de70c95725f3ec9f44676" compoundref="_display_8cpp" startline="88" endline="179">terminal::Display::valueTreePropertyChanged</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a03eba79fe456af4968d7f483d9f240f0" compoundref="_display_8cpp" startline="91" endline="182">terminal::Display::valueTreePropertyChanged</referencedby>
         <referencedby refid="classterminal_1_1_panes_1adfbcfe5d7d66050d58b6d7ddc0341973" compoundref="_panes_8cpp" startline="486" endline="539">terminal::Panes::valueTreePropertyChanged</referencedby>
         <referencedby refid="classterminal_1_1_popup_1a6878254c4370918c27b8825f8dcc0373" compoundref="_popup_8cpp" startline="67" endline="79">terminal::Popup::valueTreePropertyChanged</referencedby>
         <referencedby refid="classterminal_1_1_processor_1a42ab024e64bd69cb17969f24aa01f364" compoundref="_processor_8cpp" startline="172" endline="187">terminal::Processor::valueTreePropertyChanged</referencedby>
@@ -185,10 +189,13 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Identifier.h" line="110" column="35" bodyfile="terminal/Identifier.h" bodystart="110" bodyend="110"/>
-        <referencedby refid="namespaceterminal_1ad3581f9d2e9f579bf01422fe6fe04958" compoundref="_model_8cpp" startline="238" endline="250">terminal::getSessionParamInt</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1a9d462e9d09f9ee4426eaede532210a75" compoundref="_link_manager_8cpp" startline="54" endline="68">terminal::LinkManager::advanceHintPage</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1a0e2c614fae978d980c9f8087b7724ab1" compoundref="_link_manager_8cpp" startline="100" endline="112">terminal::LinkManager::assignCurrentPage</referencedby>
+        <referencedby refid="classterminal_1_1_mouse_1a7c0ca20075990ed9f26d06ac07a29fd5" compoundref="_mouse_8cpp" startline="35" endline="109">terminal::Mouse::handleDown</referencedby>
+        <referencedby refid="classterminal_1_1_input_1ae66a767d6935f797838cc3d7174a0b26" compoundref="_input_8cpp" startline="31" endline="73">terminal::Input::handleKey</referencedby>
         <referencedby refid="classnexus_1_1_daemon_1a926bf8b33d96803c18cfbf7516da1e5b" compoundref="_daemon_8cpp" startline="356" endline="432">nexus::Daemon::valueTreePropertyChanged</referencedby>
-        <referencedby refid="classterminal_1_1_display_1a96f58201d64de70c95725f3ec9f44676" compoundref="_display_8cpp" startline="88" endline="179">terminal::Display::valueTreePropertyChanged</referencedby>
-        <referencedby refid="classterminal_1_1_link_manager_1af86d53af2040b8744eb7aed1fccf47c9" compoundref="_link_manager_8cpp" startline="207" endline="223">terminal::LinkManager::valueTreePropertyChanged</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a03eba79fe456af4968d7f483d9f240f0" compoundref="_display_8cpp" startline="91" endline="182">terminal::Display::valueTreePropertyChanged</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1af86d53af2040b8744eb7aed1fccf47c9" compoundref="_link_manager_8cpp" startline="216" endline="243">terminal::LinkManager::valueTreePropertyChanged</referencedby>
         <referencedby refid="classterminal_1_1_panes_1adfbcfe5d7d66050d58b6d7ddc0341973" compoundref="_panes_8cpp" startline="486" endline="539">terminal::Panes::valueTreePropertyChanged</referencedby>
         <referencedby refid="classterminal_1_1_popup_1a6878254c4370918c27b8825f8dcc0373" compoundref="_popup_8cpp" startline="67" endline="79">terminal::Popup::valueTreePropertyChanged</referencedby>
         <referencedby refid="classterminal_1_1_processor_1a42ab024e64bd69cb17969f24aa01f364" compoundref="_processor_8cpp" startline="172" endline="187">terminal::Processor::valueTreePropertyChanged</referencedby>
@@ -208,8 +215,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Identifier.h" line="113" column="35" bodyfile="terminal/Identifier.h" bodystart="113" bodyend="113"/>
-        <referencedby refid="structterminal_1_1_model_1a7ab986ba96c3d9b8b1c8088318bc3591" compoundref="_model_8cpp" startline="49" endline="133">terminal::Model::buildLayout</referencedby>
-        <referencedby refid="structterminal_1_1_model_1a5519c794b349ea904e4a2bf7b41dc037" compoundref="_model_8cpp" startline="31" endline="47">terminal::Model::resolveLayoutDefault</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a7ab986ba96c3d9b8b1c8088318bc3591" compoundref="_model_8cpp" startline="43" endline="129">terminal::Model::buildLayout</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a5519c794b349ea904e4a2bf7b41dc037" compoundref="_model_8cpp" startline="25" endline="41">terminal::Model::resolveLayoutDefault</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceterminal_1_1id_1aad8c2aa01ce7bfe28bd953f034a19bf1" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>
@@ -226,8 +233,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Identifier.h" line="116" column="35" bodyfile="terminal/Identifier.h" bodystart="116" bodyend="116"/>
-        <referencedby refid="structterminal_1_1_model_1a7ab986ba96c3d9b8b1c8088318bc3591" compoundref="_model_8cpp" startline="49" endline="133">terminal::Model::buildLayout</referencedby>
-        <referencedby refid="structterminal_1_1_model_1a5519c794b349ea904e4a2bf7b41dc037" compoundref="_model_8cpp" startline="31" endline="47">terminal::Model::resolveLayoutDefault</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a7ab986ba96c3d9b8b1c8088318bc3591" compoundref="_model_8cpp" startline="43" endline="129">terminal::Model::buildLayout</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a5519c794b349ea904e4a2bf7b41dc037" compoundref="_model_8cpp" startline="25" endline="41">terminal::Model::resolveLayoutDefault</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceterminal_1_1id_1a5aa9ecf280801ec96645cec4e3be918e" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>
@@ -244,7 +251,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Identifier.h" line="119" column="35" bodyfile="terminal/Identifier.h" bodystart="119" bodyend="119"/>
-        <referencedby refid="structterminal_1_1_model_1a7ab986ba96c3d9b8b1c8088318bc3591" compoundref="_model_8cpp" startline="49" endline="133">terminal::Model::buildLayout</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a7ab986ba96c3d9b8b1c8088318bc3591" compoundref="_model_8cpp" startline="43" endline="129">terminal::Model::buildLayout</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceterminal_1_1id_1a9b28c291b349892dd5314443fec16e20" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>
@@ -261,7 +268,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Identifier.h" line="122" column="35" bodyfile="terminal/Identifier.h" bodystart="122" bodyend="122"/>
-        <referencedby refid="structterminal_1_1_model_1a5519c794b349ea904e4a2bf7b41dc037" compoundref="_model_8cpp" startline="31" endline="47">terminal::Model::resolveLayoutDefault</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a5519c794b349ea904e4a2bf7b41dc037" compoundref="_model_8cpp" startline="25" endline="41">terminal::Model::resolveLayoutDefault</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceterminal_1_1id_1ad9fd72b61b4ec96b2a652a7762f89ac3" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>
@@ -278,13 +285,16 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Identifier.h" line="129" column="35" bodyfile="terminal/Identifier.h" bodystart="129" bodyend="129"/>
+        <referencedby refid="classterminal_1_1_processor_1ac27d1456511a72a12a478c90f90eda0e" compoundref="_processor_8cpp" startline="241" endline="266">terminal::Processor::encodeKeyPress</referencedby>
         <referencedby refid="classterminal_1_1_video_1ab8c186d04c9a33e4fc6f64892ab05734" compoundref="_video_8cpp" startline="99" endline="116">terminal::Video::flush</referencedby>
-        <referencedby refid="structterminal_1_1_model_1aded6fea0a6e67962a83f0b00f605d610" compoundref="_model_8cpp" startline="231" endline="235">terminal::Model::getActiveScreen</referencedby>
+        <referencedby refid="classterminal_1_1_input_1ace1c358d34fc58663db236f8da1a457e" compoundref="_input_8cpp" startline="137" endline="295">terminal::Input::handleSelectionKey</referencedby>
+        <referencedby refid="classterminal_1_1_mouse_1a7afe6147427be322e1171a6556a0868e" compoundref="_mouse_8cpp" startline="231" endline="296">terminal::Mouse::handleWheel</referencedby>
         <referencedby refid="classterminal_1_1_link_manager_1a927ddc099855370ea7783bb9b97aef83" compoundref="_link_manager_8cpp" startline="15" endline="24">terminal::LinkManager::LinkManager</referencedby>
         <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
-        <referencedby refid="structterminal_1_1_model_1ab66e64775abf6c51f8250df8c50461cb" compoundref="_model_8cpp" startline="290" endline="290">terminal::Model::setScreen</referencedby>
+        <referencedby refid="structterminal_1_1_model_1ab66e64775abf6c51f8250df8c50461cb" compoundref="_model_8cpp" startline="190" endline="190">terminal::Model::setScreen</referencedby>
         <referencedby refid="classterminal_1_1_video_1ae01e2cd8843755d5a8e58e9d395f437a" compoundref="_video_edit_8cpp" startline="459" endline="477">terminal::Video::setScreen</referencedby>
-        <referencedby refid="classterminal_1_1_display_1a96f58201d64de70c95725f3ec9f44676" compoundref="_display_8cpp" startline="88" endline="179">terminal::Display::valueTreePropertyChanged</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a03eba79fe456af4968d7f483d9f240f0" compoundref="_display_8cpp" startline="91" endline="182">terminal::Display::valueTreePropertyChanged</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1af86d53af2040b8744eb7aed1fccf47c9" compoundref="_link_manager_8cpp" startline="216" endline="243">terminal::LinkManager::valueTreePropertyChanged</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceterminal_1_1id_1a24851586253954da0bdefe155b4bda44" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>
@@ -302,10 +312,10 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Identifier.h" line="132" column="35" bodyfile="terminal/Identifier.h" bodystart="132" bodyend="132"/>
-        <referencedby refid="classterminal_1_1_display_1a4d5c9e51f93d6251bd8cdf81b8a9bd75" compoundref="_display_8cpp" startline="48" endline="69">terminal::Display::applyFromAppModel</referencedby>
-        <referencedby refid="classterminal_1_1_display_1aba2b9e271d38ad4e5268333aaac31d8d" compoundref="_display_8cpp" startline="3" endline="34">terminal::Display::Display</referencedby>
+        <referencedby refid="classterminal_1_1_display_1add336f50de49e963b5491ad266173662" compoundref="_display_8cpp" startline="51" endline="72">terminal::Display::applyFromAppModel</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a795559c55785fb2637b1a3b873d84515" compoundref="_display_8cpp" startline="3" endline="37">terminal::Display::Display</referencedby>
         <referencedby refid="classterminal_1_1_processor_1a55c3277d5426fc60a5318834bc630226" compoundref="_processor_8cpp" startline="22" endline="44">terminal::Processor::Processor</referencedby>
-        <referencedby refid="classterminal_1_1_display_1afd5758511197f47a6bf7fb96d9886b5a" compoundref="_display_8cpp" startline="215" endline="253">terminal::Display::resized</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a82fd0968bf27d37e421cae3489d14bb3" compoundref="_display_8cpp" startline="218" endline="256">terminal::Display::resized</referencedby>
         <referencedby refid="classterminal_1_1_processor_1a47a73ee5512a61ccbc27086ba67a4d4b" compoundref="_processor_8cpp" startline="191" endline="199">terminal::Processor::setCellSize</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceterminal_1_1id_1a90a87bb834cd3d8010472103526b0e6f" prot="public" static="yes" mutable="no">
@@ -324,10 +334,10 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Identifier.h" line="135" column="35" bodyfile="terminal/Identifier.h" bodystart="135" bodyend="135"/>
-        <referencedby refid="classterminal_1_1_display_1a4d5c9e51f93d6251bd8cdf81b8a9bd75" compoundref="_display_8cpp" startline="48" endline="69">terminal::Display::applyFromAppModel</referencedby>
-        <referencedby refid="classterminal_1_1_display_1aba2b9e271d38ad4e5268333aaac31d8d" compoundref="_display_8cpp" startline="3" endline="34">terminal::Display::Display</referencedby>
+        <referencedby refid="classterminal_1_1_display_1add336f50de49e963b5491ad266173662" compoundref="_display_8cpp" startline="51" endline="72">terminal::Display::applyFromAppModel</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a795559c55785fb2637b1a3b873d84515" compoundref="_display_8cpp" startline="3" endline="37">terminal::Display::Display</referencedby>
         <referencedby refid="classterminal_1_1_processor_1a55c3277d5426fc60a5318834bc630226" compoundref="_processor_8cpp" startline="22" endline="44">terminal::Processor::Processor</referencedby>
-        <referencedby refid="classterminal_1_1_display_1afd5758511197f47a6bf7fb96d9886b5a" compoundref="_display_8cpp" startline="215" endline="253">terminal::Display::resized</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a82fd0968bf27d37e421cae3489d14bb3" compoundref="_display_8cpp" startline="218" endline="256">terminal::Display::resized</referencedby>
         <referencedby refid="classterminal_1_1_processor_1a47a73ee5512a61ccbc27086ba67a4d4b" compoundref="_processor_8cpp" startline="191" endline="199">terminal::Processor::setCellSize</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceterminal_1_1id_1a0e30c34b95c11793be83bc3c6adb0c27" prot="public" static="yes" mutable="no">
@@ -345,8 +355,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Identifier.h" line="138" column="35" bodyfile="terminal/Identifier.h" bodystart="138" bodyend="138"/>
-        <referencedby refid="classterminal_1_1_display_1a4d5c9e51f93d6251bd8cdf81b8a9bd75" compoundref="_display_8cpp" startline="48" endline="69">terminal::Display::applyFromAppModel</referencedby>
-        <referencedby refid="classterminal_1_1_display_1aba2b9e271d38ad4e5268333aaac31d8d" compoundref="_display_8cpp" startline="3" endline="34">terminal::Display::Display</referencedby>
+        <referencedby refid="classterminal_1_1_display_1add336f50de49e963b5491ad266173662" compoundref="_display_8cpp" startline="51" endline="72">terminal::Display::applyFromAppModel</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a795559c55785fb2637b1a3b873d84515" compoundref="_display_8cpp" startline="3" endline="37">terminal::Display::Display</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceterminal_1_1id_1a74ede1ffd0ee235b77447a91e4965995" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>
@@ -363,8 +373,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Identifier.h" line="141" column="35" bodyfile="terminal/Identifier.h" bodystart="141" bodyend="141"/>
-        <referencedby refid="classterminal_1_1_display_1a4d5c9e51f93d6251bd8cdf81b8a9bd75" compoundref="_display_8cpp" startline="48" endline="69">terminal::Display::applyFromAppModel</referencedby>
-        <referencedby refid="classterminal_1_1_display_1aba2b9e271d38ad4e5268333aaac31d8d" compoundref="_display_8cpp" startline="3" endline="34">terminal::Display::Display</referencedby>
+        <referencedby refid="classterminal_1_1_display_1add336f50de49e963b5491ad266173662" compoundref="_display_8cpp" startline="51" endline="72">terminal::Display::applyFromAppModel</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a795559c55785fb2637b1a3b873d84515" compoundref="_display_8cpp" startline="3" endline="37">terminal::Display::Display</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceterminal_1_1id_1a456802ad45a86367448f081a7d52eaf7" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>
@@ -382,8 +392,10 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Identifier.h" line="144" column="35" bodyfile="terminal/Identifier.h" bodystart="144" bodyend="144"/>
-        <referencedby refid="structterminal_1_1_model_1a79c2f1763b4446d250dcd8cf8536f5e7" compoundref="_model_8cpp" startline="465" endline="469">terminal::Model::getHintPage</referencedby>
-        <referencedby refid="structterminal_1_1_model_1a530c92941be8fb977d50c971db120b20" compoundref="_model_8cpp" startline="463" endline="463">terminal::Model::setHintPage</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1a9d462e9d09f9ee4426eaede532210a75" compoundref="_link_manager_8cpp" startline="54" endline="68">terminal::LinkManager::advanceHintPage</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1a0e2c614fae978d980c9f8087b7724ab1" compoundref="_link_manager_8cpp" startline="100" endline="112">terminal::LinkManager::assignCurrentPage</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1a7447cd4243683a53c162b81965b1ce27" compoundref="_link_manager_8cpp" startline="44" endline="52">terminal::LinkManager::clearHints</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a530c92941be8fb977d50c971db120b20" compoundref="_model_8cpp" startline="323" endline="323">terminal::Model::setHintPage</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceterminal_1_1id_1aa4006061c863080a7f3920bbce114dc2" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>
@@ -401,8 +413,11 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Identifier.h" line="147" column="35" bodyfile="terminal/Identifier.h" bodystart="147" bodyend="147"/>
-        <referencedby refid="structterminal_1_1_model_1aac24f406754f3362c2b6bfa0af234ae0" compoundref="_model_8cpp" startline="473" endline="477">terminal::Model::getHintTotalPages</referencedby>
-        <referencedby refid="structterminal_1_1_model_1aa943b54264f59c5d38862e3fbf9e54d9" compoundref="_model_8cpp" startline="471" endline="471">terminal::Model::setHintTotalPages</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1a9d462e9d09f9ee4426eaede532210a75" compoundref="_link_manager_8cpp" startline="54" endline="68">terminal::LinkManager::advanceHintPage</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1a0e2c614fae978d980c9f8087b7724ab1" compoundref="_link_manager_8cpp" startline="100" endline="112">terminal::LinkManager::assignCurrentPage</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1ace7b575fc8bbeb4e12f2cb4b1542ab84" compoundref="_link_manager_8cpp" startline="70" endline="98">terminal::LinkManager::buildPages</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1a7447cd4243683a53c162b81965b1ce27" compoundref="_link_manager_8cpp" startline="44" endline="52">terminal::LinkManager::clearHints</referencedby>
+        <referencedby refid="structterminal_1_1_model_1aa943b54264f59c5d38862e3fbf9e54d9" compoundref="_model_8cpp" startline="325" endline="325">terminal::Model::setHintTotalPages</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceterminal_1_1id_1a3a9b532716e8f0ab83ae7b5366ec579c" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>
@@ -419,10 +434,9 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Identifier.h" line="154" column="35" bodyfile="terminal/Identifier.h" bodystart="154" bodyend="154"/>
-        <referencedby refid="structterminal_1_1_model_1a87aa381a2183e84203b6e366f5ea9a03" compoundref="_model_8cpp" startline="266" endline="270">terminal::Model::getTitle</referencedby>
         <referencedby refid="classterminal_1_1_video_1ad1cc91f82c7c4a003632d8325bc44344" compoundref="_video_o_s_c_8cpp" startline="99" endline="108">terminal::Video::handleOscTitle</referencedby>
         <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
-        <referencedby refid="structterminal_1_1_model_1aa0e2b35761335b2e03a4ba2f5a4abff5" compoundref="_model_8cpp" startline="294" endline="298">terminal::Model::setTitle</referencedby>
+        <referencedby refid="structterminal_1_1_model_1aa0e2b35761335b2e03a4ba2f5a4abff5" compoundref="_model_8cpp" startline="194" endline="198">terminal::Model::setTitle</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceterminal_1_1id_1a0d551d759a87363c22a6d1712cf26cd9" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>
@@ -439,16 +453,17 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Identifier.h" line="157" column="35" bodyfile="terminal/Identifier.h" bodystart="157" bodyend="157"/>
-        <referencedby refid="structterminal_1_1_model_1a25ba72627e3bd4ab113b200db5db3e94" compoundref="_model_8cpp" startline="272" endline="276">terminal::Model::getCwd</referencedby>
         <referencedby refid="struct_app_model_1af7eeffe94f371e3ee1ed43c8f796853f" compoundref="_app_model_8cpp" startline="399" endline="408">AppModel::getPwd</referencedby>
         <referencedby refid="classterminal_1_1_video_1a5a413a2e42e3a48e5f392faf9c37a02d" compoundref="_video_o_s_c_8cpp" startline="110" endline="175">terminal::Video::handleOscCwd</referencedby>
         <referencedby refid="classnexus_1_1_link_1a90d54f4bafa0d44a37b998c844f931d3" compoundref="_link_8cpp" startline="434" endline="465">nexus::Link::handleStateUpdate</referencedby>
         <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
         <referencedby refid="classterminal_1_1_tabs_1a729530e36f5facd240fdf7fc725f9be4" compoundref="_tabs_actions_8cpp" startline="117" endline="226">terminal::Tabs::restore</referencedby>
         <referencedby refid="classterminal_1_1_session_1af962daaaee0103cc100a1661f4a1c32a" compoundref="_session_8cpp" startline="221" endline="240">terminal::Session::Session</referencedby>
-        <referencedby refid="structterminal_1_1_model_1a77b39c03cb2601687a4978d8df3d3415" compoundref="_model_8cpp" startline="300" endline="304">terminal::Model::setCwd</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a77b39c03cb2601687a4978d8df3d3415" compoundref="_model_8cpp" startline="200" endline="204">terminal::Model::setCwd</referencedby>
         <referencedby refid="classterminal_1_1_processor_1a8f79b466828dc06141487adc1e95cac1" compoundref="_processor_8cpp" startline="213" endline="230">terminal::Processor::setDisplayName</referencedby>
+        <referencedby refid="classnexus_1_1_link_1a95544f46cbd78a386671c2339ff34eb7" compoundref="_link_8cpp" startline="478" endline="511">nexus::Link::valueTreeChildAdded</referencedby>
         <referencedby refid="classnexus_1_1_daemon_1a926bf8b33d96803c18cfbf7516da1e5b" compoundref="_daemon_8cpp" startline="356" endline="432">nexus::Daemon::valueTreePropertyChanged</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1af86d53af2040b8744eb7aed1fccf47c9" compoundref="_link_manager_8cpp" startline="216" endline="243">terminal::LinkManager::valueTreePropertyChanged</referencedby>
         <referencedby refid="classterminal_1_1_processor_1a42ab024e64bd69cb17969f24aa01f364" compoundref="_processor_8cpp" startline="172" endline="187">terminal::Processor::valueTreePropertyChanged</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceterminal_1_1id_1adb1918ba2082b206d57bc4e3f969a5b0" prot="public" static="yes" mutable="no">
@@ -466,10 +481,9 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Identifier.h" line="160" column="35" bodyfile="terminal/Identifier.h" bodystart="160" bodyend="160"/>
-        <referencedby refid="structterminal_1_1_model_1a5ed4c561122970956425e400560a2b54" compoundref="_model_8cpp" startline="278" endline="282">terminal::Model::getForegroundProcess</referencedby>
         <referencedby refid="classnexus_1_1_link_1a90d54f4bafa0d44a37b998c844f931d3" compoundref="_link_8cpp" startline="434" endline="465">nexus::Link::handleStateUpdate</referencedby>
         <referencedby refid="classterminal_1_1_processor_1a8f79b466828dc06141487adc1e95cac1" compoundref="_processor_8cpp" startline="213" endline="230">terminal::Processor::setDisplayName</referencedby>
-        <referencedby refid="structterminal_1_1_model_1a8bc5f83f625fe7cd18314d199f0cc500" compoundref="_model_8cpp" startline="306" endline="310">terminal::Model::setForegroundProcess</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a8bc5f83f625fe7cd18314d199f0cc500" compoundref="_model_8cpp" startline="206" endline="210">terminal::Model::setForegroundProcess</referencedby>
         <referencedby refid="classnexus_1_1_daemon_1a926bf8b33d96803c18cfbf7516da1e5b" compoundref="_daemon_8cpp" startline="356" endline="432">nexus::Daemon::valueTreePropertyChanged</referencedby>
         <referencedby refid="classterminal_1_1_processor_1a42ab024e64bd69cb17969f24aa01f364" compoundref="_processor_8cpp" startline="172" endline="187">terminal::Processor::valueTreePropertyChanged</referencedby>
       </memberdef>
@@ -522,7 +536,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Identifier.h" line="173" column="35" bodyfile="terminal/Identifier.h" bodystart="173" bodyend="173"/>
-        <referencedby refid="classterminal_1_1_processor_1ac27d1456511a72a12a478c90f90eda0e" compoundref="_processor_8cpp" startline="241" endline="263">terminal::Processor::encodeKeyPress</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1ac27d1456511a72a12a478c90f90eda0e" compoundref="_processor_8cpp" startline="241" endline="266">terminal::Processor::encodeKeyPress</referencedby>
         <referencedby refid="classterminal_1_1_video_1ab8c186d04c9a33e4fc6f64892ab05734" compoundref="_video_8cpp" startline="99" endline="116">terminal::Video::flush</referencedby>
         <referencedby refid="classterminal_1_1_video_1abb5ba6c2b2149f7851ab5de6db08abd0" compoundref="_video_8cpp" startline="136" endline="173">terminal::Video::modePtr</referencedby>
         <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
@@ -542,8 +556,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Identifier.h" line="176" column="35" bodyfile="terminal/Identifier.h" bodystart="176" bodyend="176"/>
-        <referencedby refid="classterminal_1_1_link_manager_1a31972897ab13d8ab670c6c5abd749e57" compoundref="_link_manager_8cpp" startline="139" endline="187">terminal::LinkManager::dispatch</referencedby>
-        <referencedby refid="classterminal_1_1_processor_1a7e952949b06abd72a91595e5d664c8d0" compoundref="_processor_8cpp" startline="272" endline="294">terminal::Processor::encodePaste</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1a31972897ab13d8ab670c6c5abd749e57" compoundref="_link_manager_8cpp" startline="146" endline="196">terminal::LinkManager::dispatch</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a7e952949b06abd72a91595e5d664c8d0" compoundref="_processor_8cpp" startline="275" endline="298">terminal::Processor::encodePaste</referencedby>
         <referencedby refid="classterminal_1_1_video_1ab8c186d04c9a33e4fc6f64892ab05734" compoundref="_video_8cpp" startline="99" endline="116">terminal::Video::flush</referencedby>
         <referencedby refid="classterminal_1_1_video_1abb5ba6c2b2149f7851ab5de6db08abd0" compoundref="_video_8cpp" startline="136" endline="173">terminal::Video::modePtr</referencedby>
         <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
@@ -583,7 +597,7 @@
         <referencedby refid="classterminal_1_1_video_1ab8c186d04c9a33e4fc6f64892ab05734" compoundref="_video_8cpp" startline="99" endline="116">terminal::Video::flush</referencedby>
         <referencedby refid="classterminal_1_1_video_1abb5ba6c2b2149f7851ab5de6db08abd0" compoundref="_video_8cpp" startline="136" endline="173">terminal::Video::modePtr</referencedby>
         <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
-        <referencedby refid="classterminal_1_1_mouse_1a121ba6baba449a38de550335155c381e" compoundref="_mouse_8cpp" startline="288" endline="294">terminal::Mouse::shouldForwardToPty</referencedby>
+        <referencedby refid="classterminal_1_1_mouse_1a121ba6baba449a38de550335155c381e" compoundref="_mouse_8cpp" startline="298" endline="305">terminal::Mouse::shouldForwardToPty</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceterminal_1_1id_1abc2401b51dd58e607877f57caa34fcf5" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>
@@ -603,7 +617,7 @@
         <referencedby refid="classterminal_1_1_video_1ab8c186d04c9a33e4fc6f64892ab05734" compoundref="_video_8cpp" startline="99" endline="116">terminal::Video::flush</referencedby>
         <referencedby refid="classterminal_1_1_video_1abb5ba6c2b2149f7851ab5de6db08abd0" compoundref="_video_8cpp" startline="136" endline="173">terminal::Video::modePtr</referencedby>
         <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
-        <referencedby refid="classterminal_1_1_mouse_1a121ba6baba449a38de550335155c381e" compoundref="_mouse_8cpp" startline="288" endline="294">terminal::Mouse::shouldForwardToPty</referencedby>
+        <referencedby refid="classterminal_1_1_mouse_1a121ba6baba449a38de550335155c381e" compoundref="_mouse_8cpp" startline="298" endline="305">terminal::Mouse::shouldForwardToPty</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceterminal_1_1id_1acf7c6273c18a0ca7153b11da1e5f98bb" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>
@@ -623,7 +637,7 @@
         <referencedby refid="classterminal_1_1_video_1ab8c186d04c9a33e4fc6f64892ab05734" compoundref="_video_8cpp" startline="99" endline="116">terminal::Video::flush</referencedby>
         <referencedby refid="classterminal_1_1_video_1abb5ba6c2b2149f7851ab5de6db08abd0" compoundref="_video_8cpp" startline="136" endline="173">terminal::Video::modePtr</referencedby>
         <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
-        <referencedby refid="classterminal_1_1_mouse_1a121ba6baba449a38de550335155c381e" compoundref="_mouse_8cpp" startline="288" endline="294">terminal::Mouse::shouldForwardToPty</referencedby>
+        <referencedby refid="classterminal_1_1_mouse_1a121ba6baba449a38de550335155c381e" compoundref="_mouse_8cpp" startline="298" endline="305">terminal::Mouse::shouldForwardToPty</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceterminal_1_1id_1a8875114345d6eaa21aa977a93e75d836" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>
@@ -657,7 +671,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Identifier.h" line="194" column="35" bodyfile="terminal/Identifier.h" bodystart="194" bodyend="194"/>
-        <referencedby refid="classterminal_1_1_processor_1ada78f7637abbbf289a1e78b13c09d117" compoundref="_processor_8cpp" startline="303" endline="314">terminal::Processor::encodeFocusEvent</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1ada78f7637abbbf289a1e78b13c09d117" compoundref="_processor_8cpp" startline="307" endline="319">terminal::Processor::encodeFocusEvent</referencedby>
         <referencedby refid="classterminal_1_1_video_1ab8c186d04c9a33e4fc6f64892ab05734" compoundref="_video_8cpp" startline="99" endline="116">terminal::Video::flush</referencedby>
         <referencedby refid="classterminal_1_1_video_1abb5ba6c2b2149f7851ab5de6db08abd0" compoundref="_video_8cpp" startline="136" endline="173">terminal::Video::modePtr</referencedby>
         <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
@@ -727,7 +741,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Identifier.h" line="206" column="35" bodyfile="terminal/Identifier.h" bodystart="206" bodyend="206"/>
-        <referencedby refid="classterminal_1_1_processor_1ac27d1456511a72a12a478c90f90eda0e" compoundref="_processor_8cpp" startline="241" endline="263">terminal::Processor::encodeKeyPress</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1ac27d1456511a72a12a478c90f90eda0e" compoundref="_processor_8cpp" startline="241" endline="266">terminal::Processor::encodeKeyPress</referencedby>
         <referencedby refid="classterminal_1_1_video_1ab8c186d04c9a33e4fc6f64892ab05734" compoundref="_video_8cpp" startline="99" endline="116">terminal::Video::flush</referencedby>
         <referencedby refid="classterminal_1_1_video_1abb5ba6c2b2149f7851ab5de6db08abd0" compoundref="_video_8cpp" startline="136" endline="173">terminal::Video::modePtr</referencedby>
         <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
@@ -749,9 +763,9 @@
         </inbodydescription>
         <location file="terminal/Identifier.h" line="215" column="35" bodyfile="terminal/Identifier.h" bodystart="215" bodyend="215"/>
         <referencedby refid="classterminal_1_1_video_1ab8c186d04c9a33e4fc6f64892ab05734" compoundref="_video_8cpp" startline="99" endline="116">terminal::Video::flush</referencedby>
-        <referencedby refid="classterminal_1_1_input_1ace1c358d34fc58663db236f8da1a457e" compoundref="_input_8cpp" startline="127" endline="280">terminal::Input::handleSelectionKey</referencedby>
+        <referencedby refid="classterminal_1_1_input_1ace1c358d34fc58663db236f8da1a457e" compoundref="_input_8cpp" startline="137" endline="295">terminal::Input::handleSelectionKey</referencedby>
         <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
-        <referencedby refid="classterminal_1_1_display_1a96f58201d64de70c95725f3ec9f44676" compoundref="_display_8cpp" startline="88" endline="179">terminal::Display::valueTreePropertyChanged</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a03eba79fe456af4968d7f483d9f240f0" compoundref="_display_8cpp" startline="91" endline="182">terminal::Display::valueTreePropertyChanged</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceterminal_1_1id_1a937e17d2e5aad3fb83c8a6a4cbecd656" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>
@@ -787,7 +801,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Identifier.h" line="221" column="35" bodyfile="terminal/Identifier.h" bodystart="221" bodyend="221"/>
-        <referencedby refid="classterminal_1_1_processor_1ac27d1456511a72a12a478c90f90eda0e" compoundref="_processor_8cpp" startline="241" endline="263">terminal::Processor::encodeKeyPress</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1ac27d1456511a72a12a478c90f90eda0e" compoundref="_processor_8cpp" startline="241" endline="266">terminal::Processor::encodeKeyPress</referencedby>
         <referencedby refid="classterminal_1_1_processor_1acf5bcebd2a5d593ce1d4f1c9c7c9657e" compoundref="_processor_8cpp" startline="99" endline="111">terminal::Processor::popKeyboardMode</referencedby>
         <referencedby refid="classterminal_1_1_processor_1abd084da839dd83c344822114205ac194" compoundref="_processor_8cpp" startline="74" endline="97">terminal::Processor::pushKeyboardMode</referencedby>
         <referencedby refid="classterminal_1_1_processor_1a69aea82767476642357bcd36c3c802e1" compoundref="_processor_8cpp" startline="150" endline="156">terminal::Processor::resetKeyboardMode</referencedby>
@@ -808,10 +822,10 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Identifier.h" line="228" column="35" bodyfile="terminal/Identifier.h" bodystart="228" bodyend="228"/>
-        <referencedby refid="structterminal_1_1_model_1a75d2bb097066b5073e7b135d2ba08412" compoundref="_model_8cpp" startline="407" endline="415">terminal::Model::clearPasteEchoGate</referencedby>
-        <referencedby refid="structterminal_1_1_model_1a3ec5532dfaeb0582a45b350e17aea607" compoundref="_model_8cpp" startline="391" endline="405">terminal::Model::consumePasteEcho</referencedby>
-        <referencedby refid="structterminal_1_1_model_1a5de132a550efcc6f316a568e39355148" compoundref="_model_8cpp" startline="386" endline="389">terminal::Model::setPasteEchoGate</referencedby>
-        <referencedby refid="structterminal_1_1_model_1abb78d85d14fe48e4a3e22c90360345a8" compoundref="_model_8cpp" startline="369" endline="375">terminal::Model::setSnapshotDirty</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a75d2bb097066b5073e7b135d2ba08412" compoundref="_model_8cpp" startline="283" endline="291">terminal::Model::clearPasteEchoGate</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a3ec5532dfaeb0582a45b350e17aea607" compoundref="_model_8cpp" startline="267" endline="281">terminal::Model::consumePasteEcho</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a5de132a550efcc6f316a568e39355148" compoundref="_model_8cpp" startline="262" endline="265">terminal::Model::setPasteEchoGate</referencedby>
+        <referencedby refid="structterminal_1_1_model_1abb78d85d14fe48e4a3e22c90360345a8" compoundref="_model_8cpp" startline="249" endline="255">terminal::Model::setSnapshotDirty</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceterminal_1_1id_1afec10dc8ac75a5b9e0318b759455658f" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>
@@ -828,8 +842,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Identifier.h" line="231" column="35" bodyfile="terminal/Identifier.h" bodystart="231" bodyend="231"/>
-        <referencedby refid="structterminal_1_1_model_1aaca46e7c6a6408bce096a44ebbc48c55" compoundref="_model_8cpp" startline="431" endline="434">terminal::Model::isSyncOutputActive</referencedby>
-        <referencedby refid="structterminal_1_1_model_1a9ae703cf77731ff7ca6af000feb05f84" compoundref="_model_8cpp" startline="421" endline="429">terminal::Model::setSyncOutput</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a9ae703cf77731ff7ca6af000feb05f84" compoundref="_model_8cpp" startline="297" endline="305">terminal::Model::setSyncOutput</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceterminal_1_1id_1a2543ac3ae5aeaafa5ab1bf26cbdfb3f7" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>
@@ -847,8 +860,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Identifier.h" line="234" column="35" bodyfile="terminal/Identifier.h" bodystart="234" bodyend="234"/>
-        <referencedby refid="structterminal_1_1_model_1a7f3c8d52e5b62960ea217e70f83439d1" compoundref="_model_8cpp" startline="339" endline="339">terminal::Model::getOutputBlockTop</referencedby>
-        <referencedby refid="structterminal_1_1_model_1ab9c597923e8fdcb8240709c4d856f160" compoundref="_model_8cpp" startline="316" endline="321">terminal::Model::setOutputBlockStart</referencedby>
+        <referencedby refid="structterminal_1_1_model_1ab9c597923e8fdcb8240709c4d856f160" compoundref="_model_8cpp" startline="216" endline="221">terminal::Model::setOutputBlockStart</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1af86d53af2040b8744eb7aed1fccf47c9" compoundref="_link_manager_8cpp" startline="216" endline="243">terminal::LinkManager::valueTreePropertyChanged</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceterminal_1_1id_1a75b7028846845226a7194bfa2a594be1" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>
@@ -866,10 +879,9 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Identifier.h" line="237" column="35" bodyfile="terminal/Identifier.h" bodystart="237" bodyend="237"/>
-        <referencedby refid="structterminal_1_1_model_1a1bcc24d11a98aa621b738ce796a8cecc" compoundref="_model_8cpp" startline="329" endline="335">terminal::Model::extendOutputBlock</referencedby>
-        <referencedby refid="structterminal_1_1_model_1a9d77594f5ccf9ac9eb0b306b0fb2147d" compoundref="_model_8cpp" startline="341" endline="344">terminal::Model::getOutputBlockBottom</referencedby>
-        <referencedby refid="structterminal_1_1_model_1af0e21e00d90bbc9b343143edccc328f4" compoundref="_model_8cpp" startline="323" endline="327">terminal::Model::setOutputBlockEnd</referencedby>
-        <referencedby refid="structterminal_1_1_model_1ab9c597923e8fdcb8240709c4d856f160" compoundref="_model_8cpp" startline="316" endline="321">terminal::Model::setOutputBlockStart</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a1bcc24d11a98aa621b738ce796a8cecc" compoundref="_model_8cpp" startline="229" endline="235">terminal::Model::extendOutputBlock</referencedby>
+        <referencedby refid="structterminal_1_1_model_1af0e21e00d90bbc9b343143edccc328f4" compoundref="_model_8cpp" startline="223" endline="227">terminal::Model::setOutputBlockEnd</referencedby>
+        <referencedby refid="structterminal_1_1_model_1ab9c597923e8fdcb8240709c4d856f160" compoundref="_model_8cpp" startline="216" endline="221">terminal::Model::setOutputBlockStart</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceterminal_1_1id_1acd1a21b7aba402cd89cc7c25d12c995f" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>
@@ -886,9 +898,9 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Identifier.h" line="240" column="35" bodyfile="terminal/Identifier.h" bodystart="240" bodyend="240"/>
-        <referencedby refid="structterminal_1_1_model_1a1bcc24d11a98aa621b738ce796a8cecc" compoundref="_model_8cpp" startline="329" endline="335">terminal::Model::extendOutputBlock</referencedby>
-        <referencedby refid="structterminal_1_1_model_1af0e21e00d90bbc9b343143edccc328f4" compoundref="_model_8cpp" startline="323" endline="327">terminal::Model::setOutputBlockEnd</referencedby>
-        <referencedby refid="structterminal_1_1_model_1ab9c597923e8fdcb8240709c4d856f160" compoundref="_model_8cpp" startline="316" endline="321">terminal::Model::setOutputBlockStart</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a1bcc24d11a98aa621b738ce796a8cecc" compoundref="_model_8cpp" startline="229" endline="235">terminal::Model::extendOutputBlock</referencedby>
+        <referencedby refid="structterminal_1_1_model_1af0e21e00d90bbc9b343143edccc328f4" compoundref="_model_8cpp" startline="223" endline="227">terminal::Model::setOutputBlockEnd</referencedby>
+        <referencedby refid="structterminal_1_1_model_1ab9c597923e8fdcb8240709c4d856f160" compoundref="_model_8cpp" startline="216" endline="221">terminal::Model::setOutputBlockStart</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceterminal_1_1id_1afb69df17fc87c56e23116b7df4409258" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>
@@ -906,11 +918,11 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Identifier.h" line="243" column="35" bodyfile="terminal/Identifier.h" bodystart="243" bodyend="243"/>
-        <referencedby refid="structterminal_1_1_model_1aac6ceeff8f0e530370b29d8dcf8be665" compoundref="_model_8cpp" startline="346" endline="346">terminal::Model::getPromptRow</referencedby>
         <referencedby refid="classterminal_1_1_video_1a82ade958d45e1e453781d91589e417d7" compoundref="_video_o_s_c_ext_8cpp" startline="73" endline="102">terminal::Video::handleOsc133</referencedby>
         <referencedby refid="classterminal_1_1_link_manager_1a927ddc099855370ea7783bb9b97aef83" compoundref="_link_manager_8cpp" startline="15" endline="24">terminal::LinkManager::LinkManager</referencedby>
         <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
-        <referencedby refid="structterminal_1_1_model_1a830c4954526c2fee16df30f8c213917f" compoundref="_model_8cpp" startline="337" endline="337">terminal::Model::setPromptRow</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a830c4954526c2fee16df30f8c213917f" compoundref="_model_8cpp" startline="237" endline="237">terminal::Model::setPromptRow</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1af86d53af2040b8744eb7aed1fccf47c9" compoundref="_link_manager_8cpp" startline="216" endline="243">terminal::LinkManager::valueTreePropertyChanged</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceterminal_1_1id_1a6ed5f0b54262d71924426539d8577642" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>
@@ -927,11 +939,9 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Identifier.h" line="250" column="35" bodyfile="terminal/Identifier.h" bodystart="250" bodyend="250"/>
-        <referencedby refid="structterminal_1_1_model_1ab92732c6050593b13cf3d060f9755ef9" compoundref="_model_8cpp" startline="377" endline="380">terminal::Model::consumeSnapshotDirty</referencedby>
-        <referencedby refid="structterminal_1_1_model_1aad782d12a0ce3e431da6a125d053a174" compoundref="_model_8cpp" startline="452" endline="457">terminal::Model::dismissPreview</referencedby>
+        <referencedby refid="structterminal_1_1_model_1aad782d12a0ce3e431da6a125d053a174" compoundref="_model_8cpp" startline="312" endline="317">terminal::Model::dismissPreview</referencedby>
         <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
-        <referencedby refid="structterminal_1_1_model_1a6ec8eb9951670cab685bccb43b092c3d" compoundref="_model_8cpp" startline="483" endline="487">terminal::Model::setModalType</referencedby>
-        <referencedby refid="structterminal_1_1_model_1abb78d85d14fe48e4a3e22c90360345a8" compoundref="_model_8cpp" startline="369" endline="375">terminal::Model::setSnapshotDirty</referencedby>
+        <referencedby refid="structterminal_1_1_model_1abb78d85d14fe48e4a3e22c90360345a8" compoundref="_model_8cpp" startline="249" endline="255">terminal::Model::setSnapshotDirty</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceterminal_1_1id_1aa40a8107f82915084eeaf18b7c685b8d" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>
@@ -968,8 +978,9 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Identifier.h" line="261" column="35" bodyfile="terminal/Identifier.h" bodystart="261" bodyend="261"/>
-        <referencedby refid="structterminal_1_1_model_1aad782d12a0ce3e431da6a125d053a174" compoundref="_model_8cpp" startline="452" endline="457">terminal::Model::dismissPreview</referencedby>
-        <referencedby refid="structterminal_1_1_model_1ae8d00e9ca1dc650b197c56cd055a36d7" compoundref="_model_8cpp" startline="440" endline="444">terminal::Model::isPreviewActive</referencedby>
+        <referencedby refid="structterminal_1_1_model_1aad782d12a0ce3e431da6a125d053a174" compoundref="_model_8cpp" startline="312" endline="317">terminal::Model::dismissPreview</referencedby>
+        <referencedby refid="classterminal_1_1_mouse_1a7c0ca20075990ed9f26d06ac07a29fd5" compoundref="_mouse_8cpp" startline="35" endline="109">terminal::Mouse::handleDown</referencedby>
+        <referencedby refid="classterminal_1_1_input_1ae66a767d6935f797838cc3d7174a0b26" compoundref="_input_8cpp" startline="31" endline="73">terminal::Input::handleKey</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceterminal_1_1id_1aa84a0b55dbe7052b6f15b150744317c6" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>
@@ -986,8 +997,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Identifier.h" line="264" column="35" bodyfile="terminal/Identifier.h" bodystart="264" bodyend="264"/>
-        <referencedby refid="structterminal_1_1_model_1aad782d12a0ce3e431da6a125d053a174" compoundref="_model_8cpp" startline="452" endline="457">terminal::Model::dismissPreview</referencedby>
-        <referencedby refid="structterminal_1_1_model_1a7b52321fc962b551dc053e138512494d" compoundref="_model_8cpp" startline="446" endline="450">terminal::Model::getSplitCol</referencedby>
+        <referencedby refid="structterminal_1_1_model_1aad782d12a0ce3e431da6a125d053a174" compoundref="_model_8cpp" startline="312" endline="317">terminal::Model::dismissPreview</referencedby>
+        <referencedby refid="classterminal_1_1_input_1ae66a767d6935f797838cc3d7174a0b26" compoundref="_input_8cpp" startline="31" endline="73">terminal::Input::handleKey</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceterminal_1_1id_1a0d9d17bcc25443fdf33498a626dd4f41" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>
@@ -1024,7 +1035,7 @@
         <location file="terminal/Identifier.h" line="274" column="35" bodyfile="terminal/Identifier.h" bodystart="274" bodyend="274"/>
         <referencedby refid="classterminal_1_1_video_1ab5025390268d143644c351e76578c3bc" compoundref="_video_8cpp" startline="666" endline="673">terminal::Video::flushResponses</referencedby>
         <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
-        <referencedby refid="classterminal_1_1_processor_1a9ca3ff5dd10b9b5e05144dc762b58d69" compoundref="_processor_8cpp" startline="374" endline="407">terminal::Processor::startTTY</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a9ca3ff5dd10b9b5e05144dc762b58d69" compoundref="_processor_8cpp" startline="379" endline="412">terminal::Processor::startTTY</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceterminal_1_1id_1a1ac842c1e41000e69c3ef8528d0bfa7e" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>
@@ -1173,7 +1184,7 @@
         <location file="terminal/Identifier.h" line="300" column="35" bodyfile="terminal/Identifier.h" bodystart="300" bodyend="300"/>
         <referencedby refid="classterminal_1_1_video_1ab8c186d04c9a33e4fc6f64892ab05734" compoundref="_video_8cpp" startline="99" endline="116">terminal::Video::flush</referencedby>
         <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
-        <referencedby refid="classterminal_1_1_display_1a96f58201d64de70c95725f3ec9f44676" compoundref="_display_8cpp" startline="88" endline="179">terminal::Display::valueTreePropertyChanged</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a03eba79fe456af4968d7f483d9f240f0" compoundref="_display_8cpp" startline="91" endline="182">terminal::Display::valueTreePropertyChanged</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceterminal_1_1id_1a61790115efca8d3461b73ce69c6bd3a6" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>
@@ -1336,7 +1347,7 @@
         <location file="terminal/Identifier.h" line="327" column="35" bodyfile="terminal/Identifier.h" bodystart="327" bodyend="327"/>
         <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
         <referencedby refid="class_t_t_y_1a5069e6a70b48c9e44fef6d6fd8fa2b31" compoundref="_t_t_y_8cpp" startline="53" endline="88">TTY::run</referencedby>
-        <referencedby refid="structterminal_1_1_model_1a2c0394042e5183dfd9c509f67b749c64" compoundref="_model_8cpp" startline="363" endline="363">terminal::Model::setShellExited</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a2c0394042e5183dfd9c509f67b749c64" compoundref="_model_8cpp" startline="243" endline="243">terminal::Model::setShellExited</referencedby>
         <referencedby refid="classnexus_1_1_daemon_1a926bf8b33d96803c18cfbf7516da1e5b" compoundref="_daemon_8cpp" startline="356" endline="432">nexus::Daemon::valueTreePropertyChanged</referencedby>
         <referencedby refid="classterminal_1_1_panes_1adfbcfe5d7d66050d58b6d7ddc0341973" compoundref="_panes_8cpp" startline="486" endline="539">terminal::Panes::valueTreePropertyChanged</referencedby>
         <referencedby refid="classterminal_1_1_popup_1a6878254c4370918c27b8825f8dcc0373" compoundref="_popup_8cpp" startline="67" endline="79">terminal::Popup::valueTreePropertyChanged</referencedby>
@@ -1375,9 +1386,9 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/Identifier.h" line="334" column="35" bodyfile="terminal/Identifier.h" bodystart="334" bodyend="334"/>
-        <referencedby refid="classterminal_1_1_processor_1a9ca3ff5dd10b9b5e05144dc762b58d69" compoundref="_processor_8cpp" startline="374" endline="407">terminal::Processor::startTTY</referencedby>
-        <referencedby refid="classnexus_1_1_link_1a95544f46cbd78a386671c2339ff34eb7" compoundref="_link_8cpp" startline="478" endline="507">nexus::Link::valueTreeChildAdded</referencedby>
-        <referencedby refid="classterminal_1_1_processor_1ab7fc9fa8835b9002af38eea90169bab8" compoundref="_processor_8cpp" startline="426" endline="430">terminal::Processor::writeInput</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a9ca3ff5dd10b9b5e05144dc762b58d69" compoundref="_processor_8cpp" startline="379" endline="412">terminal::Processor::startTTY</referencedby>
+        <referencedby refid="classnexus_1_1_link_1a95544f46cbd78a386671c2339ff34eb7" compoundref="_link_8cpp" startline="478" endline="511">nexus::Link::valueTreeChildAdded</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1ab7fc9fa8835b9002af38eea90169bab8" compoundref="_processor_8cpp" startline="431" endline="435">terminal::Processor::writeInput</referencedby>
       </memberdef>
       <memberdef kind="variable" id="namespaceterminal_1_1id_1a149c315861d51cc46c0f21d869bdc8fb" prot="public" static="yes" mutable="no">
         <type>const juce::Identifier</type>
@@ -1447,7 +1458,7 @@
 <para>DST trigger key — lossless reflow, buffer reallocation, video + state sync. </para>
         </briefdescription>
         <detaileddescription>
-<para>Args: cell (targetCols), cell (targetRows). Fired from <ref refid="classterminal_1_1_display_1afd5758511197f47a6bf7fb96d9886b5a" kindref="member">Display::resized()</ref> via <ref refid="classTextEditor" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">TextEditor</ref>&apos;s DST on the MESSAGE THREAD. </para>
+<para>Args: cell (targetCols), cell (targetRows). Fired from <ref refid="classterminal_1_1_display_1a82fd0968bf27d37e421cae3489d14bb3" kindref="member">Display::resized()</ref> via <ref refid="classTextEditor" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">TextEditor</ref>&apos;s DST on the MESSAGE THREAD. </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>

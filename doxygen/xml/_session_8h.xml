@@ -552,7 +552,7 @@
 <listitem><para><computeroutput><ref refid="classjam_1_1_code_model" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::CodeModel</ref></computeroutput> — multi-screen dimensionless document (2 screens for terminal).</para>
 </listitem><listitem><para><computeroutput><ref refid="classjam_1_1_code_view" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::CodeView</ref></computeroutput> — pure view rendering the CodeModel.</para>
 </listitem><listitem><para><computeroutput>Model</computeroutput> — atomic parameter store.</para>
-</listitem><listitem><para><computeroutput><ref refid="classterminal_1_1_processor" kindref="compound">terminal::Processor</ref></computeroutput> — VT pipeline (Parser → Video → Buffer&lt;Row&gt; → CellFifo → <ref refid="class_display" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Display</ref> → CodeModel). Processor owns the <ref refid="class_t_t_y" kindref="compound">TTY</ref> — created and opened via <computeroutput>Processor::startTTY()</computeroutput> in <computeroutput>start()</computeroutput>.</para>
+</listitem><listitem><para><computeroutput><ref refid="classterminal_1_1_processor" kindref="compound">terminal::Processor</ref></computeroutput> — VT pipeline (Parser → Video → Buffer&lt;Row&gt; → CellFifo → Display → CodeModel). Processor owns the <ref refid="class_t_t_y" kindref="compound">TTY</ref> — created and opened via <computeroutput>Processor::startTTY()</computeroutput> in <computeroutput>start()</computeroutput>.</para>
 </listitem></itemizedlist>
 </para>
 <sect1 id="_session_8h_1autotoc_md62_1s1"><sect2 id="_session_8h_1autotoc_md62_1s2"><sect3 id="_session_8h_1autotoc_md62">

@@ -848,7 +848,7 @@
       </node>
     </incdepgraph>
     <briefdescription>
-<para>Application entry point for END (Ephemeral <ref refid="class_nexus" kindref="compound">Nexus</ref> <ref refid="class_display" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Display</ref>). </para>
+<para>Application entry point for END (Ephemeral <ref refid="class_nexus" kindref="compound">Nexus</ref> Display). </para>
     </briefdescription>
     <detaileddescription>
 <para>Defines <ref refid="class_e_n_d_application" kindref="compound">ENDApplication</ref>, the top-level JUCE application object. It owns the three long-lived singletons that must outlive every other object:</para>

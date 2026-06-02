@@ -841,7 +841,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/CharPropsData.h" line="130" column="27" bodyfile="terminal/CharPropsData.h" bodystart="130" bodyend="130"/>
-        <referencedby refid="_char_props_8h_1a7bdc2c8b0aa8edbd7dad4d7d4fe2c1c9" compoundref="_char_props_8h" startline="316" endline="331">charPropsFor</referencedby>
+        <referencedby refid="_char_props_8h_1a7bdc2c8b0aa8edbd7dad4d7d4fe2c1c9" compoundref="_char_props_8h" startline="307" endline="318">charPropsFor</referencedby>
       </memberdef>
       <memberdef kind="variable" id="_char_props_data_8h_1aa98758866448ca595945f3010658511d" prot="public" static="yes" constexpr="yes" mutable="no">
         <type>uint32_t</type>
@@ -857,7 +857,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/CharPropsData.h" line="131" column="27" bodyfile="terminal/CharPropsData.h" bodystart="131" bodyend="131"/>
-        <referencedby refid="_char_props_8h_1a7bdc2c8b0aa8edbd7dad4d7d4fe2c1c9" compoundref="_char_props_8h" startline="316" endline="331">charPropsFor</referencedby>
+        <referencedby refid="_char_props_8h_1a7bdc2c8b0aa8edbd7dad4d7d4fe2c1c9" compoundref="_char_props_8h" startline="307" endline="318">charPropsFor</referencedby>
       </memberdef>
       <memberdef kind="variable" id="_char_props_data_8h_1a7dbde061a73322be65f114febeb1c3f8" prot="public" static="yes" constexpr="yes" mutable="no">
         <type>uint32_t</type>
@@ -873,7 +873,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/CharPropsData.h" line="132" column="27" bodyfile="terminal/CharPropsData.h" bodystart="132" bodyend="132"/>
-        <referencedby refid="_char_props_8h_1a7bdc2c8b0aa8edbd7dad4d7d4fe2c1c9" compoundref="_char_props_8h" startline="316" endline="331">charPropsFor</referencedby>
+        <referencedby refid="_char_props_8h_1a7bdc2c8b0aa8edbd7dad4d7d4fe2c1c9" compoundref="_char_props_8h" startline="307" endline="318">charPropsFor</referencedby>
       </memberdef>
       <memberdef kind="variable" id="_char_props_data_8h_1a82452c3be757fc5606457ae30156a6be" prot="public" static="yes" constexpr="yes" mutable="no">
         <type>int</type>
@@ -889,7 +889,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/CharPropsData.h" line="133" column="27" bodyfile="terminal/CharPropsData.h" bodystart="133" bodyend="133"/>
-        <referencedby refid="struct_char_props_1a583a5a57fc96d06b3daebea49fd6d389" compoundref="_char_props_8h" startline="87" endline="90">CharProps::width</referencedby>
+        <referencedby refid="struct_char_props_1a583a5a57fc96d06b3daebea49fd6d389" compoundref="_char_props_8h" startline="87" endline="87">CharProps::width</referencedby>
       </memberdef>
       <memberdef kind="variable" id="_char_props_data_8h_1a662e13211c279deb0259cc7595f3bea4" prot="public" static="yes" constexpr="yes" mutable="no">
         <type>uint8_t</type>
@@ -908,7 +908,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/CharPropsData.h" line="148" column="26" bodyfile="terminal/CharPropsData.h" bodystart="149" bodyend="368"/>
-        <referencedby refid="_char_props_8h_1a7bdc2c8b0aa8edbd7dad4d7d4fe2c1c9" compoundref="_char_props_8h" startline="316" endline="331">charPropsFor</referencedby>
+        <referencedby refid="_char_props_8h_1a7bdc2c8b0aa8edbd7dad4d7d4fe2c1c9" compoundref="_char_props_8h" startline="307" endline="318">charPropsFor</referencedby>
       </memberdef>
       <memberdef kind="variable" id="_char_props_data_8h_1a8bd283a914a2efb779a7228008fd14eb" prot="public" static="yes" constexpr="yes" mutable="no">
         <type>uint16_t</type>
@@ -925,7 +925,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/CharPropsData.h" line="380" column="27" bodyfile="terminal/CharPropsData.h" bodystart="381" bodyend="2712"/>
-        <referencedby refid="_char_props_8h_1a7bdc2c8b0aa8edbd7dad4d7d4fe2c1c9" compoundref="_char_props_8h" startline="316" endline="331">charPropsFor</referencedby>
+        <referencedby refid="_char_props_8h_1a7bdc2c8b0aa8edbd7dad4d7d4fe2c1c9" compoundref="_char_props_8h" startline="307" endline="318">charPropsFor</referencedby>
       </memberdef>
       <memberdef kind="variable" id="_char_props_data_8h_1ade9aa1e4c3fe7933d6f75c79fe56845a" prot="public" static="yes" constexpr="yes" mutable="no">
         <type>uint32_t</type>
@@ -947,7 +947,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/CharPropsData.h" line="2714" column="27" bodyfile="terminal/CharPropsData.h" bodystart="2715" bodyend="2722"/>
-        <referencedby refid="_char_props_8h_1a7bdc2c8b0aa8edbd7dad4d7d4fe2c1c9" compoundref="_char_props_8h" startline="316" endline="331">charPropsFor</referencedby>
+        <referencedby refid="_char_props_8h_1a7bdc2c8b0aa8edbd7dad4d7d4fe2c1c9" compoundref="_char_props_8h" startline="307" endline="318">charPropsFor</referencedby>
       </memberdef>
       <memberdef kind="variable" id="_char_props_data_8h_1a3b8472581b5f3229eb20e7ff4dfd438e" prot="public" static="yes" constexpr="yes" mutable="no">
         <type>uint8_t</type>
@@ -962,7 +962,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/CharPropsData.h" line="2724" column="27" bodyfile="terminal/CharPropsData.h" bodystart="2724" bodyend="2724"/>
-        <referencedby refid="_char_props_8h_1a24312066beaa69c544f6f817b55100ad" compoundref="_char_props_8h" startline="416" endline="432">graphemeSegmentationStep</referencedby>
+        <referencedby refid="_char_props_8h_1a24312066beaa69c544f6f817b55100ad" compoundref="_char_props_8h" startline="403" endline="413">graphemeSegmentationStep</referencedby>
       </memberdef>
       <memberdef kind="variable" id="_char_props_data_8h_1a6e69b590c253f4a61d352c77ac25f38e" prot="public" static="yes" constexpr="yes" mutable="no">
         <type>uint16_t</type>
@@ -977,7 +977,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/CharPropsData.h" line="2725" column="27" bodyfile="terminal/CharPropsData.h" bodystart="2725" bodyend="2725"/>
-        <referencedby refid="_char_props_8h_1a24312066beaa69c544f6f817b55100ad" compoundref="_char_props_8h" startline="416" endline="432">graphemeSegmentationStep</referencedby>
+        <referencedby refid="_char_props_8h_1a24312066beaa69c544f6f817b55100ad" compoundref="_char_props_8h" startline="403" endline="413">graphemeSegmentationStep</referencedby>
       </memberdef>
       <memberdef kind="variable" id="_char_props_data_8h_1a065f9befaba8e81053dd6bf34f9ac876" prot="public" static="yes" constexpr="yes" mutable="no">
         <type>uint8_t</type>
@@ -991,7 +991,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/CharPropsData.h" line="2730" column="26" bodyfile="terminal/CharPropsData.h" bodystart="2731" bodyend="2835"/>
-        <referencedby refid="_char_props_8h_1a24312066beaa69c544f6f817b55100ad" compoundref="_char_props_8h" startline="416" endline="432">graphemeSegmentationStep</referencedby>
+        <referencedby refid="_char_props_8h_1a24312066beaa69c544f6f817b55100ad" compoundref="_char_props_8h" startline="403" endline="413">graphemeSegmentationStep</referencedby>
       </memberdef>
       <memberdef kind="variable" id="_char_props_data_8h_1af871af431ce5326bb5c47b3b3d5db990" prot="public" static="yes" constexpr="yes" mutable="no">
         <type>uint16_t</type>
@@ -1005,7 +1005,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/CharPropsData.h" line="2837" column="27" bodyfile="terminal/CharPropsData.h" bodystart="2838" bodyend="3249"/>
-        <referencedby refid="_char_props_8h_1a24312066beaa69c544f6f817b55100ad" compoundref="_char_props_8h" startline="416" endline="432">graphemeSegmentationStep</referencedby>
+        <referencedby refid="_char_props_8h_1a24312066beaa69c544f6f817b55100ad" compoundref="_char_props_8h" startline="403" endline="413">graphemeSegmentationStep</referencedby>
       </memberdef>
       <memberdef kind="variable" id="_char_props_data_8h_1a7b2fcca679d4b42925fe96d4d3b5dc57" prot="public" static="yes" constexpr="yes" mutable="no">
         <type>uint16_t</type>
@@ -1050,7 +1050,7 @@
 <listitem><para>Grapheme break property (<ref refid="_char_props_data_8h_1aab91d74b9f1c8ef195618edfc0b8c529" kindref="member">GraphemeBreakProperty</ref>)</para>
 </listitem><listitem><para>Indic Conjunct Break property (<ref refid="_char_props_data_8h_1a4ff00928d04f09ada96fbc599149240d" kindref="member">IndicConjunctBreak</ref>)</para>
 </listitem><listitem><para>Unicode general category (<ref refid="_char_props_data_8h_1a969d29bd7d8fddf681111d4645dbdbcf" kindref="member">UnicodeCategory</ref>)</para>
-</listitem><listitem><para><ref refid="class_display" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Display</ref> width (extracted via WIDTH_SHIFT)</para>
+</listitem><listitem><para>Display width (extracted via WIDTH_SHIFT)</para>
 </listitem></itemizedlist>
 </para>
 <para>Size: 550 entries — the set of all unique property combinations present in Unicode 17.0.0.</para>
@@ -1061,7 +1061,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/CharPropsData.h" line="3265" column="27" bodyfile="terminal/CharPropsData.h" bodystart="3266" bodyend="3295"/>
-        <referencedby refid="_char_props_8h_1a24312066beaa69c544f6f817b55100ad" compoundref="_char_props_8h" startline="416" endline="432">graphemeSegmentationStep</referencedby>
+        <referencedby refid="_char_props_8h_1a24312066beaa69c544f6f817b55100ad" compoundref="_char_props_8h" startline="403" endline="413">graphemeSegmentationStep</referencedby>
       </memberdef>
     </sectiondef>
     <briefdescription>
@@ -1074,7 +1074,7 @@ This file contains three-level multistage lookup tables for Unicode character pr
 <listitem><para>Grapheme break properties (UAX #29 Unicode Text Segmentation)</para>
 </listitem><listitem><para>Indic Conjunct Break properties</para>
 </listitem><listitem><para>Unicode general categories</para>
-</listitem><listitem><para><ref refid="class_display" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Display</ref> width (narrow/wide/ambiguous)</para>
+</listitem><listitem><para>Display width (narrow/wide/ambiguous)</para>
 </listitem></itemizedlist>
 </para>
 <para><simplesect kind="par"><title>Multistage Table Algorithm</title><para>The lookup uses a three-level table to compress the full Unicode range (U+0000 to U+10FFFF) into a compact representation. Given a codepoint <computeroutput>cp:</computeroutput> <programlisting><codeline><highlight class="normal">uint8_t<sp/><sp/>t1_index<sp/>=<sp/><ref refid="_char_props_data_8h_1a662e13211c279deb0259cc7595f3bea4" kindref="member">charPropsT1</ref>[cp<sp/>&gt;&gt;<sp/><ref refid="_char_props_data_8h_1ac616e55c49a3515b0f78a2aac7214efa" kindref="member">CHAR_PROPS_SHIFT</ref>];</highlight></codeline>

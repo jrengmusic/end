@@ -341,7 +341,7 @@ Called from <ref refid="classnexus_1_1_daemon_1_1_channel_1adec8c8b370c9bdc520b0
         <references refid="classnexus_1_1_daemon_1a8b129190142a4ea1d5b2eef63d29912b" compoundref="_daemon_8h" startline="413">connectionsLock</references>
         <references refid="classterminal_1_1_session_1a3564c58fc509e22d7e900071233cea5e" compoundref="_session_8cpp" startline="386" endline="390">terminal::Session::getProcessor</references>
         <references refid="classjam_1_1_model_1abf91bfe071259060be78f47c83e720e4">jam::Model::getRootTree</references>
-        <references refid="classterminal_1_1_processor_1af4826b9ede2a6ed6737316d0706ba455" compoundref="_processor_8cpp" startline="367" endline="367">terminal::Processor::getState</references>
+        <references refid="classterminal_1_1_processor_1af4826b9ede2a6ed6737316d0706ba455" compoundref="_processor_8cpp" startline="372" endline="372">terminal::Processor::getState</references>
         <references refid="group__juce__core-system_1ga1f96ab6751237979b907a54f52a7296a">jassert</references>
         <references refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558a78e6221f6393d1356681db398f14ce6d" compoundref="_message_8h" startline="60">nexus::output</references>
         <references refid="classterminal_1_1_processor_1a90b588fb79485f03eca579538ccc9619" compoundref="_processor_8h" startline="277" endline="280">terminal::Processor::registerEvent</references>
@@ -394,7 +394,7 @@ Called from <ref refid="classnexus_1_1_daemon_1_1_channel_1adec8c8b370c9bdc520b0
         <location file="nexus/Daemon.h" line="362" column="10" bodyfile="nexus/Daemon.cpp" bodystart="330" bodyend="337"/>
         <references refid="classterminal_1_1_session_1a3564c58fc509e22d7e900071233cea5e" compoundref="_session_8cpp" startline="386" endline="390">terminal::Session::getProcessor</references>
         <references refid="classjam_1_1_model_1abf91bfe071259060be78f47c83e720e4">jam::Model::getRootTree</references>
-        <references refid="classterminal_1_1_processor_1af4826b9ede2a6ed6737316d0706ba455" compoundref="_processor_8cpp" startline="367" endline="367">terminal::Processor::getState</references>
+        <references refid="classterminal_1_1_processor_1af4826b9ede2a6ed6737316d0706ba455" compoundref="_processor_8cpp" startline="372" endline="372">terminal::Processor::getState</references>
         <references refid="group__juce__core-system_1ga1f96ab6751237979b907a54f52a7296a">jassert</references>
         <references refid="classnexus_1_1_daemon_1a18e834b8dd11fb97a921fe20e44e7e79" compoundref="_daemon_8h" startline="382">sessionStateRoots</references>
         <referencedby refid="classnexus_1_1_daemon_1a53acdc55f0dfc4037ee3b62451c2be93" compoundref="_daemon_8cpp" startline="299" endline="303">wireSessionCallbacks</referencedby>
@@ -1537,8 +1537,6 @@ When the last &quot;SESSION&quot; child is removed from <computeroutput>nexus.ev
         <label>terminal::Model</label>
         <link refid="structterminal_1_1_model"/>
         <childnode refid="16" relation="public-inheritance">
-        </childnode>
-        <childnode refid="3" relation="private-inheritance">
         </childnode>
         <childnode refid="22" relation="usage">
           <edgelabel>rowDirtyFlags</edgelabel>

@@ -34,7 +34,11 @@ void Mouse::setCellSize (int cellWidth, int cellHeight) noexcept
 
 void Mouse::handleDown (const juce::MouseEvent& event)
 {
-    if (processor.getState().isPreviewActive())
+    const juce::ValueTree mouseDownRoot { processor.getState().getRootTree() };
+    auto mouseDownPreviewParam { jam::ValueTree::getChildWithID (mouseDownRoot, terminal::id::preview.toString()) };
+    const bool mouseDownPreviewActive { mouseDownPreviewParam.isValid() and static_cast<int> (mouseDownPreviewParam.getProperty (terminal::id::value)) != 0 };
+
+    if (mouseDownPreviewActive)
     {
         processor.getState().dismissPreview();
     }
@@ -69,7 +73,8 @@ void Mouse::handleDown (const juce::MouseEvent& event)
         const int absRow { toAbsoluteRow (hitCell.y) };
         auto node { processor.getState().getChildWithName (jam::CodeView::properties.at (jam::CodeView::codeViewId)) };
 
-        if (not processor.getState().isModal())
+        const bool handleDownModal { static_cast<ModalType> (AppModel::getContext()->getModalType()) != ModalType::none };
+        if (not handleDownModal)
         {
             const terminal::LinkSpan* matched { linkManager.hitTest (hitCell.getY(), hitCell.getX()) };
 
@@ -146,8 +151,12 @@ void Mouse::handleDrag (const juce::MouseEvent& event)
     else
     {
         const auto hitCell { jam::Cell::Point::fromPixel (juce::Point<int> { event.x, event.y }, physCellWidth, physCellHeight) };
-        const int maxCol { processor.getState().getCols().value - 1 };
-        const int maxVisRow { processor.getState().getVisibleRows().value - 1 };
+        // Replaces getCols() / getVisibleRows() — reads CODE_VIEW viewport packed rect directly.
+        const auto dragCvNode  { processor.getState().getChildWithName (jam::CodeView::properties.at (jam::CodeView::codeViewId)) };
+        const int64_t dragPacked { static_cast<int64_t> (dragCvNode.getProperty (jam::CodeView::properties.at (jam::CodeView::viewportId), 0)) };
+        const auto dragRect    { jam::Cell::Rectangle::unpack (dragPacked) };
+        const int maxCol { dragRect.getWidth().value - 1 };
+        const int maxVisRow { dragRect.getHeight().value - 1 };
 
         const int clampedCol { juce::jlimit (0, maxCol, hitCell.x) };
         const int clampedVisRow { juce::jlimit (0, maxVisRow, hitCell.y) };
@@ -198,7 +207,8 @@ void Mouse::handleUp (const juce::MouseEvent& event)
 
 void Mouse::handleMove (const juce::MouseEvent& event, juce::Component& component)
 {
-    if (not shouldForwardToPty() and not processor.getState().isModal())
+    const bool handleMoveModal { static_cast<ModalType> (AppModel::getContext()->getModalType()) != ModalType::none };
+    if (not shouldForwardToPty() and not handleMoveModal)
     {
         const auto hitCell { jam::Cell::Point::fromPixel (juce::Point<int> { event.x, event.y }, physCellWidth, physCellHeight) };
         const bool overLink { linkManager.hitTest (hitCell.getY(), hitCell.getX()) != nullptr };
@@ -223,7 +233,7 @@ void Mouse::handleWheel (const juce::MouseEvent& event,
                          std::function<void (int)> setScrollFn)
 {
     const int scrollLines { lua::Engine::getContext()->nexus.terminal.scrollStep };
-    const auto activeScreen { processor.getState().getActiveScreen() };
+    const auto activeScreen { static_cast<int> (jam::ValueTree::getValueFromChildWithID (processor.getState().getRootTree(), terminal::id::activeScreen).getValue()) };
 
     if (not wheel.isSmooth)
     {
@@ -288,9 +298,10 @@ void Mouse::handleWheel (const juce::MouseEvent& event,
 bool Mouse::shouldForwardToPty() const noexcept
 {
     const auto& st { processor.getState() };
-    return st.getMode (terminal::id::mouseTracking)
-        or st.getMode (terminal::id::mouseMotionTracking)
-        or st.getMode (terminal::id::mouseAllTracking);
+    const juce::ValueTree modesNode { st.getChildWithName (terminal::id::MODES) };
+    return static_cast<int> (jam::ValueTree::getValueFromChildWithID (modesNode, terminal::id::mouseTracking).getValue()) != 0
+        or static_cast<int> (jam::ValueTree::getValueFromChildWithID (modesNode, terminal::id::mouseMotionTracking).getValue()) != 0
+        or static_cast<int> (jam::ValueTree::getValueFromChildWithID (modesNode, terminal::id::mouseAllTracking).getValue()) != 0;
 }
 
 int Mouse::toAbsoluteRow (int visibleRow) const noexcept

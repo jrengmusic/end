@@ -33,7 +33,7 @@
 <para>Lean image overlay component: paints a single image (or animated frames) with an optional border. </para>
     </briefdescription>
     <detaileddescription>
-<para><computeroutput><ref refid="classterminal_1_1_overlay" kindref="compound">terminal::Overlay</ref></computeroutput> is a <computeroutput><ref refid="classjam_1_1animation_1_1_base" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::animation::Base</ref></computeroutput> child of <computeroutput><ref refid="classterminal_1_1_display" kindref="compound">terminal::Display</ref></computeroutput>. <ref refid="class_display" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Display</ref> tells Overlay what to paint via the set* API; Overlay paints on demand.</para>
+<para><computeroutput><ref refid="classterminal_1_1_overlay" kindref="compound">terminal::Overlay</ref></computeroutput> is a <computeroutput><ref refid="classjam_1_1animation_1_1_base" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::animation::Base</ref></computeroutput> child of <computeroutput><ref refid="classterminal_1_1_display" kindref="compound">terminal::Display</ref></computeroutput>. Display tells Overlay what to paint via the set* API; Overlay paints on demand.</para>
 <para><simplesect kind="see"><para><ref refid="classterminal_1_1_display" kindref="compound">terminal::Display</ref> </para>
 </simplesect>
 </para>

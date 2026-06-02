@@ -1,5 +1,47 @@
 # SPRINT-LOG
 
+## Sprint 41: Architectural Hygiene — Blast E: Strip Getters, registerAtomics, Doxygen Hygiene
+
+**Date:** 2026-06-02
+
+### Agents Participated
+- COUNSELOR: orchestration, registerAtomics design discussion (move from self-listener to Attachment static), getter stripping scope
+- Engineer: Step 7 (strip 19 getters, registerAtomics on Attachment, remove Model self-listener, migrate 14+ call sites), jam doxygen hygiene (34 files, ~150 warnings)
+- Pathfinder: terminal::Model getter call site survey
+
+### Files Modified (jam — 35 total)
+- `jam_data_structures/value_tree/jam_value_tree.h` — added `Attachment::registerAtomics(Model&, juce::ValueTree&)` static
+- `jam_data_structures/value_tree/jam_value_tree_utils.cpp` — `registerAtomics` implementation
+- 34 files — doxygen warning fixes (backtick blocks, @file names, @tags removal, HTML tag escaping, duplicate @param blocks, @copydoc replacements, missing params)
+
+### Files Modified (end — 8 total)
+- `Source/terminal/Model.h` — removed `juce::ValueTree::Listener` base, removed `valueTreeChildAdded`, removed `registerNodeAtomics`, removed `listenedTree` member, stripped 19 convenience getters + `setModalType`
+- `Source/terminal/Model.cpp` — removed self-listener ctor/dtor, removed `valueTreeChildAdded`/`registerNodeAtomics` implementations, removed all getter implementations, explicit `registerAtomics` in `buildLayout`
+- `Source/terminal/component/Display.cpp` — explicit `registerAtomics` after Attachment, `getActiveScreen`/`setModalType` → direct tree reads / AppModel
+- `Source/terminal/Processor.cpp` — `getMode`/`getActiveScreen` → direct MODES node reads
+- `Source/terminal/LinkManager.cpp` — `getHintPage`/`getHintTotalPages`/`hasOutputBlock`/`getCwd`/`getMode` → direct tree reads
+- `Source/terminal/Input.cpp` — `isPreviewActive`/`getSplitCol`/`isModal`/`getModalType`/`setModalType`/`getCols`/`getVisibleRows`/`getActiveScreen` → direct reads / AppModel
+- `Source/terminal/Mouse.cpp` — `isPreviewActive`/`isModal`/`getCols`/`getVisibleRows`/`getActiveScreen`/`getMode` → direct reads / AppModel
+- `Source/nexus/Link.cpp` — `getCwd`/`getCols`/`getVisibleRows` → direct tree reads
+
+### Alignment Check
+- [x] BLESSED principles followed (E — no hidden listener side-effects; L — 19 redundant getters deleted; S-SSOT — callers read tree directly, no convenience wrapper layer)
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied (Encapsulation — registerAtomics is explicit opt-in, not implicit listener)
+
+### Problems Solved
+- terminal::Model listened to itself solely for registerNodeAtomics — self-listener removed, registration now explicit via `Attachment::registerAtomics(Model&)`
+- 19 convenience getters on terminal::Model hid data flow — stripped; callers use `loadValue`/`setValue`/`getValueFromChildWithID` directly
+- ~150 doxygen warnings across jam/ — all resolved (stale @file names, unknown @tags, HTML tags, duplicate @param blocks, @copydoc failures)
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 40: Architectural Hygiene — Blast C+D: ValueTree Bag, Attachment Grafting, Doxygen
 
 **Date:** 2026-06-02

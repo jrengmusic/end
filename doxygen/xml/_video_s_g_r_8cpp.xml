@@ -225,13 +225,13 @@ Both syntaxes are handled by <computeroutput>parseExtendedColor()</computeroutpu
 <title>Theme sentinel</title><para><computeroutput>juce::Colour{}</computeroutput> (fully transparent, alpha == 0) is the theme-default sentinel. SGR 39 and 49 reset fg/bg to this value. The renderer checks <computeroutput>getAlpha() == 0</computeroutput> and substitutes the active UI theme colour.</para>
 <para><simplesect kind="note"><para>All functions in this file run on the READER THREAD only.</para>
 </simplesect>
-<simplesect kind="see"><para>jam::Char — the packed character atom written by SGR pen state </para>
+<simplesect kind="see"><para><ref refid="structjam_1_1_char" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Char</ref> — the packed character atom written by SGR pen state </para>
 </simplesect>
 <simplesect kind="see"><para>palette256At() — xterm-256 colour table accessor </para>
 </simplesect>
 <simplesect kind="see"><para>CSI — parameter accumulator supplying the SGR parameter list </para>
 </simplesect>
-<simplesect kind="see"><para>jam::Char — style bit flags (BOLD, ITALIC, UNDERLINE, BLINK, INVERSE, STRIKE) </para>
+<simplesect kind="see"><para><ref refid="structjam_1_1_char" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Char</ref> — style bit flags (BOLD, ITALIC, UNDERLINE, BLINK, INVERSE, STRIKE) </para>
 </simplesect>
 </para>
 </sect2></sect1>

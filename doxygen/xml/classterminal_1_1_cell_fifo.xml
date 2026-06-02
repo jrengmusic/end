@@ -407,7 +407,7 @@
         <name>pushHistory</name>
         <qualifiedname>terminal::CellFifo::pushHistory</qualifiedname>
         <param>
-          <type>const jam::Char *</type>
+          <type>const <ref refid="structjam_1_1_char" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Char</ref> *</type>
           <declname>chars</declname>
         </param>
         <param>
@@ -429,7 +429,7 @@
 <parametername>chars</parametername>
 </parameternamelist>
 <parameterdescription>
-<para>Pointer to the row&apos;s <ref refid="struct_char" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Char</ref> data. </para>
+<para>Pointer to the row&apos;s Char data. </para>
 </parameterdescription>
 </parameteritem>
 <parameteritem>
@@ -512,7 +512,7 @@
         <name>pushActive</name>
         <qualifiedname>terminal::CellFifo::pushActive</qualifiedname>
         <param>
-          <type>const jam::Char *</type>
+          <type>const <ref refid="structjam_1_1_char" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Char</ref> *</type>
           <declname>chars</declname>
         </param>
         <param>
@@ -533,7 +533,7 @@
 <parametername>chars</parametername>
 </parameternamelist>
 <parameterdescription>
-<para>Pointer to the row&apos;s <ref refid="struct_char" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Char</ref> data. </para>
+<para>Pointer to the row&apos;s Char data. </para>
 </parameterdescription>
 </parameteritem>
 <parameteritem>
@@ -866,7 +866,7 @@
           <declname>epochs</declname>
         </param>
         <param>
-          <type>const jam::Char *</type>
+          <type>const <ref refid="structjam_1_1_char" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Char</ref> *</type>
           <declname>chars</declname>
         </param>
         <param>
@@ -911,7 +911,7 @@
 <parametername>chars</parametername>
 </parameternamelist>
 <parameterdescription>
-<para>Source <ref refid="struct_char" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Char</ref> data. </para>
+<para>Source Char data. </para>
 </parameterdescription>
 </parameteritem>
 <parameteritem>

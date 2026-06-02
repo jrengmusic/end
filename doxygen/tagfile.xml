@@ -4910,98 +4910,98 @@
       <type></type>
       <name>Display</name>
       <anchorfile>classterminal_1_1_display.html</anchorfile>
-      <anchor>aba2b9e271d38ad4e5268333aaac31d8d</anchor>
+      <anchor>a795559c55785fb2637b1a3b873d84515</anchor>
       <arglist>(terminal::Session &amp;session)</arglist>
     </member>
     <member kind="function">
       <type></type>
       <name>~Display</name>
       <anchorfile>classterminal_1_1_display.html</anchorfile>
-      <anchor>a33d13f29e268c4641b6d79f077bab78a</anchor>
+      <anchor>accefc1db87d2bb3984c7aed643255470</anchor>
       <arglist>() override</arglist>
     </member>
     <member kind="function">
       <type>juce::String</type>
       <name>getPaneType</name>
       <anchorfile>classterminal_1_1_display.html</anchorfile>
-      <anchor>afb467cdeee6e7bed23e32fcc1a31be38</anchor>
+      <anchor>a2e77bd710b79769f795c1a09d65775e9</anchor>
       <arglist>() const noexcept override</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>applyZoom</name>
       <anchorfile>classterminal_1_1_display.html</anchorfile>
-      <anchor>aaafdfb7ab2395946be6b70e0e189bcf8</anchor>
+      <anchor>a63b26382f17289e78b18abc54275cebc</anchor>
       <arglist>(float zoom) noexcept override</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>enterSelectionMode</name>
       <anchorfile>classterminal_1_1_display.html</anchorfile>
-      <anchor>a51e40f907d1725afc433513c8b5e2bc1</anchor>
+      <anchor>a1f6b51c111d5267023843324b21eff34</anchor>
       <arglist>() noexcept override</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>copySelection</name>
       <anchorfile>classterminal_1_1_display.html</anchorfile>
-      <anchor>a22a44a31c7bc528a6a584408ddfc7cf8</anchor>
+      <anchor>ae8057b64f9373f3ca63f69edb1e7dc9a</anchor>
       <arglist>() noexcept override</arglist>
     </member>
     <member kind="function">
       <type>bool</type>
       <name>hasSelection</name>
       <anchorfile>classterminal_1_1_display.html</anchorfile>
-      <anchor>a858679ef9dc232b5406fe94c5f6c79cb</anchor>
+      <anchor>af394e5c42a3c90f3fc56e3e4c54903a4</anchor>
       <arglist>() const noexcept override</arglist>
     </member>
     <member kind="function">
       <type>bool</type>
       <name>isInSelectionMode</name>
       <anchorfile>classterminal_1_1_display.html</anchorfile>
-      <anchor>a20094a4c7056ec2091558137651a614b</anchor>
+      <anchor>a0bbc49c8f9bc2657350bf484d230e2ce</anchor>
       <arglist>() const noexcept</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>exitSelectionMode</name>
       <anchorfile>classterminal_1_1_display.html</anchorfile>
-      <anchor>a802ea0d464c73e490108e174c75009be</anchor>
+      <anchor>af6f874a38acda8584b9c43e91d68de74</anchor>
       <arglist>() noexcept</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>enterOpenFileMode</name>
       <anchorfile>classterminal_1_1_display.html</anchorfile>
-      <anchor>aa9aa883d0643ce237cd9f3f39e2a38f7</anchor>
+      <anchor>afaa5bfe12b7aa78514c69ffbf967b3e9</anchor>
       <arglist>() noexcept</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>pasteClipboard</name>
       <anchorfile>classterminal_1_1_display.html</anchorfile>
-      <anchor>a72c3a3308d4683cf57ef4ce35c7c85b0</anchor>
+      <anchor>a6d0e0d189c561afe4f7bff7a1d0cfe27</anchor>
       <arglist>()</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>writeToPty</name>
       <anchorfile>classterminal_1_1_display.html</anchorfile>
-      <anchor>a3d6f1c19739fa330d758951a7be249dd</anchor>
+      <anchor>a49d1389c5e60067c7c4a07194347a507</anchor>
       <arglist>(const char *data, int len) noexcept</arglist>
     </member>
     <member kind="function">
       <type>int</type>
       <name>getHintPage</name>
       <anchorfile>classterminal_1_1_display.html</anchorfile>
-      <anchor>ad16cf74242003393eb446e80586cca69</anchor>
+      <anchor>a359fd222637999defeba69ef99d956a0</anchor>
       <arglist>() const noexcept</arglist>
     </member>
     <member kind="function">
       <type>int</type>
       <name>getHintTotalPages</name>
       <anchorfile>classterminal_1_1_display.html</anchorfile>
-      <anchor>a79e9528da6877aa69600dc0db4ab6686</anchor>
+      <anchor>a754b3cf1a3999dd40f68973ea0912fb9</anchor>
       <arglist>() const noexcept</arglist>
     </member>
     <member kind="function">
@@ -5015,70 +5015,70 @@
       <type>void</type>
       <name>resized</name>
       <anchorfile>classterminal_1_1_display.html</anchorfile>
-      <anchor>afd5758511197f47a6bf7fb96d9886b5a</anchor>
+      <anchor>a82fd0968bf27d37e421cae3489d14bb3</anchor>
       <arglist>() override</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>focusGained</name>
       <anchorfile>classterminal_1_1_display.html</anchorfile>
-      <anchor>aff07d87262395ee3597d012cbae48b57</anchor>
+      <anchor>abd20e1e977ffafcb77224badb70d482d</anchor>
       <arglist>(FocusChangeType cause) override</arglist>
     </member>
     <member kind="function">
       <type>bool</type>
       <name>keyPressed</name>
       <anchorfile>classterminal_1_1_display.html</anchorfile>
-      <anchor>ac7671d2f5e124fe1d0002c19440229fd</anchor>
+      <anchor>a0b0738075a51a67a57b47b47890dffb3</anchor>
       <arglist>(const juce::KeyPress &amp;key, juce::Component *originatingComponent) override</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>mouseDown</name>
       <anchorfile>classterminal_1_1_display.html</anchorfile>
-      <anchor>aad5cb90dff1a5da0b038c4d508ebff7d</anchor>
+      <anchor>a9f021c3a8e14f6082c0892529c76cac1</anchor>
       <arglist>(const juce::MouseEvent &amp;event) override</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>mouseDoubleClick</name>
       <anchorfile>classterminal_1_1_display.html</anchorfile>
-      <anchor>a601d4f2075e743c2757ede96e1c200dd</anchor>
+      <anchor>ab8d3ef20d471f8f820df3bc72e1b7422</anchor>
       <arglist>(const juce::MouseEvent &amp;event) override</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>mouseDrag</name>
       <anchorfile>classterminal_1_1_display.html</anchorfile>
-      <anchor>a9b83dcb0b85f61952747b2c9c561e31d</anchor>
+      <anchor>a5842e4fc854cec2d5bfd1c065596d052</anchor>
       <arglist>(const juce::MouseEvent &amp;event) override</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>mouseUp</name>
       <anchorfile>classterminal_1_1_display.html</anchorfile>
-      <anchor>ab28c97970e1f0bc8137613d4f12d4416</anchor>
+      <anchor>a849a0f93e5fca3755cf5f150b2bcd022</anchor>
       <arglist>(const juce::MouseEvent &amp;event) override</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>mouseMove</name>
       <anchorfile>classterminal_1_1_display.html</anchorfile>
-      <anchor>a818cf50c6edd518f5c383ca09ae8b5e2</anchor>
+      <anchor>ad63a8688a5f8134792125bb6850c3aaa</anchor>
       <arglist>(const juce::MouseEvent &amp;event) override</arglist>
     </member>
     <member kind="function" protection="private">
       <type>void</type>
       <name>applyFromAppModel</name>
       <anchorfile>classterminal_1_1_display.html</anchorfile>
-      <anchor>a4d5c9e51f93d6251bd8cdf81b8a9bd75</anchor>
+      <anchor>add336f50de49e963b5491ad266173662</anchor>
       <arglist>() noexcept</arglist>
     </member>
     <member kind="function" protection="private">
       <type>void</type>
       <name>valueTreePropertyChanged</name>
       <anchorfile>classterminal_1_1_display.html</anchorfile>
-      <anchor>a96f58201d64de70c95725f3ec9f44676</anchor>
+      <anchor>a03eba79fe456af4968d7f483d9f240f0</anchor>
       <arglist>(juce::ValueTree &amp;tree, const juce::Identifier &amp;property) override</arglist>
     </member>
     <member kind="variable" protection="private">
@@ -9516,62 +9516,6 @@
     </member>
     <member kind="function">
       <type>void</type>
-      <name>registerNodeAtomics</name>
-      <anchorfile>structterminal_1_1_model.html</anchorfile>
-      <anchor>a5a968e0265a15111364653f43364c782</anchor>
-      <arglist>(juce::ValueTree &amp;node) noexcept</arglist>
-    </member>
-    <member kind="function">
-      <type>bool</type>
-      <name>getMode</name>
-      <anchorfile>structterminal_1_1_model.html</anchorfile>
-      <anchor>a34ae5e9c536e91f0f0058bdbf3f6ef84</anchor>
-      <arglist>(const juce::Identifier &amp;id) const noexcept</arglist>
-    </member>
-    <member kind="function">
-      <type>int</type>
-      <name>getActiveScreen</name>
-      <anchorfile>structterminal_1_1_model.html</anchorfile>
-      <anchor>aded6fea0a6e67962a83f0b00f605d610</anchor>
-      <arglist>() const noexcept</arglist>
-    </member>
-    <member kind="function">
-      <type>cell</type>
-      <name>getCols</name>
-      <anchorfile>structterminal_1_1_model.html</anchorfile>
-      <anchor>a735f6c3e59fb6898d1f750e2a9eab94f</anchor>
-      <arglist>() const noexcept</arglist>
-    </member>
-    <member kind="function">
-      <type>cell</type>
-      <name>getVisibleRows</name>
-      <anchorfile>structterminal_1_1_model.html</anchorfile>
-      <anchor>a72a57e537581551b615687dabaa15c53</anchor>
-      <arglist>() const noexcept</arglist>
-    </member>
-    <member kind="function">
-      <type>juce::String</type>
-      <name>getTitle</name>
-      <anchorfile>structterminal_1_1_model.html</anchorfile>
-      <anchor>a87aa381a2183e84203b6e366f5ea9a03</anchor>
-      <arglist>() const noexcept</arglist>
-    </member>
-    <member kind="function">
-      <type>juce::String</type>
-      <name>getCwd</name>
-      <anchorfile>structterminal_1_1_model.html</anchorfile>
-      <anchor>a25ba72627e3bd4ab113b200db5db3e94</anchor>
-      <arglist>() const noexcept</arglist>
-    </member>
-    <member kind="function">
-      <type>juce::String</type>
-      <name>getForegroundProcess</name>
-      <anchorfile>structterminal_1_1_model.html</anchorfile>
-      <anchor>a5ed4c561122970956425e400560a2b54</anchor>
-      <arglist>() const noexcept</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
       <name>setId</name>
       <anchorfile>structterminal_1_1_model.html</anchorfile>
       <anchor>a3a0252dd50dd3de170de4f60cf00a6e6</anchor>
@@ -9648,34 +9592,6 @@
       <arglist>(cell row) noexcept</arglist>
     </member>
     <member kind="function">
-      <type>cell</type>
-      <name>getOutputBlockTop</name>
-      <anchorfile>structterminal_1_1_model.html</anchorfile>
-      <anchor>a7f3c8d52e5b62960ea217e70f83439d1</anchor>
-      <arglist>() const noexcept</arglist>
-    </member>
-    <member kind="function">
-      <type>cell</type>
-      <name>getOutputBlockBottom</name>
-      <anchorfile>structterminal_1_1_model.html</anchorfile>
-      <anchor>a9d77594f5ccf9ac9eb0b306b0fb2147d</anchor>
-      <arglist>() const noexcept</arglist>
-    </member>
-    <member kind="function">
-      <type>cell</type>
-      <name>getPromptRow</name>
-      <anchorfile>structterminal_1_1_model.html</anchorfile>
-      <anchor>aac6ceeff8f0e530370b29d8dcf8be665</anchor>
-      <arglist>() const noexcept</arglist>
-    </member>
-    <member kind="function">
-      <type>bool</type>
-      <name>hasOutputBlock</name>
-      <anchorfile>structterminal_1_1_model.html</anchorfile>
-      <anchor>a08662bcf8f5c5e2abbd0a5350dc09037</anchor>
-      <arglist>() const noexcept</arglist>
-    </member>
-    <member kind="function">
       <type>void</type>
       <name>setShellExited</name>
       <anchorfile>structterminal_1_1_model.html</anchorfile>
@@ -9687,13 +9603,6 @@
       <name>setSnapshotDirty</name>
       <anchorfile>structterminal_1_1_model.html</anchorfile>
       <anchor>abb78d85d14fe48e4a3e22c90360345a8</anchor>
-      <arglist>() noexcept</arglist>
-    </member>
-    <member kind="function">
-      <type>bool</type>
-      <name>consumeSnapshotDirty</name>
-      <anchorfile>structterminal_1_1_model.html</anchorfile>
-      <anchor>ab92732c6050593b13cf3d060f9755ef9</anchor>
       <arglist>() noexcept</arglist>
     </member>
     <member kind="function">
@@ -9725,32 +9634,11 @@
       <arglist>(bool active) noexcept</arglist>
     </member>
     <member kind="function">
-      <type>bool</type>
-      <name>isSyncOutputActive</name>
-      <anchorfile>structterminal_1_1_model.html</anchorfile>
-      <anchor>aaca46e7c6a6408bce096a44ebbc48c55</anchor>
-      <arglist>() const noexcept</arglist>
-    </member>
-    <member kind="function">
       <type>void</type>
       <name>dismissPreview</name>
       <anchorfile>structterminal_1_1_model.html</anchorfile>
       <anchor>aad782d12a0ce3e431da6a125d053a174</anchor>
       <arglist>() noexcept</arglist>
-    </member>
-    <member kind="function">
-      <type>bool</type>
-      <name>isPreviewActive</name>
-      <anchorfile>structterminal_1_1_model.html</anchorfile>
-      <anchor>ae8d00e9ca1dc650b197c56cd055a36d7</anchor>
-      <arglist>() const noexcept</arglist>
-    </member>
-    <member kind="function">
-      <type>int</type>
-      <name>getSplitCol</name>
-      <anchorfile>structterminal_1_1_model.html</anchorfile>
-      <anchor>a7b52321fc962b551dc053e138512494d</anchor>
-      <arglist>() const noexcept</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -9760,46 +9648,11 @@
       <arglist>(int page) noexcept</arglist>
     </member>
     <member kind="function">
-      <type>int</type>
-      <name>getHintPage</name>
-      <anchorfile>structterminal_1_1_model.html</anchorfile>
-      <anchor>a79c2f1763b4446d250dcd8cf8536f5e7</anchor>
-      <arglist>() const noexcept</arglist>
-    </member>
-    <member kind="function">
       <type>void</type>
       <name>setHintTotalPages</name>
       <anchorfile>structterminal_1_1_model.html</anchorfile>
       <anchor>aa943b54264f59c5d38862e3fbf9e54d9</anchor>
       <arglist>(int total) noexcept</arglist>
-    </member>
-    <member kind="function">
-      <type>int</type>
-      <name>getHintTotalPages</name>
-      <anchorfile>structterminal_1_1_model.html</anchorfile>
-      <anchor>aac24f406754f3362c2b6bfa0af234ae0</anchor>
-      <arglist>() const noexcept</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>setModalType</name>
-      <anchorfile>structterminal_1_1_model.html</anchorfile>
-      <anchor>a6ec8eb9951670cab685bccb43b092c3d</anchor>
-      <arglist>(ModalType type) noexcept</arglist>
-    </member>
-    <member kind="function">
-      <type>ModalType</type>
-      <name>getModalType</name>
-      <anchorfile>structterminal_1_1_model.html</anchorfile>
-      <anchor>a53828b6636d849052725267c32d768a3</anchor>
-      <arglist>() const noexcept</arglist>
-    </member>
-    <member kind="function">
-      <type>bool</type>
-      <name>isModal</name>
-      <anchorfile>structterminal_1_1_model.html</anchorfile>
-      <anchor>a73fb855ebf06dbc1194d84324ee187b9</anchor>
-      <arglist>() const noexcept</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -9845,13 +9698,6 @@
     </member>
     <member kind="function" protection="private">
       <type>void</type>
-      <name>valueTreeChildAdded</name>
-      <anchorfile>structterminal_1_1_model.html</anchorfile>
-      <anchor>a03923f3203c09d898e0c6d67c037593d</anchor>
-      <arglist>(juce::ValueTree &amp;parent, juce::ValueTree &amp;child) override</arglist>
-    </member>
-    <member kind="function" protection="private">
-      <type>void</type>
       <name>storeTextValue</name>
       <anchorfile>structterminal_1_1_model.html</anchorfile>
       <anchor>ae49c1f8c5de0987061e27c6be212f248</anchor>
@@ -9863,13 +9709,6 @@
       <anchorfile>structterminal_1_1_model.html</anchorfile>
       <anchor>a5519c794b349ea904e4a2bf7b41dc037</anchor>
       <arglist>(const juce::XmlElement &amp;elem) noexcept</arglist>
-    </member>
-    <member kind="variable" protection="private">
-      <type>juce::ValueTree</type>
-      <name>listenedTree</name>
-      <anchorfile>structterminal_1_1_model.html</anchorfile>
-      <anchor>ac251b9d586797bd952935e1f79aaafac</anchor>
-      <arglist></arglist>
     </member>
     <member kind="variable" protection="private">
       <type>std::unique_ptr&lt; std::atomic&lt; int &gt;[]&gt;</type>
@@ -18770,13 +18609,6 @@
       <anchorfile>namespaceterminal.html</anchorfile>
       <anchor>ab8471c5f4a063b7f05350297f06c862f</anchor>
       <arglist>(const void *data, size_t dataSize) noexcept</arglist>
-    </member>
-    <member kind="function" static="yes">
-      <type>static int</type>
-      <name>getSessionParamInt</name>
-      <anchorfile>namespaceterminal.html</anchorfile>
-      <anchor>ad3581f9d2e9f579bf01422fe6fe04958</anchor>
-      <arglist>(const juce::ValueTree &amp;root, const juce::Identifier &amp;paramId, int defaultValue=0) noexcept</arglist>
     </member>
     <member kind="function">
       <type>void</type>

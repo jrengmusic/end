@@ -329,7 +329,7 @@
     </briefdescription>
     <detaileddescription>
 <para><computeroutput><ref refid="structterminal_1_1_winsize" kindref="compound">terminal::Winsize</ref></computeroutput> mirrors POSIX <computeroutput>struct winsize</computeroutput>: terminal dimensions in both cell units (cols, rows) and physical pixels (pixelWidth, pixelHeight).</para>
-<para><ref refid="class_display" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Display</ref> is the sole author. All consumers read from a single Parameter&lt;int64_t&gt; via pack()/unpack(). Four 16-bit fields packed into one int64_t — one atomic store, one atomic load, zero drift.</para>
+<para>Display is the sole author. All consumers read from a single Parameter&lt;int64_t&gt; via pack()/unpack(). Four 16-bit fields packed into one int64_t — one atomic store, one atomic load, zero drift.</para>
 <para><simplesect kind="see"><para>Display::resized() — computes and publishes Winsize </para>
 </simplesect>
 <simplesect kind="see"><para><ref refid="class_t_t_y_1a61a7a6b2d7043f97c299ae6ae76ff361" kindref="member">TTY::setWinsize()</ref> — consumes <ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref> + pixel dims for SIGWINCH </para>

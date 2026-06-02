@@ -18,21 +18,21 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/CharProps.h" line="67" column="14" bodyfile="terminal/CharProps.h" bodystart="67" bodyend="67"/>
-        <referencedby refid="struct_char_props_1ad31730fe2eb8dce2dc5cfbd19bcb0f89" compoundref="_char_props_8h" startline="270" endline="273">category</referencedby>
-        <referencedby refid="struct_char_props_1ad8b5baf2801c72e856e2bee47e9967df" compoundref="_char_props_8h" startline="244" endline="247">graphemeBreak</referencedby>
-        <referencedby refid="struct_char_props_1ade2e6788c3e28f0c295b927941182cb6" compoundref="_char_props_8h" startline="228" endline="231">graphemeSegmentationProperty</referencedby>
-        <referencedby refid="struct_char_props_1acee8709393ce3e46bf43d06ab02d6d71" compoundref="_char_props_8h" startline="257" endline="260">indicConjunctBreak</referencedby>
-        <referencedby refid="struct_char_props_1a81e5d7a420d48694b3cc143bb4a654cf" compoundref="_char_props_8h" startline="178" endline="178">isCombiningChar</referencedby>
-        <referencedby refid="struct_char_props_1ac5775f3e4a9a4e83c4468942520b14f1" compoundref="_char_props_8h" startline="118" endline="118">isEmoji</referencedby>
-        <referencedby refid="struct_char_props_1aab64b65c32193f3e05ce27a88e7692ff" compoundref="_char_props_8h" startline="107" endline="107">isEmojiPresentation</referencedby>
-        <referencedby refid="struct_char_props_1a766a7b6e6b4ad5226ca6030fe8d8f2d4" compoundref="_char_props_8h" startline="128" endline="128">isEmojiVariationBase</referencedby>
-        <referencedby refid="struct_char_props_1a7eb53f1d0fbeeaf7cb24df6f891182ed" compoundref="_char_props_8h" startline="217" endline="217">isExtendedPictographic</referencedby>
-        <referencedby refid="struct_char_props_1a7d627ebc31d128e1ed918261194b48be" compoundref="_char_props_8h" startline="139" endline="139">isInvalid</referencedby>
-        <referencedby refid="struct_char_props_1aae80116d6d3592e3907b95be7b2e39a4" compoundref="_char_props_8h" startline="150" endline="150">isNonRendered</referencedby>
-        <referencedby refid="struct_char_props_1ae1ce95812752bf45517cd518d7d9451e" compoundref="_char_props_8h" startline="205" endline="205">isPunctuation</referencedby>
-        <referencedby refid="struct_char_props_1a2308fabe92fc69872d0ece39e11a5c5d" compoundref="_char_props_8h" startline="163" endline="163">isSymbol</referencedby>
-        <referencedby refid="struct_char_props_1adc5791d5767b8bc39ba92ad08cb1ce39" compoundref="_char_props_8h" startline="189" endline="189">isWordChar</referencedby>
-        <referencedby refid="struct_char_props_1a583a5a57fc96d06b3daebea49fd6d389" compoundref="_char_props_8h" startline="87" endline="90">width</referencedby>
+        <referencedby refid="struct_char_props_1ad31730fe2eb8dce2dc5cfbd19bcb0f89" compoundref="_char_props_8h" startline="264" endline="264">category</referencedby>
+        <referencedby refid="struct_char_props_1ad8b5baf2801c72e856e2bee47e9967df" compoundref="_char_props_8h" startline="238" endline="241">graphemeBreak</referencedby>
+        <referencedby refid="struct_char_props_1ade2e6788c3e28f0c295b927941182cb6" compoundref="_char_props_8h" startline="225" endline="225">graphemeSegmentationProperty</referencedby>
+        <referencedby refid="struct_char_props_1acee8709393ce3e46bf43d06ab02d6d71" compoundref="_char_props_8h" startline="251" endline="254">indicConjunctBreak</referencedby>
+        <referencedby refid="struct_char_props_1a81e5d7a420d48694b3cc143bb4a654cf" compoundref="_char_props_8h" startline="175" endline="175">isCombiningChar</referencedby>
+        <referencedby refid="struct_char_props_1ac5775f3e4a9a4e83c4468942520b14f1" compoundref="_char_props_8h" startline="115" endline="115">isEmoji</referencedby>
+        <referencedby refid="struct_char_props_1aab64b65c32193f3e05ce27a88e7692ff" compoundref="_char_props_8h" startline="104" endline="104">isEmojiPresentation</referencedby>
+        <referencedby refid="struct_char_props_1a766a7b6e6b4ad5226ca6030fe8d8f2d4" compoundref="_char_props_8h" startline="125" endline="125">isEmojiVariationBase</referencedby>
+        <referencedby refid="struct_char_props_1a7eb53f1d0fbeeaf7cb24df6f891182ed" compoundref="_char_props_8h" startline="214" endline="214">isExtendedPictographic</referencedby>
+        <referencedby refid="struct_char_props_1a7d627ebc31d128e1ed918261194b48be" compoundref="_char_props_8h" startline="136" endline="136">isInvalid</referencedby>
+        <referencedby refid="struct_char_props_1aae80116d6d3592e3907b95be7b2e39a4" compoundref="_char_props_8h" startline="147" endline="147">isNonRendered</referencedby>
+        <referencedby refid="struct_char_props_1ae1ce95812752bf45517cd518d7d9451e" compoundref="_char_props_8h" startline="202" endline="202">isPunctuation</referencedby>
+        <referencedby refid="struct_char_props_1a2308fabe92fc69872d0ece39e11a5c5d" compoundref="_char_props_8h" startline="160" endline="160">isSymbol</referencedby>
+        <referencedby refid="struct_char_props_1adc5791d5767b8bc39ba92ad08cb1ce39" compoundref="_char_props_8h" startline="186" endline="186">isWordChar</referencedby>
+        <referencedby refid="struct_char_props_1a583a5a57fc96d06b3daebea49fd6d389" compoundref="_char_props_8h" startline="87" endline="87">width</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">
@@ -58,7 +58,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/CharProps.h" line="87" column="9" bodyfile="terminal/CharProps.h" bodystart="87" bodyend="90"/>
+        <location file="terminal/CharProps.h" line="87" column="9" bodyfile="terminal/CharProps.h" bodystart="87" bodyend="87"/>
         <references refid="struct_char_props_1a8652b68acf8b2c9885982b2a619a54a5" compoundref="_char_props_8h" startline="67" endline="67">val</references>
         <references refid="_char_props_data_8h_1a82452c3be757fc5606457ae30156a6be" compoundref="_char_props_data_8h" startline="133" endline="133">WIDTH_SHIFT</references>
       </memberdef>
@@ -83,7 +83,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/CharProps.h" line="107" column="10" bodyfile="terminal/CharProps.h" bodystart="107" bodyend="107"/>
+        <location file="terminal/CharProps.h" line="104" column="10" bodyfile="terminal/CharProps.h" bodystart="104" bodyend="104"/>
         <references refid="struct_char_props_1a8652b68acf8b2c9885982b2a619a54a5" compoundref="_char_props_8h" startline="67" endline="67">val</references>
       </memberdef>
       <memberdef kind="function" id="struct_char_props_1ac5775f3e4a9a4e83c4468942520b14f1" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
@@ -103,7 +103,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/CharProps.h" line="118" column="10" bodyfile="terminal/CharProps.h" bodystart="118" bodyend="118"/>
+        <location file="terminal/CharProps.h" line="115" column="10" bodyfile="terminal/CharProps.h" bodystart="115" bodyend="115"/>
         <references refid="struct_char_props_1a8652b68acf8b2c9885982b2a619a54a5" compoundref="_char_props_8h" startline="67" endline="67">val</references>
       </memberdef>
       <memberdef kind="function" id="struct_char_props_1a766a7b6e6b4ad5226ca6030fe8d8f2d4" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
@@ -123,7 +123,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/CharProps.h" line="128" column="10" bodyfile="terminal/CharProps.h" bodystart="128" bodyend="128"/>
+        <location file="terminal/CharProps.h" line="125" column="10" bodyfile="terminal/CharProps.h" bodystart="125" bodyend="125"/>
         <references refid="struct_char_props_1a8652b68acf8b2c9885982b2a619a54a5" compoundref="_char_props_8h" startline="67" endline="67">val</references>
       </memberdef>
       <memberdef kind="function" id="struct_char_props_1a7d627ebc31d128e1ed918261194b48be" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
@@ -147,7 +147,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/CharProps.h" line="139" column="10" bodyfile="terminal/CharProps.h" bodystart="139" bodyend="139"/>
+        <location file="terminal/CharProps.h" line="136" column="10" bodyfile="terminal/CharProps.h" bodystart="136" bodyend="136"/>
         <references refid="struct_char_props_1a8652b68acf8b2c9885982b2a619a54a5" compoundref="_char_props_8h" startline="67" endline="67">val</references>
       </memberdef>
       <memberdef kind="function" id="struct_char_props_1aae80116d6d3592e3907b95be7b2e39a4" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
@@ -167,7 +167,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/CharProps.h" line="150" column="10" bodyfile="terminal/CharProps.h" bodystart="150" bodyend="150"/>
+        <location file="terminal/CharProps.h" line="147" column="10" bodyfile="terminal/CharProps.h" bodystart="147" bodyend="147"/>
         <references refid="struct_char_props_1a8652b68acf8b2c9885982b2a619a54a5" compoundref="_char_props_8h" startline="67" endline="67">val</references>
       </memberdef>
       <memberdef kind="function" id="struct_char_props_1a2308fabe92fc69872d0ece39e11a5c5d" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
@@ -193,7 +193,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/CharProps.h" line="163" column="10" bodyfile="terminal/CharProps.h" bodystart="163" bodyend="163"/>
+        <location file="terminal/CharProps.h" line="160" column="10" bodyfile="terminal/CharProps.h" bodystart="160" bodyend="160"/>
         <references refid="struct_char_props_1a8652b68acf8b2c9885982b2a619a54a5" compoundref="_char_props_8h" startline="67" endline="67">val</references>
       </memberdef>
       <memberdef kind="function" id="struct_char_props_1a81e5d7a420d48694b3cc143bb4a654cf" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
@@ -219,7 +219,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/CharProps.h" line="178" column="10" bodyfile="terminal/CharProps.h" bodystart="178" bodyend="178"/>
+        <location file="terminal/CharProps.h" line="175" column="10" bodyfile="terminal/CharProps.h" bodystart="175" bodyend="175"/>
         <references refid="struct_char_props_1a8652b68acf8b2c9885982b2a619a54a5" compoundref="_char_props_8h" startline="67" endline="67">val</references>
       </memberdef>
       <memberdef kind="function" id="struct_char_props_1adc5791d5767b8bc39ba92ad08cb1ce39" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
@@ -239,7 +239,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/CharProps.h" line="189" column="10" bodyfile="terminal/CharProps.h" bodystart="189" bodyend="189"/>
+        <location file="terminal/CharProps.h" line="186" column="10" bodyfile="terminal/CharProps.h" bodystart="186" bodyend="186"/>
         <references refid="struct_char_props_1a8652b68acf8b2c9885982b2a619a54a5" compoundref="_char_props_8h" startline="67" endline="67">val</references>
       </memberdef>
       <memberdef kind="function" id="struct_char_props_1ae1ce95812752bf45517cd518d7d9451e" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
@@ -268,7 +268,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/CharProps.h" line="205" column="10" bodyfile="terminal/CharProps.h" bodystart="205" bodyend="205"/>
+        <location file="terminal/CharProps.h" line="202" column="10" bodyfile="terminal/CharProps.h" bodystart="202" bodyend="202"/>
         <references refid="struct_char_props_1a8652b68acf8b2c9885982b2a619a54a5" compoundref="_char_props_8h" startline="67" endline="67">val</references>
       </memberdef>
       <memberdef kind="function" id="struct_char_props_1a7eb53f1d0fbeeaf7cb24df6f891182ed" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
@@ -288,7 +288,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/CharProps.h" line="217" column="10" bodyfile="terminal/CharProps.h" bodystart="217" bodyend="217"/>
+        <location file="terminal/CharProps.h" line="214" column="10" bodyfile="terminal/CharProps.h" bodystart="214" bodyend="214"/>
         <references refid="struct_char_props_1a8652b68acf8b2c9885982b2a619a54a5" compoundref="_char_props_8h" startline="67" endline="67">val</references>
       </memberdef>
       <memberdef kind="function" id="struct_char_props_1ade2e6788c3e28f0c295b927941182cb6" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
@@ -308,7 +308,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/CharProps.h" line="228" column="13" bodyfile="terminal/CharProps.h" bodystart="228" bodyend="231"/>
+        <location file="terminal/CharProps.h" line="225" column="13" bodyfile="terminal/CharProps.h" bodystart="225" bodyend="225"/>
         <references refid="struct_char_props_1a8652b68acf8b2c9885982b2a619a54a5" compoundref="_char_props_8h" startline="67" endline="67">val</references>
       </memberdef>
       <memberdef kind="function" id="struct_char_props_1ad8b5baf2801c72e856e2bee47e9967df" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
@@ -330,7 +330,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/CharProps.h" line="244" column="27" bodyfile="terminal/CharProps.h" bodystart="244" bodyend="247"/>
+        <location file="terminal/CharProps.h" line="238" column="27" bodyfile="terminal/CharProps.h" bodystart="238" bodyend="241"/>
         <references refid="struct_char_props_1a8652b68acf8b2c9885982b2a619a54a5" compoundref="_char_props_8h" startline="67" endline="67">val</references>
       </memberdef>
       <memberdef kind="function" id="struct_char_props_1acee8709393ce3e46bf43d06ab02d6d71" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
@@ -350,7 +350,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/CharProps.h" line="257" column="24" bodyfile="terminal/CharProps.h" bodystart="257" bodyend="260"/>
+        <location file="terminal/CharProps.h" line="251" column="24" bodyfile="terminal/CharProps.h" bodystart="251" bodyend="254"/>
         <references refid="struct_char_props_1a8652b68acf8b2c9885982b2a619a54a5" compoundref="_char_props_8h" startline="67" endline="67">val</references>
       </memberdef>
       <memberdef kind="function" id="struct_char_props_1ad31730fe2eb8dce2dc5cfbd19bcb0f89" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
@@ -370,7 +370,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/CharProps.h" line="270" column="21" bodyfile="terminal/CharProps.h" bodystart="270" bodyend="273"/>
+        <location file="terminal/CharProps.h" line="264" column="21" bodyfile="terminal/CharProps.h" bodystart="264" bodyend="264"/>
         <references refid="struct_char_props_1a8652b68acf8b2c9885982b2a619a54a5" compoundref="_char_props_8h" startline="67" endline="67">val</references>
       </memberdef>
     </sectiondef>
@@ -413,7 +413,7 @@
 </simplesect>
 </para>
     </detaileddescription>
-    <location file="terminal/CharProps.h" line="65" column="1" bodyfile="terminal/CharProps.h" bodystart="66" bodyend="274"/>
+    <location file="terminal/CharProps.h" line="65" column="1" bodyfile="terminal/CharProps.h" bodystart="66" bodyend="265"/>
     <listofallmembers>
       <member refid="struct_char_props_1ad31730fe2eb8dce2dc5cfbd19bcb0f89" prot="public" virt="non-virtual"><scope>CharProps</scope><name>category</name></member>
       <member refid="struct_char_props_1ad8b5baf2801c72e856e2bee47e9967df" prot="public" virt="non-virtual"><scope>CharProps</scope><name>graphemeBreak</name></member>

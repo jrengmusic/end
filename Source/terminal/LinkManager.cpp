@@ -47,18 +47,22 @@ void LinkManager::clearHints() noexcept
     pageBreaks.clear();
     activeStart = 0;
     activeCount = 0;
-    state.setHintPage (0);
-    state.setHintTotalPages (0);
+    state.storeValue (terminal::id::SESSION, terminal::id::hintPage, 0);
+    state.storeValue (terminal::id::SESSION, terminal::id::hintTotalPages, 0);
 }
 
 void LinkManager::advanceHintPage() noexcept
 {
-    const int total { state.getHintTotalPages() };
+    const juce::ValueTree root { state.getRootTree() };
+    auto hintTotalNode { jam::ValueTree::getChildWithID (root, terminal::id::hintTotalPages.toString()) };
+    auto hintPageNode  { jam::ValueTree::getChildWithID (root, terminal::id::hintPage.toString()) };
+    const int total    { hintTotalNode.isValid() ? static_cast<int> (hintTotalNode.getProperty (terminal::id::value)) : 0 };
 
     if (total > 1)
     {
-        const int nextPage { (state.getHintPage() + 1) % total };
-        state.setHintPage (nextPage);
+        const int current  { hintPageNode.isValid() ? static_cast<int> (hintPageNode.getProperty (terminal::id::value)) : 0 };
+        const int nextPage { (current + 1) % total };
+        state.storeValue (terminal::id::SESSION, terminal::id::hintPage, nextPage);
         assignCurrentPage();
     }
 }
@@ -90,13 +94,16 @@ void LinkManager::buildPages() noexcept
         }
     }
 
-    state.setHintTotalPages (static_cast<int> (pageBreaks.size()));
+    state.storeValue (terminal::id::SESSION, terminal::id::hintTotalPages, static_cast<int> (pageBreaks.size()));
 }
 
 void LinkManager::assignCurrentPage() noexcept
 {
-    const int page { state.getHintPage() };
-    const int total { state.getHintTotalPages() };
+    const juce::ValueTree assignRoot { state.getRootTree() };
+    auto assignPageNode  { jam::ValueTree::getChildWithID (assignRoot, terminal::id::hintPage.toString()) };
+    auto assignTotalNode { jam::ValueTree::getChildWithID (assignRoot, terminal::id::hintTotalPages.toString()) };
+    const int page  { assignPageNode.isValid()  ? static_cast<int> (assignPageNode.getProperty (terminal::id::value))  : 0 };
+    const int total { assignTotalNode.isValid() ? static_cast<int> (assignTotalNode.getProperty (terminal::id::value)) : 0 };
 
     activeStart = pageBreaks.at (static_cast<size_t> (page));
     activeCount = (page + 1 < total)
@@ -165,7 +172,9 @@ void LinkManager::dispatch (const LinkSpan& span) const
             const juce::String opener { handler.isNotEmpty() and handler != Map::LinkHandler::getContext()->get (Map::LinkHandler::whelmed)
                                             ? handler
                                             : cfg->nexus.hyperlinks.editor };
-            const bool bracketed { state.getMode (id::bracketedPaste) };
+            // Replaces getMode() — reads bracketedPaste from MODES node directly.
+            const juce::ValueTree dispatchModes { state.getChildWithName (terminal::id::MODES) };
+            const bool bracketed { static_cast<int> (jam::ValueTree::getValueFromChildWithID (dispatchModes, terminal::id::bracketedPaste).getValue()) != 0 };
             const juce::String payload { opener + " \"" + path + "\"" };
 
             juce::String command;
@@ -210,9 +219,20 @@ void LinkManager::valueTreePropertyChanged (juce::ValueTree& tree, const juce::I
 
     if (property == id::value)
     {
-        if (state.hasOutputBlock())
+        const juce::ValueTree root { state.getRootTree() };
+
+        // Replaces hasOutputBlock() — reads outputBlockTop, promptRow, activeScreen directly.
+        auto blockTopNode    { jam::ValueTree::getChildWithID (root, terminal::id::outputBlockTop.toString()) };
+        auto promptNode      { jam::ValueTree::getChildWithID (root, terminal::id::promptRow.toString()) };
+        auto activeScrnNode  { jam::ValueTree::getChildWithID (root, terminal::id::activeScreen.toString()) };
+        const int blockTop   { blockTopNode.isValid()   ? static_cast<int> (blockTopNode.getProperty (terminal::id::value))   : -1 };
+        const int promptRow  { promptNode.isValid()     ? static_cast<int> (promptNode.getProperty (terminal::id::value))     : -1 };
+        const int activeScr  { activeScrnNode.isValid() ? static_cast<int> (activeScrnNode.getProperty (terminal::id::value)) : 0 };
+        const bool hasBlock  { blockTop >= 0 and promptRow > blockTop and activeScr == Map::Screen::normal };
+
+        if (hasBlock)
         {
-            const juce::String cwd { state.getCwd() };
+            const juce::String cwd { root.getProperty (terminal::id::cwd).toString() };
             scan (cwd, true);
         }
         else

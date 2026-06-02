@@ -280,7 +280,7 @@
 <parametername>charForPrevLine</parametername>
 </parameternamelist>
 <parameterdescription>
-<para><ref refid="struct_char" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Char</ref> index at targetX on the previous line (caller computed). </para>
+<para>Char index at targetX on the previous line (caller computed). </para>
 </parameterdescription>
 </parameteritem>
 <parameteritem>
@@ -296,7 +296,7 @@
 <parametername>charForPrevBlockLastLine</parametername>
 </parameternamelist>
 <parameterdescription>
-<para><ref refid="struct_char" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Char</ref> index at targetX on last line of previous block. Used when currentLine == 0. </para>
+<para>Char index at targetX on last line of previous block. Used when currentLine == 0. </para>
 </parameterdescription>
 </parameteritem>
 </parameterlist>
@@ -378,7 +378,7 @@
 <parametername>charForNextLine</parametername>
 </parameternamelist>
 <parameterdescription>
-<para><ref refid="struct_char" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Char</ref> index at targetX on the next line (caller computed). </para>
+<para>Char index at targetX on the next line (caller computed). </para>
 </parameterdescription>
 </parameteritem>
 <parameteritem>
@@ -394,7 +394,7 @@
 <parametername>charForNextBlockFirstLine</parametername>
 </parameternamelist>
 <parameterdescription>
-<para><ref refid="struct_char" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Char</ref> index at targetX on first line of next block. </para>
+<para>Char index at targetX on first line of next block. </para>
 </parameterdescription>
 </parameteritem>
 <parameteritem>

@@ -515,7 +515,7 @@
 <para>Handles all keyboard input routing for a terminal processor. </para>
     </briefdescription>
     <detaileddescription>
-<para><ref refid="classterminal_1_1_input" kindref="compound">terminal::Input</ref> centralises modal key dispatch, vim-style selection navigation, open-file hint-label key matching, scrollback navigation, and the two-key <computeroutput>gg</computeroutput> sequence. It reads and writes terminal selection state via <computeroutput>Model</computeroutput> parameters directly — no <computeroutput><ref refid="class_display" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Display</ref></computeroutput> members are touched.</para>
+<para><ref refid="classterminal_1_1_input" kindref="compound">terminal::Input</ref> centralises modal key dispatch, vim-style selection navigation, open-file hint-label key matching, scrollback navigation, and the two-key <computeroutput>gg</computeroutput> sequence. It reads and writes terminal selection state via <computeroutput>Model</computeroutput> parameters directly — no <computeroutput>Display</computeroutput> members are touched.</para>
 <sect1 id="_input_8h_1autotoc_md38_1s1"><sect2 id="_input_8h_1autotoc_md38_1s2"><sect3 id="_input_8h_1autotoc_md38">
 <title>Responsibilities</title><para><itemizedlist>
 <listitem><para><computeroutput>handleKey()</computeroutput> — top-level dispatch for normal terminals: modal intercept → action system → scroll nav → PTY.</para>

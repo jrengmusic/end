@@ -486,11 +486,15 @@ void Link::valueTreeChildAdded (juce::ValueTree&, juce::ValueTree& child)
         {
             auto& session { ctx->get (uuid) };
 
-            // Send createSession PDU to daemon.
-            sendCreateSession (session.getProcessor().getState().getCwd(),
-                               uuid,
-                               session.getProcessor().getState().getCols().value,
-                               session.getProcessor().getState().getVisibleRows().value);
+            // Replaces getCwd() / getCols() / getVisibleRows() — direct tree reads.
+            {
+                const auto& linkSt  { session.getProcessor().getState() };
+                const juce::String linkCwd { linkSt.getRootTree().getProperty (terminal::id::cwd).toString() };
+                const auto linkCvNode { linkSt.getChildWithName (jam::CodeView::properties.at (jam::CodeView::codeViewId)) };
+                const int64_t linkPacked { static_cast<int64_t> (linkCvNode.getProperty (jam::CodeView::properties.at (jam::CodeView::viewportId), 0)) };
+                const auto linkRect { jam::Cell::Rectangle::unpack (linkPacked) };
+                sendCreateSession (linkCwd, uuid, linkRect.getWidth().value, linkRect.getHeight().value);
+            }
 
             // Wire user input (keyboard, mouse) to daemon via Link IPC.
             session.getProcessor().registerEvent<const char*, int> (terminal::id::writeInput, [this, uuid] (const char* data, int len)
