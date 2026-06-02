@@ -13,7 +13,7 @@
  * - Mode parameter IDs: DEC terminal mode flags
  * - Per-screen parameter IDs: Screen-specific cursor and scroll state
  *
- * @see State.h for the ValueTree structure that uses these identifiers
+ * @see Model.h for the ValueTree structure that uses these identifiers
  */
 
 #pragma once
@@ -60,7 +60,7 @@ struct CursorState
  *
  * @par Naming Convention
  * All identifiers use camelCase to match the ValueTree property names
- * they represent (not the C++ member names in State classes).
+ * they represent (not the C++ member names in Model classes).
  *
  * @par Usage Pattern
  * @code
@@ -68,7 +68,7 @@ struct CursorState
  * session.setProperty(id::cwd, "/home/user", nullptr);
  * @endcode
  *
- * @see State.h for the complete state model
+ * @see Model.h for the complete terminal model
  */
 namespace id
 {
@@ -243,13 +243,6 @@ namespace id
     static const juce::Identifier promptRow            { "promptRow" };
 
     //==========================================================================
-    // Per-screen live zone tracking
-    //==========================================================================
-
-    /** @brief Number of TLA tail entries mirroring Video content (live zone size). Set by Processor after live zone rebuild. */
-    static const juce::Identifier liveRows             { "liveRows" };
-
-    //==========================================================================
     // Repaint signal atomic
     //==========================================================================
 
@@ -305,9 +298,6 @@ namespace id
 
     /** @brief Fired when cell data is written to Grid — args: int (screen). Triggers Screen repaint. */
     static const juce::Identifier screenDirty           { "screenDirty" };
-
-    /** @brief Fired once per dirty row during flush — args: int (row). Reader thread marks State row-dirty flags. */
-    static const juce::Identifier rowDirty              { "rowDirty" };
 
     /** @brief Fired on OSC 133 A prompt marker — args: int (relative row). */
     static const juce::Identifier outputBlockStart    { "outputBlockStart" };
@@ -381,7 +371,7 @@ namespace id
     static const juce::Identifier data                  { "data" };
 
     /** @brief Fired on the reader thread for each data chunk for IPC byte broadcast — args: const char*, int.
-     *  Registered externally via Processor::setBytesObserver() in daemon mode. */
+     *  Registered externally via Processor::registerEvent() in daemon mode. */
     static const juce::Identifier bytesReceived         { "bytesReceived" };
 
 /**______________________________END OF NAMESPACE______________________________*/

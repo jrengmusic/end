@@ -1,0 +1,209 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="classaction_1_1_key_handler" kind="class" language="C++" prot="public">
+    <compoundname>action::KeyHandler</compoundname>
+    <includes refid="_key_handler_8h" local="no">KeyHandler.h</includes>
+    <innerclass refid="structaction_1_1_key_handler_1_1_callbacks" prot="public">action::KeyHandler::Callbacks</innerclass>
+    <sectiondef kind="private-type">
+      <memberdef kind="typedef" id="classaction_1_1_key_handler_1a379c1ef2c674ffbd369f710d45c1091a" prot="private" static="no">
+        <type>std::function&lt; void()&gt;</type>
+        <definition>using action::KeyHandler::KeyAction = std::function&lt;void()&gt;</definition>
+        <argsstring></argsstring>
+        <name>KeyAction</name>
+        <qualifiedname>action::KeyHandler::KeyAction</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/KeyHandler.h" line="40" column="5" bodyfile="terminal/action/KeyHandler.h" bodystart="40" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classaction_1_1_key_handler_1a6817d3ecf994e5c5e8fdb657283c26ad" prot="private" static="no">
+        <type>std::unordered_map&lt; int, <ref refid="classaction_1_1_key_handler_1a379c1ef2c674ffbd369f710d45c1091a" kindref="member">KeyAction</ref> &gt;</type>
+        <definition>using action::KeyHandler::KeyTable = std::unordered_map&lt;int, KeyAction&gt;</definition>
+        <argsstring></argsstring>
+        <name>KeyTable</name>
+        <qualifiedname>action::KeyHandler::KeyTable</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/KeyHandler.h" line="41" column="5" bodyfile="terminal/action/KeyHandler.h" bodystart="41" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classaction_1_1_key_handler_1ae62b299ce0e526c1158a82a870a8068e" prot="private" static="no" mutable="no">
+        <type><ref refid="structaction_1_1_key_handler_1_1_callbacks" kindref="compound">Callbacks</ref></type>
+        <definition>Callbacks action::KeyHandler::callbacks</definition>
+        <argsstring></argsstring>
+        <name>callbacks</name>
+        <qualifiedname>action::KeyHandler::callbacks</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/KeyHandler.h" line="43" column="15" bodyfile="terminal/action/KeyHandler.h" bodystart="43" bodyend="-1"/>
+        <referencedby refid="classaction_1_1_key_handler_1a7de785fa1f1c62c90d7287a14c3a8045" compoundref="_key_handler_8cpp" startline="37" endline="73">buildNavigationTable</referencedby>
+        <referencedby refid="classaction_1_1_key_handler_1af498c10378c633003ccea3c86336e121" compoundref="_key_handler_8cpp" startline="20" endline="34">buildSearchTable</referencedby>
+        <referencedby refid="classaction_1_1_key_handler_1a622d1e4365e2bd5b668b474eb39ae524" compoundref="_key_handler_8cpp" startline="76" endline="100">handleKey</referencedby>
+        <referencedby refid="classaction_1_1_key_handler_1a9cff4f5b65c448212d02af620d8119d4" compoundref="_key_handler_8cpp" startline="12" endline="17">KeyHandler</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classaction_1_1_key_handler_1a58f019b6fcbd3bc472c0a761b2f336d3" prot="private" static="no" mutable="no">
+        <type><ref refid="classaction_1_1_key_handler_1a6817d3ecf994e5c5e8fdb657283c26ad" kindref="member">KeyTable</ref></type>
+        <definition>KeyTable action::KeyHandler::searchTable</definition>
+        <argsstring></argsstring>
+        <name>searchTable</name>
+        <qualifiedname>action::KeyHandler::searchTable</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/KeyHandler.h" line="45" column="14" bodyfile="terminal/action/KeyHandler.h" bodystart="45" bodyend="-1"/>
+        <referencedby refid="classaction_1_1_key_handler_1af498c10378c633003ccea3c86336e121" compoundref="_key_handler_8cpp" startline="20" endline="34">buildSearchTable</referencedby>
+        <referencedby refid="classaction_1_1_key_handler_1a622d1e4365e2bd5b668b474eb39ae524" compoundref="_key_handler_8cpp" startline="76" endline="100">handleKey</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classaction_1_1_key_handler_1a60e13a4da372559a748d80f11fc1f62f" prot="private" static="no" mutable="no">
+        <type><ref refid="classaction_1_1_key_handler_1a6817d3ecf994e5c5e8fdb657283c26ad" kindref="member">KeyTable</ref></type>
+        <definition>KeyTable action::KeyHandler::navigationTable</definition>
+        <argsstring></argsstring>
+        <name>navigationTable</name>
+        <qualifiedname>action::KeyHandler::navigationTable</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/KeyHandler.h" line="46" column="14" bodyfile="terminal/action/KeyHandler.h" bodystart="46" bodyend="-1"/>
+        <referencedby refid="classaction_1_1_key_handler_1a7de785fa1f1c62c90d7287a14c3a8045" compoundref="_key_handler_8cpp" startline="37" endline="73">buildNavigationTable</referencedby>
+        <referencedby refid="classaction_1_1_key_handler_1a622d1e4365e2bd5b668b474eb39ae524" compoundref="_key_handler_8cpp" startline="76" endline="100">handleKey</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="public-func">
+      <memberdef kind="function" id="classaction_1_1_key_handler_1a9cff4f5b65c448212d02af620d8119d4" prot="public" static="no" const="no" explicit="yes" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>action::KeyHandler::KeyHandler</definition>
+        <argsstring>(Callbacks callbacks)</argsstring>
+        <name>KeyHandler</name>
+        <qualifiedname>action::KeyHandler::KeyHandler</qualifiedname>
+        <param>
+          <type><ref refid="structaction_1_1_key_handler_1_1_callbacks" kindref="compound">Callbacks</ref></type>
+          <declname>callbacks</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/KeyHandler.h" line="35" column="14" bodyfile="terminal/action/KeyHandler.cpp" bodystart="12" bodyend="17"/>
+        <references refid="classaction_1_1_key_handler_1a7de785fa1f1c62c90d7287a14c3a8045" compoundref="_key_handler_8cpp" startline="37" endline="73">buildNavigationTable</references>
+        <references refid="classaction_1_1_key_handler_1af498c10378c633003ccea3c86336e121" compoundref="_key_handler_8cpp" startline="20" endline="34">buildSearchTable</references>
+        <references refid="classaction_1_1_key_handler_1ae62b299ce0e526c1158a82a870a8068e" compoundref="_key_handler_8h" startline="43">callbacks</references>
+      </memberdef>
+      <memberdef kind="function" id="classaction_1_1_key_handler_1a622d1e4365e2bd5b668b474eb39ae524" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool action::KeyHandler::handleKey</definition>
+        <argsstring>(const juce::KeyPress &amp;key)</argsstring>
+        <name>handleKey</name>
+        <qualifiedname>action::KeyHandler::handleKey</qualifiedname>
+        <param>
+          <type>const juce::KeyPress &amp;</type>
+          <declname>key</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/KeyHandler.h" line="37" column="10" bodyfile="terminal/action/KeyHandler.cpp" bodystart="76" bodyend="100"/>
+        <references refid="classaction_1_1_key_handler_1ae62b299ce0e526c1158a82a870a8068e" compoundref="_key_handler_8h" startline="43">callbacks</references>
+        <references refid="classaction_1_1_key_handler_1a60e13a4da372559a748d80f11fc1f62f" compoundref="_key_handler_8h" startline="46">navigationTable</references>
+        <references refid="classaction_1_1_key_handler_1a58f019b6fcbd3bc472c0a761b2f336d3" compoundref="_key_handler_8h" startline="45">searchTable</references>
+        <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caaab9e1de16f38176f86d7a92ba337a8d">table</references>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="private-func">
+      <memberdef kind="function" id="classaction_1_1_key_handler_1af498c10378c633003ccea3c86336e121" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void action::KeyHandler::buildSearchTable</definition>
+        <argsstring>()</argsstring>
+        <name>buildSearchTable</name>
+        <qualifiedname>action::KeyHandler::buildSearchTable</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/KeyHandler.h" line="48" column="10" bodyfile="terminal/action/KeyHandler.cpp" bodystart="20" bodyend="34"/>
+        <references refid="classaction_1_1_key_handler_1ae62b299ce0e526c1158a82a870a8068e" compoundref="_key_handler_8h" startline="43">callbacks</references>
+        <references refid="classaction_1_1_key_handler_1a58f019b6fcbd3bc472c0a761b2f336d3" compoundref="_key_handler_8h" startline="45">searchTable</references>
+        <referencedby refid="classaction_1_1_key_handler_1a9cff4f5b65c448212d02af620d8119d4" compoundref="_key_handler_8cpp" startline="12" endline="17">KeyHandler</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classaction_1_1_key_handler_1a7de785fa1f1c62c90d7287a14c3a8045" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void action::KeyHandler::buildNavigationTable</definition>
+        <argsstring>()</argsstring>
+        <name>buildNavigationTable</name>
+        <qualifiedname>action::KeyHandler::buildNavigationTable</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/KeyHandler.h" line="49" column="10" bodyfile="terminal/action/KeyHandler.cpp" bodystart="37" bodyend="73"/>
+        <references refid="classaction_1_1_key_handler_1ae62b299ce0e526c1158a82a870a8068e" compoundref="_key_handler_8h" startline="43">callbacks</references>
+        <references refid="classaction_1_1_key_handler_1a60e13a4da372559a748d80f11fc1f62f" compoundref="_key_handler_8h" startline="46">navigationTable</references>
+        <referencedby refid="classaction_1_1_key_handler_1a9cff4f5b65c448212d02af620d8119d4" compoundref="_key_handler_8cpp" startline="12" endline="17">KeyHandler</referencedby>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Translates key presses to <ref refid="classaction_1_1_list" kindref="compound">List</ref> actions via a single lookup table. </para>
+    </briefdescription>
+    <detaileddescription>
+<para><ref refid="classaction_1_1_row" kindref="compound">Row</ref> 0 selected = search mode (typing filters). <ref refid="classaction_1_1_row" kindref="compound">Row</ref> &gt; 0 = navigation. Binding mode is handled by <ref refid="classaction_1_1_list" kindref="compound">List</ref> directly, not by <ref refid="classaction_1_1_key_handler" kindref="compound">KeyHandler</ref>. </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>action::KeyHandler</label>
+        <link refid="classaction_1_1_key_handler"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>callbacks</edgelabel>
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>navigationTable</edgelabel>
+          <edgelabel>searchTable</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>action::KeyHandler::Callbacks</label>
+        <link refid="structaction_1_1_key_handler_1_1_callbacks"/>
+      </node>
+      <node id="3">
+        <label>std::unordered_map&lt; int, KeyAction &gt;</label>
+      </node>
+    </collaborationgraph>
+    <location file="terminal/action/KeyHandler.h" line="21" column="1" bodyfile="terminal/action/KeyHandler.h" bodystart="22" bodyend="53"/>
+    <listofallmembers>
+      <member refid="classaction_1_1_key_handler_1a7de785fa1f1c62c90d7287a14c3a8045" prot="private" virt="non-virtual"><scope>action::KeyHandler</scope><name>buildNavigationTable</name></member>
+      <member refid="classaction_1_1_key_handler_1af498c10378c633003ccea3c86336e121" prot="private" virt="non-virtual"><scope>action::KeyHandler</scope><name>buildSearchTable</name></member>
+      <member refid="classaction_1_1_key_handler_1ae62b299ce0e526c1158a82a870a8068e" prot="private" virt="non-virtual"><scope>action::KeyHandler</scope><name>callbacks</name></member>
+      <member refid="classaction_1_1_key_handler_1a622d1e4365e2bd5b668b474eb39ae524" prot="public" virt="non-virtual"><scope>action::KeyHandler</scope><name>handleKey</name></member>
+      <member refid="classaction_1_1_key_handler_1a379c1ef2c674ffbd369f710d45c1091a" prot="private" virt="non-virtual"><scope>action::KeyHandler</scope><name>KeyAction</name></member>
+      <member refid="classaction_1_1_key_handler_1a9cff4f5b65c448212d02af620d8119d4" prot="public" virt="non-virtual"><scope>action::KeyHandler</scope><name>KeyHandler</name></member>
+      <member refid="classaction_1_1_key_handler_1a6817d3ecf994e5c5e8fdb657283c26ad" prot="private" virt="non-virtual"><scope>action::KeyHandler</scope><name>KeyTable</name></member>
+      <member refid="classaction_1_1_key_handler_1a60e13a4da372559a748d80f11fc1f62f" prot="private" virt="non-virtual"><scope>action::KeyHandler</scope><name>navigationTable</name></member>
+      <member refid="classaction_1_1_key_handler_1a58f019b6fcbd3bc472c0a761b2f336d3" prot="private" virt="non-virtual"><scope>action::KeyHandler</scope><name>searchTable</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

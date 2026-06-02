@@ -25,11 +25,11 @@ enum class RowKind
  * @brief A single row in the command palette.
  *
  * Index 0 = search box. Index > 0 = action entry with name and shortcut labels.
- * Inherits ObjectID so its `selected` Value is wired into the ValueTree.
+ * Inherits ComponentWithID so its `selected` Value is wired into the ValueTree.
  * Self-managing: paints highlight and grabs focus based on its own Value.
  */
 class Row : public juce::Component,
-            public jam::Value::ObjectID<Row>,
+            public jam::Value::ComponentWithID<Row>,
             private juce::Value::Listener
 {
 public:

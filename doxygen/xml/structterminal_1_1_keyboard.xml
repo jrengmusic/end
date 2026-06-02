@@ -1,0 +1,1450 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="structterminal_1_1_keyboard" kind="struct" language="C++" prot="public">
+    <compoundname>terminal::Keyboard</compoundname>
+    <includes refid="_keyboard_8h" local="no">Keyboard.h</includes>
+    <sectiondef kind="private-static-attrib">
+      <memberdef kind="variable" id="structterminal_1_1_keyboard_1afa2fb4abb0a1e0152fef6ef9d646e0e5" prot="private" static="yes" constexpr="yes" mutable="no">
+        <type>const char *</type>
+        <definition>const char* terminal::Keyboard::escPrefix</definition>
+        <argsstring></argsstring>
+        <name>escPrefix</name>
+        <qualifiedname>terminal::Keyboard::escPrefix</qualifiedname>
+        <initializer>{ &quot;\x1b&quot; }</initializer>
+        <briefdescription>
+<para>ESC character — used as a standalone escape or as the Alt prefix. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Keyboard.h" line="377" column="33" bodyfile="terminal/Keyboard.h" bodystart="377" bodyend="377"/>
+        <referencedby refid="structterminal_1_1_keyboard_1a5375f5be758722772b23c16ad99ddf7c" compoundref="_keyboard_8h" startline="239" endline="301">mapAlt</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_keyboard_1aa8afb9196d0747fb465442f5e8094b60" prot="private" static="yes" constexpr="yes" mutable="no">
+        <type>const char *</type>
+        <definition>const char* terminal::Keyboard::csiPrefix</definition>
+        <argsstring></argsstring>
+        <name>csiPrefix</name>
+        <qualifiedname>terminal::Keyboard::csiPrefix</qualifiedname>
+        <initializer>{ &quot;\x1b[&quot; }</initializer>
+        <briefdescription>
+<para><ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> introducer: ESC [ — begins most special-key sequences. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Keyboard.h" line="380" column="33" bodyfile="terminal/Keyboard.h" bodystart="380" bodyend="380"/>
+        <referencedby refid="structterminal_1_1_keyboard_1ab20318d26cba31889f6cb38ef48995e1" compoundref="_keyboard_8h" startline="862" endline="894">editingKey</referencedby>
+        <referencedby refid="structterminal_1_1_keyboard_1afa9cf634fe512cbd987b97d8ff1c56f8" compoundref="_keyboard_8h" startline="633" endline="649">encodeCsiU</referencedby>
+        <referencedby refid="structterminal_1_1_keyboard_1a08b40cc6b39e2fca6756dabe9b39b46a" compoundref="_keyboard_8h" startline="793" endline="830">functionKey</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_keyboard_1abe71693a03472634156ed0956ca81ac7" prot="private" static="yes" constexpr="yes" mutable="no">
+        <type>const char *</type>
+        <definition>const char* terminal::Keyboard::csiModPrefix</definition>
+        <argsstring></argsstring>
+        <name>csiModPrefix</name>
+        <qualifiedname>terminal::Keyboard::csiModPrefix</qualifiedname>
+        <initializer>{ &quot;\x1b[1;&quot; }</initializer>
+        <briefdescription>
+<para><ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> modifier prefix: <computeroutput>ESC [ 1 ;</computeroutput> — used when a modifier is active. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The <computeroutput>1</computeroutput> is the parameter position for the key number (always 1 for cursor and F1–F4 keys); the modifier code <computeroutput>N</computeroutput> follows the semicolon. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Keyboard.h" line="388" column="33" bodyfile="terminal/Keyboard.h" bodystart="388" bodyend="388"/>
+        <referencedby refid="structterminal_1_1_keyboard_1ab20318d26cba31889f6cb38ef48995e1" compoundref="_keyboard_8h" startline="862" endline="894">editingKey</referencedby>
+        <referencedby refid="structterminal_1_1_keyboard_1a08b40cc6b39e2fca6756dabe9b39b46a" compoundref="_keyboard_8h" startline="793" endline="830">functionKey</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_keyboard_1a61b9f7752fa3154bd1bc9e2b18b8b3c2" prot="private" static="yes" constexpr="yes" mutable="no">
+        <type>const char *</type>
+        <definition>const char* terminal::Keyboard::ss3Prefix</definition>
+        <argsstring></argsstring>
+        <name>ss3Prefix</name>
+        <qualifiedname>terminal::Keyboard::ss3Prefix</qualifiedname>
+        <initializer>{ &quot;\x1bO&quot; }</initializer>
+        <briefdescription>
+<para>SS3 introducer: ESC O — used for F1–F4 and cursor keys in application mode. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Keyboard.h" line="391" column="33" bodyfile="terminal/Keyboard.h" bodystart="391" bodyend="391"/>
+        <referencedby refid="structterminal_1_1_keyboard_1a08b40cc6b39e2fca6756dabe9b39b46a" compoundref="_keyboard_8h" startline="793" endline="830">functionKey</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_keyboard_1aaebdc26b0cade07ca15073771cfbfe66" prot="private" static="yes" constexpr="yes" mutable="no">
+        <type>const char *</type>
+        <definition>const char* terminal::Keyboard::csiTerminator</definition>
+        <argsstring></argsstring>
+        <name>csiTerminator</name>
+        <qualifiedname>terminal::Keyboard::csiTerminator</qualifiedname>
+        <initializer>{ &quot;~&quot; }</initializer>
+        <briefdescription>
+<para><ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> tilde terminator <computeroutput>~</computeroutput> — ends Insert/Delete/PgUp/PgDn/F5–F12 sequences. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Keyboard.h" line="394" column="33" bodyfile="terminal/Keyboard.h" bodystart="394" bodyend="394"/>
+        <referencedby refid="structterminal_1_1_keyboard_1ab20318d26cba31889f6cb38ef48995e1" compoundref="_keyboard_8h" startline="862" endline="894">editingKey</referencedby>
+        <referencedby refid="structterminal_1_1_keyboard_1a08b40cc6b39e2fca6756dabe9b39b46a" compoundref="_keyboard_8h" startline="793" endline="830">functionKey</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_keyboard_1a42e690c96b4fc63e13d680ac5ce6e395" prot="private" static="yes" constexpr="yes" mutable="no">
+        <type>const char *</type>
+        <definition>const char* terminal::Keyboard::paramSeparator</definition>
+        <argsstring></argsstring>
+        <name>paramSeparator</name>
+        <qualifiedname>terminal::Keyboard::paramSeparator</qualifiedname>
+        <initializer>{ &quot;;&quot; }</initializer>
+        <briefdescription>
+<para>Semicolon separator between <ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> parameters. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Keyboard.h" line="397" column="33" bodyfile="terminal/Keyboard.h" bodystart="397" bodyend="397"/>
+        <referencedby refid="structterminal_1_1_keyboard_1ab20318d26cba31889f6cb38ef48995e1" compoundref="_keyboard_8h" startline="862" endline="894">editingKey</referencedby>
+        <referencedby refid="structterminal_1_1_keyboard_1afa9cf634fe512cbd987b97d8ff1c56f8" compoundref="_keyboard_8h" startline="633" endline="649">encodeCsiU</referencedby>
+        <referencedby refid="structterminal_1_1_keyboard_1a08b40cc6b39e2fca6756dabe9b39b46a" compoundref="_keyboard_8h" startline="793" endline="830">functionKey</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_keyboard_1a3bbeb24b42baeff4ebc92106b9674f8e" prot="private" static="yes" constexpr="yes" mutable="no">
+        <type>const char *</type>
+        <definition>const char* terminal::Keyboard::carriageReturn</definition>
+        <argsstring></argsstring>
+        <name>carriageReturn</name>
+        <qualifiedname>terminal::Keyboard::carriageReturn</qualifiedname>
+        <initializer>{ &quot;\r&quot; }</initializer>
+        <briefdescription>
+<para>Carriage Return (0x0D) — sent for the Return/Enter key. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Keyboard.h" line="404" column="33" bodyfile="terminal/Keyboard.h" bodystart="404" bodyend="404"/>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_keyboard_1aabb3fdc6a194d2a7874a390d586752b8" prot="private" static="yes" constexpr="yes" mutable="no">
+        <type>const char *</type>
+        <definition>const char* terminal::Keyboard::backspaceDel</definition>
+        <argsstring></argsstring>
+        <name>backspaceDel</name>
+        <qualifiedname>terminal::Keyboard::backspaceDel</qualifiedname>
+        <initializer>{ &quot;\x7f&quot; }</initializer>
+        <briefdescription>
+<para>DEL character (0x7F) — sent for the Backspace key (xterm default). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Keyboard.h" line="407" column="33" bodyfile="terminal/Keyboard.h" bodystart="407" bodyend="407"/>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_keyboard_1a914f30aa65d3b6a9a71c2726ef392a1e" prot="private" static="yes" constexpr="yes" mutable="no">
+        <type>const char *</type>
+        <definition>const char* terminal::Keyboard::horizontalTab</definition>
+        <argsstring></argsstring>
+        <name>horizontalTab</name>
+        <qualifiedname>terminal::Keyboard::horizontalTab</qualifiedname>
+        <initializer>{ &quot;\t&quot; }</initializer>
+        <briefdescription>
+<para>Horizontal Tab (0x09) — sent for the Tab key. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Keyboard.h" line="410" column="33" bodyfile="terminal/Keyboard.h" bodystart="410" bodyend="410"/>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_keyboard_1a986febc453430425ad1172a53d5f59ff" prot="private" static="yes" constexpr="yes" mutable="no">
+        <type>const char *</type>
+        <definition>const char* terminal::Keyboard::escapeChar</definition>
+        <argsstring></argsstring>
+        <name>escapeChar</name>
+        <qualifiedname>terminal::Keyboard::escapeChar</qualifiedname>
+        <initializer>{ &quot;\x1b&quot; }</initializer>
+        <briefdescription>
+<para>ESC character (0x1B) — sent for the Escape key. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Keyboard.h" line="413" column="33" bodyfile="terminal/Keyboard.h" bodystart="413" bodyend="413"/>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_keyboard_1afc95496b8854e04b7525e29447c30f64" prot="private" static="yes" constexpr="yes" mutable="no">
+        <type>int</type>
+        <definition>int terminal::Keyboard::noModifier</definition>
+        <argsstring></argsstring>
+        <name>noModifier</name>
+        <qualifiedname>terminal::Keyboard::noModifier</qualifiedname>
+        <initializer>{ 1 }</initializer>
+        <briefdescription>
+<para>Base value for the modifier parameter when no modifiers are held. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The xterm modifier parameter is <computeroutput>1 + <ref refid="group__juce__audio__plugin__client-Unity_1gga485dc2a0e5ed7da3d9f826367b36ee55aa844ac0d299bd083b2938e6cbf34743a" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">shift</ref> + <ref refid="group__juce__audio__plugin__client-Unity_1gga485dc2a0e5ed7da3d9f826367b36ee55a7f564926136a18c80a8a14a53d0e98ce" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">alt</ref> + ctrl</computeroutput>. When the result equals <computeroutput><ref refid="structterminal_1_1_keyboard_1afc95496b8854e04b7525e29447c30f64" kindref="member">noModifier</ref></computeroutput> (1), the parameter is omitted from the sequence. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Keyboard.h" line="425" column="26" bodyfile="terminal/Keyboard.h" bodystart="425" bodyend="425"/>
+        <referencedby refid="structterminal_1_1_keyboard_1ab20318d26cba31889f6cb38ef48995e1" compoundref="_keyboard_8h" startline="862" endline="894">editingKey</referencedby>
+        <referencedby refid="structterminal_1_1_keyboard_1afa9cf634fe512cbd987b97d8ff1c56f8" compoundref="_keyboard_8h" startline="633" endline="649">encodeCsiU</referencedby>
+        <referencedby refid="structterminal_1_1_keyboard_1a08b40cc6b39e2fca6756dabe9b39b46a" compoundref="_keyboard_8h" startline="793" endline="830">functionKey</referencedby>
+        <referencedby refid="structterminal_1_1_keyboard_1ab8e828d9d60df1a92c6dc16fc2476873" compoundref="_keyboard_8h" startline="562" endline="592">modifierCode</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_keyboard_1a7a14df1b437afd01112f80999f643a32" prot="private" static="yes" constexpr="yes" mutable="no">
+        <type>int</type>
+        <definition>int terminal::Keyboard::shiftBit</definition>
+        <argsstring></argsstring>
+        <name>shiftBit</name>
+        <qualifiedname>terminal::Keyboard::shiftBit</qualifiedname>
+        <initializer>{ 1 }</initializer>
+        <briefdescription>
+<para>Shift modifier bit weight added to the xterm modifier parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Keyboard.h" line="428" column="26" bodyfile="terminal/Keyboard.h" bodystart="428" bodyend="428"/>
+        <referencedby refid="structterminal_1_1_keyboard_1ab8e828d9d60df1a92c6dc16fc2476873" compoundref="_keyboard_8h" startline="562" endline="592">modifierCode</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_keyboard_1ad2bfff171c28b61c2c3c1a1c1dfdd314" prot="private" static="yes" constexpr="yes" mutable="no">
+        <type>int</type>
+        <definition>int terminal::Keyboard::altBit</definition>
+        <argsstring></argsstring>
+        <name>altBit</name>
+        <qualifiedname>terminal::Keyboard::altBit</qualifiedname>
+        <initializer>{ 2 }</initializer>
+        <briefdescription>
+<para>Alt modifier bit weight added to the xterm modifier parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Keyboard.h" line="431" column="26" bodyfile="terminal/Keyboard.h" bodystart="431" bodyend="431"/>
+        <referencedby refid="structterminal_1_1_keyboard_1ab8e828d9d60df1a92c6dc16fc2476873" compoundref="_keyboard_8h" startline="562" endline="592">modifierCode</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_keyboard_1ab54a5c36b5b8805bc0978040ce96f56c" prot="private" static="yes" constexpr="yes" mutable="no">
+        <type>int</type>
+        <definition>int terminal::Keyboard::ctrlBit</definition>
+        <argsstring></argsstring>
+        <name>ctrlBit</name>
+        <qualifiedname>terminal::Keyboard::ctrlBit</qualifiedname>
+        <initializer>{ 4 }</initializer>
+        <briefdescription>
+<para>Ctrl modifier bit weight added to the xterm modifier parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Keyboard.h" line="434" column="26" bodyfile="terminal/Keyboard.h" bodystart="434" bodyend="434"/>
+        <referencedby refid="structterminal_1_1_keyboard_1ab8e828d9d60df1a92c6dc16fc2476873" compoundref="_keyboard_8h" startline="562" endline="592">modifierCode</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_keyboard_1a8fc7b605f4d142130d9740e8e1059ca6" prot="private" static="yes" constexpr="yes" mutable="no">
+        <type>int</type>
+        <definition>int terminal::Keyboard::metaBit</definition>
+        <argsstring></argsstring>
+        <name>metaBit</name>
+        <qualifiedname>terminal::Keyboard::metaBit</qualifiedname>
+        <initializer>{ 8 }</initializer>
+        <briefdescription>
+<para>Meta (Cmd on macOS) modifier bit weight added to the xterm modifier parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Keyboard.h" line="437" column="26" bodyfile="terminal/Keyboard.h" bodystart="437" bodyend="437"/>
+        <referencedby refid="structterminal_1_1_keyboard_1ab8e828d9d60df1a92c6dc16fc2476873" compoundref="_keyboard_8h" startline="562" endline="592">modifierCode</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_keyboard_1a537fa998babf44983e3799b0527fb16f" prot="private" static="yes" constexpr="yes" mutable="no">
+        <type>int</type>
+        <definition>int terminal::Keyboard::ctrlLetterBase</definition>
+        <argsstring></argsstring>
+        <name>ctrlLetterBase</name>
+        <qualifiedname>terminal::Keyboard::ctrlLetterBase</qualifiedname>
+        <initializer>{ 1 }</initializer>
+        <briefdescription>
+<para>Byte value of Ctrl+A (0x01). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Ctrl+letter sequences are computed as <computeroutput>(letter - &apos;A&apos;) + <ref refid="structterminal_1_1_keyboard_1a537fa998babf44983e3799b0527fb16f" kindref="member">ctrlLetterBase</ref></computeroutput>, mapping A→1, B→2, …, Z→26. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Keyboard.h" line="449" column="26" bodyfile="terminal/Keyboard.h" bodystart="449" bodyend="449"/>
+        <referencedby refid="structterminal_1_1_keyboard_1a2370eb92bbaf43758373a429f80224ba" compoundref="_keyboard_8h" startline="166" endline="217">mapCtrl</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_keyboard_1ad04dd5af967041ecfdb75f0170841c78" prot="private" static="yes" mutable="no">
+        <type>const std::unordered_map&lt; int, juce::String &gt;</type>
+        <definition>const std::unordered_map&lt;int, juce::String&gt; terminal::Keyboard::simpleKeys</definition>
+        <argsstring></argsstring>
+        <name>simpleKeys</name>
+        <qualifiedname>terminal::Keyboard::simpleKeys</qualifiedname>
+        <initializer>{
+        { juce::KeyPress::returnKey,    <ref refid="structterminal_1_1_keyboard_1a3bbeb24b42baeff4ebc92106b9674f8e" kindref="member">carriageReturn</ref> },
+        { juce::KeyPress::backspaceKey, <ref refid="structterminal_1_1_keyboard_1aabb3fdc6a194d2a7874a390d586752b8" kindref="member">backspaceDel</ref> },
+        { juce::KeyPress::tabKey,       <ref refid="structterminal_1_1_keyboard_1a914f30aa65d3b6a9a71c2726ef392a1e" kindref="member">horizontalTab</ref> },
+        { juce::KeyPress::escapeKey,    <ref refid="structterminal_1_1_keyboard_1a986febc453430425ad1172a53d5f59ff" kindref="member">escapeChar</ref> }
+    }</initializer>
+        <briefdescription>
+<para>Maps simple keys to their fixed single-byte sequences. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>These keys always produce the same output regardless of modifier state. Handled before cursor/function/editing keys in <computeroutput><ref refid="structterminal_1_1_keyboard_1a30eeb3e7a4cc8f9b685dac20fcb00bfe" kindref="member">mapPlain()</ref></computeroutput>.</para>
+<para><table rows="5" cols="3"><row>
+<entry thead="yes"><para>JUCE key code  </para>
+</entry><entry thead="yes"><para>Sequence  </para>
+</entry><entry thead="yes"><para>Notes  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput><ref refid="classKeyPress_1a1cfe46412c3af08250ddc14bfaef1205" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">KeyPress::returnKey</ref></computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>\r</computeroutput>  </para>
+</entry><entry thead="no"><para>Carriage Return  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput><ref refid="classKeyPress_1a035471d297e6f91fc8e86d91539da361" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">KeyPress::backspaceKey</ref></computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>\x7f</computeroutput>  </para>
+</entry><entry thead="no"><para>DEL (xterm default)  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput><ref refid="classKeyPress_1a2a3d96e0f2602106a3855a34a2e1dbb8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">KeyPress::tabKey</ref></computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>\t</computeroutput>  </para>
+</entry><entry thead="no"><para>Horizontal Tab  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput><ref refid="classKeyPress_1a565ec13ad662d05392b609fad31b8f01" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">KeyPress::escapeKey</ref></computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>\x1b</computeroutput>  </para>
+</entry><entry thead="no"><para>Escape  </para>
+</entry></row>
+</table>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Keyboard.h" line="468" column="44" bodyfile="terminal/Keyboard.h" bodystart="469" bodyend="474"/>
+        <referencedby refid="structterminal_1_1_keyboard_1a30eeb3e7a4cc8f9b685dac20fcb00bfe" compoundref="_keyboard_8h" startline="320" endline="370">mapPlain</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_keyboard_1a41a1ed56b0f4024897fff970cf86c6cd" prot="private" static="yes" mutable="no">
+        <type>const std::unordered_map&lt; int, juce::String &gt;</type>
+        <definition>const std::unordered_map&lt;int, juce::String&gt; terminal::Keyboard::ctrlKeys</definition>
+        <argsstring></argsstring>
+        <name>ctrlKeys</name>
+        <qualifiedname>terminal::Keyboard::ctrlKeys</qualifiedname>
+        <initializer>{
+        { &apos;[&apos;,  <ref refid="structterminal_1_1_keyboard_1a986febc453430425ad1172a53d5f59ff" kindref="member">escapeChar</ref> },
+        { &apos;\\&apos;, &quot;\x1c&quot; },
+        { &apos;]&apos;,  &quot;\x1d&quot; },
+        { &apos;^&apos;,  &quot;\x1e&quot; },
+        { &apos;_&apos;,  &quot;\x1f&quot; }
+    }</initializer>
+        <briefdescription>
+<para>Maps Ctrl+punctuation key codes to their control-character sequences. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>These supplement the Ctrl+A…Z range handled inline in <computeroutput><ref refid="structterminal_1_1_keyboard_1a2370eb92bbaf43758373a429f80224ba" kindref="member">mapCtrl()</ref></computeroutput>.</para>
+<para><table rows="6" cols="3"><row>
+<entry thead="yes"><para>Key code  </para>
+</entry><entry thead="yes"><para>Sequence  </para>
+</entry><entry thead="yes"><para>Control character  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput>[</computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>\x1b</computeroutput>  </para>
+</entry><entry thead="no"><para>ESC (0x1B)  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput>\\</computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>\x1c</computeroutput>  </para>
+</entry><entry thead="no"><para>FS (0x1C)  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput>]</computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>\x1d</computeroutput>  </para>
+</entry><entry thead="no"><para>GS (0x1D)  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput>^</computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>\x1e</computeroutput>  </para>
+</entry><entry thead="no"><para>RS (0x1E)  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput>_</computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>\x1f</computeroutput>  </para>
+</entry><entry thead="no"><para>US (0x1F)  </para>
+</entry></row>
+</table>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Keyboard.h" line="489" column="44" bodyfile="terminal/Keyboard.h" bodystart="490" bodyend="496"/>
+        <referencedby refid="structterminal_1_1_keyboard_1a2370eb92bbaf43758373a429f80224ba" compoundref="_keyboard_8h" startline="166" endline="217">mapCtrl</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_keyboard_1a08ba8acbba086e44121d1a1272183268" prot="private" static="yes" mutable="no">
+        <type>const std::unordered_map&lt; int, char &gt;</type>
+        <definition>const std::unordered_map&lt;int, char&gt; terminal::Keyboard::cursorKeys</definition>
+        <argsstring></argsstring>
+        <name>cursorKeys</name>
+        <qualifiedname>terminal::Keyboard::cursorKeys</qualifiedname>
+        <initializer>{
+        { juce::KeyPress::upKey,    &apos;A&apos; },
+        { juce::KeyPress::downKey,  &apos;B&apos; },
+        { juce::KeyPress::rightKey, &apos;C&apos; },
+        { juce::KeyPress::leftKey,  &apos;D&apos; }
+    }</initializer>
+        <briefdescription>
+<para>Maps arrow key codes to their CSI/SS3 final byte characters. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The final byte is combined with the appropriate prefix in <computeroutput>cursorKey()</computeroutput>.</para>
+<para><table rows="5" cols="4"><row>
+<entry thead="yes"><para>JUCE key code  </para>
+</entry><entry thead="yes"><para>Final byte  </para>
+</entry><entry thead="yes"><para>Normal seq  </para>
+</entry><entry thead="yes"><para>App-cursor seq  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput><ref refid="classKeyPress_1a97fcf796ea92d9ff3818ee17cdbafa80" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">KeyPress::upKey</ref></computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>A</computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>\x1b[A</computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>\x1bOA</computeroutput>  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput><ref refid="classKeyPress_1aeb9a20dd50b39f66d7d778d31b6b5f88" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">KeyPress::downKey</ref></computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>B</computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>\x1b[B</computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>\x1bOB</computeroutput>  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput><ref refid="classKeyPress_1aff89b4c5876819968ff83a6c6ee15416" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">KeyPress::rightKey</ref></computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>C</computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>\x1b[C</computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>\x1bOC</computeroutput>  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput><ref refid="classKeyPress_1ad2961244072158eee77e11844a968f61" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">KeyPress::leftKey</ref></computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>D</computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>\x1b[D</computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>\x1bOD</computeroutput>  </para>
+</entry></row>
+</table>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Keyboard.h" line="510" column="44" bodyfile="terminal/Keyboard.h" bodystart="511" bodyend="516"/>
+        <referencedby refid="structterminal_1_1_keyboard_1a5375f5be758722772b23c16ad99ddf7c" compoundref="_keyboard_8h" startline="239" endline="301">mapAlt</referencedby>
+        <referencedby refid="structterminal_1_1_keyboard_1a30eeb3e7a4cc8f9b685dac20fcb00bfe" compoundref="_keyboard_8h" startline="320" endline="370">mapPlain</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_keyboard_1a62d896adb3e0a48a1a1618d6236f2155" prot="private" static="yes" mutable="no">
+        <type>const std::unordered_map&lt; int, int &gt;</type>
+        <definition>const std::unordered_map&lt;int, int&gt; terminal::Keyboard::editingCodes</definition>
+        <argsstring></argsstring>
+        <name>editingCodes</name>
+        <qualifiedname>terminal::Keyboard::editingCodes</qualifiedname>
+        <initializer>{
+        { juce::KeyPress::insertKey,   2 },
+        { juce::KeyPress::deleteKey,   3 },
+        { juce::KeyPress::pageUpKey,   5 },
+        { juce::KeyPress::pageDownKey, 6 }
+    }</initializer>
+        <briefdescription>
+<para>Maps editing-cluster keys to their xterm <ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> numeric codes. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>These codes appear as the parameter in <computeroutput><ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> &lt;<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref>&gt; ~</computeroutput> sequences. Home and End are handled separately via <computeroutput><ref refid="structterminal_1_1_keyboard_1a8514399bc2819fa68cc3ad25811985eb" kindref="member">editingFinalChars</ref></computeroutput> because they use letter finals (<computeroutput>H</computeroutput>/<computeroutput>F</computeroutput>) rather than tilde sequences.</para>
+<para><table rows="5" cols="3"><row>
+<entry thead="yes"><para>JUCE key code  </para>
+</entry><entry thead="yes"><para>Code  </para>
+</entry><entry thead="yes"><para>Sequence  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput><ref refid="classKeyPress_1af62c3ffd333fc440eca6596b56df48b8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">KeyPress::insertKey</ref></computeroutput>  </para>
+</entry><entry thead="no"><para>2  </para>
+</entry><entry thead="no"><para><computeroutput>\x1b[2~</computeroutput>  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput><ref refid="classKeyPress_1ae568c9aba033acf0c24390f24304b9e5" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">KeyPress::deleteKey</ref></computeroutput>  </para>
+</entry><entry thead="no"><para>3  </para>
+</entry><entry thead="no"><para><computeroutput>\x1b[3~</computeroutput>  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput><ref refid="classKeyPress_1aed878a6382f57cca1617d923b236ea1c" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">KeyPress::pageUpKey</ref></computeroutput>  </para>
+</entry><entry thead="no"><para>5  </para>
+</entry><entry thead="no"><para><computeroutput>\x1b[5~</computeroutput>  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput><ref refid="classKeyPress_1ac30e9e5628a043cfac1c601540b1ef01" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">KeyPress::pageDownKey</ref></computeroutput>  </para>
+</entry><entry thead="no"><para>6  </para>
+</entry><entry thead="no"><para><computeroutput>\x1b[6~</computeroutput>  </para>
+</entry></row>
+</table>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Keyboard.h" line="532" column="44" bodyfile="terminal/Keyboard.h" bodystart="533" bodyend="538"/>
+        <referencedby refid="structterminal_1_1_keyboard_1ab20318d26cba31889f6cb38ef48995e1" compoundref="_keyboard_8h" startline="862" endline="894">editingKey</referencedby>
+        <referencedby refid="structterminal_1_1_keyboard_1a5375f5be758722772b23c16ad99ddf7c" compoundref="_keyboard_8h" startline="239" endline="301">mapAlt</referencedby>
+        <referencedby refid="structterminal_1_1_keyboard_1a30eeb3e7a4cc8f9b685dac20fcb00bfe" compoundref="_keyboard_8h" startline="320" endline="370">mapPlain</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_keyboard_1a6bb019520135ef5d36a3137edb3c48d0" prot="private" static="yes" constexpr="yes" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t terminal::Keyboard::disambiguate</definition>
+        <argsstring></argsstring>
+        <name>disambiguate</name>
+        <qualifiedname>terminal::Keyboard::disambiguate</qualifiedname>
+        <initializer>{ 1 }</initializer>
+        <briefdescription>
+<para>Progressive keyboard protocol flag: disambiguate escape codes (bit 0). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Keyboard.h" line="599" column="31" bodyfile="terminal/Keyboard.h" bodystart="599" bodyend="599"/>
+        <referencedby refid="structterminal_1_1_keyboard_1a5375f5be758722772b23c16ad99ddf7c" compoundref="_keyboard_8h" startline="239" endline="301">mapAlt</referencedby>
+        <referencedby refid="structterminal_1_1_keyboard_1a2370eb92bbaf43758373a429f80224ba" compoundref="_keyboard_8h" startline="166" endline="217">mapCtrl</referencedby>
+        <referencedby refid="structterminal_1_1_keyboard_1acbf0a12222fecd9e71ab16d1945ac7a3" compoundref="_keyboard_8h" startline="667" endline="690">shouldUseCsiU</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_keyboard_1abb21cf9177ded811a39a9d115e2e219e" prot="private" static="yes" constexpr="yes" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t terminal::Keyboard::allKeys</definition>
+        <argsstring></argsstring>
+        <name>allKeys</name>
+        <qualifiedname>terminal::Keyboard::allKeys</qualifiedname>
+        <initializer>{ 8 }</initializer>
+        <briefdescription>
+<para>Progressive keyboard protocol flag: report all keys as escape codes (bit 3). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Keyboard.h" line="602" column="31" bodyfile="terminal/Keyboard.h" bodystart="602" bodyend="602"/>
+        <referencedby refid="structterminal_1_1_keyboard_1a5375f5be758722772b23c16ad99ddf7c" compoundref="_keyboard_8h" startline="239" endline="301">mapAlt</referencedby>
+        <referencedby refid="structterminal_1_1_keyboard_1a2370eb92bbaf43758373a429f80224ba" compoundref="_keyboard_8h" startline="166" endline="217">mapCtrl</referencedby>
+        <referencedby refid="structterminal_1_1_keyboard_1a30eeb3e7a4cc8f9b685dac20fcb00bfe" compoundref="_keyboard_8h" startline="320" endline="370">mapPlain</referencedby>
+        <referencedby refid="structterminal_1_1_keyboard_1acbf0a12222fecd9e71ab16d1945ac7a3" compoundref="_keyboard_8h" startline="667" endline="690">shouldUseCsiU</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_keyboard_1a8b8b7bb2aa6a36508c22d2e94b324de4" prot="private" static="yes" mutable="no">
+        <type>const std::unordered_map&lt; int, int &gt;</type>
+        <definition>const std::unordered_map&lt;int, int&gt; terminal::Keyboard::progressiveKeyCodes</definition>
+        <argsstring></argsstring>
+        <name>progressiveKeyCodes</name>
+        <qualifiedname>terminal::Keyboard::progressiveKeyCodes</qualifiedname>
+        <initializer>{
+        { juce::KeyPress::returnKey,    13 },
+        { juce::KeyPress::backspaceKey, 127 },
+        { juce::KeyPress::tabKey,       9 },
+        { juce::KeyPress::escapeKey,    27 }
+    }</initializer>
+        <briefdescription>
+<para>Maps JUCE simple key codes to their <ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> u key numbers. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><table rows="5" cols="2"><row>
+<entry thead="yes"><para>Key  </para>
+</entry><entry thead="yes"><para><ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> u code  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>Enter  </para>
+</entry><entry thead="no"><para>13  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>Backspace  </para>
+</entry><entry thead="no"><para>127  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>Tab  </para>
+</entry><entry thead="no"><para>9  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>Escape  </para>
+</entry><entry thead="no"><para>27  </para>
+</entry></row>
+</table>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Keyboard.h" line="614" column="44" bodyfile="terminal/Keyboard.h" bodystart="615" bodyend="620"/>
+        <referencedby refid="structterminal_1_1_keyboard_1a30eeb3e7a4cc8f9b685dac20fcb00bfe" compoundref="_keyboard_8h" startline="320" endline="370">mapPlain</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_keyboard_1a8514399bc2819fa68cc3ad25811985eb" prot="private" static="yes" mutable="no">
+        <type>const std::unordered_map&lt; int, const char * &gt;</type>
+        <definition>const std::unordered_map&lt;int, const char*&gt; terminal::Keyboard::editingFinalChars</definition>
+        <argsstring></argsstring>
+        <name>editingFinalChars</name>
+        <qualifiedname>terminal::Keyboard::editingFinalChars</qualifiedname>
+        <initializer>{
+        { juce::KeyPress::homeKey, &quot;H&quot; },
+        { juce::KeyPress::endKey,  &quot;F&quot; }
+    }</initializer>
+        <briefdescription>
+<para>Maps Home and End to their <ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> letter-final sequences. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Home and End use letter finals (<computeroutput>H</computeroutput>/<computeroutput>F</computeroutput>) rather than tilde sequences, so they are stored separately from <computeroutput><ref refid="structterminal_1_1_keyboard_1a62d896adb3e0a48a1a1618d6236f2155" kindref="member">editingCodes</ref></computeroutput>.</para>
+<para><table rows="3" cols="3"><row>
+<entry thead="yes"><para>Key  </para>
+</entry><entry thead="yes"><para>No-mod seq  </para>
+</entry><entry thead="yes"><para>With-mod example (Ctrl)  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>Home  </para>
+</entry><entry thead="no"><para><computeroutput>\x1b[H</computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>\x1b[1;5H</computeroutput>  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>End  </para>
+</entry><entry thead="no"><para><computeroutput>\x1b[F</computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>\x1b[1;5F</computeroutput>  </para>
+</entry></row>
+</table>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Keyboard.h" line="843" column="44" bodyfile="terminal/Keyboard.h" bodystart="844" bodyend="847"/>
+        <referencedby refid="structterminal_1_1_keyboard_1ab20318d26cba31889f6cb38ef48995e1" compoundref="_keyboard_8h" startline="862" endline="894">editingKey</referencedby>
+        <referencedby refid="structterminal_1_1_keyboard_1a5375f5be758722772b23c16ad99ddf7c" compoundref="_keyboard_8h" startline="239" endline="301">mapAlt</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="structterminal_1_1_keyboard_1ae7cc6f2917cf1b16c98de57bfe88bb8c" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>juce::String</type>
+        <definition>static juce::String terminal::Keyboard::map</definition>
+        <argsstring>(const juce::KeyPress &amp;key, bool applicationCursor, uint32_t keyboardFlags=0)</argsstring>
+        <name>map</name>
+        <qualifiedname>terminal::Keyboard::map</qualifiedname>
+        <param>
+          <type>const juce::KeyPress &amp;</type>
+          <declname>key</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>applicationCursor</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>keyboardFlags</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+<para>Converts a JUCE <ref refid="classKeyPress" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">KeyPress</ref> into an xterm escape sequence string. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Dispatches to the appropriate private handler based on which modifier keys are active:<itemizedlist>
+<listitem><para>Ctrl-only → <computeroutput><ref refid="structterminal_1_1_keyboard_1a2370eb92bbaf43758373a429f80224ba" kindref="member">mapCtrl()</ref></computeroutput></para>
+</listitem><listitem><para>Alt (with or without Shift/Ctrl) → <computeroutput><ref refid="structterminal_1_1_keyboard_1a5375f5be758722772b23c16ad99ddf7c" kindref="member">mapAlt()</ref></computeroutput></para>
+</listitem><listitem><para>No modifier (or Shift-only) → <computeroutput><ref refid="structterminal_1_1_keyboard_1a30eeb3e7a4cc8f9b685dac20fcb00bfe" kindref="member">mapPlain()</ref></computeroutput></para>
+</listitem></itemizedlist>
+</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>key</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The JUCE key event to translate. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>applicationCursor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>When <computeroutput>true</computeroutput>, cursor keys use SS3 sequences (<computeroutput>\x1bOA</computeroutput>) instead of <ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> sequences (<computeroutput>\x1b[A</computeroutput>), matching xterm&apos;s &quot;application cursor keys&quot; mode (DECCKM, <computeroutput>\x1b[?1<ref refid="group__juce__audio__plugin__client-Unity_1ga2ee4d4f298ba1bf1bc2f45c681c40ca3" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">h</ref></computeroutput>). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>keyboardFlags</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Progressive keyboard protocol (<ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> u) flags from the active screen. 0 = legacy mode (no enhanced encoding). Bit 0 (1): disambiguate escape codes. Bit 3 (8): report all keys as escape codes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>The escape sequence as a juce::String, or an empty string if the key has no defined mapping (caller should ignore the event). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Keyboard.h" line="95" column="32" bodyfile="terminal/Keyboard.h" bodystart="95" bodyend="116"/>
+        <references refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9">code</references>
+        <references refid="structterminal_1_1_keyboard_1a5375f5be758722772b23c16ad99ddf7c" compoundref="_keyboard_8h" startline="239" endline="301">mapAlt</references>
+        <references refid="structterminal_1_1_keyboard_1a2370eb92bbaf43758373a429f80224ba" compoundref="_keyboard_8h" startline="166" endline="217">mapCtrl</references>
+        <references refid="structterminal_1_1_keyboard_1a30eeb3e7a4cc8f9b685dac20fcb00bfe" compoundref="_keyboard_8h" startline="320" endline="370">mapPlain</references>
+        <references refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8">mods</references>
+        <referencedby refid="classterminal_1_1_processor_1ac27d1456511a72a12a478c90f90eda0e" compoundref="_processor_8cpp" startline="278" endline="300">terminal::Processor::encodeKeyPress</referencedby>
+        <referencedby refid="structterminal_1_1_keyboard_1a5375f5be758722772b23c16ad99ddf7c" compoundref="_keyboard_8h" startline="239" endline="301">mapAlt</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="private-static-func">
+      <memberdef kind="function" id="structterminal_1_1_keyboard_1a2370eb92bbaf43758373a429f80224ba" prot="private" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>juce::String</type>
+        <definition>static juce::String terminal::Keyboard::mapCtrl</definition>
+        <argsstring>(int code, const juce::ModifierKeys &amp;mods, uint32_t keyboardFlags)</argsstring>
+        <name>mapCtrl</name>
+        <qualifiedname>terminal::Keyboard::mapCtrl</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>code</declname>
+        </param>
+        <param>
+          <type>const juce::ModifierKeys &amp;</type>
+          <declname>mods</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>keyboardFlags</declname>
+        </param>
+        <briefdescription>
+<para>Handles Ctrl+key combinations (without Alt). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Produces control characters and a small set of special sequences:<itemizedlist>
+<listitem><para>Ctrl+A…Z → bytes 0x01…0x1A</para>
+</listitem><listitem><para>Ctrl+@ or Ctrl+Space → NUL (0x00)</para>
+</listitem><listitem><para>Ctrl+[ → ESC (0x1B), Ctrl+\ → FS (0x1C), Ctrl+] → GS (0x1D), Ctrl+^ → RS (0x1E), Ctrl+_ → US (0x1F)</para>
+</listitem></itemizedlist>
+</para>
+<para>When progressive keyboard protocol flag 1 (disambiguate) or flag 8 (all keys) is active, Ctrl+key combinations produce <ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> u sequences instead of legacy control characters, using the lowercase codepoint as the key number (e.g. Ctrl+C → <computeroutput><ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> 99;5u</computeroutput>).</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The raw JUCE key code (from <computeroutput><ref refid="classKeyPress_1a4cfa514c624628995ce687dcdc6518fe" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">KeyPress::getKeyCode()</ref></computeroutput>). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Full modifier state (Ctrl is always set; Shift may be). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>keyboardFlags</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Progressive keyboard protocol (<ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> u) flags. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>The control-character sequence or <ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> u sequence, or an empty string if <computeroutput>code</computeroutput> has no Ctrl mapping. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Keyboard.h" line="166" column="32" bodyfile="terminal/Keyboard.h" bodystart="166" bodyend="217"/>
+        <references refid="structterminal_1_1_keyboard_1abb21cf9177ded811a39a9d115e2e219e" compoundref="_keyboard_8h" startline="602" endline="602">allKeys</references>
+        <references refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9">code</references>
+        <references refid="structterminal_1_1_keyboard_1a41a1ed56b0f4024897fff970cf86c6cd" compoundref="_keyboard_8h" startline="490" endline="496">ctrlKeys</references>
+        <references refid="structterminal_1_1_keyboard_1a537fa998babf44983e3799b0527fb16f" compoundref="_keyboard_8h" startline="449" endline="449">ctrlLetterBase</references>
+        <references refid="structterminal_1_1_keyboard_1a6bb019520135ef5d36a3137edb3c48d0" compoundref="_keyboard_8h" startline="599" endline="599">disambiguate</references>
+        <references refid="structterminal_1_1_keyboard_1afa9cf634fe512cbd987b97d8ff1c56f8" compoundref="_keyboard_8h" startline="633" endline="649">encodeCsiU</references>
+        <references refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8">mods</references>
+        <referencedby refid="structterminal_1_1_keyboard_1ae7cc6f2917cf1b16c98de57bfe88bb8c" compoundref="_keyboard_8h" startline="95" endline="116">map</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_keyboard_1a5375f5be758722772b23c16ad99ddf7c" prot="private" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>juce::String</type>
+        <definition>static juce::String terminal::Keyboard::mapAlt</definition>
+        <argsstring>(int code, const juce::ModifierKeys &amp;mods, juce::juce_wchar ch, bool applicationCursor, uint32_t keyboardFlags)</argsstring>
+        <name>mapAlt</name>
+        <qualifiedname>terminal::Keyboard::mapAlt</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>code</declname>
+        </param>
+        <param>
+          <type>const juce::ModifierKeys &amp;</type>
+          <declname>mods</declname>
+        </param>
+        <param>
+          <type>juce::juce_wchar</type>
+          <declname>ch</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>applicationCursor</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>keyboardFlags</declname>
+        </param>
+        <briefdescription>
+<para>Handles Alt+key combinations. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Strips Alt from the modifier set, recursively calls <computeroutput><ref refid="structterminal_1_1_keyboard_1ae7cc6f2917cf1b16c98de57bfe88bb8c" kindref="member">map()</ref></computeroutput> to obtain the base sequence, then prepends ESC (<computeroutput>\x1b</computeroutput>). If the key has no special sequence but carries a printable character, that character is ESC-prefixed instead (standard &quot;meta key&quot; behaviour).</para>
+<para>Shift and Ctrl are forwarded to the inner <computeroutput><ref refid="structterminal_1_1_keyboard_1ae7cc6f2917cf1b16c98de57bfe88bb8c" kindref="member">map()</ref></computeroutput> call so that combinations like Alt+Shift+F1 are encoded correctly.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Raw JUCE key code. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Full modifier state (including Alt). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ch</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Text character associated with the key event. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>applicationCursor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Forwarded to the inner <computeroutput><ref refid="structterminal_1_1_keyboard_1ae7cc6f2917cf1b16c98de57bfe88bb8c" kindref="member">map()</ref></computeroutput> call. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>keyboardFlags</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Progressive keyboard protocol (<ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> u) flags (forwarded to inner <computeroutput><ref refid="structterminal_1_1_keyboard_1ae7cc6f2917cf1b16c98de57bfe88bb8c" kindref="member">map()</ref></computeroutput> call). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>ESC-prefixed sequence, or an empty string if neither a special sequence nor a printable character is available. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Keyboard.h" line="239" column="32" bodyfile="terminal/Keyboard.h" bodystart="239" bodyend="301"/>
+        <references refid="structterminal_1_1_keyboard_1abb21cf9177ded811a39a9d115e2e219e" compoundref="_keyboard_8h" startline="602" endline="602">allKeys</references>
+        <references refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9">code</references>
+        <references refid="structterminal_1_1_keyboard_1a08ba8acbba086e44121d1a1272183268" compoundref="_keyboard_8h" startline="511" endline="516">cursorKeys</references>
+        <references refid="structterminal_1_1_keyboard_1a6bb019520135ef5d36a3137edb3c48d0" compoundref="_keyboard_8h" startline="599" endline="599">disambiguate</references>
+        <references refid="structterminal_1_1_keyboard_1a62d896adb3e0a48a1a1618d6236f2155" compoundref="_keyboard_8h" startline="533" endline="538">editingCodes</references>
+        <references refid="structterminal_1_1_keyboard_1a8514399bc2819fa68cc3ad25811985eb" compoundref="_keyboard_8h" startline="844" endline="847">editingFinalChars</references>
+        <references refid="structterminal_1_1_keyboard_1ab20318d26cba31889f6cb38ef48995e1" compoundref="_keyboard_8h" startline="862" endline="894">editingKey</references>
+        <references refid="structterminal_1_1_keyboard_1afa9cf634fe512cbd987b97d8ff1c56f8" compoundref="_keyboard_8h" startline="633" endline="649">encodeCsiU</references>
+        <references refid="structterminal_1_1_keyboard_1afa2fb4abb0a1e0152fef6ef9d646e0e5" compoundref="_keyboard_8h" startline="377" endline="377">escPrefix</references>
+        <references refid="group__juce__audio__plugin__client-Unity_1gga485dc2a0e5ed7da3d9f826367b36ee55aea428c666e56776152be9ced3da70582">functionKey</references>
+        <references refid="structterminal_1_1_keyboard_1ae7cc6f2917cf1b16c98de57bfe88bb8c" compoundref="_keyboard_8h" startline="95" endline="116">map</references>
+        <references refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8">mods</references>
+        <referencedby refid="structterminal_1_1_keyboard_1ae7cc6f2917cf1b16c98de57bfe88bb8c" compoundref="_keyboard_8h" startline="95" endline="116">map</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_keyboard_1a30eeb3e7a4cc8f9b685dac20fcb00bfe" prot="private" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>juce::String</type>
+        <definition>static juce::String terminal::Keyboard::mapPlain</definition>
+        <argsstring>(int code, const juce::ModifierKeys &amp;mods, juce::juce_wchar ch, bool applicationCursor, uint32_t keyboardFlags)</argsstring>
+        <name>mapPlain</name>
+        <qualifiedname>terminal::Keyboard::mapPlain</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>code</declname>
+        </param>
+        <param>
+          <type>const juce::ModifierKeys &amp;</type>
+          <declname>mods</declname>
+        </param>
+        <param>
+          <type>juce::juce_wchar</type>
+          <declname>ch</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>applicationCursor</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>keyboardFlags</declname>
+        </param>
+        <briefdescription>
+<para>Handles unmodified keys (and Shift-only combinations). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Dispatches to the appropriate sub-handler in priority order:<orderedlist>
+<listitem><para><computeroutput><ref refid="structterminal_1_1_keyboard_1ad04dd5af967041ecfdb75f0170841c78" kindref="member">simpleKeys</ref></computeroutput> table — Return, Backspace, Tab, Escape.</para>
+</listitem><listitem><para><computeroutput><ref refid="structterminal_1_1_keyboard_1a08ba8acbba086e44121d1a1272183268" kindref="member">cursorKeys</ref></computeroutput> table — arrow keys, routed through <computeroutput>cursorKey()</computeroutput>.</para>
+</listitem><listitem><para>F1–F12 range — routed through <computeroutput><ref refid="group__juce__audio__plugin__client-Unity_1gga485dc2a0e5ed7da3d9f826367b36ee55aea428c666e56776152be9ced3da70582" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">functionKey()</ref></computeroutput>.</para>
+</listitem><listitem><para>Home, End, and editing cluster — routed through <computeroutput><ref refid="structterminal_1_1_keyboard_1ab20318d26cba31889f6cb38ef48995e1" kindref="member">editingKey()</ref></computeroutput>.</para>
+</listitem><listitem><para>Printable character fallback — passes the text character through as-is.</para>
+</listitem></orderedlist>
+</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Raw JUCE key code. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Modifier state (Shift may be set; Ctrl/Alt are not). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ch</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Text character associated with the key event. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>applicationCursor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Forwarded to <computeroutput>cursorKey()</computeroutput>. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>keyboardFlags</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Progressive keyboard protocol (<ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> u) flags. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>The escape sequence or character string, or empty if unmapped. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Keyboard.h" line="320" column="32" bodyfile="terminal/Keyboard.h" bodystart="320" bodyend="370"/>
+        <references refid="structterminal_1_1_keyboard_1abb21cf9177ded811a39a9d115e2e219e" compoundref="_keyboard_8h" startline="602" endline="602">allKeys</references>
+        <references refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9">code</references>
+        <references refid="structterminal_1_1_keyboard_1a08ba8acbba086e44121d1a1272183268" compoundref="_keyboard_8h" startline="511" endline="516">cursorKeys</references>
+        <references refid="structterminal_1_1_keyboard_1a62d896adb3e0a48a1a1618d6236f2155" compoundref="_keyboard_8h" startline="533" endline="538">editingCodes</references>
+        <references refid="structterminal_1_1_keyboard_1ab20318d26cba31889f6cb38ef48995e1" compoundref="_keyboard_8h" startline="862" endline="894">editingKey</references>
+        <references refid="structterminal_1_1_keyboard_1afa9cf634fe512cbd987b97d8ff1c56f8" compoundref="_keyboard_8h" startline="633" endline="649">encodeCsiU</references>
+        <references refid="group__juce__audio__plugin__client-Unity_1gga485dc2a0e5ed7da3d9f826367b36ee55aea428c666e56776152be9ced3da70582">functionKey</references>
+        <references refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8">mods</references>
+        <references refid="structterminal_1_1_keyboard_1a8b8b7bb2aa6a36508c22d2e94b324de4" compoundref="_keyboard_8h" startline="615" endline="620">progressiveKeyCodes</references>
+        <references refid="structterminal_1_1_keyboard_1acbf0a12222fecd9e71ab16d1945ac7a3" compoundref="_keyboard_8h" startline="667" endline="690">shouldUseCsiU</references>
+        <references refid="structterminal_1_1_keyboard_1ad04dd5af967041ecfdb75f0170841c78" compoundref="_keyboard_8h" startline="469" endline="474">simpleKeys</references>
+        <referencedby refid="structterminal_1_1_keyboard_1ae7cc6f2917cf1b16c98de57bfe88bb8c" compoundref="_keyboard_8h" startline="95" endline="116">map</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_keyboard_1ab8e828d9d60df1a92c6dc16fc2476873" prot="private" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>static int terminal::Keyboard::modifierCode</definition>
+        <argsstring>(const juce::ModifierKeys &amp;mods) noexcept</argsstring>
+        <name>modifierCode</name>
+        <qualifiedname>terminal::Keyboard::modifierCode</qualifiedname>
+        <param>
+          <type>const juce::ModifierKeys &amp;</type>
+          <declname>mods</declname>
+        </param>
+        <briefdescription>
+<para>Computes the xterm modifier parameter for a given modifier state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The parameter is defined as: <programlisting><codeline><highlight class="normal">N<sp/>=<sp/>1<sp/>+<sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1gga485dc2a0e5ed7da3d9f826367b36ee55aa844ac0d299bd083b2938e6cbf34743a" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">shift</ref><sp/>?<sp/>1<sp/>:<sp/>0)<sp/>+<sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1gga485dc2a0e5ed7da3d9f826367b36ee55a7f564926136a18c80a8a14a53d0e98ce" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">alt</ref><sp/>?<sp/>2<sp/>:<sp/>0)<sp/>+<sp/>(ctrl<sp/>?<sp/>4<sp/>:<sp/>0)<sp/>+<sp/>(meta<sp/>?<sp/>8<sp/>:<sp/>0)</highlight></codeline>
+</programlisting></para>
+<para>The Super/Meta kitty bit is applied only on macOS, where <computeroutput>isCommandDown()</computeroutput> reflects the physical Cmd key (Super/Meta-equivalent, distinct from Ctrl). On Windows and Linux, JUCE aliases <computeroutput>commandModifier</computeroutput> to <computeroutput>ctrlModifier</computeroutput>, so <computeroutput>isCommandDown()</computeroutput> returns the same value as <computeroutput>isCtrlDown()</computeroutput>. Adding that bit there would double-count Ctrl (producing modifier 13 instead of 5 for a plain Ctrl+key), which terminals and editors do not recognise as Ctrl. When <computeroutput>N == 1</computeroutput> (no modifiers active), callers omit the modifier parameter from the sequence entirely.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The modifier key state to encode. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Integer modifier code in the range [1, 16].</para>
+</simplesect>
+<simplesect kind="note"><para>This function is <computeroutput>noexcept</computeroutput> and performs no allocation. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Keyboard.h" line="562" column="23" bodyfile="terminal/Keyboard.h" bodystart="562" bodyend="592"/>
+        <references refid="structterminal_1_1_keyboard_1ad2bfff171c28b61c2c3c1a1c1dfdd314" compoundref="_keyboard_8h" startline="431" endline="431">altBit</references>
+        <references refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9">code</references>
+        <references refid="structterminal_1_1_keyboard_1ab54a5c36b5b8805bc0978040ce96f56c" compoundref="_keyboard_8h" startline="434" endline="434">ctrlBit</references>
+        <references refid="structterminal_1_1_keyboard_1a8fc7b605f4d142130d9740e8e1059ca6" compoundref="_keyboard_8h" startline="437" endline="437">metaBit</references>
+        <references refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8">mods</references>
+        <references refid="structterminal_1_1_keyboard_1afc95496b8854e04b7525e29447c30f64" compoundref="_keyboard_8h" startline="425" endline="425">noModifier</references>
+        <references refid="structterminal_1_1_keyboard_1a7a14df1b437afd01112f80999f643a32" compoundref="_keyboard_8h" startline="428" endline="428">shiftBit</references>
+        <referencedby refid="structterminal_1_1_keyboard_1ab20318d26cba31889f6cb38ef48995e1" compoundref="_keyboard_8h" startline="862" endline="894">editingKey</referencedby>
+        <referencedby refid="structterminal_1_1_keyboard_1afa9cf634fe512cbd987b97d8ff1c56f8" compoundref="_keyboard_8h" startline="633" endline="649">encodeCsiU</referencedby>
+        <referencedby refid="structterminal_1_1_keyboard_1a08b40cc6b39e2fca6756dabe9b39b46a" compoundref="_keyboard_8h" startline="793" endline="830">functionKey</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_keyboard_1afa9cf634fe512cbd987b97d8ff1c56f8" prot="private" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>juce::String</type>
+        <definition>static juce::String terminal::Keyboard::encodeCsiU</definition>
+        <argsstring>(int keycode, const juce::ModifierKeys &amp;mods)</argsstring>
+        <name>encodeCsiU</name>
+        <qualifiedname>terminal::Keyboard::encodeCsiU</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>keycode</declname>
+        </param>
+        <param>
+          <type>const juce::ModifierKeys &amp;</type>
+          <declname>mods</declname>
+        </param>
+        <briefdescription>
+<para>Encodes a key event in <ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> u format. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Produces the progressive keyboard protocol (<ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> u) encoding:<itemizedlist>
+<listitem><para><computeroutput><ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> keycode u</computeroutput> when no modifiers are present.</para>
+</listitem><listitem><para><computeroutput><ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> keycode ; modifiers u</computeroutput> when modifiers are active.</para>
+</listitem></itemizedlist>
+</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>keycode</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The Unicode key number (e.g. 13 for Enter). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Active modifier keys. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>The <ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> u escape sequence string. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Keyboard.h" line="633" column="32" bodyfile="terminal/Keyboard.h" bodystart="633" bodyend="649"/>
+        <references refid="structterminal_1_1_keyboard_1aa8afb9196d0747fb465442f5e8094b60" compoundref="_keyboard_8h" startline="380" endline="380">csiPrefix</references>
+        <references refid="structterminal_1_1_keyboard_1ab8e828d9d60df1a92c6dc16fc2476873" compoundref="_keyboard_8h" startline="562" endline="592">modifierCode</references>
+        <references refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8">mods</references>
+        <references refid="structterminal_1_1_keyboard_1afc95496b8854e04b7525e29447c30f64" compoundref="_keyboard_8h" startline="425" endline="425">noModifier</references>
+        <references refid="structterminal_1_1_keyboard_1a42e690c96b4fc63e13d680ac5ce6e395" compoundref="_keyboard_8h" startline="397" endline="397">paramSeparator</references>
+        <referencedby refid="structterminal_1_1_keyboard_1a5375f5be758722772b23c16ad99ddf7c" compoundref="_keyboard_8h" startline="239" endline="301">mapAlt</referencedby>
+        <referencedby refid="structterminal_1_1_keyboard_1a2370eb92bbaf43758373a429f80224ba" compoundref="_keyboard_8h" startline="166" endline="217">mapCtrl</referencedby>
+        <referencedby refid="structterminal_1_1_keyboard_1a30eeb3e7a4cc8f9b685dac20fcb00bfe" compoundref="_keyboard_8h" startline="320" endline="370">mapPlain</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_keyboard_1acbf0a12222fecd9e71ab16d1945ac7a3" prot="private" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool terminal::Keyboard::shouldUseCsiU</definition>
+        <argsstring>(int code, const juce::ModifierKeys &amp;mods, uint32_t keyboardFlags) noexcept</argsstring>
+        <name>shouldUseCsiU</name>
+        <qualifiedname>terminal::Keyboard::shouldUseCsiU</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>code</declname>
+        </param>
+        <param>
+          <type>const juce::ModifierKeys &amp;</type>
+          <declname>mods</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>keyboardFlags</declname>
+        </param>
+        <briefdescription>
+<para>Determines whether a simple key should use <ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> u encoding. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Applies the progressive keyboard protocol (<ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> u) rules:<itemizedlist>
+<listitem><para>Legacy (flags=0): never <ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> u.</para>
+</listitem><listitem><para>Disambiguate (flag 1): Escape always gets <ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> u. Enter/Tab/Backspace get <ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> u only when a non-lock modifier (Shift/Ctrl/Alt) is held; unmodified presses stay legacy so the user can still type <computeroutput>reset</computeroutput> after a crash.</para>
+</listitem><listitem><para>All keys (flag 8): all simple keys get <ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> u unconditionally.</para>
+</listitem></itemizedlist>
+</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>JUCE key code. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Active modifier keys. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>keyboardFlags</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Progressive keyboard protocol (<ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> u) flags. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><computeroutput>true</computeroutput> if the key should be encoded as <ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> u. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Keyboard.h" line="667" column="24" bodyfile="terminal/Keyboard.h" bodystart="667" bodyend="690"/>
+        <references refid="structterminal_1_1_keyboard_1abb21cf9177ded811a39a9d115e2e219e" compoundref="_keyboard_8h" startline="602" endline="602">allKeys</references>
+        <references refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9">code</references>
+        <references refid="structterminal_1_1_keyboard_1a6bb019520135ef5d36a3137edb3c48d0" compoundref="_keyboard_8h" startline="599" endline="599">disambiguate</references>
+        <references refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8">mods</references>
+        <referencedby refid="structterminal_1_1_keyboard_1a30eeb3e7a4cc8f9b685dac20fcb00bfe" compoundref="_keyboard_8h" startline="320" endline="370">mapPlain</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_keyboard_1a08b40cc6b39e2fca6756dabe9b39b46a" prot="private" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>juce::String</type>
+        <definition>static juce::String terminal::Keyboard::functionKey</definition>
+        <argsstring>(int juceKey, const juce::ModifierKeys &amp;mods)</argsstring>
+        <name>functionKey</name>
+        <qualifiedname>terminal::Keyboard::functionKey</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>juceKey</declname>
+        </param>
+        <param>
+          <type>const juce::ModifierKeys &amp;</type>
+          <declname>mods</declname>
+        </param>
+        <briefdescription>
+<para>Tests whether a key code is an ASCII text key. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Text keys are the set of keys that produce printable ASCII characters in the <ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> u protocol spec: a-z (JUCE codes A-Z), 0-9, and the punctuation keys: ` - = [ ] \ ; &apos; , . / and space.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>JUCE key code. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><computeroutput>true</computeroutput> if the key is an ASCII text key. */ static inline bool isTextKey (int code) noexcept { bool result { false };</para>
+</simplesect>
+if (code &gt;= &apos;A&apos; and code &lt;= &apos;Z&apos;) { result = true; } else if (code &gt;= &apos;0&apos; and code &lt;= &apos;9&apos;) { result = true; } else { static constexpr std::array&lt;int, 12&gt; punctuation { &apos;`&apos;, &apos;-&apos;, &apos;=&apos;, &apos;[&apos;, &apos;]&apos;, &apos;\&apos;, &apos;;&apos;, &apos;\&apos;&apos;, &apos;,&apos;, &apos;.&apos;, &apos;/&apos;, &apos; &apos; };</para>
+<para>for (const auto&amp; p : punctuation) { if (code == p) { result = true; } } }</para>
+<para>return result; }</para>
+<para>/**</para>
+<para>Builds the escape sequence for an arrow key press.</para>
+<para>Without modifiers:<itemizedlist>
+<listitem><para>Normal cursor mode: <computeroutput><ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> &lt;final&gt;</computeroutput> (e.g. <computeroutput>\x1b[A</computeroutput>)</para>
+</listitem><listitem><para>Application cursor mode: <computeroutput>SS3 &lt;final&gt;</computeroutput> (e.g. <computeroutput>\x1bOA</computeroutput>)</para>
+</listitem></itemizedlist>
+</para>
+<para>With modifiers: always <computeroutput><ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> 1 ; N &lt;final&gt;</computeroutput> regardless of cursor mode (e.g. Shift+Up → <computeroutput>\x1b[1;2A</computeroutput>).</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>finalChar</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The letter identifying the direction: A/B/C/D. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Active modifier keys. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>applicationCursor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>When <computeroutput>true</computeroutput> and no modifiers are active, use SS3 prefix instead of <ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref>. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>The complete escape sequence string. */ static inline juce::String cursorKey (char finalChar, const juce::ModifierKeys&amp; mods, bool applicationCursor) { const int mc { modifierCode (mods) }; juce::String result;</para>
+</simplesect>
+if (mc &gt; noModifier) { result = juce::String (csiModPrefix) + juce::String (mc) + finalChar; } else { const char* prefix { applicationCursor ? ss3Prefix : csiPrefix }; result = juce::String (prefix) + finalChar; }</para>
+<para>return result; }</para>
+<para>/**</para>
+<para>Builds the escape sequence for a function key press (F1–F12).</para>
+<para>F1–F4 use SS3 sequences; F5–F12 use <ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> tilde sequences. The xterm numeric codes for F5–F12 skip values 16 and 22 (historical gaps):</para>
+<para><table rows="13" cols="4"><row>
+<entry thead="yes"><para>Key  </para>
+</entry><entry thead="yes"><para>Code  </para>
+</entry><entry thead="yes"><para>No-mod sequence  </para>
+</entry><entry thead="yes"><para>With-mod example (Shift)  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>F1  </para>
+</entry><entry thead="no"><para>—  </para>
+</entry><entry thead="no"><para><computeroutput>\x1bOP</computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>\x1b[1;2P</computeroutput>  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>F2  </para>
+</entry><entry thead="no"><para>—  </para>
+</entry><entry thead="no"><para><computeroutput>\x1bOQ</computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>\x1b[1;2Q</computeroutput>  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>F3  </para>
+</entry><entry thead="no"><para>—  </para>
+</entry><entry thead="no"><para><computeroutput>\x1bOR</computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>\x1b[1;2R</computeroutput>  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>F4  </para>
+</entry><entry thead="no"><para>—  </para>
+</entry><entry thead="no"><para><computeroutput>\x1bOS</computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>\x1b[1;2S</computeroutput>  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>F5  </para>
+</entry><entry thead="no"><para>15  </para>
+</entry><entry thead="no"><para><computeroutput>\x1b[15~</computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>\x1b[15;2~</computeroutput>  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>F6  </para>
+</entry><entry thead="no"><para>17  </para>
+</entry><entry thead="no"><para><computeroutput>\x1b[17~</computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>\x1b[17;2~</computeroutput>  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>F7  </para>
+</entry><entry thead="no"><para>18  </para>
+</entry><entry thead="no"><para><computeroutput>\x1b[18~</computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>\x1b[18;2~</computeroutput>  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>F8  </para>
+</entry><entry thead="no"><para>19  </para>
+</entry><entry thead="no"><para><computeroutput>\x1b[19~</computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>\x1b[19;2~</computeroutput>  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>F9  </para>
+</entry><entry thead="no"><para>20  </para>
+</entry><entry thead="no"><para><computeroutput>\x1b[20~</computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>\x1b[20;2~</computeroutput>  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>F10  </para>
+</entry><entry thead="no"><para>21  </para>
+</entry><entry thead="no"><para><computeroutput>\x1b[21~</computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>\x1b[21;2~</computeroutput>  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>F11  </para>
+</entry><entry thead="no"><para>23  </para>
+</entry><entry thead="no"><para><computeroutput>\x1b[23~</computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>\x1b[23;2~</computeroutput>  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>F12  </para>
+</entry><entry thead="no"><para>24  </para>
+</entry><entry thead="no"><para><computeroutput>\x1b[24~</computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>\x1b[24;2~</computeroutput>  </para>
+</entry></row>
+</table>
+</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>juceKey</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>JUCE key code in the range [F1Key, F12Key]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Active modifier keys. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>The complete escape sequence string, or empty if <computeroutput>juceKey</computeroutput> is outside the F1–F12 range. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Keyboard.h" line="793" column="32" bodyfile="terminal/Keyboard.h" bodystart="793" bodyend="830"/>
+        <references refid="structterminal_1_1_keyboard_1abe71693a03472634156ed0956ca81ac7" compoundref="_keyboard_8h" startline="388" endline="388">csiModPrefix</references>
+        <references refid="structterminal_1_1_keyboard_1aa8afb9196d0747fb465442f5e8094b60" compoundref="_keyboard_8h" startline="380" endline="380">csiPrefix</references>
+        <references refid="structterminal_1_1_keyboard_1aaebdc26b0cade07ca15073771cfbfe66" compoundref="_keyboard_8h" startline="394" endline="394">csiTerminator</references>
+        <references refid="structterminal_1_1_keyboard_1ab8e828d9d60df1a92c6dc16fc2476873" compoundref="_keyboard_8h" startline="562" endline="592">modifierCode</references>
+        <references refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8">mods</references>
+        <references refid="structterminal_1_1_keyboard_1afc95496b8854e04b7525e29447c30f64" compoundref="_keyboard_8h" startline="425" endline="425">noModifier</references>
+        <references refid="structterminal_1_1_keyboard_1a42e690c96b4fc63e13d680ac5ce6e395" compoundref="_keyboard_8h" startline="397" endline="397">paramSeparator</references>
+        <references refid="structterminal_1_1_keyboard_1a61b9f7752fa3154bd1bc9e2b18b8b3c2" compoundref="_keyboard_8h" startline="391" endline="391">ss3Prefix</references>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_keyboard_1ab20318d26cba31889f6cb38ef48995e1" prot="private" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>juce::String</type>
+        <definition>static juce::String terminal::Keyboard::editingKey</definition>
+        <argsstring>(int juceKey, const juce::ModifierKeys &amp;mods)</argsstring>
+        <name>editingKey</name>
+        <qualifiedname>terminal::Keyboard::editingKey</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>juceKey</declname>
+        </param>
+        <param>
+          <type>const juce::ModifierKeys &amp;</type>
+          <declname>mods</declname>
+        </param>
+        <briefdescription>
+<para>Builds the escape sequence for an editing-cluster key press. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Handles Home, End, Insert, Delete, Page Up, and Page Down.</para>
+<para><itemizedlist>
+<listitem><para>Home / End: <computeroutput><ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> H</computeroutput> / <computeroutput><ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> F</computeroutput>, or <computeroutput><ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> 1 ; N H</computeroutput> / <computeroutput><ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> 1 ; N F</computeroutput> with mods.</para>
+</listitem><listitem><para>Insert / Delete / PgUp / PgDn: <computeroutput><ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> &lt;<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref>&gt; ~</computeroutput>, or <computeroutput><ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> &lt;<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref>&gt; ; N ~</computeroutput> with mods.</para>
+</listitem></itemizedlist>
+</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>juceKey</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>JUCE key code for one of the editing-cluster keys. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Active modifier keys. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>The complete escape sequence string, or empty if <computeroutput>juceKey</computeroutput> is not in the editing cluster. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Keyboard.h" line="862" column="32" bodyfile="terminal/Keyboard.h" bodystart="862" bodyend="894"/>
+        <references refid="structterminal_1_1_keyboard_1abe71693a03472634156ed0956ca81ac7" compoundref="_keyboard_8h" startline="388" endline="388">csiModPrefix</references>
+        <references refid="structterminal_1_1_keyboard_1aa8afb9196d0747fb465442f5e8094b60" compoundref="_keyboard_8h" startline="380" endline="380">csiPrefix</references>
+        <references refid="structterminal_1_1_keyboard_1aaebdc26b0cade07ca15073771cfbfe66" compoundref="_keyboard_8h" startline="394" endline="394">csiTerminator</references>
+        <references refid="structterminal_1_1_keyboard_1a62d896adb3e0a48a1a1618d6236f2155" compoundref="_keyboard_8h" startline="533" endline="538">editingCodes</references>
+        <references refid="structterminal_1_1_keyboard_1a8514399bc2819fa68cc3ad25811985eb" compoundref="_keyboard_8h" startline="844" endline="847">editingFinalChars</references>
+        <references refid="structterminal_1_1_keyboard_1ab8e828d9d60df1a92c6dc16fc2476873" compoundref="_keyboard_8h" startline="562" endline="592">modifierCode</references>
+        <references refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8">mods</references>
+        <references refid="structterminal_1_1_keyboard_1afc95496b8854e04b7525e29447c30f64" compoundref="_keyboard_8h" startline="425" endline="425">noModifier</references>
+        <references refid="structterminal_1_1_keyboard_1a42e690c96b4fc63e13d680ac5ce6e395" compoundref="_keyboard_8h" startline="397" endline="397">paramSeparator</references>
+        <referencedby refid="structterminal_1_1_keyboard_1a5375f5be758722772b23c16ad99ddf7c" compoundref="_keyboard_8h" startline="239" endline="301">mapAlt</referencedby>
+        <referencedby refid="structterminal_1_1_keyboard_1a30eeb3e7a4cc8f9b685dac20fcb00bfe" compoundref="_keyboard_8h" startline="320" endline="370">mapPlain</referencedby>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Namespace-struct providing static key-mapping utilities. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>All members are static; this struct is never instantiated. It acts as a scoped namespace with private implementation details hidden from callers.</para>
+<para>The single public entry point is <computeroutput><ref refid="structterminal_1_1_keyboard_1ae7cc6f2917cf1b16c98de57bfe88bb8c" kindref="member">map()</ref></computeroutput>. All other methods are private helpers that handle specific modifier combinations or key families. </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="3">
+        <label>std::unordered_map&lt; int, char &gt;</label>
+      </node>
+      <node id="5">
+        <label>std::unordered_map&lt; int, const char * &gt;</label>
+      </node>
+      <node id="4">
+        <label>std::unordered_map&lt; int, int &gt;</label>
+      </node>
+      <node id="2">
+        <label>std::unordered_map&lt; int, juce::String &gt;</label>
+      </node>
+      <node id="1">
+        <label>terminal::Keyboard</label>
+        <link refid="structterminal_1_1_keyboard"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>ctrlKeys</edgelabel>
+          <edgelabel>simpleKeys</edgelabel>
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>cursorKeys</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>editingCodes</edgelabel>
+          <edgelabel>progressiveKeyCodes</edgelabel>
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>editingFinalChars</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="terminal/Keyboard.h" line="72" column="1" bodyfile="terminal/Keyboard.h" bodystart="73" bodyend="895"/>
+    <listofallmembers>
+      <member refid="structterminal_1_1_keyboard_1abb21cf9177ded811a39a9d115e2e219e" prot="private" virt="non-virtual"><scope>terminal::Keyboard</scope><name>allKeys</name></member>
+      <member refid="structterminal_1_1_keyboard_1ad2bfff171c28b61c2c3c1a1c1dfdd314" prot="private" virt="non-virtual"><scope>terminal::Keyboard</scope><name>altBit</name></member>
+      <member refid="structterminal_1_1_keyboard_1aabb3fdc6a194d2a7874a390d586752b8" prot="private" virt="non-virtual"><scope>terminal::Keyboard</scope><name>backspaceDel</name></member>
+      <member refid="structterminal_1_1_keyboard_1a3bbeb24b42baeff4ebc92106b9674f8e" prot="private" virt="non-virtual"><scope>terminal::Keyboard</scope><name>carriageReturn</name></member>
+      <member refid="structterminal_1_1_keyboard_1abe71693a03472634156ed0956ca81ac7" prot="private" virt="non-virtual"><scope>terminal::Keyboard</scope><name>csiModPrefix</name></member>
+      <member refid="structterminal_1_1_keyboard_1aa8afb9196d0747fb465442f5e8094b60" prot="private" virt="non-virtual"><scope>terminal::Keyboard</scope><name>csiPrefix</name></member>
+      <member refid="structterminal_1_1_keyboard_1aaebdc26b0cade07ca15073771cfbfe66" prot="private" virt="non-virtual"><scope>terminal::Keyboard</scope><name>csiTerminator</name></member>
+      <member refid="structterminal_1_1_keyboard_1ab54a5c36b5b8805bc0978040ce96f56c" prot="private" virt="non-virtual"><scope>terminal::Keyboard</scope><name>ctrlBit</name></member>
+      <member refid="structterminal_1_1_keyboard_1a41a1ed56b0f4024897fff970cf86c6cd" prot="private" virt="non-virtual"><scope>terminal::Keyboard</scope><name>ctrlKeys</name></member>
+      <member refid="structterminal_1_1_keyboard_1a537fa998babf44983e3799b0527fb16f" prot="private" virt="non-virtual"><scope>terminal::Keyboard</scope><name>ctrlLetterBase</name></member>
+      <member refid="structterminal_1_1_keyboard_1a08ba8acbba086e44121d1a1272183268" prot="private" virt="non-virtual"><scope>terminal::Keyboard</scope><name>cursorKeys</name></member>
+      <member refid="structterminal_1_1_keyboard_1a6bb019520135ef5d36a3137edb3c48d0" prot="private" virt="non-virtual"><scope>terminal::Keyboard</scope><name>disambiguate</name></member>
+      <member refid="structterminal_1_1_keyboard_1a62d896adb3e0a48a1a1618d6236f2155" prot="private" virt="non-virtual"><scope>terminal::Keyboard</scope><name>editingCodes</name></member>
+      <member refid="structterminal_1_1_keyboard_1a8514399bc2819fa68cc3ad25811985eb" prot="private" virt="non-virtual"><scope>terminal::Keyboard</scope><name>editingFinalChars</name></member>
+      <member refid="structterminal_1_1_keyboard_1ab20318d26cba31889f6cb38ef48995e1" prot="private" virt="non-virtual"><scope>terminal::Keyboard</scope><name>editingKey</name></member>
+      <member refid="structterminal_1_1_keyboard_1afa9cf634fe512cbd987b97d8ff1c56f8" prot="private" virt="non-virtual"><scope>terminal::Keyboard</scope><name>encodeCsiU</name></member>
+      <member refid="structterminal_1_1_keyboard_1a986febc453430425ad1172a53d5f59ff" prot="private" virt="non-virtual"><scope>terminal::Keyboard</scope><name>escapeChar</name></member>
+      <member refid="structterminal_1_1_keyboard_1afa2fb4abb0a1e0152fef6ef9d646e0e5" prot="private" virt="non-virtual"><scope>terminal::Keyboard</scope><name>escPrefix</name></member>
+      <member refid="structterminal_1_1_keyboard_1a08b40cc6b39e2fca6756dabe9b39b46a" prot="private" virt="non-virtual"><scope>terminal::Keyboard</scope><name>functionKey</name></member>
+      <member refid="structterminal_1_1_keyboard_1a914f30aa65d3b6a9a71c2726ef392a1e" prot="private" virt="non-virtual"><scope>terminal::Keyboard</scope><name>horizontalTab</name></member>
+      <member refid="structterminal_1_1_keyboard_1ae7cc6f2917cf1b16c98de57bfe88bb8c" prot="public" virt="non-virtual"><scope>terminal::Keyboard</scope><name>map</name></member>
+      <member refid="structterminal_1_1_keyboard_1a5375f5be758722772b23c16ad99ddf7c" prot="private" virt="non-virtual"><scope>terminal::Keyboard</scope><name>mapAlt</name></member>
+      <member refid="structterminal_1_1_keyboard_1a2370eb92bbaf43758373a429f80224ba" prot="private" virt="non-virtual"><scope>terminal::Keyboard</scope><name>mapCtrl</name></member>
+      <member refid="structterminal_1_1_keyboard_1a30eeb3e7a4cc8f9b685dac20fcb00bfe" prot="private" virt="non-virtual"><scope>terminal::Keyboard</scope><name>mapPlain</name></member>
+      <member refid="structterminal_1_1_keyboard_1a8fc7b605f4d142130d9740e8e1059ca6" prot="private" virt="non-virtual"><scope>terminal::Keyboard</scope><name>metaBit</name></member>
+      <member refid="structterminal_1_1_keyboard_1ab8e828d9d60df1a92c6dc16fc2476873" prot="private" virt="non-virtual"><scope>terminal::Keyboard</scope><name>modifierCode</name></member>
+      <member refid="structterminal_1_1_keyboard_1afc95496b8854e04b7525e29447c30f64" prot="private" virt="non-virtual"><scope>terminal::Keyboard</scope><name>noModifier</name></member>
+      <member refid="structterminal_1_1_keyboard_1a42e690c96b4fc63e13d680ac5ce6e395" prot="private" virt="non-virtual"><scope>terminal::Keyboard</scope><name>paramSeparator</name></member>
+      <member refid="structterminal_1_1_keyboard_1a8b8b7bb2aa6a36508c22d2e94b324de4" prot="private" virt="non-virtual"><scope>terminal::Keyboard</scope><name>progressiveKeyCodes</name></member>
+      <member refid="structterminal_1_1_keyboard_1a7a14df1b437afd01112f80999f643a32" prot="private" virt="non-virtual"><scope>terminal::Keyboard</scope><name>shiftBit</name></member>
+      <member refid="structterminal_1_1_keyboard_1acbf0a12222fecd9e71ab16d1945ac7a3" prot="private" virt="non-virtual"><scope>terminal::Keyboard</scope><name>shouldUseCsiU</name></member>
+      <member refid="structterminal_1_1_keyboard_1ad04dd5af967041ecfdb75f0170841c78" prot="private" virt="non-virtual"><scope>terminal::Keyboard</scope><name>simpleKeys</name></member>
+      <member refid="structterminal_1_1_keyboard_1a61b9f7752fa3154bd1bc9e2b18b8b3c2" prot="private" virt="non-virtual"><scope>terminal::Keyboard</scope><name>ss3Prefix</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

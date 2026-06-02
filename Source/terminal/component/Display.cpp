@@ -12,7 +12,7 @@ terminal::Display::Display (terminal::Session& sessionToUse)
     , input (sessionToUse.getProcessor(), linkManager)
     , mouse (sessionToUse.getProcessor(), 0, 0, linkManager)
 {
-    // Parent TextEditor (owned by Session) for rendering via the Component hierarchy.
+    // Parent CodeView (owned by Session) for rendering via the Component hierarchy.
     addAndMakeVisible (session.getTextEditor());
     session.getTextEditor().addKeyListener (this);
 
@@ -27,19 +27,18 @@ terminal::Display::Display (terminal::Session& sessionToUse)
                                                                  { terminal::id::fontSize,   0 }
     });
 
-    AppState::getContext()->get().addListener (this);
+    configListener.start();
 
     // Listen to per-session terminal state for content updates (screenDirty).
-    terminalState = state.get();
-    terminalState.addListener (this);
+    state.addListener (this);
 
-    applyFromAppState();
+    applyFromAppModel();
 }
 
 terminal::Display::~Display()
 {
-    terminalState.removeListener (this);
-    AppState::getContext()->get().removeListener (this);
+    state.removeListener (this);
+    configListener.stop();
     session.getTextEditor().removeKeyListener (this);
 }
 
@@ -48,10 +47,10 @@ juce::String terminal::Display::getPaneType() const noexcept
 {
     return Map::PaneType::getContext()->get (Map::PaneType::terminal);
 }
-juce::ValueTree terminal::Display::getValueTree() noexcept { return state.get(); }
-void terminal::Display::applyFromAppState() noexcept
+juce::ValueTree terminal::Display::getValueTree() noexcept { return state.getRootTree(); }
+void terminal::Display::applyFromAppModel() noexcept
 {
-    const auto* appState { AppState::getContext() };
+    const auto* appState { AppModel::getContext() };
 
     const jam::Font font { appState->getFontFamily(),
                            appState->getFontSize(),
@@ -71,31 +70,114 @@ void terminal::Display::applyFromAppState() noexcept
     mouse.setCellSize (font.cellWidth, font.cellHeight);
     input.buildKeyMap();
 }
+
+void terminal::Display::ConfigListener::start() noexcept
+{
+    appState = AppModel::getContext()->getRootTree();
+    appState.addListener (this);
+}
+
+void terminal::Display::ConfigListener::stop() noexcept
+{
+    appState.removeListener (this);
+}
+
+void terminal::Display::ConfigListener::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier&)
+{
+    if (tree.getParent() == appState)
+        display.applyFromAppModel();
+}
+
 void terminal::Display::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
 {
-    if (property == id::value and tree.getType() == jam::ValueTree::PARAM)
+    if (property == id::value and tree.getType() == jam::Model::PARAM)
     {
         const juce::Identifier paramId { tree.getProperty (id::id).toString() };
         const int activeScreen { state.getActiveScreen() };
 
         if (paramId == id::screenDirty or paramId == id::activeScreen)
         {
+            jam::debug::Log::write ("DRAIN paramId=" + paramId.toString()
+                                    + " activeScreen=" + juce::String (activeScreen)
+                                    + " parent=" + tree.getParent().getType().toString());
+
             session.getTextEditor().setWrapEnabled (activeScreen == Map::Screen::normal);
-            session.getTextEditor().setText (processor.getTextLineArray());
+
+            jam::CodeModel& doc { session.getCodeModel() };
+
+            // setActive first — all getNumLines / remove / append operate on THIS screen's deque.
+            doc.setActive (activeScreen);
+
+            // D13a: clear alternate screen on entry — VT spec (DECSET ?1049h clears alt).
+            if (paramId == id::activeScreen and activeScreen == Map::Screen::alternate)
+            {
+                doc.clear();
+                liveTailExtent.at (static_cast<size_t> (activeScreen)) = 0;
+                session.getTextEditor().setViewportLineCount (0);
+            }
+            else
+            {
+                // (a) Remove the previous live tail of THIS screen — document is pure history after this.
+                // liveTailExtent[activeScreen] is the count laid down for this screen last tick;
+                // using the per-screen slot ensures a screen switch reads the correct deque's extent.
+                const int extent { liveTailExtent.at (static_cast<size_t> (activeScreen)) };
+
+                if (extent > 0)
+                {
+                    const int numLines { doc.getNumLines() };
+                    jassert (numLines >= extent);
+                    doc.remove (juce::Range<int> { numLines - extent, numLines });
+                    liveTailExtent.at (static_cast<size_t> (activeScreen)) = 0;
+                }
+            }
+
+            // (b) Drain departed history lines.
+            // D13a: on alt-screen entry, drain and discard — residual normal-screen departures
+            // between the last flush and the switch must not leak into the fresh alt screen.
+            {
+                jam::CodeLine line {};
+
+                if (paramId == id::activeScreen and activeScreen == Map::Screen::alternate)
+                {
+                    while (processor.drainHistory (line)) {}
+                }
+                else
+                {
+                    while (processor.drainHistory (line))
+                        doc.append (std::move (line));
+                }
+            }
+
+            // (c) Drain the fresh active viewport → append at document end, counting rows.
+            {
+                jam::CodeLine line {};
+                int newExtent { 0 };
+
+                while (processor.drainActive (line))
+                {
+                    doc.append (std::move (line));
+                    ++newExtent;
+                }
+
+                liveTailExtent.at (static_cast<size_t> (activeScreen)) = newExtent;
+                session.getTextEditor().setViewportLineCount (newExtent);
+
+                jam::debug::Log::write ("DRAIN done historyLines=" + juce::String (doc.getNumLines() - newExtent)
+                                        + " liveExtent=" + juce::String (newExtent)
+                                        + " totalLines=" + juce::String (doc.getNumLines()));
+            }
+
+            session.getTextEditor().calc();
         }
         else if (paramId == id::cursor)
         {
             const juce::Identifier screenId { Map::Screen::getContext()->get (activeScreen) };
-            const auto screenNode { state.get().getChildWithName (screenId) };
+            const auto screenNode { state.getChildWithName (screenId) };
             const CursorState cursorState { CursorState::unpack (
-                static_cast<int> (jam::ValueTree::getValueFromChildWithID (screenNode, id::cursor).getValue())) };
+                static_cast<int> (jam::Model::getValueFromChildWithID (screenNode, id::cursor).getValue())) };
 
             session.getTextEditor().setCaretPosition (jam::Cell::Point { cell (cursorState.col), cell (cursorState.row) });
         }
-    }
-    else
-    {
-        applyFromAppState();
     }
 }
 
@@ -111,11 +193,11 @@ void terminal::Display::copySelection() noexcept
 
 bool terminal::Display::hasSelection() const noexcept
 {
-    const auto node { state.get().getChildWithName (jam::TextEditor::properties.at (jam::TextEditor::textEditorId)) };
+    const auto node { state.getChildWithName (jam::CodeView::properties.at (jam::CodeView::codeViewId)) };
     bool result { false };
 
     if (node.isValid())
-        result = static_cast<int> (node.getProperty (jam::TextEditor::properties.at (jam::TextEditor::selectionTypeId)))
+        result = static_cast<int> (node.getProperty (jam::CodeView::properties.at (jam::CodeView::selectionTypeId)))
                  != static_cast<int> (terminal::SelectionType::none);
 
     return result;
@@ -135,14 +217,14 @@ void terminal::Display::focusGained (FocusChangeType) { session.getTextEditor().
 
 void terminal::Display::resized()
 {
-    const auto* appState { AppState::getContext() };
+    const auto* appState { AppModel::getContext() };
     const auto contentBounds { getLocalBounds()
                                    .withTrimmedTop (appState->getPaddingTop())
                                    .withTrimmedRight (appState->getPaddingRight())
                                    .withTrimmedBottom (appState->getPaddingBottom())
                                    .withTrimmedLeft (appState->getPaddingLeft()) };
 
-    // setBounds triggers TextEditor::resized() -> updateWinsize() -> winsize property -> Session::valueChanged.
+    // setBounds triggers CodeView::resized() -> updateWinsize() -> winsize property -> Session::valueChanged.
     session.getTextEditor().setBounds (contentBounds);
 
     // Pixel dimensions — needed by SIGWINCH (tty->setWinsize).
@@ -153,9 +235,9 @@ void terminal::Display::resized()
     // Uses contentBounds (scrollbar-unaware) — scrollbar is a TextEditor rendering concern.
     const auto& displayNode { attachment->getNode() };
     const int cellW { static_cast<int> (
-        jam::ValueTree::getValueFromChildWithID (displayNode, terminal::id::cellWidth).getValue()) };
+        jam::Model::getValueFromChildWithID (displayNode, terminal::id::cellWidth).getValue()) };
     const int cellH { static_cast<int> (
-        jam::ValueTree::getValueFromChildWithID (displayNode, terminal::id::cellHeight).getValue()) };
+        jam::Model::getValueFromChildWithID (displayNode, terminal::id::cellHeight).getValue()) };
 
     if (cellW > 0 and cellH > 0)
     {
@@ -163,12 +245,12 @@ void terminal::Display::resized()
 
         if (cellDims.isValid())
         {
-            auto teNode { state.get().getChildWithName (
-                jam::TextEditor::properties.at (jam::TextEditor::textEditorId)) };
+            auto teNode { state.getChildWithName (
+                jam::CodeView::properties.at (jam::CodeView::codeViewId)) };
 
             if (teNode.isValid())
                 teNode.setProperty (
-                    jam::TextEditor::properties.at (jam::TextEditor::viewportId), cellDims.pack(), nullptr);
+                    jam::CodeView::properties.at (jam::CodeView::viewportId), cellDims.pack(), nullptr);
         }
     }
 }

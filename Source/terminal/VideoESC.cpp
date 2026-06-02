@@ -241,8 +241,8 @@ void Video::escDispatchDEC (int scr, uint8_t finalByte) noexcept
     {
         const int nCols { cols.value };
         const int vRows { visibleRows.value };
-        const jam::Cell alignCell { jam::Cell::make ('E', jam::Cell::CONTENT_CODEPOINT,
-                                                     jam::Cell::NARROW, currentStyleId()) };
+        const jam::Char alignCell { jam::Char::make ('E', jam::Char::CONTENT_CODEPOINT,
+                                                     jam::Char::NARROW, currentStyleId()) };
 
         for (int row { 0 }; row < vRows; ++row)
         {

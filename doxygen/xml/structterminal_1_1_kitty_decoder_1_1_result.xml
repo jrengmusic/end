@@ -1,0 +1,195 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="structterminal_1_1_kitty_decoder_1_1_result" kind="struct" language="C++" prot="public">
+    <compoundname>terminal::KittyDecoder::Result</compoundname>
+    <includes refid="_kitty_decoder_8h" local="no">KittyDecoder.h</includes>
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structterminal_1_1_kitty_decoder_1_1_result_1a37aeac000935226d80265dcb3f15d0e6" prot="public" static="no" mutable="no">
+        <type><ref refid="structterminal_1_1_decoded_image" kindref="compound">DecodedImage</ref></type>
+        <definition>DecodedImage terminal::KittyDecoder::Result::image</definition>
+        <argsstring></argsstring>
+        <name>image</name>
+        <qualifiedname>terminal::KittyDecoder::Result::image</qualifiedname>
+        <briefdescription>
+<para>Valid only on final transmit+display. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/KittyDecoder.h" line="66" column="22" bodyfile="terminal/KittyDecoder.h" bodystart="66" bodyend="-1"/>
+        <referencedby refid="classterminal_1_1_kitty_decoder_1aa9e64c41aa91c7794cc30a31e57bdac4" compoundref="_kitty_decoder_8cpp" startline="151" endline="329">terminal::KittyDecoder::process</referencedby>
+        <referencedby refid="classterminal_1_1_skit_1a6afae3d2d2515ad4a1956815a6b7219e" compoundref="_skit_8cpp" startline="181" endline="260">terminal::Skit::processAPC</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_kitty_decoder_1_1_result_1ad41458cb2a400324fc6231e933a67791" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool terminal::KittyDecoder::Result::shouldDisplay</definition>
+        <argsstring></argsstring>
+        <name>shouldDisplay</name>
+        <qualifiedname>terminal::KittyDecoder::Result::shouldDisplay</qualifiedname>
+        <initializer>{ false }</initializer>
+        <briefdescription>
+<para>True if image should be placed in grid. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/KittyDecoder.h" line="67" column="14" bodyfile="terminal/KittyDecoder.h" bodystart="67" bodyend="67"/>
+        <referencedby refid="classterminal_1_1_kitty_decoder_1aa9e64c41aa91c7794cc30a31e57bdac4" compoundref="_kitty_decoder_8cpp" startline="151" endline="329">terminal::KittyDecoder::process</referencedby>
+        <referencedby refid="classterminal_1_1_skit_1a6afae3d2d2515ad4a1956815a6b7219e" compoundref="_skit_8cpp" startline="181" endline="260">terminal::Skit::processAPC</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_kitty_decoder_1_1_result_1ad66233bb66b2ad4110e50df05e4cefa7" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool terminal::KittyDecoder::Result::isQuery</definition>
+        <argsstring></argsstring>
+        <name>isQuery</name>
+        <qualifiedname>terminal::KittyDecoder::Result::isQuery</qualifiedname>
+        <initializer>{ false }</initializer>
+        <briefdescription>
+<para>True if this was a query (a=q). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/KittyDecoder.h" line="68" column="14" bodyfile="terminal/KittyDecoder.h" bodystart="68" bodyend="68"/>
+        <referencedby refid="classterminal_1_1_kitty_decoder_1aa9e64c41aa91c7794cc30a31e57bdac4" compoundref="_kitty_decoder_8cpp" startline="151" endline="329">terminal::KittyDecoder::process</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_kitty_decoder_1_1_result_1abdbd6e6c9c5997e9382d2af999f68588" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool terminal::KittyDecoder::Result::isDelete</definition>
+        <argsstring></argsstring>
+        <name>isDelete</name>
+        <qualifiedname>terminal::KittyDecoder::Result::isDelete</qualifiedname>
+        <initializer>{ false }</initializer>
+        <briefdescription>
+<para>True if this was a delete (a=d). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/KittyDecoder.h" line="69" column="14" bodyfile="terminal/KittyDecoder.h" bodystart="69" bodyend="69"/>
+        <referencedby refid="classterminal_1_1_kitty_decoder_1aa9e64c41aa91c7794cc30a31e57bdac4" compoundref="_kitty_decoder_8cpp" startline="151" endline="329">terminal::KittyDecoder::process</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_kitty_decoder_1_1_result_1ad5907c92a26ca54d1a72605a3e071a26" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool terminal::KittyDecoder::Result::isVirtualPlacement</definition>
+        <argsstring></argsstring>
+        <name>isVirtualPlacement</name>
+        <qualifiedname>terminal::KittyDecoder::Result::isVirtualPlacement</qualifiedname>
+        <initializer>{ false }</initializer>
+        <briefdescription>
+<para>True if this is a virtual placement (U=1, a=p or a=T). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/KittyDecoder.h" line="70" column="14" bodyfile="terminal/KittyDecoder.h" bodystart="70" bodyend="70"/>
+        <referencedby refid="classterminal_1_1_kitty_decoder_1aa9e64c41aa91c7794cc30a31e57bdac4" compoundref="_kitty_decoder_8cpp" startline="151" endline="329">terminal::KittyDecoder::process</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_kitty_decoder_1_1_result_1aac135bedbd19160166cda4e95dda2a92" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int terminal::KittyDecoder::Result::placementCols</definition>
+        <argsstring></argsstring>
+        <name>placementCols</name>
+        <qualifiedname>terminal::KittyDecoder::Result::placementCols</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+<para>Virtual placement column count (c= param). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/KittyDecoder.h" line="71" column="13" bodyfile="terminal/KittyDecoder.h" bodystart="71" bodyend="71"/>
+        <referencedby refid="classterminal_1_1_kitty_decoder_1aa9e64c41aa91c7794cc30a31e57bdac4" compoundref="_kitty_decoder_8cpp" startline="151" endline="329">terminal::KittyDecoder::process</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_kitty_decoder_1_1_result_1a4a390ec8e072778c35ca786a4c7f2349" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int terminal::KittyDecoder::Result::placementRows</definition>
+        <argsstring></argsstring>
+        <name>placementRows</name>
+        <qualifiedname>terminal::KittyDecoder::Result::placementRows</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+<para>Virtual placement row count (r= param). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/KittyDecoder.h" line="72" column="13" bodyfile="terminal/KittyDecoder.h" bodystart="72" bodyend="72"/>
+        <referencedby refid="classterminal_1_1_kitty_decoder_1aa9e64c41aa91c7794cc30a31e57bdac4" compoundref="_kitty_decoder_8cpp" startline="151" endline="329">terminal::KittyDecoder::process</referencedby>
+        <referencedby refid="classterminal_1_1_skit_1a6afae3d2d2515ad4a1956815a6b7219e" compoundref="_skit_8cpp" startline="181" endline="260">terminal::Skit::processAPC</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_kitty_decoder_1_1_result_1a57c241ac7855214ca1b7caae0bd2e67e" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t terminal::KittyDecoder::Result::kittyImageId</definition>
+        <argsstring></argsstring>
+        <name>kittyImageId</name>
+        <qualifiedname>terminal::KittyDecoder::Result::kittyImageId</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+<para>Kitty-assigned image ID (from i= param). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/KittyDecoder.h" line="73" column="18" bodyfile="terminal/KittyDecoder.h" bodystart="73" bodyend="73"/>
+        <referencedby refid="classterminal_1_1_kitty_decoder_1aa9e64c41aa91c7794cc30a31e57bdac4" compoundref="_kitty_decoder_8cpp" startline="151" endline="329">terminal::KittyDecoder::process</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_kitty_decoder_1_1_result_1af709136f3aeea21b82e3b6c0e674ae54" prot="public" static="no" mutable="no">
+        <type>juce::String</type>
+        <definition>juce::String terminal::KittyDecoder::Result::response</definition>
+        <argsstring></argsstring>
+        <name>response</name>
+        <qualifiedname>terminal::KittyDecoder::Result::response</qualifiedname>
+        <briefdescription>
+<para>Response to write back to PTY (OK or error). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/KittyDecoder.h" line="74" column="22" bodyfile="terminal/KittyDecoder.h" bodystart="74" bodyend="-1"/>
+        <referencedby refid="classterminal_1_1_kitty_decoder_1aa9e64c41aa91c7794cc30a31e57bdac4" compoundref="_kitty_decoder_8cpp" startline="151" endline="329">terminal::KittyDecoder::process</referencedby>
+        <referencedby refid="classterminal_1_1_skit_1a6afae3d2d2515ad4a1956815a6b7219e" compoundref="_skit_8cpp" startline="181" endline="260">terminal::Skit::processAPC</referencedby>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para><ref refid="structterminal_1_1_kitty_decoder_1_1_result" kindref="compound">Result</ref> of processing one APC G payload. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Only one of <computeroutput><ref refid="structterminal_1_1_kitty_decoder_1_1_result_1ad41458cb2a400324fc6231e933a67791" kindref="member">shouldDisplay</ref></computeroutput>, <computeroutput><ref refid="structterminal_1_1_kitty_decoder_1_1_result_1ad66233bb66b2ad4110e50df05e4cefa7" kindref="member">isQuery</ref></computeroutput>, or <computeroutput><ref refid="structterminal_1_1_kitty_decoder_1_1_result_1abdbd6e6c9c5997e9382d2af999f68588" kindref="member">isDelete</ref></computeroutput> will be true per successful result. For chunked transmissions, all flags remain false until the final chunk (<computeroutput>m=0</computeroutput>) is processed. </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="2">
+        <label>terminal::DecodedImage</label>
+        <link refid="structterminal_1_1_decoded_image"/>
+      </node>
+      <node id="1">
+        <label>terminal::KittyDecoder::Result</label>
+        <link refid="structterminal_1_1_kitty_decoder_1_1_result"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>image</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="terminal/KittyDecoder.h" line="64" column="5" bodyfile="terminal/KittyDecoder.h" bodystart="65" bodyend="75"/>
+    <listofallmembers>
+      <member refid="structterminal_1_1_kitty_decoder_1_1_result_1a37aeac000935226d80265dcb3f15d0e6" prot="public" virt="non-virtual"><scope>terminal::KittyDecoder::Result</scope><name>image</name></member>
+      <member refid="structterminal_1_1_kitty_decoder_1_1_result_1abdbd6e6c9c5997e9382d2af999f68588" prot="public" virt="non-virtual"><scope>terminal::KittyDecoder::Result</scope><name>isDelete</name></member>
+      <member refid="structterminal_1_1_kitty_decoder_1_1_result_1ad66233bb66b2ad4110e50df05e4cefa7" prot="public" virt="non-virtual"><scope>terminal::KittyDecoder::Result</scope><name>isQuery</name></member>
+      <member refid="structterminal_1_1_kitty_decoder_1_1_result_1ad5907c92a26ca54d1a72605a3e071a26" prot="public" virt="non-virtual"><scope>terminal::KittyDecoder::Result</scope><name>isVirtualPlacement</name></member>
+      <member refid="structterminal_1_1_kitty_decoder_1_1_result_1a57c241ac7855214ca1b7caae0bd2e67e" prot="public" virt="non-virtual"><scope>terminal::KittyDecoder::Result</scope><name>kittyImageId</name></member>
+      <member refid="structterminal_1_1_kitty_decoder_1_1_result_1aac135bedbd19160166cda4e95dda2a92" prot="public" virt="non-virtual"><scope>terminal::KittyDecoder::Result</scope><name>placementCols</name></member>
+      <member refid="structterminal_1_1_kitty_decoder_1_1_result_1a4a390ec8e072778c35ca786a4c7f2349" prot="public" virt="non-virtual"><scope>terminal::KittyDecoder::Result</scope><name>placementRows</name></member>
+      <member refid="structterminal_1_1_kitty_decoder_1_1_result_1af709136f3aeea21b82e3b6c0e674ae54" prot="public" virt="non-virtual"><scope>terminal::KittyDecoder::Result</scope><name>response</name></member>
+      <member refid="structterminal_1_1_kitty_decoder_1_1_result_1ad41458cb2a400324fc6231e933a67791" prot="public" virt="non-virtual"><scope>terminal::KittyDecoder::Result</scope><name>shouldDisplay</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

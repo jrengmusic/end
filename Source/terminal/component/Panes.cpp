@@ -182,7 +182,7 @@ juce::String Panes::createTerminal (const juce::String& workingDirectory,
  */
 juce::String Panes::createWhelmed (const juce::File& file)
 {
-    const juce::String activeID { AppState::getContext()->getActivePaneID() };
+    const juce::String activeID { AppModel::getContext()->getActivePaneID() };
     jassert (activeID.isNotEmpty());
 
     // Find the active terminal
@@ -219,9 +219,9 @@ juce::String Panes::createWhelmed (const juce::File& file)
 
     panes.add (std::move (component));
 
-    AppState::getContext()->setModalType (0);
-    AppState::getContext()->setSelectionType (0);
-    AppState::getContext()->setActivePaneType (Map::PaneType::getContext()->get (Map::PaneType::document));
+    AppModel::getContext()->setModalType (0);
+    AppModel::getContext()->setSelectionType (0);
+    AppModel::getContext()->setActivePaneType (Map::PaneType::getContext()->get (Map::PaneType::document));
     resized();
 
     return activeID;
@@ -229,7 +229,7 @@ juce::String Panes::createWhelmed (const juce::File& file)
 
 void Panes::closeWhelmed()
 {
-    const juce::String activeID { AppState::getContext()->getActivePaneID() };
+    const juce::String activeID { AppModel::getContext()->getActivePaneID() };
     jassert (activeID.isNotEmpty());
 
     // Find whelmed and terminal with matching UUID
@@ -272,9 +272,9 @@ void Panes::closeWhelmed()
     if (isShowing())
         terminalPane->grabKeyboardFocus();
 
-    AppState::getContext()->setModalType (0);
-    AppState::getContext()->setSelectionType (0);
-    AppState::getContext()->setActivePaneType (Map::PaneType::getContext()->get (Map::PaneType::terminal));
+    AppModel::getContext()->setModalType (0);
+    AppModel::getContext()->setSelectionType (0);
+    AppModel::getContext()->setActivePaneType (Map::PaneType::getContext()->get (Map::PaneType::terminal));
 }
 
 /**
@@ -491,7 +491,7 @@ void Panes::splitAt (const juce::String& targetUuid,
  */
 void Panes::splitActive (const juce::String& direction, bool isVertical, double ratio)
 {
-    const juce::String activeID { AppState::getContext()->getActivePaneID() };
+    const juce::String activeID { AppModel::getContext()->getActivePaneID() };
     jassert (activeID.isNotEmpty());
 
     // Find the active pane's current pixel bounds. At runtime the Panes instance
@@ -509,7 +509,7 @@ void Panes::splitActive (const juce::String& direction, bool isVertical, double 
     const auto [targetRect, newRect] { splitRect (activeBounds, direction, ratio) };
     const auto [newCols, newRows] { cellsFromRect (newRect) };
 
-    splitAt (activeID, {}, AppState::getContext()->getPwd(), direction, isVertical, newCols, newRows, ratio);
+    splitAt (activeID, {}, AppModel::getContext()->getPwd(), direction, isVertical, newCols, newRows, ratio);
 }
 
 /**
@@ -562,7 +562,7 @@ void Panes::visibilityChanged()
 void Panes::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
 {
     if (property == terminal::id::value
-        and tree.getType() == jam::ValueTree::PARAM
+        and tree.getType() == jam::Model::PARAM
         and tree.getProperty (terminal::id::id).toString() == terminal::id::shellExited.toString()
         and static_cast<int> (tree.getProperty (terminal::id::value)) == 1)
     {
@@ -601,9 +601,9 @@ void Panes::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identif
                 {
                     const int nextIndex { juce::jmin (closedIndex, static_cast<int> (panes.size()) - 1) };
                     auto* nearest { panes.at (static_cast<size_t> (nextIndex)).get() };
-                    AppState::getContext()->setModalType (0);
-                    AppState::getContext()->setSelectionType (0);
-                    AppState::getContext()->setActivePaneID (nearest->getComponentID());
+                    AppModel::getContext()->setModalType (0);
+                    AppModel::getContext()->setSelectionType (0);
+                    AppModel::getContext()->setActivePaneID (nearest->getComponentID());
 
                     if (nearest->isShowing())
                         nearest->grabKeyboardFocus();
@@ -624,7 +624,7 @@ void Panes::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identif
  */
 void Panes::focusPane (int deltaX, int deltaY)
 {
-    const auto activeID { AppState::getContext()->getActivePaneID() };
+    const auto activeID { AppModel::getContext()->getActivePaneID() };
     PaneComponent* active { nullptr };
 
     for (auto& pane : panes)
@@ -670,9 +670,9 @@ void Panes::focusPane (int deltaX, int deltaY)
 
         if (best != nullptr)
         {
-            AppState::getContext()->setModalType (0);
-            AppState::getContext()->setSelectionType (0);
-            AppState::getContext()->setActivePaneID (best->getComponentID());
+            AppModel::getContext()->setModalType (0);
+            AppModel::getContext()->setSelectionType (0);
+            AppModel::getContext()->setActivePaneID (best->getComponentID());
 
             if (best->isShowing())
                 best->grabKeyboardFocus();

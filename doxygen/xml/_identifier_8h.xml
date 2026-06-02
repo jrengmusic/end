@@ -1,0 +1,888 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="_identifier_8h" kind="file" language="C++">
+    <compoundname>Identifier.h</compoundname>
+    <includes local="no">JuceHeader.h</includes>
+    <includedby refid="_app_model_8h" local="yes">AppModel.h</includedby>
+    <includedby refid="_main_component_8h" local="yes">MainComponent.h</includedby>
+    <includedby refid="_map_8h" local="yes">Map.h</includedby>
+    <includedby refid="_daemon_8h" local="yes">nexus/Daemon.h</includedby>
+    <includedby refid="_link_8h" local="yes">nexus/Link.h</includedby>
+    <includedby refid="_model_8h" local="yes">terminal/Model.h</includedby>
+    <includedby refid="_skit_8h" local="yes">terminal/Skit.h</includedby>
+    <includedby refid="_video_8h" local="yes">terminal/Video.h</includedby>
+    <includedby refid="_popup_8h" local="yes">terminal/component/Popup.h</includedby>
+    <includedby refid="_tabs_8h" local="yes">terminal/component/Tabs.h</includedby>
+    <includedby refid="_t_t_y_8h" local="yes">terminal/tty/TTY.h</includedby>
+    <incdepgraph>
+      <node id="1">
+        <label>terminal/Identifier.h</label>
+        <link refid="_identifier_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>JuceHeader.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="3">
+        <label>AppModel.cpp</label>
+        <link refid="_app_model_8cpp"/>
+      </node>
+      <node id="2">
+        <label>AppModel.h</label>
+        <link refid="_app_model_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="50" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="53" relation="include">
+        </childnode>
+        <childnode refid="55" relation="include">
+        </childnode>
+        <childnode refid="51" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>Main.cpp</label>
+        <link refid="_main_8cpp"/>
+      </node>
+      <node id="4">
+        <label>Main.h</label>
+        <link refid="_main_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>MainComponent.cpp</label>
+        <link refid="_main_component_8cpp"/>
+      </node>
+      <node id="6">
+        <label>MainComponent.h</label>
+        <link refid="_main_component_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>MainComponentActions.cpp</label>
+        <link refid="_main_component_actions_8cpp"/>
+      </node>
+      <node id="57">
+        <label>Map.h</label>
+        <link refid="_map_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="58" relation="include">
+        </childnode>
+        <childnode refid="59" relation="include">
+        </childnode>
+        <childnode refid="60" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="61" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>lua/Engine.cpp</label>
+        <link refid="_engine_8cpp"/>
+      </node>
+      <node id="58">
+        <label>lua/EngineDefaults.cpp</label>
+        <link refid="_engine_defaults_8cpp"/>
+      </node>
+      <node id="59">
+        <label>lua/EngineParseConfig.cpp</label>
+        <link refid="_engine_parse_config_8cpp"/>
+      </node>
+      <node id="60">
+        <label>lua/EngineParseDisplay.cpp</label>
+        <link refid="_engine_parse_display_8cpp"/>
+      </node>
+      <node id="11">
+        <label>nexus/Channel.cpp</label>
+        <link refid="_channel_8cpp"/>
+      </node>
+      <node id="12">
+        <label>nexus/Daemon.cpp</label>
+        <link refid="_daemon_8cpp"/>
+      </node>
+      <node id="10">
+        <label>nexus/Daemon.h</label>
+        <link refid="_daemon_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>nexus/Daemon.mm</label>
+        <link refid="_daemon_8mm"/>
+      </node>
+      <node id="14">
+        <label>nexus/DaemonWindows.cpp</label>
+        <link refid="_daemon_windows_8cpp"/>
+      </node>
+      <node id="16">
+        <label>nexus/Link.cpp</label>
+        <link refid="_link_8cpp"/>
+      </node>
+      <node id="15">
+        <label>nexus/Link.h</label>
+        <link refid="_link_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="48">
+        <label>nexus/Nexus.cpp</label>
+        <link refid="_nexus_8cpp"/>
+      </node>
+      <node id="47">
+        <label>nexus/Nexus.h</label>
+        <link refid="_nexus_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="48" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>terminal/Identifier.h</label>
+        <link refid="_identifier_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="57" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="75" relation="include">
+        </childnode>
+        <childnode refid="61" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="77" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>terminal/Input.cpp</label>
+        <link refid="_input_8cpp"/>
+      </node>
+      <node id="20">
+        <label>terminal/Input.h</label>
+        <link refid="_input_8h"/>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>terminal/LinkManager.cpp</label>
+        <link refid="_link_manager_8cpp"/>
+      </node>
+      <node id="19">
+        <label>terminal/LinkManager.h</label>
+        <link refid="_link_manager_8h"/>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+      </node>
+      <node id="38">
+        <label>terminal/LinkManagerScan.cpp</label>
+        <link refid="_link_manager_scan_8cpp"/>
+      </node>
+      <node id="41">
+        <label>terminal/Model.cpp</label>
+        <link refid="_model_8cpp"/>
+      </node>
+      <node id="18">
+        <label>terminal/Model.h</label>
+        <link refid="_model_8h"/>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+        <childnode refid="46" relation="include">
+        </childnode>
+      </node>
+      <node id="42">
+        <label>terminal/ModelFlush.cpp</label>
+        <link refid="_model_flush_8cpp"/>
+      </node>
+      <node id="40">
+        <label>terminal/Mouse.cpp</label>
+        <link refid="_mouse_8cpp"/>
+      </node>
+      <node id="39">
+        <label>terminal/Mouse.h</label>
+        <link refid="_mouse_8h"/>
+        <childnode refid="40" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+      </node>
+      <node id="63">
+        <label>terminal/Parser.cpp</label>
+        <link refid="terminal_2_parser_8cpp"/>
+      </node>
+      <node id="62">
+        <label>terminal/Parser.h</label>
+        <link refid="terminal_2_parser_8h"/>
+        <childnode refid="63" relation="include">
+        </childnode>
+        <childnode refid="64" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+      </node>
+      <node id="64">
+        <label>terminal/ParserAction.cpp</label>
+        <link refid="_parser_action_8cpp"/>
+      </node>
+      <node id="44">
+        <label>terminal/Processor.cpp</label>
+        <link refid="_processor_8cpp"/>
+      </node>
+      <node id="43">
+        <label>terminal/Processor.h</label>
+        <link refid="_processor_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="44" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="46" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+      </node>
+      <node id="45">
+        <label>terminal/ProcessorEvents.cpp</label>
+        <link refid="_processor_events_8cpp"/>
+      </node>
+      <node id="49">
+        <label>terminal/Session.cpp</label>
+        <link refid="_session_8cpp"/>
+      </node>
+      <node id="46">
+        <label>terminal/Session.h</label>
+        <link refid="_session_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="47" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+      </node>
+      <node id="76">
+        <label>terminal/Skit.cpp</label>
+        <link refid="_skit_8cpp"/>
+      </node>
+      <node id="75">
+        <label>terminal/Skit.h</label>
+        <link refid="_skit_8h"/>
+        <childnode refid="43" relation="include">
+        </childnode>
+        <childnode refid="76" relation="include">
+        </childnode>
+      </node>
+      <node id="65">
+        <label>terminal/Video.cpp</label>
+        <link refid="_video_8cpp"/>
+      </node>
+      <node id="61">
+        <label>terminal/Video.h</label>
+        <link refid="_video_8h"/>
+        <childnode refid="62" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+        <childnode refid="65" relation="include">
+        </childnode>
+        <childnode refid="66" relation="include">
+        </childnode>
+        <childnode refid="67" relation="include">
+        </childnode>
+        <childnode refid="68" relation="include">
+        </childnode>
+        <childnode refid="69" relation="include">
+        </childnode>
+        <childnode refid="70" relation="include">
+        </childnode>
+        <childnode refid="71" relation="include">
+        </childnode>
+        <childnode refid="72" relation="include">
+        </childnode>
+        <childnode refid="73" relation="include">
+        </childnode>
+        <childnode refid="74" relation="include">
+        </childnode>
+      </node>
+      <node id="66">
+        <label>terminal/VideoCSI.cpp</label>
+        <link refid="_video_c_s_i_8cpp"/>
+      </node>
+      <node id="67">
+        <label>terminal/VideoDCS.cpp</label>
+        <link refid="_video_d_c_s_8cpp"/>
+      </node>
+      <node id="68">
+        <label>terminal/VideoESC.cpp</label>
+        <link refid="_video_e_s_c_8cpp"/>
+      </node>
+      <node id="69">
+        <label>terminal/VideoEdit.cpp</label>
+        <link refid="_video_edit_8cpp"/>
+      </node>
+      <node id="70">
+        <label>terminal/VideoMode.cpp</label>
+        <link refid="_video_mode_8cpp"/>
+      </node>
+      <node id="71">
+        <label>terminal/VideoOSC.cpp</label>
+        <link refid="_video_o_s_c_8cpp"/>
+      </node>
+      <node id="72">
+        <label>terminal/VideoOSCExt.cpp</label>
+        <link refid="_video_o_s_c_ext_8cpp"/>
+      </node>
+      <node id="73">
+        <label>terminal/VideoOps.cpp</label>
+        <link refid="_video_ops_8cpp"/>
+      </node>
+      <node id="74">
+        <label>terminal/VideoSGR.cpp</label>
+        <link refid="_video_s_g_r_8cpp"/>
+      </node>
+      <node id="23">
+        <label>terminal/component/Display.cpp</label>
+        <link refid="_display_8cpp"/>
+      </node>
+      <node id="22">
+        <label>terminal/component/Display.h</label>
+        <link refid="_display_8h"/>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+      </node>
+      <node id="25">
+        <label>terminal/component/LookAndFeel.cpp</label>
+        <link refid="_look_and_feel_8cpp"/>
+      </node>
+      <node id="24">
+        <label>terminal/component/LookAndFeel.h</label>
+        <link refid="_look_and_feel_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+      </node>
+      <node id="26">
+        <label>terminal/component/LookAndFeelMenu.cpp</label>
+        <link refid="_look_and_feel_menu_8cpp"/>
+      </node>
+      <node id="27">
+        <label>terminal/component/LookAndFeelTab.cpp</label>
+        <link refid="_look_and_feel_tab_8cpp"/>
+      </node>
+      <node id="33">
+        <label>terminal/component/ModalWindow.cpp</label>
+        <link refid="_modal_window_8cpp"/>
+      </node>
+      <node id="32">
+        <label>terminal/component/ModalWindow.h</label>
+        <link refid="_modal_window_8h"/>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+      </node>
+      <node id="50">
+        <label>terminal/component/PaneComponent.h</label>
+        <link refid="_pane_component_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="51" relation="include">
+        </childnode>
+      </node>
+      <node id="37">
+        <label>terminal/component/Panes.cpp</label>
+        <link refid="_panes_8cpp"/>
+      </node>
+      <node id="36">
+        <label>terminal/component/Panes.h</label>
+        <link refid="_panes_8h"/>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+      </node>
+      <node id="35">
+        <label>terminal/component/Popup.cpp</label>
+        <link refid="_popup_8cpp"/>
+      </node>
+      <node id="34">
+        <label>terminal/component/Popup.h</label>
+        <link refid="_popup_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+      </node>
+      <node id="29">
+        <label>terminal/component/Tabs.cpp</label>
+        <link refid="_tabs_8cpp"/>
+      </node>
+      <node id="28">
+        <label>terminal/component/Tabs.h</label>
+        <link refid="_tabs_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+      </node>
+      <node id="30">
+        <label>terminal/component/TabsActions.cpp</label>
+        <link refid="_tabs_actions_8cpp"/>
+      </node>
+      <node id="31">
+        <label>terminal/component/TabsClose.cpp</label>
+        <link refid="_tabs_close_8cpp"/>
+      </node>
+      <node id="78">
+        <label>terminal/tty/TTY.cpp</label>
+        <link refid="_t_t_y_8cpp"/>
+      </node>
+      <node id="77">
+        <label>terminal/tty/TTY.h</label>
+        <link refid="_t_t_y_8h"/>
+        <childnode refid="43" relation="include">
+        </childnode>
+        <childnode refid="78" relation="include">
+        </childnode>
+        <childnode refid="79" relation="include">
+        </childnode>
+        <childnode refid="81" relation="include">
+        </childnode>
+      </node>
+      <node id="80">
+        <label>terminal/tty/UnixTTY.cpp</label>
+        <link refid="_unix_t_t_y_8cpp"/>
+      </node>
+      <node id="79">
+        <label>terminal/tty/UnixTTY.h</label>
+        <link refid="_unix_t_t_y_8h"/>
+        <childnode refid="43" relation="include">
+        </childnode>
+        <childnode refid="80" relation="include">
+        </childnode>
+      </node>
+      <node id="82">
+        <label>terminal/tty/WindowsTTY.cpp</label>
+        <link refid="_windows_t_t_y_8cpp"/>
+      </node>
+      <node id="81">
+        <label>terminal/tty/WindowsTTY.h</label>
+        <link refid="_windows_t_t_y_8h"/>
+        <childnode refid="82" relation="include">
+        </childnode>
+      </node>
+      <node id="54">
+        <label>whelmed/InputHandler.cpp</label>
+        <link refid="_input_handler_8cpp"/>
+      </node>
+      <node id="53">
+        <label>whelmed/InputHandler.h</label>
+        <link refid="_input_handler_8h"/>
+        <childnode refid="54" relation="include">
+        </childnode>
+        <childnode refid="51" relation="include">
+        </childnode>
+      </node>
+      <node id="56">
+        <label>whelmed/Screen.cpp</label>
+        <link refid="_screen_8cpp"/>
+      </node>
+      <node id="55">
+        <label>whelmed/Screen.h</label>
+        <link refid="_screen_8h"/>
+        <childnode refid="53" relation="include">
+        </childnode>
+        <childnode refid="56" relation="include">
+        </childnode>
+        <childnode refid="51" relation="include">
+        </childnode>
+      </node>
+      <node id="52">
+        <label>whelmed/component/Component.cpp</label>
+        <link refid="_component_8cpp"/>
+      </node>
+      <node id="51">
+        <label>whelmed/component/Component.h</label>
+        <link refid="_component_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="52" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structterminal_1_1_cursor_state" prot="public">terminal::CursorState</innerclass>
+    <innernamespace refid="namespaceterminal">terminal</innernamespace>
+    <innernamespace refid="namespaceterminal_1_1id">terminal::id</innernamespace>
+    <briefdescription>
+<para>juce::Identifier constants for terminal <ref refid="classValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ValueTree</ref> property names. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>This file provides static <ref refid="classIdentifier" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Identifier</ref> constants used as property keys in the terminal&apos;s <ref refid="classValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ValueTree</ref> state model. These identifiers enable type-safe property access and are used throughout the terminal emulation layer.</para>
+<para>The identifiers are organized into logical groups:<itemizedlist>
+<listitem><para><ref refid="union_node" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Node</ref> types: Top-level <ref refid="classValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ValueTree</ref> node identifiers</para>
+</listitem><listitem><para>PARAM properties: Generic parameter node properties</para>
+</listitem><listitem><para>Session parameter IDs: Global terminal session state</para>
+</listitem><listitem><para>Mode parameter IDs: DEC terminal mode flags</para>
+</listitem><listitem><para>Per-screen parameter IDs: Screen-specific cursor and scroll state</para>
+</listitem></itemizedlist>
+</para>
+<para><simplesect kind="see"><para><ref refid="_model_8h" kindref="compound">Model.h</ref> for the <ref refid="classValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ValueTree</ref> structure that uses these identifiers </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#pragma<sp/>once</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;JuceHeader.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespaceterminal" kindref="compound">terminal</ref></highlight></codeline>
+<codeline lineno="25"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="comment">/*____________________________________________________________________________*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34" refid="structterminal_1_1_cursor_state" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structterminal_1_1_cursor_state" kindref="compound">CursorState</ref></highlight></codeline>
+<codeline lineno="35"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="36" refid="structterminal_1_1_cursor_state_1ae4f82825616474ab86e036ce130d65ef" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structterminal_1_1_cursor_state_1ae4f82825616474ab86e036ce130d65ef" kindref="member">row</ref><sp/><sp/><sp/><sp/><sp/>{<sp/>0<sp/>};</highlight></codeline>
+<codeline lineno="37" refid="structterminal_1_1_cursor_state_1a0587fa8ea4ad47b6fbfc71675f94796e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structterminal_1_1_cursor_state_1a0587fa8ea4ad47b6fbfc71675f94796e" kindref="member">col</ref><sp/><sp/><sp/><sp/><sp/>{<sp/>0<sp/>};</highlight></codeline>
+<codeline lineno="38" refid="structterminal_1_1_cursor_state_1a7d70e2b5373d17cd8addf9174a63dfa4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structterminal_1_1_cursor_state_1a7d70e2b5373d17cd8addf9174a63dfa4" kindref="member">visible</ref><sp/>{<sp/>1<sp/>};</highlight></codeline>
+<codeline lineno="39" refid="structterminal_1_1_cursor_state_1a402852ae8a7b1dad5428938c3bf77614" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structterminal_1_1_cursor_state_1a402852ae8a7b1dad5428938c3bf77614" kindref="member">kbFlags</ref><sp/>{<sp/>0<sp/>};</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41" refid="structterminal_1_1_cursor_state_1aea059eba9f1a5b49c2d1756219e402c6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structterminal_1_1_cursor_state_1aea059eba9f1a5b49c2d1756219e402c6" kindref="member">pack</ref>()<sp/>const<sp/>noexcept</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(<ref refid="structterminal_1_1_cursor_state_1ae4f82825616474ab86e036ce130d65ef" kindref="member">row</ref><sp/>&amp;<sp/>0xFFF)<sp/>|<sp/>((<ref refid="structterminal_1_1_cursor_state_1a0587fa8ea4ad47b6fbfc71675f94796e" kindref="member">col</ref><sp/>&amp;<sp/>0xFFF)<sp/>&lt;&lt;<sp/>12)<sp/>|<sp/>((<ref refid="structterminal_1_1_cursor_state_1a7d70e2b5373d17cd8addf9174a63dfa4" kindref="member">visible</ref><sp/>&amp;<sp/>0x1)<sp/>&lt;&lt;<sp/>24)<sp/>|<sp/>((<ref refid="structterminal_1_1_cursor_state_1a402852ae8a7b1dad5428938c3bf77614" kindref="member">kbFlags</ref><sp/>&amp;<sp/>0x1F)<sp/>&lt;&lt;<sp/>25);</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46" refid="structterminal_1_1_cursor_state_1aea1af6e36cad7b394db0164b6bb905ce" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="structterminal_1_1_cursor_state" kindref="compound">CursorState</ref><sp/><ref refid="structterminal_1_1_cursor_state_1aea1af6e36cad7b394db0164b6bb905ce" kindref="member">unpack</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>v)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>{<sp/>v<sp/>&amp;<sp/>0xFFF,<sp/>(v<sp/>&gt;&gt;<sp/>12)<sp/>&amp;<sp/>0xFFF,<sp/>(v<sp/>&gt;&gt;<sp/>24)<sp/>&amp;<sp/>0x1,<sp/>(v<sp/>&gt;&gt;<sp/>25)<sp/>&amp;<sp/>0x1F<sp/>};</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51" refid="structterminal_1_1_cursor_state_1ab4f0812ec43fbc7fa59af39d8d28064f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structterminal_1_1_cursor_state_1ab4f0812ec43fbc7fa59af39d8d28064f" kindref="member">isValid</ref>()<sp/>const<sp/>noexcept<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="structterminal_1_1_cursor_state_1ae4f82825616474ab86e036ce130d65ef" kindref="member">row</ref><sp/>&gt;=<sp/>0<sp/>and<sp/><ref refid="structterminal_1_1_cursor_state_1a0587fa8ea4ad47b6fbfc71675f94796e" kindref="member">col</ref><sp/>&gt;=<sp/>0;<sp/>}</highlight></codeline>
+<codeline lineno="52"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73" refid="namespaceterminal_1_1id" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespaceterminal_1_1id_1a4cea21a405bc847e5f7b62e8957dda2f" kindref="member">id</ref></highlight></codeline>
+<codeline lineno="74"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight><highlight class="comment">/*____________________________________________________________________________*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==========================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Node<sp/>types<sp/>(ValueTree<sp/>root<sp/>and<sp/>child<sp/>node<sp/>identifiers)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//=========================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82" refid="namespaceterminal_1_1id_1a9ca6b6efc0a9c3a15bc0d0f78b60e90d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a9ca6b6efc0a9c3a15bc0d0f78b60e90d" kindref="member">SESSION</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;SESSION&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85" refid="namespaceterminal_1_1id_1a79a59a405b5e0ea4bd4bdc099abf47b2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a79a59a405b5e0ea4bd4bdc099abf47b2" kindref="member">MODES</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;MODES&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88" refid="namespaceterminal_1_1id_1a524696f5c8e1fc1e4abc0a43b07a7298" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a524696f5c8e1fc1e4abc0a43b07a7298" kindref="member">NORMAL</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;NORMAL&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91" refid="namespaceterminal_1_1id_1ae2e4c1ee4ad6f240a83b1bc38591247a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1ae2e4c1ee4ad6f240a83b1bc38591247a" kindref="member">ALTERNATE</ref><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;ALTERNATE&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="94" refid="namespaceterminal_1_1id_1a0cf58abbb081dca5e4e44d69619a2360" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a0cf58abbb081dca5e4e44d69619a2360" kindref="member">TEXT</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;TEXT&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight></codeline>
+<codeline lineno="97" refid="namespaceterminal_1_1id_1a691c402e18573ecfd2ea1d4853623309" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a691c402e18573ecfd2ea1d4853623309" kindref="member">SCREEN</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;SCREEN&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100" refid="namespaceterminal_1_1id_1ac60aa22c1be553aa55cbd312cb0ef0df" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1ac60aa22c1be553aa55cbd312cb0ef0df" kindref="member">DISPLAY</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;DISPLAY&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==========================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>PARAM<sp/>properties<sp/>(generic<sp/>parameter<sp/>node<sp/>properties)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==========================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight></codeline>
+<codeline lineno="107" refid="namespaceterminal_1_1id_1a4cea21a405bc847e5f7b62e8957dda2f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;id&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="110" refid="namespaceterminal_1_1id_1a2b8b3a15901c16432311d99e99a34d67" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a2b8b3a15901c16432311d99e99a34d67" kindref="member">value</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;value&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113" refid="namespaceterminal_1_1id_1ae236049709c3ebc0363a57f7390c905c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1ae236049709c3ebc0363a57f7390c905c" kindref="member">type</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;type&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="116" refid="namespaceterminal_1_1id_1aad8c2aa01ce7bfe28bd953f034a19bf1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1aad8c2aa01ce7bfe28bd953f034a19bf1" kindref="member">defaultValue</ref><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;default&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight></codeline>
+<codeline lineno="119" refid="namespaceterminal_1_1id_1a5aa9ecf280801ec96645cec4e3be918e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a5aa9ecf280801ec96645cec4e3be918e" kindref="member">maxlen</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;maxlen&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight></codeline>
+<codeline lineno="122" refid="namespaceterminal_1_1id_1a9b28c291b349892dd5314443fec16e20" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a9b28c291b349892dd5314443fec16e20" kindref="member">boolType</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;bool&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==========================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Session<sp/>parameter<sp/>IDs<sp/>(global<sp/>terminal<sp/>session<sp/>state)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==========================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight></codeline>
+<codeline lineno="129" refid="namespaceterminal_1_1id_1ad9fd72b61b4ec96b2a652a7762f89ac3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1ad9fd72b61b4ec96b2a652a7762f89ac3" kindref="member">activeScreen</ref><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;activeScreen&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight></codeline>
+<codeline lineno="132" refid="namespaceterminal_1_1id_1a24851586253954da0bdefe155b4bda44" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a24851586253954da0bdefe155b4bda44" kindref="member">cellWidth</ref><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;cellWidth&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight></codeline>
+<codeline lineno="135" refid="namespaceterminal_1_1id_1a90a87bb834cd3d8010472103526b0e6f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a90a87bb834cd3d8010472103526b0e6f" kindref="member">cellHeight</ref><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;cellHeight&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight></codeline>
+<codeline lineno="138" refid="namespaceterminal_1_1id_1a0e30c34b95c11793be83bc3c6adb0c27" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a0e30c34b95c11793be83bc3c6adb0c27" kindref="member">baseline</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;baseline&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight></codeline>
+<codeline lineno="141" refid="namespaceterminal_1_1id_1a74ede1ffd0ee235b77447a91e4965995" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a74ede1ffd0ee235b77447a91e4965995" kindref="member">fontSize</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;fontSize&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight></codeline>
+<codeline lineno="144" refid="namespaceterminal_1_1id_1a456802ad45a86367448f081a7d52eaf7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a456802ad45a86367448f081a7d52eaf7" kindref="member">hintPage</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;hintPage&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"></highlight></codeline>
+<codeline lineno="147" refid="namespaceterminal_1_1id_1aa4006061c863080a7f3920bbce114dc2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1aa4006061c863080a7f3920bbce114dc2" kindref="member">hintTotalPages</ref><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;hintTotalPages&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==========================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Display<sp/>name<sp/>parameter<sp/>IDs<sp/>(tab<sp/>name<sp/>sources)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==========================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight></codeline>
+<codeline lineno="154" refid="namespaceterminal_1_1id_1a3a9b532716e8f0ab83ae7b5366ec579c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a3a9b532716e8f0ab83ae7b5366ec579c" kindref="member">title</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;title&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight></codeline>
+<codeline lineno="157" refid="namespaceterminal_1_1id_1a0d551d759a87363c22a6d1712cf26cd9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a0d551d759a87363c22a6d1712cf26cd9" kindref="member">cwd</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;cwd&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"></highlight></codeline>
+<codeline lineno="160" refid="namespaceterminal_1_1id_1adb1918ba2082b206d57bc4e3f969a5b0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1adb1918ba2082b206d57bc4e3f969a5b0" kindref="member">foregroundProcess</ref><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;foregroundProcess&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==========================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Mode<sp/>parameter<sp/>IDs<sp/>(DEC<sp/>terminal<sp/>mode<sp/>flags)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==========================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="165"><highlight class="normal"></highlight></codeline>
+<codeline lineno="167" refid="namespaceterminal_1_1id_1a0e02aeeb7594c0d7cef99ff35a8c1054" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a0e02aeeb7594c0d7cef99ff35a8c1054" kindref="member">originMode</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;originMode&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"></highlight></codeline>
+<codeline lineno="170" refid="namespaceterminal_1_1id_1a0e8e6d3467906059c0fa2d6881cc7f53" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a0e8e6d3467906059c0fa2d6881cc7f53" kindref="member">autoWrap</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;autoWrap&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"></highlight></codeline>
+<codeline lineno="173" refid="namespaceterminal_1_1id_1a835b984d142092f0e66c3b84a7592e50" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a835b984d142092f0e66c3b84a7592e50" kindref="member">applicationCursor</ref><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;applicationCursor&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"></highlight></codeline>
+<codeline lineno="176" refid="namespaceterminal_1_1id_1a3c3cd20cca6ef6297d7a9823a5a14fa6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a3c3cd20cca6ef6297d7a9823a5a14fa6" kindref="member">bracketedPaste</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;bracketedPaste&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"></highlight></codeline>
+<codeline lineno="179" refid="namespaceterminal_1_1id_1a69a58b8f346aadfdd34c39eef14f76d7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a69a58b8f346aadfdd34c39eef14f76d7" kindref="member">insertMode</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;insertMode&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"></highlight></codeline>
+<codeline lineno="182" refid="namespaceterminal_1_1id_1a763f34f3777ae9891c42b31ff8b54ec9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a763f34f3777ae9891c42b31ff8b54ec9" kindref="member">mouseTracking</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;mouseTracking&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"></highlight></codeline>
+<codeline lineno="185" refid="namespaceterminal_1_1id_1abc2401b51dd58e607877f57caa34fcf5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1abc2401b51dd58e607877f57caa34fcf5" kindref="member">mouseMotionTracking</ref><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;mouseMotionTracking&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"></highlight></codeline>
+<codeline lineno="188" refid="namespaceterminal_1_1id_1acf7c6273c18a0ca7153b11da1e5f98bb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1acf7c6273c18a0ca7153b11da1e5f98bb" kindref="member">mouseAllTracking</ref><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;mouseAllTracking&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"></highlight></codeline>
+<codeline lineno="191" refid="namespaceterminal_1_1id_1a8875114345d6eaa21aa977a93e75d836" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a8875114345d6eaa21aa977a93e75d836" kindref="member">mouseSgr</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;mouseSgr&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"></highlight></codeline>
+<codeline lineno="194" refid="namespaceterminal_1_1id_1a2f8f090a0ef139ccdf5d295861e923e4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a2f8f090a0ef139ccdf5d295861e923e4" kindref="member">focusEvents</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;focusEvents&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"></highlight></codeline>
+<codeline lineno="197" refid="namespaceterminal_1_1id_1a1fcda58dd9e216fd9e21d52e1aeaa7fb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a1fcda58dd9e216fd9e21d52e1aeaa7fb" kindref="member">applicationKeypad</ref><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;applicationKeypad&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"></highlight></codeline>
+<codeline lineno="200" refid="namespaceterminal_1_1id_1a539d9810a45c3abc5d935250d870d4af" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a539d9810a45c3abc5d935250d870d4af" kindref="member">cursorVisible</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;cursorVisible&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"></highlight></codeline>
+<codeline lineno="203" refid="namespaceterminal_1_1id_1a710962bdbd347a7cf7f78e8ceb9051ed" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a710962bdbd347a7cf7f78e8ceb9051ed" kindref="member">reverseVideo</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;reverseVideo&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"></highlight></codeline>
+<codeline lineno="206" refid="namespaceterminal_1_1id_1a7102a916dd94fc53d9661b2a21f40c6e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a7102a916dd94fc53d9661b2a21f40c6e" kindref="member">win32InputMode</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;win32InputMode&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"></highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==========================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Per-screen<sp/>parameter<sp/>IDs<sp/>(screen-specific<sp/>cursor<sp/>and<sp/>scroll<sp/>state)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==========================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="211"><highlight class="normal"></highlight></codeline>
+<codeline lineno="215" refid="namespaceterminal_1_1id_1a30123845e4ea3907ed59d354a9a8dfcf" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a30123845e4ea3907ed59d354a9a8dfcf" kindref="member">cursor</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;cursor&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"></highlight></codeline>
+<codeline lineno="218" refid="namespaceterminal_1_1id_1a937e17d2e5aad3fb83c8a6a4cbecd656" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a937e17d2e5aad3fb83c8a6a4cbecd656" kindref="member">cursorShape</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;cursorShape&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"></highlight></codeline>
+<codeline lineno="221" refid="namespaceterminal_1_1id_1a301392a312f5ccaa0983093a5db6b3cf" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a301392a312f5ccaa0983093a5db6b3cf" kindref="member">keyboardFlags</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;keyboardFlags&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"></highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==========================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Transient<sp/>session<sp/>atomics<sp/>(moved<sp/>from<sp/>stray<sp/>members)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==========================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="226"><highlight class="normal"></highlight></codeline>
+<codeline lineno="228" refid="namespaceterminal_1_1id_1ab46fc3afab7c779ba4e43ae40058100f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1ab46fc3afab7c779ba4e43ae40058100f" kindref="member">pasteEchoRemaining</ref><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;pasteEchoRemaining&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"></highlight></codeline>
+<codeline lineno="231" refid="namespaceterminal_1_1id_1afec10dc8ac75a5b9e0318b759455658f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1afec10dc8ac75a5b9e0318b759455658f" kindref="member">syncOutputActive</ref><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;syncOutputActive&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"></highlight></codeline>
+<codeline lineno="234" refid="namespaceterminal_1_1id_1a2543ac3ae5aeaafa5ab1bf26cbdfb3f7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a2543ac3ae5aeaafa5ab1bf26cbdfb3f7" kindref="member">outputBlockTop</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;outputBlockTop&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"></highlight></codeline>
+<codeline lineno="237" refid="namespaceterminal_1_1id_1a75b7028846845226a7194bfa2a594be1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a75b7028846845226a7194bfa2a594be1" kindref="member">outputBlockBottom</ref><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;outputBlockBottom&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"></highlight></codeline>
+<codeline lineno="240" refid="namespaceterminal_1_1id_1acd1a21b7aba402cd89cc7c25d12c995f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1acd1a21b7aba402cd89cc7c25d12c995f" kindref="member">outputScanActive</ref><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;outputScanActive&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"></highlight></codeline>
+<codeline lineno="243" refid="namespaceterminal_1_1id_1afb69df17fc87c56e23116b7df4409258" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1afb69df17fc87c56e23116b7df4409258" kindref="member">promptRow</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;promptRow&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="244"><highlight class="normal"></highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==========================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Repaint<sp/>signal<sp/>atomic</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==========================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="248"><highlight class="normal"></highlight></codeline>
+<codeline lineno="250" refid="namespaceterminal_1_1id_1a6ed5f0b54262d71924426539d8577642" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a6ed5f0b54262d71924426539d8577642" kindref="member">snapshotDirty</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;snapshotDirty&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="251"><highlight class="normal"></highlight></codeline>
+<codeline lineno="254" refid="namespaceterminal_1_1id_1aa40a8107f82915084eeaf18b7c685b8d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1aa40a8107f82915084eeaf18b7c685b8d" kindref="member">clearBuffer</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;clearBuffer&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"></highlight></codeline>
+<codeline lineno="256"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==========================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="257"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Image<sp/>preview<sp/>split-viewport<sp/>state<sp/>(MESSAGE<sp/>THREAD<sp/>only,<sp/>direct<sp/>properties<sp/>on<sp/>SESSION<sp/>root)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="258"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==========================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="259"><highlight class="normal"></highlight></codeline>
+<codeline lineno="261" refid="namespaceterminal_1_1id_1a43eed2af41c8ffc8477921edddb6b50c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a43eed2af41c8ffc8477921edddb6b50c" kindref="member">preview</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;preview&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="262"><highlight class="normal"></highlight></codeline>
+<codeline lineno="264" refid="namespaceterminal_1_1id_1aa84a0b55dbe7052b6f15b150744317c6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1aa84a0b55dbe7052b6f15b150744317c6" kindref="member">splitCol</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;splitCol&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"></highlight></codeline>
+<codeline lineno="266"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==========================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="267"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Event<sp/>map<sp/>keys<sp/>(jam::Function::Map<sp/>events<sp/>fired<sp/>by<sp/>Video,<sp/>handled<sp/>by<sp/>Processor)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="268"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==========================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="269"><highlight class="normal"></highlight></codeline>
+<codeline lineno="271" refid="namespaceterminal_1_1id_1a0d9d17bcc25443fdf33498a626dd4f41" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a0d9d17bcc25443fdf33498a626dd4f41" kindref="member">bell</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;bell&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"></highlight></codeline>
+<codeline lineno="274" refid="namespaceterminal_1_1id_1aa3fbec5b5ae87acdf1d05cc2cc0fd859" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1aa3fbec5b5ae87acdf1d05cc2cc0fd859" kindref="member">writeToHost</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;writeToHost&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"></highlight></codeline>
+<codeline lineno="277" refid="namespaceterminal_1_1id_1a1ac842c1e41000e69c3ef8528d0bfa7e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a1ac842c1e41000e69c3ef8528d0bfa7e" kindref="member">clipboardChanged</ref><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;clipboardChanged&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="278"><highlight class="normal"></highlight></codeline>
+<codeline lineno="280" refid="namespaceterminal_1_1id_1ad78a41b050c134f2c48f28f5baa1dc1e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1ad78a41b050c134f2c48f28f5baa1dc1e" kindref="member">desktopNotification</ref><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;desktopNotification&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="281"><highlight class="normal"></highlight></codeline>
+<codeline lineno="283" refid="namespaceterminal_1_1id_1a01a3784616a2e1b0d4d9d9d4eed665ed" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a01a3784616a2e1b0d4d9d9d4eed665ed" kindref="member">cursorColor</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;cursorColor&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="284"><highlight class="normal"></highlight></codeline>
+<codeline lineno="286" refid="namespaceterminal_1_1id_1a10ce0ab40e9e5c9cdacbd3124b6dd395" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a10ce0ab40e9e5c9cdacbd3124b6dd395" kindref="member">resetCursorColor</ref><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;resetCursorColor&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="287"><highlight class="normal"></highlight></codeline>
+<codeline lineno="289" refid="namespaceterminal_1_1id_1a6eee16d55ed76c9132c6480338315699" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a6eee16d55ed76c9132c6480338315699" kindref="member">registerLink</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;registerLink&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="290"><highlight class="normal"></highlight></codeline>
+<codeline lineno="294" refid="namespaceterminal_1_1id_1a5cd7d84382b85fde50e18a947191c661" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a5cd7d84382b85fde50e18a947191c661" kindref="member">pushLine</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;pushLine&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="295"><highlight class="normal"></highlight></codeline>
+<codeline lineno="297" refid="namespaceterminal_1_1id_1aec32708e1a751f433991aba209944757" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1aec32708e1a751f433991aba209944757" kindref="member">scrollUp</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;scrollUp&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="298"><highlight class="normal"></highlight></codeline>
+<codeline lineno="300" refid="namespaceterminal_1_1id_1aab655554b6e4cb93e590dc8b8394544f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1aab655554b6e4cb93e590dc8b8394544f" kindref="member">screenDirty</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;screenDirty&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="301"><highlight class="normal"></highlight></codeline>
+<codeline lineno="303" refid="namespaceterminal_1_1id_1a61790115efca8d3461b73ce69c6bd3a6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a61790115efca8d3461b73ce69c6bd3a6" kindref="member">outputBlockStart</ref><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;outputBlockStart&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="304"><highlight class="normal"></highlight></codeline>
+<codeline lineno="306" refid="namespaceterminal_1_1id_1a76264888fa7c5abc6dcd41961ca941a5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a76264888fa7c5abc6dcd41961ca941a5" kindref="member">outputBlockEnd</ref><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;outputBlockEnd&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="307"><highlight class="normal"></highlight></codeline>
+<codeline lineno="309" refid="namespaceterminal_1_1id_1a8b0f3fe7eebabafb7c48f8e3fba08a9e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a8b0f3fe7eebabafb7c48f8e3fba08a9e" kindref="member">extendOutputBlock</ref><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;extendOutputBlock&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="310"><highlight class="normal"></highlight></codeline>
+<codeline lineno="312" refid="namespaceterminal_1_1id_1aebe05bc4c7647fc5056669b4f38effc0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1aebe05bc4c7647fc5056669b4f38effc0" kindref="member">syncOutput</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;syncOutput&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="313"><highlight class="normal"></highlight></codeline>
+<codeline lineno="315" refid="namespaceterminal_1_1id_1a1aca9147185acfc267d6ca08339aef97" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a1aca9147185acfc267d6ca08339aef97" kindref="member">imageDecoded</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;imageDecoded&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="316"><highlight class="normal"></highlight></codeline>
+<codeline lineno="318" refid="namespaceterminal_1_1id_1abd6243b05c24315adfed5fa2ba1b0463" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1abd6243b05c24315adfed5fa2ba1b0463" kindref="member">previewFile</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;previewFile&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="319"><highlight class="normal"></highlight></codeline>
+<codeline lineno="321" refid="namespaceterminal_1_1id_1aacbe6171c0bf328a18398dda200008f9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1aacbe6171c0bf328a18398dda200008f9" kindref="member">pushKeyboardMode</ref><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;pushKeyboardMode&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="322"><highlight class="normal"></highlight></codeline>
+<codeline lineno="324" refid="namespaceterminal_1_1id_1a09df3107586eb50a0df4d72180e224b6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a09df3107586eb50a0df4d72180e224b6" kindref="member">popKeyboardMode</ref><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;popKeyboardMode&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="325"><highlight class="normal"></highlight></codeline>
+<codeline lineno="327" refid="namespaceterminal_1_1id_1a566ae327a06bbcf031a26fdfac5968c4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a566ae327a06bbcf031a26fdfac5968c4" kindref="member">shellExited</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;shellExited&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="328"><highlight class="normal"></highlight></codeline>
+<codeline lineno="331" refid="namespaceterminal_1_1id_1a6abd4ed81f5fc69e8dfb3907c2ff7585" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a6abd4ed81f5fc69e8dfb3907c2ff7585" kindref="member">drainComplete</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;drainComplete&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="332"><highlight class="normal"></highlight></codeline>
+<codeline lineno="334" refid="namespaceterminal_1_1id_1af5e7d65d07f123d4560efebf453d21f8" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1af5e7d65d07f123d4560efebf453d21f8" kindref="member">writeInput</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;writeInput&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="335"><highlight class="normal"></highlight></codeline>
+<codeline lineno="342" refid="namespaceterminal_1_1id_1a149c315861d51cc46c0f21d869bdc8fb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a149c315861d51cc46c0f21d869bdc8fb" kindref="member">osc1337Raw</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;osc1337Raw&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="343"><highlight class="normal"></highlight></codeline>
+<codeline lineno="351" refid="namespaceterminal_1_1id_1a15e2a7f828f2589d998edce1496cd0e6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a15e2a7f828f2589d998edce1496cd0e6" kindref="member">dcsPayloadComplete</ref><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;dcsPayloadComplete&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="352"><highlight class="normal"></highlight></codeline>
+<codeline lineno="360" refid="namespaceterminal_1_1id_1af13c474d69ca902a7eaede390f24a464" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1af13c474d69ca902a7eaede390f24a464" kindref="member">apcPayloadComplete</ref><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;apcPayloadComplete&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="361"><highlight class="normal"></highlight></codeline>
+<codeline lineno="367" refid="namespaceterminal_1_1id_1a805368f03100e201a2f869caf227b6e1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a805368f03100e201a2f869caf227b6e1" kindref="member">resizeStart</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;resizeStart&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="368"><highlight class="normal"></highlight></codeline>
+<codeline lineno="371" refid="namespaceterminal_1_1id_1a893c13a3c033338535bfd80644213f05" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1a893c13a3c033338535bfd80644213f05" kindref="member">data</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;data&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="372"><highlight class="normal"></highlight></codeline>
+<codeline lineno="375" refid="namespaceterminal_1_1id_1ada63c4b428cfd0eb63899d3e7dfefac9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceterminal_1_1id_1ada63c4b428cfd0eb63899d3e7dfefac9" kindref="member">bytesReceived</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;bytesReceived&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="376"><highlight class="normal"></highlight></codeline>
+<codeline lineno="378"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>id</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="379"><highlight class="normal"></highlight></codeline>
+<codeline lineno="381"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>terminal</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="terminal/Identifier.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,189 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="structlua_1_1_engine_1_1_display_callbacks" kind="struct" language="C++" prot="public">
+    <compoundname>lua::Engine::DisplayCallbacks</compoundname>
+    <includes refid="_engine_8h" local="no">Engine.h</includes>
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_display_callbacks_1a54af7914bf506a0479e896cb808e9d75" prot="public" static="no" mutable="no">
+        <type>std::function&lt; void()&gt;</type>
+        <definition>std::function&lt;void()&gt; lua::Engine::DisplayCallbacks::splitHorizontal</definition>
+        <argsstring></argsstring>
+        <name>splitHorizontal</name>
+        <qualifiedname>lua::Engine::DisplayCallbacks::splitHorizontal</qualifiedname>
+        <briefdescription>
+<para>Split the focused pane horizontally. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="912" column="23" bodyfile="lua/Engine.h" bodystart="912" bodyend="-1"/>
+        <referencedby refid="class_main_component_1a1fe9b104d3b6eb88315ace959285ead4" compoundref="_main_component_8cpp" startline="55" endline="216">MainComponent::MainComponent</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_display_callbacks_1a7948e1cb5e6f15fb5ef96c7415e1be48" prot="public" static="no" mutable="no">
+        <type>std::function&lt; void()&gt;</type>
+        <definition>std::function&lt;void()&gt; lua::Engine::DisplayCallbacks::splitVertical</definition>
+        <argsstring></argsstring>
+        <name>splitVertical</name>
+        <qualifiedname>lua::Engine::DisplayCallbacks::splitVertical</qualifiedname>
+        <briefdescription>
+<para>Split the focused pane vertically. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="915" column="23" bodyfile="lua/Engine.h" bodystart="915" bodyend="-1"/>
+        <referencedby refid="class_main_component_1a1fe9b104d3b6eb88315ace959285ead4" compoundref="_main_component_8cpp" startline="55" endline="216">MainComponent::MainComponent</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_display_callbacks_1a3f035c63c507dfad738ddbedb14df7ff" prot="public" static="no" mutable="no">
+        <type>std::function&lt; void(const juce::String &amp;, bool, double)&gt;</type>
+        <definition>std::function&lt;void (const juce::String&amp;, bool, double)&gt; lua::Engine::DisplayCallbacks::splitWithRatio</definition>
+        <argsstring></argsstring>
+        <name>splitWithRatio</name>
+        <qualifiedname>lua::Engine::DisplayCallbacks::splitWithRatio</qualifiedname>
+        <briefdescription>
+<para>Split with an explicit ratio and orientation. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="918" column="23" bodyfile="lua/Engine.h" bodystart="918" bodyend="-1"/>
+        <referencedby refid="class_main_component_1a1fe9b104d3b6eb88315ace959285ead4" compoundref="_main_component_8cpp" startline="55" endline="216">MainComponent::MainComponent</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_display_callbacks_1a3092c8d846ab75c173dc7af54c89f820" prot="public" static="no" mutable="no">
+        <type>std::function&lt; void()&gt;</type>
+        <definition>std::function&lt;void()&gt; lua::Engine::DisplayCallbacks::newTab</definition>
+        <argsstring></argsstring>
+        <name>newTab</name>
+        <qualifiedname>lua::Engine::DisplayCallbacks::newTab</qualifiedname>
+        <briefdescription>
+<para>Open a new tab. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="921" column="23" bodyfile="lua/Engine.h" bodystart="921" bodyend="-1"/>
+        <referencedby refid="class_main_component_1a1fe9b104d3b6eb88315ace959285ead4" compoundref="_main_component_8cpp" startline="55" endline="216">MainComponent::MainComponent</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_display_callbacks_1ab0745b147b2b20cc17d61e605bed2f68" prot="public" static="no" mutable="no">
+        <type>std::function&lt; void()&gt;</type>
+        <definition>std::function&lt;void()&gt; lua::Engine::DisplayCallbacks::closeTab</definition>
+        <argsstring></argsstring>
+        <name>closeTab</name>
+        <qualifiedname>lua::Engine::DisplayCallbacks::closeTab</qualifiedname>
+        <briefdescription>
+<para>Close the current tab. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="924" column="23" bodyfile="lua/Engine.h" bodystart="924" bodyend="-1"/>
+        <referencedby refid="class_main_component_1a1fe9b104d3b6eb88315ace959285ead4" compoundref="_main_component_8cpp" startline="55" endline="216">MainComponent::MainComponent</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_display_callbacks_1af02a6a09204680af7e8b4e8c0186e090" prot="public" static="no" mutable="no">
+        <type>std::function&lt; void()&gt;</type>
+        <definition>std::function&lt;void()&gt; lua::Engine::DisplayCallbacks::nextTab</definition>
+        <argsstring></argsstring>
+        <name>nextTab</name>
+        <qualifiedname>lua::Engine::DisplayCallbacks::nextTab</qualifiedname>
+        <briefdescription>
+<para>Switch to the next tab. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="927" column="23" bodyfile="lua/Engine.h" bodystart="927" bodyend="-1"/>
+        <referencedby refid="class_main_component_1a1fe9b104d3b6eb88315ace959285ead4" compoundref="_main_component_8cpp" startline="55" endline="216">MainComponent::MainComponent</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_display_callbacks_1a7a14b475fe28fff5ca0d367ad990633e" prot="public" static="no" mutable="no">
+        <type>std::function&lt; void()&gt;</type>
+        <definition>std::function&lt;void()&gt; lua::Engine::DisplayCallbacks::prevTab</definition>
+        <argsstring></argsstring>
+        <name>prevTab</name>
+        <qualifiedname>lua::Engine::DisplayCallbacks::prevTab</qualifiedname>
+        <briefdescription>
+<para>Switch to the previous tab. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="930" column="23" bodyfile="lua/Engine.h" bodystart="930" bodyend="-1"/>
+        <referencedby refid="class_main_component_1a1fe9b104d3b6eb88315ace959285ead4" compoundref="_main_component_8cpp" startline="55" endline="216">MainComponent::MainComponent</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_display_callbacks_1a5ef1d4e42063125c4dc9fb57681ca9d3" prot="public" static="no" mutable="no">
+        <type>std::function&lt; void(int, int)&gt;</type>
+        <definition>std::function&lt;void (int, int)&gt; lua::Engine::DisplayCallbacks::focusPane</definition>
+        <argsstring></argsstring>
+        <name>focusPane</name>
+        <qualifiedname>lua::Engine::DisplayCallbacks::focusPane</qualifiedname>
+        <briefdescription>
+<para>Focus a specific pane by (col, row) index. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="933" column="23" bodyfile="lua/Engine.h" bodystart="933" bodyend="-1"/>
+        <referencedby refid="class_main_component_1a1fe9b104d3b6eb88315ace959285ead4" compoundref="_main_component_8cpp" startline="55" endline="216">MainComponent::MainComponent</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_display_callbacks_1a6e49abed9d4d128e4bff347a0310453d" prot="public" static="no" mutable="no">
+        <type>std::function&lt; void()&gt;</type>
+        <definition>std::function&lt;void()&gt; lua::Engine::DisplayCallbacks::closePane</definition>
+        <argsstring></argsstring>
+        <name>closePane</name>
+        <qualifiedname>lua::Engine::DisplayCallbacks::closePane</qualifiedname>
+        <briefdescription>
+<para>Close the focused pane. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="936" column="23" bodyfile="lua/Engine.h" bodystart="936" bodyend="-1"/>
+        <referencedby refid="class_main_component_1a1fe9b104d3b6eb88315ace959285ead4" compoundref="_main_component_8cpp" startline="55" endline="216">MainComponent::MainComponent</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_display_callbacks_1a72af807ea2ae1fe9183cadaf15577636" prot="public" static="no" mutable="no">
+        <type>std::function&lt; void(const juce::String &amp;)&gt;</type>
+        <definition>std::function&lt;void (const juce::String&amp;)&gt; lua::Engine::DisplayCallbacks::renameTab</definition>
+        <argsstring></argsstring>
+        <name>renameTab</name>
+        <qualifiedname>lua::Engine::DisplayCallbacks::renameTab</qualifiedname>
+        <briefdescription>
+<para>Rename the active tab. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Empty string clears user override. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="939" column="23" bodyfile="lua/Engine.h" bodystart="939" bodyend="-1"/>
+        <referencedby refid="class_main_component_1a1fe9b104d3b6eb88315ace959285ead4" compoundref="_main_component_8cpp" startline="55" endline="216">MainComponent::MainComponent</referencedby>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Callbacks for display/pane operations exposed to Lua. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Wired by <ref refid="class_main_component" kindref="compound">MainComponent</ref> to Tabs methods. <ref refid="classlua_1_1_engine" kindref="compound">Engine</ref> invokes these from Lua custom action functions. </para>
+    </detaileddescription>
+    <location file="lua/Engine.h" line="909" column="5" bodyfile="lua/Engine.h" bodystart="910" bodyend="940"/>
+    <listofallmembers>
+      <member refid="structlua_1_1_engine_1_1_display_callbacks_1a6e49abed9d4d128e4bff347a0310453d" prot="public" virt="non-virtual"><scope>lua::Engine::DisplayCallbacks</scope><name>closePane</name></member>
+      <member refid="structlua_1_1_engine_1_1_display_callbacks_1ab0745b147b2b20cc17d61e605bed2f68" prot="public" virt="non-virtual"><scope>lua::Engine::DisplayCallbacks</scope><name>closeTab</name></member>
+      <member refid="structlua_1_1_engine_1_1_display_callbacks_1a5ef1d4e42063125c4dc9fb57681ca9d3" prot="public" virt="non-virtual"><scope>lua::Engine::DisplayCallbacks</scope><name>focusPane</name></member>
+      <member refid="structlua_1_1_engine_1_1_display_callbacks_1a3092c8d846ab75c173dc7af54c89f820" prot="public" virt="non-virtual"><scope>lua::Engine::DisplayCallbacks</scope><name>newTab</name></member>
+      <member refid="structlua_1_1_engine_1_1_display_callbacks_1af02a6a09204680af7e8b4e8c0186e090" prot="public" virt="non-virtual"><scope>lua::Engine::DisplayCallbacks</scope><name>nextTab</name></member>
+      <member refid="structlua_1_1_engine_1_1_display_callbacks_1a7a14b475fe28fff5ca0d367ad990633e" prot="public" virt="non-virtual"><scope>lua::Engine::DisplayCallbacks</scope><name>prevTab</name></member>
+      <member refid="structlua_1_1_engine_1_1_display_callbacks_1a72af807ea2ae1fe9183cadaf15577636" prot="public" virt="non-virtual"><scope>lua::Engine::DisplayCallbacks</scope><name>renameTab</name></member>
+      <member refid="structlua_1_1_engine_1_1_display_callbacks_1a54af7914bf506a0479e896cb808e9d75" prot="public" virt="non-virtual"><scope>lua::Engine::DisplayCallbacks</scope><name>splitHorizontal</name></member>
+      <member refid="structlua_1_1_engine_1_1_display_callbacks_1a7948e1cb5e6f15fb5ef96c7415e1be48" prot="public" virt="non-virtual"><scope>lua::Engine::DisplayCallbacks</scope><name>splitVertical</name></member>
+      <member refid="structlua_1_1_engine_1_1_display_callbacks_1a3f035c63c507dfad738ddbedb14df7ff" prot="public" virt="non-virtual"><scope>lua::Engine::DisplayCallbacks</scope><name>splitWithRatio</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

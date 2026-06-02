@@ -1,0 +1,38 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="dir_cdb2f45e7e0cf86514c0db8e8753b1e1" kind="dir">
+    <compoundname>terminal/component</compoundname>
+    <innerfile refid="_dialog_8cpp">Dialog.cpp</innerfile>
+    <innerfile refid="_dialog_8h">Dialog.h</innerfile>
+    <innerfile refid="_display_8cpp">Display.cpp</innerfile>
+    <innerfile refid="_display_8h">Display.h</innerfile>
+    <innerfile refid="_loader_overlay_8h">LoaderOverlay.h</innerfile>
+    <innerfile refid="_look_and_feel_8cpp">LookAndFeel.cpp</innerfile>
+    <innerfile refid="_look_and_feel_8h">LookAndFeel.h</innerfile>
+    <innerfile refid="_look_and_feel_menu_8cpp">LookAndFeelMenu.cpp</innerfile>
+    <innerfile refid="_look_and_feel_tab_8cpp">LookAndFeelTab.cpp</innerfile>
+    <innerfile refid="_message_overlay_8h">MessageOverlay.h</innerfile>
+    <innerfile refid="_modal_window_8cpp">ModalWindow.cpp</innerfile>
+    <innerfile refid="_modal_window_8h">ModalWindow.h</innerfile>
+    <innerfile refid="_overlay_8cpp">Overlay.cpp</innerfile>
+    <innerfile refid="_overlay_8h">Overlay.h</innerfile>
+    <innerfile refid="_pane_component_8h">PaneComponent.h</innerfile>
+    <innerfile refid="_panes_8cpp">Panes.cpp</innerfile>
+    <innerfile refid="_panes_8h">Panes.h</innerfile>
+    <innerfile refid="_popup_8cpp">Popup.cpp</innerfile>
+    <innerfile refid="_popup_8h">Popup.h</innerfile>
+    <innerfile refid="_screen_selection_8h">ScreenSelection.h</innerfile>
+    <innerfile refid="_status_bar_overlay_8h">StatusBarOverlay.h</innerfile>
+    <innerfile refid="_tabs_8cpp">Tabs.cpp</innerfile>
+    <innerfile refid="_tabs_8h">Tabs.h</innerfile>
+    <innerfile refid="_tabs_actions_8cpp">TabsActions.cpp</innerfile>
+    <innerfile refid="_tabs_close_8cpp">TabsClose.cpp</innerfile>
+    <innerfile refid="_terminal_window_8cpp">TerminalWindow.cpp</innerfile>
+    <innerfile refid="_terminal_window_8h">TerminalWindow.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="terminal/component/"/>
+  </compounddef>
+</doxygen>

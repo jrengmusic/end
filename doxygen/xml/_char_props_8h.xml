@@ -1,0 +1,683 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="_char_props_8h" kind="file" language="C++">
+    <compoundname>CharProps.h</compoundname>
+    <includes local="no">JuceHeader.h</includes>
+    <includes refid="_char_props_data_8h" local="yes">CharPropsData.h</includes>
+    <includedby refid="_video_8h" local="yes">terminal/Video.h</includedby>
+    <incdepgraph>
+      <node id="1">
+        <label>terminal/CharProps.h</label>
+        <link refid="_char_props_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>CharPropsData.h</label>
+        <link refid="_char_props_data_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>JuceHeader.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="9">
+        <label>Main.cpp</label>
+        <link refid="_main_8cpp"/>
+      </node>
+      <node id="8">
+        <label>Main.h</label>
+        <link refid="_main_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>MainComponent.cpp</label>
+        <link refid="_main_component_8cpp"/>
+      </node>
+      <node id="21">
+        <label>MainComponent.h</label>
+        <link refid="_main_component_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="23">
+        <label>MainComponentActions.cpp</label>
+        <link refid="_main_component_actions_8cpp"/>
+      </node>
+      <node id="10">
+        <label>nexus/Channel.cpp</label>
+        <link refid="_channel_8cpp"/>
+      </node>
+      <node id="11">
+        <label>nexus/Daemon.cpp</label>
+        <link refid="_daemon_8cpp"/>
+      </node>
+      <node id="7">
+        <label>nexus/Daemon.h</label>
+        <link refid="_daemon_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>nexus/Daemon.mm</label>
+        <link refid="_daemon_8mm"/>
+      </node>
+      <node id="13">
+        <label>nexus/DaemonWindows.cpp</label>
+        <link refid="_daemon_windows_8cpp"/>
+      </node>
+      <node id="15">
+        <label>nexus/Link.cpp</label>
+        <link refid="_link_8cpp"/>
+      </node>
+      <node id="14">
+        <label>nexus/Link.h</label>
+        <link refid="_link_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="43">
+        <label>nexus/Nexus.cpp</label>
+        <link refid="_nexus_8cpp"/>
+      </node>
+      <node id="42">
+        <label>nexus/Nexus.h</label>
+        <link refid="_nexus_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>terminal/CharProps.h</label>
+        <link refid="_char_props_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>terminal/Input.cpp</label>
+        <link refid="_input_8cpp"/>
+      </node>
+      <node id="16">
+        <label>terminal/Input.h</label>
+        <link refid="_input_8h"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="38">
+        <label>terminal/Mouse.cpp</label>
+        <link refid="_mouse_8cpp"/>
+      </node>
+      <node id="37">
+        <label>terminal/Mouse.h</label>
+        <link refid="_mouse_8h"/>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>terminal/Parser.cpp</label>
+        <link refid="terminal_2_parser_8cpp"/>
+      </node>
+      <node id="3">
+        <label>terminal/Parser.h</label>
+        <link refid="terminal_2_parser_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>terminal/ParserAction.cpp</label>
+        <link refid="_parser_action_8cpp"/>
+      </node>
+      <node id="39">
+        <label>terminal/Processor.cpp</label>
+        <link refid="_processor_8cpp"/>
+      </node>
+      <node id="6">
+        <label>terminal/Processor.h</label>
+        <link refid="_processor_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+      </node>
+      <node id="40">
+        <label>terminal/ProcessorEvents.cpp</label>
+        <link refid="_processor_events_8cpp"/>
+      </node>
+      <node id="44">
+        <label>terminal/Session.cpp</label>
+        <link refid="_session_8cpp"/>
+      </node>
+      <node id="41">
+        <label>terminal/Session.h</label>
+        <link refid="_session_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="44" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+      </node>
+      <node id="45">
+        <label>terminal/Video.cpp</label>
+        <link refid="_video_8cpp"/>
+      </node>
+      <node id="2">
+        <label>terminal/Video.h</label>
+        <link refid="_video_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="46" relation="include">
+        </childnode>
+        <childnode refid="47" relation="include">
+        </childnode>
+        <childnode refid="48" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="50" relation="include">
+        </childnode>
+        <childnode refid="51" relation="include">
+        </childnode>
+        <childnode refid="52" relation="include">
+        </childnode>
+        <childnode refid="53" relation="include">
+        </childnode>
+        <childnode refid="54" relation="include">
+        </childnode>
+      </node>
+      <node id="46">
+        <label>terminal/VideoCSI.cpp</label>
+        <link refid="_video_c_s_i_8cpp"/>
+      </node>
+      <node id="47">
+        <label>terminal/VideoDCS.cpp</label>
+        <link refid="_video_d_c_s_8cpp"/>
+      </node>
+      <node id="48">
+        <label>terminal/VideoESC.cpp</label>
+        <link refid="_video_e_s_c_8cpp"/>
+      </node>
+      <node id="49">
+        <label>terminal/VideoEdit.cpp</label>
+        <link refid="_video_edit_8cpp"/>
+      </node>
+      <node id="50">
+        <label>terminal/VideoMode.cpp</label>
+        <link refid="_video_mode_8cpp"/>
+      </node>
+      <node id="51">
+        <label>terminal/VideoOSC.cpp</label>
+        <link refid="_video_o_s_c_8cpp"/>
+      </node>
+      <node id="52">
+        <label>terminal/VideoOSCExt.cpp</label>
+        <link refid="_video_o_s_c_ext_8cpp"/>
+      </node>
+      <node id="53">
+        <label>terminal/VideoOps.cpp</label>
+        <link refid="_video_ops_8cpp"/>
+      </node>
+      <node id="54">
+        <label>terminal/VideoSGR.cpp</label>
+        <link refid="_video_s_g_r_8cpp"/>
+      </node>
+      <node id="19">
+        <label>terminal/component/Display.cpp</label>
+        <link refid="_display_8cpp"/>
+      </node>
+      <node id="18">
+        <label>terminal/component/Display.h</label>
+        <link refid="_display_8h"/>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+      </node>
+      <node id="24">
+        <label>terminal/component/LookAndFeel.cpp</label>
+        <link refid="_look_and_feel_8cpp"/>
+      </node>
+      <node id="20">
+        <label>terminal/component/LookAndFeel.h</label>
+        <link refid="_look_and_feel_8h"/>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+      </node>
+      <node id="25">
+        <label>terminal/component/LookAndFeelMenu.cpp</label>
+        <link refid="_look_and_feel_menu_8cpp"/>
+      </node>
+      <node id="26">
+        <label>terminal/component/LookAndFeelTab.cpp</label>
+        <link refid="_look_and_feel_tab_8cpp"/>
+      </node>
+      <node id="32">
+        <label>terminal/component/ModalWindow.cpp</label>
+        <link refid="_modal_window_8cpp"/>
+      </node>
+      <node id="31">
+        <label>terminal/component/ModalWindow.h</label>
+        <link refid="_modal_window_8h"/>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+      </node>
+      <node id="36">
+        <label>terminal/component/Panes.cpp</label>
+        <link refid="_panes_8cpp"/>
+      </node>
+      <node id="35">
+        <label>terminal/component/Panes.h</label>
+        <link refid="_panes_8h"/>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+      </node>
+      <node id="34">
+        <label>terminal/component/Popup.cpp</label>
+        <link refid="_popup_8cpp"/>
+      </node>
+      <node id="33">
+        <label>terminal/component/Popup.h</label>
+        <link refid="_popup_8h"/>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+      </node>
+      <node id="28">
+        <label>terminal/component/Tabs.cpp</label>
+        <link refid="_tabs_8cpp"/>
+      </node>
+      <node id="27">
+        <label>terminal/component/Tabs.h</label>
+        <link refid="_tabs_8h"/>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="29">
+        <label>terminal/component/TabsActions.cpp</label>
+        <link refid="_tabs_actions_8cpp"/>
+      </node>
+      <node id="30">
+        <label>terminal/component/TabsClose.cpp</label>
+        <link refid="_tabs_close_8cpp"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="struct_char_props" prot="public">CharProps</innerclass>
+    <innerclass refid="struct_grapheme_segmentation_result" prot="public">GraphemeSegmentationResult</innerclass>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="_char_props_8h_1a7bdc2c8b0aa8edbd7dad4d7d4fe2c1c9" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type><ref refid="struct_char_props" kindref="compound">CharProps</ref></type>
+        <definition>static CharProps charPropsFor</definition>
+        <argsstring>(uint32_t cp) noexcept</argsstring>
+        <name>charPropsFor</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>cp</declname>
+        </param>
+        <briefdescription>
+<para>Performs 3-level multistage table lookup for character properties. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function implements an O(1) lookup from a Unicode codepoint to its packed <ref refid="struct_char_props" kindref="compound">CharProps</ref>. A 3-level table structure is used instead of a direct 1.1M-entry array to conserve memory while maintaining constant-time access.</para>
+<para><simplesect kind="par"><title>Multistage Table Structure</title><para><itemizedlist>
+<listitem><para>Level 1 (T1): 4352 entries - coarse index from top 8 bits (cp &gt;&gt; 8)</para>
+</listitem><listitem><para>Level 2 (T2): 46592 entries - medium index combining T1 result + lower bits</para>
+</listitem><listitem><para>Level 3 (T3): Final <ref refid="struct_char_props" kindref="compound">CharProps</ref> value</para>
+</listitem></itemizedlist>
+</para>
+</simplesect>
+The lookup formula: <programlisting><codeline><highlight class="normal">T3[T2[(T1[cp<sp/>&gt;&gt;<sp/>8]<sp/>&lt;&lt;<sp/>8)<sp/>|<sp/>(cp<sp/>&amp;<sp/>0xFF)]]</highlight></codeline>
+</programlisting></para>
+<para><simplesect kind="par"><title>Branchless Clamp</title><para>Invalid codepoints (greater than MAX_UNICODE = 0x10FFFF) are clamped to 0 using a branchless technique: <programlisting><codeline><highlight class="normal">mask<sp/>=<sp/>(cp<sp/>-<sp/>(MAX_UNICODE<sp/>+<sp/>1))<sp/>&gt;&gt;<sp/>63<sp/><sp/>//<sp/>0xFFFFFFFF<sp/>if<sp/>invalid,<sp/>0<sp/>if<sp/>valid</highlight></codeline>
+<codeline><highlight class="normal">cp<sp/>=<sp/>cp<sp/>&amp;<sp/>mask<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>0<sp/>if<sp/>invalid,<sp/>unchanged<sp/>if<sp/>valid</highlight></codeline>
+</programlisting> This avoids branch misprediction penalties on hot paths.</para>
+</simplesect>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Unicode codepoint (0 to 0x10FFFF, or invalid values clamped) </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><ref refid="struct_char_props" kindref="compound">CharProps</ref> for the given codepoint, or default properties for invalid codepoints</para>
+</simplesect>
+<simplesect kind="par"><title>Performance</title><para><itemizedlist>
+<listitem><para><ref refid="classTime" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Time</ref> complexity: O(1), typically 3 array accesses</para>
+</listitem><listitem><para>Branchless: No conditional branches in the hot path</para>
+</listitem><listitem><para>Cache-friendly: T1 fits in L1 cache, T2/T3 accessed sequentially</para>
+</listitem></itemizedlist>
+</para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="_char_props_data_8h" kindref="compound">CharPropsData.h</ref> for table definitions </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="_char_props_data_8h_1a7dbde061a73322be65f114febeb1c3f8" kindref="member">MAX_UNICODE</ref> for valid codepoint range </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/CharProps.h" line="316" column="25" bodyfile="terminal/CharProps.h" bodystart="316" bodyend="331"/>
+        <references refid="_char_props_data_8h_1aa98758866448ca595945f3010658511d" compoundref="_char_props_data_8h" startline="131" endline="131">CHAR_PROPS_MASK</references>
+        <references refid="_char_props_data_8h_1ac616e55c49a3515b0f78a2aac7214efa" compoundref="_char_props_data_8h" startline="130" endline="130">CHAR_PROPS_SHIFT</references>
+        <references refid="_char_props_data_8h_1a662e13211c279deb0259cc7595f3bea4" compoundref="_char_props_data_8h" startline="149" endline="368">charPropsT1</references>
+        <references refid="_char_props_data_8h_1a8bd283a914a2efb779a7228008fd14eb" compoundref="_char_props_data_8h" startline="381" endline="2712">charPropsT2</references>
+        <references refid="_char_props_data_8h_1ade9aa1e4c3fe7933d6f75c79fe56845a" compoundref="_char_props_data_8h" startline="2715" endline="2722">charPropsT3</references>
+        <references refid="_char_props_data_8h_1a7dbde061a73322be65f114febeb1c3f8" compoundref="_char_props_data_8h" startline="132" endline="132">MAX_UNICODE</references>
+        <referencedby refid="classterminal_1_1_video_1a3779e3aadc17c29652543898f4d1dfec" compoundref="_video_8cpp" startline="507" endline="641">terminal::Video::print</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="_char_props_8h_1a24312066beaa69c544f6f817b55100ad" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type><ref refid="struct_grapheme_segmentation_result" kindref="compound">GraphemeSegmentationResult</ref></type>
+        <definition>static GraphemeSegmentationResult graphemeSegmentationStep</definition>
+        <argsstring>(GraphemeSegmentationResult prev, CharProps cp) noexcept</argsstring>
+        <name>graphemeSegmentationStep</name>
+        <param>
+          <type><ref refid="struct_grapheme_segmentation_result" kindref="compound">GraphemeSegmentationResult</ref></type>
+          <declname>prev</declname>
+        </param>
+        <param>
+          <type><ref refid="struct_char_props" kindref="compound">CharProps</ref></type>
+          <declname>cp</declname>
+        </param>
+        <briefdescription>
+<para>Performs one state machine transition for grapheme segmentation. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function implements one step of the Unicode grapheme cluster boundary determination algorithm per UAX #29. Given the previous state and the current character&apos;s properties, it returns the new state and whether a cluster boundary occurs.</para>
+<para><simplesect kind="par"><title>State Machine</title><para>The state machine uses a multistage lookup similar to <ref refid="_char_props_8h_1a7bdc2c8b0aa8edbd7dad4d7d4fe2c1c9" kindref="member">charPropsFor()</ref>:<itemizedlist>
+<listitem><para>Key = (prev_state &lt;&lt; 7) | graphemeSegmentationProperty</para>
+</listitem><listitem><para>Lookup in 3-level tables to get new state + boundary flag</para>
+</listitem></itemizedlist>
+</para>
+</simplesect>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>prev</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Previous grapheme segmentation state </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="struct_char_props" kindref="compound">CharProps</ref> for the current codepoint </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><ref refid="struct_grapheme_segmentation_result" kindref="compound">GraphemeSegmentationResult</ref> with new state and addToCurrentCell flag</para>
+</simplesect>
+<simplesect kind="par"><title>Example</title><para><programlisting><codeline><highlight class="normal">auto<sp/>state<sp/>=<sp/>graphemeSegmentationInit();</highlight></codeline>
+<codeline><highlight class="normal">for<sp/>(char32_t<sp/>c<sp/>:<sp/>string)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>auto<sp/>result<sp/>=<sp/>graphemeSegmentationStep(state,<sp/>charPropsFor(c));</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(!result.addToCurrentCell())<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>Start<sp/>new<sp/>cell<sp/>here<sp/>-<sp/>previous<sp/>cluster<sp/>is<sp/>complete</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>state<sp/>=<sp/>result;</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+</programlisting></para>
+</simplesect>
+<simplesect kind="see"><para>UAX #29: Unicode Text Segmentation </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="_char_props_data_8h_1aab91d74b9f1c8ef195618edfc0b8c529" kindref="member">GraphemeBreakProperty</ref> for the possible character classes </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/CharProps.h" line="416" column="42" bodyfile="terminal/CharProps.h" bodystart="416" bodyend="432"/>
+        <references refid="_char_props_data_8h_1a6e69b590c253f4a61d352c77ac25f38e" compoundref="_char_props_data_8h" startline="2725" endline="2725">GRAPHEME_SEG_MASK</references>
+        <references refid="_char_props_data_8h_1a3b8472581b5f3229eb20e7ff4dfd438e" compoundref="_char_props_data_8h" startline="2724" endline="2724">GRAPHEME_SEG_SHIFT</references>
+        <references refid="_char_props_data_8h_1a065f9befaba8e81053dd6bf34f9ac876" compoundref="_char_props_data_8h" startline="2731" endline="2835">graphemeSegT1</references>
+        <references refid="_char_props_data_8h_1af871af431ce5326bb5c47b3b3d5db990" compoundref="_char_props_data_8h" startline="2838" endline="3249">graphemeSegT2</references>
+        <references refid="_char_props_data_8h_1a7b2fcca679d4b42925fe96d4d3b5dc57" compoundref="_char_props_data_8h" startline="3266" endline="3295">graphemeSegT3</references>
+        <referencedby refid="classterminal_1_1_video_1a3779e3aadc17c29652543898f4d1dfec" compoundref="_video_8cpp" startline="507" endline="641">terminal::Video::print</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="_char_props_8h_1a2d6e422d7964e9d70e3702c764f60ba6" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type><ref refid="struct_grapheme_segmentation_result" kindref="compound">GraphemeSegmentationResult</ref></type>
+        <definition>static GraphemeSegmentationResult graphemeSegmentationInit</definition>
+        <argsstring>() noexcept</argsstring>
+        <name>graphemeSegmentationInit</name>
+        <briefdescription>
+<para>Returns the initial state for grapheme segmentation. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Creates the starting state for processing a new text run. The initial state corresponds to &quot;Positioning at Start&quot; in UAX #29, where the previous character is treated as if it were GBP=Any (matches everything) to ensure the first character always starts a new cluster.</para>
+<para><simplesect kind="return"><para><ref refid="struct_grapheme_segmentation_result" kindref="compound">GraphemeSegmentationResult</ref> in the initial &quot;AtStart&quot; state</para>
+</simplesect>
+<simplesect kind="par"><title>Initial State Value</title><para>The value 0 encodes:<itemizedlist>
+<listitem><para>state() = 0 (AtStart state index)</para>
+</listitem><listitem><para>addToCurrentCell() = false (first char always starts new cell)</para>
+</listitem></itemizedlist>
+</para>
+</simplesect>
+<simplesect kind="see"><para>UAX #29: Unicode Text Segmentation </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/CharProps.h" line="451" column="42" bodyfile="terminal/CharProps.h" bodystart="451" bodyend="455"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Packed Unicode character property lookup system for terminal emulation. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>This file provides O(1) character property lookups for terminal rendering, including character width calculation, emoji detection, and grapheme cluster segmentation per Unicode Standard Annex #29.</para>
+<para>The data is stored in bit-packed structures to maximize cache efficiency and minimize memory bandwidth during text rendering operations.</para>
+<para><simplesect kind="see"><para><ref refid="_char_props_data_8h" kindref="compound">CharPropsData.h</ref> for the lookup table definitions </para>
+</simplesect>
+<simplesect kind="see"><para>UAX #29: Unicode Text Segmentation </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#pragma<sp/>once</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;JuceHeader.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_char_props_data_8h" kindref="compound">CharPropsData.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="comment">//<sp/>MESSAGE<sp/>THREAD<sp/>/<sp/>ANY<sp/>THREAD<sp/>(read-only<sp/>tables,<sp/>no<sp/>state)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65" refid="struct_char_props" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="struct_char_props" kindref="compound">CharProps</ref></highlight></codeline>
+<codeline lineno="66"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="67" refid="struct_char_props_1a8652b68acf8b2c9885982b2a619a54a5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="struct_char_props_1a8652b68acf8b2c9885982b2a619a54a5" kindref="member">val</ref><sp/>{<sp/>0<sp/>};</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87" refid="struct_char_props_1a583a5a57fc96d06b3daebea49fd6d389" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="struct_char_props_1a583a5a57fc96d06b3daebea49fd6d389" kindref="member">width</ref>()<sp/>const<sp/>noexcept</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">int</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>((<ref refid="struct_char_props_1a8652b68acf8b2c9885982b2a619a54a5" kindref="member">val</ref><sp/>&gt;&gt;<sp/>9)<sp/>&amp;<sp/>0x7)<sp/>-<sp/><ref refid="_char_props_data_8h_1a82452c3be757fc5606457ae30156a6be" kindref="member">WIDTH_SHIFT</ref>;</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="107" refid="struct_char_props_1aab64b65c32193f3e05ce27a88e7692ff" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="struct_char_props_1aab64b65c32193f3e05ce27a88e7692ff" kindref="member">isEmojiPresentation</ref>()<sp/>const<sp/>noexcept<sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="struct_char_props_1a8652b68acf8b2c9885982b2a619a54a5" kindref="member">val</ref><sp/>&amp;<sp/>1;<sp/>}</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="118" refid="struct_char_props_1ac5775f3e4a9a4e83c4468942520b14f1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="struct_char_props_1ac5775f3e4a9a4e83c4468942520b14f1" kindref="member">isEmoji</ref>()<sp/>const<sp/>noexcept<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(<ref refid="struct_char_props_1a8652b68acf8b2c9885982b2a619a54a5" kindref="member">val</ref><sp/>&gt;&gt;<sp/>12)<sp/>&amp;<sp/>1;<sp/>}</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight></codeline>
+<codeline lineno="128" refid="struct_char_props_1a766a7b6e6b4ad5226ca6030fe8d8f2d4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="struct_char_props_1a766a7b6e6b4ad5226ca6030fe8d8f2d4" kindref="member">isEmojiVariationBase</ref>()<sp/>const<sp/>noexcept<sp/><sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(<ref refid="struct_char_props_1a8652b68acf8b2c9885982b2a619a54a5" kindref="member">val</ref><sp/>&gt;&gt;<sp/>18)<sp/>&amp;<sp/>1;<sp/>}</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight></codeline>
+<codeline lineno="139" refid="struct_char_props_1a7d627ebc31d128e1ed918261194b48be" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="struct_char_props_1a7d627ebc31d128e1ed918261194b48be" kindref="member">isInvalid</ref>()<sp/>const<sp/>noexcept<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(<ref refid="struct_char_props_1a8652b68acf8b2c9885982b2a619a54a5" kindref="member">val</ref><sp/>&gt;&gt;<sp/>19)<sp/>&amp;<sp/>1;<sp/>}</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"></highlight></codeline>
+<codeline lineno="150" refid="struct_char_props_1aae80116d6d3592e3907b95be7b2e39a4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="struct_char_props_1aae80116d6d3592e3907b95be7b2e39a4" kindref="member">isNonRendered</ref>()<sp/>const<sp/>noexcept<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(<ref refid="struct_char_props_1a8652b68acf8b2c9885982b2a619a54a5" kindref="member">val</ref><sp/>&gt;&gt;<sp/>20)<sp/>&amp;<sp/>1;<sp/>}</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight></codeline>
+<codeline lineno="163" refid="struct_char_props_1a2308fabe92fc69872d0ece39e11a5c5d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="struct_char_props_1a2308fabe92fc69872d0ece39e11a5c5d" kindref="member">isSymbol</ref>()<sp/>const<sp/>noexcept<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(<ref refid="struct_char_props_1a8652b68acf8b2c9885982b2a619a54a5" kindref="member">val</ref><sp/>&gt;&gt;<sp/>21)<sp/>&amp;<sp/>1;<sp/>}</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"></highlight></codeline>
+<codeline lineno="178" refid="struct_char_props_1a81e5d7a420d48694b3cc143bb4a654cf" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="struct_char_props_1a81e5d7a420d48694b3cc143bb4a654cf" kindref="member">isCombiningChar</ref>()<sp/>const<sp/>noexcept<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(<ref refid="struct_char_props_1a8652b68acf8b2c9885982b2a619a54a5" kindref="member">val</ref><sp/>&gt;&gt;<sp/>22)<sp/>&amp;<sp/>1;<sp/>}</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"></highlight></codeline>
+<codeline lineno="189" refid="struct_char_props_1adc5791d5767b8bc39ba92ad08cb1ce39" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="struct_char_props_1adc5791d5767b8bc39ba92ad08cb1ce39" kindref="member">isWordChar</ref>()<sp/>const<sp/>noexcept<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(<ref refid="struct_char_props_1a8652b68acf8b2c9885982b2a619a54a5" kindref="member">val</ref><sp/>&gt;&gt;<sp/>23)<sp/>&amp;<sp/>1;<sp/>}</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"></highlight></codeline>
+<codeline lineno="205" refid="struct_char_props_1ae1ce95812752bf45517cd518d7d9451e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="struct_char_props_1ae1ce95812752bf45517cd518d7d9451e" kindref="member">isPunctuation</ref>()<sp/>const<sp/>noexcept<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(<ref refid="struct_char_props_1a8652b68acf8b2c9885982b2a619a54a5" kindref="member">val</ref><sp/>&gt;&gt;<sp/>24)<sp/>&amp;<sp/>1;<sp/>}</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"></highlight></codeline>
+<codeline lineno="217" refid="struct_char_props_1a7eb53f1d0fbeeaf7cb24df6f891182ed" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="struct_char_props_1a7eb53f1d0fbeeaf7cb24df6f891182ed" kindref="member">isExtendedPictographic</ref>()<sp/>const<sp/>noexcept<sp/><sp/><sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(<ref refid="struct_char_props_1a8652b68acf8b2c9885982b2a619a54a5" kindref="member">val</ref><sp/>&gt;&gt;<sp/>31)<sp/>&amp;<sp/>1;<sp/>}</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"></highlight></codeline>
+<codeline lineno="228" refid="struct_char_props_1ade2e6788c3e28f0c295b927941182cb6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="struct_char_props_1ade2e6788c3e28f0c295b927941182cb6" kindref="member">graphemeSegmentationProperty</ref>()<sp/>const<sp/>noexcept</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal">uint8_t</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(<ref refid="struct_char_props_1a8652b68acf8b2c9885982b2a619a54a5" kindref="member">val</ref><sp/>&gt;&gt;<sp/>25);</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"></highlight></codeline>
+<codeline lineno="244" refid="struct_char_props_1ad8b5baf2801c72e856e2bee47e9967df" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="_char_props_data_8h_1aab91d74b9f1c8ef195618edfc0b8c529" kindref="member">GraphemeBreakProperty</ref><sp/><ref refid="struct_char_props_1ad8b5baf2801c72e856e2bee47e9967df" kindref="member">graphemeBreak</ref>()<sp/>const<sp/>noexcept</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal"><ref refid="_char_props_data_8h_1aab91d74b9f1c8ef195618edfc0b8c529" kindref="member">GraphemeBreakProperty</ref></highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>((<ref refid="struct_char_props_1a8652b68acf8b2c9885982b2a619a54a5" kindref="member">val</ref><sp/>&gt;&gt;<sp/>25)<sp/>&amp;<sp/>0xF);</highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"></highlight></codeline>
+<codeline lineno="257" refid="struct_char_props_1acee8709393ce3e46bf43d06ab02d6d71" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="_char_props_data_8h_1a4ff00928d04f09ada96fbc599149240d" kindref="member">IndicConjunctBreak</ref><sp/><ref refid="struct_char_props_1acee8709393ce3e46bf43d06ab02d6d71" kindref="member">indicConjunctBreak</ref>()<sp/>const<sp/>noexcept</highlight></codeline>
+<codeline lineno="258"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="259"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal"><ref refid="_char_props_data_8h_1a4ff00928d04f09ada96fbc599149240d" kindref="member">IndicConjunctBreak</ref></highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>((<ref refid="struct_char_props_1a8652b68acf8b2c9885982b2a619a54a5" kindref="member">val</ref><sp/>&gt;&gt;<sp/>29)<sp/>&amp;<sp/>0x3);</highlight></codeline>
+<codeline lineno="260"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="261"><highlight class="normal"></highlight></codeline>
+<codeline lineno="270" refid="struct_char_props_1ad31730fe2eb8dce2dc5cfbd19bcb0f89" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="_char_props_data_8h_1a969d29bd7d8fddf681111d4645dbdbcf" kindref="member">UnicodeCategory</ref><sp/><ref refid="struct_char_props_1ad31730fe2eb8dce2dc5cfbd19bcb0f89" kindref="member">category</ref>()<sp/>const<sp/>noexcept</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal"><ref refid="_char_props_data_8h_1a969d29bd7d8fddf681111d4645dbdbcf" kindref="member">UnicodeCategory</ref></highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>((<ref refid="struct_char_props_1a8652b68acf8b2c9885982b2a619a54a5" kindref="member">val</ref><sp/>&gt;&gt;<sp/>13)<sp/>&amp;<sp/>0x1F);</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="274"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"></highlight></codeline>
+<codeline lineno="276"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Ensure<sp/>CharProps<sp/>remains<sp/>exactly<sp/>32<sp/>bits<sp/>to<sp/>maintain<sp/>memory<sp/>layout<sp/>guarantees</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="277"><highlight class="normal"></highlight><highlight class="keyword">static_assert</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keyword">sizeof</highlight><highlight class="normal"><sp/>(<ref refid="struct_char_props" kindref="compound">CharProps</ref>)<sp/>==<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal"><sp/>(uint32_t),<sp/></highlight><highlight class="stringliteral">&quot;CharProps<sp/>must<sp/>be<sp/>32<sp/>bits&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="278"><highlight class="normal"></highlight></codeline>
+<codeline lineno="316" refid="_char_props_8h_1a7bdc2c8b0aa8edbd7dad4d7d4fe2c1c9" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/><ref refid="struct_char_props" kindref="compound">CharProps</ref><sp/><ref refid="_char_props_8h_1a7bdc2c8b0aa8edbd7dad4d7d4fe2c1c9" kindref="member">charPropsFor</ref><sp/>(uint32_t<sp/>cp)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="317"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="318"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Branchless<sp/>clamp:<sp/>if<sp/>cp<sp/>&gt;<sp/>MAX_UNICODE,<sp/>set<sp/>to<sp/>0</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="319"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>int64_t<sp/>diff<sp/>{<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal">int64_t</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(cp)<sp/>-<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal">int64_t</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(<ref refid="_char_props_data_8h_1a7dbde061a73322be65f114febeb1c3f8" kindref="member">MAX_UNICODE</ref><sp/>+<sp/>1u)<sp/>};</highlight></codeline>
+<codeline lineno="320"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/>mask<sp/>{<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal">uint32_t</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(diff<sp/>&gt;&gt;<sp/>63)<sp/>};</highlight></codeline>
+<codeline lineno="321"><highlight class="normal"><sp/><sp/><sp/><sp/>cp<sp/>=<sp/>cp<sp/>&amp;<sp/>mask;</highlight></codeline>
+<codeline lineno="322"><highlight class="normal"></highlight></codeline>
+<codeline lineno="323"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="struct_char_props" kindref="compound">CharProps</ref><sp/>{</highlight></codeline>
+<codeline lineno="324"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="_char_props_data_8h_1ade9aa1e4c3fe7933d6f75c79fe56845a" kindref="member">charPropsT3</ref>[</highlight></codeline>
+<codeline lineno="325"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="_char_props_data_8h_1a8bd283a914a2efb779a7228008fd14eb" kindref="member">charPropsT2</ref>[</highlight></codeline>
+<codeline lineno="326"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(</highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal">uint32_t</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(<ref refid="_char_props_data_8h_1a662e13211c279deb0259cc7595f3bea4" kindref="member">charPropsT1</ref>[cp<sp/>&gt;&gt;<sp/><ref refid="_char_props_data_8h_1ac616e55c49a3515b0f78a2aac7214efa" kindref="member">CHAR_PROPS_SHIFT</ref>])<sp/>&lt;&lt;<sp/><ref refid="_char_props_data_8h_1ac616e55c49a3515b0f78a2aac7214efa" kindref="member">CHAR_PROPS_SHIFT</ref>)</highlight></codeline>
+<codeline lineno="327"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>+<sp/>(cp<sp/>&amp;<sp/><ref refid="_char_props_data_8h_1aa98758866448ca595945f3010658511d" kindref="member">CHAR_PROPS_MASK</ref>)</highlight></codeline>
+<codeline lineno="328"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>]</highlight></codeline>
+<codeline lineno="329"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>]</highlight></codeline>
+<codeline lineno="330"><highlight class="normal"><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="331"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="332"><highlight class="normal"></highlight></codeline>
+<codeline lineno="360" refid="struct_grapheme_segmentation_result" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="struct_grapheme_segmentation_result" kindref="compound">GraphemeSegmentationResult</ref></highlight></codeline>
+<codeline lineno="361"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="362" refid="struct_grapheme_segmentation_result_1a5f67942bdf76dcd24367786898beb56d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><ref refid="struct_grapheme_segmentation_result_1a5f67942bdf76dcd24367786898beb56d" kindref="member">val</ref><sp/>{<sp/>0<sp/>};</highlight></codeline>
+<codeline lineno="363"><highlight class="normal"></highlight></codeline>
+<codeline lineno="370" refid="struct_grapheme_segmentation_result_1a14f8e5ed66e56f98705971672fde5883" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="struct_grapheme_segmentation_result_1a14f8e5ed66e56f98705971672fde5883" kindref="member">addToCurrentCell</ref>()<sp/>const<sp/>noexcept<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(<ref refid="struct_grapheme_segmentation_result_1a5f67942bdf76dcd24367786898beb56d" kindref="member">val</ref><sp/>&gt;&gt;<sp/>10)<sp/>&amp;<sp/>1;<sp/>}</highlight></codeline>
+<codeline lineno="371"><highlight class="normal"></highlight></codeline>
+<codeline lineno="377" refid="struct_grapheme_segmentation_result_1a459a1ac9c9b70818f8318ed3ea84539d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><ref refid="struct_grapheme_segmentation_result_1a459a1ac9c9b70818f8318ed3ea84539d" kindref="member">state</ref>()<sp/>const<sp/>noexcept<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="struct_grapheme_segmentation_result_1a5f67942bdf76dcd24367786898beb56d" kindref="member">val</ref><sp/>&amp;<sp/>0x3FF;<sp/>}</highlight></codeline>
+<codeline lineno="378"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="379"><highlight class="normal"></highlight></codeline>
+<codeline lineno="380"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Ensure<sp/>GraphemeSegmentationResult<sp/>remains<sp/>exactly<sp/>16<sp/>bits</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="381"><highlight class="normal"></highlight><highlight class="keyword">static_assert</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keyword">sizeof</highlight><highlight class="normal"><sp/>(<ref refid="struct_grapheme_segmentation_result" kindref="compound">GraphemeSegmentationResult</ref>)<sp/>==<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal"><sp/>(uint16_t),</highlight></codeline>
+<codeline lineno="382"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;GraphemeSegmentationResult<sp/>must<sp/>be<sp/>16<sp/>bits&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="383"><highlight class="normal"></highlight></codeline>
+<codeline lineno="416" refid="_char_props_8h_1a24312066beaa69c544f6f817b55100ad" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/><ref refid="struct_grapheme_segmentation_result" kindref="compound">GraphemeSegmentationResult</ref><sp/><ref refid="_char_props_8h_1a24312066beaa69c544f6f817b55100ad" kindref="member">graphemeSegmentationStep</ref><sp/>(</highlight></codeline>
+<codeline lineno="417"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="struct_grapheme_segmentation_result" kindref="compound">GraphemeSegmentationResult</ref><sp/>prev,<sp/><ref refid="struct_char_props" kindref="compound">CharProps</ref><sp/>cp)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="418"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="419"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/>key<sp/>{</highlight></codeline>
+<codeline lineno="420"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(</highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal">uint32_t</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(prev.state())<sp/>&lt;&lt;<sp/>7)</highlight></codeline>
+<codeline lineno="421"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>|<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal">uint32_t</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(cp.graphemeSegmentationProperty())</highlight></codeline>
+<codeline lineno="422"><highlight class="normal"><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="423"><highlight class="normal"></highlight></codeline>
+<codeline lineno="424"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="struct_grapheme_segmentation_result" kindref="compound">GraphemeSegmentationResult</ref><sp/>{</highlight></codeline>
+<codeline lineno="425"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="_char_props_data_8h_1a7b2fcca679d4b42925fe96d4d3b5dc57" kindref="member">graphemeSegT3</ref>[</highlight></codeline>
+<codeline lineno="426"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="_char_props_data_8h_1af871af431ce5326bb5c47b3b3d5db990" kindref="member">graphemeSegT2</ref>[</highlight></codeline>
+<codeline lineno="427"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(</highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal">uint32_t</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(<ref refid="_char_props_data_8h_1a065f9befaba8e81053dd6bf34f9ac876" kindref="member">graphemeSegT1</ref>[key<sp/>&gt;&gt;<sp/><ref refid="_char_props_data_8h_1a3b8472581b5f3229eb20e7ff4dfd438e" kindref="member">GRAPHEME_SEG_SHIFT</ref>])<sp/>&lt;&lt;<sp/><ref refid="_char_props_data_8h_1a3b8472581b5f3229eb20e7ff4dfd438e" kindref="member">GRAPHEME_SEG_SHIFT</ref>)</highlight></codeline>
+<codeline lineno="428"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>+<sp/>(key<sp/>&amp;<sp/><ref refid="_char_props_data_8h_1a6e69b590c253f4a61d352c77ac25f38e" kindref="member">GRAPHEME_SEG_MASK</ref>)</highlight></codeline>
+<codeline lineno="429"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>]</highlight></codeline>
+<codeline lineno="430"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>]</highlight></codeline>
+<codeline lineno="431"><highlight class="normal"><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="432"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="433"><highlight class="normal"></highlight></codeline>
+<codeline lineno="451" refid="_char_props_8h_1a2d6e422d7964e9d70e3702c764f60ba6" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/><ref refid="struct_grapheme_segmentation_result" kindref="compound">GraphemeSegmentationResult</ref><sp/><ref refid="_char_props_8h_1a2d6e422d7964e9d70e3702c764f60ba6" kindref="member">graphemeSegmentationInit</ref>()<sp/>noexcept</highlight></codeline>
+<codeline lineno="452"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="453"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>AtStart<sp/>state<sp/>=<sp/>GBP<sp/>index<sp/>0,<sp/>all<sp/>flags<sp/>false,<sp/>add_to_current_cell<sp/>=<sp/>false</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="454"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="struct_grapheme_segmentation_result" kindref="compound">GraphemeSegmentationResult</ref><sp/>{<sp/>0<sp/>};</highlight></codeline>
+<codeline lineno="455"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="terminal/CharProps.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,1882 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="struct_app_model" kind="struct" language="C++" prot="public">
+    <compoundname>AppModel</compoundname>
+    <basecompoundref refid="classjam_1_1_model" prot="public" virt="non-virtual">jam::Model</basecompoundref>
+    <basecompoundref refid="structjam_1_1_context" prot="public" virt="non-virtual">jam::Context&lt; AppModel &gt;</basecompoundref>
+    <includes refid="_app_model_8h" local="no">AppModel.h</includes>
+    <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="struct_app_model_1a1db76cb2c0b58e4854cd8bdc6ffff3a9" prot="private" static="no" mutable="no">
+        <type>juce::ValueTree</type>
+        <definition>juce::ValueTree AppModel::activeSession</definition>
+        <argsstring></argsstring>
+        <name>activeSession</name>
+        <qualifiedname>AppModel::activeSession</qualifiedname>
+        <briefdescription>
+<para>Ref-counted handle to the active session&apos;s VT. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Set by <ref refid="struct_app_model_1a2d98a71682bda840b145b788763b2e06" kindref="member">setPwd()</ref>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="317" column="21" bodyfile="AppModel.h" bodystart="317" bodyend="-1"/>
+        <referencedby refid="struct_app_model_1af7eeffe94f371e3ee1ed43c8f796853f" compoundref="_app_model_8cpp" startline="399" endline="408">getPwd</referencedby>
+        <referencedby refid="struct_app_model_1a2d98a71682bda840b145b788763b2e06" compoundref="_app_model_8cpp" startline="410" endline="413">setPwd</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="public-func">
+      <memberdef kind="function" id="struct_app_model_1abe400a13f767af47666a679942ccf1c5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>AppModel::AppModel</definition>
+        <argsstring>()</argsstring>
+        <name>AppModel</name>
+        <qualifiedname>AppModel::AppModel</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="66" column="5" bodyfile="AppModel.cpp" bodystart="10" bodyend="38"/>
+        <references refid="namespaceapp_1_1id_1a7af1375efbd68fbbd7695232e1c546ad" compoundref="_app_identifier_8h" startline="131" endline="131">app::id::appMetadata</references>
+        <references refid="struct_app_model_1adc4141a6e63d9801a6e3c027f729f74d" compoundref="_app_model_8cpp" startline="542" endline="606">build</references>
+        <references refid="namespaceapp_1_1id_1a85c1e78989b72416aac80246796ad6a1" compoundref="_app_identifier_8h" startline="103" endline="103">app::id::cellWidth</references>
+        <references refid="namespaceapp_1_1id_1a85d00a0a41d472e4203061ee750ef8b7" compoundref="_app_identifier_8h" startline="107" endline="107">app::id::cursorBlinkInterval</references>
+        <references refid="namespaceapp_1_1id_1ae4254699362f3c80bb7ef3d4e2173b14" compoundref="_app_identifier_8h" startline="105" endline="105">app::id::cursorCodepoint</references>
+        <references refid="namespaceapp_1_1id_1a75928388a5e56aceb0d7fb5d19d609b7" compoundref="_app_identifier_8h" startline="106" endline="106">app::id::cursorStyle</references>
+        <references refid="namespaceapp_1_1id_1a47ebe0ac537eacf5d3ba399228f4480f" compoundref="_app_identifier_8h" startline="79" endline="79">app::id::fontFamily</references>
+        <references refid="namespaceapp_1_1id_1a4affa12e1041cbac52db6146cfeb8669" compoundref="_app_identifier_8h" startline="80" endline="80">app::id::fontSize</references>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
+        <references refid="structjam_1_1_x_m_l_1ab72ff5ef57aaff253543c25a857ffdfb">jam::XML::getFromBinary</references>
+        <references refid="structjam_1_1_i_d_1ab6389fe91d4bb010418fc3d930e869b6">jam::ID::height</references>
+        <references refid="group__juce__core-system_1ga1f96ab6751237979b907a54f52a7296a">jassert</references>
+        <references refid="namespaceapp_1_1id_1aae909a2bc7647e37cb3c0773f92f715d" compoundref="_app_identifier_8h" startline="104" endline="104">app::id::lineHeight</references>
+        <references refid="classjam_1_1_model_1afbe837fa9d9c8086381333783bb1db3b">jam::Model::Model</references>
+        <references refid="namespaceapp_1_1id_1acfa111d16fc6a40eb179b4e496247979" compoundref="_app_identifier_8h" startline="110" endline="110">app::id::paddingBottom</references>
+        <references refid="namespaceapp_1_1id_1a37eb7fcd4532f25ae03eea286dc63bdf" compoundref="_app_identifier_8h" startline="111" endline="111">app::id::paddingLeft</references>
+        <references refid="namespaceapp_1_1id_1a4940ac67c76c901cb06c9a0c8e7c9054" compoundref="_app_identifier_8h" startline="109" endline="109">app::id::paddingRight</references>
+        <references refid="namespaceapp_1_1id_1a3208662b768447eb28e81c638a5c91d7" compoundref="_app_identifier_8h" startline="108" endline="108">app::id::paddingTop</references>
+        <references refid="namespaceapp_1_1id_1ab099eb8cb8bd51cb334a0a48a405eb48" compoundref="_app_identifier_8h" startline="73" endline="73">app::id::position</references>
+        <references refid="namespaceapp_1_1id_1ac19777138a551143950f913c9950bc83" compoundref="_app_identifier_8h" startline="90" endline="90">app::id::scrollbackLines</references>
+        <references refid="classjam_1_1_model_1a4fbbdb02043cf33008d91de8cc79a9f2">jam::Model::setValue</references>
+        <references refid="structjam_1_1_i_d_1a3d0d8290681c62b75160843928ff3689">jam::ID::width</references>
+        <references refid="namespaceapp_1_1id_1af79af5c8c296799dd1db517fd2f8c1a9" compoundref="_app_identifier_8h" startline="71" endline="71">app::id::zoom</references>
+        <references refid="classlua_1_1_engine_1ae6f156566d6edd39a943e998f4ae3350" compoundref="_engine_8h" startline="1011" endline="1011">lua::Engine::zoomMin</references>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>AppModel::~AppModel</definition>
+        <argsstring>()</argsstring>
+        <name>~AppModel</name>
+        <qualifiedname>AppModel::~AppModel</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="67" column="5"/>
+        <references refid="struct_app_model_1a97e7b0dbabbf20a8f35682722b8268be" compoundref="_app_model_8cpp" startline="304" endline="314">addTab</references>
+        <references refid="struct_app_model_1adc4141a6e63d9801a6e3c027f729f74d" compoundref="_app_model_8cpp" startline="542" endline="606">build</references>
+        <references refid="struct_app_model_1a69f7c3a0edf15cba770d166f2b2222b8" compoundref="_app_model_8cpp" startline="218" endline="221">consumeAtlasDirty</references>
+        <references refid="struct_app_model_1a8da9beb832fd2d33d9ca345100ec6c78" compoundref="_app_model_8cpp" startline="450" endline="453">deleteNexusFile</references>
+        <references refid="struct_app_model_1aa6b7eb70eb7687df38613121683c5024" compoundref="_app_model_8cpp" startline="359" endline="362">getActivePaneID</references>
+        <references refid="struct_app_model_1ab46fe2606b815955ddf9e550b4aa9359" compoundref="_app_model_8cpp" startline="369" endline="372">getActivePaneType</references>
+        <references refid="struct_app_model_1af9e76c672704046b019df53ac5b7c2ff" compoundref="_app_model_8cpp" startline="282" endline="285">getActiveTabIndex</references>
+        <references refid="struct_app_model_1a5fc7272cc6caa1a510d0c956f205c256" compoundref="_app_model_8cpp" startline="123" endline="126">getCellWidth</references>
+        <references refid="struct_app_model_1a5a51fd63625855b3bdbdd7fa466f232a" compoundref="_app_model_8cpp" startline="163" endline="166">getCursorBlinkInterval</references>
+        <references refid="struct_app_model_1af02fabcbf42bda957de3b79dac0a78eb" compoundref="_app_model_8cpp" startline="143" endline="146">getCursorCodepoint</references>
+        <references refid="struct_app_model_1a47f5c036e7701087b9d30678735b3ec6" compoundref="_app_model_8cpp" startline="153" endline="156">getCursorStyle</references>
+        <references refid="struct_app_model_1a148268915563bf57f4d8dd331bdc8af1" compoundref="_app_model_8cpp" startline="98" endline="101">getFontFamily</references>
+        <references refid="struct_app_model_1a453da06259ecb0b83b6966771efe1f82" compoundref="_app_model_8cpp" startline="108" endline="111">getFontSize</references>
+        <references refid="struct_app_model_1af47dcc23d7369b6fb9f72d32cc0bbaa3" compoundref="_app_model_8cpp" startline="253" endline="256">getInstanceUuid</references>
+        <references refid="struct_app_model_1a78b708f95c7b81a30c9bfb4628b37aec" compoundref="_app_model_8cpp" startline="133" endline="136">getLineHeight</references>
+        <references refid="struct_app_model_1a5f039d3461dcecd5581225bdadb0ce0c" compoundref="_app_model_8cpp" startline="59" endline="62">getLoadingNode</references>
+        <references refid="struct_app_model_1a914f66a251aa0ad0d47242253f027d8c" compoundref="_app_model_8cpp" startline="384" endline="387">getModalType</references>
+        <references refid="struct_app_model_1aa8d1f246d97775f7f3c9e21cae213f9f" compoundref="_app_model_8cpp" startline="460" endline="463">getNexusFile</references>
+        <references refid="struct_app_model_1a732683754e18e0d3dbd93583bed3912b" compoundref="_app_model_8cpp" startline="49" endline="52">getNexusNode</references>
+        <references refid="struct_app_model_1a9a402d8ba04ebc4e1d6f791d39c30635" compoundref="_app_model_8cpp" startline="183" endline="186">getPaddingBottom</references>
+        <references refid="struct_app_model_1a52e345195bfb1e87f33cd472e55fdb6c" compoundref="_app_model_8cpp" startline="188" endline="191">getPaddingLeft</references>
+        <references refid="struct_app_model_1ad2b662a4bd93e688cf7592de22f0c775" compoundref="_app_model_8cpp" startline="178" endline="181">getPaddingRight</references>
+        <references refid="struct_app_model_1aa949203f52b596440b04ae76adab7f11" compoundref="_app_model_8cpp" startline="173" endline="176">getPaddingTop</references>
+        <references refid="struct_app_model_1abe172951a8cc06fea4e80398618d6500" compoundref="_app_model_8cpp" startline="277" endline="280">getPort</references>
+        <references refid="struct_app_model_1af7eeffe94f371e3ee1ed43c8f796853f" compoundref="_app_model_8cpp" startline="399" endline="408">getPwd</references>
+        <references refid="struct_app_model_1ae1b2239313dc86889de4137db2b2a19a" compoundref="_app_model_8cpp" startline="223" endline="231">getRendererType</references>
+        <references refid="struct_app_model_1a851626b84c6f29004a1d29630d85c7a3" compoundref="_app_model_8cpp" startline="394" endline="397">getSelectionType</references>
+        <references refid="struct_app_model_1a5bf961bf2da4f58edc44f53491d07b8b" compoundref="_app_model_8cpp" startline="54" endline="57">getSessionsNode</references>
+        <references refid="struct_app_model_1a62ef186466e64e89f89e0d0847c282bb" compoundref="_app_model_8cpp" startline="455" endline="458">getStateFile</references>
+        <references refid="struct_app_model_1a4588cfbb14ca0c3ebb0f1b3ae593e02a" compoundref="_app_model_8cpp" startline="339" endline="357">getTab</references>
+        <references refid="struct_app_model_1af41a958ece0fed17ed0f1a1c444e2671" compoundref="_app_model_8cpp" startline="292" endline="295">getTabPosition</references>
+        <references refid="struct_app_model_1ad2ff3c0021a5923d44ad091734b7b589" compoundref="_app_model_8cpp" startline="64" endline="67">getTabs</references>
+        <references refid="struct_app_model_1a36329693e74ae4f67d91b3abbe50cbb9" compoundref="_app_model_8cpp" startline="76" endline="79">getWindowHeight</references>
+        <references refid="struct_app_model_1acde520240a05e0ff5b3880557c291a0a" compoundref="_app_model_8cpp" startline="465" endline="468">getWindowState</references>
+        <references refid="struct_app_model_1ae391c9b55e9992a7ac88b2840b7e3079" compoundref="_app_model_8cpp" startline="71" endline="74">getWindowWidth</references>
+        <references refid="struct_app_model_1ab65b479731c9d0efaf812f630dc6df23" compoundref="_app_model_8cpp" startline="81" endline="84">getWindowZoom</references>
+        <references refid="struct_app_model_1a13a5563e524c4ff72fde7b72b11b9977" compoundref="_app_model_8cpp" startline="263" endline="266">isDaemonMode</references>
+        <references refid="struct_app_model_1a6024f393df864362c8507b16b70f8cb7" compoundref="_app_model_8cpp" startline="434" endline="448">load</references>
+        <references refid="struct_app_model_1aaae7da7125d05bc93f67e7cc08be4405" compoundref="_app_model_8cpp" startline="486" endline="512">loadWindowState</references>
+        <references refid="struct_app_model_1abe273920682ed70f9076ae15e5d7842b" compoundref="_app_model_8cpp" startline="213" endline="216">markAtlasDirty</references>
+        <references refid="struct_app_model_1af0eb41847a5138c20cca20a23d5d8283" compoundref="_app_model_8cpp" startline="316" endline="337">removeTab</references>
+        <references refid="struct_app_model_1ac12d30deb94ace7428cfa1260a6f69d1" compoundref="_app_model_8cpp" startline="516" endline="540">resolveAppLayoutDefault</references>
+        <references refid="struct_app_model_1a6ea5228e1de373aff30ecdd9d097624b" compoundref="_app_model_8cpp" startline="417" endline="432">save</references>
+        <references refid="struct_app_model_1aadec1c1d139204d67deaed3c856c10a4" compoundref="_app_model_8cpp" startline="470" endline="484">saveWindowState</references>
+        <references refid="struct_app_model_1acd8609ee6b05bce137df2b703f426009" compoundref="_app_model_8cpp" startline="364" endline="367">setActivePaneID</references>
+        <references refid="struct_app_model_1a0979655baa2bb2514f824b5b2213b688" compoundref="_app_model_8cpp" startline="374" endline="377">setActivePaneType</references>
+        <references refid="struct_app_model_1a75038d249a33b5f32667b8cf1da894ed" compoundref="_app_model_8cpp" startline="287" endline="290">setActiveTabIndex</references>
+        <references refid="struct_app_model_1a3f6234ea491efa3ba0e13ed5a9af75e4" compoundref="_app_model_8cpp" startline="128" endline="131">setCellWidth</references>
+        <references refid="struct_app_model_1a8c682c57a734c44ede583208fbac1c82" compoundref="_app_model_8cpp" startline="168" endline="171">setCursorBlinkInterval</references>
+        <references refid="struct_app_model_1a39175ac839f1cdf8b41bb102c84d42c8" compoundref="_app_model_8cpp" startline="148" endline="151">setCursorCodepoint</references>
+        <references refid="struct_app_model_1ac304758f2277b44b5b69ea99ada92d04" compoundref="_app_model_8cpp" startline="158" endline="161">setCursorStyle</references>
+        <references refid="struct_app_model_1a1bb1a3c23e730b48fc4c86b958bb5c3d" compoundref="_app_model_8cpp" startline="258" endline="261">setDaemonMode</references>
+        <references refid="struct_app_model_1a2dae0bf677d786df54592add4b6f7653" compoundref="_app_model_8cpp" startline="103" endline="106">setFontFamily</references>
+        <references refid="struct_app_model_1a73228906a27ee0e0ddd749e02c55f507" compoundref="_app_model_8cpp" startline="113" endline="116">setFontSize</references>
+        <references refid="struct_app_model_1ac974e4042f7b19970e14c876ab0144da" compoundref="_app_model_8cpp" startline="243" endline="246">setGpuAvailable</references>
+        <references refid="struct_app_model_1add3a497f60aa25b17b4974b74792c7ac" compoundref="_app_model_8cpp" startline="248" endline="251">setInstanceUuid</references>
+        <references refid="struct_app_model_1ac145b163fefb0d869844801bdaa4c8bf" compoundref="_app_model_8cpp" startline="138" endline="141">setLineHeight</references>
+        <references refid="struct_app_model_1a3a5760411f18cfceaba0bd6970a03490" compoundref="_app_model_8cpp" startline="379" endline="382">setModalType</references>
+        <references refid="struct_app_model_1a46c958c3311f69d050c0e6e31613ba7a" compoundref="_app_model_8cpp" startline="203" endline="206">setPaddingBottom</references>
+        <references refid="struct_app_model_1a1053e78981e1c1d287348ad06135dd42" compoundref="_app_model_8cpp" startline="208" endline="211">setPaddingLeft</references>
+        <references refid="struct_app_model_1ab092f12f2c1cee0814e6f24d425d054f" compoundref="_app_model_8cpp" startline="198" endline="201">setPaddingRight</references>
+        <references refid="struct_app_model_1a1c5acbd174197755b89450577edde968" compoundref="_app_model_8cpp" startline="193" endline="196">setPaddingTop</references>
+        <references refid="struct_app_model_1aad3903648ef251bc4c7c75617a225306" compoundref="_app_model_8cpp" startline="268" endline="275">setPort</references>
+        <references refid="struct_app_model_1a2d98a71682bda840b145b788763b2e06" compoundref="_app_model_8cpp" startline="410" endline="413">setPwd</references>
+        <references refid="struct_app_model_1aae67bc48e392b48d0a269ad489a9d33e" compoundref="_app_model_8cpp" startline="233" endline="241">setRendererType</references>
+        <references refid="struct_app_model_1ad280d1276cb136d455b3703332875eb7" compoundref="_app_model_8cpp" startline="118" endline="121">setScrollbackLines</references>
+        <references refid="struct_app_model_1a5cde5241c339dc4966a4083fa852091e" compoundref="_app_model_8cpp" startline="389" endline="392">setSelectionType</references>
+        <references refid="struct_app_model_1afc32c48a7dbb67ad069e18510497e93c" compoundref="_app_model_8cpp" startline="297" endline="300">setTabPosition</references>
+        <references refid="struct_app_model_1a5486d899a2fd3715f8977c815bcb0eb5" compoundref="_app_model_8cpp" startline="86" endline="90">setWindowSize</references>
+        <references refid="struct_app_model_1a0e6e5e29864e321a25bcd1bc8fbdcdf2" compoundref="_app_model_8cpp" startline="92" endline="96">setWindowZoom</references>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1a33fc400cec078d808f6017c45574e10e" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>juce::ValueTree</type>
+        <definition>juce::ValueTree AppModel::getWindow</definition>
+        <argsstring>() noexcept</argsstring>
+        <name>getWindow</name>
+        <qualifiedname>AppModel::getWindow</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="71" column="21" bodyfile="AppModel.cpp" bodystart="44" bodyend="47"/>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+        <references refid="namespaceapp_1_1id_1ad631a0e4b1eadb61ac0c085f90800bb8" compoundref="_app_identifier_8h" startline="55" endline="55">app::id::WINDOW</references>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1a732683754e18e0d3dbd93583bed3912b" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>juce::ValueTree</type>
+        <definition>juce::ValueTree AppModel::getNexusNode</definition>
+        <argsstring>() noexcept</argsstring>
+        <name>getNexusNode</name>
+        <qualifiedname>AppModel::getNexusNode</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="72" column="21" bodyfile="AppModel.cpp" bodystart="49" bodyend="52"/>
+        <references refid="namespaceapp_1_1id_1a29752745764460568dcc06ab2cb55595" compoundref="_app_identifier_8h" startline="56" endline="56">app::id::NEXUS</references>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+        <referencedby refid="struct_app_model_1a5f039d3461dcecd5581225bdadb0ce0c" compoundref="_app_model_8cpp" startline="59" endline="62">getLoadingNode</referencedby>
+        <referencedby refid="struct_app_model_1a5bf961bf2da4f58edc44f53491d07b8b" compoundref="_app_model_8cpp" startline="54" endline="57">getSessionsNode</referencedby>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1a5bf961bf2da4f58edc44f53491d07b8b" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>juce::ValueTree</type>
+        <definition>juce::ValueTree AppModel::getSessionsNode</definition>
+        <argsstring>() noexcept</argsstring>
+        <name>getSessionsNode</name>
+        <qualifiedname>AppModel::getSessionsNode</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="73" column="21" bodyfile="AppModel.cpp" bodystart="54" bodyend="57"/>
+        <references refid="struct_app_model_1a732683754e18e0d3dbd93583bed3912b" compoundref="_app_model_8cpp" startline="49" endline="52">getNexusNode</references>
+        <references refid="namespaceapp_1_1id_1aa60f9b102fa5d09dd2b820fa8ec607a9" compoundref="_app_identifier_8h" startline="57" endline="57">app::id::SESSIONS</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1a5f039d3461dcecd5581225bdadb0ce0c" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>juce::ValueTree</type>
+        <definition>juce::ValueTree AppModel::getLoadingNode</definition>
+        <argsstring>() noexcept</argsstring>
+        <name>getLoadingNode</name>
+        <qualifiedname>AppModel::getLoadingNode</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="74" column="21" bodyfile="AppModel.cpp" bodystart="59" bodyend="62"/>
+        <references refid="struct_app_model_1a732683754e18e0d3dbd93583bed3912b" compoundref="_app_model_8cpp" startline="49" endline="52">getNexusNode</references>
+        <references refid="namespaceapp_1_1id_1afae1c07735f192163428772405ca7264" compoundref="_app_identifier_8h" startline="59" endline="59">app::id::LOADING</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1ad2ff3c0021a5923d44ad091734b7b589" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>juce::ValueTree</type>
+        <definition>juce::ValueTree AppModel::getTabs</definition>
+        <argsstring>() noexcept</argsstring>
+        <name>getTabs</name>
+        <qualifiedname>AppModel::getTabs</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="75" column="21" bodyfile="AppModel.cpp" bodystart="64" bodyend="67"/>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+        <references refid="namespaceapp_1_1id_1af20c2dc297a411b140ec9bc9bc1d8b4c" compoundref="_app_identifier_8h" startline="61" endline="61">app::id::TABS</references>
+        <referencedby refid="struct_app_model_1a97e7b0dbabbf20a8f35682722b8268be" compoundref="_app_model_8cpp" startline="304" endline="314">addTab</referencedby>
+        <referencedby refid="struct_app_model_1a4588cfbb14ca0c3ebb0f1b3ae593e02a" compoundref="_app_model_8cpp" startline="339" endline="357">getTab</referencedby>
+        <referencedby refid="struct_app_model_1af0eb41847a5138c20cca20a23d5d8283" compoundref="_app_model_8cpp" startline="316" endline="337">removeTab</referencedby>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1ae391c9b55e9992a7ac88b2840b7e3079" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int AppModel::getWindowWidth</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>getWindowWidth</name>
+        <qualifiedname>AppModel::getWindowWidth</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="79" column="9" bodyfile="AppModel.cpp" bodystart="71" bodyend="74"/>
+        <references refid="classjam_1_1_model_1a2f037e88407eb8b95b9ab7daf7c0b15c">jam::Model::getValueFromChildWithID</references>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+        <references refid="structjam_1_1_i_d_1a3d0d8290681c62b75160843928ff3689">jam::ID::width</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1a36329693e74ae4f67d91b3abbe50cbb9" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int AppModel::getWindowHeight</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>getWindowHeight</name>
+        <qualifiedname>AppModel::getWindowHeight</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="80" column="9" bodyfile="AppModel.cpp" bodystart="76" bodyend="79"/>
+        <references refid="classjam_1_1_model_1a2f037e88407eb8b95b9ab7daf7c0b15c">jam::Model::getValueFromChildWithID</references>
+        <references refid="structjam_1_1_i_d_1ab6389fe91d4bb010418fc3d930e869b6">jam::ID::height</references>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1ab65b479731c9d0efaf812f630dc6df23" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>float</type>
+        <definition>float AppModel::getWindowZoom</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>getWindowZoom</name>
+        <qualifiedname>AppModel::getWindowZoom</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="81" column="11" bodyfile="AppModel.cpp" bodystart="81" bodyend="84"/>
+        <references refid="classjam_1_1_model_1a2f037e88407eb8b95b9ab7daf7c0b15c">jam::Model::getValueFromChildWithID</references>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+        <references refid="namespaceapp_1_1id_1af79af5c8c296799dd1db517fd2f8c1a9" compoundref="_app_identifier_8h" startline="71" endline="71">app::id::zoom</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1a5486d899a2fd3715f8977c815bcb0eb5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AppModel::setWindowSize</definition>
+        <argsstring>(int width, int height)</argsstring>
+        <name>setWindowSize</name>
+        <qualifiedname>AppModel::setWindowSize</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>width</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>height</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="83" column="10" bodyfile="AppModel.cpp" bodystart="86" bodyend="90"/>
+        <references refid="structjam_1_1_i_d_1ab6389fe91d4bb010418fc3d930e869b6">jam::ID::height</references>
+        <references refid="classjam_1_1_model_1a4fbbdb02043cf33008d91de8cc79a9f2">jam::Model::setValue</references>
+        <references refid="structjam_1_1_i_d_1a3d0d8290681c62b75160843928ff3689">jam::ID::width</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1a0e6e5e29864e321a25bcd1bc8fbdcdf2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AppModel::setWindowZoom</definition>
+        <argsstring>(float zoom)</argsstring>
+        <name>setWindowZoom</name>
+        <qualifiedname>AppModel::setWindowZoom</qualifiedname>
+        <param>
+          <type>float</type>
+          <declname>zoom</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="84" column="10" bodyfile="AppModel.cpp" bodystart="92" bodyend="96"/>
+        <references refid="classjam_1_1_model_1a4fbbdb02043cf33008d91de8cc79a9f2">jam::Model::setValue</references>
+        <references refid="namespaceapp_1_1id_1af79af5c8c296799dd1db517fd2f8c1a9" compoundref="_app_identifier_8h" startline="71" endline="71">app::id::zoom</references>
+        <references refid="classlua_1_1_engine_1a1ba41349603261d5c8311f51c6fbfbd8" compoundref="_engine_8h" startline="1014" endline="1014">lua::Engine::zoomMax</references>
+        <references refid="classlua_1_1_engine_1ae6f156566d6edd39a943e998f4ae3350" compoundref="_engine_8h" startline="1011" endline="1011">lua::Engine::zoomMin</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1a148268915563bf57f4d8dd331bdc8af1" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>juce::String</type>
+        <definition>juce::String AppModel::getFontFamily</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>getFontFamily</name>
+        <qualifiedname>AppModel::getFontFamily</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="86" column="18" bodyfile="AppModel.cpp" bodystart="98" bodyend="101"/>
+        <references refid="namespaceapp_1_1id_1a47ebe0ac537eacf5d3ba399228f4480f" compoundref="_app_identifier_8h" startline="79" endline="79">app::id::fontFamily</references>
+        <references refid="classjam_1_1_model_1a2f037e88407eb8b95b9ab7daf7c0b15c">jam::Model::getValueFromChildWithID</references>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1a2dae0bf677d786df54592add4b6f7653" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AppModel::setFontFamily</definition>
+        <argsstring>(const juce::String &amp;family)</argsstring>
+        <name>setFontFamily</name>
+        <qualifiedname>AppModel::setFontFamily</qualifiedname>
+        <param>
+          <type>const juce::String &amp;</type>
+          <declname>family</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="87" column="10" bodyfile="AppModel.cpp" bodystart="103" bodyend="106"/>
+        <references refid="namespaceapp_1_1id_1a47ebe0ac537eacf5d3ba399228f4480f" compoundref="_app_identifier_8h" startline="79" endline="79">app::id::fontFamily</references>
+        <references refid="classjam_1_1_model_1a4fbbdb02043cf33008d91de8cc79a9f2">jam::Model::setValue</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1a453da06259ecb0b83b6966771efe1f82" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>float</type>
+        <definition>float AppModel::getFontSize</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>getFontSize</name>
+        <qualifiedname>AppModel::getFontSize</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="88" column="11" bodyfile="AppModel.cpp" bodystart="108" bodyend="111"/>
+        <references refid="namespaceapp_1_1id_1a4affa12e1041cbac52db6146cfeb8669" compoundref="_app_identifier_8h" startline="80" endline="80">app::id::fontSize</references>
+        <references refid="classjam_1_1_model_1a2f037e88407eb8b95b9ab7daf7c0b15c">jam::Model::getValueFromChildWithID</references>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1a73228906a27ee0e0ddd749e02c55f507" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AppModel::setFontSize</definition>
+        <argsstring>(float size)</argsstring>
+        <name>setFontSize</name>
+        <qualifiedname>AppModel::setFontSize</qualifiedname>
+        <param>
+          <type>float</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="89" column="10" bodyfile="AppModel.cpp" bodystart="113" bodyend="116"/>
+        <references refid="namespaceapp_1_1id_1a4affa12e1041cbac52db6146cfeb8669" compoundref="_app_identifier_8h" startline="80" endline="80">app::id::fontSize</references>
+        <references refid="classjam_1_1_model_1a4fbbdb02043cf33008d91de8cc79a9f2">jam::Model::setValue</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1ad280d1276cb136d455b3703332875eb7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AppModel::setScrollbackLines</definition>
+        <argsstring>(int lines)</argsstring>
+        <name>setScrollbackLines</name>
+        <qualifiedname>AppModel::setScrollbackLines</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>lines</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="90" column="10" bodyfile="AppModel.cpp" bodystart="118" bodyend="121"/>
+        <references refid="namespaceapp_1_1id_1ac19777138a551143950f913c9950bc83" compoundref="_app_identifier_8h" startline="90" endline="90">app::id::scrollbackLines</references>
+        <references refid="classjam_1_1_model_1a4fbbdb02043cf33008d91de8cc79a9f2">jam::Model::setValue</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1a5fc7272cc6caa1a510d0c956f205c256" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int AppModel::getCellWidth</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>getCellWidth</name>
+        <qualifiedname>AppModel::getCellWidth</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="92" column="9" bodyfile="AppModel.cpp" bodystart="123" bodyend="126"/>
+        <references refid="namespaceapp_1_1id_1a85c1e78989b72416aac80246796ad6a1" compoundref="_app_identifier_8h" startline="103" endline="103">app::id::cellWidth</references>
+        <references refid="classjam_1_1_model_1a2f037e88407eb8b95b9ab7daf7c0b15c">jam::Model::getValueFromChildWithID</references>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1a3f6234ea491efa3ba0e13ed5a9af75e4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AppModel::setCellWidth</definition>
+        <argsstring>(int width)</argsstring>
+        <name>setCellWidth</name>
+        <qualifiedname>AppModel::setCellWidth</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>width</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="93" column="10" bodyfile="AppModel.cpp" bodystart="128" bodyend="131"/>
+        <references refid="namespaceapp_1_1id_1a85c1e78989b72416aac80246796ad6a1" compoundref="_app_identifier_8h" startline="103" endline="103">app::id::cellWidth</references>
+        <references refid="classjam_1_1_model_1a4fbbdb02043cf33008d91de8cc79a9f2">jam::Model::setValue</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1a78b708f95c7b81a30c9bfb4628b37aec" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int AppModel::getLineHeight</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>getLineHeight</name>
+        <qualifiedname>AppModel::getLineHeight</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="94" column="9" bodyfile="AppModel.cpp" bodystart="133" bodyend="136"/>
+        <references refid="classjam_1_1_model_1a2f037e88407eb8b95b9ab7daf7c0b15c">jam::Model::getValueFromChildWithID</references>
+        <references refid="namespaceapp_1_1id_1aae909a2bc7647e37cb3c0773f92f715d" compoundref="_app_identifier_8h" startline="104" endline="104">app::id::lineHeight</references>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1ac145b163fefb0d869844801bdaa4c8bf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AppModel::setLineHeight</definition>
+        <argsstring>(int height)</argsstring>
+        <name>setLineHeight</name>
+        <qualifiedname>AppModel::setLineHeight</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>height</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="95" column="10" bodyfile="AppModel.cpp" bodystart="138" bodyend="141"/>
+        <references refid="namespaceapp_1_1id_1aae909a2bc7647e37cb3c0773f92f715d" compoundref="_app_identifier_8h" startline="104" endline="104">app::id::lineHeight</references>
+        <references refid="classjam_1_1_model_1a4fbbdb02043cf33008d91de8cc79a9f2">jam::Model::setValue</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1af02fabcbf42bda957de3b79dac0a78eb" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int AppModel::getCursorCodepoint</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>getCursorCodepoint</name>
+        <qualifiedname>AppModel::getCursorCodepoint</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="96" column="9" bodyfile="AppModel.cpp" bodystart="143" bodyend="146"/>
+        <references refid="namespaceapp_1_1id_1ae4254699362f3c80bb7ef3d4e2173b14" compoundref="_app_identifier_8h" startline="105" endline="105">app::id::cursorCodepoint</references>
+        <references refid="classjam_1_1_model_1a2f037e88407eb8b95b9ab7daf7c0b15c">jam::Model::getValueFromChildWithID</references>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1a39175ac839f1cdf8b41bb102c84d42c8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AppModel::setCursorCodepoint</definition>
+        <argsstring>(int codepoint)</argsstring>
+        <name>setCursorCodepoint</name>
+        <qualifiedname>AppModel::setCursorCodepoint</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>codepoint</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="97" column="10" bodyfile="AppModel.cpp" bodystart="148" bodyend="151"/>
+        <references refid="namespaceapp_1_1id_1ae4254699362f3c80bb7ef3d4e2173b14" compoundref="_app_identifier_8h" startline="105" endline="105">app::id::cursorCodepoint</references>
+        <references refid="classjam_1_1_model_1a4fbbdb02043cf33008d91de8cc79a9f2">jam::Model::setValue</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1a47f5c036e7701087b9d30678735b3ec6" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int AppModel::getCursorStyle</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>getCursorStyle</name>
+        <qualifiedname>AppModel::getCursorStyle</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="98" column="9" bodyfile="AppModel.cpp" bodystart="153" bodyend="156"/>
+        <references refid="namespaceapp_1_1id_1a75928388a5e56aceb0d7fb5d19d609b7" compoundref="_app_identifier_8h" startline="106" endline="106">app::id::cursorStyle</references>
+        <references refid="classjam_1_1_model_1a2f037e88407eb8b95b9ab7daf7c0b15c">jam::Model::getValueFromChildWithID</references>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1ac304758f2277b44b5b69ea99ada92d04" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AppModel::setCursorStyle</definition>
+        <argsstring>(int style)</argsstring>
+        <name>setCursorStyle</name>
+        <qualifiedname>AppModel::setCursorStyle</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>style</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="99" column="10" bodyfile="AppModel.cpp" bodystart="158" bodyend="161"/>
+        <references refid="namespaceapp_1_1id_1a75928388a5e56aceb0d7fb5d19d609b7" compoundref="_app_identifier_8h" startline="106" endline="106">app::id::cursorStyle</references>
+        <references refid="classjam_1_1_model_1a4fbbdb02043cf33008d91de8cc79a9f2">jam::Model::setValue</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1a5a51fd63625855b3bdbdd7fa466f232a" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int AppModel::getCursorBlinkInterval</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>getCursorBlinkInterval</name>
+        <qualifiedname>AppModel::getCursorBlinkInterval</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="100" column="9" bodyfile="AppModel.cpp" bodystart="163" bodyend="166"/>
+        <references refid="namespaceapp_1_1id_1a85d00a0a41d472e4203061ee750ef8b7" compoundref="_app_identifier_8h" startline="107" endline="107">app::id::cursorBlinkInterval</references>
+        <references refid="classjam_1_1_model_1a2f037e88407eb8b95b9ab7daf7c0b15c">jam::Model::getValueFromChildWithID</references>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1a8c682c57a734c44ede583208fbac1c82" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AppModel::setCursorBlinkInterval</definition>
+        <argsstring>(int ms)</argsstring>
+        <name>setCursorBlinkInterval</name>
+        <qualifiedname>AppModel::setCursorBlinkInterval</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>ms</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="101" column="10" bodyfile="AppModel.cpp" bodystart="168" bodyend="171"/>
+        <references refid="namespaceapp_1_1id_1a85d00a0a41d472e4203061ee750ef8b7" compoundref="_app_identifier_8h" startline="107" endline="107">app::id::cursorBlinkInterval</references>
+        <references refid="classjam_1_1_model_1a4fbbdb02043cf33008d91de8cc79a9f2">jam::Model::setValue</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1aa949203f52b596440b04ae76adab7f11" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int AppModel::getPaddingTop</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>getPaddingTop</name>
+        <qualifiedname>AppModel::getPaddingTop</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="103" column="9" bodyfile="AppModel.cpp" bodystart="173" bodyend="176"/>
+        <references refid="classjam_1_1_model_1a2f037e88407eb8b95b9ab7daf7c0b15c">jam::Model::getValueFromChildWithID</references>
+        <references refid="namespaceapp_1_1id_1a3208662b768447eb28e81c638a5c91d7" compoundref="_app_identifier_8h" startline="108" endline="108">app::id::paddingTop</references>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1ad2b662a4bd93e688cf7592de22f0c775" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int AppModel::getPaddingRight</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>getPaddingRight</name>
+        <qualifiedname>AppModel::getPaddingRight</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="104" column="9" bodyfile="AppModel.cpp" bodystart="178" bodyend="181"/>
+        <references refid="classjam_1_1_model_1a2f037e88407eb8b95b9ab7daf7c0b15c">jam::Model::getValueFromChildWithID</references>
+        <references refid="namespaceapp_1_1id_1a4940ac67c76c901cb06c9a0c8e7c9054" compoundref="_app_identifier_8h" startline="109" endline="109">app::id::paddingRight</references>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1a9a402d8ba04ebc4e1d6f791d39c30635" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int AppModel::getPaddingBottom</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>getPaddingBottom</name>
+        <qualifiedname>AppModel::getPaddingBottom</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="105" column="9" bodyfile="AppModel.cpp" bodystart="183" bodyend="186"/>
+        <references refid="classjam_1_1_model_1a2f037e88407eb8b95b9ab7daf7c0b15c">jam::Model::getValueFromChildWithID</references>
+        <references refid="namespaceapp_1_1id_1acfa111d16fc6a40eb179b4e496247979" compoundref="_app_identifier_8h" startline="110" endline="110">app::id::paddingBottom</references>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1a52e345195bfb1e87f33cd472e55fdb6c" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int AppModel::getPaddingLeft</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>getPaddingLeft</name>
+        <qualifiedname>AppModel::getPaddingLeft</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="106" column="9" bodyfile="AppModel.cpp" bodystart="188" bodyend="191"/>
+        <references refid="classjam_1_1_model_1a2f037e88407eb8b95b9ab7daf7c0b15c">jam::Model::getValueFromChildWithID</references>
+        <references refid="namespaceapp_1_1id_1a37eb7fcd4532f25ae03eea286dc63bdf" compoundref="_app_identifier_8h" startline="111" endline="111">app::id::paddingLeft</references>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1a1c5acbd174197755b89450577edde968" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AppModel::setPaddingTop</definition>
+        <argsstring>(int value)</argsstring>
+        <name>setPaddingTop</name>
+        <qualifiedname>AppModel::setPaddingTop</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="107" column="10" bodyfile="AppModel.cpp" bodystart="193" bodyend="196"/>
+        <references refid="namespaceapp_1_1id_1a3208662b768447eb28e81c638a5c91d7" compoundref="_app_identifier_8h" startline="108" endline="108">app::id::paddingTop</references>
+        <references refid="classjam_1_1_model_1a4fbbdb02043cf33008d91de8cc79a9f2">jam::Model::setValue</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1ab092f12f2c1cee0814e6f24d425d054f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AppModel::setPaddingRight</definition>
+        <argsstring>(int value)</argsstring>
+        <name>setPaddingRight</name>
+        <qualifiedname>AppModel::setPaddingRight</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="108" column="10" bodyfile="AppModel.cpp" bodystart="198" bodyend="201"/>
+        <references refid="namespaceapp_1_1id_1a4940ac67c76c901cb06c9a0c8e7c9054" compoundref="_app_identifier_8h" startline="109" endline="109">app::id::paddingRight</references>
+        <references refid="classjam_1_1_model_1a4fbbdb02043cf33008d91de8cc79a9f2">jam::Model::setValue</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1a46c958c3311f69d050c0e6e31613ba7a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AppModel::setPaddingBottom</definition>
+        <argsstring>(int value)</argsstring>
+        <name>setPaddingBottom</name>
+        <qualifiedname>AppModel::setPaddingBottom</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="109" column="10" bodyfile="AppModel.cpp" bodystart="203" bodyend="206"/>
+        <references refid="namespaceapp_1_1id_1acfa111d16fc6a40eb179b4e496247979" compoundref="_app_identifier_8h" startline="110" endline="110">app::id::paddingBottom</references>
+        <references refid="classjam_1_1_model_1a4fbbdb02043cf33008d91de8cc79a9f2">jam::Model::setValue</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1a1053e78981e1c1d287348ad06135dd42" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AppModel::setPaddingLeft</definition>
+        <argsstring>(int value)</argsstring>
+        <name>setPaddingLeft</name>
+        <qualifiedname>AppModel::setPaddingLeft</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="110" column="10" bodyfile="AppModel.cpp" bodystart="208" bodyend="211"/>
+        <references refid="namespaceapp_1_1id_1a37eb7fcd4532f25ae03eea286dc63bdf" compoundref="_app_identifier_8h" startline="111" endline="111">app::id::paddingLeft</references>
+        <references refid="classjam_1_1_model_1a4fbbdb02043cf33008d91de8cc79a9f2">jam::Model::setValue</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1abe273920682ed70f9076ae15e5d7842b" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void AppModel::markAtlasDirty</definition>
+        <argsstring>() noexcept</argsstring>
+        <name>markAtlasDirty</name>
+        <qualifiedname>AppModel::markAtlasDirty</qualifiedname>
+        <briefdescription>
+<para>Marks the glyph atlas as stale. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>GL thread safe — uses atomic store/release. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="113" column="10" bodyfile="AppModel.cpp" bodystart="213" bodyend="216"/>
+        <references refid="namespaceapp_1_1id_1a0f3b0010a132a2b24872f2cf4356a936" compoundref="_app_identifier_8h" startline="89" endline="89">app::id::atlasDirty</references>
+        <references refid="classjam_1_1_model_1a9be603e3c0a76e1f0b6c263066993b63">jam::Model::params</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1a69f7c3a0edf15cba770d166f2b2222b8" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool AppModel::consumeAtlasDirty</definition>
+        <argsstring>() noexcept</argsstring>
+        <name>consumeAtlasDirty</name>
+        <qualifiedname>AppModel::consumeAtlasDirty</qualifiedname>
+        <briefdescription>
+<para>Consumes and clears the atlas-dirty flag. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>GL thread safe — uses atomic exchange/acquire. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="116" column="10" bodyfile="AppModel.cpp" bodystart="218" bodyend="221"/>
+        <references refid="namespaceapp_1_1id_1a0f3b0010a132a2b24872f2cf4356a936" compoundref="_app_identifier_8h" startline="89" endline="89">app::id::atlasDirty</references>
+        <references refid="classjam_1_1_model_1a9be603e3c0a76e1f0b6c263066993b63">jam::Model::params</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1ae1b2239313dc86889de4137db2b2a19a" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type><ref refid="namespaceapp_1aca40c7346938831826cf77e1b463cab4" kindref="member">app::RendererType</ref></type>
+        <definition>app::RendererType AppModel::getRendererType</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>getRendererType</name>
+        <qualifiedname>AppModel::getRendererType</qualifiedname>
+        <briefdescription>
+<para>Returns the resolved renderer type enum. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="119" column="23" bodyfile="AppModel.cpp" bodystart="223" bodyend="231"/>
+        <references refid="namespaceapp_1aca40c7346938831826cf77e1b463cab4ad9747e2da342bdb995f6389533ad1a3d" compoundref="_app_identifier_8h" startline="41">app::cpu</references>
+        <references refid="struct_map_1_1_renderer_1aff4520f77bb5cd39cd23e30603933320a2cd594170cd7c6145427b2ec90de1fa9" compoundref="_map_8h" startline="120">Map::Renderer::cpu</references>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Derived &gt;::getContext</references>
+        <references refid="classjam_1_1_model_1a2f037e88407eb8b95b9ab7daf7c0b15c">jam::Model::getValueFromChildWithID</references>
+        <references refid="namespaceapp_1aca40c7346938831826cf77e1b463cab4a0aa0be2a866411d9ff03515227454947" compoundref="_app_identifier_8h" startline="40">app::gpu</references>
+        <references refid="namespaceapp_1_1id_1afcd800608ba4d7e58892302a68db73cb" compoundref="_app_identifier_8h" startline="81" endline="81">app::id::renderer</references>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+        <referencedby refid="struct_app_model_1aae67bc48e392b48d0a269ad489a9d33e" compoundref="_app_model_8cpp" startline="233" endline="241">setRendererType</referencedby>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1aae67bc48e392b48d0a269ad489a9d33e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AppModel::setRendererType</definition>
+        <argsstring>(const juce::String &amp;setting)</argsstring>
+        <name>setRendererType</name>
+        <qualifiedname>AppModel::setRendererType</qualifiedname>
+        <param>
+          <type>const juce::String &amp;</type>
+          <declname>setting</declname>
+        </param>
+        <briefdescription>
+<para>Resolves and stores the renderer type from a config setting. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Takes the raw config value (&quot;auto&quot;, &quot;true&quot;, or &quot;false&quot;) and resolves against the stored gpuAvailable flag:<itemizedlist>
+<listitem><para>setting != &quot;false&quot; AND gpuAvailable → &quot;gpu&quot;</para>
+</listitem><listitem><para>otherwise → &quot;cpu&quot;</para>
+</listitem></itemizedlist>
+</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>setting</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The raw gpu config value. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="131" column="10" bodyfile="AppModel.cpp" bodystart="233" bodyend="241"/>
+        <references refid="struct_map_1_1_renderer_1aff4520f77bb5cd39cd23e30603933320a2cd594170cd7c6145427b2ec90de1fa9" compoundref="_map_8h" startline="120">Map::Renderer::cpu</references>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Derived &gt;::getContext</references>
+        <references refid="struct_app_model_1ae1b2239313dc86889de4137db2b2a19a" compoundref="_app_model_8cpp" startline="223" endline="231">getRendererType</references>
+        <references refid="classjam_1_1_model_1a2f037e88407eb8b95b9ab7daf7c0b15c">jam::Model::getValueFromChildWithID</references>
+        <references refid="namespaceapp_1aca40c7346938831826cf77e1b463cab4a0aa0be2a866411d9ff03515227454947" compoundref="_app_identifier_8h" startline="40">app::gpu</references>
+        <references refid="struct_map_1_1_renderer_1aff4520f77bb5cd39cd23e30603933320aba27e92c101b79080b43c29ac5ff42f3" compoundref="_map_8h" startline="120">Map::Renderer::gpu</references>
+        <references refid="namespaceapp_1_1id_1afc8dc371554c62051e97d078a3eaf20f" compoundref="_app_identifier_8h" startline="82" endline="82">app::id::gpuAvailable</references>
+        <references refid="struct_map_1_1_gpu_1a47030c06e4e7ae96bdcc10cf926617c5aec4016e0b5d10be9112eed36de14238d" compoundref="_map_8h" startline="62">Map::Gpu::off</references>
+        <references refid="namespaceapp_1_1id_1afcd800608ba4d7e58892302a68db73cb" compoundref="_app_identifier_8h" startline="81" endline="81">app::id::renderer</references>
+        <references refid="structjam_1_1_background_blur_1a4edcb5cb1191dea104717737c8956ed8">jam::BackgroundBlur::setEnabled</references>
+        <references refid="classjam_1_1_model_1a4fbbdb02043cf33008d91de8cc79a9f2">jam::Model::setValue</references>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1ac974e4042f7b19970e14c876ab0144da" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AppModel::setGpuAvailable</definition>
+        <argsstring>(bool available)</argsstring>
+        <name>setGpuAvailable</name>
+        <qualifiedname>AppModel::setGpuAvailable</qualifiedname>
+        <param>
+          <type>bool</type>
+          <declname>available</declname>
+        </param>
+        <briefdescription>
+<para>Stores the GPU availability flag from a probe result. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Call once at startup before <ref refid="struct_app_model_1aae67bc48e392b48d0a269ad489a9d33e" kindref="member">setRendererType()</ref>. The probe determines whether the GL pipeline is hardware-accelerated. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="139" column="10" bodyfile="AppModel.cpp" bodystart="243" bodyend="246"/>
+        <references refid="namespaceapp_1_1id_1afc8dc371554c62051e97d078a3eaf20f" compoundref="_app_identifier_8h" startline="82" endline="82">app::id::gpuAvailable</references>
+        <references refid="classjam_1_1_model_1a4fbbdb02043cf33008d91de8cc79a9f2">jam::Model::setValue</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1add3a497f60aa25b17b4974b74792c7ac" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AppModel::setInstanceUuid</definition>
+        <argsstring>(const juce::String &amp;uuid)</argsstring>
+        <name>setInstanceUuid</name>
+        <qualifiedname>AppModel::setInstanceUuid</qualifiedname>
+        <param>
+          <type>const juce::String &amp;</type>
+          <declname>uuid</declname>
+        </param>
+        <briefdescription>
+<para>Stores the UUID for this instance — used by file path methods. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Writes <computeroutput><ref refid="structjam_1_1_i_d_1a94afe032a3af21e6f22fb73c9625b60a" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::ID::id</ref></computeroutput> property on the root VT node. Must be called in initialise() before <ref refid="struct_app_model_1a6024f393df864362c8507b16b70f8cb7" kindref="member">load()</ref>, <ref refid="struct_app_model_1a6ea5228e1de373aff30ecdd9d097624b" kindref="member">save()</ref>, or <ref refid="struct_app_model_1aad3903648ef251bc4c7c75617a225306" kindref="member">setPort()</ref>.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>uuid</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The UUID string for this instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="149" column="10" bodyfile="AppModel.cpp" bodystart="248" bodyend="251"/>
+        <references refid="structjam_1_1_i_d_1a94afe032a3af21e6f22fb73c9625b60a">jam::ID::id</references>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1af47dcc23d7369b6fb9f72d32cc0bbaa3" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>juce::String</type>
+        <definition>juce::String AppModel::getInstanceUuid</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>getInstanceUuid</name>
+        <qualifiedname>AppModel::getInstanceUuid</qualifiedname>
+        <briefdescription>
+<para>Returns the stored instance UUID. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="note"><para>MESSAGE THREAD. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="155" column="18" bodyfile="AppModel.cpp" bodystart="253" bodyend="256"/>
+        <references refid="structjam_1_1_i_d_1a94afe032a3af21e6f22fb73c9625b60a">jam::ID::id</references>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+        <referencedby refid="struct_app_model_1aa8d1f246d97775f7f3c9e21cae213f9f" compoundref="_app_model_8cpp" startline="460" endline="463">getNexusFile</referencedby>
+        <referencedby refid="struct_app_model_1a62ef186466e64e89f89e0d0847c282bb" compoundref="_app_model_8cpp" startline="455" endline="458">getStateFile</referencedby>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1a1bb1a3c23e730b48fc4c86b958bb5c3d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AppModel::setDaemonMode</definition>
+        <argsstring>(bool isDaemon)</argsstring>
+        <name>setDaemonMode</name>
+        <qualifiedname>AppModel::setDaemonMode</qualifiedname>
+        <param>
+          <type>bool</type>
+          <declname>isDaemon</declname>
+        </param>
+        <briefdescription>
+<para>Stores whether this instance is running as a daemon client. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Call once in initialise() before creating the main window. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="162" column="10" bodyfile="AppModel.cpp" bodystart="258" bodyend="261"/>
+        <references refid="namespaceapp_1_1id_1abe2ca0bb855bb5ffa1f1107b91ec8ed0" compoundref="_app_identifier_8h" startline="83" endline="83">app::id::daemonMode</references>
+        <references refid="classjam_1_1_model_1a4fbbdb02043cf33008d91de8cc79a9f2">jam::Model::setValue</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1a13a5563e524c4ff72fde7b72b11b9977" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool AppModel::isDaemonMode</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>isDaemonMode</name>
+        <qualifiedname>AppModel::isDaemonMode</qualifiedname>
+        <briefdescription>
+<para>Returns true when this instance is running as a daemon client. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="165" column="10" bodyfile="AppModel.cpp" bodystart="263" bodyend="266"/>
+        <references refid="namespaceapp_1_1id_1abe2ca0bb855bb5ffa1f1107b91ec8ed0" compoundref="_app_identifier_8h" startline="83" endline="83">app::id::daemonMode</references>
+        <references refid="classjam_1_1_model_1a2f037e88407eb8b95b9ab7daf7c0b15c">jam::Model::getValueFromChildWithID</references>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1af9e76c672704046b019df53ac5b7c2ff" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int AppModel::getActiveTabIndex</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>getActiveTabIndex</name>
+        <qualifiedname>AppModel::getActiveTabIndex</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="167" column="9" bodyfile="AppModel.cpp" bodystart="282" bodyend="285"/>
+        <references refid="namespaceapp_1_1id_1abb60faecd4f7e8bb53820028ccbb718c" compoundref="_app_identifier_8h" startline="72" endline="72">app::id::active</references>
+        <references refid="classjam_1_1_model_1a2f037e88407eb8b95b9ab7daf7c0b15c">jam::Model::getValueFromChildWithID</references>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1a75038d249a33b5f32667b8cf1da894ed" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AppModel::setActiveTabIndex</definition>
+        <argsstring>(int index)</argsstring>
+        <name>setActiveTabIndex</name>
+        <qualifiedname>AppModel::setActiveTabIndex</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="168" column="10" bodyfile="AppModel.cpp" bodystart="287" bodyend="290"/>
+        <references refid="namespaceapp_1_1id_1abb60faecd4f7e8bb53820028ccbb718c" compoundref="_app_identifier_8h" startline="72" endline="72">app::id::active</references>
+        <references refid="classjam_1_1_model_1a4fbbdb02043cf33008d91de8cc79a9f2">jam::Model::setValue</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1af41a958ece0fed17ed0f1a1c444e2671" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>juce::String</type>
+        <definition>juce::String AppModel::getTabPosition</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>getTabPosition</name>
+        <qualifiedname>AppModel::getTabPosition</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="170" column="18" bodyfile="AppModel.cpp" bodystart="292" bodyend="295"/>
+        <references refid="classjam_1_1_model_1a2f037e88407eb8b95b9ab7daf7c0b15c">jam::Model::getValueFromChildWithID</references>
+        <references refid="namespaceapp_1_1id_1ab099eb8cb8bd51cb334a0a48a405eb48" compoundref="_app_identifier_8h" startline="73" endline="73">app::id::position</references>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1afc32c48a7dbb67ad069e18510497e93c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AppModel::setTabPosition</definition>
+        <argsstring>(const juce::String &amp;position)</argsstring>
+        <name>setTabPosition</name>
+        <qualifiedname>AppModel::setTabPosition</qualifiedname>
+        <param>
+          <type>const juce::String &amp;</type>
+          <declname>position</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="171" column="10" bodyfile="AppModel.cpp" bodystart="297" bodyend="300"/>
+        <references refid="namespaceapp_1_1id_1ab099eb8cb8bd51cb334a0a48a405eb48" compoundref="_app_identifier_8h" startline="73" endline="73">app::id::position</references>
+        <references refid="classjam_1_1_model_1a4fbbdb02043cf33008d91de8cc79a9f2">jam::Model::setValue</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1a97e7b0dbabbf20a8f35682722b8268be" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>juce::ValueTree</type>
+        <definition>juce::ValueTree AppModel::addTab</definition>
+        <argsstring>()</argsstring>
+        <name>addTab</name>
+        <qualifiedname>AppModel::addTab</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="175" column="21" bodyfile="AppModel.cpp" bodystart="304" bodyend="314"/>
+        <references refid="struct_app_model_1ad2ff3c0021a5923d44ad091734b7b589" compoundref="_app_model_8cpp" startline="64" endline="67">getTabs</references>
+        <references refid="namespaceapp_1_1id_1a77bea35c2a1535e966a095d72de7e3c5" compoundref="_app_identifier_8h" startline="63" endline="63">app::id::PANES</references>
+        <references refid="namespaceapp_1_1id_1aa5522fd872a6a64424e5bed786eeb4c2" compoundref="_app_identifier_8h" startline="62" endline="62">app::id::TAB</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1af0eb41847a5138c20cca20a23d5d8283" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AppModel::removeTab</definition>
+        <argsstring>(int index)</argsstring>
+        <name>removeTab</name>
+        <qualifiedname>AppModel::removeTab</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="176" column="10" bodyfile="AppModel.cpp" bodystart="316" bodyend="337"/>
+        <references refid="struct_app_model_1ad2ff3c0021a5923d44ad091734b7b589" compoundref="_app_model_8cpp" startline="64" endline="67">getTabs</references>
+        <references refid="namespaceapp_1_1id_1aa5522fd872a6a64424e5bed786eeb4c2" compoundref="_app_identifier_8h" startline="62" endline="62">app::id::TAB</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1a4588cfbb14ca0c3ebb0f1b3ae593e02a" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>juce::ValueTree</type>
+        <definition>juce::ValueTree AppModel::getTab</definition>
+        <argsstring>(int index) noexcept</argsstring>
+        <name>getTab</name>
+        <qualifiedname>AppModel::getTab</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="177" column="21" bodyfile="AppModel.cpp" bodystart="339" bodyend="357"/>
+        <references refid="struct_app_model_1ad2ff3c0021a5923d44ad091734b7b589" compoundref="_app_model_8cpp" startline="64" endline="67">getTabs</references>
+        <references refid="namespaceapp_1_1id_1aa5522fd872a6a64424e5bed786eeb4c2" compoundref="_app_identifier_8h" startline="62" endline="62">app::id::TAB</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1aa6b7eb70eb7687df38613121683c5024" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>juce::String</type>
+        <definition>juce::String AppModel::getActivePaneID</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>getActivePaneID</name>
+        <qualifiedname>AppModel::getActivePaneID</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="179" column="18" bodyfile="AppModel.cpp" bodystart="359" bodyend="362"/>
+        <references refid="namespaceapp_1_1id_1a5014a071f402817219957b9e873f268e" compoundref="_app_identifier_8h" startline="75" endline="75">app::id::activePaneID</references>
+        <references refid="classjam_1_1_model_1a2f037e88407eb8b95b9ab7daf7c0b15c">jam::Model::getValueFromChildWithID</references>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1acd8609ee6b05bce137df2b703f426009" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AppModel::setActivePaneID</definition>
+        <argsstring>(const juce::String &amp;uuid)</argsstring>
+        <name>setActivePaneID</name>
+        <qualifiedname>AppModel::setActivePaneID</qualifiedname>
+        <param>
+          <type>const juce::String &amp;</type>
+          <declname>uuid</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="180" column="10" bodyfile="AppModel.cpp" bodystart="364" bodyend="367"/>
+        <references refid="namespaceapp_1_1id_1a5014a071f402817219957b9e873f268e" compoundref="_app_identifier_8h" startline="75" endline="75">app::id::activePaneID</references>
+        <references refid="classjam_1_1_model_1a4fbbdb02043cf33008d91de8cc79a9f2">jam::Model::setValue</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1ab46fe2606b815955ddf9e550b4aa9359" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>juce::String</type>
+        <definition>juce::String AppModel::getActivePaneType</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>getActivePaneType</name>
+        <qualifiedname>AppModel::getActivePaneType</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="182" column="18" bodyfile="AppModel.cpp" bodystart="369" bodyend="372"/>
+        <references refid="namespaceapp_1_1id_1a4c1a53aecc952145f770443bc3b2c4cc" compoundref="_app_identifier_8h" startline="76" endline="76">app::id::activePaneType</references>
+        <references refid="classjam_1_1_model_1a2f037e88407eb8b95b9ab7daf7c0b15c">jam::Model::getValueFromChildWithID</references>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1a0979655baa2bb2514f824b5b2213b688" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AppModel::setActivePaneType</definition>
+        <argsstring>(const juce::String &amp;type)</argsstring>
+        <name>setActivePaneType</name>
+        <qualifiedname>AppModel::setActivePaneType</qualifiedname>
+        <param>
+          <type>const juce::String &amp;</type>
+          <declname>type</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="183" column="10" bodyfile="AppModel.cpp" bodystart="374" bodyend="377"/>
+        <references refid="namespaceapp_1_1id_1a4c1a53aecc952145f770443bc3b2c4cc" compoundref="_app_identifier_8h" startline="76" endline="76">app::id::activePaneType</references>
+        <references refid="classjam_1_1_model_1a4fbbdb02043cf33008d91de8cc79a9f2">jam::Model::setValue</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1a3a5760411f18cfceaba0bd6970a03490" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AppModel::setModalType</definition>
+        <argsstring>(int type)</argsstring>
+        <name>setModalType</name>
+        <qualifiedname>AppModel::setModalType</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>type</declname>
+        </param>
+        <briefdescription>
+<para>Sets the modal overlay type on the TABS node. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="186" column="10" bodyfile="AppModel.cpp" bodystart="379" bodyend="382"/>
+        <references refid="namespaceapp_1_1id_1a3ea51650d77e7927b174bf0dc5cf0f5d" compoundref="_app_identifier_8h" startline="77" endline="77">app::id::modalType</references>
+        <references refid="classjam_1_1_model_1a4fbbdb02043cf33008d91de8cc79a9f2">jam::Model::setValue</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1a914f66a251aa0ad0d47242253f027d8c" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int AppModel::getModalType</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>getModalType</name>
+        <qualifiedname>AppModel::getModalType</qualifiedname>
+        <briefdescription>
+<para>Returns the modal overlay type from the TABS node. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="189" column="9" bodyfile="AppModel.cpp" bodystart="384" bodyend="387"/>
+        <references refid="classjam_1_1_model_1a2f037e88407eb8b95b9ab7daf7c0b15c">jam::Model::getValueFromChildWithID</references>
+        <references refid="namespaceapp_1_1id_1a3ea51650d77e7927b174bf0dc5cf0f5d" compoundref="_app_identifier_8h" startline="77" endline="77">app::id::modalType</references>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1a5cde5241c339dc4966a4083fa852091e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AppModel::setSelectionType</definition>
+        <argsstring>(int type)</argsstring>
+        <name>setSelectionType</name>
+        <qualifiedname>AppModel::setSelectionType</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>type</declname>
+        </param>
+        <briefdescription>
+<para>Sets the selection mode type on the TABS node. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="192" column="10" bodyfile="AppModel.cpp" bodystart="389" bodyend="392"/>
+        <references refid="namespaceapp_1_1id_1aef98bdb7eb091fb3036b15e7e50a95a1" compoundref="_app_identifier_8h" startline="78" endline="78">app::id::selectionType</references>
+        <references refid="classjam_1_1_model_1a4fbbdb02043cf33008d91de8cc79a9f2">jam::Model::setValue</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1a851626b84c6f29004a1d29630d85c7a3" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int AppModel::getSelectionType</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>getSelectionType</name>
+        <qualifiedname>AppModel::getSelectionType</qualifiedname>
+        <briefdescription>
+<para>Returns the selection mode type from the TABS node. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="195" column="9" bodyfile="AppModel.cpp" bodystart="394" bodyend="397"/>
+        <references refid="classjam_1_1_model_1a2f037e88407eb8b95b9ab7daf7c0b15c">jam::Model::getValueFromChildWithID</references>
+        <references refid="namespaceapp_1_1id_1aef98bdb7eb091fb3036b15e7e50a95a1" compoundref="_app_identifier_8h" startline="78" endline="78">app::id::selectionType</references>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1af7eeffe94f371e3ee1ed43c8f796853f" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>juce::String</type>
+        <definition>juce::String AppModel::getPwd</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>getPwd</name>
+        <qualifiedname>AppModel::getPwd</qualifiedname>
+        <briefdescription>
+<para>Returns the cwd of the active session, or the user home directory if none. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Reads <computeroutput><ref refid="namespaceterminal_1_1id_1a0d551d759a87363c22a6d1712cf26cd9" kindref="member">terminal::id::cwd</ref></computeroutput> directly from <computeroutput><ref refid="struct_app_model_1a1db76cb2c0b58e4854cd8bdc6ffff3a9" kindref="member">activeSession</ref></computeroutput> — the ref-counted juce::ValueTree handle stored by <computeroutput><ref refid="struct_app_model_1a2d98a71682bda840b145b788763b2e06" kindref="member">setPwd()</ref></computeroutput>. Reading a live VT reference produces the current value without any binding or listener. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="204" column="18" bodyfile="AppModel.cpp" bodystart="399" bodyend="408"/>
+        <references refid="struct_app_model_1a1db76cb2c0b58e4854cd8bdc6ffff3a9" compoundref="_app_model_8h" startline="317">activeSession</references>
+        <references refid="namespaceterminal_1_1id_1a0d551d759a87363c22a6d1712cf26cd9" compoundref="_identifier_8h" startline="157" endline="157">terminal::id::cwd</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1a2d98a71682bda840b145b788763b2e06" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AppModel::setPwd</definition>
+        <argsstring>(juce::ValueTree sessionTree)</argsstring>
+        <name>setPwd</name>
+        <qualifiedname>AppModel::setPwd</qualifiedname>
+        <param>
+          <type>juce::ValueTree</type>
+          <declname>sessionTree</declname>
+        </param>
+        <briefdescription>
+<para>Stores a reference to the active session <ref refid="classValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ValueTree</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><computeroutput><ref refid="struct_app_model_1af7eeffe94f371e3ee1ed43c8f796853f" kindref="member">getPwd()</ref></computeroutput> reads <computeroutput><ref refid="namespaceterminal_1_1id_1a0d551d759a87363c22a6d1712cf26cd9" kindref="member">terminal::id::cwd</ref></computeroutput> from this tree directly. Because juce::ValueTree is ref-counted, the stored handle always reflects current session state — no binding, no listener, no stale reads.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sessionTree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The SESSION subtree of the newly focused pane. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="215" column="10" bodyfile="AppModel.cpp" bodystart="410" bodyend="413"/>
+        <references refid="struct_app_model_1a1db76cb2c0b58e4854cd8bdc6ffff3a9" compoundref="_app_model_8h" startline="317">activeSession</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1aad3903648ef251bc4c7c75617a225306" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AppModel::setPort</definition>
+        <argsstring>(int activePort)</argsstring>
+        <name>setPort</name>
+        <qualifiedname>AppModel::setPort</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>activePort</declname>
+        </param>
+        <briefdescription>
+<para>Stores the daemon&apos;s bound TCP port and writes it to <computeroutput>&lt;uuid&gt;.<ref refid="namespacenexus" kindref="compound">nexus</ref></computeroutput> as plain text. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Called by Daemon::start() after binding. Reading this value from the nexus file during the startup scan tells the client which port to probe. Writes ONLY the plain-text port number — no XML, no <ref refid="classValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ValueTree</ref>. Daemon calls this. Daemon never touches <computeroutput>.display</computeroutput>.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>activePort</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The bound TCP port. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="note"><para>MESSAGE THREAD. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="230" column="10" bodyfile="AppModel.cpp" bodystart="268" bodyend="275"/>
+        <references refid="struct_app_model_1aa8d1f246d97775f7f3c9e21cae213f9f" compoundref="_app_model_8cpp" startline="460" endline="463">getNexusFile</references>
+        <references refid="namespaceapp_1_1id_1a7767a9a308eb0efa1d502fefd0230c82" compoundref="_app_identifier_8h" startline="88" endline="88">app::id::port</references>
+        <references refid="classjam_1_1_model_1a4fbbdb02043cf33008d91de8cc79a9f2">jam::Model::setValue</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1abe172951a8cc06fea4e80398618d6500" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int AppModel::getPort</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>getPort</name>
+        <qualifiedname>AppModel::getPort</qualifiedname>
+        <briefdescription>
+<para>Returns the stored daemon port, or 0 if none. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="note"><para>MESSAGE THREAD. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="236" column="9" bodyfile="AppModel.cpp" bodystart="277" bodyend="280"/>
+        <references refid="classjam_1_1_model_1a2f037e88407eb8b95b9ab7daf7c0b15c">jam::Model::getValueFromChildWithID</references>
+        <references refid="namespaceapp_1_1id_1a7767a9a308eb0efa1d502fefd0230c82" compoundref="_app_identifier_8h" startline="88" endline="88">app::id::port</references>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1a6ea5228e1de373aff30ecdd9d097624b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AppModel::save</definition>
+        <argsstring>()</argsstring>
+        <name>save</name>
+        <qualifiedname>AppModel::save</qualifiedname>
+        <briefdescription>
+<para>Writes the full state (WINDOW + TABS) to <computeroutput>nexus/&lt;uuid&gt;.display</computeroutput>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Daemon client mode only. The NEXUS subtree (sessions, loading ops) is excluded — rebuilt live on reconnect. Port and atlasDirty PARAM children are also excluded — transient, not serialized. Daemon never calls this — daemon only writes its port via <ref refid="struct_app_model_1aad3903648ef251bc4c7c75617a225306" kindref="member">setPort()</ref>.</para>
+<para><simplesect kind="note"><para>MESSAGE THREAD. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="250" column="10" bodyfile="AppModel.cpp" bodystart="417" bodyend="432"/>
+        <references refid="classjam_1_1_model_1a9eb2e927e025645e46609f37aa6f9304">jam::Model::flush</references>
+        <references refid="struct_app_model_1a62ef186466e64e89f89e0d0847c282bb" compoundref="_app_model_8cpp" startline="455" endline="458">getStateFile</references>
+        <references refid="namespaceapp_1_1id_1a29752745764460568dcc06ab2cb55595" compoundref="_app_identifier_8h" startline="56" endline="56">app::id::NEXUS</references>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1aadec1c1d139204d67deaed3c856c10a4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AppModel::saveWindowState</definition>
+        <argsstring>()</argsstring>
+        <name>saveWindowState</name>
+        <qualifiedname>AppModel::saveWindowState</qualifiedname>
+        <briefdescription>
+<para>Writes the current WINDOW subtree XML to <computeroutput><ref refid="struct_app_model_1acde520240a05e0ff5b3880557c291a0a" kindref="member">getWindowState()</ref></computeroutput>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Cross-instance shared file, independent of session restore state. Called on every quit when <computeroutput>lua::Engine::display.window.saveSize</computeroutput> is true.</para>
+<para><simplesect kind="note"><para>MESSAGE THREAD. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="260" column="10" bodyfile="AppModel.cpp" bodystart="470" bodyend="484"/>
+        <references refid="classjam_1_1_model_1a9eb2e927e025645e46609f37aa6f9304">jam::Model::flush</references>
+        <references refid="struct_app_model_1acde520240a05e0ff5b3880557c291a0a" compoundref="_app_model_8cpp" startline="465" endline="468">getWindowState</references>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+        <references refid="namespaceapp_1_1id_1ad631a0e4b1eadb61ac0c085f90800bb8" compoundref="_app_identifier_8h" startline="55" endline="55">app::id::WINDOW</references>
+        <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682ca05b8c74cbd96fbf2de4c1a352702fbf4">window</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1aaae7da7125d05bc93f67e7cc08be4405" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AppModel::loadWindowState</definition>
+        <argsstring>()</argsstring>
+        <name>loadWindowState</name>
+        <qualifiedname>AppModel::loadWindowState</qualifiedname>
+        <briefdescription>
+<para>Reads <computeroutput><ref refid="struct_app_model_1acde520240a05e0ff5b3880557c291a0a" kindref="member">getWindowState()</ref></computeroutput> and applies PARAM values into the in-memory tree. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Called only for new instances (no prior session state) when <computeroutput>lua::Engine::display.window.saveSize</computeroutput> is true. Silently no-ops on missing file or parse failure — constructor defaults remain.</para>
+<para><simplesect kind="note"><para>MESSAGE THREAD. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="271" column="10" bodyfile="AppModel.cpp" bodystart="486" bodyend="512"/>
+        <references refid="struct_app_model_1acde520240a05e0ff5b3880557c291a0a" compoundref="_app_model_8cpp" startline="465" endline="468">getWindowState</references>
+        <references refid="structjam_1_1_i_d_1a94afe032a3af21e6f22fb73c9625b60a">jam::ID::id</references>
+        <references refid="classjam_1_1_model_1a6c1ba6e01db247659a686aeb09fba0d9">jam::Model::PARAM</references>
+        <references refid="classjam_1_1_model_1a4fbbdb02043cf33008d91de8cc79a9f2">jam::Model::setValue</references>
+        <references refid="structjam_1_1_i_d_1a3e141c2723640ea14d8ba1840a8e50eb">jam::ID::value</references>
+        <references refid="namespaceapp_1_1id_1ad631a0e4b1eadb61ac0c085f90800bb8" compoundref="_app_identifier_8h" startline="55" endline="55">app::id::WINDOW</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1a6024f393df864362c8507b16b70f8cb7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AppModel::load</definition>
+        <argsstring>()</argsstring>
+        <name>load</name>
+        <qualifiedname>AppModel::load</qualifiedname>
+        <briefdescription>
+<para>Reads the full state from <computeroutput>nexus/&lt;uuid&gt;.display</computeroutput> into the in-memory tree. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Daemon client mode only. Uses replaceState which syncs Parameters via <ref refid="classjam_1_1_model_1a77ac5fd7f2a2caa0e892cd993d4df2d7" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">restoreValues()</ref>. Falls back silently to constructor defaults if the file is absent or cannot be parsed.</para>
+<para><simplesect kind="note"><para>MESSAGE THREAD. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="282" column="10" bodyfile="AppModel.cpp" bodystart="434" bodyend="448"/>
+        <references refid="namespaceapp_1_1id_1a1d98616945a74a0a709fe8ce6cfce258" compoundref="_app_identifier_8h" startline="54" endline="54">app::id::END</references>
+        <references refid="struct_app_model_1a62ef186466e64e89f89e0d0847c282bb" compoundref="_app_model_8cpp" startline="455" endline="458">getStateFile</references>
+        <references refid="classjam_1_1_model_1a73bb2822ba0b1211ca9e290d57c5cd2d">jam::Model::replaceState</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1a8da9beb832fd2d33d9ca345100ec6c78" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AppModel::deleteNexusFile</definition>
+        <argsstring>()</argsstring>
+        <name>deleteNexusFile</name>
+        <qualifiedname>AppModel::deleteNexusFile</qualifiedname>
+        <briefdescription>
+<para>Deletes <computeroutput>~/.config/end/nexus/&lt;uuid&gt;.<ref refid="namespacenexus" kindref="compound">nexus</ref></computeroutput>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Called by daemon on clean exit via <computeroutput><ref refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">AppModel::getContext()</ref>-&gt;<ref refid="struct_app_model_1a8da9beb832fd2d33d9ca345100ec6c78" kindref="member">deleteNexusFile()</ref></computeroutput>. Link never calls this.</para>
+<para><simplesect kind="note"><para>MESSAGE THREAD. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="292" column="10" bodyfile="AppModel.cpp" bodystart="450" bodyend="453"/>
+        <references refid="struct_app_model_1aa8d1f246d97775f7f3c9e21cae213f9f" compoundref="_app_model_8cpp" startline="460" endline="463">getNexusFile</references>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1a62ef186466e64e89f89e0d0847c282bb" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>juce::File</type>
+        <definition>juce::File AppModel::getStateFile</definition>
+        <argsstring>() const</argsstring>
+        <name>getStateFile</name>
+        <qualifiedname>AppModel::getStateFile</qualifiedname>
+        <briefdescription>
+<para>Returns <computeroutput>~/.config/end/nexus/&lt;uuid&gt;.display</computeroutput> (daemon client mode only). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="295" column="16" bodyfile="AppModel.cpp" bodystart="455" bodyend="458"/>
+        <references refid="classlua_1_1_engine_1a2a3f09ff613e66ae01cde493dbbe4395" compoundref="_engine_8cpp" startline="26" endline="29">lua::Engine::getConfigPath</references>
+        <references refid="struct_app_model_1af47dcc23d7369b6fb9f72d32cc0bbaa3" compoundref="_app_model_8cpp" startline="253" endline="256">getInstanceUuid</references>
+        <referencedby refid="struct_app_model_1a6024f393df864362c8507b16b70f8cb7" compoundref="_app_model_8cpp" startline="434" endline="448">load</referencedby>
+        <referencedby refid="struct_app_model_1a6ea5228e1de373aff30ecdd9d097624b" compoundref="_app_model_8cpp" startline="417" endline="432">save</referencedby>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1aa8d1f246d97775f7f3c9e21cae213f9f" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>juce::File</type>
+        <definition>juce::File AppModel::getNexusFile</definition>
+        <argsstring>() const</argsstring>
+        <name>getNexusFile</name>
+        <qualifiedname>AppModel::getNexusFile</qualifiedname>
+        <briefdescription>
+<para>Returns <computeroutput>~/.config/end/nexus/&lt;uuid&gt;.<ref refid="namespacenexus" kindref="compound">nexus</ref></computeroutput> (daemon&apos;s port file). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="298" column="16" bodyfile="AppModel.cpp" bodystart="460" bodyend="463"/>
+        <references refid="classlua_1_1_engine_1a2a3f09ff613e66ae01cde493dbbe4395" compoundref="_engine_8cpp" startline="26" endline="29">lua::Engine::getConfigPath</references>
+        <references refid="struct_app_model_1af47dcc23d7369b6fb9f72d32cc0bbaa3" compoundref="_app_model_8cpp" startline="253" endline="256">getInstanceUuid</references>
+        <referencedby refid="struct_app_model_1a8da9beb832fd2d33d9ca345100ec6c78" compoundref="_app_model_8cpp" startline="450" endline="453">deleteNexusFile</referencedby>
+        <referencedby refid="struct_app_model_1aad3903648ef251bc4c7c75617a225306" compoundref="_app_model_8cpp" startline="268" endline="275">setPort</referencedby>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_app_model_1acde520240a05e0ff5b3880557c291a0a" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>juce::File</type>
+        <definition>juce::File AppModel::getWindowState</definition>
+        <argsstring>() const</argsstring>
+        <name>getWindowState</name>
+        <qualifiedname>AppModel::getWindowState</qualifiedname>
+        <briefdescription>
+<para>Returns <computeroutput>~/.config/end/window.state</computeroutput> — cross-instance window size file. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="301" column="16" bodyfile="AppModel.cpp" bodystart="465" bodyend="468"/>
+        <references refid="classlua_1_1_engine_1a2a3f09ff613e66ae01cde493dbbe4395" compoundref="_engine_8cpp" startline="26" endline="29">lua::Engine::getConfigPath</references>
+        <referencedby refid="struct_app_model_1aaae7da7125d05bc93f67e7cc08be4405" compoundref="_app_model_8cpp" startline="486" endline="512">loadWindowState</referencedby>
+        <referencedby refid="struct_app_model_1aadec1c1d139204d67deaed3c856c10a4" compoundref="_app_model_8cpp" startline="470" endline="484">saveWindowState</referencedby>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="private-func">
+      <memberdef kind="function" id="struct_app_model_1adc4141a6e63d9801a6e3c027f729f74d" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void AppModel::build</definition>
+        <argsstring>(const juce::XmlElement &amp;xml)</argsstring>
+        <name>build</name>
+        <qualifiedname>AppModel::build</qualifiedname>
+        <param>
+          <type>const juce::XmlElement &amp;</type>
+          <declname>xml</declname>
+        </param>
+        <briefdescription>
+<para>Walks AppParameters.xml and populates the <ref refid="classValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ValueTree</ref> with PARAM children and Parameter&lt;int&gt; adapters. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Called once from the constructor.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>xml</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The parsed AppParameters.xml root element. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="312" column="10" bodyfile="AppModel.cpp" bodystart="542" bodyend="606"/>
+        <references refid="classjam_1_1_model_1aa75f9afb83415f989c962cf77022bcf3">jam::Model::addParameter</references>
+        <references refid="namespaceapp_1_1id_1afae8fe8f9d8780b8a20d5a793a9f4c51" compoundref="_app_identifier_8h" startline="128" endline="128">app::id::floatType</references>
+        <references refid="structjam_1_1_i_d_1a94afe032a3af21e6f22fb73c9625b60a">jam::ID::id</references>
+        <references refid="classjam_1_1_model_1a6c1ba6e01db247659a686aeb09fba0d9">jam::Model::PARAM</references>
+        <references refid="classjam_1_1_model_1a9be603e3c0a76e1f0b6c263066993b63">jam::Model::params</references>
+        <references refid="struct_app_model_1ac12d30deb94ace7428cfa1260a6f69d1" compoundref="_app_model_8cpp" startline="516" endline="540">resolveAppLayoutDefault</references>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+        <references refid="namespaceapp_1_1id_1a928eb12cf0df28db87da4015df4bbfb0" compoundref="_app_identifier_8h" startline="129" endline="129">app::id::stringType</references>
+        <references refid="namespaceapp_1_1id_1ae576c239b4056906a6e377c6362ec71e" compoundref="_app_identifier_8h" startline="125" endline="125">app::id::type</references>
+        <references refid="structjam_1_1_i_d_1a3e141c2723640ea14d8ba1840a8e50eb">jam::ID::value</references>
+        <referencedby refid="struct_app_model_1abe400a13f767af47666a679942ccf1c5" compoundref="_app_model_8cpp" startline="10" endline="38">AppModel</referencedby>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="private-static-func">
+      <memberdef kind="function" id="struct_app_model_1ac12d30deb94ace7428cfa1260a6f69d1" prot="private" static="yes" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>juce::var</type>
+        <definition>juce::var AppModel::resolveAppLayoutDefault</definition>
+        <argsstring>(const juce::XmlElement &amp;elem) noexcept</argsstring>
+        <name>resolveAppLayoutDefault</name>
+        <qualifiedname>AppModel::resolveAppLayoutDefault</qualifiedname>
+        <param>
+          <type>const juce::XmlElement &amp;</type>
+          <declname>elem</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppModel.h" line="314" column="22" bodyfile="AppModel.cpp" bodystart="516" bodyend="540"/>
+        <references refid="namespaceapp_1_1id_1aa6a7447b396768bb1727f8be61732ea0" compoundref="_app_identifier_8h" startline="127" endline="127">app::id::boolType</references>
+        <references refid="namespaceapp_1_1id_1aed856334ad2ab03ffca7c09fe2a9b2ce" compoundref="_app_identifier_8h" startline="126" endline="126">app::id::defaultValue</references>
+        <references refid="namespaceapp_1_1id_1afae8fe8f9d8780b8a20d5a793a9f4c51" compoundref="_app_identifier_8h" startline="128" endline="128">app::id::floatType</references>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Derived &gt;::getContext</references>
+        <references refid="namespaceapp_1_1id_1a928eb12cf0df28db87da4015df4bbfb0" compoundref="_app_identifier_8h" startline="129" endline="129">app::id::stringType</references>
+        <references refid="namespaceapp_1_1id_1ae576c239b4056906a6e377c6362ec71e" compoundref="_app_identifier_8h" startline="125" endline="125">app::id::type</references>
+        <referencedby refid="struct_app_model_1adc4141a6e63d9801a6e3c027f729f74d" compoundref="_app_model_8cpp" startline="542" endline="606">build</referencedby>
+        <referencedby refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3">~AppModel</referencedby>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>AppModel</label>
+        <link refid="struct_app_model"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>jam::Context&lt; AppModel &gt;</label>
+        <link refid="structjam_1_1_context" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+      <node id="2">
+        <label>jam::Model</label>
+        <link refid="classjam_1_1_model" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>AppModel</label>
+        <link refid="struct_app_model"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="8" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>jam::AnyMap</label>
+        <link refid="classjam_1_1_any_map" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>entries</edgelabel>
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>types</edgelabel>
+        </childnode>
+      </node>
+      <node id="8">
+        <label>jam::Context&lt; AppModel &gt;</label>
+        <link refid="structjam_1_1_context" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+      <node id="2">
+        <label>jam::Model</label>
+        <link refid="classjam_1_1_model" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>params</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>uniqueNodeMap</edgelabel>
+        </childnode>
+      </node>
+      <node id="5">
+        <label>std::unique_ptr&lt; void, Deleter &gt;</label>
+      </node>
+      <node id="6">
+        <label>std::unordered_map&lt; juce::Identifier, std::type_index &gt;</label>
+      </node>
+      <node id="4">
+        <label>std::unordered_map&lt; juce::Identifier, std::unique_ptr&lt; void, Deleter &gt; &gt;</label>
+        <childnode refid="5" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+      <node id="7">
+        <label>std::unordered_map&lt; juce::String, juce::ValueTree &gt;</label>
+      </node>
+    </collaborationgraph>
+    <location file="AppModel.h" line="64" column="1" bodyfile="AppModel.h" bodystart="65" bodyend="321"/>
+    <listofallmembers>
+      <member refid="struct_app_model_1a1db76cb2c0b58e4854cd8bdc6ffff3a9" prot="private" virt="non-virtual"><scope>AppModel</scope><name>activeSession</name></member>
+      <member refid="classjam_1_1_model_1ae5d4d70e706dcc558cf21923125a9176" prot="public" virt="non-virtual"><scope>AppModel</scope><name>addListener</name></member>
+      <member refid="classjam_1_1_model_1aa75f9afb83415f989c962cf77022bcf3" prot="public" virt="non-virtual"><scope>AppModel</scope><name>addParameter</name></member>
+      <member refid="struct_app_model_1a97e7b0dbabbf20a8f35682722b8268be" prot="public" virt="non-virtual"><scope>AppModel</scope><name>addTab</name></member>
+      <member refid="classjam_1_1_model_1ae0cb2cc2b04acb47eb9760d92dcedc46" prot="public" virt="non-virtual"><scope>AppModel</scope><name>appendChild</name></member>
+      <member refid="classjam_1_1_model_1a59b57627d856a11d756eabe1690a7213" prot="public" virt="non-virtual"><scope>AppModel</scope><name>applyFunctionRecursively</name></member>
+      <member refid="struct_app_model_1abe400a13f767af47666a679942ccf1c5" prot="public" virt="non-virtual"><scope>AppModel</scope><name>AppModel</name></member>
+      <member refid="classjam_1_1_model_1a453ba02a04d3f7afd493d83a35f2d42e" prot="public" virt="non-virtual"><scope>AppModel</scope><name>attach</name></member>
+      <member refid="classjam_1_1_model_1a16dac6b0bd63f3fd05a7bce45217ec99" prot="public" virt="non-virtual"><scope>AppModel</scope><name>attach</name></member>
+      <member refid="struct_app_model_1adc4141a6e63d9801a6e3c027f729f74d" prot="private" virt="non-virtual"><scope>AppModel</scope><name>build</name></member>
+      <member refid="classjam_1_1_model_1a4b90d140f00ee8c4ceb46aa411c3fc30" prot="public" virt="non-virtual"><scope>AppModel</scope><name>buildUniqueNodeMap</name></member>
+      <member refid="struct_app_model_1a69f7c3a0edf15cba770d166f2b2222b8" prot="public" virt="non-virtual"><scope>AppModel</scope><name>consumeAtlasDirty</name></member>
+      <member refid="structjam_1_1_context_1a6e3f38a234db8ff2a9acb5986e72a2de" prot="public" virt="non-virtual"><scope>AppModel</scope><name>Context</name></member>
+      <member refid="struct_app_model_1a8da9beb832fd2d33d9ca345100ec6c78" prot="public" virt="non-virtual"><scope>AppModel</scope><name>deleteNexusFile</name></member>
+      <member refid="classjam_1_1_model_1a0c6c6dcf22bdf37d65dced08a8dcdefc" prot="public" virt="non-virtual"><scope>AppModel</scope><name>findAndRemoveChild</name></member>
+      <member refid="classjam_1_1_model_1a9eb2e927e025645e46609f37aa6f9304" prot="public" virt="non-virtual"><scope>AppModel</scope><name>flush</name></member>
+      <member refid="classjam_1_1_model_1aaa8b722daed8928b8d587ec30662ac34" prot="private" virt="non-virtual"><scope>AppModel</scope><name>flushHz</name></member>
+      <member refid="struct_app_model_1aa6b7eb70eb7687df38613121683c5024" prot="public" virt="non-virtual"><scope>AppModel</scope><name>getActivePaneID</name></member>
+      <member refid="struct_app_model_1ab46fe2606b815955ddf9e550b4aa9359" prot="public" virt="non-virtual"><scope>AppModel</scope><name>getActivePaneType</name></member>
+      <member refid="struct_app_model_1af9e76c672704046b019df53ac5b7c2ff" prot="public" virt="non-virtual"><scope>AppModel</scope><name>getActiveTabIndex</name></member>
+      <member refid="struct_app_model_1a5fc7272cc6caa1a510d0c956f205c256" prot="public" virt="non-virtual"><scope>AppModel</scope><name>getCellWidth</name></member>
+      <member refid="classjam_1_1_model_1ac0204402c1739f45230319069868ab23" prot="public" virt="non-virtual"><scope>AppModel</scope><name>getChildWithID</name></member>
+      <member refid="classjam_1_1_model_1aecef6b658fc1de8bd8642ce3c0011036" prot="public" virt="non-virtual"><scope>AppModel</scope><name>getChildWithName</name></member>
+      <member refid="classjam_1_1_model_1a7c77bf75e42b16586ae50b355668f2e0" prot="public" virt="non-virtual"><scope>AppModel</scope><name>getChildWithName</name></member>
+      <member refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3" prot="public" virt="non-virtual"><scope>AppModel</scope><name>getContext</name></member>
+      <member refid="struct_app_model_1a5a51fd63625855b3bdbdd7fa466f232a" prot="public" virt="non-virtual"><scope>AppModel</scope><name>getCursorBlinkInterval</name></member>
+      <member refid="struct_app_model_1af02fabcbf42bda957de3b79dac0a78eb" prot="public" virt="non-virtual"><scope>AppModel</scope><name>getCursorCodepoint</name></member>
+      <member refid="struct_app_model_1a47f5c036e7701087b9d30678735b3ec6" prot="public" virt="non-virtual"><scope>AppModel</scope><name>getCursorStyle</name></member>
+      <member refid="struct_app_model_1a148268915563bf57f4d8dd331bdc8af1" prot="public" virt="non-virtual"><scope>AppModel</scope><name>getFontFamily</name></member>
+      <member refid="struct_app_model_1a453da06259ecb0b83b6966771efe1f82" prot="public" virt="non-virtual"><scope>AppModel</scope><name>getFontSize</name></member>
+      <member refid="struct_app_model_1af47dcc23d7369b6fb9f72d32cc0bbaa3" prot="public" virt="non-virtual"><scope>AppModel</scope><name>getInstanceUuid</name></member>
+      <member refid="struct_app_model_1a78b708f95c7b81a30c9bfb4628b37aec" prot="public" virt="non-virtual"><scope>AppModel</scope><name>getLineHeight</name></member>
+      <member refid="struct_app_model_1a5f039d3461dcecd5581225bdadb0ce0c" prot="public" virt="non-virtual"><scope>AppModel</scope><name>getLoadingNode</name></member>
+      <member refid="struct_app_model_1a914f66a251aa0ad0d47242253f027d8c" prot="public" virt="non-virtual"><scope>AppModel</scope><name>getModalType</name></member>
+      <member refid="struct_app_model_1aa8d1f246d97775f7f3c9e21cae213f9f" prot="public" virt="non-virtual"><scope>AppModel</scope><name>getNexusFile</name></member>
+      <member refid="struct_app_model_1a732683754e18e0d3dbd93583bed3912b" prot="public" virt="non-virtual"><scope>AppModel</scope><name>getNexusNode</name></member>
+      <member refid="classjam_1_1_model_1a322c866d6fc435eb6799562d6d6db8b1" prot="public" virt="non-virtual"><scope>AppModel</scope><name>getOrCreateChildWithName</name></member>
+      <member refid="classjam_1_1_model_1a4d93df7249f679710c1ac1c5f288147c" prot="public" virt="non-virtual"><scope>AppModel</scope><name>getOrCreateChildWithName</name></member>
+      <member refid="struct_app_model_1a9a402d8ba04ebc4e1d6f791d39c30635" prot="public" virt="non-virtual"><scope>AppModel</scope><name>getPaddingBottom</name></member>
+      <member refid="struct_app_model_1a52e345195bfb1e87f33cd472e55fdb6c" prot="public" virt="non-virtual"><scope>AppModel</scope><name>getPaddingLeft</name></member>
+      <member refid="struct_app_model_1ad2b662a4bd93e688cf7592de22f0c775" prot="public" virt="non-virtual"><scope>AppModel</scope><name>getPaddingRight</name></member>
+      <member refid="struct_app_model_1aa949203f52b596440b04ae76adab7f11" prot="public" virt="non-virtual"><scope>AppModel</scope><name>getPaddingTop</name></member>
+      <member refid="struct_app_model_1abe172951a8cc06fea4e80398618d6500" prot="public" virt="non-virtual"><scope>AppModel</scope><name>getPort</name></member>
+      <member refid="struct_app_model_1af7eeffe94f371e3ee1ed43c8f796853f" prot="public" virt="non-virtual"><scope>AppModel</scope><name>getPwd</name></member>
+      <member refid="classjam_1_1_model_1a657de384bbcda4bd183b0fddc3de205b" prot="public" virt="non-virtual"><scope>AppModel</scope><name>getRawParameterValue</name></member>
+      <member refid="struct_app_model_1ae1b2239313dc86889de4137db2b2a19a" prot="public" virt="non-virtual"><scope>AppModel</scope><name>getRendererType</name></member>
+      <member refid="classjam_1_1_model_1abf91bfe071259060be78f47c83e720e4" prot="public" virt="non-virtual"><scope>AppModel</scope><name>getRootTree</name></member>
+      <member refid="struct_app_model_1a851626b84c6f29004a1d29630d85c7a3" prot="public" virt="non-virtual"><scope>AppModel</scope><name>getSelectionType</name></member>
+      <member refid="struct_app_model_1a5bf961bf2da4f58edc44f53491d07b8b" prot="public" virt="non-virtual"><scope>AppModel</scope><name>getSessionsNode</name></member>
+      <member refid="struct_app_model_1a62ef186466e64e89f89e0d0847c282bb" prot="public" virt="non-virtual"><scope>AppModel</scope><name>getStateFile</name></member>
+      <member refid="struct_app_model_1a4588cfbb14ca0c3ebb0f1b3ae593e02a" prot="public" virt="non-virtual"><scope>AppModel</scope><name>getTab</name></member>
+      <member refid="struct_app_model_1af41a958ece0fed17ed0f1a1c444e2671" prot="public" virt="non-virtual"><scope>AppModel</scope><name>getTabPosition</name></member>
+      <member refid="struct_app_model_1ad2ff3c0021a5923d44ad091734b7b589" prot="public" virt="non-virtual"><scope>AppModel</scope><name>getTabs</name></member>
+      <member refid="classjam_1_1_model_1abe937e02011833b8cf8f20bfb650ac9d" prot="public" virt="non-virtual"><scope>AppModel</scope><name>getTreeProperty</name></member>
+      <member refid="classjam_1_1_model_1a3466c9f9fcd9a4baa862bb400562e7b7" prot="public" virt="non-virtual"><scope>AppModel</scope><name>getTreePropertyAsValue</name></member>
+      <member refid="classjam_1_1_model_1ac922db931cd481a9cf483c90e4de2543" prot="public" virt="non-virtual"><scope>AppModel</scope><name>getType</name></member>
+      <member refid="classjam_1_1_model_1a39b0cc13737eca194351a246bd88b615" prot="public" virt="non-virtual"><scope>AppModel</scope><name>getUniqueNodeMap</name></member>
+      <member refid="classjam_1_1_model_1a0116dc2885feeb67b5f875d93dd109df" prot="public" virt="non-virtual"><scope>AppModel</scope><name>getValue</name></member>
+      <member refid="classjam_1_1_model_1a2f037e88407eb8b95b9ab7daf7c0b15c" prot="public" virt="non-virtual"><scope>AppModel</scope><name>getValueFromChildWithID</name></member>
+      <member refid="classjam_1_1_model_1a4d4ed473066b67b001ced0f5296f577f" prot="public" virt="non-virtual"><scope>AppModel</scope><name>getValueFromChildWithName</name></member>
+      <member refid="struct_app_model_1a33fc400cec078d808f6017c45574e10e" prot="public" virt="non-virtual"><scope>AppModel</scope><name>getWindow</name></member>
+      <member refid="struct_app_model_1a36329693e74ae4f67d91b3abbe50cbb9" prot="public" virt="non-virtual"><scope>AppModel</scope><name>getWindowHeight</name></member>
+      <member refid="struct_app_model_1acde520240a05e0ff5b3880557c291a0a" prot="public" virt="non-virtual"><scope>AppModel</scope><name>getWindowState</name></member>
+      <member refid="struct_app_model_1ae391c9b55e9992a7ac88b2840b7e3079" prot="public" virt="non-virtual"><scope>AppModel</scope><name>getWindowWidth</name></member>
+      <member refid="struct_app_model_1ab65b479731c9d0efaf812f630dc6df23" prot="public" virt="non-virtual"><scope>AppModel</scope><name>getWindowZoom</name></member>
+      <member refid="classjam_1_1_model_1a710fd55b83d2e5657e48d49ce5225ea2" prot="public" virt="non-virtual"><scope>AppModel</scope><name>getXml</name></member>
+      <member refid="structjam_1_1_context_1a5900ff66cdba02d6f6947cc6d5e8ec3d" prot="private" virt="non-virtual"><scope>AppModel</scope><name>head</name></member>
+      <member refid="classjam_1_1_model_1a1c976506dd5eb7d125a0e804c97c61e2" prot="private" virt="non-virtual"><scope>AppModel</scope><name>idleHz</name></member>
+      <member refid="struct_app_model_1a13a5563e524c4ff72fde7b72b11b9977" prot="public" virt="non-virtual"><scope>AppModel</scope><name>isDaemonMode</name></member>
+      <member refid="struct_app_model_1a6024f393df864362c8507b16b70f8cb7" prot="public" virt="non-virtual"><scope>AppModel</scope><name>load</name></member>
+      <member refid="classjam_1_1_model_1afb401fb24025fa7fddf2740e374df4aa" prot="public" virt="non-virtual"><scope>AppModel</scope><name>loadState</name></member>
+      <member refid="classjam_1_1_model_1a6662822c6b2f2539b5839a41daa668c9" prot="public" virt="non-virtual"><scope>AppModel</scope><name>loadState</name></member>
+      <member refid="struct_app_model_1aaae7da7125d05bc93f67e7cc08be4405" prot="public" virt="non-virtual"><scope>AppModel</scope><name>loadWindowState</name></member>
+      <member refid="struct_app_model_1abe273920682ed70f9076ae15e5d7842b" prot="public" virt="non-virtual"><scope>AppModel</scope><name>markAtlasDirty</name></member>
+      <member refid="classjam_1_1_model_1afbe837fa9d9c8086381333783bb1db3b" prot="public" virt="non-virtual"><scope>AppModel</scope><name>Model</name></member>
+      <member refid="classjam_1_1_model_1ac2b1be0ad517b16b39bf38e7abb35c68" prot="public" virt="non-virtual"><scope>AppModel</scope><name>Model</name></member>
+      <member refid="structjam_1_1_context_1a6716feb60b039083ca0c099a506a3474" prot="public" virt="non-virtual"><scope>AppModel</scope><name>operator=</name></member>
+      <member refid="classjam_1_1_model_1a6c1ba6e01db247659a686aeb09fba0d9" prot="public" virt="non-virtual"><scope>AppModel</scope><name>PARAM</name></member>
+      <member refid="classjam_1_1_model_1a9be603e3c0a76e1f0b6c263066993b63" prot="public" virt="non-virtual"><scope>AppModel</scope><name>params</name></member>
+      <member refid="structjam_1_1_context_1aa1862120f2983ab7ddef536ba03bb114" prot="private" virt="non-virtual"><scope>AppModel</scope><name>previous</name></member>
+      <member refid="classjam_1_1_model_1acbf5ef1a6e71240468f17fe707532bec" prot="public" virt="non-virtual"><scope>AppModel</scope><name>removeChild</name></member>
+      <member refid="classjam_1_1_model_1a688b7625ae8b2a4d4d1f1643a6b3aa41" prot="public" virt="non-virtual"><scope>AppModel</scope><name>removeListener</name></member>
+      <member refid="struct_app_model_1af0eb41847a5138c20cca20a23d5d8283" prot="public" virt="non-virtual"><scope>AppModel</scope><name>removeTab</name></member>
+      <member refid="classjam_1_1_model_1a73bb2822ba0b1211ca9e290d57c5cd2d" prot="public" virt="non-virtual"><scope>AppModel</scope><name>replaceState</name></member>
+      <member refid="struct_app_model_1ac12d30deb94ace7428cfa1260a6f69d1" prot="private" virt="non-virtual"><scope>AppModel</scope><name>resolveAppLayoutDefault</name></member>
+      <member refid="classjam_1_1_model_1a77ac5fd7f2a2caa0e892cd993d4df2d7" prot="public" virt="non-virtual"><scope>AppModel</scope><name>restoreValues</name></member>
+      <member refid="struct_app_model_1a6ea5228e1de373aff30ecdd9d097624b" prot="public" virt="non-virtual"><scope>AppModel</scope><name>save</name></member>
+      <member refid="struct_app_model_1aadec1c1d139204d67deaed3c856c10a4" prot="public" virt="non-virtual"><scope>AppModel</scope><name>saveWindowState</name></member>
+      <member refid="struct_app_model_1acd8609ee6b05bce137df2b703f426009" prot="public" virt="non-virtual"><scope>AppModel</scope><name>setActivePaneID</name></member>
+      <member refid="struct_app_model_1a0979655baa2bb2514f824b5b2213b688" prot="public" virt="non-virtual"><scope>AppModel</scope><name>setActivePaneType</name></member>
+      <member refid="struct_app_model_1a75038d249a33b5f32667b8cf1da894ed" prot="public" virt="non-virtual"><scope>AppModel</scope><name>setActiveTabIndex</name></member>
+      <member refid="struct_app_model_1a3f6234ea491efa3ba0e13ed5a9af75e4" prot="public" virt="non-virtual"><scope>AppModel</scope><name>setCellWidth</name></member>
+      <member refid="struct_app_model_1a8c682c57a734c44ede583208fbac1c82" prot="public" virt="non-virtual"><scope>AppModel</scope><name>setCursorBlinkInterval</name></member>
+      <member refid="struct_app_model_1a39175ac839f1cdf8b41bb102c84d42c8" prot="public" virt="non-virtual"><scope>AppModel</scope><name>setCursorCodepoint</name></member>
+      <member refid="struct_app_model_1ac304758f2277b44b5b69ea99ada92d04" prot="public" virt="non-virtual"><scope>AppModel</scope><name>setCursorStyle</name></member>
+      <member refid="struct_app_model_1a1bb1a3c23e730b48fc4c86b958bb5c3d" prot="public" virt="non-virtual"><scope>AppModel</scope><name>setDaemonMode</name></member>
+      <member refid="struct_app_model_1a2dae0bf677d786df54592add4b6f7653" prot="public" virt="non-virtual"><scope>AppModel</scope><name>setFontFamily</name></member>
+      <member refid="struct_app_model_1a73228906a27ee0e0ddd749e02c55f507" prot="public" virt="non-virtual"><scope>AppModel</scope><name>setFontSize</name></member>
+      <member refid="struct_app_model_1ac974e4042f7b19970e14c876ab0144da" prot="public" virt="non-virtual"><scope>AppModel</scope><name>setGpuAvailable</name></member>
+      <member refid="struct_app_model_1add3a497f60aa25b17b4974b74792c7ac" prot="public" virt="non-virtual"><scope>AppModel</scope><name>setInstanceUuid</name></member>
+      <member refid="struct_app_model_1ac145b163fefb0d869844801bdaa4c8bf" prot="public" virt="non-virtual"><scope>AppModel</scope><name>setLineHeight</name></member>
+      <member refid="struct_app_model_1a3a5760411f18cfceaba0bd6970a03490" prot="public" virt="non-virtual"><scope>AppModel</scope><name>setModalType</name></member>
+      <member refid="struct_app_model_1a46c958c3311f69d050c0e6e31613ba7a" prot="public" virt="non-virtual"><scope>AppModel</scope><name>setPaddingBottom</name></member>
+      <member refid="struct_app_model_1a1053e78981e1c1d287348ad06135dd42" prot="public" virt="non-virtual"><scope>AppModel</scope><name>setPaddingLeft</name></member>
+      <member refid="struct_app_model_1ab092f12f2c1cee0814e6f24d425d054f" prot="public" virt="non-virtual"><scope>AppModel</scope><name>setPaddingRight</name></member>
+      <member refid="struct_app_model_1a1c5acbd174197755b89450577edde968" prot="public" virt="non-virtual"><scope>AppModel</scope><name>setPaddingTop</name></member>
+      <member refid="struct_app_model_1aad3903648ef251bc4c7c75617a225306" prot="public" virt="non-virtual"><scope>AppModel</scope><name>setPort</name></member>
+      <member refid="struct_app_model_1a2d98a71682bda840b145b788763b2e06" prot="public" virt="non-virtual"><scope>AppModel</scope><name>setPwd</name></member>
+      <member refid="struct_app_model_1aae67bc48e392b48d0a269ad489a9d33e" prot="public" virt="non-virtual"><scope>AppModel</scope><name>setRendererType</name></member>
+      <member refid="struct_app_model_1ad280d1276cb136d455b3703332875eb7" prot="public" virt="non-virtual"><scope>AppModel</scope><name>setScrollbackLines</name></member>
+      <member refid="struct_app_model_1a5cde5241c339dc4966a4083fa852091e" prot="public" virt="non-virtual"><scope>AppModel</scope><name>setSelectionType</name></member>
+      <member refid="struct_app_model_1afc32c48a7dbb67ad069e18510497e93c" prot="public" virt="non-virtual"><scope>AppModel</scope><name>setTabPosition</name></member>
+      <member refid="classjam_1_1_model_1a3263920ba9cd2e5633d714a49c0a5000" prot="public" virt="non-virtual"><scope>AppModel</scope><name>setTreeProperty</name></member>
+      <member refid="classjam_1_1_model_1a4fbbdb02043cf33008d91de8cc79a9f2" prot="public" virt="non-virtual"><scope>AppModel</scope><name>setValue</name></member>
+      <member refid="classjam_1_1_model_1a15257c4c0b7e83a50126f57a64b0bf5e" prot="public" virt="non-virtual"><scope>AppModel</scope><name>setValue</name></member>
+      <member refid="struct_app_model_1a5486d899a2fd3715f8977c815bcb0eb5" prot="public" virt="non-virtual"><scope>AppModel</scope><name>setWindowSize</name></member>
+      <member refid="struct_app_model_1a0e6e5e29864e321a25bcd1bc8fbdcdf2" prot="public" virt="non-virtual"><scope>AppModel</scope><name>setWindowZoom</name></member>
+      <member refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857" prot="protected" virt="non-virtual"><scope>AppModel</scope><name>state</name></member>
+      <member refid="classjam_1_1_model_1a5de5c362c126a9f4d8d21c592b678bdb" prot="private" virt="non-virtual"><scope>AppModel</scope><name>timerCallback</name></member>
+      <member refid="classjam_1_1_model_1a68d2ef67ec3d2a469741be46e499adbb" prot="public" virt="non-virtual"><scope>AppModel</scope><name>UniqueNodeMap</name></member>
+      <member refid="classjam_1_1_model_1a1e3b285d0fa32431d85e2c1a1ea8f02f" prot="private" virt="non-virtual"><scope>AppModel</scope><name>uniqueNodeMap</name></member>
+      <member refid="classjam_1_1_model_1a495677a2122cc1dbb67c416ddfd51e17" prot="private" virt="non-virtual"><scope>AppModel</scope><name>valueTreeChanging</name></member>
+      <member refid="classjam_1_1_model_1a5e0284f87a2a71c84edd644b75f4d07f" prot="public" virt="non-virtual"><scope>AppModel</scope><name>writeToXml</name></member>
+      <member refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3" prot="public" virt="non-virtual"><scope>AppModel</scope><name>~AppModel</name></member>
+      <member refid="structjam_1_1_context_1a4169820e71837632922d3d17b377aeee" prot="public" virt="virtual"><scope>AppModel</scope><name>~Context</name></member>
+      <member refid="classjam_1_1_model_1afb01105d951530920a004ca01b5c54c1" prot="public" virt="non-virtual"><scope>AppModel</scope><name>~Model</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,389 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="_video_s_g_r_8cpp" kind="file" language="C++">
+    <compoundname>VideoSGR.cpp</compoundname>
+    <includes refid="_video_8h" local="yes">Video.h</includes>
+    <incdepgraph>
+      <node id="11">
+        <label>../Map.h</label>
+        <link refid="_map_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>CSI.h</label>
+        <link refid="_c_s_i_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>CharProps.h</label>
+        <link refid="_char_props_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>CharPropsData.h</label>
+        <link refid="_char_props_data_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>Charset.h</label>
+        <link refid="_charset_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>DispatchTable.h</label>
+        <link refid="_dispatch_table_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>Identifier.h</label>
+        <link refid="_identifier_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>Palette.h</label>
+        <link refid="_palette_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>Video.h</label>
+        <link refid="_video_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>terminal/VideoSGR.cpp</label>
+        <link refid="_video_s_g_r_8cpp"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>JuceHeader.h</label>
+      </node>
+      <node id="4">
+        <label>atomic</label>
+      </node>
+    </incdepgraph>
+    <innernamespace refid="namespaceterminal">terminal</innernamespace>
+    <briefdescription>
+<para>SGR (Select Graphic Rendition) dispatch for the VT terminal video processor. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>This file implements the SGR subsystem of the Video class. SGR sequences (<computeroutput>ESC [ &lt;params&gt; m</computeroutput>) control all visual text attributes: style flags (bold, italic, underline, blink, inverse, strike) and foreground/background colors (<ref refid="namespace_a_n_s_i" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">ANSI</ref> 16-color palette, 256-color palette, and 24-bit RGB).</para>
+<sect1 id="_video_s_g_r_8cpp_1autotoc_md93_1s1"><sect2 id="_video_s_g_r_8cpp_1autotoc_md93">
+<title>SGR parameter table</title><para><table rows="27" cols="2"><row>
+<entry thead="yes"><para>Code(s)  </para>
+</entry><entry thead="yes"><para>Effect  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>0  </para>
+</entry><entry thead="no"><para>Reset all attributes to default  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>1  </para>
+</entry><entry thead="no"><para>Bold (increased intensity)  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>2  </para>
+</entry><entry thead="no"><para>Dim (decreased intensity / faint)  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>3  </para>
+</entry><entry thead="no"><para>Italic  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>4  </para>
+</entry><entry thead="no"><para>Underline  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>5  </para>
+</entry><entry thead="no"><para>Blink (slow)  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>6  </para>
+</entry><entry thead="no"><para>Blink (rapid) — treated as slow blink  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>7  </para>
+</entry><entry thead="no"><para>Inverse (swap fg/bg)  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>9  </para>
+</entry><entry thead="no"><para>Strikethrough  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>21  </para>
+</entry><entry thead="no"><para>Doubly underlined / bold off (xterm)  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>22  </para>
+</entry><entry thead="no"><para>Normal intensity (bold off)  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>23  </para>
+</entry><entry thead="no"><para>Italic off  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>24  </para>
+</entry><entry thead="no"><para>Underline off  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>25  </para>
+</entry><entry thead="no"><para>Blink off  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>27  </para>
+</entry><entry thead="no"><para>Inverse off  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>29  </para>
+</entry><entry thead="no"><para>Strikethrough off  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>30–37  </para>
+</entry><entry thead="no"><para>Set foreground: <ref refid="namespace_a_n_s_i" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">ANSI</ref> colors 0–7  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>38;5;N  </para>
+</entry><entry thead="no"><para>Set foreground: 256-color palette index N  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>38;2;R;G;B  </para>
+</entry><entry thead="no"><para>Set foreground: 24-bit RGB  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>39  </para>
+</entry><entry thead="no"><para>Reset foreground to default  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>40–47  </para>
+</entry><entry thead="no"><para>Set background: <ref refid="namespace_a_n_s_i" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">ANSI</ref> colors 0–7  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>48;5;N  </para>
+</entry><entry thead="no"><para>Set background: 256-color palette index N  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>48;2;R;G;B  </para>
+</entry><entry thead="no"><para>Set background: 24-bit RGB  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>49  </para>
+</entry><entry thead="no"><para>Reset background to default  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>90–97  </para>
+</entry><entry thead="no"><para>Set foreground: bright <ref refid="namespace_a_n_s_i" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">ANSI</ref> colors 8–15  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>100–107  </para>
+</entry><entry thead="no"><para>Set background: bright <ref refid="namespace_a_n_s_i" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">ANSI</ref> colors 8–15  </para>
+</entry></row>
+</table>
+</para>
+</sect2></sect1>
+<sect1 id="_video_s_g_r_8cpp_1autotoc_md94_1s1"><sect2 id="_video_s_g_r_8cpp_1autotoc_md94">
+<title>Extended color encoding</title><para>Two syntaxes are accepted for 256-color and 24-bit RGB colors:</para>
+<para><simplesect kind="par"><title>Semicolon syntax (ECMA-48 / xterm)</title><para><programlisting><codeline><highlight class="normal">ESC<sp/>[<sp/>38<sp/>;<sp/>5<sp/>;<sp/>N<sp/>m<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>—<sp/>256-color<sp/>palette,<sp/>index<sp/>N</highlight></codeline>
+<codeline><highlight class="normal">ESC<sp/>[<sp/>38<sp/>;<sp/>2<sp/>;<sp/>R<sp/>;<sp/><ref refid="lstate_8h_1a103db2de6edf3420c6c6c9a282562406" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">G</ref><sp/>;<sp/>B<sp/>m<sp/><sp/>—<sp/>24-bit<sp/>RGB</highlight></codeline>
+</programlisting></para>
+</simplesect>
+<simplesect kind="par"><title>Colon sub-separator syntax (ISO 8613-6 / ITU T.416)</title><para><programlisting><codeline><highlight class="normal">ESC<sp/>[<sp/>38<sp/>:<sp/>5<sp/>:<sp/>N<sp/>m<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>—<sp/>256-color<sp/>palette,<sp/>index<sp/>N</highlight></codeline>
+<codeline><highlight class="normal">ESC<sp/>[<sp/>38<sp/>:<sp/>2<sp/>:<sp/>:<sp/>R<sp/>:<sp/><ref refid="lstate_8h_1a103db2de6edf3420c6c6c9a282562406" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">G</ref><sp/>:<sp/>B<sp/>m<sp/>—<sp/>24-bit<sp/>RGB<sp/>(empty<sp/>slot<sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>color<sp/>space<sp/>ID)</highlight></codeline>
+</programlisting></para>
+</simplesect>
+Both syntaxes are handled by <computeroutput>parseExtendedColor()</computeroutput>, which reads the sub-type from <computeroutput>params.values[i+1]</computeroutput> and advances the index accordingly.</para>
+</sect2></sect1>
+<sect1 id="_video_s_g_r_8cpp_1autotoc_md95_1s1"><sect2 id="_video_s_g_r_8cpp_1autotoc_md95">
+<title>Theme sentinel</title><para><computeroutput>juce::Colour{}</computeroutput> (fully transparent, alpha == 0) is the theme-default sentinel. SGR 39 and 49 reset fg/bg to this value. The renderer checks <computeroutput>getAlpha() == 0</computeroutput> and substitutes the active UI theme colour.</para>
+<para><simplesect kind="note"><para>All functions in this file run on the READER THREAD only.</para>
+</simplesect>
+<simplesect kind="see"><para>jam::Char — the packed character atom written by SGR pen state </para>
+</simplesect>
+<simplesect kind="see"><para>palette256At() — xterm-256 colour table accessor </para>
+</simplesect>
+<simplesect kind="see"><para>CSI — parameter accumulator supplying the SGR parameter list </para>
+</simplesect>
+<simplesect kind="see"><para>jam::Char — style bit flags (BOLD, ITALIC, UNDERLINE, BLINK, INVERSE, STRIKE) </para>
+</simplesect>
+</para>
+</sect2></sect1>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_video_8h" kindref="compound">Video.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespaceterminal" kindref="compound">terminal</ref></highlight></codeline>
+<codeline lineno="77"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight><highlight class="comment">/*____________________________________________________________________________*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="118" refid="namespaceterminal_1a255498a29b2d29efaf8fbd0124827a9c" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>juce::Colour<sp/><ref refid="namespaceterminal_1a255498a29b2d29efaf8fbd0124827a9c" kindref="member">parseExtendedColor</ref><sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref>&amp;<sp/>params,<sp/>uint8_t&amp;<sp/>i)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::Colour<sp/>result<sp/>{};</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(i<sp/>+<sp/>1<sp/>&lt;<sp/>params.count)</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>subType<sp/>{<sp/>params.values.at<sp/>(i<sp/>+<sp/>1)<sp/>};</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(subType<sp/>==<sp/>5<sp/>and<sp/>i<sp/>+<sp/>2<sp/>&lt;<sp/>params.count)</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/><ref refid="namespaceterminal_1a6ee303b5da8f6de02fc025255997ea2a" kindref="member">palette256At</ref><sp/>(params.values.at<sp/>(i<sp/>+<sp/>2));</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>i<sp/>+=<sp/>2;</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(subType<sp/>==<sp/>2<sp/>and<sp/>i<sp/>+<sp/>4<sp/>&lt;<sp/>params.count)</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/>juce::Colour<sp/>(</highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal">uint8_t</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(params.values.at<sp/>(i<sp/>+<sp/>2)),</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal">uint8_t</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(params.values.at<sp/>(i<sp/>+<sp/>3)),</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal">uint8_t</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(params.values.at<sp/>(i<sp/>+<sp/>4)));</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>i<sp/>+=<sp/>4;</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>result;</highlight></codeline>
+<codeline lineno="141"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight></codeline>
+<codeline lineno="164" refid="namespaceterminal_1a25e958c9e527dce90f37c311d50c4ed2" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="namespaceterminal_1a25e958c9e527dce90f37c311d50c4ed2" kindref="member">applySGRStyle</ref><sp/>(uint8_t&amp;<sp/>flags,<sp/>uint16_t<sp/><ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref>)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="165"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">switch</highlight><highlight class="normal"><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref>)</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>1:<sp/><sp/>flags<sp/>|=<sp/><ref refid="structjam_1_1_stamp_1a7b3a74474303f120cd29071587664564" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Stamp::BOLD</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>2:<sp/><sp/>flags<sp/>|=<sp/><ref refid="structjam_1_1_stamp_1a5496dd1342018f5f8556875bb8e1e010" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Stamp::DIM</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>3:<sp/><sp/>flags<sp/>|=<sp/><ref refid="structjam_1_1_stamp_1ade6ba8dcf76243e58b5f4582c33288e7" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Stamp::ITALIC</ref>;<sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>4:<sp/><sp/>flags<sp/>|=<sp/><ref refid="structjam_1_1_stamp_1ac62f235cf4629d93e25651cafad3c6d4" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Stamp::UNDERLINE</ref>;<sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>5:</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>6:<sp/><sp/>flags<sp/>|=<sp/><ref refid="structjam_1_1_stamp_1a72e418181291235d5eb68139083e118c" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Stamp::BLINK</ref>;<sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>7:<sp/><sp/>flags<sp/>|=<sp/><ref refid="structjam_1_1_stamp_1a6fdccec8a7d9140db4c093792e94846c" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Stamp::INVERSE</ref>;<sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>9:<sp/><sp/>flags<sp/>|=<sp/><ref refid="structjam_1_1_stamp_1a9cd99f6a1f6931b0b3837263409c9d7d" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Stamp::STRIKE</ref>;<sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">:<sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="178"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"></highlight></codeline>
+<codeline lineno="195" refid="namespaceterminal_1a74f930d5094dd953e7b96ccaccf93893" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="namespaceterminal_1a74f930d5094dd953e7b96ccaccf93893" kindref="member">resetSGRStyle</ref><sp/>(uint8_t&amp;<sp/>flags,<sp/>uint16_t<sp/><ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref>)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="196"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">switch</highlight><highlight class="normal"><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref>)</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>21:</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>22:<sp/>flags<sp/>&amp;=<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal">uint8_t</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(~(<ref refid="structjam_1_1_stamp_1a7b3a74474303f120cd29071587664564" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Stamp::BOLD</ref><sp/>|<sp/><ref refid="structjam_1_1_stamp_1a5496dd1342018f5f8556875bb8e1e010" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Stamp::DIM</ref>));<sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>23:<sp/>flags<sp/>&amp;=<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal">uint8_t</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(<ref refid="namespacejam" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">~jam</ref>::Stamp::ITALIC);<sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>24:<sp/>flags<sp/>&amp;=<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal">uint8_t</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(<ref refid="namespacejam" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">~jam</ref>::Stamp::UNDERLINE);<sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>25:<sp/>flags<sp/>&amp;=<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal">uint8_t</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(<ref refid="namespacejam" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">~jam</ref>::Stamp::BLINK);<sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>27:<sp/>flags<sp/>&amp;=<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal">uint8_t</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(<ref refid="namespacejam" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">~jam</ref>::Stamp::INVERSE);<sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>29:<sp/>flags<sp/>&amp;=<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal">uint8_t</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(<ref refid="namespacejam" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">~jam</ref>::Stamp::STRIKE);<sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">:<sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="208"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"></highlight></codeline>
+<codeline lineno="256" refid="classterminal_1_1_video_1a191f107cf758517419462a3c23e1d866" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_video_1a191f107cf758517419462a3c23e1d866" kindref="member">Video::handleSGR</ref><sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref>&amp;<sp/>params)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="257"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="258"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(params.count<sp/>==<sp/>0)</highlight></codeline>
+<codeline lineno="259"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="260"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1abe66dfac19719c2c0d33e4e2f616bd5b" kindref="member">penFg</ref><sp/>=<sp/>{};</highlight></codeline>
+<codeline lineno="261"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1ad5cd3899a39d4556fe7d99a5ad3c55ae" kindref="member">penBg</ref><sp/>=<sp/>{};</highlight></codeline>
+<codeline lineno="262"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1ac12308ab57acd8047cbeecdd7597fa1f" kindref="member">penFlags</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="263"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1a557bb0a5abbed77236fd6fe92305e310" kindref="member">penStyleDirty</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="264"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="266"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="267"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint8_t<sp/>i<sp/>{<sp/>0<sp/>};<sp/>i<sp/>&lt;<sp/>params.count;<sp/>++i)</highlight></codeline>
+<codeline lineno="268"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/><ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>{<sp/>params.values.at<sp/>(i)<sp/>};</highlight></codeline>
+<codeline lineno="270"><highlight class="normal"></highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>==<sp/>0)</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1abe66dfac19719c2c0d33e4e2f616bd5b" kindref="member">penFg</ref><sp/>=<sp/>{};</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1ad5cd3899a39d4556fe7d99a5ad3c55ae" kindref="member">penBg</ref><sp/>=<sp/>{};</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1ac12308ab57acd8047cbeecdd7597fa1f" kindref="member">penFlags</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="276"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1a557bb0a5abbed77236fd6fe92305e310" kindref="member">penStyleDirty</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="277"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="278"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>&gt;=<sp/>1<sp/>and<sp/><ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>&lt;=<sp/>9)</highlight></codeline>
+<codeline lineno="279"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="280"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="namespaceterminal_1a25e958c9e527dce90f37c311d50c4ed2" kindref="member">applySGRStyle</ref><sp/>(<ref refid="classterminal_1_1_video_1ac12308ab57acd8047cbeecdd7597fa1f" kindref="member">penFlags</ref>,<sp/><ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref>);</highlight></codeline>
+<codeline lineno="281"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1a557bb0a5abbed77236fd6fe92305e310" kindref="member">penStyleDirty</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="282"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="283"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>&gt;=<sp/>21<sp/>and<sp/><ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>&lt;=<sp/>29)</highlight></codeline>
+<codeline lineno="284"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="285"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="namespaceterminal_1a74f930d5094dd953e7b96ccaccf93893" kindref="member">resetSGRStyle</ref><sp/>(<ref refid="classterminal_1_1_video_1ac12308ab57acd8047cbeecdd7597fa1f" kindref="member">penFlags</ref>,<sp/><ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref>);</highlight></codeline>
+<codeline lineno="286"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1a557bb0a5abbed77236fd6fe92305e310" kindref="member">penStyleDirty</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="287"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="288"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>&gt;=<sp/>30<sp/>and<sp/><ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>&lt;=<sp/>37)</highlight></codeline>
+<codeline lineno="289"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="290"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1abe66dfac19719c2c0d33e4e2f616bd5b" kindref="member">penFg</ref><sp/>=<sp/><ref refid="namespaceterminal_1a6ee303b5da8f6de02fc025255997ea2a" kindref="member">palette256At</ref><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>-<sp/>30);</highlight></codeline>
+<codeline lineno="291"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1a557bb0a5abbed77236fd6fe92305e310" kindref="member">penStyleDirty</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="292"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="293"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>==<sp/>38)</highlight></codeline>
+<codeline lineno="294"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="295"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1abe66dfac19719c2c0d33e4e2f616bd5b" kindref="member">penFg</ref><sp/>=<sp/><ref refid="namespaceterminal_1a255498a29b2d29efaf8fbd0124827a9c" kindref="member">parseExtendedColor</ref><sp/>(params,<sp/>i);</highlight></codeline>
+<codeline lineno="296"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1a557bb0a5abbed77236fd6fe92305e310" kindref="member">penStyleDirty</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="297"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="298"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>==<sp/>39)</highlight></codeline>
+<codeline lineno="299"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="300"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1abe66dfac19719c2c0d33e4e2f616bd5b" kindref="member">penFg</ref><sp/>=<sp/>{};</highlight></codeline>
+<codeline lineno="301"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1a557bb0a5abbed77236fd6fe92305e310" kindref="member">penStyleDirty</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="302"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="303"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>&gt;=<sp/>40<sp/>and<sp/><ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>&lt;=<sp/>47)</highlight></codeline>
+<codeline lineno="304"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="305"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1ad5cd3899a39d4556fe7d99a5ad3c55ae" kindref="member">penBg</ref><sp/>=<sp/><ref refid="namespaceterminal_1a6ee303b5da8f6de02fc025255997ea2a" kindref="member">palette256At</ref><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>-<sp/>40);</highlight></codeline>
+<codeline lineno="306"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1a557bb0a5abbed77236fd6fe92305e310" kindref="member">penStyleDirty</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="307"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="308"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>==<sp/>48)</highlight></codeline>
+<codeline lineno="309"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="310"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1ad5cd3899a39d4556fe7d99a5ad3c55ae" kindref="member">penBg</ref><sp/>=<sp/><ref refid="namespaceterminal_1a255498a29b2d29efaf8fbd0124827a9c" kindref="member">parseExtendedColor</ref><sp/>(params,<sp/>i);</highlight></codeline>
+<codeline lineno="311"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1a557bb0a5abbed77236fd6fe92305e310" kindref="member">penStyleDirty</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="312"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="313"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>==<sp/>49)</highlight></codeline>
+<codeline lineno="314"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="315"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1ad5cd3899a39d4556fe7d99a5ad3c55ae" kindref="member">penBg</ref><sp/>=<sp/>{};</highlight></codeline>
+<codeline lineno="316"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1a557bb0a5abbed77236fd6fe92305e310" kindref="member">penStyleDirty</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="317"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="318"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>&gt;=<sp/>90<sp/>and<sp/><ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>&lt;=<sp/>97)</highlight></codeline>
+<codeline lineno="319"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="320"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1abe66dfac19719c2c0d33e4e2f616bd5b" kindref="member">penFg</ref><sp/>=<sp/><ref refid="namespaceterminal_1a6ee303b5da8f6de02fc025255997ea2a" kindref="member">palette256At</ref><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>-<sp/>90<sp/>+<sp/>8);</highlight></codeline>
+<codeline lineno="321"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1a557bb0a5abbed77236fd6fe92305e310" kindref="member">penStyleDirty</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="322"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="323"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>&gt;=<sp/>100<sp/>and<sp/><ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>&lt;=<sp/>107)</highlight></codeline>
+<codeline lineno="324"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="325"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1ad5cd3899a39d4556fe7d99a5ad3c55ae" kindref="member">penBg</ref><sp/>=<sp/><ref refid="namespaceterminal_1a6ee303b5da8f6de02fc025255997ea2a" kindref="member">palette256At</ref><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>-<sp/>100<sp/>+<sp/>8);</highlight></codeline>
+<codeline lineno="326"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1a557bb0a5abbed77236fd6fe92305e310" kindref="member">penStyleDirty</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="327"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="328"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="329"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="330"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="331"><highlight class="normal"></highlight></codeline>
+<codeline lineno="345" refid="classterminal_1_1_video_1ae23195ec7cacb1371073673b825f35e6" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_video_1ae23195ec7cacb1371073673b825f35e6" kindref="member">Video::applySGR</ref><sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref>&amp;<sp/>params)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="346"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="347"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1a191f107cf758517419462a3c23e1d866" kindref="member">handleSGR</ref><sp/>(params);</highlight></codeline>
+<codeline lineno="348"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="349"><highlight class="normal"></highlight></codeline>
+<codeline lineno="351"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>terminal</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="terminal/VideoSGR.cpp"/>
+  </compounddef>
+</doxygen>

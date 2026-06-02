@@ -1,0 +1,128 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="structaction_1_1_key_handler_1_1_callbacks" kind="struct" language="C++" prot="public">
+    <compoundname>action::KeyHandler::Callbacks</compoundname>
+    <includes refid="_key_handler_8h" local="no">KeyHandler.h</includes>
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structaction_1_1_key_handler_1_1_callbacks_1ac5397548f84b96891a6f89f7bc21b8bb" prot="public" static="no" mutable="no">
+        <type>std::function&lt; void()&gt;</type>
+        <definition>std::function&lt;void()&gt; action::KeyHandler::Callbacks::executeSelected</definition>
+        <argsstring></argsstring>
+        <name>executeSelected</name>
+        <qualifiedname>action::KeyHandler::Callbacks::executeSelected</qualifiedname>
+        <briefdescription>
+<para>Invoked when Return is pressed on a selected row. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/KeyHandler.h" line="26" column="28" bodyfile="terminal/action/KeyHandler.h" bodystart="26" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structaction_1_1_key_handler_1_1_callbacks_1a118f74f00cc61a1f15cdc545ad8bb105" prot="public" static="no" mutable="no">
+        <type>std::function&lt; void()&gt;</type>
+        <definition>std::function&lt;void()&gt; action::KeyHandler::Callbacks::dismiss</definition>
+        <argsstring></argsstring>
+        <name>dismiss</name>
+        <qualifiedname>action::KeyHandler::Callbacks::dismiss</qualifiedname>
+        <briefdescription>
+<para>Invoked when Escape is pressed in navigation mode. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/KeyHandler.h" line="27" column="28" bodyfile="terminal/action/KeyHandler.h" bodystart="27" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structaction_1_1_key_handler_1_1_callbacks_1a842a36d355cbe5588fae75cc9a867f53" prot="public" static="no" mutable="no">
+        <type>std::function&lt; void()&gt;</type>
+        <definition>std::function&lt;void()&gt; action::KeyHandler::Callbacks::clearSearch</definition>
+        <argsstring></argsstring>
+        <name>clearSearch</name>
+        <qualifiedname>action::KeyHandler::Callbacks::clearSearch</qualifiedname>
+        <briefdescription>
+<para>Invoked when Escape is pressed in search mode with no visible results. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/KeyHandler.h" line="28" column="28" bodyfile="terminal/action/KeyHandler.h" bodystart="28" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structaction_1_1_key_handler_1_1_callbacks_1a5fb092a1e01d1b1266f10c08c34723f8" prot="public" static="no" mutable="no">
+        <type>std::function&lt; void()&gt;</type>
+        <definition>std::function&lt;void()&gt; action::KeyHandler::Callbacks::enterBindingMode</definition>
+        <argsstring></argsstring>
+        <name>enterBindingMode</name>
+        <qualifiedname>action::KeyHandler::Callbacks::enterBindingMode</qualifiedname>
+        <briefdescription>
+<para>Invoked when Shift+Return is pressed in navigation mode. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/KeyHandler.h" line="29" column="28" bodyfile="terminal/action/KeyHandler.h" bodystart="29" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structaction_1_1_key_handler_1_1_callbacks_1a19cb2c00d44a6e1d8a7bbecf217619e7" prot="public" static="no" mutable="no">
+        <type>std::function&lt; void(int)&gt;</type>
+        <definition>std::function&lt;void(int)&gt; action::KeyHandler::Callbacks::selectRow</definition>
+        <argsstring></argsstring>
+        <name>selectRow</name>
+        <qualifiedname>action::KeyHandler::Callbacks::selectRow</qualifiedname>
+        <briefdescription>
+<para>Invoked with the target row index to select. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/KeyHandler.h" line="30" column="25" bodyfile="terminal/action/KeyHandler.h" bodystart="30" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structaction_1_1_key_handler_1_1_callbacks_1a12c9123cc47c8ac9b53de57a6a0710ff" prot="public" static="no" mutable="no">
+        <type>std::function&lt; int()&gt;</type>
+        <definition>std::function&lt;int()&gt; action::KeyHandler::Callbacks::visibleRowCount</definition>
+        <argsstring></argsstring>
+        <name>visibleRowCount</name>
+        <qualifiedname>action::KeyHandler::Callbacks::visibleRowCount</qualifiedname>
+        <briefdescription>
+<para>Returns the number of visible, selectable rows. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/KeyHandler.h" line="31" column="29" bodyfile="terminal/action/KeyHandler.h" bodystart="31" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structaction_1_1_key_handler_1_1_callbacks_1ae8383a108aa02c12ac0a8cb3961c792a" prot="public" static="no" mutable="no">
+        <type>std::function&lt; int()&gt;</type>
+        <definition>std::function&lt;int()&gt; action::KeyHandler::Callbacks::selectedIndex</definition>
+        <argsstring></argsstring>
+        <name>selectedIndex</name>
+        <qualifiedname>action::KeyHandler::Callbacks::selectedIndex</qualifiedname>
+        <briefdescription>
+<para>Returns the currently selected row index. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/KeyHandler.h" line="32" column="29" bodyfile="terminal/action/KeyHandler.h" bodystart="32" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="terminal/action/KeyHandler.h" line="24" column="5" bodyfile="terminal/action/KeyHandler.h" bodystart="25" bodyend="33"/>
+    <listofallmembers>
+      <member refid="structaction_1_1_key_handler_1_1_callbacks_1a842a36d355cbe5588fae75cc9a867f53" prot="public" virt="non-virtual"><scope>action::KeyHandler::Callbacks</scope><name>clearSearch</name></member>
+      <member refid="structaction_1_1_key_handler_1_1_callbacks_1a118f74f00cc61a1f15cdc545ad8bb105" prot="public" virt="non-virtual"><scope>action::KeyHandler::Callbacks</scope><name>dismiss</name></member>
+      <member refid="structaction_1_1_key_handler_1_1_callbacks_1a5fb092a1e01d1b1266f10c08c34723f8" prot="public" virt="non-virtual"><scope>action::KeyHandler::Callbacks</scope><name>enterBindingMode</name></member>
+      <member refid="structaction_1_1_key_handler_1_1_callbacks_1ac5397548f84b96891a6f89f7bc21b8bb" prot="public" virt="non-virtual"><scope>action::KeyHandler::Callbacks</scope><name>executeSelected</name></member>
+      <member refid="structaction_1_1_key_handler_1_1_callbacks_1ae8383a108aa02c12ac0a8cb3961c792a" prot="public" virt="non-virtual"><scope>action::KeyHandler::Callbacks</scope><name>selectedIndex</name></member>
+      <member refid="structaction_1_1_key_handler_1_1_callbacks_1a19cb2c00d44a6e1d8a7bbecf217619e7" prot="public" virt="non-virtual"><scope>action::KeyHandler::Callbacks</scope><name>selectRow</name></member>
+      <member refid="structaction_1_1_key_handler_1_1_callbacks_1a12c9123cc47c8ac9b53de57a6a0710ff" prot="public" virt="non-virtual"><scope>action::KeyHandler::Callbacks</scope><name>visibleRowCount</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

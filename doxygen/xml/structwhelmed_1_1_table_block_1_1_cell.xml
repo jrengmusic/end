@@ -1,0 +1,48 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="structwhelmed_1_1_table_block_1_1_cell" kind="struct" language="C++" prot="private">
+    <compoundname>whelmed::TableBlock::Cell</compoundname>
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structwhelmed_1_1_table_block_1_1_cell_1a3463ea8ccf0bed2ea0414291818de3b3" prot="public" static="no" mutable="no">
+        <type>juce::String</type>
+        <definition>juce::String whelmed::TableBlock::Cell::text</definition>
+        <argsstring></argsstring>
+        <name>text</name>
+        <qualifiedname>whelmed::TableBlock::Cell::text</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/TableBlock.h" line="55" column="22" bodyfile="whelmed/TableBlock.h" bodystart="55" bodyend="-1"/>
+        <referencedby refid="classwhelmed_1_1_table_block_1a7ea5ff08acabe168acafb2e69fe9e7ac" compoundref="_table_block_8cpp" startline="61" endline="135">whelmed::TableBlock::parseMarkdown</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structwhelmed_1_1_table_block_1_1_cell_1aeb420a45902ccfb49f3192af70ca1985" prot="public" static="no" mutable="no">
+        <type><ref refid="classwhelmed_1_1_table_block_1aa5c93ab7c45ba988617e493e953cf768" kindref="member">Align</ref></type>
+        <definition>Align whelmed::TableBlock::Cell::align</definition>
+        <argsstring></argsstring>
+        <name>align</name>
+        <qualifiedname>whelmed::TableBlock::Cell::align</qualifiedname>
+        <initializer>{ <ref refid="classwhelmed_1_1_table_block_1aa5c93ab7c45ba988617e493e953cf768a945d5e233cf7d6240f6b783b36a374ff" kindref="member">Align::Left</ref> }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/TableBlock.h" line="56" column="22" bodyfile="whelmed/TableBlock.h" bodystart="56" bodyend="56"/>
+        <referencedby refid="classwhelmed_1_1_table_block_1a7ea5ff08acabe168acafb2e69fe9e7ac" compoundref="_table_block_8cpp" startline="61" endline="135">whelmed::TableBlock::parseMarkdown</referencedby>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="whelmed/TableBlock.h" line="53" column="5" bodyfile="whelmed/TableBlock.h" bodystart="54" bodyend="57"/>
+    <listofallmembers>
+      <member refid="structwhelmed_1_1_table_block_1_1_cell_1aeb420a45902ccfb49f3192af70ca1985" prot="public" virt="non-virtual"><scope>whelmed::TableBlock::Cell</scope><name>align</name></member>
+      <member refid="structwhelmed_1_1_table_block_1_1_cell_1a3463ea8ccf0bed2ea0414291818de3b3" prot="public" virt="non-virtual"><scope>whelmed::TableBlock::Cell</scope><name>text</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

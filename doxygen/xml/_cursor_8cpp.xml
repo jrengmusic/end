@@ -1,0 +1,133 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="_cursor_8cpp" kind="file" language="C++">
+    <compoundname>Cursor.cpp</compoundname>
+    <includes refid="_cursor_8h" local="yes">Cursor.h</includes>
+    <incdepgraph>
+      <node id="1">
+        <label>Cursor.cpp</label>
+        <link refid="_cursor_8cpp"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>Cursor.h</label>
+        <link refid="_cursor_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>JuceHeader.h</label>
+      </node>
+    </incdepgraph>
+    <briefdescription>
+<para>Shared cursor position computation. </para>
+    </briefdescription>
+    <detaileddescription>
+<para><simplesect kind="see"><para><ref refid="_cursor_8h" kindref="compound">Cursor.h</ref> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_cursor_8h" kindref="compound">Cursor.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10" refid="struct_cursor_1a700864ccac751e8135c39a3d052ede36" refkind="member"><highlight class="normal"><ref refid="struct_cursor_1_1_position" kindref="compound">Cursor::Position</ref><sp/><ref refid="struct_cursor_1a700864ccac751e8135c39a3d052ede36" kindref="member">Cursor::moveLeft</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>cursorBlock,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>cursorChar,</highlight></codeline>
+<codeline lineno="11"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>prevBlockLength)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="13"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="struct_cursor_1_1_position" kindref="compound">Position</ref><sp/>result<sp/>{<sp/>cursorBlock,<sp/>cursorChar<sp/>};</highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(cursorChar<sp/>&gt;<sp/>0)</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result.<ref refid="struct_cursor_1_1_position_1a92b14afdf8b29fc2eb08823f7cbcda75" kindref="member">character</ref><sp/>=<sp/>cursorChar<sp/>-<sp/>1;</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(cursorBlock<sp/>&gt;<sp/>0)</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result.<ref refid="struct_cursor_1_1_position_1a50a439e3445e7b43b3ddeccc564711a0" kindref="member">block</ref><sp/>=<sp/>cursorBlock<sp/>-<sp/>1;</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result.<ref refid="struct_cursor_1_1_position_1a92b14afdf8b29fc2eb08823f7cbcda75" kindref="member">character</ref><sp/>=<sp/>juce::jmax<sp/>(0,<sp/>prevBlockLength<sp/>-<sp/>1);</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>result;</highlight></codeline>
+<codeline lineno="26"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28" refid="struct_cursor_1a749017f296c2cdc01dc9a75d6023fd91" refkind="member"><highlight class="normal"><ref refid="struct_cursor_1_1_position" kindref="compound">Cursor::Position</ref><sp/><ref refid="struct_cursor_1a749017f296c2cdc01dc9a75d6023fd91" kindref="member">Cursor::moveRight</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>cursorBlock,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>cursorChar,</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>blockLength,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>maxBlock)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="struct_cursor_1_1_position" kindref="compound">Position</ref><sp/>result<sp/>{<sp/>cursorBlock,<sp/>cursorChar<sp/>};</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(cursorChar<sp/>&lt;<sp/>blockLength<sp/>-<sp/>1)</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result.<ref refid="struct_cursor_1_1_position_1a92b14afdf8b29fc2eb08823f7cbcda75" kindref="member">character</ref><sp/>=<sp/>cursorChar<sp/>+<sp/>1;</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(cursorBlock<sp/>&lt;<sp/>maxBlock)</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result.<ref refid="struct_cursor_1_1_position_1a50a439e3445e7b43b3ddeccc564711a0" kindref="member">block</ref><sp/>=<sp/>cursorBlock<sp/>+<sp/>1;</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result.<ref refid="struct_cursor_1_1_position_1a92b14afdf8b29fc2eb08823f7cbcda75" kindref="member">character</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>result;</highlight></codeline>
+<codeline lineno="44"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46" refid="struct_cursor_1ae70863978c8064c064d8ea029117e48a" refkind="member"><highlight class="normal"><ref refid="struct_cursor_1_1_position" kindref="compound">Cursor::Position</ref><sp/><ref refid="struct_cursor_1ae70863978c8064c064d8ea029117e48a" kindref="member">Cursor::moveUp</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>cursorBlock,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>currentLine,</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>charForPrevLine,</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>prevBlock,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>charForPrevBlockLastLine)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="struct_cursor_1_1_position" kindref="compound">Position</ref><sp/>result<sp/>{<sp/>cursorBlock,<sp/>0<sp/>};</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(currentLine<sp/>&gt;<sp/>0)</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result.<ref refid="struct_cursor_1_1_position_1a92b14afdf8b29fc2eb08823f7cbcda75" kindref="member">character</ref><sp/>=<sp/>charForPrevLine;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(cursorBlock<sp/>&gt;<sp/>0)</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result.<ref refid="struct_cursor_1_1_position_1a50a439e3445e7b43b3ddeccc564711a0" kindref="member">block</ref><sp/>=<sp/>prevBlock;</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result.<ref refid="struct_cursor_1_1_position_1a92b14afdf8b29fc2eb08823f7cbcda75" kindref="member">character</ref><sp/>=<sp/>charForPrevBlockLastLine;</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>result;</highlight></codeline>
+<codeline lineno="63"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65" refid="struct_cursor_1ab3772ed2d8e661ddc75b59c8df86c57e" refkind="member"><highlight class="normal"><ref refid="struct_cursor_1_1_position" kindref="compound">Cursor::Position</ref><sp/><ref refid="struct_cursor_1ab3772ed2d8e661ddc75b59c8df86c57e" kindref="member">Cursor::moveDown</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>cursorBlock,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>currentLine,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>lineCount,</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>charForNextLine,</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>nextBlock,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>charForNextBlockFirstLine,</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>maxBlock)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="struct_cursor_1_1_position" kindref="compound">Position</ref><sp/>result<sp/>{<sp/>cursorBlock,<sp/>0<sp/>};</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(currentLine<sp/>&lt;<sp/>lineCount<sp/>-<sp/>1)</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result.<ref refid="struct_cursor_1_1_position_1a92b14afdf8b29fc2eb08823f7cbcda75" kindref="member">character</ref><sp/>=<sp/>charForNextLine;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(cursorBlock<sp/>&lt;<sp/>maxBlock)</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result.<ref refid="struct_cursor_1_1_position_1a50a439e3445e7b43b3ddeccc564711a0" kindref="member">block</ref><sp/>=<sp/>nextBlock;</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result.<ref refid="struct_cursor_1_1_position_1a92b14afdf8b29fc2eb08823f7cbcda75" kindref="member">character</ref><sp/>=<sp/>charForNextBlockFirstLine;</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>result;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85" refid="struct_cursor_1ae5934c4fe9ebaaa5a4c6af79fe05141f" refkind="member"><highlight class="normal"><ref refid="struct_cursor_1_1_position" kindref="compound">Cursor::Position</ref><sp/><ref refid="struct_cursor_1ae5934c4fe9ebaaa5a4c6af79fe05141f" kindref="member">Cursor::moveToLineStart</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>cursorBlock,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>lineStartChar)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>{<sp/>cursorBlock,<sp/>lineStartChar<sp/>};</highlight></codeline>
+<codeline lineno="88"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90" refid="struct_cursor_1adcc439071d37e5783012854a2207b45b" refkind="member"><highlight class="normal"><ref refid="struct_cursor_1_1_position" kindref="compound">Cursor::Position</ref><sp/><ref refid="struct_cursor_1adcc439071d37e5783012854a2207b45b" kindref="member">Cursor::moveToLineEnd</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>cursorBlock,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>lineEndChar)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>{<sp/>cursorBlock,<sp/>lineEndChar<sp/>};</highlight></codeline>
+<codeline lineno="93"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95" refid="struct_cursor_1aea2830740a35477f114a4838613c5cff" refkind="member"><highlight class="normal"><ref refid="struct_cursor_1_1_position" kindref="compound">Cursor::Position</ref><sp/><ref refid="struct_cursor_1aea2830740a35477f114a4838613c5cff" kindref="member">Cursor::moveToTop</ref>()<sp/>noexcept</highlight></codeline>
+<codeline lineno="96"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>{<sp/>0,<sp/>0<sp/>};</highlight></codeline>
+<codeline lineno="98"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100" refid="struct_cursor_1a5f192dfa41c67ccf9930f7a5b298a0d9" refkind="member"><highlight class="normal"><ref refid="struct_cursor_1_1_position" kindref="compound">Cursor::Position</ref><sp/><ref refid="struct_cursor_1a5f192dfa41c67ccf9930f7a5b298a0d9" kindref="member">Cursor::moveToBottom</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>maxBlock,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>lastBlockLength)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>{<sp/>maxBlock,<sp/>juce::jmax<sp/>(0,<sp/>lastBlockLength<sp/>-<sp/>1)<sp/>};</highlight></codeline>
+<codeline lineno="103"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="Cursor.cpp"/>
+  </compounddef>
+</doxygen>

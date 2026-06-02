@@ -26,7 +26,7 @@
  * @see terminal::DecodedImage
  * @see terminal::SixelDecoder
  * @see terminal::ITerm2Decoder
- * @see terminal::State::addImageNode()
+ * @see terminal::Model::addImageNode()
  */
 
 #pragma once

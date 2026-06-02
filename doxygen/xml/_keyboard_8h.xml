@@ -1,0 +1,916 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="_keyboard_8h" kind="file" language="C++">
+    <compoundname>Keyboard.h</compoundname>
+    <includes local="no">JuceHeader.h</includes>
+    <includedby refid="_keyboard_8cpp" local="yes">terminal/Keyboard.cpp</includedby>
+    <includedby refid="_processor_8h" local="yes">terminal/Processor.h</includedby>
+    <incdepgraph>
+      <node id="1">
+        <label>terminal/Keyboard.h</label>
+        <link refid="_keyboard_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>JuceHeader.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="6">
+        <label>Main.cpp</label>
+        <link refid="_main_8cpp"/>
+      </node>
+      <node id="5">
+        <label>Main.h</label>
+        <link refid="_main_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="19">
+        <label>MainComponent.cpp</label>
+        <link refid="_main_component_8cpp"/>
+      </node>
+      <node id="18">
+        <label>MainComponent.h</label>
+        <link refid="_main_component_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="20">
+        <label>MainComponentActions.cpp</label>
+        <link refid="_main_component_actions_8cpp"/>
+      </node>
+      <node id="7">
+        <label>nexus/Channel.cpp</label>
+        <link refid="_channel_8cpp"/>
+      </node>
+      <node id="8">
+        <label>nexus/Daemon.cpp</label>
+        <link refid="_daemon_8cpp"/>
+      </node>
+      <node id="4">
+        <label>nexus/Daemon.h</label>
+        <link refid="_daemon_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>nexus/Daemon.mm</label>
+        <link refid="_daemon_8mm"/>
+      </node>
+      <node id="10">
+        <label>nexus/DaemonWindows.cpp</label>
+        <link refid="_daemon_windows_8cpp"/>
+      </node>
+      <node id="12">
+        <label>nexus/Link.cpp</label>
+        <link refid="_link_8cpp"/>
+      </node>
+      <node id="11">
+        <label>nexus/Link.h</label>
+        <link refid="_link_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="40">
+        <label>nexus/Nexus.cpp</label>
+        <link refid="_nexus_8cpp"/>
+      </node>
+      <node id="39">
+        <label>nexus/Nexus.h</label>
+        <link refid="_nexus_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>terminal/Input.cpp</label>
+        <link refid="_input_8cpp"/>
+      </node>
+      <node id="13">
+        <label>terminal/Input.h</label>
+        <link refid="_input_8h"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>terminal/Keyboard.cpp</label>
+        <link refid="_keyboard_8cpp"/>
+      </node>
+      <node id="1">
+        <label>terminal/Keyboard.h</label>
+        <link refid="_keyboard_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="35">
+        <label>terminal/Mouse.cpp</label>
+        <link refid="_mouse_8cpp"/>
+      </node>
+      <node id="34">
+        <label>terminal/Mouse.h</label>
+        <link refid="_mouse_8h"/>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="36">
+        <label>terminal/Processor.cpp</label>
+        <link refid="_processor_8cpp"/>
+      </node>
+      <node id="3">
+        <label>terminal/Processor.h</label>
+        <link refid="_processor_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+      </node>
+      <node id="37">
+        <label>terminal/ProcessorEvents.cpp</label>
+        <link refid="_processor_events_8cpp"/>
+      </node>
+      <node id="41">
+        <label>terminal/Session.cpp</label>
+        <link refid="_session_8cpp"/>
+      </node>
+      <node id="38">
+        <label>terminal/Session.h</label>
+        <link refid="_session_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>terminal/component/Display.cpp</label>
+        <link refid="_display_8cpp"/>
+      </node>
+      <node id="15">
+        <label>terminal/component/Display.h</label>
+        <link refid="_display_8h"/>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>terminal/component/LookAndFeel.cpp</label>
+        <link refid="_look_and_feel_8cpp"/>
+      </node>
+      <node id="17">
+        <label>terminal/component/LookAndFeel.h</label>
+        <link refid="_look_and_feel_8h"/>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>terminal/component/LookAndFeelMenu.cpp</label>
+        <link refid="_look_and_feel_menu_8cpp"/>
+      </node>
+      <node id="23">
+        <label>terminal/component/LookAndFeelTab.cpp</label>
+        <link refid="_look_and_feel_tab_8cpp"/>
+      </node>
+      <node id="29">
+        <label>terminal/component/ModalWindow.cpp</label>
+        <link refid="_modal_window_8cpp"/>
+      </node>
+      <node id="28">
+        <label>terminal/component/ModalWindow.h</label>
+        <link refid="_modal_window_8h"/>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="33">
+        <label>terminal/component/Panes.cpp</label>
+        <link refid="_panes_8cpp"/>
+      </node>
+      <node id="32">
+        <label>terminal/component/Panes.h</label>
+        <link refid="_panes_8h"/>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+      </node>
+      <node id="31">
+        <label>terminal/component/Popup.cpp</label>
+        <link refid="_popup_8cpp"/>
+      </node>
+      <node id="30">
+        <label>terminal/component/Popup.h</label>
+        <link refid="_popup_8h"/>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+      </node>
+      <node id="25">
+        <label>terminal/component/Tabs.cpp</label>
+        <link refid="_tabs_8cpp"/>
+      </node>
+      <node id="24">
+        <label>terminal/component/Tabs.h</label>
+        <link refid="_tabs_8h"/>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+      </node>
+      <node id="26">
+        <label>terminal/component/TabsActions.cpp</label>
+        <link refid="_tabs_actions_8cpp"/>
+      </node>
+      <node id="27">
+        <label>terminal/component/TabsClose.cpp</label>
+        <link refid="_tabs_close_8cpp"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structterminal_1_1_keyboard" prot="public">terminal::Keyboard</innerclass>
+    <innernamespace refid="namespaceterminal">terminal</innernamespace>
+    <briefdescription>
+<para>Translates JUCE <ref refid="classKeyPress" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">KeyPress</ref> events into xterm-compatible escape sequences. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>This header implements the keypress-to-escape-sequence mapping layer used by the terminal emulator. It converts raw JUCE key events into the byte strings that a PTY/shell process expects to receive on stdin.</para>
+<sect1 id="_keyboard_8h_1autotoc_md39_1s1"><sect2 id="_keyboard_8h_1autotoc_md39">
+<title>xterm Key Sequence Format</title><para>xterm uses three sequence families:</para>
+<para><table rows="4" cols="4"><row>
+<entry thead="yes"><para>Family  </para>
+</entry><entry thead="yes"><para>Format  </para>
+</entry><entry thead="yes"><para>Example  </para>
+</entry><entry thead="yes"><para>Used for  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>SS3  </para>
+</entry><entry thead="no"><para><computeroutput>ESC O &lt;final&gt;</computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>\x1bOP</computeroutput>  </para>
+</entry><entry thead="no"><para>F1–F4, cursor (app mode)  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>CSI  </para>
+</entry><entry thead="no"><para><computeroutput>ESC [ &lt;params&gt; &lt;final&gt;</computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>\x1b[A</computeroutput>  </para>
+</entry><entry thead="no"><para><ref refid="struct_cursor" kindref="compound">Cursor</ref>, editing, F5–F12  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>Plain  </para>
+</entry><entry thead="no"><para>single byte  </para>
+</entry><entry thead="no"><para><computeroutput>\r</computeroutput>, <computeroutput>\x7f</computeroutput>  </para>
+</entry><entry thead="no"><para>Return, Backspace, Tab, Esc  </para>
+</entry></row>
+</table>
+</para>
+<sect3 id="_keyboard_8h_1autotoc_md40">
+<title>Modifier Encoding</title><para>When a modifier key (Shift, Alt, Ctrl) is held alongside a special key, xterm encodes the combination as a numeric parameter <computeroutput>N</computeroutput> inserted before the final byte of the sequence:</para>
+<para><programlisting><codeline><highlight class="normal">N<sp/>=<sp/>1<sp/>+<sp/>shift_bit<sp/>+<sp/>alt_bit<sp/>+<sp/>ctrl_bit</highlight></codeline>
+</programlisting></para>
+<para><table rows="9" cols="3"><row>
+<entry thead="yes"><para>Modifier combination  </para>
+</entry><entry thead="yes"><para>N  </para>
+</entry><entry thead="yes"><para>Example cursor-up  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>None  </para>
+</entry><entry thead="no"><para>1  </para>
+</entry><entry thead="no"><para><computeroutput>\x1b[A</computeroutput> (omitted)  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>Shift  </para>
+</entry><entry thead="no"><para>2  </para>
+</entry><entry thead="no"><para><computeroutput>\x1b[1;2A</computeroutput>  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>Alt  </para>
+</entry><entry thead="no"><para>3  </para>
+</entry><entry thead="no"><para><computeroutput>\x1b[1;3A</computeroutput>  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>Shift+Alt  </para>
+</entry><entry thead="no"><para>4  </para>
+</entry><entry thead="no"><para><computeroutput>\x1b[1;4A</computeroutput>  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>Ctrl  </para>
+</entry><entry thead="no"><para>5  </para>
+</entry><entry thead="no"><para><computeroutput>\x1b[1;5A</computeroutput>  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>Shift+Ctrl  </para>
+</entry><entry thead="no"><para>6  </para>
+</entry><entry thead="no"><para><computeroutput>\x1b[1;6A</computeroutput>  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>Alt+Ctrl  </para>
+</entry><entry thead="no"><para>7  </para>
+</entry><entry thead="no"><para><computeroutput>\x1b[1;7A</computeroutput>  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>Shift+Alt+Ctrl  </para>
+</entry><entry thead="no"><para>8  </para>
+</entry><entry thead="no"><para><computeroutput>\x1b[1;8A</computeroutput>  </para>
+</entry></row>
+</table>
+</para>
+<para>When <computeroutput>N == 1</computeroutput> (no modifiers) the <computeroutput>1;</computeroutput> parameter is omitted entirely.</para>
+</sect3>
+<sect3 id="_keyboard_8h_1autotoc_md41">
+<title>Ctrl+Letter Encoding</title><para>Ctrl+A through Ctrl+Z produce control characters 0x01–0x1A. Ctrl+@ and Ctrl+Space produce NUL (0x00). A small set of punctuation characters have dedicated Ctrl mappings (e.g. Ctrl+[ → ESC, Ctrl+\ → FS, Ctrl+] → GS).</para>
+</sect3>
+<sect3 id="_keyboard_8h_1autotoc_md42">
+<title>Alt Prefix</title><para>Alt is handled by prepending ESC (<computeroutput>\x1b</computeroutput>) to whatever sequence the key would produce without Alt. If the key produces no special sequence, the text character is prefixed instead (e.g. Alt+a → <computeroutput>\x1ba</computeroutput>). </para>
+</sect3>
+</sect2></sect1>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight><highlight class="preprocessor">#pragma<sp/>once</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;JuceHeader.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespaceterminal" kindref="compound">terminal</ref></highlight></codeline>
+<codeline lineno="59"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight><highlight class="comment">/*____________________________________________________________________________*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72" refid="structterminal_1_1_keyboard" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structterminal_1_1_keyboard" kindref="compound">Keyboard</ref></highlight></codeline>
+<codeline lineno="73"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="95" refid="structterminal_1_1_keyboard_1ae7cc6f2917cf1b16c98de57bfe88bb8c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>juce::String<sp/><ref refid="structterminal_1_1_keyboard_1ae7cc6f2917cf1b16c98de57bfe88bb8c" kindref="member">map</ref><sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::KeyPress&amp;<sp/>key,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>applicationCursor,<sp/>uint32_t<sp/>keyboardFlags<sp/>=<sp/>0)</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>{<sp/>key.getKeyCode()<sp/>};</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/><ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref><sp/>{<sp/>key.getModifiers()<sp/>};</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>ch<sp/>{<sp/>key.getTextCharacter()<sp/>};</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>juce::String<sp/>result;</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref>.isCtrlDown()<sp/>and<sp/>not<sp/><ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref>.isAltDown())</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/><ref refid="structterminal_1_1_keyboard_1a2370eb92bbaf43758373a429f80224ba" kindref="member">mapCtrl</ref><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref>,<sp/><ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref>,<sp/>keyboardFlags);</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref>.isAltDown())</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/><ref refid="structterminal_1_1_keyboard_1a5375f5be758722772b23c16ad99ddf7c" kindref="member">mapAlt</ref><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref>,<sp/><ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref>,<sp/>ch,<sp/>applicationCursor,<sp/>keyboardFlags);</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/><ref refid="structterminal_1_1_keyboard_1a30eeb3e7a4cc8f9b685dac20fcb00bfe" kindref="member">mapPlain</ref><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref>,<sp/><ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref>,<sp/>ch,<sp/>applicationCursor,<sp/>keyboardFlags);</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>result;</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>JUCE_WINDOWS</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>juce::String<sp/>encodeWin32Input<sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::KeyPress&amp;<sp/>key)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="166" refid="structterminal_1_1_keyboard_1a2370eb92bbaf43758373a429f80224ba" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>juce::String<sp/><ref refid="structterminal_1_1_keyboard_1a2370eb92bbaf43758373a429f80224ba" kindref="member">mapCtrl</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref>,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::ModifierKeys&amp;<sp/><ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref>,<sp/>uint32_t<sp/>keyboardFlags)</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>juce::String<sp/>result;</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"></highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(keyboardFlags<sp/>&amp;<sp/>(<ref refid="structterminal_1_1_keyboard_1a6bb019520135ef5d36a3137edb3c48d0" kindref="member">disambiguate</ref><sp/>|<sp/><ref refid="structterminal_1_1_keyboard_1abb21cf9177ded811a39a9d115e2e219e" kindref="member">allKeys</ref>))</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>&gt;=<sp/></highlight><highlight class="charliteral">&apos;A&apos;</highlight><highlight class="normal"><sp/>and<sp/><ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>&lt;=<sp/></highlight><highlight class="charliteral">&apos;Z&apos;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/><ref refid="structterminal_1_1_keyboard_1afa9cf634fe512cbd987b97d8ff1c56f8" kindref="member">encodeCsiU</ref><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>-<sp/></highlight><highlight class="charliteral">&apos;A&apos;</highlight><highlight class="normal"><sp/>+<sp/></highlight><highlight class="charliteral">&apos;a&apos;</highlight><highlight class="normal">,<sp/><ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref>);</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>==<sp/></highlight><highlight class="charliteral">&apos;@&apos;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/><ref refid="structterminal_1_1_keyboard_1afa9cf634fe512cbd987b97d8ff1c56f8" kindref="member">encodeCsiU</ref><sp/>(</highlight><highlight class="charliteral">&apos;@&apos;</highlight><highlight class="normal">,<sp/><ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref>);</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>==<sp/></highlight><highlight class="charliteral">&apos;<sp/>&apos;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/><ref refid="structterminal_1_1_keyboard_1afa9cf634fe512cbd987b97d8ff1c56f8" kindref="member">encodeCsiU</ref><sp/>(</highlight><highlight class="charliteral">&apos;<sp/>&apos;</highlight><highlight class="normal">,<sp/><ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref>);</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>it<sp/>{<sp/><ref refid="structterminal_1_1_keyboard_1a41a1ed56b0f4024897fff970cf86c6cd" kindref="member">ctrlKeys</ref>.find<sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref>)<sp/>};</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"></highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(it<sp/>!=<sp/><ref refid="structterminal_1_1_keyboard_1a41a1ed56b0f4024897fff970cf86c6cd" kindref="member">ctrlKeys</ref>.end())</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/><ref refid="structterminal_1_1_keyboard_1afa9cf634fe512cbd987b97d8ff1c56f8" kindref="member">encodeCsiU</ref><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref>,<sp/><ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref>);</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>&gt;=<sp/></highlight><highlight class="charliteral">&apos;A&apos;</highlight><highlight class="normal"><sp/>and<sp/><ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>&lt;=<sp/></highlight><highlight class="charliteral">&apos;Z&apos;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/>juce::String::charToString<sp/>(</highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">wchar_t</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>-<sp/></highlight><highlight class="charliteral">&apos;A&apos;</highlight><highlight class="normal"><sp/>+<sp/><ref refid="structterminal_1_1_keyboard_1a537fa998babf44983e3799b0527fb16f" kindref="member">ctrlLetterBase</ref>));</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>==<sp/></highlight><highlight class="charliteral">&apos;@&apos;</highlight><highlight class="normal"><sp/>or<sp/><ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>==<sp/></highlight><highlight class="charliteral">&apos;<sp/>&apos;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>nul<sp/>{<sp/>0<sp/>};</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/>juce::String<sp/>(&amp;nul,<sp/>1);</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>it<sp/>{<sp/><ref refid="structterminal_1_1_keyboard_1a41a1ed56b0f4024897fff970cf86c6cd" kindref="member">ctrlKeys</ref>.find<sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref>)<sp/>};</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"></highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(it<sp/>!=<sp/><ref refid="structterminal_1_1_keyboard_1a41a1ed56b0f4024897fff970cf86c6cd" kindref="member">ctrlKeys</ref>.end())</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/>it-&gt;second;</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"></highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>result;</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"></highlight></codeline>
+<codeline lineno="239" refid="structterminal_1_1_keyboard_1a5375f5be758722772b23c16ad99ddf7c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>juce::String<sp/><ref refid="structterminal_1_1_keyboard_1a5375f5be758722772b23c16ad99ddf7c" kindref="member">mapAlt</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref>,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::ModifierKeys&amp;<sp/><ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref>,<sp/>juce::juce_wchar<sp/>ch,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>applicationCursor,<sp/>uint32_t<sp/>keyboardFlags)</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>juce::String<sp/>result;</highlight></codeline>
+<codeline lineno="242"><highlight class="normal"></highlight></codeline>
+<codeline lineno="243"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((keyboardFlags<sp/>&amp;<sp/>(<ref refid="structterminal_1_1_keyboard_1a6bb019520135ef5d36a3137edb3c48d0" kindref="member">disambiguate</ref><sp/>|<sp/><ref refid="structterminal_1_1_keyboard_1abb21cf9177ded811a39a9d115e2e219e" kindref="member">allKeys</ref>))<sp/>and<sp/>isTextKey<sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref>))</highlight></codeline>
+<codeline lineno="244"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>codepoint<sp/>{<sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>&gt;=<sp/></highlight><highlight class="charliteral">&apos;A&apos;</highlight><highlight class="normal"><sp/>and<sp/><ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>&lt;=<sp/></highlight><highlight class="charliteral">&apos;Z&apos;</highlight><highlight class="normal">)<sp/>?<sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>-<sp/></highlight><highlight class="charliteral">&apos;A&apos;</highlight><highlight class="normal"><sp/>+<sp/></highlight><highlight class="charliteral">&apos;a&apos;</highlight><highlight class="normal">)<sp/>:<sp/><ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>};</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/><ref refid="structterminal_1_1_keyboard_1afa9cf634fe512cbd987b97d8ff1c56f8" kindref="member">encodeCsiU</ref><sp/>(codepoint,<sp/><ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref>);</highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="249"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="250"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Arrow,<sp/>function,<sp/>and<sp/>editing<sp/>keys<sp/>encode<sp/>modifiers<sp/>as<sp/>a<sp/>CSI</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="251"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>parameter<sp/>(e.g.<sp/>\x1b[1;3D<sp/>for<sp/>Alt+Left).<sp/><sp/>The<sp/>ESC-prefix</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="252"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>encoding<sp/>(\x1b<sp/>+<sp/>base<sp/>sequence)<sp/>is<sp/>only<sp/>used<sp/>for<sp/>printable</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>characters<sp/>and<sp/>simple<sp/>keys<sp/>where<sp/>no<sp/>CSI<sp/>modifier<sp/>form<sp/>exists.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="254"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>cursorIt<sp/>{<sp/><ref refid="structterminal_1_1_keyboard_1a08ba8acbba086e44121d1a1272183268" kindref="member">cursorKeys</ref>.find<sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref>)<sp/>};</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>editCodeIt<sp/>{<sp/><ref refid="structterminal_1_1_keyboard_1a62d896adb3e0a48a1a1618d6236f2155" kindref="member">editingCodes</ref>.find<sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref>)<sp/>};</highlight></codeline>
+<codeline lineno="256"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>editCharIt<sp/>{<sp/><ref refid="structterminal_1_1_keyboard_1a8514399bc2819fa68cc3ad25811985eb" kindref="member">editingFinalChars</ref>.find<sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref>)<sp/>};</highlight></codeline>
+<codeline lineno="257"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>isFKey<sp/>{<sp/><ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>&gt;=<sp/>juce::KeyPress::F1Key<sp/>and<sp/><ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>&lt;=<sp/>juce::KeyPress::F12Key<sp/>};</highlight></codeline>
+<codeline lineno="258"><highlight class="normal"></highlight></codeline>
+<codeline lineno="259"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(cursorIt<sp/>!=<sp/><ref refid="structterminal_1_1_keyboard_1a08ba8acbba086e44121d1a1272183268" kindref="member">cursorKeys</ref>.end())</highlight></codeline>
+<codeline lineno="260"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="261"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/>cursorKey<sp/>(cursorIt-&gt;second,<sp/><ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref>,<sp/>applicationCursor);</highlight></codeline>
+<codeline lineno="262"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="263"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(isFKey)</highlight></codeline>
+<codeline lineno="264"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/><ref refid="group__juce__audio__plugin__client-Unity_1gga485dc2a0e5ed7da3d9f826367b36ee55aea428c666e56776152be9ced3da70582" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">functionKey</ref><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref>,<sp/><ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref>);</highlight></codeline>
+<codeline lineno="266"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="267"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(editCodeIt<sp/>!=<sp/><ref refid="structterminal_1_1_keyboard_1a62d896adb3e0a48a1a1618d6236f2155" kindref="member">editingCodes</ref>.end()<sp/>or<sp/>editCharIt<sp/>!=<sp/><ref refid="structterminal_1_1_keyboard_1a8514399bc2819fa68cc3ad25811985eb" kindref="member">editingFinalChars</ref>.end())</highlight></codeline>
+<codeline lineno="268"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/><ref refid="structterminal_1_1_keyboard_1ab20318d26cba31889f6cb38ef48995e1" kindref="member">editingKey</ref><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref>,<sp/><ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref>);</highlight></codeline>
+<codeline lineno="270"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>flags<sp/>{<sp/>0<sp/>};</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"></highlight></codeline>
+<codeline lineno="275"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref>.isShiftDown())</highlight></codeline>
+<codeline lineno="276"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="277"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>flags<sp/>|=<sp/>juce::ModifierKeys::shiftModifier;</highlight></codeline>
+<codeline lineno="278"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="279"><highlight class="normal"></highlight></codeline>
+<codeline lineno="280"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref>.isCtrlDown())</highlight></codeline>
+<codeline lineno="281"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="282"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>flags<sp/>|=<sp/>juce::ModifierKeys::ctrlModifier;</highlight></codeline>
+<codeline lineno="283"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="284"><highlight class="normal"></highlight></codeline>
+<codeline lineno="285"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::ModifierKeys<sp/>stripped<sp/>(flags);</highlight></codeline>
+<codeline lineno="286"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::KeyPress<sp/>inner<sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref>,<sp/>stripped,<sp/>ch);</highlight></codeline>
+<codeline lineno="287"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::String<sp/>seq<sp/>{<sp/><ref refid="structterminal_1_1_keyboard_1ae7cc6f2917cf1b16c98de57bfe88bb8c" kindref="member">map</ref><sp/>(inner,<sp/>applicationCursor,<sp/>keyboardFlags)<sp/>};</highlight></codeline>
+<codeline lineno="288"><highlight class="normal"></highlight></codeline>
+<codeline lineno="289"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(seq.isNotEmpty())</highlight></codeline>
+<codeline lineno="290"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="291"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/>juce::String<sp/>(<ref refid="structterminal_1_1_keyboard_1afa2fb4abb0a1e0152fef6ef9d646e0e5" kindref="member">escPrefix</ref>)<sp/>+<sp/>seq;</highlight></codeline>
+<codeline lineno="292"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="293"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ch<sp/>&gt;<sp/>0)</highlight></codeline>
+<codeline lineno="294"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="295"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/>juce::String<sp/>(<ref refid="structterminal_1_1_keyboard_1afa2fb4abb0a1e0152fef6ef9d646e0e5" kindref="member">escPrefix</ref>)<sp/>+<sp/>juce::String::charToString<sp/>(ch);</highlight></codeline>
+<codeline lineno="296"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="297"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="298"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="299"><highlight class="normal"></highlight></codeline>
+<codeline lineno="300"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>result;</highlight></codeline>
+<codeline lineno="301"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="302"><highlight class="normal"></highlight></codeline>
+<codeline lineno="320" refid="structterminal_1_1_keyboard_1a30eeb3e7a4cc8f9b685dac20fcb00bfe" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>juce::String<sp/><ref refid="structterminal_1_1_keyboard_1a30eeb3e7a4cc8f9b685dac20fcb00bfe" kindref="member">mapPlain</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref>,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::ModifierKeys&amp;<sp/><ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref>,<sp/>juce::juce_wchar<sp/>ch,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>applicationCursor,<sp/>uint32_t<sp/>keyboardFlags)</highlight></codeline>
+<codeline lineno="321"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="322"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>juce::String<sp/>result;</highlight></codeline>
+<codeline lineno="323"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>simpleIt<sp/>{<sp/><ref refid="structterminal_1_1_keyboard_1ad04dd5af967041ecfdb75f0170841c78" kindref="member">simpleKeys</ref>.find<sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref>)<sp/>};</highlight></codeline>
+<codeline lineno="324"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>cursorIt<sp/>{<sp/><ref refid="structterminal_1_1_keyboard_1a08ba8acbba086e44121d1a1272183268" kindref="member">cursorKeys</ref>.find<sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref>)<sp/>};</highlight></codeline>
+<codeline lineno="325"><highlight class="normal"></highlight></codeline>
+<codeline lineno="326"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(simpleIt<sp/>!=<sp/><ref refid="structterminal_1_1_keyboard_1ad04dd5af967041ecfdb75f0170841c78" kindref="member">simpleKeys</ref>.end())</highlight></codeline>
+<codeline lineno="327"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="328"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="structterminal_1_1_keyboard_1acbf0a12222fecd9e71ab16d1945ac7a3" kindref="member">shouldUseCsiU</ref><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref>,<sp/><ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref>,<sp/>keyboardFlags))</highlight></codeline>
+<codeline lineno="329"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="330"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>progressiveIt<sp/>{<sp/><ref refid="structterminal_1_1_keyboard_1a8b8b7bb2aa6a36508c22d2e94b324de4" kindref="member">progressiveKeyCodes</ref>.find<sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref>)<sp/>};</highlight></codeline>
+<codeline lineno="331"><highlight class="normal"></highlight></codeline>
+<codeline lineno="332"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(progressiveIt<sp/>!=<sp/><ref refid="structterminal_1_1_keyboard_1a8b8b7bb2aa6a36508c22d2e94b324de4" kindref="member">progressiveKeyCodes</ref>.end())</highlight></codeline>
+<codeline lineno="333"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="334"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/><ref refid="structterminal_1_1_keyboard_1afa9cf634fe512cbd987b97d8ff1c56f8" kindref="member">encodeCsiU</ref><sp/>(progressiveIt-&gt;second,<sp/><ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref>);</highlight></codeline>
+<codeline lineno="335"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="336"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="337"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="338"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="339"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/>simpleIt-&gt;second;</highlight></codeline>
+<codeline lineno="340"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="341"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="342"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(cursorIt<sp/>!=<sp/><ref refid="structterminal_1_1_keyboard_1a08ba8acbba086e44121d1a1272183268" kindref="member">cursorKeys</ref>.end())</highlight></codeline>
+<codeline lineno="343"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="344"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/>cursorKey<sp/>(cursorIt-&gt;second,<sp/><ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref>,<sp/>applicationCursor);</highlight></codeline>
+<codeline lineno="345"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="346"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>&gt;=<sp/>juce::KeyPress::F1Key<sp/>and<sp/><ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>&lt;=<sp/>juce::KeyPress::F12Key)</highlight></codeline>
+<codeline lineno="347"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="348"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/><ref refid="group__juce__audio__plugin__client-Unity_1gga485dc2a0e5ed7da3d9f826367b36ee55aea428c666e56776152be9ced3da70582" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">functionKey</ref><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref>,<sp/><ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref>);</highlight></codeline>
+<codeline lineno="349"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="350"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>==<sp/>juce::KeyPress::homeKey</highlight></codeline>
+<codeline lineno="351"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>or<sp/><ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>==<sp/>juce::KeyPress::endKey</highlight></codeline>
+<codeline lineno="352"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>or<sp/><ref refid="structterminal_1_1_keyboard_1a62d896adb3e0a48a1a1618d6236f2155" kindref="member">editingCodes</ref>.find<sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref>)<sp/>!=<sp/><ref refid="structterminal_1_1_keyboard_1a62d896adb3e0a48a1a1618d6236f2155" kindref="member">editingCodes</ref>.end())</highlight></codeline>
+<codeline lineno="353"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="354"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/><ref refid="structterminal_1_1_keyboard_1ab20318d26cba31889f6cb38ef48995e1" kindref="member">editingKey</ref><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref>,<sp/><ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref>);</highlight></codeline>
+<codeline lineno="355"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="356"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ch<sp/>&gt;<sp/>0<sp/>and<sp/>not<sp/><ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref>.isCtrlDown())</highlight></codeline>
+<codeline lineno="357"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="358"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((keyboardFlags<sp/>&amp;<sp/><ref refid="structterminal_1_1_keyboard_1abb21cf9177ded811a39a9d115e2e219e" kindref="member">allKeys</ref>)<sp/>and<sp/>isTextKey<sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref>))</highlight></codeline>
+<codeline lineno="359"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="360"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>codepoint<sp/>{<sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>&gt;=<sp/></highlight><highlight class="charliteral">&apos;A&apos;</highlight><highlight class="normal"><sp/>and<sp/><ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>&lt;=<sp/></highlight><highlight class="charliteral">&apos;Z&apos;</highlight><highlight class="normal">)<sp/>?<sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>-<sp/></highlight><highlight class="charliteral">&apos;A&apos;</highlight><highlight class="normal"><sp/>+<sp/></highlight><highlight class="charliteral">&apos;a&apos;</highlight><highlight class="normal">)<sp/>:<sp/><ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>};</highlight></codeline>
+<codeline lineno="361"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/><ref refid="structterminal_1_1_keyboard_1afa9cf634fe512cbd987b97d8ff1c56f8" kindref="member">encodeCsiU</ref><sp/>(codepoint,<sp/><ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref>);</highlight></codeline>
+<codeline lineno="362"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="363"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="364"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="365"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/>juce::String::charToString<sp/>(ch);</highlight></codeline>
+<codeline lineno="366"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="367"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="368"><highlight class="normal"></highlight></codeline>
+<codeline lineno="369"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>result;</highlight></codeline>
+<codeline lineno="370"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="371"><highlight class="normal"></highlight></codeline>
+<codeline lineno="372"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>-------------------------------------------------------------------------</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="373"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>xterm<sp/>escape<sp/>sequence<sp/>building<sp/>blocks</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="374"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>-------------------------------------------------------------------------</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="375"><highlight class="normal"></highlight></codeline>
+<codeline lineno="377" refid="structterminal_1_1_keyboard_1afa2fb4abb0a1e0152fef6ef9d646e0e5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">constexpr</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/><ref refid="structterminal_1_1_keyboard_1afa2fb4abb0a1e0152fef6ef9d646e0e5" kindref="member">escPrefix</ref><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;\x1b&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="378"><highlight class="normal"></highlight></codeline>
+<codeline lineno="380" refid="structterminal_1_1_keyboard_1aa8afb9196d0747fb465442f5e8094b60" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">constexpr</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/><ref refid="structterminal_1_1_keyboard_1aa8afb9196d0747fb465442f5e8094b60" kindref="member">csiPrefix</ref><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;\x1b[&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="381"><highlight class="normal"></highlight></codeline>
+<codeline lineno="388" refid="structterminal_1_1_keyboard_1abe71693a03472634156ed0956ca81ac7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">constexpr</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/><ref refid="structterminal_1_1_keyboard_1abe71693a03472634156ed0956ca81ac7" kindref="member">csiModPrefix</ref><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;\x1b[1;&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="389"><highlight class="normal"></highlight></codeline>
+<codeline lineno="391" refid="structterminal_1_1_keyboard_1a61b9f7752fa3154bd1bc9e2b18b8b3c2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">constexpr</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/><ref refid="structterminal_1_1_keyboard_1a61b9f7752fa3154bd1bc9e2b18b8b3c2" kindref="member">ss3Prefix</ref><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;\x1bO&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="392"><highlight class="normal"></highlight></codeline>
+<codeline lineno="394" refid="structterminal_1_1_keyboard_1aaebdc26b0cade07ca15073771cfbfe66" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">constexpr</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/><ref refid="structterminal_1_1_keyboard_1aaebdc26b0cade07ca15073771cfbfe66" kindref="member">csiTerminator</ref><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;~&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="395"><highlight class="normal"></highlight></codeline>
+<codeline lineno="397" refid="structterminal_1_1_keyboard_1a42e690c96b4fc63e13d680ac5ce6e395" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">constexpr</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/><ref refid="structterminal_1_1_keyboard_1a42e690c96b4fc63e13d680ac5ce6e395" kindref="member">paramSeparator</ref><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;;&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="398"><highlight class="normal"></highlight></codeline>
+<codeline lineno="399"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>-------------------------------------------------------------------------</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="400"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Single-byte<sp/>key<sp/>sequences</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="401"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>-------------------------------------------------------------------------</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="402"><highlight class="normal"></highlight></codeline>
+<codeline lineno="404" refid="structterminal_1_1_keyboard_1a3bbeb24b42baeff4ebc92106b9674f8e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">constexpr</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/><ref refid="structterminal_1_1_keyboard_1a3bbeb24b42baeff4ebc92106b9674f8e" kindref="member">carriageReturn</ref><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;\r&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="405"><highlight class="normal"></highlight></codeline>
+<codeline lineno="407" refid="structterminal_1_1_keyboard_1aabb3fdc6a194d2a7874a390d586752b8" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">constexpr</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/><ref refid="structterminal_1_1_keyboard_1aabb3fdc6a194d2a7874a390d586752b8" kindref="member">backspaceDel</ref><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;\x7f&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="408"><highlight class="normal"></highlight></codeline>
+<codeline lineno="410" refid="structterminal_1_1_keyboard_1a914f30aa65d3b6a9a71c2726ef392a1e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">constexpr</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/><ref refid="structterminal_1_1_keyboard_1a914f30aa65d3b6a9a71c2726ef392a1e" kindref="member">horizontalTab</ref><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;\t&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="411"><highlight class="normal"></highlight></codeline>
+<codeline lineno="413" refid="structterminal_1_1_keyboard_1a986febc453430425ad1172a53d5f59ff" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">constexpr</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/><ref refid="structterminal_1_1_keyboard_1a986febc453430425ad1172a53d5f59ff" kindref="member">escapeChar</ref><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;\x1b&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="414"><highlight class="normal"></highlight></codeline>
+<codeline lineno="415"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>-------------------------------------------------------------------------</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="416"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>xterm<sp/>modifier<sp/>bit<sp/>weights</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="417"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>-------------------------------------------------------------------------</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="418"><highlight class="normal"></highlight></codeline>
+<codeline lineno="425" refid="structterminal_1_1_keyboard_1afc95496b8854e04b7525e29447c30f64" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">constexpr</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structterminal_1_1_keyboard_1afc95496b8854e04b7525e29447c30f64" kindref="member">noModifier</ref><sp/><sp/><sp/><sp/>{<sp/>1<sp/>};</highlight></codeline>
+<codeline lineno="426"><highlight class="normal"></highlight></codeline>
+<codeline lineno="428" refid="structterminal_1_1_keyboard_1a7a14df1b437afd01112f80999f643a32" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">constexpr</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structterminal_1_1_keyboard_1a7a14df1b437afd01112f80999f643a32" kindref="member">shiftBit</ref><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/>1<sp/>};</highlight></codeline>
+<codeline lineno="429"><highlight class="normal"></highlight></codeline>
+<codeline lineno="431" refid="structterminal_1_1_keyboard_1ad2bfff171c28b61c2c3c1a1c1dfdd314" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">constexpr</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structterminal_1_1_keyboard_1ad2bfff171c28b61c2c3c1a1c1dfdd314" kindref="member">altBit</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/>2<sp/>};</highlight></codeline>
+<codeline lineno="432"><highlight class="normal"></highlight></codeline>
+<codeline lineno="434" refid="structterminal_1_1_keyboard_1ab54a5c36b5b8805bc0978040ce96f56c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">constexpr</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structterminal_1_1_keyboard_1ab54a5c36b5b8805bc0978040ce96f56c" kindref="member">ctrlBit</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/>4<sp/>};</highlight></codeline>
+<codeline lineno="435"><highlight class="normal"></highlight></codeline>
+<codeline lineno="437" refid="structterminal_1_1_keyboard_1a8fc7b605f4d142130d9740e8e1059ca6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">constexpr</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structterminal_1_1_keyboard_1a8fc7b605f4d142130d9740e8e1059ca6" kindref="member">metaBit</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/>8<sp/>};</highlight></codeline>
+<codeline lineno="438"><highlight class="normal"></highlight></codeline>
+<codeline lineno="439"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>-------------------------------------------------------------------------</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="440"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Ctrl<sp/>key<sp/>byte<sp/>offsets</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="441"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>-------------------------------------------------------------------------</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="442"><highlight class="normal"></highlight></codeline>
+<codeline lineno="449" refid="structterminal_1_1_keyboard_1a537fa998babf44983e3799b0527fb16f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">constexpr</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structterminal_1_1_keyboard_1a537fa998babf44983e3799b0527fb16f" kindref="member">ctrlLetterBase</ref><sp/>{<sp/>1<sp/>};</highlight></codeline>
+<codeline lineno="450"><highlight class="normal"></highlight></codeline>
+<codeline lineno="451"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>-------------------------------------------------------------------------</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="452"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Key<sp/>mapping<sp/>tables</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="453"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>-------------------------------------------------------------------------</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="454"><highlight class="normal"></highlight></codeline>
+<codeline lineno="468" refid="structterminal_1_1_keyboard_1ad04dd5af967041ecfdb75f0170841c78" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::unordered_map&lt;int,<sp/>juce::String&gt;<sp/><ref refid="structterminal_1_1_keyboard_1ad04dd5af967041ecfdb75f0170841c78" kindref="member">simpleKeys</ref></highlight></codeline>
+<codeline lineno="469"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="470"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/>juce::KeyPress::returnKey,<sp/><sp/><sp/><sp/><ref refid="structterminal_1_1_keyboard_1a3bbeb24b42baeff4ebc92106b9674f8e" kindref="member">carriageReturn</ref><sp/>},</highlight></codeline>
+<codeline lineno="471"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/>juce::KeyPress::backspaceKey,<sp/><ref refid="structterminal_1_1_keyboard_1aabb3fdc6a194d2a7874a390d586752b8" kindref="member">backspaceDel</ref><sp/>},</highlight></codeline>
+<codeline lineno="472"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/>juce::KeyPress::tabKey,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structterminal_1_1_keyboard_1a914f30aa65d3b6a9a71c2726ef392a1e" kindref="member">horizontalTab</ref><sp/>},</highlight></codeline>
+<codeline lineno="473"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/>juce::KeyPress::escapeKey,<sp/><sp/><sp/><sp/><ref refid="structterminal_1_1_keyboard_1a986febc453430425ad1172a53d5f59ff" kindref="member">escapeChar</ref><sp/>}</highlight></codeline>
+<codeline lineno="474"><highlight class="normal"><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="475"><highlight class="normal"></highlight></codeline>
+<codeline lineno="489" refid="structterminal_1_1_keyboard_1a41a1ed56b0f4024897fff970cf86c6cd" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::unordered_map&lt;int,<sp/>juce::String&gt;<sp/><ref refid="structterminal_1_1_keyboard_1a41a1ed56b0f4024897fff970cf86c6cd" kindref="member">ctrlKeys</ref></highlight></codeline>
+<codeline lineno="490"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="491"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="charliteral">&apos;[&apos;</highlight><highlight class="normal">,<sp/><sp/><ref refid="structterminal_1_1_keyboard_1a986febc453430425ad1172a53d5f59ff" kindref="member">escapeChar</ref><sp/>},</highlight></codeline>
+<codeline lineno="492"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="charliteral">&apos;\\&apos;</highlight><highlight class="normal">,<sp/></highlight><highlight class="stringliteral">&quot;\x1c&quot;</highlight><highlight class="normal"><sp/>},</highlight></codeline>
+<codeline lineno="493"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="charliteral">&apos;]&apos;</highlight><highlight class="normal">,<sp/><sp/></highlight><highlight class="stringliteral">&quot;\x1d&quot;</highlight><highlight class="normal"><sp/>},</highlight></codeline>
+<codeline lineno="494"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="charliteral">&apos;^&apos;</highlight><highlight class="normal">,<sp/><sp/></highlight><highlight class="stringliteral">&quot;\x1e&quot;</highlight><highlight class="normal"><sp/>},</highlight></codeline>
+<codeline lineno="495"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="charliteral">&apos;_&apos;</highlight><highlight class="normal">,<sp/><sp/></highlight><highlight class="stringliteral">&quot;\x1f&quot;</highlight><highlight class="normal"><sp/>}</highlight></codeline>
+<codeline lineno="496"><highlight class="normal"><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="497"><highlight class="normal"></highlight></codeline>
+<codeline lineno="510" refid="structterminal_1_1_keyboard_1a08ba8acbba086e44121d1a1272183268" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::unordered_map&lt;int,<sp/>char&gt;<sp/><ref refid="structterminal_1_1_keyboard_1a08ba8acbba086e44121d1a1272183268" kindref="member">cursorKeys</ref></highlight></codeline>
+<codeline lineno="511"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="512"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/>juce::KeyPress::upKey,<sp/><sp/><sp/><sp/></highlight><highlight class="charliteral">&apos;A&apos;</highlight><highlight class="normal"><sp/>},</highlight></codeline>
+<codeline lineno="513"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/>juce::KeyPress::downKey,<sp/><sp/></highlight><highlight class="charliteral">&apos;B&apos;</highlight><highlight class="normal"><sp/>},</highlight></codeline>
+<codeline lineno="514"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/>juce::KeyPress::rightKey,<sp/></highlight><highlight class="charliteral">&apos;C&apos;</highlight><highlight class="normal"><sp/>},</highlight></codeline>
+<codeline lineno="515"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/>juce::KeyPress::leftKey,<sp/><sp/></highlight><highlight class="charliteral">&apos;D&apos;</highlight><highlight class="normal"><sp/>}</highlight></codeline>
+<codeline lineno="516"><highlight class="normal"><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="517"><highlight class="normal"></highlight></codeline>
+<codeline lineno="532" refid="structterminal_1_1_keyboard_1a62d896adb3e0a48a1a1618d6236f2155" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::unordered_map&lt;int,<sp/>int&gt;<sp/><ref refid="structterminal_1_1_keyboard_1a62d896adb3e0a48a1a1618d6236f2155" kindref="member">editingCodes</ref></highlight></codeline>
+<codeline lineno="533"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="534"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/>juce::KeyPress::insertKey,<sp/><sp/><sp/>2<sp/>},</highlight></codeline>
+<codeline lineno="535"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/>juce::KeyPress::deleteKey,<sp/><sp/><sp/>3<sp/>},</highlight></codeline>
+<codeline lineno="536"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/>juce::KeyPress::pageUpKey,<sp/><sp/><sp/>5<sp/>},</highlight></codeline>
+<codeline lineno="537"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/>juce::KeyPress::pageDownKey,<sp/>6<sp/>}</highlight></codeline>
+<codeline lineno="538"><highlight class="normal"><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="539"><highlight class="normal"></highlight></codeline>
+<codeline lineno="562" refid="structterminal_1_1_keyboard_1ab8e828d9d60df1a92c6dc16fc2476873" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structterminal_1_1_keyboard_1ab8e828d9d60df1a92c6dc16fc2476873" kindref="member">modifierCode</ref><sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::ModifierKeys&amp;<sp/><ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref>)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="563"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="564"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>{<sp/><ref refid="structterminal_1_1_keyboard_1afc95496b8854e04b7525e29447c30f64" kindref="member">noModifier</ref><sp/>};</highlight></codeline>
+<codeline lineno="565"><highlight class="normal"></highlight></codeline>
+<codeline lineno="566"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref>.isShiftDown())</highlight></codeline>
+<codeline lineno="567"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="568"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>+=<sp/><ref refid="structterminal_1_1_keyboard_1a7a14df1b437afd01112f80999f643a32" kindref="member">shiftBit</ref>;</highlight></codeline>
+<codeline lineno="569"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="570"><highlight class="normal"></highlight></codeline>
+<codeline lineno="571"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref>.isAltDown())</highlight></codeline>
+<codeline lineno="572"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="573"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>+=<sp/><ref refid="structterminal_1_1_keyboard_1ad2bfff171c28b61c2c3c1a1c1dfdd314" kindref="member">altBit</ref>;</highlight></codeline>
+<codeline lineno="574"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="575"><highlight class="normal"></highlight></codeline>
+<codeline lineno="576"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref>.isCtrlDown())</highlight></codeline>
+<codeline lineno="577"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="578"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>+=<sp/><ref refid="structterminal_1_1_keyboard_1ab54a5c36b5b8805bc0978040ce96f56c" kindref="member">ctrlBit</ref>;</highlight></codeline>
+<codeline lineno="579"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="580"><highlight class="normal"></highlight></codeline>
+<codeline lineno="581"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#if<sp/>JUCE_MAC</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="582"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Cmd<sp/>key<sp/>on<sp/>macOS<sp/>maps<sp/>to<sp/>the<sp/>kitty<sp/>Super/Meta<sp/>modifier<sp/>bit.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="583"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>On<sp/>Windows/Linux,<sp/>isCommandDown()<sp/>is<sp/>aliased<sp/>to<sp/>isCtrlDown()<sp/>by<sp/>JUCE,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="584"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>so<sp/>the<sp/>Ctrl<sp/>bit<sp/>above<sp/>already<sp/>covers<sp/>it<sp/>—<sp/>do<sp/>NOT<sp/>double-count.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="585"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref>.isCommandDown())</highlight></codeline>
+<codeline lineno="586"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="587"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>+=<sp/><ref refid="structterminal_1_1_keyboard_1a8fc7b605f4d142130d9740e8e1059ca6" kindref="member">metaBit</ref>;</highlight></codeline>
+<codeline lineno="588"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="589"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="590"><highlight class="normal"></highlight></codeline>
+<codeline lineno="591"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref>;</highlight></codeline>
+<codeline lineno="592"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="593"><highlight class="normal"></highlight></codeline>
+<codeline lineno="594"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>-------------------------------------------------------------------------</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="595"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Progressive<sp/>keyboard<sp/>protocol<sp/>(CSI<sp/>u)<sp/>—<sp/>encoding</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="596"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>-------------------------------------------------------------------------</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="597"><highlight class="normal"></highlight></codeline>
+<codeline lineno="599" refid="structterminal_1_1_keyboard_1a6bb019520135ef5d36a3137edb3c48d0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">constexpr</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="structterminal_1_1_keyboard_1a6bb019520135ef5d36a3137edb3c48d0" kindref="member">disambiguate</ref><sp/>{<sp/>1<sp/>};</highlight></codeline>
+<codeline lineno="600"><highlight class="normal"></highlight></codeline>
+<codeline lineno="602" refid="structterminal_1_1_keyboard_1abb21cf9177ded811a39a9d115e2e219e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">constexpr</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="structterminal_1_1_keyboard_1abb21cf9177ded811a39a9d115e2e219e" kindref="member">allKeys</ref><sp/>{<sp/>8<sp/>};</highlight></codeline>
+<codeline lineno="603"><highlight class="normal"></highlight></codeline>
+<codeline lineno="614" refid="structterminal_1_1_keyboard_1a8b8b7bb2aa6a36508c22d2e94b324de4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::unordered_map&lt;int,<sp/>int&gt;<sp/><ref refid="structterminal_1_1_keyboard_1a8b8b7bb2aa6a36508c22d2e94b324de4" kindref="member">progressiveKeyCodes</ref></highlight></codeline>
+<codeline lineno="615"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="616"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/>juce::KeyPress::returnKey,<sp/><sp/><sp/><sp/>13<sp/>},</highlight></codeline>
+<codeline lineno="617"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/>juce::KeyPress::backspaceKey,<sp/>127<sp/>},</highlight></codeline>
+<codeline lineno="618"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/>juce::KeyPress::tabKey,<sp/><sp/><sp/><sp/><sp/><sp/><sp/>9<sp/>},</highlight></codeline>
+<codeline lineno="619"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/>juce::KeyPress::escapeKey,<sp/><sp/><sp/><sp/>27<sp/>}</highlight></codeline>
+<codeline lineno="620"><highlight class="normal"><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="621"><highlight class="normal"></highlight></codeline>
+<codeline lineno="633" refid="structterminal_1_1_keyboard_1afa9cf634fe512cbd987b97d8ff1c56f8" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>juce::String<sp/><ref refid="structterminal_1_1_keyboard_1afa9cf634fe512cbd987b97d8ff1c56f8" kindref="member">encodeCsiU</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>keycode,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::ModifierKeys&amp;<sp/><ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref>)</highlight></codeline>
+<codeline lineno="634"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="635"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>mc<sp/>{<sp/><ref refid="structterminal_1_1_keyboard_1ab8e828d9d60df1a92c6dc16fc2476873" kindref="member">modifierCode</ref><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref>)<sp/>};</highlight></codeline>
+<codeline lineno="636"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>juce::String<sp/>result;</highlight></codeline>
+<codeline lineno="637"><highlight class="normal"></highlight></codeline>
+<codeline lineno="638"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mc<sp/>&gt;<sp/><ref refid="structterminal_1_1_keyboard_1afc95496b8854e04b7525e29447c30f64" kindref="member">noModifier</ref>)</highlight></codeline>
+<codeline lineno="639"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="640"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/>juce::String<sp/>(<ref refid="structterminal_1_1_keyboard_1aa8afb9196d0747fb465442f5e8094b60" kindref="member">csiPrefix</ref>)<sp/>+<sp/>juce::String<sp/>(keycode)</highlight></codeline>
+<codeline lineno="641"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>+<sp/><ref refid="structterminal_1_1_keyboard_1a42e690c96b4fc63e13d680ac5ce6e395" kindref="member">paramSeparator</ref><sp/>+<sp/>juce::String<sp/>(mc)<sp/>+<sp/></highlight><highlight class="stringliteral">&quot;u&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="642"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="643"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="644"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="645"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/>juce::String<sp/>(<ref refid="structterminal_1_1_keyboard_1aa8afb9196d0747fb465442f5e8094b60" kindref="member">csiPrefix</ref>)<sp/>+<sp/>juce::String<sp/>(keycode)<sp/>+<sp/></highlight><highlight class="stringliteral">&quot;u&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="646"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="647"><highlight class="normal"></highlight></codeline>
+<codeline lineno="648"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>result;</highlight></codeline>
+<codeline lineno="649"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="650"><highlight class="normal"></highlight></codeline>
+<codeline lineno="667" refid="structterminal_1_1_keyboard_1acbf0a12222fecd9e71ab16d1945ac7a3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structterminal_1_1_keyboard_1acbf0a12222fecd9e71ab16d1945ac7a3" kindref="member">shouldUseCsiU</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref>,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::ModifierKeys&amp;<sp/><ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref>,<sp/>uint32_t<sp/>keyboardFlags)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="668"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="669"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>result<sp/>{<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="670"><highlight class="normal"></highlight></codeline>
+<codeline lineno="671"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(keyboardFlags<sp/>&amp;<sp/><ref refid="structterminal_1_1_keyboard_1abb21cf9177ded811a39a9d115e2e219e" kindref="member">allKeys</ref>)</highlight></codeline>
+<codeline lineno="672"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="673"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="674"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="675"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(keyboardFlags<sp/>&amp;<sp/><ref refid="structterminal_1_1_keyboard_1a6bb019520135ef5d36a3137edb3c48d0" kindref="member">disambiguate</ref>)</highlight></codeline>
+<codeline lineno="676"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="677"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>hasModifiers<sp/>{<sp/><ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref>.isShiftDown()<sp/>or<sp/><ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref>.isCtrlDown()<sp/>or<sp/><ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref>.isAltDown()<sp/>};</highlight></codeline>
+<codeline lineno="678"><highlight class="normal"></highlight></codeline>
+<codeline lineno="679"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>==<sp/>juce::KeyPress::escapeKey)</highlight></codeline>
+<codeline lineno="680"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="681"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="682"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="683"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(hasModifiers)</highlight></codeline>
+<codeline lineno="684"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="685"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="686"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="687"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="688"><highlight class="normal"></highlight></codeline>
+<codeline lineno="689"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>result;</highlight></codeline>
+<codeline lineno="690"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="691"><highlight class="normal"></highlight></codeline>
+<codeline lineno="702"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>isTextKey<sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref>)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="703"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="704"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>result<sp/>{<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="705"><highlight class="normal"></highlight></codeline>
+<codeline lineno="706"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>&gt;=<sp/></highlight><highlight class="charliteral">&apos;A&apos;</highlight><highlight class="normal"><sp/>and<sp/><ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>&lt;=<sp/></highlight><highlight class="charliteral">&apos;Z&apos;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="707"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="708"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="709"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="710"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>&gt;=<sp/></highlight><highlight class="charliteral">&apos;0&apos;</highlight><highlight class="normal"><sp/>and<sp/><ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>&lt;=<sp/></highlight><highlight class="charliteral">&apos;9&apos;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="711"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="712"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="713"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="714"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="715"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="716"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">constexpr</highlight><highlight class="normal"><sp/>std::array&lt;int,<sp/>12&gt;<sp/>punctuation</highlight></codeline>
+<codeline lineno="717"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="718"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="charliteral">&apos;`&apos;</highlight><highlight class="normal">,<sp/></highlight><highlight class="charliteral">&apos;-&apos;</highlight><highlight class="normal">,<sp/></highlight><highlight class="charliteral">&apos;=&apos;</highlight><highlight class="normal">,<sp/></highlight><highlight class="charliteral">&apos;[&apos;</highlight><highlight class="normal">,<sp/></highlight><highlight class="charliteral">&apos;]&apos;</highlight><highlight class="normal">,<sp/></highlight><highlight class="charliteral">&apos;\\&apos;</highlight><highlight class="normal">,<sp/></highlight><highlight class="charliteral">&apos;;&apos;</highlight><highlight class="normal">,<sp/></highlight><highlight class="charliteral">&apos;\&apos;&apos;</highlight><highlight class="normal">,<sp/></highlight><highlight class="charliteral">&apos;,&apos;</highlight><highlight class="normal">,<sp/></highlight><highlight class="charliteral">&apos;.&apos;</highlight><highlight class="normal">,<sp/></highlight><highlight class="charliteral">&apos;/&apos;</highlight><highlight class="normal">,<sp/></highlight><highlight class="charliteral">&apos;<sp/>&apos;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="719"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="720"><highlight class="normal"></highlight></codeline>
+<codeline lineno="721"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal">&amp;<sp/>p<sp/>:<sp/>punctuation)</highlight></codeline>
+<codeline lineno="722"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="723"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref><sp/>==<sp/>p)</highlight></codeline>
+<codeline lineno="724"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="725"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="726"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="727"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="728"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="729"><highlight class="normal"></highlight></codeline>
+<codeline lineno="730"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>result;</highlight></codeline>
+<codeline lineno="731"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="732"><highlight class="normal"></highlight></codeline>
+<codeline lineno="749"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>juce::String<sp/>cursorKey<sp/>(</highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>finalChar,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::ModifierKeys&amp;<sp/><ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref>,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>applicationCursor)</highlight></codeline>
+<codeline lineno="750"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="751"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>mc<sp/>{<sp/><ref refid="structterminal_1_1_keyboard_1ab8e828d9d60df1a92c6dc16fc2476873" kindref="member">modifierCode</ref><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref>)<sp/>};</highlight></codeline>
+<codeline lineno="752"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>juce::String<sp/>result;</highlight></codeline>
+<codeline lineno="753"><highlight class="normal"></highlight></codeline>
+<codeline lineno="754"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mc<sp/>&gt;<sp/><ref refid="structterminal_1_1_keyboard_1afc95496b8854e04b7525e29447c30f64" kindref="member">noModifier</ref>)</highlight></codeline>
+<codeline lineno="755"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="756"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/>juce::String<sp/>(<ref refid="structterminal_1_1_keyboard_1abe71693a03472634156ed0956ca81ac7" kindref="member">csiModPrefix</ref>)<sp/>+<sp/>juce::String<sp/>(mc)<sp/>+<sp/>finalChar;</highlight></codeline>
+<codeline lineno="757"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="758"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="759"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="760"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/>prefix<sp/>{<sp/>applicationCursor<sp/>?<sp/><ref refid="structterminal_1_1_keyboard_1a61b9f7752fa3154bd1bc9e2b18b8b3c2" kindref="member">ss3Prefix</ref><sp/>:<sp/><ref refid="structterminal_1_1_keyboard_1aa8afb9196d0747fb465442f5e8094b60" kindref="member">csiPrefix</ref><sp/>};</highlight></codeline>
+<codeline lineno="761"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/>juce::String<sp/>(prefix)<sp/>+<sp/>finalChar;</highlight></codeline>
+<codeline lineno="762"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="763"><highlight class="normal"></highlight></codeline>
+<codeline lineno="764"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>result;</highlight></codeline>
+<codeline lineno="765"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="766"><highlight class="normal"></highlight></codeline>
+<codeline lineno="793" refid="structterminal_1_1_keyboard_1a08b40cc6b39e2fca6756dabe9b39b46a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>juce::String<sp/><ref refid="structterminal_1_1_keyboard_1a08b40cc6b39e2fca6756dabe9b39b46a" kindref="member">functionKey</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>juceKey,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::ModifierKeys&amp;<sp/><ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref>)</highlight></codeline>
+<codeline lineno="794"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="795"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>juce::String<sp/>result;</highlight></codeline>
+<codeline lineno="796"><highlight class="normal"></highlight></codeline>
+<codeline lineno="797"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(juceKey<sp/>&gt;=<sp/>juce::KeyPress::F1Key<sp/>and<sp/>juceKey<sp/>&lt;=<sp/>juce::KeyPress::F4Key)</highlight></codeline>
+<codeline lineno="798"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="799"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::array&lt;char,<sp/>4&gt;<sp/>ss3Final<sp/>{<sp/></highlight><highlight class="charliteral">&apos;P&apos;</highlight><highlight class="normal">,<sp/></highlight><highlight class="charliteral">&apos;Q&apos;</highlight><highlight class="normal">,<sp/></highlight><highlight class="charliteral">&apos;R&apos;</highlight><highlight class="normal">,<sp/></highlight><highlight class="charliteral">&apos;S&apos;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="800"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>idx<sp/>{<sp/>juceKey<sp/>-<sp/>juce::KeyPress::F1Key<sp/>};</highlight></codeline>
+<codeline lineno="801"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>mc<sp/>{<sp/><ref refid="structterminal_1_1_keyboard_1ab8e828d9d60df1a92c6dc16fc2476873" kindref="member">modifierCode</ref><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref>)<sp/>};</highlight></codeline>
+<codeline lineno="802"><highlight class="normal"></highlight></codeline>
+<codeline lineno="803"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mc<sp/>==<sp/><ref refid="structterminal_1_1_keyboard_1afc95496b8854e04b7525e29447c30f64" kindref="member">noModifier</ref>)</highlight></codeline>
+<codeline lineno="804"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="805"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/>juce::String<sp/>(<ref refid="structterminal_1_1_keyboard_1a61b9f7752fa3154bd1bc9e2b18b8b3c2" kindref="member">ss3Prefix</ref>)<sp/>+<sp/>ss3Final.at<sp/>(idx);</highlight></codeline>
+<codeline lineno="806"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="807"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="808"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="809"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/>juce::String<sp/>(<ref refid="structterminal_1_1_keyboard_1abe71693a03472634156ed0956ca81ac7" kindref="member">csiModPrefix</ref>)<sp/>+<sp/>juce::String<sp/>(mc)<sp/>+<sp/>ss3Final.at<sp/>(idx);</highlight></codeline>
+<codeline lineno="810"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="811"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="812"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(juceKey<sp/>&gt;=<sp/>juce::KeyPress::F5Key<sp/>and<sp/>juceKey<sp/>&lt;=<sp/>juce::KeyPress::F12Key)</highlight></codeline>
+<codeline lineno="813"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="814"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::array&lt;int,<sp/>8&gt;<sp/>csiCode<sp/>{<sp/>15,<sp/>17,<sp/>18,<sp/>19,<sp/>20,<sp/>21,<sp/>23,<sp/>24<sp/>};</highlight></codeline>
+<codeline lineno="815"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>idx<sp/>{<sp/>juceKey<sp/>-<sp/>juce::KeyPress::F5Key<sp/>};</highlight></codeline>
+<codeline lineno="816"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>nn<sp/>{<sp/>csiCode.at<sp/>(idx)<sp/>};</highlight></codeline>
+<codeline lineno="817"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>mc<sp/>{<sp/><ref refid="structterminal_1_1_keyboard_1ab8e828d9d60df1a92c6dc16fc2476873" kindref="member">modifierCode</ref><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref>)<sp/>};</highlight></codeline>
+<codeline lineno="818"><highlight class="normal"></highlight></codeline>
+<codeline lineno="819"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mc<sp/>==<sp/><ref refid="structterminal_1_1_keyboard_1afc95496b8854e04b7525e29447c30f64" kindref="member">noModifier</ref>)</highlight></codeline>
+<codeline lineno="820"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="821"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/>juce::String<sp/>(<ref refid="structterminal_1_1_keyboard_1aa8afb9196d0747fb465442f5e8094b60" kindref="member">csiPrefix</ref>)<sp/>+<sp/>juce::String<sp/>(nn)<sp/>+<sp/><ref refid="structterminal_1_1_keyboard_1aaebdc26b0cade07ca15073771cfbfe66" kindref="member">csiTerminator</ref>;</highlight></codeline>
+<codeline lineno="822"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="823"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="824"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="825"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/>juce::String<sp/>(<ref refid="structterminal_1_1_keyboard_1aa8afb9196d0747fb465442f5e8094b60" kindref="member">csiPrefix</ref>)<sp/>+<sp/>juce::String<sp/>(nn)<sp/>+<sp/><ref refid="structterminal_1_1_keyboard_1a42e690c96b4fc63e13d680ac5ce6e395" kindref="member">paramSeparator</ref><sp/>+<sp/>juce::String<sp/>(mc)<sp/>+<sp/><ref refid="structterminal_1_1_keyboard_1aaebdc26b0cade07ca15073771cfbfe66" kindref="member">csiTerminator</ref>;</highlight></codeline>
+<codeline lineno="826"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="827"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="828"><highlight class="normal"></highlight></codeline>
+<codeline lineno="829"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>result;</highlight></codeline>
+<codeline lineno="830"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="831"><highlight class="normal"></highlight></codeline>
+<codeline lineno="843" refid="structterminal_1_1_keyboard_1a8514399bc2819fa68cc3ad25811985eb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::unordered_map&lt;int,<sp/>const<sp/>char*&gt;<sp/><ref refid="structterminal_1_1_keyboard_1a8514399bc2819fa68cc3ad25811985eb" kindref="member">editingFinalChars</ref></highlight></codeline>
+<codeline lineno="844"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="845"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/>juce::KeyPress::homeKey,<sp/></highlight><highlight class="stringliteral">&quot;H&quot;</highlight><highlight class="normal"><sp/>},</highlight></codeline>
+<codeline lineno="846"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/>juce::KeyPress::endKey,<sp/><sp/></highlight><highlight class="stringliteral">&quot;F&quot;</highlight><highlight class="normal"><sp/>}</highlight></codeline>
+<codeline lineno="847"><highlight class="normal"><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="848"><highlight class="normal"></highlight></codeline>
+<codeline lineno="862" refid="structterminal_1_1_keyboard_1ab20318d26cba31889f6cb38ef48995e1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>juce::String<sp/><ref refid="structterminal_1_1_keyboard_1ab20318d26cba31889f6cb38ef48995e1" kindref="member">editingKey</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>juceKey,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::ModifierKeys&amp;<sp/><ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref>)</highlight></codeline>
+<codeline lineno="863"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="864"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>mc<sp/>{<sp/><ref refid="structterminal_1_1_keyboard_1ab8e828d9d60df1a92c6dc16fc2476873" kindref="member">modifierCode</ref><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">mods</ref>)<sp/>};</highlight></codeline>
+<codeline lineno="865"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>juce::String<sp/>result;</highlight></codeline>
+<codeline lineno="866"><highlight class="normal"></highlight></codeline>
+<codeline lineno="867"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>finalIt<sp/>{<sp/><ref refid="structterminal_1_1_keyboard_1a8514399bc2819fa68cc3ad25811985eb" kindref="member">editingFinalChars</ref>.find<sp/>(juceKey)<sp/>};</highlight></codeline>
+<codeline lineno="868"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>codeIt<sp/>{<sp/><ref refid="structterminal_1_1_keyboard_1a62d896adb3e0a48a1a1618d6236f2155" kindref="member">editingCodes</ref>.find<sp/>(juceKey)<sp/>};</highlight></codeline>
+<codeline lineno="869"><highlight class="normal"></highlight></codeline>
+<codeline lineno="870"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(finalIt<sp/>!=<sp/><ref refid="structterminal_1_1_keyboard_1a8514399bc2819fa68cc3ad25811985eb" kindref="member">editingFinalChars</ref>.end())</highlight></codeline>
+<codeline lineno="871"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="872"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mc<sp/>==<sp/><ref refid="structterminal_1_1_keyboard_1afc95496b8854e04b7525e29447c30f64" kindref="member">noModifier</ref>)</highlight></codeline>
+<codeline lineno="873"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="874"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/>juce::String<sp/>(<ref refid="structterminal_1_1_keyboard_1aa8afb9196d0747fb465442f5e8094b60" kindref="member">csiPrefix</ref>)<sp/>+<sp/>finalIt-&gt;second;</highlight></codeline>
+<codeline lineno="875"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="876"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="877"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="878"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/>juce::String<sp/>(<ref refid="structterminal_1_1_keyboard_1abe71693a03472634156ed0956ca81ac7" kindref="member">csiModPrefix</ref>)<sp/>+<sp/>juce::String<sp/>(mc)<sp/>+<sp/>finalIt-&gt;second;</highlight></codeline>
+<codeline lineno="879"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="880"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="881"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(codeIt<sp/>!=<sp/><ref refid="structterminal_1_1_keyboard_1a62d896adb3e0a48a1a1618d6236f2155" kindref="member">editingCodes</ref>.end())</highlight></codeline>
+<codeline lineno="882"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="883"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mc<sp/>==<sp/><ref refid="structterminal_1_1_keyboard_1afc95496b8854e04b7525e29447c30f64" kindref="member">noModifier</ref>)</highlight></codeline>
+<codeline lineno="884"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="885"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/>juce::String<sp/>(<ref refid="structterminal_1_1_keyboard_1aa8afb9196d0747fb465442f5e8094b60" kindref="member">csiPrefix</ref>)<sp/>+<sp/>juce::String<sp/>(codeIt-&gt;second)<sp/>+<sp/><ref refid="structterminal_1_1_keyboard_1aaebdc26b0cade07ca15073771cfbfe66" kindref="member">csiTerminator</ref>;</highlight></codeline>
+<codeline lineno="886"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="887"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="888"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="889"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/>juce::String<sp/>(<ref refid="structterminal_1_1_keyboard_1aa8afb9196d0747fb465442f5e8094b60" kindref="member">csiPrefix</ref>)<sp/>+<sp/>juce::String<sp/>(codeIt-&gt;second)<sp/>+<sp/><ref refid="structterminal_1_1_keyboard_1a42e690c96b4fc63e13d680ac5ce6e395" kindref="member">paramSeparator</ref><sp/>+<sp/>juce::String<sp/>(mc)<sp/>+<sp/><ref refid="structterminal_1_1_keyboard_1aaebdc26b0cade07ca15073771cfbfe66" kindref="member">csiTerminator</ref>;</highlight></codeline>
+<codeline lineno="890"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="891"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="892"><highlight class="normal"></highlight></codeline>
+<codeline lineno="893"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>result;</highlight></codeline>
+<codeline lineno="894"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="895"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="896"><highlight class="normal"></highlight></codeline>
+<codeline lineno="898"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>terminal</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="terminal/Keyboard.h"/>
+  </compounddef>
+</doxygen>

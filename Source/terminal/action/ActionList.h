@@ -97,7 +97,7 @@ private:
     lua::Engine& luaEngine;
 
     /** @brief ValueTree root holding ACTION nodes and binding state. */
-    jam::ValueTree state { "ACTION_LIST" };
+    jam::Model state { "ACTION_LIST" };
 
     /** @brief Scrollable viewport hosting the rowContainer. */
     juce::Viewport viewport;

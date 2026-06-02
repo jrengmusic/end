@@ -180,21 +180,22 @@ void Processor::registerEvents() noexcept
                     state.setSnapshotDirty();
                 });
 
-    // Clear scrollback — zero all rows via Video, reset scrollOffset, clear TextLineArray.
+    // Clear scrollback — zero all rows via Video, reset scrollOffset.
     // video.clearChannel zeros all rows through the active blocks (flat buffer, head always 0).
     // writeHead is always 0 for a flat buffer — no need to store it on clear.
-    // textLineArray.clear() resets history deque, preserves empty live slots — ED 3 SSOT wipe.
+    // CellFifo reset is dispatched to the message thread so it is safe from the reader thread.
     events.add<int> (id::clearBuffer,
                      [this] (int screen)
                      {
                          video.clearChannel (screen);
 
-                         // Dispatch TextLineArray clear to the message thread — TextLineArray is message-thread-only.
-                         juce::MessageManager::callAsync ([this, screen]
+                         // Resize CellFifo on the message thread — SPSC: drain side must not race the resize.
+                         juce::MessageManager::callAsync ([this]
                          {
-                             textLineArrays.at (static_cast<size_t> (screen)).clear();
-                             const juce::Identifier clrScreenId { Map::Screen::getContext()->get (screen) };
-                             state.storeValue (clrScreenId, id::liveRows, 0);
+                             const int scrollbackLines { AppModel::getContext()->getRawParameterValue<int> (app::id::scrollbackLines)->load() };
+                             const int cols            { video.getCols().value };
+                             const int visibleRows     { video.getVisibleRows().value };
+                             cellFifo.setSize (scrollbackLines * cols, visibleRows * cols);
                          });
                      });
 
@@ -276,7 +277,7 @@ void Processor::registerEvents() noexcept
         {
             if (screen == Map::Screen::normal)
             {
-                const jam::Buffer<jam::Row>& buf { video.getBuffer() };
+                const jam::Buffer<jam::Row>& buf { video.getGrid() };
                 const int numRingRows { buf.getNumRows() };
                 const int numCols     { buf.getNumCols() };
 
@@ -301,7 +302,8 @@ void Processor::registerEvents() noexcept
                 if ((departingRow->flags & jam::Row::justify) != 0)
                     flags |= CellFifo::isJustifiedFlag;
 
-                cellFifo.pushRow (departingRow->cells, usedCols, flags);
+                // history: departing row enters scrollback history (I1).
+                cellFifo.pushHistory (departingRow->cells, usedCols, flags);
             }
         });
 
@@ -314,21 +316,54 @@ void Processor::registerEvents() noexcept
             // Flat buffer: writeHead is always 0. No State update needed on scroll.
         });
 
-    // Row-dirty delivery: sets the per-row dirty flag in State.
-    // Fired by Video::flush() for each row touched since the last flush.
-    events.add<int> (id::rowDirty,
-                     [this] (int row)
-                     {
-                         state.setRowDirty (row);
-                     });
-
-    // State delivery: screenDirty — increment monotonic counter.
-    // Flush path: Processor's vTPC picks up the counter change and serializes
-    // Video's visible rows into TextLineArray live slots on the message thread.
+    // State delivery: screenDirty — push live viewport rows [0..cursorRow] to the active ring
+    // via pushActive(), then bump the monotonic counter.  The counter change propagates via
+    // State::flush() to the ValueTree on the message thread, signalling Display to drain
+    // CellFifo and update its CodeView.  Fired by Video::flush() on the reader thread;
+    // Video's own buffer is safe to read here (same thread).  Content-bounded: only rows
+    // [0..cursorRow] are pushed — the blank viewport tail below the cursor is never pushed.
     events.add (id::screenDirty,
                 [this]
                 {
                     const int activeScr { state.loadValue (id::SESSION, id::activeScreen) };
+
+                    const jam::Buffer<jam::Row>& buf { video.getGrid() };
+                    const int numRingRows { buf.getNumRows() };
+                    const int numCols     { buf.getNumCols() };
+
+                    const jam::Block<jam::Row> block {
+                        buf.getChannelPointer (activeScr),
+                        0,
+                        0,
+                        numRingRows,
+                        numCols,
+                        buf.getRowStrideBytes(),
+                        numRingRows
+                    };
+
+                    const int cursorRow { video.getCursorRow().value };
+
+                    for (int r { 0 }; r <= cursorRow; ++r)
+                    {
+                        const jam::Row* const liveRow { block.getRowPointer (r) };
+                        const int usedCols { static_cast<int> (liveRow->usedCols) };
+
+                        uint8_t flags { 0 };
+
+                        if ((liveRow->flags & jam::Row::flexWrap) != 0)
+                            flags |= CellFifo::isContinuedFlag;
+
+                        if ((liveRow->flags & jam::Row::justify) != 0)
+                            flags |= CellFifo::isJustifiedFlag;
+
+                        // active: live viewport row; row index is the zero-based screen row (I2).
+                        cellFifo.pushActive (liveRow->cells, usedCols, flags);
+                    }
+
+                    jam::debug::Log::write ("PUSH activeScr=" + juce::String (activeScr)
+                                            + " cursorRow=" + juce::String (cursorRow)
+                                            + " activeReady=" + juce::String (cellFifo.getActiveNumReady()));
+
                     const juce::Identifier dirtyScreenId { Map::Screen::getContext()->get (activeScr) };
                     const int current { state.loadValue (dirtyScreenId, id::screenDirty) };
                     state.storeValue (dirtyScreenId, id::screenDirty, current + 1);

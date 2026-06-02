@@ -15,10 +15,10 @@
  * 3. Call `disconnectFromHost()` on shutdown.  Destructor also calls it.
  *
  * ### Port resolution
- * The daemon port is read from `AppState::getContext()->getPort()`.  The port
- * is written to AppState by `Daemon::start()` and persisted to
+ * The daemon port is read from `AppModel::getContext()->getPort()`.  The port
+ * is written to AppModel by `Daemon::start()` and persisted to
  * `~/.config/end/nexus/<uuid>.nexus`.  During the startup scan in Main.cpp
- * the nexus file is parsed and the port is loaded into AppState before
+ * the nexus file is parsed and the port is loaded into AppModel before
  * `beginConnectAttempts()` is called.
  *
  * ### Threading
@@ -43,7 +43,7 @@
 #include "Message.h"
 #include "EncoderDecoder.h"
 #include "Nexus.h"
-#include "../AppState.h"
+#include "../AppModel.h"
 #include "../AppIdentifier.h"
 #include "../terminal/Identifier.h"
 #include "../terminal/Processor.h"
@@ -152,9 +152,9 @@ public:
 
 
     /**
-     * @brief Kicks off async connection attempts, polling AppState for the port every 100 ms.
+     * @brief Kicks off async connection attempts, polling AppModel for the port every 100 ms.
      *
-     * Reads `AppState::getContext()->getPort()` on each tick and attempts
+     * Reads `AppModel::getContext()->getPort()` on each tick and attempts
      * `connectToSocket`.  On success, stops retrying — JUCE fires `connectionMade()`.
      * On timeout (50 × 100 ms = 5 s), logs a failure line.
      *
@@ -182,7 +182,7 @@ private:
      * @brief Inner timer that drives async connect retries.
      *
      * Fires every 100 ms on the JUCE message thread.  On each tick it reads
-     * the port from AppState and calls `connectToSocket`.  Stops itself when
+     * the port from AppModel and calls `connectToSocket`.  Stops itself when
      * the connection succeeds or when `maxAttempts` is reached.
      *
      * @note All callbacks — NEXUS PROCESS MESSAGE THREAD.

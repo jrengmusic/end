@@ -1,0 +1,563 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="_palette_8h" kind="file" language="C++">
+    <compoundname>Palette.h</compoundname>
+    <includes local="no">JuceHeader.h</includes>
+    <includedby refid="_video_8h" local="yes">terminal/Video.h</includedby>
+    <includedby refid="_look_and_feel_8h" local="yes">terminal/component/LookAndFeel.h</includedby>
+    <incdepgraph>
+      <node id="1">
+        <label>terminal/Palette.h</label>
+        <link refid="_palette_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>JuceHeader.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="9">
+        <label>Main.cpp</label>
+        <link refid="_main_8cpp"/>
+      </node>
+      <node id="8">
+        <label>Main.h</label>
+        <link refid="_main_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>MainComponent.cpp</label>
+        <link refid="_main_component_8cpp"/>
+      </node>
+      <node id="21">
+        <label>MainComponent.h</label>
+        <link refid="_main_component_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="23">
+        <label>MainComponentActions.cpp</label>
+        <link refid="_main_component_actions_8cpp"/>
+      </node>
+      <node id="10">
+        <label>nexus/Channel.cpp</label>
+        <link refid="_channel_8cpp"/>
+      </node>
+      <node id="11">
+        <label>nexus/Daemon.cpp</label>
+        <link refid="_daemon_8cpp"/>
+      </node>
+      <node id="7">
+        <label>nexus/Daemon.h</label>
+        <link refid="_daemon_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>nexus/Daemon.mm</label>
+        <link refid="_daemon_8mm"/>
+      </node>
+      <node id="13">
+        <label>nexus/DaemonWindows.cpp</label>
+        <link refid="_daemon_windows_8cpp"/>
+      </node>
+      <node id="15">
+        <label>nexus/Link.cpp</label>
+        <link refid="_link_8cpp"/>
+      </node>
+      <node id="14">
+        <label>nexus/Link.h</label>
+        <link refid="_link_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="43">
+        <label>nexus/Nexus.cpp</label>
+        <link refid="_nexus_8cpp"/>
+      </node>
+      <node id="42">
+        <label>nexus/Nexus.h</label>
+        <link refid="_nexus_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>terminal/Input.cpp</label>
+        <link refid="_input_8cpp"/>
+      </node>
+      <node id="16">
+        <label>terminal/Input.h</label>
+        <link refid="_input_8h"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="38">
+        <label>terminal/Mouse.cpp</label>
+        <link refid="_mouse_8cpp"/>
+      </node>
+      <node id="37">
+        <label>terminal/Mouse.h</label>
+        <link refid="_mouse_8h"/>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>terminal/Palette.h</label>
+        <link refid="_palette_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>terminal/Parser.cpp</label>
+        <link refid="terminal_2_parser_8cpp"/>
+      </node>
+      <node id="3">
+        <label>terminal/Parser.h</label>
+        <link refid="terminal_2_parser_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>terminal/ParserAction.cpp</label>
+        <link refid="_parser_action_8cpp"/>
+      </node>
+      <node id="39">
+        <label>terminal/Processor.cpp</label>
+        <link refid="_processor_8cpp"/>
+      </node>
+      <node id="6">
+        <label>terminal/Processor.h</label>
+        <link refid="_processor_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+      </node>
+      <node id="40">
+        <label>terminal/ProcessorEvents.cpp</label>
+        <link refid="_processor_events_8cpp"/>
+      </node>
+      <node id="44">
+        <label>terminal/Session.cpp</label>
+        <link refid="_session_8cpp"/>
+      </node>
+      <node id="41">
+        <label>terminal/Session.h</label>
+        <link refid="_session_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="44" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+      </node>
+      <node id="45">
+        <label>terminal/Video.cpp</label>
+        <link refid="_video_8cpp"/>
+      </node>
+      <node id="2">
+        <label>terminal/Video.h</label>
+        <link refid="_video_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="46" relation="include">
+        </childnode>
+        <childnode refid="47" relation="include">
+        </childnode>
+        <childnode refid="48" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="50" relation="include">
+        </childnode>
+        <childnode refid="51" relation="include">
+        </childnode>
+        <childnode refid="52" relation="include">
+        </childnode>
+        <childnode refid="53" relation="include">
+        </childnode>
+        <childnode refid="54" relation="include">
+        </childnode>
+      </node>
+      <node id="46">
+        <label>terminal/VideoCSI.cpp</label>
+        <link refid="_video_c_s_i_8cpp"/>
+      </node>
+      <node id="47">
+        <label>terminal/VideoDCS.cpp</label>
+        <link refid="_video_d_c_s_8cpp"/>
+      </node>
+      <node id="48">
+        <label>terminal/VideoESC.cpp</label>
+        <link refid="_video_e_s_c_8cpp"/>
+      </node>
+      <node id="49">
+        <label>terminal/VideoEdit.cpp</label>
+        <link refid="_video_edit_8cpp"/>
+      </node>
+      <node id="50">
+        <label>terminal/VideoMode.cpp</label>
+        <link refid="_video_mode_8cpp"/>
+      </node>
+      <node id="51">
+        <label>terminal/VideoOSC.cpp</label>
+        <link refid="_video_o_s_c_8cpp"/>
+      </node>
+      <node id="52">
+        <label>terminal/VideoOSCExt.cpp</label>
+        <link refid="_video_o_s_c_ext_8cpp"/>
+      </node>
+      <node id="53">
+        <label>terminal/VideoOps.cpp</label>
+        <link refid="_video_ops_8cpp"/>
+      </node>
+      <node id="54">
+        <label>terminal/VideoSGR.cpp</label>
+        <link refid="_video_s_g_r_8cpp"/>
+      </node>
+      <node id="19">
+        <label>terminal/component/Display.cpp</label>
+        <link refid="_display_8cpp"/>
+      </node>
+      <node id="18">
+        <label>terminal/component/Display.h</label>
+        <link refid="_display_8h"/>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+      </node>
+      <node id="24">
+        <label>terminal/component/LookAndFeel.cpp</label>
+        <link refid="_look_and_feel_8cpp"/>
+      </node>
+      <node id="20">
+        <label>terminal/component/LookAndFeel.h</label>
+        <link refid="_look_and_feel_8h"/>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+      </node>
+      <node id="25">
+        <label>terminal/component/LookAndFeelMenu.cpp</label>
+        <link refid="_look_and_feel_menu_8cpp"/>
+      </node>
+      <node id="26">
+        <label>terminal/component/LookAndFeelTab.cpp</label>
+        <link refid="_look_and_feel_tab_8cpp"/>
+      </node>
+      <node id="32">
+        <label>terminal/component/ModalWindow.cpp</label>
+        <link refid="_modal_window_8cpp"/>
+      </node>
+      <node id="31">
+        <label>terminal/component/ModalWindow.h</label>
+        <link refid="_modal_window_8h"/>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+      </node>
+      <node id="36">
+        <label>terminal/component/Panes.cpp</label>
+        <link refid="_panes_8cpp"/>
+      </node>
+      <node id="35">
+        <label>terminal/component/Panes.h</label>
+        <link refid="_panes_8h"/>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+      </node>
+      <node id="34">
+        <label>terminal/component/Popup.cpp</label>
+        <link refid="_popup_8cpp"/>
+      </node>
+      <node id="33">
+        <label>terminal/component/Popup.h</label>
+        <link refid="_popup_8h"/>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+      </node>
+      <node id="28">
+        <label>terminal/component/Tabs.cpp</label>
+        <link refid="_tabs_8cpp"/>
+      </node>
+      <node id="27">
+        <label>terminal/component/Tabs.h</label>
+        <link refid="_tabs_8h"/>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="29">
+        <label>terminal/component/TabsActions.cpp</label>
+        <link refid="_tabs_actions_8cpp"/>
+      </node>
+      <node id="30">
+        <label>terminal/component/TabsClose.cpp</label>
+        <link refid="_tabs_close_8cpp"/>
+      </node>
+    </invincdepgraph>
+    <innernamespace refid="namespaceterminal">terminal</innernamespace>
+    <briefdescription>
+<para>Compile-time xterm-256 color palette for terminal color resolution. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Defines the complete 256-entry xterm color table as <computeroutput>constexpr</computeroutput> data, partitioned into three canonical segments:</para>
+<para><itemizedlist>
+<listitem><para><bold>Indices 0–15</bold> : 16 standard <ref refid="namespace_a_n_s_i" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">ANSI</ref> colors (system palette)</para>
+</listitem><listitem><para><bold>Indices 16–231</bold> : 6×6×6 RGB color cube (216 entries)</para>
+</listitem><listitem><para><bold>Indices 232–255</bold>: 24-step grayscale ramp (black → near-white)</para>
+</listitem></itemizedlist>
+</para>
+<para>All tables are <computeroutput>inline const</computeroutput> (juce::Colour lacks constexpr constructors). Helper functions are <computeroutput>inline</computeroutput>. No heap allocation occurs.</para>
+<para><simplesect kind="note"><para>Include this header wherever SGR color attribute 38;5;n or 48;5;n sequences must be resolved to an RGB triple. Use <computeroutput>palette256At(n)</computeroutput> for index lookup. </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#pragma<sp/>once</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;JuceHeader.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespaceterminal" kindref="compound">terminal</ref></highlight></codeline>
+<codeline lineno="25"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="comment">/*____________________________________________________________________________*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38" refid="namespaceterminal_1a7c280ac96375daa7306ea3309285fc8f" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>std::array&lt;juce::Colour,<sp/>16&gt;<sp/><ref refid="namespaceterminal_1a7c280ac96375daa7306ea3309285fc8f" kindref="member">ANSI_16</ref></highlight></codeline>
+<codeline lineno="39"><highlight class="normal">{{</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::Colour<sp/>(0x00,<sp/>0x00,<sp/>0x00),</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::Colour<sp/>(0xCD,<sp/>0x00,<sp/>0x00),</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::Colour<sp/>(0x00,<sp/>0xCD,<sp/>0x00),</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::Colour<sp/>(0xCD,<sp/>0xCD,<sp/>0x00),</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::Colour<sp/>(0x00,<sp/>0x00,<sp/>0xEE),</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::Colour<sp/>(0xCD,<sp/>0x00,<sp/>0xCD),</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::Colour<sp/>(0x00,<sp/>0xCD,<sp/>0xCD),</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::Colour<sp/>(0xE5,<sp/>0xE5,<sp/>0xE5),</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::Colour<sp/>(0x7F,<sp/>0x7F,<sp/>0x7F),</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::Colour<sp/>(0xFF,<sp/>0x00,<sp/>0x00),</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::Colour<sp/>(0x00,<sp/>0xFF,<sp/>0x00),</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::Colour<sp/>(0xFF,<sp/>0xFF,<sp/>0x00),</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::Colour<sp/>(0x5C,<sp/>0x5C,<sp/>0xFF),</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::Colour<sp/>(0xFF,<sp/>0x00,<sp/>0xFF),</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::Colour<sp/>(0x00,<sp/>0xFF,<sp/>0xFF),</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::Colour<sp/>(0xFF,<sp/>0xFF,<sp/>0xFF),</highlight></codeline>
+<codeline lineno="56"><highlight class="normal">}};</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67" refid="namespaceterminal_1aa34b7c27f3d55a46829786eb96ffb5df" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="namespaceterminal_1aa34b7c27f3d55a46829786eb96ffb5df" kindref="member">setAnsi16Colour</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>index,<sp/>juce::Colour<sp/>colour)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespaceterminal_1a7c280ac96375daa7306ea3309285fc8f" kindref="member">ANSI_16</ref>[</highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">size_t</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(index)]<sp/>=<sp/>colour;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73" refid="namespaceterminal_1a461c0a8627fa66daee729e5610ff1803" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">constexpr</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="namespaceterminal_1a461c0a8627fa66daee729e5610ff1803" kindref="member">CUBE_START</ref><sp/>{<sp/>16<sp/>};</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="76" refid="namespaceterminal_1ad37701f15f42c023d663ed5af0d4be6f" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">constexpr</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="namespaceterminal_1ad37701f15f42c023d663ed5af0d4be6f" kindref="member">CUBE_END</ref><sp/>{<sp/>231<sp/>};</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight></codeline>
+<codeline lineno="79" refid="namespaceterminal_1a72fd54cd08d889ca7db90279f4681000" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">constexpr</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="namespaceterminal_1a72fd54cd08d889ca7db90279f4681000" kindref="member">CUBE_SIZE</ref><sp/>{<sp/>216<sp/>};</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90" refid="namespaceterminal_1a0d1f9088115851476e5d1ab9a667bfe2" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">constexpr</highlight><highlight class="normal"><sp/>uint8_t<sp/><ref refid="namespaceterminal_1a0d1f9088115851476e5d1ab9a667bfe2" kindref="member">cubeComponent</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>v)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(v<sp/>==<sp/>0)<sp/>?<sp/>uint8_t<sp/>{<sp/>0<sp/>}</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>:<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal">uint8_t</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(55<sp/>+<sp/>40<sp/>*<sp/>v);</highlight></codeline>
+<codeline lineno="94"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105" refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>juce::Colour<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>r,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>g,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>b)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>juce::Colour<sp/>(<ref refid="namespaceterminal_1a0d1f9088115851476e5d1ab9a667bfe2" kindref="member">cubeComponent</ref><sp/>(r),<sp/><ref refid="namespaceterminal_1a0d1f9088115851476e5d1ab9a667bfe2" kindref="member">cubeComponent</ref><sp/>(g),<sp/><ref refid="namespaceterminal_1a0d1f9088115851476e5d1ab9a667bfe2" kindref="member">cubeComponent</ref><sp/>(b));</highlight></codeline>
+<codeline lineno="108"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117" refid="namespaceterminal_1a2a797b7ada6dbb8fdf0a22a9d6dad4a0" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::array&lt;juce::Colour,<sp/>CUBE_SIZE&gt;<sp/><ref refid="namespaceterminal_1a2a797b7ada6dbb8fdf0a22a9d6dad4a0" kindref="member">COLOR_CUBE</ref></highlight></codeline>
+<codeline lineno="118"><highlight class="normal">{{</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(0,<sp/>0,<sp/>0),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(0,<sp/>0,<sp/>1),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(0,<sp/>0,<sp/>2),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(0,<sp/>0,<sp/>3),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(0,<sp/>0,<sp/>4),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(0,<sp/>0,<sp/>5),</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(0,<sp/>1,<sp/>0),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(0,<sp/>1,<sp/>1),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(0,<sp/>1,<sp/>2),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(0,<sp/>1,<sp/>3),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(0,<sp/>1,<sp/>4),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(0,<sp/>1,<sp/>5),</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(0,<sp/>2,<sp/>0),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(0,<sp/>2,<sp/>1),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(0,<sp/>2,<sp/>2),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(0,<sp/>2,<sp/>3),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(0,<sp/>2,<sp/>4),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(0,<sp/>2,<sp/>5),</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(0,<sp/>3,<sp/>0),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(0,<sp/>3,<sp/>1),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(0,<sp/>3,<sp/>2),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(0,<sp/>3,<sp/>3),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(0,<sp/>3,<sp/>4),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(0,<sp/>3,<sp/>5),</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(0,<sp/>4,<sp/>0),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(0,<sp/>4,<sp/>1),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(0,<sp/>4,<sp/>2),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(0,<sp/>4,<sp/>3),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(0,<sp/>4,<sp/>4),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(0,<sp/>4,<sp/>5),</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(0,<sp/>5,<sp/>0),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(0,<sp/>5,<sp/>1),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(0,<sp/>5,<sp/>2),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(0,<sp/>5,<sp/>3),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(0,<sp/>5,<sp/>4),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(0,<sp/>5,<sp/>5),</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(1,<sp/>0,<sp/>0),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(1,<sp/>0,<sp/>1),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(1,<sp/>0,<sp/>2),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(1,<sp/>0,<sp/>3),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(1,<sp/>0,<sp/>4),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(1,<sp/>0,<sp/>5),</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(1,<sp/>1,<sp/>0),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(1,<sp/>1,<sp/>1),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(1,<sp/>1,<sp/>2),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(1,<sp/>1,<sp/>3),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(1,<sp/>1,<sp/>4),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(1,<sp/>1,<sp/>5),</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(1,<sp/>2,<sp/>0),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(1,<sp/>2,<sp/>1),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(1,<sp/>2,<sp/>2),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(1,<sp/>2,<sp/>3),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(1,<sp/>2,<sp/>4),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(1,<sp/>2,<sp/>5),</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(1,<sp/>3,<sp/>0),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(1,<sp/>3,<sp/>1),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(1,<sp/>3,<sp/>2),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(1,<sp/>3,<sp/>3),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(1,<sp/>3,<sp/>4),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(1,<sp/>3,<sp/>5),</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(1,<sp/>4,<sp/>0),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(1,<sp/>4,<sp/>1),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(1,<sp/>4,<sp/>2),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(1,<sp/>4,<sp/>3),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(1,<sp/>4,<sp/>4),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(1,<sp/>4,<sp/>5),</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(1,<sp/>5,<sp/>0),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(1,<sp/>5,<sp/>1),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(1,<sp/>5,<sp/>2),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(1,<sp/>5,<sp/>3),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(1,<sp/>5,<sp/>4),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(1,<sp/>5,<sp/>5),</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(2,<sp/>0,<sp/>0),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(2,<sp/>0,<sp/>1),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(2,<sp/>0,<sp/>2),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(2,<sp/>0,<sp/>3),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(2,<sp/>0,<sp/>4),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(2,<sp/>0,<sp/>5),</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(2,<sp/>1,<sp/>0),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(2,<sp/>1,<sp/>1),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(2,<sp/>1,<sp/>2),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(2,<sp/>1,<sp/>3),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(2,<sp/>1,<sp/>4),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(2,<sp/>1,<sp/>5),</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(2,<sp/>2,<sp/>0),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(2,<sp/>2,<sp/>1),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(2,<sp/>2,<sp/>2),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(2,<sp/>2,<sp/>3),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(2,<sp/>2,<sp/>4),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(2,<sp/>2,<sp/>5),</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(2,<sp/>3,<sp/>0),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(2,<sp/>3,<sp/>1),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(2,<sp/>3,<sp/>2),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(2,<sp/>3,<sp/>3),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(2,<sp/>3,<sp/>4),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(2,<sp/>3,<sp/>5),</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(2,<sp/>4,<sp/>0),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(2,<sp/>4,<sp/>1),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(2,<sp/>4,<sp/>2),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(2,<sp/>4,<sp/>3),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(2,<sp/>4,<sp/>4),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(2,<sp/>4,<sp/>5),</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(2,<sp/>5,<sp/>0),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(2,<sp/>5,<sp/>1),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(2,<sp/>5,<sp/>2),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(2,<sp/>5,<sp/>3),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(2,<sp/>5,<sp/>4),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(2,<sp/>5,<sp/>5),</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(3,<sp/>0,<sp/>0),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(3,<sp/>0,<sp/>1),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(3,<sp/>0,<sp/>2),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(3,<sp/>0,<sp/>3),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(3,<sp/>0,<sp/>4),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(3,<sp/>0,<sp/>5),</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(3,<sp/>1,<sp/>0),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(3,<sp/>1,<sp/>1),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(3,<sp/>1,<sp/>2),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(3,<sp/>1,<sp/>3),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(3,<sp/>1,<sp/>4),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(3,<sp/>1,<sp/>5),</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(3,<sp/>2,<sp/>0),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(3,<sp/>2,<sp/>1),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(3,<sp/>2,<sp/>2),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(3,<sp/>2,<sp/>3),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(3,<sp/>2,<sp/>4),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(3,<sp/>2,<sp/>5),</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(3,<sp/>3,<sp/>0),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(3,<sp/>3,<sp/>1),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(3,<sp/>3,<sp/>2),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(3,<sp/>3,<sp/>3),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(3,<sp/>3,<sp/>4),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(3,<sp/>3,<sp/>5),</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(3,<sp/>4,<sp/>0),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(3,<sp/>4,<sp/>1),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(3,<sp/>4,<sp/>2),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(3,<sp/>4,<sp/>3),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(3,<sp/>4,<sp/>4),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(3,<sp/>4,<sp/>5),</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(3,<sp/>5,<sp/>0),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(3,<sp/>5,<sp/>1),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(3,<sp/>5,<sp/>2),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(3,<sp/>5,<sp/>3),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(3,<sp/>5,<sp/>4),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(3,<sp/>5,<sp/>5),</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"></highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(4,<sp/>0,<sp/>0),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(4,<sp/>0,<sp/>1),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(4,<sp/>0,<sp/>2),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(4,<sp/>0,<sp/>3),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(4,<sp/>0,<sp/>4),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(4,<sp/>0,<sp/>5),</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(4,<sp/>1,<sp/>0),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(4,<sp/>1,<sp/>1),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(4,<sp/>1,<sp/>2),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(4,<sp/>1,<sp/>3),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(4,<sp/>1,<sp/>4),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(4,<sp/>1,<sp/>5),</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(4,<sp/>2,<sp/>0),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(4,<sp/>2,<sp/>1),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(4,<sp/>2,<sp/>2),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(4,<sp/>2,<sp/>3),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(4,<sp/>2,<sp/>4),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(4,<sp/>2,<sp/>5),</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(4,<sp/>3,<sp/>0),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(4,<sp/>3,<sp/>1),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(4,<sp/>3,<sp/>2),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(4,<sp/>3,<sp/>3),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(4,<sp/>3,<sp/>4),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(4,<sp/>3,<sp/>5),</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(4,<sp/>4,<sp/>0),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(4,<sp/>4,<sp/>1),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(4,<sp/>4,<sp/>2),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(4,<sp/>4,<sp/>3),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(4,<sp/>4,<sp/>4),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(4,<sp/>4,<sp/>5),</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(4,<sp/>5,<sp/>0),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(4,<sp/>5,<sp/>1),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(4,<sp/>5,<sp/>2),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(4,<sp/>5,<sp/>3),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(4,<sp/>5,<sp/>4),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(4,<sp/>5,<sp/>5),</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(5,<sp/>0,<sp/>0),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(5,<sp/>0,<sp/>1),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(5,<sp/>0,<sp/>2),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(5,<sp/>0,<sp/>3),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(5,<sp/>0,<sp/>4),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(5,<sp/>0,<sp/>5),</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(5,<sp/>1,<sp/>0),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(5,<sp/>1,<sp/>1),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(5,<sp/>1,<sp/>2),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(5,<sp/>1,<sp/>3),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(5,<sp/>1,<sp/>4),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(5,<sp/>1,<sp/>5),</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(5,<sp/>2,<sp/>0),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(5,<sp/>2,<sp/>1),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(5,<sp/>2,<sp/>2),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(5,<sp/>2,<sp/>3),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(5,<sp/>2,<sp/>4),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(5,<sp/>2,<sp/>5),</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(5,<sp/>3,<sp/>0),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(5,<sp/>3,<sp/>1),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(5,<sp/>3,<sp/>2),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(5,<sp/>3,<sp/>3),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(5,<sp/>3,<sp/>4),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(5,<sp/>3,<sp/>5),</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(5,<sp/>4,<sp/>0),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(5,<sp/>4,<sp/>1),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(5,<sp/>4,<sp/>2),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(5,<sp/>4,<sp/>3),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(5,<sp/>4,<sp/>4),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(5,<sp/>4,<sp/>5),</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(5,<sp/>5,<sp/>0),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(5,<sp/>5,<sp/>1),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(5,<sp/>5,<sp/>2),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(5,<sp/>5,<sp/>3),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(5,<sp/>5,<sp/>4),<sp/><ref refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" kindref="member">cubeEntry</ref><sp/>(5,<sp/>5,<sp/>5),</highlight></codeline>
+<codeline lineno="160"><highlight class="normal">}};</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight></codeline>
+<codeline lineno="163" refid="namespaceterminal_1a9a1bf7b476d73fd9ed51343ab6ca0b5f" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">constexpr</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="namespaceterminal_1a9a1bf7b476d73fd9ed51343ab6ca0b5f" kindref="member">GRAY_START</ref><sp/>{<sp/>232<sp/>};</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"></highlight></codeline>
+<codeline lineno="166" refid="namespaceterminal_1afff17347242678b5954a2c6eed10577b" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">constexpr</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="namespaceterminal_1afff17347242678b5954a2c6eed10577b" kindref="member">GRAY_END</ref><sp/>{<sp/>255<sp/>};</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"></highlight></codeline>
+<codeline lineno="169" refid="namespaceterminal_1ae4127176e5366a8392bc583727dc50c0" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">constexpr</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="namespaceterminal_1ae4127176e5366a8392bc583727dc50c0" kindref="member">GRAY_SIZE</ref><sp/>{<sp/>24<sp/>};</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"></highlight></codeline>
+<codeline lineno="180" refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">constexpr</highlight><highlight class="normal"><sp/>uint8_t<sp/><ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>index)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="181"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal">uint8_t</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(8<sp/>+<sp/>10<sp/>*<sp/>(index<sp/>-<sp/><ref refid="namespaceterminal_1a9a1bf7b476d73fd9ed51343ab6ca0b5f" kindref="member">GRAY_START</ref>));</highlight></codeline>
+<codeline lineno="183"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"></highlight></codeline>
+<codeline lineno="191" refid="namespaceterminal_1a662f0586dcd3d10ce2a533b4fd7208fb" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::array&lt;juce::Colour,<sp/>GRAY_SIZE&gt;<sp/><ref refid="namespaceterminal_1a662f0586dcd3d10ce2a533b4fd7208fb" kindref="member">GRAY_RAMP</ref></highlight></codeline>
+<codeline lineno="192"><highlight class="normal">{{</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::Colour<sp/>(<ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(232),<sp/><ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(232),<sp/><ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(232)),</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::Colour<sp/>(<ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(233),<sp/><ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(233),<sp/><ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(233)),</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::Colour<sp/>(<ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(234),<sp/><ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(234),<sp/><ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(234)),</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::Colour<sp/>(<ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(235),<sp/><ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(235),<sp/><ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(235)),</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::Colour<sp/>(<ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(236),<sp/><ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(236),<sp/><ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(236)),</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::Colour<sp/>(<ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(237),<sp/><ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(237),<sp/><ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(237)),</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::Colour<sp/>(<ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(238),<sp/><ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(238),<sp/><ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(238)),</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::Colour<sp/>(<ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(239),<sp/><ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(239),<sp/><ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(239)),</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::Colour<sp/>(<ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(240),<sp/><ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(240),<sp/><ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(240)),</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::Colour<sp/>(<ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(241),<sp/><ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(241),<sp/><ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(241)),</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::Colour<sp/>(<ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(242),<sp/><ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(242),<sp/><ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(242)),</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::Colour<sp/>(<ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(243),<sp/><ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(243),<sp/><ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(243)),</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::Colour<sp/>(<ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(244),<sp/><ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(244),<sp/><ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(244)),</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::Colour<sp/>(<ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(245),<sp/><ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(245),<sp/><ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(245)),</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::Colour<sp/>(<ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(246),<sp/><ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(246),<sp/><ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(246)),</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::Colour<sp/>(<ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(247),<sp/><ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(247),<sp/><ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(247)),</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::Colour<sp/>(<ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(248),<sp/><ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(248),<sp/><ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(248)),</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::Colour<sp/>(<ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(249),<sp/><ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(249),<sp/><ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(249)),</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::Colour<sp/>(<ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(250),<sp/><ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(250),<sp/><ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(250)),</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::Colour<sp/>(<ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(251),<sp/><ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(251),<sp/><ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(251)),</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::Colour<sp/>(<ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(252),<sp/><ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(252),<sp/><ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(252)),</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::Colour<sp/>(<ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(253),<sp/><ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(253),<sp/><ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(253)),</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::Colour<sp/>(<ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(254),<sp/><ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(254),<sp/><ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(254)),</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::Colour<sp/>(<ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(255),<sp/><ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(255),<sp/><ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref><sp/>(255)),</highlight></codeline>
+<codeline lineno="217"><highlight class="normal">}};</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"></highlight></codeline>
+<codeline lineno="230" refid="namespaceterminal_1a6ee303b5da8f6de02fc025255997ea2a" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>juce::Colour<sp/><ref refid="namespaceterminal_1a6ee303b5da8f6de02fc025255997ea2a" kindref="member">palette256At</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>index)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="231"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::Colour<sp/>result<sp/>(0,<sp/>0,<sp/>0);</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"></highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(index<sp/>&gt;=<sp/><ref refid="namespaceterminal_1a9a1bf7b476d73fd9ed51343ab6ca0b5f" kindref="member">GRAY_START</ref>)</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/><ref refid="namespaceterminal_1a662f0586dcd3d10ce2a533b4fd7208fb" kindref="member">GRAY_RAMP</ref>.at<sp/>(</highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">size_t</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(index<sp/>-<sp/><ref refid="namespaceterminal_1a9a1bf7b476d73fd9ed51343ab6ca0b5f" kindref="member">GRAY_START</ref>));</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(index<sp/>&gt;=<sp/><ref refid="namespaceterminal_1a461c0a8627fa66daee729e5610ff1803" kindref="member">CUBE_START</ref>)</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/><ref refid="namespaceterminal_1a2a797b7ada6dbb8fdf0a22a9d6dad4a0" kindref="member">COLOR_CUBE</ref>.at<sp/>(</highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">size_t</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(index<sp/>-<sp/><ref refid="namespaceterminal_1a461c0a8627fa66daee729e5610ff1803" kindref="member">CUBE_START</ref>));</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="242"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="243"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="244"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/><ref refid="namespaceterminal_1a7c280ac96375daa7306ea3309285fc8f" kindref="member">ANSI_16</ref>.at<sp/>(</highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">size_t</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(index));</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"></highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>result;</highlight></codeline>
+<codeline lineno="248"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"></highlight></codeline>
+<codeline lineno="251"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>terminal</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="terminal/Palette.h"/>
+  </compounddef>
+</doxygen>

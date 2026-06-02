@@ -1,0 +1,109 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="_terminal_window_8h" kind="file" language="C++">
+    <compoundname>TerminalWindow.h</compoundname>
+    <includes local="no">JuceHeader.h</includes>
+    <includedby refid="_main_8h" local="yes">Main.h</includedby>
+    <includedby refid="_main_component_8h" local="yes">MainComponent.h</includedby>
+    <includedby refid="_terminal_window_8cpp" local="yes">terminal/component/TerminalWindow.cpp</includedby>
+    <incdepgraph>
+      <node id="1">
+        <label>terminal/component/TerminalWindow.h</label>
+        <link refid="_terminal_window_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>JuceHeader.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="3">
+        <label>Main.cpp</label>
+        <link refid="_main_8cpp"/>
+      </node>
+      <node id="2">
+        <label>Main.h</label>
+        <link refid="_main_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>MainComponent.cpp</label>
+        <link refid="_main_component_8cpp"/>
+      </node>
+      <node id="4">
+        <label>MainComponent.h</label>
+        <link refid="_main_component_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>MainComponentActions.cpp</label>
+        <link refid="_main_component_actions_8cpp"/>
+      </node>
+      <node id="7">
+        <label>terminal/component/TerminalWindow.cpp</label>
+        <link refid="_terminal_window_8cpp"/>
+      </node>
+      <node id="1">
+        <label>terminal/component/TerminalWindow.h</label>
+        <link refid="_terminal_window_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="classterminal_1_1_window" prot="public">terminal::Window</innerclass>
+    <innernamespace refid="namespaceterminal">terminal</innernamespace>
+    <briefdescription>
+<para>END-specific document window subclass of <ref refid="classjam_1_1_window" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Window</ref>. </para>
+    </briefdescription>
+    <detaileddescription>
+<para><ref refid="classterminal_1_1_window" kindref="compound">terminal::Window</ref> extends <ref refid="classjam_1_1_window" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Window</ref> with resize-tracking — a lightweight overlay that exposes whether the user is actively dragging a resize handle. This is used by <ref refid="class_main_component_1a339148bc43089300e10d5883a0a80726" kindref="member">MainComponent::resized()</ref> to suppress ruler overlays during live resize.</para>
+<para>All glass, renderer, and native-context management remains in <ref refid="classjam_1_1_window" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Window</ref>. Only END-specific window behaviour lives here.</para>
+<para><simplesect kind="see"><para><ref refid="classjam_1_1_window" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Window</ref> </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="class_main_component_1a339148bc43089300e10d5883a0a80726" kindref="member">MainComponent::resized</ref> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#pragma<sp/>once</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;JuceHeader.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespaceterminal" kindref="compound">terminal</ref></highlight></codeline>
+<codeline lineno="21"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="comment">/*____________________________________________________________________________*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35" refid="classterminal_1_1_window" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classterminal_1_1_window_1a19d1b836f0173df011da0a32448f25bb" kindref="member">Window</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classjam_1_1_window" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Window</ref></highlight></codeline>
+<codeline lineno="36"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">using<sp/></highlight><highlight class="normal"><ref refid="classjam_1_1_window_1a19d1b836f0173df011da0a32448f25bb" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Window::Window</ref>;</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41" refid="classterminal_1_1_window_1a711beca87b418d467359a09574b8f8d2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_window_1a711beca87b418d467359a09574b8f8d2" kindref="member">isUserResizing</ref>()<sp/>const<sp/>noexcept<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_window_1a2e6bd97e1780418e11d8e10536f906dd" kindref="member">userResizing</ref>;<sp/>}</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_window_1a2c8ea4fd693721a00aa7ddf55c13c960" kindref="member">resizeStart</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_window_1a6587c46fc863bcf52fcce512157a8f80" kindref="member">resizeEnd</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="48" refid="classterminal_1_1_window_1a2e6bd97e1780418e11d8e10536f906dd" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_window_1a2e6bd97e1780418e11d8e10536f906dd" kindref="member">userResizing</ref><sp/>{<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==========================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="group__juce__core-system_1ga851b02724a8158a7f746c66b5758b3dd" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR</ref><sp/>(<ref refid="classterminal_1_1_window" kindref="compound">Window</ref>)</highlight></codeline>
+<codeline lineno="52"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>terminal</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="terminal/component/TerminalWindow.h"/>
+  </compounddef>
+</doxygen>

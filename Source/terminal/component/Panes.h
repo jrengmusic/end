@@ -22,7 +22,7 @@
 #include "PaneComponent.h"
 #include "Display.h"
 #include "../Processor.h"
-#include "../../AppState.h"
+#include "../../AppModel.h"
 #include "../../whelmed/component/Component.h"
 #include "../../nexus/Nexus.h"
 #include "../Session.h"
@@ -149,7 +149,7 @@ public:
     jam::Owner<PaneComponent>& getPanes() noexcept;
 
     /**
-     * @brief Access the PANES ValueTree for attachment to AppState.
+     * @brief Access the PANES ValueTree for attachment to AppModel.
      *
      * Delegates to PaneManager::getState(). The returned tree has type PANES
      * and contains the binary split-pane hierarchy.

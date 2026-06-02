@@ -1,0 +1,657 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="classaction_1_1_row" kind="class" language="C++" prot="public">
+    <compoundname>action::Row</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">juce::Component</basecompoundref>
+    <basecompoundref refid="structjam_1_1_value_1_1_component_with_i_d" prot="public" virt="non-virtual">jam::Value::ComponentWithID&lt; Row &gt;</basecompoundref>
+    <basecompoundref refid="classValue_1_1Listener" prot="private" virt="non-virtual">Value::Listener</basecompoundref>
+    <includes refid="_action_row_8h" local="no">ActionRow.h</includes>
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classaction_1_1_row_1a499ce8912d8100300390e03302326fe2" prot="public" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour action::Row::highlightColour</definition>
+        <argsstring></argsstring>
+        <name>highlightColour</name>
+        <qualifiedname>action::Row::highlightColour</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionRow.h" line="60" column="19" bodyfile="terminal/action/ActionRow.h" bodystart="60" bodyend="-1"/>
+        <referencedby refid="classaction_1_1_row_1a48ef82bb68d2d76f5b7bbf4e52bc12cf" compoundref="_action_row_8cpp" startline="72" endline="85">paint</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classaction_1_1_row_1ac66d4bbb6f0979b3662a8d4eb6e18146" prot="public" static="no" mutable="no">
+        <type>juce::String</type>
+        <definition>juce::String action::Row::actionConfigKey</definition>
+        <argsstring></argsstring>
+        <name>actionConfigKey</name>
+        <qualifiedname>action::Row::actionConfigKey</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionRow.h" line="61" column="19" bodyfile="terminal/action/ActionRow.h" bodystart="61" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classaction_1_1_row_1acc7117a3f7fb26eed656fe55d1e21d5c" prot="public" static="no" mutable="no">
+        <type>std::function&lt; bool()&gt;</type>
+        <definition>std::function&lt;bool()&gt; action::Row::run</definition>
+        <argsstring></argsstring>
+        <name>run</name>
+        <qualifiedname>action::Row::run</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionRow.h" line="62" column="19" bodyfile="terminal/action/ActionRow.h" bodystart="62" bodyend="-1"/>
+        <referencedby refid="classaction_1_1_row_1a8ff37bf5f20b5aa67fcb7ec0e5249e50" compoundref="_action_row_8cpp" startline="22" endline="44">Row</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="private-static-attrib">
+      <memberdef kind="variable" id="classaction_1_1_row_1adc0c04b168724bab56f8ff028352e8a5" prot="private" static="yes" constexpr="yes" mutable="no">
+        <type>int</type>
+        <definition>int action::Row::shortcutWidthDivisor</definition>
+        <argsstring></argsstring>
+        <name>shortcutWidthDivisor</name>
+        <qualifiedname>action::Row::shortcutWidthDivisor</qualifiedname>
+        <initializer>{ 3 }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionRow.h" line="71" column="28" bodyfile="terminal/action/ActionRow.h" bodystart="71" bodyend="71"/>
+        <referencedby refid="classaction_1_1_row_1a452d32d8597c0e2d7a440603fa3deef0" compoundref="_action_row_8cpp" startline="88" endline="102">resized</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classaction_1_1_row_1a8909f16b37cd867813ac4e2f1d1c9c50" prot="private" static="yes" constexpr="yes" mutable="no">
+        <type>int</type>
+        <definition>int action::Row::separatorHeight</definition>
+        <argsstring></argsstring>
+        <name>separatorHeight</name>
+        <qualifiedname>action::Row::separatorHeight</qualifiedname>
+        <initializer>{ 1 }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionRow.h" line="72" column="28" bodyfile="terminal/action/ActionRow.h" bodystart="72" bodyend="72"/>
+        <referencedby refid="classaction_1_1_row_1a48ef82bb68d2d76f5b7bbf4e52bc12cf" compoundref="_action_row_8cpp" startline="72" endline="85">paint</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classaction_1_1_row_1a3ecef8ecf5a64bb9d62dd2ee521c3d8b" prot="private" static="yes" constexpr="yes" mutable="no">
+        <type>float</type>
+        <definition>float action::Row::separatorAlpha</definition>
+        <argsstring></argsstring>
+        <name>separatorAlpha</name>
+        <qualifiedname>action::Row::separatorAlpha</qualifiedname>
+        <initializer>{ 0.3f }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionRow.h" line="73" column="28" bodyfile="terminal/action/ActionRow.h" bodystart="73" bodyend="73"/>
+        <referencedby refid="classaction_1_1_row_1a48ef82bb68d2d76f5b7bbf4e52bc12cf" compoundref="_action_row_8cpp" startline="72" endline="85">paint</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classaction_1_1_row_1a21c5687d623b0b1b0ae9c4d3759bcacd" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int action::Row::rowIndex</definition>
+        <argsstring></argsstring>
+        <name>rowIndex</name>
+        <qualifiedname>action::Row::rowIndex</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionRow.h" line="75" column="17" bodyfile="terminal/action/ActionRow.h" bodystart="75" bodyend="-1"/>
+        <referencedby refid="classaction_1_1_row_1a2ace17e673e7c9fe6938d9d29de2ea3c" compoundref="_action_row_8cpp" startline="110" endline="113">getIndex</referencedby>
+        <referencedby refid="classaction_1_1_row_1a861bf8e13702e51950210c4ceb6db824" compoundref="_action_row_8cpp" startline="12" endline="20">Row</referencedby>
+        <referencedby refid="classaction_1_1_row_1a8ff37bf5f20b5aa67fcb7ec0e5249e50" compoundref="_action_row_8cpp" startline="22" endline="44">Row</referencedby>
+        <referencedby refid="classaction_1_1_row_1ad86e999fc022bc66ea42ecd0694a65d1" compoundref="_action_row_8cpp" startline="46" endline="52">Row</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classaction_1_1_row_1a84021d56d9a451f3f626bafa4b6c9ae8" prot="private" static="no" mutable="no">
+        <type><ref refid="namespaceaction_1a574e68969c4beb9ce7aa66ec0752bb63" kindref="member">RowKind</ref></type>
+        <definition>RowKind action::Row::kind</definition>
+        <argsstring></argsstring>
+        <name>kind</name>
+        <qualifiedname>action::Row::kind</qualifiedname>
+        <initializer>{ <ref refid="namespaceaction_1a574e68969c4beb9ce7aa66ec0752bb63a418c5509e2171d55b0aee5c2ea4442b5" kindref="member">RowKind::action</ref> }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionRow.h" line="76" column="17" bodyfile="terminal/action/ActionRow.h" bodystart="76" bodyend="76"/>
+        <referencedby refid="classaction_1_1_row_1a6f6f0f47fa4dc4960cb369bbc0c3deab" compoundref="_action_row_8cpp" startline="125" endline="128">getKind</referencedby>
+        <referencedby refid="classaction_1_1_row_1ac3c77f4b6bc44e89cfb16c29f32504f9" compoundref="_action_row_8cpp" startline="120" endline="123">isSelectable</referencedby>
+        <referencedby refid="classaction_1_1_row_1a48ef82bb68d2d76f5b7bbf4e52bc12cf" compoundref="_action_row_8cpp" startline="72" endline="85">paint</referencedby>
+        <referencedby refid="classaction_1_1_row_1a861bf8e13702e51950210c4ceb6db824" compoundref="_action_row_8cpp" startline="12" endline="20">Row</referencedby>
+        <referencedby refid="classaction_1_1_row_1a8ff37bf5f20b5aa67fcb7ec0e5249e50" compoundref="_action_row_8cpp" startline="22" endline="44">Row</referencedby>
+        <referencedby refid="classaction_1_1_row_1ad86e999fc022bc66ea42ecd0694a65d1" compoundref="_action_row_8cpp" startline="46" endline="52">Row</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classaction_1_1_row_1aa2b69c0e9c35ab7ab9fda0ec5862be87" prot="private" static="no" mutable="no">
+        <type>juce::Value</type>
+        <definition>juce::Value action::Row::selected</definition>
+        <argsstring></argsstring>
+        <name>selected</name>
+        <qualifiedname>action::Row::selected</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionRow.h" line="77" column="17" bodyfile="terminal/action/ActionRow.h" bodystart="77" bodyend="-1"/>
+        <referencedby refid="classaction_1_1_row_1af0cb85f22c00f8cbaf23e845f28eae6d" compoundref="_action_row_8cpp" startline="105" endline="108">getValueObject</referencedby>
+        <referencedby refid="classaction_1_1_row_1ad2e1690a74b2f5d040a2d6acbc840a4f" compoundref="_action_row_8cpp" startline="115" endline="118">isSelected</referencedby>
+        <referencedby refid="classaction_1_1_row_1a861bf8e13702e51950210c4ceb6db824" compoundref="_action_row_8cpp" startline="12" endline="20">Row</referencedby>
+        <referencedby refid="classaction_1_1_row_1a8ff37bf5f20b5aa67fcb7ec0e5249e50" compoundref="_action_row_8cpp" startline="22" endline="44">Row</referencedby>
+        <referencedby refid="classaction_1_1_row_1ad86e999fc022bc66ea42ecd0694a65d1" compoundref="_action_row_8cpp" startline="46" endline="52">Row</referencedby>
+        <referencedby refid="classaction_1_1_row_1a7f1a0ea0847d2f7e47af95aa1d31665d" compoundref="_action_row_8cpp" startline="60" endline="69">valueChanged</referencedby>
+        <referencedby refid="classaction_1_1_row_1a57f2fb637aed0cbcdaffa7812c2a1300" compoundref="_action_row_8cpp" startline="54" endline="57">~Row</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classaction_1_1_row_1aa177e47da6474b4f4b5639aa7d8dd630" prot="private" static="no" mutable="no">
+        <type>std::unique_ptr&lt; juce::TextEditor &gt;</type>
+        <definition>std::unique_ptr&lt;juce::TextEditor&gt; action::Row::searchBox</definition>
+        <argsstring></argsstring>
+        <name>searchBox</name>
+        <qualifiedname>action::Row::searchBox</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionRow.h" line="80" column="21" bodyfile="terminal/action/ActionRow.h" bodystart="80" bodyend="-1"/>
+        <referencedby refid="classaction_1_1_row_1a38d495bd3482cfebf5b1bac3d884ca3f" compoundref="_action_row_8cpp" startline="130" endline="133">getSearchBox</referencedby>
+        <referencedby refid="classaction_1_1_row_1a48ef82bb68d2d76f5b7bbf4e52bc12cf" compoundref="_action_row_8cpp" startline="72" endline="85">paint</referencedby>
+        <referencedby refid="classaction_1_1_row_1a452d32d8597c0e2d7a440603fa3deef0" compoundref="_action_row_8cpp" startline="88" endline="102">resized</referencedby>
+        <referencedby refid="classaction_1_1_row_1a861bf8e13702e51950210c4ceb6db824" compoundref="_action_row_8cpp" startline="12" endline="20">Row</referencedby>
+        <referencedby refid="classaction_1_1_row_1a7f1a0ea0847d2f7e47af95aa1d31665d" compoundref="_action_row_8cpp" startline="60" endline="69">valueChanged</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classaction_1_1_row_1ad3ffa948851fc6b5303c5ba9d6393b20" prot="private" static="no" mutable="no">
+        <type>std::unique_ptr&lt; juce::Label &gt;</type>
+        <definition>std::unique_ptr&lt;juce::Label&gt; action::Row::nameLabel</definition>
+        <argsstring></argsstring>
+        <name>nameLabel</name>
+        <qualifiedname>action::Row::nameLabel</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionRow.h" line="83" column="21" bodyfile="terminal/action/ActionRow.h" bodystart="83" bodyend="-1"/>
+        <referencedby refid="classaction_1_1_row_1a5aadebb639e375c66340476855c6846b" compoundref="_action_row_8cpp" startline="135" endline="138">getNameLabel</referencedby>
+        <referencedby refid="classaction_1_1_row_1a452d32d8597c0e2d7a440603fa3deef0" compoundref="_action_row_8cpp" startline="88" endline="102">resized</referencedby>
+        <referencedby refid="classaction_1_1_row_1a8ff37bf5f20b5aa67fcb7ec0e5249e50" compoundref="_action_row_8cpp" startline="22" endline="44">Row</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classaction_1_1_row_1a1f1ceb6c5193d5b986709415bcfced55" prot="private" static="no" mutable="no">
+        <type>std::unique_ptr&lt; juce::Label &gt;</type>
+        <definition>std::unique_ptr&lt;juce::Label&gt; action::Row::shortcutLabel</definition>
+        <argsstring></argsstring>
+        <name>shortcutLabel</name>
+        <qualifiedname>action::Row::shortcutLabel</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionRow.h" line="84" column="21" bodyfile="terminal/action/ActionRow.h" bodystart="84" bodyend="-1"/>
+        <referencedby refid="classaction_1_1_row_1a34763ed9287e4d1478afab52b3e79297" compoundref="_action_row_8cpp" startline="140" endline="143">getShortcutLabel</referencedby>
+        <referencedby refid="classaction_1_1_row_1a452d32d8597c0e2d7a440603fa3deef0" compoundref="_action_row_8cpp" startline="88" endline="102">resized</referencedby>
+        <referencedby refid="classaction_1_1_row_1a8ff37bf5f20b5aa67fcb7ec0e5249e50" compoundref="_action_row_8cpp" startline="22" endline="44">Row</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="public-func">
+      <memberdef kind="function" id="classaction_1_1_row_1a861bf8e13702e51950210c4ceb6db824" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>action::Row::Row</definition>
+        <argsstring>(int index, const juce::String &amp;uuid)</argsstring>
+        <name>Row</name>
+        <qualifiedname>action::Row::Row</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>index</declname>
+        </param>
+        <param>
+          <type>const juce::String &amp;</type>
+          <declname>uuid</declname>
+        </param>
+        <briefdescription>
+<para>Construct search row (index 0). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionRow.h" line="37" column="5" bodyfile="terminal/action/ActionRow.cpp" bodystart="12" bodyend="20"/>
+        <references refid="structjam_1_1_value_1_1_component_with_i_d_1a9f5aa5add86e77f6fe0de8352cee11f4">jam::Value::ComponentWithID&lt; Row &gt;::ComponentWithID</references>
+        <references refid="classaction_1_1_row_1a84021d56d9a451f3f626bafa4b6c9ae8" compoundref="_action_row_8h" startline="76" endline="76">kind</references>
+        <references refid="classaction_1_1_row_1a861bf8e13702e51950210c4ceb6db824" compoundref="_action_row_8cpp" startline="12" endline="20">Row</references>
+        <references refid="classaction_1_1_row_1a21c5687d623b0b1b0ae9c4d3759bcacd" compoundref="_action_row_8h" startline="75">rowIndex</references>
+        <references refid="classaction_1_1_row_1aa177e47da6474b4f4b5639aa7d8dd630" compoundref="_action_row_8h" startline="80">searchBox</references>
+        <references refid="classaction_1_1_row_1aa2b69c0e9c35ab7ab9fda0ec5862be87" compoundref="_action_row_8h" startline="77">selected</references>
+        <referencedby refid="classaction_1_1_row_1a861bf8e13702e51950210c4ceb6db824" compoundref="_action_row_8cpp" startline="12" endline="20">Row</referencedby>
+        <referencedby refid="classaction_1_1_row_1a8ff37bf5f20b5aa67fcb7ec0e5249e50" compoundref="_action_row_8cpp" startline="22" endline="44">Row</referencedby>
+        <referencedby refid="classaction_1_1_row_1ad86e999fc022bc66ea42ecd0694a65d1" compoundref="_action_row_8cpp" startline="46" endline="52">Row</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classaction_1_1_row_1a8ff37bf5f20b5aa67fcb7ec0e5249e50" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>action::Row::Row</definition>
+        <argsstring>(int index, const juce::String &amp;uuid, const Registry::Entry &amp;entry)</argsstring>
+        <name>Row</name>
+        <qualifiedname>action::Row::Row</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>index</declname>
+        </param>
+        <param>
+          <type>const juce::String &amp;</type>
+          <declname>uuid</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structaction_1_1_registry_1_1_entry" kindref="compound">Registry::Entry</ref> &amp;</type>
+          <declname>entry</declname>
+        </param>
+        <briefdescription>
+<para>Construct action row (index &gt; 0). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionRow.h" line="40" column="5" bodyfile="terminal/action/ActionRow.cpp" bodystart="22" bodyend="44"/>
+        <references refid="structjam_1_1_value_1_1_component_with_i_d_1a9f5aa5add86e77f6fe0de8352cee11f4">jam::Value::ComponentWithID&lt; Row &gt;::ComponentWithID</references>
+        <references refid="structaction_1_1_registry_1_1_entry_1a9806ce0f05ac5242f66362c06cf34063" compoundref="_action_8h" startline="115">action::Registry::Entry::execute</references>
+        <references refid="structjam_1_1_i_d_1a9bea2af49b70281e3caf8077fb00f994">jam::ID::font</references>
+        <references refid="structjam_1_1_i_d_1af8c1b16a4690393052b44ee472e56c46">jam::ID::keyPress</references>
+        <references refid="classaction_1_1_row_1a84021d56d9a451f3f626bafa4b6c9ae8" compoundref="_action_row_8h" startline="76" endline="76">kind</references>
+        <references refid="structaction_1_1_registry_1_1_entry_1a23bd845cf3d93eb88bd3b25768015778" compoundref="_action_8h" startline="94">action::Registry::Entry::name</references>
+        <references refid="structjam_1_1_i_d_1a2f2ee05e76603e24f721a5ad93fe4795">jam::ID::name</references>
+        <references refid="classaction_1_1_row_1ad3ffa948851fc6b5303c5ba9d6393b20" compoundref="_action_row_8h" startline="83">nameLabel</references>
+        <references refid="classaction_1_1_row_1a861bf8e13702e51950210c4ceb6db824" compoundref="_action_row_8cpp" startline="12" endline="20">Row</references>
+        <references refid="classaction_1_1_row_1a21c5687d623b0b1b0ae9c4d3759bcacd" compoundref="_action_row_8h" startline="75">rowIndex</references>
+        <references refid="classaction_1_1_row_1acc7117a3f7fb26eed656fe55d1e21d5c" compoundref="_action_row_8h" startline="62">run</references>
+        <references refid="classaction_1_1_row_1aa2b69c0e9c35ab7ab9fda0ec5862be87" compoundref="_action_row_8h" startline="77">selected</references>
+        <references refid="structaction_1_1_registry_1_1_entry_1a5cc3a0259f7939a7d44b7ea4473871c1" compoundref="_action_8h" startline="103">action::Registry::Entry::shortcut</references>
+        <references refid="classaction_1_1_row_1a1f1ceb6c5193d5b986709415bcfced55" compoundref="_action_row_8h" startline="84">shortcutLabel</references>
+        <references refid="classaction_1_1_registry_1aa0baadfadc5b0e64b4a903e64012fced" compoundref="_action_8cpp" startline="247" endline="306">action::Registry::shortcutToString</references>
+      </memberdef>
+      <memberdef kind="function" id="classaction_1_1_row_1ad86e999fc022bc66ea42ecd0694a65d1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>action::Row::Row</definition>
+        <argsstring>(int index, const juce::String &amp;uuid, RowKind kind)</argsstring>
+        <name>Row</name>
+        <qualifiedname>action::Row::Row</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>index</declname>
+        </param>
+        <param>
+          <type>const juce::String &amp;</type>
+          <declname>uuid</declname>
+        </param>
+        <param>
+          <type><ref refid="namespaceaction_1a574e68969c4beb9ce7aa66ec0752bb63" kindref="member">RowKind</ref></type>
+          <declname>kind</declname>
+        </param>
+        <briefdescription>
+<para>Construct separator row. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionRow.h" line="43" column="5" bodyfile="terminal/action/ActionRow.cpp" bodystart="46" bodyend="52"/>
+        <references refid="structjam_1_1_value_1_1_component_with_i_d_1a9f5aa5add86e77f6fe0de8352cee11f4">jam::Value::ComponentWithID&lt; Row &gt;::ComponentWithID</references>
+        <references refid="classaction_1_1_row_1a84021d56d9a451f3f626bafa4b6c9ae8" compoundref="_action_row_8h" startline="76" endline="76">kind</references>
+        <references refid="classaction_1_1_row_1a861bf8e13702e51950210c4ceb6db824" compoundref="_action_row_8cpp" startline="12" endline="20">Row</references>
+        <references refid="classaction_1_1_row_1a21c5687d623b0b1b0ae9c4d3759bcacd" compoundref="_action_row_8h" startline="75">rowIndex</references>
+        <references refid="classaction_1_1_row_1aa2b69c0e9c35ab7ab9fda0ec5862be87" compoundref="_action_row_8h" startline="77">selected</references>
+      </memberdef>
+      <memberdef kind="function" id="classaction_1_1_row_1a57f2fb637aed0cbcdaffa7812c2a1300" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>action::Row::~Row</definition>
+        <argsstring>() override</argsstring>
+        <name>~Row</name>
+        <qualifiedname>action::Row::~Row</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionRow.h" line="45" column="5" bodyfile="terminal/action/ActionRow.cpp" bodystart="54" bodyend="57"/>
+        <references refid="classaction_1_1_row_1aa2b69c0e9c35ab7ab9fda0ec5862be87" compoundref="_action_row_8h" startline="77">selected</references>
+      </memberdef>
+      <memberdef kind="function" id="classaction_1_1_row_1a452d32d8597c0e2d7a440603fa3deef0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void action::Row::resized</definition>
+        <argsstring>() override</argsstring>
+        <name>resized</name>
+        <qualifiedname>action::Row::resized</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionRow.h" line="47" column="10" bodyfile="terminal/action/ActionRow.cpp" bodystart="88" bodyend="102"/>
+        <references refid="classaction_1_1_row_1ad3ffa948851fc6b5303c5ba9d6393b20" compoundref="_action_row_8h" startline="83">nameLabel</references>
+        <references refid="classaction_1_1_row_1aa177e47da6474b4f4b5639aa7d8dd630" compoundref="_action_row_8h" startline="80">searchBox</references>
+        <references refid="classaction_1_1_row_1a1f1ceb6c5193d5b986709415bcfced55" compoundref="_action_row_8h" startline="84">shortcutLabel</references>
+        <references refid="classaction_1_1_row_1adc0c04b168724bab56f8ff028352e8a5" compoundref="_action_row_8h" startline="71" endline="71">shortcutWidthDivisor</references>
+      </memberdef>
+      <memberdef kind="function" id="classaction_1_1_row_1a48ef82bb68d2d76f5b7bbf4e52bc12cf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void action::Row::paint</definition>
+        <argsstring>(juce::Graphics &amp;g) override</argsstring>
+        <name>paint</name>
+        <qualifiedname>action::Row::paint</qualifiedname>
+        <param>
+          <type>juce::Graphics &amp;</type>
+          <declname>g</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionRow.h" line="48" column="10" bodyfile="terminal/action/ActionRow.cpp" bodystart="72" bodyend="85"/>
+        <references refid="classaction_1_1_row_1a499ce8912d8100300390e03302326fe2" compoundref="_action_row_8h" startline="60">highlightColour</references>
+        <references refid="classaction_1_1_row_1ad2e1690a74b2f5d040a2d6acbc840a4f" compoundref="_action_row_8cpp" startline="115" endline="118">isSelected</references>
+        <references refid="classaction_1_1_row_1a84021d56d9a451f3f626bafa4b6c9ae8" compoundref="_action_row_8h" startline="76" endline="76">kind</references>
+        <references refid="classaction_1_1_row_1aa177e47da6474b4f4b5639aa7d8dd630" compoundref="_action_row_8h" startline="80">searchBox</references>
+        <references refid="namespaceaction_1a574e68969c4beb9ce7aa66ec0752bb63aa0f0bc95016c862498bbad29d1f4d9d4" compoundref="_action_row_8h" startline="20">action::separator</references>
+        <references refid="classaction_1_1_row_1a3ecef8ecf5a64bb9d62dd2ee521c3d8b" compoundref="_action_row_8h" startline="73" endline="73">separatorAlpha</references>
+        <references refid="classaction_1_1_row_1a8909f16b37cd867813ac4e2f1d1c9c50" compoundref="_action_row_8h" startline="72" endline="72">separatorHeight</references>
+      </memberdef>
+      <memberdef kind="function" id="classaction_1_1_row_1af0cb85f22c00f8cbaf23e845f28eae6d" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="virtual">
+        <type>juce::Value &amp;</type>
+        <definition>juce::Value &amp; action::Row::getValueObject</definition>
+        <argsstring>() noexcept override</argsstring>
+        <name>getValueObject</name>
+        <qualifiedname>action::Row::getValueObject</qualifiedname>
+        <reimplements refid="structjam_1_1_value_1_1_component_1a037ca6e64f49827abddf2c7cf3540598">getValueObject</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionRow.h" line="50" column="17" bodyfile="terminal/action/ActionRow.cpp" bodystart="105" bodyend="108"/>
+        <references refid="classaction_1_1_row_1aa2b69c0e9c35ab7ab9fda0ec5862be87" compoundref="_action_row_8h" startline="77">selected</references>
+      </memberdef>
+      <memberdef kind="function" id="classaction_1_1_row_1a2ace17e673e7c9fe6938d9d29de2ea3c" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int action::Row::getIndex</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>getIndex</name>
+        <qualifiedname>action::Row::getIndex</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionRow.h" line="52" column="13" bodyfile="terminal/action/ActionRow.cpp" bodystart="110" bodyend="113"/>
+        <references refid="classaction_1_1_row_1a21c5687d623b0b1b0ae9c4d3759bcacd" compoundref="_action_row_8h" startline="75">rowIndex</references>
+      </memberdef>
+      <memberdef kind="function" id="classaction_1_1_row_1ad2e1690a74b2f5d040a2d6acbc840a4f" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool action::Row::isSelected</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>isSelected</name>
+        <qualifiedname>action::Row::isSelected</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionRow.h" line="53" column="13" bodyfile="terminal/action/ActionRow.cpp" bodystart="115" bodyend="118"/>
+        <references refid="classaction_1_1_row_1aa2b69c0e9c35ab7ab9fda0ec5862be87" compoundref="_action_row_8h" startline="77">selected</references>
+        <referencedby refid="classaction_1_1_row_1a48ef82bb68d2d76f5b7bbf4e52bc12cf" compoundref="_action_row_8cpp" startline="72" endline="85">paint</referencedby>
+        <referencedby refid="classaction_1_1_row_1a7f1a0ea0847d2f7e47af95aa1d31665d" compoundref="_action_row_8cpp" startline="60" endline="69">valueChanged</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classaction_1_1_row_1ac3c77f4b6bc44e89cfb16c29f32504f9" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool action::Row::isSelectable</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>isSelectable</name>
+        <qualifiedname>action::Row::isSelectable</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionRow.h" line="54" column="13" bodyfile="terminal/action/ActionRow.cpp" bodystart="120" bodyend="123"/>
+        <references refid="classaction_1_1_row_1a84021d56d9a451f3f626bafa4b6c9ae8" compoundref="_action_row_8h" startline="76" endline="76">kind</references>
+        <references refid="namespaceaction_1a574e68969c4beb9ce7aa66ec0752bb63aa0f0bc95016c862498bbad29d1f4d9d4" compoundref="_action_row_8h" startline="20">action::separator</references>
+      </memberdef>
+      <memberdef kind="function" id="classaction_1_1_row_1a6f6f0f47fa4dc4960cb369bbc0c3deab" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type><ref refid="namespaceaction_1a574e68969c4beb9ce7aa66ec0752bb63" kindref="member">RowKind</ref></type>
+        <definition>RowKind action::Row::getKind</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>getKind</name>
+        <qualifiedname>action::Row::getKind</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionRow.h" line="55" column="13" bodyfile="terminal/action/ActionRow.cpp" bodystart="125" bodyend="128"/>
+        <references refid="classaction_1_1_row_1a84021d56d9a451f3f626bafa4b6c9ae8" compoundref="_action_row_8h" startline="76" endline="76">kind</references>
+      </memberdef>
+      <memberdef kind="function" id="classaction_1_1_row_1a38d495bd3482cfebf5b1bac3d884ca3f" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>juce::TextEditor *</type>
+        <definition>juce::TextEditor * action::Row::getSearchBox</definition>
+        <argsstring>() noexcept</argsstring>
+        <name>getSearchBox</name>
+        <qualifiedname>action::Row::getSearchBox</qualifiedname>
+        <briefdescription>
+<para>Returns the search <ref refid="classTextEditor" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">TextEditor</ref> for index 0, nullptr for action rows. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionRow.h" line="58" column="22" bodyfile="terminal/action/ActionRow.cpp" bodystart="130" bodyend="133"/>
+        <references refid="classaction_1_1_row_1aa177e47da6474b4f4b5639aa7d8dd630" compoundref="_action_row_8h" startline="80">searchBox</references>
+      </memberdef>
+      <memberdef kind="function" id="classaction_1_1_row_1a5aadebb639e375c66340476855c6846b" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>juce::Label *</type>
+        <definition>juce::Label * action::Row::getNameLabel</definition>
+        <argsstring>() noexcept</argsstring>
+        <name>getNameLabel</name>
+        <qualifiedname>action::Row::getNameLabel</qualifiedname>
+        <briefdescription>
+<para>Access name label (index &gt; 0 only). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionRow.h" line="65" column="17" bodyfile="terminal/action/ActionRow.cpp" bodystart="135" bodyend="138"/>
+        <references refid="classaction_1_1_row_1ad3ffa948851fc6b5303c5ba9d6393b20" compoundref="_action_row_8h" startline="83">nameLabel</references>
+      </memberdef>
+      <memberdef kind="function" id="classaction_1_1_row_1a34763ed9287e4d1478afab52b3e79297" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>juce::Label *</type>
+        <definition>juce::Label * action::Row::getShortcutLabel</definition>
+        <argsstring>() noexcept</argsstring>
+        <name>getShortcutLabel</name>
+        <qualifiedname>action::Row::getShortcutLabel</qualifiedname>
+        <briefdescription>
+<para>Access shortcut label (index &gt; 0 only). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionRow.h" line="68" column="17" bodyfile="terminal/action/ActionRow.cpp" bodystart="140" bodyend="143"/>
+        <references refid="classaction_1_1_row_1a1f1ceb6c5193d5b986709415bcfced55" compoundref="_action_row_8h" startline="84">shortcutLabel</references>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="private-func">
+      <memberdef kind="function" id="classaction_1_1_row_1a7f1a0ea0847d2f7e47af95aa1d31665d" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void action::Row::valueChanged</definition>
+        <argsstring>(juce::Value &amp;value) override</argsstring>
+        <name>valueChanged</name>
+        <qualifiedname>action::Row::valueChanged</qualifiedname>
+        <param>
+          <type>juce::Value &amp;</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionRow.h" line="86" column="10" bodyfile="terminal/action/ActionRow.cpp" bodystart="60" bodyend="69"/>
+        <references refid="classaction_1_1_row_1ad2e1690a74b2f5d040a2d6acbc840a4f" compoundref="_action_row_8cpp" startline="115" endline="118">isSelected</references>
+        <references refid="classaction_1_1_row_1aa177e47da6474b4f4b5639aa7d8dd630" compoundref="_action_row_8h" startline="80">searchBox</references>
+        <references refid="classaction_1_1_row_1aa2b69c0e9c35ab7ab9fda0ec5862be87" compoundref="_action_row_8h" startline="77">selected</references>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>A single row in the command palette. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Index 0 = search box. Index &gt; 0 = action entry with name and shortcut labels. Inherits ComponentWithID so its <computeroutput><ref refid="classaction_1_1_row_1aa2b69c0e9c35ab7ab9fda0ec5862be87" kindref="member">selected</ref></computeroutput> <ref refid="classValue" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Value</ref> is wired into the <ref refid="classValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ValueTree</ref>. Self-managing: paints highlight and grabs focus based on its own <ref refid="classValue" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Value</ref>. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="5">
+        <label>Value::Listener</label>
+        <link refid="classValue_1_1Listener" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag"/>
+      </node>
+      <node id="1">
+        <label>action::Row</label>
+        <link refid="classaction_1_1_row"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+        <childnode refid="5" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>jam::Value::Component</label>
+        <link refid="structjam_1_1_value_1_1_component" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+      <node id="3">
+        <label>jam::Value::ComponentWithID&lt; Row &gt;</label>
+        <link refid="structjam_1_1_value_1_1_component_with_i_d" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>juce::Component</label>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="6">
+        <label>Value</label>
+        <link refid="classValue" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag"/>
+      </node>
+      <node id="5">
+        <label>Value::Listener</label>
+        <link refid="classValue_1_1Listener" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag"/>
+      </node>
+      <node id="1">
+        <label>action::Row</label>
+        <link refid="classaction_1_1_row"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+        <childnode refid="5" relation="private-inheritance">
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>selected</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>searchBox</edgelabel>
+        </childnode>
+        <childnode refid="8" relation="usage">
+          <edgelabel>nameLabel</edgelabel>
+          <edgelabel>shortcutLabel</edgelabel>
+        </childnode>
+      </node>
+      <node id="4">
+        <label>jam::Value::Component</label>
+        <link refid="structjam_1_1_value_1_1_component" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+      <node id="3">
+        <label>jam::Value::ComponentWithID&lt; Row &gt;</label>
+        <link refid="structjam_1_1_value_1_1_component_with_i_d" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>juce::Component</label>
+      </node>
+      <node id="8">
+        <label>std::unique_ptr&lt; juce::Label &gt;</label>
+      </node>
+      <node id="7">
+        <label>std::unique_ptr&lt; juce::TextEditor &gt;</label>
+      </node>
+    </collaborationgraph>
+    <location file="terminal/action/ActionRow.h" line="31" column="1" bodyfile="terminal/action/ActionRow.h" bodystart="34" bodyend="90"/>
+    <listofallmembers>
+      <member refid="classaction_1_1_row_1ac66d4bbb6f0979b3662a8d4eb6e18146" prot="public" virt="non-virtual"><scope>action::Row</scope><name>actionConfigKey</name></member>
+      <member refid="structjam_1_1_value_1_1_component_with_i_d_1a9f5aa5add86e77f6fe0de8352cee11f4" prot="public" virt="non-virtual"><scope>action::Row</scope><name>ComponentWithID</name></member>
+      <member refid="classaction_1_1_row_1a2ace17e673e7c9fe6938d9d29de2ea3c" prot="public" virt="non-virtual"><scope>action::Row</scope><name>getIndex</name></member>
+      <member refid="classaction_1_1_row_1a6f6f0f47fa4dc4960cb369bbc0c3deab" prot="public" virt="non-virtual"><scope>action::Row</scope><name>getKind</name></member>
+      <member refid="classaction_1_1_row_1a5aadebb639e375c66340476855c6846b" prot="public" virt="non-virtual"><scope>action::Row</scope><name>getNameLabel</name></member>
+      <member refid="classaction_1_1_row_1a38d495bd3482cfebf5b1bac3d884ca3f" prot="public" virt="non-virtual"><scope>action::Row</scope><name>getSearchBox</name></member>
+      <member refid="classaction_1_1_row_1a34763ed9287e4d1478afab52b3e79297" prot="public" virt="non-virtual"><scope>action::Row</scope><name>getShortcutLabel</name></member>
+      <member refid="classaction_1_1_row_1af0cb85f22c00f8cbaf23e845f28eae6d" prot="public" virt="virtual"><scope>action::Row</scope><name>getValueObject</name></member>
+      <member refid="classaction_1_1_row_1a499ce8912d8100300390e03302326fe2" prot="public" virt="non-virtual"><scope>action::Row</scope><name>highlightColour</name></member>
+      <member refid="classaction_1_1_row_1ac3c77f4b6bc44e89cfb16c29f32504f9" prot="public" virt="non-virtual"><scope>action::Row</scope><name>isSelectable</name></member>
+      <member refid="classaction_1_1_row_1ad2e1690a74b2f5d040a2d6acbc840a4f" prot="public" virt="non-virtual"><scope>action::Row</scope><name>isSelected</name></member>
+      <member refid="classaction_1_1_row_1a84021d56d9a451f3f626bafa4b6c9ae8" prot="private" virt="non-virtual"><scope>action::Row</scope><name>kind</name></member>
+      <member refid="classValue_1_1Listener_1a7bfb07dc5d010bc007a8135412905f0c" prot="private" virt="non-virtual"><scope>action::Row</scope><name>Listener</name></member>
+      <member refid="classaction_1_1_row_1ad3ffa948851fc6b5303c5ba9d6393b20" prot="private" virt="non-virtual"><scope>action::Row</scope><name>nameLabel</name></member>
+      <member refid="structjam_1_1_value_1_1_component_1af65bde5a2bee54842a4fd9c6f446b51a" prot="public" virt="non-virtual"><scope>action::Row</scope><name>onAttachment</name></member>
+      <member refid="classaction_1_1_row_1a48ef82bb68d2d76f5b7bbf4e52bc12cf" prot="public" virt="non-virtual"><scope>action::Row</scope><name>paint</name></member>
+      <member refid="classaction_1_1_row_1a452d32d8597c0e2d7a440603fa3deef0" prot="public" virt="non-virtual"><scope>action::Row</scope><name>resized</name></member>
+      <member refid="classaction_1_1_row_1a861bf8e13702e51950210c4ceb6db824" prot="public" virt="non-virtual"><scope>action::Row</scope><name>Row</name></member>
+      <member refid="classaction_1_1_row_1a8ff37bf5f20b5aa67fcb7ec0e5249e50" prot="public" virt="non-virtual"><scope>action::Row</scope><name>Row</name></member>
+      <member refid="classaction_1_1_row_1ad86e999fc022bc66ea42ecd0694a65d1" prot="public" virt="non-virtual"><scope>action::Row</scope><name>Row</name></member>
+      <member refid="classaction_1_1_row_1a21c5687d623b0b1b0ae9c4d3759bcacd" prot="private" virt="non-virtual"><scope>action::Row</scope><name>rowIndex</name></member>
+      <member refid="classaction_1_1_row_1acc7117a3f7fb26eed656fe55d1e21d5c" prot="public" virt="non-virtual"><scope>action::Row</scope><name>run</name></member>
+      <member refid="classaction_1_1_row_1aa177e47da6474b4f4b5639aa7d8dd630" prot="private" virt="non-virtual"><scope>action::Row</scope><name>searchBox</name></member>
+      <member refid="classaction_1_1_row_1aa2b69c0e9c35ab7ab9fda0ec5862be87" prot="private" virt="non-virtual"><scope>action::Row</scope><name>selected</name></member>
+      <member refid="classaction_1_1_row_1a3ecef8ecf5a64bb9d62dd2ee521c3d8b" prot="private" virt="non-virtual"><scope>action::Row</scope><name>separatorAlpha</name></member>
+      <member refid="classaction_1_1_row_1a8909f16b37cd867813ac4e2f1d1c9c50" prot="private" virt="non-virtual"><scope>action::Row</scope><name>separatorHeight</name></member>
+      <member refid="classaction_1_1_row_1a1f1ceb6c5193d5b986709415bcfced55" prot="private" virt="non-virtual"><scope>action::Row</scope><name>shortcutLabel</name></member>
+      <member refid="classaction_1_1_row_1adc0c04b168724bab56f8ff028352e8a5" prot="private" virt="non-virtual"><scope>action::Row</scope><name>shortcutWidthDivisor</name></member>
+      <member refid="classaction_1_1_row_1a7f1a0ea0847d2f7e47af95aa1d31665d" prot="private" virt="non-virtual"><scope>action::Row</scope><name>valueChanged</name></member>
+      <member refid="classValue_1_1Listener_1ab1f072eabd128b8e9a99b4926f2231a8" prot="private" virt="pure-virtual" ambiguityscope="Value::Listener::"><scope>action::Row</scope><name>valueChanged</name></member>
+      <member refid="structjam_1_1_value_1_1_component_1a0672587c1035b139e85d9fac20408260" prot="public" virt="virtual"><scope>action::Row</scope><name>~Component</name></member>
+      <member refid="classValue_1_1Listener_1aeb3226fdfa99c56c72adf9c008922599" prot="private" virt="virtual"><scope>action::Row</scope><name>~Listener</name></member>
+      <member refid="classaction_1_1_row_1a57f2fb637aed0cbcdaffa7812c2a1300" prot="public" virt="non-virtual"><scope>action::Row</scope><name>~Row</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

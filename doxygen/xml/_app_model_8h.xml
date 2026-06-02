@@ -1,0 +1,674 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="_app_model_8h" kind="file" language="C++">
+    <compoundname>AppModel.h</compoundname>
+    <includes local="no">JuceHeader.h</includes>
+    <includes refid="_app_identifier_8h" local="yes">AppIdentifier.h</includes>
+    <includes refid="_engine_8h" local="yes">lua/Engine.h</includes>
+    <includes refid="_identifier_8h" local="yes">terminal/Identifier.h</includes>
+    <includes refid="_map_8h" local="yes">Map.h</includes>
+    <includedby refid="_app_model_8cpp" local="yes">AppModel.cpp</includedby>
+    <includedby refid="_main_8h" local="yes">Main.h</includedby>
+    <includedby refid="_main_component_8h" local="yes">MainComponent.h</includedby>
+    <includedby refid="_engine_8cpp" local="yes">lua/Engine.cpp</includedby>
+    <includedby refid="_daemon_8h" local="yes">nexus/Daemon.h</includedby>
+    <includedby refid="_link_8h" local="yes">nexus/Link.h</includedby>
+    <includedby refid="_link_manager_8cpp" local="yes">terminal/LinkManager.cpp</includedby>
+    <includedby refid="_model_8h" local="yes">terminal/Model.h</includedby>
+    <includedby refid="_pane_component_8h" local="yes">terminal/component/PaneComponent.h</includedby>
+    <includedby refid="_panes_8h" local="yes">terminal/component/Panes.h</includedby>
+    <includedby refid="_tabs_8h" local="yes">terminal/component/Tabs.h</includedby>
+    <includedby refid="_input_handler_8h" local="yes">whelmed/InputHandler.h</includedby>
+    <includedby refid="_screen_8h" local="yes">whelmed/Screen.h</includedby>
+    <includedby refid="_component_8h" local="yes">whelmed/component/Component.h</includedby>
+    <incdepgraph>
+      <node id="3">
+        <label>AppIdentifier.h</label>
+        <link refid="_app_identifier_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>AppModel.h</label>
+        <link refid="_app_model_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>Map.h</label>
+        <link refid="_map_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>lua/Engine.h</label>
+        <link refid="_engine_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>terminal/Identifier.h</label>
+        <link refid="_identifier_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>../terminal/action/Action.h</label>
+        <link refid="_action_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>JuceHeader.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>AppModel.cpp</label>
+        <link refid="_app_model_8cpp"/>
+      </node>
+      <node id="1">
+        <label>AppModel.h</label>
+        <link refid="_app_model_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="52" relation="include">
+        </childnode>
+        <childnode refid="54" relation="include">
+        </childnode>
+        <childnode refid="50" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>Main.cpp</label>
+        <link refid="_main_8cpp"/>
+      </node>
+      <node id="3">
+        <label>Main.h</label>
+        <link refid="_main_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>MainComponent.cpp</label>
+        <link refid="_main_component_8cpp"/>
+      </node>
+      <node id="5">
+        <label>MainComponent.h</label>
+        <link refid="_main_component_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>MainComponentActions.cpp</label>
+        <link refid="_main_component_actions_8cpp"/>
+      </node>
+      <node id="8">
+        <label>lua/Engine.cpp</label>
+        <link refid="_engine_8cpp"/>
+      </node>
+      <node id="10">
+        <label>nexus/Channel.cpp</label>
+        <link refid="_channel_8cpp"/>
+      </node>
+      <node id="11">
+        <label>nexus/Daemon.cpp</label>
+        <link refid="_daemon_8cpp"/>
+      </node>
+      <node id="9">
+        <label>nexus/Daemon.h</label>
+        <link refid="_daemon_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>nexus/Daemon.mm</label>
+        <link refid="_daemon_8mm"/>
+      </node>
+      <node id="13">
+        <label>nexus/DaemonWindows.cpp</label>
+        <link refid="_daemon_windows_8cpp"/>
+      </node>
+      <node id="15">
+        <label>nexus/Link.cpp</label>
+        <link refid="_link_8cpp"/>
+      </node>
+      <node id="14">
+        <label>nexus/Link.h</label>
+        <link refid="_link_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="47">
+        <label>nexus/Nexus.cpp</label>
+        <link refid="_nexus_8cpp"/>
+      </node>
+      <node id="46">
+        <label>nexus/Nexus.h</label>
+        <link refid="_nexus_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="47" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+      </node>
+      <node id="20">
+        <label>terminal/Input.cpp</label>
+        <link refid="_input_8cpp"/>
+      </node>
+      <node id="19">
+        <label>terminal/Input.h</label>
+        <link refid="_input_8h"/>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>terminal/LinkManager.cpp</label>
+        <link refid="_link_manager_8cpp"/>
+      </node>
+      <node id="18">
+        <label>terminal/LinkManager.h</label>
+        <link refid="_link_manager_8h"/>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="37">
+        <label>terminal/LinkManagerScan.cpp</label>
+        <link refid="_link_manager_scan_8cpp"/>
+      </node>
+      <node id="40">
+        <label>terminal/Model.cpp</label>
+        <link refid="_model_8cpp"/>
+      </node>
+      <node id="17">
+        <label>terminal/Model.h</label>
+        <link refid="_model_8h"/>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+      </node>
+      <node id="41">
+        <label>terminal/ModelFlush.cpp</label>
+        <link refid="_model_flush_8cpp"/>
+      </node>
+      <node id="39">
+        <label>terminal/Mouse.cpp</label>
+        <link refid="_mouse_8cpp"/>
+      </node>
+      <node id="38">
+        <label>terminal/Mouse.h</label>
+        <link refid="_mouse_8h"/>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="43">
+        <label>terminal/Processor.cpp</label>
+        <link refid="_processor_8cpp"/>
+      </node>
+      <node id="42">
+        <label>terminal/Processor.h</label>
+        <link refid="_processor_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+        <childnode refid="44" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+      </node>
+      <node id="44">
+        <label>terminal/ProcessorEvents.cpp</label>
+        <link refid="_processor_events_8cpp"/>
+      </node>
+      <node id="48">
+        <label>terminal/Session.cpp</label>
+        <link refid="_session_8cpp"/>
+      </node>
+      <node id="45">
+        <label>terminal/Session.h</label>
+        <link refid="_session_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="46" relation="include">
+        </childnode>
+        <childnode refid="48" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>terminal/component/Display.cpp</label>
+        <link refid="_display_8cpp"/>
+      </node>
+      <node id="21">
+        <label>terminal/component/Display.h</label>
+        <link refid="_display_8h"/>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+      </node>
+      <node id="24">
+        <label>terminal/component/LookAndFeel.cpp</label>
+        <link refid="_look_and_feel_8cpp"/>
+      </node>
+      <node id="23">
+        <label>terminal/component/LookAndFeel.h</label>
+        <link refid="_look_and_feel_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+      </node>
+      <node id="25">
+        <label>terminal/component/LookAndFeelMenu.cpp</label>
+        <link refid="_look_and_feel_menu_8cpp"/>
+      </node>
+      <node id="26">
+        <label>terminal/component/LookAndFeelTab.cpp</label>
+        <link refid="_look_and_feel_tab_8cpp"/>
+      </node>
+      <node id="32">
+        <label>terminal/component/ModalWindow.cpp</label>
+        <link refid="_modal_window_8cpp"/>
+      </node>
+      <node id="31">
+        <label>terminal/component/ModalWindow.h</label>
+        <link refid="_modal_window_8h"/>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+      </node>
+      <node id="49">
+        <label>terminal/component/PaneComponent.h</label>
+        <link refid="_pane_component_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="50" relation="include">
+        </childnode>
+      </node>
+      <node id="36">
+        <label>terminal/component/Panes.cpp</label>
+        <link refid="_panes_8cpp"/>
+      </node>
+      <node id="35">
+        <label>terminal/component/Panes.h</label>
+        <link refid="_panes_8h"/>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+      </node>
+      <node id="34">
+        <label>terminal/component/Popup.cpp</label>
+        <link refid="_popup_8cpp"/>
+      </node>
+      <node id="33">
+        <label>terminal/component/Popup.h</label>
+        <link refid="_popup_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+      </node>
+      <node id="28">
+        <label>terminal/component/Tabs.cpp</label>
+        <link refid="_tabs_8cpp"/>
+      </node>
+      <node id="27">
+        <label>terminal/component/Tabs.h</label>
+        <link refid="_tabs_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="29">
+        <label>terminal/component/TabsActions.cpp</label>
+        <link refid="_tabs_actions_8cpp"/>
+      </node>
+      <node id="30">
+        <label>terminal/component/TabsClose.cpp</label>
+        <link refid="_tabs_close_8cpp"/>
+      </node>
+      <node id="53">
+        <label>whelmed/InputHandler.cpp</label>
+        <link refid="_input_handler_8cpp"/>
+      </node>
+      <node id="52">
+        <label>whelmed/InputHandler.h</label>
+        <link refid="_input_handler_8h"/>
+        <childnode refid="53" relation="include">
+        </childnode>
+        <childnode refid="50" relation="include">
+        </childnode>
+      </node>
+      <node id="55">
+        <label>whelmed/Screen.cpp</label>
+        <link refid="_screen_8cpp"/>
+      </node>
+      <node id="54">
+        <label>whelmed/Screen.h</label>
+        <link refid="_screen_8h"/>
+        <childnode refid="52" relation="include">
+        </childnode>
+        <childnode refid="55" relation="include">
+        </childnode>
+        <childnode refid="50" relation="include">
+        </childnode>
+      </node>
+      <node id="51">
+        <label>whelmed/component/Component.cpp</label>
+        <link refid="_component_8cpp"/>
+      </node>
+      <node id="50">
+        <label>whelmed/component/Component.h</label>
+        <link refid="_component_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="51" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="struct_app_model" prot="public">AppModel</innerclass>
+    <briefdescription>
+<para>Application-level <ref refid="classValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ValueTree</ref> owner — Single Source of Truth for all UI state. </para>
+    </briefdescription>
+    <detaileddescription>
+<para><ref refid="struct_app_model" kindref="compound">AppModel</ref> owns the root <computeroutput>END</computeroutput> <ref refid="classValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ValueTree</ref> that holds window dimensions, tab layout, split pane configuration, and (via grafted subtrees) each terminal&apos;s session state.</para>
+<para>Inherits <computeroutput><ref refid="classjam_1_1_model" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Model</ref></computeroutput> for the VT owner machinery and <computeroutput><ref refid="structjam_1_1_context" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Context</ref>&lt;<ref refid="struct_app_model" kindref="compound">AppModel</ref>&gt;</computeroutput> so any subsystem can call <computeroutput><ref refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">AppModel::getContext()</ref></computeroutput> without passing references.</para>
+<sect1 id="_app_model_8h_1autotoc_md0_1s1"><sect2 id="_app_model_8h_1autotoc_md0_1s2"><sect3 id="_app_model_8h_1autotoc_md0">
+<title>Mechanism</title><para>AppParameters.xml declares the schema. <computeroutput>build()</computeroutput> walks it and creates PARAM children + Parameter&lt;int&gt; adapters in the flat params AnyMap. All scalar reads use getValueFromChildWithID; all scalar writes use setValue. flush() syncs Parameters to VT on the 60 Hz timer; restoreValues() syncs VT back to Parameters after replaceState.</para>
+</sect3></sect2></sect1>
+<sect1 id="_app_model_8h_1autotoc_md1_1s1"><sect2 id="_app_model_8h_1autotoc_md1_1s2"><sect3 id="_app_model_8h_1autotoc_md1">
+<title>Serialization — three files, three concerns</title><para><computeroutput>~/.config/end/window.state</computeroutput> — WINDOW width/height only (standalone, cross-instance). Written by <computeroutput>saveWindowState()</computeroutput>. Read by <computeroutput>loadWindowState()</computeroutput>.</para>
+<para><computeroutput>~/.config/end/nexus/&lt;uuid&gt;.display</computeroutput> — full state (WINDOW + TABS); daemon client writes on quit; daemon deletes on clean exit. Written by <computeroutput>save()</computeroutput>. Read on startup by <computeroutput>load()</computeroutput>.</para>
+<para><computeroutput>~/.config/end/nexus/&lt;uuid&gt;.<ref refid="namespacenexus" kindref="compound">nexus</ref></computeroutput> — plain-text port number only; daemon writes; daemon deletes on exit. Written by <computeroutput>setPort()</computeroutput>. Read by startup scan (plain text).</para>
+</sect3></sect2></sect1>
+<sect1 id="_app_model_8h_1autotoc_md2_1s1"><sect2 id="_app_model_8h_1autotoc_md2_1s2"><sect3 id="_app_model_8h_1autotoc_md2">
+<title>SSOT</title><para><itemizedlist>
+<listitem><para>Daemon owns <computeroutput>.<ref refid="namespacenexus" kindref="compound">nexus</ref></computeroutput> (port). Daemon never touches <computeroutput>.display</computeroutput>.</para>
+</listitem><listitem><para>Daemon client owns <computeroutput>.display</computeroutput> (full state). Client never writes <computeroutput>.<ref refid="namespacenexus" kindref="compound">nexus</ref></computeroutput>.</para>
+</listitem><listitem><para><computeroutput>getStateFile()</computeroutput> returns <computeroutput>nexus/&lt;uuid&gt;.display</computeroutput> (daemon client mode only).</para>
+</listitem></itemizedlist>
+</para>
+</sect3></sect2></sect1>
+<sect1 id="_app_model_8h_1autotoc_md3_1s1"><sect2 id="_app_model_8h_1autotoc_md3_1s2"><sect3 id="_app_model_8h_1autotoc_md3">
+<title>Instance UUID</title><para>The ctor calls <computeroutput>build()</computeroutput> and overlays Lua runtime defaults. <computeroutput>initialise()</computeroutput> must call <computeroutput>setInstanceUuid()</computeroutput> first, then <computeroutput>load()</computeroutput> explicitly. <ref refid="classFile" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">File</ref> paths derive from the stored UUID and whether nexus mode is active. UUID is stored as a property on the root VT node using <computeroutput><ref refid="structjam_1_1_i_d_1a94afe032a3af21e6f22fb73c9625b60a" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::ID::id</ref></computeroutput>.</para>
+</sect3></sect2></sect1>
+<sect1 id="_app_model_8h_1autotoc_md4_1s1"><sect2 id="_app_model_8h_1autotoc_md4_1s2"><sect3 id="_app_model_8h_1autotoc_md4">
+<title>Port</title><para><computeroutput>setPort(n)</computeroutput> writes the port as plain text to <computeroutput>&lt;uuid&gt;.<ref refid="namespacenexus" kindref="compound">nexus</ref></computeroutput> immediately.</para>
+</sect3></sect2></sect1>
+<sect1 id="_app_model_8h_1autotoc_md5_1s1"><sect2 id="_app_model_8h_1autotoc_md5_1s2"><sect3 id="_app_model_8h_1autotoc_md5">
+<title>Destructor</title><para>The dtor is trivial — no file I/O. Main owns all file decisions via <computeroutput>systemRequestedQuit()</computeroutput>.</para>
+</sect3></sect2></sect1>
+<sect1 id="_app_model_8h_1autotoc_md6_1s1"><sect2 id="_app_model_8h_1autotoc_md6_1s2"><sect3 id="_app_model_8h_1autotoc_md6">
+<title>Thread model</title><para>All methods are called on the <bold>MESSAGE THREAD</bold>. atlasDirty is stored as a Parameter&lt;int&gt; in the flat params AnyMap — GL thread uses storeRelease/exchangeAcquire; message thread reads via consumeAtlasDirty().</para>
+<para><simplesect kind="see"><para><ref refid="_app_identifier_8h" kindref="compound">AppIdentifier.h</ref> </para>
+</simplesect>
+<simplesect kind="see"><para>Config </para>
+</simplesect>
+</para>
+</sect3></sect2></sect1>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight><highlight class="preprocessor">#pragma<sp/>once</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;JuceHeader.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_app_identifier_8h" kindref="compound">AppIdentifier.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_engine_8h" kindref="compound">lua/Engine.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_identifier_8h" kindref="compound">terminal/Identifier.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_map_8h" kindref="compound">Map.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64" refid="struct_app_model" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="struct_app_model_1abe400a13f767af47666a679942ccf1c5" kindref="member">AppModel</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classjam_1_1_model" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Model</ref>,<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="structjam_1_1_context" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Context</ref>&lt;AppModel&gt;</highlight></codeline>
+<codeline lineno="65"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="struct_app_model_1abe400a13f767af47666a679942ccf1c5" kindref="member">AppModel</ref>();</highlight></codeline>
+<codeline lineno="67" refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3" kindref="member">~AppModel</ref>();</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::ValueTree<sp/><ref refid="struct_app_model_1a33fc400cec078d808f6017c45574e10e" kindref="member">getWindow</ref>()<sp/>noexcept;</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">juce</ref>::<ref refid="classValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ValueTree</ref><sp/><ref refid="struct_app_model_1a732683754e18e0d3dbd93583bed3912b" kindref="member">getNexusNode</ref>()<sp/>noexcept;</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">juce</ref>::<ref refid="classValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ValueTree</ref><sp/><ref refid="struct_app_model_1a5bf961bf2da4f58edc44f53491d07b8b" kindref="member">getSessionsNode</ref>()<sp/>noexcept;</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">juce</ref>::<ref refid="classValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ValueTree</ref><sp/><ref refid="struct_app_model_1a5f039d3461dcecd5581225bdadb0ce0c" kindref="member">getLoadingNode</ref>()<sp/>noexcept;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">juce</ref>::<ref refid="classValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ValueTree</ref><sp/><ref refid="struct_app_model_1ad2ff3c0021a5923d44ad091734b7b589" kindref="member">getTabs</ref>()<sp/>noexcept;</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1ae391c9b55e9992a7ac88b2840b7e3079" kindref="member">getWindowWidth</ref>()<sp/>const<sp/>noexcept;</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1a36329693e74ae4f67d91b3abbe50cbb9" kindref="member">getWindowHeight</ref>()<sp/>const<sp/>noexcept;</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1ab65b479731c9d0efaf812f630dc6df23" kindref="member">getWindowZoom</ref>()<sp/>const<sp/>noexcept;</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1a5486d899a2fd3715f8977c815bcb0eb5" kindref="member">setWindowSize</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>width,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>height);</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1a0e6e5e29864e321a25bcd1bc8fbdcdf2" kindref="member">setWindowZoom</ref><sp/>(</highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>zoom);</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">juce</ref>::<ref refid="classString" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">String</ref><sp/><ref refid="struct_app_model_1a148268915563bf57f4d8dd331bdc8af1" kindref="member">getFontFamily</ref>()<sp/>const<sp/>noexcept;</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1a2dae0bf677d786df54592add4b6f7653" kindref="member">setFontFamily</ref><sp/>(const<sp/><ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">juce</ref>::<ref refid="classString" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">String</ref>&amp;<sp/>family);</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1a453da06259ecb0b83b6966771efe1f82" kindref="member">getFontSize</ref>()<sp/>const<sp/>noexcept;</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1a73228906a27ee0e0ddd749e02c55f507" kindref="member">setFontSize</ref><sp/>(</highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>size);</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1ad280d1276cb136d455b3703332875eb7" kindref="member">setScrollbackLines</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>lines);</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1a5fc7272cc6caa1a510d0c956f205c256" kindref="member">getCellWidth</ref>()<sp/>const<sp/>noexcept;</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1a3f6234ea491efa3ba0e13ed5a9af75e4" kindref="member">setCellWidth</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>width);</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1a78b708f95c7b81a30c9bfb4628b37aec" kindref="member">getLineHeight</ref>()<sp/>const<sp/>noexcept;</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1ac145b163fefb0d869844801bdaa4c8bf" kindref="member">setLineHeight</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>height);</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1af02fabcbf42bda957de3b79dac0a78eb" kindref="member">getCursorCodepoint</ref>()<sp/>const<sp/>noexcept;</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1a39175ac839f1cdf8b41bb102c84d42c8" kindref="member">setCursorCodepoint</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>codepoint);</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1a47f5c036e7701087b9d30678735b3ec6" kindref="member">getCursorStyle</ref>()<sp/>const<sp/>noexcept;</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1ac304758f2277b44b5b69ea99ada92d04" kindref="member">setCursorStyle</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>style);</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1a5a51fd63625855b3bdbdd7fa466f232a" kindref="member">getCursorBlinkInterval</ref>()<sp/>const<sp/>noexcept;</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1a8c682c57a734c44ede583208fbac1c82" kindref="member">setCursorBlinkInterval</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>ms);</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1aa949203f52b596440b04ae76adab7f11" kindref="member">getPaddingTop</ref>()<sp/>const<sp/>noexcept;</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1ad2b662a4bd93e688cf7592de22f0c775" kindref="member">getPaddingRight</ref>()<sp/>const<sp/>noexcept;</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1a9a402d8ba04ebc4e1d6f791d39c30635" kindref="member">getPaddingBottom</ref>()<sp/>const<sp/>noexcept;</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1a52e345195bfb1e87f33cd472e55fdb6c" kindref="member">getPaddingLeft</ref>()<sp/>const<sp/>noexcept;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1a1c5acbd174197755b89450577edde968" kindref="member">setPaddingTop</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>value);</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1ab092f12f2c1cee0814e6f24d425d054f" kindref="member">setPaddingRight</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>value);</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1a46c958c3311f69d050c0e6e31613ba7a" kindref="member">setPaddingBottom</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>value);</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1a1053e78981e1c1d287348ad06135dd42" kindref="member">setPaddingLeft</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>value);</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1abe273920682ed70f9076ae15e5d7842b" kindref="member">markAtlasDirty</ref>()<sp/>noexcept;</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1a69f7c3a0edf15cba770d166f2b2222b8" kindref="member">consumeAtlasDirty</ref>()<sp/>noexcept;</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespaceapp" kindref="compound">app</ref>::RendererType<sp/><ref refid="struct_app_model_1ae1b2239313dc86889de4137db2b2a19a" kindref="member">getRendererType</ref>()<sp/>const<sp/>noexcept;</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1aae67bc48e392b48d0a269ad489a9d33e" kindref="member">setRendererType</ref><sp/>(const<sp/><ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">juce</ref>::<ref refid="classString" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">String</ref>&amp;<sp/>setting);</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1ac974e4042f7b19970e14c876ab0144da" kindref="member">setGpuAvailable</ref><sp/>(</highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>available);</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1add3a497f60aa25b17b4974b74792c7ac" kindref="member">setInstanceUuid</ref><sp/>(const<sp/><ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">juce</ref>::<ref refid="classString" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">String</ref>&amp;<sp/>uuid);</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">juce</ref>::<ref refid="classString" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">String</ref><sp/><ref refid="struct_app_model_1af47dcc23d7369b6fb9f72d32cc0bbaa3" kindref="member">getInstanceUuid</ref>()<sp/>const<sp/>noexcept;</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1a1bb1a3c23e730b48fc4c86b958bb5c3d" kindref="member">setDaemonMode</ref><sp/>(</highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>isDaemon);</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"></highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1a13a5563e524c4ff72fde7b72b11b9977" kindref="member">isDaemonMode</ref>()<sp/>const<sp/>noexcept;</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"></highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1af9e76c672704046b019df53ac5b7c2ff" kindref="member">getActiveTabIndex</ref>()<sp/>const<sp/>noexcept;</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1a75038d249a33b5f32667b8cf1da894ed" kindref="member">setActiveTabIndex</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>index);</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"></highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">juce</ref>::<ref refid="classString" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">String</ref><sp/><ref refid="struct_app_model_1af41a958ece0fed17ed0f1a1c444e2671" kindref="member">getTabPosition</ref>()<sp/>const<sp/>noexcept;</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1afc32c48a7dbb67ad069e18510497e93c" kindref="member">setTabPosition</ref><sp/>(const<sp/><ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">juce</ref>::<ref refid="classString" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">String</ref>&amp;<sp/>position);</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"></highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="174"><highlight class="normal"></highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">juce</ref>::<ref refid="classValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ValueTree</ref><sp/><ref refid="struct_app_model_1a97e7b0dbabbf20a8f35682722b8268be" kindref="member">addTab</ref>();</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1af0eb41847a5138c20cca20a23d5d8283" kindref="member">removeTab</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>index);</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">juce</ref>::<ref refid="classValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ValueTree</ref><sp/><ref refid="struct_app_model_1a4588cfbb14ca0c3ebb0f1b3ae593e02a" kindref="member">getTab</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>index)<sp/>noexcept;</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"></highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">juce</ref>::<ref refid="classString" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">String</ref><sp/><ref refid="struct_app_model_1aa6b7eb70eb7687df38613121683c5024" kindref="member">getActivePaneID</ref>()<sp/>const<sp/>noexcept;</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1acd8609ee6b05bce137df2b703f426009" kindref="member">setActivePaneID</ref><sp/>(const<sp/><ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">juce</ref>::<ref refid="classString" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">String</ref>&amp;<sp/>uuid);</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"></highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">juce</ref>::<ref refid="classString" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">String</ref><sp/><ref refid="struct_app_model_1ab46fe2606b815955ddf9e550b4aa9359" kindref="member">getActivePaneType</ref>()<sp/>const<sp/>noexcept;</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1a0979655baa2bb2514f824b5b2213b688" kindref="member">setActivePaneType</ref><sp/>(const<sp/><ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">juce</ref>::<ref refid="classString" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">String</ref>&amp;<sp/>type);</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"></highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1a3a5760411f18cfceaba0bd6970a03490" kindref="member">setModalType</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>type);</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"></highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1a914f66a251aa0ad0d47242253f027d8c" kindref="member">getModalType</ref>()<sp/>const<sp/>noexcept;</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"></highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1a5cde5241c339dc4966a4083fa852091e" kindref="member">setSelectionType</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>type);</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"></highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1a851626b84c6f29004a1d29630d85c7a3" kindref="member">getSelectionType</ref>()<sp/>const<sp/>noexcept;</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"></highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">juce</ref>::<ref refid="classString" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">String</ref><sp/><ref refid="struct_app_model_1af7eeffe94f371e3ee1ed43c8f796853f" kindref="member">getPwd</ref>()<sp/>const<sp/>noexcept;</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"></highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1a2d98a71682bda840b145b788763b2e06" kindref="member">setPwd</ref><sp/>(<ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">juce</ref>::<ref refid="classValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ValueTree</ref><sp/>sessionTree);</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"></highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="218"><highlight class="normal"></highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1aad3903648ef251bc4c7c75617a225306" kindref="member">setPort</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>activePort);</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"></highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1abe172951a8cc06fea4e80398618d6500" kindref="member">getPort</ref>()<sp/>const<sp/>noexcept;</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"></highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="239"><highlight class="normal"></highlight></codeline>
+<codeline lineno="250"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1a6ea5228e1de373aff30ecdd9d097624b" kindref="member">save</ref>();</highlight></codeline>
+<codeline lineno="251"><highlight class="normal"></highlight></codeline>
+<codeline lineno="260"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1aadec1c1d139204d67deaed3c856c10a4" kindref="member">saveWindowState</ref>();</highlight></codeline>
+<codeline lineno="261"><highlight class="normal"></highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1aaae7da7125d05bc93f67e7cc08be4405" kindref="member">loadWindowState</ref>();</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"></highlight></codeline>
+<codeline lineno="282"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1a6024f393df864362c8507b16b70f8cb7" kindref="member">load</ref>();</highlight></codeline>
+<codeline lineno="283"><highlight class="normal"></highlight></codeline>
+<codeline lineno="292"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1a8da9beb832fd2d33d9ca345100ec6c78" kindref="member">deleteNexusFile</ref>();</highlight></codeline>
+<codeline lineno="293"><highlight class="normal"></highlight></codeline>
+<codeline lineno="295"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">juce</ref>::<ref refid="classFile" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">File</ref><sp/><ref refid="struct_app_model_1a62ef186466e64e89f89e0d0847c282bb" kindref="member">getStateFile</ref>()<sp/>const;</highlight></codeline>
+<codeline lineno="296"><highlight class="normal"></highlight></codeline>
+<codeline lineno="298"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">juce</ref>::<ref refid="classFile" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">File</ref><sp/><ref refid="struct_app_model_1aa8d1f246d97775f7f3c9e21cae213f9f" kindref="member">getNexusFile</ref>()<sp/>const;</highlight></codeline>
+<codeline lineno="299"><highlight class="normal"></highlight></codeline>
+<codeline lineno="301"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">juce</ref>::<ref refid="classFile" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">File</ref><sp/><ref refid="struct_app_model_1acde520240a05e0ff5b3880557c291a0a" kindref="member">getWindowState</ref>()<sp/>const;</highlight></codeline>
+<codeline lineno="302"><highlight class="normal"></highlight></codeline>
+<codeline lineno="303"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="304"><highlight class="normal"></highlight></codeline>
+<codeline lineno="305"><highlight class="normal">private:</highlight></codeline>
+<codeline lineno="312"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="struct_app_model_1adc4141a6e63d9801a6e3c027f729f74d" kindref="member">build</ref><sp/>(const<sp/><ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">juce</ref>::<ref refid="classXmlElement" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">XmlElement</ref>&amp;<sp/>xml);</highlight></codeline>
+<codeline lineno="313"><highlight class="normal"></highlight></codeline>
+<codeline lineno="314"><highlight class="normal"><sp/><sp/><sp/><sp/>static<sp/><ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">juce</ref>::<ref refid="classvar" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">var</ref><sp/><ref refid="struct_app_model_1ac12d30deb94ace7428cfa1260a6f69d1" kindref="member">resolveAppLayoutDefault</ref><sp/>(const<sp/><ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">juce</ref>::<ref refid="classXmlElement" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">XmlElement</ref>&amp;<sp/>elem)<sp/>noexcept;</highlight></codeline>
+<codeline lineno="315"><highlight class="normal"></highlight></codeline>
+<codeline lineno="317" refid="struct_app_model_1a1db76cb2c0b58e4854cd8bdc6ffff3a9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">juce</ref>::<ref refid="classValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ValueTree</ref><sp/><ref refid="struct_app_model_1a1db76cb2c0b58e4854cd8bdc6ffff3a9" kindref="member">activeSession</ref>;</highlight></codeline>
+<codeline lineno="318"><highlight class="normal"></highlight></codeline>
+<codeline lineno="319"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="320"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="group__juce__core-system_1ga851b02724a8158a7f746c66b5758b3dd" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR</ref><sp/>(<ref refid="struct_app_model_1abe400a13f767af47666a679942ccf1c5" kindref="member">AppModel</ref>)</highlight></codeline>
+<codeline lineno="321"><highlight class="normal">};</highlight></codeline>
+    </programlisting>
+    <location file="AppModel.h"/>
+  </compounddef>
+</doxygen>

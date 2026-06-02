@@ -3,9 +3,9 @@
  * @brief Application-level visual selection type enum.
  *
  * Identifies which Vim visual-selection variant is currently active.
- * Stored as a property on the AppState TABS subtree alongside ModalType.
+ * Stored as a property on the AppModel TABS subtree alongside ModalType.
  *
- * @see AppState
+ * @see AppModel
  * @see ModalType
  */
 

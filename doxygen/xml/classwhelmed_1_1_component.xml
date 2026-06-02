@@ -1,0 +1,753 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="classwhelmed_1_1_component" kind="class" language="C++" prot="public">
+    <compoundname>whelmed::Component</compoundname>
+    <basecompoundref refid="class_pane_component" prot="public" virt="non-virtual">PaneComponent</basecompoundref>
+    <basecompoundref prot="private" virt="non-virtual">juce::ValueTree::Listener</basecompoundref>
+    <includes refid="_component_8h" local="no">Component.h</includes>
+    <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classwhelmed_1_1_component_1a6785371364f21ac36c7cf39e155a4f08" prot="private" static="no" mutable="no">
+        <type><ref refid="classwhelmed_1_1_state" kindref="compound">State</ref></type>
+        <definition>State whelmed::Component::docState</definition>
+        <argsstring></argsstring>
+        <name>docState</name>
+        <qualifiedname>whelmed::Component::docState</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/component/Component.h" line="64" column="11" bodyfile="whelmed/component/Component.h" bodystart="64" bodyend="-1"/>
+        <referencedby refid="classwhelmed_1_1_component_1a2940a683822f0f372d38b8f285237d5c" compoundref="_component_8cpp" startline="66" endline="73">applyFromAppModel</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a8775db6d1a2c1afc2e77cd3c8f39da6f" compoundref="_component_8cpp" startline="7" endline="47">Component</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a847d8cf7cee861b4177ab98de0423214" compoundref="_component_8cpp" startline="106" endline="160">openFile</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1ab33051f05dd5e6585dc190b4fb0b733b" compoundref="_component_8cpp" startline="218" endline="288">valueTreePropertyChanged</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classwhelmed_1_1_component_1a8e3953bddc99a229d57063cc096b3686" prot="private" static="no" mutable="no">
+        <type>juce::ValueTree</type>
+        <definition>juce::ValueTree whelmed::Component::state</definition>
+        <argsstring></argsstring>
+        <name>state</name>
+        <qualifiedname>whelmed::Component::state</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/component/Component.h" line="65" column="21" bodyfile="whelmed/component/Component.h" bodystart="65" bodyend="-1"/>
+        <referencedby refid="classwhelmed_1_1_component_1a8775db6d1a2c1afc2e77cd3c8f39da6f" compoundref="_component_8cpp" startline="7" endline="47">Component</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1abd70119f118c4b0e82842f01129d8c0a" compoundref="_component_8cpp" startline="182" endline="205">copySelection</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a86f04f40924c6a7c074d4200c95f7377" compoundref="_component_8cpp" startline="168" endline="180">enterSelectionMode</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1af53695aa06057aeac931fb7c8c6cfcaf" compoundref="_component_8cpp" startline="212" endline="212">getValueTree</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a847d8cf7cee861b4177ab98de0423214" compoundref="_component_8cpp" startline="106" endline="160">openFile</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1ab33051f05dd5e6585dc190b4fb0b733b" compoundref="_component_8cpp" startline="218" endline="288">valueTreePropertyChanged</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1ae500b88725913a9c7edc6573252eb827" compoundref="_component_8cpp" startline="49" endline="55">~Component</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classwhelmed_1_1_component_1a8e96d42e97ced5ad89bfc77e02f6b95d" prot="private" static="no" mutable="no">
+        <type>std::unique_ptr&lt; <ref refid="classwhelmed_1_1_parser" kindref="compound">Parser</ref> &gt;</type>
+        <definition>std::unique_ptr&lt;Parser&gt; whelmed::Component::parser</definition>
+        <argsstring></argsstring>
+        <name>parser</name>
+        <qualifiedname>whelmed::Component::parser</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/component/Component.h" line="66" column="21" bodyfile="whelmed/component/Component.h" bodystart="66" bodyend="-1"/>
+        <referencedby refid="classwhelmed_1_1_component_1a847d8cf7cee861b4177ab98de0423214" compoundref="_component_8cpp" startline="106" endline="160">openFile</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classwhelmed_1_1_component_1ab67f655c4105d72ac20c29206c40ca38" prot="private" static="no" mutable="no">
+        <type>juce::Viewport</type>
+        <definition>juce::Viewport whelmed::Component::viewport</definition>
+        <argsstring></argsstring>
+        <name>viewport</name>
+        <qualifiedname>whelmed::Component::viewport</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/component/Component.h" line="68" column="20" bodyfile="whelmed/component/Component.h" bodystart="68" bodyend="-1"/>
+        <referencedby refid="classwhelmed_1_1_component_1a8775db6d1a2c1afc2e77cd3c8f39da6f" compoundref="_component_8cpp" startline="7" endline="47">Component</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a86f04f40924c6a7c074d4200c95f7377" compoundref="_component_8cpp" startline="168" endline="180">enterSelectionMode</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a847d8cf7cee861b4177ab98de0423214" compoundref="_component_8cpp" startline="106" endline="160">openFile</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1aa54841dba3e98bc427e664f9b98a6b60" compoundref="_component_8cpp" startline="85" endline="100">resized</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1ab33051f05dd5e6585dc190b4fb0b733b" compoundref="_component_8cpp" startline="218" endline="288">valueTreePropertyChanged</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1ae500b88725913a9c7edc6573252eb827" compoundref="_component_8cpp" startline="49" endline="55">~Component</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classwhelmed_1_1_component_1aac7e72e2b7079afff1c7cdb6e456f17d" prot="private" static="no" mutable="no">
+        <type><ref refid="classwhelmed_1_1_screen" kindref="compound">Screen</ref></type>
+        <definition>Screen whelmed::Component::screen</definition>
+        <argsstring></argsstring>
+        <name>screen</name>
+        <qualifiedname>whelmed::Component::screen</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/component/Component.h" line="69" column="12" bodyfile="whelmed/component/Component.h" bodystart="69" bodyend="-1"/>
+        <referencedby refid="classwhelmed_1_1_component_1a2940a683822f0f372d38b8f285237d5c" compoundref="_component_8cpp" startline="66" endline="73">applyFromAppModel</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a8775db6d1a2c1afc2e77cd3c8f39da6f" compoundref="_component_8cpp" startline="7" endline="47">Component</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1abd70119f118c4b0e82842f01129d8c0a" compoundref="_component_8cpp" startline="182" endline="205">copySelection</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a86f04f40924c6a7c074d4200c95f7377" compoundref="_component_8cpp" startline="168" endline="180">enterSelectionMode</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a847d8cf7cee861b4177ab98de0423214" compoundref="_component_8cpp" startline="106" endline="160">openFile</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1aa54841dba3e98bc427e664f9b98a6b60" compoundref="_component_8cpp" startline="85" endline="100">resized</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1ab33051f05dd5e6585dc190b4fb0b733b" compoundref="_component_8cpp" startline="218" endline="288">valueTreePropertyChanged</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classwhelmed_1_1_component_1adc62421984cf72f09b8ceb5aa396387e" prot="private" static="no" mutable="no">
+        <type><ref refid="classwhelmed_1_1_input_handler" kindref="compound">InputHandler</ref></type>
+        <definition>InputHandler whelmed::Component::inputHandler</definition>
+        <argsstring></argsstring>
+        <name>inputHandler</name>
+        <qualifiedname>whelmed::Component::inputHandler</qualifiedname>
+        <initializer>{ <ref refid="classwhelmed_1_1_component_1ab67f655c4105d72ac20c29206c40ca38" kindref="member">viewport</ref>, <ref refid="classwhelmed_1_1_component_1aac7e72e2b7079afff1c7cdb6e456f17d" kindref="member">screen</ref>, <ref refid="classwhelmed_1_1_component_1a8e3953bddc99a229d57063cc096b3686" kindref="member">state</ref> }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/component/Component.h" line="70" column="18" bodyfile="whelmed/component/Component.h" bodystart="70" bodyend="70"/>
+        <referencedby refid="classwhelmed_1_1_component_1a2940a683822f0f372d38b8f285237d5c" compoundref="_component_8cpp" startline="66" endline="73">applyFromAppModel</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a8775db6d1a2c1afc2e77cd3c8f39da6f" compoundref="_component_8cpp" startline="7" endline="47">Component</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a86f04f40924c6a7c074d4200c95f7377" compoundref="_component_8cpp" startline="168" endline="180">enterSelectionMode</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a78df8bcf40c8decf118df75d915a2f85" compoundref="_component_8cpp" startline="61" endline="64">keyPressed</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classwhelmed_1_1_component_1afa5c58cf198087efd1749c29f5f2c932" prot="private" static="no" mutable="no">
+        <type><ref refid="class_loader_overlay" kindref="compound">::LoaderOverlay</ref></type>
+        <definition>::LoaderOverlay whelmed::Component::loaderOverlay</definition>
+        <argsstring></argsstring>
+        <name>loaderOverlay</name>
+        <qualifiedname>whelmed::Component::loaderOverlay</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/component/Component.h" line="71" column="21" bodyfile="whelmed/component/Component.h" bodystart="71" bodyend="-1"/>
+        <referencedby refid="classwhelmed_1_1_component_1a8775db6d1a2c1afc2e77cd3c8f39da6f" compoundref="_component_8cpp" startline="7" endline="47">Component</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a847d8cf7cee861b4177ab98de0423214" compoundref="_component_8cpp" startline="106" endline="160">openFile</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1aa54841dba3e98bc427e664f9b98a6b60" compoundref="_component_8cpp" startline="85" endline="100">resized</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1ab33051f05dd5e6585dc190b4fb0b733b" compoundref="_component_8cpp" startline="218" endline="288">valueTreePropertyChanged</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classwhelmed_1_1_component_1ade0413790f7110d4fc7165db3f2efd4a" prot="private" static="no" mutable="no">
+        <type>std::unique_ptr&lt; jam::Mermaid::Parser &gt;</type>
+        <definition>std::unique_ptr&lt;jam::Mermaid::Parser&gt; whelmed::Component::mermaidParser</definition>
+        <argsstring></argsstring>
+        <name>mermaidParser</name>
+        <qualifiedname>whelmed::Component::mermaidParser</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/component/Component.h" line="73" column="21" bodyfile="whelmed/component/Component.h" bodystart="73" bodyend="-1"/>
+        <referencedby refid="classwhelmed_1_1_component_1a8775db6d1a2c1afc2e77cd3c8f39da6f" compoundref="_component_8cpp" startline="7" endline="47">Component</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a847d8cf7cee861b4177ab98de0423214" compoundref="_component_8cpp" startline="106" endline="160">openFile</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="public-func">
+      <memberdef kind="function" id="classwhelmed_1_1_component_1a8775db6d1a2c1afc2e77cd3c8f39da6f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Component::Component</definition>
+        <argsstring>()</argsstring>
+        <name>Component</name>
+        <qualifiedname>whelmed::Component::Component</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/component/Component.h" line="43" column="5" bodyfile="whelmed/component/Component.cpp" bodystart="7" bodyend="47"/>
+        <references refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9">code</references>
+        <references refid="classwhelmed_1_1_component_1a6785371364f21ac36c7cf39e155a4f08" compoundref="_component_8h" startline="64">docState</references>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
+        <references refid="classwhelmed_1_1_component_1af53695aa06057aeac931fb7c8c6cfcaf" compoundref="_component_8cpp" startline="212" endline="212">getValueTree</references>
+        <references refid="classwhelmed_1_1_component_1adc62421984cf72f09b8ceb5aa396387e" compoundref="_component_8h" startline="70" endline="70">inputHandler</references>
+        <references refid="classwhelmed_1_1_component_1afa5c58cf198087efd1749c29f5f2c932" compoundref="_component_8h" startline="71">loaderOverlay</references>
+        <references refid="classwhelmed_1_1_component_1ade0413790f7110d4fc7165db3f2efd4a" compoundref="_component_8h" startline="73">mermaidParser</references>
+        <references refid="classwhelmed_1_1_mermaid_s_v_g_parser_1aacc50475bb6b1818a98daf39e9ad1308" compoundref="_mermaid_s_v_g_parser_8h" startline="90" endline="122">whelmed::MermaidSVGParser::parse</references>
+        <references refid="classwhelmed_1_1_component_1aac7e72e2b7079afff1c7cdb6e456f17d" compoundref="_component_8h" startline="69">screen</references>
+        <references refid="classwhelmed_1_1_component_1a8e3953bddc99a229d57063cc096b3686" compoundref="_component_8h" startline="65">state</references>
+        <references refid="classwhelmed_1_1_component_1ab67f655c4105d72ac20c29206c40ca38" compoundref="_component_8h" startline="68">viewport</references>
+      </memberdef>
+      <memberdef kind="function" id="classwhelmed_1_1_component_1ae500b88725913a9c7edc6573252eb827" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Component::~Component</definition>
+        <argsstring>() override</argsstring>
+        <name>~Component</name>
+        <qualifiedname>whelmed::Component::~Component</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/component/Component.h" line="44" column="5" bodyfile="whelmed/component/Component.cpp" bodystart="49" bodyend="55"/>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
+        <references refid="classwhelmed_1_1_component_1a8e3953bddc99a229d57063cc096b3686" compoundref="_component_8h" startline="65">state</references>
+        <references refid="classwhelmed_1_1_component_1ab67f655c4105d72ac20c29206c40ca38" compoundref="_component_8h" startline="68">viewport</references>
+      </memberdef>
+      <memberdef kind="function" id="classwhelmed_1_1_component_1a606813bda5c715e4a4b0d825b4190167" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="virtual">
+        <type>juce::String</type>
+        <definition>juce::String whelmed::Component::getPaneType</definition>
+        <argsstring>() const noexcept override</argsstring>
+        <name>getPaneType</name>
+        <qualifiedname>whelmed::Component::getPaneType</qualifiedname>
+        <reimplements refid="class_pane_component_1a1c77b11fdb0a53c438872fc7ec03553d">getPaneType</reimplements>
+        <briefdescription>
+<para>Returns a string identifier for the pane type (&quot;terminal&quot; or &quot;document&quot;). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Used by Panes and Tabs to distinguish component types without RTTI.</para>
+<para><simplesect kind="return"><para>The pane type string — see <ref refid="struct_map_1_1_pane_type" kindref="compound">Map::PaneType</ref>. </para>
+</simplesect>
+<simplesect kind="note"><para>MESSAGE THREAD. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/component/Component.h" line="46" column="18" bodyfile="whelmed/component/Component.h" bodystart="46" bodyend="46"/>
+        <references refid="struct_map_1_1_pane_type_1a26b29bb01d0ebc96052d9f071b2794cea18f46a8540c5418cc6372fb1e7b83d92" compoundref="_map_8h" startline="138">Map::PaneType::document</references>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Derived &gt;::getContext</references>
+      </memberdef>
+      <memberdef kind="function" id="classwhelmed_1_1_component_1a69e614725f77bf9d2a5e1bb95e694e42" prot="public" static="no" const="no" explicit="no" inline="yes" noexcept="yes" virt="virtual">
+        <type>void</type>
+        <definition>void whelmed::Component::applyZoom</definition>
+        <argsstring>(float) noexcept override</argsstring>
+        <name>applyZoom</name>
+        <qualifiedname>whelmed::Component::applyZoom</qualifiedname>
+        <reimplements refid="class_pane_component_1a5754a5ad90eff33aefeaf972e609ac06">applyZoom</reimplements>
+        <param>
+          <type>float</type>
+          <declname>zoom</declname>
+        </param>
+        <briefdescription>
+<para>Applies the given zoom factor to the pane&apos;s rendering. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>zoom</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Zoom multiplier (1.0 = default). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="note"><para>MESSAGE THREAD. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/component/Component.h" line="47" column="10" bodyfile="whelmed/component/Component.h" bodystart="47" bodyend="47"/>
+      </memberdef>
+      <memberdef kind="function" id="classwhelmed_1_1_component_1a78df8bcf40c8decf118df75d915a2f85" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Component::keyPressed</definition>
+        <argsstring>(const juce::KeyPress &amp;key) override</argsstring>
+        <name>keyPressed</name>
+        <qualifiedname>whelmed::Component::keyPressed</qualifiedname>
+        <param>
+          <type>const juce::KeyPress &amp;</type>
+          <declname>key</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/component/Component.h" line="49" column="10" bodyfile="whelmed/component/Component.cpp" bodystart="61" bodyend="64"/>
+        <references refid="classwhelmed_1_1_component_1adc62421984cf72f09b8ceb5aa396387e" compoundref="_component_8h" startline="70" endline="70">inputHandler</references>
+      </memberdef>
+      <memberdef kind="function" id="classwhelmed_1_1_component_1a6b7cd66a2eb6b28d9f4d4ea69c957e40" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Component::mouseDown</definition>
+        <argsstring>(const juce::MouseEvent &amp;event) override</argsstring>
+        <name>mouseDown</name>
+        <qualifiedname>whelmed::Component::mouseDown</qualifiedname>
+        <param>
+          <type>const juce::MouseEvent &amp;</type>
+          <declname>event</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/component/Component.h" line="50" column="10" bodyfile="whelmed/component/Component.cpp" bodystart="162" bodyend="166"/>
+      </memberdef>
+      <memberdef kind="function" id="classwhelmed_1_1_component_1a6dcf4b986fb0e77a4c3860cbe07c49a2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Component::paint</definition>
+        <argsstring>(juce::Graphics &amp;g) override</argsstring>
+        <name>paint</name>
+        <qualifiedname>whelmed::Component::paint</qualifiedname>
+        <param>
+          <type>juce::Graphics &amp;</type>
+          <declname>g</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/component/Component.h" line="51" column="10" bodyfile="whelmed/component/Component.cpp" bodystart="79" bodyend="83"/>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
+      </memberdef>
+      <memberdef kind="function" id="classwhelmed_1_1_component_1aa54841dba3e98bc427e664f9b98a6b60" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Component::resized</definition>
+        <argsstring>() override</argsstring>
+        <name>resized</name>
+        <qualifiedname>whelmed::Component::resized</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/component/Component.h" line="52" column="10" bodyfile="whelmed/component/Component.cpp" bodystart="85" bodyend="100"/>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
+        <references refid="classwhelmed_1_1_component_1afa5c58cf198087efd1749c29f5f2c932" compoundref="_component_8h" startline="71">loaderOverlay</references>
+        <references refid="classwhelmed_1_1_component_1aac7e72e2b7079afff1c7cdb6e456f17d" compoundref="_component_8h" startline="69">screen</references>
+        <references refid="classwhelmed_1_1_component_1ab67f655c4105d72ac20c29206c40ca38" compoundref="_component_8h" startline="68">viewport</references>
+        <referencedby refid="classwhelmed_1_1_component_1a2940a683822f0f372d38b8f285237d5c" compoundref="_component_8cpp" startline="66" endline="73">applyFromAppModel</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classwhelmed_1_1_component_1a847d8cf7cee861b4177ab98de0423214" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Component::openFile</definition>
+        <argsstring>(const juce::File &amp;file)</argsstring>
+        <name>openFile</name>
+        <qualifiedname>whelmed::Component::openFile</qualifiedname>
+        <param>
+          <type>const juce::File &amp;</type>
+          <declname>file</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/component/Component.h" line="54" column="10" bodyfile="whelmed/component/Component.cpp" bodystart="106" bodyend="160"/>
+        <references refid="namespaceapp_1_1id_1a4c409f870661881993ac818c73a32c82" compoundref="_app_identifier_8h" startline="113" endline="113">app::id::blockCount</references>
+        <references refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9">code</references>
+        <references refid="namespaceapp_1_1id_1a5db3df1548793287f6642045bb68fe2a" compoundref="_app_identifier_8h" startline="85" endline="85">app::id::displayName</references>
+        <references refid="classwhelmed_1_1_component_1a6785371364f21ac36c7cf39e155a4f08" compoundref="_component_8h" startline="64">docState</references>
+        <references refid="namespaceapp_1_1id_1a5dbba8dbe5bf9ef207c18905d8bae100" compoundref="_app_identifier_8h" startline="84" endline="84">app::id::filePath</references>
+        <references refid="classwhelmed_1_1_component_1afa5c58cf198087efd1749c29f5f2c932" compoundref="_component_8h" startline="71">loaderOverlay</references>
+        <references refid="classwhelmed_1_1_component_1ade0413790f7110d4fc7165db3f2efd4a" compoundref="_component_8h" startline="73">mermaidParser</references>
+        <references refid="structjam_1_1_markdown_1_1_parser_1a4da0351503dd15d606e0d3070092e58c">jam::Markdown::Parser::parse</references>
+        <references refid="classwhelmed_1_1_mermaid_s_v_g_parser_1aacc50475bb6b1818a98daf39e9ad1308" compoundref="_mermaid_s_v_g_parser_8h" startline="90" endline="122">whelmed::MermaidSVGParser::parse</references>
+        <references refid="namespaceapp_1_1id_1ae480d402f2c4854e10a819621b23f6d0" compoundref="_app_identifier_8h" startline="114" endline="114">app::id::parseComplete</references>
+        <references refid="classwhelmed_1_1_component_1a8e96d42e97ced5ad89bfc77e02f6b95d" compoundref="_component_8h" startline="66">parser</references>
+        <references refid="classwhelmed_1_1_component_1aac7e72e2b7079afff1c7cdb6e456f17d" compoundref="_component_8h" startline="69">screen</references>
+        <references refid="namespaceapp_1_1id_1a8056e4239f4b22fce564a395bbbcb52a" compoundref="_app_identifier_8h" startline="87" endline="87">app::id::scrollOffset</references>
+        <references refid="classwhelmed_1_1_component_1a8e3953bddc99a229d57063cc096b3686" compoundref="_component_8h" startline="65">state</references>
+        <references refid="namespaceapp_1_1id_1abad3be16444df05531528d3e30735ebd" compoundref="_app_identifier_8h" startline="115" endline="115">app::id::totalBlocks</references>
+        <references refid="classwhelmed_1_1_component_1ab67f655c4105d72ac20c29206c40ca38" compoundref="_component_8h" startline="68">viewport</references>
+      </memberdef>
+      <memberdef kind="function" id="classwhelmed_1_1_component_1a86f04f40924c6a7c074d4200c95f7377" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="virtual">
+        <type>void</type>
+        <definition>void Component::enterSelectionMode</definition>
+        <argsstring>() noexcept override</argsstring>
+        <name>enterSelectionMode</name>
+        <qualifiedname>whelmed::Component::enterSelectionMode</qualifiedname>
+        <reimplements refid="class_pane_component_1aa1f15568c84debd32630ccfba2aa2801">enterSelectionMode</reimplements>
+        <briefdescription>
+<para>Enters vim-style keyboard selection mode. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="note"><para>MESSAGE THREAD. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/component/Component.h" line="55" column="10" bodyfile="whelmed/component/Component.cpp" bodystart="168" bodyend="180"/>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
+        <references refid="classwhelmed_1_1_component_1adc62421984cf72f09b8ceb5aa396387e" compoundref="_component_8h" startline="70" endline="70">inputHandler</references>
+        <references refid="_selection_type_8h_1acffca3b33fddce63d3220bc7487e879da334c4a4c42fdb79d7ebc3e73b517e6f8" compoundref="_selection_type_8h" startline="22">none</references>
+        <references refid="classwhelmed_1_1_component_1aac7e72e2b7079afff1c7cdb6e456f17d" compoundref="_component_8h" startline="69">screen</references>
+        <references refid="namespaceapp_1_1id_1ae541c86458bee0db98858cb134c69379" compoundref="_app_identifier_8h" startline="118" endline="118">app::id::selAnchorBlock</references>
+        <references refid="namespaceapp_1_1id_1ab2b4791778841d9e46a8ea36c17e4266" compoundref="_app_identifier_8h" startline="119" endline="119">app::id::selAnchorChar</references>
+        <references refid="namespaceapp_1_1id_1a044c24e7e6b652dbbd38a9ed2aaee9ed" compoundref="_app_identifier_8h" startline="116" endline="116">app::id::selCursorBlock</references>
+        <references refid="namespaceapp_1_1id_1a53f4e3db60bb5963c1ba6f10958e1c96" compoundref="_app_identifier_8h" startline="117" endline="117">app::id::selCursorChar</references>
+        <references refid="_modal_type_8h_1a1878c47fb0486dfcf512d127b5342816aef5714e0519bfaa645cdff7d28843b70" compoundref="_modal_type_8h" startline="29">selection</references>
+        <references refid="classwhelmed_1_1_component_1a8e3953bddc99a229d57063cc096b3686" compoundref="_component_8h" startline="65">state</references>
+        <references refid="classwhelmed_1_1_component_1ab67f655c4105d72ac20c29206c40ca38" compoundref="_component_8h" startline="68">viewport</references>
+      </memberdef>
+      <memberdef kind="function" id="classwhelmed_1_1_component_1abd70119f118c4b0e82842f01129d8c0a" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="virtual">
+        <type>void</type>
+        <definition>void Component::copySelection</definition>
+        <argsstring>() noexcept override</argsstring>
+        <name>copySelection</name>
+        <qualifiedname>whelmed::Component::copySelection</qualifiedname>
+        <reimplements refid="class_pane_component_1a9ef4d9180f4618bfa92727a1191659b8">copySelection</reimplements>
+        <briefdescription>
+<para>Copies the active selection to the system clipboard and clears selection. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="note"><para>MESSAGE THREAD. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/component/Component.h" line="56" column="10" bodyfile="whelmed/component/Component.cpp" bodystart="182" bodyend="205"/>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
+        <references refid="_selection_type_8h_1acffca3b33fddce63d3220bc7487e879da334c4a4c42fdb79d7ebc3e73b517e6f8" compoundref="_selection_type_8h" startline="22">none</references>
+        <references refid="classwhelmed_1_1_component_1aac7e72e2b7079afff1c7cdb6e456f17d" compoundref="_component_8h" startline="69">screen</references>
+        <references refid="namespaceapp_1_1id_1ae541c86458bee0db98858cb134c69379" compoundref="_app_identifier_8h" startline="118" endline="118">app::id::selAnchorBlock</references>
+        <references refid="namespaceapp_1_1id_1ab2b4791778841d9e46a8ea36c17e4266" compoundref="_app_identifier_8h" startline="119" endline="119">app::id::selAnchorChar</references>
+        <references refid="namespaceapp_1_1id_1a044c24e7e6b652dbbd38a9ed2aaee9ed" compoundref="_app_identifier_8h" startline="116" endline="116">app::id::selCursorBlock</references>
+        <references refid="namespaceapp_1_1id_1a53f4e3db60bb5963c1ba6f10958e1c96" compoundref="_app_identifier_8h" startline="117" endline="117">app::id::selCursorChar</references>
+        <references refid="classwhelmed_1_1_component_1a8e3953bddc99a229d57063cc096b3686" compoundref="_component_8h" startline="65">state</references>
+      </memberdef>
+      <memberdef kind="function" id="classwhelmed_1_1_component_1a25ca3a9b8aeb7f125d2ca8c46851743a" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="virtual">
+        <type>bool</type>
+        <definition>bool Component::hasSelection</definition>
+        <argsstring>() const noexcept override</argsstring>
+        <name>hasSelection</name>
+        <qualifiedname>whelmed::Component::hasSelection</qualifiedname>
+        <reimplements refid="class_pane_component_1a24ffa54e82c421a664da37f7aee799c8">hasSelection</reimplements>
+        <briefdescription>
+<para>Returns true if there is an active text selection. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="note"><para>MESSAGE THREAD. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/component/Component.h" line="57" column="10" bodyfile="whelmed/component/Component.cpp" bodystart="207" bodyend="210"/>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
+        <references refid="_selection_type_8h_1acffca3b33fddce63d3220bc7487e879da334c4a4c42fdb79d7ebc3e73b517e6f8" compoundref="_selection_type_8h" startline="22">none</references>
+      </memberdef>
+      <memberdef kind="function" id="classwhelmed_1_1_component_1af53695aa06057aeac931fb7c8c6cfcaf" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="virtual">
+        <type>juce::ValueTree</type>
+        <definition>juce::ValueTree Component::getValueTree</definition>
+        <argsstring>() noexcept override</argsstring>
+        <name>getValueTree</name>
+        <qualifiedname>whelmed::Component::getValueTree</qualifiedname>
+        <reimplements refid="class_pane_component_1a00cf3614e041e534cf0c631df573c5cb">getValueTree</reimplements>
+        <briefdescription>
+<para>Returns the pane&apos;s root <ref refid="classValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ValueTree</ref> for grafting into <ref refid="struct_app_model" kindref="compound">AppModel</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="note"><para>MESSAGE THREAD. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/component/Component.h" line="58" column="21" bodyfile="whelmed/component/Component.cpp" bodystart="212" bodyend="212"/>
+        <references refid="classwhelmed_1_1_component_1a8e3953bddc99a229d57063cc096b3686" compoundref="_component_8h" startline="65">state</references>
+        <referencedby refid="classwhelmed_1_1_component_1a8775db6d1a2c1afc2e77cd3c8f39da6f" compoundref="_component_8cpp" startline="7" endline="47">Component</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="private-func">
+      <memberdef kind="function" id="classwhelmed_1_1_component_1a2940a683822f0f372d38b8f285237d5c" prot="private" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Component::applyFromAppModel</definition>
+        <argsstring>() noexcept</argsstring>
+        <name>applyFromAppModel</name>
+        <qualifiedname>whelmed::Component::applyFromAppModel</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/component/Component.h" line="61" column="10" bodyfile="whelmed/component/Component.cpp" bodystart="66" bodyend="73"/>
+        <references refid="classwhelmed_1_1_component_1a6785371364f21ac36c7cf39e155a4f08" compoundref="_component_8h" startline="64">docState</references>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
+        <references refid="classwhelmed_1_1_component_1adc62421984cf72f09b8ceb5aa396387e" compoundref="_component_8h" startline="70" endline="70">inputHandler</references>
+        <references refid="classwhelmed_1_1_component_1aa54841dba3e98bc427e664f9b98a6b60" compoundref="_component_8cpp" startline="85" endline="100">resized</references>
+        <references refid="classwhelmed_1_1_component_1aac7e72e2b7079afff1c7cdb6e456f17d" compoundref="_component_8h" startline="69">screen</references>
+        <referencedby refid="classwhelmed_1_1_component_1ab33051f05dd5e6585dc190b4fb0b733b" compoundref="_component_8cpp" startline="218" endline="288">valueTreePropertyChanged</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classwhelmed_1_1_component_1ab33051f05dd5e6585dc190b4fb0b733b" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void Component::valueTreePropertyChanged</definition>
+        <argsstring>(juce::ValueTree &amp;tree, const juce::Identifier &amp;property) override</argsstring>
+        <name>valueTreePropertyChanged</name>
+        <qualifiedname>whelmed::Component::valueTreePropertyChanged</qualifiedname>
+        <param>
+          <type>juce::ValueTree &amp;</type>
+          <declname>tree</declname>
+        </param>
+        <param>
+          <type>const juce::Identifier &amp;</type>
+          <declname>property</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/component/Component.h" line="62" column="10" bodyfile="whelmed/component/Component.cpp" bodystart="218" bodyend="288"/>
+        <references refid="classwhelmed_1_1_component_1a2940a683822f0f372d38b8f285237d5c" compoundref="_component_8cpp" startline="66" endline="73">applyFromAppModel</references>
+        <references refid="namespaceapp_1_1id_1a4c409f870661881993ac818c73a32c82" compoundref="_app_identifier_8h" startline="113" endline="113">app::id::blockCount</references>
+        <references refid="classwhelmed_1_1_component_1a6785371364f21ac36c7cf39e155a4f08" compoundref="_component_8h" startline="64">docState</references>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
+        <references refid="classwhelmed_1_1_component_1afa5c58cf198087efd1749c29f5f2c932" compoundref="_component_8h" startline="71">loaderOverlay</references>
+        <references refid="namespaceapp_1_1id_1a3ea51650d77e7927b174bf0dc5cf0f5d" compoundref="_app_identifier_8h" startline="77" endline="77">app::id::modalType</references>
+        <references refid="_modal_type_8h_1a1878c47fb0486dfcf512d127b5342816a334c4a4c42fdb79d7ebc3e73b517e6f8" compoundref="_modal_type_8h" startline="28">none</references>
+        <references refid="classwhelmed_1_1_component_1aac7e72e2b7079afff1c7cdb6e456f17d" compoundref="_component_8h" startline="69">screen</references>
+        <references refid="namespaceapp_1_1id_1ae541c86458bee0db98858cb134c69379" compoundref="_app_identifier_8h" startline="118" endline="118">app::id::selAnchorBlock</references>
+        <references refid="namespaceapp_1_1id_1ab2b4791778841d9e46a8ea36c17e4266" compoundref="_app_identifier_8h" startline="119" endline="119">app::id::selAnchorChar</references>
+        <references refid="namespaceapp_1_1id_1a044c24e7e6b652dbbd38a9ed2aaee9ed" compoundref="_app_identifier_8h" startline="116" endline="116">app::id::selCursorBlock</references>
+        <references refid="namespaceapp_1_1id_1a53f4e3db60bb5963c1ba6f10958e1c96" compoundref="_app_identifier_8h" startline="117" endline="117">app::id::selCursorChar</references>
+        <references refid="classwhelmed_1_1_component_1a8e3953bddc99a229d57063cc096b3686" compoundref="_component_8h" startline="65">state</references>
+        <references refid="namespaceapp_1_1id_1abad3be16444df05531528d3e30735ebd" compoundref="_app_identifier_8h" startline="115" endline="115">app::id::totalBlocks</references>
+        <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682cac0af77cf8294ff93a5cdb2963ca9f038">tree</references>
+        <references refid="classwhelmed_1_1_component_1ab67f655c4105d72ac20c29206c40ca38" compoundref="_component_8h" startline="68">viewport</references>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para><ref refid="class_pane_component" kindref="compound">PaneComponent</ref> subclass that hosts the Whelmed markdown viewer. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Owns the document state, parser, <ref refid="classwhelmed_1_1_screen" kindref="compound">Screen</ref>, and <ref refid="classwhelmed_1_1_input_handler" kindref="compound">InputHandler</ref>. Implements the full <ref refid="class_pane_component" kindref="compound">PaneComponent</ref> interface (selection, config) so it can occupy any split pane alongside <ref refid="classterminal_1_1_display" kindref="compound">terminal::Display</ref> instances.</para>
+<para><simplesect kind="note"><para>MESSAGE THREAD — all public methods. </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>PaneComponent</label>
+        <link refid="class_pane_component"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>juce::Component</label>
+      </node>
+      <node id="4">
+        <label>juce::ValueTree::Listener</label>
+      </node>
+      <node id="1">
+        <label>whelmed::Component</label>
+        <link refid="classwhelmed_1_1_component"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="4" relation="private-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="18">
+        <label>Cursor</label>
+        <link refid="struct_cursor"/>
+      </node>
+      <node id="22">
+        <label>LoaderOverlay</label>
+        <link refid="class_loader_overlay"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+        <childnode refid="6" relation="private-inheritance">
+        </childnode>
+        <childnode refid="23" relation="usage">
+          <edgelabel>frames</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>PaneComponent</label>
+        <link refid="class_pane_component"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>jam::Markdown::ParsedDocument</label>
+        <link refid="structjam_1_1_markdown_1_1_parsed_document" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+      <node id="3">
+        <label>juce::Component</label>
+      </node>
+      <node id="12">
+        <label>juce::Thread</label>
+      </node>
+      <node id="6">
+        <label>juce::Timer</label>
+      </node>
+      <node id="4">
+        <label>juce::ValueTree::Listener</label>
+      </node>
+      <node id="23">
+        <label>std::array&lt; juce::juce_wchar, frameCount &gt;</label>
+      </node>
+      <node id="9">
+        <label>std::atomic&lt; bool &gt;</label>
+      </node>
+      <node id="8">
+        <label>std::atomic&lt; int &gt;</label>
+      </node>
+      <node id="24">
+        <label>std::unique_ptr&lt; jam::Mermaid::Parser &gt;</label>
+      </node>
+      <node id="16">
+        <label>std::unique_ptr&lt; whelmed::Block &gt;</label>
+        <childnode refid="17" relation="usage">
+          <edgelabel>ptr</edgelabel>
+        </childnode>
+      </node>
+      <node id="10">
+        <label>std::unique_ptr&lt; whelmed::Parser &gt;</label>
+        <childnode refid="11" relation="usage">
+          <edgelabel>ptr</edgelabel>
+        </childnode>
+      </node>
+      <node id="14">
+        <label>std::vector&lt; whelmed::Screen::BlockEntry &gt;</label>
+        <childnode refid="15" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+      <node id="17">
+        <label>whelmed::Block</label>
+        <link refid="classwhelmed_1_1_block"/>
+      </node>
+      <node id="1">
+        <label>whelmed::Component</label>
+        <link refid="classwhelmed_1_1_component"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="4" relation="private-inheritance">
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>docState</edgelabel>
+        </childnode>
+        <childnode refid="10" relation="usage">
+          <edgelabel>parser</edgelabel>
+        </childnode>
+        <childnode refid="13" relation="usage">
+          <edgelabel>screen</edgelabel>
+        </childnode>
+        <childnode refid="20" relation="usage">
+          <edgelabel>inputHandler</edgelabel>
+        </childnode>
+        <childnode refid="22" relation="usage">
+          <edgelabel>loaderOverlay</edgelabel>
+        </childnode>
+        <childnode refid="24" relation="usage">
+          <edgelabel>mermaidParser</edgelabel>
+        </childnode>
+      </node>
+      <node id="20">
+        <label>whelmed::InputHandler</label>
+        <link refid="classwhelmed_1_1_input_handler"/>
+        <childnode refid="13" relation="usage">
+          <edgelabel>screen</edgelabel>
+        </childnode>
+        <childnode refid="21" relation="usage">
+          <edgelabel>selectionKeys</edgelabel>
+        </childnode>
+      </node>
+      <node id="21">
+        <label>whelmed::InputHandler::SelectionKeys</label>
+        <link refid="structwhelmed_1_1_input_handler_1_1_selection_keys"/>
+      </node>
+      <node id="11">
+        <label>whelmed::Parser</label>
+        <link refid="classwhelmed_1_1_parser"/>
+        <childnode refid="12" relation="public-inheritance">
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>state</edgelabel>
+        </childnode>
+      </node>
+      <node id="13">
+        <label>whelmed::Screen</label>
+        <link refid="classwhelmed_1_1_screen"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+        <childnode refid="6" relation="private-inheritance">
+        </childnode>
+        <childnode refid="14" relation="usage">
+          <edgelabel>entries</edgelabel>
+        </childnode>
+        <childnode refid="18" relation="usage">
+          <edgelabel>cursor</edgelabel>
+        </childnode>
+        <childnode refid="19" relation="usage">
+          <edgelabel>dragAnchor</edgelabel>
+        </childnode>
+      </node>
+      <node id="15">
+        <label>whelmed::Screen::BlockEntry</label>
+        <link refid="structwhelmed_1_1_screen_1_1_block_entry"/>
+        <childnode refid="16" relation="usage">
+          <edgelabel>block</edgelabel>
+        </childnode>
+      </node>
+      <node id="19">
+        <label>whelmed::Screen::HitResult</label>
+        <link refid="structwhelmed_1_1_screen_1_1_hit_result"/>
+      </node>
+      <node id="5">
+        <label>whelmed::State</label>
+        <link refid="classwhelmed_1_1_state"/>
+        <childnode refid="6" relation="private-inheritance">
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>document</edgelabel>
+        </childnode>
+        <childnode refid="8" relation="usage">
+          <edgelabel>completedBlockCount</edgelabel>
+        </childnode>
+        <childnode refid="9" relation="usage">
+          <edgelabel>parseComplete</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="whelmed/component/Component.h" line="38" column="1" bodyfile="whelmed/component/Component.h" bodystart="41" bodyend="77"/>
+    <listofallmembers>
+      <member refid="classwhelmed_1_1_component_1a2940a683822f0f372d38b8f285237d5c" prot="private" virt="non-virtual"><scope>whelmed::Component</scope><name>applyFromAppModel</name></member>
+      <member refid="classwhelmed_1_1_component_1a69e614725f77bf9d2a5e1bb95e694e42" prot="public" virt="virtual"><scope>whelmed::Component</scope><name>applyZoom</name></member>
+      <member refid="classwhelmed_1_1_component_1a8775db6d1a2c1afc2e77cd3c8f39da6f" prot="public" virt="non-virtual"><scope>whelmed::Component</scope><name>Component</name></member>
+      <member refid="classwhelmed_1_1_component_1abd70119f118c4b0e82842f01129d8c0a" prot="public" virt="virtual"><scope>whelmed::Component</scope><name>copySelection</name></member>
+      <member refid="classwhelmed_1_1_component_1a6785371364f21ac36c7cf39e155a4f08" prot="private" virt="non-virtual"><scope>whelmed::Component</scope><name>docState</name></member>
+      <member refid="classwhelmed_1_1_component_1a86f04f40924c6a7c074d4200c95f7377" prot="public" virt="virtual"><scope>whelmed::Component</scope><name>enterSelectionMode</name></member>
+      <member refid="class_pane_component_1ac96c887b7a0f09f129a6c258b710f0b1" prot="public" virt="non-virtual"><scope>whelmed::Component</scope><name>focusGained</name></member>
+      <member refid="classwhelmed_1_1_component_1a606813bda5c715e4a4b0d825b4190167" prot="public" virt="virtual"><scope>whelmed::Component</scope><name>getPaneType</name></member>
+      <member refid="classwhelmed_1_1_component_1af53695aa06057aeac931fb7c8c6cfcaf" prot="public" virt="virtual"><scope>whelmed::Component</scope><name>getValueTree</name></member>
+      <member refid="classwhelmed_1_1_component_1a25ca3a9b8aeb7f125d2ca8c46851743a" prot="public" virt="virtual"><scope>whelmed::Component</scope><name>hasSelection</name></member>
+      <member refid="classwhelmed_1_1_component_1adc62421984cf72f09b8ceb5aa396387e" prot="private" virt="non-virtual"><scope>whelmed::Component</scope><name>inputHandler</name></member>
+      <member refid="classwhelmed_1_1_component_1a78df8bcf40c8decf118df75d915a2f85" prot="public" virt="non-virtual"><scope>whelmed::Component</scope><name>keyPressed</name></member>
+      <member refid="classwhelmed_1_1_component_1afa5c58cf198087efd1749c29f5f2c932" prot="private" virt="non-virtual"><scope>whelmed::Component</scope><name>loaderOverlay</name></member>
+      <member refid="classwhelmed_1_1_component_1ade0413790f7110d4fc7165db3f2efd4a" prot="private" virt="non-virtual"><scope>whelmed::Component</scope><name>mermaidParser</name></member>
+      <member refid="classwhelmed_1_1_component_1a6b7cd66a2eb6b28d9f4d4ea69c957e40" prot="public" virt="non-virtual"><scope>whelmed::Component</scope><name>mouseDown</name></member>
+      <member refid="classwhelmed_1_1_component_1a847d8cf7cee861b4177ab98de0423214" prot="public" virt="non-virtual"><scope>whelmed::Component</scope><name>openFile</name></member>
+      <member refid="classwhelmed_1_1_component_1a6dcf4b986fb0e77a4c3860cbe07c49a2" prot="public" virt="non-virtual"><scope>whelmed::Component</scope><name>paint</name></member>
+      <member refid="class_pane_component_1af5de35725b5161afb926fd6923417600" prot="public" virt="non-virtual"><scope>whelmed::Component</scope><name>PaneComponent</name></member>
+      <member refid="classwhelmed_1_1_component_1a8e96d42e97ced5ad89bfc77e02f6b95d" prot="private" virt="non-virtual"><scope>whelmed::Component</scope><name>parser</name></member>
+      <member refid="classwhelmed_1_1_component_1aa54841dba3e98bc427e664f9b98a6b60" prot="public" virt="non-virtual"><scope>whelmed::Component</scope><name>resized</name></member>
+      <member refid="classwhelmed_1_1_component_1aac7e72e2b7079afff1c7cdb6e456f17d" prot="private" virt="non-virtual"><scope>whelmed::Component</scope><name>screen</name></member>
+      <member refid="classwhelmed_1_1_component_1a8e3953bddc99a229d57063cc096b3686" prot="private" virt="non-virtual"><scope>whelmed::Component</scope><name>state</name></member>
+      <member refid="classwhelmed_1_1_component_1ab33051f05dd5e6585dc190b4fb0b733b" prot="private" virt="non-virtual"><scope>whelmed::Component</scope><name>valueTreePropertyChanged</name></member>
+      <member refid="classwhelmed_1_1_component_1ab67f655c4105d72ac20c29206c40ca38" prot="private" virt="non-virtual"><scope>whelmed::Component</scope><name>viewport</name></member>
+      <member refid="classwhelmed_1_1_component_1ae500b88725913a9c7edc6573252eb827" prot="public" virt="non-virtual"><scope>whelmed::Component</scope><name>~Component</name></member>
+      <member refid="class_pane_component_1ae14089c7d24e0f809a55cc6f7e56aa98" prot="public" virt="non-virtual"><scope>whelmed::Component</scope><name>~PaneComponent</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

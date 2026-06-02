@@ -1,0 +1,85 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="structterminal_1_1_pending_image" kind="struct" language="C++" prot="public">
+    <compoundname>terminal::PendingImage</compoundname>
+    <includes refid="_sixel_decoder_8h" local="no">SixelDecoder.h</includes>
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structterminal_1_1_pending_image_1ab6d6a021e2d71ff8ddf1253bd7b957fc" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t terminal::PendingImage::imageId</definition>
+        <argsstring></argsstring>
+        <name>imageId</name>
+        <qualifiedname>terminal::PendingImage::imageId</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+<para>Pre-reserved ID written into <ref refid="classGrid" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Grid</ref> cells. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/SixelDecoder.h" line="66" column="14" bodyfile="terminal/SixelDecoder.h" bodystart="66" bodyend="66"/>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_pending_image_1ad14e72bfdd3696639cf7cf287c3b4f3c" prot="public" static="no" mutable="no">
+        <type>juce::HeapBlock&lt; uint8_t &gt;</type>
+        <definition>juce::HeapBlock&lt;uint8_t&gt; terminal::PendingImage::rgba</definition>
+        <argsstring></argsstring>
+        <name>rgba</name>
+        <qualifiedname>terminal::PendingImage::rgba</qualifiedname>
+        <briefdescription>
+<para>RGBA8 pixel data, row-major, top-to-bottom. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/SixelDecoder.h" line="67" column="21" bodyfile="terminal/SixelDecoder.h" bodystart="67" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_pending_image_1a3ab40e38df7e23b4d7e9a2614656124c" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int terminal::PendingImage::width</definition>
+        <argsstring></argsstring>
+        <name>width</name>
+        <qualifiedname>terminal::PendingImage::width</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+<para><ref refid="classImage" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Image</ref> width in pixels. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/SixelDecoder.h" line="68" column="9" bodyfile="terminal/SixelDecoder.h" bodystart="68" bodyend="68"/>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_pending_image_1aca8af2b0da7d3362447f85c2660c2f41" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int terminal::PendingImage::height</definition>
+        <argsstring></argsstring>
+        <name>height</name>
+        <qualifiedname>terminal::PendingImage::height</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+<para><ref refid="classImage" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Image</ref> height in pixels. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/SixelDecoder.h" line="69" column="9" bodyfile="terminal/SixelDecoder.h" bodystart="69" bodyend="69"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>A decoded image awaiting atlas staging. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Produced by the READER THREAD after decoding. Delivered to the MESSAGE THREAD via <computeroutput>onImageDecoded</computeroutput>, which calls <computeroutput>State::addImageNode()</computeroutput> to stage pixels and propagate metadata to the <ref refid="classValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ValueTree</ref>. </para>
+    </detaileddescription>
+    <location file="terminal/SixelDecoder.h" line="64" column="1" bodyfile="terminal/SixelDecoder.h" bodystart="65" bodyend="70"/>
+    <listofallmembers>
+      <member refid="structterminal_1_1_pending_image_1aca8af2b0da7d3362447f85c2660c2f41" prot="public" virt="non-virtual"><scope>terminal::PendingImage</scope><name>height</name></member>
+      <member refid="structterminal_1_1_pending_image_1ab6d6a021e2d71ff8ddf1253bd7b957fc" prot="public" virt="non-virtual"><scope>terminal::PendingImage</scope><name>imageId</name></member>
+      <member refid="structterminal_1_1_pending_image_1ad14e72bfdd3696639cf7cf287c3b4f3c" prot="public" virt="non-virtual"><scope>terminal::PendingImage</scope><name>rgba</name></member>
+      <member refid="structterminal_1_1_pending_image_1a3ab40e38df7e23b4d7e9a2614656124c" prot="public" virt="non-virtual"><scope>terminal::PendingImage</scope><name>width</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

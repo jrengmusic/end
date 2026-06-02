@@ -67,7 +67,7 @@ void Popup::removePopupSession()
 void Popup::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
 {
     if (property == terminal::id::value
-        and tree.getType() == jam::ValueTree::PARAM
+        and tree.getType() == jam::Model::PARAM
         and tree.getProperty (terminal::id::id).toString() == terminal::id::shellExited.toString()
         and static_cast<int> (tree.getProperty (terminal::id::value)) == 1)
     {

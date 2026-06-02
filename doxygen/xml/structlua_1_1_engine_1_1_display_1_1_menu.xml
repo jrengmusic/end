@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="structlua_1_1_engine_1_1_display_1_1_menu" kind="struct" language="C++" prot="public">
+    <compoundname>lua::Engine::Display::Menu</compoundname>
+    <includes refid="_engine_8h" local="no">Engine.h</includes>
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_display_1_1_menu_1afb261947818c252c95028274827e28a8" prot="public" static="no" mutable="no">
+        <type>float</type>
+        <definition>float lua::Engine::Display::Menu::opacity</definition>
+        <argsstring></argsstring>
+        <name>opacity</name>
+        <qualifiedname>lua::Engine::Display::Menu::opacity</qualifiedname>
+        <initializer>{ 0.65f }</initializer>
+        <briefdescription>
+<para>Context menu background opacity. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="411" column="19" bodyfile="lua/Engine.h" bodystart="411" bodyend="411"/>
+        <referencedby refid="namespacelua_1ad0765e4a8d2a333c174036c8bc89bad0" compoundref="_engine_parse_display_8cpp" startline="204" endline="352">lua::parseDisplayMisc</referencedby>
+        <referencedby refid="namespacelua_1a74fca56bfc76dcd640f6f1803a8afc67" compoundref="_engine_defaults_8cpp" startline="130" endline="186">lua::writeDisplayMiscDefaults</referencedby>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Context menu appearance settings. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="lua/Engine.h" line="408" column="9" bodyfile="lua/Engine.h" bodystart="409" bodyend="412"/>
+    <listofallmembers>
+      <member refid="structlua_1_1_engine_1_1_display_1_1_menu_1afb261947818c252c95028274827e28a8" prot="public" virt="non-virtual"><scope>lua::Engine::Display::Menu</scope><name>opacity</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

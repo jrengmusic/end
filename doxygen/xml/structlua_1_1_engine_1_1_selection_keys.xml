@@ -1,0 +1,258 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="structlua_1_1_engine_1_1_selection_keys" kind="struct" language="C++" prot="public">
+    <compoundname>lua::Engine::SelectionKeys</compoundname>
+    <includes refid="_engine_8h" local="no">Engine.h</includes>
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_selection_keys_1a77eb3bc6110bf732d40a9089f7692ef3" prot="public" static="no" mutable="no">
+        <type>juce::KeyPress</type>
+        <definition>juce::KeyPress lua::Engine::SelectionKeys::up</definition>
+        <argsstring></argsstring>
+        <name>up</name>
+        <qualifiedname>lua::Engine::SelectionKeys::up</qualifiedname>
+        <briefdescription>
+<para>Move selection cursor up. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="733" column="24" bodyfile="lua/Engine.h" bodystart="733" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_selection_keys_1a163d6b03dcac41a4bc435daf45725884" prot="public" static="no" mutable="no">
+        <type>juce::KeyPress</type>
+        <definition>juce::KeyPress lua::Engine::SelectionKeys::down</definition>
+        <argsstring></argsstring>
+        <name>down</name>
+        <qualifiedname>lua::Engine::SelectionKeys::down</qualifiedname>
+        <briefdescription>
+<para>Move selection cursor down. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="736" column="24" bodyfile="lua/Engine.h" bodystart="736" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_selection_keys_1a13526ee5aed3aae3529aae18179d236b" prot="public" static="no" mutable="no">
+        <type>juce::KeyPress</type>
+        <definition>juce::KeyPress lua::Engine::SelectionKeys::left</definition>
+        <argsstring></argsstring>
+        <name>left</name>
+        <qualifiedname>lua::Engine::SelectionKeys::left</qualifiedname>
+        <briefdescription>
+<para>Move selection cursor left. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="739" column="24" bodyfile="lua/Engine.h" bodystart="739" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_selection_keys_1a62520fc26c22ddafefaf5ebc32a2ecf9" prot="public" static="no" mutable="no">
+        <type>juce::KeyPress</type>
+        <definition>juce::KeyPress lua::Engine::SelectionKeys::right</definition>
+        <argsstring></argsstring>
+        <name>right</name>
+        <qualifiedname>lua::Engine::SelectionKeys::right</qualifiedname>
+        <briefdescription>
+<para>Move selection cursor right. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="742" column="24" bodyfile="lua/Engine.h" bodystart="742" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_selection_keys_1ab38e2533b0ede5f916f9375f5add26e3" prot="public" static="no" mutable="no">
+        <type>juce::KeyPress</type>
+        <definition>juce::KeyPress lua::Engine::SelectionKeys::visual</definition>
+        <argsstring></argsstring>
+        <name>visual</name>
+        <qualifiedname>lua::Engine::SelectionKeys::visual</qualifiedname>
+        <briefdescription>
+<para>Enter character-wise visual selection mode. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="745" column="24" bodyfile="lua/Engine.h" bodystart="745" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_selection_keys_1a3ed3b7ee5b27fcd1e50c21cdd9d4b680" prot="public" static="no" mutable="no">
+        <type>juce::KeyPress</type>
+        <definition>juce::KeyPress lua::Engine::SelectionKeys::visualLine</definition>
+        <argsstring></argsstring>
+        <name>visualLine</name>
+        <qualifiedname>lua::Engine::SelectionKeys::visualLine</qualifiedname>
+        <briefdescription>
+<para>Enter line-wise visual selection mode. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="748" column="24" bodyfile="lua/Engine.h" bodystart="748" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_selection_keys_1a1ead22245493c8f9bf44400030ebf3d1" prot="public" static="no" mutable="no">
+        <type>juce::KeyPress</type>
+        <definition>juce::KeyPress lua::Engine::SelectionKeys::visualBlock</definition>
+        <argsstring></argsstring>
+        <name>visualBlock</name>
+        <qualifiedname>lua::Engine::SelectionKeys::visualBlock</qualifiedname>
+        <briefdescription>
+<para>Enter block visual selection mode. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="751" column="24" bodyfile="lua/Engine.h" bodystart="751" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_selection_keys_1a6ce2088e5ac72faf51cbb0dec4813638" prot="public" static="no" mutable="no">
+        <type>juce::KeyPress</type>
+        <definition>juce::KeyPress lua::Engine::SelectionKeys::copy</definition>
+        <argsstring></argsstring>
+        <name>copy</name>
+        <qualifiedname>lua::Engine::SelectionKeys::copy</qualifiedname>
+        <briefdescription>
+<para>Copy current selection. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="754" column="24" bodyfile="lua/Engine.h" bodystart="754" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_selection_keys_1ac25e42452471f1256ed05819338a4efb" prot="public" static="no" mutable="no">
+        <type>juce::KeyPress</type>
+        <definition>juce::KeyPress lua::Engine::SelectionKeys::globalCopy</definition>
+        <argsstring></argsstring>
+        <name>globalCopy</name>
+        <qualifiedname>lua::Engine::SelectionKeys::globalCopy</qualifiedname>
+        <briefdescription>
+<para>Copy current selection to system clipboard. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="757" column="24" bodyfile="lua/Engine.h" bodystart="757" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_selection_keys_1a7e97391c4a06ab55213d7ab954435478" prot="public" static="no" mutable="no">
+        <type>juce::KeyPress</type>
+        <definition>juce::KeyPress lua::Engine::SelectionKeys::top</definition>
+        <argsstring></argsstring>
+        <name>top</name>
+        <qualifiedname>lua::Engine::SelectionKeys::top</qualifiedname>
+        <briefdescription>
+<para>Move selection cursor to top of buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="760" column="24" bodyfile="lua/Engine.h" bodystart="760" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_selection_keys_1a269187446d750d27435eca85834b6a76" prot="public" static="no" mutable="no">
+        <type>juce::KeyPress</type>
+        <definition>juce::KeyPress lua::Engine::SelectionKeys::bottom</definition>
+        <argsstring></argsstring>
+        <name>bottom</name>
+        <qualifiedname>lua::Engine::SelectionKeys::bottom</qualifiedname>
+        <briefdescription>
+<para>Move selection cursor to bottom of buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="763" column="24" bodyfile="lua/Engine.h" bodystart="763" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_selection_keys_1a830852450f7d63cbfab0723b826f5ea5" prot="public" static="no" mutable="no">
+        <type>juce::KeyPress</type>
+        <definition>juce::KeyPress lua::Engine::SelectionKeys::lineStart</definition>
+        <argsstring></argsstring>
+        <name>lineStart</name>
+        <qualifiedname>lua::Engine::SelectionKeys::lineStart</qualifiedname>
+        <briefdescription>
+<para>Move selection cursor to start of line. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="766" column="24" bodyfile="lua/Engine.h" bodystart="766" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_selection_keys_1ac54e986913c0b336c5de7a250be9bd4d" prot="public" static="no" mutable="no">
+        <type>juce::KeyPress</type>
+        <definition>juce::KeyPress lua::Engine::SelectionKeys::lineEnd</definition>
+        <argsstring></argsstring>
+        <name>lineEnd</name>
+        <qualifiedname>lua::Engine::SelectionKeys::lineEnd</qualifiedname>
+        <briefdescription>
+<para>Move selection cursor to end of line. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="769" column="24" bodyfile="lua/Engine.h" bodystart="769" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_selection_keys_1a4f579dbb36bcdb5175b6cab2f61f4c8c" prot="public" static="no" mutable="no">
+        <type>juce::KeyPress</type>
+        <definition>juce::KeyPress lua::Engine::SelectionKeys::exit</definition>
+        <argsstring></argsstring>
+        <name>exit</name>
+        <qualifiedname>lua::Engine::SelectionKeys::exit</qualifiedname>
+        <briefdescription>
+<para>Exit selection mode. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="772" column="24" bodyfile="lua/Engine.h" bodystart="772" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_selection_keys_1a1c6033bbace75a15e77ceeb346d821ad" prot="public" static="no" mutable="no">
+        <type>juce::KeyPress</type>
+        <definition>juce::KeyPress lua::Engine::SelectionKeys::openFileNextPage</definition>
+        <argsstring></argsstring>
+        <name>openFileNextPage</name>
+        <qualifiedname>lua::Engine::SelectionKeys::openFileNextPage</qualifiedname>
+        <briefdescription>
+<para>Open file under cursor on next page. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="775" column="24" bodyfile="lua/Engine.h" bodystart="775" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Parsed selection-mode key bindings. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Consumed by <ref refid="classterminal_1_1_input" kindref="compound">terminal::Input</ref> and <ref refid="classwhelmed_1_1_input_handler" kindref="compound">whelmed::InputHandler</ref> via <ref refid="classlua_1_1_engine_1ae87d4ee1a95737d622acabdb952ac1a2" kindref="member">getSelectionKeys()</ref>. </para>
+    </detaileddescription>
+    <location file="lua/Engine.h" line="730" column="5" bodyfile="lua/Engine.h" bodystart="731" bodyend="776"/>
+    <listofallmembers>
+      <member refid="structlua_1_1_engine_1_1_selection_keys_1a269187446d750d27435eca85834b6a76" prot="public" virt="non-virtual"><scope>lua::Engine::SelectionKeys</scope><name>bottom</name></member>
+      <member refid="structlua_1_1_engine_1_1_selection_keys_1a6ce2088e5ac72faf51cbb0dec4813638" prot="public" virt="non-virtual"><scope>lua::Engine::SelectionKeys</scope><name>copy</name></member>
+      <member refid="structlua_1_1_engine_1_1_selection_keys_1a163d6b03dcac41a4bc435daf45725884" prot="public" virt="non-virtual"><scope>lua::Engine::SelectionKeys</scope><name>down</name></member>
+      <member refid="structlua_1_1_engine_1_1_selection_keys_1a4f579dbb36bcdb5175b6cab2f61f4c8c" prot="public" virt="non-virtual"><scope>lua::Engine::SelectionKeys</scope><name>exit</name></member>
+      <member refid="structlua_1_1_engine_1_1_selection_keys_1ac25e42452471f1256ed05819338a4efb" prot="public" virt="non-virtual"><scope>lua::Engine::SelectionKeys</scope><name>globalCopy</name></member>
+      <member refid="structlua_1_1_engine_1_1_selection_keys_1a13526ee5aed3aae3529aae18179d236b" prot="public" virt="non-virtual"><scope>lua::Engine::SelectionKeys</scope><name>left</name></member>
+      <member refid="structlua_1_1_engine_1_1_selection_keys_1ac54e986913c0b336c5de7a250be9bd4d" prot="public" virt="non-virtual"><scope>lua::Engine::SelectionKeys</scope><name>lineEnd</name></member>
+      <member refid="structlua_1_1_engine_1_1_selection_keys_1a830852450f7d63cbfab0723b826f5ea5" prot="public" virt="non-virtual"><scope>lua::Engine::SelectionKeys</scope><name>lineStart</name></member>
+      <member refid="structlua_1_1_engine_1_1_selection_keys_1a1c6033bbace75a15e77ceeb346d821ad" prot="public" virt="non-virtual"><scope>lua::Engine::SelectionKeys</scope><name>openFileNextPage</name></member>
+      <member refid="structlua_1_1_engine_1_1_selection_keys_1a62520fc26c22ddafefaf5ebc32a2ecf9" prot="public" virt="non-virtual"><scope>lua::Engine::SelectionKeys</scope><name>right</name></member>
+      <member refid="structlua_1_1_engine_1_1_selection_keys_1a7e97391c4a06ab55213d7ab954435478" prot="public" virt="non-virtual"><scope>lua::Engine::SelectionKeys</scope><name>top</name></member>
+      <member refid="structlua_1_1_engine_1_1_selection_keys_1a77eb3bc6110bf732d40a9089f7692ef3" prot="public" virt="non-virtual"><scope>lua::Engine::SelectionKeys</scope><name>up</name></member>
+      <member refid="structlua_1_1_engine_1_1_selection_keys_1ab38e2533b0ede5f916f9375f5add26e3" prot="public" virt="non-virtual"><scope>lua::Engine::SelectionKeys</scope><name>visual</name></member>
+      <member refid="structlua_1_1_engine_1_1_selection_keys_1a1ead22245493c8f9bf44400030ebf3d1" prot="public" virt="non-virtual"><scope>lua::Engine::SelectionKeys</scope><name>visualBlock</name></member>
+      <member refid="structlua_1_1_engine_1_1_selection_keys_1a3ed3b7ee5b27fcd1e50c21cdd9d4b680" prot="public" virt="non-virtual"><scope>lua::Engine::SelectionKeys</scope><name>visualLine</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

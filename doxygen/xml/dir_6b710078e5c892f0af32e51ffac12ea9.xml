@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="dir_6b710078e5c892f0af32e51ffac12ea9" kind="dir">
+    <compoundname>whelmed/component</compoundname>
+    <innerfile refid="_component_8cpp">Component.cpp</innerfile>
+    <innerfile refid="_component_8h">Component.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="whelmed/component/"/>
+  </compounddef>
+</doxygen>

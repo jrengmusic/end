@@ -1,0 +1,95 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="struct_grapheme_segmentation_result" kind="struct" language="C++" prot="public">
+    <compoundname>GraphemeSegmentationResult</compoundname>
+    <includes refid="_char_props_8h" local="no">CharProps.h</includes>
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="struct_grapheme_segmentation_result_1a5f67942bdf76dcd24367786898beb56d" prot="public" static="no" mutable="no">
+        <type>uint16_t</type>
+        <definition>uint16_t GraphemeSegmentationResult::val</definition>
+        <argsstring></argsstring>
+        <name>val</name>
+        <qualifiedname>GraphemeSegmentationResult::val</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/CharProps.h" line="362" column="14" bodyfile="terminal/CharProps.h" bodystart="362" bodyend="362"/>
+        <referencedby refid="struct_grapheme_segmentation_result_1a14f8e5ed66e56f98705971672fde5883" compoundref="_char_props_8h" startline="370" endline="370">addToCurrentCell</referencedby>
+        <referencedby refid="struct_grapheme_segmentation_result_1a459a1ac9c9b70818f8318ed3ea84539d" compoundref="_char_props_8h" startline="377" endline="377">state</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="public-func">
+      <memberdef kind="function" id="struct_grapheme_segmentation_result_1a14f8e5ed66e56f98705971672fde5883" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool GraphemeSegmentationResult::addToCurrentCell</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>addToCurrentCell</name>
+        <qualifiedname>GraphemeSegmentationResult::addToCurrentCell</qualifiedname>
+        <briefdescription>
+<para>Checks if this character belongs to the current grapheme cluster. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>true if the character should be added to the current cell; false if it starts a new grapheme cluster </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/CharProps.h" line="370" column="10" bodyfile="terminal/CharProps.h" bodystart="370" bodyend="370"/>
+        <references refid="struct_grapheme_segmentation_result_1a5f67942bdf76dcd24367786898beb56d" compoundref="_char_props_8h" startline="362" endline="362">val</references>
+      </memberdef>
+      <memberdef kind="function" id="struct_grapheme_segmentation_result_1a459a1ac9c9b70818f8318ed3ea84539d" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>uint16_t</type>
+        <definition>uint16_t GraphemeSegmentationResult::state</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>state</name>
+        <qualifiedname>GraphemeSegmentationResult::state</qualifiedname>
+        <briefdescription>
+<para>Returns the state machine state after processing this character. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>10-bit state value for the next state machine transition </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/CharProps.h" line="377" column="14" bodyfile="terminal/CharProps.h" bodystart="377" bodyend="377"/>
+        <references refid="struct_grapheme_segmentation_result_1a5f67942bdf76dcd24367786898beb56d" compoundref="_char_props_8h" startline="362" endline="362">val</references>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Packed 16-bit result from grapheme segmentation state machine. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>This struct holds the output of one step in the grapheme cluster boundary determination state machine per UAX #29. It encodes both the new state and whether the current character should be added to the current cell (grapheme cluster) or start a new one.</para>
+<para><simplesect kind="par"><title>Bit Layout</title><para><programlisting><codeline><highlight class="normal"><sp/>Bit<sp/><sp/>|<sp/>Field</highlight></codeline>
+<codeline><highlight class="normal"><sp/>-----|--------------------------</highlight></codeline>
+<codeline><highlight class="normal"><sp/>[9:0]|<sp/>new_state<sp/>(grapheme_break:4<sp/>+<sp/>5<sp/></highlight><highlight class="keywordtype">boolean</highlight><highlight class="normal"><sp/>flags<sp/>+<sp/>padding)</highlight></codeline>
+<codeline><highlight class="normal"><sp/>[10]<sp/>|<sp/>add_to_current_cell</highlight></codeline>
+<codeline><highlight class="normal">[15:11]|<sp/>unused</highlight></codeline>
+</programlisting></para>
+</simplesect>
+<simplesect kind="par"><title>Grapheme Clusters</title><para>Grapheme clusters are user-perceived characters. They are important for terminal applications because:<itemizedlist>
+<listitem><para>Combining marks should not be counted as separate characters</para>
+</listitem><listitem><para>Emoji ZWJ sequences should stay together (family + ZWJ + person)</para>
+</listitem><listitem><para>Indic ligatures should be treated as units</para>
+</listitem></itemizedlist>
+</para>
+</simplesect>
+<simplesect kind="note"><para><ref refid="classThread" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Thread</ref> safety: This struct is read-only after initialization. </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <location file="terminal/CharProps.h" line="360" column="1" bodyfile="terminal/CharProps.h" bodystart="361" bodyend="378"/>
+    <listofallmembers>
+      <member refid="struct_grapheme_segmentation_result_1a14f8e5ed66e56f98705971672fde5883" prot="public" virt="non-virtual"><scope>GraphemeSegmentationResult</scope><name>addToCurrentCell</name></member>
+      <member refid="struct_grapheme_segmentation_result_1a459a1ac9c9b70818f8318ed3ea84539d" prot="public" virt="non-virtual"><scope>GraphemeSegmentationResult</scope><name>state</name></member>
+      <member refid="struct_grapheme_segmentation_result_1a5f67942bdf76dcd24367786898beb56d" prot="public" virt="non-virtual"><scope>GraphemeSegmentationResult</scope><name>val</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

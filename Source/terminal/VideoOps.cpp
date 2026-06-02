@@ -321,7 +321,7 @@ bool Video::cursorGoToNextLine (cell bottom, cell visibleRows) noexcept
 /**
  * @brief Clamps the cursor to the valid screen area after a terminal resize.
  *
- * Called by `resize()` after the new dimensions have been written to State.
+ * Called by `resize()` after the new dimensions have been written to Model.
  * Ensures the cursor row and column do not exceed the new terminal bounds.
  * Applied to both screens independently by the resize handler.
  *
@@ -336,7 +336,7 @@ bool Video::cursorGoToNextLine (cell bottom, cell visibleRows) noexcept
  *
  * @note READER THREAD only.
  *
- * @see resize()  — calls this after updating State with new dimensions
+ * @see resize()  — calls this after updating Model with new dimensions
  */
 void Video::cursorClamp (cell cols, cell visibleRows) noexcept
 {

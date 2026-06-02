@@ -1,0 +1,136 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="structterminal_1_1_kitty_decoder_1_1_chunk_accumulator" kind="struct" language="C++" prot="private">
+    <compoundname>terminal::KittyDecoder::ChunkAccumulator</compoundname>
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structterminal_1_1_kitty_decoder_1_1_chunk_accumulator_1a50e19479ee703cba54e2f3f35f3ec16c" prot="public" static="no" mutable="no">
+        <type>juce::MemoryBlock</type>
+        <definition>juce::MemoryBlock terminal::KittyDecoder::ChunkAccumulator::data</definition>
+        <argsstring></argsstring>
+        <name>data</name>
+        <qualifiedname>terminal::KittyDecoder::ChunkAccumulator::data</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/KittyDecoder.h" line="133" column="27" bodyfile="terminal/KittyDecoder.h" bodystart="133" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_kitty_decoder_1_1_chunk_accumulator_1a4330323f41044e2d1794236e150e59d2" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int terminal::KittyDecoder::ChunkAccumulator::format</definition>
+        <argsstring></argsstring>
+        <name>format</name>
+        <qualifiedname>terminal::KittyDecoder::ChunkAccumulator::format</qualifiedname>
+        <initializer>{ 32 }</initializer>
+        <briefdescription>
+<para>f= value </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/KittyDecoder.h" line="134" column="13" bodyfile="terminal/KittyDecoder.h" bodystart="134" bodyend="134"/>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_kitty_decoder_1_1_chunk_accumulator_1ae0808bd0be4e5bc0ca087c08b1d47849" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int terminal::KittyDecoder::ChunkAccumulator::pixelWidth</definition>
+        <argsstring></argsstring>
+        <name>pixelWidth</name>
+        <qualifiedname>terminal::KittyDecoder::ChunkAccumulator::pixelWidth</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+<para>s= value </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/KittyDecoder.h" line="135" column="13" bodyfile="terminal/KittyDecoder.h" bodystart="135" bodyend="135"/>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_kitty_decoder_1_1_chunk_accumulator_1a7662db3739dd65c7d9ec3da9be68026d" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int terminal::KittyDecoder::ChunkAccumulator::pixelHeight</definition>
+        <argsstring></argsstring>
+        <name>pixelHeight</name>
+        <qualifiedname>terminal::KittyDecoder::ChunkAccumulator::pixelHeight</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+<para>v= value </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/KittyDecoder.h" line="136" column="13" bodyfile="terminal/KittyDecoder.h" bodystart="136" bodyend="136"/>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_kitty_decoder_1_1_chunk_accumulator_1a7d0d34a7db1f3b8027da449bad5c697d" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool terminal::KittyDecoder::ChunkAccumulator::compressed</definition>
+        <argsstring></argsstring>
+        <name>compressed</name>
+        <qualifiedname>terminal::KittyDecoder::ChunkAccumulator::compressed</qualifiedname>
+        <initializer>{ false }</initializer>
+        <briefdescription>
+<para>o=z </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/KittyDecoder.h" line="137" column="14" bodyfile="terminal/KittyDecoder.h" bodystart="137" bodyend="137"/>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_kitty_decoder_1_1_chunk_accumulator_1ad618f200cfcc4f864e52da30230a1580" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool terminal::KittyDecoder::ChunkAccumulator::hasMetadata</definition>
+        <argsstring></argsstring>
+        <name>hasMetadata</name>
+        <qualifiedname>terminal::KittyDecoder::ChunkAccumulator::hasMetadata</qualifiedname>
+        <initializer>{ false }</initializer>
+        <briefdescription>
+<para>True once metadata fields have been stored from the first APC. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/KittyDecoder.h" line="138" column="14" bodyfile="terminal/KittyDecoder.h" bodystart="138" bodyend="138"/>
+        <referencedby refid="classterminal_1_1_kitty_decoder_1aa9e64c41aa91c7794cc30a31e57bdac4" compoundref="_kitty_decoder_8cpp" startline="151" endline="329">terminal::KittyDecoder::process</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_kitty_decoder_1_1_chunk_accumulator_1a5754521f31cef234c0f11ab586ed16a9" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int terminal::KittyDecoder::ChunkAccumulator::quiet</definition>
+        <argsstring></argsstring>
+        <name>quiet</name>
+        <qualifiedname>terminal::KittyDecoder::ChunkAccumulator::quiet</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+<para>q= captured from the first chunk </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/KittyDecoder.h" line="139" column="13" bodyfile="terminal/KittyDecoder.h" bodystart="139" bodyend="139"/>
+        <referencedby refid="classterminal_1_1_kitty_decoder_1aa9e64c41aa91c7794cc30a31e57bdac4" compoundref="_kitty_decoder_8cpp" startline="151" endline="329">terminal::KittyDecoder::process</referencedby>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Intermediate storage for chunked image transmissions. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Keyed by image ID (0 for anonymous). Metadata is set from the first chunk&apos;s key=value params and held until the final chunk arrives. </para>
+    </detaileddescription>
+    <location file="terminal/KittyDecoder.h" line="131" column="5" bodyfile="terminal/KittyDecoder.h" bodystart="132" bodyend="140"/>
+    <listofallmembers>
+      <member refid="structterminal_1_1_kitty_decoder_1_1_chunk_accumulator_1a7d0d34a7db1f3b8027da449bad5c697d" prot="public" virt="non-virtual"><scope>terminal::KittyDecoder::ChunkAccumulator</scope><name>compressed</name></member>
+      <member refid="structterminal_1_1_kitty_decoder_1_1_chunk_accumulator_1a50e19479ee703cba54e2f3f35f3ec16c" prot="public" virt="non-virtual"><scope>terminal::KittyDecoder::ChunkAccumulator</scope><name>data</name></member>
+      <member refid="structterminal_1_1_kitty_decoder_1_1_chunk_accumulator_1a4330323f41044e2d1794236e150e59d2" prot="public" virt="non-virtual"><scope>terminal::KittyDecoder::ChunkAccumulator</scope><name>format</name></member>
+      <member refid="structterminal_1_1_kitty_decoder_1_1_chunk_accumulator_1ad618f200cfcc4f864e52da30230a1580" prot="public" virt="non-virtual"><scope>terminal::KittyDecoder::ChunkAccumulator</scope><name>hasMetadata</name></member>
+      <member refid="structterminal_1_1_kitty_decoder_1_1_chunk_accumulator_1a7662db3739dd65c7d9ec3da9be68026d" prot="public" virt="non-virtual"><scope>terminal::KittyDecoder::ChunkAccumulator</scope><name>pixelHeight</name></member>
+      <member refid="structterminal_1_1_kitty_decoder_1_1_chunk_accumulator_1ae0808bd0be4e5bc0ca087c08b1d47849" prot="public" virt="non-virtual"><scope>terminal::KittyDecoder::ChunkAccumulator</scope><name>pixelWidth</name></member>
+      <member refid="structterminal_1_1_kitty_decoder_1_1_chunk_accumulator_1a5754521f31cef234c0f11ab586ed16a9" prot="public" virt="non-virtual"><scope>terminal::KittyDecoder::ChunkAccumulator</scope><name>quiet</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

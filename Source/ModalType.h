@@ -3,10 +3,10 @@
  * @brief Application-level modal input type enum.
  *
  * Identifies which modal input mode is currently active across the application.
- * Stored as a property on the AppState TABS subtree.  Both Terminal and Whelmed
+ * Stored as a property on the AppModel TABS subtree.  Both Terminal and Whelmed
  * pane types share these modal types.
  *
- * @see AppState
+ * @see AppModel
  * @see SelectionType
  */
 

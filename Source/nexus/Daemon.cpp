@@ -40,11 +40,11 @@ Daemon::~Daemon()
 // =============================================================================
 
 /**
- * @brief Starts listening and writes the bound port to AppState.
+ * @brief Starts listening and writes the bound port to AppModel.
  *
  * Calls `beginWaitingForSocket (port, "127.0.0.1")`.  After a successful
  * bind, `getBoundPort()` returns the actual port (useful when @p port == 0).
- * On success, calls `AppState::getContext()->setPort(activePort)` which
+ * On success, calls `AppModel::getContext()->setPort(activePort)` which
  * persists the port to `~/.config/end/nexus/<uuid>.nexus`.
  *
  * @param port  Preferred port.  0 = OS-assigned.
@@ -62,7 +62,7 @@ bool Daemon::start (int port)
         activePort = getBoundPort();
 
         if (activePort > 0)
-            AppState::getContext()->setPort (activePort);
+            AppModel::getContext()->setPort (activePort);
     }
 
     return listening;
@@ -72,7 +72,7 @@ bool Daemon::start (int port)
  * @brief Stops the daemon.
  *
  * Calls the base `InterprocessConnectionServer::stop()`.  Nexus state file
- * deletion is handled by AppState::deleteNexusFile() on quit.
+ * deletion is handled by AppModel::deleteNexusFile() on quit.
  *
  * @note NEXUS PROCESS MESSAGE THREAD.
  */
@@ -286,11 +286,11 @@ void Daemon::attachSession (const juce::String& uuid, Channel& target,
     // Session::valueChanged detects the change and fires the DST resize lifecycle.
     if (nexus.has (uuid))
     {
-        auto teNode { nexus.get (uuid).getProcessor().getState().get().getChildWithName (
-            jam::TextEditor::properties.at (jam::TextEditor::textEditorId)) };
+        auto teNode { nexus.get (uuid).getProcessor().getState().getChildWithName (
+            jam::CodeView::properties.at (jam::CodeView::codeViewId)) };
 
         if (teNode.isValid())
-            teNode.setProperty (jam::TextEditor::properties.at (jam::TextEditor::viewportId),
+            teNode.setProperty (jam::CodeView::properties.at (jam::CodeView::viewportId),
                                  jam::Cell::Rectangle (cell (cols), cell (rows)).pack(), nullptr);
     }
 }
@@ -321,7 +321,7 @@ void Daemon::detachSession (const juce::String& uuid, Channel& connection)
  * @brief Wires daemon-mode IPC callbacks on a newly created terminal::Session.
  *
  * Delegates to two helpers:
- * - wireOnBytes → `session.getProcessor().setBytesObserver`
+ * - wireOnBytes → `session.getProcessor().registerEvent<const char*, int> (id::bytesReceived, ...)`
  * - wireOnExit  → registers Daemon as VT listener on session State
  *
  * State updates (cwd, foregroundProcess) are broadcast from valueTreePropertyChanged.
@@ -341,21 +341,21 @@ void Daemon::wireSessionCallbacks (const juce::String& uuid, terminal::Session& 
 // =============================================================================
 
 /**
- * @brief Calls `session.getProcessor().setBytesObserver` to broadcast output PDUs to per-session subscribers.
+ * @brief Registers id::bytesReceived on the session Processor to broadcast output PDUs to per-session subscribers.
  *
  * Builds a `Message::output` PDU (uuid prefix + raw bytes) and pushes it to
  * every Channel registered in the subscriber list for @p uuid.  The lambda runs
  * on the reader thread and acquires `connectionsLock` for the subscriber lookup.
  *
  * @param uuid     Session UUID used as the PDU routing key.
- * @param session  terminal::Session whose Processor::setBytesObserver is being set.
+ * @param session  terminal::Session whose Processor receives the id::bytesReceived registration.
  * @note NEXUS PROCESS MESSAGE THREAD (called at wire time; lambda fires on READER THREAD).
  */
 void Daemon::wireOnBytes (const juce::String& uuid, terminal::Session& session)
 {
-    jassert (session.getProcessor().getState().get().isValid());
+    jassert (session.getProcessor().getState().getRootTree().isValid());
 
-    session.getProcessor().setBytesObserver ([this, uuid] (const char* bytes, int len)
+    session.getProcessor().registerEvent<const char*, int> (terminal::id::bytesReceived, [this, uuid] (const char* bytes, int len)
     {
         juce::MemoryBlock outputPayload;
         Codec::writeString (outputPayload, uuid);
@@ -388,9 +388,9 @@ void Daemon::wireOnBytes (const juce::String& uuid, terminal::Session& session)
  */
 void Daemon::wireOnExit (const juce::String& uuid, terminal::Session& session)
 {
-    jassert (session.getProcessor().getState().get().isValid());
+    jassert (session.getProcessor().getState().getRootTree().isValid());
 
-    juce::ValueTree stateRoot { session.getProcessor().getState().get() };
+    juce::ValueTree stateRoot { session.getProcessor().getState().getRootTree() };
     sessionStateRoots[uuid] = stateRoot;
     stateRoot.addListener (this);
 }
@@ -415,7 +415,7 @@ void Daemon::wireOnExit (const juce::String& uuid, terminal::Session& session)
 void Daemon::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
 {
     if (property == terminal::id::value
-        and tree.getType() == jam::ValueTree::PARAM
+        and tree.getType() == jam::Model::PARAM
         and tree.getProperty (terminal::id::id).toString() == terminal::id::shellExited.toString()
         and static_cast<int> (tree.getProperty (terminal::id::value)) == 1)
     {
@@ -533,7 +533,7 @@ void Daemon::valueTreeChildRemoved (juce::ValueTree&, juce::ValueTree& child, in
 {
     if (child.getType().toString() == "SESSION" and nexus.list().isEmpty())
     {
-        AppState::getContext()->deleteNexusFile();
+        AppModel::getContext()->deleteNexusFile();
         juce::JUCEApplication::getInstance()->systemRequestedQuit();
     }
 }

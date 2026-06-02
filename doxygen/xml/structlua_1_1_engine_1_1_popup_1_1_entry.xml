@@ -1,0 +1,169 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="structlua_1_1_engine_1_1_popup_1_1_entry" kind="struct" language="C++" prot="public">
+    <compoundname>lua::Engine::Popup::Entry</compoundname>
+    <includes refid="_engine_8h" local="no">Engine.h</includes>
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_popup_1_1_entry_1ab0588796281be4d96f9a1bdb11f31561" prot="public" static="no" mutable="no">
+        <type>juce::String</type>
+        <definition>juce::String lua::Engine::Popup::Entry::name</definition>
+        <argsstring></argsstring>
+        <name>name</name>
+        <qualifiedname>lua::Engine::Popup::Entry::name</qualifiedname>
+        <briefdescription>
+<para><ref refid="structlua_1_1_engine_1_1_display" kindref="compound">Display</ref> name for the popup (used as action name). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="828" column="26" bodyfile="lua/Engine.h" bodystart="828" bodyend="-1"/>
+        <referencedby refid="classlua_1_1_engine_1a1163af864c3f14932f61b4b09d475b39" compoundref="_engine_parse_8cpp" startline="104" endline="164">lua::Engine::parsePopups</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_popup_1_1_entry_1adb6c81fab77978277ad3b4fc8e42cd9f" prot="public" static="no" mutable="no">
+        <type>juce::String</type>
+        <definition>juce::String lua::Engine::Popup::Entry::command</definition>
+        <argsstring></argsstring>
+        <name>command</name>
+        <qualifiedname>lua::Engine::Popup::Entry::command</qualifiedname>
+        <briefdescription>
+<para>Shell command to run inside the popup. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="831" column="26" bodyfile="lua/Engine.h" bodystart="831" bodyend="-1"/>
+        <referencedby refid="classlua_1_1_engine_1a1163af864c3f14932f61b4b09d475b39" compoundref="_engine_parse_8cpp" startline="104" endline="164">lua::Engine::parsePopups</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_popup_1_1_entry_1ae7e5b90e655678bb8d675017b3742ab3" prot="public" static="no" mutable="no">
+        <type>juce::String</type>
+        <definition>juce::String lua::Engine::Popup::Entry::args</definition>
+        <argsstring></argsstring>
+        <name>args</name>
+        <qualifiedname>lua::Engine::Popup::Entry::args</qualifiedname>
+        <briefdescription>
+<para>Arguments for the popup command. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="834" column="26" bodyfile="lua/Engine.h" bodystart="834" bodyend="-1"/>
+        <referencedby refid="classlua_1_1_engine_1a1163af864c3f14932f61b4b09d475b39" compoundref="_engine_parse_8cpp" startline="104" endline="164">lua::Engine::parsePopups</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_popup_1_1_entry_1aec84ecd8c811bc68a865fec8d88cc569" prot="public" static="no" mutable="no">
+        <type>juce::String</type>
+        <definition>juce::String lua::Engine::Popup::Entry::cwd</definition>
+        <argsstring></argsstring>
+        <name>cwd</name>
+        <qualifiedname>lua::Engine::Popup::Entry::cwd</qualifiedname>
+        <briefdescription>
+<para>Working directory for the popup. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="837" column="26" bodyfile="lua/Engine.h" bodystart="837" bodyend="-1"/>
+        <referencedby refid="classlua_1_1_engine_1a1163af864c3f14932f61b4b09d475b39" compoundref="_engine_parse_8cpp" startline="104" endline="164">lua::Engine::parsePopups</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_popup_1_1_entry_1a6ed9272449187586b71503c3461e6296" prot="public" static="no" mutable="no">
+        <type><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref></type>
+        <definition>cell lua::Engine::Popup::Entry::cols</definition>
+        <argsstring></argsstring>
+        <name>cols</name>
+        <qualifiedname>lua::Engine::Popup::Entry::cols</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+<para><ref refid="structlua_1_1_engine_1_1_popup" kindref="compound">Popup</ref> terminal column count (0 = use default). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="840" column="18" bodyfile="lua/Engine.h" bodystart="840" bodyend="840"/>
+        <referencedby refid="classlua_1_1_engine_1a1163af864c3f14932f61b4b09d475b39" compoundref="_engine_parse_8cpp" startline="104" endline="164">lua::Engine::parsePopups</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_popup_1_1_entry_1aa5105aa903906a47a149cc7d3d823344" prot="public" static="no" mutable="no">
+        <type><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref></type>
+        <definition>cell lua::Engine::Popup::Entry::rows</definition>
+        <argsstring></argsstring>
+        <name>rows</name>
+        <qualifiedname>lua::Engine::Popup::Entry::rows</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+<para><ref refid="structlua_1_1_engine_1_1_popup" kindref="compound">Popup</ref> terminal row count (0 = use default). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="843" column="18" bodyfile="lua/Engine.h" bodystart="843" bodyend="843"/>
+        <referencedby refid="classlua_1_1_engine_1a1163af864c3f14932f61b4b09d475b39" compoundref="_engine_parse_8cpp" startline="104" endline="164">lua::Engine::parsePopups</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_popup_1_1_entry_1a929e94492c42ec4d0a4417ee44039cc3" prot="public" static="no" mutable="no">
+        <type>juce::String</type>
+        <definition>juce::String lua::Engine::Popup::Entry::modal</definition>
+        <argsstring></argsstring>
+        <name>modal</name>
+        <qualifiedname>lua::Engine::Popup::Entry::modal</qualifiedname>
+        <briefdescription>
+<para>Modal binding key string for this popup. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="846" column="26" bodyfile="lua/Engine.h" bodystart="846" bodyend="-1"/>
+        <referencedby refid="classlua_1_1_engine_1a1163af864c3f14932f61b4b09d475b39" compoundref="_engine_parse_8cpp" startline="104" endline="164">lua::Engine::parsePopups</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_popup_1_1_entry_1a3b44dcffcdaeff953d53f89d59324531" prot="public" static="no" mutable="no">
+        <type>juce::String</type>
+        <definition>juce::String lua::Engine::Popup::Entry::global</definition>
+        <argsstring></argsstring>
+        <name>global</name>
+        <qualifiedname>lua::Engine::Popup::Entry::global</qualifiedname>
+        <briefdescription>
+<para>Global binding key string for this popup. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="849" column="26" bodyfile="lua/Engine.h" bodystart="849" bodyend="-1"/>
+        <referencedby refid="classlua_1_1_engine_1a1163af864c3f14932f61b4b09d475b39" compoundref="_engine_parse_8cpp" startline="104" endline="164">lua::Engine::parsePopups</referencedby>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>A single popup terminal definition. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="2">
+        <label>jam::Cell</label>
+        <link refid="structjam_1_1_cell" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+      <node id="1">
+        <label>lua::Engine::Popup::Entry</label>
+        <link refid="structlua_1_1_engine_1_1_popup_1_1_entry"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>cols</edgelabel>
+          <edgelabel>rows</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="lua/Engine.h" line="825" column="9" bodyfile="lua/Engine.h" bodystart="826" bodyend="850"/>
+    <listofallmembers>
+      <member refid="structlua_1_1_engine_1_1_popup_1_1_entry_1ae7e5b90e655678bb8d675017b3742ab3" prot="public" virt="non-virtual"><scope>lua::Engine::Popup::Entry</scope><name>args</name></member>
+      <member refid="structlua_1_1_engine_1_1_popup_1_1_entry_1a6ed9272449187586b71503c3461e6296" prot="public" virt="non-virtual"><scope>lua::Engine::Popup::Entry</scope><name>cols</name></member>
+      <member refid="structlua_1_1_engine_1_1_popup_1_1_entry_1adb6c81fab77978277ad3b4fc8e42cd9f" prot="public" virt="non-virtual"><scope>lua::Engine::Popup::Entry</scope><name>command</name></member>
+      <member refid="structlua_1_1_engine_1_1_popup_1_1_entry_1aec84ecd8c811bc68a865fec8d88cc569" prot="public" virt="non-virtual"><scope>lua::Engine::Popup::Entry</scope><name>cwd</name></member>
+      <member refid="structlua_1_1_engine_1_1_popup_1_1_entry_1a3b44dcffcdaeff953d53f89d59324531" prot="public" virt="non-virtual"><scope>lua::Engine::Popup::Entry</scope><name>global</name></member>
+      <member refid="structlua_1_1_engine_1_1_popup_1_1_entry_1a929e94492c42ec4d0a4417ee44039cc3" prot="public" virt="non-virtual"><scope>lua::Engine::Popup::Entry</scope><name>modal</name></member>
+      <member refid="structlua_1_1_engine_1_1_popup_1_1_entry_1ab0588796281be4d96f9a1bdb11f31561" prot="public" virt="non-virtual"><scope>lua::Engine::Popup::Entry</scope><name>name</name></member>
+      <member refid="structlua_1_1_engine_1_1_popup_1_1_entry_1aa5105aa903906a47a149cc7d3d823344" prot="public" virt="non-virtual"><scope>lua::Engine::Popup::Entry</scope><name>rows</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

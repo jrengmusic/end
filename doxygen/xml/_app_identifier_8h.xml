@@ -1,0 +1,610 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="_app_identifier_8h" kind="file" language="C++">
+    <compoundname>AppIdentifier.h</compoundname>
+    <includes local="no">JuceHeader.h</includes>
+    <includedby refid="_app_model_8h" local="yes">AppModel.h</includedby>
+    <includedby refid="_daemon_8h" local="yes">nexus/Daemon.h</includedby>
+    <includedby refid="_link_8h" local="yes">nexus/Link.h</includedby>
+    <includedby refid="_pane_component_8h" local="yes">terminal/component/PaneComponent.h</includedby>
+    <includedby refid="_status_bar_overlay_8h" local="yes">terminal/component/StatusBarOverlay.h</includedby>
+    <includedby refid="_input_handler_8h" local="yes">whelmed/InputHandler.h</includedby>
+    <includedby refid="_state_8h" local="yes">whelmed/State.h</includedby>
+    <incdepgraph>
+      <node id="1">
+        <label>AppIdentifier.h</label>
+        <link refid="_app_identifier_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>JuceHeader.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="1">
+        <label>AppIdentifier.h</label>
+        <link refid="_app_identifier_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="50" relation="include">
+        </childnode>
+        <childnode refid="57" relation="include">
+        </childnode>
+        <childnode refid="53" relation="include">
+        </childnode>
+        <childnode refid="58" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>AppModel.cpp</label>
+        <link refid="_app_model_8cpp"/>
+      </node>
+      <node id="2">
+        <label>AppModel.h</label>
+        <link refid="_app_model_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="50" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="53" relation="include">
+        </childnode>
+        <childnode refid="55" relation="include">
+        </childnode>
+        <childnode refid="51" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>Main.cpp</label>
+        <link refid="_main_8cpp"/>
+      </node>
+      <node id="4">
+        <label>Main.h</label>
+        <link refid="_main_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>MainComponent.cpp</label>
+        <link refid="_main_component_8cpp"/>
+      </node>
+      <node id="6">
+        <label>MainComponent.h</label>
+        <link refid="_main_component_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>MainComponentActions.cpp</label>
+        <link refid="_main_component_actions_8cpp"/>
+      </node>
+      <node id="9">
+        <label>lua/Engine.cpp</label>
+        <link refid="_engine_8cpp"/>
+      </node>
+      <node id="11">
+        <label>nexus/Channel.cpp</label>
+        <link refid="_channel_8cpp"/>
+      </node>
+      <node id="12">
+        <label>nexus/Daemon.cpp</label>
+        <link refid="_daemon_8cpp"/>
+      </node>
+      <node id="10">
+        <label>nexus/Daemon.h</label>
+        <link refid="_daemon_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>nexus/Daemon.mm</label>
+        <link refid="_daemon_8mm"/>
+      </node>
+      <node id="14">
+        <label>nexus/DaemonWindows.cpp</label>
+        <link refid="_daemon_windows_8cpp"/>
+      </node>
+      <node id="16">
+        <label>nexus/Link.cpp</label>
+        <link refid="_link_8cpp"/>
+      </node>
+      <node id="15">
+        <label>nexus/Link.h</label>
+        <link refid="_link_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="48">
+        <label>nexus/Nexus.cpp</label>
+        <link refid="_nexus_8cpp"/>
+      </node>
+      <node id="47">
+        <label>nexus/Nexus.h</label>
+        <link refid="_nexus_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="48" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>terminal/Input.cpp</label>
+        <link refid="_input_8cpp"/>
+      </node>
+      <node id="20">
+        <label>terminal/Input.h</label>
+        <link refid="_input_8h"/>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>terminal/LinkManager.cpp</label>
+        <link refid="_link_manager_8cpp"/>
+      </node>
+      <node id="19">
+        <label>terminal/LinkManager.h</label>
+        <link refid="_link_manager_8h"/>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+      </node>
+      <node id="38">
+        <label>terminal/LinkManagerScan.cpp</label>
+        <link refid="_link_manager_scan_8cpp"/>
+      </node>
+      <node id="41">
+        <label>terminal/Model.cpp</label>
+        <link refid="_model_8cpp"/>
+      </node>
+      <node id="18">
+        <label>terminal/Model.h</label>
+        <link refid="_model_8h"/>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+        <childnode refid="46" relation="include">
+        </childnode>
+      </node>
+      <node id="42">
+        <label>terminal/ModelFlush.cpp</label>
+        <link refid="_model_flush_8cpp"/>
+      </node>
+      <node id="40">
+        <label>terminal/Mouse.cpp</label>
+        <link refid="_mouse_8cpp"/>
+      </node>
+      <node id="39">
+        <label>terminal/Mouse.h</label>
+        <link refid="_mouse_8h"/>
+        <childnode refid="40" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+      </node>
+      <node id="44">
+        <label>terminal/Processor.cpp</label>
+        <link refid="_processor_8cpp"/>
+      </node>
+      <node id="43">
+        <label>terminal/Processor.h</label>
+        <link refid="_processor_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="44" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="46" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+      </node>
+      <node id="45">
+        <label>terminal/ProcessorEvents.cpp</label>
+        <link refid="_processor_events_8cpp"/>
+      </node>
+      <node id="49">
+        <label>terminal/Session.cpp</label>
+        <link refid="_session_8cpp"/>
+      </node>
+      <node id="46">
+        <label>terminal/Session.h</label>
+        <link refid="_session_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="47" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+      </node>
+      <node id="23">
+        <label>terminal/component/Display.cpp</label>
+        <link refid="_display_8cpp"/>
+      </node>
+      <node id="22">
+        <label>terminal/component/Display.h</label>
+        <link refid="_display_8h"/>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+      </node>
+      <node id="25">
+        <label>terminal/component/LookAndFeel.cpp</label>
+        <link refid="_look_and_feel_8cpp"/>
+      </node>
+      <node id="24">
+        <label>terminal/component/LookAndFeel.h</label>
+        <link refid="_look_and_feel_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+      </node>
+      <node id="26">
+        <label>terminal/component/LookAndFeelMenu.cpp</label>
+        <link refid="_look_and_feel_menu_8cpp"/>
+      </node>
+      <node id="27">
+        <label>terminal/component/LookAndFeelTab.cpp</label>
+        <link refid="_look_and_feel_tab_8cpp"/>
+      </node>
+      <node id="33">
+        <label>terminal/component/ModalWindow.cpp</label>
+        <link refid="_modal_window_8cpp"/>
+      </node>
+      <node id="32">
+        <label>terminal/component/ModalWindow.h</label>
+        <link refid="_modal_window_8h"/>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+      </node>
+      <node id="50">
+        <label>terminal/component/PaneComponent.h</label>
+        <link refid="_pane_component_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="51" relation="include">
+        </childnode>
+      </node>
+      <node id="37">
+        <label>terminal/component/Panes.cpp</label>
+        <link refid="_panes_8cpp"/>
+      </node>
+      <node id="36">
+        <label>terminal/component/Panes.h</label>
+        <link refid="_panes_8h"/>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+      </node>
+      <node id="35">
+        <label>terminal/component/Popup.cpp</label>
+        <link refid="_popup_8cpp"/>
+      </node>
+      <node id="34">
+        <label>terminal/component/Popup.h</label>
+        <link refid="_popup_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+      </node>
+      <node id="57">
+        <label>terminal/component/StatusBarOverlay.h</label>
+        <link refid="_status_bar_overlay_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="29">
+        <label>terminal/component/Tabs.cpp</label>
+        <link refid="_tabs_8cpp"/>
+      </node>
+      <node id="28">
+        <label>terminal/component/Tabs.h</label>
+        <link refid="_tabs_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+      </node>
+      <node id="30">
+        <label>terminal/component/TabsActions.cpp</label>
+        <link refid="_tabs_actions_8cpp"/>
+      </node>
+      <node id="31">
+        <label>terminal/component/TabsClose.cpp</label>
+        <link refid="_tabs_close_8cpp"/>
+      </node>
+      <node id="54">
+        <label>whelmed/InputHandler.cpp</label>
+        <link refid="_input_handler_8cpp"/>
+      </node>
+      <node id="53">
+        <label>whelmed/InputHandler.h</label>
+        <link refid="_input_handler_8h"/>
+        <childnode refid="54" relation="include">
+        </childnode>
+        <childnode refid="51" relation="include">
+        </childnode>
+      </node>
+      <node id="60">
+        <label>whelmed/Parser.cpp</label>
+        <link refid="whelmed_2_parser_8cpp"/>
+      </node>
+      <node id="59">
+        <label>whelmed/Parser.h</label>
+        <link refid="whelmed_2_parser_8h"/>
+        <childnode refid="60" relation="include">
+        </childnode>
+        <childnode refid="51" relation="include">
+        </childnode>
+      </node>
+      <node id="56">
+        <label>whelmed/Screen.cpp</label>
+        <link refid="_screen_8cpp"/>
+      </node>
+      <node id="55">
+        <label>whelmed/Screen.h</label>
+        <link refid="_screen_8h"/>
+        <childnode refid="53" relation="include">
+        </childnode>
+        <childnode refid="56" relation="include">
+        </childnode>
+        <childnode refid="51" relation="include">
+        </childnode>
+      </node>
+      <node id="61">
+        <label>whelmed/State.cpp</label>
+        <link refid="_state_8cpp"/>
+      </node>
+      <node id="58">
+        <label>whelmed/State.h</label>
+        <link refid="_state_8h"/>
+        <childnode refid="59" relation="include">
+        </childnode>
+        <childnode refid="61" relation="include">
+        </childnode>
+        <childnode refid="51" relation="include">
+        </childnode>
+      </node>
+      <node id="52">
+        <label>whelmed/component/Component.cpp</label>
+        <link refid="_component_8cpp"/>
+      </node>
+      <node id="51">
+        <label>whelmed/component/Component.h</label>
+        <link refid="_component_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="52" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innernamespace refid="namespaceapp">app</innernamespace>
+    <innernamespace refid="namespaceapp_1_1id">app::id</innernamespace>
+    <briefdescription>
+<para>juce::Identifier constants for the application-level <ref refid="classValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ValueTree</ref>. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>These identifiers define the schema for the three persisted files:</para>
+<para>window.state — window geometry only (standalone, cross-instance): WINDOW (width, height)</para>
+<para>nexus/&lt;uuid&gt;.display — full display state (daemon client mode only): END +<ndash/> WINDOW (width, height, zoom, renderer, daemonMode) +<ndash/> TABS (active, position, activePaneID) +<ndash/> TAB +<ndash/> PANES (direction, ratio) +<ndash/> PANE (uuid) | PANES (nested split) +<ndash/> SESSION (terminal state, grafted from <ref refid="structterminal_1_1_model" kindref="compound">terminal::Model</ref>) +<ndash/> DOCUMENT (whelmed state, grafted from <ref refid="classwhelmed_1_1_state" kindref="compound">whelmed::State</ref>)</para>
+<para>nexus/&lt;uuid&gt;.nexus — daemon port only (plain text, no <ref refid="classValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ValueTree</ref>).</para>
+<para><simplesect kind="see"><para><ref refid="struct_app_model" kindref="compound">AppModel</ref> </para>
+</simplesect>
+<simplesect kind="see"><para>terminal::ID (terminal-level identifiers in Source/terminal/data/Identifier.h) </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#pragma<sp/>once</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;JuceHeader.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30" refid="namespaceapp" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespaceapp" kindref="compound">app</ref></highlight></codeline>
+<codeline lineno="31"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="comment">/*____________________________________________________________________________*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==========================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Renderer<sp/>type</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==========================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38" refid="namespaceapp_1aca40c7346938831826cf77e1b463cab4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum<sp/>class</highlight><highlight class="normal"><sp/><ref refid="namespaceapp_1aca40c7346938831826cf77e1b463cab4" kindref="member">RendererType</ref></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="40" refid="namespaceapp_1aca40c7346938831826cf77e1b463cab4a0aa0be2a866411d9ff03515227454947" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="namespaceapp_1aca40c7346938831826cf77e1b463cab4a0aa0be2a866411d9ff03515227454947" kindref="member">gpu</ref>,</highlight></codeline>
+<codeline lineno="41" refid="namespaceapp_1aca40c7346938831826cf77e1b463cab4ad9747e2da342bdb995f6389533ad1a3d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="namespaceapp_1aca40c7346938831826cf77e1b463cab4ad9747e2da342bdb995f6389533ad1a3d" kindref="member">cpu</ref></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44" refid="namespaceapp_1a53dcbfee98eca98ebb64c3486c119266" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">constexpr</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="namespaceapp_1a53dcbfee98eca98ebb64c3486c119266" kindref="member">titleBarHeight</ref><sp/>{<sp/>24<sp/>};</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46" refid="namespaceapp_1_1id" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespaceapp_1_1id" kindref="compound">id</ref></highlight></codeline>
+<codeline lineno="47"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="comment">/*____________________________________________________________________________*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==========================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Node<sp/>types</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==========================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54" refid="namespaceapp_1_1id_1a1d98616945a74a0a709fe8ce6cfce258" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1a1d98616945a74a0a709fe8ce6cfce258" kindref="member">END</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;END&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="55" refid="namespaceapp_1_1id_1ad631a0e4b1eadb61ac0c085f90800bb8" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1ad631a0e4b1eadb61ac0c085f90800bb8" kindref="member">WINDOW</ref><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;WINDOW&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="56" refid="namespaceapp_1_1id_1a29752745764460568dcc06ab2cb55595" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1a29752745764460568dcc06ab2cb55595" kindref="member">NEXUS</ref><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;NEXUS&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="57" refid="namespaceapp_1_1id_1aa60f9b102fa5d09dd2b820fa8ec607a9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1aa60f9b102fa5d09dd2b820fa8ec607a9" kindref="member">SESSIONS</ref><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;SESSIONS&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="58" refid="namespaceapp_1_1id_1a8f0ae852c5021ac2b355b72b31c29a0e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1a8f0ae852c5021ac2b355b72b31c29a0e" kindref="member">SESSION</ref><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;SESSION&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="59" refid="namespaceapp_1_1id_1afae1c07735f192163428772405ca7264" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1afae1c07735f192163428772405ca7264" kindref="member">LOADING</ref><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;LOADING&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="60" refid="namespaceapp_1_1id_1a8bbf28ae9c3b2be43d46573a9dc3ea7d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1a8bbf28ae9c3b2be43d46573a9dc3ea7d" kindref="member">OPERATION</ref><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;OPERATION&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="61" refid="namespaceapp_1_1id_1af20c2dc297a411b140ec9bc9bc1d8b4c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1af20c2dc297a411b140ec9bc9bc1d8b4c" kindref="member">TABS</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;TABS&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="62" refid="namespaceapp_1_1id_1aa5522fd872a6a64424e5bed786eeb4c2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1aa5522fd872a6a64424e5bed786eeb4c2" kindref="member">TAB</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;TAB&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="63" refid="namespaceapp_1_1id_1a77bea35c2a1535e966a095d72de7e3c5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1a77bea35c2a1535e966a095d72de7e3c5" kindref="member">PANES</ref><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;PANES&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="64" refid="namespaceapp_1_1id_1abcf86f0cdf896a33b56cd1dce582f219" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1abcf86f0cdf896a33b56cd1dce582f219" kindref="member">PANE</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;PANE&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="65" refid="namespaceapp_1_1id_1a9a9123c0d63aa046272530c9b72b475b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1a9a9123c0d63aa046272530c9b72b475b" kindref="member">DOCUMENT</ref><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;DOCUMENT&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==========================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Properties</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==========================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71" refid="namespaceapp_1_1id_1af79af5c8c296799dd1db517fd2f8c1a9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1af79af5c8c296799dd1db517fd2f8c1a9" kindref="member">zoom</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;zoom&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="72" refid="namespaceapp_1_1id_1abb60faecd4f7e8bb53820028ccbb718c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1abb60faecd4f7e8bb53820028ccbb718c" kindref="member">active</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;active&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="73" refid="namespaceapp_1_1id_1ab099eb8cb8bd51cb334a0a48a405eb48" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1ab099eb8cb8bd51cb334a0a48a405eb48" kindref="member">position</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;position&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="74" refid="namespaceapp_1_1id_1a7ccc5195a666d86aeb119b65f15b06cf" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1a7ccc5195a666d86aeb119b65f15b06cf" kindref="member">splitVertical</ref><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;splitVertical&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="75" refid="namespaceapp_1_1id_1a5014a071f402817219957b9e873f268e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1a5014a071f402817219957b9e873f268e" kindref="member">activePaneID</ref><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;activePaneID&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="76" refid="namespaceapp_1_1id_1a4c1a53aecc952145f770443bc3b2c4cc" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1a4c1a53aecc952145f770443bc3b2c4cc" kindref="member">activePaneType</ref><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;activePaneType&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="77" refid="namespaceapp_1_1id_1a3ea51650d77e7927b174bf0dc5cf0f5d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1a3ea51650d77e7927b174bf0dc5cf0f5d" kindref="member">modalType</ref><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;modalType&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="78" refid="namespaceapp_1_1id_1aef98bdb7eb091fb3036b15e7e50a95a1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1aef98bdb7eb091fb3036b15e7e50a95a1" kindref="member">selectionType</ref><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;selectionType&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="79" refid="namespaceapp_1_1id_1a47ebe0ac537eacf5d3ba399228f4480f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1a47ebe0ac537eacf5d3ba399228f4480f" kindref="member">fontFamily</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;fontFamily&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="80" refid="namespaceapp_1_1id_1a4affa12e1041cbac52db6146cfeb8669" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1a4affa12e1041cbac52db6146cfeb8669" kindref="member">fontSize</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;fontSize&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="81" refid="namespaceapp_1_1id_1afcd800608ba4d7e58892302a68db73cb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1afcd800608ba4d7e58892302a68db73cb" kindref="member">renderer</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;renderer&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="82" refid="namespaceapp_1_1id_1afc8dc371554c62051e97d078a3eaf20f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1afc8dc371554c62051e97d078a3eaf20f" kindref="member">gpuAvailable</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;gpuAvailable&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="83" refid="namespaceapp_1_1id_1abe2ca0bb855bb5ffa1f1107b91ec8ed0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1abe2ca0bb855bb5ffa1f1107b91ec8ed0" kindref="member">daemonMode</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;daemonMode&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="84" refid="namespaceapp_1_1id_1a5dbba8dbe5bf9ef207c18905d8bae100" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1a5dbba8dbe5bf9ef207c18905d8bae100" kindref="member">filePath</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;filePath&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="85" refid="namespaceapp_1_1id_1a5db3df1548793287f6642045bb68fe2a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1a5db3df1548793287f6642045bb68fe2a" kindref="member">displayName</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;displayName&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="86" refid="namespaceapp_1_1id_1a26da4c7c28fb31bec9a510aa30048c94" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1a26da4c7c28fb31bec9a510aa30048c94" kindref="member">userTabName</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;userTabName&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="87" refid="namespaceapp_1_1id_1a8056e4239f4b22fce564a395bbbcb52a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1a8056e4239f4b22fce564a395bbbcb52a" kindref="member">scrollOffset</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;scrollOffset&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="88" refid="namespaceapp_1_1id_1a7767a9a308eb0efa1d502fefd0230c82" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1a7767a9a308eb0efa1d502fefd0230c82" kindref="member">port</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;port&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="89" refid="namespaceapp_1_1id_1a0f3b0010a132a2b24872f2cf4356a936" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1a0f3b0010a132a2b24872f2cf4356a936" kindref="member">atlasDirty</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;atlasDirty&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="90" refid="namespaceapp_1_1id_1ac19777138a551143950f913c9950bc83" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1ac19777138a551143950f913c9950bc83" kindref="member">scrollbackLines</ref><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;scrollbackLines&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="94" refid="namespaceapp_1_1id_1a3c5736b11e8d56b0350faf9c6412996e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1a3c5736b11e8d56b0350faf9c6412996e" kindref="member">configGeneration</ref><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;configGeneration&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight></codeline>
+<codeline lineno="98" refid="namespaceapp_1_1id_1aceb488e669313b802438e6366c5d36cd" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1aceb488e669313b802438e6366c5d36cd" kindref="member">pendingMarkdownFile</ref><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;pendingMarkdownFile&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102" refid="namespaceapp_1_1id_1af4b579159e05cc121f8ba57c25cf6a42" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1af4b579159e05cc121f8ba57c25cf6a42" kindref="member">pendingImageFile</ref><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;pendingImageFile&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="103" refid="namespaceapp_1_1id_1a85c1e78989b72416aac80246796ad6a1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1a85c1e78989b72416aac80246796ad6a1" kindref="member">cellWidth</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;cellWidth&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="104" refid="namespaceapp_1_1id_1aae909a2bc7647e37cb3c0773f92f715d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1aae909a2bc7647e37cb3c0773f92f715d" kindref="member">lineHeight</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;lineHeight&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="105" refid="namespaceapp_1_1id_1ae4254699362f3c80bb7ef3d4e2173b14" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1ae4254699362f3c80bb7ef3d4e2173b14" kindref="member">cursorCodepoint</ref><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;cursorCodepoint&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="106" refid="namespaceapp_1_1id_1a75928388a5e56aceb0d7fb5d19d609b7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1a75928388a5e56aceb0d7fb5d19d609b7" kindref="member">cursorStyle</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;cursorStyle&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="107" refid="namespaceapp_1_1id_1a85d00a0a41d472e4203061ee750ef8b7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1a85d00a0a41d472e4203061ee750ef8b7" kindref="member">cursorBlinkInterval</ref><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;cursorBlinkInterval&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="108" refid="namespaceapp_1_1id_1a3208662b768447eb28e81c638a5c91d7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1a3208662b768447eb28e81c638a5c91d7" kindref="member">paddingTop</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;paddingTop&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="109" refid="namespaceapp_1_1id_1a4940ac67c76c901cb06c9a0c8e7c9054" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1a4940ac67c76c901cb06c9a0c8e7c9054" kindref="member">paddingRight</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;paddingRight&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="110" refid="namespaceapp_1_1id_1acfa111d16fc6a40eb179b4e496247979" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1acfa111d16fc6a40eb179b4e496247979" kindref="member">paddingBottom</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;paddingBottom&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="111" refid="namespaceapp_1_1id_1a37eb7fcd4532f25ae03eea286dc63bdf" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1a37eb7fcd4532f25ae03eea286dc63bdf" kindref="member">paddingLeft</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;paddingLeft&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113" refid="namespaceapp_1_1id_1a4c409f870661881993ac818c73a32c82" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1a4c409f870661881993ac818c73a32c82" kindref="member">blockCount</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;blockCount&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="114" refid="namespaceapp_1_1id_1ae480d402f2c4854e10a819621b23f6d0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1ae480d402f2c4854e10a819621b23f6d0" kindref="member">parseComplete</ref><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;parseComplete&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="115" refid="namespaceapp_1_1id_1abad3be16444df05531528d3e30735ebd" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1abad3be16444df05531528d3e30735ebd" kindref="member">totalBlocks</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;totalBlocks&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="116" refid="namespaceapp_1_1id_1a044c24e7e6b652dbbd38a9ed2aaee9ed" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1a044c24e7e6b652dbbd38a9ed2aaee9ed" kindref="member">selCursorBlock</ref><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;selCursorBlock&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="117" refid="namespaceapp_1_1id_1a53f4e3db60bb5963c1ba6f10958e1c96" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1a53f4e3db60bb5963c1ba6f10958e1c96" kindref="member">selCursorChar</ref><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;selCursorChar&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="118" refid="namespaceapp_1_1id_1ae541c86458bee0db98858cb134c69379" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1ae541c86458bee0db98858cb134c69379" kindref="member">selAnchorBlock</ref><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;selAnchorBlock&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="119" refid="namespaceapp_1_1id_1ab2b4791778841d9e46a8ea36c17e4266" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1ab2b4791778841d9e46a8ea36c17e4266" kindref="member">selAnchorChar</ref><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;selAnchorChar&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==========================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>XML<sp/>schema<sp/>attributes<sp/>(AppParameters.xml)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==========================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight></codeline>
+<codeline lineno="125" refid="namespaceapp_1_1id_1ae576c239b4056906a6e377c6362ec71e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1ae576c239b4056906a6e377c6362ec71e" kindref="member">type</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;type&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="126" refid="namespaceapp_1_1id_1aed856334ad2ab03ffca7c09fe2a9b2ce" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1aed856334ad2ab03ffca7c09fe2a9b2ce" kindref="member">defaultValue</ref><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;default&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="127" refid="namespaceapp_1_1id_1aa6a7447b396768bb1727f8be61732ea0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1aa6a7447b396768bb1727f8be61732ea0" kindref="member">boolType</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;bool&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="128" refid="namespaceapp_1_1id_1afae8fe8f9d8780b8a20d5a793a9f4c51" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1afae8fe8f9d8780b8a20d5a793a9f4c51" kindref="member">floatType</ref><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;float&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="129" refid="namespaceapp_1_1id_1a928eb12cf0df28db87da4015df4bbfb0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Identifier<sp/><ref refid="namespaceapp_1_1id_1a928eb12cf0df28db87da4015df4bbfb0" kindref="member">stringType</ref><sp/><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;string&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight></codeline>
+<codeline lineno="131" refid="namespaceapp_1_1id_1a7af1375efbd68fbbd7695232e1c546ad" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::String<sp/><ref refid="namespaceapp_1_1id_1a7af1375efbd68fbbd7695232e1c546ad" kindref="member">appMetadata</ref><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;AppParameters.xml&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"></highlight></codeline>
+<codeline lineno="134"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>id</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>app</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="AppIdentifier.h"/>
+  </compounddef>
+</doxygen>

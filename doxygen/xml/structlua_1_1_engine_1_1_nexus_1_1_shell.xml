@@ -1,0 +1,69 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="structlua_1_1_engine_1_1_nexus_1_1_shell" kind="struct" language="C++" prot="public">
+    <compoundname>lua::Engine::Nexus::Shell</compoundname>
+    <includes refid="_engine_8h" local="no">Engine.h</includes>
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_nexus_1_1_shell_1aeed83e98a3233c9df039a395c8fd5995" prot="public" static="no" mutable="no">
+        <type>juce::String</type>
+        <definition>juce::String lua::Engine::Nexus::Shell::program</definition>
+        <argsstring></argsstring>
+        <name>program</name>
+        <qualifiedname>lua::Engine::Nexus::Shell::program</qualifiedname>
+        <initializer>{ &quot;zsh&quot; }</initializer>
+        <briefdescription>
+<para><ref refid="structlua_1_1_engine_1_1_nexus_1_1_shell" kindref="compound">Shell</ref> executable name. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Platform-conditional. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="58" column="26" bodyfile="lua/Engine.h" bodystart="58" bodyend="58"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_nexus_1_1_shell_1a0aab4be13147acc6718842b1f19fae70" prot="public" static="no" mutable="no">
+        <type>juce::String</type>
+        <definition>juce::String lua::Engine::Nexus::Shell::args</definition>
+        <argsstring></argsstring>
+        <name>args</name>
+        <qualifiedname>lua::Engine::Nexus::Shell::args</qualifiedname>
+        <initializer>{ &quot;-l&quot; }</initializer>
+        <briefdescription>
+<para>Arguments passed to the shell at startup. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="69" column="26" bodyfile="lua/Engine.h" bodystart="69" bodyend="69"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_nexus_1_1_shell_1abfbb4f9e17daf1a82568de70d775282c" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool lua::Engine::Nexus::Shell::integration</definition>
+        <argsstring></argsstring>
+        <name>integration</name>
+        <qualifiedname>lua::Engine::Nexus::Shell::integration</qualifiedname>
+        <initializer>{ true }</initializer>
+        <briefdescription>
+<para>Whether shell integration is enabled. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="73" column="18" bodyfile="lua/Engine.h" bodystart="73" bodyend="73"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para><ref refid="structlua_1_1_engine_1_1_nexus_1_1_shell" kindref="compound">Shell</ref> program and integration settings. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="lua/Engine.h" line="54" column="9" bodyfile="lua/Engine.h" bodystart="55" bodyend="74"/>
+    <listofallmembers>
+      <member refid="structlua_1_1_engine_1_1_nexus_1_1_shell_1a0aab4be13147acc6718842b1f19fae70" prot="public" virt="non-virtual"><scope>lua::Engine::Nexus::Shell</scope><name>args</name></member>
+      <member refid="structlua_1_1_engine_1_1_nexus_1_1_shell_1abfbb4f9e17daf1a82568de70d775282c" prot="public" virt="non-virtual"><scope>lua::Engine::Nexus::Shell</scope><name>integration</name></member>
+      <member refid="structlua_1_1_engine_1_1_nexus_1_1_shell_1aeed83e98a3233c9df039a395c8fd5995" prot="public" virt="non-virtual"><scope>lua::Engine::Nexus::Shell</scope><name>program</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

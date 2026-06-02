@@ -14,7 +14,7 @@
 #include <JuceHeader.h>
 #include "../ModalType.h"
 #include "../SelectionType.h"
-#include "../AppState.h"
+#include "../AppModel.h"
 #include "../lua/Engine.h"
 #include "Screen.h"
 #include "../terminal/action/Action.h"

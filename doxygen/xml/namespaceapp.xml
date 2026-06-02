@@ -1,0 +1,59 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="namespaceapp" kind="namespace" language="C++">
+    <compoundname>app</compoundname>
+    <innernamespace refid="namespaceapp_1_1id">app::id</innernamespace>
+    <sectiondef kind="enum">
+      <memberdef kind="enum" id="namespaceapp_1aca40c7346938831826cf77e1b463cab4" prot="public" static="no" strong="yes">
+        <type></type>
+        <name>RendererType</name>
+        <qualifiedname>app::RendererType</qualifiedname>
+        <enumvalue id="namespaceapp_1aca40c7346938831826cf77e1b463cab4a0aa0be2a866411d9ff03515227454947" prot="public">
+          <name>gpu</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceapp_1aca40c7346938831826cf77e1b463cab4ad9747e2da342bdb995f6389533ad1a3d" prot="public">
+          <name>cpu</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="38" column="5" bodyfile="AppIdentifier.h" bodystart="39" bodyend="42"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="var">
+      <memberdef kind="variable" id="namespaceapp_1a53dcbfee98eca98ebb64c3486c119266" prot="public" static="yes" constexpr="yes" mutable="no">
+        <type>int</type>
+        <definition>int app::titleBarHeight</definition>
+        <argsstring></argsstring>
+        <name>titleBarHeight</name>
+        <qualifiedname>app::titleBarHeight</qualifiedname>
+        <initializer>{ 24 }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="44" column="26" bodyfile="AppIdentifier.h" bodystart="44" bodyend="44"/>
+        <referencedby refid="class_main_component_1a1fe9b104d3b6eb88315ace959285ead4" compoundref="_main_component_8cpp" startline="55" endline="216">MainComponent::MainComponent</referencedby>
+        <referencedby refid="class_main_component_1ab003af1c38a7da38d907980bb47630dd" compoundref="_main_component_8cpp" startline="515" endline="559">MainComponent::showMessageOverlay</referencedby>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="AppIdentifier.h" line="30" column="1"/>
+  </compounddef>
+</doxygen>

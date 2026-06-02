@@ -26,18 +26,18 @@ void Tabs::closeActiveTab()
     if (index >= 0 and index < static_cast<int> (panes.size()))
     {
         auto* activePanes { panes.at (index).get() };
-        const juce::String paneType { AppState::getContext()->getActivePaneType() };
+        const juce::String paneType { AppModel::getContext()->getActivePaneType() };
 
         if (paneType == Map::PaneType::getContext()->get (Map::PaneType::document))
         {
             activePanes->closeWhelmed();
 
-            if (AppState::getContext()->isDaemonMode())
-                AppState::getContext()->save();
+            if (AppModel::getContext()->isDaemonMode())
+                AppModel::getContext()->save();
         }
         else if (activePanes->getPanes().size() > 1)
         {
-            const juce::String activeID { AppState::getContext()->getActivePaneID() };
+            const juce::String activeID { AppModel::getContext()->getActivePaneID() };
 
             int closedIndex { 0 };
 
@@ -56,14 +56,14 @@ void Tabs::closeActiveTab()
             {
                 const int nextIndex { juce::jmin (closedIndex, static_cast<int> (activePanes->getPanes().size()) - 1) };
                 auto* nearest { activePanes->getPanes().at (static_cast<size_t> (nextIndex)).get() };
-                AppState::getContext()->setActivePaneID (nearest->getComponentID());
+                AppModel::getContext()->setActivePaneID (nearest->getComponentID());
 
                 if (nearest->isShowing())
                     nearest->grabKeyboardFocus();
             }
 
-            if (AppState::getContext()->isDaemonMode())
-                AppState::getContext()->save();
+            if (AppModel::getContext()->isDaemonMode())
+                AppModel::getContext()->save();
         }
         else
         {
@@ -80,7 +80,7 @@ void Tabs::closeActiveTab()
             }
 
             // Deregister Tabs as VT listener before the Panes instance is destroyed.
-            // The PANES VT data is still live in AppState — not removing here would leave
+            // The PANES VT data is still live in AppModel — not removing here would leave
             // a dangling listener registered on it.
             activePanes->getState().removeListener (this);
             removeChildComponent (activePanes);
@@ -91,7 +91,7 @@ void Tabs::closeActiveTab()
                 Nexus::getContext()->remove (uuid);
 
             removeTab (index);
-            AppState::getContext()->removeTab (index);
+            AppModel::getContext()->removeTab (index);
 
             if (not panes.isEmpty())
             {
@@ -137,8 +137,8 @@ void Tabs::closeSession (const juce::String& uuid)
         {
             ownerPanes->closePane (uuid);
 
-            if (AppState::getContext()->isDaemonMode())
-                AppState::getContext()->save();
+            if (AppModel::getContext()->isDaemonMode())
+                AppModel::getContext()->save();
         }
         else
         {
@@ -158,7 +158,7 @@ void Tabs::closeSession (const juce::String& uuid)
                 Nexus::getContext()->remove (termUuid);
 
             removeTab (ownerIndex);
-            AppState::getContext()->removeTab (ownerIndex);
+            AppModel::getContext()->removeTab (ownerIndex);
 
             if (not panes.isEmpty())
             {
@@ -168,8 +168,8 @@ void Tabs::closeSession (const juce::String& uuid)
 
             updateTabBarVisibility();
 
-            if (not panes.isEmpty() and AppState::getContext()->isDaemonMode())
-                AppState::getContext()->save();
+            if (not panes.isEmpty() and AppModel::getContext()->isDaemonMode())
+                AppModel::getContext()->save();
         }
     }
 }

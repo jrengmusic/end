@@ -1,0 +1,436 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="struct_char_props" kind="struct" language="C++" prot="public">
+    <compoundname>CharProps</compoundname>
+    <includes refid="_char_props_8h" local="no">CharProps.h</includes>
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="struct_char_props_1a8652b68acf8b2c9885982b2a619a54a5" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t CharProps::val</definition>
+        <argsstring></argsstring>
+        <name>val</name>
+        <qualifiedname>CharProps::val</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/CharProps.h" line="67" column="14" bodyfile="terminal/CharProps.h" bodystart="67" bodyend="67"/>
+        <referencedby refid="struct_char_props_1ad31730fe2eb8dce2dc5cfbd19bcb0f89" compoundref="_char_props_8h" startline="270" endline="273">category</referencedby>
+        <referencedby refid="struct_char_props_1ad8b5baf2801c72e856e2bee47e9967df" compoundref="_char_props_8h" startline="244" endline="247">graphemeBreak</referencedby>
+        <referencedby refid="struct_char_props_1ade2e6788c3e28f0c295b927941182cb6" compoundref="_char_props_8h" startline="228" endline="231">graphemeSegmentationProperty</referencedby>
+        <referencedby refid="struct_char_props_1acee8709393ce3e46bf43d06ab02d6d71" compoundref="_char_props_8h" startline="257" endline="260">indicConjunctBreak</referencedby>
+        <referencedby refid="struct_char_props_1a81e5d7a420d48694b3cc143bb4a654cf" compoundref="_char_props_8h" startline="178" endline="178">isCombiningChar</referencedby>
+        <referencedby refid="struct_char_props_1ac5775f3e4a9a4e83c4468942520b14f1" compoundref="_char_props_8h" startline="118" endline="118">isEmoji</referencedby>
+        <referencedby refid="struct_char_props_1aab64b65c32193f3e05ce27a88e7692ff" compoundref="_char_props_8h" startline="107" endline="107">isEmojiPresentation</referencedby>
+        <referencedby refid="struct_char_props_1a766a7b6e6b4ad5226ca6030fe8d8f2d4" compoundref="_char_props_8h" startline="128" endline="128">isEmojiVariationBase</referencedby>
+        <referencedby refid="struct_char_props_1a7eb53f1d0fbeeaf7cb24df6f891182ed" compoundref="_char_props_8h" startline="217" endline="217">isExtendedPictographic</referencedby>
+        <referencedby refid="struct_char_props_1a7d627ebc31d128e1ed918261194b48be" compoundref="_char_props_8h" startline="139" endline="139">isInvalid</referencedby>
+        <referencedby refid="struct_char_props_1aae80116d6d3592e3907b95be7b2e39a4" compoundref="_char_props_8h" startline="150" endline="150">isNonRendered</referencedby>
+        <referencedby refid="struct_char_props_1ae1ce95812752bf45517cd518d7d9451e" compoundref="_char_props_8h" startline="205" endline="205">isPunctuation</referencedby>
+        <referencedby refid="struct_char_props_1a2308fabe92fc69872d0ece39e11a5c5d" compoundref="_char_props_8h" startline="163" endline="163">isSymbol</referencedby>
+        <referencedby refid="struct_char_props_1adc5791d5767b8bc39ba92ad08cb1ce39" compoundref="_char_props_8h" startline="189" endline="189">isWordChar</referencedby>
+        <referencedby refid="struct_char_props_1a583a5a57fc96d06b3daebea49fd6d389" compoundref="_char_props_8h" startline="87" endline="90">width</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="public-func">
+      <memberdef kind="function" id="struct_char_props_1a583a5a57fc96d06b3daebea49fd6d389" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int CharProps::width</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>width</name>
+        <qualifiedname>CharProps::width</qualifiedname>
+        <briefdescription>
+<para>Returns the terminal display width of this character. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes the monospace cell width for terminal display. This follows the Unicode Width property (EAW - East Asian Width) where wide characters (East Asian Fullwidth, Wide) have width 2, and most other printable characters have width 1.</para>
+<para><simplesect kind="return"><para>Character width: typically 0 (combining), 1 (regular), or 2 (wide). Negative values may occur for specific combining marks.</para>
+</simplesect>
+<simplesect kind="par"><title>Example</title><para><programlisting><codeline><highlight class="normal">CharProps<sp/>props<sp/>=<sp/><ref refid="_char_props_8h_1a7bdc2c8b0aa8edbd7dad4d7d4fe2c1c9" kindref="member">charPropsFor</ref>(</highlight><highlight class="charliteral">&apos;A&apos;</highlight><highlight class="normal">);<sp/><sp/></highlight><highlight class="comment">//<sp/>width()<sp/>returns<sp/>1</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">CharProps<sp/>props<sp/>=<sp/><ref refid="_char_props_8h_1a7bdc2c8b0aa8edbd7dad4d7d4fe2c1c9" kindref="member">charPropsFor</ref>(0x4E00);<sp/></highlight><highlight class="comment">//<sp/>CJK<sp/>char,<sp/>width()<sp/>returns<sp/>2</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">CharProps<sp/>props<sp/>=<sp/><ref refid="_char_props_8h_1a7bdc2c8b0aa8edbd7dad4d7d4fe2c1c9" kindref="member">charPropsFor</ref>(0x0301);<sp/></highlight><highlight class="comment">//<sp/>combining<sp/>accent,<sp/>width()<sp/>returns<sp/>0</highlight></codeline>
+</programlisting> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/CharProps.h" line="87" column="9" bodyfile="terminal/CharProps.h" bodystart="87" bodyend="90"/>
+        <references refid="struct_char_props_1a8652b68acf8b2c9885982b2a619a54a5" compoundref="_char_props_8h" startline="67" endline="67">val</references>
+        <references refid="_char_props_data_8h_1a82452c3be757fc5606457ae30156a6be" compoundref="_char_props_data_8h" startline="133" endline="133">WIDTH_SHIFT</references>
+      </memberdef>
+      <memberdef kind="function" id="struct_char_props_1aab64b65c32193f3e05ce27a88e7692ff" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool CharProps::isEmojiPresentation</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>isEmojiPresentation</name>
+        <qualifiedname>CharProps::isEmojiPresentation</qualifiedname>
+        <briefdescription>
+<para>Checks if this character should render as emoji by default. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns true for characters that have Emoji_Presentation=Yes in Unicode, meaning they should render as emoji glyphs rather than text glyphs when no emoji variation selector is present.</para>
+<para><simplesect kind="return"><para>true if the character has default emoji rendering</para>
+</simplesect>
+<simplesect kind="par"><title>Example</title><para><programlisting><codeline><highlight class="normal"><ref refid="_char_props_8h_1a7bdc2c8b0aa8edbd7dad4d7d4fe2c1c9" kindref="member">charPropsFor</ref>(0x2764).<ref refid="struct_char_props_1aab64b65c32193f3e05ce27a88e7692ff" kindref="member">isEmojiPresentation</ref>()<sp/><sp/></highlight><highlight class="comment">//<sp/>true<sp/>(red<sp/>heart)</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="_char_props_8h_1a7bdc2c8b0aa8edbd7dad4d7d4fe2c1c9" kindref="member">charPropsFor</ref>(0x0041).<ref refid="struct_char_props_1aab64b65c32193f3e05ce27a88e7692ff" kindref="member">isEmojiPresentation</ref>()<sp/><sp/></highlight><highlight class="comment">//<sp/>false<sp/>(letter<sp/>A)</highlight></codeline>
+</programlisting> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/CharProps.h" line="107" column="10" bodyfile="terminal/CharProps.h" bodystart="107" bodyend="107"/>
+        <references refid="struct_char_props_1a8652b68acf8b2c9885982b2a619a54a5" compoundref="_char_props_8h" startline="67" endline="67">val</references>
+      </memberdef>
+      <memberdef kind="function" id="struct_char_props_1ac5775f3e4a9a4e83c4468942520b14f1" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool CharProps::isEmoji</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>isEmoji</name>
+        <qualifiedname>CharProps::isEmoji</qualifiedname>
+        <briefdescription>
+<para>Checks if this character is in the Unicode Emoji category. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns true for characters that are officially classified as emoji in the Unicode standard, regardless of whether they have text vs emoji presentation.</para>
+<para><simplesect kind="return"><para>true if the character is an emoji character </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/CharProps.h" line="118" column="10" bodyfile="terminal/CharProps.h" bodystart="118" bodyend="118"/>
+        <references refid="struct_char_props_1a8652b68acf8b2c9885982b2a619a54a5" compoundref="_char_props_8h" startline="67" endline="67">val</references>
+      </memberdef>
+      <memberdef kind="function" id="struct_char_props_1a766a7b6e6b4ad5226ca6030fe8d8f2d4" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool CharProps::isEmojiVariationBase</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>isEmojiVariationBase</name>
+        <qualifiedname>CharProps::isEmojiVariationBase</qualifiedname>
+        <briefdescription>
+<para>Checks if this character can serve as an emoji variation base. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns true for characters that can be followed by variation selectors to switch between text and emoji presentation (U+FE0E/0xFE0F).</para>
+<para><simplesect kind="return"><para>true if the character can be used with emoji variation selectors </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/CharProps.h" line="128" column="10" bodyfile="terminal/CharProps.h" bodystart="128" bodyend="128"/>
+        <references refid="struct_char_props_1a8652b68acf8b2c9885982b2a619a54a5" compoundref="_char_props_8h" startline="67" endline="67">val</references>
+      </memberdef>
+      <memberdef kind="function" id="struct_char_props_1a7d627ebc31d128e1ed918261194b48be" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool CharProps::isInvalid</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>isInvalid</name>
+        <qualifiedname>CharProps::isInvalid</qualifiedname>
+        <briefdescription>
+<para>Checks if this codepoint is invalid (unassigned or surrogate). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns true for codepoints that are either:<itemizedlist>
+<listitem><para>Surrogate code points (U+D800-U+DFFF)</para>
+</listitem><listitem><para>Unassigned codepoints in the current Unicode version</para>
+</listitem></itemizedlist>
+</para>
+<para><simplesect kind="return"><para>true if the codepoint should not be rendered </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/CharProps.h" line="139" column="10" bodyfile="terminal/CharProps.h" bodystart="139" bodyend="139"/>
+        <references refid="struct_char_props_1a8652b68acf8b2c9885982b2a619a54a5" compoundref="_char_props_8h" startline="67" endline="67">val</references>
+      </memberdef>
+      <memberdef kind="function" id="struct_char_props_1aae80116d6d3592e3907b95be7b2e39a4" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool CharProps::isNonRendered</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>isNonRendered</name>
+        <qualifiedname>CharProps::isNonRendered</qualifiedname>
+        <briefdescription>
+<para>Checks if this character should not be visually rendered. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns true for format control characters (CF category), unassigned codepounds, and other non-rendering characters that should be hidden in the terminal display.</para>
+<para><simplesect kind="return"><para>true if the character should not be displayed </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/CharProps.h" line="150" column="10" bodyfile="terminal/CharProps.h" bodystart="150" bodyend="150"/>
+        <references refid="struct_char_props_1a8652b68acf8b2c9885982b2a619a54a5" compoundref="_char_props_8h" startline="67" endline="67">val</references>
+      </memberdef>
+      <memberdef kind="function" id="struct_char_props_1a2308fabe92fc69872d0ece39e11a5c5d" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool CharProps::isSymbol</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>isSymbol</name>
+        <qualifiedname>CharProps::isSymbol</qualifiedname>
+        <briefdescription>
+<para>Checks if this character is a symbol. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns true for characters in Unicode categories:<itemizedlist>
+<listitem><para>Sm (Math symbols)</para>
+</listitem><listitem><para>Sc (Currency symbols)</para>
+</listitem><listitem><para>Sk (Modifier symbols)</para>
+</listitem><listitem><para>So (Other symbols)</para>
+</listitem></itemizedlist>
+</para>
+<para><simplesect kind="return"><para>true if the character is a symbol </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/CharProps.h" line="163" column="10" bodyfile="terminal/CharProps.h" bodystart="163" bodyend="163"/>
+        <references refid="struct_char_props_1a8652b68acf8b2c9885982b2a619a54a5" compoundref="_char_props_8h" startline="67" endline="67">val</references>
+      </memberdef>
+      <memberdef kind="function" id="struct_char_props_1a81e5d7a420d48694b3cc143bb4a654cf" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool CharProps::isCombiningChar</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>isCombiningChar</name>
+        <qualifiedname>CharProps::isCombiningChar</qualifiedname>
+        <briefdescription>
+<para>Checks if this character is a combining character. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns true for characters that modify other characters, including:<itemizedlist>
+<listitem><para>Mn (Mark, Nonspacing)</para>
+</listitem><listitem><para>Mc (Mark, Spacing Combining)</para>
+</listitem><listitem><para>Me (Mark, Enclosing)</para>
+</listitem></itemizedlist>
+</para>
+<para>These characters typically have zero width but affect the appearance of preceding base characters.</para>
+<para><simplesect kind="return"><para>true if the character is a combining mark </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/CharProps.h" line="178" column="10" bodyfile="terminal/CharProps.h" bodystart="178" bodyend="178"/>
+        <references refid="struct_char_props_1a8652b68acf8b2c9885982b2a619a54a5" compoundref="_char_props_8h" startline="67" endline="67">val</references>
+      </memberdef>
+      <memberdef kind="function" id="struct_char_props_1adc5791d5767b8bc39ba92ad08cb1ce39" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool CharProps::isWordChar</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>isWordChar</name>
+        <qualifiedname>CharProps::isWordChar</qualifiedname>
+        <briefdescription>
+<para>Checks if this character is a word-forming character. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns true for characters that should be treated as word characters for word-wise navigation and selection in the terminal. This includes letters, numbers, and underscore from all scripts.</para>
+<para><simplesect kind="return"><para>true if the character participates in word boundaries </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/CharProps.h" line="189" column="10" bodyfile="terminal/CharProps.h" bodystart="189" bodyend="189"/>
+        <references refid="struct_char_props_1a8652b68acf8b2c9885982b2a619a54a5" compoundref="_char_props_8h" startline="67" endline="67">val</references>
+      </memberdef>
+      <memberdef kind="function" id="struct_char_props_1ae1ce95812752bf45517cd518d7d9451e" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool CharProps::isPunctuation</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>isPunctuation</name>
+        <qualifiedname>CharProps::isPunctuation</qualifiedname>
+        <briefdescription>
+<para>Checks if this character is punctuation. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns true for characters in Unicode punctuation categories:<itemizedlist>
+<listitem><para>Pc (Punctuation, Connector)</para>
+</listitem><listitem><para>Pd (Punctuation, Dash)</para>
+</listitem><listitem><para>Ps (Punctuation, Open)</para>
+</listitem><listitem><para>Pe (Punctuation, Close)</para>
+</listitem><listitem><para>Pi (Punctuation, Initial quote)</para>
+</listitem><listitem><para>Pf (Punctuation, Final quote)</para>
+</listitem><listitem><para>Po (Punctuation, Other)</para>
+</listitem></itemizedlist>
+</para>
+<para><simplesect kind="return"><para>true if the character is punctuation </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/CharProps.h" line="205" column="10" bodyfile="terminal/CharProps.h" bodystart="205" bodyend="205"/>
+        <references refid="struct_char_props_1a8652b68acf8b2c9885982b2a619a54a5" compoundref="_char_props_8h" startline="67" endline="67">val</references>
+      </memberdef>
+      <memberdef kind="function" id="struct_char_props_1a7eb53f1d0fbeeaf7cb24df6f891182ed" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool CharProps::isExtendedPictographic</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>isExtendedPictographic</name>
+        <qualifiedname>CharProps::isExtendedPictographic</qualifiedname>
+        <briefdescription>
+<para>Checks if this character is extended pictographic. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns true for characters listed in the Unicode Extended_Pictographic property, used for emoji and icon display. This is a broader set than <ref refid="struct_char_props_1ac5775f3e4a9a4e83c4468942520b14f1" kindref="member">isEmoji()</ref> as it includes legacy emoji and pictographic symbols.</para>
+<para><simplesect kind="return"><para>true if the character is extended pictographic </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/CharProps.h" line="217" column="10" bodyfile="terminal/CharProps.h" bodystart="217" bodyend="217"/>
+        <references refid="struct_char_props_1a8652b68acf8b2c9885982b2a619a54a5" compoundref="_char_props_8h" startline="67" endline="67">val</references>
+      </memberdef>
+      <memberdef kind="function" id="struct_char_props_1ade2e6788c3e28f0c295b927941182cb6" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>uint8_t</type>
+        <definition>uint8_t CharProps::graphemeSegmentationProperty</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>graphemeSegmentationProperty</name>
+        <qualifiedname>CharProps::graphemeSegmentationProperty</qualifiedname>
+        <briefdescription>
+<para>Returns the 7-bit grapheme segmentation property. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This is the key used for grapheme cluster boundary determination per UAX #29. It combines the <ref refid="_char_props_data_8h_1aab91d74b9f1c8ef195618edfc0b8c529" kindref="member">GraphemeBreakProperty</ref> (4 bits) with additional flags for efficient state machine lookup.</para>
+<para><simplesect kind="return"><para>7-bit value encoding the grapheme segmentation property </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/CharProps.h" line="228" column="13" bodyfile="terminal/CharProps.h" bodystart="228" bodyend="231"/>
+        <references refid="struct_char_props_1a8652b68acf8b2c9885982b2a619a54a5" compoundref="_char_props_8h" startline="67" endline="67">val</references>
+      </memberdef>
+      <memberdef kind="function" id="struct_char_props_1ad8b5baf2801c72e856e2bee47e9967df" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type><ref refid="_char_props_data_8h_1aab91d74b9f1c8ef195618edfc0b8c529" kindref="member">GraphemeBreakProperty</ref></type>
+        <definition>GraphemeBreakProperty CharProps::graphemeBreak</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>graphemeBreak</name>
+        <qualifiedname>CharProps::graphemeBreak</qualifiedname>
+        <briefdescription>
+<para>Returns the Unicode Grapheme Break property. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the <ref refid="_char_props_data_8h_1aab91d74b9f1c8ef195618edfc0b8c529" kindref="member">GraphemeBreakProperty</ref> enum value indicating how this character behaves in grapheme cluster boundary determination. This follows Unicode Standard Annex #29.</para>
+<para><simplesect kind="return"><para><ref refid="_char_props_data_8h_1aab91d74b9f1c8ef195618edfc0b8c529" kindref="member">GraphemeBreakProperty</ref> value (AtStart, Control, Extend, ZWJ, etc.)</para>
+</simplesect>
+<simplesect kind="see"><para>UAX #29: Unicode Text Segmentation </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/CharProps.h" line="244" column="27" bodyfile="terminal/CharProps.h" bodystart="244" bodyend="247"/>
+        <references refid="struct_char_props_1a8652b68acf8b2c9885982b2a619a54a5" compoundref="_char_props_8h" startline="67" endline="67">val</references>
+      </memberdef>
+      <memberdef kind="function" id="struct_char_props_1acee8709393ce3e46bf43d06ab02d6d71" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type><ref refid="_char_props_data_8h_1a4ff00928d04f09ada96fbc599149240d" kindref="member">IndicConjunctBreak</ref></type>
+        <definition>IndicConjunctBreak CharProps::indicConjunctBreak</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>indicConjunctBreak</name>
+        <qualifiedname>CharProps::indicConjunctBreak</qualifiedname>
+        <briefdescription>
+<para>Returns the Indic Conjunct Break property. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the <ref refid="_char_props_data_8h_1a4ff00928d04f09ada96fbc599149240d" kindref="member">IndicConjunctBreak</ref> enum value used for complex script rendering in Indic scripts (Devanagari, Bengali, etc.).</para>
+<para><simplesect kind="return"><para><ref refid="_char_props_data_8h_1a4ff00928d04f09ada96fbc599149240d" kindref="member">IndicConjunctBreak</ref> value (None, Linker, Consonant, Extend) </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/CharProps.h" line="257" column="24" bodyfile="terminal/CharProps.h" bodystart="257" bodyend="260"/>
+        <references refid="struct_char_props_1a8652b68acf8b2c9885982b2a619a54a5" compoundref="_char_props_8h" startline="67" endline="67">val</references>
+      </memberdef>
+      <memberdef kind="function" id="struct_char_props_1ad31730fe2eb8dce2dc5cfbd19bcb0f89" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type><ref refid="_char_props_data_8h_1a969d29bd7d8fddf681111d4645dbdbcf" kindref="member">UnicodeCategory</ref></type>
+        <definition>UnicodeCategory CharProps::category</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>category</name>
+        <qualifiedname>CharProps::category</qualifiedname>
+        <briefdescription>
+<para>Returns the Unicode General Category. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the <ref refid="_char_props_data_8h_1a969d29bd7d8fddf681111d4645dbdbcf" kindref="member">UnicodeCategory</ref> enum value representing the general category of this character (Lu, Ll, Nd, Po, etc.).</para>
+<para><simplesect kind="return"><para><ref refid="_char_props_data_8h_1a969d29bd7d8fddf681111d4645dbdbcf" kindref="member">UnicodeCategory</ref> value </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/CharProps.h" line="270" column="21" bodyfile="terminal/CharProps.h" bodystart="270" bodyend="273"/>
+        <references refid="struct_char_props_1a8652b68acf8b2c9885982b2a619a54a5" compoundref="_char_props_8h" startline="67" endline="67">val</references>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Packed 32-bit per-codepoint Unicode character properties. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>This struct provides efficient access to Unicode character properties stored in a single 32-bit word. Bit-packing is used to minimize memory footprint and maximize cache efficiency during terminal text rendering.</para>
+<para><simplesect kind="par"><title>Bit Layout (little-endian, LSB first)</title><para><programlisting><codeline><highlight class="normal"><sp/>Bit<sp/><sp/>|<sp/>Field</highlight></codeline>
+<codeline><highlight class="normal"><sp/>-----|--------------------------</highlight></codeline>
+<codeline><highlight class="normal"><sp/>[0]<sp/><sp/>|<sp/>is_emoji_presentation</highlight></codeline>
+<codeline><highlight class="normal"><sp/>[8:1]|<sp/>padding<sp/>(unused)</highlight></codeline>
+<codeline><highlight class="normal"><sp/>[11:9]|<sp/>shifted_width<sp/>(3<sp/>bits)</highlight></codeline>
+<codeline><highlight class="normal"><sp/>[12]<sp/>|<sp/>is_emoji</highlight></codeline>
+<codeline><highlight class="normal"><sp/>[17:13]|<sp/><ref refid="struct_char_props_1ad31730fe2eb8dce2dc5cfbd19bcb0f89" kindref="member">category</ref><sp/>(5<sp/>bits)</highlight></codeline>
+<codeline><highlight class="normal"><sp/>[18]<sp/>|<sp/>is_emoji_variation_base</highlight></codeline>
+<codeline><highlight class="normal"><sp/>[19]<sp/>|<sp/>is_invalid</highlight></codeline>
+<codeline><highlight class="normal"><sp/>[20]<sp/>|<sp/>is_non_rendered</highlight></codeline>
+<codeline><highlight class="normal"><sp/>[21]<sp/>|<sp/>is_symbol</highlight></codeline>
+<codeline><highlight class="normal"><sp/>[22]<sp/>|<sp/>is_combining_char</highlight></codeline>
+<codeline><highlight class="normal"><sp/>[23]<sp/>|<sp/>is_word_char</highlight></codeline>
+<codeline><highlight class="normal"><sp/>[24]<sp/>|<sp/>is_punctuation</highlight></codeline>
+<codeline><highlight class="normal"><sp/>[28:25]|<sp/>grapheme_break<sp/>(4<sp/>bits)</highlight></codeline>
+<codeline><highlight class="normal"><sp/>[30:29]|<sp/>indic_conjunct_break<sp/>(2<sp/>bits)</highlight></codeline>
+<codeline><highlight class="normal"><sp/>[31]<sp/>|<sp/>is_extended_pictographic</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">Top<sp/>7<sp/>bits<sp/>[31:25]<sp/>=<sp/>grapheme_segmentation_property<sp/>(used<sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>state<sp/>machine)</highlight></codeline>
+</programlisting></para>
+</simplesect>
+<simplesect kind="par"><title>Why Bit-Packing?</title><para><itemizedlist>
+<listitem><para>Cache efficiency: One cache line (64 bytes) holds 16 <ref refid="struct_char_props" kindref="compound">CharProps</ref> entries</para>
+</listitem><listitem><para>Memory bandwidth: Single memory access fetches all properties</para>
+</listitem><listitem><para>SIMD-friendly: Multiple properties can be processed in parallel</para>
+</listitem></itemizedlist>
+</para>
+</simplesect>
+<simplesect kind="note"><para>This struct is trivially copyable and can be passed by value without performance penalty.</para>
+</simplesect>
+<simplesect kind="note"><para><ref refid="classThread" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Thread</ref> safety: This struct and its lookup functions are read-only after initialization. Any thread may access them without synchronization. </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <location file="terminal/CharProps.h" line="65" column="1" bodyfile="terminal/CharProps.h" bodystart="66" bodyend="274"/>
+    <listofallmembers>
+      <member refid="struct_char_props_1ad31730fe2eb8dce2dc5cfbd19bcb0f89" prot="public" virt="non-virtual"><scope>CharProps</scope><name>category</name></member>
+      <member refid="struct_char_props_1ad8b5baf2801c72e856e2bee47e9967df" prot="public" virt="non-virtual"><scope>CharProps</scope><name>graphemeBreak</name></member>
+      <member refid="struct_char_props_1ade2e6788c3e28f0c295b927941182cb6" prot="public" virt="non-virtual"><scope>CharProps</scope><name>graphemeSegmentationProperty</name></member>
+      <member refid="struct_char_props_1acee8709393ce3e46bf43d06ab02d6d71" prot="public" virt="non-virtual"><scope>CharProps</scope><name>indicConjunctBreak</name></member>
+      <member refid="struct_char_props_1a81e5d7a420d48694b3cc143bb4a654cf" prot="public" virt="non-virtual"><scope>CharProps</scope><name>isCombiningChar</name></member>
+      <member refid="struct_char_props_1ac5775f3e4a9a4e83c4468942520b14f1" prot="public" virt="non-virtual"><scope>CharProps</scope><name>isEmoji</name></member>
+      <member refid="struct_char_props_1aab64b65c32193f3e05ce27a88e7692ff" prot="public" virt="non-virtual"><scope>CharProps</scope><name>isEmojiPresentation</name></member>
+      <member refid="struct_char_props_1a766a7b6e6b4ad5226ca6030fe8d8f2d4" prot="public" virt="non-virtual"><scope>CharProps</scope><name>isEmojiVariationBase</name></member>
+      <member refid="struct_char_props_1a7eb53f1d0fbeeaf7cb24df6f891182ed" prot="public" virt="non-virtual"><scope>CharProps</scope><name>isExtendedPictographic</name></member>
+      <member refid="struct_char_props_1a7d627ebc31d128e1ed918261194b48be" prot="public" virt="non-virtual"><scope>CharProps</scope><name>isInvalid</name></member>
+      <member refid="struct_char_props_1aae80116d6d3592e3907b95be7b2e39a4" prot="public" virt="non-virtual"><scope>CharProps</scope><name>isNonRendered</name></member>
+      <member refid="struct_char_props_1ae1ce95812752bf45517cd518d7d9451e" prot="public" virt="non-virtual"><scope>CharProps</scope><name>isPunctuation</name></member>
+      <member refid="struct_char_props_1a2308fabe92fc69872d0ece39e11a5c5d" prot="public" virt="non-virtual"><scope>CharProps</scope><name>isSymbol</name></member>
+      <member refid="struct_char_props_1adc5791d5767b8bc39ba92ad08cb1ce39" prot="public" virt="non-virtual"><scope>CharProps</scope><name>isWordChar</name></member>
+      <member refid="struct_char_props_1a8652b68acf8b2c9885982b2a619a54a5" prot="public" virt="non-virtual"><scope>CharProps</scope><name>val</name></member>
+      <member refid="struct_char_props_1a583a5a57fc96d06b3daebea49fd6d389" prot="public" virt="non-virtual"><scope>CharProps</scope><name>width</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

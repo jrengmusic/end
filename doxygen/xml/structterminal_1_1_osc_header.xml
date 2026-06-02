@@ -1,0 +1,56 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="structterminal_1_1_osc_header" kind="struct" language="C++" prot="public">
+    <compoundname>terminal::OscHeader</compoundname>
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structterminal_1_1_osc_header_1afd92985c81f3c04b307ce44da4a2ec3e" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int terminal::OscHeader::commandNumber</definition>
+        <argsstring></argsstring>
+        <name>commandNumber</name>
+        <qualifiedname>terminal::OscHeader::commandNumber</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+<para>Numeric OSC command code (e.g. 0, 2, 52). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/VideoOSC.cpp" line="54" column="9" bodyfile="terminal/VideoOSC.cpp" bodystart="54" bodyend="54"/>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_osc_header_1adb659f9f7c83f7b53cc1f9da4fc6fca7" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int terminal::OscHeader::dataStart</definition>
+        <argsstring></argsstring>
+        <name>dataStart</name>
+        <qualifiedname>terminal::OscHeader::dataStart</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+<para>Byte offset of the first data byte after &apos;;&apos;. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/VideoOSC.cpp" line="55" column="9" bodyfile="terminal/VideoOSC.cpp" bodystart="55" bodyend="55"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Parsed header of an OSC payload. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>An OSC payload has the form <computeroutput>&lt;<ref refid="group__juce__audio__plugin__client-Unity_1gga485dc2a0e5ed7da3d9f826367b36ee55a6440030ae8284cee96c1c88b356c45a7" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">command</ref>&gt;;&lt;data&gt;</computeroutput>. <computeroutput><ref refid="namespaceterminal_1af99945f0d6a4e0c9e6fb537cd03db47d" kindref="member">parseOscHeader()</ref></computeroutput> extracts the numeric command code and the byte offset at which the data portion begins.</para>
+<para><simplesect kind="see"><para><ref refid="namespaceterminal_1af99945f0d6a4e0c9e6fb537cd03db47d" kindref="member">parseOscHeader()</ref> </para>
+</simplesect>
+<simplesect kind="see"><para>applyOSC() </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <location file="terminal/VideoOSC.cpp" line="52" column="1" bodyfile="terminal/VideoOSC.cpp" bodystart="53" bodyend="56"/>
+    <listofallmembers>
+      <member refid="structterminal_1_1_osc_header_1afd92985c81f3c04b307ce44da4a2ec3e" prot="public" virt="non-virtual"><scope>terminal::OscHeader</scope><name>commandNumber</name></member>
+      <member refid="structterminal_1_1_osc_header_1adb659f9f7c83f7b53cc1f9da4fc6fca7" prot="public" virt="non-virtual"><scope>terminal::OscHeader</scope><name>dataStart</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

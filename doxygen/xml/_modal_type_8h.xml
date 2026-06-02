@@ -1,0 +1,470 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="_modal_type_8h" kind="file" language="C++">
+    <compoundname>ModalType.h</compoundname>
+    <includedby refid="_model_8h" local="yes">terminal/Model.h</includedby>
+    <includedby refid="_status_bar_overlay_8h" local="yes">terminal/component/StatusBarOverlay.h</includedby>
+    <includedby refid="_input_handler_8h" local="yes">whelmed/InputHandler.h</includedby>
+    <includedby refid="_screen_8h" local="yes">whelmed/Screen.h</includedby>
+    <includedby refid="_component_8h" local="yes">whelmed/component/Component.h</includedby>
+    <invincdepgraph>
+      <node id="11">
+        <label>Main.cpp</label>
+        <link refid="_main_8cpp"/>
+      </node>
+      <node id="10">
+        <label>Main.h</label>
+        <link refid="_main_8h"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>MainComponent.cpp</label>
+        <link refid="_main_component_8cpp"/>
+      </node>
+      <node id="9">
+        <label>MainComponent.h</label>
+        <link refid="_main_component_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>MainComponentActions.cpp</label>
+        <link refid="_main_component_actions_8cpp"/>
+      </node>
+      <node id="1">
+        <label>ModalType.h</label>
+        <link refid="_modal_type_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="47" relation="include">
+        </childnode>
+        <childnode refid="48" relation="include">
+        </childnode>
+        <childnode refid="52" relation="include">
+        </childnode>
+        <childnode refid="50" relation="include">
+        </childnode>
+      </node>
+      <node id="35">
+        <label>nexus/Channel.cpp</label>
+        <link refid="_channel_8cpp"/>
+      </node>
+      <node id="36">
+        <label>nexus/Daemon.cpp</label>
+        <link refid="_daemon_8cpp"/>
+      </node>
+      <node id="34">
+        <label>nexus/Daemon.h</label>
+        <link refid="_daemon_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+      </node>
+      <node id="37">
+        <label>nexus/Daemon.mm</label>
+        <link refid="_daemon_8mm"/>
+      </node>
+      <node id="38">
+        <label>nexus/DaemonWindows.cpp</label>
+        <link refid="_daemon_windows_8cpp"/>
+      </node>
+      <node id="40">
+        <label>nexus/Link.cpp</label>
+        <link refid="_link_8cpp"/>
+      </node>
+      <node id="39">
+        <label>nexus/Link.h</label>
+        <link refid="_link_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+      </node>
+      <node id="45">
+        <label>nexus/Nexus.cpp</label>
+        <link refid="_nexus_8cpp"/>
+      </node>
+      <node id="44">
+        <label>nexus/Nexus.h</label>
+        <link refid="_nexus_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>terminal/Input.cpp</label>
+        <link refid="_input_8cpp"/>
+      </node>
+      <node id="4">
+        <label>terminal/Input.h</label>
+        <link refid="_input_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="27">
+        <label>terminal/LinkManager.cpp</label>
+        <link refid="_link_manager_8cpp"/>
+      </node>
+      <node id="3">
+        <label>terminal/LinkManager.h</label>
+        <link refid="_link_manager_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="28">
+        <label>terminal/LinkManagerScan.cpp</label>
+        <link refid="_link_manager_scan_8cpp"/>
+      </node>
+      <node id="31">
+        <label>terminal/Model.cpp</label>
+        <link refid="_model_8cpp"/>
+      </node>
+      <node id="2">
+        <label>terminal/Model.h</label>
+        <link refid="_model_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+      </node>
+      <node id="32">
+        <label>terminal/ModelFlush.cpp</label>
+        <link refid="_model_flush_8cpp"/>
+      </node>
+      <node id="30">
+        <label>terminal/Mouse.cpp</label>
+        <link refid="_mouse_8cpp"/>
+      </node>
+      <node id="29">
+        <label>terminal/Mouse.h</label>
+        <link refid="_mouse_8h"/>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="41">
+        <label>terminal/Processor.cpp</label>
+        <link refid="_processor_8cpp"/>
+      </node>
+      <node id="33">
+        <label>terminal/Processor.h</label>
+        <link refid="_processor_8h"/>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+      </node>
+      <node id="42">
+        <label>terminal/ProcessorEvents.cpp</label>
+        <link refid="_processor_events_8cpp"/>
+      </node>
+      <node id="46">
+        <label>terminal/Session.cpp</label>
+        <link refid="_session_8cpp"/>
+      </node>
+      <node id="43">
+        <label>terminal/Session.h</label>
+        <link refid="_session_8h"/>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="44" relation="include">
+        </childnode>
+        <childnode refid="46" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>terminal/component/Display.cpp</label>
+        <link refid="_display_8cpp"/>
+      </node>
+      <node id="6">
+        <label>terminal/component/Display.h</label>
+        <link refid="_display_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>terminal/component/LookAndFeel.cpp</label>
+        <link refid="_look_and_feel_8cpp"/>
+      </node>
+      <node id="8">
+        <label>terminal/component/LookAndFeel.h</label>
+        <link refid="_look_and_feel_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>terminal/component/LookAndFeelMenu.cpp</label>
+        <link refid="_look_and_feel_menu_8cpp"/>
+      </node>
+      <node id="16">
+        <label>terminal/component/LookAndFeelTab.cpp</label>
+        <link refid="_look_and_feel_tab_8cpp"/>
+      </node>
+      <node id="22">
+        <label>terminal/component/ModalWindow.cpp</label>
+        <link refid="_modal_window_8cpp"/>
+      </node>
+      <node id="21">
+        <label>terminal/component/ModalWindow.h</label>
+        <link refid="_modal_window_8h"/>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="26">
+        <label>terminal/component/Panes.cpp</label>
+        <link refid="_panes_8cpp"/>
+      </node>
+      <node id="25">
+        <label>terminal/component/Panes.h</label>
+        <link refid="_panes_8h"/>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="24">
+        <label>terminal/component/Popup.cpp</label>
+        <link refid="_popup_8cpp"/>
+      </node>
+      <node id="23">
+        <label>terminal/component/Popup.h</label>
+        <link refid="_popup_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+      </node>
+      <node id="47">
+        <label>terminal/component/StatusBarOverlay.h</label>
+        <link refid="_status_bar_overlay_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="18">
+        <label>terminal/component/Tabs.cpp</label>
+        <link refid="_tabs_8cpp"/>
+      </node>
+      <node id="17">
+        <label>terminal/component/Tabs.h</label>
+        <link refid="_tabs_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="19">
+        <label>terminal/component/TabsActions.cpp</label>
+        <link refid="_tabs_actions_8cpp"/>
+      </node>
+      <node id="20">
+        <label>terminal/component/TabsClose.cpp</label>
+        <link refid="_tabs_close_8cpp"/>
+      </node>
+      <node id="49">
+        <label>whelmed/InputHandler.cpp</label>
+        <link refid="_input_handler_8cpp"/>
+      </node>
+      <node id="48">
+        <label>whelmed/InputHandler.h</label>
+        <link refid="_input_handler_8h"/>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="50" relation="include">
+        </childnode>
+      </node>
+      <node id="53">
+        <label>whelmed/Screen.cpp</label>
+        <link refid="_screen_8cpp"/>
+      </node>
+      <node id="52">
+        <label>whelmed/Screen.h</label>
+        <link refid="_screen_8h"/>
+        <childnode refid="48" relation="include">
+        </childnode>
+        <childnode refid="53" relation="include">
+        </childnode>
+        <childnode refid="50" relation="include">
+        </childnode>
+      </node>
+      <node id="51">
+        <label>whelmed/component/Component.cpp</label>
+        <link refid="_component_8cpp"/>
+      </node>
+      <node id="50">
+        <label>whelmed/component/Component.h</label>
+        <link refid="_component_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="51" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <sectiondef kind="enum">
+      <memberdef kind="enum" id="_modal_type_8h_1a1878c47fb0486dfcf512d127b5342816" prot="public" static="no" strong="yes">
+        <type>uint8_t</type>
+        <name>ModalType</name>
+        <enumvalue id="_modal_type_8h_1a1878c47fb0486dfcf512d127b5342816a334c4a4c42fdb79d7ebc3e73b517e6f8" prot="public">
+          <name>none</name>
+          <briefdescription>
+<para>No modal active — normal input routing. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_modal_type_8h_1a1878c47fb0486dfcf512d127b5342816aef5714e0519bfaa645cdff7d28843b70" prot="public">
+          <name>selection</name>
+          <briefdescription>
+<para>Vim-style keyboard selection mode. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_modal_type_8h_1a1878c47fb0486dfcf512d127b5342816ae685fa8f409b4d1940a55acd187f280b" prot="public">
+          <name>openFile</name>
+          <briefdescription>
+<para>Open file / hyperlink hint label mode. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="_modal_type_8h_1a1878c47fb0486dfcf512d127b5342816a5caa4a36dd19a94bc3e12301f441fa9b" prot="public">
+          <name>uriAction</name>
+          <briefdescription>
+<para>URI picker overlay (reserved). </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Identifies which modal input mode is currently active. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><itemizedlist>
+<listitem><para><computeroutput>none</computeroutput> — normal input; keys flow to Action system and PTY/navigation.</para>
+</listitem><listitem><para><computeroutput>selection</computeroutput> — vim-style keyboard selection mode.</para>
+</listitem><listitem><para><computeroutput>openFile</computeroutput> — open file / hyperlink hint label mode (Terminal only).</para>
+</listitem><listitem><para><computeroutput>uriAction</computeroutput> — URI picker overlay (reserved).</para>
+</listitem></itemizedlist>
+</para>
+<para><simplesect kind="note"><para>Stored as int in <ref refid="classValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ValueTree</ref>. Compared as uint8_t for compactness. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="ModalType.h" line="26" column="1" bodyfile="ModalType.h" bodystart="27" bodyend="32"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Application-level modal input type enum. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Identifies which modal input mode is currently active across the application. Stored as a property on the <ref refid="struct_app_model" kindref="compound">AppModel</ref> TABS subtree. Both Terminal and Whelmed pane types share these modal types.</para>
+<para><simplesect kind="see"><para><ref refid="struct_app_model" kindref="compound">AppModel</ref> </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="_selection_type_8h_1acffca3b33fddce63d3220bc7487e879d" kindref="member">SelectionType</ref> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#pragma<sp/>once</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26" refid="_modal_type_8h_1a1878c47fb0486dfcf512d127b5342816" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">enum<sp/>class</highlight><highlight class="normal"><sp/><ref refid="_modal_type_8h_1a1878c47fb0486dfcf512d127b5342816" kindref="member">ModalType</ref><sp/>:<sp/>uint8_t</highlight></codeline>
+<codeline lineno="27"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="28" refid="_modal_type_8h_1a1878c47fb0486dfcf512d127b5342816a334c4a4c42fdb79d7ebc3e73b517e6f8" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="_modal_type_8h_1a1878c47fb0486dfcf512d127b5342816a334c4a4c42fdb79d7ebc3e73b517e6f8" kindref="member">none</ref>,<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="29" refid="_modal_type_8h_1a1878c47fb0486dfcf512d127b5342816aef5714e0519bfaa645cdff7d28843b70" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="_modal_type_8h_1a1878c47fb0486dfcf512d127b5342816aef5714e0519bfaa645cdff7d28843b70" kindref="member">selection</ref>,<sp/><sp/></highlight></codeline>
+<codeline lineno="30" refid="_modal_type_8h_1a1878c47fb0486dfcf512d127b5342816ae685fa8f409b4d1940a55acd187f280b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="_modal_type_8h_1a1878c47fb0486dfcf512d127b5342816ae685fa8f409b4d1940a55acd187f280b" kindref="member">openFile</ref>,<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="31" refid="_modal_type_8h_1a1878c47fb0486dfcf512d127b5342816a5caa4a36dd19a94bc3e12301f441fa9b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="_modal_type_8h_1a1878c47fb0486dfcf512d127b5342816a5caa4a36dd19a94bc3e12301f441fa9b" kindref="member">uriAction</ref><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="32"><highlight class="normal">};</highlight></codeline>
+    </programlisting>
+    <location file="ModalType.h"/>
+  </compounddef>
+</doxygen>

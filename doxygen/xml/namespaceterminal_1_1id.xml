@@ -1,0 +1,1507 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="namespaceterminal_1_1id" kind="namespace" language="C++">
+    <compoundname>terminal::id</compoundname>
+    <sectiondef kind="var">
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a9ca6b6efc0a9c3a15bc0d0f78b60e90d" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::SESSION</definition>
+        <argsstring></argsstring>
+        <name>SESSION</name>
+        <qualifiedname>terminal::id::SESSION</qualifiedname>
+        <initializer>{ &quot;SESSION&quot; }</initializer>
+        <briefdescription>
+<para>Root session node identifier. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="82" column="35" bodyfile="terminal/Identifier.h" bodystart="82" bodyend="82"/>
+        <referencedby refid="structterminal_1_1_model_1aef97b8774a8b4bd87be42862a1693c40" compoundref="_model_8cpp" startline="135" endline="139">terminal::Model::addTextParameter</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a7ab986ba96c3d9b8b1c8088318bc3591" compoundref="_model_8cpp" startline="49" endline="133">terminal::Model::buildLayout</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a75d2bb097066b5073e7b135d2ba08412" compoundref="_model_8cpp" startline="407" endline="415">terminal::Model::clearPasteEchoGate</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a3ec5532dfaeb0582a45b350e17aea607" compoundref="_model_8cpp" startline="391" endline="405">terminal::Model::consumePasteEcho</referencedby>
+        <referencedby refid="structterminal_1_1_model_1ab92732c6050593b13cf3d060f9755ef9" compoundref="_model_8cpp" startline="377" endline="380">terminal::Model::consumeSnapshotDirty</referencedby>
+        <referencedby refid="structterminal_1_1_model_1aad782d12a0ce3e431da6a125d053a174" compoundref="_model_8cpp" startline="452" endline="457">terminal::Model::dismissPreview</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a1bcc24d11a98aa621b738ce796a8cecc" compoundref="_model_8cpp" startline="329" endline="335">terminal::Model::extendOutputBlock</referencedby>
+        <referencedby refid="structterminal_1_1_model_1aaca46e7c6a6408bce096a44ebbc48c55" compoundref="_model_8cpp" startline="431" endline="434">terminal::Model::isSyncOutputActive</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
+        <referencedby refid="classterminal_1_1_tabs_1a729530e36f5facd240fdf7fc725f9be4" compoundref="_tabs_actions_8cpp" startline="133" endline="242">terminal::Tabs::restore</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a77b39c03cb2601687a4978d8df3d3415" compoundref="_model_8cpp" startline="300" endline="304">terminal::Model::setCwd</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a8bc5f83f625fe7cd18314d199f0cc500" compoundref="_model_8cpp" startline="306" endline="310">terminal::Model::setForegroundProcess</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a530c92941be8fb977d50c971db120b20" compoundref="_model_8cpp" startline="463" endline="463">terminal::Model::setHintPage</referencedby>
+        <referencedby refid="structterminal_1_1_model_1aa943b54264f59c5d38862e3fbf9e54d9" compoundref="_model_8cpp" startline="471" endline="471">terminal::Model::setHintTotalPages</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a6ec8eb9951670cab685bccb43b092c3d" compoundref="_model_8cpp" startline="483" endline="487">terminal::Model::setModalType</referencedby>
+        <referencedby refid="structterminal_1_1_model_1af0e21e00d90bbc9b343143edccc328f4" compoundref="_model_8cpp" startline="323" endline="327">terminal::Model::setOutputBlockEnd</referencedby>
+        <referencedby refid="structterminal_1_1_model_1ab9c597923e8fdcb8240709c4d856f160" compoundref="_model_8cpp" startline="316" endline="321">terminal::Model::setOutputBlockStart</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a5de132a550efcc6f316a568e39355148" compoundref="_model_8cpp" startline="386" endline="389">terminal::Model::setPasteEchoGate</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a830c4954526c2fee16df30f8c213917f" compoundref="_model_8cpp" startline="337" endline="337">terminal::Model::setPromptRow</referencedby>
+        <referencedby refid="structterminal_1_1_model_1ab66e64775abf6c51f8250df8c50461cb" compoundref="_model_8cpp" startline="290" endline="290">terminal::Model::setScreen</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a2c0394042e5183dfd9c509f67b749c64" compoundref="_model_8cpp" startline="363" endline="363">terminal::Model::setShellExited</referencedby>
+        <referencedby refid="structterminal_1_1_model_1abb78d85d14fe48e4a3e22c90360345a8" compoundref="_model_8cpp" startline="369" endline="375">terminal::Model::setSnapshotDirty</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a9ae703cf77731ff7ca6af000feb05f84" compoundref="_model_8cpp" startline="421" endline="429">terminal::Model::setSyncOutput</referencedby>
+        <referencedby refid="structterminal_1_1_model_1aa0e2b35761335b2e03a4ba2f5a4abff5" compoundref="_model_8cpp" startline="294" endline="298">terminal::Model::setTitle</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a79a59a405b5e0ea4bd4bdc099abf47b2" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::MODES</definition>
+        <argsstring></argsstring>
+        <name>MODES</name>
+        <qualifiedname>terminal::id::MODES</qualifiedname>
+        <initializer>{ &quot;MODES&quot; }</initializer>
+        <briefdescription>
+<para>Container node for terminal mode states (DEC private modes). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="85" column="35" bodyfile="terminal/Identifier.h" bodystart="85" bodyend="85"/>
+        <referencedby refid="structterminal_1_1_model_1a7ab986ba96c3d9b8b1c8088318bc3591" compoundref="_model_8cpp" startline="49" endline="133">terminal::Model::buildLayout</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a34ae5e9c536e91f0f0058bdbf3f6ef84" compoundref="_model_8cpp" startline="224" endline="229">terminal::Model::getMode</referencedby>
+        <referencedby refid="structterminal_1_1_model_1ad500ddcb5ed1166edddc88c7b4e089c0" compoundref="_model_8cpp" startline="292" endline="292">terminal::Model::setMode</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a524696f5c8e1fc1e4abc0a43b07a7298" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::NORMAL</definition>
+        <argsstring></argsstring>
+        <name>NORMAL</name>
+        <qualifiedname>terminal::id::NORMAL</qualifiedname>
+        <initializer>{ &quot;NORMAL&quot; }</initializer>
+        <briefdescription>
+<para>Normal screen buffer identifier (DECSC). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="88" column="35" bodyfile="terminal/Identifier.h" bodystart="88" bodyend="88"/>
+        <referencedby refid="struct_map_1_1_screen_1ac26be27a982174d718d75abcfa51a4f9" compoundref="_map_8h" startline="29" endline="35">Map::Screen::Screen</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1ae2e4c1ee4ad6f240a83b1bc38591247a" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::ALTERNATE</definition>
+        <argsstring></argsstring>
+        <name>ALTERNATE</name>
+        <qualifiedname>terminal::id::ALTERNATE</qualifiedname>
+        <initializer>{ &quot;ALTERNATE&quot; }</initializer>
+        <briefdescription>
+<para>Alternate screen buffer identifier (DECSC). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="91" column="35" bodyfile="terminal/Identifier.h" bodystart="91" bodyend="91"/>
+        <referencedby refid="struct_map_1_1_screen_1ac26be27a982174d718d75abcfa51a4f9" compoundref="_map_8h" startline="29" endline="35">Map::Screen::Screen</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a0cf58abbb081dca5e4e44d69619a2360" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::TEXT</definition>
+        <argsstring></argsstring>
+        <name>TEXT</name>
+        <qualifiedname>terminal::id::TEXT</qualifiedname>
+        <initializer>{ &quot;TEXT&quot; }</initializer>
+        <briefdescription>
+<para>Container node for cross-thread string (TEXT) parameter declarations. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="94" column="35" bodyfile="terminal/Identifier.h" bodystart="94" bodyend="94"/>
+        <referencedby refid="structterminal_1_1_model_1a7ab986ba96c3d9b8b1c8088318bc3591" compoundref="_model_8cpp" startline="49" endline="133">terminal::Model::buildLayout</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a691c402e18573ecfd2ea1d4853623309" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::SCREEN</definition>
+        <argsstring></argsstring>
+        <name>SCREEN</name>
+        <qualifiedname>terminal::id::SCREEN</qualifiedname>
+        <initializer>{ &quot;SCREEN&quot; }</initializer>
+        <briefdescription>
+<para>Screen parameter group node in Parameters.xml. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="97" column="35" bodyfile="terminal/Identifier.h" bodystart="97" bodyend="97"/>
+        <referencedby refid="structterminal_1_1_model_1a7ab986ba96c3d9b8b1c8088318bc3591" compoundref="_model_8cpp" startline="49" endline="133">terminal::Model::buildLayout</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1ac60aa22c1be553aa55cbd312cb0ef0df" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::DISPLAY</definition>
+        <argsstring></argsstring>
+        <name>DISPLAY</name>
+        <qualifiedname>terminal::id::DISPLAY</qualifiedname>
+        <initializer>{ &quot;DISPLAY&quot; }</initializer>
+        <briefdescription>
+<para><ref refid="classterminal_1_1_display" kindref="compound">Display</ref> metrics node — cell width/height/baseline/fontSize SSOT. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="100" column="35" bodyfile="terminal/Identifier.h" bodystart="100" bodyend="100"/>
+        <referencedby refid="classterminal_1_1_processor_1a47a73ee5512a61ccbc27086ba67a4d4b" compoundref="_processor_8cpp" startline="208" endline="216">terminal::Processor::setCellSize</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a4cea21a405bc847e5f7b62e8957dda2f" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::id</definition>
+        <argsstring></argsstring>
+        <name>id</name>
+        <qualifiedname>terminal::id::id</qualifiedname>
+        <initializer>{ &quot;id&quot; }</initializer>
+        <briefdescription>
+<para><ref refid="structterminal_1_1_parameter" kindref="compound">Parameter</ref> identifier (e.g., DEC private mode number). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="107" column="35" bodyfile="terminal/Identifier.h" bodystart="107" bodyend="107"/>
+        <referencedby refid="structterminal_1_1_model_1a7ab986ba96c3d9b8b1c8088318bc3591" compoundref="_model_8cpp" startline="49" endline="133">terminal::Model::buildLayout</referencedby>
+        <referencedby refid="classnexus_1_1_daemon_1a926bf8b33d96803c18cfbf7516da1e5b" compoundref="_daemon_8cpp" startline="415" endline="491">nexus::Daemon::valueTreePropertyChanged</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a96f58201d64de70c95725f3ec9f44676" compoundref="_display_8cpp" startline="91" endline="182">terminal::Display::valueTreePropertyChanged</referencedby>
+        <referencedby refid="classterminal_1_1_panes_1adfbcfe5d7d66050d58b6d7ddc0341973" compoundref="_panes_8cpp" startline="562" endline="616">terminal::Panes::valueTreePropertyChanged</referencedby>
+        <referencedby refid="classterminal_1_1_popup_1a6878254c4370918c27b8825f8dcc0373" compoundref="_popup_8cpp" startline="67" endline="79">terminal::Popup::valueTreePropertyChanged</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a42ab024e64bd69cb17969f24aa01f364" compoundref="_processor_8cpp" startline="189" endline="204">terminal::Processor::valueTreePropertyChanged</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a2b8b3a15901c16432311d99e99a34d67" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::value</definition>
+        <argsstring></argsstring>
+        <name>value</name>
+        <qualifiedname>terminal::id::value</qualifiedname>
+        <initializer>{ &quot;value&quot; }</initializer>
+        <briefdescription>
+<para><ref refid="structterminal_1_1_parameter" kindref="compound">Parameter</ref> value (the setting for this parameter). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="110" column="35" bodyfile="terminal/Identifier.h" bodystart="110" bodyend="110"/>
+        <referencedby refid="namespaceterminal_1ad3581f9d2e9f579bf01422fe6fe04958" compoundref="_model_8cpp" startline="238" endline="250">terminal::getSessionParamInt</referencedby>
+        <referencedby refid="classnexus_1_1_daemon_1a926bf8b33d96803c18cfbf7516da1e5b" compoundref="_daemon_8cpp" startline="415" endline="491">nexus::Daemon::valueTreePropertyChanged</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a96f58201d64de70c95725f3ec9f44676" compoundref="_display_8cpp" startline="91" endline="182">terminal::Display::valueTreePropertyChanged</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1af86d53af2040b8744eb7aed1fccf47c9" compoundref="_link_manager_8cpp" startline="207" endline="223">terminal::LinkManager::valueTreePropertyChanged</referencedby>
+        <referencedby refid="classterminal_1_1_panes_1adfbcfe5d7d66050d58b6d7ddc0341973" compoundref="_panes_8cpp" startline="562" endline="616">terminal::Panes::valueTreePropertyChanged</referencedby>
+        <referencedby refid="classterminal_1_1_popup_1a6878254c4370918c27b8825f8dcc0373" compoundref="_popup_8cpp" startline="67" endline="79">terminal::Popup::valueTreePropertyChanged</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a42ab024e64bd69cb17969f24aa01f364" compoundref="_processor_8cpp" startline="189" endline="204">terminal::Processor::valueTreePropertyChanged</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1ae236049709c3ebc0363a57f7390c905c" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::type</definition>
+        <argsstring></argsstring>
+        <name>type</name>
+        <qualifiedname>terminal::id::type</qualifiedname>
+        <initializer>{ &quot;type&quot; }</initializer>
+        <briefdescription>
+<para><ref refid="structterminal_1_1_parameter" kindref="compound">Parameter</ref> type attribute in XML schema. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="113" column="35" bodyfile="terminal/Identifier.h" bodystart="113" bodyend="113"/>
+        <referencedby refid="structterminal_1_1_model_1a7ab986ba96c3d9b8b1c8088318bc3591" compoundref="_model_8cpp" startline="49" endline="133">terminal::Model::buildLayout</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a5519c794b349ea904e4a2bf7b41dc037" compoundref="_model_8cpp" startline="31" endline="47">terminal::Model::resolveLayoutDefault</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1aad8c2aa01ce7bfe28bd953f034a19bf1" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::defaultValue</definition>
+        <argsstring></argsstring>
+        <name>defaultValue</name>
+        <qualifiedname>terminal::id::defaultValue</qualifiedname>
+        <initializer>{ &quot;default&quot; }</initializer>
+        <briefdescription>
+<para><ref refid="structterminal_1_1_parameter" kindref="compound">Parameter</ref> default value attribute in XML schema. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="116" column="35" bodyfile="terminal/Identifier.h" bodystart="116" bodyend="116"/>
+        <referencedby refid="structterminal_1_1_model_1a7ab986ba96c3d9b8b1c8088318bc3591" compoundref="_model_8cpp" startline="49" endline="133">terminal::Model::buildLayout</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a5519c794b349ea904e4a2bf7b41dc037" compoundref="_model_8cpp" startline="31" endline="47">terminal::Model::resolveLayoutDefault</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a5aa9ecf280801ec96645cec4e3be918e" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::maxlen</definition>
+        <argsstring></argsstring>
+        <name>maxlen</name>
+        <qualifiedname>terminal::id::maxlen</qualifiedname>
+        <initializer>{ &quot;maxlen&quot; }</initializer>
+        <briefdescription>
+<para>Text parameter max length attribute in XML schema. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="119" column="35" bodyfile="terminal/Identifier.h" bodystart="119" bodyend="119"/>
+        <referencedby refid="structterminal_1_1_model_1a7ab986ba96c3d9b8b1c8088318bc3591" compoundref="_model_8cpp" startline="49" endline="133">terminal::Model::buildLayout</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a9b28c291b349892dd5314443fec16e20" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::boolType</definition>
+        <argsstring></argsstring>
+        <name>boolType</name>
+        <qualifiedname>terminal::id::boolType</qualifiedname>
+        <initializer>{ &quot;bool&quot; }</initializer>
+        <briefdescription>
+<para>Boolean type string in XML schema. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="122" column="35" bodyfile="terminal/Identifier.h" bodystart="122" bodyend="122"/>
+        <referencedby refid="structterminal_1_1_model_1a5519c794b349ea904e4a2bf7b41dc037" compoundref="_model_8cpp" startline="31" endline="47">terminal::Model::resolveLayoutDefault</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1ad9fd72b61b4ec96b2a652a7762f89ac3" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::activeScreen</definition>
+        <argsstring></argsstring>
+        <name>activeScreen</name>
+        <qualifiedname>terminal::id::activeScreen</qualifiedname>
+        <initializer>{ &quot;activeScreen&quot; }</initializer>
+        <briefdescription>
+<para>Active screen index (which screen is currently visible). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="129" column="35" bodyfile="terminal/Identifier.h" bodystart="129" bodyend="129"/>
+        <referencedby refid="classterminal_1_1_video_1ab8c186d04c9a33e4fc6f64892ab05734" compoundref="_video_8cpp" startline="154" endline="171">terminal::Video::flush</referencedby>
+        <referencedby refid="structterminal_1_1_model_1aded6fea0a6e67962a83f0b00f605d610" compoundref="_model_8cpp" startline="231" endline="235">terminal::Model::getActiveScreen</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1a927ddc099855370ea7783bb9b97aef83" compoundref="_link_manager_8cpp" startline="15" endline="24">terminal::LinkManager::LinkManager</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
+        <referencedby refid="structterminal_1_1_model_1ab66e64775abf6c51f8250df8c50461cb" compoundref="_model_8cpp" startline="290" endline="290">terminal::Model::setScreen</referencedby>
+        <referencedby refid="classterminal_1_1_video_1ae01e2cd8843755d5a8e58e9d395f437a" compoundref="_video_edit_8cpp" startline="620" endline="638">terminal::Video::setScreen</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a96f58201d64de70c95725f3ec9f44676" compoundref="_display_8cpp" startline="91" endline="182">terminal::Display::valueTreePropertyChanged</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a24851586253954da0bdefe155b4bda44" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::cellWidth</definition>
+        <argsstring></argsstring>
+        <name>cellWidth</name>
+        <qualifiedname>terminal::id::cellWidth</qualifiedname>
+        <initializer>{ &quot;cellWidth&quot; }</initializer>
+        <briefdescription>
+<para>Logical cell width in pixels. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>SSOT for all cell metric consumers. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="132" column="35" bodyfile="terminal/Identifier.h" bodystart="132" bodyend="132"/>
+        <referencedby refid="classterminal_1_1_display_1a4d5c9e51f93d6251bd8cdf81b8a9bd75" compoundref="_display_8cpp" startline="51" endline="72">terminal::Display::applyFromAppModel</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a55c3277d5426fc60a5318834bc630226" compoundref="_processor_8cpp" startline="39" endline="61">terminal::Processor::Processor</referencedby>
+        <referencedby refid="classterminal_1_1_display_1afd5758511197f47a6bf7fb96d9886b5a" compoundref="_display_8cpp" startline="218" endline="256">terminal::Display::resized</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a47a73ee5512a61ccbc27086ba67a4d4b" compoundref="_processor_8cpp" startline="208" endline="216">terminal::Processor::setCellSize</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a90a87bb834cd3d8010472103526b0e6f" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::cellHeight</definition>
+        <argsstring></argsstring>
+        <name>cellHeight</name>
+        <qualifiedname>terminal::id::cellHeight</qualifiedname>
+        <initializer>{ &quot;cellHeight&quot; }</initializer>
+        <briefdescription>
+<para>Logical cell height in pixels. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>SSOT for all cell metric consumers. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="135" column="35" bodyfile="terminal/Identifier.h" bodystart="135" bodyend="135"/>
+        <referencedby refid="classterminal_1_1_display_1a4d5c9e51f93d6251bd8cdf81b8a9bd75" compoundref="_display_8cpp" startline="51" endline="72">terminal::Display::applyFromAppModel</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a55c3277d5426fc60a5318834bc630226" compoundref="_processor_8cpp" startline="39" endline="61">terminal::Processor::Processor</referencedby>
+        <referencedby refid="classterminal_1_1_display_1afd5758511197f47a6bf7fb96d9886b5a" compoundref="_display_8cpp" startline="218" endline="256">terminal::Display::resized</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a47a73ee5512a61ccbc27086ba67a4d4b" compoundref="_processor_8cpp" startline="208" endline="216">terminal::Processor::setCellSize</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a0e30c34b95c11793be83bc3c6adb0c27" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::baseline</definition>
+        <argsstring></argsstring>
+        <name>baseline</name>
+        <qualifiedname>terminal::id::baseline</qualifiedname>
+        <initializer>{ &quot;baseline&quot; }</initializer>
+        <briefdescription>
+<para>Baseline offset in pixels from cell top. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="138" column="35" bodyfile="terminal/Identifier.h" bodystart="138" bodyend="138"/>
+        <referencedby refid="classterminal_1_1_display_1a4d5c9e51f93d6251bd8cdf81b8a9bd75" compoundref="_display_8cpp" startline="51" endline="72">terminal::Display::applyFromAppModel</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a74ede1ffd0ee235b77447a91e4965995" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::fontSize</definition>
+        <argsstring></argsstring>
+        <name>fontSize</name>
+        <qualifiedname>terminal::id::fontSize</qualifiedname>
+        <initializer>{ &quot;fontSize&quot; }</initializer>
+        <briefdescription>
+<para>DPI-corrected font size in points. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="141" column="35" bodyfile="terminal/Identifier.h" bodystart="141" bodyend="141"/>
+        <referencedby refid="classterminal_1_1_display_1a4d5c9e51f93d6251bd8cdf81b8a9bd75" compoundref="_display_8cpp" startline="51" endline="72">terminal::Display::applyFromAppModel</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a456802ad45a86367448f081a7d52eaf7" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::hintPage</definition>
+        <argsstring></argsstring>
+        <name>hintPage</name>
+        <qualifiedname>terminal::id::hintPage</qualifiedname>
+        <initializer>{ &quot;hintPage&quot; }</initializer>
+        <briefdescription>
+<para>Current hint page index (0-based). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Updated on open-file mode entry and spacebar. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="144" column="35" bodyfile="terminal/Identifier.h" bodystart="144" bodyend="144"/>
+        <referencedby refid="structterminal_1_1_model_1a79c2f1763b4446d250dcd8cf8536f5e7" compoundref="_model_8cpp" startline="465" endline="469">terminal::Model::getHintPage</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a530c92941be8fb977d50c971db120b20" compoundref="_model_8cpp" startline="463" endline="463">terminal::Model::setHintPage</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1aa4006061c863080a7f3920bbce114dc2" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::hintTotalPages</definition>
+        <argsstring></argsstring>
+        <name>hintTotalPages</name>
+        <qualifiedname>terminal::id::hintTotalPages</qualifiedname>
+        <initializer>{ &quot;hintTotalPages&quot; }</initializer>
+        <briefdescription>
+<para>Total number of hint pages. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Updated on open-file mode entry. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="147" column="35" bodyfile="terminal/Identifier.h" bodystart="147" bodyend="147"/>
+        <referencedby refid="structterminal_1_1_model_1aac24f406754f3362c2b6bfa0af234ae0" compoundref="_model_8cpp" startline="473" endline="477">terminal::Model::getHintTotalPages</referencedby>
+        <referencedby refid="structterminal_1_1_model_1aa943b54264f59c5d38862e3fbf9e54d9" compoundref="_model_8cpp" startline="471" endline="471">terminal::Model::setHintTotalPages</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a3a9b532716e8f0ab83ae7b5366ec579c" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::title</definition>
+        <argsstring></argsstring>
+        <name>title</name>
+        <qualifiedname>terminal::id::title</qualifiedname>
+        <initializer>{ &quot;title&quot; }</initializer>
+        <briefdescription>
+<para><ref refid="classterminal_1_1_window" kindref="compound">Window</ref> title set by OSC 0/2 escape sequences. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="154" column="35" bodyfile="terminal/Identifier.h" bodystart="154" bodyend="154"/>
+        <referencedby refid="structterminal_1_1_model_1a87aa381a2183e84203b6e366f5ea9a03" compoundref="_model_8cpp" startline="266" endline="270">terminal::Model::getTitle</referencedby>
+        <referencedby refid="classterminal_1_1_video_1ad1cc91f82c7c4a003632d8325bc44344" compoundref="_video_o_s_c_8cpp" startline="120" endline="129">terminal::Video::handleOscTitle</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
+        <referencedby refid="structterminal_1_1_model_1aa0e2b35761335b2e03a4ba2f5a4abff5" compoundref="_model_8cpp" startline="294" endline="298">terminal::Model::setTitle</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a0d551d759a87363c22a6d1712cf26cd9" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::cwd</definition>
+        <argsstring></argsstring>
+        <name>cwd</name>
+        <qualifiedname>terminal::id::cwd</qualifiedname>
+        <initializer>{ &quot;cwd&quot; }</initializer>
+        <briefdescription>
+<para>Current working directory path from OSC 7 or OS query. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="157" column="35" bodyfile="terminal/Identifier.h" bodystart="157" bodyend="157"/>
+        <referencedby refid="structterminal_1_1_model_1a25ba72627e3bd4ab113b200db5db3e94" compoundref="_model_8cpp" startline="272" endline="276">terminal::Model::getCwd</referencedby>
+        <referencedby refid="struct_app_model_1af7eeffe94f371e3ee1ed43c8f796853f" compoundref="_app_model_8cpp" startline="399" endline="408">AppModel::getPwd</referencedby>
+        <referencedby refid="classterminal_1_1_video_1a5a413a2e42e3a48e5f392faf9c37a02d" compoundref="_video_o_s_c_8cpp" startline="131" endline="196">terminal::Video::handleOscCwd</referencedby>
+        <referencedby refid="classnexus_1_1_link_1a90d54f4bafa0d44a37b998c844f931d3" compoundref="_link_8cpp" startline="434" endline="465">nexus::Link::handleStateUpdate</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
+        <referencedby refid="classterminal_1_1_tabs_1a729530e36f5facd240fdf7fc725f9be4" compoundref="_tabs_actions_8cpp" startline="133" endline="242">terminal::Tabs::restore</referencedby>
+        <referencedby refid="classterminal_1_1_session_1af962daaaee0103cc100a1661f4a1c32a" compoundref="_session_8cpp" startline="241" endline="260">terminal::Session::Session</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a77b39c03cb2601687a4978d8df3d3415" compoundref="_model_8cpp" startline="300" endline="304">terminal::Model::setCwd</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a8f79b466828dc06141487adc1e95cac1" compoundref="_processor_8cpp" startline="250" endline="267">terminal::Processor::setDisplayName</referencedby>
+        <referencedby refid="classnexus_1_1_daemon_1a926bf8b33d96803c18cfbf7516da1e5b" compoundref="_daemon_8cpp" startline="415" endline="491">nexus::Daemon::valueTreePropertyChanged</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a42ab024e64bd69cb17969f24aa01f364" compoundref="_processor_8cpp" startline="189" endline="204">terminal::Processor::valueTreePropertyChanged</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1adb1918ba2082b206d57bc4e3f969a5b0" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::foregroundProcess</definition>
+        <argsstring></argsstring>
+        <name>foregroundProcess</name>
+        <qualifiedname>terminal::id::foregroundProcess</qualifiedname>
+        <initializer>{ &quot;foregroundProcess&quot; }</initializer>
+        <briefdescription>
+<para>Name of the foreground process running in the terminal. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="160" column="35" bodyfile="terminal/Identifier.h" bodystart="160" bodyend="160"/>
+        <referencedby refid="structterminal_1_1_model_1a5ed4c561122970956425e400560a2b54" compoundref="_model_8cpp" startline="278" endline="282">terminal::Model::getForegroundProcess</referencedby>
+        <referencedby refid="classnexus_1_1_link_1a90d54f4bafa0d44a37b998c844f931d3" compoundref="_link_8cpp" startline="434" endline="465">nexus::Link::handleStateUpdate</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a8f79b466828dc06141487adc1e95cac1" compoundref="_processor_8cpp" startline="250" endline="267">terminal::Processor::setDisplayName</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a8bc5f83f625fe7cd18314d199f0cc500" compoundref="_model_8cpp" startline="306" endline="310">terminal::Model::setForegroundProcess</referencedby>
+        <referencedby refid="classnexus_1_1_daemon_1a926bf8b33d96803c18cfbf7516da1e5b" compoundref="_daemon_8cpp" startline="415" endline="491">nexus::Daemon::valueTreePropertyChanged</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a42ab024e64bd69cb17969f24aa01f364" compoundref="_processor_8cpp" startline="189" endline="204">terminal::Processor::valueTreePropertyChanged</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a0e02aeeb7594c0d7cef99ff35a8c1054" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::originMode</definition>
+        <argsstring></argsstring>
+        <name>originMode</name>
+        <qualifiedname>terminal::id::originMode</qualifiedname>
+        <initializer>{ &quot;originMode&quot; }</initializer>
+        <briefdescription>
+<para>Origin Mode (DECOM) - relative vs absolute cursor addressing. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="167" column="35" bodyfile="terminal/Identifier.h" bodystart="167" bodyend="167"/>
+        <referencedby refid="classterminal_1_1_video_1abb5ba6c2b2149f7851ab5de6db08abd0" compoundref="_video_8cpp" startline="198" endline="235">terminal::Video::modePtr</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a0e8e6d3467906059c0fa2d6881cc7f53" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::autoWrap</definition>
+        <argsstring></argsstring>
+        <name>autoWrap</name>
+        <qualifiedname>terminal::id::autoWrap</qualifiedname>
+        <initializer>{ &quot;autoWrap&quot; }</initializer>
+        <briefdescription>
+<para>Auto Wrap Mode (DECAWM) - cursor moves to next line at right margin. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="170" column="35" bodyfile="terminal/Identifier.h" bodystart="170" bodyend="170"/>
+        <referencedby refid="classterminal_1_1_video_1abb5ba6c2b2149f7851ab5de6db08abd0" compoundref="_video_8cpp" startline="198" endline="235">terminal::Video::modePtr</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a835b984d142092f0e66c3b84a7592e50" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::applicationCursor</definition>
+        <argsstring></argsstring>
+        <name>applicationCursor</name>
+        <qualifiedname>terminal::id::applicationCursor</qualifiedname>
+        <initializer>{ &quot;applicationCursor&quot; }</initializer>
+        <briefdescription>
+<para>Application <ref refid="struct_cursor" kindref="compound">Cursor</ref> Keys (DECCKM) - arrow key escape sequence mode. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="173" column="35" bodyfile="terminal/Identifier.h" bodystart="173" bodyend="173"/>
+        <referencedby refid="classterminal_1_1_processor_1ac27d1456511a72a12a478c90f90eda0e" compoundref="_processor_8cpp" startline="278" endline="300">terminal::Processor::encodeKeyPress</referencedby>
+        <referencedby refid="classterminal_1_1_video_1ab8c186d04c9a33e4fc6f64892ab05734" compoundref="_video_8cpp" startline="154" endline="171">terminal::Video::flush</referencedby>
+        <referencedby refid="classterminal_1_1_video_1abb5ba6c2b2149f7851ab5de6db08abd0" compoundref="_video_8cpp" startline="198" endline="235">terminal::Video::modePtr</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a3c3cd20cca6ef6297d7a9823a5a14fa6" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::bracketedPaste</definition>
+        <argsstring></argsstring>
+        <name>bracketedPaste</name>
+        <qualifiedname>terminal::id::bracketedPaste</qualifiedname>
+        <initializer>{ &quot;bracketedPaste&quot; }</initializer>
+        <briefdescription>
+<para>Bracketed Paste Mode (DECBPM) - wraps pasted text with markers. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="176" column="35" bodyfile="terminal/Identifier.h" bodystart="176" bodyend="176"/>
+        <referencedby refid="classterminal_1_1_link_manager_1a31972897ab13d8ab670c6c5abd749e57" compoundref="_link_manager_8cpp" startline="139" endline="187">terminal::LinkManager::dispatch</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a7e952949b06abd72a91595e5d664c8d0" compoundref="_processor_8cpp" startline="309" endline="331">terminal::Processor::encodePaste</referencedby>
+        <referencedby refid="classterminal_1_1_video_1ab8c186d04c9a33e4fc6f64892ab05734" compoundref="_video_8cpp" startline="154" endline="171">terminal::Video::flush</referencedby>
+        <referencedby refid="classterminal_1_1_video_1abb5ba6c2b2149f7851ab5de6db08abd0" compoundref="_video_8cpp" startline="198" endline="235">terminal::Video::modePtr</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a69a58b8f346aadfdd34c39eef14f76d7" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::insertMode</definition>
+        <argsstring></argsstring>
+        <name>insertMode</name>
+        <qualifiedname>terminal::id::insertMode</qualifiedname>
+        <initializer>{ &quot;insertMode&quot; }</initializer>
+        <briefdescription>
+<para>Insert Mode (IRM) - inserted characters shift existing content. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="179" column="35" bodyfile="terminal/Identifier.h" bodystart="179" bodyend="179"/>
+        <referencedby refid="classterminal_1_1_video_1abb5ba6c2b2149f7851ab5de6db08abd0" compoundref="_video_8cpp" startline="198" endline="235">terminal::Video::modePtr</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a763f34f3777ae9891c42b31ff8b54ec9" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::mouseTracking</definition>
+        <argsstring></argsstring>
+        <name>mouseTracking</name>
+        <qualifiedname>terminal::id::mouseTracking</qualifiedname>
+        <initializer>{ &quot;mouseTracking&quot; }</initializer>
+        <briefdescription>
+<para><ref refid="classterminal_1_1_mouse" kindref="compound">Mouse</ref> Tracking Mode (DECXM) - basic mouse button reporting. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="182" column="35" bodyfile="terminal/Identifier.h" bodystart="182" bodyend="182"/>
+        <referencedby refid="classterminal_1_1_video_1ab8c186d04c9a33e4fc6f64892ab05734" compoundref="_video_8cpp" startline="154" endline="171">terminal::Video::flush</referencedby>
+        <referencedby refid="classterminal_1_1_video_1abb5ba6c2b2149f7851ab5de6db08abd0" compoundref="_video_8cpp" startline="198" endline="235">terminal::Video::modePtr</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
+        <referencedby refid="classterminal_1_1_mouse_1a121ba6baba449a38de550335155c381e" compoundref="_mouse_8cpp" startline="288" endline="294">terminal::Mouse::shouldForwardToPty</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1abc2401b51dd58e607877f57caa34fcf5" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::mouseMotionTracking</definition>
+        <argsstring></argsstring>
+        <name>mouseMotionTracking</name>
+        <qualifiedname>terminal::id::mouseMotionTracking</qualifiedname>
+        <initializer>{ &quot;mouseMotionTracking&quot; }</initializer>
+        <briefdescription>
+<para><ref refid="classterminal_1_1_mouse" kindref="compound">Mouse</ref> Motion Tracking (DECMM) - report mouse movement with button pressed. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="185" column="35" bodyfile="terminal/Identifier.h" bodystart="185" bodyend="185"/>
+        <referencedby refid="classterminal_1_1_video_1ab8c186d04c9a33e4fc6f64892ab05734" compoundref="_video_8cpp" startline="154" endline="171">terminal::Video::flush</referencedby>
+        <referencedby refid="classterminal_1_1_video_1abb5ba6c2b2149f7851ab5de6db08abd0" compoundref="_video_8cpp" startline="198" endline="235">terminal::Video::modePtr</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
+        <referencedby refid="classterminal_1_1_mouse_1a121ba6baba449a38de550335155c381e" compoundref="_mouse_8cpp" startline="288" endline="294">terminal::Mouse::shouldForwardToPty</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1acf7c6273c18a0ca7153b11da1e5f98bb" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::mouseAllTracking</definition>
+        <argsstring></argsstring>
+        <name>mouseAllTracking</name>
+        <qualifiedname>terminal::id::mouseAllTracking</qualifiedname>
+        <initializer>{ &quot;mouseAllTracking&quot; }</initializer>
+        <briefdescription>
+<para><ref refid="classterminal_1_1_mouse" kindref="compound">Mouse</ref> All Tracking (DECMAM) - report all mouse movements. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="188" column="35" bodyfile="terminal/Identifier.h" bodystart="188" bodyend="188"/>
+        <referencedby refid="classterminal_1_1_video_1ab8c186d04c9a33e4fc6f64892ab05734" compoundref="_video_8cpp" startline="154" endline="171">terminal::Video::flush</referencedby>
+        <referencedby refid="classterminal_1_1_video_1abb5ba6c2b2149f7851ab5de6db08abd0" compoundref="_video_8cpp" startline="198" endline="235">terminal::Video::modePtr</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
+        <referencedby refid="classterminal_1_1_mouse_1a121ba6baba449a38de550335155c381e" compoundref="_mouse_8cpp" startline="288" endline="294">terminal::Mouse::shouldForwardToPty</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a8875114345d6eaa21aa977a93e75d836" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::mouseSgr</definition>
+        <argsstring></argsstring>
+        <name>mouseSgr</name>
+        <qualifiedname>terminal::id::mouseSgr</qualifiedname>
+        <initializer>{ &quot;mouseSgr&quot; }</initializer>
+        <briefdescription>
+<para>SGR <ref refid="classterminal_1_1_mouse" kindref="compound">Mouse</ref> Encoding (DECSGR) - use SGR escape sequences for mouse. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="191" column="35" bodyfile="terminal/Identifier.h" bodystart="191" bodyend="191"/>
+        <referencedby refid="classterminal_1_1_video_1abb5ba6c2b2149f7851ab5de6db08abd0" compoundref="_video_8cpp" startline="198" endline="235">terminal::Video::modePtr</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a2f8f090a0ef139ccdf5d295861e923e4" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::focusEvents</definition>
+        <argsstring></argsstring>
+        <name>focusEvents</name>
+        <qualifiedname>terminal::id::focusEvents</qualifiedname>
+        <initializer>{ &quot;focusEvents&quot; }</initializer>
+        <briefdescription>
+<para>Focus In/Out Events (DECFE) - send escape sequences on window focus. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="194" column="35" bodyfile="terminal/Identifier.h" bodystart="194" bodyend="194"/>
+        <referencedby refid="classterminal_1_1_processor_1ada78f7637abbbf289a1e78b13c09d117" compoundref="_processor_8cpp" startline="340" endline="351">terminal::Processor::encodeFocusEvent</referencedby>
+        <referencedby refid="classterminal_1_1_video_1ab8c186d04c9a33e4fc6f64892ab05734" compoundref="_video_8cpp" startline="154" endline="171">terminal::Video::flush</referencedby>
+        <referencedby refid="classterminal_1_1_video_1abb5ba6c2b2149f7851ab5de6db08abd0" compoundref="_video_8cpp" startline="198" endline="235">terminal::Video::modePtr</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a1fcda58dd9e216fd9e21d52e1aeaa7fb" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::applicationKeypad</definition>
+        <argsstring></argsstring>
+        <name>applicationKeypad</name>
+        <qualifiedname>terminal::id::applicationKeypad</qualifiedname>
+        <initializer>{ &quot;applicationKeypad&quot; }</initializer>
+        <briefdescription>
+<para>Application Keypad Mode (DECNKM) - numeric keypad sends application codes. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="197" column="35" bodyfile="terminal/Identifier.h" bodystart="197" bodyend="197"/>
+        <referencedby refid="classterminal_1_1_video_1abb5ba6c2b2149f7851ab5de6db08abd0" compoundref="_video_8cpp" startline="198" endline="235">terminal::Video::modePtr</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a539d9810a45c3abc5d935250d870d4af" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::cursorVisible</definition>
+        <argsstring></argsstring>
+        <name>cursorVisible</name>
+        <qualifiedname>terminal::id::cursorVisible</qualifiedname>
+        <initializer>{ &quot;cursorVisible&quot; }</initializer>
+        <briefdescription>
+<para><ref refid="struct_cursor" kindref="compound">Cursor</ref> Visibility - whether the cursor is rendered. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="200" column="35" bodyfile="terminal/Identifier.h" bodystart="200" bodyend="200"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a710962bdbd347a7cf7f78e8ceb9051ed" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::reverseVideo</definition>
+        <argsstring></argsstring>
+        <name>reverseVideo</name>
+        <qualifiedname>terminal::id::reverseVideo</qualifiedname>
+        <initializer>{ &quot;reverseVideo&quot; }</initializer>
+        <briefdescription>
+<para>Reverse <ref refid="classterminal_1_1_video" kindref="compound">Video</ref> Mode - swap foreground and background colors. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="203" column="35" bodyfile="terminal/Identifier.h" bodystart="203" bodyend="203"/>
+        <referencedby refid="classterminal_1_1_video_1abb5ba6c2b2149f7851ab5de6db08abd0" compoundref="_video_8cpp" startline="198" endline="235">terminal::Video::modePtr</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a7102a916dd94fc53d9661b2a21f40c6e" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::win32InputMode</definition>
+        <argsstring></argsstring>
+        <name>win32InputMode</name>
+        <qualifiedname>terminal::id::win32InputMode</qualifiedname>
+        <initializer>{ &quot;win32InputMode&quot; }</initializer>
+        <briefdescription>
+<para>Win32 <ref refid="classterminal_1_1_input" kindref="compound">Input</ref> Mode (XTerm 9001) - encode keyboard input as Win32 KEY_EVENT_RECORD. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="206" column="35" bodyfile="terminal/Identifier.h" bodystart="206" bodyend="206"/>
+        <referencedby refid="classterminal_1_1_processor_1ac27d1456511a72a12a478c90f90eda0e" compoundref="_processor_8cpp" startline="278" endline="300">terminal::Processor::encodeKeyPress</referencedby>
+        <referencedby refid="classterminal_1_1_video_1ab8c186d04c9a33e4fc6f64892ab05734" compoundref="_video_8cpp" startline="154" endline="171">terminal::Video::flush</referencedby>
+        <referencedby refid="classterminal_1_1_video_1abb5ba6c2b2149f7851ab5de6db08abd0" compoundref="_video_8cpp" startline="198" endline="235">terminal::Video::modePtr</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a30123845e4ea3907ed59d354a9a8dfcf" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::cursor</definition>
+        <argsstring></argsstring>
+        <name>cursor</name>
+        <qualifiedname>terminal::id::cursor</qualifiedname>
+        <initializer>{ &quot;cursor&quot; }</initializer>
+        <briefdescription>
+<para>Packed cursor state — row (12 bits) + col (12 bits) + visible (1 bit) + kbFlags (5 bits). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Pack: <ref refid="structterminal_1_1_cursor_state_1aea059eba9f1a5b49c2d1756219e402c6" kindref="member">CursorState::pack()</ref>. Unpack: <ref refid="structterminal_1_1_cursor_state_1aea1af6e36cad7b394db0164b6bb905ce" kindref="member">CursorState::unpack()</ref>. Used both as a per-screen State param and as a <ref refid="classterminal_1_1_video_1ab8c186d04c9a33e4fc6f64892ab05734" kindref="member">Video::flush()</ref> event key. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="215" column="35" bodyfile="terminal/Identifier.h" bodystart="215" bodyend="215"/>
+        <referencedby refid="classterminal_1_1_video_1ab8c186d04c9a33e4fc6f64892ab05734" compoundref="_video_8cpp" startline="154" endline="171">terminal::Video::flush</referencedby>
+        <referencedby refid="classterminal_1_1_input_1ace1c358d34fc58663db236f8da1a457e" compoundref="_input_8cpp" startline="127" endline="280">terminal::Input::handleSelectionKey</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a96f58201d64de70c95725f3ec9f44676" compoundref="_display_8cpp" startline="91" endline="182">terminal::Display::valueTreePropertyChanged</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a937e17d2e5aad3fb83c8a6a4cbecd656" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::cursorShape</definition>
+        <argsstring></argsstring>
+        <name>cursorShape</name>
+        <qualifiedname>terminal::id::cursorShape</qualifiedname>
+        <initializer>{ &quot;cursorShape&quot; }</initializer>
+        <briefdescription>
+<para>DECSCUSR cursor shape (0=default, 1=blinking block, 2=steady block, 3=blinking underline, 4=steady underline, 5=blinking bar, 6=steady bar). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="218" column="35" bodyfile="terminal/Identifier.h" bodystart="218" bodyend="218"/>
+        <referencedby refid="classterminal_1_1_video_1ac31960426b53edf8b1c9621d9e4771b1" compoundref="_video_mode_8cpp" startline="30" endline="38">terminal::Video::handleCursorStyle</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a301392a312f5ccaa0983093a5db6b3cf" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::keyboardFlags</definition>
+        <argsstring></argsstring>
+        <name>keyboardFlags</name>
+        <qualifiedname>terminal::id::keyboardFlags</qualifiedname>
+        <initializer>{ &quot;keyboardFlags&quot; }</initializer>
+        <briefdescription>
+<para>Progressive keyboard protocol flags (<ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> u bitmask). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>0 = legacy mode. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="221" column="35" bodyfile="terminal/Identifier.h" bodystart="221" bodyend="221"/>
+        <referencedby refid="classterminal_1_1_processor_1ac27d1456511a72a12a478c90f90eda0e" compoundref="_processor_8cpp" startline="278" endline="300">terminal::Processor::encodeKeyPress</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1acf5bcebd2a5d593ce1d4f1c9c7c9657e" compoundref="_processor_8cpp" startline="116" endline="128">terminal::Processor::popKeyboardMode</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1abd084da839dd83c344822114205ac194" compoundref="_processor_8cpp" startline="91" endline="114">terminal::Processor::pushKeyboardMode</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a69aea82767476642357bcd36c3c802e1" compoundref="_processor_8cpp" startline="167" endline="173">terminal::Processor::resetKeyboardMode</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a9d343472700fd601cec1ef52544a4c10" compoundref="_processor_8cpp" startline="130" endline="165">terminal::Processor::setKeyboardMode</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1ab46fc3afab7c779ba4e43ae40058100f" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::pasteEchoRemaining</definition>
+        <argsstring></argsstring>
+        <name>pasteEchoRemaining</name>
+        <qualifiedname>terminal::id::pasteEchoRemaining</qualifiedname>
+        <initializer>{ &quot;pasteEchoRemaining&quot; }</initializer>
+        <briefdescription>
+<para>Remaining paste echo bytes expected from the PTY (gate suppresses repaint). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="228" column="35" bodyfile="terminal/Identifier.h" bodystart="228" bodyend="228"/>
+        <referencedby refid="structterminal_1_1_model_1a75d2bb097066b5073e7b135d2ba08412" compoundref="_model_8cpp" startline="407" endline="415">terminal::Model::clearPasteEchoGate</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a3ec5532dfaeb0582a45b350e17aea607" compoundref="_model_8cpp" startline="391" endline="405">terminal::Model::consumePasteEcho</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a5de132a550efcc6f316a568e39355148" compoundref="_model_8cpp" startline="386" endline="389">terminal::Model::setPasteEchoGate</referencedby>
+        <referencedby refid="structterminal_1_1_model_1abb78d85d14fe48e4a3e22c90360345a8" compoundref="_model_8cpp" startline="369" endline="375">terminal::Model::setSnapshotDirty</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1afec10dc8ac75a5b9e0318b759455658f" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::syncOutputActive</definition>
+        <argsstring></argsstring>
+        <name>syncOutputActive</name>
+        <qualifiedname>terminal::id::syncOutputActive</qualifiedname>
+        <initializer>{ &quot;syncOutputActive&quot; }</initializer>
+        <briefdescription>
+<para>True while synchronized output (mode 2026) is active. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="231" column="35" bodyfile="terminal/Identifier.h" bodystart="231" bodyend="231"/>
+        <referencedby refid="structterminal_1_1_model_1aaca46e7c6a6408bce096a44ebbc48c55" compoundref="_model_8cpp" startline="431" endline="434">terminal::Model::isSyncOutputActive</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a9ae703cf77731ff7ca6af000feb05f84" compoundref="_model_8cpp" startline="421" endline="429">terminal::Model::setSyncOutput</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a2543ac3ae5aeaafa5ab1bf26cbdfb3f7" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::outputBlockTop</definition>
+        <argsstring></argsstring>
+        <name>outputBlockTop</name>
+        <qualifiedname>terminal::id::outputBlockTop</qualifiedname>
+        <initializer>{ &quot;outputBlockTop&quot; }</initializer>
+        <briefdescription>
+<para>First visible row of the current OSC 133 command output block. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>-1 = none. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="234" column="35" bodyfile="terminal/Identifier.h" bodystart="234" bodyend="234"/>
+        <referencedby refid="structterminal_1_1_model_1a7f3c8d52e5b62960ea217e70f83439d1" compoundref="_model_8cpp" startline="339" endline="339">terminal::Model::getOutputBlockTop</referencedby>
+        <referencedby refid="structterminal_1_1_model_1ab9c597923e8fdcb8240709c4d856f160" compoundref="_model_8cpp" startline="316" endline="321">terminal::Model::setOutputBlockStart</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a75b7028846845226a7194bfa2a594be1" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::outputBlockBottom</definition>
+        <argsstring></argsstring>
+        <name>outputBlockBottom</name>
+        <qualifiedname>terminal::id::outputBlockBottom</qualifiedname>
+        <initializer>{ &quot;outputBlockBottom&quot; }</initializer>
+        <briefdescription>
+<para>Last visible row of the current OSC 133 command output block. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>-1 = none. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="237" column="35" bodyfile="terminal/Identifier.h" bodystart="237" bodyend="237"/>
+        <referencedby refid="structterminal_1_1_model_1a1bcc24d11a98aa621b738ce796a8cecc" compoundref="_model_8cpp" startline="329" endline="335">terminal::Model::extendOutputBlock</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a9d77594f5ccf9ac9eb0b306b0fb2147d" compoundref="_model_8cpp" startline="341" endline="344">terminal::Model::getOutputBlockBottom</referencedby>
+        <referencedby refid="structterminal_1_1_model_1af0e21e00d90bbc9b343143edccc328f4" compoundref="_model_8cpp" startline="323" endline="327">terminal::Model::setOutputBlockEnd</referencedby>
+        <referencedby refid="structterminal_1_1_model_1ab9c597923e8fdcb8240709c4d856f160" compoundref="_model_8cpp" startline="316" endline="321">terminal::Model::setOutputBlockStart</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1acd1a21b7aba402cd89cc7c25d12c995f" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::outputScanActive</definition>
+        <argsstring></argsstring>
+        <name>outputScanActive</name>
+        <qualifiedname>terminal::id::outputScanActive</qualifiedname>
+        <initializer>{ &quot;outputScanActive&quot; }</initializer>
+        <briefdescription>
+<para>True between OSC 133 C and D while output is being produced. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="240" column="35" bodyfile="terminal/Identifier.h" bodystart="240" bodyend="240"/>
+        <referencedby refid="structterminal_1_1_model_1a1bcc24d11a98aa621b738ce796a8cecc" compoundref="_model_8cpp" startline="329" endline="335">terminal::Model::extendOutputBlock</referencedby>
+        <referencedby refid="structterminal_1_1_model_1af0e21e00d90bbc9b343143edccc328f4" compoundref="_model_8cpp" startline="323" endline="327">terminal::Model::setOutputBlockEnd</referencedby>
+        <referencedby refid="structterminal_1_1_model_1ab9c597923e8fdcb8240709c4d856f160" compoundref="_model_8cpp" startline="316" endline="321">terminal::Model::setOutputBlockStart</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1afb69df17fc87c56e23116b7df4409258" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::promptRow</definition>
+        <argsstring></argsstring>
+        <name>promptRow</name>
+        <qualifiedname>terminal::id::promptRow</qualifiedname>
+        <initializer>{ &quot;promptRow&quot; }</initializer>
+        <briefdescription>
+<para><ref refid="struct_cursor" kindref="compound">Cursor</ref> row of the most-recently received OSC 133 A prompt marker. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>-1 = none. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="243" column="35" bodyfile="terminal/Identifier.h" bodystart="243" bodyend="243"/>
+        <referencedby refid="structterminal_1_1_model_1aac6ceeff8f0e530370b29d8dcf8be665" compoundref="_model_8cpp" startline="346" endline="346">terminal::Model::getPromptRow</referencedby>
+        <referencedby refid="classterminal_1_1_video_1a82ade958d45e1e453781d91589e417d7" compoundref="_video_o_s_c_ext_8cpp" startline="105" endline="134">terminal::Video::handleOsc133</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1a927ddc099855370ea7783bb9b97aef83" compoundref="_link_manager_8cpp" startline="15" endline="24">terminal::LinkManager::LinkManager</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a830c4954526c2fee16df30f8c213917f" compoundref="_model_8cpp" startline="337" endline="337">terminal::Model::setPromptRow</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a6ed5f0b54262d71924426539d8577642" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::snapshotDirty</definition>
+        <argsstring></argsstring>
+        <name>snapshotDirty</name>
+        <qualifiedname>terminal::id::snapshotDirty</qualifiedname>
+        <initializer>{ &quot;snapshotDirty&quot; }</initializer>
+        <briefdescription>
+<para>True when new cell data has been written to the grid since the last repaint. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="250" column="35" bodyfile="terminal/Identifier.h" bodystart="250" bodyend="250"/>
+        <referencedby refid="structterminal_1_1_model_1ab92732c6050593b13cf3d060f9755ef9" compoundref="_model_8cpp" startline="377" endline="380">terminal::Model::consumeSnapshotDirty</referencedby>
+        <referencedby refid="structterminal_1_1_model_1aad782d12a0ce3e431da6a125d053a174" compoundref="_model_8cpp" startline="452" endline="457">terminal::Model::dismissPreview</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a6ec8eb9951670cab685bccb43b092c3d" compoundref="_model_8cpp" startline="483" endline="487">terminal::Model::setModalType</referencedby>
+        <referencedby refid="structterminal_1_1_model_1abb78d85d14fe48e4a3e22c90360345a8" compoundref="_model_8cpp" startline="369" endline="375">terminal::Model::setSnapshotDirty</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1aa40a8107f82915084eeaf18b7c685b8d" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::clearBuffer</definition>
+        <argsstring></argsstring>
+        <name>clearBuffer</name>
+        <qualifiedname>terminal::id::clearBuffer</qualifiedname>
+        <initializer>{ &quot;clearBuffer&quot; }</initializer>
+        <briefdescription>
+<para>Clear signal <ndash/> set to 1 by <ref refid="classterminal_1_1_video" kindref="compound">Video</ref> on erase mode 3 (clear scrollback). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Screen reads this and calls <ref refid="classTextEditor_1a63f9bab8dcbec46cf840bf199e7768a1" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">TextEditor::clear()</ref> to wipe the content buffer. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="254" column="35" bodyfile="terminal/Identifier.h" bodystart="254" bodyend="254"/>
+        <referencedby refid="classterminal_1_1_video_1adb079fc21af2881b5bedb8f70da24e53" compoundref="_video_edit_8cpp" startline="65" endline="241">terminal::Video::eraseInDisplay</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
+        <referencedby refid="classterminal_1_1_video_1a28ea654ec9f19ee8248baa9252d3e12a" compoundref="_video_8cpp" startline="866" endline="880">terminal::Video::reset</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a43eed2af41c8ffc8477921edddb6b50c" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::preview</definition>
+        <argsstring></argsstring>
+        <name>preview</name>
+        <qualifiedname>terminal::id::preview</qualifiedname>
+        <initializer>{ &quot;preview&quot; }</initializer>
+        <briefdescription>
+<para>True when an image preview is active (split viewport). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="261" column="35" bodyfile="terminal/Identifier.h" bodystart="261" bodyend="261"/>
+        <referencedby refid="structterminal_1_1_model_1aad782d12a0ce3e431da6a125d053a174" compoundref="_model_8cpp" startline="452" endline="457">terminal::Model::dismissPreview</referencedby>
+        <referencedby refid="structterminal_1_1_model_1ae8d00e9ca1dc650b197c56cd055a36d7" compoundref="_model_8cpp" startline="440" endline="444">terminal::Model::isPreviewActive</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1aa84a0b55dbe7052b6f15b150744317c6" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::splitCol</definition>
+        <argsstring></argsstring>
+        <name>splitCol</name>
+        <qualifiedname>terminal::id::splitCol</qualifiedname>
+        <initializer>{ &quot;splitCol&quot; }</initializer>
+        <briefdescription>
+<para>Column at which the terminal clips for preview split. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="264" column="35" bodyfile="terminal/Identifier.h" bodystart="264" bodyend="264"/>
+        <referencedby refid="structterminal_1_1_model_1aad782d12a0ce3e431da6a125d053a174" compoundref="_model_8cpp" startline="452" endline="457">terminal::Model::dismissPreview</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a7b52321fc962b551dc053e138512494d" compoundref="_model_8cpp" startline="446" endline="450">terminal::Model::getSplitCol</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a0d9d17bcc25443fdf33498a626dd4f41" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::bell</definition>
+        <argsstring></argsstring>
+        <name>bell</name>
+        <qualifiedname>terminal::id::bell</qualifiedname>
+        <initializer>{ &quot;bell&quot; }</initializer>
+        <briefdescription>
+<para>Fired on BEL (0x07) — no arguments. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="271" column="35" bodyfile="terminal/Identifier.h" bodystart="271" bodyend="271"/>
+        <referencedby refid="classterminal_1_1_video_1a76783d31ddf7702ac3562dbccb719192" compoundref="_video_8cpp" startline="708" endline="756">terminal::Video::applyControlCode</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1aa3fbec5b5ae87acdf1d05cc2cc0fd859" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::writeToHost</definition>
+        <argsstring></argsstring>
+        <name>writeToHost</name>
+        <qualifiedname>terminal::id::writeToHost</qualifiedname>
+        <initializer>{ &quot;writeToHost&quot; }</initializer>
+        <briefdescription>
+<para>Fired to deliver PTY response bytes to the host — args: const char*, int. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="274" column="35" bodyfile="terminal/Identifier.h" bodystart="274" bodyend="274"/>
+        <referencedby refid="classterminal_1_1_video_1ab5025390268d143644c351e76578c3bc" compoundref="_video_8cpp" startline="804" endline="811">terminal::Video::flushResponses</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a9ca3ff5dd10b9b5e05144dc762b58d69" compoundref="_processor_8cpp" startline="425" endline="458">terminal::Processor::startTTY</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a1ac842c1e41000e69c3ef8528d0bfa7e" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::clipboardChanged</definition>
+        <argsstring></argsstring>
+        <name>clipboardChanged</name>
+        <qualifiedname>terminal::id::clipboardChanged</qualifiedname>
+        <initializer>{ &quot;clipboardChanged&quot; }</initializer>
+        <briefdescription>
+<para>Fired on OSC 52 clipboard write — args: const juce::String&amp;. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="277" column="35" bodyfile="terminal/Identifier.h" bodystart="277" bodyend="277"/>
+        <referencedby refid="classterminal_1_1_video_1a00b27d0e165fb28a69a78af831b5ad35" compoundref="_video_o_s_c_8cpp" startline="232" endline="264">terminal::Video::handleOscClipboard</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1ad78a41b050c134f2c48f28f5baa1dc1e" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::desktopNotification</definition>
+        <argsstring></argsstring>
+        <name>desktopNotification</name>
+        <qualifiedname>terminal::id::desktopNotification</qualifiedname>
+        <initializer>{ &quot;desktopNotification&quot; }</initializer>
+        <briefdescription>
+<para>Fired on OSC 9 / OSC 777 desktop notification — args: const juce::String&amp;, const juce::String&amp;. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="280" column="35" bodyfile="terminal/Identifier.h" bodystart="280" bodyend="280"/>
+        <referencedby refid="classterminal_1_1_video_1a4ce7816b66ae8426e5a2b10ce3dd8c8f" compoundref="_video_o_s_c_8cpp" startline="321" endline="358">terminal::Video::handleOsc777</referencedby>
+        <referencedby refid="classterminal_1_1_video_1a39be590556c921a35591c46f82bba86e" compoundref="_video_o_s_c_8cpp" startline="286" endline="295">terminal::Video::handleOscNotification</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a01a3784616a2e1b0d4d9d9d4eed665ed" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::cursorColor</definition>
+        <argsstring></argsstring>
+        <name>cursorColor</name>
+        <qualifiedname>terminal::id::cursorColor</qualifiedname>
+        <initializer>{ &quot;cursorColor&quot; }</initializer>
+        <briefdescription>
+<para>Fired on OSC 12 cursor color set — args: int (screen), juce::Colour. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="283" column="35" bodyfile="terminal/Identifier.h" bodystart="283" bodyend="283"/>
+        <referencedby refid="classterminal_1_1_video_1a85b6c4193fdb314531be6090b16d6595" compoundref="_video_o_s_c_8cpp" startline="360" endline="396">terminal::Video::handleOscCursorColor</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a10ce0ab40e9e5c9cdacbd3124b6dd395" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::resetCursorColor</definition>
+        <argsstring></argsstring>
+        <name>resetCursorColor</name>
+        <qualifiedname>terminal::id::resetCursorColor</qualifiedname>
+        <initializer>{ &quot;resetCursorColor&quot; }</initializer>
+        <briefdescription>
+<para>Fired on OSC 112 cursor color reset — args: int (screen). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="286" column="35" bodyfile="terminal/Identifier.h" bodystart="286" bodyend="286"/>
+        <referencedby refid="classterminal_1_1_video_1a256efb55698f24cc68124ce3093c0921" compoundref="_video_o_s_c_8cpp" startline="398" endline="403">terminal::Video::handleOscResetCursorColor</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a6eee16d55ed76c9132c6480338315699" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::registerLink</definition>
+        <argsstring></argsstring>
+        <name>registerLink</name>
+        <qualifiedname>terminal::id::registerLink</qualifiedname>
+        <initializer>{ &quot;registerLink&quot; }</initializer>
+        <briefdescription>
+<para>Fired on OSC 8 hyperlink open — args: const juce::String&amp; uri, const juce::String&amp; params. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="289" column="35" bodyfile="terminal/Identifier.h" bodystart="289" bodyend="289"/>
+        <referencedby refid="classterminal_1_1_video_1a9856931c2ca5eb1c6540017a66d81a24" compoundref="_video_o_s_c_ext_8cpp" startline="47" endline="87">terminal::Video::handleOsc8</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a5cd7d84382b85fde50e18a947191c661" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::pushLine</definition>
+        <argsstring></argsstring>
+        <name>pushLine</name>
+        <qualifiedname>terminal::id::pushLine</qualifiedname>
+        <initializer>{ &quot;pushLine&quot; }</initializer>
+        <briefdescription>
+<para>Fired on the reader thread for each line departing to scrollback — args: int (screen). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Fires BEFORE the line is shifted up and cleared. Flat buffer: departing line is always at physical row 0. Handler reads the line and dispatches pushHistory to the message thread via callAsync. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="294" column="35" bodyfile="terminal/Identifier.h" bodystart="294" bodyend="294"/>
+        <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
+        <referencedby refid="classterminal_1_1_video_1a50705f6ab1944f44d361b3d4fe435217" compoundref="_video_8cpp" startline="305" endline="364">terminal::Video::scrollUpAndFill</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1aec32708e1a751f433991aba209944757" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::scrollUp</definition>
+        <argsstring></argsstring>
+        <name>scrollUp</name>
+        <qualifiedname>terminal::id::scrollUp</qualifiedname>
+        <initializer>{ &quot;scrollUp&quot; }</initializer>
+        <briefdescription>
+<para>Fired when <ref refid="classGrid" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Grid</ref> scrolls up — args: int (screen), int (count). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="297" column="35" bodyfile="terminal/Identifier.h" bodystart="297" bodyend="297"/>
+        <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
+        <referencedby refid="classterminal_1_1_video_1a1e984b42457ae5919d916bb97e7213e6" compoundref="_video_8cpp" startline="379" endline="416">terminal::Video::scrollDownAndFill</referencedby>
+        <referencedby refid="classterminal_1_1_video_1a50705f6ab1944f44d361b3d4fe435217" compoundref="_video_8cpp" startline="305" endline="364">terminal::Video::scrollUpAndFill</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1aab655554b6e4cb93e590dc8b8394544f" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::screenDirty</definition>
+        <argsstring></argsstring>
+        <name>screenDirty</name>
+        <qualifiedname>terminal::id::screenDirty</qualifiedname>
+        <initializer>{ &quot;screenDirty&quot; }</initializer>
+        <briefdescription>
+<para>Fired when cell data is written to <ref refid="classGrid" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Grid</ref> — args: int (screen). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Triggers Screen repaint. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="300" column="35" bodyfile="terminal/Identifier.h" bodystart="300" bodyend="300"/>
+        <referencedby refid="classterminal_1_1_video_1ab8c186d04c9a33e4fc6f64892ab05734" compoundref="_video_8cpp" startline="154" endline="171">terminal::Video::flush</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a96f58201d64de70c95725f3ec9f44676" compoundref="_display_8cpp" startline="91" endline="182">terminal::Display::valueTreePropertyChanged</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a61790115efca8d3461b73ce69c6bd3a6" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::outputBlockStart</definition>
+        <argsstring></argsstring>
+        <name>outputBlockStart</name>
+        <qualifiedname>terminal::id::outputBlockStart</qualifiedname>
+        <initializer>{ &quot;outputBlockStart&quot; }</initializer>
+        <briefdescription>
+<para>Fired on OSC 133 A prompt marker — args: int (relative row). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="303" column="35" bodyfile="terminal/Identifier.h" bodystart="303" bodyend="303"/>
+        <referencedby refid="classterminal_1_1_video_1a82ade958d45e1e453781d91589e417d7" compoundref="_video_o_s_c_ext_8cpp" startline="105" endline="134">terminal::Video::handleOsc133</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a76264888fa7c5abc6dcd41961ca941a5" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::outputBlockEnd</definition>
+        <argsstring></argsstring>
+        <name>outputBlockEnd</name>
+        <qualifiedname>terminal::id::outputBlockEnd</qualifiedname>
+        <initializer>{ &quot;outputBlockEnd&quot; }</initializer>
+        <briefdescription>
+<para>Fired on OSC 133 D output end marker — args: int (relative row). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="306" column="35" bodyfile="terminal/Identifier.h" bodystart="306" bodyend="306"/>
+        <referencedby refid="classterminal_1_1_video_1a82ade958d45e1e453781d91589e417d7" compoundref="_video_o_s_c_ext_8cpp" startline="105" endline="134">terminal::Video::handleOsc133</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a8b0f3fe7eebabafb7c48f8e3fba08a9e" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::extendOutputBlock</definition>
+        <argsstring></argsstring>
+        <name>extendOutputBlock</name>
+        <qualifiedname>terminal::id::extendOutputBlock</qualifiedname>
+        <initializer>{ &quot;extendOutputBlock&quot; }</initializer>
+        <briefdescription>
+<para>Fired on LF while output scan is active — args: int (relative row). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="309" column="35" bodyfile="terminal/Identifier.h" bodystart="309" bodyend="309"/>
+        <referencedby refid="classterminal_1_1_video_1a467e34bdd524ee0c8a8c790b333e3142" compoundref="_video_8cpp" startline="666" endline="678">terminal::Video::executeLineFeed</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1aebe05bc4c7647fc5056669b4f38effc0" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::syncOutput</definition>
+        <argsstring></argsstring>
+        <name>syncOutput</name>
+        <qualifiedname>terminal::id::syncOutput</qualifiedname>
+        <initializer>{ &quot;syncOutput&quot; }</initializer>
+        <briefdescription>
+<para>Fired on DEC mode 2026 synchronized output toggle — args: bool. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="312" column="35" bodyfile="terminal/Identifier.h" bodystart="312" bodyend="312"/>
+        <referencedby refid="classterminal_1_1_video_1aa2c40e6c32151961eb85741e8186bf28" compoundref="_video_mode_8cpp" startline="179" endline="223">terminal::Video::handlePrivateMode</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a1aca9147185acfc267d6ca08339aef97" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::imageDecoded</definition>
+        <argsstring></argsstring>
+        <name>imageDecoded</name>
+        <qualifiedname>terminal::id::imageDecoded</qualifiedname>
+        <initializer>{ &quot;imageDecoded&quot; }</initializer>
+        <briefdescription>
+<para>Fired when an inline image is fully decoded — args: pixel data, frame data, and placement metadata. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="315" column="35" bodyfile="terminal/Identifier.h" bodystart="315" bodyend="315"/>
+        <referencedby refid="classterminal_1_1_skit_1a6afae3d2d2515ad4a1956815a6b7219e" compoundref="_skit_8cpp" startline="181" endline="260">terminal::Skit::processAPC</referencedby>
+        <referencedby refid="classterminal_1_1_skit_1adb7fd09d2f0fb5ac03184a4acd1be344" compoundref="_skit_8cpp" startline="86" endline="161">terminal::Skit::processDCS</referencedby>
+        <referencedby refid="classterminal_1_1_skit_1ad5e4cea2ff02af101b376bc4c6b23e44" compoundref="_skit_8cpp" startline="278" endline="353">terminal::Skit::processOSC1337</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1abd6243b05c24315adfed5fa2ba1b0463" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::previewFile</definition>
+        <argsstring></argsstring>
+        <name>previewFile</name>
+        <qualifiedname>terminal::id::previewFile</qualifiedname>
+        <initializer>{ &quot;previewFile&quot; }</initializer>
+        <briefdescription>
+<para>Fired on SKiT END; filepath signal — args: const juce::String&amp; filepath, int row, int col, int cols, int lines. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="318" column="35" bodyfile="terminal/Identifier.h" bodystart="318" bodyend="318"/>
+        <referencedby refid="classterminal_1_1_skit_1ad615d563dfc05d16336ee791d20b8819" compoundref="_skit_8cpp" startline="63" endline="68">terminal::Skit::handleSkitFilepath</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1aacbe6171c0bf328a18398dda200008f9" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::pushKeyboardMode</definition>
+        <argsstring></argsstring>
+        <name>pushKeyboardMode</name>
+        <qualifiedname>terminal::id::pushKeyboardMode</qualifiedname>
+        <initializer>{ &quot;pushKeyboardMode&quot; }</initializer>
+        <briefdescription>
+<para>Fired on <ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> &gt; flags u — push keyboard mode — args: int (screen), uint32_t (flags). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="321" column="35" bodyfile="terminal/Identifier.h" bodystart="321" bodyend="321"/>
+        <referencedby refid="classterminal_1_1_video_1aa8c1a6a4075c8d4411367d147888ee06" compoundref="_video_mode_8cpp" startline="62" endline="94">terminal::Video::handleKeyboardMode</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a09df3107586eb50a0df4d72180e224b6" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::popKeyboardMode</definition>
+        <argsstring></argsstring>
+        <name>popKeyboardMode</name>
+        <qualifiedname>terminal::id::popKeyboardMode</qualifiedname>
+        <initializer>{ &quot;popKeyboardMode&quot; }</initializer>
+        <briefdescription>
+<para>Fired on <ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> &lt; count u — pop keyboard mode — args: int (screen), int (count). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="324" column="35" bodyfile="terminal/Identifier.h" bodystart="324" bodyend="324"/>
+        <referencedby refid="classterminal_1_1_video_1aa8c1a6a4075c8d4411367d147888ee06" compoundref="_video_mode_8cpp" startline="62" endline="94">terminal::Video::handleKeyboardMode</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a566ae327a06bbcf031a26fdfac5968c4" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::shellExited</definition>
+        <argsstring></argsstring>
+        <name>shellExited</name>
+        <qualifiedname>terminal::id::shellExited</qualifiedname>
+        <initializer>{ &quot;shellExited&quot; }</initializer>
+        <briefdescription>
+<para>Fired when the child shell process exits — no arguments. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="327" column="35" bodyfile="terminal/Identifier.h" bodystart="327" bodyend="327"/>
+        <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
+        <referencedby refid="class_t_t_y_1a5069e6a70b48c9e44fef6d6fd8fa2b31" compoundref="_t_t_y_8cpp" startline="53" endline="88">TTY::run</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a2c0394042e5183dfd9c509f67b749c64" compoundref="_model_8cpp" startline="363" endline="363">terminal::Model::setShellExited</referencedby>
+        <referencedby refid="classnexus_1_1_daemon_1a926bf8b33d96803c18cfbf7516da1e5b" compoundref="_daemon_8cpp" startline="415" endline="491">nexus::Daemon::valueTreePropertyChanged</referencedby>
+        <referencedby refid="classterminal_1_1_panes_1adfbcfe5d7d66050d58b6d7ddc0341973" compoundref="_panes_8cpp" startline="562" endline="616">terminal::Panes::valueTreePropertyChanged</referencedby>
+        <referencedby refid="classterminal_1_1_popup_1a6878254c4370918c27b8825f8dcc0373" compoundref="_popup_8cpp" startline="67" endline="79">terminal::Popup::valueTreePropertyChanged</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a6abd4ed81f5fc69e8dfb3907c2ff7585" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::drainComplete</definition>
+        <argsstring></argsstring>
+        <name>drainComplete</name>
+        <qualifiedname>terminal::id::drainComplete</qualifiedname>
+        <initializer>{ &quot;drainComplete&quot; }</initializer>
+        <briefdescription>
+<para>Fired on the reader thread after a full PTY drain — no arguments. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><ref refid="classterminal_1_1_processor" kindref="compound">Processor</ref> handler flushes responses, clears paste gate, and handles sync resize. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="331" column="35" bodyfile="terminal/Identifier.h" bodystart="331" bodyend="331"/>
+        <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
+        <referencedby refid="class_t_t_y_1a5069e6a70b48c9e44fef6d6fd8fa2b31" compoundref="_t_t_y_8cpp" startline="53" endline="88">TTY::run</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1af5e7d65d07f123d4560efebf453d21f8" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::writeInput</definition>
+        <argsstring></argsstring>
+        <name>writeInput</name>
+        <qualifiedname>terminal::id::writeInput</qualifiedname>
+        <initializer>{ &quot;writeInput&quot; }</initializer>
+        <briefdescription>
+<para>Fired to route user input bytes (keyboard, mouse) to the PTY — args: const char*, int. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="334" column="35" bodyfile="terminal/Identifier.h" bodystart="334" bodyend="334"/>
+        <referencedby refid="classterminal_1_1_processor_1a9ca3ff5dd10b9b5e05144dc762b58d69" compoundref="_processor_8cpp" startline="425" endline="458">terminal::Processor::startTTY</referencedby>
+        <referencedby refid="classnexus_1_1_link_1a95544f46cbd78a386671c2339ff34eb7" compoundref="_link_8cpp" startline="478" endline="507">nexus::Link::valueTreeChildAdded</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1ab7fc9fa8835b9002af38eea90169bab8" compoundref="_processor_8cpp" startline="488" endline="492">terminal::Processor::writeInput</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a149c315861d51cc46c0f21d869bdc8fb" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::osc1337Raw</definition>
+        <argsstring></argsstring>
+        <name>osc1337Raw</name>
+        <qualifiedname>terminal::id::osc1337Raw</qualifiedname>
+        <initializer>{ &quot;osc1337Raw&quot; }</initializer>
+        <briefdescription>
+<para>Fired from <computeroutput><ref refid="classterminal_1_1_video_1a7e93780ff44dea5af482fbbff1e30d0e" kindref="member">Video::handleOsc1337</ref></computeroutput> with raw OSC 1337 payload for <ref refid="classterminal_1_1_skit" kindref="compound">Skit</ref> to decode. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Args: <computeroutput>const uint8_t* <ref refid="namespaceterminal_1_1id_1a893c13a3c033338535bfd80644213f05" kindref="member">data</ref>, int length, int cursorRow, int cursorCol</computeroutput>. <ref refid="classterminal_1_1_processor" kindref="compound">Processor</ref> handler calls <computeroutput><ref refid="classterminal_1_1_skit_1ad5e4cea2ff02af101b376bc4c6b23e44" kindref="member">Skit::processOSC1337()</ref></computeroutput> then <computeroutput><ref refid="classterminal_1_1_video_1a8ac84e6c50ab2fbede0aba9821ce4f76" kindref="member">Video::advanceCursorForImage()</ref></computeroutput>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="342" column="35" bodyfile="terminal/Identifier.h" bodystart="342" bodyend="342"/>
+        <referencedby refid="classterminal_1_1_video_1a7e93780ff44dea5af482fbbff1e30d0e" compoundref="_video_o_s_c_ext_8cpp" startline="158" endline="167">terminal::Video::handleOsc1337</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a15e2a7f828f2589d998edce1496cd0e6" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::dcsPayloadComplete</definition>
+        <argsstring></argsstring>
+        <name>dcsPayloadComplete</name>
+        <qualifiedname>terminal::id::dcsPayloadComplete</qualifiedname>
+        <initializer>{ &quot;dcsPayloadComplete&quot; }</initializer>
+        <briefdescription>
+<para>Fired by <computeroutput><ref refid="classterminal_1_1_video_1afed476f5048231936afa6a303091562b" kindref="member">Video::applyDCSPayload()</ref></computeroutput> when a DCS sequence terminates. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><ref refid="classterminal_1_1_processor" kindref="compound">Processor</ref> handler calls <computeroutput><ref refid="classterminal_1_1_skit_1adb7fd09d2f0fb5ac03184a4acd1be344" kindref="member">Skit::processDCS()</ref></computeroutput> then <computeroutput><ref refid="classterminal_1_1_video_1a8ac84e6c50ab2fbede0aba9821ce4f76" kindref="member">Video::advanceCursorForImage()</ref></computeroutput>. Args: <computeroutput>const uint8_t* <ref refid="namespaceterminal_1_1id_1a893c13a3c033338535bfd80644213f05" kindref="member">data</ref>, int length</computeroutput>. Fired synchronously on the READER THREAD. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="351" column="35" bodyfile="terminal/Identifier.h" bodystart="351" bodyend="351"/>
+        <referencedby refid="classterminal_1_1_video_1afed476f5048231936afa6a303091562b" compoundref="_video_d_c_s_8cpp" startline="91" endline="95">terminal::Video::applyDCSPayload</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1af13c474d69ca902a7eaede390f24a464" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::apcPayloadComplete</definition>
+        <argsstring></argsstring>
+        <name>apcPayloadComplete</name>
+        <qualifiedname>terminal::id::apcPayloadComplete</qualifiedname>
+        <initializer>{ &quot;apcPayloadComplete&quot; }</initializer>
+        <briefdescription>
+<para>Fired by <computeroutput><ref refid="classterminal_1_1_video_1a4a5dff20cd4664becc5b35eb9734a938" kindref="member">Video::applyAPCPayload()</ref></computeroutput> when an APC sequence terminates. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><ref refid="classterminal_1_1_processor" kindref="compound">Processor</ref> handler calls <computeroutput><ref refid="classterminal_1_1_skit_1a6afae3d2d2515ad4a1956815a6b7219e" kindref="member">Skit::processAPC()</ref></computeroutput>, forwards any Kitty response via <computeroutput><ref refid="namespaceterminal_1_1id_1aa3fbec5b5ae87acdf1d05cc2cc0fd859" kindref="member">writeToHost</ref></computeroutput>, then calls <computeroutput><ref refid="classterminal_1_1_video_1a8ac84e6c50ab2fbede0aba9821ce4f76" kindref="member">Video::advanceCursorForImage()</ref></computeroutput>. Args: <computeroutput>const uint8_t* <ref refid="namespaceterminal_1_1id_1a893c13a3c033338535bfd80644213f05" kindref="member">data</ref>, int length</computeroutput>. Fired synchronously on the READER THREAD. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="360" column="35" bodyfile="terminal/Identifier.h" bodystart="360" bodyend="360"/>
+        <referencedby refid="classterminal_1_1_video_1a4a5dff20cd4664becc5b35eb9734a938" compoundref="_video_d_c_s_8cpp" startline="114" endline="118">terminal::Video::applyAPCPayload</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a805368f03100e201a2f869caf227b6e1" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::resizeStart</definition>
+        <argsstring></argsstring>
+        <name>resizeStart</name>
+        <qualifiedname>terminal::id::resizeStart</qualifiedname>
+        <initializer>{ &quot;resizeStart&quot; }</initializer>
+        <briefdescription>
+<para>DST trigger key — lossless reflow, buffer reallocation, video + state sync. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Args: cell (targetCols), cell (targetRows). Fired from <ref refid="classterminal_1_1_display_1afd5758511197f47a6bf7fb96d9886b5a" kindref="member">Display::resized()</ref> via <ref refid="classTextEditor" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">TextEditor</ref>&apos;s DST on the MESSAGE THREAD. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="367" column="35" bodyfile="terminal/Identifier.h" bodystart="367" bodyend="367"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1a893c13a3c033338535bfd80644213f05" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::data</definition>
+        <argsstring></argsstring>
+        <name>data</name>
+        <qualifiedname>terminal::id::data</qualifiedname>
+        <initializer>{ &quot;data&quot; }</initializer>
+        <briefdescription>
+<para>Fired on the reader thread for each chunk of PTY output data — args: const char*, int. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Registered by <ref refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" kindref="member">Processor::registerEvents()</ref>; handler acquires callbackLock and calls process(). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="371" column="35" bodyfile="terminal/Identifier.h" bodystart="371" bodyend="371"/>
+        <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
+        <referencedby refid="class_t_t_y_1a5069e6a70b48c9e44fef6d6fd8fa2b31" compoundref="_t_t_y_8cpp" startline="53" endline="88">TTY::run</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1_1id_1ada63c4b428cfd0eb63899d3e7dfefac9" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier terminal::id::bytesReceived</definition>
+        <argsstring></argsstring>
+        <name>bytesReceived</name>
+        <qualifiedname>terminal::id::bytesReceived</qualifiedname>
+        <initializer>{ &quot;bytesReceived&quot; }</initializer>
+        <briefdescription>
+<para>Fired on the reader thread for each data chunk for IPC byte broadcast — args: const char*, int. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Registered externally via <ref refid="classterminal_1_1_processor_1a90b588fb79485f03eca579538ccc9619" kindref="member">Processor::registerEvent()</ref> in daemon mode. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="375" column="35" bodyfile="terminal/Identifier.h" bodystart="375" bodyend="375"/>
+        <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
+        <referencedby refid="classnexus_1_1_daemon_1a57bf4ccda740f0bff5e33a57592c0c14" compoundref="_daemon_8cpp" startline="354" endline="373">nexus::Daemon::wireOnBytes</referencedby>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Terminal identifier constants for <ref refid="classValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ValueTree</ref> property names. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>This namespace contains static juce::Identifier constants used as keys when reading and writing terminal state to <ref refid="classValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ValueTree</ref> objects. Using static Identifiers avoids string allocation on every property access.</para>
+<para><simplesect kind="par"><title>Naming Convention</title><para>All identifiers use camelCase to match the <ref refid="classValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ValueTree</ref> property names they represent (not the C++ member names in <ref refid="structterminal_1_1_model" kindref="compound">Model</ref> classes).</para>
+</simplesect>
+<simplesect kind="par"><title>Usage Pattern</title><para><programlisting><codeline><highlight class="normal"><ref refid="classValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ValueTree</ref><sp/>session<sp/>=<sp/>state.<ref refid="classValueTree_1aafb29876616f005939915de3e6968818" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">getOrCreateChildWithName</ref>(<ref refid="namespaceterminal_1_1id_1a9ca6b6efc0a9c3a15bc0d0f78b60e90d" kindref="member">id::SESSION</ref>,<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">);</highlight></codeline>
+<codeline><highlight class="normal">session.<ref refid="classValueTree_1a550e9c8780d4ee56d14d67de17f200e2" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">setProperty</ref>(<ref refid="namespaceterminal_1_1id_1a0d551d759a87363c22a6d1712cf26cd9" kindref="member">id::cwd</ref>,<sp/></highlight><highlight class="stringliteral">&quot;/home/user&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">);</highlight></codeline>
+</programlisting></para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="_model_8h" kindref="compound">Model.h</ref> for the complete <ref refid="namespaceterminal" kindref="compound">terminal</ref> model </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <location file="terminal/Identifier.h" line="73" column="1"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,513 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="namespacelua" kind="namespace" language="C++">
+    <compoundname>lua</compoundname>
+    <innerclass refid="classlua_1_1_engine" prot="public">lua::Engine</innerclass>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="namespacelua_1ae78a0ad621a31e95cc455553946df4b1" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>juce::String</type>
+        <definition>static juce::String lua::colourToHex</definition>
+        <argsstring>(juce::Colour c)</argsstring>
+        <name>colourToHex</name>
+        <qualifiedname>lua::colourToHex</qualifiedname>
+        <param>
+          <type>juce::Colour</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+<para>Converts a juce::Colour to &quot;#RRGGBBAA&quot; for end.lua templates. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Always 8 hex digits. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/EngineDefaults.cpp" line="21" column="21" bodyfile="lua/EngineDefaults.cpp" bodystart="21" bodyend="25"/>
+        <referencedby refid="namespacelua_1ae224faeb7592d43d2452dce47a6fbe9c" compoundref="_engine_defaults_8cpp" startline="57" endline="94">writeDisplayColoursDefaults</referencedby>
+        <referencedby refid="namespacelua_1a74fca56bfc76dcd640f6f1803a8afc67" compoundref="_engine_defaults_8cpp" startline="130" endline="186">writeDisplayMiscDefaults</referencedby>
+        <referencedby refid="namespacelua_1aeb90992aad67a29fa2080492a875f565" compoundref="_engine_defaults_8cpp" startline="117" endline="127">writeDisplayTabDefaults</referencedby>
+        <referencedby refid="namespacelua_1a56676579556000e1e07f1ff4a7431912" compoundref="_engine_defaults_8cpp" startline="97" endline="114">writeDisplayWindowDefaults</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="namespacelua_1adc3a2435f8a1030fb35031474c305bf0" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>juce::String</type>
+        <definition>static juce::String lua::colourToWhelmedHex</definition>
+        <argsstring>(juce::Colour c)</argsstring>
+        <name>colourToWhelmedHex</name>
+        <qualifiedname>lua::colourToWhelmedHex</qualifiedname>
+        <param>
+          <type>juce::Colour</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+<para>Converts a juce::Colour to &quot;RRGGBBAA&quot; (no #) for whelmed.lua templates. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/EngineDefaults.cpp" line="28" column="21" bodyfile="lua/EngineDefaults.cpp" bodystart="28" bodyend="32"/>
+        <referencedby refid="classlua_1_1_engine_1aba99c8f8371b5d32b3c69dd3b5cc8cda" compoundref="_engine_defaults_8cpp" startline="347" endline="449">lua::Engine::writeWhelmedDefaults</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="namespacelua_1a84688fe3676b1acb96938671ae61aca1" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void lua::writeDisplayFontDefaults</definition>
+        <argsstring>(juce::String &amp;content, const Engine::Display &amp;display)</argsstring>
+        <name>writeDisplayFontDefaults</name>
+        <qualifiedname>lua::writeDisplayFontDefaults</qualifiedname>
+        <param>
+          <type>juce::String &amp;</type>
+          <declname>content</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structlua_1_1_engine_1_1_display" kindref="compound">Engine::Display</ref> &amp;</type>
+          <declname>display</declname>
+        </param>
+        <briefdescription>
+<para>Substitutes font and cursor placeholder values into display.lua content. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/EngineDefaults.cpp" line="36" column="13" bodyfile="lua/EngineDefaults.cpp" bodystart="36" bodyend="54"/>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_cursor_1ad2320cafdcbee55c9a54302e9ce43f34" compoundref="_engine_8h" startline="300" endline="300">lua::Engine::Display::Cursor::blink</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_cursor_1aef3e7bedd2a7f8d9040cc24f8770313d" compoundref="_engine_8h" startline="303" endline="303">lua::Engine::Display::Cursor::blinkInterval</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_font_1a5ba6cfb7cb51e5eb27c368461a9062f9" compoundref="_engine_8h" startline="335" endline="335">lua::Engine::Display::Font::cellWidth</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_cursor_1a3b8fa1e9c425d91fc6f3f9a214b39d9e" compoundref="_engine_8h" startline="297" endline="297">lua::Engine::Display::Cursor::codepoint</references>
+        <references refid="structlua_1_1_engine_1_1_display_1a49ac5346608b3dcca83e12b4d15da1d5" compoundref="_engine_8h" startline="511">lua::Engine::Display::cursor</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_font_1ab4b907de2cfdb0e10a1628d608c75b03" compoundref="_engine_8h" startline="338" endline="338">lua::Engine::Display::Font::desktopScale</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_font_1ae86e9c52b833ff0cd4fbcd09ffa2fc5d" compoundref="_engine_8h" startline="329" endline="329">lua::Engine::Display::Font::embolden</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_font_1a0bf1671f01db586d10a184b07b945680" compoundref="_engine_8h" startline="320" endline="320">lua::Engine::Display::Font::family</references>
+        <references refid="structlua_1_1_engine_1_1_display_1ad381a34c0708ef97a647c36fe7cffbd7" compoundref="_engine_8h" startline="514">lua::Engine::Display::font</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_cursor_1a9bcdb22c570472a225ec03005eceb50f" compoundref="_engine_8h" startline="306" endline="306">lua::Engine::Display::Cursor::force</references>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Derived &gt;::getContext</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_font_1ad6a04f1b5ac7f25bc6df8e40e372c93d" compoundref="_engine_8h" startline="326" endline="326">lua::Engine::Display::Font::ligatures</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_font_1a3b4ec2aa185cf57d6c9c6cb5802460b8" compoundref="_engine_8h" startline="332" endline="332">lua::Engine::Display::Font::lineHeight</references>
+        <references refid="structjam_1_1_text_1a0485b237743df371f85dcee9516cef17">jam::Text::replaceholder</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_font_1a65e33b308dc812826f9cfec4edfafe80" compoundref="_engine_8h" startline="323" endline="323">lua::Engine::Display::Font::size</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_cursor_1ac86792bbd25d9739eb73847bb3ac6db7" compoundref="_engine_8h" startline="310" endline="310">lua::Engine::Display::Cursor::style</references>
+        <references refid="namespacejam_1aa855f56f0be351b996daf527406a3ca8">jam::toChar</references>
+        <referencedby refid="classlua_1_1_engine_1a0d4b476e05692b4121b9329758029043" compoundref="_engine_defaults_8cpp" startline="264" endline="280">lua::Engine::writeDisplayDefaults</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="namespacelua_1ae224faeb7592d43d2452dce47a6fbe9c" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void lua::writeDisplayColoursDefaults</definition>
+        <argsstring>(juce::String &amp;content, const Engine::Display &amp;display)</argsstring>
+        <name>writeDisplayColoursDefaults</name>
+        <qualifiedname>lua::writeDisplayColoursDefaults</qualifiedname>
+        <param>
+          <type>juce::String &amp;</type>
+          <declname>content</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structlua_1_1_engine_1_1_display" kindref="compound">Engine::Display</ref> &amp;</type>
+          <declname>display</declname>
+        </param>
+        <briefdescription>
+<para>Substitutes colour palette placeholder values into display.lua content. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/EngineDefaults.cpp" line="57" column="13" bodyfile="lua/EngineDefaults.cpp" bodystart="57" bodyend="94"/>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_colours_1a94aa7b2c0c82985177ff87fcab0a57a1" compoundref="_engine_8h" startline="240" endline="257">lua::Engine::Display::Colours::ansi</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_colours_1af9d1c4cfff57b04210b1801644a9a11f" compoundref="_engine_8h" startline="227" endline="227">lua::Engine::Display::Colours::background</references>
+        <references refid="structlua_1_1_engine_1_1_display_1af8c3c6b5544c1c9a38c83bc5830be3bb" compoundref="_engine_8h" startline="508">lua::Engine::Display::colours</references>
+        <references refid="namespacelua_1ae78a0ad621a31e95cc455553946df4b1" compoundref="_engine_defaults_8cpp" startline="21" endline="25">colourToHex</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_colours_1abb6ba5968eb9ca4efa5c0ba6479d2908" compoundref="_engine_8h" startline="230" endline="230">lua::Engine::Display::Colours::cursor</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_colours_1a8d7164e99e52acddb3d2338fba7f595e" compoundref="_engine_8h" startline="260" endline="260">lua::Engine::Display::Colours::editorBackground</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_colours_1aab23afaf2a46a40c182af0b32b757cfb" compoundref="_engine_8h" startline="263" endline="263">lua::Engine::Display::Colours::editorOutline</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_colours_1aa0125b71958ec42c8e235a73a1d5e962" compoundref="_engine_8h" startline="224" endline="224">lua::Engine::Display::Colours::foreground</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_colours_1a8743c79ea848ae34f5b1c1b26db60c1c" compoundref="_engine_8h" startline="278" endline="278">lua::Engine::Display::Colours::hintLabelBg</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_colours_1afb58572d28c10061238f9d0539456724" compoundref="_engine_8h" startline="281" endline="281">lua::Engine::Display::Colours::hintLabelFg</references>
+        <references refid="structjam_1_1_text_1a0485b237743df371f85dcee9516cef17">jam::Text::replaceholder</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_colours_1a6d82de92fc4822f0c88f362b7203a483" compoundref="_engine_8h" startline="284" endline="284">lua::Engine::Display::Colours::scrollbarThumb</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_colours_1aa430ea243c8d704cc02b9ec59c63d571" compoundref="_engine_8h" startline="287" endline="287">lua::Engine::Display::Colours::scrollbarTrack</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_colours_1a455f7274644aaaa75a5c4aa5904cbf85" compoundref="_engine_8h" startline="233" endline="233">lua::Engine::Display::Colours::selection</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_colours_1a9329aaaf2e793fed8a9bf094e3aeb391" compoundref="_engine_8h" startline="236" endline="236">lua::Engine::Display::Colours::selectionCursor</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_colours_1a78c338d187640388d1de9c42a5a033a8" compoundref="_engine_8h" startline="266" endline="266">lua::Engine::Display::Colours::statusBar</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_colours_1ae889f8fc59964c47427afeda7b031071" compoundref="_engine_8h" startline="269" endline="269">lua::Engine::Display::Colours::statusBarLabelBg</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_colours_1a03a87c58d5df397a604078266274e44f" compoundref="_engine_8h" startline="272" endline="272">lua::Engine::Display::Colours::statusBarLabelFg</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_colours_1af35c9b2263cfcba10027f05f64d0bf12" compoundref="_engine_8h" startline="275" endline="275">lua::Engine::Display::Colours::statusBarSpinner</references>
+        <referencedby refid="classlua_1_1_engine_1a0d4b476e05692b4121b9329758029043" compoundref="_engine_defaults_8cpp" startline="264" endline="280">lua::Engine::writeDisplayDefaults</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="namespacelua_1a56676579556000e1e07f1ff4a7431912" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void lua::writeDisplayWindowDefaults</definition>
+        <argsstring>(juce::String &amp;content, const Engine::Display &amp;display)</argsstring>
+        <name>writeDisplayWindowDefaults</name>
+        <qualifiedname>lua::writeDisplayWindowDefaults</qualifiedname>
+        <param>
+          <type>juce::String &amp;</type>
+          <declname>content</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structlua_1_1_engine_1_1_display" kindref="compound">Engine::Display</ref> &amp;</type>
+          <declname>display</declname>
+        </param>
+        <briefdescription>
+<para>Substitutes window placeholder values into display.lua content. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/EngineDefaults.cpp" line="97" column="13" bodyfile="lua/EngineDefaults.cpp" bodystart="97" bodyend="114"/>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_window_1a509befe65e44169402da0640af65740a" compoundref="_engine_8h" startline="202" endline="202">lua::Engine::Display::Window::alwaysOnTop</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_window_1ab8f2c5cf810022ca77c5a9116ad23c38" compoundref="_engine_8h" startline="199" endline="199">lua::Engine::Display::Window::blurRadius</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_window_1ad12cd1d137457c62fa9b28029e6e43a7" compoundref="_engine_8h" startline="205" endline="205">lua::Engine::Display::Window::buttons</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_window_1a4191919387d4ecd75f214165e0e8ec37" compoundref="_engine_8h" startline="193" endline="193">lua::Engine::Display::Window::colour</references>
+        <references refid="namespacelua_1ae78a0ad621a31e95cc455553946df4b1" compoundref="_engine_defaults_8cpp" startline="21" endline="25">colourToHex</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_window_1aeec52eeb9c6769a754c67de63c23448b" compoundref="_engine_8h" startline="214" endline="214">lua::Engine::Display::Window::confirmationOnExit</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_window_1aa4ffdc69e39522c4924905fdbb67f0bd" compoundref="_engine_8h" startline="208" endline="208">lua::Engine::Display::Window::forceDwm</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_window_1a93c513106593da611a0fab5d91344a60" compoundref="_engine_8h" startline="190" endline="190">lua::Engine::Display::Window::height</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_window_1a8baa410a65723b67f348119738a219c6" compoundref="_engine_8h" startline="196" endline="196">lua::Engine::Display::Window::opacity</references>
+        <references refid="structjam_1_1_text_1a0485b237743df371f85dcee9516cef17">jam::Text::replaceholder</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_window_1aa37e923087a23c15863c76060edc7573" compoundref="_engine_8h" startline="211" endline="211">lua::Engine::Display::Window::saveSize</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_window_1a3808aa8a5350e91b1cf293df3b7ec197" compoundref="_engine_8h" startline="184" endline="184">lua::Engine::Display::Window::title</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_window_1a50b0063a549ebb718e214cdf1bc91159" compoundref="_engine_8h" startline="187" endline="187">lua::Engine::Display::Window::width</references>
+        <references refid="structlua_1_1_engine_1_1_display_1a1ed1120e690119e7e692ac5228ac1df3" compoundref="_engine_8h" startline="505">lua::Engine::Display::window</references>
+        <referencedby refid="classlua_1_1_engine_1a0d4b476e05692b4121b9329758029043" compoundref="_engine_defaults_8cpp" startline="264" endline="280">lua::Engine::writeDisplayDefaults</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="namespacelua_1aeb90992aad67a29fa2080492a875f565" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void lua::writeDisplayTabDefaults</definition>
+        <argsstring>(juce::String &amp;content, const Engine::Display &amp;display)</argsstring>
+        <name>writeDisplayTabDefaults</name>
+        <qualifiedname>lua::writeDisplayTabDefaults</qualifiedname>
+        <param>
+          <type>juce::String &amp;</type>
+          <declname>content</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structlua_1_1_engine_1_1_display" kindref="compound">Engine::Display</ref> &amp;</type>
+          <declname>display</declname>
+        </param>
+        <briefdescription>
+<para>Substitutes tab placeholder values into display.lua content. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/EngineDefaults.cpp" line="117" column="13" bodyfile="lua/EngineDefaults.cpp" bodystart="117" bodyend="127"/>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_tab_1a407e5254d00da6fc48ee95fd71ffcb0b" compoundref="_engine_8h" startline="366" endline="366">lua::Engine::Display::Tab::active</references>
+        <references refid="namespacelua_1ae78a0ad621a31e95cc455553946df4b1" compoundref="_engine_defaults_8cpp" startline="21" endline="25">colourToHex</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_tab_1a618ba1a939f9dad1a8d464e05082924e" compoundref="_engine_8h" startline="348" endline="348">lua::Engine::Display::Tab::family</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_tab_1a5e93c1aee62edf505600b1eefd4aaa4e" compoundref="_engine_8h" startline="354" endline="354">lua::Engine::Display::Tab::foreground</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_tab_1ad47d2c9470e5f1604522c67c2bc35609" compoundref="_engine_8h" startline="357" endline="357">lua::Engine::Display::Tab::inactive</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_tab_1aa2205847da7f55407610594db8f8f246" compoundref="_engine_8h" startline="369" endline="369">lua::Engine::Display::Tab::indicator</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_tab_1adae511f55f6600db46619f670998761e" compoundref="_engine_8h" startline="363" endline="363">lua::Engine::Display::Tab::line</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_tab_1aedcd2ef7c76baedc0985a0958ac4b2bc" compoundref="_engine_8h" startline="360" endline="360">lua::Engine::Display::Tab::position</references>
+        <references refid="structjam_1_1_text_1a0485b237743df371f85dcee9516cef17">jam::Text::replaceholder</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_tab_1afe1e0121dd82a246ec38f43dfe166cb4" compoundref="_engine_8h" startline="351" endline="351">lua::Engine::Display::Tab::size</references>
+        <references refid="structlua_1_1_engine_1_1_display_1afb863984934a57eca589d297cc9b48c0" compoundref="_engine_8h" startline="517">lua::Engine::Display::tab</references>
+        <referencedby refid="classlua_1_1_engine_1a0d4b476e05692b4121b9329758029043" compoundref="_engine_defaults_8cpp" startline="264" endline="280">lua::Engine::writeDisplayDefaults</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="namespacelua_1a74fca56bfc76dcd640f6f1803a8afc67" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void lua::writeDisplayMiscDefaults</definition>
+        <argsstring>(juce::String &amp;content, const Engine::Display &amp;display)</argsstring>
+        <name>writeDisplayMiscDefaults</name>
+        <qualifiedname>lua::writeDisplayMiscDefaults</qualifiedname>
+        <param>
+          <type>juce::String &amp;</type>
+          <declname>content</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structlua_1_1_engine_1_1_display" kindref="compound">Engine::Display</ref> &amp;</type>
+          <declname>display</declname>
+        </param>
+        <briefdescription>
+<para>Substitutes overlay, pane, menu, status bar, action list, and popup placeholder values. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/EngineDefaults.cpp" line="130" column="13" bodyfile="lua/EngineDefaults.cpp" bodystart="130" bodyend="186"/>
+        <references refid="structlua_1_1_engine_1_1_display_1ab2c57e6bb4a8506d4e4e81beb6b8f8b2" compoundref="_engine_8h" startline="529">lua::Engine::Display::actionList</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_pane_1a6f2bc93e7f5d09034ebed6baf6201bd5" compoundref="_engine_8h" startline="382" endline="382">lua::Engine::Display::Pane::barColour</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_pane_1aa117515e820e15957102471807752d07" compoundref="_engine_8h" startline="385" endline="385">lua::Engine::Display::Pane::barHighlight</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_popup_border_1a38004c1d6e6adc4dea728b0b57a687ff" compoundref="_engine_8h" startline="498" endline="498">lua::Engine::Display::PopupBorder::borderColour</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_popup_border_1a469ee5e52905776aa25e6fc6bf202c7a" compoundref="_engine_8h" startline="501" endline="501">lua::Engine::Display::PopupBorder::borderWidth</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_action_list_1ac9cd652f47e362ca8b4ba401adafe990" compoundref="_engine_8h" startline="421" endline="421">lua::Engine::Display::ActionList::closeOnRun</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_overlay_1a895613ea68ba8f16800944e1fb83991e" compoundref="_engine_8h" startline="401" endline="401">lua::Engine::Display::Overlay::colour</references>
+        <references refid="namespacelua_1ae78a0ad621a31e95cc455553946df4b1" compoundref="_engine_defaults_8cpp" startline="21" endline="25">colourToHex</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_overlay_1a4a1b0f04eac36164b89d32f3e71bf619" compoundref="_engine_8h" startline="395" endline="395">lua::Engine::Display::Overlay::family</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_status_bar_1a54e64fed5c483c79b0883f5d0e81bc27" compoundref="_engine_8h" startline="482" endline="482">lua::Engine::Display::StatusBar::fontFamily</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_status_bar_1ae0ca0b53368ba009a636a71a83b66736" compoundref="_engine_8h" startline="485" endline="485">lua::Engine::Display::StatusBar::fontSize</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_status_bar_1afdcc461225e6c4e459969f9036f361c8" compoundref="_engine_8h" startline="488" endline="488">lua::Engine::Display::StatusBar::fontStyle</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_action_list_1a49ae5345f945425920ea53ee1f853216" compoundref="_engine_8h" startline="466" endline="466">lua::Engine::Display::ActionList::height</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_action_list_1a6da19c801eef0f93103fdacd64e51872" compoundref="_engine_8h" startline="469" endline="469">lua::Engine::Display::ActionList::highlightColour</references>
+        <references refid="structlua_1_1_engine_1_1_display_1a4fcc7e2433d0b0e7f68073006a80bc1e" compoundref="_engine_8h" startline="526">lua::Engine::Display::menu</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_action_list_1abc0ac7b8fe656707eb0eb7d108f48576" compoundref="_engine_8h" startline="457" endline="457">lua::Engine::Display::ActionList::nameColour</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_action_list_1a20f824fe40edf6ff1d4bf934922c3e93" compoundref="_engine_8h" startline="427" endline="427">lua::Engine::Display::ActionList::nameFamily</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_action_list_1afe33c14f6e14d5de0112561b2103a07b" compoundref="_engine_8h" startline="433" endline="433">lua::Engine::Display::ActionList::nameSize</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_action_list_1ac0919a8904789812ec14dc23e7eac44b" compoundref="_engine_8h" startline="430" endline="430">lua::Engine::Display::ActionList::nameStyle</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_menu_1afb261947818c252c95028274827e28a8" compoundref="_engine_8h" startline="411" endline="411">lua::Engine::Display::Menu::opacity</references>
+        <references refid="structlua_1_1_engine_1_1_display_1a554884c117b50314c11d9d36eec02f19" compoundref="_engine_8h" startline="523">lua::Engine::Display::overlay</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_action_list_1aefa1ea187059b5a39cdcc06ac58647d1" compoundref="_engine_8h" startline="451" endline="451">lua::Engine::Display::ActionList::paddingBottom</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_action_list_1a80fa2e2130dff5418cfcc448d4ed222d" compoundref="_engine_8h" startline="454" endline="454">lua::Engine::Display::ActionList::paddingLeft</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_action_list_1a4d580d934df2659b15ce85f01bd04f19" compoundref="_engine_8h" startline="448" endline="448">lua::Engine::Display::ActionList::paddingRight</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_action_list_1a925164b3634672f736748e9277cf712c" compoundref="_engine_8h" startline="445" endline="445">lua::Engine::Display::ActionList::paddingTop</references>
+        <references refid="structlua_1_1_engine_1_1_display_1a44d22afac9d86f2d50d8cd4bc28885bb" compoundref="_engine_8h" startline="520">lua::Engine::Display::pane</references>
+        <references refid="structlua_1_1_engine_1_1_display_1abf1a37ac4119755d04392da91d20479e" compoundref="_engine_8h" startline="535">lua::Engine::Display::popup</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_action_list_1aa49c2797ef5c5912cd41b94f0d7cd368" compoundref="_engine_8h" startline="424" endline="424">lua::Engine::Display::ActionList::position</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_status_bar_1a32b1e66b99cd6b0b3a364a075885b6dc" compoundref="_engine_8h" startline="479" endline="479">lua::Engine::Display::StatusBar::position</references>
+        <references refid="structjam_1_1_text_1a0485b237743df371f85dcee9516cef17">jam::Text::replaceholder</references>
+        <references refid="structlua_1_1_engine_1_1_display_1a864fd2fcdef348de9e063e9a48076aaa" compoundref="_engine_8h" startline="538" endline="538">lua::Engine::Display::scrollbarWidth</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_action_list_1ae84ebcf5eb54ffd1c9c6de61ff1f437e" compoundref="_engine_8h" startline="460" endline="460">lua::Engine::Display::ActionList::shortcutColour</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_action_list_1a6f129efe1a9da8e94609c3bbf3dc46a0" compoundref="_engine_8h" startline="436" endline="436">lua::Engine::Display::ActionList::shortcutFamily</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_action_list_1a9bb8cd9a85b021e4f704fbefdfda17ac" compoundref="_engine_8h" startline="442" endline="442">lua::Engine::Display::ActionList::shortcutSize</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_action_list_1a8c3e86e4f663c2326c8895cc97831e67" compoundref="_engine_8h" startline="439" endline="439">lua::Engine::Display::ActionList::shortcutStyle</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_overlay_1aa24614649dce15139f08e6121e140de0" compoundref="_engine_8h" startline="398" endline="398">lua::Engine::Display::Overlay::size</references>
+        <references refid="structlua_1_1_engine_1_1_display_1a013fdf623adc4f239105be36be4c79d3" compoundref="_engine_8h" startline="532">lua::Engine::Display::statusBar</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_action_list_1a50ca47bff40d9fd37f75b329a258dc28" compoundref="_engine_8h" startline="463" endline="463">lua::Engine::Display::ActionList::width</references>
+        <referencedby refid="classlua_1_1_engine_1a0d4b476e05692b4121b9329758029043" compoundref="_engine_defaults_8cpp" startline="264" endline="280">lua::Engine::writeDisplayDefaults</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="namespacelua_1a458e0fc1c9cf643521c62520025de868" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void lua::parseDisplayWindow</definition>
+        <argsstring>(Engine::Display::Window &amp;window, jam::lua::Value &amp;displayTable)</argsstring>
+        <name>parseDisplayWindow</name>
+        <qualifiedname>lua::parseDisplayWindow</qualifiedname>
+        <param>
+          <type><ref refid="structlua_1_1_engine_1_1_display_1_1_window" kindref="compound">Engine::Display::Window</ref> &amp;</type>
+          <declname>window</declname>
+        </param>
+        <param>
+          <type><ref refid="classjam_1_1lua_1_1_value" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::lua::Value</ref> &amp;</type>
+          <declname>displayTable</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/EngineParseDisplay.cpp" line="20" column="13" bodyfile="lua/EngineParseDisplay.cpp" bodystart="20" bodyend="62"/>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Derived &gt;::getContext</references>
+        <references refid="classjam_1_1lua_1_1_value_1a8c236b140efb05e177cb932cc2e07c65">jam::lua::Value::isTable</references>
+        <references refid="classjam_1_1lua_1_1_value_1af3fa5c229f10c92a361bf91740118c96">jam::lua::Value::optional</references>
+        <references refid="classlua_1_1_engine_1aa86ffb259a21a3f079963ab08906be0d" compoundref="_engine_config_8cpp" startline="19" endline="120">lua::Engine::parseColour</references>
+        <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682ca05b8c74cbd96fbf2de4c1a352702fbf4">window</references>
+        <references refid="struct_map_1_1_bool_1a9fc24e4de454aa3a0d553bc16830ad30a7f1498d6f1011ce9fb0f7c063a0dc167" compoundref="_map_8h" startline="19">Map::Bool::yes</references>
+        <referencedby refid="classlua_1_1_engine_1a5df3d9f74786535c47d966813f17125b" compoundref="_engine_parse_display_8cpp" startline="355" endline="368">lua::Engine::parseDisplay</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="namespacelua_1a06a39bc0e84ed14f91bebcd1355678c4" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void lua::parseDisplayColours</definition>
+        <argsstring>(Engine::Display::Colours &amp;colours, jam::lua::Value &amp;displayTable)</argsstring>
+        <name>parseDisplayColours</name>
+        <qualifiedname>lua::parseDisplayColours</qualifiedname>
+        <param>
+          <type><ref refid="structlua_1_1_engine_1_1_display_1_1_colours" kindref="compound">Engine::Display::Colours</ref> &amp;</type>
+          <declname>colours</declname>
+        </param>
+        <param>
+          <type><ref refid="classjam_1_1lua_1_1_value" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::lua::Value</ref> &amp;</type>
+          <declname>displayTable</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/EngineParseDisplay.cpp" line="64" column="13" bodyfile="lua/EngineParseDisplay.cpp" bodystart="64" bodyend="104"/>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_colours_1a94aa7b2c0c82985177ff87fcab0a57a1" compoundref="_engine_8h" startline="240" endline="257">lua::Engine::Display::Colours::ansi</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_colours_1af9d1c4cfff57b04210b1801644a9a11f" compoundref="_engine_8h" startline="227" endline="227">lua::Engine::Display::Colours::background</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_colours_1abb6ba5968eb9ca4efa5c0ba6479d2908" compoundref="_engine_8h" startline="230" endline="230">lua::Engine::Display::Colours::cursor</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_colours_1a8d7164e99e52acddb3d2338fba7f595e" compoundref="_engine_8h" startline="260" endline="260">lua::Engine::Display::Colours::editorBackground</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_colours_1aab23afaf2a46a40c182af0b32b757cfb" compoundref="_engine_8h" startline="263" endline="263">lua::Engine::Display::Colours::editorOutline</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_colours_1aa0125b71958ec42c8e235a73a1d5e962" compoundref="_engine_8h" startline="224" endline="224">lua::Engine::Display::Colours::foreground</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_colours_1a8743c79ea848ae34f5b1c1b26db60c1c" compoundref="_engine_8h" startline="278" endline="278">lua::Engine::Display::Colours::hintLabelBg</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_colours_1afb58572d28c10061238f9d0539456724" compoundref="_engine_8h" startline="281" endline="281">lua::Engine::Display::Colours::hintLabelFg</references>
+        <references refid="classjam_1_1lua_1_1_value_1a8c236b140efb05e177cb932cc2e07c65">jam::lua::Value::isTable</references>
+        <references refid="classjam_1_1lua_1_1_value_1af3fa5c229f10c92a361bf91740118c96">jam::lua::Value::optional</references>
+        <references refid="classlua_1_1_engine_1aa86ffb259a21a3f079963ab08906be0d" compoundref="_engine_config_8cpp" startline="19" endline="120">lua::Engine::parseColour</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_colours_1a6d82de92fc4822f0c88f362b7203a483" compoundref="_engine_8h" startline="284" endline="284">lua::Engine::Display::Colours::scrollbarThumb</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_colours_1aa430ea243c8d704cc02b9ec59c63d571" compoundref="_engine_8h" startline="287" endline="287">lua::Engine::Display::Colours::scrollbarTrack</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_colours_1a455f7274644aaaa75a5c4aa5904cbf85" compoundref="_engine_8h" startline="233" endline="233">lua::Engine::Display::Colours::selection</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_colours_1a9329aaaf2e793fed8a9bf094e3aeb391" compoundref="_engine_8h" startline="236" endline="236">lua::Engine::Display::Colours::selectionCursor</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_colours_1a78c338d187640388d1de9c42a5a033a8" compoundref="_engine_8h" startline="266" endline="266">lua::Engine::Display::Colours::statusBar</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_colours_1ae889f8fc59964c47427afeda7b031071" compoundref="_engine_8h" startline="269" endline="269">lua::Engine::Display::Colours::statusBarLabelBg</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_colours_1a03a87c58d5df397a604078266274e44f" compoundref="_engine_8h" startline="272" endline="272">lua::Engine::Display::Colours::statusBarLabelFg</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_colours_1af35c9b2263cfcba10027f05f64d0bf12" compoundref="_engine_8h" startline="275" endline="275">lua::Engine::Display::Colours::statusBarSpinner</references>
+        <referencedby refid="classlua_1_1_engine_1a5df3d9f74786535c47d966813f17125b" compoundref="_engine_parse_display_8cpp" startline="355" endline="368">lua::Engine::parseDisplay</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="namespacelua_1ae7636387e2db7b1d5cb53d5ee82a0ae9" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void lua::parseDisplayCursor</definition>
+        <argsstring>(Engine::Display::Cursor &amp;cursor, jam::lua::Value &amp;displayTable)</argsstring>
+        <name>parseDisplayCursor</name>
+        <qualifiedname>lua::parseDisplayCursor</qualifiedname>
+        <param>
+          <type><ref refid="structlua_1_1_engine_1_1_display_1_1_cursor" kindref="compound">Engine::Display::Cursor</ref> &amp;</type>
+          <declname>cursor</declname>
+        </param>
+        <param>
+          <type><ref refid="classjam_1_1lua_1_1_value" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::lua::Value</ref> &amp;</type>
+          <declname>displayTable</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/EngineParseDisplay.cpp" line="106" column="13" bodyfile="lua/EngineParseDisplay.cpp" bodystart="106" bodyend="137"/>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_cursor_1ad2320cafdcbee55c9a54302e9ce43f34" compoundref="_engine_8h" startline="300" endline="300">lua::Engine::Display::Cursor::blink</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_cursor_1aef3e7bedd2a7f8d9040cc24f8770313d" compoundref="_engine_8h" startline="303" endline="303">lua::Engine::Display::Cursor::blinkInterval</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_cursor_1a3b8fa1e9c425d91fc6f3f9a214b39d9e" compoundref="_engine_8h" startline="297" endline="297">lua::Engine::Display::Cursor::codepoint</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_cursor_1a9bcdb22c570472a225ec03005eceb50f" compoundref="_engine_8h" startline="306" endline="306">lua::Engine::Display::Cursor::force</references>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Derived &gt;::getContext</references>
+        <references refid="classjam_1_1lua_1_1_value_1a8c236b140efb05e177cb932cc2e07c65">jam::lua::Value::isTable</references>
+        <references refid="classjam_1_1lua_1_1_value_1af3fa5c229f10c92a361bf91740118c96">jam::lua::Value::optional</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_cursor_1ac86792bbd25d9739eb73847bb3ac6db7" compoundref="_engine_8h" startline="310" endline="310">lua::Engine::Display::Cursor::style</references>
+        <references refid="struct_map_1_1_bool_1a9fc24e4de454aa3a0d553bc16830ad30a7f1498d6f1011ce9fb0f7c063a0dc167" compoundref="_map_8h" startline="19">Map::Bool::yes</references>
+        <referencedby refid="classlua_1_1_engine_1a5df3d9f74786535c47d966813f17125b" compoundref="_engine_parse_display_8cpp" startline="355" endline="368">lua::Engine::parseDisplay</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="namespacelua_1a406bd58f8e8ddba2341dfed224dbd900" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void lua::parseDisplayFont</definition>
+        <argsstring>(Engine::Display::Font &amp;font, jam::lua::Value &amp;displayTable)</argsstring>
+        <name>parseDisplayFont</name>
+        <qualifiedname>lua::parseDisplayFont</qualifiedname>
+        <param>
+          <type><ref refid="structlua_1_1_engine_1_1_display_1_1_font" kindref="compound">Engine::Display::Font</ref> &amp;</type>
+          <declname>font</declname>
+        </param>
+        <param>
+          <type><ref refid="classjam_1_1lua_1_1_value" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::lua::Value</ref> &amp;</type>
+          <declname>displayTable</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/EngineParseDisplay.cpp" line="139" column="13" bodyfile="lua/EngineParseDisplay.cpp" bodystart="139" bodyend="169"/>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_font_1a5ba6cfb7cb51e5eb27c368461a9062f9" compoundref="_engine_8h" startline="335" endline="335">lua::Engine::Display::Font::cellWidth</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_font_1ab4b907de2cfdb0e10a1628d608c75b03" compoundref="_engine_8h" startline="338" endline="338">lua::Engine::Display::Font::desktopScale</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_font_1ae86e9c52b833ff0cd4fbcd09ffa2fc5d" compoundref="_engine_8h" startline="329" endline="329">lua::Engine::Display::Font::embolden</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_font_1a0bf1671f01db586d10a184b07b945680" compoundref="_engine_8h" startline="320" endline="320">lua::Engine::Display::Font::family</references>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Derived &gt;::getContext</references>
+        <references refid="classjam_1_1lua_1_1_value_1a8c236b140efb05e177cb932cc2e07c65">jam::lua::Value::isTable</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_font_1ad6a04f1b5ac7f25bc6df8e40e372c93d" compoundref="_engine_8h" startline="326" endline="326">lua::Engine::Display::Font::ligatures</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_font_1a3b4ec2aa185cf57d6c9c6cb5802460b8" compoundref="_engine_8h" startline="332" endline="332">lua::Engine::Display::Font::lineHeight</references>
+        <references refid="classjam_1_1lua_1_1_value_1af3fa5c229f10c92a361bf91740118c96">jam::lua::Value::optional</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_font_1a65e33b308dc812826f9cfec4edfafe80" compoundref="_engine_8h" startline="323" endline="323">lua::Engine::Display::Font::size</references>
+        <references refid="struct_map_1_1_bool_1a9fc24e4de454aa3a0d553bc16830ad30a7f1498d6f1011ce9fb0f7c063a0dc167" compoundref="_map_8h" startline="19">Map::Bool::yes</references>
+        <referencedby refid="classlua_1_1_engine_1a5df3d9f74786535c47d966813f17125b" compoundref="_engine_parse_display_8cpp" startline="355" endline="368">lua::Engine::parseDisplay</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="namespacelua_1a0286c8cb5de1bc7f0a7f756c8f4de238" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void lua::parseDisplayTab</definition>
+        <argsstring>(Engine::Display::Tab &amp;tab, jam::lua::Value &amp;displayTable)</argsstring>
+        <name>parseDisplayTab</name>
+        <qualifiedname>lua::parseDisplayTab</qualifiedname>
+        <param>
+          <type><ref refid="structlua_1_1_engine_1_1_display_1_1_tab" kindref="compound">Engine::Display::Tab</ref> &amp;</type>
+          <declname>tab</declname>
+        </param>
+        <param>
+          <type><ref refid="classjam_1_1lua_1_1_value" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::lua::Value</ref> &amp;</type>
+          <declname>displayTable</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/EngineParseDisplay.cpp" line="171" column="13" bodyfile="lua/EngineParseDisplay.cpp" bodystart="171" bodyend="202"/>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_tab_1a407e5254d00da6fc48ee95fd71ffcb0b" compoundref="_engine_8h" startline="366" endline="366">lua::Engine::Display::Tab::active</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_tab_1a0d0f07795cb9683aed5a52970d43e4c0" compoundref="_engine_8h" startline="372">lua::Engine::Display::Tab::buttonSvg</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_tab_1a618ba1a939f9dad1a8d464e05082924e" compoundref="_engine_8h" startline="348" endline="348">lua::Engine::Display::Tab::family</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_tab_1a5e93c1aee62edf505600b1eefd4aaa4e" compoundref="_engine_8h" startline="354" endline="354">lua::Engine::Display::Tab::foreground</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_tab_1ad47d2c9470e5f1604522c67c2bc35609" compoundref="_engine_8h" startline="357" endline="357">lua::Engine::Display::Tab::inactive</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_tab_1aa2205847da7f55407610594db8f8f246" compoundref="_engine_8h" startline="369" endline="369">lua::Engine::Display::Tab::indicator</references>
+        <references refid="classjam_1_1lua_1_1_value_1a8c236b140efb05e177cb932cc2e07c65">jam::lua::Value::isTable</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_tab_1adae511f55f6600db46619f670998761e" compoundref="_engine_8h" startline="363" endline="363">lua::Engine::Display::Tab::line</references>
+        <references refid="classjam_1_1lua_1_1_value_1af3fa5c229f10c92a361bf91740118c96">jam::lua::Value::optional</references>
+        <references refid="classlua_1_1_engine_1aa86ffb259a21a3f079963ab08906be0d" compoundref="_engine_config_8cpp" startline="19" endline="120">lua::Engine::parseColour</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_tab_1aedcd2ef7c76baedc0985a0958ac4b2bc" compoundref="_engine_8h" startline="360" endline="360">lua::Engine::Display::Tab::position</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_tab_1afe1e0121dd82a246ec38f43dfe166cb4" compoundref="_engine_8h" startline="351" endline="351">lua::Engine::Display::Tab::size</references>
+        <referencedby refid="classlua_1_1_engine_1a5df3d9f74786535c47d966813f17125b" compoundref="_engine_parse_display_8cpp" startline="355" endline="368">lua::Engine::parseDisplay</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="namespacelua_1ad0765e4a8d2a333c174036c8bc89bad0" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void lua::parseDisplayMisc</definition>
+        <argsstring>(Engine::Display &amp;display, jam::lua::Value &amp;displayTable)</argsstring>
+        <name>parseDisplayMisc</name>
+        <qualifiedname>lua::parseDisplayMisc</qualifiedname>
+        <param>
+          <type><ref refid="structlua_1_1_engine_1_1_display" kindref="compound">Engine::Display</ref> &amp;</type>
+          <declname>display</declname>
+        </param>
+        <param>
+          <type><ref refid="classjam_1_1lua_1_1_value" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::lua::Value</ref> &amp;</type>
+          <declname>displayTable</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/EngineParseDisplay.cpp" line="204" column="13" bodyfile="lua/EngineParseDisplay.cpp" bodystart="204" bodyend="352"/>
+        <references refid="structlua_1_1_engine_1_1_display_1ab2c57e6bb4a8506d4e4e81beb6b8f8b2" compoundref="_engine_8h" startline="529">lua::Engine::Display::actionList</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_pane_1a6f2bc93e7f5d09034ebed6baf6201bd5" compoundref="_engine_8h" startline="382" endline="382">lua::Engine::Display::Pane::barColour</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_pane_1aa117515e820e15957102471807752d07" compoundref="_engine_8h" startline="385" endline="385">lua::Engine::Display::Pane::barHighlight</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_popup_border_1a38004c1d6e6adc4dea728b0b57a687ff" compoundref="_engine_8h" startline="498" endline="498">lua::Engine::Display::PopupBorder::borderColour</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_popup_border_1a469ee5e52905776aa25e6fc6bf202c7a" compoundref="_engine_8h" startline="501" endline="501">lua::Engine::Display::PopupBorder::borderWidth</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_action_list_1ac9cd652f47e362ca8b4ba401adafe990" compoundref="_engine_8h" startline="421" endline="421">lua::Engine::Display::ActionList::closeOnRun</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_overlay_1a895613ea68ba8f16800944e1fb83991e" compoundref="_engine_8h" startline="401" endline="401">lua::Engine::Display::Overlay::colour</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_overlay_1a4a1b0f04eac36164b89d32f3e71bf619" compoundref="_engine_8h" startline="395" endline="395">lua::Engine::Display::Overlay::family</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_status_bar_1a54e64fed5c483c79b0883f5d0e81bc27" compoundref="_engine_8h" startline="482" endline="482">lua::Engine::Display::StatusBar::fontFamily</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_status_bar_1ae0ca0b53368ba009a636a71a83b66736" compoundref="_engine_8h" startline="485" endline="485">lua::Engine::Display::StatusBar::fontSize</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_status_bar_1afdcc461225e6c4e459969f9036f361c8" compoundref="_engine_8h" startline="488" endline="488">lua::Engine::Display::StatusBar::fontStyle</references>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Derived &gt;::getContext</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_action_list_1a49ae5345f945425920ea53ee1f853216" compoundref="_engine_8h" startline="466" endline="466">lua::Engine::Display::ActionList::height</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_action_list_1a6da19c801eef0f93103fdacd64e51872" compoundref="_engine_8h" startline="469" endline="469">lua::Engine::Display::ActionList::highlightColour</references>
+        <references refid="classjam_1_1lua_1_1_value_1a8c236b140efb05e177cb932cc2e07c65">jam::lua::Value::isTable</references>
+        <references refid="structlua_1_1_engine_1_1_display_1a4fcc7e2433d0b0e7f68073006a80bc1e" compoundref="_engine_8h" startline="526">lua::Engine::Display::menu</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_action_list_1abc0ac7b8fe656707eb0eb7d108f48576" compoundref="_engine_8h" startline="457" endline="457">lua::Engine::Display::ActionList::nameColour</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_action_list_1a20f824fe40edf6ff1d4bf934922c3e93" compoundref="_engine_8h" startline="427" endline="427">lua::Engine::Display::ActionList::nameFamily</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_action_list_1afe33c14f6e14d5de0112561b2103a07b" compoundref="_engine_8h" startline="433" endline="433">lua::Engine::Display::ActionList::nameSize</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_action_list_1ac0919a8904789812ec14dc23e7eac44b" compoundref="_engine_8h" startline="430" endline="430">lua::Engine::Display::ActionList::nameStyle</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_menu_1afb261947818c252c95028274827e28a8" compoundref="_engine_8h" startline="411" endline="411">lua::Engine::Display::Menu::opacity</references>
+        <references refid="classjam_1_1lua_1_1_value_1af3fa5c229f10c92a361bf91740118c96">jam::lua::Value::optional</references>
+        <references refid="structlua_1_1_engine_1_1_display_1a554884c117b50314c11d9d36eec02f19" compoundref="_engine_8h" startline="523">lua::Engine::Display::overlay</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_action_list_1aefa1ea187059b5a39cdcc06ac58647d1" compoundref="_engine_8h" startline="451" endline="451">lua::Engine::Display::ActionList::paddingBottom</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_action_list_1a80fa2e2130dff5418cfcc448d4ed222d" compoundref="_engine_8h" startline="454" endline="454">lua::Engine::Display::ActionList::paddingLeft</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_action_list_1a4d580d934df2659b15ce85f01bd04f19" compoundref="_engine_8h" startline="448" endline="448">lua::Engine::Display::ActionList::paddingRight</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_action_list_1a925164b3634672f736748e9277cf712c" compoundref="_engine_8h" startline="445" endline="445">lua::Engine::Display::ActionList::paddingTop</references>
+        <references refid="structlua_1_1_engine_1_1_display_1a44d22afac9d86f2d50d8cd4bc28885bb" compoundref="_engine_8h" startline="520">lua::Engine::Display::pane</references>
+        <references refid="classlua_1_1_engine_1aa86ffb259a21a3f079963ab08906be0d" compoundref="_engine_config_8cpp" startline="19" endline="120">lua::Engine::parseColour</references>
+        <references refid="structlua_1_1_engine_1_1_display_1abf1a37ac4119755d04392da91d20479e" compoundref="_engine_8h" startline="535">lua::Engine::Display::popup</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_action_list_1aa49c2797ef5c5912cd41b94f0d7cd368" compoundref="_engine_8h" startline="424" endline="424">lua::Engine::Display::ActionList::position</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_status_bar_1a32b1e66b99cd6b0b3a364a075885b6dc" compoundref="_engine_8h" startline="479" endline="479">lua::Engine::Display::StatusBar::position</references>
+        <references refid="structlua_1_1_engine_1_1_display_1a864fd2fcdef348de9e063e9a48076aaa" compoundref="_engine_8h" startline="538" endline="538">lua::Engine::Display::scrollbarWidth</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_action_list_1ae84ebcf5eb54ffd1c9c6de61ff1f437e" compoundref="_engine_8h" startline="460" endline="460">lua::Engine::Display::ActionList::shortcutColour</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_action_list_1a6f129efe1a9da8e94609c3bbf3dc46a0" compoundref="_engine_8h" startline="436" endline="436">lua::Engine::Display::ActionList::shortcutFamily</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_action_list_1a9bb8cd9a85b021e4f704fbefdfda17ac" compoundref="_engine_8h" startline="442" endline="442">lua::Engine::Display::ActionList::shortcutSize</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_action_list_1a8c3e86e4f663c2326c8895cc97831e67" compoundref="_engine_8h" startline="439" endline="439">lua::Engine::Display::ActionList::shortcutStyle</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_overlay_1aa24614649dce15139f08e6121e140de0" compoundref="_engine_8h" startline="398" endline="398">lua::Engine::Display::Overlay::size</references>
+        <references refid="structlua_1_1_engine_1_1_display_1a013fdf623adc4f239105be36be4c79d3" compoundref="_engine_8h" startline="532">lua::Engine::Display::statusBar</references>
+        <references refid="structlua_1_1_engine_1_1_display_1_1_action_list_1a50ca47bff40d9fd37f75b329a258dc28" compoundref="_engine_8h" startline="463" endline="463">lua::Engine::Display::ActionList::width</references>
+        <references refid="struct_map_1_1_bool_1a9fc24e4de454aa3a0d553bc16830ad30a7f1498d6f1011ce9fb0f7c063a0dc167" compoundref="_map_8h" startline="19">Map::Bool::yes</references>
+        <referencedby refid="classlua_1_1_engine_1a5df3d9f74786535c47d966813f17125b" compoundref="_engine_parse_display_8cpp" startline="355" endline="368">lua::Engine::parseDisplay</referencedby>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="lua/Engine.cpp" line="22" column="1"/>
+  </compounddef>
+</doxygen>

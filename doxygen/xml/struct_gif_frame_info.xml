@@ -1,0 +1,126 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="struct_gif_frame_info" kind="struct" language="C++" prot="public">
+    <compoundname>GifFrameInfo</compoundname>
+    <includes refid="_image_decode_gif_8h" local="no">ImageDecodeGif.h</includes>
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="struct_gif_frame_info_1ad7d27a36e0d9d4db8402145266c68f6c" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int GifFrameInfo::left</definition>
+        <argsstring></argsstring>
+        <name>left</name>
+        <qualifiedname>GifFrameInfo::left</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/ImageDecodeGif.h" line="23" column="9" bodyfile="terminal/ImageDecodeGif.h" bodystart="23" bodyend="23"/>
+        <referencedby refid="namespaceterminal_1ab8471c5f4a063b7f05350297f06c862f" compoundref="_image_decode_mac_8mm" startline="77" endline="359">terminal::loadImageSequenceNative</referencedby>
+        <referencedby refid="_image_decode_gif_8h_1a50307011e1271280d596d647c0b7011e" compoundref="_image_decode_gif_8h" startline="67" endline="196">parseGifMetadata</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="struct_gif_frame_info_1a021248d1ad45e189d19fc68ed3260eeb" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int GifFrameInfo::top</definition>
+        <argsstring></argsstring>
+        <name>top</name>
+        <qualifiedname>GifFrameInfo::top</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/ImageDecodeGif.h" line="24" column="9" bodyfile="terminal/ImageDecodeGif.h" bodystart="24" bodyend="24"/>
+        <referencedby refid="namespaceterminal_1ab8471c5f4a063b7f05350297f06c862f" compoundref="_image_decode_mac_8mm" startline="77" endline="359">terminal::loadImageSequenceNative</referencedby>
+        <referencedby refid="_image_decode_gif_8h_1a50307011e1271280d596d647c0b7011e" compoundref="_image_decode_gif_8h" startline="67" endline="196">parseGifMetadata</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="struct_gif_frame_info_1a6e3f352af3c380db82cf452bce69b0ec" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int GifFrameInfo::width</definition>
+        <argsstring></argsstring>
+        <name>width</name>
+        <qualifiedname>GifFrameInfo::width</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/ImageDecodeGif.h" line="25" column="9" bodyfile="terminal/ImageDecodeGif.h" bodystart="25" bodyend="25"/>
+        <referencedby refid="namespaceterminal_1ab8471c5f4a063b7f05350297f06c862f" compoundref="_image_decode_mac_8mm" startline="77" endline="359">terminal::loadImageSequenceNative</referencedby>
+        <referencedby refid="_image_decode_gif_8h_1a50307011e1271280d596d647c0b7011e" compoundref="_image_decode_gif_8h" startline="67" endline="196">parseGifMetadata</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="struct_gif_frame_info_1ace5fd9ce9f1bfc9cc601a984219b7df7" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int GifFrameInfo::height</definition>
+        <argsstring></argsstring>
+        <name>height</name>
+        <qualifiedname>GifFrameInfo::height</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/ImageDecodeGif.h" line="26" column="9" bodyfile="terminal/ImageDecodeGif.h" bodystart="26" bodyend="26"/>
+        <referencedby refid="namespaceterminal_1ab8471c5f4a063b7f05350297f06c862f" compoundref="_image_decode_mac_8mm" startline="77" endline="359">terminal::loadImageSequenceNative</referencedby>
+        <referencedby refid="_image_decode_gif_8h_1a50307011e1271280d596d647c0b7011e" compoundref="_image_decode_gif_8h" startline="67" endline="196">parseGifMetadata</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="struct_gif_frame_info_1a028484bfd4e849ef1dc725e82ce1c2ca" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int GifFrameInfo::delayMs</definition>
+        <argsstring></argsstring>
+        <name>delayMs</name>
+        <qualifiedname>GifFrameInfo::delayMs</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/ImageDecodeGif.h" line="27" column="9" bodyfile="terminal/ImageDecodeGif.h" bodystart="27" bodyend="27"/>
+        <referencedby refid="namespaceterminal_1ab8471c5f4a063b7f05350297f06c862f" compoundref="_image_decode_mac_8mm" startline="77" endline="359">terminal::loadImageSequenceNative</referencedby>
+        <referencedby refid="_image_decode_gif_8h_1a50307011e1271280d596d647c0b7011e" compoundref="_image_decode_gif_8h" startline="67" endline="196">parseGifMetadata</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="struct_gif_frame_info_1ac6831c531442be8fbcb3ee6b1805b895" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int GifFrameInfo::disposal</definition>
+        <argsstring></argsstring>
+        <name>disposal</name>
+        <qualifiedname>GifFrameInfo::disposal</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+<para>0=unspec, 1=none, 2=restore-bg, 3=restore-previous </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/ImageDecodeGif.h" line="28" column="9" bodyfile="terminal/ImageDecodeGif.h" bodystart="28" bodyend="28"/>
+        <referencedby refid="namespaceterminal_1ab8471c5f4a063b7f05350297f06c862f" compoundref="_image_decode_mac_8mm" startline="77" endline="359">terminal::loadImageSequenceNative</referencedby>
+        <referencedby refid="_image_decode_gif_8h_1a50307011e1271280d596d647c0b7011e" compoundref="_image_decode_gif_8h" startline="67" endline="196">parseGifMetadata</referencedby>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Per-frame positional and timing metadata extracted from a GIF stream. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="terminal/ImageDecodeGif.h" line="21" column="1" bodyfile="terminal/ImageDecodeGif.h" bodystart="22" bodyend="29"/>
+    <listofallmembers>
+      <member refid="struct_gif_frame_info_1a028484bfd4e849ef1dc725e82ce1c2ca" prot="public" virt="non-virtual"><scope>GifFrameInfo</scope><name>delayMs</name></member>
+      <member refid="struct_gif_frame_info_1ac6831c531442be8fbcb3ee6b1805b895" prot="public" virt="non-virtual"><scope>GifFrameInfo</scope><name>disposal</name></member>
+      <member refid="struct_gif_frame_info_1ace5fd9ce9f1bfc9cc601a984219b7df7" prot="public" virt="non-virtual"><scope>GifFrameInfo</scope><name>height</name></member>
+      <member refid="struct_gif_frame_info_1ad7d27a36e0d9d4db8402145266c68f6c" prot="public" virt="non-virtual"><scope>GifFrameInfo</scope><name>left</name></member>
+      <member refid="struct_gif_frame_info_1a021248d1ad45e189d19fc68ed3260eeb" prot="public" virt="non-virtual"><scope>GifFrameInfo</scope><name>top</name></member>
+      <member refid="struct_gif_frame_info_1a6e3f352af3c380db82cf452bce69b0ec" prot="public" virt="non-virtual"><scope>GifFrameInfo</scope><name>width</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

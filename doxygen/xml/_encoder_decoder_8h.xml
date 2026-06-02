@@ -1,0 +1,139 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="_encoder_decoder_8h" kind="file" language="C++">
+    <compoundname>EncoderDecoder.h</compoundname>
+    <includes local="no">JuceHeader.h</includes>
+    <includes refid="_message_8h" local="yes">Message.h</includes>
+    <includedby refid="_daemon_8h" local="yes">nexus/Daemon.h</includedby>
+    <includedby refid="_encoder_decoder_8cpp" local="yes">nexus/EncoderDecoder.cpp</includedby>
+    <includedby refid="_link_8h" local="yes">nexus/Link.h</includedby>
+    <incdepgraph>
+      <node id="1">
+        <label>nexus/EncoderDecoder.h</label>
+        <link refid="_encoder_decoder_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>Message.h</label>
+        <link refid="_message_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>JuceHeader.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="4">
+        <label>Main.cpp</label>
+        <link refid="_main_8cpp"/>
+      </node>
+      <node id="3">
+        <label>Main.h</label>
+        <link refid="_main_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>nexus/Channel.cpp</label>
+        <link refid="_channel_8cpp"/>
+      </node>
+      <node id="6">
+        <label>nexus/Daemon.cpp</label>
+        <link refid="_daemon_8cpp"/>
+      </node>
+      <node id="2">
+        <label>nexus/Daemon.h</label>
+        <link refid="_daemon_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>nexus/Daemon.mm</label>
+        <link refid="_daemon_8mm"/>
+      </node>
+      <node id="8">
+        <label>nexus/DaemonWindows.cpp</label>
+        <link refid="_daemon_windows_8cpp"/>
+      </node>
+      <node id="9">
+        <label>nexus/EncoderDecoder.cpp</label>
+        <link refid="_encoder_decoder_8cpp"/>
+      </node>
+      <node id="1">
+        <label>nexus/EncoderDecoder.h</label>
+        <link refid="_encoder_decoder_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>nexus/Link.cpp</label>
+        <link refid="_link_8cpp"/>
+      </node>
+      <node id="10">
+        <label>nexus/Link.h</label>
+        <link refid="_link_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innernamespace refid="namespacenexus">nexus</innernamespace>
+    <briefdescription>
+<para>Interprocess binary wire-format encode/decode helpers. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Protocol-specific encoding (PDU framing, magic header) built on top of <ref refid="structjam_1_1_binary_codec" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::BinaryCodec</ref> generic serialisation primitives.</para>
+<para><simplesect kind="see"><para><ref refid="structjam_1_1_binary_codec" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::BinaryCodec</ref> </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558" kindref="member">nexus::Message</ref> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#pragma<sp/>once</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;JuceHeader.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_message_8h" kindref="compound">Message.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespacenexus" kindref="compound">nexus</ref></highlight></codeline>
+<codeline lineno="18"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="comment">/*____________________________________________________________________________*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27" refid="namespacenexus_1a0ac4a3aebeab13ff50bf3acdebef263f" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">constexpr</highlight><highlight class="normal"><sp/>juce::uint32<sp/><ref refid="namespacenexus_1a0ac4a3aebeab13ff50bf3acdebef263f" kindref="member">wireMagicHeader</ref><sp/>{<sp/>0xe4d52a7f<sp/>};</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="comment">//<sp/>=============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Generic<sp/>primitives<sp/>—<sp/>convenience<sp/>alias<sp/>for<sp/>jam::BinaryCodec</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="comment">//<sp/>=============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33" refid="namespacenexus_1a454bd7aee52ad765f75860e775630db0" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">using<sp/></highlight><highlight class="normal"><ref refid="namespacenexus_1a454bd7aee52ad765f75860e775630db0" kindref="member">Codec</ref><sp/>=<sp/><ref refid="structjam_1_1_binary_codec" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::BinaryCodec</ref>;</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="comment">//<sp/>=============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="comment">//<sp/>PDU<sp/>encoding</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="comment">//<sp/>=============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal">juce::MemoryBlock<sp/><ref refid="namespacenexus_1aab2d4c2259f848abd4a41714071086fb" kindref="member">encodePdu</ref><sp/>(<ref refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558" kindref="member">Message</ref><sp/>kind,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::MemoryBlock&amp;<sp/>payload)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>nexus</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="nexus/EncoderDecoder.h"/>
+  </compounddef>
+</doxygen>

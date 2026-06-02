@@ -1,0 +1,55 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="structlua_1_1_engine_1_1_display_1_1_popup_border" kind="struct" language="C++" prot="public">
+    <compoundname>lua::Engine::Display::PopupBorder</compoundname>
+    <includes refid="_engine_8h" local="no">Engine.h</includes>
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_display_1_1_popup_border_1a38004c1d6e6adc4dea728b0b57a687ff" prot="public" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour lua::Engine::Display::PopupBorder::borderColour</definition>
+        <argsstring></argsstring>
+        <name>borderColour</name>
+        <qualifiedname>lua::Engine::Display::PopupBorder::borderColour</qualifiedname>
+        <initializer>{ 0xff4e8c93 }</initializer>
+        <briefdescription>
+<para><ref refid="structlua_1_1_engine_1_1_popup" kindref="compound">Popup</ref> border colour. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="498" column="26" bodyfile="lua/Engine.h" bodystart="498" bodyend="498"/>
+        <referencedby refid="namespacelua_1ad0765e4a8d2a333c174036c8bc89bad0" compoundref="_engine_parse_display_8cpp" startline="204" endline="352">lua::parseDisplayMisc</referencedby>
+        <referencedby refid="namespacelua_1a74fca56bfc76dcd640f6f1803a8afc67" compoundref="_engine_defaults_8cpp" startline="130" endline="186">lua::writeDisplayMiscDefaults</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_display_1_1_popup_border_1a469ee5e52905776aa25e6fc6bf202c7a" prot="public" static="no" mutable="no">
+        <type>float</type>
+        <definition>float lua::Engine::Display::PopupBorder::borderWidth</definition>
+        <argsstring></argsstring>
+        <name>borderWidth</name>
+        <qualifiedname>lua::Engine::Display::PopupBorder::borderWidth</qualifiedname>
+        <initializer>{ 1.0f }</initializer>
+        <briefdescription>
+<para><ref refid="structlua_1_1_engine_1_1_popup" kindref="compound">Popup</ref> border width in pixels. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="501" column="19" bodyfile="lua/Engine.h" bodystart="501" bodyend="501"/>
+        <referencedby refid="namespacelua_1ad0765e4a8d2a333c174036c8bc89bad0" compoundref="_engine_parse_display_8cpp" startline="204" endline="352">lua::parseDisplayMisc</referencedby>
+        <referencedby refid="namespacelua_1a74fca56bfc76dcd640f6f1803a8afc67" compoundref="_engine_defaults_8cpp" startline="130" endline="186">lua::writeDisplayMiscDefaults</referencedby>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para><ref refid="structlua_1_1_engine_1_1_popup" kindref="compound">Popup</ref> window border appearance settings. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="lua/Engine.h" line="495" column="9" bodyfile="lua/Engine.h" bodystart="496" bodyend="502"/>
+    <listofallmembers>
+      <member refid="structlua_1_1_engine_1_1_display_1_1_popup_border_1a38004c1d6e6adc4dea728b0b57a687ff" prot="public" virt="non-virtual"><scope>lua::Engine::Display::PopupBorder</scope><name>borderColour</name></member>
+      <member refid="structlua_1_1_engine_1_1_display_1_1_popup_border_1a469ee5e52905776aa25e6fc6bf202c7a" prot="public" virt="non-virtual"><scope>lua::Engine::Display::PopupBorder</scope><name>borderWidth</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

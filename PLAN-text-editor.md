@@ -1,218 +1,166 @@
-# PLAN: Text-Editor Restructure — Universal Foundation
+# PLAN: Universal Text Editor Foundation — Terminal-as-Editor over a Multi-Screen Document
 
-**RFC:** RFC-text-editor.md (consumed and superseded where this plan diverges — see §Divergences)
-**Date:** 2026-05-30
+**RFC:** RFC-text-editor.md — §1 (END's text rendering IS a universal text editor) realized literally. §2–§9 (ParagraphsModel, commit/live, two-kind `LineTarget` transport) **superseded** by the in-session decisions captured below.
+**Date:** 2026-06-01
 **BLESSED Compliance:** verified
-**Language:** C++17 / JUCE — MANIFESTO.md reference implementation, no overrides
-
-## Objective (ARCHITECT)
-
-1. **Fix the mental model** — TextEditor is the lossless content SSOT; Video is the transient viewport grid; projection makes content survive mid-stream viewport-dimension changes.
-2. **Fix the foundation, bottom-up** — the actual types and storage we need: `jam::Char` (moved out of `Cell`), `jam::String` (renamed from `Row`), `jam::Buffer<String>` storage. Delete what was wrong.
-3. **Fix the logic upstream** — Video / Processor / TextEditor / Display rebuilt on the correct foundation, with the SSOT invariants enforced structurally.
-
-This is a refactor. CAROL Refactor-Rewrite Discipline: delete the old form first; cascade breakage is the ground of truth. Agents run no build commands — @Auditor validates each step against CONTRACT, not compilation.
+**Language / Framework Constraints:** C++17 / JUCE — LANGUAGE.md: C++/JUCE is the BLESSED reference, no overrides. No build commands (ARCHITECT only); @Auditor validates against CONTRACT, not compilation.
 
 ---
 
-## §0 Mental Model (Objective 1) — the law every step serves
+## Overview
 
-**Facts (ARCHITECT, ground truth):**
-- Video sees **only the viewport dimension**, logically. It is the VT execution surface — `print`/`scroll`/`erase` mutate a viewport-sized grid on the **reader thread**. Transient.
-- The viewport dimension is **dynamic mid-stream** — the scrollbar appears/disappears and always consumes dimension. Content must render correctly when that dimension changes at any instant. Therefore: **project at render**, never bake width into storage.
-- No published terminal preserves history above the active prompt across resize — all are lossy/destructive. Ours is not. This is the deliverable.
-- Our renderer **is an actual text editor**: structure/topology verbatim JUCE (`juce::Viewport`, paragraph model), logic verbatim neovim (`buf_T` memline + libvterm grid). neovim is a text editor integrated with the terminal domain — that is the model.
+Model the terminal as a **universal text editor**. One `jam::CodeModel` per `Session` holds the document; the document is a **dimensionless** sequence of logical lines (`jam::CodeLine`), and **dimension + wrapping live only in the projector** (`jam::CodeView`). This is the buffer/window separation verbatim from both references — neovim (`buf_T`/`win_T`) and JUCE (`CodeDocument`/`CodeEditorComponent`).
 
-**The SSOT split:**
-- `Video` owns the **live viewport grid** (reader thread). Sole source of live truth.
-- `TextEditor` owns the **lossless document** — history + the projected visible tail (message thread). The render SSOT.
-- `getWrappedLines(viewWidth)` is the projection: logical line → screen rows at the *current* viewport width. Storage is width-free.
+The terminal needs the VT dual-screen (primary + alternate). Rather than two documents or a separate alt surface, `CodeModel` holds **N screens** (`jam::Owner<jam::CodeLine::Screen>`, `numScreens` ctor param — `1` for a plain editor, `2` for a terminal) with an active-screen selector. `CodeView` projects whichever screen is active.
 
-**The three invariants (cure for `DEBT-20260530T100000` — resize content destruction):**
-- **I1 — Commit is the only history writer.** A row enters history exactly once, on scroll-off, via the cross-thread bridge. Nothing else writes history.
-- **I2 — Flush writes only the live visible tail.** The per-frame live update never touches history.
-- **I3 — Viewport-dimension change never re-sources history from Video.** Video reflows its *own* grid; TextEditor re-projects history to the new width via `getWrappedLines`; history storage is untouched.
+The reader thread runs **Video** as a conformant VT emulator over a **fixed viewport** (`rows × cols`) — the single VT parser. Video writes the **state machine** (cursor, dirty rows, active-screen, modes) to `State` and pushes changed viewport-row cells through `CellFifo` (two `jam::BufferSPSC` drop-oldest channels). The message thread runs **Display**, which mirrors the viewport into the active screen's **live tail** and finalizes scrolled-off lines into **width-free history**.
 
-Under I1–I3 the materialized visible tail is a strictly one-way, fully-refreshed projection from a single source — a cache, **not** drift-prone shadow. The current bug is an I2/I3 leak; this plan makes the boundary structural.
+Because history is dimensionless and **never sourced from the grid**, resize re-wraps it at paint and **content corruption on resize is structurally impossible** — the objective.
 
-**I4 — State is the SSOT for every legitimate state machine.** Per-row dirty is a state machine and is owned by `State` (`State::rowDirtyFlags`, `std::atomic<int>[]`, thread-safe). No object keeps a parallel dirty tracker. Video marks `State::rowDirtyFlags[row]` atomically on cell write (reader thread); the message thread reads/clears via `exchange(0)` on flush. The Video-local `rowTouched` array and the `id::rowDirty` event relay are shadows of this SSOT and are deleted.
+---
+
+## Language / Framework Constraints
+
+C++/JUCE reference — no overrides. Cross-thread transport is **`jam::BufferSPSC`** (`jam_core/concurrency/jam_buffer_spsc.h`) — an index-only fork of `juce::AbstractFifo` (same interface) with producer-side **drop-oldest**; CellFifo owns the byte storage + per-slot **seqlock** torn-guard (Decision B — see D7). `std::deque<jam::CodeLine>` per screen; `jam::Owner<Screen>` (owns by `unique_ptr`, exposes by reference) for the screen set — no naked owning pointers, no friend classes, no forward declarations (PIMPL permitted). Submodule headers include nothing; all includes at the module header. Positive checks only; no early returns; no magic indices (screen indexing via enum).
+
+---
+
+## The Model — locked decisions (the correctness law)
+
+These are the decisions reached with ARCHITECT this session. Each is binding; deviation is a discrepancy to STOP on, not a choice.
+
+### Document & screens
+
+- **D1 — One `CodeModel` per `Session`; screens live inside `CodeModel`.** `CodeModel` holds `jam::Owner<jam::CodeLine::Screen>` sized by a `numScreens` ctor param (default `1` = plain editor; terminal passes `2`). An active-screen index selects the live screen. Screen ownership is **not** in `Session` (no external array) and **not** in `CodeView`.
+- **D2 — `jam::CodeLine::Screen` bundles lines + policy.** Nested type: `{ std::deque<jam::CodeLine> lines; int capacity; <policy fields>; }` — each screen carries its own capacity/policy with its lines (no parallel arrays on `CodeModel`). Primary (index 0): width-free, scrollback-bounded (`defaultScrollbackCapacity` = 10000), autowrap-join on finalization. Alternate (index 1): capacity = viewport rows, no scrollback, no autowrap-join — a transient grid mirror.
+- **D3 — Content is dimensionless; dimension + wrap live only in the projector.** Each `Screen` holds a `std::deque<jam::CodeLine>` of logical lines with no column dimension (verbatim neovim `buf_T`/`memline`, JUCE `CodeDocument`). Width enters once, at paint, via `jam::CodeLine::getWrappedLines` in `CodeView` (verbatim neovim `win_T` wrap-at-`win_line`, JUCE `CodeEditorComponent`). *(Confirmed by neovim source: `buf_T` holds no width/height; `win_T.w_view_width` + `plines_win_nofold` compute wrap at draw over an unchanged buffer.)*
+- **D4 — `CodeView` keeps a fixed `const jam::CodeModel&`.** No `setModel`, no reseatable handle. `CodeView` projects the **active** screen; `CodeModel::getLine`/`getNumLines` delegate to the active screen. A screen switch is an internal `CodeModel` state change, invisible to `CodeView`'s reference.
+
+### Threads & transport
+
+- **D5 — Reader thread: `Processor` orchestrates `Video`.** Video is the single VT parser, executing the full VT spec over a fixed viewport (`rows × cols`). All in-viewport editing (autowrap, `ICH`/`DCH`/`IL`/`DL`, erase, scroll) is Video being Video — there is no second VT state machine.
+- **D6 — `State` is the state machine (SSOT carrier across the thread boundary).** It carries cursor (viewport space), caret (projection target), dirty rows, active-screen, and modes. Coalesced 60 Hz flush (existing APVTS-style mechanism). `State` never holds viewport cells. **No `topLine`, no `liveRows` State param:** viewport row 0 is the constant 0; the live-tail extent is NOT state-machine truth — it is Display's private record of what it last appended (see D10). The dead `id::liveRows` param was removed.
+- **D7 — Transport = `jam::BufferSPSC`, an index-only drop-oldest fork of `juce::AbstractFifo` (Decision B, locked).** `CellFifo` carries `jam::Char` rows reader→message via two method pairs: `pushHistory`/`drainHistory` and `pushActive`/`drainActive`. No `jam::LineTarget` tag — the channel is the discriminator. `CellFifo` owns two `jam::BufferSPSC` instances (history, active) replacing its prior two `juce::AbstractFifo` rings, and owns the two `HeapBlock<jam::Char>` storage buffers + the seqlock guard (D7b).
+  - **D7a — `jam::BufferSPSC` is an index-only manager (jam_core), Decision B.** Forked from `juce::AbstractFifo`'s index arithmetic (`validStart`/`validEnd`, `bufferSize`, wrap formulas, free-space sentinel) with the **same interface as `juce::AbstractFifo`** (`getTotalSize`/`getFreeSpace`/`getNumReady`/`reset`/`setTotalSize`/`prepareToWrite`/`finishedWrite`/`prepareToRead`/`finishedRead`). It holds NO payload storage — like AbstractFifo, the caller (CellFifo) owns the byte buffer and drives the memcpy against the returned indices. The ONE behavioral change vs AbstractFifo: **producer-side drop-oldest** — on `prepareToWrite` when full, the producer advances `validStart` via a single `compare_exchange_strong` (no retry loop; CAS-fail means the consumer already freed space) to evict the OLDEST entry until the requested space fits, so the write always succeeds (never refuses/stalls).
+  - **D7b — torn-read guard lives in CellFifo, Decision B.** Because drop-oldest makes the producer advance `validStart`, the producer can reclaim the byte region the consumer is mid-`memcpy` on (between `prepareToRead` and `finishedRead`) — a data race on CellFifo's `HeapBlock`. The guard is a per-slot **seqlock** (epoch even=stable, odd=write-in-progress) maintained by **CellFifo** around its own memcpy: producer stamps odd→writes→stamps even; consumer reads epoch before+after the copy and discards any entry the producer reclaimed mid-read. `jam::BufferSPSC` provides indices + drop-oldest only; CellFifo owns storage + seqlock. (Decision B over A: A folds storage+seqlock into the primitive; B keeps the primitive index-only and the guard in CellFifo. ARCHITECT chose B.)
+  - **D7c — drop-oldest IS the bounded scrollback, not loss.** On the history channel, evicting the oldest ring entry under flood is lossless w.r.t. the retained scrollback — those lines would be front-evicted from `CodeModel` anyway (`jam_code_model.h:106`). The producer never stalls the reader/PTY. *(Proven: under sustained `seq 10M`-class flood at 60Hz drain, AbstractFifo's drop-NEWEST kept the wrong end; drop-oldest keeps the latest window.)*
+- **D8 — Message thread: `Display` orchestrates `CodeView`.** Per flush (on-disk `Display.cpp` `screenDirty`/`activeScreen` branch): read active-screen → `setWrapEnabled(active == normal)` → `setActive(activeScreen)` on the document → remove the previous live tail of that screen using `liveTailExtent[activeScreen]` → `drainHistory` → `CodeModel::append` each departed line into history → `drainActive` → append each live row, counting → store the count into `liveTailExtent[activeScreen]` → `calc()`. Caret is set in the separate `id::cursor` branch. The drained count IS the live-tail extent (D10).
+
+### Cursor, anchor, finalization
+
+- **D9 — One cursor, in viewport dimension, authored by Video.** The logical cursor is Video's viewport cursor (it executes VT, so it owns the position). `State` carries it. The **caret** is its projection — `CodeView`'s render coordinate. Display maps cursor → caret. There is exactly one position; no shadow second cursor.
+- **D10 — the live tail is what the consumer just drained; its extent is the count of drained active rows.** Each tick the producer pushes the live region to the active ring (`[0..cursorRow]` for the active screen, `ProcessorEvents.cpp`); the consumer drains them, appends them, and the **count of rows it drained IS the live-tail extent**. Producer and consumer agree by construction — the consumer never needs a formula, it counts what it drained. Display holds the per-screen extent it last laid down as **internal transient** (`std::array<int, Map::Screen::count>`, message-thread-only, no getter) so it can remove the previous tail before appending the new one. NOT shadow state: it is Display's private record of its own document mutation, held nowhere else. The dead `id::liveRows` param (`Parameters.xml`, `Identifier.h` — zero readers/writers) is removed.
+- **D11 — Autowrap-join at finalization only.** The live tail stores grid rows 1:1 with the viewport; `jam::CodeLine::isContinued` marks an autowrap continuation. Departed lines arrive on the **history channel** already joined (the join lives in `CellFifo`'s history-ring `pending` accumulator: a contiguous `isContinued` run accumulates into one width-free `CodeLine`, emitted when a non-continued row completes it). Cursor → viewport-row mapping stays direct.
+- **D12 — Resize.** History is untouched and re-wrapped at paint (`getWrappedLines`); the live tail is re-mirrored from Video's reflowed viewport; the cursor is re-derived in the new viewport. History is never grid-sourced — this is the resize-safety guarantee.
+
+### Alternate screen
+
+- **D13 — Alt is a screen, not a separate surface.** Switching screens selects the active screen inside `CodeModel`; the primary screen's content is preserved untouched while alt is active (verbatim neovim hidden-buffer). One render path. **Alt is cleared on entry (D13a):** on `?1049h`, the alternate `CodeModel` screen is cleared (VT spec). Alt has no scrollback and is the transient grid.
+- **D14 — Screen-switch trigger + alt does not project.** Video parses `DECSET 1047/1049` on the reader thread and sets the active-screen flag in `State`; Display reads it and flips the active screen on the message thread. **Alt does NOT project (D14a):** the normal screen projects (history + live tail, wrap on, caret mapped through wrapped lines above the cursor); the alternate screen is the transient grid — no projection, no wrap, no history offset, no caret-through-wrap. The projection/caret-offset logic in `CodeView` is normal-screen only (`setWrapEnabled(false)` for alt).
+- **D15 — Caret projects through wrap on the normal screen (fix).** The cursor is authored in viewport space (row,col). On the normal screen with wrap on, the caret must be placed at the PROJECTED position — mapped through the wrapped row-spans of the live lines above the cursor — not by a flat `projectedRows − viewportHeight` offset. (The current `jam_code_view.cpp` offset is the bug to fix.) Alt screen: viewport row = screen row, no mapping.
+
+---
+
+## Reused existing infrastructure (no reinvention)
+
+These already exist in the tree and are the mechanisms the steps build on — not new work:
+
+- **`State`** — `getActiveScreen`/`setScreen`, `id::screenDirty`, `id::cursor` (per-screen `CursorState::pack/unpack`), `NORMAL`/`ALTERNATE` child nodes, `setRowDirty`/`consumeRowDirty`/`rebuildRowDirtyFlags` (the per-row dirty mechanism = "dirty rows"), 60 Hz flush.
+- **`Map::Screen::normal` / `Map::Screen::alternate`** — the screen identity map.
+- **`CodeView`** — `setWrapEnabled`, `setCaretPosition` (viewport-relative → maps to document space internally), `calc()`, `scrollToBottom()`, fixed `const CodeModel& document`.
+- **`CellFifo`** (`Source/terminal/CellFifo.h`) — two-channel `jam::Char`-row transport, header-per-entry, `[Header(cellCount,flags)|cells]` packing, history-ring continued-row join. Owns two `jam::BufferSPSC` rings (replacing the prior two `juce::AbstractFifo`). Signatures `pushHistory`/`pushActive`/`drainHistory`/`drainActive`/`setSize` — callers (Processor/ProcessorEvents/Display) unchanged.
+- **`juce::AbstractFifo`** (vendored, JUCE 8.0.12) — the index-coordination primitive `jam::BufferSPSC` forks (same interface; caller owns the bytes). The prior `CellFifo` paired it with two `HeapBlock<jam::Char>` (non-dropping); `jam::BufferSPSC` is that same pairing with producer drop-oldest added.
+- **`Session`** — owns `codeModel` (declared before `textEditor`, outlives it) + `getCodeModel()`/`getTextEditor()`.
+- **`jam::Owner<T>`** (`jam_core/utilities/jam_owner.h`) — `unique_ptr` vector with sized ctor `Owner(size_t, Args...)`.
+
+---
+
+## New names (Decision Gate — pending ARCHITECT ratification before introduction)
+
+Per CAROL Rule "no improvised names." These are required by the model; each needs ARCHITECT's word before @Engineer writes it:
+
+- ~~`Screen`~~ → **ratified `jam::CodeLine::Screen`** (nested under `CodeLine`).
+- **ratified:** `setActive(int)` / `getActive()` active-screen API on `CodeModel`; `numScreens` ctor param.
+- **No State param** for the live/history boundary — the dead `id::liveRows` was removed. The live-tail extent is Display's internal transient `liveTailExtent` (`std::array<int, Map::Screen::count>`, message-thread-only, no getter), set to the drained active-row count each tick. (`topLine` was added then reverted; a stored `liveRows` would be shadow state.)
+- **ratified:** `jam::BufferSPSC` (`jam_core/concurrency/jam_buffer_spsc.h`) — index-only fork of `juce::AbstractFifo` (same interface) + producer drop-oldest. Decision B: holds no storage; CellFifo owns the HeapBlock + seqlock guard.
+- **ratified:** `CellFifo` = **two independent SPSC rings**, no tag — the channel is the discriminator. `pushHistory`/`drainHistory` (departed scrollback lines, with continued-row join) on the history ring; `pushActive`/`drainActive` (live viewport rows, no join) on the active ring. Replaces the single tagged `pushRow`/`drainNext`+`jam::LineTarget`. ("history" = departed lines; "active" = at-viewport / live region — `activeScreen` separately means *which* screen.) Two rings chosen for: type-safe discriminator (no corruptible tag field), independent backpressure, and no viewport-vs-scrollback starvation under flood (the visible viewport update never waits behind a scrollback flood). Cost: consumer drains history-to-empty before active (one ordering rule).
+- **ratified:** `CellFifo::reset` → **`setSize(int historyCapacityInChars, int activeCapacityInChars)`** (rename: it reallocates the rings, a resize not a reset). Caller reads both sizes from State — history = `scrollbackLines × cols`, active = `visibleRows × cols` — and passes them; `CellFifo` holds no State reference (stays a dumb transport).
+- Any accessor for per-screen capacity/policy configuration on `CodeModel`.
+
+---
 
 ## Validation Gate
 
-Each step validated by @Auditor before the next: diff complies with MANIFESTO.md (BLESSED), NAMES.md (Rule -1 — no improvised names), ~/.carol/JRENG-CODING-STANDARD.md, the locked decisions below, **and §0 invariants** for any step touching write paths. Compilation is not an intermediate gate (cascade breakage expected).
+Each step is validated by @Auditor before the next against: MANIFESTO.md (BLESSED), NAMES.md, ~/.carol/JRENG-CODING-STANDARD.md, and these locked decisions (D1–D15). No reintroduction of `LineTarget`/commit-live/grid→history sync; no second cursor; no dimension stored in content; no naked owning pointers.
 
 ---
 
-## §1 Locked Decisions (the foundation, Objective 2)
+## Steps
 
-**Type model — two levels, one line type:**
-- `jam::Char` — the 8-byte packed attributed atom. The universal shaping input.
-- `jam::String` — a FAM line of `Char` (**renamed from `jam::Row`**). The universal attributed line. `sizeof` = header; content inline via FAM.
-- `jam::Cell` — the coordinate scalar (former `Cell::Unit`). Unchanged role, just promoted.
+> Steps 1–5 are the completed foundation. Steps 6–13 implement D1–D15. New names (above) must be ratified by ARCHITECT before the steps that introduce them.
 
-**The inversion (current → target):**
-| current | target |
-|---|---|
-| `jam::Cell` (packed atom) | `jam::Char` (new `jam_char.h`) |
-| `jam::Cell::Unit` (coordinate) | `jam::Cell` |
-| `cell` alias, `_cell` literal | unchanged → resolve to `jam::Cell` |
-| `jam::Cell::Point` / `::Rectangle` | unchanged |
-| `jam::Row` (FAM) | `jam::String` (FAM, + `getWrappedLines`) |
-| `row->cells[col]`, `Row::cells[]`, `FlexType = Cell` | `string->chars[col]`, `String::chars[]`, `FlexType = Char` |
+### Step 1–5 (DONE): document + view foundation
+`jam::CodeLine`, single-screen `jam::CodeModel`, `jam::CodeView`, `glyph::Arrangement::shape(CodeModel)`, Video `grid` rename, removal of fabrication/`StringArray`/forward-decl hack. No further action.
 
-**Storage — `jam::Buffer<String>`:**
-- FAM-native (the only container that natively stores a FAM type with stride; `deque<String>` / `HeapBlock<String>` are invalid for a FAM type). Uniform stride (= max width, bounded by terminal-width history, within SPEC 100 MB budget). Trivially copyable → memcpy commit/scroll/clear and **memcpy state-serialization**. Ring head = scrollback FIFO. 2 channels = normal/alt screen.
-- The FAM pointer math stays encapsulated in `Buffer`/`Block` (no caller casts), and `Block` is normalized to the `static_cast`-via-`void*` idiom (Class A, §3).
+### Step 6: `CodeModel` — multi-screen
+**Scope:** `jam_graphics/detail/jam_code_model.h`; `jam_graphics/detail/` (new `Screen` type).
+**Action:** Introduce `jam::CodeLine::Screen` (`std::deque<jam::CodeLine> lines; int capacity; <policy fields>`). `CodeModel` holds `jam::Owner<jam::CodeLine::Screen>` sized by `numScreens` ctor param (default 1). Add active-screen index + `setActive(int)`/`getActive()`. Route `append`/`replaceAt`/`remove`/`clear`/`getLine`/`getNumLines`/`setCapacity` to the active screen. Configure index 0 = primary policy (D2), index 1 = alternate policy when `numScreens == 2`. `CodeModel` indexes screens by `int` only — it is generic (jam_graphics) and must not know terminal concepts; the terminal caller passes the index via its own `Map::Screen` constants. No magic-number literals inside `CodeModel` beyond the active-index default of 0.
+**Validation:** dimensionless content (no width/col field on `Screen`); `Owner` ownership (no naked pointers); active-screen delegation correct; default `numScreens == 1` preserves plain-editor behavior; names match ratified set.
 
-**Deleted outright (no legacy, no coexistence):**
-- RFC `jam::String` as `HeapBlock<Char>` — **off the table.** The line type is the FAM `String`.
-- `jam::TextLine`, `jam::TextLineArray` (→ would-be `StringArray`) — dropped; the pipeline uses `Buffer<String>` end to end.
-- Owning `ParagraphStorage` + `deque<ParagraphsModel>` machinery — dissolved into `Buffer<String>`.
-- `jam::Cell::RowState`, `jam::Cell::getKey` — verified dead.
+### Step 7: `Session` — construct terminal with two screens
+**Scope:** `Source/terminal/Session.{h,cpp}`.
+**Action:** Construct `codeModel` with `numScreens = 2`. No structural change otherwise (`codeModel` stays declared before `textEditor`; `getCodeModel`/`getTextEditor` unchanged).
+**Validation:** construction order intact (model before view, outlives it); terminal gets 2 screens; remote-session ctor path unaffected.
 
-**Shaped cache:** shaping happens per visible-window line at paint (neovim model). A persistent shaped-`Entry` cache is **deferred (YAGNI)** until profiling shows reshaping the visible window is a bottleneck — it is an optimization, not foundation, and a trivially-copyable `String` cannot hold it anyway. (Removes a NAMES gate from the critical path.)
+### Step 8: `State` — live/history boundary (DONE — no new param)
+**Scope:** `Parameters.xml`, `Identifier.h` (dead-param removal — done on disk).
+**Action:** No State parameter for the live/history boundary. The live-tail extent is Display's internal transient `liveTailExtent` (`std::array<int, Map::Screen::count>`), set to the drained active-row count each tick (D10) — a stored param would be shadow state. The dead `id::liveRows` param was removed.
+**Validation:** no `liveRows` param remains (grep-confirmed zero); extent is Display-private, no getter; no shadow state.
 
-**Name freed first:** `jam::String` already exists in `jam_core` as a static text-utility toolbox (`jam_core/string/jam_string.h:6`). It is absorbed into `jam::Text` before the line type takes the name (§2 Phase 0).
+### Step 9: `CellFifo` — two channels on `jam::BufferSPSC` (drop-oldest)
+**Scope:** `jam_core/concurrency/jam_buffer_spsc.h` (the primitive), `Source/terminal/CellFifo.h` (the wiring).
+**Action (two parts):**
+- **9a — `jam::BufferSPSC`:** index-only fork of `juce::AbstractFifo`, Decision B. Same interface as AbstractFifo (`prepareToWrite`/`finishedWrite`/`prepareToRead`/`finishedRead`/`getFreeSpace`/`getNumReady`/`getTotalSize`/`reset`/`setTotalSize`). Holds no storage. ONE change vs AbstractFifo: `prepareToWrite` on full advances `validStart` (CAS drop-oldest) until the requested space fits, so the write never refuses. Layer-pure: jam_core, names no jam_graphics type. The producer/consumer torn-read on the caller's bytes is NOT the primitive's concern — the guard is in CellFifo (9b).
+- **9b — `CellFifo`:** replace its two `juce::AbstractFifo` members with two `jam::BufferSPSC`; CellFifo keeps its two `HeapBlock<jam::Char>` and adds the per-slot **seqlock** (epoch array per ring) around its memcpy — producer stamps odd→writes→stamps even; consumer reads epoch before+after the copy and discards entries reclaimed mid-read. `jam::LineTarget` and the tagged `pushRow`/`drainNext` removed; channel is the discriminator. History ring keeps the continued-row join (`pending`); active ring no join. `pushHistory`/`pushActive`/`drainHistory`/`drainActive`/`setSize(historyCap, activeCap)` signatures unchanged → Processor/ProcessorEvents/Display callers untouched. With drop-oldest in the ring, `pushHistory`'s prior `getFreeSpace`-then-skip guard is removed — the write always succeeds (oldest evicted).
+**Validation:** no `LineTarget` remnant; two drop-oldest rings; whole-row eviction (no severed rows — drop advances past whole `[Header|cells]` entries); seqlock guards CellFifo's memcpy (zero torn under concurrent drop); history join preserved on the history ring only; active = one row per entry; CellFifo public signatures unchanged; smoke test zero torn / zero partial / FIFO order / producer never stalls.
 
-## §1.5 Screen Channels — NORMAL vs ALTERNATE, content switching
+### Step 10: Producer — Video emits state machine + cells (reader)
+**Scope:** `Source/terminal/Video.*`, `Source/terminal/ProcessorEvents.cpp`, `Source/terminal/Processor.*`.
+**Action:** On the reader thread, Video (full VT over the fixed viewport) writes cursor (D9), dirty rows, and the active-screen flag (D14, from `DECSET 1047/1049`) to `State`. The two emission points: `id::pushLine` (departing line) → `cellFifo.pushHistory(...)`; `id::screenDirty` (live viewport rows `[0..cursorRow]`) → `cellFifo.pushActive(...)`. One VT parser; no grid→document sync. (No `liveRows` authored — the live-tail extent is the consumer's drained count, D10.)
+**Validation:** reader-thread only; single VT parser; cursor/active-screen authored here; no second cursor; alt and normal output both flow through the dirty-row mechanism.
 
-The 2-channel `Buffer<String>` **is** the two screen buffers, each self-contained. This supersedes the old "shared Live + History" model, which could not preserve the normal screen across an alternate excursion (a shared Live is overwritten by the alternate app). Separate channels preserve it structurally.
+### Step 11: Consumer — Display mirrors tail, finalizes history, projects caret (message)
+**Scope:** `Source/terminal/component/Display.cpp`.
+**Action:** Replace the `LineTarget` drain loop with, in order: read active-screen → `setWrapEnabled(active == normal)`; `setActive(activeScreen)` on the document; remove the previous live tail **of that screen** using the per-screen extent `liveTailExtent[activeScreen]`; `drainHistory` → `CodeModel::append` each departed line into history (front-eviction bounds it); `drainActive` → append each live row, counting; store the count into `liveTailExtent[activeScreen]`; `calc()`. The drained count IS the extent — no formula. `liveTailExtent` is `std::array<int, Map::Screen::count>`, private, message-thread-only, no getter. Remove the dead `getTextLineArray` path and the dead `id::liveRows` State param.
+**Validation:** message-thread only; single document, one cursor; per-screen `liveTailExtent` (no cross-screen contamination after `setActive`); history immutable + width-free; live tail = drained active rows; extent is internal transient (no getter, no stored param, no shadow state); caret unchanged in the `id::cursor` branch; alt screen has no history (pushHistory gated to normal).
 
-- **NORMAL channel (0) = history + live tail.** One continuous ring, capacity `app::id::scrollbackLines`. The last `viewportRows` rows are the **live tail** (one-way mirror of Video's normal grid, I2); everything above is **history**. As the shell scrolls, the top live row crosses into history (commit, I1) — the live-window boundary (`previousActiveCount`) advances. Resize **reflows** via `getWrappedLines` (I3, lossless). This is "Live is dynamic, appended/replacing the history tail."
-- **ALTERNATE channel (1) = live only.** Viewport-sized, **zero history, no reflow**. `?1049h` clears it; the app owns its layout and redraws on resize — END only resizes the grid (resize/layout is full app responsibility).
-- **Both channels persist permanently** in TextEditor. `activeScreen` selects render; the inactive channel is **frozen — never written while inactive.** Content preservation across switches is therefore structural, not bookkept.
+### Step 12: Resize path — re-wrap history, re-mirror tail, re-derive cursor
+**Scope:** `Source/terminal/component/Display.cpp`, `Source/terminal/` resize (`Resizer`) wiring, `CodeView` projection.
+**Action:** On viewport dimension change: history untouched (re-wrapped at paint via `getWrappedLines`); live tail re-mirrored from Video's reflowed viewport; cursor re-derived in the new viewport (D12). Confirm alt screen capacity tracks viewport rows on resize.
+**Validation:** history bytes never re-sourced from the grid; scrollback survives arbitrary resize; cursor lands correctly post-resize; alt capacity = new viewport rows.
 
-**Ownership (no shared "both"):** Video owns the live grids (`Buffer<String>`, 2 channels, reader thread; Processor owns Video). TextEditor owns the document (`Buffer<String>`, 2 channels: normal=history+live, alternate=live; message thread; Session owns TextEditor). `CellFifo` transports; Processor orchestrates the switch.
-
-**The `ls` → `vim` → exit invariant:** `ls` output is normal-channel history; `vim` runs on the alternate channel; on `?1049l` the normal channel — untouched throughout — renders intact. **The `ls` history is still visible. Normal is never cleared.** This is the lossless guarantee, made structural by channel separation.
-
-## §Divergences from RFC (carrier honesty)
-
-- RFC §4.4/§4.5 (`String` = `HeapBlock<Char>`, `StringArray`) — **rejected.** Line type is the FAM `String` (= `Row`); store is `Buffer<String>`. Rationale: one type, trivially copyable, memcpy-serializable, no FAM-in-`deque` impossibility, no owning-handle machinery (verified: `make_unique`/`Owner` cannot allocate a FAM's content).
-- RFC §5/§6 (`ParagraphStorage`/`ParagraphsModel` over `deque`) — **dissolved** into `Buffer<String>`.
-- RFC §7.3 lazy `getShapedText` — **deferred** (YAGNI), per above.
-- All other RFC intent (mental model §1–§3, `Char` bit layout, `PROPORTIONAL`, SIGWINCH projection, screen channels, write-path decoupling) — **retained**.
-
----
-
-## §2 Steps — Foundation (Objective 2)
-
-### Phase 0 — Free the `String` name (absorb toolbox into `jam::Text`)
-
-**Step 0a — merge toolbox into `jam::Text`.**
-Scope: `jam_core/text/jam_text.h`, `jam_text.cpp`. Move every member of `class String` (`jam_core/string/jam_string.h`) — constants, static methods, templates, private tables/helpers — into `struct Text`; move impls into `jam_text.cpp`. Preserve existing `Text`/`URL`. No behavior change.
-Validation: all members present in `Text`; no lost/duplicated method; doxygen carried.
-
-**Step 0b — delete old file, repoint call sites.**
-Scope: delete `jam_core/string/jam_string.{h,cpp}`; drop the include from `jam_core.h`; repoint `jam::String::` → `jam::Text::` in the 6 evidenced files (`Source/lua/EngineDefaults.cpp` ×183, `jam_core/image/jam_image.cpp` ×3, `jam_gui/menu/jam_menu.mm` ×1, `jam_graphics/colours/jam_colours_utilities.h` ×3, `jam_style/style_manager/jam_style_manager.cpp` ×1).
-Validation: zero `jam::String::` residue in dev/ tree (excl. Builds); `jam::String` name free.
-
-### Phase A — jam_graphics types
-
-**Step 1 — `jam_char.h` (new): the packed atom.**
-Move packed-character content out of `jam_cell.h` into `jam::Char`: `packed`, bit-layout constants, `codepoint`/`contentTag`/`wide`/`styleId`, `make`/`erase`, `CONTENT_*` and wide constants, both `static_assert`s (size 8, trivially copyable). Rename `SPACER_HEAD` (3) → `PROPORTIONAL` with RFC §4.3 doxygen. No `Unit`/`RowState`/`getKey`. Zero includes beyond `<cstdint>`/`<type_traits>`.
-Validation: identical bit layout/accessors; `PROPORTIONAL` complete; static_asserts; NAMES Rule -1 (only approved `Char`/`PROPORTIONAL`).
-
-**Step 2 — `jam_cell.h` (rewrite): coordinate-only `Cell`.**
-Replace body with former `Cell::Unit` promoted to `jam::Cell` (`int value`, explicit ctor, arithmetic + comparison + `%`). Keep `struct Point; struct Rectangle;` forward decls. Delete `RowState`, `getKey`. `_cell` → `jam::Cell`; `using cell = jam::Cell`. Doxygen corrected (RFC §4.7).
-Validation: coordinate-only; dead code gone; alias/literal resolve to `jam::Cell`; positive nesting.
-
-**Step 3 — `jam_cell_point.h` / `jam_cell_rectangle.h`: `Unit` → `Cell`.**
-Replace every internal `Cell::Unit` with `Cell`. No behavior change.
-Validation: no `Unit` token; API unchanged.
-
-**Step 4 — `jam_string.h` (rename `jam_row.h`): the FAM line.**
-Rename file `jam_row.h` → `jam_string.h`, type `Row` → `String`. `using FlexType = Char`; `Char chars[]` (was `Cell cells[]`); keep `uint16_t usedCols`, `uint8_t flags`, flag constants (`flexWrap`/`collapsed`/`justify`). **Add** `int getWrappedLines (int viewWidth) const noexcept` = `(usedCols + viewWidth - 1) / viewWidth`, returns 1 for empty/zero-width (absorbs the only useful method from the deleted `TextLine`). Doxygen: universal attributed line.
-Validation: FAM element `Char chars[]`; `getWrappedLines` ceiling division; trivially copyable; no `Row`/`cells`/`TextLine` residue.
-
-**Step 5 — `jam_graphics.h`: include wiring.**
-`jam_char.h` before `jam_string.h`/`jam_row` consumers; `jam_cell.h` before point/rectangle; `jam_string.h` replaces `jam_row.h`. Remove `jam_text_line.h`/`jam_text_line_array.h`/`jam_ParagraphStorage.h` includes (those files deleted). Submodule headers include nothing.
-Validation: include order resolves forward decls (`Char` before `String`; `Cell` before Point/Rectangle).
-
-**Step 6 — delete the dead types.**
-Delete `jam_text_line.h`, `jam_text_line_array.h`, `jam_ParagraphStorage.h` (owning `ParagraphStorage`/`ParagraphsModel`).
-Validation: files gone; no include references remain.
-
-### Phase B — jam storage hygiene + shaping
-
-**Step 7 — Class A: normalize `jam_block.h` casts (in scope).**
-Store `Block::base` as `char*` (convert once at construction via `static_cast<void*>`); each accessor returns `static_cast<ElementType*>(static_cast<void*>(base + offset))`. Eliminate every `reinterpret_cast` in `Block` (`:189, :213, :233, :253, :269, :291, :308`). Zero behavior change; one FAM idiom shared with `Buffer::rowAddress`.
-Validation: no `reinterpret_cast` in `Block`; addressing identical; consistent with `Buffer` (NAMES Rule 5).
-
-**Step 8 — `jam_glyph_arrangement.{h,cpp}`: `Cell` atom → `Char`, accept `Buffer<String>`.**
-Replace `Block<Cell>` → `Block<Char>` overloads; replace `shape(TextLineArray)` with shaping over `Buffer<String>` / a `String`'s `chars`. Update every atom reference (`.codepoint()`/`.wide()`/`SPACER_TAIL`) to `Char`. Coordinate `Cell`/`Point`/`Rectangle` usages preserved. `buildArrangements` stays stride-agnostic — it lays out a `Char` sequence, nothing else. `PROPORTIONAL` advance is WHELMED-future (out of scope).
-Validation: no `Cell`-atom references; coordinate usages intact; shaper reads a `Char` sequence per line; Entry struct unchanged.
+### Step 13: Sweep + doxygen + ARCHITECTURE.md
+**Scope:** repo-wide.
+**Action:** Remove all superseded symbols/comments (`LineTarget`, commit/live, grid-sync, two-target `CellFifo` doc, `id::liveRows`). Fix stale doxygen (`Processor.*` "TextEditor"; `Session` `getTextEditor`/"TextEditor" naming vs `CodeView` — flag for ARCHITECT). Update ARCHITECTURE.md to the terminal-as-editor model: dimensionless multi-screen `CodeModel`, viewport-mirrored live tail (`liveTailExtent` drained-count boundary), width-free history, `jam::BufferSPSC` drop-oldest transport, single-cursor projection, screen-switch path.
+**Validation:** no superseded symbol or comment remains; ARCHITECTURE.md mirrors the implemented model.
 
 ---
 
-## §3 Steps — Upstream Logic (Objective 3)
+## BLESSED Alignment
 
-### Phase C — Video (reader thread, viewport grid)
-
-**Step 9 — `Video`: `Buffer<Row>` → `Buffer<String>`, `cells` → `chars`.**
-Scope: `Source/terminal/Video.{h,cpp}`, `VideoEdit.cpp`, `VideoOSC*.cpp`, `Mouse.cpp`, `CellFifo.h`, any END source referencing `jam::Cell` atom / `jam::Row` / `jam::TextLine*`. Apply the §1 rename map. `print`/`scrollUpAndFill`/`eraseInDisplay` write `string->chars[col]`. Video remains the viewport-sized live grid (Invariant: sole source of live truth).
-Validation: zero atom-`Cell`/`Row`/`cells` residue; coordinate `cell`/`Cell::Point` untouched; Video behavior unchanged but for the rename.
-
-### Phase D — TextEditor (message thread, document SSOT)
-
-**Step 10 — `jam_text_editor.{h,cpp}`: own `Buffer<String>`, editing API, projection.**
-Replace `paragraphsModel`/`setText(TextLineArray)`/`arrangement`-as-store with `jam::Buffer<String> store` (2 channels = screens) + `int activeScreen`. Editing API mirroring `ml_*`, **history-vs-live aware** to enforce I1/I2:
-- commit: append one departed `String` to history (the **only** history writer — I1).
-- flush: overwrite the live visible tail rows only (never history — I2).
-- `setActiveScreen(int)`; `clear`.
-`calc()` sums `string.getWrappedLines(physicalViewWidth)` over all lines → ContentView height. SIGWINCH / viewport-dimension change: recompute heights at new width; **history storage untouched** (I3). `updateWinsize`, `setCaretPosition`, ValueTree state — unchanged.
-Validation: single `Buffer<String>` store; I1/I2/I3 structurally enforced (history has exactly one writer; flush cannot reach history; resize re-projects only); no shadow of Video; Tell-don't-Ask; positive nesting.
-
-**Step 11 — `ContentView`: render visible window, shape per line at paint.**
-`drawGlyphRuns` iterates lines intersecting the Viewport clip; for each, shape its `String.chars` via `buildArrangements` and draw. No persistent shaped cache (deferred). Reads only the active screen's `Buffer<String>`.
-Validation: visible-window-only shaping; reads active store exclusively; no Arrangement-as-SSOT residue.
-
-### Phase E — Processor (the bridge, invariant enforcement)
-
-**Step 12 — `CellFifo` → tagged commit+live bridge (Model A).**
-Scope: `CellFifo.{h}`. The bridge becomes the **sole** reader→message contact for both content paths: each pushed row is tagged **commit** (scrolled off) or **live** (dirty viewport row, with its row index). `Cell` → `Char` throughout; entries deliver into `Buffer<String>`, not `TextLine`/`TextLineArray`. Drop the `reinterpret_cast` header packing where the `static_cast`-via-`void*` idiom applies (Class-A-consistent). Video never shares its buffer; this kills the cross-thread Video read behind `DEBT-20260530T100000`.
-Validation: single bridge carries tagged commit+live; `Char` payload; no `TextLine` residue; SPSC contract intact.
-
-**Step 13 — `State::rowDirtyFlags` is the per-row dirty SSOT; delete the shadow (I4).**
-Scope: `Video.{h,cpp}`, `VideoEdit.cpp`, `ProcessorEvents.cpp`, `State.{h,cpp}`. Delete `Video::rowTouched` (`Video.h:421`) and the `id::rowDirty` event relay (`Video.cpp:173–180`, `ProcessorEvents.cpp:318–319`, `Identifier.h:310`). Video marks `State::rowDirtyFlags[row].store(1, relaxed)` on cell write (the ×11 `rowTouched[...] = true` sites become State marks); message thread selects dirty live rows via `exchange(0)`.
-Validation: zero `rowTouched` residue; no `id::rowDirty`; single per-row dirty owner = `State`; reader-thread marks are atomic.
-
-**Step 14 — `Processor`: commit/flush, no shadow, decoupled prepare.**
-Scope: `Processor.{h,cpp}`, `ProcessorEvents.cpp`. Remove the `TextLineArray` shadow and `getTextLineArray()`. Add `int previousActiveCount` (plain int; not State, not ValueTree).
-- **Commit path (I1):** drain `CellFifo` commit-tagged rows → append to TextEditor history once.
-- **Flush path (I2):** drain `CellFifo` live-tagged rows (selected by `State::rowDirtyFlags`) → overwrite the live tail only; never history.
-- `prepare()` decoupled (I3): resizes Video's grid only; never touches TextEditor or the bridge; in-flight committed lines survive.
-- Remove the `liveRows` State parameter (named cause of resize corruption).
-Validation: no `TextLineArray`/shadow (SSOT); `previousActiveCount` plain int; commit writes only history, flush only live tail, prepare touches neither; `liveRows` gone; positive nesting.
-
-**Step 15 — Screen switch + ED 3 (channel freeze/preserve, §1.5).**
-`?1049h` (enter alternate): Video → channel 1 + `setActiveScreen(1)`; clear alternate channel; **normal channel (0) frozen — not written.** `?1049l` (exit alternate): Video → channel 0 + `setActiveScreen(0)`; **normal renders exactly as left** (history + live tail intact); shell redraws the prompt into the normal live tail. Inactive channel is never written — preservation is structural, not bookkept. `id::clearBuffer`/ED 3: clear both channels + recompute.
-Validation: switch freezes the inactive channel; `ls`→`vim`→exit leaves normal history intact (§1.5 invariant); alternate cleared on entry; ED3 clears both; no history destruction on normal return.
-
-**Step 16 — `Display`: drop the old push, render-orchestrate only.**
-Remove `session.getTextEditor().setText(processor.getTextLineArray())`. Content flows via Processor's commit/flush directly into TextEditor; Display orchestrates repaint.
-Validation: no `getTextLineArray()`; Display pushes no content (SSOT — Processor owns the write path).
-
-### Phase F — Docs
-
-**Step 17 — doxygen corrections (RFC §4.7) + `ARCHITECTURE.md` sweep.**
-Correct false doxygen surfaced in Phases A–C. Update `ARCHITECTURE.md` to mirror reality: `Char` atom, `Cell` coordinate, `String`(=`Row`) FAM line, `Buffer<String>` document store, the SSOT split + I1–I3, eliminated `TextLine*`/`liveRows`/shadow state.
-Validation: greps for named false claims return zero; ARCHITECTURE.md matches code (code is ground truth).
+- **B (Bedrock/simplicity):** one `CodeModel`, one render path, one projection, one VT parser, one lock-free boundary. Alt is a screen, not a second subsystem.
+- **L (Lean/YAGNI):** no `LineTarget`/commit-live/active-channel; `numScreens` fixed at the call site (1 or 2), no speculative N-channel generality beyond the ctor param the universal editor already needs.
+- **E (Explicit):** single authoritative cursor; positive checks; no early returns; screen indexing via enum (no magic numbers).
+- **S (SSOT):** the document is the single content truth; `State` is the single state-machine truth; history built by finalization, never mirrored from the grid.
+- **S (Stateless/dumb objects):** `CellFifo` and `CodeView` are dumb; caret is derived, not stored twice; `Screen` is a passive line store.
+- **E (Encapsulation):** `CodeView` never names the terminal; content is dimensionless; alt isolation is structural (a screen), `CodeModel` exposes screens only via API.
+- **D (Deterministic):** one cursor + one projection; resize re-wraps deterministically from width-free history.
 
 ---
 
-## §4 BLESSED Alignment
+## Risks / Open Questions
 
-- **B (Bound):** `Buffer<String>` is one owning allocation, RAII, trivially-copyable elements. Reader thread (Video grid) and message thread (TextEditor store) are bound; `CellFifo` is the sole bridge. FAM casts encapsulated in `Buffer`/`Block`; `Block` normalized to no `reinterpret_cast` (Class A).
-- **L (Lean):** Deletes `TextLine`/`TextLineArray`/owning `ParagraphStorage`/`ParagraphsModel`/`liveRows`/`getTextLineArray`. One line type, one store. Shaped cache deferred (YAGNI).
-- **E (Explicit):** Named editing API; history-vs-live split explicit; `previousActiveCount` visible; no magic; positive nesting.
-- **S (SSOT):** TextEditor's `Buffer<String>` is the document truth; Video owns the live grid as sole live source; `State` owns every state machine including per-row dirty (I4). I1–I3 make the visible tail a one-way projection — no drift. Eliminates the `TextLineArray`/`liveRows` shadow **and** the `rowTouched`/`id::rowDirty` shadow (root causes of `DEBT-20260530T100000`).
-- **S (Stateless):** Storage width-free; width enters once at projection (`getWrappedLines`). Viewport-dimension change touches projection only.
-- **E (Encapsulation):** `Char`/`String`/`Buffer` know nothing of VT/markdown — universal. Video grid-mutates; TextEditor renders; Processor bridges. FAM math hidden in storage primitives.
-- **D (Deterministic):** Lossless history — `String.usedCols` fixed at commit; `getWrappedLines` recomputes screen rows at any width; history never re-sourced from Video. Resolves the logged D violation.
-
-## §5 Risks / Open Questions
-
-- **Q4 — RESOLVED.** Capacity SSOT is the existing `AppState` parameter `app::id::scrollbackLines` (`Processor.cpp:68`). `Buffer<String>::setSize`: channel 0 (normal) = `scrollbackLines` rows; channel 1 (alternate) = viewport rows / zero scrollback (`Processor.cpp:71`). Re-`setSize` on parameter change. No new source. (The removed `liveRows` param is unrelated — capacity is separate, legitimate config.)
-- **Q-bridge — RESOLVED (Model A).** `CellFifo` becomes the single reader→message bridge carrying tagged **commit** + **live** rows into `Buffer<String>`; live rows selected by `State::rowDirtyFlags` (I4). Video never shares its buffer — the cross-thread Video read behind `DEBT-20260530T100000` is structurally removed. Steps 12–14.
-- **Memory characteristic (not a blocker).** `Buffer<String>` uniform stride = `rows × maxWidth`; bounded by terminal-width history, within SPEC 100 MB. The only weak point is a future unbounded WHELMED proportional paragraph — out of scope for END; revisit at WHELMED's line model.
+- **OPEN — `jam::BufferSPSC` rebuild to Decision B (not yet written).** The on-disk `jam_buffer_spsc.h` is a `std::vector<Slot>` storage-owning ring — superseded. Decision B: rebuild it as an index-only fork of `juce::AbstractFifo` (same interface) + producer drop-oldest, NO storage, NO seqlock (the seqlock moves to CellFifo, 9b). Step 9b is blocked until 9a lands. **This is the one unresolved transport item.**
+- **Locked this session:** D1–D15 model decisions; Decision B (BufferSPSC index-only + drop-oldest; CellFifo owns storage + seqlock).
+- **Steps 6–8, 10, 11** are implemented on disk (multi-screen `CodeModel`, two-screen `Session`, dead-param removal, producer emission points, Display consumer with `liveTailExtent`). The tree's compile status past these is **unverified** — the build was never confirmed green this session; convergence (Step 12/13 + compile) follows the BufferSPSC rebuild.
+- **RFC body §2–§9** fully superseded by D1–D15; ARCHITECT to decide rewrite/strike post-sprint.

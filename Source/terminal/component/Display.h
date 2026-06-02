@@ -42,14 +42,15 @@ public:
     };
 
     /**
-     * @brief Constructs Display and parents Session's Screen for rendering.
+     * @brief Constructs Display and parents Session's CodeView for rendering.
      *
-     * Takes Session& — Display parents Screen (owned by Session) for rendering
-     * via addAndMakeVisible. Resize flows through State: Screen writes viewport,
-     * Processor's vTPC calls setWinsize().
+     * Takes Session& — Display parents CodeView (owned by Session) for rendering
+     * via addAndMakeVisible. Resize flows through State: CodeView writes viewport,
+     * Session's Resizer calls prepare().
      *
-     * @param session  The terminal session — provides both Screen (for rendering) and
-     *                 Processor (for input/events).  Must outlive this Display.
+     * @param session  The terminal session — provides CodeView (for rendering),
+     *                 CodeModel (for document mutation), and Processor (for input/events).
+     *                 Must outlive this Display.
      * @note MESSAGE THREAD.
      */
     Display (terminal::Session& session);
@@ -94,17 +95,37 @@ public:
 private:
     terminal::Session& session;
     terminal::Processor& processor;
-    terminal::State& state;
+    terminal::Model& state;
 
     std::unique_ptr<jam::ComponentAttachment> attachment;
 
-    juce::ValueTree terminalState;  ///< Per-session state tree — Display listens for content updates.
+    /** @brief Per-screen count of document tail lines Display laid down as the live region last tick.
+     *  Internal transient — message thread only, never exposed. The live tail is dynamic
+     *  (grows/shrinks per tick); indexed by screen so a screen switch never reads the wrong
+     *  screen's extent. */
+    std::array<int, Map::Screen::count> liveTailExtent {};
 
     terminal::LinkManager linkManager;
     terminal::Input input;
     terminal::Mouse mouse;
 
-    void applyFromAppState() noexcept;
+    /** @brief Dedicated listener for AppModel config changes (font, cursor, padding).
+     *  Separated from Display's own ValueTree::Listener to avoid double-fire:
+     *  SESSION is grafted under AppModel, so a single Listener on both trees
+     *  receives terminal PARAM changes twice. */
+    struct ConfigListener : private juce::ValueTree::Listener
+    {
+        explicit ConfigListener (Display& d) noexcept : display (d) {}
+        void start() noexcept;
+        void stop() noexcept;
+    private:
+        Display& display;
+        juce::ValueTree appState;
+        void valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
+    };
+    ConfigListener configListener { *this };
+
+    void applyFromAppModel() noexcept;
     void valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
 
     //==============================================================================

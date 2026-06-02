@@ -31,7 +31,7 @@ Tabs::Tabs (jam::TabbedButtonBar::Orientation orientation)
     setOutline (0);
     juce::Desktop::getInstance().addFocusChangeListener (this);
     tabName.addListener (this);
-    AppState::getContext()->getWindow().addListener (this);
+    AppModel::getContext()->getWindow().addListener (this);
 
     getTabbedButtonBar().onTabMoved = [this] (int fromIndex, int toIndex)
     {
@@ -39,11 +39,11 @@ Tabs::Tabs (jam::TabbedButtonBar::Orientation orientation)
         panes.erase (panes.begin() + fromIndex);
         panes.insert (panes.begin() + toIndex, std::move (movedPane));
 
-        auto tabsTree { AppState::getContext()->getTabs() };
+        auto tabsTree { AppModel::getContext()->getTabs() };
         tabsTree.moveChild (fromIndex, toIndex, nullptr);
 
-        if (AppState::getContext()->isDaemonMode())
-            AppState::getContext()->save();
+        if (AppModel::getContext()->isDaemonMode())
+            AppModel::getContext()->save();
     };
 }
 
@@ -54,7 +54,7 @@ Tabs::Tabs (jam::TabbedButtonBar::Orientation orientation)
  */
 Tabs::~Tabs()
 {
-    AppState::getContext()->getWindow().removeListener (this);
+    AppModel::getContext()->getWindow().removeListener (this);
     tabName.removeListener (this);
     juce::Desktop::getInstance().removeFocusChangeListener (this);
 }
@@ -77,7 +77,7 @@ void Tabs::addNewTab()
     const auto contentRect { computeContentRect (newDepth) };
     const auto [newCols, newRows] { Panes::cellsFromRect (contentRect) };
 
-    addNewTab (AppState::getContext()->getPwd(), {}, jam::Cell::Rectangle (newCols, newRows));
+    addNewTab (AppModel::getContext()->getPwd(), {}, jam::Cell::Rectangle (newCols, newRows));
 }
 
 /**
@@ -106,25 +106,25 @@ void Tabs::addNewTab (const juce::String& workingDirectory, const juce::String& 
 
     const auto sessionUuid { newPanes.createTerminal (workingDirectory, uuid, dims) };
 
-    auto tab { AppState::getContext()->addTab() };
+    auto tab { AppModel::getContext()->addTab() };
     tab.removeChild (tab.getChildWithName (app::id::PANES), nullptr);
     tab.appendChild (newPanes.getState(), nullptr);
 
-    AppState::getContext()->setActivePaneID (sessionUuid);
+    AppModel::getContext()->setActivePaneID (sessionUuid);
     auto paneNode { jam::PaneManager::findLeaf (newPanes.getState(), sessionUuid) };
     auto sessionTree { paneNode.getChild (0) };
-    AppState::getContext()->setPwd (sessionTree);
+    AppModel::getContext()->setPwd (sessionTree);
     tabName.referTo (sessionTree.getPropertyAsValue (app::id::displayName, nullptr));
 
-    const auto initialName { juce::File (AppState::getContext()->getPwd()).getFileName() };
+    const auto initialName { juce::File (AppModel::getContext()->getPwd()).getFileName() };
     const int tabIndex { getNumTabs() };
     addTab (initialName, juce::Colours::transparentBlack, tabIndex);
     setCurrentTabIndex (tabIndex);
 
     updateTabBarVisibility();
 
-    if (AppState::getContext()->isDaemonMode())
-        AppState::getContext()->save();
+    if (AppModel::getContext()->isDaemonMode())
+        AppModel::getContext()->save();
 }
 
 /**
@@ -170,8 +170,8 @@ void Tabs::globalFocusChanged (juce::Component* focusedComponent)
         if (auto* term { dynamic_cast<terminal::Display*> (focusedComponent) }; term != nullptr)
         {
             const auto uuid { term->getValueTree().getProperty (jam::ID::id).toString() };
-            AppState::getContext()->setActivePaneID (uuid);
-            AppState::getContext()->setPwd (term->getValueTree());
+            AppModel::getContext()->setActivePaneID (uuid);
+            AppModel::getContext()->setPwd (term->getValueTree());
         }
     }
 }
@@ -184,7 +184,7 @@ void Tabs::valueChanged (juce::Value& value)
 
         if (index >= 0)
         {
-            const auto tabNode { AppState::getContext()->getTab (index) };
+            const auto tabNode { AppModel::getContext()->getTab (index) };
             const auto userOverride { tabNode.getProperty (app::id::userTabName).toString() };
             const auto name { userOverride.isNotEmpty() ? userOverride : tabName.toString() };
 
@@ -244,7 +244,7 @@ int Tabs::getTabCount() const noexcept { return getNumTabs(); }
  */
 terminal::Display* Tabs::getActiveTerminal() const noexcept
 {
-    const auto activeID { AppState::getContext()->getActivePaneID() };
+    const auto activeID { AppModel::getContext()->getActivePaneID() };
     terminal::Display* result { nullptr };
 
     if (auto* active { getActivePanes() }; active != nullptr)
@@ -261,8 +261,8 @@ terminal::Display* Tabs::getActiveTerminal() const noexcept
 
 PaneComponent* Tabs::getActivePane() const noexcept
 {
-    const auto activeID { AppState::getContext()->getActivePaneID() };
-    const auto activeType { AppState::getContext()->getActivePaneType() };
+    const auto activeID { AppModel::getContext()->getActivePaneID() };
+    const auto activeType { AppModel::getContext()->getActivePaneType() };
     PaneComponent* result { nullptr };
 
     if (auto* active { getActivePanes() }; active != nullptr)
@@ -336,8 +336,8 @@ void Tabs::currentTabChanged (int newIndex, const juce::String&)
         p->setVisible (false);
     }
 
-    AppState::getContext()->setModalType (0);
-    AppState::getContext()->setSelectionType (0);
+    AppModel::getContext()->setModalType (0);
+    AppModel::getContext()->setSelectionType (0);
 
     resized();
 
@@ -353,7 +353,7 @@ void Tabs::currentTabChanged (int newIndex, const juce::String&)
         if (not activePanes.isEmpty())
         {
             auto* firstPane { activePanes.at (0).get() };
-            AppState::getContext()->setActivePaneID (firstPane->getComponentID());
+            AppModel::getContext()->setActivePaneID (firstPane->getComponentID());
 
             if (firstPane->isShowing())
             {
@@ -362,7 +362,7 @@ void Tabs::currentTabChanged (int newIndex, const juce::String&)
         }
     }
 
-    AppState::getContext()->setActiveTabIndex (newIndex);
+    AppModel::getContext()->setActiveTabIndex (newIndex);
 }
 
 /**
@@ -395,7 +395,7 @@ jam::TabbedButtonBar::Orientation Tabs::orientationFromString (const juce::Strin
 /**
  * @brief Returns the content rect available for Panes given a tab-bar depth.
  *
- * Reads window dimensions from AppState (SSOT) and applies the
+ * Reads window dimensions from AppModel (SSOT) and applies the
  * orientation-appropriate trim for the given @p depth.
  *
  * @param tabBarDepth  Tab-bar pixel depth to subtract from the base bounds.
@@ -404,7 +404,7 @@ jam::TabbedButtonBar::Orientation Tabs::orientationFromString (const juce::Strin
  */
 juce::Rectangle<int> Tabs::computeContentRect (int tabBarDepth) const noexcept
 {
-    const auto* ctx { AppState::getContext() };
+    const auto* ctx { AppModel::getContext() };
     const juce::Rectangle<int> base { 0, 0, ctx->getWindowWidth(), ctx->getWindowHeight() };
 
     juce::Rectangle<int> result { base };
@@ -443,7 +443,7 @@ void Tabs::renameActiveTab (const juce::String& name)
 
     if (index >= 0)
     {
-        auto tabNode { AppState::getContext()->getTab (index) };
+        auto tabNode { AppModel::getContext()->getTab (index) };
 
         if (name.isEmpty())
             tabNode.removeProperty (app::id::userTabName, nullptr);
@@ -455,8 +455,8 @@ void Tabs::renameActiveTab (const juce::String& name)
         if (displayName.isNotEmpty())
             getTabbedButtonBar().setTabName (index, displayName);
 
-        if (AppState::getContext()->isDaemonMode())
-            AppState::getContext()->save();
+        if (AppModel::getContext()->isDaemonMode())
+            AppModel::getContext()->save();
     }
 }
 
@@ -484,7 +484,7 @@ void Tabs::focusLastTerminal (Panes* active)
     if (not activePanes.isEmpty())
     {
         auto* lastPane { activePanes.back().get() };
-        AppState::getContext()->setActivePaneID (lastPane->getComponentID());
+        AppModel::getContext()->setActivePaneID (lastPane->getComponentID());
 
         if (lastPane->isShowing())
             lastPane->grabKeyboardFocus();
@@ -547,9 +547,9 @@ void Tabs::valueTreeChildRemoved (juce::ValueTree& parent, juce::ValueTree&, int
             {
                 juce::JUCEApplication::getInstance()->systemRequestedQuit();
             }
-            else if (AppState::getContext()->isDaemonMode())
+            else if (AppModel::getContext()->isDaemonMode())
             {
-                AppState::getContext()->save();
+                AppModel::getContext()->save();
             }
 
             break;

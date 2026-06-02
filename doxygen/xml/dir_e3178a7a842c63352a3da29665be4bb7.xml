@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="dir_e3178a7a842c63352a3da29665be4bb7" kind="dir">
+    <compoundname>terminal/tty</compoundname>
+    <innerfile refid="_t_t_y_8cpp">TTY.cpp</innerfile>
+    <innerfile refid="_t_t_y_8h">TTY.h</innerfile>
+    <innerfile refid="_unix_t_t_y_8cpp">UnixTTY.cpp</innerfile>
+    <innerfile refid="_unix_t_t_y_8h">UnixTTY.h</innerfile>
+    <innerfile refid="_windows_t_t_y_8cpp">WindowsTTY.cpp</innerfile>
+    <innerfile refid="_windows_t_t_y_8h">WindowsTTY.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="terminal/tty/"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,126 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="structterminal_1_1_text_slot" kind="struct" language="C++" prot="public">
+    <compoundname>terminal::TextSlot</compoundname>
+    <includes refid="_text_buffer_8h" local="no">TextBuffer.h</includes>
+    <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="structterminal_1_1_text_slot_1a0d3d7dd992360305c3e766fef53b06a8" prot="private" static="no" mutable="no">
+        <type>juce::HeapBlock&lt; char &gt;</type>
+        <definition>juce::HeapBlock&lt;char&gt; terminal::TextSlot::buffers[2]</definition>
+        <argsstring>[2]</argsstring>
+        <name>buffers</name>
+        <qualifiedname>terminal::TextSlot::buffers</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/TextBuffer.h" line="30" column="21" bodyfile="terminal/TextBuffer.h" bodystart="30" bodyend="-1"/>
+        <referencedby refid="structterminal_1_1_text_slot_1a6b50e54ec0dd603cfaea3204ac3ec368" compoundref="_text_buffer_8h" startline="17" endline="27">write</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_text_slot_1a12a62d05024f9c46178d2b6aa15dd912" prot="private" static="no" mutable="no">
+        <type>std::atomic&lt; int &gt;</type>
+        <definition>std::atomic&lt;int&gt; terminal::TextSlot::active</definition>
+        <argsstring></argsstring>
+        <name>active</name>
+        <qualifiedname>terminal::TextSlot::active</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/TextBuffer.h" line="31" column="17" bodyfile="terminal/TextBuffer.h" bodystart="31" bodyend="31"/>
+        <referencedby refid="structterminal_1_1_text_slot_1a6b50e54ec0dd603cfaea3204ac3ec368" compoundref="_text_buffer_8h" startline="17" endline="27">write</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_text_slot_1ad1e98b99ce33442e170206b3d296093a" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int terminal::TextSlot::bufferSize</definition>
+        <argsstring></argsstring>
+        <name>bufferSize</name>
+        <qualifiedname>terminal::TextSlot::bufferSize</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/TextBuffer.h" line="32" column="9" bodyfile="terminal/TextBuffer.h" bodystart="32" bodyend="-1"/>
+        <referencedby refid="structterminal_1_1_text_slot_1a6b0da13550984289bac65f5f741181d2" compoundref="_text_buffer_8h" startline="11" endline="15">TextSlot</referencedby>
+        <referencedby refid="structterminal_1_1_text_slot_1a6b50e54ec0dd603cfaea3204ac3ec368" compoundref="_text_buffer_8h" startline="17" endline="27">write</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="public-func">
+      <memberdef kind="function" id="structterminal_1_1_text_slot_1a6b0da13550984289bac65f5f741181d2" prot="public" static="no" const="no" explicit="yes" inline="yes" noexcept="yes" virt="non-virtual">
+        <type></type>
+        <definition>terminal::TextSlot::TextSlot</definition>
+        <argsstring>(int maxlen) noexcept</argsstring>
+        <name>TextSlot</name>
+        <qualifiedname>terminal::TextSlot::TextSlot</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>maxlen</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/TextBuffer.h" line="11" column="14" bodyfile="terminal/TextBuffer.h" bodystart="11" bodyend="15"/>
+        <references refid="structterminal_1_1_text_slot_1ad1e98b99ce33442e170206b3d296093a" compoundref="_text_buffer_8h" startline="32">bufferSize</references>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_text_slot_1a6b50e54ec0dd603cfaea3204ac3ec368" prot="public" static="no" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>const char *</type>
+        <definition>const char * terminal::TextSlot::write</definition>
+        <argsstring>(const char *src, int length) noexcept</argsstring>
+        <name>write</name>
+        <qualifiedname>terminal::TextSlot::write</qualifiedname>
+        <param>
+          <type>const char *</type>
+          <declname>src</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>length</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/TextBuffer.h" line="17" column="16" bodyfile="terminal/TextBuffer.h" bodystart="17" bodyend="27"/>
+        <references refid="structterminal_1_1_text_slot_1a12a62d05024f9c46178d2b6aa15dd912" compoundref="_text_buffer_8h" startline="31" endline="31">active</references>
+        <references refid="structterminal_1_1_text_slot_1a0d3d7dd992360305c3e766fef53b06a8" compoundref="_text_buffer_8h" startline="30">buffers</references>
+        <references refid="structterminal_1_1_text_slot_1ad1e98b99ce33442e170206b3d296093a" compoundref="_text_buffer_8h" startline="32">bufferSize</references>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="2">
+        <label>std::atomic&lt; int &gt;</label>
+      </node>
+      <node id="1">
+        <label>terminal::TextSlot</label>
+        <link refid="structterminal_1_1_text_slot"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>active</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="terminal/TextBuffer.h" line="9" column="1" bodyfile="terminal/TextBuffer.h" bodystart="10" bodyend="33"/>
+    <listofallmembers>
+      <member refid="structterminal_1_1_text_slot_1a12a62d05024f9c46178d2b6aa15dd912" prot="private" virt="non-virtual"><scope>terminal::TextSlot</scope><name>active</name></member>
+      <member refid="structterminal_1_1_text_slot_1a0d3d7dd992360305c3e766fef53b06a8" prot="private" virt="non-virtual"><scope>terminal::TextSlot</scope><name>buffers</name></member>
+      <member refid="structterminal_1_1_text_slot_1ad1e98b99ce33442e170206b3d296093a" prot="private" virt="non-virtual"><scope>terminal::TextSlot</scope><name>bufferSize</name></member>
+      <member refid="structterminal_1_1_text_slot_1a6b0da13550984289bac65f5f741181d2" prot="public" virt="non-virtual"><scope>terminal::TextSlot</scope><name>TextSlot</name></member>
+      <member refid="structterminal_1_1_text_slot_1a6b50e54ec0dd603cfaea3204ac3ec368" prot="public" virt="non-virtual"><scope>terminal::TextSlot</scope><name>write</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

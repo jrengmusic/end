@@ -1,0 +1,1003 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="structlua_1_1_engine_1_1_whelmed" kind="struct" language="C++" prot="public">
+    <compoundname>lua::Engine::Whelmed</compoundname>
+    <includes refid="_engine_8h" local="no">Engine.h</includes>
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1ac6d2757474490cf11b6b0e8b36c8c94b" prot="public" static="no" mutable="no">
+        <type>juce::String</type>
+        <definition>juce::String lua::Engine::Whelmed::fontFamily</definition>
+        <argsstring></argsstring>
+        <name>fontFamily</name>
+        <qualifiedname>lua::Engine::Whelmed::fontFamily</qualifiedname>
+        <initializer>{ &quot;Display&quot; }</initializer>
+        <briefdescription>
+<para>Body text font family. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="549" column="22" bodyfile="lua/Engine.h" bodystart="549" bodyend="549"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1a98efcbf2c60c58e0ff273935e205bc62" prot="public" static="no" mutable="no">
+        <type>juce::String</type>
+        <definition>juce::String lua::Engine::Whelmed::fontStyle</definition>
+        <argsstring></argsstring>
+        <name>fontStyle</name>
+        <qualifiedname>lua::Engine::Whelmed::fontStyle</qualifiedname>
+        <initializer>{ &quot;Medium&quot; }</initializer>
+        <briefdescription>
+<para>Body text font style. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="552" column="22" bodyfile="lua/Engine.h" bodystart="552" bodyend="552"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1a47250cb0f381e1124c7e7b56ae9b0d47" prot="public" static="no" mutable="no">
+        <type>float</type>
+        <definition>float lua::Engine::Whelmed::fontSize</definition>
+        <argsstring></argsstring>
+        <name>fontSize</name>
+        <qualifiedname>lua::Engine::Whelmed::fontSize</qualifiedname>
+        <initializer>{ 16.0f }</initializer>
+        <briefdescription>
+<para>Body text font size. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="555" column="15" bodyfile="lua/Engine.h" bodystart="555" bodyend="555"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1a9608cc35f48dba9b72c235dc1923a8a5" prot="public" static="no" mutable="no">
+        <type>juce::String</type>
+        <definition>juce::String lua::Engine::Whelmed::codeFamily</definition>
+        <argsstring></argsstring>
+        <name>codeFamily</name>
+        <qualifiedname>lua::Engine::Whelmed::codeFamily</qualifiedname>
+        <initializer>{ &quot;Display Mono&quot; }</initializer>
+        <briefdescription>
+<para>Inline code font family. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="558" column="22" bodyfile="lua/Engine.h" bodystart="558" bodyend="558"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1ab8f6ff3b647cecc7e577c264080631f9" prot="public" static="no" mutable="no">
+        <type>float</type>
+        <definition>float lua::Engine::Whelmed::codeSize</definition>
+        <argsstring></argsstring>
+        <name>codeSize</name>
+        <qualifiedname>lua::Engine::Whelmed::codeSize</qualifiedname>
+        <initializer>{ 12.0f }</initializer>
+        <briefdescription>
+<para>Inline code font size. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="561" column="15" bodyfile="lua/Engine.h" bodystart="561" bodyend="561"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1aac47d5abcb23b2d7838f9649c258091c" prot="public" static="no" mutable="no">
+        <type>juce::String</type>
+        <definition>juce::String lua::Engine::Whelmed::codeStyle</definition>
+        <argsstring></argsstring>
+        <name>codeStyle</name>
+        <qualifiedname>lua::Engine::Whelmed::codeStyle</qualifiedname>
+        <initializer>{ &quot;Medium&quot; }</initializer>
+        <briefdescription>
+<para>Inline code font style. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="564" column="22" bodyfile="lua/Engine.h" bodystart="564" bodyend="564"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1a0ce3e2358da5a18fbb2814f1bd8767de" prot="public" static="no" mutable="no">
+        <type>float</type>
+        <definition>float lua::Engine::Whelmed::h1Size</definition>
+        <argsstring></argsstring>
+        <name>h1Size</name>
+        <qualifiedname>lua::Engine::Whelmed::h1Size</qualifiedname>
+        <initializer>{ 28.0f }</initializer>
+        <briefdescription>
+<para>H1 heading font size. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="567" column="15" bodyfile="lua/Engine.h" bodystart="567" bodyend="567"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1af0ac0e5c25e945b0135ac51a57e587a5" prot="public" static="no" mutable="no">
+        <type>float</type>
+        <definition>float lua::Engine::Whelmed::h2Size</definition>
+        <argsstring></argsstring>
+        <name>h2Size</name>
+        <qualifiedname>lua::Engine::Whelmed::h2Size</qualifiedname>
+        <initializer>{ 28.0f }</initializer>
+        <briefdescription>
+<para>H2 heading font size. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="570" column="15" bodyfile="lua/Engine.h" bodystart="570" bodyend="570"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1aaa05edf8fb1f7620c59918b26d8f1b80" prot="public" static="no" mutable="no">
+        <type>float</type>
+        <definition>float lua::Engine::Whelmed::h3Size</definition>
+        <argsstring></argsstring>
+        <name>h3Size</name>
+        <qualifiedname>lua::Engine::Whelmed::h3Size</qualifiedname>
+        <initializer>{ 24.0f }</initializer>
+        <briefdescription>
+<para>H3 heading font size. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="573" column="15" bodyfile="lua/Engine.h" bodystart="573" bodyend="573"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1aec433098297cc95a085178091f496de4" prot="public" static="no" mutable="no">
+        <type>float</type>
+        <definition>float lua::Engine::Whelmed::h4Size</definition>
+        <argsstring></argsstring>
+        <name>h4Size</name>
+        <qualifiedname>lua::Engine::Whelmed::h4Size</qualifiedname>
+        <initializer>{ 20.0f }</initializer>
+        <briefdescription>
+<para>H4 heading font size. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="576" column="15" bodyfile="lua/Engine.h" bodystart="576" bodyend="576"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1a9bec494c99c377dc0d5e3f5d5b1ad7a7" prot="public" static="no" mutable="no">
+        <type>float</type>
+        <definition>float lua::Engine::Whelmed::h5Size</definition>
+        <argsstring></argsstring>
+        <name>h5Size</name>
+        <qualifiedname>lua::Engine::Whelmed::h5Size</qualifiedname>
+        <initializer>{ 18.0f }</initializer>
+        <briefdescription>
+<para>H5 heading font size. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="579" column="15" bodyfile="lua/Engine.h" bodystart="579" bodyend="579"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1a4713a4fa06b99d66b4a65b14b3206098" prot="public" static="no" mutable="no">
+        <type>float</type>
+        <definition>float lua::Engine::Whelmed::h6Size</definition>
+        <argsstring></argsstring>
+        <name>h6Size</name>
+        <qualifiedname>lua::Engine::Whelmed::h6Size</qualifiedname>
+        <initializer>{ 16.0f }</initializer>
+        <briefdescription>
+<para>H6 heading font size. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="582" column="15" bodyfile="lua/Engine.h" bodystart="582" bodyend="582"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1a21d946ac384c2eed128e943ba47d1889" prot="public" static="no" mutable="no">
+        <type>float</type>
+        <definition>float lua::Engine::Whelmed::lineHeight</definition>
+        <argsstring></argsstring>
+        <name>lineHeight</name>
+        <qualifiedname>lua::Engine::Whelmed::lineHeight</qualifiedname>
+        <initializer>{ 1.5f }</initializer>
+        <briefdescription>
+<para><ref refid="classLine" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Line</ref> height multiplier for body text. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="585" column="15" bodyfile="lua/Engine.h" bodystart="585" bodyend="585"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1aedab3185e3a061a4c80f7b0412e1e479" prot="public" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour lua::Engine::Whelmed::background</definition>
+        <argsstring></argsstring>
+        <name>background</name>
+        <qualifiedname>lua::Engine::Whelmed::background</qualifiedname>
+        <initializer>{ 0xff0d141c }</initializer>
+        <briefdescription>
+<para>Document background colour. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="588" column="22" bodyfile="lua/Engine.h" bodystart="588" bodyend="588"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1a4d1ca2c52e24c2024f24a9db139b41b8" prot="public" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour lua::Engine::Whelmed::bodyColour</definition>
+        <argsstring></argsstring>
+        <name>bodyColour</name>
+        <qualifiedname>lua::Engine::Whelmed::bodyColour</qualifiedname>
+        <initializer>{ 0xffb3f9f5 }</initializer>
+        <briefdescription>
+<para>Body text colour. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="591" column="22" bodyfile="lua/Engine.h" bodystart="591" bodyend="591"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1a954e20382bf4366ab40d3da7a529dfca" prot="public" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour lua::Engine::Whelmed::codeColour</definition>
+        <argsstring></argsstring>
+        <name>codeColour</name>
+        <qualifiedname>lua::Engine::Whelmed::codeColour</qualifiedname>
+        <initializer>{ 0xff00d0ff }</initializer>
+        <briefdescription>
+<para>Inline code text colour. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="594" column="22" bodyfile="lua/Engine.h" bodystart="594" bodyend="594"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1aeb8f9ece8570b7b82632ba24b9940edb" prot="public" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour lua::Engine::Whelmed::linkColour</definition>
+        <argsstring></argsstring>
+        <name>linkColour</name>
+        <qualifiedname>lua::Engine::Whelmed::linkColour</qualifiedname>
+        <initializer>{ 0xff01c2d2 }</initializer>
+        <briefdescription>
+<para>Hyperlink text colour. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="597" column="22" bodyfile="lua/Engine.h" bodystart="597" bodyend="597"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1ab993e4e0d43a9a84b2d0ad4226cd3397" prot="public" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour lua::Engine::Whelmed::h1Colour</definition>
+        <argsstring></argsstring>
+        <name>h1Colour</name>
+        <qualifiedname>lua::Engine::Whelmed::h1Colour</qualifiedname>
+        <initializer>{ 0xffd4c8a0 }</initializer>
+        <briefdescription>
+<para>H1 heading colour. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="600" column="22" bodyfile="lua/Engine.h" bodystart="600" bodyend="600"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1afe602506974a84e103ddc7bd7bcdb36f" prot="public" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour lua::Engine::Whelmed::h2Colour</definition>
+        <argsstring></argsstring>
+        <name>h2Colour</name>
+        <qualifiedname>lua::Engine::Whelmed::h2Colour</qualifiedname>
+        <initializer>{ 0xffd4c8a0 }</initializer>
+        <briefdescription>
+<para>H2 heading colour. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="603" column="22" bodyfile="lua/Engine.h" bodystart="603" bodyend="603"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1a4c51841fcc6185ca024a980ee300f9da" prot="public" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour lua::Engine::Whelmed::h3Colour</definition>
+        <argsstring></argsstring>
+        <name>h3Colour</name>
+        <qualifiedname>lua::Engine::Whelmed::h3Colour</qualifiedname>
+        <initializer>{ 0xffd4c8a0 }</initializer>
+        <briefdescription>
+<para>H3 heading colour. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="606" column="22" bodyfile="lua/Engine.h" bodystart="606" bodyend="606"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1a06d9e32126fbe5fe74578ff3d01875f4" prot="public" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour lua::Engine::Whelmed::h4Colour</definition>
+        <argsstring></argsstring>
+        <name>h4Colour</name>
+        <qualifiedname>lua::Engine::Whelmed::h4Colour</qualifiedname>
+        <initializer>{ 0xffd4c8a0 }</initializer>
+        <briefdescription>
+<para>H4 heading colour. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="609" column="22" bodyfile="lua/Engine.h" bodystart="609" bodyend="609"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1af6ff31dd602b5a2663f66df31c561882" prot="public" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour lua::Engine::Whelmed::h5Colour</definition>
+        <argsstring></argsstring>
+        <name>h5Colour</name>
+        <qualifiedname>lua::Engine::Whelmed::h5Colour</qualifiedname>
+        <initializer>{ 0xffd4c8a0 }</initializer>
+        <briefdescription>
+<para>H5 heading colour. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="612" column="22" bodyfile="lua/Engine.h" bodystart="612" bodyend="612"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1a00a205d5be32cbab43b03756afec2dab" prot="public" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour lua::Engine::Whelmed::h6Colour</definition>
+        <argsstring></argsstring>
+        <name>h6Colour</name>
+        <qualifiedname>lua::Engine::Whelmed::h6Colour</qualifiedname>
+        <initializer>{ 0xffd4c8a0 }</initializer>
+        <briefdescription>
+<para>H6 heading colour. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="615" column="22" bodyfile="lua/Engine.h" bodystart="615" bodyend="615"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1a034dd727dca6de7b9d809fa1f6b9fe2a" prot="public" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour lua::Engine::Whelmed::codeFenceBackground</definition>
+        <argsstring></argsstring>
+        <name>codeFenceBackground</name>
+        <qualifiedname>lua::Engine::Whelmed::codeFenceBackground</qualifiedname>
+        <initializer>{ 0xff090d12 }</initializer>
+        <briefdescription>
+<para>Code fence block background colour. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="618" column="22" bodyfile="lua/Engine.h" bodystart="618" bodyend="618"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1a8b2da2a32f954d6a88518584eb55179a" prot="public" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour lua::Engine::Whelmed::progressBackground</definition>
+        <argsstring></argsstring>
+        <name>progressBackground</name>
+        <qualifiedname>lua::Engine::Whelmed::progressBackground</qualifiedname>
+        <initializer>{ 0xff1a1a1a }</initializer>
+        <briefdescription>
+<para>Progress bar track colour. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="621" column="22" bodyfile="lua/Engine.h" bodystart="621" bodyend="621"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1ae3ad84701d67e0803b790d2610c8e93d" prot="public" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour lua::Engine::Whelmed::progressForeground</definition>
+        <argsstring></argsstring>
+        <name>progressForeground</name>
+        <qualifiedname>lua::Engine::Whelmed::progressForeground</qualifiedname>
+        <initializer>{ 0xff4488cc }</initializer>
+        <briefdescription>
+<para>Progress bar fill colour. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="624" column="22" bodyfile="lua/Engine.h" bodystart="624" bodyend="624"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1af78bbd00e1bdeee60557b476a2f47278" prot="public" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour lua::Engine::Whelmed::progressTextColour</definition>
+        <argsstring></argsstring>
+        <name>progressTextColour</name>
+        <qualifiedname>lua::Engine::Whelmed::progressTextColour</qualifiedname>
+        <initializer>{ 0xffcccccc }</initializer>
+        <briefdescription>
+<para>Progress percentage text colour. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="627" column="22" bodyfile="lua/Engine.h" bodystart="627" bodyend="627"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1a76472fe645ea647d262734736743606d" prot="public" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour lua::Engine::Whelmed::progressSpinnerColour</definition>
+        <argsstring></argsstring>
+        <name>progressSpinnerColour</name>
+        <qualifiedname>lua::Engine::Whelmed::progressSpinnerColour</qualifiedname>
+        <initializer>{ 0xff4488cc }</initializer>
+        <briefdescription>
+<para>Progress bar spinner colour. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="630" column="22" bodyfile="lua/Engine.h" bodystart="630" bodyend="630"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1a08bb47b0140a0b68dd00c3e610ccb1b6" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int lua::Engine::Whelmed::paddingTop</definition>
+        <argsstring></argsstring>
+        <name>paddingTop</name>
+        <qualifiedname>lua::Engine::Whelmed::paddingTop</qualifiedname>
+        <initializer>{ 10 }</initializer>
+        <briefdescription>
+<para>Top content padding in pixels. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="633" column="13" bodyfile="lua/Engine.h" bodystart="633" bodyend="633"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1aa4afde15ccfa87cb5330758b403d4c09" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int lua::Engine::Whelmed::paddingRight</definition>
+        <argsstring></argsstring>
+        <name>paddingRight</name>
+        <qualifiedname>lua::Engine::Whelmed::paddingRight</qualifiedname>
+        <initializer>{ 10 }</initializer>
+        <briefdescription>
+<para>Right content padding in pixels. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="636" column="13" bodyfile="lua/Engine.h" bodystart="636" bodyend="636"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1a2cd0fbe4082e02e7439fc81a8ce5f234" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int lua::Engine::Whelmed::paddingBottom</definition>
+        <argsstring></argsstring>
+        <name>paddingBottom</name>
+        <qualifiedname>lua::Engine::Whelmed::paddingBottom</qualifiedname>
+        <initializer>{ 10 }</initializer>
+        <briefdescription>
+<para>Bottom content padding in pixels. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="639" column="13" bodyfile="lua/Engine.h" bodystart="639" bodyend="639"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1aebcb4ffafc1fdfbbafe0fadf46560f09" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int lua::Engine::Whelmed::paddingLeft</definition>
+        <argsstring></argsstring>
+        <name>paddingLeft</name>
+        <qualifiedname>lua::Engine::Whelmed::paddingLeft</qualifiedname>
+        <initializer>{ 10 }</initializer>
+        <briefdescription>
+<para>Left content padding in pixels. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="642" column="13" bodyfile="lua/Engine.h" bodystart="642" bodyend="642"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1a4b9c0648fc7cb5ecae1a442f2ee0aac3" prot="public" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour lua::Engine::Whelmed::tokenError</definition>
+        <argsstring></argsstring>
+        <name>tokenError</name>
+        <qualifiedname>lua::Engine::Whelmed::tokenError</qualifiedname>
+        <initializer>{ 0xfff74a4a }</initializer>
+        <briefdescription>
+<para>Syntax highlight: error token colour. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="645" column="22" bodyfile="lua/Engine.h" bodystart="645" bodyend="645"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1a43a5f420d03f1f428d5a66a46b88dd59" prot="public" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour lua::Engine::Whelmed::tokenComment</definition>
+        <argsstring></argsstring>
+        <name>tokenComment</name>
+        <qualifiedname>lua::Engine::Whelmed::tokenComment</qualifiedname>
+        <initializer>{ 0xff6080c0 }</initializer>
+        <briefdescription>
+<para>Syntax highlight: comment colour. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="648" column="22" bodyfile="lua/Engine.h" bodystart="648" bodyend="648"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1aca7a58000aa7cf7c6375ff95b45f7d90" prot="public" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour lua::Engine::Whelmed::tokenKeyword</definition>
+        <argsstring></argsstring>
+        <name>tokenKeyword</name>
+        <qualifiedname>lua::Engine::Whelmed::tokenKeyword</qualifiedname>
+        <initializer>{ 0xff1919ff }</initializer>
+        <briefdescription>
+<para>Syntax highlight: keyword colour. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="651" column="22" bodyfile="lua/Engine.h" bodystart="651" bodyend="651"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1ab1dd5afe2ce34a7c9dd0f93bbfc4ad79" prot="public" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour lua::Engine::Whelmed::tokenOperator</definition>
+        <argsstring></argsstring>
+        <name>tokenOperator</name>
+        <qualifiedname>lua::Engine::Whelmed::tokenOperator</qualifiedname>
+        <initializer>{ 0xffb0b0b0 }</initializer>
+        <briefdescription>
+<para>Syntax highlight: operator colour. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="654" column="22" bodyfile="lua/Engine.h" bodystart="654" bodyend="654"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1a4a3492c1e2d2f63f886447439ccd4a3f" prot="public" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour lua::Engine::Whelmed::tokenIdentifier</definition>
+        <argsstring></argsstring>
+        <name>tokenIdentifier</name>
+        <qualifiedname>lua::Engine::Whelmed::tokenIdentifier</qualifiedname>
+        <initializer>{ 0xff00c6ff }</initializer>
+        <briefdescription>
+<para>Syntax highlight: identifier colour. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="657" column="22" bodyfile="lua/Engine.h" bodystart="657" bodyend="657"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1ade6406da8f9d3f9df1341433cdf99969" prot="public" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour lua::Engine::Whelmed::tokenInteger</definition>
+        <argsstring></argsstring>
+        <name>tokenInteger</name>
+        <qualifiedname>lua::Engine::Whelmed::tokenInteger</qualifiedname>
+        <initializer>{ 0xff00ff00 }</initializer>
+        <briefdescription>
+<para>Syntax highlight: integer literal colour. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="660" column="22" bodyfile="lua/Engine.h" bodystart="660" bodyend="660"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1a95c82d8a5418bf8ff2c705beb62e39a4" prot="public" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour lua::Engine::Whelmed::tokenFloat</definition>
+        <argsstring></argsstring>
+        <name>tokenFloat</name>
+        <qualifiedname>lua::Engine::Whelmed::tokenFloat</qualifiedname>
+        <initializer>{ 0xff00ff00 }</initializer>
+        <briefdescription>
+<para>Syntax highlight: float literal colour. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="663" column="22" bodyfile="lua/Engine.h" bodystart="663" bodyend="663"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1a8273bb1d49ee079aee2fcaeb4895b609" prot="public" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour lua::Engine::Whelmed::tokenString</definition>
+        <argsstring></argsstring>
+        <name>tokenString</name>
+        <qualifiedname>lua::Engine::Whelmed::tokenString</qualifiedname>
+        <initializer>{ 0xffffc0c0 }</initializer>
+        <briefdescription>
+<para>Syntax highlight: string literal colour. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="666" column="22" bodyfile="lua/Engine.h" bodystart="666" bodyend="666"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1ad0341f79733e79eb940254b9e73d9750" prot="public" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour lua::Engine::Whelmed::tokenBracket</definition>
+        <argsstring></argsstring>
+        <name>tokenBracket</name>
+        <qualifiedname>lua::Engine::Whelmed::tokenBracket</qualifiedname>
+        <initializer>{ 0xff80ffff }</initializer>
+        <briefdescription>
+<para>Syntax highlight: bracket/paren colour. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="669" column="22" bodyfile="lua/Engine.h" bodystart="669" bodyend="669"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1a66ce34720e95fe09d4ce4f4368672b84" prot="public" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour lua::Engine::Whelmed::tokenPunctuation</definition>
+        <argsstring></argsstring>
+        <name>tokenPunctuation</name>
+        <qualifiedname>lua::Engine::Whelmed::tokenPunctuation</qualifiedname>
+        <initializer>{ 0xffff9080 }</initializer>
+        <briefdescription>
+<para>Syntax highlight: punctuation colour. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="672" column="22" bodyfile="lua/Engine.h" bodystart="672" bodyend="672"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1af8a9097584a0354c43d3abd2d781b3f0" prot="public" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour lua::Engine::Whelmed::tokenPreprocessor</definition>
+        <argsstring></argsstring>
+        <name>tokenPreprocessor</name>
+        <qualifiedname>lua::Engine::Whelmed::tokenPreprocessor</qualifiedname>
+        <initializer>{ 0xff9aff00 }</initializer>
+        <briefdescription>
+<para>Syntax highlight: preprocessor directive colour. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="675" column="22" bodyfile="lua/Engine.h" bodystart="675" bodyend="675"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1a52489e48b82b6b2998b9fdfa87d24b00" prot="public" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour lua::Engine::Whelmed::tableBackground</definition>
+        <argsstring></argsstring>
+        <name>tableBackground</name>
+        <qualifiedname>lua::Engine::Whelmed::tableBackground</qualifiedname>
+        <initializer>{ 0xff090d12 }</initializer>
+        <briefdescription>
+<para><ref refid="struct_table" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Table</ref> background colour. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="678" column="22" bodyfile="lua/Engine.h" bodystart="678" bodyend="678"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1a0dc6eebcd9160afd8897029ba43b3cf9" prot="public" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour lua::Engine::Whelmed::tableHeaderBackground</definition>
+        <argsstring></argsstring>
+        <name>tableHeaderBackground</name>
+        <qualifiedname>lua::Engine::Whelmed::tableHeaderBackground</qualifiedname>
+        <initializer>{ 0xff112130 }</initializer>
+        <briefdescription>
+<para><ref refid="struct_table" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Table</ref> header row background colour. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="681" column="22" bodyfile="lua/Engine.h" bodystart="681" bodyend="681"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1a2c24f03c50a1f3bcde46877dad6b6dc4" prot="public" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour lua::Engine::Whelmed::tableRowAlt</definition>
+        <argsstring></argsstring>
+        <name>tableRowAlt</name>
+        <qualifiedname>lua::Engine::Whelmed::tableRowAlt</qualifiedname>
+        <initializer>{ 0xff0d141c }</initializer>
+        <briefdescription>
+<para>Alternating table row background colour. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="684" column="22" bodyfile="lua/Engine.h" bodystart="684" bodyend="684"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1ac6cebf8d2c721df8097b975c658c91a0" prot="public" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour lua::Engine::Whelmed::tableBorderColour</definition>
+        <argsstring></argsstring>
+        <name>tableBorderColour</name>
+        <qualifiedname>lua::Engine::Whelmed::tableBorderColour</qualifiedname>
+        <initializer>{ 0xff2c4144 }</initializer>
+        <briefdescription>
+<para><ref refid="struct_table" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Table</ref> border colour. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="687" column="22" bodyfile="lua/Engine.h" bodystart="687" bodyend="687"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1ad43fea370d29db107f30d6da1d435166" prot="public" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour lua::Engine::Whelmed::tableHeaderText</definition>
+        <argsstring></argsstring>
+        <name>tableHeaderText</name>
+        <qualifiedname>lua::Engine::Whelmed::tableHeaderText</qualifiedname>
+        <initializer>{ 0xffbafffd }</initializer>
+        <briefdescription>
+<para><ref refid="struct_table" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Table</ref> header text colour. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="690" column="22" bodyfile="lua/Engine.h" bodystart="690" bodyend="690"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1a25f44fc9506361a5c032bfa3663c0eff" prot="public" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour lua::Engine::Whelmed::tableCellText</definition>
+        <argsstring></argsstring>
+        <name>tableCellText</name>
+        <qualifiedname>lua::Engine::Whelmed::tableCellText</qualifiedname>
+        <initializer>{ 0xffb3f9f5 }</initializer>
+        <briefdescription>
+<para><ref refid="struct_table" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Table</ref> cell text colour. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="693" column="22" bodyfile="lua/Engine.h" bodystart="693" bodyend="693"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1a03e64e81909e4456676a9bb1749eee77" prot="public" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour lua::Engine::Whelmed::scrollbarThumb</definition>
+        <argsstring></argsstring>
+        <name>scrollbarThumb</name>
+        <qualifiedname>lua::Engine::Whelmed::scrollbarThumb</qualifiedname>
+        <initializer>{ 0xff2c4144 }</initializer>
+        <briefdescription>
+<para>Scrollbar thumb colour. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="696" column="22" bodyfile="lua/Engine.h" bodystart="696" bodyend="696"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1aaaede5efb3bc47809dc560ab3e2b3dae" prot="public" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour lua::Engine::Whelmed::scrollbarTrack</definition>
+        <argsstring></argsstring>
+        <name>scrollbarTrack</name>
+        <qualifiedname>lua::Engine::Whelmed::scrollbarTrack</qualifiedname>
+        <initializer>{ 0xff0d141c }</initializer>
+        <briefdescription>
+<para>Scrollbar track colour. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="699" column="22" bodyfile="lua/Engine.h" bodystart="699" bodyend="699"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1ac7bfc8e7139d00f2550cde6e571a733f" prot="public" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour lua::Engine::Whelmed::scrollbarBackground</definition>
+        <argsstring></argsstring>
+        <name>scrollbarBackground</name>
+        <qualifiedname>lua::Engine::Whelmed::scrollbarBackground</qualifiedname>
+        <initializer>{ 0xff0d141c }</initializer>
+        <briefdescription>
+<para>Scrollbar background colour. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="702" column="22" bodyfile="lua/Engine.h" bodystart="702" bodyend="702"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1aaafe9f4edae400ec37dac694a5918674" prot="public" static="no" mutable="no">
+        <type>juce::String</type>
+        <definition>juce::String lua::Engine::Whelmed::scrollDown</definition>
+        <argsstring></argsstring>
+        <name>scrollDown</name>
+        <qualifiedname>lua::Engine::Whelmed::scrollDown</qualifiedname>
+        <initializer>{ &quot;j&quot; }</initializer>
+        <briefdescription>
+<para>Key binding to scroll down. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="705" column="22" bodyfile="lua/Engine.h" bodystart="705" bodyend="705"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1aa73b5991a5561751fbb8fde798836da0" prot="public" static="no" mutable="no">
+        <type>juce::String</type>
+        <definition>juce::String lua::Engine::Whelmed::scrollUp</definition>
+        <argsstring></argsstring>
+        <name>scrollUp</name>
+        <qualifiedname>lua::Engine::Whelmed::scrollUp</qualifiedname>
+        <initializer>{ &quot;k&quot; }</initializer>
+        <briefdescription>
+<para>Key binding to scroll up. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="708" column="22" bodyfile="lua/Engine.h" bodystart="708" bodyend="708"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1a47a531a5473bb5ac1145368644ea548d" prot="public" static="no" mutable="no">
+        <type>juce::String</type>
+        <definition>juce::String lua::Engine::Whelmed::scrollTop</definition>
+        <argsstring></argsstring>
+        <name>scrollTop</name>
+        <qualifiedname>lua::Engine::Whelmed::scrollTop</qualifiedname>
+        <initializer>{ &quot;gg&quot; }</initializer>
+        <briefdescription>
+<para>Key binding to scroll to top. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="711" column="22" bodyfile="lua/Engine.h" bodystart="711" bodyend="711"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1a40961b942480388d22a30faeec037fe1" prot="public" static="no" mutable="no">
+        <type>juce::String</type>
+        <definition>juce::String lua::Engine::Whelmed::scrollBottom</definition>
+        <argsstring></argsstring>
+        <name>scrollBottom</name>
+        <qualifiedname>lua::Engine::Whelmed::scrollBottom</qualifiedname>
+        <initializer>{ &quot;G&quot; }</initializer>
+        <briefdescription>
+<para>Key binding to scroll to bottom. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="714" column="22" bodyfile="lua/Engine.h" bodystart="714" bodyend="714"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1a186416b208bc76c09667b4874d2182fd" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int lua::Engine::Whelmed::scrollStep</definition>
+        <argsstring></argsstring>
+        <name>scrollStep</name>
+        <qualifiedname>lua::Engine::Whelmed::scrollStep</qualifiedname>
+        <initializer>{ 50 }</initializer>
+        <briefdescription>
+<para>Scroll step in pixels. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="717" column="13" bodyfile="lua/Engine.h" bodystart="717" bodyend="717"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_whelmed_1a27303dc14b1dd6f529ed53603b22423d" prot="public" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour lua::Engine::Whelmed::selectionColour</definition>
+        <argsstring></argsstring>
+        <name>selectionColour</name>
+        <qualifiedname>lua::Engine::Whelmed::selectionColour</qualifiedname>
+        <initializer>{ 0x8000c8d8 }</initializer>
+        <briefdescription>
+<para>Text selection highlight colour. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="720" column="22" bodyfile="lua/Engine.h" bodystart="720" bodyend="720"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>All appearance and behaviour settings for the <ref refid="structlua_1_1_engine_1_1_whelmed" kindref="compound">Whelmed</ref> markdown viewer. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="lua/Engine.h" line="546" column="5" bodyfile="lua/Engine.h" bodystart="547" bodyend="721"/>
+    <listofallmembers>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1aedab3185e3a061a4c80f7b0412e1e479" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>background</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1a4d1ca2c52e24c2024f24a9db139b41b8" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>bodyColour</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1a954e20382bf4366ab40d3da7a529dfca" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>codeColour</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1a9608cc35f48dba9b72c235dc1923a8a5" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>codeFamily</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1a034dd727dca6de7b9d809fa1f6b9fe2a" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>codeFenceBackground</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1ab8f6ff3b647cecc7e577c264080631f9" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>codeSize</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1aac47d5abcb23b2d7838f9649c258091c" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>codeStyle</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1ac6d2757474490cf11b6b0e8b36c8c94b" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>fontFamily</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1a47250cb0f381e1124c7e7b56ae9b0d47" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>fontSize</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1a98efcbf2c60c58e0ff273935e205bc62" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>fontStyle</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1ab993e4e0d43a9a84b2d0ad4226cd3397" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>h1Colour</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1a0ce3e2358da5a18fbb2814f1bd8767de" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>h1Size</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1afe602506974a84e103ddc7bd7bcdb36f" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>h2Colour</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1af0ac0e5c25e945b0135ac51a57e587a5" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>h2Size</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1a4c51841fcc6185ca024a980ee300f9da" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>h3Colour</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1aaa05edf8fb1f7620c59918b26d8f1b80" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>h3Size</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1a06d9e32126fbe5fe74578ff3d01875f4" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>h4Colour</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1aec433098297cc95a085178091f496de4" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>h4Size</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1af6ff31dd602b5a2663f66df31c561882" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>h5Colour</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1a9bec494c99c377dc0d5e3f5d5b1ad7a7" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>h5Size</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1a00a205d5be32cbab43b03756afec2dab" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>h6Colour</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1a4713a4fa06b99d66b4a65b14b3206098" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>h6Size</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1a21d946ac384c2eed128e943ba47d1889" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>lineHeight</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1aeb8f9ece8570b7b82632ba24b9940edb" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>linkColour</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1a2cd0fbe4082e02e7439fc81a8ce5f234" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>paddingBottom</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1aebcb4ffafc1fdfbbafe0fadf46560f09" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>paddingLeft</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1aa4afde15ccfa87cb5330758b403d4c09" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>paddingRight</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1a08bb47b0140a0b68dd00c3e610ccb1b6" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>paddingTop</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1a8b2da2a32f954d6a88518584eb55179a" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>progressBackground</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1ae3ad84701d67e0803b790d2610c8e93d" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>progressForeground</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1a76472fe645ea647d262734736743606d" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>progressSpinnerColour</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1af78bbd00e1bdeee60557b476a2f47278" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>progressTextColour</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1ac7bfc8e7139d00f2550cde6e571a733f" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>scrollbarBackground</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1a03e64e81909e4456676a9bb1749eee77" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>scrollbarThumb</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1aaaede5efb3bc47809dc560ab3e2b3dae" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>scrollbarTrack</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1a40961b942480388d22a30faeec037fe1" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>scrollBottom</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1aaafe9f4edae400ec37dac694a5918674" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>scrollDown</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1a186416b208bc76c09667b4874d2182fd" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>scrollStep</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1a47a531a5473bb5ac1145368644ea548d" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>scrollTop</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1aa73b5991a5561751fbb8fde798836da0" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>scrollUp</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1a27303dc14b1dd6f529ed53603b22423d" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>selectionColour</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1a52489e48b82b6b2998b9fdfa87d24b00" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>tableBackground</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1ac6cebf8d2c721df8097b975c658c91a0" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>tableBorderColour</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1a25f44fc9506361a5c032bfa3663c0eff" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>tableCellText</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1a0dc6eebcd9160afd8897029ba43b3cf9" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>tableHeaderBackground</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1ad43fea370d29db107f30d6da1d435166" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>tableHeaderText</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1a2c24f03c50a1f3bcde46877dad6b6dc4" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>tableRowAlt</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1ad0341f79733e79eb940254b9e73d9750" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>tokenBracket</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1a43a5f420d03f1f428d5a66a46b88dd59" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>tokenComment</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1a4b9c0648fc7cb5ecae1a442f2ee0aac3" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>tokenError</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1a95c82d8a5418bf8ff2c705beb62e39a4" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>tokenFloat</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1a4a3492c1e2d2f63f886447439ccd4a3f" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>tokenIdentifier</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1ade6406da8f9d3f9df1341433cdf99969" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>tokenInteger</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1aca7a58000aa7cf7c6375ff95b45f7d90" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>tokenKeyword</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1ab1dd5afe2ce34a7c9dd0f93bbfc4ad79" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>tokenOperator</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1af8a9097584a0354c43d3abd2d781b3f0" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>tokenPreprocessor</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1a66ce34720e95fe09d4ce4f4368672b84" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>tokenPunctuation</name></member>
+      <member refid="structlua_1_1_engine_1_1_whelmed_1a8273bb1d49ee079aee2fcaeb4895b609" prot="public" virt="non-virtual"><scope>lua::Engine::Whelmed</scope><name>tokenString</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

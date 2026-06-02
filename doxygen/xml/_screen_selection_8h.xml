@@ -1,0 +1,306 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="_screen_selection_8h" kind="file" language="C++">
+    <compoundname>ScreenSelection.h</compoundname>
+    <includes local="no">JuceHeader.h</includes>
+    <includes refid="_selection_type_8h" local="yes">../../SelectionType.h</includes>
+    <includedby refid="_input_8h" local="yes">terminal/Input.h</includedby>
+    <incdepgraph>
+      <node id="3">
+        <label>../../SelectionType.h</label>
+        <link refid="_selection_type_8h"/>
+      </node>
+      <node id="1">
+        <label>terminal/component/ScreenSelection.h</label>
+        <link refid="_screen_selection_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>JuceHeader.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="9">
+        <label>Main.cpp</label>
+        <link refid="_main_8cpp"/>
+      </node>
+      <node id="8">
+        <label>Main.h</label>
+        <link refid="_main_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>MainComponent.cpp</label>
+        <link refid="_main_component_8cpp"/>
+      </node>
+      <node id="7">
+        <label>MainComponent.h</label>
+        <link refid="_main_component_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>MainComponentActions.cpp</label>
+        <link refid="_main_component_actions_8cpp"/>
+      </node>
+      <node id="3">
+        <label>terminal/Input.cpp</label>
+        <link refid="_input_8cpp"/>
+      </node>
+      <node id="2">
+        <label>terminal/Input.h</label>
+        <link refid="_input_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>terminal/component/Display.cpp</label>
+        <link refid="_display_8cpp"/>
+      </node>
+      <node id="4">
+        <label>terminal/component/Display.h</label>
+        <link refid="_display_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>terminal/component/LookAndFeel.cpp</label>
+        <link refid="_look_and_feel_8cpp"/>
+      </node>
+      <node id="6">
+        <label>terminal/component/LookAndFeel.h</label>
+        <link refid="_look_and_feel_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>terminal/component/LookAndFeelMenu.cpp</label>
+        <link refid="_look_and_feel_menu_8cpp"/>
+      </node>
+      <node id="14">
+        <label>terminal/component/LookAndFeelTab.cpp</label>
+        <link refid="_look_and_feel_tab_8cpp"/>
+      </node>
+      <node id="20">
+        <label>terminal/component/ModalWindow.cpp</label>
+        <link refid="_modal_window_8cpp"/>
+      </node>
+      <node id="19">
+        <label>terminal/component/ModalWindow.h</label>
+        <link refid="_modal_window_8h"/>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="24">
+        <label>terminal/component/Panes.cpp</label>
+        <link refid="_panes_8cpp"/>
+      </node>
+      <node id="23">
+        <label>terminal/component/Panes.h</label>
+        <link refid="_panes_8h"/>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>terminal/component/Popup.cpp</label>
+        <link refid="_popup_8cpp"/>
+      </node>
+      <node id="21">
+        <label>terminal/component/Popup.h</label>
+        <link refid="_popup_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>terminal/component/ScreenSelection.h</label>
+        <link refid="_screen_selection_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>terminal/component/Tabs.cpp</label>
+        <link refid="_tabs_8cpp"/>
+      </node>
+      <node id="15">
+        <label>terminal/component/Tabs.h</label>
+        <link refid="_tabs_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>terminal/component/TabsActions.cpp</label>
+        <link refid="_tabs_actions_8cpp"/>
+      </node>
+      <node id="18">
+        <label>terminal/component/TabsClose.cpp</label>
+        <link refid="_tabs_close_8cpp"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structterminal_1_1_screen_selection" prot="public">terminal::ScreenSelection</innerclass>
+    <innernamespace refid="namespaceterminal">terminal</innernamespace>
+    <briefdescription>
+<para>Anchor-to-end text selection range with per-cell hit testing. </para>
+    </briefdescription>
+    <detaileddescription>
+<para><computeroutput>ScreenSelection</computeroutput> stores the two endpoints of a user text selection as grid coordinates (column, row) and provides <computeroutput>contains()</computeroutput> for per-cell hit testing during snapshot construction.</para>
+<sect1 id="_screen_selection_8h_1autotoc_md32_1s1"><sect2 id="_screen_selection_8h_1autotoc_md32">
+<title>Coordinate system</title><para>Both <computeroutput>anchor</computeroutput> and <computeroutput><ref refid="group__juce__core-files_1ga4a3194f4f741f9bd653f28733358f62c" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">end</ref></computeroutput> are in <bold>grid space</bold> — column and row indices within the visible terminal grid, not pixel coordinates. The anchor is the point where the user started the selection (mouse-down); the end is the current drag position (mouse-drag / mouse-up).</para>
+</sect2></sect1>
+<sect1 id="_screen_selection_8h_1autotoc_md33_1s1"><sect2 id="_screen_selection_8h_1autotoc_md33">
+<title>Normalisation</title><para><computeroutput>contains()</computeroutput> normalises the two endpoints into reading order before testing, so the struct is valid regardless of whether the user dragged forwards or backwards.</para>
+</sect2></sect1>
+<sect1 id="_screen_selection_8h_1autotoc_md34_1s1"><sect2 id="_screen_selection_8h_1autotoc_md34">
+<title>Rendering</title><para>The selection is rendered as a transparent colour overlay on top of the normal cell background. The renderer calls <computeroutput>containsCell()</computeroutput> for every cell and highlights selected cells using the configured selection colour.</para>
+<para><programlisting><codeline><highlight class="normal">ScreenSelection<sp/>sel;</highlight></codeline>
+<codeline><highlight class="normal">sel.anchor<sp/>=<sp/>{<sp/>3,<sp/>2<sp/>};<sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>column<sp/>3,<sp/>row<sp/>2</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">sel.end<sp/><sp/><sp/><sp/>=<sp/>{<sp/>7,<sp/>4<sp/>};<sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>column<sp/>7,<sp/>row<sp/>4</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>hit<sp/>=<sp/>sel.contains<sp/>(5,<sp/>3);<sp/><sp/></highlight><highlight class="comment">//<sp/>true<sp/>—<sp/>row<sp/>3<sp/>is<sp/>fully<sp/>selected</highlight></codeline>
+</programlisting></para>
+<para><simplesect kind="see"><para>Screen::setSelection() </para>
+</simplesect>
+</para>
+</sect2></sect1>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#pragma<sp/>once</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;JuceHeader.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_selection_type_8h" kindref="compound">../../SelectionType.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespaceterminal" kindref="compound">terminal</ref></highlight></codeline>
+<codeline lineno="44"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="comment">/*____________________________________________________________________________*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62" refid="structterminal_1_1_screen_selection" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structterminal_1_1_screen_selection" kindref="compound">ScreenSelection</ref></highlight></codeline>
+<codeline lineno="63"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="64" refid="structterminal_1_1_screen_selection_1a156721246096d88324e9123a036b57fd" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::Point&lt;int&gt;<sp/><ref refid="structterminal_1_1_screen_selection_1a156721246096d88324e9123a036b57fd" kindref="member">anchor</ref>;<sp/></highlight></codeline>
+<codeline lineno="65" refid="structterminal_1_1_screen_selection_1adc8c3ce88da3da1bcab9686db7efa910" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::Point&lt;int&gt;<sp/><ref refid="structterminal_1_1_screen_selection_1adc8c3ce88da3da1bcab9686db7efa910" kindref="member">end</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="66" refid="structterminal_1_1_screen_selection_1af8bdb387c29936675c84187ba94cd0b9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="_selection_type_8h_1acffca3b33fddce63d3220bc7487e879d" kindref="member">::SelectionType</ref><sp/><sp/><ref refid="structterminal_1_1_screen_selection_1af8bdb387c29936675c84187ba94cd0b9" kindref="member">type</ref><sp/>{<sp/><ref refid="_selection_type_8h_1acffca3b33fddce63d3220bc7487e879da334c4a4c42fdb79d7ebc3e73b517e6f8" kindref="member">::SelectionType::none</ref><sp/>};<sp/></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87" refid="structterminal_1_1_screen_selection_1a1630c9a3a7d2f1235af74da3edf4de64" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structterminal_1_1_screen_selection_1a1630c9a3a7d2f1235af74da3edf4de64" kindref="member">contains</ref><sp/>(<ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref><sp/>col,<sp/><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref><sp/><ref refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">row</ref>)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>startRow<sp/>{<sp/><ref refid="structterminal_1_1_screen_selection_1a156721246096d88324e9123a036b57fd" kindref="member">anchor</ref>.y<sp/>};</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>startCol<sp/>{<sp/><ref refid="structterminal_1_1_screen_selection_1a156721246096d88324e9123a036b57fd" kindref="member">anchor</ref>.x<sp/>};</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>endRow<sp/>{<sp/><ref refid="structterminal_1_1_screen_selection_1adc8c3ce88da3da1bcab9686db7efa910" kindref="member">end</ref>.y<sp/>};</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>endCol<sp/>{<sp/><ref refid="structterminal_1_1_screen_selection_1adc8c3ce88da3da1bcab9686db7efa910" kindref="member">end</ref>.x<sp/>};</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Normalize<sp/>to<sp/>reading<sp/>order</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(startRow<sp/>&gt;<sp/>endRow<sp/>or<sp/>(startRow<sp/>==<sp/>endRow<sp/>and<sp/>startCol<sp/>&gt;<sp/>endCol))</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::swap<sp/>(startRow,<sp/>endRow);</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::swap<sp/>(startCol,<sp/>endCol);</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>result<sp/>{<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">row</ref>.value<sp/>&gt;=<sp/>startRow<sp/>and<sp/><ref refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">row</ref>.value<sp/>&lt;=<sp/>endRow)</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(startRow<sp/>==<sp/>endRow)</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/>col.value<sp/>&gt;=<sp/>startCol<sp/>and<sp/>col.value<sp/>&lt;=<sp/>endCol;</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">row</ref>.value<sp/>==<sp/>startRow)</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/>col.value<sp/>&gt;=<sp/>startCol;</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">row</ref>.value<sp/>==<sp/>endRow)</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/>col.value<sp/>&lt;=<sp/>endCol;</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>result;</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight></codeline>
+<codeline lineno="142" refid="structterminal_1_1_screen_selection_1a534fa31ef683a1b726428a0f4f328ef0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structterminal_1_1_screen_selection_1a534fa31ef683a1b726428a0f4f328ef0" kindref="member">containsBox</ref><sp/>(<ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref><sp/>col,<sp/><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref><sp/><ref refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">row</ref>)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>startRow<sp/>{<sp/>std::min<sp/>(<ref refid="structterminal_1_1_screen_selection_1a156721246096d88324e9123a036b57fd" kindref="member">anchor</ref>.y,<sp/><ref refid="structterminal_1_1_screen_selection_1adc8c3ce88da3da1bcab9686db7efa910" kindref="member">end</ref>.y)<sp/>};</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>endRow<sp/><sp/><sp/>{<sp/>std::max<sp/>(<ref refid="structterminal_1_1_screen_selection_1a156721246096d88324e9123a036b57fd" kindref="member">anchor</ref>.y,<sp/><ref refid="structterminal_1_1_screen_selection_1adc8c3ce88da3da1bcab9686db7efa910" kindref="member">end</ref>.y)<sp/>};</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>startCol<sp/>{<sp/>std::min<sp/>(<ref refid="structterminal_1_1_screen_selection_1a156721246096d88324e9123a036b57fd" kindref="member">anchor</ref>.x,<sp/><ref refid="structterminal_1_1_screen_selection_1adc8c3ce88da3da1bcab9686db7efa910" kindref="member">end</ref>.x)<sp/>};</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>endCol<sp/><sp/><sp/>{<sp/>std::max<sp/>(<ref refid="structterminal_1_1_screen_selection_1a156721246096d88324e9123a036b57fd" kindref="member">anchor</ref>.x,<sp/><ref refid="structterminal_1_1_screen_selection_1adc8c3ce88da3da1bcab9686db7efa910" kindref="member">end</ref>.x)<sp/>};</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">row</ref>.value<sp/>&gt;=<sp/>startRow<sp/>and<sp/><ref refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">row</ref>.value<sp/>&lt;=<sp/>endRow</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>and<sp/>col.value<sp/>&gt;=<sp/>startCol<sp/>and<sp/>col.value<sp/>&lt;=<sp/>endCol;</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight></codeline>
+<codeline lineno="166" refid="structterminal_1_1_screen_selection_1a2be7f04b1ff4048c3222ab11da8214e1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structterminal_1_1_screen_selection_1a2be7f04b1ff4048c3222ab11da8214e1" kindref="member">containsLine</ref><sp/>(<ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref><sp/>col,<sp/><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref><sp/><ref refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">row</ref>)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>juce::ignoreUnused<sp/>(col);</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>startRow<sp/>{<sp/>std::min<sp/>(<ref refid="structterminal_1_1_screen_selection_1a156721246096d88324e9123a036b57fd" kindref="member">anchor</ref>.y,<sp/><ref refid="structterminal_1_1_screen_selection_1adc8c3ce88da3da1bcab9686db7efa910" kindref="member">end</ref>.y)<sp/>};</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>endRow<sp/><sp/><sp/>{<sp/>std::max<sp/>(<ref refid="structterminal_1_1_screen_selection_1a156721246096d88324e9123a036b57fd" kindref="member">anchor</ref>.y,<sp/><ref refid="structterminal_1_1_screen_selection_1adc8c3ce88da3da1bcab9686db7efa910" kindref="member">end</ref>.y)<sp/>};</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"></highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">row</ref>.value<sp/>&gt;=<sp/>startRow<sp/>and<sp/><ref refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">row</ref>.value<sp/>&lt;=<sp/>endRow;</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"></highlight></codeline>
+<codeline lineno="189" refid="structterminal_1_1_screen_selection_1a6940b12b7d483655d5adcf245a654540" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structterminal_1_1_screen_selection_1a6940b12b7d483655d5adcf245a654540" kindref="member">containsCell</ref><sp/>(<ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref><sp/>col,<sp/><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref><sp/><ref refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">row</ref>)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>result<sp/>{<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"></highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="structterminal_1_1_screen_selection_1af8bdb387c29936675c84187ba94cd0b9" kindref="member">type</ref><sp/>==<sp/><ref refid="_selection_type_8h_1acffca3b33fddce63d3220bc7487e879da1dfb6b98aef3416e03d50fd2fb525600" kindref="member">::SelectionType::visual</ref>)</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/><ref refid="structterminal_1_1_screen_selection_1a1630c9a3a7d2f1235af74da3edf4de64" kindref="member">contains</ref><sp/>(col,<sp/><ref refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">row</ref>);</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="structterminal_1_1_screen_selection_1af8bdb387c29936675c84187ba94cd0b9" kindref="member">type</ref><sp/>==<sp/><ref refid="_selection_type_8h_1acffca3b33fddce63d3220bc7487e879da965bdec4306cde09a0cae64c2b95cbc0" kindref="member">::SelectionType::visualLine</ref>)</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/><ref refid="structterminal_1_1_screen_selection_1a2be7f04b1ff4048c3222ab11da8214e1" kindref="member">containsLine</ref><sp/>(col,<sp/><ref refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">row</ref>);</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="structterminal_1_1_screen_selection_1af8bdb387c29936675c84187ba94cd0b9" kindref="member">type</ref><sp/>==<sp/><ref refid="_selection_type_8h_1acffca3b33fddce63d3220bc7487e879dacc278d409df0f08d94c2cc2225afd8e2" kindref="member">::SelectionType::visualBlock</ref>)</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/><ref refid="structterminal_1_1_screen_selection_1a534fa31ef683a1b726428a0f4f328ef0" kindref="member">containsBox</ref><sp/>(col,<sp/><ref refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">row</ref>);</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"></highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>result;</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="208"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"></highlight></codeline>
+<codeline lineno="211"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>terminal</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="terminal/component/ScreenSelection.h"/>
+  </compounddef>
+</doxygen>

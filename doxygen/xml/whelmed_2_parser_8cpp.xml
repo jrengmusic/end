@@ -1,0 +1,157 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="whelmed_2_parser_8cpp" kind="file" language="C++">
+    <compoundname>Parser.cpp</compoundname>
+    <includes refid="whelmed_2_parser_8h" local="yes">Parser.h</includes>
+    <incdepgraph>
+      <node id="5">
+        <label>../AppIdentifier.h</label>
+        <link refid="_app_identifier_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>../lua/Engine.h</label>
+        <link refid="_engine_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>../terminal/action/Action.h</label>
+        <link refid="_action_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>whelmed/Parser.cpp</label>
+        <link refid="whelmed_2_parser_8cpp"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>Parser.h</label>
+        <link refid="whelmed_2_parser_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>State.h</label>
+        <link refid="_state_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>JuceHeader.h</label>
+      </node>
+    </incdepgraph>
+    <innernamespace refid="namespacewhelmed">whelmed</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#include<sp/>&quot;<ref refid="whelmed_2_parser_8h" kindref="compound">Parser.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespacewhelmed" kindref="compound">whelmed</ref></highlight></codeline>
+<codeline lineno="4"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">/*____________________________________________________________________________*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="7" refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" refkind="member"><highlight class="normal"><ref refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" kindref="member">Parser::Parser</ref><sp/>(<ref refid="classwhelmed_1_1_state" kindref="compound">State</ref>&amp;<sp/>s,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classwhelmed_1_1_parser_1ade02c6c2510bed94ddcee46f947268f3" kindref="member">start</ref>)</highlight></codeline>
+<codeline lineno="8"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/><ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">juce</ref>::<ref refid="classThread" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Thread</ref><sp/>(</highlight><highlight class="stringliteral">&quot;Whelmed<sp/>Parser&quot;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="9"><highlight class="normal"><sp/><sp/><sp/><sp/>,<sp/><ref refid="classwhelmed_1_1_parser_1a0b3630eec446e7cac7b71bc4dae8fcdf" kindref="member">state</ref><sp/>(s)</highlight></codeline>
+<codeline lineno="10"><highlight class="normal"><sp/><sp/><sp/><sp/>,<sp/><ref refid="classwhelmed_1_1_parser_1aa6e7fd7c7999562d74932f9898999505" kindref="member">startBlock</ref><sp/>(<ref refid="classwhelmed_1_1_parser_1ade02c6c2510bed94ddcee46f947268f3" kindref="member">start</ref>)</highlight></codeline>
+<codeline lineno="11"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="12"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal">*<sp/>cfg<sp/>{<sp/><ref refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">lua::Engine::getContext</ref>()<sp/>};</highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classwhelmed_1_1_parser_1a99d6a3f8c6b27a63cf6e3cf57818b7e9" kindref="member">bodySize</ref><sp/>=<sp/>cfg-&gt;whelmed.fontSize;</highlight></codeline>
+<codeline lineno="15"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classwhelmed_1_1_parser_1a2d6ab1866927c262d86a68407bbca58b" kindref="member">h1Size</ref><sp/><sp/><sp/>=<sp/>cfg-&gt;whelmed.h1Size;</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classwhelmed_1_1_parser_1a933999e8eebb37ec031d3c8c598c57f6" kindref="member">h2Size</ref><sp/><sp/><sp/>=<sp/>cfg-&gt;whelmed.h2Size;</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classwhelmed_1_1_parser_1ae0bb5aa790a98ddce05fd33ce8f1a6e3" kindref="member">h3Size</ref><sp/><sp/><sp/>=<sp/>cfg-&gt;whelmed.h3Size;</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classwhelmed_1_1_parser_1a6cf1e4311c846fcc7f7227b0a10300a6" kindref="member">h4Size</ref><sp/><sp/><sp/>=<sp/>cfg-&gt;whelmed.h4Size;</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classwhelmed_1_1_parser_1ab7b3d71d8daea0b2f9a9abedb76308ff" kindref="member">h5Size</ref><sp/><sp/><sp/>=<sp/>cfg-&gt;whelmed.h5Size;</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classwhelmed_1_1_parser_1a2201808114693d9c45ef6760354e23fe" kindref="member">h6Size</ref><sp/><sp/><sp/>=<sp/>cfg-&gt;whelmed.h6Size;</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classwhelmed_1_1_parser_1a127d16e549d18b16c69fbebdc69939c6" kindref="member">bodyColour</ref><sp/>=<sp/>cfg-&gt;whelmed.bodyColour;</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classwhelmed_1_1_parser_1a396a1f2e66629c24e73887efc6ab02f7" kindref="member">h1Colour</ref><sp/><sp/><sp/>=<sp/>cfg-&gt;whelmed.h1Colour;</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classwhelmed_1_1_parser_1a3c2edd77d0d1d3754703e09fb31e3271" kindref="member">h2Colour</ref><sp/><sp/><sp/>=<sp/>cfg-&gt;whelmed.h2Colour;</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classwhelmed_1_1_parser_1afbe296285760d010a36fba6f18f7c261" kindref="member">h3Colour</ref><sp/><sp/><sp/>=<sp/>cfg-&gt;whelmed.h3Colour;</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classwhelmed_1_1_parser_1a110e3f34c6a3758e351f0d81c492290e" kindref="member">h4Colour</ref><sp/><sp/><sp/>=<sp/>cfg-&gt;whelmed.h4Colour;</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classwhelmed_1_1_parser_1a3deab1a18a22edab439b6b31d1805c66" kindref="member">h5Colour</ref><sp/><sp/><sp/>=<sp/>cfg-&gt;whelmed.h5Colour;</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classwhelmed_1_1_parser_1ac71d24dd460c432c126541268c31022b" kindref="member">h6Colour</ref><sp/><sp/><sp/>=<sp/>cfg-&gt;whelmed.h6Colour;</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classwhelmed_1_1_parser_1ab88c4e608bf03dcb787924e47dc139bf" kindref="member">codeColour</ref><sp/>=<sp/>cfg-&gt;whelmed.codeColour;</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classwhelmed_1_1_parser_1a4454cb0fb831527460a6749dfab285ef" kindref="member">linkColour</ref><sp/>=<sp/>cfg-&gt;whelmed.linkColour;</highlight></codeline>
+<codeline lineno="31"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33" refid="classwhelmed_1_1_parser_1ae480906e1cd2ed2102d9b92760fbc0a0" refkind="member"><highlight class="normal"><ref refid="classwhelmed_1_1_parser_1ae480906e1cd2ed2102d9b92760fbc0a0" kindref="member">Parser::~Parser</ref>()</highlight></codeline>
+<codeline lineno="34"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/>signalThreadShouldExit();</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/>waitForThreadToExit<sp/>(5000);</highlight></codeline>
+<codeline lineno="37"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39" refid="classwhelmed_1_1_parser_1ade02c6c2510bed94ddcee46f947268f3" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classwhelmed_1_1_parser_1ade02c6c2510bed94ddcee46f947268f3" kindref="member">Parser::start</ref>()</highlight></codeline>
+<codeline lineno="40"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/>startThread();</highlight></codeline>
+<codeline lineno="42"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44" refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" kindref="member">Parser::run</ref>()</highlight></codeline>
+<codeline lineno="45"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal">&amp;<sp/>doc<sp/>{<sp/><ref refid="classwhelmed_1_1_parser_1a0b3630eec446e7cac7b71bc4dae8fcdf" kindref="member">state</ref>.getDocumentForWriting()<sp/>};</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">constexpr</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>kMaxHeadingLevel<sp/>{<sp/>6<sp/>};</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>sizes[]<sp/>{<sp/><ref refid="classwhelmed_1_1_parser_1a99d6a3f8c6b27a63cf6e3cf57818b7e9" kindref="member">bodySize</ref>,<sp/><ref refid="classwhelmed_1_1_parser_1a2d6ab1866927c262d86a68407bbca58b" kindref="member">h1Size</ref>,<sp/><ref refid="classwhelmed_1_1_parser_1a933999e8eebb37ec031d3c8c598c57f6" kindref="member">h2Size</ref>,<sp/><ref refid="classwhelmed_1_1_parser_1ae0bb5aa790a98ddce05fd33ce8f1a6e3" kindref="member">h3Size</ref>,<sp/><ref refid="classwhelmed_1_1_parser_1a6cf1e4311c846fcc7f7227b0a10300a6" kindref="member">h4Size</ref>,<sp/><ref refid="classwhelmed_1_1_parser_1ab7b3d71d8daea0b2f9a9abedb76308ff" kindref="member">h5Size</ref>,<sp/><ref refid="classwhelmed_1_1_parser_1a2201808114693d9c45ef6760354e23fe" kindref="member">h6Size</ref><sp/>};</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Colour<sp/>colours[]<sp/>{<sp/><ref refid="classwhelmed_1_1_parser_1a127d16e549d18b16c69fbebdc69939c6" kindref="member">bodyColour</ref>,<sp/><ref refid="classwhelmed_1_1_parser_1a396a1f2e66629c24e73887efc6ab02f7" kindref="member">h1Colour</ref>,<sp/><ref refid="classwhelmed_1_1_parser_1a3c2edd77d0d1d3754703e09fb31e3271" kindref="member">h2Colour</ref>,<sp/><ref refid="classwhelmed_1_1_parser_1afbe296285760d010a36fba6f18f7c261" kindref="member">h3Colour</ref>,<sp/><ref refid="classwhelmed_1_1_parser_1a110e3f34c6a3758e351f0d81c492290e" kindref="member">h4Colour</ref>,<sp/><ref refid="classwhelmed_1_1_parser_1a3deab1a18a22edab439b6b31d1805c66" kindref="member">h5Colour</ref>,<sp/><ref refid="classwhelmed_1_1_parser_1ac71d24dd460c432c126541268c31022b" kindref="member">h6Colour</ref><sp/>};</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>{<sp/><ref refid="classwhelmed_1_1_parser_1aa6e7fd7c7999562d74932f9898999505" kindref="member">startBlock</ref><sp/>};<sp/>i<sp/>&lt;<sp/>doc.blockCount<sp/>and<sp/>not<sp/>threadShouldExit();<sp/>++i)</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal">&amp;<sp/>block<sp/>{<sp/>doc.blocks[i]<sp/>};</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>level<sp/>{<sp/>juce::jlimit<sp/>(0,<sp/>kMaxHeadingLevel,<sp/>block.level)<sp/>};</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>block.fontSize<sp/>=<sp/>sizes[level];</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>block.colour<sp/><sp/><sp/>=<sp/>colours[level];</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>s<sp/>{<sp/>block.spanOffset<sp/>};<sp/>s<sp/>&lt;<sp/>block.spanOffset<sp/>+<sp/>block.spanCount;<sp/>++s)</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal">&amp;<sp/>span<sp/>{<sp/>doc.spans[s]<sp/>};</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>span.fontSize<sp/>=<sp/>block.fontSize;</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>isCode<sp/>{<sp/>(span.style<sp/>&amp;<sp/><ref refid="namespacejam_1_1_markdown_1a4ba238a36059399ca33400bd8e3e7471a518fa5caca6d8a5b52cd9584db42406b" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Markdown::Code</ref>)<sp/>!=<sp/><ref refid="namespacejam_1_1_markdown_1a4ba238a36059399ca33400bd8e3e7471ae8277a5f9f30b6cf71fce06914d7cc52" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Markdown::None</ref><sp/>};</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>isLink<sp/>{<sp/>(span.style<sp/>&amp;<sp/><ref refid="namespacejam_1_1_markdown_1a4ba238a36059399ca33400bd8e3e7471a6c6ea9c297669582ad2dd8312f3fecc8" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Markdown::Link</ref>)<sp/>!=<sp/><ref refid="namespacejam_1_1_markdown_1a4ba238a36059399ca33400bd8e3e7471ae8277a5f9f30b6cf71fce06914d7cc52" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Markdown::None</ref><sp/>};</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(isCode)</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>span.colour<sp/><sp/><sp/><sp/><sp/>=<sp/><ref refid="classwhelmed_1_1_parser_1ab88c4e608bf03dcb787924e47dc139bf" kindref="member">codeColour</ref>;</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>span.fontFamily<sp/>=<sp/>1;</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(isLink)</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>span.colour<sp/><sp/><sp/><sp/><sp/>=<sp/><ref refid="classwhelmed_1_1_parser_1a4454cb0fb831527460a6749dfab285ef" kindref="member">linkColour</ref>;</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>span.fontFamily<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>span.colour<sp/><sp/><sp/><sp/><sp/>=<sp/>block.colour;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>span.fontFamily<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classwhelmed_1_1_parser_1a0b3630eec446e7cac7b71bc4dae8fcdf" kindref="member">state</ref>.appendBlock();</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classwhelmed_1_1_parser_1a0b3630eec446e7cac7b71bc4dae8fcdf" kindref="member">state</ref>.setParseComplete();</highlight></codeline>
+<codeline lineno="91"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>whelmed</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="whelmed/Parser.cpp"/>
+  </compounddef>
+</doxygen>

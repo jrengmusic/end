@@ -1,0 +1,1039 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="namespaceapp_1_1id" kind="namespace" language="C++">
+    <compoundname>app::id</compoundname>
+    <sectiondef kind="var">
+      <memberdef kind="variable" id="namespaceapp_1_1id_1a1d98616945a74a0a709fe8ce6cfce258" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::END</definition>
+        <argsstring></argsstring>
+        <name>END</name>
+        <qualifiedname>app::id::END</qualifiedname>
+        <initializer>{ &quot;END&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="54" column="35" bodyfile="AppIdentifier.h" bodystart="54" bodyend="54"/>
+        <referencedby refid="struct_app_model_1a6024f393df864362c8507b16b70f8cb7" compoundref="_app_model_8cpp" startline="434" endline="448">AppModel::load</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1ad631a0e4b1eadb61ac0c085f90800bb8" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::WINDOW</definition>
+        <argsstring></argsstring>
+        <name>WINDOW</name>
+        <qualifiedname>app::id::WINDOW</qualifiedname>
+        <initializer>{ &quot;WINDOW&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="55" column="35" bodyfile="AppIdentifier.h" bodystart="55" bodyend="55"/>
+        <referencedby refid="struct_app_model_1a33fc400cec078d808f6017c45574e10e" compoundref="_app_model_8cpp" startline="44" endline="47">AppModel::getWindow</referencedby>
+        <referencedby refid="struct_app_model_1aaae7da7125d05bc93f67e7cc08be4405" compoundref="_app_model_8cpp" startline="486" endline="512">AppModel::loadWindowState</referencedby>
+        <referencedby refid="struct_app_model_1aadec1c1d139204d67deaed3c856c10a4" compoundref="_app_model_8cpp" startline="470" endline="484">AppModel::saveWindowState</referencedby>
+        <referencedby refid="class_main_component_1ab981f8a50bedc6595965294c12796ac6" compoundref="_main_component_8cpp" startline="350" endline="394">MainComponent::valueTreePropertyChanged</referencedby>
+        <referencedby refid="classterminal_1_1_tabs_1ae3fe96dd1a1b0e229d60c7871b0a438b" compoundref="_tabs_8cpp" startline="504" endline="525">terminal::Tabs::valueTreePropertyChanged</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1a29752745764460568dcc06ab2cb55595" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::NEXUS</definition>
+        <argsstring></argsstring>
+        <name>NEXUS</name>
+        <qualifiedname>app::id::NEXUS</qualifiedname>
+        <initializer>{ &quot;NEXUS&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="56" column="35" bodyfile="AppIdentifier.h" bodystart="56" bodyend="56"/>
+        <referencedby refid="struct_app_model_1a732683754e18e0d3dbd93583bed3912b" compoundref="_app_model_8cpp" startline="49" endline="52">AppModel::getNexusNode</referencedby>
+        <referencedby refid="struct_app_model_1a6ea5228e1de373aff30ecdd9d097624b" compoundref="_app_model_8cpp" startline="417" endline="432">AppModel::save</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1aa60f9b102fa5d09dd2b820fa8ec607a9" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::SESSIONS</definition>
+        <argsstring></argsstring>
+        <name>SESSIONS</name>
+        <qualifiedname>app::id::SESSIONS</qualifiedname>
+        <initializer>{ &quot;SESSIONS&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="57" column="35" bodyfile="AppIdentifier.h" bodystart="57" bodyend="57"/>
+        <referencedby refid="struct_app_model_1a5bf961bf2da4f58edc44f53491d07b8b" compoundref="_app_model_8cpp" startline="54" endline="57">AppModel::getSessionsNode</referencedby>
+        <referencedby refid="classnexus_1_1_link_1ac94c5267a1a3129f146e3c8596d3160c" compoundref="_link_8cpp" startline="304" endline="342">nexus::Link::handleSessions</referencedby>
+        <referencedby refid="class_e_n_d_application_1a96fc235a4618e12e65fb65d24578a554" compoundref="_main_8cpp" startline="60" endline="267">ENDApplication::initialise</referencedby>
+        <referencedby refid="class_main_component_1a46cc067d6026247d03d95ceab86e687d" compoundref="_main_component_8cpp" startline="403" endline="416">MainComponent::valueTreeChildAdded</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1a8f0ae852c5021ac2b355b72b31c29a0e" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::SESSION</definition>
+        <argsstring></argsstring>
+        <name>SESSION</name>
+        <qualifiedname>app::id::SESSION</qualifiedname>
+        <initializer>{ &quot;SESSION&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="58" column="35" bodyfile="AppIdentifier.h" bodystart="58" bodyend="58"/>
+        <referencedby refid="classnexus_1_1_link_1ac94c5267a1a3129f146e3c8596d3160c" compoundref="_link_8cpp" startline="304" endline="342">nexus::Link::handleSessions</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1afae1c07735f192163428772405ca7264" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::LOADING</definition>
+        <argsstring></argsstring>
+        <name>LOADING</name>
+        <qualifiedname>app::id::LOADING</qualifiedname>
+        <initializer>{ &quot;LOADING&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="59" column="35" bodyfile="AppIdentifier.h" bodystart="59" bodyend="59"/>
+        <referencedby refid="struct_app_model_1a5f039d3461dcecd5581225bdadb0ce0c" compoundref="_app_model_8cpp" startline="59" endline="62">AppModel::getLoadingNode</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1a8bbf28ae9c3b2be43d46573a9dc3ea7d" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::OPERATION</definition>
+        <argsstring></argsstring>
+        <name>OPERATION</name>
+        <qualifiedname>app::id::OPERATION</qualifiedname>
+        <initializer>{ &quot;OPERATION&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="60" column="35" bodyfile="AppIdentifier.h" bodystart="60" bodyend="60"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1af20c2dc297a411b140ec9bc9bc1d8b4c" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::TABS</definition>
+        <argsstring></argsstring>
+        <name>TABS</name>
+        <qualifiedname>app::id::TABS</qualifiedname>
+        <initializer>{ &quot;TABS&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="61" column="35" bodyfile="AppIdentifier.h" bodystart="61" bodyend="61"/>
+        <referencedby refid="struct_app_model_1ad2ff3c0021a5923d44ad091734b7b589" compoundref="_app_model_8cpp" startline="64" endline="67">AppModel::getTabs</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1aa5522fd872a6a64424e5bed786eeb4c2" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::TAB</definition>
+        <argsstring></argsstring>
+        <name>TAB</name>
+        <qualifiedname>app::id::TAB</qualifiedname>
+        <initializer>{ &quot;TAB&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="62" column="35" bodyfile="AppIdentifier.h" bodystart="62" bodyend="62"/>
+        <referencedby refid="struct_app_model_1a97e7b0dbabbf20a8f35682722b8268be" compoundref="_app_model_8cpp" startline="304" endline="314">AppModel::addTab</referencedby>
+        <referencedby refid="struct_app_model_1a4588cfbb14ca0c3ebb0f1b3ae593e02a" compoundref="_app_model_8cpp" startline="339" endline="357">AppModel::getTab</referencedby>
+        <referencedby refid="class_main_component_1a3e048893b0fb515c367cdc2dd69de164" compoundref="_main_component_8cpp" startline="572" endline="622">MainComponent::initialiseTabs</referencedby>
+        <referencedby refid="struct_app_model_1af0eb41847a5138c20cca20a23d5d8283" compoundref="_app_model_8cpp" startline="316" endline="337">AppModel::removeTab</referencedby>
+        <referencedby refid="classterminal_1_1_tabs_1a729530e36f5facd240fdf7fc725f9be4" compoundref="_tabs_actions_8cpp" startline="133" endline="242">terminal::Tabs::restore</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1a77bea35c2a1535e966a095d72de7e3c5" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::PANES</definition>
+        <argsstring></argsstring>
+        <name>PANES</name>
+        <qualifiedname>app::id::PANES</qualifiedname>
+        <initializer>{ &quot;PANES&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="63" column="35" bodyfile="AppIdentifier.h" bodystart="63" bodyend="63"/>
+        <referencedby refid="classterminal_1_1_tabs_1a15a9e5789878b9646a8c026b94f33391" compoundref="_tabs_8cpp" startline="96" endline="128">terminal::Tabs::addNewTab</referencedby>
+        <referencedby refid="struct_app_model_1a97e7b0dbabbf20a8f35682722b8268be" compoundref="_app_model_8cpp" startline="304" endline="314">AppModel::addTab</referencedby>
+        <referencedby refid="classterminal_1_1_tabs_1a729530e36f5facd240fdf7fc725f9be4" compoundref="_tabs_actions_8cpp" startline="133" endline="242">terminal::Tabs::restore</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1abcf86f0cdf896a33b56cd1dce582f219" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::PANE</definition>
+        <argsstring></argsstring>
+        <name>PANE</name>
+        <qualifiedname>app::id::PANE</qualifiedname>
+        <initializer>{ &quot;PANE&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="64" column="35" bodyfile="AppIdentifier.h" bodystart="64" bodyend="64"/>
+        <referencedby refid="classterminal_1_1_tabs_1a729530e36f5facd240fdf7fc725f9be4" compoundref="_tabs_actions_8cpp" startline="133" endline="242">terminal::Tabs::restore</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1a9a9123c0d63aa046272530c9b72b475b" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::DOCUMENT</definition>
+        <argsstring></argsstring>
+        <name>DOCUMENT</name>
+        <qualifiedname>app::id::DOCUMENT</qualifiedname>
+        <initializer>{ &quot;DOCUMENT&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="65" column="35" bodyfile="AppIdentifier.h" bodystart="65" bodyend="65"/>
+        <referencedby refid="classterminal_1_1_panes_1abf5087515b417ec5b6c451256177268a" compoundref="_panes_8cpp" startline="530" endline="549">terminal::Panes::visibilityChanged</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1af79af5c8c296799dd1db517fd2f8c1a9" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::zoom</definition>
+        <argsstring></argsstring>
+        <name>zoom</name>
+        <qualifiedname>app::id::zoom</qualifiedname>
+        <initializer>{ &quot;zoom&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="71" column="35" bodyfile="AppIdentifier.h" bodystart="71" bodyend="71"/>
+        <referencedby refid="struct_app_model_1abe400a13f767af47666a679942ccf1c5" compoundref="_app_model_8cpp" startline="10" endline="38">AppModel::AppModel</referencedby>
+        <referencedby refid="struct_app_model_1ab65b479731c9d0efaf812f630dc6df23" compoundref="_app_model_8cpp" startline="81" endline="84">AppModel::getWindowZoom</referencedby>
+        <referencedby refid="struct_app_model_1a0e6e5e29864e321a25bcd1bc8fbdcdf2" compoundref="_app_model_8cpp" startline="92" endline="96">AppModel::setWindowZoom</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1abb60faecd4f7e8bb53820028ccbb718c" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::active</definition>
+        <argsstring></argsstring>
+        <name>active</name>
+        <qualifiedname>app::id::active</qualifiedname>
+        <initializer>{ &quot;active&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="72" column="35" bodyfile="AppIdentifier.h" bodystart="72" bodyend="72"/>
+        <referencedby refid="struct_app_model_1af9e76c672704046b019df53ac5b7c2ff" compoundref="_app_model_8cpp" startline="282" endline="285">AppModel::getActiveTabIndex</referencedby>
+        <referencedby refid="struct_app_model_1a75038d249a33b5f32667b8cf1da894ed" compoundref="_app_model_8cpp" startline="287" endline="290">AppModel::setActiveTabIndex</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1ab099eb8cb8bd51cb334a0a48a405eb48" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::position</definition>
+        <argsstring></argsstring>
+        <name>position</name>
+        <qualifiedname>app::id::position</qualifiedname>
+        <initializer>{ &quot;position&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="73" column="35" bodyfile="AppIdentifier.h" bodystart="73" bodyend="73"/>
+        <referencedby refid="struct_app_model_1abe400a13f767af47666a679942ccf1c5" compoundref="_app_model_8cpp" startline="10" endline="38">AppModel::AppModel</referencedby>
+        <referencedby refid="struct_app_model_1af41a958ece0fed17ed0f1a1c444e2671" compoundref="_app_model_8cpp" startline="292" endline="295">AppModel::getTabPosition</referencedby>
+        <referencedby refid="struct_app_model_1afc32c48a7dbb67ad069e18510497e93c" compoundref="_app_model_8cpp" startline="297" endline="300">AppModel::setTabPosition</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1a7ccc5195a666d86aeb119b65f15b06cf" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::splitVertical</definition>
+        <argsstring></argsstring>
+        <name>splitVertical</name>
+        <qualifiedname>app::id::splitVertical</qualifiedname>
+        <initializer>{ &quot;splitVertical&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="74" column="35" bodyfile="AppIdentifier.h" bodystart="74" bodyend="74"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1a5014a071f402817219957b9e873f268e" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::activePaneID</definition>
+        <argsstring></argsstring>
+        <name>activePaneID</name>
+        <qualifiedname>app::id::activePaneID</qualifiedname>
+        <initializer>{ &quot;activePaneID&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="75" column="35" bodyfile="AppIdentifier.h" bodystart="75" bodyend="75"/>
+        <referencedby refid="struct_app_model_1aa6b7eb70eb7687df38613121683c5024" compoundref="_app_model_8cpp" startline="359" endline="362">AppModel::getActivePaneID</referencedby>
+        <referencedby refid="struct_app_model_1acd8609ee6b05bce137df2b703f426009" compoundref="_app_model_8cpp" startline="364" endline="367">AppModel::setActivePaneID</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1a4c1a53aecc952145f770443bc3b2c4cc" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::activePaneType</definition>
+        <argsstring></argsstring>
+        <name>activePaneType</name>
+        <qualifiedname>app::id::activePaneType</qualifiedname>
+        <initializer>{ &quot;activePaneType&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="76" column="35" bodyfile="AppIdentifier.h" bodystart="76" bodyend="76"/>
+        <referencedby refid="struct_app_model_1ab46fe2606b815955ddf9e550b4aa9359" compoundref="_app_model_8cpp" startline="369" endline="372">AppModel::getActivePaneType</referencedby>
+        <referencedby refid="struct_app_model_1a0979655baa2bb2514f824b5b2213b688" compoundref="_app_model_8cpp" startline="374" endline="377">AppModel::setActivePaneType</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1a3ea51650d77e7927b174bf0dc5cf0f5d" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::modalType</definition>
+        <argsstring></argsstring>
+        <name>modalType</name>
+        <qualifiedname>app::id::modalType</qualifiedname>
+        <initializer>{ &quot;modalType&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="77" column="35" bodyfile="AppIdentifier.h" bodystart="77" bodyend="77"/>
+        <referencedby refid="struct_app_model_1a914f66a251aa0ad0d47242253f027d8c" compoundref="_app_model_8cpp" startline="384" endline="387">AppModel::getModalType</referencedby>
+        <referencedby refid="class_status_bar_overlay_1a36a7a9d11215ee6c86c513af7a912c09" compoundref="_status_bar_overlay_8h" startline="119" endline="167">StatusBarOverlay::refresh</referencedby>
+        <referencedby refid="struct_app_model_1a3a5760411f18cfceaba0bd6970a03490" compoundref="_app_model_8cpp" startline="379" endline="382">AppModel::setModalType</referencedby>
+        <referencedby refid="class_status_bar_overlay_1a643e4131b67d2dd991c87b01f38543da" compoundref="_status_bar_overlay_8h" startline="103" endline="109">StatusBarOverlay::valueTreePropertyChanged</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1ab33051f05dd5e6585dc190b4fb0b733b" compoundref="_component_8cpp" startline="218" endline="288">whelmed::Component::valueTreePropertyChanged</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1aef98bdb7eb091fb3036b15e7e50a95a1" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::selectionType</definition>
+        <argsstring></argsstring>
+        <name>selectionType</name>
+        <qualifiedname>app::id::selectionType</qualifiedname>
+        <initializer>{ &quot;selectionType&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="78" column="35" bodyfile="AppIdentifier.h" bodystart="78" bodyend="78"/>
+        <referencedby refid="struct_app_model_1a851626b84c6f29004a1d29630d85c7a3" compoundref="_app_model_8cpp" startline="394" endline="397">AppModel::getSelectionType</referencedby>
+        <referencedby refid="class_status_bar_overlay_1a36a7a9d11215ee6c86c513af7a912c09" compoundref="_status_bar_overlay_8h" startline="119" endline="167">StatusBarOverlay::refresh</referencedby>
+        <referencedby refid="struct_app_model_1a5cde5241c339dc4966a4083fa852091e" compoundref="_app_model_8cpp" startline="389" endline="392">AppModel::setSelectionType</referencedby>
+        <referencedby refid="class_status_bar_overlay_1a643e4131b67d2dd991c87b01f38543da" compoundref="_status_bar_overlay_8h" startline="103" endline="109">StatusBarOverlay::valueTreePropertyChanged</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1a47ebe0ac537eacf5d3ba399228f4480f" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::fontFamily</definition>
+        <argsstring></argsstring>
+        <name>fontFamily</name>
+        <qualifiedname>app::id::fontFamily</qualifiedname>
+        <initializer>{ &quot;fontFamily&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="79" column="35" bodyfile="AppIdentifier.h" bodystart="79" bodyend="79"/>
+        <referencedby refid="struct_app_model_1abe400a13f767af47666a679942ccf1c5" compoundref="_app_model_8cpp" startline="10" endline="38">AppModel::AppModel</referencedby>
+        <referencedby refid="struct_app_model_1a148268915563bf57f4d8dd331bdc8af1" compoundref="_app_model_8cpp" startline="98" endline="101">AppModel::getFontFamily</referencedby>
+        <referencedby refid="struct_app_model_1a2dae0bf677d786df54592add4b6f7653" compoundref="_app_model_8cpp" startline="103" endline="106">AppModel::setFontFamily</referencedby>
+        <referencedby refid="class_main_component_1ab981f8a50bedc6595965294c12796ac6" compoundref="_main_component_8cpp" startline="350" endline="394">MainComponent::valueTreePropertyChanged</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1a4affa12e1041cbac52db6146cfeb8669" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::fontSize</definition>
+        <argsstring></argsstring>
+        <name>fontSize</name>
+        <qualifiedname>app::id::fontSize</qualifiedname>
+        <initializer>{ &quot;fontSize&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="80" column="35" bodyfile="AppIdentifier.h" bodystart="80" bodyend="80"/>
+        <referencedby refid="struct_app_model_1abe400a13f767af47666a679942ccf1c5" compoundref="_app_model_8cpp" startline="10" endline="38">AppModel::AppModel</referencedby>
+        <referencedby refid="struct_app_model_1a453da06259ecb0b83b6966771efe1f82" compoundref="_app_model_8cpp" startline="108" endline="111">AppModel::getFontSize</referencedby>
+        <referencedby refid="struct_app_model_1a73228906a27ee0e0ddd749e02c55f507" compoundref="_app_model_8cpp" startline="113" endline="116">AppModel::setFontSize</referencedby>
+        <referencedby refid="class_main_component_1ab981f8a50bedc6595965294c12796ac6" compoundref="_main_component_8cpp" startline="350" endline="394">MainComponent::valueTreePropertyChanged</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1afcd800608ba4d7e58892302a68db73cb" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::renderer</definition>
+        <argsstring></argsstring>
+        <name>renderer</name>
+        <qualifiedname>app::id::renderer</qualifiedname>
+        <initializer>{ &quot;renderer&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="81" column="35" bodyfile="AppIdentifier.h" bodystart="81" bodyend="81"/>
+        <referencedby refid="struct_app_model_1ae1b2239313dc86889de4137db2b2a19a" compoundref="_app_model_8cpp" startline="223" endline="231">AppModel::getRendererType</referencedby>
+        <referencedby refid="struct_app_model_1aae67bc48e392b48d0a269ad489a9d33e" compoundref="_app_model_8cpp" startline="233" endline="241">AppModel::setRendererType</referencedby>
+        <referencedby refid="class_main_component_1ab981f8a50bedc6595965294c12796ac6" compoundref="_main_component_8cpp" startline="350" endline="394">MainComponent::valueTreePropertyChanged</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1afc8dc371554c62051e97d078a3eaf20f" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::gpuAvailable</definition>
+        <argsstring></argsstring>
+        <name>gpuAvailable</name>
+        <qualifiedname>app::id::gpuAvailable</qualifiedname>
+        <initializer>{ &quot;gpuAvailable&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="82" column="35" bodyfile="AppIdentifier.h" bodystart="82" bodyend="82"/>
+        <referencedby refid="struct_app_model_1ac974e4042f7b19970e14c876ab0144da" compoundref="_app_model_8cpp" startline="243" endline="246">AppModel::setGpuAvailable</referencedby>
+        <referencedby refid="struct_app_model_1aae67bc48e392b48d0a269ad489a9d33e" compoundref="_app_model_8cpp" startline="233" endline="241">AppModel::setRendererType</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1abe2ca0bb855bb5ffa1f1107b91ec8ed0" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::daemonMode</definition>
+        <argsstring></argsstring>
+        <name>daemonMode</name>
+        <qualifiedname>app::id::daemonMode</qualifiedname>
+        <initializer>{ &quot;daemonMode&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="83" column="35" bodyfile="AppIdentifier.h" bodystart="83" bodyend="83"/>
+        <referencedby refid="struct_app_model_1a13a5563e524c4ff72fde7b72b11b9977" compoundref="_app_model_8cpp" startline="263" endline="266">AppModel::isDaemonMode</referencedby>
+        <referencedby refid="struct_app_model_1a1bb1a3c23e730b48fc4c86b958bb5c3d" compoundref="_app_model_8cpp" startline="258" endline="261">AppModel::setDaemonMode</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1a5dbba8dbe5bf9ef207c18905d8bae100" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::filePath</definition>
+        <argsstring></argsstring>
+        <name>filePath</name>
+        <qualifiedname>app::id::filePath</qualifiedname>
+        <initializer>{ &quot;filePath&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="84" column="35" bodyfile="AppIdentifier.h" bodystart="84" bodyend="84"/>
+        <referencedby refid="classwhelmed_1_1_component_1a847d8cf7cee861b4177ab98de0423214" compoundref="_component_8cpp" startline="106" endline="160">whelmed::Component::openFile</referencedby>
+        <referencedby refid="classwhelmed_1_1_state_1a066e375d5110a198b77ed71b9bd15b82" compoundref="_state_8cpp" startline="7" endline="18">whelmed::State::State</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1a5db3df1548793287f6642045bb68fe2a" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::displayName</definition>
+        <argsstring></argsstring>
+        <name>displayName</name>
+        <qualifiedname>app::id::displayName</qualifiedname>
+        <initializer>{ &quot;displayName&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="85" column="35" bodyfile="AppIdentifier.h" bodystart="85" bodyend="85"/>
+        <referencedby refid="classterminal_1_1_tabs_1a15a9e5789878b9646a8c026b94f33391" compoundref="_tabs_8cpp" startline="96" endline="128">terminal::Tabs::addNewTab</referencedby>
+        <referencedby refid="classterminal_1_1_tabs_1a069f19bbf6ef63d9832d2a100bb485fd" compoundref="_tabs_8cpp" startline="164" endline="177">terminal::Tabs::globalFocusChanged</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a847d8cf7cee861b4177ab98de0423214" compoundref="_component_8cpp" startline="106" endline="160">whelmed::Component::openFile</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a8f79b466828dc06141487adc1e95cac1" compoundref="_processor_8cpp" startline="250" endline="267">terminal::Processor::setDisplayName</referencedby>
+        <referencedby refid="classwhelmed_1_1_state_1a066e375d5110a198b77ed71b9bd15b82" compoundref="_state_8cpp" startline="7" endline="18">whelmed::State::State</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1a26da4c7c28fb31bec9a510aa30048c94" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::userTabName</definition>
+        <argsstring></argsstring>
+        <name>userTabName</name>
+        <qualifiedname>app::id::userTabName</qualifiedname>
+        <initializer>{ &quot;userTabName&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="86" column="35" bodyfile="AppIdentifier.h" bodystart="86" bodyend="86"/>
+        <referencedby refid="classterminal_1_1_tabs_1ae255fc335cf4f9f8e71789831717b4bc" compoundref="_tabs_8cpp" startline="440" endline="461">terminal::Tabs::renameActiveTab</referencedby>
+        <referencedby refid="classterminal_1_1_tabs_1adb98c848c15e80ef2322b7b69bbc670a" compoundref="_tabs_8cpp" startline="179" endline="195">terminal::Tabs::valueChanged</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1a8056e4239f4b22fce564a395bbbcb52a" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::scrollOffset</definition>
+        <argsstring></argsstring>
+        <name>scrollOffset</name>
+        <qualifiedname>app::id::scrollOffset</qualifiedname>
+        <initializer>{ &quot;scrollOffset&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="87" column="35" bodyfile="AppIdentifier.h" bodystart="87" bodyend="87"/>
+        <referencedby refid="classwhelmed_1_1_component_1a847d8cf7cee861b4177ab98de0423214" compoundref="_component_8cpp" startline="106" endline="160">whelmed::Component::openFile</referencedby>
+        <referencedby refid="classwhelmed_1_1_state_1a066e375d5110a198b77ed71b9bd15b82" compoundref="_state_8cpp" startline="7" endline="18">whelmed::State::State</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1a7767a9a308eb0efa1d502fefd0230c82" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::port</definition>
+        <argsstring></argsstring>
+        <name>port</name>
+        <qualifiedname>app::id::port</qualifiedname>
+        <initializer>{ &quot;port&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="88" column="35" bodyfile="AppIdentifier.h" bodystart="88" bodyend="88"/>
+        <referencedby refid="struct_app_model_1abe172951a8cc06fea4e80398618d6500" compoundref="_app_model_8cpp" startline="277" endline="280">AppModel::getPort</referencedby>
+        <referencedby refid="class_e_n_d_application_1a0e86da2920a100a680ef6dadee3a92cb" compoundref="_main_8cpp" startline="323" endline="390">ENDApplication::resolveNexusInstance</referencedby>
+        <referencedby refid="struct_app_model_1aad3903648ef251bc4c7c75617a225306" compoundref="_app_model_8cpp" startline="268" endline="275">AppModel::setPort</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1a0f3b0010a132a2b24872f2cf4356a936" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::atlasDirty</definition>
+        <argsstring></argsstring>
+        <name>atlasDirty</name>
+        <qualifiedname>app::id::atlasDirty</qualifiedname>
+        <initializer>{ &quot;atlasDirty&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="89" column="35" bodyfile="AppIdentifier.h" bodystart="89" bodyend="89"/>
+        <referencedby refid="struct_app_model_1a69f7c3a0edf15cba770d166f2b2222b8" compoundref="_app_model_8cpp" startline="218" endline="221">AppModel::consumeAtlasDirty</referencedby>
+        <referencedby refid="struct_app_model_1abe273920682ed70f9076ae15e5d7842b" compoundref="_app_model_8cpp" startline="213" endline="216">AppModel::markAtlasDirty</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1ac19777138a551143950f913c9950bc83" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::scrollbackLines</definition>
+        <argsstring></argsstring>
+        <name>scrollbackLines</name>
+        <qualifiedname>app::id::scrollbackLines</qualifiedname>
+        <initializer>{ &quot;scrollbackLines&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="90" column="35" bodyfile="AppIdentifier.h" bodystart="90" bodyend="90"/>
+        <referencedby refid="struct_app_model_1abe400a13f767af47666a679942ccf1c5" compoundref="_app_model_8cpp" startline="10" endline="38">AppModel::AppModel</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a55c3277d5426fc60a5318834bc630226" compoundref="_processor_8cpp" startline="39" endline="61">terminal::Processor::Processor</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
+        <referencedby refid="struct_app_model_1ad280d1276cb136d455b3703332875eb7" compoundref="_app_model_8cpp" startline="118" endline="121">AppModel::setScrollbackLines</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1a3c5736b11e8d56b0350faf9c6412996e" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::configGeneration</definition>
+        <argsstring></argsstring>
+        <name>configGeneration</name>
+        <qualifiedname>app::id::configGeneration</qualifiedname>
+        <initializer>{ &quot;configGeneration&quot; }</initializer>
+        <briefdescription>
+<para>Monotonic counter incremented by <ref refid="classlua_1_1_engine_1af028d4813e69b9b55d82639a3105cdb1" kindref="member">lua::Engine::reload()</ref> after each successful config load. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><ref refid="class_main_component" kindref="compound">MainComponent</ref>&apos;s VT listener detects changes and calls applyConfig() + showReloadMessage(). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="94" column="35" bodyfile="AppIdentifier.h" bodystart="94" bodyend="94"/>
+        <referencedby refid="classlua_1_1_engine_1af028d4813e69b9b55d82639a3105cdb1" compoundref="_engine_8cpp" startline="138" endline="151">lua::Engine::reload</referencedby>
+        <referencedby refid="class_main_component_1ab981f8a50bedc6595965294c12796ac6" compoundref="_main_component_8cpp" startline="350" endline="394">MainComponent::valueTreePropertyChanged</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1aceb488e669313b802438e6366c5d36cd" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::pendingMarkdownFile</definition>
+        <argsstring></argsstring>
+        <name>pendingMarkdownFile</name>
+        <qualifiedname>app::id::pendingMarkdownFile</qualifiedname>
+        <initializer>{ &quot;pendingMarkdownFile&quot; }</initializer>
+        <briefdescription>
+<para><ref refid="classPath" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Path</ref> of the .md file pending Whelmed open. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Written by LinkManager::dispatch(); consumed and cleared by Tabs::valueTreePropertyChanged on the WINDOW node. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="98" column="35" bodyfile="AppIdentifier.h" bodystart="98" bodyend="98"/>
+        <referencedby refid="classterminal_1_1_link_manager_1a31972897ab13d8ab670c6c5abd749e57" compoundref="_link_manager_8cpp" startline="139" endline="187">terminal::LinkManager::dispatch</referencedby>
+        <referencedby refid="classterminal_1_1_tabs_1ae3fe96dd1a1b0e229d60c7871b0a438b" compoundref="_tabs_8cpp" startline="504" endline="525">terminal::Tabs::valueTreePropertyChanged</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1af4b579159e05cc121f8ba57c25cf6a42" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::pendingImageFile</definition>
+        <argsstring></argsstring>
+        <name>pendingImageFile</name>
+        <qualifiedname>app::id::pendingImageFile</qualifiedname>
+        <initializer>{ &quot;pendingImageFile&quot; }</initializer>
+        <briefdescription>
+<para><ref refid="classPath" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Path</ref> of the image file pending inline open. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Written by LinkManager::dispatch(); consumed and cleared by Tabs::valueTreePropertyChanged on the WINDOW node. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="102" column="35" bodyfile="AppIdentifier.h" bodystart="102" bodyend="102"/>
+        <referencedby refid="classterminal_1_1_link_manager_1a31972897ab13d8ab670c6c5abd749e57" compoundref="_link_manager_8cpp" startline="139" endline="187">terminal::LinkManager::dispatch</referencedby>
+        <referencedby refid="classterminal_1_1_tabs_1ae3fe96dd1a1b0e229d60c7871b0a438b" compoundref="_tabs_8cpp" startline="504" endline="525">terminal::Tabs::valueTreePropertyChanged</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1a85c1e78989b72416aac80246796ad6a1" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::cellWidth</definition>
+        <argsstring></argsstring>
+        <name>cellWidth</name>
+        <qualifiedname>app::id::cellWidth</qualifiedname>
+        <initializer>{ &quot;cellWidth&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="103" column="35" bodyfile="AppIdentifier.h" bodystart="103" bodyend="103"/>
+        <referencedby refid="struct_app_model_1abe400a13f767af47666a679942ccf1c5" compoundref="_app_model_8cpp" startline="10" endline="38">AppModel::AppModel</referencedby>
+        <referencedby refid="struct_app_model_1a5fc7272cc6caa1a510d0c956f205c256" compoundref="_app_model_8cpp" startline="123" endline="126">AppModel::getCellWidth</referencedby>
+        <referencedby refid="struct_app_model_1a3f6234ea491efa3ba0e13ed5a9af75e4" compoundref="_app_model_8cpp" startline="128" endline="131">AppModel::setCellWidth</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1aae909a2bc7647e37cb3c0773f92f715d" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::lineHeight</definition>
+        <argsstring></argsstring>
+        <name>lineHeight</name>
+        <qualifiedname>app::id::lineHeight</qualifiedname>
+        <initializer>{ &quot;lineHeight&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="104" column="35" bodyfile="AppIdentifier.h" bodystart="104" bodyend="104"/>
+        <referencedby refid="struct_app_model_1abe400a13f767af47666a679942ccf1c5" compoundref="_app_model_8cpp" startline="10" endline="38">AppModel::AppModel</referencedby>
+        <referencedby refid="struct_app_model_1a78b708f95c7b81a30c9bfb4628b37aec" compoundref="_app_model_8cpp" startline="133" endline="136">AppModel::getLineHeight</referencedby>
+        <referencedby refid="struct_app_model_1ac145b163fefb0d869844801bdaa4c8bf" compoundref="_app_model_8cpp" startline="138" endline="141">AppModel::setLineHeight</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1ae4254699362f3c80bb7ef3d4e2173b14" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::cursorCodepoint</definition>
+        <argsstring></argsstring>
+        <name>cursorCodepoint</name>
+        <qualifiedname>app::id::cursorCodepoint</qualifiedname>
+        <initializer>{ &quot;cursorCodepoint&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="105" column="35" bodyfile="AppIdentifier.h" bodystart="105" bodyend="105"/>
+        <referencedby refid="struct_app_model_1abe400a13f767af47666a679942ccf1c5" compoundref="_app_model_8cpp" startline="10" endline="38">AppModel::AppModel</referencedby>
+        <referencedby refid="struct_app_model_1af02fabcbf42bda957de3b79dac0a78eb" compoundref="_app_model_8cpp" startline="143" endline="146">AppModel::getCursorCodepoint</referencedby>
+        <referencedby refid="struct_app_model_1a39175ac839f1cdf8b41bb102c84d42c8" compoundref="_app_model_8cpp" startline="148" endline="151">AppModel::setCursorCodepoint</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1a75928388a5e56aceb0d7fb5d19d609b7" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::cursorStyle</definition>
+        <argsstring></argsstring>
+        <name>cursorStyle</name>
+        <qualifiedname>app::id::cursorStyle</qualifiedname>
+        <initializer>{ &quot;cursorStyle&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="106" column="35" bodyfile="AppIdentifier.h" bodystart="106" bodyend="106"/>
+        <referencedby refid="struct_app_model_1abe400a13f767af47666a679942ccf1c5" compoundref="_app_model_8cpp" startline="10" endline="38">AppModel::AppModel</referencedby>
+        <referencedby refid="struct_app_model_1a47f5c036e7701087b9d30678735b3ec6" compoundref="_app_model_8cpp" startline="153" endline="156">AppModel::getCursorStyle</referencedby>
+        <referencedby refid="struct_app_model_1ac304758f2277b44b5b69ea99ada92d04" compoundref="_app_model_8cpp" startline="158" endline="161">AppModel::setCursorStyle</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1a85d00a0a41d472e4203061ee750ef8b7" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::cursorBlinkInterval</definition>
+        <argsstring></argsstring>
+        <name>cursorBlinkInterval</name>
+        <qualifiedname>app::id::cursorBlinkInterval</qualifiedname>
+        <initializer>{ &quot;cursorBlinkInterval&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="107" column="35" bodyfile="AppIdentifier.h" bodystart="107" bodyend="107"/>
+        <referencedby refid="struct_app_model_1abe400a13f767af47666a679942ccf1c5" compoundref="_app_model_8cpp" startline="10" endline="38">AppModel::AppModel</referencedby>
+        <referencedby refid="struct_app_model_1a5a51fd63625855b3bdbdd7fa466f232a" compoundref="_app_model_8cpp" startline="163" endline="166">AppModel::getCursorBlinkInterval</referencedby>
+        <referencedby refid="struct_app_model_1a8c682c57a734c44ede583208fbac1c82" compoundref="_app_model_8cpp" startline="168" endline="171">AppModel::setCursorBlinkInterval</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1a3208662b768447eb28e81c638a5c91d7" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::paddingTop</definition>
+        <argsstring></argsstring>
+        <name>paddingTop</name>
+        <qualifiedname>app::id::paddingTop</qualifiedname>
+        <initializer>{ &quot;paddingTop&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="108" column="35" bodyfile="AppIdentifier.h" bodystart="108" bodyend="108"/>
+        <referencedby refid="struct_app_model_1abe400a13f767af47666a679942ccf1c5" compoundref="_app_model_8cpp" startline="10" endline="38">AppModel::AppModel</referencedby>
+        <referencedby refid="struct_app_model_1aa949203f52b596440b04ae76adab7f11" compoundref="_app_model_8cpp" startline="173" endline="176">AppModel::getPaddingTop</referencedby>
+        <referencedby refid="struct_app_model_1a1c5acbd174197755b89450577edde968" compoundref="_app_model_8cpp" startline="193" endline="196">AppModel::setPaddingTop</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1a4940ac67c76c901cb06c9a0c8e7c9054" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::paddingRight</definition>
+        <argsstring></argsstring>
+        <name>paddingRight</name>
+        <qualifiedname>app::id::paddingRight</qualifiedname>
+        <initializer>{ &quot;paddingRight&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="109" column="35" bodyfile="AppIdentifier.h" bodystart="109" bodyend="109"/>
+        <referencedby refid="struct_app_model_1abe400a13f767af47666a679942ccf1c5" compoundref="_app_model_8cpp" startline="10" endline="38">AppModel::AppModel</referencedby>
+        <referencedby refid="struct_app_model_1ad2b662a4bd93e688cf7592de22f0c775" compoundref="_app_model_8cpp" startline="178" endline="181">AppModel::getPaddingRight</referencedby>
+        <referencedby refid="struct_app_model_1ab092f12f2c1cee0814e6f24d425d054f" compoundref="_app_model_8cpp" startline="198" endline="201">AppModel::setPaddingRight</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1acfa111d16fc6a40eb179b4e496247979" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::paddingBottom</definition>
+        <argsstring></argsstring>
+        <name>paddingBottom</name>
+        <qualifiedname>app::id::paddingBottom</qualifiedname>
+        <initializer>{ &quot;paddingBottom&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="110" column="35" bodyfile="AppIdentifier.h" bodystart="110" bodyend="110"/>
+        <referencedby refid="struct_app_model_1abe400a13f767af47666a679942ccf1c5" compoundref="_app_model_8cpp" startline="10" endline="38">AppModel::AppModel</referencedby>
+        <referencedby refid="struct_app_model_1a9a402d8ba04ebc4e1d6f791d39c30635" compoundref="_app_model_8cpp" startline="183" endline="186">AppModel::getPaddingBottom</referencedby>
+        <referencedby refid="struct_app_model_1a46c958c3311f69d050c0e6e31613ba7a" compoundref="_app_model_8cpp" startline="203" endline="206">AppModel::setPaddingBottom</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1a37eb7fcd4532f25ae03eea286dc63bdf" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::paddingLeft</definition>
+        <argsstring></argsstring>
+        <name>paddingLeft</name>
+        <qualifiedname>app::id::paddingLeft</qualifiedname>
+        <initializer>{ &quot;paddingLeft&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="111" column="35" bodyfile="AppIdentifier.h" bodystart="111" bodyend="111"/>
+        <referencedby refid="struct_app_model_1abe400a13f767af47666a679942ccf1c5" compoundref="_app_model_8cpp" startline="10" endline="38">AppModel::AppModel</referencedby>
+        <referencedby refid="struct_app_model_1a52e345195bfb1e87f33cd472e55fdb6c" compoundref="_app_model_8cpp" startline="188" endline="191">AppModel::getPaddingLeft</referencedby>
+        <referencedby refid="struct_app_model_1a1053e78981e1c1d287348ad06135dd42" compoundref="_app_model_8cpp" startline="208" endline="211">AppModel::setPaddingLeft</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1a4c409f870661881993ac818c73a32c82" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::blockCount</definition>
+        <argsstring></argsstring>
+        <name>blockCount</name>
+        <qualifiedname>app::id::blockCount</qualifiedname>
+        <initializer>{ &quot;blockCount&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="113" column="35" bodyfile="AppIdentifier.h" bodystart="113" bodyend="113"/>
+        <referencedby refid="classwhelmed_1_1_state_1a8aba6122fdb2ef5b27bf641ae5504dac" compoundref="_state_8cpp" startline="59" endline="79">whelmed::State::flush</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a847d8cf7cee861b4177ab98de0423214" compoundref="_component_8cpp" startline="106" endline="160">whelmed::Component::openFile</referencedby>
+        <referencedby refid="classwhelmed_1_1_state_1a066e375d5110a198b77ed71b9bd15b82" compoundref="_state_8cpp" startline="7" endline="18">whelmed::State::State</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1ab33051f05dd5e6585dc190b4fb0b733b" compoundref="_component_8cpp" startline="218" endline="288">whelmed::Component::valueTreePropertyChanged</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1ae480d402f2c4854e10a819621b23f6d0" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::parseComplete</definition>
+        <argsstring></argsstring>
+        <name>parseComplete</name>
+        <qualifiedname>app::id::parseComplete</qualifiedname>
+        <initializer>{ &quot;parseComplete&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="114" column="35" bodyfile="AppIdentifier.h" bodystart="114" bodyend="114"/>
+        <referencedby refid="classwhelmed_1_1_state_1a8aba6122fdb2ef5b27bf641ae5504dac" compoundref="_state_8cpp" startline="59" endline="79">whelmed::State::flush</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a847d8cf7cee861b4177ab98de0423214" compoundref="_component_8cpp" startline="106" endline="160">whelmed::Component::openFile</referencedby>
+        <referencedby refid="classwhelmed_1_1_state_1a066e375d5110a198b77ed71b9bd15b82" compoundref="_state_8cpp" startline="7" endline="18">whelmed::State::State</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1abad3be16444df05531528d3e30735ebd" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::totalBlocks</definition>
+        <argsstring></argsstring>
+        <name>totalBlocks</name>
+        <qualifiedname>app::id::totalBlocks</qualifiedname>
+        <initializer>{ &quot;totalBlocks&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="115" column="35" bodyfile="AppIdentifier.h" bodystart="115" bodyend="115"/>
+        <referencedby refid="classwhelmed_1_1_input_handler_1aa315da395df2d2542ce768d3de8a19b3" compoundref="_input_handler_8cpp" startline="148" endline="258">whelmed::InputHandler::handleCursorMovement</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a847d8cf7cee861b4177ab98de0423214" compoundref="_component_8cpp" startline="106" endline="160">whelmed::Component::openFile</referencedby>
+        <referencedby refid="classwhelmed_1_1_state_1a066e375d5110a198b77ed71b9bd15b82" compoundref="_state_8cpp" startline="7" endline="18">whelmed::State::State</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1ab33051f05dd5e6585dc190b4fb0b733b" compoundref="_component_8cpp" startline="218" endline="288">whelmed::Component::valueTreePropertyChanged</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1a044c24e7e6b652dbbd38a9ed2aaee9ed" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::selCursorBlock</definition>
+        <argsstring></argsstring>
+        <name>selCursorBlock</name>
+        <qualifiedname>app::id::selCursorBlock</qualifiedname>
+        <initializer>{ &quot;selCursorBlock&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="116" column="35" bodyfile="AppIdentifier.h" bodystart="116" bodyend="116"/>
+        <referencedby refid="classwhelmed_1_1_input_handler_1a13dbc7eda04a2bcbc873f86cdc7efb47" compoundref="_input_handler_8cpp" startline="282" endline="305">whelmed::InputHandler::copyAndClearSelection</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1abd70119f118c4b0e82842f01129d8c0a" compoundref="_component_8cpp" startline="182" endline="205">whelmed::Component::copySelection</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a86f04f40924c6a7c074d4200c95f7377" compoundref="_component_8cpp" startline="168" endline="180">whelmed::Component::enterSelectionMode</referencedby>
+        <referencedby refid="classwhelmed_1_1_input_handler_1aa315da395df2d2542ce768d3de8a19b3" compoundref="_input_handler_8cpp" startline="148" endline="258">whelmed::InputHandler::handleCursorMovement</referencedby>
+        <referencedby refid="classwhelmed_1_1_screen_1af535282cda6a80e3068faf89f3eab6c1" compoundref="_screen_8cpp" startline="444" endline="516">whelmed::Screen::mouseDown</referencedby>
+        <referencedby refid="classwhelmed_1_1_screen_1a06d06abb9c9f4e8064a76fdf6b6ed71b" compoundref="_screen_8cpp" startline="518" endline="545">whelmed::Screen::mouseDrag</referencedby>
+        <referencedby refid="classwhelmed_1_1_input_handler_1a5bc9a55e4a8dac5168d09cb444e31790" compoundref="_input_handler_8cpp" startline="260" endline="280">whelmed::InputHandler::toggleSelectionType</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1ab33051f05dd5e6585dc190b4fb0b733b" compoundref="_component_8cpp" startline="218" endline="288">whelmed::Component::valueTreePropertyChanged</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1a53f4e3db60bb5963c1ba6f10958e1c96" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::selCursorChar</definition>
+        <argsstring></argsstring>
+        <name>selCursorChar</name>
+        <qualifiedname>app::id::selCursorChar</qualifiedname>
+        <initializer>{ &quot;selCursorChar&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="117" column="35" bodyfile="AppIdentifier.h" bodystart="117" bodyend="117"/>
+        <referencedby refid="classwhelmed_1_1_input_handler_1a13dbc7eda04a2bcbc873f86cdc7efb47" compoundref="_input_handler_8cpp" startline="282" endline="305">whelmed::InputHandler::copyAndClearSelection</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1abd70119f118c4b0e82842f01129d8c0a" compoundref="_component_8cpp" startline="182" endline="205">whelmed::Component::copySelection</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a86f04f40924c6a7c074d4200c95f7377" compoundref="_component_8cpp" startline="168" endline="180">whelmed::Component::enterSelectionMode</referencedby>
+        <referencedby refid="classwhelmed_1_1_input_handler_1aa315da395df2d2542ce768d3de8a19b3" compoundref="_input_handler_8cpp" startline="148" endline="258">whelmed::InputHandler::handleCursorMovement</referencedby>
+        <referencedby refid="classwhelmed_1_1_screen_1af535282cda6a80e3068faf89f3eab6c1" compoundref="_screen_8cpp" startline="444" endline="516">whelmed::Screen::mouseDown</referencedby>
+        <referencedby refid="classwhelmed_1_1_screen_1a06d06abb9c9f4e8064a76fdf6b6ed71b" compoundref="_screen_8cpp" startline="518" endline="545">whelmed::Screen::mouseDrag</referencedby>
+        <referencedby refid="classwhelmed_1_1_input_handler_1a5bc9a55e4a8dac5168d09cb444e31790" compoundref="_input_handler_8cpp" startline="260" endline="280">whelmed::InputHandler::toggleSelectionType</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1ab33051f05dd5e6585dc190b4fb0b733b" compoundref="_component_8cpp" startline="218" endline="288">whelmed::Component::valueTreePropertyChanged</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1ae541c86458bee0db98858cb134c69379" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::selAnchorBlock</definition>
+        <argsstring></argsstring>
+        <name>selAnchorBlock</name>
+        <qualifiedname>app::id::selAnchorBlock</qualifiedname>
+        <initializer>{ &quot;selAnchorBlock&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="118" column="35" bodyfile="AppIdentifier.h" bodystart="118" bodyend="118"/>
+        <referencedby refid="classwhelmed_1_1_input_handler_1a13dbc7eda04a2bcbc873f86cdc7efb47" compoundref="_input_handler_8cpp" startline="282" endline="305">whelmed::InputHandler::copyAndClearSelection</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1abd70119f118c4b0e82842f01129d8c0a" compoundref="_component_8cpp" startline="182" endline="205">whelmed::Component::copySelection</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a86f04f40924c6a7c074d4200c95f7377" compoundref="_component_8cpp" startline="168" endline="180">whelmed::Component::enterSelectionMode</referencedby>
+        <referencedby refid="classwhelmed_1_1_screen_1af535282cda6a80e3068faf89f3eab6c1" compoundref="_screen_8cpp" startline="444" endline="516">whelmed::Screen::mouseDown</referencedby>
+        <referencedby refid="classwhelmed_1_1_screen_1a06d06abb9c9f4e8064a76fdf6b6ed71b" compoundref="_screen_8cpp" startline="518" endline="545">whelmed::Screen::mouseDrag</referencedby>
+        <referencedby refid="classwhelmed_1_1_input_handler_1a5bc9a55e4a8dac5168d09cb444e31790" compoundref="_input_handler_8cpp" startline="260" endline="280">whelmed::InputHandler::toggleSelectionType</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1ab33051f05dd5e6585dc190b4fb0b733b" compoundref="_component_8cpp" startline="218" endline="288">whelmed::Component::valueTreePropertyChanged</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1ab2b4791778841d9e46a8ea36c17e4266" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::selAnchorChar</definition>
+        <argsstring></argsstring>
+        <name>selAnchorChar</name>
+        <qualifiedname>app::id::selAnchorChar</qualifiedname>
+        <initializer>{ &quot;selAnchorChar&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="119" column="35" bodyfile="AppIdentifier.h" bodystart="119" bodyend="119"/>
+        <referencedby refid="classwhelmed_1_1_input_handler_1a13dbc7eda04a2bcbc873f86cdc7efb47" compoundref="_input_handler_8cpp" startline="282" endline="305">whelmed::InputHandler::copyAndClearSelection</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1abd70119f118c4b0e82842f01129d8c0a" compoundref="_component_8cpp" startline="182" endline="205">whelmed::Component::copySelection</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a86f04f40924c6a7c074d4200c95f7377" compoundref="_component_8cpp" startline="168" endline="180">whelmed::Component::enterSelectionMode</referencedby>
+        <referencedby refid="classwhelmed_1_1_screen_1af535282cda6a80e3068faf89f3eab6c1" compoundref="_screen_8cpp" startline="444" endline="516">whelmed::Screen::mouseDown</referencedby>
+        <referencedby refid="classwhelmed_1_1_screen_1a06d06abb9c9f4e8064a76fdf6b6ed71b" compoundref="_screen_8cpp" startline="518" endline="545">whelmed::Screen::mouseDrag</referencedby>
+        <referencedby refid="classwhelmed_1_1_input_handler_1a5bc9a55e4a8dac5168d09cb444e31790" compoundref="_input_handler_8cpp" startline="260" endline="280">whelmed::InputHandler::toggleSelectionType</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1ab33051f05dd5e6585dc190b4fb0b733b" compoundref="_component_8cpp" startline="218" endline="288">whelmed::Component::valueTreePropertyChanged</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1ae576c239b4056906a6e377c6362ec71e" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::type</definition>
+        <argsstring></argsstring>
+        <name>type</name>
+        <qualifiedname>app::id::type</qualifiedname>
+        <initializer>{ &quot;type&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="125" column="35" bodyfile="AppIdentifier.h" bodystart="125" bodyend="125"/>
+        <referencedby refid="struct_app_model_1adc4141a6e63d9801a6e3c027f729f74d" compoundref="_app_model_8cpp" startline="542" endline="606">AppModel::build</referencedby>
+        <referencedby refid="struct_app_model_1ac12d30deb94ace7428cfa1260a6f69d1" compoundref="_app_model_8cpp" startline="516" endline="540">AppModel::resolveAppLayoutDefault</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1aed856334ad2ab03ffca7c09fe2a9b2ce" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::defaultValue</definition>
+        <argsstring></argsstring>
+        <name>defaultValue</name>
+        <qualifiedname>app::id::defaultValue</qualifiedname>
+        <initializer>{ &quot;default&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="126" column="35" bodyfile="AppIdentifier.h" bodystart="126" bodyend="126"/>
+        <referencedby refid="struct_app_model_1ac12d30deb94ace7428cfa1260a6f69d1" compoundref="_app_model_8cpp" startline="516" endline="540">AppModel::resolveAppLayoutDefault</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1aa6a7447b396768bb1727f8be61732ea0" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::boolType</definition>
+        <argsstring></argsstring>
+        <name>boolType</name>
+        <qualifiedname>app::id::boolType</qualifiedname>
+        <initializer>{ &quot;bool&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="127" column="35" bodyfile="AppIdentifier.h" bodystart="127" bodyend="127"/>
+        <referencedby refid="struct_app_model_1ac12d30deb94ace7428cfa1260a6f69d1" compoundref="_app_model_8cpp" startline="516" endline="540">AppModel::resolveAppLayoutDefault</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1afae8fe8f9d8780b8a20d5a793a9f4c51" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::floatType</definition>
+        <argsstring></argsstring>
+        <name>floatType</name>
+        <qualifiedname>app::id::floatType</qualifiedname>
+        <initializer>{ &quot;float&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="128" column="35" bodyfile="AppIdentifier.h" bodystart="128" bodyend="128"/>
+        <referencedby refid="struct_app_model_1adc4141a6e63d9801a6e3c027f729f74d" compoundref="_app_model_8cpp" startline="542" endline="606">AppModel::build</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a7ab986ba96c3d9b8b1c8088318bc3591" compoundref="_model_8cpp" startline="49" endline="133">terminal::Model::buildLayout</referencedby>
+        <referencedby refid="struct_app_model_1ac12d30deb94ace7428cfa1260a6f69d1" compoundref="_app_model_8cpp" startline="516" endline="540">AppModel::resolveAppLayoutDefault</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1a928eb12cf0df28db87da4015df4bbfb0" prot="public" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier app::id::stringType</definition>
+        <argsstring></argsstring>
+        <name>stringType</name>
+        <qualifiedname>app::id::stringType</qualifiedname>
+        <initializer>{ &quot;string&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="129" column="35" bodyfile="AppIdentifier.h" bodystart="129" bodyend="129"/>
+        <referencedby refid="struct_app_model_1adc4141a6e63d9801a6e3c027f729f74d" compoundref="_app_model_8cpp" startline="542" endline="606">AppModel::build</referencedby>
+        <referencedby refid="struct_app_model_1ac12d30deb94ace7428cfa1260a6f69d1" compoundref="_app_model_8cpp" startline="516" endline="540">AppModel::resolveAppLayoutDefault</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceapp_1_1id_1a7af1375efbd68fbbd7695232e1c546ad" prot="public" static="yes" mutable="no">
+        <type>const juce::String</type>
+        <definition>const juce::String app::id::appMetadata</definition>
+        <argsstring></argsstring>
+        <name>appMetadata</name>
+        <qualifiedname>app::id::appMetadata</qualifiedname>
+        <initializer>{ &quot;AppParameters.xml&quot; }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="AppIdentifier.h" line="131" column="31" bodyfile="AppIdentifier.h" bodystart="131" bodyend="131"/>
+        <referencedby refid="struct_app_model_1abe400a13f767af47666a679942ccf1c5" compoundref="_app_model_8cpp" startline="10" endline="38">AppModel::AppModel</referencedby>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="AppIdentifier.h" line="46" column="1"/>
+  </compounddef>
+</doxygen>

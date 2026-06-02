@@ -1,0 +1,1540 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="structterminal_1_1_model" kind="struct" language="C++" prot="public">
+    <compoundname>terminal::Model</compoundname>
+    <basecompoundref refid="classjam_1_1_model" prot="public" virt="non-virtual">jam::Model</basecompoundref>
+    <basecompoundref prot="private" virt="non-virtual">juce::ValueTree::Listener</basecompoundref>
+    <includes refid="_model_8h" local="no">Model.h</includes>
+    <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="structterminal_1_1_model_1ac251b9d586797bd952935e1f79aaafac" prot="private" static="no" mutable="no">
+        <type>juce::ValueTree</type>
+        <definition>juce::ValueTree terminal::Model::listenedTree</definition>
+        <argsstring></argsstring>
+        <name>listenedTree</name>
+        <qualifiedname>terminal::Model::listenedTree</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="185" column="21" bodyfile="terminal/Model.h" bodystart="185" bodyend="-1"/>
+        <referencedby refid="structterminal_1_1_model_1a427730d8b641247c8c4015b740f7c3c3" compoundref="_model_8cpp" startline="7" endline="20">Model</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a5910f5e7a2b8f617cd42d07fa9d9d57b" compoundref="_model_8cpp" startline="22" endline="25">~Model</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_model_1aec857d602404999be9e38047f195cc6c" prot="private" static="no" mutable="no">
+        <type>std::unique_ptr&lt; std::atomic&lt; int &gt;[]&gt;</type>
+        <definition>std::unique_ptr&lt;std::atomic&lt;int&gt;[]&gt; terminal::Model::rowDirtyFlags</definition>
+        <argsstring></argsstring>
+        <name>rowDirtyFlags</name>
+        <qualifiedname>terminal::Model::rowDirtyFlags</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="186" column="21" bodyfile="terminal/Model.h" bodystart="186" bodyend="-1"/>
+        <referencedby refid="structterminal_1_1_model_1a5e3b83e26af6c6c7be7c16c8cd2f7cee" compoundref="_model_8cpp" startline="199" endline="207">consumeRowDirty</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a2e55cbe6698f6b3b9a5517d78bb398eb" compoundref="_model_8cpp" startline="209" endline="213">rebuildRowDirtyFlags</referencedby>
+        <referencedby refid="structterminal_1_1_model_1af9ce5323e3f635afa5176b9f0c250904" compoundref="_model_8cpp" startline="191" endline="197">setRowDirty</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_model_1a8f9bf2233d109cf4da3fdc8904b44c47" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int terminal::Model::rowDirtyCount</definition>
+        <argsstring></argsstring>
+        <name>rowDirtyCount</name>
+        <qualifiedname>terminal::Model::rowDirtyCount</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="187" column="9" bodyfile="terminal/Model.h" bodystart="187" bodyend="187"/>
+        <referencedby refid="structterminal_1_1_model_1a5e3b83e26af6c6c7be7c16c8cd2f7cee" compoundref="_model_8cpp" startline="199" endline="207">consumeRowDirty</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a2e55cbe6698f6b3b9a5517d78bb398eb" compoundref="_model_8cpp" startline="209" endline="213">rebuildRowDirtyFlags</referencedby>
+        <referencedby refid="structterminal_1_1_model_1af9ce5323e3f635afa5176b9f0c250904" compoundref="_model_8cpp" startline="191" endline="197">setRowDirty</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_model_1a4a59e2e5bdad31dfced6e8f753dd4251" prot="private" static="no" mutable="no">
+        <type><ref refid="structterminal_1_1_text_buffer" kindref="compound">TextBuffer</ref> &amp;</type>
+        <definition>TextBuffer&amp; terminal::Model::textBuffer</definition>
+        <argsstring></argsstring>
+        <name>textBuffer</name>
+        <qualifiedname>terminal::Model::textBuffer</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="194" column="16" bodyfile="terminal/Model.h" bodystart="194" bodyend="-1"/>
+        <referencedby refid="structterminal_1_1_model_1a427730d8b641247c8c4015b740f7c3c3" compoundref="_model_8cpp" startline="7" endline="20">Model</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a77b39c03cb2601687a4978d8df3d3415" compoundref="_model_8cpp" startline="300" endline="304">setCwd</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a8bc5f83f625fe7cd18314d199f0cc500" compoundref="_model_8cpp" startline="306" endline="310">setForegroundProcess</referencedby>
+        <referencedby refid="structterminal_1_1_model_1aa0e2b35761335b2e03a4ba2f5a4abff5" compoundref="_model_8cpp" startline="294" endline="298">setTitle</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="public-func">
+      <memberdef kind="function" id="structterminal_1_1_model_1a427730d8b641247c8c4015b740f7c3c3" prot="public" static="no" const="no" explicit="yes" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>terminal::Model::Model</definition>
+        <argsstring>(TextBuffer &amp;textBuffer)</argsstring>
+        <name>Model</name>
+        <qualifiedname>terminal::Model::Model</qualifiedname>
+        <param>
+          <type><ref refid="structterminal_1_1_text_buffer" kindref="compound">TextBuffer</ref> &amp;</type>
+          <declname>textBuffer</declname>
+        </param>
+        <briefdescription>
+<para>Constructs the <ref refid="structterminal_1_1_model" kindref="compound">Model</ref>, walks Parameters.xml via buildLayout, populates the parameter map, and starts the flush timer at 60 Hz. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="structterminal_1_1_model_1a4a59e2e5bdad31dfced6e8f753dd4251" kindref="member">textBuffer</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Session-owned double-buffered string storage. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="note"><para>MESSAGE THREAD. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="73" column="14" bodyfile="terminal/Model.cpp" bodystart="7" bodyend="20"/>
+        <references refid="structterminal_1_1_model_1a7ab986ba96c3d9b8b1c8088318bc3591" compoundref="_model_8cpp" startline="49" endline="133">buildLayout</references>
+        <references refid="structjam_1_1_x_m_l_1ab72ff5ef57aaff253543c25a857ffdfb">jam::XML::getFromBinary</references>
+        <references refid="group__juce__core-system_1ga1f96ab6751237979b907a54f52a7296a">jassert</references>
+        <references refid="structterminal_1_1_model_1ac251b9d586797bd952935e1f79aaafac" compoundref="_model_8h" startline="185">listenedTree</references>
+        <references refid="structterminal_1_1_model_1a427730d8b641247c8c4015b740f7c3c3" compoundref="_model_8cpp" startline="7" endline="20">Model</references>
+        <references refid="structjam_1_1_i_dref_1a5ed3505774a19c7a59140a43a275bb48">jam::IDref::parametersXml</references>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+        <references refid="structterminal_1_1_model_1a4a59e2e5bdad31dfced6e8f753dd4251" compoundref="_model_8h" startline="194">textBuffer</references>
+        <referencedby refid="structterminal_1_1_model_1a427730d8b641247c8c4015b740f7c3c3" compoundref="_model_8cpp" startline="7" endline="20">Model</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1a5910f5e7a2b8f617cd42d07fa9d9d57b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>terminal::Model::~Model</definition>
+        <argsstring>() override</argsstring>
+        <name>~Model</name>
+        <qualifiedname>terminal::Model::~Model</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="note"><para>MESSAGE THREAD. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="76" column="5" bodyfile="terminal/Model.cpp" bodystart="22" bodyend="25"/>
+        <references refid="structterminal_1_1_model_1ac251b9d586797bd952935e1f79aaafac" compoundref="_model_8h" startline="185">listenedTree</references>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1aef97b8774a8b4bd87be42862a1693c40" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void terminal::Model::addTextParameter</definition>
+        <argsstring>(const juce::Identifier &amp;id, juce::ValueTree &amp;rootNode) noexcept</argsstring>
+        <name>addTextParameter</name>
+        <qualifiedname>terminal::Model::addTextParameter</qualifiedname>
+        <param>
+          <type>const juce::Identifier &amp;</type>
+          <declname>id</declname>
+        </param>
+        <param>
+          <type>juce::ValueTree &amp;</type>
+          <declname>rootNode</declname>
+        </param>
+        <briefdescription>
+<para>Creates one <ref refid="structjam_1_1_parameter" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Parameter&lt;const char*&gt;</ref> for a TEXT parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The parameter flushes to a direct property on rootNode (not a PARAM child).</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="namespaceterminal_1_1id" kindref="compound">id</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Property identifier (e.g. <ref refid="namespaceterminal_1_1id_1a3a9b532716e8f0ab83ae7b5366ec579c" kindref="member">id::title</ref>). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rootNode</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The SESSION <ref refid="classValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ValueTree</ref> node (direct property target). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="note"><para>MESSAGE THREAD — called from constructor only. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="91" column="10" bodyfile="terminal/Model.cpp" bodystart="135" bodyend="139"/>
+        <references refid="classjam_1_1_model_1a9be603e3c0a76e1f0b6c263066993b63">jam::Model::params</references>
+        <references refid="namespaceterminal_1_1id_1a9ca6b6efc0a9c3a15bc0d0f78b60e90d" compoundref="_identifier_8h" startline="82" endline="82">terminal::id::SESSION</references>
+        <referencedby refid="structterminal_1_1_model_1a7ab986ba96c3d9b8b1c8088318bc3591" compoundref="_model_8cpp" startline="49" endline="133">buildLayout</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1a5a968e0265a15111364653f43364c782" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void terminal::Model::registerNodeAtomics</definition>
+        <argsstring>(juce::ValueTree &amp;node) noexcept</argsstring>
+        <name>registerNodeAtomics</name>
+        <qualifiedname>terminal::Model::registerNodeAtomics</qualifiedname>
+        <param>
+          <type>juce::ValueTree &amp;</type>
+          <declname>node</declname>
+        </param>
+        <briefdescription>
+<para>Registers atomic mirrors for all int properties on a grafted node. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Group key = node type. Called automatically on child addition. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="95" column="10" bodyfile="terminal/Model.cpp" bodystart="147" bodyend="171"/>
+        <references refid="classjam_1_1_model_1aa75f9afb83415f989c962cf77022bcf3">jam::Model::addParameter</references>
+        <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682cadb0f6f37ebeb6ea09489124345af2a45">group</references>
+        <references refid="classjam_1_1_model_1a9be603e3c0a76e1f0b6c263066993b63">jam::Model::params</references>
+        <referencedby refid="structterminal_1_1_model_1a03923f3203c09d898e0c6d67c037593d" compoundref="_model_8cpp" startline="141" endline="145">valueTreeChildAdded</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1a34ae5e9c536e91f0f0058bdbf3f6ef84" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool terminal::Model::getMode</definition>
+        <argsstring>(const juce::Identifier &amp;id) const noexcept</argsstring>
+        <name>getMode</name>
+        <qualifiedname>terminal::Model::getMode</qualifiedname>
+        <param>
+          <type>const juce::Identifier &amp;</type>
+          <declname>id</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="101" column="10" bodyfile="terminal/Model.cpp" bodystart="224" bodyend="229"/>
+        <references refid="classjam_1_1_model_1a2f037e88407eb8b95b9ab7daf7c0b15c">jam::Model::getValueFromChildWithID</references>
+        <references refid="group__juce__events-messages_1gad2ae2032071a26beb5fb05a3745b8faf">JUCE_ASSERT_MESSAGE_THREAD</references>
+        <references refid="namespaceterminal_1_1id_1a79a59a405b5e0ea4bd4bdc099abf47b2" compoundref="_identifier_8h" startline="85" endline="85">terminal::id::MODES</references>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1aded6fea0a6e67962a83f0b00f605d610" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int terminal::Model::getActiveScreen</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>getActiveScreen</name>
+        <qualifiedname>terminal::Model::getActiveScreen</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="102" column="9" bodyfile="terminal/Model.cpp" bodystart="231" bodyend="235"/>
+        <references refid="namespaceterminal_1_1id_1ad9fd72b61b4ec96b2a652a7762f89ac3" compoundref="_identifier_8h" startline="129" endline="129">terminal::id::activeScreen</references>
+        <references refid="classjam_1_1_model_1a2f037e88407eb8b95b9ab7daf7c0b15c">jam::Model::getValueFromChildWithID</references>
+        <references refid="group__juce__events-messages_1gad2ae2032071a26beb5fb05a3745b8faf">JUCE_ASSERT_MESSAGE_THREAD</references>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+        <referencedby refid="structterminal_1_1_model_1a08662bcf8f5c5e2abbd0a5350dc09037" compoundref="_model_8cpp" startline="348" endline="357">hasOutputBlock</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1a735f6c3e59fb6898d1f750e2a9eab94f" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref></type>
+        <definition>cell terminal::Model::getCols</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>getCols</name>
+        <qualifiedname>terminal::Model::getCols</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="104" column="10" bodyfile="terminal/Model.cpp" bodystart="252" bodyend="257"/>
+        <references refid="classjam_1_1_code_view_1a93a5ced4b1717717dac8f5d07a4a4f9ca921134cac19521591ed4ad00784c9ea9">jam::CodeView::codeViewId</references>
+        <references refid="structjam_1_1_cell_1_1_rectangle_1a840c42ca4c36a43986eb1c931bc5f7d0">jam::Cell::Rectangle::getWidth</references>
+        <references refid="classjam_1_1_code_view_1a6360f1b4243ed6ade7dde533ed2624bb">jam::CodeView::properties</references>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+        <references refid="structjam_1_1_cell_1_1_rectangle_1a746f7df97a44a4bbd261a8362b7f696a">jam::Cell::Rectangle::unpack</references>
+        <references refid="classjam_1_1_code_view_1a93a5ced4b1717717dac8f5d07a4a4f9ca135d88d1984394ef6f9b2da476de4e03">jam::CodeView::viewportId</references>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1a72a57e537581551b615687dabaa15c53" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref></type>
+        <definition>cell terminal::Model::getVisibleRows</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>getVisibleRows</name>
+        <qualifiedname>terminal::Model::getVisibleRows</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="105" column="10" bodyfile="terminal/Model.cpp" bodystart="259" bodyend="264"/>
+        <references refid="classjam_1_1_code_view_1a93a5ced4b1717717dac8f5d07a4a4f9ca921134cac19521591ed4ad00784c9ea9">jam::CodeView::codeViewId</references>
+        <references refid="structjam_1_1_cell_1_1_rectangle_1a6fd3c1980b15bde3963479e0d23a938f">jam::Cell::Rectangle::getHeight</references>
+        <references refid="classjam_1_1_code_view_1a6360f1b4243ed6ade7dde533ed2624bb">jam::CodeView::properties</references>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+        <references refid="structjam_1_1_cell_1_1_rectangle_1a746f7df97a44a4bbd261a8362b7f696a">jam::Cell::Rectangle::unpack</references>
+        <references refid="classjam_1_1_code_view_1a93a5ced4b1717717dac8f5d07a4a4f9ca135d88d1984394ef6f9b2da476de4e03">jam::CodeView::viewportId</references>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1a87aa381a2183e84203b6e366f5ea9a03" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>juce::String</type>
+        <definition>juce::String terminal::Model::getTitle</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>getTitle</name>
+        <qualifiedname>terminal::Model::getTitle</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="107" column="18" bodyfile="terminal/Model.cpp" bodystart="266" bodyend="270"/>
+        <references refid="group__juce__events-messages_1gad2ae2032071a26beb5fb05a3745b8faf">JUCE_ASSERT_MESSAGE_THREAD</references>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+        <references refid="namespaceterminal_1_1id_1a3a9b532716e8f0ab83ae7b5366ec579c" compoundref="_identifier_8h" startline="154" endline="154">terminal::id::title</references>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1a25ba72627e3bd4ab113b200db5db3e94" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>juce::String</type>
+        <definition>juce::String terminal::Model::getCwd</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>getCwd</name>
+        <qualifiedname>terminal::Model::getCwd</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="108" column="18" bodyfile="terminal/Model.cpp" bodystart="272" bodyend="276"/>
+        <references refid="namespaceterminal_1_1id_1a0d551d759a87363c22a6d1712cf26cd9" compoundref="_identifier_8h" startline="157" endline="157">terminal::id::cwd</references>
+        <references refid="group__juce__events-messages_1gad2ae2032071a26beb5fb05a3745b8faf">JUCE_ASSERT_MESSAGE_THREAD</references>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1a5ed4c561122970956425e400560a2b54" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>juce::String</type>
+        <definition>juce::String terminal::Model::getForegroundProcess</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>getForegroundProcess</name>
+        <qualifiedname>terminal::Model::getForegroundProcess</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="109" column="18" bodyfile="terminal/Model.cpp" bodystart="278" bodyend="282"/>
+        <references refid="namespaceterminal_1_1id_1adb1918ba2082b206d57bc4e3f969a5b0" compoundref="_identifier_8h" startline="160" endline="160">terminal::id::foregroundProcess</references>
+        <references refid="group__juce__events-messages_1gad2ae2032071a26beb5fb05a3745b8faf">JUCE_ASSERT_MESSAGE_THREAD</references>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1a3a0252dd50dd3de170de4f60cf00a6e6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void terminal::Model::setId</definition>
+        <argsstring>(const juce::String &amp;uuid)</argsstring>
+        <name>setId</name>
+        <qualifiedname>terminal::Model::setId</qualifiedname>
+        <param>
+          <type>const juce::String &amp;</type>
+          <declname>uuid</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="115" column="10" bodyfile="terminal/Model.cpp" bodystart="288" bodyend="288"/>
+        <references refid="structjam_1_1_i_d_1a94afe032a3af21e6f22fb73c9625b60a">jam::ID::id</references>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1ab66e64775abf6c51f8250df8c50461cb" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void terminal::Model::setScreen</definition>
+        <argsstring>(int s) noexcept</argsstring>
+        <name>setScreen</name>
+        <qualifiedname>terminal::Model::setScreen</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="117" column="10" bodyfile="terminal/Model.cpp" bodystart="290" bodyend="290"/>
+        <references refid="namespaceterminal_1_1id_1ad9fd72b61b4ec96b2a652a7762f89ac3" compoundref="_identifier_8h" startline="129" endline="129">terminal::id::activeScreen</references>
+        <references refid="namespaceterminal_1_1id_1a9ca6b6efc0a9c3a15bc0d0f78b60e90d" compoundref="_identifier_8h" startline="82" endline="82">terminal::id::SESSION</references>
+        <references refid="structterminal_1_1_model_1ae2ada044b1923f232b03ba371f1fa578" compoundref="_model_8cpp" startline="177" endline="180">storeValue</references>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1ad500ddcb5ed1166edddc88c7b4e089c0" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void terminal::Model::setMode</definition>
+        <argsstring>(const juce::Identifier &amp;id, bool value) noexcept</argsstring>
+        <name>setMode</name>
+        <qualifiedname>terminal::Model::setMode</qualifiedname>
+        <param>
+          <type>const juce::Identifier &amp;</type>
+          <declname>id</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="118" column="10" bodyfile="terminal/Model.cpp" bodystart="292" bodyend="292"/>
+        <references refid="namespaceterminal_1_1id_1a79a59a405b5e0ea4bd4bdc099abf47b2" compoundref="_identifier_8h" startline="85" endline="85">terminal::id::MODES</references>
+        <references refid="structterminal_1_1_model_1ae2ada044b1923f232b03ba371f1fa578" compoundref="_model_8cpp" startline="177" endline="180">storeValue</references>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1aa0e2b35761335b2e03a4ba2f5a4abff5" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void terminal::Model::setTitle</definition>
+        <argsstring>(const char *src, int length) noexcept</argsstring>
+        <name>setTitle</name>
+        <qualifiedname>terminal::Model::setTitle</qualifiedname>
+        <param>
+          <type>const char *</type>
+          <declname>src</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>length</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="120" column="10" bodyfile="terminal/Model.cpp" bodystart="294" bodyend="298"/>
+        <references refid="namespaceterminal_1_1id_1a9ca6b6efc0a9c3a15bc0d0f78b60e90d" compoundref="_identifier_8h" startline="82" endline="82">terminal::id::SESSION</references>
+        <references refid="structterminal_1_1_model_1ae49c1f8c5de0987061e27c6be212f248" compoundref="_model_8cpp" startline="215" endline="218">storeTextValue</references>
+        <references refid="structterminal_1_1_model_1a4a59e2e5bdad31dfced6e8f753dd4251" compoundref="_model_8h" startline="194">textBuffer</references>
+        <references refid="namespaceterminal_1_1id_1a3a9b532716e8f0ab83ae7b5366ec579c" compoundref="_identifier_8h" startline="154" endline="154">terminal::id::title</references>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1a77b39c03cb2601687a4978d8df3d3415" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void terminal::Model::setCwd</definition>
+        <argsstring>(const char *src, int length) noexcept</argsstring>
+        <name>setCwd</name>
+        <qualifiedname>terminal::Model::setCwd</qualifiedname>
+        <param>
+          <type>const char *</type>
+          <declname>src</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>length</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="121" column="10" bodyfile="terminal/Model.cpp" bodystart="300" bodyend="304"/>
+        <references refid="namespaceterminal_1_1id_1a0d551d759a87363c22a6d1712cf26cd9" compoundref="_identifier_8h" startline="157" endline="157">terminal::id::cwd</references>
+        <references refid="namespaceterminal_1_1id_1a9ca6b6efc0a9c3a15bc0d0f78b60e90d" compoundref="_identifier_8h" startline="82" endline="82">terminal::id::SESSION</references>
+        <references refid="structterminal_1_1_model_1ae49c1f8c5de0987061e27c6be212f248" compoundref="_model_8cpp" startline="215" endline="218">storeTextValue</references>
+        <references refid="structterminal_1_1_model_1a4a59e2e5bdad31dfced6e8f753dd4251" compoundref="_model_8h" startline="194">textBuffer</references>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1a8bc5f83f625fe7cd18314d199f0cc500" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void terminal::Model::setForegroundProcess</definition>
+        <argsstring>(const char *src, int length) noexcept</argsstring>
+        <name>setForegroundProcess</name>
+        <qualifiedname>terminal::Model::setForegroundProcess</qualifiedname>
+        <param>
+          <type>const char *</type>
+          <declname>src</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>length</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="122" column="10" bodyfile="terminal/Model.cpp" bodystart="306" bodyend="310"/>
+        <references refid="namespaceterminal_1_1id_1adb1918ba2082b206d57bc4e3f969a5b0" compoundref="_identifier_8h" startline="160" endline="160">terminal::id::foregroundProcess</references>
+        <references refid="namespaceterminal_1_1id_1a9ca6b6efc0a9c3a15bc0d0f78b60e90d" compoundref="_identifier_8h" startline="82" endline="82">terminal::id::SESSION</references>
+        <references refid="structterminal_1_1_model_1ae49c1f8c5de0987061e27c6be212f248" compoundref="_model_8cpp" startline="215" endline="218">storeTextValue</references>
+        <references refid="structterminal_1_1_model_1a4a59e2e5bdad31dfced6e8f753dd4251" compoundref="_model_8h" startline="194">textBuffer</references>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1a7ab986ba96c3d9b8b1c8088318bc3591" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void terminal::Model::buildLayout</definition>
+        <argsstring>(const juce::XmlElement &amp;xml, TextBuffer &amp;textBuffer)</argsstring>
+        <name>buildLayout</name>
+        <qualifiedname>terminal::Model::buildLayout</qualifiedname>
+        <param>
+          <type>const juce::XmlElement &amp;</type>
+          <declname>xml</declname>
+        </param>
+        <param>
+          <type><ref refid="structterminal_1_1_text_buffer" kindref="compound">TextBuffer</ref> &amp;</type>
+          <declname>textBuffer</declname>
+        </param>
+        <briefdescription>
+<para>Builds the parameter schema from XML into this <ref refid="structterminal_1_1_model" kindref="compound">Model</ref>&apos;s <ref refid="classValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ValueTree</ref> and AnyMap. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>xml</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Parsed AppParameters XML element. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="structterminal_1_1_model_1a4a59e2e5bdad31dfced6e8f753dd4251" kindref="member">textBuffer</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="structterminal_1_1_text_buffer" kindref="compound">TextBuffer</ref> for TEXT parameter slot registration. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="128" column="10" bodyfile="terminal/Model.cpp" bodystart="49" bodyend="133"/>
+        <references refid="classjam_1_1_model_1aa75f9afb83415f989c962cf77022bcf3">jam::Model::addParameter</references>
+        <references refid="structterminal_1_1_text_buffer_1a0f896d193583d8f6fdc08c2c520b194c" compoundref="_text_buffer_8h" startline="37" endline="40">terminal::TextBuffer::addSlot</references>
+        <references refid="structterminal_1_1_model_1aef97b8774a8b4bd87be42862a1693c40" compoundref="_model_8cpp" startline="135" endline="139">addTextParameter</references>
+        <references refid="struct_map_1_1_screen_1a8056c9409ef123c5e432c77dbcd03f11" compoundref="_map_8h" startline="37" endline="37">Map::Screen::count</references>
+        <references refid="namespaceterminal_1_1id_1aad8c2aa01ce7bfe28bd953f034a19bf1" compoundref="_identifier_8h" startline="116" endline="116">terminal::id::defaultValue</references>
+        <references refid="namespaceapp_1_1id_1afae8fe8f9d8780b8a20d5a793a9f4c51" compoundref="_app_identifier_8h" startline="128" endline="128">app::id::floatType</references>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Derived &gt;::getContext</references>
+        <references refid="namespaceterminal_1_1id_1a4cea21a405bc847e5f7b62e8957dda2f" compoundref="_identifier_8h" startline="107" endline="107">terminal::id::id</references>
+        <references refid="namespaceterminal_1_1id_1a5aa9ecf280801ec96645cec4e3be918e" compoundref="_identifier_8h" startline="119" endline="119">terminal::id::maxlen</references>
+        <references refid="namespaceterminal_1_1id_1a79a59a405b5e0ea4bd4bdc099abf47b2" compoundref="_identifier_8h" startline="85" endline="85">terminal::id::MODES</references>
+        <references refid="classjam_1_1_model_1a6c1ba6e01db247659a686aeb09fba0d9">jam::Model::PARAM</references>
+        <references refid="classjam_1_1_model_1a9be603e3c0a76e1f0b6c263066993b63">jam::Model::params</references>
+        <references refid="structterminal_1_1_model_1a5519c794b349ea904e4a2bf7b41dc037" compoundref="_model_8cpp" startline="31" endline="47">resolveLayoutDefault</references>
+        <references refid="namespaceterminal_1_1id_1a691c402e18573ecfd2ea1d4853623309" compoundref="_identifier_8h" startline="97" endline="97">terminal::id::SCREEN</references>
+        <references refid="namespaceterminal_1_1id_1a9ca6b6efc0a9c3a15bc0d0f78b60e90d" compoundref="_identifier_8h" startline="82" endline="82">terminal::id::SESSION</references>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+        <references refid="namespaceterminal_1_1id_1a0cf58abbb081dca5e4e44d69619a2360" compoundref="_identifier_8h" startline="94" endline="94">terminal::id::TEXT</references>
+        <references refid="namespaceterminal_1_1id_1ae236049709c3ebc0363a57f7390c905c" compoundref="_identifier_8h" startline="113" endline="113">terminal::id::type</references>
+        <referencedby refid="structterminal_1_1_model_1a427730d8b641247c8c4015b740f7c3c3" compoundref="_model_8cpp" startline="7" endline="20">Model</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1ab9c597923e8fdcb8240709c4d856f160" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void terminal::Model::setOutputBlockStart</definition>
+        <argsstring>(cell row) noexcept</argsstring>
+        <name>setOutputBlockStart</name>
+        <qualifiedname>terminal::Model::setOutputBlockStart</qualifiedname>
+        <param>
+          <type><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref></type>
+          <declname>row</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="131" column="10" bodyfile="terminal/Model.cpp" bodystart="316" bodyend="321"/>
+        <references refid="namespaceterminal_1_1id_1a75b7028846845226a7194bfa2a594be1" compoundref="_identifier_8h" startline="237" endline="237">terminal::id::outputBlockBottom</references>
+        <references refid="namespaceterminal_1_1id_1a2543ac3ae5aeaafa5ab1bf26cbdfb3f7" compoundref="_identifier_8h" startline="234" endline="234">terminal::id::outputBlockTop</references>
+        <references refid="namespaceterminal_1_1id_1acd1a21b7aba402cd89cc7c25d12c995f" compoundref="_identifier_8h" startline="240" endline="240">terminal::id::outputScanActive</references>
+        <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d">row</references>
+        <references refid="namespaceterminal_1_1id_1a9ca6b6efc0a9c3a15bc0d0f78b60e90d" compoundref="_identifier_8h" startline="82" endline="82">terminal::id::SESSION</references>
+        <references refid="structterminal_1_1_model_1ae2ada044b1923f232b03ba371f1fa578" compoundref="_model_8cpp" startline="177" endline="180">storeValue</references>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1af0e21e00d90bbc9b343143edccc328f4" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void terminal::Model::setOutputBlockEnd</definition>
+        <argsstring>(cell row) noexcept</argsstring>
+        <name>setOutputBlockEnd</name>
+        <qualifiedname>terminal::Model::setOutputBlockEnd</qualifiedname>
+        <param>
+          <type><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref></type>
+          <declname>row</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="132" column="10" bodyfile="terminal/Model.cpp" bodystart="323" bodyend="327"/>
+        <references refid="namespaceterminal_1_1id_1a75b7028846845226a7194bfa2a594be1" compoundref="_identifier_8h" startline="237" endline="237">terminal::id::outputBlockBottom</references>
+        <references refid="namespaceterminal_1_1id_1acd1a21b7aba402cd89cc7c25d12c995f" compoundref="_identifier_8h" startline="240" endline="240">terminal::id::outputScanActive</references>
+        <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d">row</references>
+        <references refid="namespaceterminal_1_1id_1a9ca6b6efc0a9c3a15bc0d0f78b60e90d" compoundref="_identifier_8h" startline="82" endline="82">terminal::id::SESSION</references>
+        <references refid="structterminal_1_1_model_1ae2ada044b1923f232b03ba371f1fa578" compoundref="_model_8cpp" startline="177" endline="180">storeValue</references>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1a1bcc24d11a98aa621b738ce796a8cecc" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void terminal::Model::extendOutputBlock</definition>
+        <argsstring>(cell row) noexcept</argsstring>
+        <name>extendOutputBlock</name>
+        <qualifiedname>terminal::Model::extendOutputBlock</qualifiedname>
+        <param>
+          <type><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref></type>
+          <declname>row</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="133" column="10" bodyfile="terminal/Model.cpp" bodystart="329" bodyend="335"/>
+        <references refid="classjam_1_1_any_map_1addb59b648e62157728770b864eddb613">jam::AnyMap::get</references>
+        <references refid="namespaceterminal_1_1id_1a75b7028846845226a7194bfa2a594be1" compoundref="_identifier_8h" startline="237" endline="237">terminal::id::outputBlockBottom</references>
+        <references refid="namespaceterminal_1_1id_1acd1a21b7aba402cd89cc7c25d12c995f" compoundref="_identifier_8h" startline="240" endline="240">terminal::id::outputScanActive</references>
+        <references refid="classjam_1_1_model_1a9be603e3c0a76e1f0b6c263066993b63">jam::Model::params</references>
+        <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d">row</references>
+        <references refid="namespaceterminal_1_1id_1a9ca6b6efc0a9c3a15bc0d0f78b60e90d" compoundref="_identifier_8h" startline="82" endline="82">terminal::id::SESSION</references>
+        <references refid="structterminal_1_1_model_1ae2ada044b1923f232b03ba371f1fa578" compoundref="_model_8cpp" startline="177" endline="180">storeValue</references>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1a830c4954526c2fee16df30f8c213917f" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void terminal::Model::setPromptRow</definition>
+        <argsstring>(cell row) noexcept</argsstring>
+        <name>setPromptRow</name>
+        <qualifiedname>terminal::Model::setPromptRow</qualifiedname>
+        <param>
+          <type><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref></type>
+          <declname>row</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="134" column="10" bodyfile="terminal/Model.cpp" bodystart="337" bodyend="337"/>
+        <references refid="namespaceterminal_1_1id_1afb69df17fc87c56e23116b7df4409258" compoundref="_identifier_8h" startline="243" endline="243">terminal::id::promptRow</references>
+        <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d">row</references>
+        <references refid="namespaceterminal_1_1id_1a9ca6b6efc0a9c3a15bc0d0f78b60e90d" compoundref="_identifier_8h" startline="82" endline="82">terminal::id::SESSION</references>
+        <references refid="structterminal_1_1_model_1ae2ada044b1923f232b03ba371f1fa578" compoundref="_model_8cpp" startline="177" endline="180">storeValue</references>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1a7f3c8d52e5b62960ea217e70f83439d1" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref></type>
+        <definition>cell terminal::Model::getOutputBlockTop</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>getOutputBlockTop</name>
+        <qualifiedname>terminal::Model::getOutputBlockTop</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="135" column="10" bodyfile="terminal/Model.cpp" bodystart="339" bodyend="339"/>
+        <references refid="namespaceterminal_1ad3581f9d2e9f579bf01422fe6fe04958" compoundref="_model_8cpp" startline="238" endline="250">terminal::getSessionParamInt</references>
+        <references refid="namespaceterminal_1_1id_1a2543ac3ae5aeaafa5ab1bf26cbdfb3f7" compoundref="_identifier_8h" startline="234" endline="234">terminal::id::outputBlockTop</references>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+        <referencedby refid="structterminal_1_1_model_1a08662bcf8f5c5e2abbd0a5350dc09037" compoundref="_model_8cpp" startline="348" endline="357">hasOutputBlock</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1a9d77594f5ccf9ac9eb0b306b0fb2147d" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref></type>
+        <definition>cell terminal::Model::getOutputBlockBottom</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>getOutputBlockBottom</name>
+        <qualifiedname>terminal::Model::getOutputBlockBottom</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="136" column="10" bodyfile="terminal/Model.cpp" bodystart="341" bodyend="344"/>
+        <references refid="namespaceterminal_1ad3581f9d2e9f579bf01422fe6fe04958" compoundref="_model_8cpp" startline="238" endline="250">terminal::getSessionParamInt</references>
+        <references refid="namespaceterminal_1_1id_1a75b7028846845226a7194bfa2a594be1" compoundref="_identifier_8h" startline="237" endline="237">terminal::id::outputBlockBottom</references>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1aac6ceeff8f0e530370b29d8dcf8be665" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref></type>
+        <definition>cell terminal::Model::getPromptRow</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>getPromptRow</name>
+        <qualifiedname>terminal::Model::getPromptRow</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="137" column="10" bodyfile="terminal/Model.cpp" bodystart="346" bodyend="346"/>
+        <references refid="namespaceterminal_1ad3581f9d2e9f579bf01422fe6fe04958" compoundref="_model_8cpp" startline="238" endline="250">terminal::getSessionParamInt</references>
+        <references refid="namespaceterminal_1_1id_1afb69df17fc87c56e23116b7df4409258" compoundref="_identifier_8h" startline="243" endline="243">terminal::id::promptRow</references>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+        <referencedby refid="structterminal_1_1_model_1a08662bcf8f5c5e2abbd0a5350dc09037" compoundref="_model_8cpp" startline="348" endline="357">hasOutputBlock</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1a08662bcf8f5c5e2abbd0a5350dc09037" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool terminal::Model::hasOutputBlock</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>hasOutputBlock</name>
+        <qualifiedname>terminal::Model::hasOutputBlock</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="138" column="10" bodyfile="terminal/Model.cpp" bodystart="348" bodyend="357"/>
+        <references refid="structterminal_1_1_model_1aded6fea0a6e67962a83f0b00f605d610" compoundref="_model_8cpp" startline="231" endline="235">getActiveScreen</references>
+        <references refid="structterminal_1_1_model_1a7f3c8d52e5b62960ea217e70f83439d1" compoundref="_model_8cpp" startline="339" endline="339">getOutputBlockTop</references>
+        <references refid="structterminal_1_1_model_1aac6ceeff8f0e530370b29d8dcf8be665" compoundref="_model_8cpp" startline="346" endline="346">getPromptRow</references>
+        <references refid="group__juce__events-messages_1gad2ae2032071a26beb5fb05a3745b8faf">JUCE_ASSERT_MESSAGE_THREAD</references>
+        <references refid="struct_map_1_1_screen_1ae896a8da63494212bf03476a7240bcd7a52c265899cc5ae22da8996f5f35e32b7" compoundref="_map_8h" startline="41">Map::Screen::normal</references>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1a2c0394042e5183dfd9c509f67b749c64" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void terminal::Model::setShellExited</definition>
+        <argsstring>(bool exited) noexcept</argsstring>
+        <name>setShellExited</name>
+        <qualifiedname>terminal::Model::setShellExited</qualifiedname>
+        <param>
+          <type>bool</type>
+          <declname>exited</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="141" column="10" bodyfile="terminal/Model.cpp" bodystart="363" bodyend="363"/>
+        <references refid="namespaceterminal_1_1id_1a9ca6b6efc0a9c3a15bc0d0f78b60e90d" compoundref="_identifier_8h" startline="82" endline="82">terminal::id::SESSION</references>
+        <references refid="namespaceterminal_1_1id_1a566ae327a06bbcf031a26fdfac5968c4" compoundref="_identifier_8h" startline="327" endline="327">terminal::id::shellExited</references>
+        <references refid="structterminal_1_1_model_1ae2ada044b1923f232b03ba371f1fa578" compoundref="_model_8cpp" startline="177" endline="180">storeValue</references>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1abb78d85d14fe48e4a3e22c90360345a8" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void terminal::Model::setSnapshotDirty</definition>
+        <argsstring>() noexcept</argsstring>
+        <name>setSnapshotDirty</name>
+        <qualifiedname>terminal::Model::setSnapshotDirty</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="144" column="10" bodyfile="terminal/Model.cpp" bodystart="369" bodyend="375"/>
+        <references refid="classjam_1_1_any_map_1addb59b648e62157728770b864eddb613">jam::AnyMap::get</references>
+        <references refid="classjam_1_1_model_1a9be603e3c0a76e1f0b6c263066993b63">jam::Model::params</references>
+        <references refid="namespaceterminal_1_1id_1ab46fc3afab7c779ba4e43ae40058100f" compoundref="_identifier_8h" startline="228" endline="228">terminal::id::pasteEchoRemaining</references>
+        <references refid="namespaceterminal_1_1id_1a9ca6b6efc0a9c3a15bc0d0f78b60e90d" compoundref="_identifier_8h" startline="82" endline="82">terminal::id::SESSION</references>
+        <references refid="namespaceterminal_1_1id_1a6ed5f0b54262d71924426539d8577642" compoundref="_identifier_8h" startline="250" endline="250">terminal::id::snapshotDirty</references>
+        <referencedby refid="structterminal_1_1_model_1a75d2bb097066b5073e7b135d2ba08412" compoundref="_model_8cpp" startline="407" endline="415">clearPasteEchoGate</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a3ec5532dfaeb0582a45b350e17aea607" compoundref="_model_8cpp" startline="391" endline="405">consumePasteEcho</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a9ae703cf77731ff7ca6af000feb05f84" compoundref="_model_8cpp" startline="421" endline="429">setSyncOutput</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1ab92732c6050593b13cf3d060f9755ef9" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool terminal::Model::consumeSnapshotDirty</definition>
+        <argsstring>() noexcept</argsstring>
+        <name>consumeSnapshotDirty</name>
+        <qualifiedname>terminal::Model::consumeSnapshotDirty</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="145" column="10" bodyfile="terminal/Model.cpp" bodystart="377" bodyend="380"/>
+        <references refid="classjam_1_1_model_1a9be603e3c0a76e1f0b6c263066993b63">jam::Model::params</references>
+        <references refid="namespaceterminal_1_1id_1a9ca6b6efc0a9c3a15bc0d0f78b60e90d" compoundref="_identifier_8h" startline="82" endline="82">terminal::id::SESSION</references>
+        <references refid="namespaceterminal_1_1id_1a6ed5f0b54262d71924426539d8577642" compoundref="_identifier_8h" startline="250" endline="250">terminal::id::snapshotDirty</references>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1a5de132a550efcc6f316a568e39355148" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void terminal::Model::setPasteEchoGate</definition>
+        <argsstring>(int bytes) noexcept</argsstring>
+        <name>setPasteEchoGate</name>
+        <qualifiedname>terminal::Model::setPasteEchoGate</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>bytes</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="148" column="10" bodyfile="terminal/Model.cpp" bodystart="386" bodyend="389"/>
+        <references refid="classjam_1_1_model_1a9be603e3c0a76e1f0b6c263066993b63">jam::Model::params</references>
+        <references refid="namespaceterminal_1_1id_1ab46fc3afab7c779ba4e43ae40058100f" compoundref="_identifier_8h" startline="228" endline="228">terminal::id::pasteEchoRemaining</references>
+        <references refid="namespaceterminal_1_1id_1a9ca6b6efc0a9c3a15bc0d0f78b60e90d" compoundref="_identifier_8h" startline="82" endline="82">terminal::id::SESSION</references>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1a3ec5532dfaeb0582a45b350e17aea607" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void terminal::Model::consumePasteEcho</definition>
+        <argsstring>(int bytes) noexcept</argsstring>
+        <name>consumePasteEcho</name>
+        <qualifiedname>terminal::Model::consumePasteEcho</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>bytes</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="149" column="10" bodyfile="terminal/Model.cpp" bodystart="391" bodyend="405"/>
+        <references refid="classjam_1_1_model_1a9be603e3c0a76e1f0b6c263066993b63">jam::Model::params</references>
+        <references refid="namespaceterminal_1_1id_1ab46fc3afab7c779ba4e43ae40058100f" compoundref="_identifier_8h" startline="228" endline="228">terminal::id::pasteEchoRemaining</references>
+        <references refid="namespaceterminal_1_1id_1a9ca6b6efc0a9c3a15bc0d0f78b60e90d" compoundref="_identifier_8h" startline="82" endline="82">terminal::id::SESSION</references>
+        <references refid="structterminal_1_1_model_1abb78d85d14fe48e4a3e22c90360345a8" compoundref="_model_8cpp" startline="369" endline="375">setSnapshotDirty</references>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1a75d2bb097066b5073e7b135d2ba08412" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void terminal::Model::clearPasteEchoGate</definition>
+        <argsstring>() noexcept</argsstring>
+        <name>clearPasteEchoGate</name>
+        <qualifiedname>terminal::Model::clearPasteEchoGate</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="150" column="10" bodyfile="terminal/Model.cpp" bodystart="407" bodyend="415"/>
+        <references refid="classjam_1_1_model_1a9be603e3c0a76e1f0b6c263066993b63">jam::Model::params</references>
+        <references refid="namespaceterminal_1_1id_1ab46fc3afab7c779ba4e43ae40058100f" compoundref="_identifier_8h" startline="228" endline="228">terminal::id::pasteEchoRemaining</references>
+        <references refid="namespaceterminal_1_1id_1a9ca6b6efc0a9c3a15bc0d0f78b60e90d" compoundref="_identifier_8h" startline="82" endline="82">terminal::id::SESSION</references>
+        <references refid="structterminal_1_1_model_1abb78d85d14fe48e4a3e22c90360345a8" compoundref="_model_8cpp" startline="369" endline="375">setSnapshotDirty</references>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1a9ae703cf77731ff7ca6af000feb05f84" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void terminal::Model::setSyncOutput</definition>
+        <argsstring>(bool active) noexcept</argsstring>
+        <name>setSyncOutput</name>
+        <qualifiedname>terminal::Model::setSyncOutput</qualifiedname>
+        <param>
+          <type>bool</type>
+          <declname>active</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="153" column="10" bodyfile="terminal/Model.cpp" bodystart="421" bodyend="429"/>
+        <references refid="classjam_1_1_model_1a9be603e3c0a76e1f0b6c263066993b63">jam::Model::params</references>
+        <references refid="namespaceterminal_1_1id_1a9ca6b6efc0a9c3a15bc0d0f78b60e90d" compoundref="_identifier_8h" startline="82" endline="82">terminal::id::SESSION</references>
+        <references refid="structterminal_1_1_model_1abb78d85d14fe48e4a3e22c90360345a8" compoundref="_model_8cpp" startline="369" endline="375">setSnapshotDirty</references>
+        <references refid="namespaceterminal_1_1id_1afec10dc8ac75a5b9e0318b759455658f" compoundref="_identifier_8h" startline="231" endline="231">terminal::id::syncOutputActive</references>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1aaca46e7c6a6408bce096a44ebbc48c55" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool terminal::Model::isSyncOutputActive</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>isSyncOutputActive</name>
+        <qualifiedname>terminal::Model::isSyncOutputActive</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="154" column="10" bodyfile="terminal/Model.cpp" bodystart="431" bodyend="434"/>
+        <references refid="classjam_1_1_model_1a9be603e3c0a76e1f0b6c263066993b63">jam::Model::params</references>
+        <references refid="namespaceterminal_1_1id_1a9ca6b6efc0a9c3a15bc0d0f78b60e90d" compoundref="_identifier_8h" startline="82" endline="82">terminal::id::SESSION</references>
+        <references refid="namespaceterminal_1_1id_1afec10dc8ac75a5b9e0318b759455658f" compoundref="_identifier_8h" startline="231" endline="231">terminal::id::syncOutputActive</references>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1aad782d12a0ce3e431da6a125d053a174" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void terminal::Model::dismissPreview</definition>
+        <argsstring>() noexcept</argsstring>
+        <name>dismissPreview</name>
+        <qualifiedname>terminal::Model::dismissPreview</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="157" column="10" bodyfile="terminal/Model.cpp" bodystart="452" bodyend="457"/>
+        <references refid="classjam_1_1_model_1a9be603e3c0a76e1f0b6c263066993b63">jam::Model::params</references>
+        <references refid="namespaceterminal_1_1id_1a43eed2af41c8ffc8477921edddb6b50c" compoundref="_identifier_8h" startline="261" endline="261">terminal::id::preview</references>
+        <references refid="namespaceterminal_1_1id_1a9ca6b6efc0a9c3a15bc0d0f78b60e90d" compoundref="_identifier_8h" startline="82" endline="82">terminal::id::SESSION</references>
+        <references refid="namespaceterminal_1_1id_1a6ed5f0b54262d71924426539d8577642" compoundref="_identifier_8h" startline="250" endline="250">terminal::id::snapshotDirty</references>
+        <references refid="namespaceterminal_1_1id_1aa84a0b55dbe7052b6f15b150744317c6" compoundref="_identifier_8h" startline="264" endline="264">terminal::id::splitCol</references>
+        <references refid="structterminal_1_1_model_1ae2ada044b1923f232b03ba371f1fa578" compoundref="_model_8cpp" startline="177" endline="180">storeValue</references>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1ae8d00e9ca1dc650b197c56cd055a36d7" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool terminal::Model::isPreviewActive</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>isPreviewActive</name>
+        <qualifiedname>terminal::Model::isPreviewActive</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="158" column="10" bodyfile="terminal/Model.cpp" bodystart="440" bodyend="444"/>
+        <references refid="namespaceterminal_1ad3581f9d2e9f579bf01422fe6fe04958" compoundref="_model_8cpp" startline="238" endline="250">terminal::getSessionParamInt</references>
+        <references refid="group__juce__events-messages_1gad2ae2032071a26beb5fb05a3745b8faf">JUCE_ASSERT_MESSAGE_THREAD</references>
+        <references refid="namespaceterminal_1_1id_1a43eed2af41c8ffc8477921edddb6b50c" compoundref="_identifier_8h" startline="261" endline="261">terminal::id::preview</references>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1a7b52321fc962b551dc053e138512494d" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int terminal::Model::getSplitCol</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>getSplitCol</name>
+        <qualifiedname>terminal::Model::getSplitCol</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="159" column="9" bodyfile="terminal/Model.cpp" bodystart="446" bodyend="450"/>
+        <references refid="namespaceterminal_1ad3581f9d2e9f579bf01422fe6fe04958" compoundref="_model_8cpp" startline="238" endline="250">terminal::getSessionParamInt</references>
+        <references refid="group__juce__events-messages_1gad2ae2032071a26beb5fb05a3745b8faf">JUCE_ASSERT_MESSAGE_THREAD</references>
+        <references refid="namespaceterminal_1_1id_1aa84a0b55dbe7052b6f15b150744317c6" compoundref="_identifier_8h" startline="264" endline="264">terminal::id::splitCol</references>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1a530c92941be8fb977d50c971db120b20" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void terminal::Model::setHintPage</definition>
+        <argsstring>(int page) noexcept</argsstring>
+        <name>setHintPage</name>
+        <qualifiedname>terminal::Model::setHintPage</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>page</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="162" column="10" bodyfile="terminal/Model.cpp" bodystart="463" bodyend="463"/>
+        <references refid="namespaceterminal_1_1id_1a456802ad45a86367448f081a7d52eaf7" compoundref="_identifier_8h" startline="144" endline="144">terminal::id::hintPage</references>
+        <references refid="namespaceterminal_1_1id_1a9ca6b6efc0a9c3a15bc0d0f78b60e90d" compoundref="_identifier_8h" startline="82" endline="82">terminal::id::SESSION</references>
+        <references refid="structterminal_1_1_model_1ae2ada044b1923f232b03ba371f1fa578" compoundref="_model_8cpp" startline="177" endline="180">storeValue</references>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1a79c2f1763b4446d250dcd8cf8536f5e7" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int terminal::Model::getHintPage</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>getHintPage</name>
+        <qualifiedname>terminal::Model::getHintPage</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="163" column="9" bodyfile="terminal/Model.cpp" bodystart="465" bodyend="469"/>
+        <references refid="namespaceterminal_1ad3581f9d2e9f579bf01422fe6fe04958" compoundref="_model_8cpp" startline="238" endline="250">terminal::getSessionParamInt</references>
+        <references refid="namespaceterminal_1_1id_1a456802ad45a86367448f081a7d52eaf7" compoundref="_identifier_8h" startline="144" endline="144">terminal::id::hintPage</references>
+        <references refid="group__juce__events-messages_1gad2ae2032071a26beb5fb05a3745b8faf">JUCE_ASSERT_MESSAGE_THREAD</references>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1aa943b54264f59c5d38862e3fbf9e54d9" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void terminal::Model::setHintTotalPages</definition>
+        <argsstring>(int total) noexcept</argsstring>
+        <name>setHintTotalPages</name>
+        <qualifiedname>terminal::Model::setHintTotalPages</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>total</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="164" column="10" bodyfile="terminal/Model.cpp" bodystart="471" bodyend="471"/>
+        <references refid="namespaceterminal_1_1id_1aa4006061c863080a7f3920bbce114dc2" compoundref="_identifier_8h" startline="147" endline="147">terminal::id::hintTotalPages</references>
+        <references refid="namespaceterminal_1_1id_1a9ca6b6efc0a9c3a15bc0d0f78b60e90d" compoundref="_identifier_8h" startline="82" endline="82">terminal::id::SESSION</references>
+        <references refid="structterminal_1_1_model_1ae2ada044b1923f232b03ba371f1fa578" compoundref="_model_8cpp" startline="177" endline="180">storeValue</references>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1aac24f406754f3362c2b6bfa0af234ae0" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int terminal::Model::getHintTotalPages</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>getHintTotalPages</name>
+        <qualifiedname>terminal::Model::getHintTotalPages</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="165" column="9" bodyfile="terminal/Model.cpp" bodystart="473" bodyend="477"/>
+        <references refid="namespaceterminal_1ad3581f9d2e9f579bf01422fe6fe04958" compoundref="_model_8cpp" startline="238" endline="250">terminal::getSessionParamInt</references>
+        <references refid="namespaceterminal_1_1id_1aa4006061c863080a7f3920bbce114dc2" compoundref="_identifier_8h" startline="147" endline="147">terminal::id::hintTotalPages</references>
+        <references refid="group__juce__events-messages_1gad2ae2032071a26beb5fb05a3745b8faf">JUCE_ASSERT_MESSAGE_THREAD</references>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1a6ec8eb9951670cab685bccb43b092c3d" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void terminal::Model::setModalType</definition>
+        <argsstring>(ModalType type) noexcept</argsstring>
+        <name>setModalType</name>
+        <qualifiedname>terminal::Model::setModalType</qualifiedname>
+        <param>
+          <type><ref refid="_modal_type_8h_1a1878c47fb0486dfcf512d127b5342816" kindref="member">ModalType</ref></type>
+          <declname>type</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="168" column="10" bodyfile="terminal/Model.cpp" bodystart="483" bodyend="487"/>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
+        <references refid="classjam_1_1_model_1a9be603e3c0a76e1f0b6c263066993b63">jam::Model::params</references>
+        <references refid="namespaceterminal_1_1id_1a9ca6b6efc0a9c3a15bc0d0f78b60e90d" compoundref="_identifier_8h" startline="82" endline="82">terminal::id::SESSION</references>
+        <references refid="namespaceterminal_1_1id_1a6ed5f0b54262d71924426539d8577642" compoundref="_identifier_8h" startline="250" endline="250">terminal::id::snapshotDirty</references>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1a53828b6636d849052725267c32d768a3" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type><ref refid="_modal_type_8h_1a1878c47fb0486dfcf512d127b5342816" kindref="member">ModalType</ref></type>
+        <definition>ModalType terminal::Model::getModalType</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>getModalType</name>
+        <qualifiedname>terminal::Model::getModalType</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="169" column="15" bodyfile="terminal/Model.cpp" bodystart="489" bodyend="493"/>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
+        <references refid="group__juce__events-messages_1gad2ae2032071a26beb5fb05a3745b8faf">JUCE_ASSERT_MESSAGE_THREAD</references>
+        <referencedby refid="structterminal_1_1_model_1a73fb855ebf06dbc1194d84324ee187b9" compoundref="_model_8cpp" startline="495" endline="499">isModal</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1a73fb855ebf06dbc1194d84324ee187b9" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool terminal::Model::isModal</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>isModal</name>
+        <qualifiedname>terminal::Model::isModal</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="170" column="10" bodyfile="terminal/Model.cpp" bodystart="495" bodyend="499"/>
+        <references refid="structterminal_1_1_model_1a53828b6636d849052725267c32d768a3" compoundref="_model_8cpp" startline="489" endline="493">getModalType</references>
+        <references refid="group__juce__events-messages_1gad2ae2032071a26beb5fb05a3745b8faf">JUCE_ASSERT_MESSAGE_THREAD</references>
+        <references refid="_modal_type_8h_1a1878c47fb0486dfcf512d127b5342816a334c4a4c42fdb79d7ebc3e73b517e6f8" compoundref="_modal_type_8h" startline="28">none</references>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1ae2ada044b1923f232b03ba371f1fa578" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void terminal::Model::storeValue</definition>
+        <argsstring>(const juce::Identifier &amp;groupId, const juce::Identifier &amp;paramId, int value) noexcept</argsstring>
+        <name>storeValue</name>
+        <qualifiedname>terminal::Model::storeValue</qualifiedname>
+        <param>
+          <type>const juce::Identifier &amp;</type>
+          <declname>groupId</declname>
+        </param>
+        <param>
+          <type>const juce::Identifier &amp;</type>
+          <declname>paramId</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="173" column="10" bodyfile="terminal/Model.cpp" bodystart="177" bodyend="180"/>
+        <references refid="classjam_1_1_model_1a9be603e3c0a76e1f0b6c263066993b63">jam::Model::params</references>
+        <referencedby refid="structterminal_1_1_model_1aad782d12a0ce3e431da6a125d053a174" compoundref="_model_8cpp" startline="452" endline="457">dismissPreview</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a1bcc24d11a98aa621b738ce796a8cecc" compoundref="_model_8cpp" startline="329" endline="335">extendOutputBlock</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a530c92941be8fb977d50c971db120b20" compoundref="_model_8cpp" startline="463" endline="463">setHintPage</referencedby>
+        <referencedby refid="structterminal_1_1_model_1aa943b54264f59c5d38862e3fbf9e54d9" compoundref="_model_8cpp" startline="471" endline="471">setHintTotalPages</referencedby>
+        <referencedby refid="structterminal_1_1_model_1ad500ddcb5ed1166edddc88c7b4e089c0" compoundref="_model_8cpp" startline="292" endline="292">setMode</referencedby>
+        <referencedby refid="structterminal_1_1_model_1af0e21e00d90bbc9b343143edccc328f4" compoundref="_model_8cpp" startline="323" endline="327">setOutputBlockEnd</referencedby>
+        <referencedby refid="structterminal_1_1_model_1ab9c597923e8fdcb8240709c4d856f160" compoundref="_model_8cpp" startline="316" endline="321">setOutputBlockStart</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a830c4954526c2fee16df30f8c213917f" compoundref="_model_8cpp" startline="337" endline="337">setPromptRow</referencedby>
+        <referencedby refid="structterminal_1_1_model_1ab66e64775abf6c51f8250df8c50461cb" compoundref="_model_8cpp" startline="290" endline="290">setScreen</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a2c0394042e5183dfd9c509f67b749c64" compoundref="_model_8cpp" startline="363" endline="363">setShellExited</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1a572e69bbfff16e9707bfecafdc0a4df2" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int terminal::Model::loadValue</definition>
+        <argsstring>(const juce::Identifier &amp;groupId, const juce::Identifier &amp;paramId) const noexcept</argsstring>
+        <name>loadValue</name>
+        <qualifiedname>terminal::Model::loadValue</qualifiedname>
+        <param>
+          <type>const juce::Identifier &amp;</type>
+          <declname>groupId</declname>
+        </param>
+        <param>
+          <type>const juce::Identifier &amp;</type>
+          <declname>paramId</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="174" column="9" bodyfile="terminal/Model.cpp" bodystart="182" bodyend="185"/>
+        <references refid="classjam_1_1_model_1a9be603e3c0a76e1f0b6c263066993b63">jam::Model::params</references>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1af9ce5323e3f635afa5176b9f0c250904" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void terminal::Model::setRowDirty</definition>
+        <argsstring>(int row) noexcept</argsstring>
+        <name>setRowDirty</name>
+        <qualifiedname>terminal::Model::setRowDirty</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>row</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="177" column="10" bodyfile="terminal/Model.cpp" bodystart="191" bodyend="197"/>
+        <references refid="group__juce__core-system_1ga1f96ab6751237979b907a54f52a7296a">jassert</references>
+        <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d">row</references>
+        <references refid="structterminal_1_1_model_1a8f9bf2233d109cf4da3fdc8904b44c47" compoundref="_model_8h" startline="187" endline="187">rowDirtyCount</references>
+        <references refid="structterminal_1_1_model_1aec857d602404999be9e38047f195cc6c" compoundref="_model_8h" startline="186">rowDirtyFlags</references>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1a5e3b83e26af6c6c7be7c16c8cd2f7cee" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool terminal::Model::consumeRowDirty</definition>
+        <argsstring>(int row) noexcept</argsstring>
+        <name>consumeRowDirty</name>
+        <qualifiedname>terminal::Model::consumeRowDirty</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>row</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="178" column="10" bodyfile="terminal/Model.cpp" bodystart="199" bodyend="207"/>
+        <references refid="group__juce__core-system_1ga1f96ab6751237979b907a54f52a7296a">jassert</references>
+        <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d">row</references>
+        <references refid="structterminal_1_1_model_1a8f9bf2233d109cf4da3fdc8904b44c47" compoundref="_model_8h" startline="187" endline="187">rowDirtyCount</references>
+        <references refid="structterminal_1_1_model_1aec857d602404999be9e38047f195cc6c" compoundref="_model_8h" startline="186">rowDirtyFlags</references>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1a2e55cbe6698f6b3b9a5517d78bb398eb" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void terminal::Model::rebuildRowDirtyFlags</definition>
+        <argsstring>(int newVisibleRows) noexcept</argsstring>
+        <name>rebuildRowDirtyFlags</name>
+        <qualifiedname>terminal::Model::rebuildRowDirtyFlags</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>newVisibleRows</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="179" column="10" bodyfile="terminal/Model.cpp" bodystart="209" bodyend="213"/>
+        <references refid="structterminal_1_1_model_1a8f9bf2233d109cf4da3fdc8904b44c47" compoundref="_model_8h" startline="187" endline="187">rowDirtyCount</references>
+        <references refid="structterminal_1_1_model_1aec857d602404999be9e38047f195cc6c" compoundref="_model_8h" startline="186">rowDirtyFlags</references>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1a9c4e8559c3bc543dc4529e497dcfaf27" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool terminal::Model::refresh</definition>
+        <argsstring>() noexcept</argsstring>
+        <name>refresh</name>
+        <qualifiedname>terminal::Model::refresh</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="182" column="10" bodyfile="terminal/ModelFlush.cpp" bodystart="7" bodyend="7"/>
+        <references refid="classjam_1_1_model_1a9eb2e927e025645e46609f37aa6f9304">jam::Model::flush</references>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="private-static-func">
+      <memberdef kind="function" id="structterminal_1_1_model_1a5519c794b349ea904e4a2bf7b41dc037" prot="private" static="yes" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int terminal::Model::resolveLayoutDefault</definition>
+        <argsstring>(const juce::XmlElement &amp;elem) noexcept</argsstring>
+        <name>resolveLayoutDefault</name>
+        <qualifiedname>terminal::Model::resolveLayoutDefault</qualifiedname>
+        <param>
+          <type>const juce::XmlElement &amp;</type>
+          <declname>elem</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="188" column="16" bodyfile="terminal/Model.cpp" bodystart="31" bodyend="47"/>
+        <references refid="namespaceterminal_1_1id_1a9b28c291b349892dd5314443fec16e20" compoundref="_identifier_8h" startline="122" endline="122">terminal::id::boolType</references>
+        <references refid="namespaceterminal_1_1id_1aad8c2aa01ce7bfe28bd953f034a19bf1" compoundref="_identifier_8h" startline="116" endline="116">terminal::id::defaultValue</references>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Derived &gt;::getContext</references>
+        <references refid="namespaceterminal_1_1id_1ae236049709c3ebc0363a57f7390c905c" compoundref="_identifier_8h" startline="113" endline="113">terminal::id::type</references>
+        <referencedby refid="structterminal_1_1_model_1a7ab986ba96c3d9b8b1c8088318bc3591" compoundref="_model_8cpp" startline="49" endline="133">buildLayout</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="private-func">
+      <memberdef kind="function" id="structterminal_1_1_model_1a03923f3203c09d898e0c6d67c037593d" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void terminal::Model::valueTreeChildAdded</definition>
+        <argsstring>(juce::ValueTree &amp;parent, juce::ValueTree &amp;child) override</argsstring>
+        <name>valueTreeChildAdded</name>
+        <qualifiedname>terminal::Model::valueTreeChildAdded</qualifiedname>
+        <param>
+          <type>juce::ValueTree &amp;</type>
+          <declname>parent</declname>
+        </param>
+        <param>
+          <type>juce::ValueTree &amp;</type>
+          <declname>child</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="190" column="10" bodyfile="terminal/Model.cpp" bodystart="141" bodyend="145"/>
+        <references refid="structterminal_1_1_model_1a5a968e0265a15111364653f43364c782" compoundref="_model_8cpp" startline="147" endline="171">registerNodeAtomics</references>
+        <references refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_model_1ae49c1f8c5de0987061e27c6be212f248" prot="private" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void terminal::Model::storeTextValue</definition>
+        <argsstring>(const juce::Identifier &amp;groupId, const juce::Identifier &amp;paramId, const char *ptr) noexcept</argsstring>
+        <name>storeTextValue</name>
+        <qualifiedname>terminal::Model::storeTextValue</qualifiedname>
+        <param>
+          <type>const juce::Identifier &amp;</type>
+          <declname>groupId</declname>
+        </param>
+        <param>
+          <type>const juce::Identifier &amp;</type>
+          <declname>paramId</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>ptr</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="192" column="10" bodyfile="terminal/Model.cpp" bodystart="215" bodyend="218"/>
+        <references refid="classjam_1_1_model_1a9be603e3c0a76e1f0b6c263066993b63">jam::Model::params</references>
+        <referencedby refid="structterminal_1_1_model_1a77b39c03cb2601687a4978d8df3d3415" compoundref="_model_8cpp" startline="300" endline="304">setCwd</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a8bc5f83f625fe7cd18314d199f0cc500" compoundref="_model_8cpp" startline="306" endline="310">setForegroundProcess</referencedby>
+        <referencedby refid="structterminal_1_1_model_1aa0e2b35761335b2e03a4ba2f5a4abff5" compoundref="_model_8cpp" startline="294" endline="298">setTitle</referencedby>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>XML-driven terminal parameter store: reader thread writes parameters, timer flushes to <ref refid="classValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ValueTree</ref>, UI reads <ref refid="classValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ValueTree</ref>. </para>
+    </briefdescription>
+    <detaileddescription>
+<sect1 id="structterminal_1_1_model_1autotoc_md44_1s1"><sect2 id="structterminal_1_1_model_1autotoc_md44_1s2"><sect3 id="structterminal_1_1_model_1autotoc_md44">
+<title>Architecture</title><para>Mirrors JUCE <ref refid="classAudioProcessorValueTreeState" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">AudioProcessorValueTreeState</ref> (APVTS) 1:1:<itemizedlist>
+<listitem><para><computeroutput>Parameters.xml</computeroutput> declares the schema (ParameterLayout equivalent).</para>
+</listitem><listitem><para><computeroutput><ref refid="structterminal_1_1_parameter" kindref="compound">Parameter</ref>&lt;int&gt;</computeroutput> / <computeroutput><ref refid="structterminal_1_1_parameter" kindref="compound">Parameter</ref>&lt;const char*&gt;</computeroutput> are the adapters (ParameterAdapter equivalent).</para>
+</listitem><listitem><para>One <computeroutput><ref refid="classjam_1_1_any_map" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::AnyMap</ref> <ref refid="classjam_1_1_model_1a9be603e3c0a76e1f0b6c263066993b63" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">params</ref></computeroutput> (nested for hierarchy) is the adapter table.</para>
+</listitem><listitem><para>One <computeroutput>juce::ValueTree <ref refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">state</ref></computeroutput> is the SSOT for the UI.</para>
+</listitem><listitem><para><computeroutput><ref refid="classjam_1_1_model_1a9eb2e927e025645e46609f37aa6f9304" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">flush()</ref></computeroutput> is the one loop — each <ref refid="structterminal_1_1_parameter" kindref="compound">Parameter</ref> writes itself (no-arg flush).</para>
+</listitem></itemizedlist>
+</para>
+</sect3></sect2></sect1>
+<sect1 id="structterminal_1_1_model_1autotoc_md45_1s1"><sect2 id="structterminal_1_1_model_1autotoc_md45_1s2"><sect3 id="structterminal_1_1_model_1autotoc_md45">
+<title>Map structure</title><para><programlisting><codeline><highlight class="normal"><ref refid="classjam_1_1_model_1a9be603e3c0a76e1f0b6c263066993b63" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">params</ref><sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><ref refid="namespaceterminal_1_1id_1a9ca6b6efc0a9c3a15bc0d0f78b60e90d" kindref="member">id::SESSION</ref><sp/><sp/><sp/>→<sp/>AnyMap<sp/>{<sp/>root-level<sp/>Parameter&lt;int&gt;s<sp/>+<sp/>Parameter&lt;const<sp/>char*&gt;s<sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><ref refid="namespaceterminal_1_1id_1a79a59a405b5e0ea4bd4bdc099abf47b2" kindref="member">id::MODES</ref><sp/><sp/><sp/><sp/><sp/>→<sp/>AnyMap<sp/>{<sp/>mode<sp/>Parameter&lt;int&gt;s<sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><ref refid="namespaceterminal_1_1id_1a524696f5c8e1fc1e4abc0a43b07a7298" kindref="member">id::NORMAL</ref><sp/><sp/><sp/><sp/>→<sp/>AnyMap<sp/>{<sp/>per-screen<sp/>Parameter&lt;int&gt;s<sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>normal<sp/>buffer<sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><ref refid="namespaceterminal_1_1id_1ae2e4c1ee4ad6f240a83b1bc38591247a" kindref="member">id::ALTERNATE</ref><sp/>→<sp/>AnyMap<sp/>{<sp/>per-screen<sp/>Parameter&lt;int&gt;s<sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>alternate<sp/>buffer<sp/>}</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+</programlisting></para>
+</sect3></sect2></sect1>
+<sect1 id="structterminal_1_1_model_1autotoc_md46_1s1"><sect2 id="structterminal_1_1_model_1autotoc_md46_1s2"><sect3 id="structterminal_1_1_model_1autotoc_md46">
+<title>ValueTree structure</title><para><programlisting><codeline><highlight class="normal">SESSION</highlight></codeline>
+<codeline><highlight class="normal">├──<sp/><ref refid="classjam_1_1_model_1a6c1ba6e01db247659a686aeb09fba0d9" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">PARAM</ref><sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">=</highlight><highlight class="stringliteral">&quot;activeScreen&quot;</highlight><highlight class="normal"><sp/>value=…</highlight></codeline>
+<codeline><highlight class="normal">├──<sp/>…<sp/>(all<sp/>root-level<sp/><ref refid="classjam_1_1_model_1a9be603e3c0a76e1f0b6c263066993b63" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">params</ref>)</highlight></codeline>
+<codeline><highlight class="normal">├──<sp/>MODES</highlight></codeline>
+<codeline><highlight class="normal">│<sp/><sp/><sp/>├──<sp/><ref refid="classjam_1_1_model_1a6c1ba6e01db247659a686aeb09fba0d9" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">PARAM</ref><sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">=</highlight><highlight class="stringliteral">&quot;applicationCursor&quot;</highlight><highlight class="normal"><sp/>value=…</highlight></codeline>
+<codeline><highlight class="normal">│<sp/><sp/><sp/>└──<sp/>…</highlight></codeline>
+<codeline><highlight class="normal">├──<sp/>NORMAL</highlight></codeline>
+<codeline><highlight class="normal">│<sp/><sp/><sp/>├──<sp/><ref refid="classjam_1_1_model_1a6c1ba6e01db247659a686aeb09fba0d9" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">PARAM</ref><sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">=</highlight><highlight class="stringliteral">&quot;cursorRow&quot;</highlight><highlight class="normal"><sp/>value=…</highlight></codeline>
+<codeline><highlight class="normal">│<sp/><sp/><sp/>└──<sp/>…</highlight></codeline>
+<codeline><highlight class="normal">└──<sp/>ALTERNATE</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>└──<sp/>…</highlight></codeline>
+</programlisting></para>
+</sect3></sect2></sect1>
+<sect1 id="structterminal_1_1_model_1autotoc_md47_1s1"><sect2 id="structterminal_1_1_model_1autotoc_md47_1s2"><sect3 id="structterminal_1_1_model_1autotoc_md47">
+<title>Thread ownership</title><para><itemizedlist>
+<listitem><para><computeroutput>set*()</computeroutput> methods: any thread, lock-free, noexcept.</para>
+</listitem><listitem><para><computeroutput>get*()</computeroutput> atomic getters: any thread, lock-free, noexcept.</para>
+</listitem><listitem><para><computeroutput>get*()</computeroutput> <ref refid="classValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ValueTree</ref> getters: MESSAGE THREAD only.</para>
+</listitem><listitem><para><computeroutput><ref refid="classjam_1_1_model_1a5de5c362c126a9f4d8d21c592b678bdb" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">timerCallback()</ref></computeroutput> / <computeroutput><ref refid="classjam_1_1_model_1a9eb2e927e025645e46609f37aa6f9304" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">flush()</ref></computeroutput>: MESSAGE THREAD only. </para>
+</listitem></itemizedlist>
+</para>
+</sect3></sect2></sect1>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>jam::Model</label>
+        <link refid="classjam_1_1_model" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+      <node id="3">
+        <label>juce::ValueTree::Listener</label>
+      </node>
+      <node id="1">
+        <label>terminal::Model</label>
+        <link refid="structterminal_1_1_model"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="private-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="3">
+        <label>jam::AnyMap</label>
+        <link refid="classjam_1_1_any_map" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>entries</edgelabel>
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>types</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>jam::Model</label>
+        <link refid="classjam_1_1_model" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>params</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>uniqueNodeMap</edgelabel>
+        </childnode>
+      </node>
+      <node id="8">
+        <label>juce::ValueTree::Listener</label>
+      </node>
+      <node id="10">
+        <label>std::atomic&lt; int &gt;</label>
+      </node>
+      <node id="9">
+        <label>std::unique_ptr&lt; std::atomic&lt; int &gt;[]&gt;</label>
+        <childnode refid="10" relation="usage">
+          <edgelabel>ptr</edgelabel>
+        </childnode>
+      </node>
+      <node id="13">
+        <label>std::unique_ptr&lt; terminal::TextSlot &gt;</label>
+        <childnode refid="14" relation="usage">
+          <edgelabel>ptr</edgelabel>
+        </childnode>
+      </node>
+      <node id="5">
+        <label>std::unique_ptr&lt; void, Deleter &gt;</label>
+      </node>
+      <node id="6">
+        <label>std::unordered_map&lt; juce::Identifier, std::type_index &gt;</label>
+      </node>
+      <node id="12">
+        <label>std::unordered_map&lt; juce::Identifier, std::unique_ptr&lt; terminal::TextSlot &gt; &gt;</label>
+        <childnode refid="13" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+      <node id="4">
+        <label>std::unordered_map&lt; juce::Identifier, std::unique_ptr&lt; void, Deleter &gt; &gt;</label>
+        <childnode refid="5" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+      <node id="7">
+        <label>std::unordered_map&lt; juce::String, juce::ValueTree &gt;</label>
+      </node>
+      <node id="1">
+        <label>terminal::Model</label>
+        <link refid="structterminal_1_1_model"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="8" relation="private-inheritance">
+        </childnode>
+        <childnode refid="9" relation="usage">
+          <edgelabel>rowDirtyFlags</edgelabel>
+        </childnode>
+        <childnode refid="11" relation="usage">
+          <edgelabel>textBuffer</edgelabel>
+        </childnode>
+      </node>
+      <node id="11">
+        <label>terminal::TextBuffer</label>
+        <link refid="structterminal_1_1_text_buffer"/>
+        <childnode refid="12" relation="usage">
+          <edgelabel>slots</edgelabel>
+        </childnode>
+      </node>
+      <node id="14">
+        <label>terminal::TextSlot</label>
+        <link refid="structterminal_1_1_text_slot"/>
+        <childnode refid="10" relation="usage">
+          <edgelabel>active</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="terminal/Model.h" line="63" column="1" bodyfile="terminal/Model.h" bodystart="66" bodyend="195"/>
+    <listofallmembers>
+      <member refid="classjam_1_1_model_1ae5d4d70e706dcc558cf21923125a9176" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>addListener</name></member>
+      <member refid="classjam_1_1_model_1aa75f9afb83415f989c962cf77022bcf3" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>addParameter</name></member>
+      <member refid="structterminal_1_1_model_1aef97b8774a8b4bd87be42862a1693c40" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>addTextParameter</name></member>
+      <member refid="classjam_1_1_model_1ae0cb2cc2b04acb47eb9760d92dcedc46" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>appendChild</name></member>
+      <member refid="classjam_1_1_model_1a59b57627d856a11d756eabe1690a7213" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>applyFunctionRecursively</name></member>
+      <member refid="classjam_1_1_model_1a453ba02a04d3f7afd493d83a35f2d42e" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>attach</name></member>
+      <member refid="classjam_1_1_model_1a16dac6b0bd63f3fd05a7bce45217ec99" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>attach</name></member>
+      <member refid="structterminal_1_1_model_1a7ab986ba96c3d9b8b1c8088318bc3591" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>buildLayout</name></member>
+      <member refid="classjam_1_1_model_1a4b90d140f00ee8c4ceb46aa411c3fc30" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>buildUniqueNodeMap</name></member>
+      <member refid="structterminal_1_1_model_1a75d2bb097066b5073e7b135d2ba08412" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>clearPasteEchoGate</name></member>
+      <member refid="structterminal_1_1_model_1a3ec5532dfaeb0582a45b350e17aea607" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>consumePasteEcho</name></member>
+      <member refid="structterminal_1_1_model_1a5e3b83e26af6c6c7be7c16c8cd2f7cee" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>consumeRowDirty</name></member>
+      <member refid="structterminal_1_1_model_1ab92732c6050593b13cf3d060f9755ef9" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>consumeSnapshotDirty</name></member>
+      <member refid="structterminal_1_1_model_1aad782d12a0ce3e431da6a125d053a174" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>dismissPreview</name></member>
+      <member refid="structterminal_1_1_model_1a1bcc24d11a98aa621b738ce796a8cecc" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>extendOutputBlock</name></member>
+      <member refid="classjam_1_1_model_1a0c6c6dcf22bdf37d65dced08a8dcdefc" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>findAndRemoveChild</name></member>
+      <member refid="classjam_1_1_model_1a9eb2e927e025645e46609f37aa6f9304" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>flush</name></member>
+      <member refid="classjam_1_1_model_1aaa8b722daed8928b8d587ec30662ac34" prot="private" virt="non-virtual"><scope>terminal::Model</scope><name>flushHz</name></member>
+      <member refid="structterminal_1_1_model_1aded6fea0a6e67962a83f0b00f605d610" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getActiveScreen</name></member>
+      <member refid="classjam_1_1_model_1ac0204402c1739f45230319069868ab23" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getChildWithID</name></member>
+      <member refid="classjam_1_1_model_1aecef6b658fc1de8bd8642ce3c0011036" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getChildWithName</name></member>
+      <member refid="classjam_1_1_model_1a7c77bf75e42b16586ae50b355668f2e0" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getChildWithName</name></member>
+      <member refid="structterminal_1_1_model_1a735f6c3e59fb6898d1f750e2a9eab94f" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getCols</name></member>
+      <member refid="structterminal_1_1_model_1a25ba72627e3bd4ab113b200db5db3e94" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getCwd</name></member>
+      <member refid="structterminal_1_1_model_1a5ed4c561122970956425e400560a2b54" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getForegroundProcess</name></member>
+      <member refid="structterminal_1_1_model_1a79c2f1763b4446d250dcd8cf8536f5e7" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getHintPage</name></member>
+      <member refid="structterminal_1_1_model_1aac24f406754f3362c2b6bfa0af234ae0" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getHintTotalPages</name></member>
+      <member refid="structterminal_1_1_model_1a53828b6636d849052725267c32d768a3" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getModalType</name></member>
+      <member refid="structterminal_1_1_model_1a34ae5e9c536e91f0f0058bdbf3f6ef84" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getMode</name></member>
+      <member refid="classjam_1_1_model_1a322c866d6fc435eb6799562d6d6db8b1" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getOrCreateChildWithName</name></member>
+      <member refid="classjam_1_1_model_1a4d93df7249f679710c1ac1c5f288147c" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getOrCreateChildWithName</name></member>
+      <member refid="structterminal_1_1_model_1a9d77594f5ccf9ac9eb0b306b0fb2147d" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getOutputBlockBottom</name></member>
+      <member refid="structterminal_1_1_model_1a7f3c8d52e5b62960ea217e70f83439d1" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getOutputBlockTop</name></member>
+      <member refid="structterminal_1_1_model_1aac6ceeff8f0e530370b29d8dcf8be665" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getPromptRow</name></member>
+      <member refid="classjam_1_1_model_1a657de384bbcda4bd183b0fddc3de205b" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getRawParameterValue</name></member>
+      <member refid="classjam_1_1_model_1abf91bfe071259060be78f47c83e720e4" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getRootTree</name></member>
+      <member refid="structterminal_1_1_model_1a7b52321fc962b551dc053e138512494d" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getSplitCol</name></member>
+      <member refid="structterminal_1_1_model_1a87aa381a2183e84203b6e366f5ea9a03" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getTitle</name></member>
+      <member refid="classjam_1_1_model_1abe937e02011833b8cf8f20bfb650ac9d" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getTreeProperty</name></member>
+      <member refid="classjam_1_1_model_1a3466c9f9fcd9a4baa862bb400562e7b7" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getTreePropertyAsValue</name></member>
+      <member refid="classjam_1_1_model_1ac922db931cd481a9cf483c90e4de2543" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getType</name></member>
+      <member refid="classjam_1_1_model_1a39b0cc13737eca194351a246bd88b615" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getUniqueNodeMap</name></member>
+      <member refid="classjam_1_1_model_1a0116dc2885feeb67b5f875d93dd109df" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getValue</name></member>
+      <member refid="classjam_1_1_model_1a2f037e88407eb8b95b9ab7daf7c0b15c" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getValueFromChildWithID</name></member>
+      <member refid="classjam_1_1_model_1a4d4ed473066b67b001ced0f5296f577f" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getValueFromChildWithName</name></member>
+      <member refid="structterminal_1_1_model_1a72a57e537581551b615687dabaa15c53" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getVisibleRows</name></member>
+      <member refid="classjam_1_1_model_1a710fd55b83d2e5657e48d49ce5225ea2" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>getXml</name></member>
+      <member refid="structterminal_1_1_model_1a08662bcf8f5c5e2abbd0a5350dc09037" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>hasOutputBlock</name></member>
+      <member refid="classjam_1_1_model_1a1c976506dd5eb7d125a0e804c97c61e2" prot="private" virt="non-virtual"><scope>terminal::Model</scope><name>idleHz</name></member>
+      <member refid="structterminal_1_1_model_1a73fb855ebf06dbc1194d84324ee187b9" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>isModal</name></member>
+      <member refid="structterminal_1_1_model_1ae8d00e9ca1dc650b197c56cd055a36d7" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>isPreviewActive</name></member>
+      <member refid="structterminal_1_1_model_1aaca46e7c6a6408bce096a44ebbc48c55" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>isSyncOutputActive</name></member>
+      <member refid="structterminal_1_1_model_1ac251b9d586797bd952935e1f79aaafac" prot="private" virt="non-virtual"><scope>terminal::Model</scope><name>listenedTree</name></member>
+      <member refid="classjam_1_1_model_1afb401fb24025fa7fddf2740e374df4aa" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>loadState</name></member>
+      <member refid="classjam_1_1_model_1a6662822c6b2f2539b5839a41daa668c9" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>loadState</name></member>
+      <member refid="structterminal_1_1_model_1a572e69bbfff16e9707bfecafdc0a4df2" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>loadValue</name></member>
+      <member refid="structterminal_1_1_model_1a427730d8b641247c8c4015b740f7c3c3" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>Model</name></member>
+      <member refid="classjam_1_1_model_1afbe837fa9d9c8086381333783bb1db3b" prot="public" virt="non-virtual" ambiguityscope="jam::Model::"><scope>terminal::Model</scope><name>Model</name></member>
+      <member refid="classjam_1_1_model_1ac2b1be0ad517b16b39bf38e7abb35c68" prot="public" virt="non-virtual" ambiguityscope="jam::Model::"><scope>terminal::Model</scope><name>Model</name></member>
+      <member refid="classjam_1_1_model_1a6c1ba6e01db247659a686aeb09fba0d9" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>PARAM</name></member>
+      <member refid="classjam_1_1_model_1a9be603e3c0a76e1f0b6c263066993b63" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>params</name></member>
+      <member refid="structterminal_1_1_model_1a2e55cbe6698f6b3b9a5517d78bb398eb" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>rebuildRowDirtyFlags</name></member>
+      <member refid="structterminal_1_1_model_1a9c4e8559c3bc543dc4529e497dcfaf27" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>refresh</name></member>
+      <member refid="structterminal_1_1_model_1a5a968e0265a15111364653f43364c782" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>registerNodeAtomics</name></member>
+      <member refid="classjam_1_1_model_1acbf5ef1a6e71240468f17fe707532bec" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>removeChild</name></member>
+      <member refid="classjam_1_1_model_1a688b7625ae8b2a4d4d1f1643a6b3aa41" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>removeListener</name></member>
+      <member refid="classjam_1_1_model_1a73bb2822ba0b1211ca9e290d57c5cd2d" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>replaceState</name></member>
+      <member refid="structterminal_1_1_model_1a5519c794b349ea904e4a2bf7b41dc037" prot="private" virt="non-virtual"><scope>terminal::Model</scope><name>resolveLayoutDefault</name></member>
+      <member refid="classjam_1_1_model_1a77ac5fd7f2a2caa0e892cd993d4df2d7" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>restoreValues</name></member>
+      <member refid="structterminal_1_1_model_1a8f9bf2233d109cf4da3fdc8904b44c47" prot="private" virt="non-virtual"><scope>terminal::Model</scope><name>rowDirtyCount</name></member>
+      <member refid="structterminal_1_1_model_1aec857d602404999be9e38047f195cc6c" prot="private" virt="non-virtual"><scope>terminal::Model</scope><name>rowDirtyFlags</name></member>
+      <member refid="structterminal_1_1_model_1a77b39c03cb2601687a4978d8df3d3415" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>setCwd</name></member>
+      <member refid="structterminal_1_1_model_1a8bc5f83f625fe7cd18314d199f0cc500" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>setForegroundProcess</name></member>
+      <member refid="structterminal_1_1_model_1a530c92941be8fb977d50c971db120b20" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>setHintPage</name></member>
+      <member refid="structterminal_1_1_model_1aa943b54264f59c5d38862e3fbf9e54d9" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>setHintTotalPages</name></member>
+      <member refid="structterminal_1_1_model_1a3a0252dd50dd3de170de4f60cf00a6e6" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>setId</name></member>
+      <member refid="structterminal_1_1_model_1a6ec8eb9951670cab685bccb43b092c3d" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>setModalType</name></member>
+      <member refid="structterminal_1_1_model_1ad500ddcb5ed1166edddc88c7b4e089c0" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>setMode</name></member>
+      <member refid="structterminal_1_1_model_1af0e21e00d90bbc9b343143edccc328f4" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>setOutputBlockEnd</name></member>
+      <member refid="structterminal_1_1_model_1ab9c597923e8fdcb8240709c4d856f160" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>setOutputBlockStart</name></member>
+      <member refid="structterminal_1_1_model_1a5de132a550efcc6f316a568e39355148" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>setPasteEchoGate</name></member>
+      <member refid="structterminal_1_1_model_1a830c4954526c2fee16df30f8c213917f" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>setPromptRow</name></member>
+      <member refid="structterminal_1_1_model_1af9ce5323e3f635afa5176b9f0c250904" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>setRowDirty</name></member>
+      <member refid="structterminal_1_1_model_1ab66e64775abf6c51f8250df8c50461cb" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>setScreen</name></member>
+      <member refid="structterminal_1_1_model_1a2c0394042e5183dfd9c509f67b749c64" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>setShellExited</name></member>
+      <member refid="structterminal_1_1_model_1abb78d85d14fe48e4a3e22c90360345a8" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>setSnapshotDirty</name></member>
+      <member refid="structterminal_1_1_model_1a9ae703cf77731ff7ca6af000feb05f84" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>setSyncOutput</name></member>
+      <member refid="structterminal_1_1_model_1aa0e2b35761335b2e03a4ba2f5a4abff5" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>setTitle</name></member>
+      <member refid="classjam_1_1_model_1a3263920ba9cd2e5633d714a49c0a5000" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>setTreeProperty</name></member>
+      <member refid="classjam_1_1_model_1a4fbbdb02043cf33008d91de8cc79a9f2" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>setValue</name></member>
+      <member refid="classjam_1_1_model_1a15257c4c0b7e83a50126f57a64b0bf5e" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>setValue</name></member>
+      <member refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857" prot="protected" virt="non-virtual"><scope>terminal::Model</scope><name>state</name></member>
+      <member refid="structterminal_1_1_model_1ae49c1f8c5de0987061e27c6be212f248" prot="private" virt="non-virtual"><scope>terminal::Model</scope><name>storeTextValue</name></member>
+      <member refid="structterminal_1_1_model_1ae2ada044b1923f232b03ba371f1fa578" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>storeValue</name></member>
+      <member refid="structterminal_1_1_model_1a4a59e2e5bdad31dfced6e8f753dd4251" prot="private" virt="non-virtual"><scope>terminal::Model</scope><name>textBuffer</name></member>
+      <member refid="classjam_1_1_model_1a5de5c362c126a9f4d8d21c592b678bdb" prot="private" virt="non-virtual"><scope>terminal::Model</scope><name>timerCallback</name></member>
+      <member refid="classjam_1_1_model_1a68d2ef67ec3d2a469741be46e499adbb" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>UniqueNodeMap</name></member>
+      <member refid="classjam_1_1_model_1a1e3b285d0fa32431d85e2c1a1ea8f02f" prot="private" virt="non-virtual"><scope>terminal::Model</scope><name>uniqueNodeMap</name></member>
+      <member refid="classjam_1_1_model_1a495677a2122cc1dbb67c416ddfd51e17" prot="private" virt="non-virtual"><scope>terminal::Model</scope><name>valueTreeChanging</name></member>
+      <member refid="structterminal_1_1_model_1a03923f3203c09d898e0c6d67c037593d" prot="private" virt="non-virtual"><scope>terminal::Model</scope><name>valueTreeChildAdded</name></member>
+      <member refid="classjam_1_1_model_1a5e0284f87a2a71c84edd644b75f4d07f" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>writeToXml</name></member>
+      <member refid="structterminal_1_1_model_1a5910f5e7a2b8f617cd42d07fa9d9d57b" prot="public" virt="non-virtual"><scope>terminal::Model</scope><name>~Model</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

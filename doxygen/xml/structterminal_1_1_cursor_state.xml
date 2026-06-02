@@ -1,0 +1,154 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="structterminal_1_1_cursor_state" kind="struct" language="C++" prot="public">
+    <compoundname>terminal::CursorState</compoundname>
+    <includes refid="_identifier_8h" local="no">Identifier.h</includes>
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structterminal_1_1_cursor_state_1ae4f82825616474ab86e036ce130d65ef" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int terminal::CursorState::row</definition>
+        <argsstring></argsstring>
+        <name>row</name>
+        <qualifiedname>terminal::CursorState::row</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="36" column="9" bodyfile="terminal/Identifier.h" bodystart="36" bodyend="36"/>
+        <referencedby refid="classterminal_1_1_input_1ace1c358d34fc58663db236f8da1a457e" compoundref="_input_8cpp" startline="127" endline="280">terminal::Input::handleSelectionKey</referencedby>
+        <referencedby refid="structterminal_1_1_cursor_state_1ab4f0812ec43fbc7fa59af39d8d28064f" compoundref="_identifier_8h" startline="51" endline="51">isValid</referencedby>
+        <referencedby refid="structterminal_1_1_cursor_state_1aea059eba9f1a5b49c2d1756219e402c6" compoundref="_identifier_8h" startline="41" endline="44">pack</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a96f58201d64de70c95725f3ec9f44676" compoundref="_display_8cpp" startline="91" endline="182">terminal::Display::valueTreePropertyChanged</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_cursor_state_1a0587fa8ea4ad47b6fbfc71675f94796e" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int terminal::CursorState::col</definition>
+        <argsstring></argsstring>
+        <name>col</name>
+        <qualifiedname>terminal::CursorState::col</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="37" column="9" bodyfile="terminal/Identifier.h" bodystart="37" bodyend="37"/>
+        <referencedby refid="classterminal_1_1_input_1ace1c358d34fc58663db236f8da1a457e" compoundref="_input_8cpp" startline="127" endline="280">terminal::Input::handleSelectionKey</referencedby>
+        <referencedby refid="structterminal_1_1_cursor_state_1ab4f0812ec43fbc7fa59af39d8d28064f" compoundref="_identifier_8h" startline="51" endline="51">isValid</referencedby>
+        <referencedby refid="structterminal_1_1_cursor_state_1aea059eba9f1a5b49c2d1756219e402c6" compoundref="_identifier_8h" startline="41" endline="44">pack</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a96f58201d64de70c95725f3ec9f44676" compoundref="_display_8cpp" startline="91" endline="182">terminal::Display::valueTreePropertyChanged</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_cursor_state_1a7d70e2b5373d17cd8addf9174a63dfa4" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int terminal::CursorState::visible</definition>
+        <argsstring></argsstring>
+        <name>visible</name>
+        <qualifiedname>terminal::CursorState::visible</qualifiedname>
+        <initializer>{ 1 }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="38" column="9" bodyfile="terminal/Identifier.h" bodystart="38" bodyend="38"/>
+        <referencedby refid="structterminal_1_1_cursor_state_1aea059eba9f1a5b49c2d1756219e402c6" compoundref="_identifier_8h" startline="41" endline="44">pack</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_cursor_state_1a402852ae8a7b1dad5428938c3bf77614" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int terminal::CursorState::kbFlags</definition>
+        <argsstring></argsstring>
+        <name>kbFlags</name>
+        <qualifiedname>terminal::CursorState::kbFlags</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="39" column="9" bodyfile="terminal/Identifier.h" bodystart="39" bodyend="39"/>
+        <referencedby refid="structterminal_1_1_cursor_state_1aea059eba9f1a5b49c2d1756219e402c6" compoundref="_identifier_8h" startline="41" endline="44">pack</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="public-func">
+      <memberdef kind="function" id="structterminal_1_1_cursor_state_1aea059eba9f1a5b49c2d1756219e402c6" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int terminal::CursorState::pack</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>pack</name>
+        <qualifiedname>terminal::CursorState::pack</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="41" column="9" bodyfile="terminal/Identifier.h" bodystart="41" bodyend="44"/>
+        <references refid="structterminal_1_1_cursor_state_1a0587fa8ea4ad47b6fbfc71675f94796e" compoundref="_identifier_8h" startline="37" endline="37">col</references>
+        <references refid="structterminal_1_1_cursor_state_1a402852ae8a7b1dad5428938c3bf77614" compoundref="_identifier_8h" startline="39" endline="39">kbFlags</references>
+        <references refid="structterminal_1_1_cursor_state_1ae4f82825616474ab86e036ce130d65ef" compoundref="_identifier_8h" startline="36" endline="36">row</references>
+        <references refid="structterminal_1_1_cursor_state_1a7d70e2b5373d17cd8addf9174a63dfa4" compoundref="_identifier_8h" startline="38" endline="38">visible</references>
+        <referencedby refid="classterminal_1_1_video_1ab8c186d04c9a33e4fc6f64892ab05734" compoundref="_video_8cpp" startline="154" endline="171">terminal::Video::flush</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_cursor_state_1ab4f0812ec43fbc7fa59af39d8d28064f" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool terminal::CursorState::isValid</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>isValid</name>
+        <qualifiedname>terminal::CursorState::isValid</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="51" column="10" bodyfile="terminal/Identifier.h" bodystart="51" bodyend="51"/>
+        <references refid="structterminal_1_1_cursor_state_1a0587fa8ea4ad47b6fbfc71675f94796e" compoundref="_identifier_8h" startline="37" endline="37">col</references>
+        <references refid="structterminal_1_1_cursor_state_1ae4f82825616474ab86e036ce130d65ef" compoundref="_identifier_8h" startline="36" endline="36">row</references>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="structterminal_1_1_cursor_state_1aea1af6e36cad7b394db0164b6bb905ce" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type><ref refid="structterminal_1_1_cursor_state" kindref="compound">CursorState</ref></type>
+        <definition>static CursorState terminal::CursorState::unpack</definition>
+        <argsstring>(int v) noexcept</argsstring>
+        <name>unpack</name>
+        <qualifiedname>terminal::CursorState::unpack</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Identifier.h" line="46" column="24" bodyfile="terminal/Identifier.h" bodystart="46" bodyend="49"/>
+        <referencedby refid="classterminal_1_1_input_1ace1c358d34fc58663db236f8da1a457e" compoundref="_input_8cpp" startline="127" endline="280">terminal::Input::handleSelectionKey</referencedby>
+        <referencedby refid="classterminal_1_1_display_1a96f58201d64de70c95725f3ec9f44676" compoundref="_display_8cpp" startline="91" endline="182">terminal::Display::valueTreePropertyChanged</referencedby>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Packed cursor state for atomic screen state transfer. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Aggregates cursor position, visibility, and keyboard flags for one screen. <ref refid="structterminal_1_1_cursor_state_1aea059eba9f1a5b49c2d1756219e402c6" kindref="member">pack()</ref>/unpack() mirror <ref refid="structjam_1_1_cell_1_1_rectangle_1a0810396cf7587883701dca59edb2e402" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Cell::Rectangle::pack()</ref>/unpack() in naming convention — 12 bits each for row/col, 1 for visible, 5 for kbFlags. </para>
+    </detaileddescription>
+    <location file="terminal/Identifier.h" line="34" column="1" bodyfile="terminal/Identifier.h" bodystart="35" bodyend="52"/>
+    <listofallmembers>
+      <member refid="structterminal_1_1_cursor_state_1a0587fa8ea4ad47b6fbfc71675f94796e" prot="public" virt="non-virtual"><scope>terminal::CursorState</scope><name>col</name></member>
+      <member refid="structterminal_1_1_cursor_state_1ab4f0812ec43fbc7fa59af39d8d28064f" prot="public" virt="non-virtual"><scope>terminal::CursorState</scope><name>isValid</name></member>
+      <member refid="structterminal_1_1_cursor_state_1a402852ae8a7b1dad5428938c3bf77614" prot="public" virt="non-virtual"><scope>terminal::CursorState</scope><name>kbFlags</name></member>
+      <member refid="structterminal_1_1_cursor_state_1aea059eba9f1a5b49c2d1756219e402c6" prot="public" virt="non-virtual"><scope>terminal::CursorState</scope><name>pack</name></member>
+      <member refid="structterminal_1_1_cursor_state_1ae4f82825616474ab86e036ce130d65ef" prot="public" virt="non-virtual"><scope>terminal::CursorState</scope><name>row</name></member>
+      <member refid="structterminal_1_1_cursor_state_1aea1af6e36cad7b394db0164b6bb905ce" prot="public" virt="non-virtual"><scope>terminal::CursorState</scope><name>unpack</name></member>
+      <member refid="structterminal_1_1_cursor_state_1a7d70e2b5373d17cd8addf9174a63dfa4" prot="public" virt="non-virtual"><scope>terminal::CursorState</scope><name>visible</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

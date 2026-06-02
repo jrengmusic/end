@@ -1,0 +1,150 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="structlua_1_1_engine_1_1_display_1_1_font" kind="struct" language="C++" prot="public">
+    <compoundname>lua::Engine::Display::Font</compoundname>
+    <includes refid="_engine_8h" local="no">Engine.h</includes>
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_display_1_1_font_1a0bf1671f01db586d10a184b07b945680" prot="public" static="no" mutable="no">
+        <type>juce::String</type>
+        <definition>juce::String lua::Engine::Display::Font::family</definition>
+        <argsstring></argsstring>
+        <name>family</name>
+        <qualifiedname>lua::Engine::Display::Font::family</qualifiedname>
+        <initializer>{ &quot;Display Mono&quot; }</initializer>
+        <briefdescription>
+<para><ref refid="structlua_1_1_engine_1_1_display_1_1_font" kindref="compound">Font</ref> family name. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="320" column="26" bodyfile="lua/Engine.h" bodystart="320" bodyend="320"/>
+        <referencedby refid="namespacelua_1a406bd58f8e8ddba2341dfed224dbd900" compoundref="_engine_parse_display_8cpp" startline="139" endline="169">lua::parseDisplayFont</referencedby>
+        <referencedby refid="namespacelua_1a84688fe3676b1acb96938671ae61aca1" compoundref="_engine_defaults_8cpp" startline="36" endline="54">lua::writeDisplayFontDefaults</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_display_1_1_font_1a65e33b308dc812826f9cfec4edfafe80" prot="public" static="no" mutable="no">
+        <type>float</type>
+        <definition>float lua::Engine::Display::Font::size</definition>
+        <argsstring></argsstring>
+        <name>size</name>
+        <qualifiedname>lua::Engine::Display::Font::size</qualifiedname>
+        <initializer>{ 12.0f }</initializer>
+        <briefdescription>
+<para>Base font size in points. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="323" column="19" bodyfile="lua/Engine.h" bodystart="323" bodyend="323"/>
+        <referencedby refid="namespacelua_1a406bd58f8e8ddba2341dfed224dbd900" compoundref="_engine_parse_display_8cpp" startline="139" endline="169">lua::parseDisplayFont</referencedby>
+        <referencedby refid="namespacelua_1a84688fe3676b1acb96938671ae61aca1" compoundref="_engine_defaults_8cpp" startline="36" endline="54">lua::writeDisplayFontDefaults</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_display_1_1_font_1ad6a04f1b5ac7f25bc6df8e40e372c93d" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool lua::Engine::Display::Font::ligatures</definition>
+        <argsstring></argsstring>
+        <name>ligatures</name>
+        <qualifiedname>lua::Engine::Display::Font::ligatures</qualifiedname>
+        <initializer>{ true }</initializer>
+        <briefdescription>
+<para>Whether OpenType ligature substitution is enabled. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="326" column="18" bodyfile="lua/Engine.h" bodystart="326" bodyend="326"/>
+        <referencedby refid="namespacelua_1a406bd58f8e8ddba2341dfed224dbd900" compoundref="_engine_parse_display_8cpp" startline="139" endline="169">lua::parseDisplayFont</referencedby>
+        <referencedby refid="namespacelua_1a84688fe3676b1acb96938671ae61aca1" compoundref="_engine_defaults_8cpp" startline="36" endline="54">lua::writeDisplayFontDefaults</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_display_1_1_font_1ae86e9c52b833ff0cd4fbcd09ffa2fc5d" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool lua::Engine::Display::Font::embolden</definition>
+        <argsstring></argsstring>
+        <name>embolden</name>
+        <qualifiedname>lua::Engine::Display::Font::embolden</qualifiedname>
+        <initializer>{ true }</initializer>
+        <briefdescription>
+<para>Whether synthetic bold is applied. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="329" column="18" bodyfile="lua/Engine.h" bodystart="329" bodyend="329"/>
+        <referencedby refid="namespacelua_1a406bd58f8e8ddba2341dfed224dbd900" compoundref="_engine_parse_display_8cpp" startline="139" endline="169">lua::parseDisplayFont</referencedby>
+        <referencedby refid="namespacelua_1a84688fe3676b1acb96938671ae61aca1" compoundref="_engine_defaults_8cpp" startline="36" endline="54">lua::writeDisplayFontDefaults</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_display_1_1_font_1a3b4ec2aa185cf57d6c9c6cb5802460b8" prot="public" static="no" mutable="no">
+        <type>float</type>
+        <definition>float lua::Engine::Display::Font::lineHeight</definition>
+        <argsstring></argsstring>
+        <name>lineHeight</name>
+        <qualifiedname>lua::Engine::Display::Font::lineHeight</qualifiedname>
+        <initializer>{ 1.0f }</initializer>
+        <briefdescription>
+<para><ref refid="classLine" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Line</ref> height multiplier. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="332" column="19" bodyfile="lua/Engine.h" bodystart="332" bodyend="332"/>
+        <referencedby refid="namespacelua_1a406bd58f8e8ddba2341dfed224dbd900" compoundref="_engine_parse_display_8cpp" startline="139" endline="169">lua::parseDisplayFont</referencedby>
+        <referencedby refid="namespacelua_1a84688fe3676b1acb96938671ae61aca1" compoundref="_engine_defaults_8cpp" startline="36" endline="54">lua::writeDisplayFontDefaults</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_display_1_1_font_1a5ba6cfb7cb51e5eb27c368461a9062f9" prot="public" static="no" mutable="no">
+        <type>float</type>
+        <definition>float lua::Engine::Display::Font::cellWidth</definition>
+        <argsstring></argsstring>
+        <name>cellWidth</name>
+        <qualifiedname>lua::Engine::Display::Font::cellWidth</qualifiedname>
+        <initializer>{ 1.0f }</initializer>
+        <briefdescription>
+<para>Cell width multiplier. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="335" column="19" bodyfile="lua/Engine.h" bodystart="335" bodyend="335"/>
+        <referencedby refid="namespacelua_1a406bd58f8e8ddba2341dfed224dbd900" compoundref="_engine_parse_display_8cpp" startline="139" endline="169">lua::parseDisplayFont</referencedby>
+        <referencedby refid="namespacelua_1a84688fe3676b1acb96938671ae61aca1" compoundref="_engine_defaults_8cpp" startline="36" endline="54">lua::writeDisplayFontDefaults</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_display_1_1_font_1ab4b907de2cfdb0e10a1628d608c75b03" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool lua::Engine::Display::Font::desktopScale</definition>
+        <argsstring></argsstring>
+        <name>desktopScale</name>
+        <qualifiedname>lua::Engine::Display::Font::desktopScale</qualifiedname>
+        <initializer>{ false }</initializer>
+        <briefdescription>
+<para>Windows only: whether size follows desktop DPI scale. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="338" column="18" bodyfile="lua/Engine.h" bodystart="338" bodyend="338"/>
+        <referencedby refid="namespacelua_1a406bd58f8e8ddba2341dfed224dbd900" compoundref="_engine_parse_display_8cpp" startline="139" endline="169">lua::parseDisplayFont</referencedby>
+        <referencedby refid="namespacelua_1a84688fe3676b1acb96938671ae61aca1" compoundref="_engine_defaults_8cpp" startline="36" endline="54">lua::writeDisplayFontDefaults</referencedby>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Primary terminal font settings. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="lua/Engine.h" line="317" column="9" bodyfile="lua/Engine.h" bodystart="318" bodyend="339"/>
+    <listofallmembers>
+      <member refid="structlua_1_1_engine_1_1_display_1_1_font_1a5ba6cfb7cb51e5eb27c368461a9062f9" prot="public" virt="non-virtual"><scope>lua::Engine::Display::Font</scope><name>cellWidth</name></member>
+      <member refid="structlua_1_1_engine_1_1_display_1_1_font_1ab4b907de2cfdb0e10a1628d608c75b03" prot="public" virt="non-virtual"><scope>lua::Engine::Display::Font</scope><name>desktopScale</name></member>
+      <member refid="structlua_1_1_engine_1_1_display_1_1_font_1ae86e9c52b833ff0cd4fbcd09ffa2fc5d" prot="public" virt="non-virtual"><scope>lua::Engine::Display::Font</scope><name>embolden</name></member>
+      <member refid="structlua_1_1_engine_1_1_display_1_1_font_1a0bf1671f01db586d10a184b07b945680" prot="public" virt="non-virtual"><scope>lua::Engine::Display::Font</scope><name>family</name></member>
+      <member refid="structlua_1_1_engine_1_1_display_1_1_font_1ad6a04f1b5ac7f25bc6df8e40e372c93d" prot="public" virt="non-virtual"><scope>lua::Engine::Display::Font</scope><name>ligatures</name></member>
+      <member refid="structlua_1_1_engine_1_1_display_1_1_font_1a3b4ec2aa185cf57d6c9c6cb5802460b8" prot="public" virt="non-virtual"><scope>lua::Engine::Display::Font</scope><name>lineHeight</name></member>
+      <member refid="structlua_1_1_engine_1_1_display_1_1_font_1a65e33b308dc812826f9cfec4edfafe80" prot="public" virt="non-virtual"><scope>lua::Engine::Display::Font</scope><name>size</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

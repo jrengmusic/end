@@ -1,0 +1,1662 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="namespaceterminal" kind="namespace" language="C++">
+    <compoundname>terminal</compoundname>
+    <innerclass refid="classterminal_1_1_cell_fifo" prot="public">terminal::CellFifo</innerclass>
+    <innerclass refid="classterminal_1_1_dialog" prot="public">terminal::Dialog</innerclass>
+    <innerclass refid="classterminal_1_1_display" prot="public">terminal::Display</innerclass>
+    <innerclass refid="classterminal_1_1_look_and_feel" prot="public">terminal::LookAndFeel</innerclass>
+    <innerclass refid="classterminal_1_1_modal_window" prot="public">terminal::ModalWindow</innerclass>
+    <innerclass refid="classterminal_1_1_overlay" prot="public">terminal::Overlay</innerclass>
+    <innerclass refid="classterminal_1_1_panes" prot="public">terminal::Panes</innerclass>
+    <innerclass refid="classterminal_1_1_popup" prot="public">terminal::Popup</innerclass>
+    <innerclass refid="structterminal_1_1_screen_selection" prot="public">terminal::ScreenSelection</innerclass>
+    <innerclass refid="classterminal_1_1_tabs" prot="public">terminal::Tabs</innerclass>
+    <innerclass refid="classterminal_1_1_window" prot="public">terminal::Window</innerclass>
+    <innerclass refid="structterminal_1_1_c_s_i" prot="public">terminal::CSI</innerclass>
+    <innerclass refid="structterminal_1_1_transition" prot="public">terminal::Transition</innerclass>
+    <innerclass refid="classterminal_1_1_dispatch_table" prot="public">terminal::DispatchTable</innerclass>
+    <innerclass refid="structterminal_1_1_cursor_state" prot="public">terminal::CursorState</innerclass>
+    <innerclass refid="structterminal_1_1_image_sequence" prot="public">terminal::ImageSequence</innerclass>
+    <innerclass refid="classterminal_1_1_input" prot="public">terminal::Input</innerclass>
+    <innerclass refid="classterminal_1_1_i_term2_decoder" prot="public">terminal::ITerm2Decoder</innerclass>
+    <innerclass refid="structterminal_1_1_keyboard" prot="public">terminal::Keyboard</innerclass>
+    <innerclass refid="classterminal_1_1_kitty_decoder" prot="public">terminal::KittyDecoder</innerclass>
+    <innerclass refid="classterminal_1_1_link_detector" prot="public">terminal::LinkDetector</innerclass>
+    <innerclass refid="classterminal_1_1_link_manager" prot="public">terminal::LinkManager</innerclass>
+    <innerclass refid="structterminal_1_1_link_span" prot="public">terminal::LinkSpan</innerclass>
+    <innerclass refid="structterminal_1_1_model" prot="public">terminal::Model</innerclass>
+    <innerclass refid="classterminal_1_1_mouse" prot="public">terminal::Mouse</innerclass>
+    <innerclass refid="classterminal_1_1_parser" prot="public">terminal::Parser</innerclass>
+    <innerclass refid="classterminal_1_1_processor" prot="public">terminal::Processor</innerclass>
+    <innerclass refid="classterminal_1_1_session" prot="public">terminal::Session</innerclass>
+    <innerclass refid="structterminal_1_1_decoded_image" prot="public">terminal::DecodedImage</innerclass>
+    <innerclass refid="structterminal_1_1_pending_image" prot="public">terminal::PendingImage</innerclass>
+    <innerclass refid="classterminal_1_1_sixel_decoder" prot="public">terminal::SixelDecoder</innerclass>
+    <innerclass refid="classterminal_1_1_skit" prot="public">terminal::Skit</innerclass>
+    <innerclass refid="structterminal_1_1_text_slot" prot="public">terminal::TextSlot</innerclass>
+    <innerclass refid="structterminal_1_1_text_buffer" prot="public">terminal::TextBuffer</innerclass>
+    <innerclass refid="classterminal_1_1_video" prot="public">terminal::Video</innerclass>
+    <innerclass refid="structterminal_1_1_private_mode_entry" prot="public">terminal::PrivateModeEntry</innerclass>
+    <innerclass refid="structterminal_1_1_osc_header" prot="public">terminal::OscHeader</innerclass>
+    <innerclass refid="structterminal_1_1_winsize" prot="public">terminal::Winsize</innerclass>
+    <innerclass refid="structterminal_1_1_parameter_base" prot="public">terminal::ParameterBase</innerclass>
+    <innerclass refid="structterminal_1_1_parameter" prot="public">terminal::Parameter</innerclass>
+    <innernamespace refid="namespaceterminal_1_1id">terminal::id</innernamespace>
+    <sectiondef kind="enum">
+      <memberdef kind="enum" id="namespaceterminal_1a7b1b1278777d02b9ed2c58b069647878" prot="public" static="no" strong="yes">
+        <type>uint8_t</type>
+        <name>ParserState</name>
+        <qualifiedname>terminal::ParserState</qualifiedname>
+        <enumvalue id="namespaceterminal_1a7b1b1278777d02b9ed2c58b069647878a578552719239a72a2d45ad422f67d24d" prot="public">
+          <name>ground</name>
+          <briefdescription>
+<para>Normal text processing, ground state. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceterminal_1a7b1b1278777d02b9ed2c58b069647878ae0ebc3c409070d07f1df0f2f4132509e" prot="public">
+          <name>escape</name>
+          <briefdescription>
+<para>Received ESC, waiting for next byte. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceterminal_1a7b1b1278777d02b9ed2c58b069647878a9e8bc6d275bfa27de67c6313b3fd4c66" prot="public">
+          <name>escapeIntermediate</name>
+          <briefdescription>
+<para>ESC + intermediate character(s). </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceterminal_1a7b1b1278777d02b9ed2c58b069647878a04f55a95839cdcff83ad041038d62f05" prot="public">
+          <name>csiEntry</name>
+          <briefdescription>
+<para>Received <ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> introducer (ESC [). </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceterminal_1a7b1b1278777d02b9ed2c58b069647878a6df44dd1608b1d7c667821e88c1e76c6" prot="public">
+          <name>csiParam</name>
+          <briefdescription>
+<para>Collecting <ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> parameters (digits, semicolons). </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceterminal_1a7b1b1278777d02b9ed2c58b069647878a6a8baeddf4d8311cf440cc99e82eeb8d" prot="public">
+          <name>csiIntermediate</name>
+          <briefdescription>
+<para><ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> + intermediate character(s). </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceterminal_1a7b1b1278777d02b9ed2c58b069647878a9765fb8e5071ec85e616057dcd10ed76" prot="public">
+          <name>csiIgnore</name>
+          <briefdescription>
+<para>Invalid <ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> sequence (private marker in wrong place). </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceterminal_1a7b1b1278777d02b9ed2c58b069647878a320444357942d8d3c9260f52f992bff1" prot="public">
+          <name>dcsEntry</name>
+          <briefdescription>
+<para>Received DCS introducer (ESC P). </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceterminal_1a7b1b1278777d02b9ed2c58b069647878afc86e60bdee0bf846fd881ce3d5fc473" prot="public">
+          <name>dcsParam</name>
+          <briefdescription>
+<para>Collecting DCS parameters. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceterminal_1a7b1b1278777d02b9ed2c58b069647878a019417560d32497f853686eed8626e98" prot="public">
+          <name>dcsIntermediate</name>
+          <briefdescription>
+<para>DCS + intermediate character(s). </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceterminal_1a7b1b1278777d02b9ed2c58b069647878aece327e87bee3ad117bd4f75d9df5d52" prot="public">
+          <name>dcsPassthrough</name>
+          <briefdescription>
+<para>DCS passthrough mode (for SGR in 256 colors). </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceterminal_1a7b1b1278777d02b9ed2c58b069647878a0cf84e1e5282230b7b0a5f644234b2de" prot="public">
+          <name>dcsIgnore</name>
+          <briefdescription>
+<para>Invalid DCS sequence. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceterminal_1a7b1b1278777d02b9ed2c58b069647878a12028958d92529c86ee9708028c9ceae" prot="public">
+          <name>oscString</name>
+          <briefdescription>
+<para>OSC command string (title, color changes). </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceterminal_1a7b1b1278777d02b9ed2c58b069647878a5dc5d7937222519e128f88621be9b5c0" prot="public">
+          <name>sosPmApcString</name>
+          <briefdescription>
+<para>SOS/PM strings (not supported, ignored). </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceterminal_1a7b1b1278777d02b9ed2c58b069647878a77d497e1e04693a76f53460b0b31475f" prot="public">
+          <name>apcString</name>
+          <briefdescription>
+<para>APC command string (Kitty graphics protocol). </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceterminal_1a7b1b1278777d02b9ed2c58b069647878a111f23e83721f52359ff6e2f644d06a2" prot="public">
+          <name>stateCount</name>
+          <briefdescription>
+<para>Total number of states (for array sizing). </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para><ref refid="classterminal_1_1_parser" kindref="compound">Parser</ref> states for VT terminal emulation. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>These states represent the different contexts in the VT parser state machine. The parser transitions between states based on input bytes according to the ECMA-48 standard for terminal control functions.</para>
+<para><simplesect kind="note"><para>The stateCount enum value is used for array sizing and should not be used as an actual parser state. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/DispatchTable.h" line="51" column="1" bodyfile="terminal/DispatchTable.h" bodystart="52" bodyend="69"/>
+      </memberdef>
+      <memberdef kind="enum" id="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11" prot="public" static="no" strong="yes">
+        <type>uint8_t</type>
+        <name>ParserAction</name>
+        <qualifiedname>terminal::ParserAction</qualifiedname>
+        <enumvalue id="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11a334c4a4c42fdb79d7ebc3e73b517e6f8" prot="public">
+          <name>none</name>
+          <briefdescription>
+<para>No action, just transition state. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11a567bc1d268f135496de3d5b946b691f3" prot="public">
+          <name>ignore</name>
+          <briefdescription>
+<para>Ignore this byte (consume without action). </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11af7531e2d0ea27233ce00b5f01c5bf335" prot="public">
+          <name>print</name>
+          <briefdescription>
+<para>Print character to screen. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11aec0cd3cb91fe82b9501f62a528eb07a9" prot="public">
+          <name>execute</name>
+          <briefdescription>
+<para>Execute control function (CR, LF, etc.). </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11a0788a6922bd5f9f130e7ed8980193bab" prot="public">
+          <name>collect</name>
+          <briefdescription>
+<para>Collect intermediate character(s). </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11aeca07335a33c5aeb5e1bc7c98b4b9d80" prot="public">
+          <name>param</name>
+          <briefdescription>
+<para>Collect parameter bytes. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11a622c3b29c258677d614464846cd91fc6" prot="public">
+          <name>escDispatch</name>
+          <briefdescription>
+<para>Dispatch escape sequence. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11a5d13f8b37c9f3bb560c10c79d97554b6" prot="public">
+          <name>csiDispatch</name>
+          <briefdescription>
+<para>Dispatch <ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> sequence. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11a8e13ffc9fd9d6a6761231a764bdf106b" prot="public">
+          <name>put</name>
+          <briefdescription>
+<para>Put character to DCS passthrough. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11a59f111e13f706bd92b607dd047ed3f2f" prot="public">
+          <name>oscPut</name>
+          <briefdescription>
+<para>Put character to OSC string. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11a78cd9348937078efe757b46423b52239" prot="public">
+          <name>oscEnd</name>
+          <briefdescription>
+<para>End OSC string (on ST or BEL). </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11a5a582ef17d6a088d9cb644e4c1ea3cdd" prot="public">
+          <name>hook</name>
+          <briefdescription>
+<para>Hook DCS sequence. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11a5e37107d1678b51078224718c60a6eab" prot="public">
+          <name>unhook</name>
+          <briefdescription>
+<para>Unhook DCS sequence. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11abfdd86830285bbe890109cd3eac80ddf" prot="public">
+          <name>apcPut</name>
+          <briefdescription>
+<para>Put character to APC string. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11a264c8dc38a7e3959c763427c895f821c" prot="public">
+          <name>apcEnd</name>
+          <briefdescription>
+<para>End APC string (on ST). </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Actions to perform when processing a byte. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>These actions are returned by the dispatch table and executed by the parser. Each action represents a specific handling routine for the current byte.</para>
+<para><simplesect kind="note"><para>Renamed from <computeroutput>Action</computeroutput> to <computeroutput><ref refid="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11" kindref="member">ParserAction</ref></computeroutput> to avoid a name collision with <computeroutput><ref refid="classaction_1_1_registry" kindref="compound">action::Registry</ref></computeroutput> (the user-facing action registry in <ref refid="_action_8h" kindref="compound">action/Action.h</ref>). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/DispatchTable.h" line="80" column="1" bodyfile="terminal/DispatchTable.h" bodystart="81" bodyend="97"/>
+      </memberdef>
+      <memberdef kind="enum" id="namespaceterminal_1a1878c47fb0486dfcf512d127b5342816" prot="public" static="no" strong="yes">
+        <type></type>
+        <name>ModalType</name>
+        <qualifiedname>terminal::ModalType</qualifiedname>
+        <briefdescription>
+<para>Identifies which modal input mode is currently active. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><itemizedlist>
+<listitem><para><computeroutput>none</computeroutput> — normal input; keys flow to Action system and PTY/navigation.</para>
+</listitem><listitem><para><computeroutput>selection</computeroutput> — vim-style keyboard selection mode.</para>
+</listitem><listitem><para><computeroutput>openFile</computeroutput> — open file / hyperlink hint label mode (Terminal only).</para>
+</listitem><listitem><para><computeroutput>uriAction</computeroutput> — URI picker overlay (reserved).</para>
+</listitem></itemizedlist>
+</para>
+<para><simplesect kind="note"><para>Stored as int in <ref refid="classValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ValueTree</ref>. Compared as uint8_t for compactness. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="16" column="1" bodyfile="ModalType.h" bodystart="27" bodyend="32"/>
+      </memberdef>
+      <memberdef kind="enum" id="namespaceterminal_1acffca3b33fddce63d3220bc7487e879d" prot="public" static="no" strong="yes">
+        <type></type>
+        <name>SelectionType</name>
+        <qualifiedname>terminal::SelectionType</qualifiedname>
+        <briefdescription>
+<para>Identifies which Vim visual-selection variant is currently active. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>0 = none, 1 = visual, 2 = visualLine, 3 = visualBlock. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.h" line="17" column="1" bodyfile="SelectionType.h" bodystart="21" bodyend="26"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="var">
+      <memberdef kind="variable" id="namespaceterminal_1a7c280ac96375daa7306ea3309285fc8f" prot="public" static="no" mutable="no">
+        <type>std::array&lt; juce::Colour, 16 &gt;</type>
+        <definition>std::array&lt;juce::Colour, 16&gt; terminal::ANSI_16</definition>
+        <argsstring></argsstring>
+        <name>ANSI_16</name>
+        <qualifiedname>terminal::ANSI_16</qualifiedname>
+        <initializer>{{
+    juce::Colour (0x00, 0x00, 0x00),
+    juce::Colour (0xCD, 0x00, 0x00),
+    juce::Colour (0x00, 0xCD, 0x00),
+    juce::Colour (0xCD, 0xCD, 0x00),
+    juce::Colour (0x00, 0x00, 0xEE),
+    juce::Colour (0xCD, 0x00, 0xCD),
+    juce::Colour (0x00, 0xCD, 0xCD),
+    juce::Colour (0xE5, 0xE5, 0xE5),
+    juce::Colour (0x7F, 0x7F, 0x7F),
+    juce::Colour (0xFF, 0x00, 0x00),
+    juce::Colour (0x00, 0xFF, 0x00),
+    juce::Colour (0xFF, 0xFF, 0x00),
+    juce::Colour (0x5C, 0x5C, 0xFF),
+    juce::Colour (0xFF, 0x00, 0xFF),
+    juce::Colour (0x00, 0xFF, 0xFF),
+    juce::Colour (0xFF, 0xFF, 0xFF),
+}}</initializer>
+        <briefdescription>
+<para>The 16 standard <ref refid="namespace_a_n_s_i" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">ANSI</ref> terminal colors (xterm indices 0–15). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Indices 0–7 are the normal colors (black, red, green, yellow, blue, magenta, cyan, white). Indices 8–15 are the bright/high-intensity variants. Values match the xterm default palette.</para>
+<para><simplesect kind="note"><para>These are the only entries whose exact RGB values are terminal-defined rather than algorithmically derived. Themes that override the <ref refid="namespace_a_n_s_i" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">ANSI</ref> 16 should replace this table. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Palette.h" line="38" column="19" bodyfile="terminal/Palette.h" bodystart="39" bodyend="56"/>
+        <referencedby refid="namespaceterminal_1a6ee303b5da8f6de02fc025255997ea2a" compoundref="_palette_8h" startline="230" endline="248">palette256At</referencedby>
+        <referencedby refid="namespaceterminal_1aa34b7c27f3d55a46829786eb96ffb5df" compoundref="_palette_8h" startline="67" endline="70">setAnsi16Colour</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1a461c0a8627fa66daee729e5610ff1803" prot="public" static="no" constexpr="yes" mutable="no">
+        <type>int</type>
+        <definition>int terminal::CUBE_START</definition>
+        <argsstring></argsstring>
+        <name>CUBE_START</name>
+        <qualifiedname>terminal::CUBE_START</qualifiedname>
+        <initializer>{ 16 }</initializer>
+        <briefdescription>
+<para>First xterm index of the 6×6×6 RGB color cube (inclusive). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Palette.h" line="73" column="22" bodyfile="terminal/Palette.h" bodystart="73" bodyend="73"/>
+        <referencedby refid="namespaceterminal_1a6ee303b5da8f6de02fc025255997ea2a" compoundref="_palette_8h" startline="230" endline="248">palette256At</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1ad37701f15f42c023d663ed5af0d4be6f" prot="public" static="no" constexpr="yes" mutable="no">
+        <type>int</type>
+        <definition>int terminal::CUBE_END</definition>
+        <argsstring></argsstring>
+        <name>CUBE_END</name>
+        <qualifiedname>terminal::CUBE_END</qualifiedname>
+        <initializer>{ 231 }</initializer>
+        <briefdescription>
+<para>Last xterm index of the 6×6×6 RGB color cube (inclusive). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Palette.h" line="76" column="22" bodyfile="terminal/Palette.h" bodystart="76" bodyend="76"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1a72fd54cd08d889ca7db90279f4681000" prot="public" static="no" constexpr="yes" mutable="no">
+        <type>int</type>
+        <definition>int terminal::CUBE_SIZE</definition>
+        <argsstring></argsstring>
+        <name>CUBE_SIZE</name>
+        <qualifiedname>terminal::CUBE_SIZE</qualifiedname>
+        <initializer>{ 216 }</initializer>
+        <briefdescription>
+<para>Total number of entries in the RGB color cube (6×6×6 = 216). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Palette.h" line="79" column="22" bodyfile="terminal/Palette.h" bodystart="79" bodyend="79"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1a2a797b7ada6dbb8fdf0a22a9d6dad4a0" prot="public" static="no" mutable="no">
+        <type>const std::array&lt; juce::Colour, <ref refid="namespaceterminal_1a72fd54cd08d889ca7db90279f4681000" kindref="member">CUBE_SIZE</ref> &gt;</type>
+        <definition>const std::array&lt;juce::Colour, CUBE_SIZE&gt; terminal::COLOR_CUBE</definition>
+        <argsstring></argsstring>
+        <name>COLOR_CUBE</name>
+        <qualifiedname>terminal::COLOR_CUBE</qualifiedname>
+        <briefdescription>
+<para>The 216-entry 6×6×6 RGB color cube (xterm indices 16–231). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Entries are ordered with blue as the fastest-varying axis, then green, then red — i.e. index 0 = (r=0,g=0,b=0), index 1 = (r=0,g=0,b=1), …, index 215 = (r=5,g=5,b=5). Access via <computeroutput>COLOR_CUBE.at(index - <ref refid="namespaceterminal_1a461c0a8627fa66daee729e5610ff1803" kindref="member">CUBE_START</ref>)</computeroutput>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Palette.h" line="117" column="25" bodyfile="terminal/Palette.h" bodystart="118" bodyend="160"/>
+        <referencedby refid="namespaceterminal_1a6ee303b5da8f6de02fc025255997ea2a" compoundref="_palette_8h" startline="230" endline="248">palette256At</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1a9a1bf7b476d73fd9ed51343ab6ca0b5f" prot="public" static="no" constexpr="yes" mutable="no">
+        <type>int</type>
+        <definition>int terminal::GRAY_START</definition>
+        <argsstring></argsstring>
+        <name>GRAY_START</name>
+        <qualifiedname>terminal::GRAY_START</qualifiedname>
+        <initializer>{ 232 }</initializer>
+        <briefdescription>
+<para>First xterm index of the grayscale ramp (inclusive). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Palette.h" line="163" column="22" bodyfile="terminal/Palette.h" bodystart="163" bodyend="163"/>
+        <referencedby refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" compoundref="_palette_8h" startline="180" endline="183">grayComponent</referencedby>
+        <referencedby refid="namespaceterminal_1a6ee303b5da8f6de02fc025255997ea2a" compoundref="_palette_8h" startline="230" endline="248">palette256At</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1afff17347242678b5954a2c6eed10577b" prot="public" static="no" constexpr="yes" mutable="no">
+        <type>int</type>
+        <definition>int terminal::GRAY_END</definition>
+        <argsstring></argsstring>
+        <name>GRAY_END</name>
+        <qualifiedname>terminal::GRAY_END</qualifiedname>
+        <initializer>{ 255 }</initializer>
+        <briefdescription>
+<para>Last xterm index of the grayscale ramp (inclusive). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Palette.h" line="166" column="22" bodyfile="terminal/Palette.h" bodystart="166" bodyend="166"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1ae4127176e5366a8392bc583727dc50c0" prot="public" static="no" constexpr="yes" mutable="no">
+        <type>int</type>
+        <definition>int terminal::GRAY_SIZE</definition>
+        <argsstring></argsstring>
+        <name>GRAY_SIZE</name>
+        <qualifiedname>terminal::GRAY_SIZE</qualifiedname>
+        <initializer>{ 24 }</initializer>
+        <briefdescription>
+<para>Total number of entries in the grayscale ramp. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Palette.h" line="169" column="22" bodyfile="terminal/Palette.h" bodystart="169" bodyend="169"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1a662f0586dcd3d10ce2a533b4fd7208fb" prot="public" static="no" mutable="no">
+        <type>const std::array&lt; juce::Colour, <ref refid="namespaceterminal_1ae4127176e5366a8392bc583727dc50c0" kindref="member">GRAY_SIZE</ref> &gt;</type>
+        <definition>const std::array&lt;juce::Colour, GRAY_SIZE&gt; terminal::GRAY_RAMP</definition>
+        <argsstring></argsstring>
+        <name>GRAY_RAMP</name>
+        <qualifiedname>terminal::GRAY_RAMP</qualifiedname>
+        <initializer>{{
+    juce::Colour (<ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (232), <ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (232), <ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (232)),
+    juce::Colour (<ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (233), <ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (233), <ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (233)),
+    juce::Colour (<ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (234), <ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (234), <ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (234)),
+    juce::Colour (<ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (235), <ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (235), <ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (235)),
+    juce::Colour (<ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (236), <ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (236), <ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (236)),
+    juce::Colour (<ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (237), <ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (237), <ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (237)),
+    juce::Colour (<ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (238), <ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (238), <ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (238)),
+    juce::Colour (<ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (239), <ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (239), <ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (239)),
+    juce::Colour (<ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (240), <ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (240), <ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (240)),
+    juce::Colour (<ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (241), <ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (241), <ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (241)),
+    juce::Colour (<ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (242), <ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (242), <ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (242)),
+    juce::Colour (<ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (243), <ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (243), <ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (243)),
+    juce::Colour (<ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (244), <ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (244), <ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (244)),
+    juce::Colour (<ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (245), <ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (245), <ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (245)),
+    juce::Colour (<ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (246), <ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (246), <ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (246)),
+    juce::Colour (<ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (247), <ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (247), <ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (247)),
+    juce::Colour (<ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (248), <ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (248), <ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (248)),
+    juce::Colour (<ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (249), <ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (249), <ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (249)),
+    juce::Colour (<ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (250), <ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (250), <ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (250)),
+    juce::Colour (<ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (251), <ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (251), <ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (251)),
+    juce::Colour (<ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (252), <ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (252), <ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (252)),
+    juce::Colour (<ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (253), <ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (253), <ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (253)),
+    juce::Colour (<ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (254), <ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (254), <ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (254)),
+    juce::Colour (<ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (255), <ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (255), <ref refid="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" kindref="member">grayComponent</ref> (255)),
+}}</initializer>
+        <briefdescription>
+<para>The 24-entry grayscale ramp (xterm indices 232–255). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Each entry is a neutral gray with equal R, G, B values stepping from 8 to 238 in increments of 10. Access via <computeroutput>GRAY_RAMP.at(index - <ref refid="namespaceterminal_1a9a1bf7b476d73fd9ed51343ab6ca0b5f" kindref="member">GRAY_START</ref>)</computeroutput>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Palette.h" line="191" column="25" bodyfile="terminal/Palette.h" bodystart="192" bodyend="217"/>
+        <referencedby refid="namespaceterminal_1a6ee303b5da8f6de02fc025255997ea2a" compoundref="_palette_8h" startline="230" endline="248">palette256At</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1aab8cfee7123b7b329b6111073e03e4c1" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="structterminal_1_1_private_mode_entry" kindref="compound">PrivateModeEntry</ref></type>
+        <definition>const PrivateModeEntry terminal::privateModeTable[]</definition>
+        <argsstring>[]</argsstring>
+        <name>privateModeTable</name>
+        <qualifiedname>terminal::privateModeTable</qualifiedname>
+        <initializer>{
+    {    1, <ref refid="namespaceterminal_1_1id_1a835b984d142092f0e66c3b84a7592e50" kindref="member">id::applicationCursor</ref>    },
+    {    5, <ref refid="namespaceterminal_1_1id_1a710962bdbd347a7cf7f78e8ceb9051ed" kindref="member">id::reverseVideo</ref>         },
+    {    7, <ref refid="namespaceterminal_1_1id_1a0e8e6d3467906059c0fa2d6881cc7f53" kindref="member">id::autoWrap</ref>             },
+    {   66, <ref refid="namespaceterminal_1_1id_1a1fcda58dd9e216fd9e21d52e1aeaa7fb" kindref="member">id::applicationKeypad</ref>   },
+    { 1000, <ref refid="namespaceterminal_1_1id_1a763f34f3777ae9891c42b31ff8b54ec9" kindref="member">id::mouseTracking</ref>        },
+    { 1002, <ref refid="namespaceterminal_1_1id_1abc2401b51dd58e607877f57caa34fcf5" kindref="member">id::mouseMotionTracking</ref>  },
+    { 1003, <ref refid="namespaceterminal_1_1id_1acf7c6273c18a0ca7153b11da1e5f98bb" kindref="member">id::mouseAllTracking</ref>     },
+    { 1004, <ref refid="namespaceterminal_1_1id_1a2f8f090a0ef139ccdf5d295861e923e4" kindref="member">id::focusEvents</ref>          },
+    { 1006, <ref refid="namespaceterminal_1_1id_1a8875114345d6eaa21aa977a93e75d836" kindref="member">id::mouseSgr</ref>             },
+    { 2004, <ref refid="namespaceterminal_1_1id_1a3c3cd20cca6ef6297d7a9823a5a14fa6" kindref="member">id::bracketedPaste</ref>       },
+    { 9001, <ref refid="namespaceterminal_1_1id_1a7102a916dd94fc53d9661b2a21f40c6e" kindref="member">id::win32InputMode</ref>       },
+}</initializer>
+        <briefdescription>
+<para><ref refid="struct_table" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Table</ref> of DECSET/DECRST mode numbers and their corresponding State IDs. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Covers the private modes that map directly to a single <computeroutput><ref refid="classterminal_1_1_video_1aff7ad33e9f588e4f681be1c47f91a7ff" kindref="member">Video::setMode()</ref></computeroutput> call. Modes that require additional side effects are handled separately in <computeroutput>handlePrivateMode()</computeroutput>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/VideoMode.cpp" line="118" column="31" bodyfile="terminal/VideoMode.cpp" bodystart="119" bodyend="131"/>
+        <referencedby refid="namespaceterminal_1aed214bc5b60ecbd71f4fa932c014b6e5" compoundref="_video_mode_8cpp" startline="148" endline="162">applyPrivateModeTable</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceterminal_1a9068a8c1ca71e9de6fb19b3045f3745e" prot="public" static="yes" constexpr="yes" mutable="no">
+        <type>int</type>
+        <definition>int terminal::DEFAULT_TAB_WIDTH</definition>
+        <argsstring></argsstring>
+        <name>DEFAULT_TAB_WIDTH</name>
+        <qualifiedname>terminal::DEFAULT_TAB_WIDTH</qualifiedname>
+        <initializer>{ 8 }</initializer>
+        <briefdescription>
+<para>Default tab stop interval in columns (VT100 standard). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Tab stops are placed at every column that is a multiple of this value: columns 8, 16, 24, 32, … . This matches the hardware VT100 default and the POSIX terminal default (<computeroutput>stty tab3</computeroutput>). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/VideoOps.cpp" line="455" column="22" bodyfile="terminal/VideoOps.cpp" bodystart="455" bodyend="455"/>
+        <referencedby refid="classterminal_1_1_video_1aeb01f7e9810e9794b82c81568fc35b6a" compoundref="_video_ops_8cpp" startline="481" endline="489">terminal::Video::initializeTabStops</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="namespaceterminal_1a1c6757b85fd739f5746d024e4ff76a93" prot="public" static="no" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t terminal::translateCharset</definition>
+        <argsstring>(uint32_t codepoint, bool lineDrawing) noexcept</argsstring>
+        <name>translateCharset</name>
+        <qualifiedname>terminal::translateCharset</qualifiedname>
+        <param>
+          <type>uint32_t</type>
+          <declname>codepoint</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>lineDrawing</declname>
+        </param>
+        <briefdescription>
+<para>DEC Special Character and <ref refid="classLine" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Line</ref> Drawing Set (VT100). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This table maps bytes 0x60-0x7E (96-126 decimal) to Unicode box-drawing characters and symbols used by the VT100 terminal for drawing lines, corners, and special graphical elements.</para>
+<para>Activated by ESC ( 0 (designate G0 as DEC Special <ref refid="classGraphics" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Graphics</ref>) Deactivated by ESC ( B (designate G0 as US ASCII)</para>
+<para>Mapping table index: codepoint - 0x60</para>
+<para>Example characters:<itemizedlist>
+<listitem><para>0x60 (`) -&gt; ◆ (U+25C6) - Diamond</para>
+</listitem><listitem><para>0x6A (j) -&gt; ┘ (U+2518) - Lower right corner</para>
+</listitem><listitem><para>0x6C (l) -&gt; ┌ (U+250C) - Upper left corner</para>
+</listitem><listitem><para>0x71 (q) -&gt; ─ (U+2500) - Horizontal line */ inline constexpr std::array&lt;uint32_t, 32&gt; DEC_LINE_DRAWING { 0x25C6, 0x2592, 0x2409, 0x240C, 0x240D, 0x240A, 0x00B0, 0x00B1, 0x2424, 0x240B, 0x2518, 0x2510, 0x250C, 0x2514, 0x253C, 0x23BA, 0x23BB, 0x2500, 0x23BC, 0x23BD, 0x251C, 0x2524, 0x2534, 0x252C, 0x2502, 0x2264, 0x2265, 0x03C0, 0x2260, 0x00A3, 0x00B7, 0x0020 };</para>
+</listitem></itemizedlist>
+</para>
+<para>/**</para>
+<para>Translates a codepoint using the active character set.</para>
+<para>This function applies character set mapping when line drawing mode is active. When lineDrawing is true and the codepoint falls within 0x60-0x7E, the corresponding DEC Special <ref refid="classGraphics" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Graphics</ref> character is returned.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>codepoint</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The Unicode codepoint to translate (input byte value) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>lineDrawing</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>True if DEC <ref refid="classLine" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Line</ref> Drawing mode is active </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>The translated codepoint (may be unchanged if not in mapped range)</para>
+</simplesect>
+<simplesect kind="note"><para><ref refid="classThread" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Thread</ref> safety: This function is constexpr and has no side effects. Safe to call from any thread context.</para>
+</simplesect>
+<simplesect kind="par"><title>Example</title><para><programlisting><codeline><highlight class="normal">uint32_t<sp/>c1<sp/>=<sp/><ref refid="namespaceterminal_1a1c6757b85fd739f5746d024e4ff76a93" kindref="member">translateCharset</ref>(0x6A,<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">);<sp/></highlight><highlight class="comment">//<sp/>Returns<sp/>0x6A<sp/>(&apos;j&apos;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">uint32_t<sp/>c2<sp/>=<sp/><ref refid="namespaceterminal_1a1c6757b85fd739f5746d024e4ff76a93" kindref="member">translateCharset</ref>(0x6A,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">);<sp/><sp/></highlight><highlight class="comment">//<sp/>Returns<sp/>0x2518<sp/>(┘)</highlight></codeline>
+</programlisting> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Charset.h" line="77" column="17" bodyfile="terminal/Charset.h" bodystart="77" bodyend="87"/>
+        <referencedby refid="classterminal_1_1_video_1a3779e3aadc17c29652543898f4d1dfec" compoundref="_video_8cpp" startline="507" endline="641">terminal::Video::print</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="namespaceterminal_1aa075362048925f1d63dcff19edc7b1cd" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void terminal::drawPopupMenuSeparator</definition>
+        <argsstring>(juce::Graphics &amp;g, const juce::Rectangle&lt; int &gt; &amp;area)</argsstring>
+        <name>drawPopupMenuSeparator</name>
+        <qualifiedname>terminal::drawPopupMenuSeparator</qualifiedname>
+        <param>
+          <type>juce::Graphics &amp;</type>
+          <declname>g</declname>
+        </param>
+        <param>
+          <type>const juce::Rectangle&lt; int &gt; &amp;</type>
+          <declname>area</declname>
+        </param>
+        <briefdescription>
+<para>Draws a separator line centred vertically within <computeroutput>area</computeroutput>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>g</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classGraphics" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Graphics</ref> context (colour must be set by caller). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>area</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Bounding rectangle for the separator item. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/component/LookAndFeelMenu.cpp" line="19" column="13" bodyfile="terminal/component/LookAndFeelMenu.cpp" bodystart="19" bodyend="27"/>
+        <references refid="group__juce__audio__plugin__client-Unity_1gae9ace15db486f33243a35ce689893fd9">y</references>
+        <referencedby refid="classterminal_1_1_look_and_feel_1a68ae7c0401a004635be9c6aee34a78e7" compoundref="_look_and_feel_menu_8cpp" startline="101" endline="169">terminal::LookAndFeel::drawPopupMenuItem</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="namespaceterminal_1a62a5134aa7cf3353a9e29cb7f0968e54" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void terminal::drawSubmenuArrow</definition>
+        <argsstring>(juce::Graphics &amp;g, const juce::Rectangle&lt; int &gt; &amp;area, float fontHeight)</argsstring>
+        <name>drawSubmenuArrow</name>
+        <qualifiedname>terminal::drawSubmenuArrow</qualifiedname>
+        <param>
+          <type>juce::Graphics &amp;</type>
+          <declname>g</declname>
+        </param>
+        <param>
+          <type>const juce::Rectangle&lt; int &gt; &amp;</type>
+          <declname>area</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>fontHeight</declname>
+        </param>
+        <briefdescription>
+<para>Draws the submenu arrow chevron at the right edge of <computeroutput>area</computeroutput>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>g</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classGraphics" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Graphics</ref> context (colour must be set by caller). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>area</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Bounding rectangle for the full menu item. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>fontHeight</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classFont" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Font</ref> height — used to derive arrow proportions. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/component/LookAndFeelMenu.cpp" line="36" column="13" bodyfile="terminal/component/LookAndFeelMenu.cpp" bodystart="36" bodyend="48"/>
+        <referencedby refid="classterminal_1_1_look_and_feel_1a68ae7c0401a004635be9c6aee34a78e7" compoundref="_look_and_feel_menu_8cpp" startline="101" endline="169">terminal::LookAndFeel::drawPopupMenuItem</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="namespaceterminal_1a688ccfb4d64021c0279a5072fc2ae5cd" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>juce::Rectangle&lt; float &gt;</type>
+        <definition>static juce::Rectangle&lt; float &gt; terminal::applyVerticalTabTransform</definition>
+        <argsstring>(juce::Graphics &amp;g, const juce::Rectangle&lt; float &gt; &amp;area, bool isLeftOrientation)</argsstring>
+        <name>applyVerticalTabTransform</name>
+        <qualifiedname>terminal::applyVerticalTabTransform</qualifiedname>
+        <param>
+          <type>juce::Graphics &amp;</type>
+          <declname>g</declname>
+        </param>
+        <param>
+          <type>const juce::Rectangle&lt; float &gt; &amp;</type>
+          <declname>area</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>isLeftOrientation</declname>
+        </param>
+        <briefdescription>
+<para>Applies a rotation transform to <computeroutput>g</computeroutput> for vertical tab orientations. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Rotates 90 degrees around the centre of <computeroutput>area</computeroutput> so that vertical tab drawing can reuse the same horizontal path logic.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>g</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classGraphics" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Graphics</ref> context (transform is added in place). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>area</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Original tab area rectangle (in component coordinates). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>isLeftOrientation</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>True when the tab bar is on the left side. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>The transformed draw area (width and height swapped). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/component/LookAndFeelTab.cpp" line="24" column="24" bodyfile="terminal/component/LookAndFeelTab.cpp" bodystart="24" bodyend="39"/>
+        <referencedby refid="classterminal_1_1_look_and_feel_1a59aa59b76ca56651ee887ce900ba5d07" compoundref="_look_and_feel_tab_8cpp" startline="56" endline="153">terminal::LookAndFeel::drawTabButtonCore</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="namespaceterminal_1a7b9c9dd44feef553c5420b76fc8d54ad" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool terminal::swizzleARGBToRGBA</definition>
+        <argsstring>(const juce::Image &amp;image, juce::HeapBlock&lt; uint8_t &gt; &amp;rgba, int &amp;width, int &amp;height) noexcept</argsstring>
+        <name>swizzleARGBToRGBA</name>
+        <qualifiedname>terminal::swizzleARGBToRGBA</qualifiedname>
+        <param>
+          <type>const juce::Image &amp;</type>
+          <declname>image</declname>
+        </param>
+        <param>
+          <type>juce::HeapBlock&lt; uint8_t &gt; &amp;</type>
+          <declname>rgba</declname>
+        </param>
+        <param>
+          <type>int &amp;</type>
+          <declname>width</declname>
+        </param>
+        <param>
+          <type>int &amp;</type>
+          <declname>height</declname>
+        </param>
+        <briefdescription>
+<para>Converts a JUCE ARGB image to straight RGBA in a <ref refid="classHeapBlock" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">HeapBlock</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Reads the JUCE internal BGRA premultiplied layout, un-premultiplies alpha, and writes straight RGBA suitable for GPU upload.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>image</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Source JUCE image (must be valid, ARGB format). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rgba</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer; allocated to <computeroutput>width * height * 4</computeroutput> bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">width</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classImage" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Image</ref> width in pixels. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">height</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classImage" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Image</ref> height in pixels. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><computeroutput>true</computeroutput> if conversion succeeded, <computeroutput>false</computeroutput> if image was invalid. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/ImageDecode.cpp" line="14" column="6" bodyfile="terminal/ImageDecode.cpp" bodystart="14" bodyend="68" declfile="terminal/ImageDecode.h" declline="52" declcolumn="6"/>
+        <references refid="group__juce__audio__plugin__client-Unity_1ga2ee4d4f298ba1bf1bc2f45c681c40ca3">h</references>
+        <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682ca78805a221a988e79ef3f42d7c5bfd418">image</references>
+        <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d">row</references>
+        <references refid="group__juce__audio__plugin__client-Unity_1ga9c08bc30636cc52269cf06d61cf5d4e8">w</references>
+        <referencedby refid="classterminal_1_1_i_term2_decoder_1acaef645d14f1c590d18e79e098ac73c1" compoundref="_i_term2_decoder_8cpp" startline="37" endline="147">terminal::ITerm2Decoder::decode</referencedby>
+        <referencedby refid="classterminal_1_1_kitty_decoder_1a69159f602564bc7ed146eb78c642ef87" compoundref="_kitty_decoder_decode_8cpp" startline="133" endline="281">terminal::KittyDecoder::decodePayload</referencedby>
+        <referencedby refid="namespaceterminal_1ab8471c5f4a063b7f05350297f06c862f" compoundref="_image_decode_mac_8mm" startline="77" endline="359">loadImageSequenceNative</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="namespaceterminal_1aa8b3c517475e377f8673a42bbbf1128b" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>juce::Image</type>
+        <definition>juce::Image terminal::loadImageNative</definition>
+        <argsstring>(const void *data, size_t dataSize) noexcept</argsstring>
+        <name>loadImageNative</name>
+        <qualifiedname>terminal::loadImageNative</qualifiedname>
+        <param>
+          <type>const void *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>dataSize</declname>
+        </param>
+        <briefdescription>
+<para>Decodes PNG/JPEG image data using the platform&apos;s native codec. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns a <computeroutput>juce::Image</computeroutput> in ARGB format (JUCE&apos;s internal layout: BGRA in memory on little-endian). Callers that need straight RGBA should pass the result through <computeroutput><ref refid="namespaceterminal_1a7b9c9dd44feef553c5420b76fc8d54ad" kindref="member">swizzleARGBToRGBA()</ref></computeroutput>.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to the compressed image bytes (PNG or JPEG). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dataSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of bytes in <computeroutput>data</computeroutput>. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>A valid <computeroutput>juce::Image</computeroutput> on success, or <computeroutput>juce::Image()</computeroutput> on failure.</para>
+</simplesect>
+<simplesect kind="note"><para>macOS: CGImageSource + CGBitmapContext (premultiplied BGRA). </para>
+</simplesect>
+<simplesect kind="note"><para>Windows: WIC IWICImagingFactory + IWICFormatConverter (BGRA). </para>
+</simplesect>
+<simplesect kind="note"><para>Linux: returns invalid image (no native codec support). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/ImageDecodeMac.mm" line="19" column="13" bodyfile="terminal/ImageDecodeMac.mm" bodystart="19" bodyend="75" declfile="terminal/ImageDecode.h" declline="38" declcolumn="13"/>
+        <references refid="group__juce__audio__plugin__client-Unity_1ga2ee4d4f298ba1bf1bc2f45c681c40ca3">h</references>
+        <references refid="group__juce__audio__plugin__client-Unity_1ga9c08bc30636cc52269cf06d61cf5d4e8">w</references>
+        <referencedby refid="classterminal_1_1_kitty_decoder_1a69159f602564bc7ed146eb78c642ef87" compoundref="_kitty_decoder_decode_8cpp" startline="133" endline="281">terminal::KittyDecoder::decodePayload</referencedby>
+        <referencedby refid="namespaceterminal_1ab8471c5f4a063b7f05350297f06c862f" compoundref="_image_decode_mac_8mm" startline="77" endline="359">loadImageSequenceNative</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="namespaceterminal_1ab8471c5f4a063b7f05350297f06c862f" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type><ref refid="structterminal_1_1_image_sequence" kindref="compound">ImageSequence</ref></type>
+        <definition>ImageSequence terminal::loadImageSequenceNative</definition>
+        <argsstring>(const void *data, size_t dataSize) noexcept</argsstring>
+        <name>loadImageSequenceNative</name>
+        <qualifiedname>terminal::loadImageSequenceNative</qualifiedname>
+        <param>
+          <type>const void *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>dataSize</declname>
+        </param>
+        <briefdescription>
+<para>Decodes all frames of an image using the platform&apos;s native codec. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>For GIF: extracts all frames, applies disposal methods (do-not-dispose, restore-to-background, restore-to-previous), and returns pre-composited frames as straight RGBA8. For PNG/JPEG: returns a single frame.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to the compressed image bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dataSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of bytes in <computeroutput>data</computeroutput>. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>An <computeroutput><ref refid="structterminal_1_1_image_sequence" kindref="compound">ImageSequence</ref></computeroutput> with all frames, or an invalid sequence on failure.</para>
+</simplesect>
+<simplesect kind="note"><para>READER THREAD or MESSAGE THREAD. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/ImageDecodeMac.mm" line="77" column="15" bodyfile="terminal/ImageDecodeMac.mm" bodystart="77" bodyend="359" declfile="terminal/ImageDecode.h" declline="91" declcolumn="15"/>
+        <references refid="struct_gif_metadata_1ab6e6a0f6f96e3ca706b2690ed74e2ba7" compoundref="_image_decode_gif_8h" startline="35" endline="35">GifMetadata::canvasHeight</references>
+        <references refid="struct_gif_metadata_1ad18b8479665e1d49db6b602b629fc244" compoundref="_image_decode_gif_8h" startline="34" endline="34">GifMetadata::canvasWidth</references>
+        <references refid="struct_gif_frame_info_1a028484bfd4e849ef1dc725e82ce1c2ca" compoundref="_image_decode_gif_8h" startline="27" endline="27">GifFrameInfo::delayMs</references>
+        <references refid="structterminal_1_1_image_sequence_1a896e2c074b680a3bbfa3fbc510ee1922" compoundref="_image_decode_8h" startline="69">terminal::ImageSequence::delays</references>
+        <references refid="struct_gif_frame_info_1ac6831c531442be8fbcb3ee6b1805b895" compoundref="_image_decode_gif_8h" startline="28" endline="28">GifFrameInfo::disposal</references>
+        <references refid="structterminal_1_1_image_sequence_1a403b07c2785e3391269fab4d837df14a" compoundref="_image_decode_8h" startline="70" endline="70">terminal::ImageSequence::frameCount</references>
+        <references refid="struct_gif_metadata_1ad01d671748388993e5387b4787fe8c81" compoundref="_image_decode_gif_8h" startline="36">GifMetadata::frames</references>
+        <references refid="group__juce__audio__plugin__client-Unity_1ga2ee4d4f298ba1bf1bc2f45c681c40ca3">h</references>
+        <references refid="struct_gif_frame_info_1ace5fd9ce9f1bfc9cc601a984219b7df7" compoundref="_image_decode_gif_8h" startline="26" endline="26">GifFrameInfo::height</references>
+        <references refid="structterminal_1_1_image_sequence_1af9713bee691d18a64d3b47e70ec9a32c" compoundref="_image_decode_8h" startline="72" endline="72">terminal::ImageSequence::height</references>
+        <references refid="struct_gif_metadata_1af1d31d86c7e12ce637aef48a84d4537f" compoundref="_image_decode_gif_8h" startline="37" endline="37">GifMetadata::isValid</references>
+        <references refid="struct_gif_frame_info_1ad7d27a36e0d9d4db8402145266c68f6c" compoundref="_image_decode_gif_8h" startline="23" endline="23">GifFrameInfo::left</references>
+        <references refid="namespaceterminal_1aa8b3c517475e377f8673a42bbbf1128b" compoundref="_image_decode_mac_8mm" startline="19" endline="75">loadImageNative</references>
+        <references refid="_image_decode_gif_8h_1a50307011e1271280d596d647c0b7011e" compoundref="_image_decode_gif_8h" startline="67" endline="196">parseGifMetadata</references>
+        <references refid="structterminal_1_1_image_sequence_1a950cadf179eb7f70a0e665eaf834d0d4" compoundref="_image_decode_8h" startline="68">terminal::ImageSequence::pixels</references>
+        <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d">row</references>
+        <references refid="namespaceterminal_1a7b9c9dd44feef553c5420b76fc8d54ad" compoundref="_image_decode_8cpp" startline="14" endline="68">swizzleARGBToRGBA</references>
+        <references refid="struct_gif_frame_info_1a021248d1ad45e189d19fc68ed3260eeb" compoundref="_image_decode_gif_8h" startline="24" endline="24">GifFrameInfo::top</references>
+        <references refid="group__juce__audio__plugin__client-Unity_1ga9c08bc30636cc52269cf06d61cf5d4e8">w</references>
+        <references refid="struct_gif_frame_info_1a6e3f352af3c380db82cf452bce69b0ec" compoundref="_image_decode_gif_8h" startline="25" endline="25">GifFrameInfo::width</references>
+        <references refid="structterminal_1_1_image_sequence_1a61e703d2998e97f05b524980bb1f4e7a" compoundref="_image_decode_8h" startline="71" endline="71">terminal::ImageSequence::width</references>
+        <referencedby refid="classterminal_1_1_i_term2_decoder_1acaef645d14f1c590d18e79e098ac73c1" compoundref="_i_term2_decoder_8cpp" startline="37" endline="147">terminal::ITerm2Decoder::decode</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="namespaceterminal_1ad3581f9d2e9f579bf01422fe6fe04958" prot="public" static="yes" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>static int terminal::getSessionParamInt</definition>
+        <argsstring>(const juce::ValueTree &amp;root, const juce::Identifier &amp;paramId, int defaultValue=0) noexcept</argsstring>
+        <name>getSessionParamInt</name>
+        <qualifiedname>terminal::getSessionParamInt</qualifiedname>
+        <param>
+          <type>const juce::ValueTree &amp;</type>
+          <declname>root</declname>
+        </param>
+        <param>
+          <type>const juce::Identifier &amp;</type>
+          <declname>paramId</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>defaultValue</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Model.cpp" line="238" column="1" bodyfile="terminal/Model.cpp" bodystart="238" bodyend="250"/>
+        <references refid="classjam_1_1_model_1ac0204402c1739f45230319069868ab23">jam::Model::getChildWithID</references>
+        <references refid="group__juce__events-messages_1gad2ae2032071a26beb5fb05a3745b8faf">JUCE_ASSERT_MESSAGE_THREAD</references>
+        <references refid="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11aeca07335a33c5aeb5e1bc7c98b4b9d80" compoundref="_dispatch_table_8h" startline="87">param</references>
+        <references refid="namespaceterminal_1_1id_1a2b8b3a15901c16432311d99e99a34d67" compoundref="_identifier_8h" startline="110" endline="110">terminal::id::value</references>
+        <referencedby refid="structterminal_1_1_model_1a79c2f1763b4446d250dcd8cf8536f5e7" compoundref="_model_8cpp" startline="465" endline="469">terminal::Model::getHintPage</referencedby>
+        <referencedby refid="structterminal_1_1_model_1aac24f406754f3362c2b6bfa0af234ae0" compoundref="_model_8cpp" startline="473" endline="477">terminal::Model::getHintTotalPages</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a9d77594f5ccf9ac9eb0b306b0fb2147d" compoundref="_model_8cpp" startline="341" endline="344">terminal::Model::getOutputBlockBottom</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a7f3c8d52e5b62960ea217e70f83439d1" compoundref="_model_8cpp" startline="339" endline="339">terminal::Model::getOutputBlockTop</referencedby>
+        <referencedby refid="structterminal_1_1_model_1aac6ceeff8f0e530370b29d8dcf8be665" compoundref="_model_8cpp" startline="346" endline="346">terminal::Model::getPromptRow</referencedby>
+        <referencedby refid="structterminal_1_1_model_1a7b52321fc962b551dc053e138512494d" compoundref="_model_8cpp" startline="446" endline="450">terminal::Model::getSplitCol</referencedby>
+        <referencedby refid="structterminal_1_1_model_1ae8d00e9ca1dc650b197c56cd055a36d7" compoundref="_model_8cpp" startline="440" endline="444">terminal::Model::isPreviewActive</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="namespaceterminal_1addcf6bd172238cb414fb733f064ab40f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void terminal::showNotification</definition>
+        <argsstring>(const juce::String &amp;title, const juce::String &amp;body)</argsstring>
+        <name>showNotification</name>
+        <qualifiedname>terminal::showNotification</qualifiedname>
+        <param>
+          <type>const juce::String &amp;</type>
+          <declname>title</declname>
+        </param>
+        <param>
+          <type>const juce::String &amp;</type>
+          <declname>body</declname>
+        </param>
+        <briefdescription>
+<para>Show a native desktop notification. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>title</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Notification title (may be empty for OSC 9). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>body</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Notification body text.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="note"><para>MESSAGE THREAD only. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Notifications.cpp" line="36" column="6" bodyfile="terminal/Notifications.cpp" bodystart="36" bodyend="53" declfile="terminal/Notifications.h" declline="28" declcolumn="6"/>
+        <references refid="group__juce__audio__plugin__client-Unity_1gga485dc2a0e5ed7da3d9f826367b36ee55a6440030ae8284cee96c1c88b356c45a7">command</references>
+        <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="namespaceterminal_1a7150de9530263cc14bf60f813543623a" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void terminal::ensureDelegate</definition>
+        <argsstring>()</argsstring>
+        <name>ensureDelegate</name>
+        <qualifiedname>terminal::ensureDelegate</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Notifications.mm" line="38" column="13" bodyfile="terminal/Notifications.mm" bodystart="38" bodyend="51"/>
+        <references refid="namespaceterminal_1a7150de9530263cc14bf60f813543623a" compoundref="_notifications_8mm" startline="38" endline="51">ensureDelegate</references>
+        <referencedby refid="namespaceterminal_1a7150de9530263cc14bf60f813543623a" compoundref="_notifications_8mm" startline="38" endline="51">ensureDelegate</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="namespaceterminal_1aa34b7c27f3d55a46829786eb96ffb5df" prot="public" static="no" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void terminal::setAnsi16Colour</definition>
+        <argsstring>(int index, juce::Colour colour) noexcept</argsstring>
+        <name>setAnsi16Colour</name>
+        <qualifiedname>terminal::setAnsi16Colour</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>index</declname>
+        </param>
+        <param>
+          <type>juce::Colour</type>
+          <declname>colour</declname>
+        </param>
+        <briefdescription>
+<para>Updates a single ANSI-16 colour for hot-reload from user config. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Called by <ref refid="classterminal_1_1_look_and_feel" kindref="compound">LookAndFeel</ref> when the terminal colour scheme changes. The parser reads ANSI_16 via <ref refid="namespaceterminal_1a6ee303b5da8f6de02fc025255997ea2a" kindref="member">palette256At()</ref> on every SGR colour attribute, so changes take effect on the next terminal output.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="namespace_a_n_s_i" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">ANSI</ref> colour index in the range [0, 15]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>colour</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New colour value from user configuration. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Palette.h" line="67" column="13" bodyfile="terminal/Palette.h" bodystart="67" bodyend="70"/>
+        <references refid="namespaceterminal_1a7c280ac96375daa7306ea3309285fc8f" compoundref="_palette_8h" startline="39" endline="56">ANSI_16</references>
+        <referencedby refid="classterminal_1_1_look_and_feel_1a39c354f2d95da338fd80326c04f97054" compoundref="_look_and_feel_8cpp" startline="32" endline="97">terminal::LookAndFeel::setColours</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="namespaceterminal_1a0d1f9088115851476e5d1ab9a667bfe2" prot="public" static="no" constexpr="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>uint8_t</type>
+        <definition>uint8_t terminal::cubeComponent</definition>
+        <argsstring>(int v) noexcept</argsstring>
+        <name>cubeComponent</name>
+        <qualifiedname>terminal::cubeComponent</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+<para>Maps a cube axis value [0–5] to its 8-bit channel intensity. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The xterm color cube uses a non-linear mapping: level 0 maps to 0, and levels 1–5 map to <computeroutput>55 + 40 * v</computeroutput>, producing the sequence {0, 95, 135, 175, 215, 255}.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>v</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Cube axis index in the range [0, 5]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Corresponding 8-bit channel value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Palette.h" line="90" column="26" bodyfile="terminal/Palette.h" bodystart="90" bodyend="94"/>
+        <referencedby refid="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" compoundref="_palette_8h" startline="105" endline="108">cubeEntry</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="namespaceterminal_1a52b1bb6ca1397cf27329f15a512237ae" prot="public" static="no" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>juce::Colour</type>
+        <definition>juce::Colour terminal::cubeEntry</definition>
+        <argsstring>(int r, int g, int b) noexcept</argsstring>
+        <name>cubeEntry</name>
+        <qualifiedname>terminal::cubeEntry</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>g</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+<para>Constructs a single juce::Colour from 6×6×6 cube coordinates. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Each axis value is independently mapped through <computeroutput><ref refid="namespaceterminal_1a0d1f9088115851476e5d1ab9a667bfe2" kindref="member">cubeComponent()</ref></computeroutput>.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>r</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Red axis index [0, 5]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>g</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Green axis index [0, 5]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>b</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Blue axis index [0, 5]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>juce::Colour with the corresponding RGB triple. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Palette.h" line="105" column="21" bodyfile="terminal/Palette.h" bodystart="105" bodyend="108"/>
+        <references refid="namespaceterminal_1a0d1f9088115851476e5d1ab9a667bfe2" compoundref="_palette_8h" startline="90" endline="94">cubeComponent</references>
+      </memberdef>
+      <memberdef kind="function" id="namespaceterminal_1a6f2ca8f1a650477a7a3ab7e26928bf6f" prot="public" static="no" constexpr="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>uint8_t</type>
+        <definition>uint8_t terminal::grayComponent</definition>
+        <argsstring>(int index) noexcept</argsstring>
+        <name>grayComponent</name>
+        <qualifiedname>terminal::grayComponent</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+<para>Maps a grayscale xterm index [232–255] to its 8-bit luminance value. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The ramp starts at 8 and increments by 10 per step, producing the sequence {8, 18, 28, …, 238}. Neither pure black (0) nor pure white (255) is included — those are covered by <ref refid="namespace_a_n_s_i" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">ANSI</ref> indices 0 and 15.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Absolute xterm palette index in the range [232, 255]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>8-bit luminance value for all three channels. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Palette.h" line="180" column="26" bodyfile="terminal/Palette.h" bodystart="180" bodyend="183"/>
+        <references refid="namespaceterminal_1a9a1bf7b476d73fd9ed51343ab6ca0b5f" compoundref="_palette_8h" startline="163" endline="163">GRAY_START</references>
+      </memberdef>
+      <memberdef kind="function" id="namespaceterminal_1a6ee303b5da8f6de02fc025255997ea2a" prot="public" static="no" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>juce::Colour</type>
+        <definition>juce::Colour terminal::palette256At</definition>
+        <argsstring>(int index) noexcept</argsstring>
+        <name>palette256At</name>
+        <qualifiedname>terminal::palette256At</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+<para>Resolves a single xterm-256 palette index to its juce::Colour. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Dispatches to the appropriate sub-table based on the index range:<itemizedlist>
+<listitem><para>[0, 15] → ANSI_16</para>
+</listitem><listitem><para>[16, 231] → COLOR_CUBE</para>
+</listitem><listitem><para>[232, 255] → GRAY_RAMP</para>
+</listitem></itemizedlist>
+</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>xterm palette index in the range [0, 255]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Corresponding juce::Colour. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Palette.h" line="230" column="21" bodyfile="terminal/Palette.h" bodystart="230" bodyend="248"/>
+        <references refid="namespaceterminal_1a7c280ac96375daa7306ea3309285fc8f" compoundref="_palette_8h" startline="39" endline="56">ANSI_16</references>
+        <references refid="namespaceterminal_1a2a797b7ada6dbb8fdf0a22a9d6dad4a0" compoundref="_palette_8h" startline="118" endline="160">COLOR_CUBE</references>
+        <references refid="namespaceterminal_1a461c0a8627fa66daee729e5610ff1803" compoundref="_palette_8h" startline="73" endline="73">CUBE_START</references>
+        <references refid="namespaceterminal_1a662f0586dcd3d10ce2a533b4fd7208fb" compoundref="_palette_8h" startline="192" endline="217">GRAY_RAMP</references>
+        <references refid="namespaceterminal_1a9a1bf7b476d73fd9ed51343ab6ca0b5f" compoundref="_palette_8h" startline="163" endline="163">GRAY_START</references>
+        <referencedby refid="classterminal_1_1_video_1a191f107cf758517419462a3c23e1d866" compoundref="_video_s_g_r_8cpp" startline="256" endline="330">terminal::Video::handleSGR</referencedby>
+        <referencedby refid="namespaceterminal_1a255498a29b2d29efaf8fbd0124827a9c" compoundref="_video_s_g_r_8cpp" startline="118" endline="141">parseExtendedColor</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="namespaceterminal_1aed214bc5b60ecbd71f4fa932c014b6e5" prot="public" static="yes" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool terminal::applyPrivateModeTable</definition>
+        <argsstring>(Video &amp;video, uint16_t modeValue, bool enable) noexcept</argsstring>
+        <name>applyPrivateModeTable</name>
+        <qualifiedname>terminal::applyPrivateModeTable</qualifiedname>
+        <param>
+          <type><ref refid="classterminal_1_1_video" kindref="compound">Video</ref> &amp;</type>
+          <declname>video</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>modeValue</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>enable</declname>
+        </param>
+        <briefdescription>
+<para>Applies a private mode number via the lookup table. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Searches <computeroutput><ref refid="namespaceterminal_1aab8cfee7123b7b329b6111073e03e4c1" kindref="member">privateModeTable</ref></computeroutput> for an entry matching <computeroutput>modeValue</computeroutput>. If found, calls <computeroutput><ref refid="classterminal_1_1_video_1aff7ad33e9f588e4f681be1c47f91a7ff" kindref="member">Video::setMode()</ref></computeroutput> with the corresponding ID and <computeroutput>enable</computeroutput>.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>video</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classterminal_1_1_video" kindref="compound">Video</ref> instance to update. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>modeValue</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The DECSET/DECRST mode number. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>enable</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><computeroutput>true</computeroutput> to set the mode, <computeroutput>false</computeroutput> to reset it.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><computeroutput>true</computeroutput> if the mode was found in the table and applied; <computeroutput>false</computeroutput> if the caller must handle it separately.</para>
+</simplesect>
+<simplesect kind="note"><para>READER THREAD only. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/VideoMode.cpp" line="148" column="13" bodyfile="terminal/VideoMode.cpp" bodystart="148" bodyend="162"/>
+        <references refid="namespaceterminal_1aab8cfee7123b7b329b6111073e03e4c1" compoundref="_video_mode_8cpp" startline="119" endline="131">privateModeTable</references>
+        <referencedby refid="classterminal_1_1_video_1aa2c40e6c32151961eb85741e8186bf28" compoundref="_video_mode_8cpp" startline="179" endline="223">terminal::Video::handlePrivateMode</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="namespaceterminal_1af99945f0d6a4e0c9e6fb537cd03db47d" prot="public" static="yes" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type><ref refid="structterminal_1_1_osc_header" kindref="compound">OscHeader</ref></type>
+        <definition>static OscHeader terminal::parseOscHeader</definition>
+        <argsstring>(const uint8_t *payload, int length) noexcept</argsstring>
+        <name>parseOscHeader</name>
+        <qualifiedname>terminal::parseOscHeader</qualifiedname>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>payload</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>length</declname>
+        </param>
+        <briefdescription>
+<para>Parses the numeric command code and data offset from an OSC payload. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Scans <computeroutput>payload</computeroutput> for the first <computeroutput>;</computeroutput> separator. Bytes before the separator that are ASCII digits are accumulated into <computeroutput>commandNumber</computeroutput>. <computeroutput>dataStart</computeroutput> is set to the index immediately after the <computeroutput>;</computeroutput>.</para>
+<para>If no <computeroutput>;</computeroutput> is found, <computeroutput>dataStart</computeroutput> remains 0 and the caller treats the payload as having no data portion.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>payload</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to the raw OSC payload bytes (not null-terminated). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>length</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of valid bytes in <computeroutput>payload</computeroutput>.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Parsed <computeroutput><ref refid="structterminal_1_1_osc_header" kindref="compound">OscHeader</ref></computeroutput> with <computeroutput>commandNumber</computeroutput> and <computeroutput>dataStart</computeroutput>.</para>
+</simplesect>
+<simplesect kind="note"><para>Pure function — no side effects. </para>
+</simplesect>
+<simplesect kind="note"><para>READER THREAD only. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/VideoOSC.cpp" line="76" column="18" bodyfile="terminal/VideoOSC.cpp" bodystart="76" bodyend="93"/>
+        <references refid="group__juce__audio__plugin__client-Unity_1ga2ee4d4f298ba1bf1bc2f45c681c40ca3">h</references>
+        <referencedby refid="classterminal_1_1_video_1a50a8fcff04f246ead6f978728f799fe2" compoundref="_video_o_s_c_8cpp" startline="426" endline="458">terminal::Video::applyOSC</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="namespaceterminal_1a255498a29b2d29efaf8fbd0124827a9c" prot="public" static="yes" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>juce::Colour</type>
+        <definition>static juce::Colour terminal::parseExtendedColor</definition>
+        <argsstring>(const CSI &amp;params, uint8_t &amp;i) noexcept</argsstring>
+        <name>parseExtendedColor</name>
+        <qualifiedname>terminal::parseExtendedColor</qualifiedname>
+        <param>
+          <type>const <ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> &amp;</type>
+          <declname>params</declname>
+        </param>
+        <param>
+          <type>uint8_t &amp;</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Parses an extended color sub-sequence (256-palette or 24-bit RGB). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Called when the SGR loop encounters code 38 (foreground) or 48 (background). Reads the sub-type from <computeroutput>params.values[i+1]</computeroutput> and constructs the appropriate juce::Colour value, advancing <computeroutput>i</computeroutput> past the consumed sub-parameters.</para>
+<para><simplesect kind="par"><title>Sub-type 5 — 256-color palette</title><para><programlisting><codeline><highlight class="comment">//<sp/>ESC<sp/>[<sp/>38<sp/>;<sp/>5<sp/>;<sp/>N<sp/>m</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>params.values:<sp/>[38,<sp/>5,<sp/>N,<sp/>...]</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>i<sp/><sp/>i+1<sp/>i+2</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>Consumes<sp/>i+1<sp/>and<sp/>i+2;<sp/>advances<sp/>i<sp/>by<sp/>2.</highlight></codeline>
+</programlisting></para>
+</simplesect>
+<simplesect kind="par"><title>Sub-type 2 — 24-bit RGB</title><para><programlisting><codeline><highlight class="comment">//<sp/>ESC<sp/>[<sp/>38<sp/>;<sp/>2<sp/>;<sp/>R<sp/>;<sp/>G<sp/>;<sp/>B<sp/>m</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>params.values:<sp/>[38,<sp/>2,<sp/>R,<sp/>G,<sp/>B,<sp/>...]</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>i<sp/><sp/>i+1<sp/>i+2<sp/>i+3<sp/>i+4</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>Consumes<sp/>i+1<sp/>through<sp/>i+4;<sp/>advances<sp/>i<sp/>by<sp/>4.</highlight></codeline>
+</programlisting></para>
+</simplesect>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>params</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The full <ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> parameter set for the current SGR sequence. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>i</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Index of the 38/48 code in <computeroutput>params.values</computeroutput>. Updated in-place to point past the last consumed sub-parameter so the caller&apos;s loop can continue from the correct position.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>A juce::Colour with the resolved value:<itemizedlist>
+<listitem><para>palette lookup for 256-color (sub-type 5)</para>
+</listitem><listitem><para>direct RGB construction for 24-bit RGB (sub-type 2)</para>
+</listitem><listitem><para>theme-default sentinel <computeroutput>juce::Colour{}</computeroutput> if sub-type is unrecognised or there are insufficient parameters.</para>
+</listitem></itemizedlist>
+</para>
+</simplesect>
+<simplesect kind="note"><para>READER THREAD only.</para>
+</simplesect>
+<simplesect kind="see"><para>handleSGR() </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/VideoSGR.cpp" line="118" column="21" bodyfile="terminal/VideoSGR.cpp" bodystart="118" bodyend="141"/>
+        <references refid="namespaceterminal_1a6ee303b5da8f6de02fc025255997ea2a" compoundref="_palette_8h" startline="230" endline="248">palette256At</references>
+        <referencedby refid="classterminal_1_1_video_1a191f107cf758517419462a3c23e1d866" compoundref="_video_s_g_r_8cpp" startline="256" endline="330">terminal::Video::handleSGR</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="namespaceterminal_1a25e958c9e527dce90f37c311d50c4ed2" prot="public" static="yes" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void terminal::applySGRStyle</definition>
+        <argsstring>(uint8_t &amp;flags, uint16_t code) noexcept</argsstring>
+        <name>applySGRStyle</name>
+        <qualifiedname>terminal::applySGRStyle</qualifiedname>
+        <param>
+          <type>uint8_t &amp;</type>
+          <declname>flags</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>code</declname>
+        </param>
+        <briefdescription>
+<para>Sets a style flag on <computeroutput>flags</computeroutput> for SGR attribute-on codes (1–9). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Maps the raw SGR code to the corresponding <ref refid="structjam_1_1_stamp" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Stamp</ref> flag bit and ORs it into <computeroutput>flags</computeroutput>. Codes not listed in the switch are silently ignored.</para>
+<para><table rows="8" cols="2"><row>
+<entry thead="yes"><para>Code  </para>
+</entry><entry thead="yes"><para>Attribute set  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>1  </para>
+</entry><entry thead="no"><para><ref refid="structjam_1_1_stamp_1a7b3a74474303f120cd29071587664564" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Stamp::BOLD</ref>  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>2  </para>
+</entry><entry thead="no"><para><ref refid="structjam_1_1_stamp_1a5496dd1342018f5f8556875bb8e1e010" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Stamp::DIM</ref>  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>3  </para>
+</entry><entry thead="no"><para><ref refid="structjam_1_1_stamp_1ade6ba8dcf76243e58b5f4582c33288e7" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Stamp::ITALIC</ref>  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>4  </para>
+</entry><entry thead="no"><para><ref refid="structjam_1_1_stamp_1ac62f235cf4629d93e25651cafad3c6d4" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Stamp::UNDERLINE</ref>  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>5, 6  </para>
+</entry><entry thead="no"><para><ref refid="structjam_1_1_stamp_1a72e418181291235d5eb68139083e118c" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Stamp::BLINK</ref>  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>7  </para>
+</entry><entry thead="no"><para><ref refid="structjam_1_1_stamp_1a6fdccec8a7d9140db4c093792e94846c" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Stamp::INVERSE</ref>  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>9  </para>
+</entry><entry thead="no"><para><ref refid="structjam_1_1_stamp_1a9cd99f6a1f6931b0b3837263409c9d7d" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Stamp::STRIKE</ref>  </para>
+</entry></row>
+</table>
+</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>flags</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Bitmask to mutate. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>SGR attribute code (1–9).</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="note"><para>READER THREAD only. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/VideoSGR.cpp" line="164" column="13" bodyfile="terminal/VideoSGR.cpp" bodystart="164" bodyend="178"/>
+        <references refid="structjam_1_1_stamp_1a72e418181291235d5eb68139083e118c">jam::Stamp::BLINK</references>
+        <references refid="structjam_1_1_stamp_1a7b3a74474303f120cd29071587664564">jam::Stamp::BOLD</references>
+        <references refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9">code</references>
+        <references refid="structjam_1_1_stamp_1a5496dd1342018f5f8556875bb8e1e010">jam::Stamp::DIM</references>
+        <references refid="structjam_1_1_stamp_1a6fdccec8a7d9140db4c093792e94846c">jam::Stamp::INVERSE</references>
+        <references refid="structjam_1_1_stamp_1ade6ba8dcf76243e58b5f4582c33288e7">jam::Stamp::ITALIC</references>
+        <references refid="structjam_1_1_stamp_1a9cd99f6a1f6931b0b3837263409c9d7d">jam::Stamp::STRIKE</references>
+        <references refid="structjam_1_1_stamp_1ac62f235cf4629d93e25651cafad3c6d4">jam::Stamp::UNDERLINE</references>
+        <referencedby refid="classterminal_1_1_video_1a191f107cf758517419462a3c23e1d866" compoundref="_video_s_g_r_8cpp" startline="256" endline="330">terminal::Video::handleSGR</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="namespaceterminal_1a74f930d5094dd953e7b96ccaccf93893" prot="public" static="yes" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void terminal::resetSGRStyle</definition>
+        <argsstring>(uint8_t &amp;flags, uint16_t code) noexcept</argsstring>
+        <name>resetSGRStyle</name>
+        <qualifiedname>terminal::resetSGRStyle</qualifiedname>
+        <param>
+          <type>uint8_t &amp;</type>
+          <declname>flags</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>code</declname>
+        </param>
+        <briefdescription>
+<para>Clears a style flag on <computeroutput>flags</computeroutput> for SGR attribute-off codes (21–29). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Maps the raw SGR code to the corresponding <ref refid="structjam_1_1_stamp" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Stamp</ref> flag bit and ANDs its complement into <computeroutput>flags</computeroutput>. Codes not listed in the switch are silently ignored.</para>
+<para><simplesect kind="note"><para>Codes 21 and 22 both clear BOLD | DIM. Code 21 is specified as &quot;doubly underlined&quot; in ECMA-48 but xterm uses it as bold-off.</para>
+</simplesect>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>flags</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Bitmask to mutate. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">code</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>SGR attribute-off code (21–29).</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="note"><para>READER THREAD only. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/VideoSGR.cpp" line="195" column="13" bodyfile="terminal/VideoSGR.cpp" bodystart="195" bodyend="208"/>
+        <references refid="structjam_1_1_stamp_1a7b3a74474303f120cd29071587664564">jam::Stamp::BOLD</references>
+        <references refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9">code</references>
+        <references refid="structjam_1_1_stamp_1a5496dd1342018f5f8556875bb8e1e010">jam::Stamp::DIM</references>
+        <referencedby refid="classterminal_1_1_video_1a191f107cf758517419462a3c23e1d866" compoundref="_video_s_g_r_8cpp" startline="256" endline="330">terminal::Video::handleSGR</referencedby>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="terminal/CellFifo.h" line="68" column="1"/>
+  </compounddef>
+</doxygen>

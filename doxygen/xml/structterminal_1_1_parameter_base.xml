@@ -1,0 +1,130 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="structterminal_1_1_parameter_base" kind="struct" language="Unknown" prot="public" abstract="yes">
+    <compoundname>terminal::ParameterBase</compoundname>
+    <derivedcompoundref refid="structjam_1_1_parameter_3_01const_01char_01_5_01_4" prot="public" virt="non-virtual">jam::Parameter&lt; const char * &gt;</derivedcompoundref>
+    <derivedcompoundref refid="structjam_1_1_parameter_3_01float_01_4" prot="public" virt="non-virtual">jam::Parameter&lt; float &gt;</derivedcompoundref>
+    <derivedcompoundref refid="structjam_1_1_parameter_3_01int_01_4" prot="public" virt="non-virtual">jam::Parameter&lt; int &gt;</derivedcompoundref>
+    <derivedcompoundref refid="structjam_1_1_parameter_3_01int64__t_01_4" prot="public" virt="non-virtual">jam::Parameter&lt; int64_t &gt;</derivedcompoundref>
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structjam_1_1_parameter_base_1ae056ec08b83cb00c85f6bd8561d0a5e8" prot="public" static="no" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier jam::ParameterBase::id</definition>
+        <argsstring></argsstring>
+        <name>id</name>
+        <qualifiedname>terminal::ParameterBase::id</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml" line="43548" column="1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="public-func">
+      <memberdef kind="function" id="structjam_1_1_parameter_base_1a5f90de4148e4df7925a58e5b5d38a550" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>jam::ParameterBase::ParameterBase</definition>
+        <argsstring>(const juce::Identifier &amp;parameterId) noexcept</argsstring>
+        <name>ParameterBase</name>
+        <qualifiedname>terminal::ParameterBase::ParameterBase</qualifiedname>
+        <param>
+          <type>const juce::Identifier &amp;</type>
+          <declname>parameterId</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml" line="43520" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="structjam_1_1_parameter_base_1afbe15bcd03552eb51610c3f27a3389a5" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type></type>
+        <definition>virtual jam::ParameterBase::~ParameterBase</definition>
+        <argsstring>()=default</argsstring>
+        <name>~ParameterBase</name>
+        <qualifiedname>terminal::ParameterBase::~ParameterBase</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml" line="43527" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="structjam_1_1_parameter_base_1a9ed66cc4015a238a76c70bea49d9ba9e" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>bool</type>
+        <definition>virtual bool jam::ParameterBase::flush</definition>
+        <argsstring>() noexcept=0</argsstring>
+        <name>flush</name>
+        <qualifiedname>terminal::ParameterBase::flush</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml" line="43534" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="structjam_1_1_parameter_base_1aee9d383a6cbdbb24900f1de30ae42e52" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>void</type>
+        <definition>virtual void jam::ParameterBase::restoreValues</definition>
+        <argsstring>() noexcept=0</argsstring>
+        <name>restoreValues</name>
+        <qualifiedname>terminal::ParameterBase::restoreValues</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml" line="43541" column="1"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>jam::Parameter&lt; const char * &gt;</label>
+        <link refid="structjam_1_1_parameter_3_01const_01char_01_5_01_4" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>jam::Parameter&lt; float &gt;</label>
+        <link refid="structjam_1_1_parameter_3_01float_01_4" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>jam::Parameter&lt; int &gt;</label>
+        <link refid="structjam_1_1_parameter_3_01int_01_4" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>jam::Parameter&lt; int64_t &gt;</label>
+        <link refid="structjam_1_1_parameter_3_01int64__t_01_4" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>terminal::ParameterBase</label>
+        <link refid="structterminal_1_1_parameter_base"/>
+      </node>
+    </inheritancegraph>
+    <location file="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml" line="43517" column="1"/>
+    <listofallmembers>
+      <member refid="structjam_1_1_parameter_base_1a9ed66cc4015a238a76c70bea49d9ba9e" prot="public" virt="pure-virtual"><scope>terminal::ParameterBase</scope><name>flush</name></member>
+      <member refid="structjam_1_1_parameter_base_1ae056ec08b83cb00c85f6bd8561d0a5e8" prot="public" virt="non-virtual"><scope>terminal::ParameterBase</scope><name>id</name></member>
+      <member refid="structjam_1_1_parameter_base_1a5f90de4148e4df7925a58e5b5d38a550" prot="public" virt="non-virtual"><scope>terminal::ParameterBase</scope><name>ParameterBase</name></member>
+      <member refid="structjam_1_1_parameter_base_1aee9d383a6cbdbb24900f1de30ae42e52" prot="public" virt="pure-virtual"><scope>terminal::ParameterBase</scope><name>restoreValues</name></member>
+      <member refid="structjam_1_1_parameter_base_1afbe15bcd03552eb51610c3f27a3389a5" prot="public" virt="virtual"><scope>terminal::ParameterBase</scope><name>~ParameterBase</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

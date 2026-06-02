@@ -15,7 +15,7 @@
 #include "MermaidSVGParser.h"
 #include "../Cursor.h"
 #include "Tokenizer.h"
-#include "../AppState.h"
+#include "../AppModel.h"
 #include "../SelectionType.h"
 #include "../ModalType.h"
 #include "../lua/Engine.h"

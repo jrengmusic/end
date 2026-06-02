@@ -1,0 +1,417 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="_parser_action_8cpp" kind="file" language="C++">
+    <compoundname>ParserAction.cpp</compoundname>
+    <includes refid="terminal_2_parser_8h" local="yes">Parser.h</includes>
+    <incdepgraph>
+      <node id="12">
+        <label>../Map.h</label>
+        <link refid="_map_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>CSI.h</label>
+        <link refid="_c_s_i_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>CharProps.h</label>
+        <link refid="_char_props_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>CharPropsData.h</label>
+        <link refid="_char_props_data_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>Charset.h</label>
+        <link refid="_charset_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>DispatchTable.h</label>
+        <link refid="_dispatch_table_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>Identifier.h</label>
+        <link refid="_identifier_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>Palette.h</label>
+        <link refid="_palette_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>Parser.h</label>
+        <link refid="terminal_2_parser_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>terminal/ParserAction.cpp</label>
+        <link refid="_parser_action_8cpp"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>Video.h</label>
+        <link refid="_video_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>JuceHeader.h</label>
+      </node>
+      <node id="7">
+        <label>atomic</label>
+      </node>
+    </incdepgraph>
+    <innernamespace refid="namespaceterminal">terminal</innernamespace>
+    <briefdescription>
+<para>VT action dispatch, UTF-8 accumulation, and CSI parameter helpers. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>This translation unit implements <computeroutput>Parser::performAction()</computeroutput>, <computeroutput>Parser::performEntryAction()</computeroutput>, the UTF-8 byte accumulation path, and the buffer append primitive. The hot-path loop and state transition machinery live in <computeroutput>Parser.cpp</computeroutput>.</para>
+<sect1 id="_parser_action_8cpp_1autotoc_md55_1s1"><sect2 id="_parser_action_8cpp_1autotoc_md55">
+<title>performAction() dispatch table</title><para><table rows="15" cols="2"><row>
+<entry thead="yes"><para>Action  </para>
+</entry><entry thead="yes"><para>Effect  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>print  </para>
+</entry><entry thead="no"><para><computeroutput>handlePrintByte()</computeroutput> → UTF-8 accumulation → <computeroutput>video.print()</computeroutput>  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>execute  </para>
+</entry><entry thead="no"><para><computeroutput>video.applyControlCode()</computeroutput> — C0 control characters (CR, LF, BS, …)  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>collect  </para>
+</entry><entry thead="no"><para>Append byte to <computeroutput>intermediateBuffer</computeroutput>  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>param  </para>
+</entry><entry thead="no"><para><computeroutput>handleParam()</computeroutput> — digit/separator into CSI accumulator  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>escDispatch  </para>
+</entry><entry thead="no"><para><computeroutput>video.applyESC()</computeroutput> — complete ESC sequence  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>csiDispatch  </para>
+</entry><entry thead="no"><para><computeroutput>video.applyCSI()</computeroutput> — complete CSI sequence  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>oscPut  </para>
+</entry><entry thead="no"><para><computeroutput>appendToBuffer (oscBuffer, …)</computeroutput> — hybrid OSC buffer  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>oscEnd  </para>
+</entry><entry thead="no"><para><computeroutput>video.applyOSC()</computeroutput> — complete OSC string  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>hook  </para>
+</entry><entry thead="no"><para><computeroutput>video.storeDCSHeader()</computeroutput> — DCS sequence entry, records final byte  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>put  </para>
+</entry><entry thead="no"><para><computeroutput>appendToBuffer (dcsBuffer, …)</computeroutput> — DCS passthrough byte  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>unhook  </para>
+</entry><entry thead="no"><para><computeroutput>video.applyDCSPayload()</computeroutput> — DCS sequence exit, dispatches accumulated payload  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>apcPut  </para>
+</entry><entry thead="no"><para><computeroutput>appendToBuffer (apcBuffer, …)</computeroutput> — APC passthrough byte  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>apcEnd  </para>
+</entry><entry thead="no"><para><computeroutput>video.applyAPCPayload()</computeroutput> — Kitty graphics APC exit  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>ignore/none  </para>
+</entry><entry thead="no"><para>No-op  </para>
+</entry></row>
+</table>
+</para>
+</sect2></sect1>
+<sect1 id="_parser_action_8cpp_1autotoc_md56_1s1"><sect2 id="_parser_action_8cpp_1autotoc_md56">
+<title>Thread model</title><para><bold>All methods in this file are READER THREAD only.</bold></para>
+<para><simplesect kind="see"><para>Parser.h — class declaration, member documentation, and lifecycle notes </para>
+</simplesect>
+<simplesect kind="see"><para>Parser.cpp — hot-path loop and state transition machinery </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="_video_8h" kindref="compound">Video.h</ref> — VT <ref refid="group__juce__audio__plugin__client-Unity_1gga485dc2a0e5ed7da3d9f826367b36ee55a6440030ae8284cee96c1c88b356c45a7" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">command</ref> processor called directly for all semantic actions </para>
+</simplesect>
+</para>
+</sect2></sect1>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="terminal_2_parser_8h" kindref="compound">Parser.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespaceterminal" kindref="compound">terminal</ref></highlight></codeline>
+<codeline lineno="41"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="comment">/*____________________________________________________________________________*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="comment">//<sp/>============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Buffer<sp/>management</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="comment">//<sp/>============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73" refid="classterminal_1_1_parser_1a2c8a71bc4a22229d0d97ae994a5d4f0a" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_parser_1a2c8a71bc4a22229d0d97ae994a5d4f0a" kindref="member">Parser::appendToBuffer</ref><sp/>(juce::HeapBlock&lt;uint8_t&gt;&amp;<sp/>buffer,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">&amp;<sp/>size,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">&amp;<sp/>capacity,<sp/>uint8_t<sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>initialCapacity)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(size<sp/>&gt;=<sp/>capacity)</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>newCapacity<sp/>{<sp/>(capacity<sp/>==<sp/>0)<sp/>?<sp/>initialCapacity<sp/>:<sp/>capacity<sp/>*<sp/>2<sp/>};</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>juce::HeapBlock&lt;uint8_t&gt;<sp/>grown;</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>grown.allocate<sp/>(</highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">size_t</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(newCapacity),<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(size<sp/>&gt;<sp/>0)</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::memcpy<sp/>(grown.get(),<sp/>buffer.get(),<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">size_t</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(size));</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>buffer<sp/>=<sp/>std::move<sp/>(grown);</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>capacity<sp/>=<sp/>newCapacity;</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/>buffer[size]<sp/>=<sp/>byte;</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/>++size;</highlight></codeline>
+<codeline lineno="90"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight><highlight class="comment">//<sp/>============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Action<sp/>dispatch</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight><highlight class="comment">//<sp/>============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115" refid="classterminal_1_1_parser_1af78b792dc9d0b8b333bc3c3813391f8d" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_parser_1af78b792dc9d0b8b333bc3c3813391f8d" kindref="member">Parser::performAction</ref><sp/>(<ref refid="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11" kindref="member">ParserAction</ref><sp/><ref refid="namespaceaction" kindref="compound">action</ref>,<sp/>uint8_t<sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">switch</highlight><highlight class="normal"><sp/>(<ref refid="namespaceaction" kindref="compound">action</ref>)</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11a334c4a4c42fdb79d7ebc3e73b517e6f8" kindref="member">ParserAction::none</ref>:</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11a567bc1d268f135496de3d5b946b691f3" kindref="member">ParserAction::ignore</ref>:</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11af7531e2d0ea27233ce00b5f01c5bf335" kindref="member">ParserAction::print</ref>:</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_parser_1a1a159770aea2f6a76bf82e266aabc11b" kindref="member">handlePrintByte</ref><sp/>(</highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11aec0cd3cb91fe82b9501f62a528eb07a9" kindref="member">ParserAction::execute</ref>:</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_parser_1add9fd18d616e24827f1fea161a4a4716" kindref="member">video</ref>.applyControlCode<sp/>(</highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11a0788a6922bd5f9f130e7ed8980193bab" kindref="member">ParserAction::collect</ref>:</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classterminal_1_1_parser_1a238da134a6b7f592513a697e86c57769" kindref="member">intermediateCount</ref><sp/>&lt;<sp/><ref refid="classterminal_1_1_parser_1a543c61236bf9731652874fbd0f7a30e8" kindref="member">MAX_INTERMEDIATES</ref>)</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_parser_1acbebc6c38bfa88fd25fe7a7c80ed63b4" kindref="member">intermediateBuffer</ref>[<ref refid="classterminal_1_1_parser_1a238da134a6b7f592513a697e86c57769" kindref="member">intermediateCount</ref>]<sp/>=<sp/>byte;</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>++<ref refid="classterminal_1_1_parser_1a238da134a6b7f592513a697e86c57769" kindref="member">intermediateCount</ref>;</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11aeca07335a33c5aeb5e1bc7c98b4b9d80" kindref="member">ParserAction::param</ref>:</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_parser_1aa6964d58b5741fcbf2939c4733b7f4e5" kindref="member">handleParam</ref><sp/>(</highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11a622c3b29c258677d614464846cd91fc6" kindref="member">ParserAction::escDispatch</ref>:</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_parser_1add9fd18d616e24827f1fea161a4a4716" kindref="member">video</ref>.applyESC<sp/>(<ref refid="classterminal_1_1_parser_1acbebc6c38bfa88fd25fe7a7c80ed63b4" kindref="member">intermediateBuffer</ref>,<sp/><ref refid="classterminal_1_1_parser_1a238da134a6b7f592513a697e86c57769" kindref="member">intermediateCount</ref>,<sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"></highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11a5d13f8b37c9f3bb560c10c79d97554b6" kindref="member">ParserAction::csiDispatch</ref>:</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_parser_1aa489539fa89b0b0a25246719c4f87b6c" kindref="member">csi</ref>.finalize();</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_parser_1add9fd18d616e24827f1fea161a4a4716" kindref="member">video</ref>.applyCSI<sp/>(<ref refid="classterminal_1_1_parser_1aa489539fa89b0b0a25246719c4f87b6c" kindref="member">csi</ref>,<sp/><ref refid="classterminal_1_1_parser_1acbebc6c38bfa88fd25fe7a7c80ed63b4" kindref="member">intermediateBuffer</ref>,<sp/><ref refid="classterminal_1_1_parser_1a238da134a6b7f592513a697e86c57769" kindref="member">intermediateCount</ref>,<sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11a8e13ffc9fd9d6a6761231a764bdf106b" kindref="member">ParserAction::put</ref>:</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_parser_1a2c8a71bc4a22229d0d97ae994a5d4f0a" kindref="member">appendToBuffer</ref><sp/>(<ref refid="classterminal_1_1_parser_1a75e9c8c6bc7aa748da31b27fe89ec253" kindref="member">dcsBuffer</ref>,<sp/><ref refid="classterminal_1_1_parser_1ad077a2c88726c0789fc34ae81fcc920d" kindref="member">dcsBufferSize</ref>,<sp/><ref refid="classterminal_1_1_parser_1aeb96a68a4a4ff77bf40a239668ec01f6" kindref="member">dcsBufferCapacity</ref>,<sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">,<sp/>65536);</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11a59f111e13f706bd92b607dd047ed3f2f" kindref="member">ParserAction::oscPut</ref>:</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_parser_1a2c8a71bc4a22229d0d97ae994a5d4f0a" kindref="member">appendToBuffer</ref><sp/>(<ref refid="classterminal_1_1_parser_1a677d9933682b381bc2df67e0e4edeeee" kindref="member">oscBuffer</ref>,<sp/><ref refid="classterminal_1_1_parser_1a683edbe8a3d333c01b67f51964a03d39" kindref="member">oscBufferSize</ref>,<sp/><ref refid="classterminal_1_1_parser_1a80ec99c5ee404d20570848c130a4451b" kindref="member">oscBufferCapacity</ref>,<sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">,<sp/><ref refid="classterminal_1_1_parser_1a6fa501042f41cbf8319936a5557d4b95" kindref="member">OSC_BUFFER_CAPACITY</ref>);</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"></highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11a78cd9348937078efe757b46423b52239" kindref="member">ParserAction::oscEnd</ref>:</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_parser_1add9fd18d616e24827f1fea161a4a4716" kindref="member">video</ref>.applyOSC<sp/>(<ref refid="classterminal_1_1_parser_1a677d9933682b381bc2df67e0e4edeeee" kindref="member">oscBuffer</ref>.get(),<sp/><ref refid="classterminal_1_1_parser_1a683edbe8a3d333c01b67f51964a03d39" kindref="member">oscBufferSize</ref>);</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"></highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11a5a582ef17d6a088d9cb644e4c1ea3cdd" kindref="member">ParserAction::hook</ref>:</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_parser_1aa489539fa89b0b0a25246719c4f87b6c" kindref="member">csi</ref>.finalize();</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_parser_1add9fd18d616e24827f1fea161a4a4716" kindref="member">video</ref>.storeDCSHeader<sp/>(<ref refid="classterminal_1_1_parser_1aa489539fa89b0b0a25246719c4f87b6c" kindref="member">csi</ref>,<sp/><ref refid="classterminal_1_1_parser_1acbebc6c38bfa88fd25fe7a7c80ed63b4" kindref="member">intermediateBuffer</ref>,<sp/><ref refid="classterminal_1_1_parser_1a238da134a6b7f592513a697e86c57769" kindref="member">intermediateCount</ref>,<sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"></highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11a5e37107d1678b51078224718c60a6eab" kindref="member">ParserAction::unhook</ref>:</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_parser_1add9fd18d616e24827f1fea161a4a4716" kindref="member">video</ref>.applyDCSPayload<sp/>(<ref refid="classterminal_1_1_parser_1a75e9c8c6bc7aa748da31b27fe89ec253" kindref="member">dcsBuffer</ref>.get(),<sp/><ref refid="classterminal_1_1_parser_1ad077a2c88726c0789fc34ae81fcc920d" kindref="member">dcsBufferSize</ref>);</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_parser_1ad077a2c88726c0789fc34ae81fcc920d" kindref="member">dcsBufferSize</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"></highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11abfdd86830285bbe890109cd3eac80ddf" kindref="member">ParserAction::apcPut</ref>:</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_parser_1a2c8a71bc4a22229d0d97ae994a5d4f0a" kindref="member">appendToBuffer</ref><sp/>(<ref refid="classterminal_1_1_parser_1ad55a44fe719c349f736e29b5a6655016" kindref="member">apcBuffer</ref>,<sp/><ref refid="classterminal_1_1_parser_1ad419cef47ade94fac49c716aa00e1a28" kindref="member">apcBufferSize</ref>,<sp/><ref refid="classterminal_1_1_parser_1a7530a04c126845cd38f71229cfd81122" kindref="member">apcBufferCapacity</ref>,<sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">,<sp/>65536);</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"></highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11a264c8dc38a7e3959c763427c895f821c" kindref="member">ParserAction::apcEnd</ref>:</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_parser_1add9fd18d616e24827f1fea161a4a4716" kindref="member">video</ref>.applyAPCPayload<sp/>(<ref refid="classterminal_1_1_parser_1ad55a44fe719c349f736e29b5a6655016" kindref="member">apcBuffer</ref>.get(),<sp/><ref refid="classterminal_1_1_parser_1ad419cef47ade94fac49c716aa00e1a28" kindref="member">apcBufferSize</ref>);</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_parser_1ad419cef47ade94fac49c716aa00e1a28" kindref="member">apcBufferSize</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="183"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"></highlight></codeline>
+<codeline lineno="208" refid="classterminal_1_1_parser_1a5292f96c343e8f0b8daf5253022e4778" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_parser_1a5292f96c343e8f0b8daf5253022e4778" kindref="member">Parser::performEntryAction</ref><sp/>(<ref refid="namespaceterminal_1a7b1b1278777d02b9ed2c58b069647878" kindref="member">ParserState</ref><sp/>newState)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="209"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">switch</highlight><highlight class="normal"><sp/>(newState)</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="namespaceterminal_1a7b1b1278777d02b9ed2c58b069647878ae0ebc3c409070d07f1df0f2f4132509e" kindref="member">ParserState::escape</ref>:</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_parser_1a238da134a6b7f592513a697e86c57769" kindref="member">intermediateCount</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_parser_1a68101a859eba696a0f2e5e44a5008f4e" kindref="member">utf8AccumulatorLength</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"></highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="namespaceterminal_1a7b1b1278777d02b9ed2c58b069647878a04f55a95839cdcff83ad041038d62f05" kindref="member">ParserState::csiEntry</ref>:</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="namespaceterminal_1a7b1b1278777d02b9ed2c58b069647878a320444357942d8d3c9260f52f992bff1" kindref="member">ParserState::dcsEntry</ref>:</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_parser_1aa489539fa89b0b0a25246719c4f87b6c" kindref="member">csi</ref>.reset();</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_parser_1a238da134a6b7f592513a697e86c57769" kindref="member">intermediateCount</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(newState<sp/>==<sp/><ref refid="namespaceterminal_1a7b1b1278777d02b9ed2c58b069647878a320444357942d8d3c9260f52f992bff1" kindref="member">ParserState::dcsEntry</ref>)</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_parser_1ad077a2c88726c0789fc34ae81fcc920d" kindref="member">dcsBufferSize</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"></highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="namespaceterminal_1a7b1b1278777d02b9ed2c58b069647878a12028958d92529c86ee9708028c9ceae" kindref="member">ParserState::oscString</ref>:</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_parser_1a683edbe8a3d333c01b67f51964a03d39" kindref="member">oscBufferSize</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"></highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="namespaceterminal_1a7b1b1278777d02b9ed2c58b069647878a77d497e1e04693a76f53460b0b31475f" kindref="member">ParserState::apcString</ref>:</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_parser_1ad419cef47ade94fac49c716aa00e1a28" kindref="member">apcBufferSize</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"></highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="236"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"></highlight></codeline>
+<codeline lineno="238"><highlight class="normal"></highlight><highlight class="comment">//<sp/>============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="239"><highlight class="normal"></highlight><highlight class="comment">//<sp/>UTF-8<sp/>accumulation</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="240"><highlight class="normal"></highlight><highlight class="comment">//<sp/>============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="241"><highlight class="normal"></highlight></codeline>
+<codeline lineno="267" refid="classterminal_1_1_parser_1abe253e4be7044cecee33834e03ab7def" refkind="member"><highlight class="normal">uint8_t<sp/><ref refid="classterminal_1_1_parser_1abe253e4be7044cecee33834e03ab7def" kindref="member">Parser::expectedUTF8Length</ref><sp/>(uint8_t<sp/>leadByte)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="268"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">constexpr</highlight><highlight class="normal"><sp/>uint8_t<sp/>lengths[256]<sp/>=<sp/>{</highlight></codeline>
+<codeline lineno="270"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>0x00–0xBF:<sp/>1<sp/>(ASCII<sp/>or<sp/>continuation<sp/>byte)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,<sp/>1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,<sp/>1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,<sp/>1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,<sp/>1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,<sp/>1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,</highlight></codeline>
+<codeline lineno="276"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,<sp/>1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,</highlight></codeline>
+<codeline lineno="277"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>0xC0–0xDF:<sp/>2-byte<sp/>sequence</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="278"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,<sp/>2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,</highlight></codeline>
+<codeline lineno="279"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>0xE0–0xEF:<sp/>3-byte<sp/>sequence</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="280"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,</highlight></codeline>
+<codeline lineno="281"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>0xF0–0xF7:<sp/>4-byte<sp/>sequence;<sp/>0xF8–0xFF:<sp/>invalid<sp/>—<sp/>treat<sp/>as<sp/>1</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="282"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>4,4,4,4,4,4,4,4,<sp/>1,1,1,1,1,1,1,1</highlight></codeline>
+<codeline lineno="283"><highlight class="normal"><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="284"><highlight class="normal"></highlight></codeline>
+<codeline lineno="285"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>lengths[leadByte];</highlight></codeline>
+<codeline lineno="286"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="287"><highlight class="normal"></highlight></codeline>
+<codeline lineno="314" refid="classterminal_1_1_parser_1a52a832043941b4ea8c2416268d1067fd" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_parser_1a52a832043941b4ea8c2416268d1067fd" kindref="member">Parser::accumulateUTF8Byte</ref><sp/>(uint8_t<sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="315"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="316"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>isLeadByte<sp/>{<sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal"><sp/>&gt;=<sp/>0xC0<sp/>};</highlight></codeline>
+<codeline lineno="317"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>isContinuationByte<sp/>{<sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal"><sp/>&gt;=<sp/>0x80<sp/>and<sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal"><sp/>&lt;<sp/>0xC0<sp/>};</highlight></codeline>
+<codeline lineno="318"><highlight class="normal"></highlight></codeline>
+<codeline lineno="319"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(isLeadByte)</highlight></codeline>
+<codeline lineno="320"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="321"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_parser_1a72b198e9bfc04fa949e5f0d81e07a4b5" kindref="member">utf8Accumulator</ref>[0]<sp/>=<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">char</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(byte);</highlight></codeline>
+<codeline lineno="322"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_parser_1a68101a859eba696a0f2e5e44a5008f4e" kindref="member">utf8AccumulatorLength</ref><sp/>=<sp/>1;</highlight></codeline>
+<codeline lineno="323"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="324"><highlight class="normal"></highlight></codeline>
+<codeline lineno="325"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(isContinuationByte<sp/>and<sp/><ref refid="classterminal_1_1_parser_1a68101a859eba696a0f2e5e44a5008f4e" kindref="member">utf8AccumulatorLength</ref><sp/>&gt;<sp/>0<sp/>and<sp/><ref refid="classterminal_1_1_parser_1a68101a859eba696a0f2e5e44a5008f4e" kindref="member">utf8AccumulatorLength</ref><sp/>&lt;<sp/>4)</highlight></codeline>
+<codeline lineno="326"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="327"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_parser_1a72b198e9bfc04fa949e5f0d81e07a4b5" kindref="member">utf8Accumulator</ref>[<ref refid="classterminal_1_1_parser_1a68101a859eba696a0f2e5e44a5008f4e" kindref="member">utf8AccumulatorLength</ref>]<sp/>=<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">char</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(byte);</highlight></codeline>
+<codeline lineno="328"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>++<ref refid="classterminal_1_1_parser_1a68101a859eba696a0f2e5e44a5008f4e" kindref="member">utf8AccumulatorLength</ref>;</highlight></codeline>
+<codeline lineno="329"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="330"><highlight class="normal"></highlight></codeline>
+<codeline lineno="331"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classterminal_1_1_parser_1a68101a859eba696a0f2e5e44a5008f4e" kindref="member">utf8AccumulatorLength</ref><sp/>&gt;<sp/>1)</highlight></codeline>
+<codeline lineno="332"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="333"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>expected<sp/>{<sp/><ref refid="classterminal_1_1_parser_1abe253e4be7044cecee33834e03ab7def" kindref="member">expectedUTF8Length</ref><sp/>(</highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal">uint8_t</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(<ref refid="classterminal_1_1_parser_1a72b198e9bfc04fa949e5f0d81e07a4b5" kindref="member">utf8Accumulator</ref>[0]))<sp/>};</highlight></codeline>
+<codeline lineno="334"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classterminal_1_1_parser_1a68101a859eba696a0f2e5e44a5008f4e" kindref="member">utf8AccumulatorLength</ref><sp/>==<sp/>expected)</highlight></codeline>
+<codeline lineno="335"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="336"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_parser_1a72b198e9bfc04fa949e5f0d81e07a4b5" kindref="member">utf8Accumulator</ref>[<ref refid="classterminal_1_1_parser_1a68101a859eba696a0f2e5e44a5008f4e" kindref="member">utf8AccumulatorLength</ref>]<sp/>=<sp/></highlight><highlight class="charliteral">&apos;\0&apos;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="337"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>juce::CharPointer_UTF8<sp/>decoder<sp/>(<ref refid="classterminal_1_1_parser_1a72b198e9bfc04fa949e5f0d81e07a4b5" kindref="member">utf8Accumulator</ref>);</highlight></codeline>
+<codeline lineno="338"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_parser_1add9fd18d616e24827f1fea161a4a4716" kindref="member">video</ref>.print<sp/>(</highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal">uint32_t</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(*decoder));</highlight></codeline>
+<codeline lineno="339"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_parser_1a68101a859eba696a0f2e5e44a5008f4e" kindref="member">utf8AccumulatorLength</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="340"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="341"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="342"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="343"><highlight class="normal"></highlight></codeline>
+<codeline lineno="361" refid="classterminal_1_1_parser_1a1a159770aea2f6a76bf82e266aabc11b" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_parser_1a1a159770aea2f6a76bf82e266aabc11b" kindref="member">Parser::handlePrintByte</ref><sp/>(uint8_t<sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="362"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="363"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>isASCII<sp/>{<sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal"><sp/>&lt;=<sp/>0x7F<sp/>};</highlight></codeline>
+<codeline lineno="364"><highlight class="normal"></highlight></codeline>
+<codeline lineno="365"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(isASCII)</highlight></codeline>
+<codeline lineno="366"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="367"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_parser_1a68101a859eba696a0f2e5e44a5008f4e" kindref="member">utf8AccumulatorLength</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="368"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_parser_1add9fd18d616e24827f1fea161a4a4716" kindref="member">video</ref>.print<sp/>(</highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal">uint32_t</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">));</highlight></codeline>
+<codeline lineno="369"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="370"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="371"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="372"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_parser_1a52a832043941b4ea8c2416268d1067fd" kindref="member">accumulateUTF8Byte</ref><sp/>(</highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="373"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="374"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="375"><highlight class="normal"></highlight></codeline>
+<codeline lineno="376"><highlight class="normal"></highlight><highlight class="comment">//<sp/>============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="377"><highlight class="normal"></highlight><highlight class="comment">//<sp/>CSI<sp/>parameter<sp/>accumulation</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="378"><highlight class="normal"></highlight><highlight class="comment">//<sp/>============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="379"><highlight class="normal"></highlight></codeline>
+<codeline lineno="399" refid="classterminal_1_1_parser_1aa6964d58b5741fcbf2939c4733b7f4e5" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_parser_1aa6964d58b5741fcbf2939c4733b7f4e5" kindref="member">Parser::handleParam</ref><sp/>(uint8_t<sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="400"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="401"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>isDigit<sp/>{<sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal"><sp/>&gt;=<sp/></highlight><highlight class="charliteral">&apos;0&apos;</highlight><highlight class="normal"><sp/>and<sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal"><sp/>&lt;=<sp/></highlight><highlight class="charliteral">&apos;9&apos;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="402"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>isSeparator<sp/>{<sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal"><sp/>==<sp/></highlight><highlight class="charliteral">&apos;;&apos;</highlight><highlight class="normal"><sp/>or<sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal"><sp/>==<sp/></highlight><highlight class="charliteral">&apos;:&apos;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="403"><highlight class="normal"></highlight></codeline>
+<codeline lineno="404"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(isDigit)</highlight></codeline>
+<codeline lineno="405"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="406"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_parser_1aa489539fa89b0b0a25246719c4f87b6c" kindref="member">csi</ref>.addDigit<sp/>(</highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal">uint8_t</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">byte</highlight><highlight class="normal"><sp/>-<sp/></highlight><highlight class="charliteral">&apos;0&apos;</highlight><highlight class="normal">));</highlight></codeline>
+<codeline lineno="407"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="408"><highlight class="normal"></highlight></codeline>
+<codeline lineno="409"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(isSeparator)</highlight></codeline>
+<codeline lineno="410"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="411"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_parser_1aa489539fa89b0b0a25246719c4f87b6c" kindref="member">csi</ref>.addSeparator<sp/>(</highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="412"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="413"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="414"><highlight class="normal"></highlight></codeline>
+<codeline lineno="416"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>terminal</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="terminal/ParserAction.cpp"/>
+  </compounddef>
+</doxygen>

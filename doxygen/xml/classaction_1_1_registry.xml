@@ -1,0 +1,581 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="classaction_1_1_registry" kind="class" language="C++" prot="public">
+    <compoundname>action::Registry</compoundname>
+    <basecompoundref refid="structjam_1_1_context" prot="public" virt="non-virtual">jam::Context&lt; Registry &gt;</basecompoundref>
+    <basecompoundref prot="private" virt="non-virtual">juce::Timer</basecompoundref>
+    <includes refid="_action_8h" local="no">Action.h</includes>
+    <innerclass refid="structaction_1_1_registry_1_1_entry" prot="public">action::Registry::Entry</innerclass>
+    <innerclass refid="structaction_1_1_registry_1_1_binding" prot="public">action::Registry::Binding</innerclass>
+    <sectiondef kind="private-type">
+      <memberdef kind="enum" id="classaction_1_1_registry_1a9ce72a6404fd3bcec88aef7dcbd18b65" prot="private" static="no" strong="yes">
+        <type></type>
+        <name>PrefixState</name>
+        <qualifiedname>action::Registry::PrefixState</qualifiedname>
+        <enumvalue id="classaction_1_1_registry_1a9ce72a6404fd3bcec88aef7dcbd18b65aec2f993aec2c27fc750119ab17b16cdb" prot="private">
+          <name>idle</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classaction_1_1_registry_1a9ce72a6404fd3bcec88aef7dcbd18b65acb05cab65afefab8fd3831d92cfc68be" prot="private">
+          <name>waiting</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>States of the prefix state machine. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/Action.h" line="241" column="5" bodyfile="terminal/action/Action.h" bodystart="242" bodyend="245"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classaction_1_1_registry_1a0921dcccbdd21ed88d913076920a7708" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; <ref refid="structaction_1_1_registry_1_1_entry" kindref="compound">Entry</ref> &gt;</type>
+        <definition>std::vector&lt;Entry&gt; action::Registry::entries</definition>
+        <argsstring></argsstring>
+        <name>entries</name>
+        <qualifiedname>action::Registry::entries</qualifiedname>
+        <briefdescription>
+<para>All registered actions, in registration order. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/Action.h" line="231" column="17" bodyfile="terminal/action/Action.h" bodystart="231" bodyend="-1"/>
+        <referencedby refid="classaction_1_1_registry_1a01c6a9ecea9e1780a7e36c3ac4e7a909" compoundref="_action_8cpp" startline="114" endline="121">clear</referencedby>
+        <referencedby refid="classaction_1_1_registry_1a9293bb3cd16657bb8f5f66a6d0c4a4c1" compoundref="_action_8cpp" startline="124" endline="127">getEntries</referencedby>
+        <referencedby refid="classaction_1_1_registry_1a2231016d02d69811ca59394703f1ee12" compoundref="_action_8cpp" startline="39" endline="111">handleKeyPress</referencedby>
+        <referencedby refid="classaction_1_1_registry_1ad42f0b09f237c365063fa087c6c393c0" compoundref="_action_8cpp" startline="16" endline="36">registerAction</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classaction_1_1_registry_1aeed00dcaf6ae66f1608b3d966c7599f5" prot="private" static="no" mutable="no">
+        <type>std::unordered_map&lt; juce::KeyPress, int &gt;</type>
+        <definition>std::unordered_map&lt;juce::KeyPress, int&gt; action::Registry::globalBindings</definition>
+        <argsstring></argsstring>
+        <name>globalBindings</name>
+        <qualifiedname>action::Registry::globalBindings</qualifiedname>
+        <briefdescription>
+<para>Global bindings: <ref refid="classKeyPress" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">KeyPress</ref> → index into <computeroutput><ref refid="classaction_1_1_registry_1a0921dcccbdd21ed88d913076920a7708" kindref="member">entries</ref></computeroutput>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/Action.h" line="234" column="24" bodyfile="terminal/action/Action.h" bodystart="234" bodyend="-1"/>
+        <referencedby refid="classaction_1_1_registry_1a01c6a9ecea9e1780a7e36c3ac4e7a909" compoundref="_action_8cpp" startline="114" endline="121">clear</referencedby>
+        <referencedby refid="classaction_1_1_registry_1a2231016d02d69811ca59394703f1ee12" compoundref="_action_8cpp" startline="39" endline="111">handleKeyPress</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classaction_1_1_registry_1a49411c88e0c43e1333a7d40e263e2b79" prot="private" static="no" mutable="no">
+        <type>std::unordered_map&lt; juce::KeyPress, int &gt;</type>
+        <definition>std::unordered_map&lt;juce::KeyPress, int&gt; action::Registry::modalBindings</definition>
+        <argsstring></argsstring>
+        <name>modalBindings</name>
+        <qualifiedname>action::Registry::modalBindings</qualifiedname>
+        <briefdescription>
+<para>Modal bindings: <ref refid="classKeyPress" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">KeyPress</ref> → index into <computeroutput><ref refid="classaction_1_1_registry_1a0921dcccbdd21ed88d913076920a7708" kindref="member">entries</ref></computeroutput> (post-prefix). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/Action.h" line="237" column="24" bodyfile="terminal/action/Action.h" bodystart="237" bodyend="-1"/>
+        <referencedby refid="classaction_1_1_registry_1a01c6a9ecea9e1780a7e36c3ac4e7a909" compoundref="_action_8cpp" startline="114" endline="121">clear</referencedby>
+        <referencedby refid="classaction_1_1_registry_1a2231016d02d69811ca59394703f1ee12" compoundref="_action_8cpp" startline="39" endline="111">handleKeyPress</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classaction_1_1_registry_1adc381b3d69ef809e64230e3491e9e8d4" prot="private" static="no" mutable="no">
+        <type><ref refid="classaction_1_1_registry_1a9ce72a6404fd3bcec88aef7dcbd18b65" kindref="member">PrefixState</ref></type>
+        <definition>PrefixState action::Registry::prefixState</definition>
+        <argsstring></argsstring>
+        <name>prefixState</name>
+        <qualifiedname>action::Registry::prefixState</qualifiedname>
+        <initializer>{ <ref refid="classaction_1_1_registry_1a9ce72a6404fd3bcec88aef7dcbd18b65aec2f993aec2c27fc750119ab17b16cdb" kindref="member">PrefixState::idle</ref> }</initializer>
+        <briefdescription>
+<para>Current state of the prefix machine. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/Action.h" line="248" column="17" bodyfile="terminal/action/Action.h" bodystart="248" bodyend="248"/>
+        <referencedby refid="classaction_1_1_registry_1a01c6a9ecea9e1780a7e36c3ac4e7a909" compoundref="_action_8cpp" startline="114" endline="121">clear</referencedby>
+        <referencedby refid="classaction_1_1_registry_1a2231016d02d69811ca59394703f1ee12" compoundref="_action_8cpp" startline="39" endline="111">handleKeyPress</referencedby>
+        <referencedby refid="classaction_1_1_registry_1adfb52cb08bb171416025fe0487476ebb" compoundref="_action_8cpp" startline="309" endline="313">timerCallback</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classaction_1_1_registry_1ad6d4755e2636d32124eeca007dbe7f91" prot="private" static="no" mutable="no">
+        <type>juce::KeyPress</type>
+        <definition>juce::KeyPress action::Registry::prefixKey</definition>
+        <argsstring></argsstring>
+        <name>prefixKey</name>
+        <qualifiedname>action::Registry::prefixKey</qualifiedname>
+        <briefdescription>
+<para>The configured prefix key (e.g. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>backtick). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/Action.h" line="251" column="20" bodyfile="terminal/action/Action.h" bodystart="251" bodyend="-1"/>
+        <referencedby refid="classaction_1_1_registry_1a2231016d02d69811ca59394703f1ee12" compoundref="_action_8cpp" startline="39" endline="111">handleKeyPress</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classaction_1_1_registry_1ac48bb89a0eab376950bc4c7d2c862eb0" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int action::Registry::prefixTimeoutMs</definition>
+        <argsstring></argsstring>
+        <name>prefixTimeoutMs</name>
+        <qualifiedname>action::Registry::prefixTimeoutMs</qualifiedname>
+        <initializer>{ 1000 }</initializer>
+        <briefdescription>
+<para>Milliseconds before the waiting state times out. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/Action.h" line="254" column="9" bodyfile="terminal/action/Action.h" bodystart="254" bodyend="254"/>
+        <referencedby refid="classaction_1_1_registry_1a2231016d02d69811ca59394703f1ee12" compoundref="_action_8cpp" startline="39" endline="111">handleKeyPress</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="public-func">
+      <memberdef kind="function" id="classaction_1_1_registry_1ab459c431a149a647f9ed43f58e370198" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>action::Registry::Registry</definition>
+        <argsstring>()</argsstring>
+        <name>Registry</name>
+        <qualifiedname>action::Registry::Registry</qualifiedname>
+        <briefdescription>
+<para>Constructs the registry. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Key map must be built after actions are registered via <computeroutput>buildKeyMap()</computeroutput>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/Action.h" line="133" column="5"/>
+        <references refid="group__juce__audio__plugin__client-Unity_1ga010e50efcb9d6d393b9414f09f368dbc">name</references>
+        <references refid="classaction_1_1_registry_1af372257d1327b42884e18285f2a8a8e2" compoundref="_action_8cpp" startline="170" endline="244">parseShortcut</references>
+        <references refid="classaction_1_1_registry_1aa0baadfadc5b0e64b4a903e64012fced" compoundref="_action_8cpp" startline="247" endline="306">shortcutToString</references>
+      </memberdef>
+      <memberdef kind="function" id="classaction_1_1_registry_1a0f43353726087ad8d018a77d00112c46" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>action::Registry::~Registry</definition>
+        <argsstring>() override</argsstring>
+        <name>~Registry</name>
+        <qualifiedname>action::Registry::~Registry</qualifiedname>
+        <briefdescription>
+<para>Stops any active prefix timer before destruction. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/Action.h" line="136" column="5" bodyfile="terminal/action/Action.cpp" bodystart="10" bodyend="13"/>
+      </memberdef>
+      <memberdef kind="function" id="classaction_1_1_registry_1ad42f0b09f237c365063fa087c6c393c0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void action::Registry::registerAction</definition>
+        <argsstring>(const juce::String &amp;id, const juce::String &amp;name, const juce::String &amp;description, const juce::String &amp;category, bool isModal, std::function&lt; bool()&gt; callback)</argsstring>
+        <name>registerAction</name>
+        <qualifiedname>action::Registry::registerAction</qualifiedname>
+        <param>
+          <type>const juce::String &amp;</type>
+          <declname>id</declname>
+        </param>
+        <param>
+          <type>const juce::String &amp;</type>
+          <declname>name</declname>
+        </param>
+        <param>
+          <type>const juce::String &amp;</type>
+          <declname>description</declname>
+        </param>
+        <param>
+          <type>const juce::String &amp;</type>
+          <declname>category</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>isModal</declname>
+        </param>
+        <param>
+          <type>std::function&lt; bool()&gt;</type>
+          <declname>callback</declname>
+        </param>
+        <briefdescription>
+<para>Registers a new action in the table. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Must be called before <computeroutput><ref refid="classaction_1_1_registry_1a2231016d02d69811ca59394703f1ee12" kindref="member">handleKeyPress()</ref></computeroutput> is ever invoked. Registering the same <computeroutput>id</computeroutput> twice is a programming error (asserted in debug builds).</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Unique machine-readable identifier (e.g. <computeroutput>"copy"</computeroutput>). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="group__juce__audio__plugin__client-Unity_1ga010e50efcb9d6d393b9414f09f368dbc" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">name</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Human-readable display name (e.g. <computeroutput>"Copy"</computeroutput>). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>description</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>One-line description for the command palette. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>category</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Logical grouping (e.g. <computeroutput>"Edit"</computeroutput>). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>isModal</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><computeroutput>true</computeroutput> if the prefix key must precede the shortcut. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>callback</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Invoked on dispatch; returns <computeroutput>true</computeroutput> if consumed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/Action.h" line="152" column="10" bodyfile="terminal/action/Action.cpp" bodystart="16" bodyend="36"/>
+        <references refid="structaction_1_1_registry_1_1_entry_1a88d6b02e38cc32f62010182589bb6da8" compoundref="_action_8h" startline="100">action::Registry::Entry::category</references>
+        <references refid="structaction_1_1_registry_1_1_entry_1a416a55422b362d00278ff88a0313499a" compoundref="_action_8h" startline="97">action::Registry::Entry::description</references>
+        <references refid="classaction_1_1_registry_1a0921dcccbdd21ed88d913076920a7708" compoundref="_action_8h" startline="231">entries</references>
+        <references refid="structaction_1_1_registry_1_1_entry_1a9806ce0f05ac5242f66362c06cf34063" compoundref="_action_8h" startline="115">action::Registry::Entry::execute</references>
+        <references refid="structaction_1_1_registry_1_1_entry_1a98214dd008bda3d85d0acef48cc84ea1" compoundref="_action_8h" startline="91">action::Registry::Entry::id</references>
+        <references refid="structaction_1_1_registry_1_1_entry_1a0beebde024e43475ff2cc9068011f8eb" compoundref="_action_8h" startline="106" endline="106">action::Registry::Entry::isModal</references>
+        <references refid="group__juce__core-system_1ga1f96ab6751237979b907a54f52a7296a">jassert</references>
+        <references refid="structaction_1_1_registry_1_1_entry_1a23bd845cf3d93eb88bd3b25768015778" compoundref="_action_8h" startline="94">action::Registry::Entry::name</references>
+        <references refid="group__juce__audio__plugin__client-Unity_1ga010e50efcb9d6d393b9414f09f368dbc">name</references>
+        <referencedby refid="classlua_1_1_engine_1ab81770bb4f894e14e7d0f826da836782" compoundref="_engine_8cpp" startline="247" endline="300">lua::Engine::registerActions</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classaction_1_1_registry_1a2231016d02d69811ca59394703f1ee12" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool action::Registry::handleKeyPress</definition>
+        <argsstring>(const juce::KeyPress &amp;key)</argsstring>
+        <name>handleKeyPress</name>
+        <qualifiedname>action::Registry::handleKeyPress</qualifiedname>
+        <param>
+          <type>const juce::KeyPress &amp;</type>
+          <declname>key</declname>
+        </param>
+        <briefdescription>
+<para>Processes a key event from the terminal. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Implements the two-state prefix machine:<itemizedlist>
+<listitem><para><bold>idle</bold>: prefix key → <bold>waiting</bold>; global binding → execute.</para>
+</listitem><listitem><para><bold>waiting</bold>: modal binding → execute → <bold>idle</bold>; unknown → <bold>idle</bold>.</para>
+</listitem></itemizedlist>
+</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>key</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The key event to evaluate. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><computeroutput>true</computeroutput> if the key was consumed; <computeroutput>false</computeroutput> if the caller should forward it to the PTY. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/Action.h" line="170" column="10" bodyfile="terminal/action/Action.cpp" bodystart="39" bodyend="111"/>
+        <references refid="classaction_1_1_registry_1a0921dcccbdd21ed88d913076920a7708" compoundref="_action_8h" startline="231">entries</references>
+        <references refid="classaction_1_1_registry_1aeed00dcaf6ae66f1608b3d966c7599f5" compoundref="_action_8h" startline="234">globalBindings</references>
+        <references refid="classaction_1_1_registry_1a9ce72a6404fd3bcec88aef7dcbd18b65aec2f993aec2c27fc750119ab17b16cdb" compoundref="_action_8h" startline="243">idle</references>
+        <references refid="classaction_1_1_registry_1a49411c88e0c43e1333a7d40e263e2b79" compoundref="_action_8h" startline="237">modalBindings</references>
+        <references refid="classaction_1_1_registry_1ad6d4755e2636d32124eeca007dbe7f91" compoundref="_action_8h" startline="251">prefixKey</references>
+        <references refid="classaction_1_1_registry_1adc381b3d69ef809e64230e3491e9e8d4" compoundref="_action_8h" startline="248" endline="248">prefixState</references>
+        <references refid="classaction_1_1_registry_1ac48bb89a0eab376950bc4c7d2c862eb0" compoundref="_action_8h" startline="254" endline="254">prefixTimeoutMs</references>
+        <references refid="classaction_1_1_registry_1a9ce72a6404fd3bcec88aef7dcbd18b65acb05cab65afefab8fd3831d92cfc68be" compoundref="_action_8h" startline="244">waiting</references>
+      </memberdef>
+      <memberdef kind="function" id="classaction_1_1_registry_1a01c6a9ecea9e1780a7e36c3ac4e7a909" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void action::Registry::clear</definition>
+        <argsstring>()</argsstring>
+        <name>clear</name>
+        <qualifiedname>action::Registry::clear</qualifiedname>
+        <briefdescription>
+<para>Clears all entries and key bindings. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Called before re-registering all actions (e.g. on config reload). The prefix state machine is reset to idle. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/Action.h" line="178" column="10" bodyfile="terminal/action/Action.cpp" bodystart="114" bodyend="121"/>
+        <references refid="classaction_1_1_registry_1a0921dcccbdd21ed88d913076920a7708" compoundref="_action_8h" startline="231">entries</references>
+        <references refid="classaction_1_1_registry_1aeed00dcaf6ae66f1608b3d966c7599f5" compoundref="_action_8h" startline="234">globalBindings</references>
+        <references refid="classaction_1_1_registry_1a9ce72a6404fd3bcec88aef7dcbd18b65aec2f993aec2c27fc750119ab17b16cdb" compoundref="_action_8h" startline="243">idle</references>
+        <references refid="classaction_1_1_registry_1a49411c88e0c43e1333a7d40e263e2b79" compoundref="_action_8h" startline="237">modalBindings</references>
+        <references refid="classaction_1_1_registry_1adc381b3d69ef809e64230e3491e9e8d4" compoundref="_action_8h" startline="248" endline="248">prefixState</references>
+      </memberdef>
+      <memberdef kind="function" id="classaction_1_1_registry_1a9293bb3cd16657bb8f5f66a6d0c4a4c1" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>const std::vector&lt; <ref refid="structaction_1_1_registry_1_1_entry" kindref="compound">Entry</ref> &gt; &amp;</type>
+        <definition>const std::vector&lt; Registry::Entry &gt; &amp; action::Registry::getEntries</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>getEntries</name>
+        <qualifiedname>action::Registry::getEntries</qualifiedname>
+        <briefdescription>
+<para>Populates key maps from externally provided bindings. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Replaces the old Config-reading buildKeyMap. All binding data comes from <ref refid="classlua_1_1_engine" kindref="compound">lua::Engine</ref> which parses keys.lua, popups.lua, and actions.lua.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>prefixShortcut</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The prefix key shortcut string (e.g. &quot;`&quot;). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>prefixTimeout</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Prefix timeout in milliseconds. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bindings</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>All key bindings (built-in, popup, custom). */ void buildKeyMap (const juce::String&amp; prefixShortcut, int prefixTimeout, const std::vector&lt;Binding&gt;&amp; bindings);</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+/**</para>
+<para>Returns the full action table (read-only).</para>
+<para>Intended for the command palette / action list UI.</para>
+<para><simplesect kind="return"><para>Const reference to the internal entries vector. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/Action.h" line="201" column="23" bodyfile="terminal/action/Action.cpp" bodystart="124" bodyend="127"/>
+        <references refid="classaction_1_1_registry_1a0921dcccbdd21ed88d913076920a7708" compoundref="_action_8h" startline="231">entries</references>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="classaction_1_1_registry_1af372257d1327b42884e18285f2a8a8e2" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>juce::KeyPress</type>
+        <definition>juce::KeyPress action::Registry::parseShortcut</definition>
+        <argsstring>(const juce::String &amp;shortcutString)</argsstring>
+        <name>parseShortcut</name>
+        <qualifiedname>action::Registry::parseShortcut</qualifiedname>
+        <param>
+          <type>const juce::String &amp;</type>
+          <declname>shortcutString</declname>
+        </param>
+        <briefdescription>
+<para>Parses a shortcut string (e.g. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><computeroutput>"ctrl+shift+["</computeroutput>) into a <ref refid="classKeyPress" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">KeyPress</ref>.</para>
+<para>Supports modifier tokens <computeroutput>ctrl</computeroutput>, <computeroutput>cmd</computeroutput>, <computeroutput><ref refid="group__juce__audio__plugin__client-Unity_1gga485dc2a0e5ed7da3d9f826367b36ee55aa844ac0d299bd083b2938e6cbf34743a" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">shift</ref></computeroutput>, <computeroutput><ref refid="group__juce__audio__plugin__client-Unity_1gga485dc2a0e5ed7da3d9f826367b36ee55a7f564926136a18c80a8a14a53d0e98ce" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">alt</ref></computeroutput>, <computeroutput>opt</computeroutput> and key names <computeroutput>pageup</computeroutput>, <computeroutput>pagedown</computeroutput>, <computeroutput>home</computeroutput>, <computeroutput><ref refid="group__juce__core-files_1ga4a3194f4f741f9bd653f28733358f62c" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">end</ref></computeroutput>, <computeroutput>delete</computeroutput>, <computeroutput>insert</computeroutput>, <computeroutput>escape</computeroutput>, <computeroutput>return</computeroutput>, <computeroutput>tab</computeroutput>, <computeroutput>space</computeroutput>, <computeroutput>backspace</computeroutput>, <computeroutput>f1</computeroutput>–<computeroutput>f12</computeroutput>, and any single printable character.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>shortcutString</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The shortcut string from Config (case-insensitive). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>The parsed <computeroutput>juce::KeyPress</computeroutput>, or an invalid <ref refid="classKeyPress" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">KeyPress</ref> on failure. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/Action.h" line="214" column="27" bodyfile="terminal/action/Action.cpp" bodystart="170" bodyend="244"/>
+        <referencedby refid="classaction_1_1_list_1ab1563b5c6c86287d88a50b7230c157bd" compoundref="_action_list_8cpp" startline="141" endline="252">action::List::buildRows</referencedby>
+        <referencedby refid="classlua_1_1_engine_1a66d36bb90d77ffe66a9c7e80853207ba" compoundref="_engine_parse_8cpp" startline="50" endline="101">lua::Engine::parseSelectionKeys</referencedby>
+        <referencedby refid="classaction_1_1_registry_1ab459c431a149a647f9ed43f58e370198">Registry</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classaction_1_1_registry_1aa0baadfadc5b0e64b4a903e64012fced" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>juce::String</type>
+        <definition>juce::String action::Registry::shortcutToString</definition>
+        <argsstring>(const juce::KeyPress &amp;key)</argsstring>
+        <name>shortcutToString</name>
+        <qualifiedname>action::Registry::shortcutToString</qualifiedname>
+        <param>
+          <type>const juce::KeyPress &amp;</type>
+          <declname>key</declname>
+        </param>
+        <briefdescription>
+<para>Converts a <ref refid="classKeyPress" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">KeyPress</ref> back to its canonical shortcut string. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Inverse of <computeroutput><ref refid="classaction_1_1_registry_1af372257d1327b42884e18285f2a8a8e2" kindref="member">parseShortcut</ref></computeroutput>. Produces the same <computeroutput>"modifier+key"</computeroutput> format so that <computeroutput><ref refid="classaction_1_1_registry_1af372257d1327b42884e18285f2a8a8e2" kindref="member">parseShortcut</ref> (<ref refid="classaction_1_1_registry_1aa0baadfadc5b0e64b4a903e64012fced" kindref="member">shortcutToString</ref> (kp)) == kp</computeroutput> for any valid <ref refid="classKeyPress" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">KeyPress</ref>.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>key</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The <ref refid="classKeyPress" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">KeyPress</ref> to serialise. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Canonical shortcut string (e.g. <computeroutput>"cmd+c"</computeroutput>, <computeroutput>"shift+f1"</computeroutput>). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/Action.h" line="226" column="25" bodyfile="terminal/action/Action.cpp" bodystart="247" bodyend="306"/>
+        <references refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9">code</references>
+        <references refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8">mods</references>
+        <referencedby refid="classaction_1_1_list_1abe57586e11e4578ac4b80e40ffc4bc68" compoundref="_action_list_binding_8cpp" startline="65" endline="104">action::List::handleBindingKey</referencedby>
+        <referencedby refid="classaction_1_1_registry_1ab459c431a149a647f9ed43f58e370198">Registry</referencedby>
+        <referencedby refid="classaction_1_1_row_1a8ff37bf5f20b5aa67fcb7ec0e5249e50" compoundref="_action_row_8cpp" startline="22" endline="44">action::Row::Row</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="private-func">
+      <memberdef kind="function" id="classaction_1_1_registry_1adfb52cb08bb171416025fe0487476ebb" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void action::Registry::timerCallback</definition>
+        <argsstring>() override</argsstring>
+        <name>timerCallback</name>
+        <qualifiedname>action::Registry::timerCallback</qualifiedname>
+        <briefdescription>
+<para>Cancels the waiting state when the prefix-sequence timeout fires. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Called by <computeroutput>juce::Timer</computeroutput> on the message thread. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/Action.h" line="262" column="10" bodyfile="terminal/action/Action.cpp" bodystart="309" bodyend="313"/>
+        <references refid="classaction_1_1_registry_1a9ce72a6404fd3bcec88aef7dcbd18b65aec2f993aec2c27fc750119ab17b16cdb" compoundref="_action_8h" startline="243">idle</references>
+        <references refid="classaction_1_1_registry_1adc381b3d69ef809e64230e3491e9e8d4" compoundref="_action_8h" startline="248" endline="248">prefixState</references>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Global action registry, key dispatcher, and prefix state machine. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Inherits <computeroutput><ref refid="structjam_1_1_context" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Context</ref>&lt;<ref refid="classaction_1_1_registry" kindref="compound">Registry</ref>&gt;</computeroutput> for process-wide singleton access via <computeroutput><ref refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Registry::getContext()</ref></computeroutput>. Inherits <computeroutput>juce::Timer</computeroutput> (privately) to implement the prefix-sequence timeout.</para>
+<para><ref refid="classaction_1_1_registry" kindref="compound">Registry</ref> is deliberately ignorant of <computeroutput><ref refid="classterminal_1_1_display" kindref="compound">terminal::Display</ref></computeroutput>, <computeroutput>Session</computeroutput>, <computeroutput><ref refid="classGrid" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Grid</ref></computeroutput>, <computeroutput>Tabs</computeroutput>, or any other subsystem. All behaviour is injected as <computeroutput>std::function&lt;bool()&gt;</computeroutput> callbacks at registration time.</para>
+<para><simplesect kind="par"><title>Thread context</title><para><bold>MESSAGE THREAD</bold> — all public methods must be called from the JUCE message thread. </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>action::Registry</label>
+        <link refid="classaction_1_1_registry"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>jam::Context&lt; Registry &gt;</label>
+        <link refid="structjam_1_1_context" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+      <node id="3">
+        <label>juce::Timer</label>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>action::Registry</label>
+        <link refid="classaction_1_1_registry"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="private-inheritance">
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>entries</edgelabel>
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>globalBindings</edgelabel>
+          <edgelabel>modalBindings</edgelabel>
+        </childnode>
+      </node>
+      <node id="5">
+        <label>action::Registry::Entry</label>
+        <link refid="structaction_1_1_registry_1_1_entry"/>
+      </node>
+      <node id="2">
+        <label>jam::Context&lt; Registry &gt;</label>
+        <link refid="structjam_1_1_context" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+      <node id="3">
+        <label>juce::Timer</label>
+      </node>
+      <node id="6">
+        <label>std::unordered_map&lt; juce::KeyPress, int &gt;</label>
+      </node>
+      <node id="4">
+        <label>std::vector&lt; action::Registry::Entry &gt;</label>
+        <childnode refid="5" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="terminal/action/Action.h" line="73" column="1" bodyfile="terminal/action/Action.h" bodystart="76" bodyend="266"/>
+    <listofallmembers>
+      <member refid="classaction_1_1_registry_1a01c6a9ecea9e1780a7e36c3ac4e7a909" prot="public" virt="non-virtual"><scope>action::Registry</scope><name>clear</name></member>
+      <member refid="structjam_1_1_context_1a6e3f38a234db8ff2a9acb5986e72a2de" prot="public" virt="non-virtual"><scope>action::Registry</scope><name>Context</name></member>
+      <member refid="classaction_1_1_registry_1a0921dcccbdd21ed88d913076920a7708" prot="private" virt="non-virtual"><scope>action::Registry</scope><name>entries</name></member>
+      <member refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3" prot="public" virt="non-virtual"><scope>action::Registry</scope><name>getContext</name></member>
+      <member refid="classaction_1_1_registry_1a9293bb3cd16657bb8f5f66a6d0c4a4c1" prot="public" virt="non-virtual"><scope>action::Registry</scope><name>getEntries</name></member>
+      <member refid="classaction_1_1_registry_1aeed00dcaf6ae66f1608b3d966c7599f5" prot="private" virt="non-virtual"><scope>action::Registry</scope><name>globalBindings</name></member>
+      <member refid="classaction_1_1_registry_1a2231016d02d69811ca59394703f1ee12" prot="public" virt="non-virtual"><scope>action::Registry</scope><name>handleKeyPress</name></member>
+      <member refid="structjam_1_1_context_1a5900ff66cdba02d6f6947cc6d5e8ec3d" prot="private" virt="non-virtual"><scope>action::Registry</scope><name>head</name></member>
+      <member refid="classaction_1_1_registry_1a49411c88e0c43e1333a7d40e263e2b79" prot="private" virt="non-virtual"><scope>action::Registry</scope><name>modalBindings</name></member>
+      <member refid="structjam_1_1_context_1a6716feb60b039083ca0c099a506a3474" prot="public" virt="non-virtual"><scope>action::Registry</scope><name>operator=</name></member>
+      <member refid="classaction_1_1_registry_1af372257d1327b42884e18285f2a8a8e2" prot="public" virt="non-virtual"><scope>action::Registry</scope><name>parseShortcut</name></member>
+      <member refid="classaction_1_1_registry_1ad6d4755e2636d32124eeca007dbe7f91" prot="private" virt="non-virtual"><scope>action::Registry</scope><name>prefixKey</name></member>
+      <member refid="classaction_1_1_registry_1a9ce72a6404fd3bcec88aef7dcbd18b65" prot="private" virt="non-virtual"><scope>action::Registry</scope><name>PrefixState</name></member>
+      <member refid="classaction_1_1_registry_1adc381b3d69ef809e64230e3491e9e8d4" prot="private" virt="non-virtual"><scope>action::Registry</scope><name>prefixState</name></member>
+      <member refid="classaction_1_1_registry_1ac48bb89a0eab376950bc4c7d2c862eb0" prot="private" virt="non-virtual"><scope>action::Registry</scope><name>prefixTimeoutMs</name></member>
+      <member refid="structjam_1_1_context_1aa1862120f2983ab7ddef536ba03bb114" prot="private" virt="non-virtual"><scope>action::Registry</scope><name>previous</name></member>
+      <member refid="classaction_1_1_registry_1ad42f0b09f237c365063fa087c6c393c0" prot="public" virt="non-virtual"><scope>action::Registry</scope><name>registerAction</name></member>
+      <member refid="classaction_1_1_registry_1ab459c431a149a647f9ed43f58e370198" prot="public" virt="non-virtual"><scope>action::Registry</scope><name>Registry</name></member>
+      <member refid="classaction_1_1_registry_1aa0baadfadc5b0e64b4a903e64012fced" prot="public" virt="non-virtual"><scope>action::Registry</scope><name>shortcutToString</name></member>
+      <member refid="classaction_1_1_registry_1adfb52cb08bb171416025fe0487476ebb" prot="private" virt="non-virtual"><scope>action::Registry</scope><name>timerCallback</name></member>
+      <member refid="structjam_1_1_context_1a4169820e71837632922d3d17b377aeee" prot="public" virt="virtual"><scope>action::Registry</scope><name>~Context</name></member>
+      <member refid="classaction_1_1_registry_1a0f43353726087ad8d018a77d00112c46" prot="public" virt="non-virtual"><scope>action::Registry</scope><name>~Registry</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -35,6 +35,7 @@
 
 #pragma once
 #include <JuceHeader.h>
+#include "../Identifier.h"
 #include "../Winsize.h"
 
 /**

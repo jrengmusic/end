@@ -1,0 +1,183 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="_action_row_8cpp" kind="file" language="C++">
+    <compoundname>ActionRow.cpp</compoundname>
+    <includes refid="_action_row_8h" local="yes">ActionRow.h</includes>
+    <incdepgraph>
+      <node id="4">
+        <label>Action.h</label>
+        <link refid="_action_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>terminal/action/ActionRow.cpp</label>
+        <link refid="_action_row_8cpp"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>ActionRow.h</label>
+        <link refid="_action_row_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>JuceHeader.h</label>
+      </node>
+    </incdepgraph>
+    <innernamespace refid="namespaceaction">action</innernamespace>
+    <briefdescription>
+<para>Single row in the <ref refid="classaction_1_1_list" kindref="compound">action::List</ref> — search box (index 0) or action entry (index &gt; 0). </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_action_row_8h" kindref="compound">ActionRow.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespaceaction" kindref="compound">action</ref></highlight></codeline>
+<codeline lineno="9"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="comment">/*____________________________________________________________________________*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12" refid="classaction_1_1_row_1a861bf8e13702e51950210c4ceb6db824" refkind="member"><highlight class="normal"><ref refid="classaction_1_1_row_1a861bf8e13702e51950210c4ceb6db824" kindref="member">Row::Row</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>index,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::String&amp;<sp/>uuid)</highlight></codeline>
+<codeline lineno="13"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/><ref refid="structjam_1_1_value_1_1_component_with_i_d_1a9f5aa5add86e77f6fe0de8352cee11f4" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">ComponentWithID</ref>&lt;<ref refid="classaction_1_1_row_1a861bf8e13702e51950210c4ceb6db824" kindref="member">Row</ref>&gt;<sp/>(uuid)</highlight></codeline>
+<codeline lineno="14"><highlight class="normal"><sp/><sp/><sp/><sp/>,<sp/><ref refid="classaction_1_1_row_1a21c5687d623b0b1b0ae9c4d3759bcacd" kindref="member">rowIndex</ref><sp/>(index)</highlight></codeline>
+<codeline lineno="15"><highlight class="normal"><sp/><sp/><sp/><sp/>,<sp/><ref refid="classaction_1_1_row_1a84021d56d9a451f3f626bafa4b6c9ae8" kindref="member">kind</ref><sp/>(<ref refid="namespaceaction_1a574e68969c4beb9ce7aa66ec0752bb63" kindref="member">RowKind</ref>::<ref refid="namespaceaction_1a574e68969c4beb9ce7aa66ec0752bb63a06a943c59f33a34bb5924aaf72cd2995" kindref="member">search</ref>)</highlight></codeline>
+<codeline lineno="16"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classaction_1_1_row_1aa177e47da6474b4f4b5639aa7d8dd630" kindref="member">searchBox</ref><sp/>=<sp/>std::make_unique&lt;juce::TextEditor&gt;();</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/>addAndMakeVisible<sp/>(<ref refid="classaction_1_1_row_1aa177e47da6474b4f4b5639aa7d8dd630" kindref="member">searchBox</ref>.get());</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classaction_1_1_row_1aa2b69c0e9c35ab7ab9fda0ec5862be87" kindref="member">selected</ref>.addListener<sp/>(</highlight><highlight class="keyword">this</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="20"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight></codeline>
+<codeline lineno="22" refid="classaction_1_1_row_1a8ff37bf5f20b5aa67fcb7ec0e5249e50" refkind="member"><highlight class="normal"><ref refid="classaction_1_1_row_1a861bf8e13702e51950210c4ceb6db824" kindref="member">Row::Row</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>index,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::String&amp;<sp/>uuid,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structaction_1_1_registry_1_1_entry" kindref="compound">Registry::Entry</ref>&amp;<sp/>entry)</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/><ref refid="structjam_1_1_value_1_1_component_with_i_d_1a9f5aa5add86e77f6fe0de8352cee11f4" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">ComponentWithID</ref>&lt;<ref refid="classaction_1_1_row_1a861bf8e13702e51950210c4ceb6db824" kindref="member">Row</ref>&gt;<sp/>(uuid)</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/>,<sp/><ref refid="classaction_1_1_row_1a21c5687d623b0b1b0ae9c4d3759bcacd" kindref="member">rowIndex</ref><sp/>(index)</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/>,<sp/><ref refid="classaction_1_1_row_1a84021d56d9a451f3f626bafa4b6c9ae8" kindref="member">kind</ref><sp/>(<ref refid="namespaceaction_1a574e68969c4beb9ce7aa66ec0752bb63" kindref="member">RowKind</ref>::<ref refid="namespaceaction" kindref="compound">action</ref>)</highlight></codeline>
+<codeline lineno="26"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classaction_1_1_row_1ad3ffa948851fc6b5303c5ba9d6393b20" kindref="member">nameLabel</ref><sp/>=<sp/>std::make_unique&lt;juce::Label&gt;();</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classaction_1_1_row_1ad3ffa948851fc6b5303c5ba9d6393b20" kindref="member">nameLabel</ref>-&gt;getProperties().set<sp/>(<ref refid="structjam_1_1_i_d_1a9bea2af49b70281e3caf8077fb00f994" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::ID::font</ref>,<sp/><ref refid="structjam_1_1_i_d_1a2f2ee05e76603e24f721a5ad93fe4795" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::ID::name</ref>.toString());</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classaction_1_1_row_1ad3ffa948851fc6b5303c5ba9d6393b20" kindref="member">nameLabel</ref>-&gt;setText<sp/>(entry.<ref refid="structaction_1_1_registry_1_1_entry_1a23bd845cf3d93eb88bd3b25768015778" kindref="member">name</ref>,<sp/>juce::dontSendNotification);</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classaction_1_1_row_1ad3ffa948851fc6b5303c5ba9d6393b20" kindref="member">nameLabel</ref>-&gt;setInterceptsMouseClicks<sp/>(</highlight><highlight class="keyword">false</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/>addAndMakeVisible<sp/>(<ref refid="classaction_1_1_row_1ad3ffa948851fc6b5303c5ba9d6393b20" kindref="member">nameLabel</ref>.get());</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classaction_1_1_row_1a1f1ceb6c5193d5b986709415bcfced55" kindref="member">shortcutLabel</ref><sp/>=<sp/>std::make_unique&lt;juce::Label&gt;();</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classaction_1_1_row_1a1f1ceb6c5193d5b986709415bcfced55" kindref="member">shortcutLabel</ref>-&gt;getProperties().set<sp/>(<ref refid="structjam_1_1_i_d_1a9bea2af49b70281e3caf8077fb00f994" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::ID::font</ref>,<sp/><ref refid="structjam_1_1_i_d_1af8c1b16a4690393052b44ee472e56c46" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::ID::keyPress</ref>.toString());</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classaction_1_1_row_1a1f1ceb6c5193d5b986709415bcfced55" kindref="member">shortcutLabel</ref>-&gt;setText<sp/>(<ref refid="classaction_1_1_registry_1aa0baadfadc5b0e64b4a903e64012fced" kindref="member">Registry::shortcutToString</ref><sp/>(entry.<ref refid="structaction_1_1_registry_1_1_entry_1a5cc3a0259f7939a7d44b7ea4473871c1" kindref="member">shortcut</ref>),</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>juce::dontSendNotification);</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classaction_1_1_row_1a1f1ceb6c5193d5b986709415bcfced55" kindref="member">shortcutLabel</ref>-&gt;setJustificationType<sp/>(juce::Justification::centredRight);</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classaction_1_1_row_1a1f1ceb6c5193d5b986709415bcfced55" kindref="member">shortcutLabel</ref>-&gt;setInterceptsMouseClicks<sp/>(</highlight><highlight class="keyword">false</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/>addAndMakeVisible<sp/>(<ref refid="classaction_1_1_row_1a1f1ceb6c5193d5b986709415bcfced55" kindref="member">shortcutLabel</ref>.get());</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classaction_1_1_row_1acc7117a3f7fb26eed656fe55d1e21d5c" kindref="member">run</ref><sp/>=<sp/>entry.<ref refid="structaction_1_1_registry_1_1_entry_1a9806ce0f05ac5242f66362c06cf34063" kindref="member">execute</ref>;</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classaction_1_1_row_1aa2b69c0e9c35ab7ab9fda0ec5862be87" kindref="member">selected</ref>.addListener<sp/>(</highlight><highlight class="keyword">this</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="44"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46" refid="classaction_1_1_row_1ad86e999fc022bc66ea42ecd0694a65d1" refkind="member"><highlight class="normal"><ref refid="classaction_1_1_row_1a861bf8e13702e51950210c4ceb6db824" kindref="member">Row::Row</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>index,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::String&amp;<sp/>uuid,<sp/><ref refid="namespaceaction_1a574e68969c4beb9ce7aa66ec0752bb63" kindref="member">RowKind</ref><sp/>rowKind)</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/><ref refid="structjam_1_1_value_1_1_component_with_i_d_1a9f5aa5add86e77f6fe0de8352cee11f4" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">ComponentWithID</ref>&lt;<ref refid="classaction_1_1_row_1a861bf8e13702e51950210c4ceb6db824" kindref="member">Row</ref>&gt;<sp/>(uuid)</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/>,<sp/><ref refid="classaction_1_1_row_1a21c5687d623b0b1b0ae9c4d3759bcacd" kindref="member">rowIndex</ref><sp/>(index)</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/>,<sp/><ref refid="classaction_1_1_row_1a84021d56d9a451f3f626bafa4b6c9ae8" kindref="member">kind</ref><sp/>(rowKind)</highlight></codeline>
+<codeline lineno="50"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classaction_1_1_row_1aa2b69c0e9c35ab7ab9fda0ec5862be87" kindref="member">selected</ref>.addListener<sp/>(</highlight><highlight class="keyword">this</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="52"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54" refid="classaction_1_1_row_1a57f2fb637aed0cbcdaffa7812c2a1300" refkind="member"><highlight class="normal"><ref refid="classaction_1_1_row_1a57f2fb637aed0cbcdaffa7812c2a1300" kindref="member">Row::~Row</ref>()</highlight></codeline>
+<codeline lineno="55"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classaction_1_1_row_1aa2b69c0e9c35ab7ab9fda0ec5862be87" kindref="member">selected</ref>.removeListener<sp/>(</highlight><highlight class="keyword">this</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="57"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="60" refid="classaction_1_1_row_1a7f1a0ea0847d2f7e47af95aa1d31665d" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classaction_1_1_row_1a7f1a0ea0847d2f7e47af95aa1d31665d" kindref="member">Row::valueChanged</ref><sp/>(juce::Value&amp;<sp/>value)</highlight></codeline>
+<codeline lineno="61"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(value.refersToSameSourceAs<sp/>(<ref refid="classaction_1_1_row_1aa2b69c0e9c35ab7ab9fda0ec5862be87" kindref="member">selected</ref>))</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>repaint();</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classaction_1_1_row_1ad2e1690a74b2f5d040a2d6acbc840a4f" kindref="member">isSelected</ref>()<sp/>and<sp/><ref refid="classaction_1_1_row_1aa177e47da6474b4f4b5639aa7d8dd630" kindref="member">searchBox</ref><sp/>!=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classaction_1_1_row_1aa177e47da6474b4f4b5639aa7d8dd630" kindref="member">searchBox</ref>-&gt;grabKeyboardFocus();</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="69"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="72" refid="classaction_1_1_row_1a48ef82bb68d2d76f5b7bbf4e52bc12cf" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classaction_1_1_row_1a48ef82bb68d2d76f5b7bbf4e52bc12cf" kindref="member">Row::paint</ref><sp/>(juce::Graphics&amp;<sp/>g)</highlight></codeline>
+<codeline lineno="73"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classaction_1_1_row_1a84021d56d9a451f3f626bafa4b6c9ae8" kindref="member">kind</ref><sp/>==<sp/><ref refid="namespaceaction_1a574e68969c4beb9ce7aa66ec0752bb63aa0f0bc95016c862498bbad29d1f4d9d4" kindref="member">RowKind::separator</ref>)</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>g.setColour<sp/>(<ref refid="classaction_1_1_row_1a499ce8912d8100300390e03302326fe2" kindref="member">highlightColour</ref>.withAlpha<sp/>(<ref refid="classaction_1_1_row_1a3ecef8ecf5a64bb9d62dd2ee521c3d8b" kindref="member">separatorAlpha</ref>));</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>g.fillRect<sp/>(getLocalBounds().withHeight<sp/>(<ref refid="classaction_1_1_row_1a8909f16b37cd867813ac4e2f1d1c9c50" kindref="member">separatorHeight</ref>)</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.withY<sp/>(getHeight()<sp/>/<sp/>2));</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classaction_1_1_row_1ad2e1690a74b2f5d040a2d6acbc840a4f" kindref="member">isSelected</ref>()<sp/>and<sp/><ref refid="classaction_1_1_row_1aa177e47da6474b4f4b5639aa7d8dd630" kindref="member">searchBox</ref><sp/>==<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>g.setColour<sp/>(<ref refid="classaction_1_1_row_1a499ce8912d8100300390e03302326fe2" kindref="member">highlightColour</ref>);</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>g.fillRect<sp/>(getLocalBounds());</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="85"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="88" refid="classaction_1_1_row_1a452d32d8597c0e2d7a440603fa3deef0" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classaction_1_1_row_1a452d32d8597c0e2d7a440603fa3deef0" kindref="member">Row::resized</ref>()</highlight></codeline>
+<codeline lineno="89"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classaction_1_1_row_1aa177e47da6474b4f4b5639aa7d8dd630" kindref="member">searchBox</ref><sp/>!=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classaction_1_1_row_1aa177e47da6474b4f4b5639aa7d8dd630" kindref="member">searchBox</ref>-&gt;setBounds<sp/>(getLocalBounds());</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classaction_1_1_row_1ad3ffa948851fc6b5303c5ba9d6393b20" kindref="member">nameLabel</ref><sp/>!=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal"><sp/>and<sp/><ref refid="classaction_1_1_row_1a1f1ceb6c5193d5b986709415bcfced55" kindref="member">shortcutLabel</ref><sp/>!=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>bounds<sp/>{<sp/>getLocalBounds()<sp/>};</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>shortcutWidth<sp/>{<sp/>bounds.getWidth()<sp/>/<sp/><ref refid="classaction_1_1_row_1adc0c04b168724bab56f8ff028352e8a5" kindref="member">shortcutWidthDivisor</ref><sp/>};</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classaction_1_1_row_1ad3ffa948851fc6b5303c5ba9d6393b20" kindref="member">nameLabel</ref>-&gt;setBounds<sp/>(bounds.removeFromLeft<sp/>(bounds.getWidth()<sp/>-<sp/>shortcutWidth));</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classaction_1_1_row_1a1f1ceb6c5193d5b986709415bcfced55" kindref="member">shortcutLabel</ref>-&gt;setBounds<sp/>(bounds);</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="102"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="105" refid="classaction_1_1_row_1af0cb85f22c00f8cbaf23e845f28eae6d" refkind="member"><highlight class="normal">juce::Value&amp;<sp/><ref refid="classaction_1_1_row_1af0cb85f22c00f8cbaf23e845f28eae6d" kindref="member">Row::getValueObject</ref>()<sp/>noexcept</highlight></codeline>
+<codeline lineno="106"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classaction_1_1_row_1aa2b69c0e9c35ab7ab9fda0ec5862be87" kindref="member">selected</ref>;</highlight></codeline>
+<codeline lineno="108"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight></codeline>
+<codeline lineno="110" refid="classaction_1_1_row_1a2ace17e673e7c9fe6938d9d29de2ea3c" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classaction_1_1_row_1a2ace17e673e7c9fe6938d9d29de2ea3c" kindref="member">Row::getIndex</ref>()<sp/>const<sp/>noexcept</highlight></codeline>
+<codeline lineno="111"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classaction_1_1_row_1a21c5687d623b0b1b0ae9c4d3759bcacd" kindref="member">rowIndex</ref>;</highlight></codeline>
+<codeline lineno="113"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115" refid="classaction_1_1_row_1ad2e1690a74b2f5d040a2d6acbc840a4f" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classaction_1_1_row_1ad2e1690a74b2f5d040a2d6acbc840a4f" kindref="member">Row::isSelected</ref>()<sp/>const<sp/>noexcept</highlight></codeline>
+<codeline lineno="116"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">bool</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(<ref refid="classaction_1_1_row_1aa2b69c0e9c35ab7ab9fda0ec5862be87" kindref="member">selected</ref>.getValue());</highlight></codeline>
+<codeline lineno="118"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight></codeline>
+<codeline lineno="120" refid="classaction_1_1_row_1ac3c77f4b6bc44e89cfb16c29f32504f9" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classaction_1_1_row_1ac3c77f4b6bc44e89cfb16c29f32504f9" kindref="member">Row::isSelectable</ref>()<sp/>const<sp/>noexcept</highlight></codeline>
+<codeline lineno="121"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classaction_1_1_row_1a84021d56d9a451f3f626bafa4b6c9ae8" kindref="member">kind</ref><sp/>!=<sp/><ref refid="namespaceaction_1a574e68969c4beb9ce7aa66ec0752bb63aa0f0bc95016c862498bbad29d1f4d9d4" kindref="member">RowKind::separator</ref>;</highlight></codeline>
+<codeline lineno="123"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight></codeline>
+<codeline lineno="125" refid="classaction_1_1_row_1a6f6f0f47fa4dc4960cb369bbc0c3deab" refkind="member"><highlight class="normal"><ref refid="namespaceaction_1a574e68969c4beb9ce7aa66ec0752bb63" kindref="member">RowKind</ref><sp/><ref refid="classaction_1_1_row_1a6f6f0f47fa4dc4960cb369bbc0c3deab" kindref="member">Row::getKind</ref>()<sp/>const<sp/>noexcept</highlight></codeline>
+<codeline lineno="126"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classaction_1_1_row_1a84021d56d9a451f3f626bafa4b6c9ae8" kindref="member">kind</ref>;</highlight></codeline>
+<codeline lineno="128"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight></codeline>
+<codeline lineno="130" refid="classaction_1_1_row_1a38d495bd3482cfebf5b1bac3d884ca3f" refkind="member"><highlight class="normal">juce::TextEditor*<sp/><ref refid="classaction_1_1_row_1a38d495bd3482cfebf5b1bac3d884ca3f" kindref="member">Row::getSearchBox</ref>()<sp/>noexcept</highlight></codeline>
+<codeline lineno="131"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classaction_1_1_row_1aa177e47da6474b4f4b5639aa7d8dd630" kindref="member">searchBox</ref>.get();</highlight></codeline>
+<codeline lineno="133"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight></codeline>
+<codeline lineno="135" refid="classaction_1_1_row_1a5aadebb639e375c66340476855c6846b" refkind="member"><highlight class="normal">juce::Label*<sp/><ref refid="classaction_1_1_row_1a5aadebb639e375c66340476855c6846b" kindref="member">Row::getNameLabel</ref>()<sp/>noexcept</highlight></codeline>
+<codeline lineno="136"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classaction_1_1_row_1ad3ffa948851fc6b5303c5ba9d6393b20" kindref="member">nameLabel</ref>.get();</highlight></codeline>
+<codeline lineno="138"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight></codeline>
+<codeline lineno="140" refid="classaction_1_1_row_1a34763ed9287e4d1478afab52b3e79297" refkind="member"><highlight class="normal">juce::Label*<sp/><ref refid="classaction_1_1_row_1a34763ed9287e4d1478afab52b3e79297" kindref="member">Row::getShortcutLabel</ref>()<sp/>noexcept</highlight></codeline>
+<codeline lineno="141"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classaction_1_1_row_1a1f1ceb6c5193d5b986709415bcfced55" kindref="member">shortcutLabel</ref>.get();</highlight></codeline>
+<codeline lineno="143"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight></codeline>
+<codeline lineno="146"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>action</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="terminal/action/ActionRow.cpp"/>
+  </compounddef>
+</doxygen>

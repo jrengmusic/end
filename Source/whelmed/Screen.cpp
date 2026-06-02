@@ -278,7 +278,7 @@ void Screen::setCursor (const Cursor& c) noexcept
 
 void Screen::updateCursor (int blockIndex, int charIndex) noexcept
 {
-    const auto modal { static_cast<ModalType> (AppState::getContext()->getModalType()) };
+    const auto modal { static_cast<ModalType> (AppModel::getContext()->getModalType()) };
 
     if (modal == ModalType::selection
         and blockIndex >= 0
@@ -465,7 +465,7 @@ void Screen::mouseDown (const juce::MouseEvent& event)
             const int lineIndex { getBlockLineForChar (hit.block, hit.character) };
             const auto lineRange { getBlockLineCharRange (hit.block, lineIndex) };
 
-            AppState::getContext()->setSelectionType (static_cast<int> (SelectionType::visualLine));
+            AppModel::getContext()->setSelectionType (static_cast<int> (SelectionType::visualLine));
             stateTree.setProperty (app::id::selAnchorBlock, hit.block, nullptr);
             stateTree.setProperty (app::id::selAnchorChar, lineRange.getStart(), nullptr);
             stateTree.setProperty (app::id::selCursorBlock, hit.block, nullptr);
@@ -492,7 +492,7 @@ void Screen::mouseDown (const juce::MouseEvent& event)
                     while (wordEnd < textLen - 1 and text[wordEnd + 1] > ' ')
                         ++wordEnd;
 
-                    AppState::getContext()->setSelectionType (static_cast<int> (SelectionType::visual));
+                    AppModel::getContext()->setSelectionType (static_cast<int> (SelectionType::visual));
                     stateTree.setProperty (app::id::selAnchorBlock, hit.block, nullptr);
                     stateTree.setProperty (app::id::selAnchorChar, wordStart, nullptr);
                     stateTree.setProperty (app::id::selCursorBlock, hit.block, nullptr);
@@ -504,8 +504,8 @@ void Screen::mouseDown (const juce::MouseEvent& event)
         }
         else
         {
-            AppState::getContext()->setSelectionType (static_cast<int> (SelectionType::none));
-            AppState::getContext()->setModalType (static_cast<int> (ModalType::none));
+            AppModel::getContext()->setSelectionType (static_cast<int> (SelectionType::none));
+            AppModel::getContext()->setModalType (static_cast<int> (ModalType::none));
             dragAnchor = hit;
             dragActive = false;
             hideCursor();
@@ -528,7 +528,7 @@ void Screen::mouseDrag (const juce::MouseEvent& event)
 
             if (crossedThreshold and not dragActive)
             {
-                AppState::getContext()->setSelectionType (static_cast<int> (SelectionType::visual));
+                AppModel::getContext()->setSelectionType (static_cast<int> (SelectionType::visual));
                 stateTree.setProperty (app::id::selAnchorBlock, dragAnchor.block, nullptr);
                 stateTree.setProperty (app::id::selAnchorChar, dragAnchor.character, nullptr);
                 dragActive = true;
@@ -665,7 +665,7 @@ void Screen::paint (juce::Graphics& g)
         }
     }
 
-    const auto selType { static_cast<SelectionType> (AppState::getContext()->getSelectionType()) };
+    const auto selType { static_cast<SelectionType> (AppModel::getContext()->getSelectionType()) };
 
     if (selType != SelectionType::none)
     {

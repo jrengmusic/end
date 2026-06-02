@@ -1,0 +1,172 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="structterminal_1_1_link_span" kind="struct" language="C++" prot="public">
+    <compoundname>terminal::LinkSpan</compoundname>
+    <includes refid="_link_span_8h" local="no">LinkSpan.h</includes>
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structterminal_1_1_link_span_1a40ee8a3824fffa5911fdeae5f3d4611f" prot="public" static="no" mutable="no">
+        <type><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref></type>
+        <definition>cell terminal::LinkSpan::row</definition>
+        <argsstring></argsstring>
+        <name>row</name>
+        <qualifiedname>terminal::LinkSpan::row</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+<para>Zero-based visible row index of the token&apos;s first character. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/LinkSpan.h" line="44" column="10" bodyfile="terminal/LinkSpan.h" bodystart="44" bodyend="44"/>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_link_span_1a67cb22aa77c5d383286391fc3d9c7375" prot="public" static="no" mutable="no">
+        <type><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref></type>
+        <definition>cell terminal::LinkSpan::col</definition>
+        <argsstring></argsstring>
+        <name>col</name>
+        <qualifiedname>terminal::LinkSpan::col</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+<para>Zero-based column index of the token&apos;s first character. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/LinkSpan.h" line="47" column="10" bodyfile="terminal/LinkSpan.h" bodystart="47" bodyend="47"/>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_link_span_1a38c420d7a733ff7b7e40129d8b577df1" prot="public" static="no" mutable="no">
+        <type><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref></type>
+        <definition>cell terminal::LinkSpan::labelCol</definition>
+        <argsstring></argsstring>
+        <name>labelCol</name>
+        <qualifiedname>terminal::LinkSpan::labelCol</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+<para>Zero-based column index where the hint label is rendered. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/LinkSpan.h" line="50" column="10" bodyfile="terminal/LinkSpan.h" bodystart="50" bodyend="50"/>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_link_span_1ab85ab87efa7e043550bed1bb9747e530" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int terminal::LinkSpan::length</definition>
+        <argsstring></argsstring>
+        <name>length</name>
+        <qualifiedname>terminal::LinkSpan::length</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+<para>Number of terminal columns the token occupies. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Equal to the number of cells scanned (one codepoint each); wide characters are not present in link tokens so each codepoint maps to exactly one column. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/LinkSpan.h" line="59" column="9" bodyfile="terminal/LinkSpan.h" bodystart="59" bodyend="59"/>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_link_span_1ad421402ffc092848a047825db7842fb3" prot="public" static="no" mutable="no">
+        <type>juce::String</type>
+        <definition>juce::String terminal::LinkSpan::uri</definition>
+        <argsstring></argsstring>
+        <name>uri</name>
+        <qualifiedname>terminal::LinkSpan::uri</qualifiedname>
+        <briefdescription>
+<para>Resolved URI for this span. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><itemizedlist>
+<listitem><para>For <computeroutput>LinkType::file</computeroutput>: an absolute <computeroutput><ulink url="file:///">file:///</ulink></computeroutput> URI constructed by resolving the token against the shell&apos;s current working directory.</para>
+</listitem><listitem><para>For <computeroutput>LinkType::url</computeroutput>: the raw token text (already a full <ref refid="classURL" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">URL</ref>). </para>
+</listitem></itemizedlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/LinkSpan.h" line="68" column="18" bodyfile="terminal/LinkSpan.h" bodystart="68" bodyend="-1"/>
+        <referencedby refid="classterminal_1_1_link_manager_1a31972897ab13d8ab670c6c5abd749e57" compoundref="_link_manager_8cpp" startline="139" endline="187">terminal::LinkManager::dispatch</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_link_span_1a3ad3e13b38a398c1fd8550f33b193fba" prot="public" static="no" mutable="no">
+        <type><ref refid="classterminal_1_1_link_detector_1a11ff9c79f3a6fbcb7ecdc3e7a6f0c67a" kindref="member">LinkDetector::LinkType</ref></type>
+        <definition>LinkDetector::LinkType terminal::LinkSpan::type</definition>
+        <argsstring></argsstring>
+        <name>type</name>
+        <qualifiedname>terminal::LinkSpan::type</qualifiedname>
+        <initializer>{ <ref refid="classterminal_1_1_link_detector_1a11ff9c79f3a6fbcb7ecdc3e7a6f0c67aa334c4a4c42fdb79d7ebc3e73b517e6f8" kindref="member">LinkDetector::LinkType::none</ref> }</initializer>
+        <briefdescription>
+<para>Classification result from <computeroutput><ref refid="classterminal_1_1_link_detector_1aeddb512e393bdab04f8ce6aa5c4255a5" kindref="member">LinkDetector::classify()</ref></computeroutput>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/LinkSpan.h" line="71" column="28" bodyfile="terminal/LinkSpan.h" bodystart="71" bodyend="71"/>
+        <referencedby refid="classterminal_1_1_link_manager_1a31972897ab13d8ab670c6c5abd749e57" compoundref="_link_manager_8cpp" startline="139" endline="187">terminal::LinkManager::dispatch</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_link_span_1a2abeaf75b4072054b68ede2dae4c617b" prot="public" static="no" mutable="no">
+        <type>char</type>
+        <definition>char terminal::LinkSpan::hintLabel[2]</definition>
+        <argsstring>[2]</argsstring>
+        <name>hintLabel</name>
+        <qualifiedname>terminal::LinkSpan::hintLabel</qualifiedname>
+        <initializer>{}</initializer>
+        <briefdescription>
+<para>Single-character hint label from the filename itself. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The label is a character from the token&apos;s own name. First char is preferred; if already taken by another span, subsequent chars are tried until a unique one is found. <computeroutput><ref refid="structterminal_1_1_link_span_1a38c420d7a733ff7b7e40129d8b577df1" kindref="member">labelCol</ref></computeroutput> indicates which column the label character occupies. Null-terminated. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/LinkSpan.h" line="81" column="10" bodyfile="terminal/LinkSpan.h" bodystart="81" bodyend="81"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>A detected link (file path or <ref refid="classURL" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">URL</ref>) found on the terminal viewport. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Stores the grid location of the token&apos;s first character, its length in columns, the resolved URI string, the classification type, and a short hint label (one or two ASCII letters) shown in the open-file overlay.</para>
+<para>Hint labels are assigned by <computeroutput>scanViewportForLinks()</computeroutput> after all spans have been collected:<itemizedlist>
+<listitem><para>First 26 spans: single character <computeroutput>&apos;a&apos;</computeroutput> … <computeroutput>&apos;z&apos;</computeroutput>.</para>
+</listitem><listitem><para>Spans 27 onward: two characters <computeroutput>"aa"</computeroutput> … <computeroutput>"zz"</computeroutput>.</para>
+</listitem></itemizedlist>
+</para>
+<para><simplesect kind="note"><para>Header-only — no linkage required. </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classterminal_1_1_link_detector_1a11ff9c79f3a6fbcb7ecdc3e7a6f0c67a" kindref="member">LinkDetector::LinkType</ref> </para>
+</simplesect>
+<simplesect kind="see"><para>terminal::Display::scanViewportForLinks </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="2">
+        <label>jam::Cell</label>
+        <link refid="structjam_1_1_cell" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+      <node id="1">
+        <label>terminal::LinkSpan</label>
+        <link refid="structterminal_1_1_link_span"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>col</edgelabel>
+          <edgelabel>labelCol</edgelabel>
+          <edgelabel>row</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="terminal/LinkSpan.h" line="41" column="1" bodyfile="terminal/LinkSpan.h" bodystart="42" bodyend="82"/>
+    <listofallmembers>
+      <member refid="structterminal_1_1_link_span_1a67cb22aa77c5d383286391fc3d9c7375" prot="public" virt="non-virtual"><scope>terminal::LinkSpan</scope><name>col</name></member>
+      <member refid="structterminal_1_1_link_span_1a2abeaf75b4072054b68ede2dae4c617b" prot="public" virt="non-virtual"><scope>terminal::LinkSpan</scope><name>hintLabel</name></member>
+      <member refid="structterminal_1_1_link_span_1a38c420d7a733ff7b7e40129d8b577df1" prot="public" virt="non-virtual"><scope>terminal::LinkSpan</scope><name>labelCol</name></member>
+      <member refid="structterminal_1_1_link_span_1ab85ab87efa7e043550bed1bb9747e530" prot="public" virt="non-virtual"><scope>terminal::LinkSpan</scope><name>length</name></member>
+      <member refid="structterminal_1_1_link_span_1a40ee8a3824fffa5911fdeae5f3d4611f" prot="public" virt="non-virtual"><scope>terminal::LinkSpan</scope><name>row</name></member>
+      <member refid="structterminal_1_1_link_span_1a3ad3e13b38a398c1fd8550f33b193fba" prot="public" virt="non-virtual"><scope>terminal::LinkSpan</scope><name>type</name></member>
+      <member refid="structterminal_1_1_link_span_1ad421402ffc092848a047825db7842fb3" prot="public" virt="non-virtual"><scope>terminal::LinkSpan</scope><name>uri</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

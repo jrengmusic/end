@@ -1,0 +1,189 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="terminal_2_parser_8cpp" kind="file" language="C++">
+    <compoundname>Parser.cpp</compoundname>
+    <includes refid="terminal_2_parser_8h" local="yes">Parser.h</includes>
+    <incdepgraph>
+      <node id="12">
+        <label>../Map.h</label>
+        <link refid="_map_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>CSI.h</label>
+        <link refid="_c_s_i_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>CharProps.h</label>
+        <link refid="_char_props_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>CharPropsData.h</label>
+        <link refid="_char_props_data_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>Charset.h</label>
+        <link refid="_charset_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>DispatchTable.h</label>
+        <link refid="_dispatch_table_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>Identifier.h</label>
+        <link refid="_identifier_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>Palette.h</label>
+        <link refid="_palette_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>terminal/Parser.cpp</label>
+        <link refid="terminal_2_parser_8cpp"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>Parser.h</label>
+        <link refid="terminal_2_parser_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>Video.h</label>
+        <link refid="_video_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>JuceHeader.h</label>
+      </node>
+      <node id="7">
+        <label>atomic</label>
+      </node>
+    </incdepgraph>
+    <innernamespace refid="namespaceterminal">terminal</innernamespace>
+    <briefdescription>
+<para>Core VT state machine — byte processing hot path and state transitions. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>This file owns the main processing loop and the state transition machinery. Action dispatch, UTF-8 accumulation, and CSI/buffer helpers live in <computeroutput><ref refid="_parser_action_8cpp" kindref="compound">ParserAction.cpp</ref></computeroutput>.</para>
+<sect1 id="terminal_2_parser_8cpp_1autotoc_md49_1s1"><sect2 id="terminal_2_parser_8cpp_1autotoc_md49">
+<title>Byte processing pipeline</title><para><programlisting><codeline><highlight class="normal">PTY<sp/>bytes</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>│</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>▼</highlight></codeline>
+<codeline><highlight class="normal">process()</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>│</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>└─<sp/>dispatchTable.get(currentState,<sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">)<sp/>──►<sp/>Transition{nextState,<sp/><ref refid="namespaceaction" kindref="compound">action</ref>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>│</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>▼</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/>processTransition()</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>│</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>├─<sp/>performAction(<ref refid="namespaceaction" kindref="compound">action</ref>,<sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">)<sp/><sp/><sp/><sp/><sp/><sp/><sp/>←<sp/>ParserAction.cpp</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>└─<sp/>performEntryAction(nextState)<sp/><sp/><sp/><sp/><sp/>←<sp/>ParserAction.cpp</highlight></codeline>
+</programlisting></para>
+</sect2></sect1>
+<sect1 id="terminal_2_parser_8cpp_1autotoc_md50_1s1"><sect2 id="terminal_2_parser_8cpp_1autotoc_md50">
+<title>Thread model</title><para><bold>All methods in this file are READER THREAD only</bold>, except the constructor which is called on the MESSAGE THREAD before the reader thread starts.</para>
+<para><simplesect kind="see"><para>Parser.h — class declaration, member documentation, and lifecycle notes </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="_parser_action_8cpp" kindref="compound">ParserAction.cpp</ref> — <ref refid="namespaceaction" kindref="compound">action</ref> dispatch, UTF-8 accumulation, CSI helpers </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="_dispatch_table_8h" kindref="compound">DispatchTable.h</ref> — O(1) <computeroutput>(ParserState, byte) → Transition</computeroutput> lookup table </para>
+</simplesect>
+</para>
+</sect2></sect1>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="terminal_2_parser_8h" kindref="compound">Parser.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespaceterminal" kindref="compound">terminal</ref></highlight></codeline>
+<codeline lineno="39"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="comment">/*____________________________________________________________________________*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="comment">//<sp/>============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Public<sp/>API</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="comment">//<sp/>============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62" refid="classterminal_1_1_parser_1af9f5c94aa6c2636dd97bc9d2a9ccaeff" refkind="member"><highlight class="normal"><ref refid="classterminal_1_1_parser_1af9f5c94aa6c2636dd97bc9d2a9ccaeff" kindref="member">Parser::Parser</ref><sp/>(<ref refid="classterminal_1_1_video" kindref="compound">Video</ref>&amp;<sp/><ref refid="classterminal_1_1_parser_1add9fd18d616e24827f1fea161a4a4716" kindref="member">video</ref>)<sp/>noexcept</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/><ref refid="classterminal_1_1_parser_1add9fd18d616e24827f1fea161a4a4716" kindref="member">video</ref><sp/>(<ref refid="classterminal_1_1_parser_1add9fd18d616e24827f1fea161a4a4716" kindref="member">video</ref>)</highlight></codeline>
+<codeline lineno="64"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="65"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="81" refid="classterminal_1_1_parser_1a4230d4a0514ad43617e3dd770fe798af" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_parser_1a4230d4a0514ad43617e3dd770fe798af" kindref="member">Parser::process</ref><sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t*<sp/>data,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>length)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>i<sp/>{<sp/>0<sp/>};</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(i<sp/>&lt;<sp/>length)</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal"><sp/>{<sp/>data[i]<sp/>};</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>transition<sp/>{<sp/><ref refid="classterminal_1_1_parser_1a45692efabc7168baf8d59ca906c093e2" kindref="member">dispatchTable</ref>.get<sp/>(<ref refid="classterminal_1_1_parser_1a89a98fcbe03613f60b57514a1bee6c4d" kindref="member">currentState</ref>,<sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">)<sp/>};</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_parser_1a9250fe2e3870803830ebdb06236eadfa" kindref="member">processTransition</ref><sp/>(</highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">,<sp/>transition);</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>++i;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="92"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight></codeline>
+<codeline lineno="116" refid="classterminal_1_1_parser_1a9250fe2e3870803830ebdb06236eadfa" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_parser_1a9250fe2e3870803830ebdb06236eadfa" kindref="member">Parser::processTransition</ref><sp/>(uint8_t<sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structterminal_1_1_transition" kindref="compound">Transition</ref>&amp;<sp/>transition)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(transition.nextState<sp/>!=<sp/><ref refid="classterminal_1_1_parser_1a89a98fcbe03613f60b57514a1bee6c4d" kindref="member">currentState</ref>)</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_parser_1af78b792dc9d0b8b333bc3c3813391f8d" kindref="member">performAction</ref><sp/>(transition.action,<sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_parser_1a5292f96c343e8f0b8daf5253022e4778" kindref="member">performEntryAction</ref><sp/>(transition.nextState);</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_parser_1a89a98fcbe03613f60b57514a1bee6c4d" kindref="member">currentState</ref><sp/>=<sp/>transition.nextState;</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_parser_1af78b792dc9d0b8b333bc3c3813391f8d" kindref="member">performAction</ref><sp/>(transition.action,<sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="128"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>terminal</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="terminal/Parser.cpp"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,505 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="structterminal_1_1_c_s_i" kind="struct" language="C++" prot="public">
+    <compoundname>terminal::CSI</compoundname>
+    <includes refid="_c_s_i_8h" local="no">CSI.h</includes>
+    <sectiondef kind="public-static-attrib">
+      <memberdef kind="variable" id="structterminal_1_1_c_s_i_1a62001239131af1166d8d99a9c7c0bb2b" prot="public" static="yes" constexpr="yes" mutable="no">
+        <type>uint8_t</type>
+        <definition>uint8_t terminal::CSI::MAX_PARAMS</definition>
+        <argsstring></argsstring>
+        <name>MAX_PARAMS</name>
+        <qualifiedname>terminal::CSI::MAX_PARAMS</qualifiedname>
+        <initializer>{ 24 }</initializer>
+        <briefdescription>
+<para>Maximum number of parameters that can be stored. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>xterm supports up to 16 parameters for some commands, but we allocate 24 to handle edge cases and future extensions. This matches common terminal emulator implementations. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/CSI.h" line="90" column="30" bodyfile="terminal/CSI.h" bodystart="90" bodyend="90"/>
+        <referencedby refid="structterminal_1_1_c_s_i_1a2531da13a92b9ed183e74788fafd555d" compoundref="_c_s_i_8h" startline="221" endline="239">addSeparator</referencedby>
+        <referencedby refid="structterminal_1_1_c_s_i_1a2f4c0fd4d6bf36b880ae052506c8d7d6" compoundref="_c_s_i_8h" startline="267" endline="276">finalize</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structterminal_1_1_c_s_i_1a4590c3aca4c7b4a33547974bc59c9906" prot="public" static="no" mutable="no">
+        <type>std::array&lt; uint16_t, <ref refid="structterminal_1_1_c_s_i_1a62001239131af1166d8d99a9c7c0bb2b" kindref="member">MAX_PARAMS</ref> &gt;</type>
+        <definition>std::array&lt;uint16_t, MAX_PARAMS&gt; terminal::CSI::values</definition>
+        <argsstring></argsstring>
+        <name>values</name>
+        <qualifiedname>terminal::CSI::values</qualifiedname>
+        <initializer>{}</initializer>
+        <briefdescription>
+<para><ref refid="classArray" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Array</ref> of parameter values accumulated during parsing. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Each element holds a parsed numeric parameter. The array is zero-initialized. Unused slots (index &gt;= count) contain zero but should not be accessed.</para>
+<para><simplesect kind="see"><para><ref refid="structterminal_1_1_c_s_i_1ab3dded4e066fc2b01f8aa2a71a82d0eb" kindref="member">count</ref> for the number of valid entries </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="structterminal_1_1_c_s_i_1a47b7740c7f5e36382fbd6812be573b2f" kindref="member">param()</ref> for safe access with default <ref refid="structterminal_1_1_c_s_i_1a4590c3aca4c7b4a33547974bc59c9906" kindref="member">values</ref> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/CSI.h" line="101" column="16" bodyfile="terminal/CSI.h" bodystart="101" bodyend="101"/>
+        <referencedby refid="structterminal_1_1_c_s_i_1a2531da13a92b9ed183e74788fafd555d" compoundref="_c_s_i_8h" startline="221" endline="239">addSeparator</referencedby>
+        <referencedby refid="structterminal_1_1_c_s_i_1a2f4c0fd4d6bf36b880ae052506c8d7d6" compoundref="_c_s_i_8h" startline="267" endline="276">finalize</referencedby>
+        <referencedby refid="structterminal_1_1_c_s_i_1a47b7740c7f5e36382fbd6812be573b2f" compoundref="_c_s_i_8h" startline="334" endline="344">param</referencedby>
+        <referencedby refid="structterminal_1_1_c_s_i_1a58906bacf120dd611ab969af1a46c1bd" compoundref="_c_s_i_8h" startline="292" endline="299">reset</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_c_s_i_1ac5bb70159f40b4933a4602b77732168c" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t terminal::CSI::subSeparatorBits</definition>
+        <argsstring></argsstring>
+        <name>subSeparatorBits</name>
+        <qualifiedname>terminal::CSI::subSeparatorBits</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+<para>Bitmask tracking which parameters were preceded by a colon sub-separator. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Bit N is set if the separator before parameter N was &apos;:&apos; rather than &apos;;&apos;. For example, in <computeroutput>38:2:255:0:0</computeroutput>, bits 1, 2, 3, 4 would be set (indices 1-4 had colons before them).</para>
+<para>This enables dispatch handlers to distinguish between:<itemizedlist>
+<listitem><para><computeroutput>38;5;1</computeroutput> (indexed color: 38 ; 5 ; palette_index)</para>
+</listitem><listitem><para><computeroutput>38:2::255:0:0</computeroutput> (RGB color: 38 : 2 : : R : G : B)</para>
+</listitem></itemizedlist>
+</para>
+<para><simplesect kind="see"><para><ref refid="structterminal_1_1_c_s_i_1a1efed907e307b75536e3fd94244b0bff" kindref="member">isSubSeparator()</ref> to check a specific parameter position </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/CSI.h" line="116" column="14" bodyfile="terminal/CSI.h" bodystart="116" bodyend="116"/>
+        <referencedby refid="structterminal_1_1_c_s_i_1a2531da13a92b9ed183e74788fafd555d" compoundref="_c_s_i_8h" startline="221" endline="239">addSeparator</referencedby>
+        <referencedby refid="structterminal_1_1_c_s_i_1a1efed907e307b75536e3fd94244b0bff" compoundref="_c_s_i_8h" startline="371" endline="374">isSubSeparator</referencedby>
+        <referencedby refid="structterminal_1_1_c_s_i_1a58906bacf120dd611ab969af1a46c1bd" compoundref="_c_s_i_8h" startline="292" endline="299">reset</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_c_s_i_1ab3dded4e066fc2b01f8aa2a71a82d0eb" prot="public" static="no" mutable="no">
+        <type>uint8_t</type>
+        <definition>uint8_t terminal::CSI::count</definition>
+        <argsstring></argsstring>
+        <name>count</name>
+        <qualifiedname>terminal::CSI::count</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+<para>Number of parameters currently stored in <computeroutput><ref refid="structterminal_1_1_c_s_i_1a4590c3aca4c7b4a33547974bc59c9906" kindref="member">values</ref></computeroutput>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This count includes parameters that were implicitly specified by a trailing separator. For example, <computeroutput>ESC[1;;3m</computeroutput> produces three parameters: 1, 0, 3.</para>
+<para><simplesect kind="invariant"><para>count &lt;= MAX_PARAMS </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/CSI.h" line="126" column="14" bodyfile="terminal/CSI.h" bodystart="126" bodyend="126"/>
+        <referencedby refid="structterminal_1_1_c_s_i_1a2531da13a92b9ed183e74788fafd555d" compoundref="_c_s_i_8h" startline="221" endline="239">addSeparator</referencedby>
+        <referencedby refid="structterminal_1_1_c_s_i_1a2f4c0fd4d6bf36b880ae052506c8d7d6" compoundref="_c_s_i_8h" startline="267" endline="276">finalize</referencedby>
+        <referencedby refid="structterminal_1_1_c_s_i_1a47b7740c7f5e36382fbd6812be573b2f" compoundref="_c_s_i_8h" startline="334" endline="344">param</referencedby>
+        <referencedby refid="structterminal_1_1_c_s_i_1a58906bacf120dd611ab969af1a46c1bd" compoundref="_c_s_i_8h" startline="292" endline="299">reset</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_c_s_i_1ab4ca2a0bec07ba138196a3e62dd27c10" prot="public" static="no" mutable="no">
+        <type>uint16_t</type>
+        <definition>uint16_t terminal::CSI::accumulator</definition>
+        <argsstring></argsstring>
+        <name>accumulator</name>
+        <qualifiedname>terminal::CSI::accumulator</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+<para>Temporary accumulator for building the current parameter value. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>As digits are fed via <computeroutput><ref refid="structterminal_1_1_c_s_i_1a8a3f0c7648031f973e5bb63fd1f81a06" kindref="member">addDigit()</ref></computeroutput>, this value grows: &apos;1&apos; -&gt; 1, &apos;12&apos; -&gt; 12, etc. When a separator or final byte is encountered, this value is copied to <computeroutput><ref refid="structterminal_1_1_c_s_i_1a4590c3aca4c7b4a33547974bc59c9906" kindref="member">values</ref></computeroutput> and the accumulator is reset.</para>
+<para><simplesect kind="see"><para><ref refid="structterminal_1_1_c_s_i_1a91d13ea91357c8ab601596bc9da18063" kindref="member">hasAccumulator</ref> indicates whether any digits have been accumulated </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/CSI.h" line="137" column="14" bodyfile="terminal/CSI.h" bodystart="137" bodyend="137"/>
+        <referencedby refid="structterminal_1_1_c_s_i_1a8a3f0c7648031f973e5bb63fd1f81a06" compoundref="_c_s_i_8h" startline="174" endline="178">addDigit</referencedby>
+        <referencedby refid="structterminal_1_1_c_s_i_1a2531da13a92b9ed183e74788fafd555d" compoundref="_c_s_i_8h" startline="221" endline="239">addSeparator</referencedby>
+        <referencedby refid="structterminal_1_1_c_s_i_1a2f4c0fd4d6bf36b880ae052506c8d7d6" compoundref="_c_s_i_8h" startline="267" endline="276">finalize</referencedby>
+        <referencedby refid="structterminal_1_1_c_s_i_1a58906bacf120dd611ab969af1a46c1bd" compoundref="_c_s_i_8h" startline="292" endline="299">reset</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_c_s_i_1a91d13ea91357c8ab601596bc9da18063" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool terminal::CSI::hasAccumulator</definition>
+        <argsstring></argsstring>
+        <name>hasAccumulator</name>
+        <qualifiedname>terminal::CSI::hasAccumulator</qualifiedname>
+        <initializer>{ false }</initializer>
+        <briefdescription>
+<para>Flag indicating whether <computeroutput><ref refid="structterminal_1_1_c_s_i_1ab4ca2a0bec07ba138196a3e62dd27c10" kindref="member">accumulator</ref></computeroutput> contains valid data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This is false until the first digit is added. It distinguishes between:<itemizedlist>
+<listitem><para>No parameter specified (hasAccumulator = false) -&gt; use default</para>
+</listitem><listitem><para><ref refid="structterminal_1_1_parameter" kindref="compound">Parameter</ref> is zero (hasAccumulator = true, accumulator = 0)</para>
+</listitem></itemizedlist>
+</para>
+<para>For example, in <computeroutput>ESC[;5m</computeroutput>, the first parameter has no digits, so hasAccumulator is false when the separator is encountered. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/CSI.h" line="149" column="14" bodyfile="terminal/CSI.h" bodystart="149" bodyend="149"/>
+        <referencedby refid="structterminal_1_1_c_s_i_1a8a3f0c7648031f973e5bb63fd1f81a06" compoundref="_c_s_i_8h" startline="174" endline="178">addDigit</referencedby>
+        <referencedby refid="structterminal_1_1_c_s_i_1a2531da13a92b9ed183e74788fafd555d" compoundref="_c_s_i_8h" startline="221" endline="239">addSeparator</referencedby>
+        <referencedby refid="structterminal_1_1_c_s_i_1a2f4c0fd4d6bf36b880ae052506c8d7d6" compoundref="_c_s_i_8h" startline="267" endline="276">finalize</referencedby>
+        <referencedby refid="structterminal_1_1_c_s_i_1a58906bacf120dd611ab969af1a46c1bd" compoundref="_c_s_i_8h" startline="292" endline="299">reset</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="public-func">
+      <memberdef kind="function" id="structterminal_1_1_c_s_i_1a8a3f0c7648031f973e5bb63fd1f81a06" prot="public" static="no" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void terminal::CSI::addDigit</definition>
+        <argsstring>(uint8_t digit) noexcept</argsstring>
+        <name>addDigit</name>
+        <qualifiedname>terminal::CSI::addDigit</qualifiedname>
+        <param>
+          <type>uint8_t</type>
+          <declname>digit</declname>
+        </param>
+        <briefdescription>
+<para>Adds a digit to the current parameter accumulator. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Called by the parser for each numeric character &apos;0&apos;-&apos;9&apos; in the <ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> parameter string. The digit is incorporated into <computeroutput><ref refid="structterminal_1_1_c_s_i_1ab4ca2a0bec07ba138196a3e62dd27c10" kindref="member">accumulator</ref></computeroutput> using base-10 arithmetic.</para>
+<para><simplesect kind="par"><title>Overflow Behavior</title><para>If the accumulated value exceeds 65535 (uint16_t max), it wraps modulo 65536. This matches xterm behavior for excessively large parameters.</para>
+</simplesect>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>digit</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The numeric value of the digit character (0-9). The parser is responsible for converting &apos;0&apos;-&apos;9&apos; to 0-9.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="note"><para>READER THREAD only.</para>
+</simplesect>
+<simplesect kind="par"><title>Example</title><para><programlisting><codeline><highlight class="comment">//<sp/>Parsing<sp/>&quot;123&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="structterminal_1_1_c_s_i_1a8a3f0c7648031f973e5bb63fd1f81a06" kindref="member">addDigit</ref>(1);<sp/><sp/></highlight><highlight class="comment">//<sp/>accumulator<sp/>=<sp/>1</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="structterminal_1_1_c_s_i_1a8a3f0c7648031f973e5bb63fd1f81a06" kindref="member">addDigit</ref>(2);<sp/><sp/></highlight><highlight class="comment">//<sp/>accumulator<sp/>=<sp/>12</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="structterminal_1_1_c_s_i_1a8a3f0c7648031f973e5bb63fd1f81a06" kindref="member">addDigit</ref>(3);<sp/><sp/></highlight><highlight class="comment">//<sp/>accumulator<sp/>=<sp/>123</highlight></codeline>
+</programlisting> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/CSI.h" line="174" column="10" bodyfile="terminal/CSI.h" bodystart="174" bodyend="178"/>
+        <references refid="structterminal_1_1_c_s_i_1ab4ca2a0bec07ba138196a3e62dd27c10" compoundref="_c_s_i_8h" startline="137" endline="137">accumulator</references>
+        <references refid="structterminal_1_1_c_s_i_1a91d13ea91357c8ab601596bc9da18063" compoundref="_c_s_i_8h" startline="149" endline="149">hasAccumulator</references>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_c_s_i_1a2531da13a92b9ed183e74788fafd555d" prot="public" static="no" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void terminal::CSI::addSeparator</definition>
+        <argsstring>(uint8_t separatorByte) noexcept</argsstring>
+        <name>addSeparator</name>
+        <qualifiedname>terminal::CSI::addSeparator</qualifiedname>
+        <param>
+          <type>uint8_t</type>
+          <declname>separatorByte</declname>
+        </param>
+        <briefdescription>
+<para>Records a parameter separator and stores the accumulated value. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Called when the parser encounters &apos;;&apos; or &apos;:&apos; in the <ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> parameter string. If a value was being accumulated, it is stored in <computeroutput><ref refid="structterminal_1_1_c_s_i_1a4590c3aca4c7b4a33547974bc59c9906" kindref="member">values</ref></computeroutput>. The separator type (colon vs. semicolon) is recorded in <computeroutput><ref refid="structterminal_1_1_c_s_i_1ac5bb70159f40b4933a4602b77732168c" kindref="member">subSeparatorBits</ref></computeroutput>.</para>
+<para><simplesect kind="par"><title>Empty Parameters</title><para>If <computeroutput><ref refid="structterminal_1_1_c_s_i_1a91d13ea91357c8ab601596bc9da18063" kindref="member">hasAccumulator</ref></computeroutput> is false (no digits since last separator), the value stored is zero (from initialization). This handles sequences like <computeroutput>ESC[;;m</computeroutput> where parameters are omitted.</para>
+</simplesect>
+<simplesect kind="par"><title>Parameter Limit</title><para>If <computeroutput><ref refid="structterminal_1_1_c_s_i_1ab3dded4e066fc2b01f8aa2a71a82d0eb" kindref="member">count</ref></computeroutput> is already at MAX_PARAMS, the separator and any accumulated value are silently discarded. This prevents buffer overflow on malformed or maliciously long sequences.</para>
+</simplesect>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>separatorByte</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The separator character: &apos;;&apos; for standard separator, &apos;:&apos; for sub-separator (extended syntax).</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="note"><para>READER THREAD only.</para>
+</simplesect>
+<simplesect kind="par"><title>Example</title><para><programlisting><codeline><highlight class="comment">//<sp/>Parsing<sp/>&quot;1;34&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="structterminal_1_1_c_s_i_1a8a3f0c7648031f973e5bb63fd1f81a06" kindref="member">addDigit</ref>(1);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>accumulator<sp/>=<sp/>1</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="structterminal_1_1_c_s_i_1a2531da13a92b9ed183e74788fafd555d" kindref="member">addSeparator</ref>(</highlight><highlight class="charliteral">&apos;;&apos;</highlight><highlight class="normal">);<sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>values[0]<sp/>=<sp/>1,<sp/>count<sp/>=<sp/>1</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="structterminal_1_1_c_s_i_1a8a3f0c7648031f973e5bb63fd1f81a06" kindref="member">addDigit</ref>(3);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>accumulator<sp/>=<sp/>3</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="structterminal_1_1_c_s_i_1a8a3f0c7648031f973e5bb63fd1f81a06" kindref="member">addDigit</ref>(4);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>accumulator<sp/>=<sp/>34</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>finalize()<sp/>will<sp/>store<sp/>values[1]<sp/>=<sp/>34</highlight></codeline>
+</programlisting></para>
+</simplesect>
+<simplesect kind="par"><title>Sub-separator Example</title><para><programlisting><codeline><highlight class="comment">//<sp/>Parsing<sp/>&quot;38:2&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="structterminal_1_1_c_s_i_1a8a3f0c7648031f973e5bb63fd1f81a06" kindref="member">addDigit</ref>(3);<sp/><ref refid="structterminal_1_1_c_s_i_1a8a3f0c7648031f973e5bb63fd1f81a06" kindref="member">addDigit</ref>(8);<sp/><sp/></highlight><highlight class="comment">//<sp/>accumulator<sp/>=<sp/>38</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="structterminal_1_1_c_s_i_1a2531da13a92b9ed183e74788fafd555d" kindref="member">addSeparator</ref>(</highlight><highlight class="charliteral">&apos;:&apos;</highlight><highlight class="normal">);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>values[0]<sp/>=<sp/>38,<sp/>bit<sp/>0<sp/>set</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="structterminal_1_1_c_s_i_1a8a3f0c7648031f973e5bb63fd1f81a06" kindref="member">addDigit</ref>(2);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>accumulator<sp/>=<sp/>2</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>isSubSeparator(0)<sp/>returns<sp/>true</highlight></codeline>
+</programlisting> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/CSI.h" line="221" column="10" bodyfile="terminal/CSI.h" bodystart="221" bodyend="239"/>
+        <references refid="structterminal_1_1_c_s_i_1ab4ca2a0bec07ba138196a3e62dd27c10" compoundref="_c_s_i_8h" startline="137" endline="137">accumulator</references>
+        <references refid="structterminal_1_1_c_s_i_1ab3dded4e066fc2b01f8aa2a71a82d0eb" compoundref="_c_s_i_8h" startline="126" endline="126">count</references>
+        <references refid="structterminal_1_1_c_s_i_1a91d13ea91357c8ab601596bc9da18063" compoundref="_c_s_i_8h" startline="149" endline="149">hasAccumulator</references>
+        <references refid="structterminal_1_1_c_s_i_1a62001239131af1166d8d99a9c7c0bb2b" compoundref="_c_s_i_8h" startline="90" endline="90">MAX_PARAMS</references>
+        <references refid="structterminal_1_1_c_s_i_1ac5bb70159f40b4933a4602b77732168c" compoundref="_c_s_i_8h" startline="116" endline="116">subSeparatorBits</references>
+        <references refid="structterminal_1_1_c_s_i_1a4590c3aca4c7b4a33547974bc59c9906" compoundref="_c_s_i_8h" startline="101" endline="101">values</references>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_c_s_i_1a2f4c0fd4d6bf36b880ae052506c8d7d6" prot="public" static="no" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void terminal::CSI::finalize</definition>
+        <argsstring>() noexcept</argsstring>
+        <name>finalize</name>
+        <qualifiedname>terminal::CSI::finalize</qualifiedname>
+        <briefdescription>
+<para>Finalizes parameter accumulation after all parameter characters are consumed. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Called by the parser after the <ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> parameter string is complete (typically when the final byte is encountered). If a value was being accumulated, it is stored as the final parameter.</para>
+<para>This method is idempotent — calling it multiple times has no additional effect after the first call (until <computeroutput><ref refid="structterminal_1_1_c_s_i_1a58906bacf120dd611ab969af1a46c1bd" kindref="member">reset()</ref></computeroutput> is called).</para>
+<para><simplesect kind="par"><title>Empty Sequences</title><para>If no parameters were specified (e.g., <computeroutput>ESC[m</computeroutput>), this method does nothing and <computeroutput><ref refid="structterminal_1_1_c_s_i_1ab3dded4e066fc2b01f8aa2a71a82d0eb" kindref="member">count</ref></computeroutput> remains zero. Dispatch handlers typically treat this as a default case (e.g., SGR reset).</para>
+</simplesect>
+<simplesect kind="par"><title>Single Parameter</title><para>For <computeroutput>ESC[5m</computeroutput>, after <computeroutput>addDigit(5)</computeroutput>, <computeroutput><ref refid="structterminal_1_1_c_s_i_1a2f4c0fd4d6bf36b880ae052506c8d7d6" kindref="member">finalize()</ref></computeroutput> stores the value: <programlisting><codeline><highlight class="comment">//<sp/>Before:<sp/>hasAccumulator<sp/>=<sp/>true,<sp/>accumulator<sp/>=<sp/>5,<sp/>count<sp/>=<sp/>0</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="structterminal_1_1_c_s_i_1a2f4c0fd4d6bf36b880ae052506c8d7d6" kindref="member">finalize</ref>();</highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>After:<sp/>hasAccumulator<sp/>=<sp/>false,<sp/>values[0]<sp/>=<sp/>5,<sp/>count<sp/>=<sp/>1</highlight></codeline>
+</programlisting></para>
+</simplesect>
+<simplesect kind="note"><para>READER THREAD only. </para>
+</simplesect>
+<simplesect kind="note"><para>Must be called before <computeroutput><ref refid="structterminal_1_1_c_s_i_1a47b7740c7f5e36382fbd6812be573b2f" kindref="member">param()</ref></computeroutput> is used during dispatch. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/CSI.h" line="267" column="10" bodyfile="terminal/CSI.h" bodystart="267" bodyend="276"/>
+        <references refid="structterminal_1_1_c_s_i_1ab4ca2a0bec07ba138196a3e62dd27c10" compoundref="_c_s_i_8h" startline="137" endline="137">accumulator</references>
+        <references refid="structterminal_1_1_c_s_i_1ab3dded4e066fc2b01f8aa2a71a82d0eb" compoundref="_c_s_i_8h" startline="126" endline="126">count</references>
+        <references refid="structterminal_1_1_c_s_i_1a91d13ea91357c8ab601596bc9da18063" compoundref="_c_s_i_8h" startline="149" endline="149">hasAccumulator</references>
+        <references refid="structterminal_1_1_c_s_i_1a62001239131af1166d8d99a9c7c0bb2b" compoundref="_c_s_i_8h" startline="90" endline="90">MAX_PARAMS</references>
+        <references refid="structterminal_1_1_c_s_i_1a4590c3aca4c7b4a33547974bc59c9906" compoundref="_c_s_i_8h" startline="101" endline="101">values</references>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_c_s_i_1a58906bacf120dd611ab969af1a46c1bd" prot="public" static="no" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void terminal::CSI::reset</definition>
+        <argsstring>() noexcept</argsstring>
+        <name>reset</name>
+        <qualifiedname>terminal::CSI::reset</qualifiedname>
+        <briefdescription>
+<para>Resets the accumulator to initial state for a new <ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> sequence. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Called after a <ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> sequence has been fully processed (dispatched) to prepare for the next sequence. All fields are reset to their default values.</para>
+<para><simplesect kind="par"><title>Performance</title><para>This method uses <computeroutput>std::array::fill()</computeroutput> which is typically optimized to a memset or vectorized store. The struct is small enough that this is negligible in the parsing path.</para>
+</simplesect>
+<simplesect kind="note"><para>READER THREAD only. </para>
+</simplesect>
+<simplesect kind="note"><para>Must be called before reusing the accumulator for a new sequence. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/CSI.h" line="292" column="10" bodyfile="terminal/CSI.h" bodystart="292" bodyend="299"/>
+        <references refid="structterminal_1_1_c_s_i_1ab4ca2a0bec07ba138196a3e62dd27c10" compoundref="_c_s_i_8h" startline="137" endline="137">accumulator</references>
+        <references refid="structterminal_1_1_c_s_i_1ab3dded4e066fc2b01f8aa2a71a82d0eb" compoundref="_c_s_i_8h" startline="126" endline="126">count</references>
+        <references refid="structterminal_1_1_c_s_i_1a91d13ea91357c8ab601596bc9da18063" compoundref="_c_s_i_8h" startline="149" endline="149">hasAccumulator</references>
+        <references refid="structterminal_1_1_c_s_i_1ac5bb70159f40b4933a4602b77732168c" compoundref="_c_s_i_8h" startline="116" endline="116">subSeparatorBits</references>
+        <references refid="structterminal_1_1_c_s_i_1a4590c3aca4c7b4a33547974bc59c9906" compoundref="_c_s_i_8h" startline="101" endline="101">values</references>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_c_s_i_1a47b7740c7f5e36382fbd6812be573b2f" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>uint16_t</type>
+        <definition>uint16_t terminal::CSI::param</definition>
+        <argsstring>(uint8_t index, uint16_t defaultValue) const noexcept</argsstring>
+        <name>param</name>
+        <qualifiedname>terminal::CSI::param</qualifiedname>
+        <param>
+          <type>uint8_t</type>
+          <declname>index</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>defaultValue</declname>
+        </param>
+        <briefdescription>
+<para>Retrieves a parameter value by index with a default fallback. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Used by <ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> dispatch handlers to safely access parameter values. If the requested index is out of range (&gt;= count), the default value is returned.</para>
+<para><simplesect kind="par"><title>Default Value Semantics</title><para>The default value depends on the specific <ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> command:<itemizedlist>
+<listitem><para><ref refid="struct_cursor" kindref="compound">Cursor</ref> positioning (CUP, HVP): default is 1 (first row/column)</para>
+</listitem><listitem><para>SGR (text attributes): default is 0 (reset/normal)</para>
+</listitem><listitem><para>Erase (ED, EL): default is 0 (erase below/to right)</para>
+</listitem></itemizedlist>
+</para>
+</simplesect>
+The caller (dispatch handler) is responsible for choosing the appropriate default value based on the command being processed.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Zero-based parameter index (0 = first parameter). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>defaultValue</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classValue" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Value</ref> to return if the parameter was not specified.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>The parameter value at <computeroutput>index</computeroutput>, or <computeroutput>defaultValue</computeroutput> if index &gt;= count.</para>
+</simplesect>
+<simplesect kind="note"><para>READER THREAD only. </para>
+</simplesect>
+<simplesect kind="note"><para><computeroutput><ref refid="structterminal_1_1_c_s_i_1a2f4c0fd4d6bf36b880ae052506c8d7d6" kindref="member">finalize()</ref></computeroutput> must be called before using this method.</para>
+</simplesect>
+<simplesect kind="par"><title>Example</title><para><programlisting><codeline><highlight class="comment">//<sp/>For<sp/>&quot;ESC[5m&quot;,<sp/>count<sp/>=<sp/>1,<sp/>values[0]<sp/>=<sp/>5</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="structterminal_1_1_c_s_i_1a47b7740c7f5e36382fbd6812be573b2f" kindref="member">param</ref>(0,<sp/>0);<sp/><sp/></highlight><highlight class="comment">//<sp/>returns<sp/>5</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="structterminal_1_1_c_s_i_1a47b7740c7f5e36382fbd6812be573b2f" kindref="member">param</ref>(1,<sp/>0);<sp/><sp/></highlight><highlight class="comment">//<sp/>returns<sp/>0<sp/>(default,<sp/>index<sp/>out<sp/>of<sp/>range)</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>For<sp/>&quot;ESC[m&quot;,<sp/>count<sp/>=<sp/>0</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="structterminal_1_1_c_s_i_1a47b7740c7f5e36382fbd6812be573b2f" kindref="member">param</ref>(0,<sp/>0);<sp/><sp/></highlight><highlight class="comment">//<sp/>returns<sp/>0<sp/>(default)</highlight></codeline>
+</programlisting> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/CSI.h" line="334" column="14" bodyfile="terminal/CSI.h" bodystart="334" bodyend="344"/>
+        <references refid="structterminal_1_1_c_s_i_1ab3dded4e066fc2b01f8aa2a71a82d0eb" compoundref="_c_s_i_8h" startline="126" endline="126">count</references>
+        <references refid="structterminal_1_1_c_s_i_1a4590c3aca4c7b4a33547974bc59c9906" compoundref="_c_s_i_8h" startline="101" endline="101">values</references>
+      </memberdef>
+      <memberdef kind="function" id="structterminal_1_1_c_s_i_1a1efed907e307b75536e3fd94244b0bff" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool terminal::CSI::isSubSeparator</definition>
+        <argsstring>(uint8_t index) const noexcept</argsstring>
+        <name>isSubSeparator</name>
+        <qualifiedname>terminal::CSI::isSubSeparator</qualifiedname>
+        <param>
+          <type>uint8_t</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+<para>Checks whether a parameter position was preceded by a colon sub-separator. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Used to distinguish between standard semicolon-separated parameters and the extended colon-separated sub-parameter syntax (ISO 8613-6).</para>
+<para><simplesect kind="par"><title>Extended Color Example</title><para><programlisting><codeline><highlight class="comment">//<sp/>&quot;38:2:255:0:0&quot;<sp/>-<sp/>24-bit<sp/>RGB<sp/>foreground</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>isSubSeparator(0)<sp/>=<sp/>false<sp/>(38<sp/>was<sp/>first,<sp/>no<sp/>separator<sp/>before<sp/>it)</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>isSubSeparator(1)<sp/>=<sp/>true<sp/><sp/>(colon<sp/>before<sp/>2)</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>isSubSeparator(2)<sp/>=<sp/>true<sp/><sp/>(colon<sp/>before<sp/>255)</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>isSubSeparator(3)<sp/>=<sp/>true<sp/><sp/>(colon<sp/>before<sp/>0)</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>isSubSeparator(4)<sp/>=<sp/>true<sp/><sp/>(colon<sp/>before<sp/>0)</highlight></codeline>
+</programlisting></para>
+</simplesect>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Zero-based parameter index to check.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if the separator before this parameter was &apos;:&apos;, false if it was &apos;;&apos; or if this is the first parameter (index 0).</para>
+</simplesect>
+<simplesect kind="note"><para>READER THREAD only.</para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="structterminal_1_1_c_s_i_1ac5bb70159f40b4933a4602b77732168c" kindref="member">subSeparatorBits</ref> for the underlying <ref refid="lgc_8h_1af25866c39979dd1f72110cbd3a1a427d" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">bitmask</ref> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/CSI.h" line="371" column="10" bodyfile="terminal/CSI.h" bodystart="371" bodyend="374"/>
+        <references refid="structterminal_1_1_c_s_i_1ac5bb70159f40b4933a4602b77732168c" compoundref="_c_s_i_8h" startline="116" endline="116">subSeparatorBits</references>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Accumulator for <ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> (Control Sequence Introducer) parameters during parsing. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>The VT parser feeds characters into this accumulator as it processes a <ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> sequence. The accumulator builds up numeric parameters digit-by-digit, stores them in a fixed array, and tracks which separators were sub-separators (colon) vs. standard (semicolon).</para>
+<para><simplesect kind="par"><title>Usage Pattern</title><para>The parser calls methods in this sequence:<orderedlist>
+<listitem><para><computeroutput><ref refid="structterminal_1_1_c_s_i_1a8a3f0c7648031f973e5bb63fd1f81a06" kindref="member">addDigit()</ref></computeroutput> — for each numeric character &apos;0&apos;-&apos;9&apos; in the parameter string</para>
+</listitem><listitem><para><computeroutput><ref refid="structterminal_1_1_c_s_i_1a2531da13a92b9ed183e74788fafd555d" kindref="member">addSeparator()</ref></computeroutput> — for each &apos;;&apos; or &apos;:&apos; between parameters</para>
+</listitem><listitem><para><computeroutput><ref refid="structterminal_1_1_c_s_i_1a2f4c0fd4d6bf36b880ae052506c8d7d6" kindref="member">finalize()</ref></computeroutput> — after all parameter characters have been consumed</para>
+</listitem><listitem><para><computeroutput><ref refid="structterminal_1_1_c_s_i_1a47b7740c7f5e36382fbd6812be573b2f" kindref="member">param()</ref></computeroutput> — during dispatch to retrieve individual parameter values</para>
+</listitem><listitem><para><computeroutput><ref refid="structterminal_1_1_c_s_i_1a58906bacf120dd611ab969af1a46c1bd" kindref="member">reset()</ref></computeroutput> — to prepare for the next <ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> sequence</para>
+</listitem></orderedlist>
+</para>
+</simplesect>
+<simplesect kind="par"><title>Parameter Separators</title><para>Standard <ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> uses semicolon (<computeroutput>;</computeroutput>) to separate parameters. The extended syntax (ISO 8613-6) allows colon (<computeroutput>:</computeroutput>) as a sub-separator for hierarchical parameters. For example, <computeroutput>38:2:255:0:0</computeroutput> uses colons to group the RGB color sub-parameters. The <computeroutput><ref refid="structterminal_1_1_c_s_i_1ac5bb70159f40b4933a4602b77732168c" kindref="member">subSeparatorBits</ref></computeroutput> field tracks which parameter positions had colons.</para>
+</simplesect>
+<simplesect kind="par"><title>Default Values</title><para>Omitted parameters default to specific values depending on the command:<itemizedlist>
+<listitem><para><computeroutput>ESC[H</computeroutput> (cursor home) treats missing row/col as 1</para>
+</listitem><listitem><para><computeroutput>ESC[m</computeroutput> (SGR reset) treats missing params as 0 The <computeroutput><ref refid="structterminal_1_1_c_s_i_1a47b7740c7f5e36382fbd6812be573b2f" kindref="member">param()</ref></computeroutput> method accepts a default value for this reason.</para>
+</listitem></itemizedlist>
+</para>
+</simplesect>
+<simplesect kind="par"><title>Memory Layout</title><para>The struct is designed to be trivially copyable so it can be safely memcpy&apos;d or used in lock-free contexts. Total size is approximately 64 bytes:<itemizedlist>
+<listitem><para><computeroutput><ref refid="structterminal_1_1_c_s_i_1a4590c3aca4c7b4a33547974bc59c9906" kindref="member">values</ref></computeroutput>: 24 × 2 bytes = 48 bytes</para>
+</listitem><listitem><para><computeroutput><ref refid="structterminal_1_1_c_s_i_1ac5bb70159f40b4933a4602b77732168c" kindref="member">subSeparatorBits</ref></computeroutput>: 4 bytes</para>
+</listitem><listitem><para><computeroutput><ref refid="structterminal_1_1_c_s_i_1ab3dded4e066fc2b01f8aa2a71a82d0eb" kindref="member">count</ref></computeroutput>: 1 byte</para>
+</listitem><listitem><para><computeroutput><ref refid="structterminal_1_1_c_s_i_1ab4ca2a0bec07ba138196a3e62dd27c10" kindref="member">accumulator</ref></computeroutput>: 2 bytes</para>
+</listitem><listitem><para><computeroutput><ref refid="structterminal_1_1_c_s_i_1a91d13ea91357c8ab601596bc9da18063" kindref="member">hasAccumulator</ref></computeroutput>: 1 byte</para>
+</listitem><listitem><para>Padding: ~8 bytes</para>
+</listitem></itemizedlist>
+</para>
+</simplesect>
+<simplesect kind="invariant"><para><computeroutput><ref refid="structterminal_1_1_c_s_i_1ab3dded4e066fc2b01f8aa2a71a82d0eb" kindref="member">count</ref></computeroutput> is always &lt;= MAX_PARAMS </para>
+</simplesect>
+<simplesect kind="invariant"><para><computeroutput><ref refid="structterminal_1_1_c_s_i_1a91d13ea91357c8ab601596bc9da18063" kindref="member">hasAccumulator</ref></computeroutput> implies <computeroutput><ref refid="structterminal_1_1_c_s_i_1ab4ca2a0bec07ba138196a3e62dd27c10" kindref="member">accumulator</ref></computeroutput> holds the current parameter value </para>
+</simplesect>
+<simplesect kind="invariant"><para>After <computeroutput><ref refid="structterminal_1_1_c_s_i_1a2f4c0fd4d6bf36b880ae052506c8d7d6" kindref="member">finalize()</ref></computeroutput>, <computeroutput><ref refid="structterminal_1_1_c_s_i_1a91d13ea91357c8ab601596bc9da18063" kindref="member">hasAccumulator</ref></computeroutput> is always false</para>
+</simplesect>
+<simplesect kind="note"><para><ref refid="classThread" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Thread</ref> Safety: This struct is not thread-safe. It is used exclusively by the READER THREAD during parsing.</para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classterminal_1_1_parser" kindref="compound">Parser</ref> for the state machine that drives this <ref refid="structterminal_1_1_c_s_i_1ab4ca2a0bec07ba138196a3e62dd27c10" kindref="member">accumulator</ref> </para>
+</simplesect>
+<simplesect kind="see"><para>ParserCSI.cpp for <ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> sequence dispatch </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="2">
+        <label>std::array&lt; uint16_t, MAX_PARAMS &gt;</label>
+      </node>
+      <node id="1">
+        <label>terminal::CSI</label>
+        <link refid="structterminal_1_1_c_s_i"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>values</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="terminal/CSI.h" line="81" column="1" bodyfile="terminal/CSI.h" bodystart="82" bodyend="375"/>
+    <listofallmembers>
+      <member refid="structterminal_1_1_c_s_i_1ab4ca2a0bec07ba138196a3e62dd27c10" prot="public" virt="non-virtual"><scope>terminal::CSI</scope><name>accumulator</name></member>
+      <member refid="structterminal_1_1_c_s_i_1a8a3f0c7648031f973e5bb63fd1f81a06" prot="public" virt="non-virtual"><scope>terminal::CSI</scope><name>addDigit</name></member>
+      <member refid="structterminal_1_1_c_s_i_1a2531da13a92b9ed183e74788fafd555d" prot="public" virt="non-virtual"><scope>terminal::CSI</scope><name>addSeparator</name></member>
+      <member refid="structterminal_1_1_c_s_i_1ab3dded4e066fc2b01f8aa2a71a82d0eb" prot="public" virt="non-virtual"><scope>terminal::CSI</scope><name>count</name></member>
+      <member refid="structterminal_1_1_c_s_i_1a2f4c0fd4d6bf36b880ae052506c8d7d6" prot="public" virt="non-virtual"><scope>terminal::CSI</scope><name>finalize</name></member>
+      <member refid="structterminal_1_1_c_s_i_1a91d13ea91357c8ab601596bc9da18063" prot="public" virt="non-virtual"><scope>terminal::CSI</scope><name>hasAccumulator</name></member>
+      <member refid="structterminal_1_1_c_s_i_1a1efed907e307b75536e3fd94244b0bff" prot="public" virt="non-virtual"><scope>terminal::CSI</scope><name>isSubSeparator</name></member>
+      <member refid="structterminal_1_1_c_s_i_1a62001239131af1166d8d99a9c7c0bb2b" prot="public" virt="non-virtual"><scope>terminal::CSI</scope><name>MAX_PARAMS</name></member>
+      <member refid="structterminal_1_1_c_s_i_1a47b7740c7f5e36382fbd6812be573b2f" prot="public" virt="non-virtual"><scope>terminal::CSI</scope><name>param</name></member>
+      <member refid="structterminal_1_1_c_s_i_1a58906bacf120dd611ab969af1a46c1bd" prot="public" virt="non-virtual"><scope>terminal::CSI</scope><name>reset</name></member>
+      <member refid="structterminal_1_1_c_s_i_1ac5bb70159f40b4933a4602b77732168c" prot="public" virt="non-virtual"><scope>terminal::CSI</scope><name>subSeparatorBits</name></member>
+      <member refid="structterminal_1_1_c_s_i_1a4590c3aca4c7b4a33547974bc59c9906" prot="public" virt="non-virtual"><scope>terminal::CSI</scope><name>values</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,141 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="structterminal_1_1_image_sequence" kind="struct" language="C++" prot="public">
+    <compoundname>terminal::ImageSequence</compoundname>
+    <includes refid="_image_decode_8h" local="no">ImageDecode.h</includes>
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structterminal_1_1_image_sequence_1a950cadf179eb7f70a0e665eaf834d0d4" prot="public" static="no" mutable="no">
+        <type>juce::HeapBlock&lt; uint8_t &gt;</type>
+        <definition>juce::HeapBlock&lt;uint8_t&gt; terminal::ImageSequence::pixels</definition>
+        <argsstring></argsstring>
+        <name>pixels</name>
+        <qualifiedname>terminal::ImageSequence::pixels</qualifiedname>
+        <briefdescription>
+<para>All frames contiguous, straight RGBA8, row-major. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/ImageDecode.h" line="68" column="21" bodyfile="terminal/ImageDecode.h" bodystart="68" bodyend="-1"/>
+        <referencedby refid="classterminal_1_1_i_term2_decoder_1acaef645d14f1c590d18e79e098ac73c1" compoundref="_i_term2_decoder_8cpp" startline="37" endline="147">terminal::ITerm2Decoder::decode</referencedby>
+        <referencedby refid="structterminal_1_1_image_sequence_1ac3df5110441d642fc1ee0a42941046be" compoundref="_image_decode_8h" startline="75" endline="75">isValid</referencedby>
+        <referencedby refid="namespaceterminal_1ab8471c5f4a063b7f05350297f06c862f" compoundref="_image_decode_mac_8mm" startline="77" endline="359">terminal::loadImageSequenceNative</referencedby>
+        <referencedby refid="classterminal_1_1_skit_1ad5e4cea2ff02af101b376bc4c6b23e44" compoundref="_skit_8cpp" startline="278" endline="353">terminal::Skit::processOSC1337</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_image_sequence_1a896e2c074b680a3bbfa3fbc510ee1922" prot="public" static="no" mutable="no">
+        <type>juce::HeapBlock&lt; int &gt;</type>
+        <definition>juce::HeapBlock&lt;int&gt; terminal::ImageSequence::delays</definition>
+        <argsstring></argsstring>
+        <name>delays</name>
+        <qualifiedname>terminal::ImageSequence::delays</qualifiedname>
+        <briefdescription>
+<para>Per-frame delay in ms. Null for static images. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/ImageDecode.h" line="69" column="21" bodyfile="terminal/ImageDecode.h" bodystart="69" bodyend="-1"/>
+        <referencedby refid="namespaceterminal_1ab8471c5f4a063b7f05350297f06c862f" compoundref="_image_decode_mac_8mm" startline="77" endline="359">terminal::loadImageSequenceNative</referencedby>
+        <referencedby refid="classterminal_1_1_skit_1ad5e4cea2ff02af101b376bc4c6b23e44" compoundref="_skit_8cpp" startline="278" endline="353">terminal::Skit::processOSC1337</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_image_sequence_1a403b07c2785e3391269fab4d837df14a" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int terminal::ImageSequence::frameCount</definition>
+        <argsstring></argsstring>
+        <name>frameCount</name>
+        <qualifiedname>terminal::ImageSequence::frameCount</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+<para>1 = static, &gt;1 = animated. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/ImageDecode.h" line="70" column="9" bodyfile="terminal/ImageDecode.h" bodystart="70" bodyend="70"/>
+        <referencedby refid="classterminal_1_1_i_term2_decoder_1acaef645d14f1c590d18e79e098ac73c1" compoundref="_i_term2_decoder_8cpp" startline="37" endline="147">terminal::ITerm2Decoder::decode</referencedby>
+        <referencedby refid="namespaceterminal_1ab8471c5f4a063b7f05350297f06c862f" compoundref="_image_decode_mac_8mm" startline="77" endline="359">terminal::loadImageSequenceNative</referencedby>
+        <referencedby refid="classterminal_1_1_skit_1ad5e4cea2ff02af101b376bc4c6b23e44" compoundref="_skit_8cpp" startline="278" endline="353">terminal::Skit::processOSC1337</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_image_sequence_1a61e703d2998e97f05b524980bb1f4e7a" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int terminal::ImageSequence::width</definition>
+        <argsstring></argsstring>
+        <name>width</name>
+        <qualifiedname>terminal::ImageSequence::width</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+<para>Frame width in pixels (canvas size for GIF). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/ImageDecode.h" line="71" column="9" bodyfile="terminal/ImageDecode.h" bodystart="71" bodyend="71"/>
+        <referencedby refid="classterminal_1_1_i_term2_decoder_1acaef645d14f1c590d18e79e098ac73c1" compoundref="_i_term2_decoder_8cpp" startline="37" endline="147">terminal::ITerm2Decoder::decode</referencedby>
+        <referencedby refid="structterminal_1_1_image_sequence_1ac3df5110441d642fc1ee0a42941046be" compoundref="_image_decode_8h" startline="75" endline="75">isValid</referencedby>
+        <referencedby refid="namespaceterminal_1ab8471c5f4a063b7f05350297f06c862f" compoundref="_image_decode_mac_8mm" startline="77" endline="359">terminal::loadImageSequenceNative</referencedby>
+        <referencedby refid="classterminal_1_1_skit_1ad5e4cea2ff02af101b376bc4c6b23e44" compoundref="_skit_8cpp" startline="278" endline="353">terminal::Skit::processOSC1337</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_image_sequence_1af9713bee691d18a64d3b47e70ec9a32c" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int terminal::ImageSequence::height</definition>
+        <argsstring></argsstring>
+        <name>height</name>
+        <qualifiedname>terminal::ImageSequence::height</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+<para>Frame height in pixels (canvas size for GIF). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/ImageDecode.h" line="72" column="9" bodyfile="terminal/ImageDecode.h" bodystart="72" bodyend="72"/>
+        <referencedby refid="classterminal_1_1_i_term2_decoder_1acaef645d14f1c590d18e79e098ac73c1" compoundref="_i_term2_decoder_8cpp" startline="37" endline="147">terminal::ITerm2Decoder::decode</referencedby>
+        <referencedby refid="structterminal_1_1_image_sequence_1ac3df5110441d642fc1ee0a42941046be" compoundref="_image_decode_8h" startline="75" endline="75">isValid</referencedby>
+        <referencedby refid="namespaceterminal_1ab8471c5f4a063b7f05350297f06c862f" compoundref="_image_decode_mac_8mm" startline="77" endline="359">terminal::loadImageSequenceNative</referencedby>
+        <referencedby refid="classterminal_1_1_skit_1ad5e4cea2ff02af101b376bc4c6b23e44" compoundref="_skit_8cpp" startline="278" endline="353">terminal::Skit::processOSC1337</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="public-func">
+      <memberdef kind="function" id="structterminal_1_1_image_sequence_1ac3df5110441d642fc1ee0a42941046be" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool terminal::ImageSequence::isValid</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>isValid</name>
+        <qualifiedname>terminal::ImageSequence::isValid</qualifiedname>
+        <briefdescription>
+<para>True when this sequence holds valid pixel data. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/ImageDecode.h" line="75" column="10" bodyfile="terminal/ImageDecode.h" bodystart="75" bodyend="75"/>
+        <references refid="structterminal_1_1_image_sequence_1af9713bee691d18a64d3b47e70ec9a32c" compoundref="_image_decode_8h" startline="72" endline="72">height</references>
+        <references refid="structterminal_1_1_image_sequence_1a950cadf179eb7f70a0e665eaf834d0d4" compoundref="_image_decode_8h" startline="68">pixels</references>
+        <references refid="structterminal_1_1_image_sequence_1a61e703d2998e97f05b524980bb1f4e7a" compoundref="_image_decode_8h" startline="71" endline="71">width</references>
+        <referencedby refid="classterminal_1_1_i_term2_decoder_1acaef645d14f1c590d18e79e098ac73c1" compoundref="_i_term2_decoder_8cpp" startline="37" endline="147">terminal::ITerm2Decoder::decode</referencedby>
+        <referencedby refid="classterminal_1_1_skit_1ad5e4cea2ff02af101b376bc4c6b23e44" compoundref="_skit_8cpp" startline="278" endline="353">terminal::Skit::processOSC1337</referencedby>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>All frames of a decoded image, pre-composited and in straight RGBA8. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>For static images (PNG, JPEG, single-frame GIF): <computeroutput><ref refid="structterminal_1_1_image_sequence_1a403b07c2785e3391269fab4d837df14a" kindref="member">frameCount</ref> == 1</computeroutput>, <computeroutput><ref refid="structterminal_1_1_image_sequence_1a896e2c074b680a3bbfa3fbc510ee1922" kindref="member">delays</ref></computeroutput> is null. For animated GIFs: <computeroutput><ref refid="structterminal_1_1_image_sequence_1a403b07c2785e3391269fab4d837df14a" kindref="member">frameCount</ref> &gt; 1</computeroutput>, <computeroutput><ref refid="structterminal_1_1_image_sequence_1a896e2c074b680a3bbfa3fbc510ee1922" kindref="member">delays</ref></computeroutput> holds per-frame durations in milliseconds, all frames are pre-composited with GIF disposal methods applied. Pixels are stored contiguously: frame N starts at offset <computeroutput>N * <ref refid="structterminal_1_1_image_sequence_1a61e703d2998e97f05b524980bb1f4e7a" kindref="member">width</ref> * <ref refid="structterminal_1_1_image_sequence_1af9713bee691d18a64d3b47e70ec9a32c" kindref="member">height</ref> * 4</computeroutput>. </para>
+    </detaileddescription>
+    <location file="terminal/ImageDecode.h" line="66" column="1" bodyfile="terminal/ImageDecode.h" bodystart="67" bodyend="76"/>
+    <listofallmembers>
+      <member refid="structterminal_1_1_image_sequence_1a896e2c074b680a3bbfa3fbc510ee1922" prot="public" virt="non-virtual"><scope>terminal::ImageSequence</scope><name>delays</name></member>
+      <member refid="structterminal_1_1_image_sequence_1a403b07c2785e3391269fab4d837df14a" prot="public" virt="non-virtual"><scope>terminal::ImageSequence</scope><name>frameCount</name></member>
+      <member refid="structterminal_1_1_image_sequence_1af9713bee691d18a64d3b47e70ec9a32c" prot="public" virt="non-virtual"><scope>terminal::ImageSequence</scope><name>height</name></member>
+      <member refid="structterminal_1_1_image_sequence_1ac3df5110441d642fc1ee0a42941046be" prot="public" virt="non-virtual"><scope>terminal::ImageSequence</scope><name>isValid</name></member>
+      <member refid="structterminal_1_1_image_sequence_1a950cadf179eb7f70a0e665eaf834d0d4" prot="public" virt="non-virtual"><scope>terminal::ImageSequence</scope><name>pixels</name></member>
+      <member refid="structterminal_1_1_image_sequence_1a61e703d2998e97f05b524980bb1f4e7a" prot="public" virt="non-virtual"><scope>terminal::ImageSequence</scope><name>width</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

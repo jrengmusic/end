@@ -1,0 +1,370 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="_input_handler_8h" kind="file" language="C++">
+    <compoundname>InputHandler.h</compoundname>
+    <includes local="no">JuceHeader.h</includes>
+    <includes refid="_modal_type_8h" local="yes">../ModalType.h</includes>
+    <includes refid="_selection_type_8h" local="yes">../SelectionType.h</includes>
+    <includes refid="_app_model_8h" local="yes">../AppModel.h</includes>
+    <includes refid="_engine_8h" local="yes">../lua/Engine.h</includes>
+    <includes refid="_screen_8h" local="yes">Screen.h</includes>
+    <includes refid="_action_8h" local="yes">../terminal/action/Action.h</includes>
+    <includes refid="_app_identifier_8h" local="yes">../AppIdentifier.h</includes>
+    <includedby refid="_input_handler_8cpp" local="yes">whelmed/InputHandler.cpp</includedby>
+    <includedby refid="_component_8h" local="yes">whelmed/component/Component.h</includedby>
+    <incdepgraph>
+      <node id="6">
+        <label>AppIdentifier.h</label>
+        <link refid="_app_identifier_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>../AppModel.h</label>
+        <link refid="_app_model_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>../Cursor.h</label>
+        <link refid="_cursor_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>Map.h</label>
+        <link refid="_map_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>../ModalType.h</label>
+        <link refid="_modal_type_8h"/>
+      </node>
+      <node id="4">
+        <label>../SelectionType.h</label>
+        <link refid="_selection_type_8h"/>
+      </node>
+      <node id="7">
+        <label>lua/Engine.h</label>
+        <link refid="_engine_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>terminal/Identifier.h</label>
+        <link refid="_identifier_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>../terminal/action/Action.h</label>
+        <link refid="_action_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>Block.h</label>
+        <link refid="_block_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="19">
+        <label>GenericTokeniser.h</label>
+        <link refid="_generic_tokeniser_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>whelmed/InputHandler.h</label>
+        <link refid="_input_handler_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>MermaidBlock.h</label>
+        <link refid="_mermaid_block_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>MermaidSVGParser.h</label>
+        <link refid="_mermaid_s_v_g_parser_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>Screen.h</label>
+        <link refid="_screen_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>TableBlock.h</label>
+        <link refid="_table_block_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>TextBlock.h</label>
+        <link refid="_text_block_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="18">
+        <label>Tokenizer.h</label>
+        <link refid="_tokenizer_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>JuceHeader.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="6">
+        <label>Main.cpp</label>
+        <link refid="_main_8cpp"/>
+      </node>
+      <node id="5">
+        <label>Main.h</label>
+        <link refid="_main_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>MainComponent.cpp</label>
+        <link refid="_main_component_8cpp"/>
+      </node>
+      <node id="4">
+        <label>MainComponent.h</label>
+        <link refid="_main_component_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>MainComponentActions.cpp</label>
+        <link refid="_main_component_actions_8cpp"/>
+      </node>
+      <node id="10">
+        <label>terminal/component/Panes.cpp</label>
+        <link refid="_panes_8cpp"/>
+      </node>
+      <node id="9">
+        <label>terminal/component/Panes.h</label>
+        <link refid="_panes_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>terminal/component/Tabs.cpp</label>
+        <link refid="_tabs_8cpp"/>
+      </node>
+      <node id="11">
+        <label>terminal/component/Tabs.h</label>
+        <link refid="_tabs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>terminal/component/TabsActions.cpp</label>
+        <link refid="_tabs_actions_8cpp"/>
+      </node>
+      <node id="14">
+        <label>terminal/component/TabsClose.cpp</label>
+        <link refid="_tabs_close_8cpp"/>
+      </node>
+      <node id="2">
+        <label>whelmed/InputHandler.cpp</label>
+        <link refid="_input_handler_8cpp"/>
+      </node>
+      <node id="1">
+        <label>whelmed/InputHandler.h</label>
+        <link refid="_input_handler_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>whelmed/component/Component.cpp</label>
+        <link refid="_component_8cpp"/>
+      </node>
+      <node id="3">
+        <label>whelmed/component/Component.h</label>
+        <link refid="_component_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="classwhelmed_1_1_input_handler" prot="public">whelmed::InputHandler</innerclass>
+    <innerclass refid="structwhelmed_1_1_input_handler_1_1_selection_keys" prot="private">whelmed::InputHandler::SelectionKeys</innerclass>
+    <innernamespace refid="namespacewhelmed">whelmed</innernamespace>
+    <briefdescription>
+<para>Keyboard input dispatcher for a Whelmed document pane. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Handles navigation (scroll), modal dispatch (selection mode), and falls through to the global Action system for unhandled keys.</para>
+<para><simplesect kind="see"><para><ref refid="classwhelmed_1_1_component" kindref="compound">whelmed::Component</ref> </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classaction_1_1_registry" kindref="compound">action::Registry</ref> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#pragma<sp/>once</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;JuceHeader.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_modal_type_8h" kindref="compound">../ModalType.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_selection_type_8h" kindref="compound">../SelectionType.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_app_model_8h" kindref="compound">../AppModel.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_engine_8h" kindref="compound">../lua/Engine.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_screen_8h" kindref="compound">Screen.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_action_8h" kindref="compound">../terminal/action/Action.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_app_identifier_8h" kindref="compound">../AppIdentifier.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespacewhelmed" kindref="compound">whelmed</ref></highlight></codeline>
+<codeline lineno="24"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="comment">/*____________________________________________________________________________*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34" refid="classwhelmed_1_1_input_handler" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classwhelmed_1_1_input_handler_1a383749a448466b7d2988c28722868993" kindref="member">InputHandler</ref></highlight></codeline>
+<codeline lineno="35"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="45" refid="classwhelmed_1_1_input_handler_1a383749a448466b7d2988c28722868993" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classwhelmed_1_1_input_handler_1a383749a448466b7d2988c28722868993" kindref="member">InputHandler</ref><sp/>(juce::Viewport&amp;<sp/>vp,<sp/><ref refid="classwhelmed_1_1_screen" kindref="compound">Screen</ref>&amp;<sp/>scr,<sp/>juce::ValueTree<sp/>st)<sp/>noexcept</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>:<sp/><ref refid="classwhelmed_1_1_input_handler_1a5dbf526e3fc11ca787c82416c9bd306e" kindref="member">viewport</ref><sp/>(vp)</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>,<sp/><ref refid="classwhelmed_1_1_input_handler_1aa61ac1a16af09ec41ffed997a5c407f3" kindref="member">screen</ref><sp/>(scr)</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>,<sp/><ref refid="classwhelmed_1_1_input_handler_1a4a7aff74fdf6b97f1e221ed0a37cb532" kindref="member">state</ref><sp/>(st)</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classwhelmed_1_1_input_handler_1a7a2df77e2e71f496c97e378b5c4c4b2c" kindref="member">buildKeyMap</ref><sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structlua_1_1_engine_1_1_selection_keys" kindref="compound">lua::Engine::SelectionKeys</ref>&amp;<sp/>keys)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classwhelmed_1_1_input_handler_1aa0a289583de73c7387b42d2382da724c" kindref="member">handleKey</ref><sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::KeyPress&amp;<sp/>key)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classwhelmed_1_1_input_handler_1aaccc5fbecb31868e9986f97753f62f55" kindref="member">reset</ref>()<sp/>noexcept;</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal">private:</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classwhelmed_1_1_input_handler_1aa315da395df2d2542ce768d3de8a19b3" kindref="member">handleCursorMovement</ref><sp/>(const<sp/><ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">juce</ref>::<ref refid="classKeyPress" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">KeyPress</ref>&amp;<sp/>key)<sp/>noexcept;</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classwhelmed_1_1_input_handler_1a0f9823f84d346ef9b2d06e6238eec1dc" kindref="member">handleSelectionToggle</ref><sp/>(const<sp/><ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">juce</ref>::<ref refid="classKeyPress" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">KeyPress</ref>&amp;<sp/>key)<sp/>noexcept;</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classwhelmed_1_1_input_handler_1a713d5fbdab836504c0b34fe66fc043ac" kindref="member">handleNavigation</ref><sp/>(const<sp/><ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">juce</ref>::<ref refid="classKeyPress" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">KeyPress</ref>&amp;<sp/>key)<sp/>noexcept;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classwhelmed_1_1_input_handler_1a5bc9a55e4a8dac5168d09cb444e31790" kindref="member">toggleSelectionType</ref><sp/>(<ref refid="_selection_type_8h_1acffca3b33fddce63d3220bc7487e879d" kindref="member">SelectionType</ref><sp/>target)<sp/>noexcept;</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classwhelmed_1_1_input_handler_1a13dbc7eda04a2bcbc873f86cdc7efb47" kindref="member">copyAndClearSelection</ref>()<sp/>noexcept;</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86" refid="classwhelmed_1_1_input_handler_1a5dbf526e3fc11ca787c82416c9bd306e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">juce</ref>::<ref refid="classViewport" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Viewport</ref>&amp;<sp/><ref refid="classwhelmed_1_1_input_handler_1a5dbf526e3fc11ca787c82416c9bd306e" kindref="member">viewport</ref>;</highlight></codeline>
+<codeline lineno="87" refid="classwhelmed_1_1_input_handler_1aa61ac1a16af09ec41ffed997a5c407f3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classwhelmed_1_1_screen" kindref="compound">Screen</ref>&amp;<sp/><ref refid="classwhelmed_1_1_input_handler_1aa61ac1a16af09ec41ffed997a5c407f3" kindref="member">screen</ref>;</highlight></codeline>
+<codeline lineno="88" refid="classwhelmed_1_1_input_handler_1a4a7aff74fdf6b97f1e221ed0a37cb532" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">juce</ref>::<ref refid="classValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ValueTree</ref><sp/><ref refid="classwhelmed_1_1_input_handler_1a4a7aff74fdf6b97f1e221ed0a37cb532" kindref="member">state</ref>;</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91" refid="classwhelmed_1_1_input_handler_1a990e818e1a37da6258143a4f7ba65244" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classwhelmed_1_1_input_handler_1a990e818e1a37da6258143a4f7ba65244" kindref="member">pendingG</ref><sp/>{<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="94" refid="classwhelmed_1_1_input_handler_1a3a731c9216714c9e60e2f97e3771d7df" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::juce_wchar<sp/><ref refid="classwhelmed_1_1_input_handler_1a3a731c9216714c9e60e2f97e3771d7df" kindref="member">pendingPrefix</ref><sp/>{<sp/>0<sp/>};</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight></codeline>
+<codeline lineno="97" refid="classwhelmed_1_1_input_handler_1ae63589821e45844c25a3c4889d9a3050" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/><ref refid="classwhelmed_1_1_input_handler_1ae63589821e45844c25a3c4889d9a3050" kindref="member">preferredX</ref><sp/>{<sp/>0.0f<sp/>};</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99" refid="structwhelmed_1_1_input_handler_1_1_selection_keys" refkind="compound"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structwhelmed_1_1_input_handler_1_1_selection_keys" kindref="compound">SelectionKeys</ref></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="101" refid="structwhelmed_1_1_input_handler_1_1_selection_keys_1a69faa224073caed27d53938b02fe868f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>juce::KeyPress<sp/><ref refid="structwhelmed_1_1_input_handler_1_1_selection_keys_1a69faa224073caed27d53938b02fe868f" kindref="member">up</ref>;</highlight></codeline>
+<codeline lineno="102" refid="structwhelmed_1_1_input_handler_1_1_selection_keys_1a7734cc0d1987e36d5761a92125bca1f8" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>juce::KeyPress<sp/><ref refid="structwhelmed_1_1_input_handler_1_1_selection_keys_1a7734cc0d1987e36d5761a92125bca1f8" kindref="member">down</ref>;</highlight></codeline>
+<codeline lineno="103" refid="structwhelmed_1_1_input_handler_1_1_selection_keys_1aaf4e62f42b6430319c124a7b302de7aa" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>juce::KeyPress<sp/><ref refid="structwhelmed_1_1_input_handler_1_1_selection_keys_1aaf4e62f42b6430319c124a7b302de7aa" kindref="member">left</ref>;</highlight></codeline>
+<codeline lineno="104" refid="structwhelmed_1_1_input_handler_1_1_selection_keys_1ac887e3b260b9272ce53d591149effb1e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>juce::KeyPress<sp/><ref refid="structwhelmed_1_1_input_handler_1_1_selection_keys_1ac887e3b260b9272ce53d591149effb1e" kindref="member">right</ref>;</highlight></codeline>
+<codeline lineno="105" refid="structwhelmed_1_1_input_handler_1_1_selection_keys_1a0f8806fbea32a3567aa9c656fe23b1b7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>juce::KeyPress<sp/><ref refid="structwhelmed_1_1_input_handler_1_1_selection_keys_1a0f8806fbea32a3567aa9c656fe23b1b7" kindref="member">visual</ref>;</highlight></codeline>
+<codeline lineno="106" refid="structwhelmed_1_1_input_handler_1_1_selection_keys_1a71cdeec04897914c6db150b277a0f65c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>juce::KeyPress<sp/><ref refid="structwhelmed_1_1_input_handler_1_1_selection_keys_1a71cdeec04897914c6db150b277a0f65c" kindref="member">visualLine</ref>;</highlight></codeline>
+<codeline lineno="107" refid="structwhelmed_1_1_input_handler_1_1_selection_keys_1aeea188fc1a793ad2b31f7bf8871eb44c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>juce::KeyPress<sp/><ref refid="structwhelmed_1_1_input_handler_1_1_selection_keys_1aeea188fc1a793ad2b31f7bf8871eb44c" kindref="member">visualBlock</ref>;</highlight></codeline>
+<codeline lineno="108" refid="structwhelmed_1_1_input_handler_1_1_selection_keys_1a8978f4478b4219b760e014a7bcf21b3c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>juce::KeyPress<sp/><ref refid="structwhelmed_1_1_input_handler_1_1_selection_keys_1a8978f4478b4219b760e014a7bcf21b3c" kindref="member">copy</ref>;</highlight></codeline>
+<codeline lineno="109" refid="structwhelmed_1_1_input_handler_1_1_selection_keys_1a859008504ba671f77408a45d88ba6f07" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>juce::KeyPress<sp/><ref refid="structwhelmed_1_1_input_handler_1_1_selection_keys_1a859008504ba671f77408a45d88ba6f07" kindref="member">globalCopy</ref>;</highlight></codeline>
+<codeline lineno="110" refid="structwhelmed_1_1_input_handler_1_1_selection_keys_1a02ebcececa5c99264d844d3a1496799f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>juce::KeyPress<sp/><ref refid="structwhelmed_1_1_input_handler_1_1_selection_keys_1a02ebcececa5c99264d844d3a1496799f" kindref="member">top</ref>;</highlight></codeline>
+<codeline lineno="111" refid="structwhelmed_1_1_input_handler_1_1_selection_keys_1a53cec59972aedfdc4f9b4a248e47a186" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>juce::KeyPress<sp/><ref refid="structwhelmed_1_1_input_handler_1_1_selection_keys_1a53cec59972aedfdc4f9b4a248e47a186" kindref="member">bottom</ref>;</highlight></codeline>
+<codeline lineno="112" refid="structwhelmed_1_1_input_handler_1_1_selection_keys_1a03354afab302531e94289922148a1e8d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>juce::KeyPress<sp/><ref refid="structwhelmed_1_1_input_handler_1_1_selection_keys_1a03354afab302531e94289922148a1e8d" kindref="member">lineStart</ref>;</highlight></codeline>
+<codeline lineno="113" refid="structwhelmed_1_1_input_handler_1_1_selection_keys_1a78549f72f25fc3a4266c17c93af5d0e6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>juce::KeyPress<sp/><ref refid="structwhelmed_1_1_input_handler_1_1_selection_keys_1a78549f72f25fc3a4266c17c93af5d0e6" kindref="member">lineEnd</ref>;</highlight></codeline>
+<codeline lineno="114" refid="structwhelmed_1_1_input_handler_1_1_selection_keys_1ab239c7ade04a8e0df6437ce47d041725" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>juce::KeyPress<sp/><ref refid="structwhelmed_1_1_input_handler_1_1_selection_keys_1ab239c7ade04a8e0df6437ce47d041725" kindref="member">exit</ref>;</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117" refid="classwhelmed_1_1_input_handler_1af93f6a40e7c7aa2e770451b7f9c6c1fa" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structwhelmed_1_1_input_handler_1_1_selection_keys" kindref="compound">SelectionKeys</ref><sp/><ref refid="classwhelmed_1_1_input_handler_1af93f6a40e7c7aa2e770451b7f9c6c1fa" kindref="member">selectionKeys</ref>;</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="group__juce__core-system_1ga851b02724a8158a7f746c66b5758b3dd" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR</ref><sp/>(<ref refid="classwhelmed_1_1_input_handler_1a383749a448466b7d2988c28722868993" kindref="member">InputHandler</ref>)</highlight></codeline>
+<codeline lineno="120"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>whelmed</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="whelmed/InputHandler.h"/>
+  </compounddef>
+</doxygen>

@@ -23,7 +23,7 @@
 
 #include <JuceHeader.h>
 #include "LinkSpan.h"
-#include "State.h"
+#include "Model.h"
 #include "LinkDetector.h"
 
 namespace terminal
@@ -34,7 +34,7 @@ namespace terminal
  * @class LinkManager
  * @brief Owns link detection, hint labelling, hit-testing, and dispatch for one terminal session.
  *
- * Constructed with a `State&`, a `const Grid&`, and a write callback.  All
+ * Constructed with a `Model&`, a `const Grid&`, and a write callback.  All
  * methods are MESSAGE THREAD only unless noted.
  *
  * @par Thread context
@@ -50,7 +50,7 @@ public:
      * @param writeToPty Callback that delivers raw bytes to the PTY writer.
      * @note MESSAGE THREAD.
      */
-    LinkManager (State& state,
+    LinkManager (Model& state,
                  std::function<void (const char*, int)> writeToPty) noexcept;
     ~LinkManager() override;
 
@@ -91,7 +91,7 @@ public:
     /**
      * @brief Advances to the next hint page, wrapping around, and re-labels.
      *
-     * Increments the page index modulo total pages, writes it to State,
+     * Increments the page index modulo total pages, writes it to Model,
      * and calls `assignCurrentPage()` to update the active page slice.
      *
      * @note MESSAGE THREAD.
@@ -225,7 +225,7 @@ private:
     /**
      * @brief Labels the current page's spans and updates `activeStart`/`activeCount`.
      *
-     * Reads page index from State, slices `hintLinks` using `pageBreaks`,
+     * Reads page index from Model, slices `hintLinks` using `pageBreaks`,
      * and assigns labels via `assignHintLabels`.
      *
      * @note MESSAGE THREAD.
@@ -233,7 +233,7 @@ private:
     void assignCurrentPage() noexcept;
 
     /** @brief Terminal parameter store — provides block bounds and screen queries. */
-    State& state;
+    Model& state;
 
     /** @brief Delivers raw bytes to the PTY (used by `dispatch()` for file links). */
     std::function<void (const char*, int)> writeToPty;

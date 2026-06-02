@@ -64,14 +64,14 @@ bool Input::handleKey (const juce::KeyPress& key) noexcept
 
 void Input::clearSelectionAndScroll() noexcept
 {
-    auto node { processor.getState().get().getChildWithName (jam::TextEditor::properties.at (jam::TextEditor::textEditorId)) };
+    auto node { processor.getState().getChildWithName (jam::CodeView::properties.at (jam::CodeView::codeViewId)) };
 
     if (node.isValid())
     {
-        const int selType { node.getProperty (jam::TextEditor::properties.at (jam::TextEditor::selectionTypeId)) };
+        const int selType { node.getProperty (jam::CodeView::properties.at (jam::CodeView::selectionTypeId)) };
 
         if (selType != static_cast<int> (terminal::SelectionType::none))
-            node.setProperty (jam::TextEditor::properties.at (jam::TextEditor::selectionTypeId), static_cast<int> (terminal::SelectionType::none), nullptr);
+            node.setProperty (jam::CodeView::properties.at (jam::CodeView::selectionTypeId), static_cast<int> (terminal::SelectionType::none), nullptr);
     }
 
 }
@@ -129,8 +129,8 @@ bool Input::handleSelectionKey (const juce::KeyPress& key) noexcept
     const int maxRow { processor.getState().getVisibleRows().value - 1 };
     const int maxCol { processor.getState().getCols().value - 1 };
 
-    using TE = jam::TextEditor;
-    const auto& teId            { TE::properties.at (TE::textEditorId) };
+    using TE = jam::CodeView;
+    const auto& teId            { TE::properties.at (TE::codeViewId) };
     const auto& selTypeId       { TE::properties.at (TE::selectionTypeId) };
     const auto& anchorRowId     { TE::properties.at (TE::selectionAnchorRowId) };
     const auto& anchorColId     { TE::properties.at (TE::selectionAnchorColId) };
@@ -138,11 +138,11 @@ bool Input::handleSelectionKey (const juce::KeyPress& key) noexcept
     const auto& selCursorColId  { TE::properties.at (TE::selectionCursorColId) };
 
     auto& st { processor.getState() };
-    auto node { st.get().getChildWithName (teId) };
+    auto node { st.getChildWithName (teId) };
 
     const int activeScreen { st.getActiveScreen() };
     const juce::Identifier selScreenId { Map::Screen::getContext()->get (activeScreen) };
-    auto selScreenNode { st.get().getChildWithName (selScreenId) };
+    auto selScreenNode { st.getChildWithName (selScreenId) };
 
     if (node.isValid())
     {
@@ -167,7 +167,7 @@ bool Input::handleSelectionKey (const juce::KeyPress& key) noexcept
 
                 if (current == terminal::SelectionType::none)
                 {
-                    const terminal::CursorState vbCursor { terminal::CursorState::unpack (static_cast<int> (jam::ValueTree::getValueFromChildWithID (selScreenNode, id::cursor).getValue())) };
+                    const terminal::CursorState vbCursor { terminal::CursorState::unpack (static_cast<int> (jam::Model::getValueFromChildWithID (selScreenNode, id::cursor).getValue())) };
                     node.setProperty (anchorRowId,    vbCursor.row, nullptr);
                     node.setProperty (anchorColId,    vbCursor.col, nullptr);
                     node.setProperty (selCursorRowId, vbCursor.row, nullptr);
@@ -210,7 +210,7 @@ bool Input::handleSelectionKey (const juce::KeyPress& key) noexcept
 
                 if (current == terminal::SelectionType::none)
                 {
-                    const terminal::CursorState vlCursor { terminal::CursorState::unpack (static_cast<int> (jam::ValueTree::getValueFromChildWithID (selScreenNode, id::cursor).getValue())) };
+                    const terminal::CursorState vlCursor { terminal::CursorState::unpack (static_cast<int> (jam::Model::getValueFromChildWithID (selScreenNode, id::cursor).getValue())) };
                     node.setProperty (anchorRowId,    vlCursor.row, nullptr);
                     node.setProperty (anchorColId,    0,            nullptr);
                     node.setProperty (selCursorRowId, vlCursor.row, nullptr);
@@ -233,7 +233,7 @@ bool Input::handleSelectionKey (const juce::KeyPress& key) noexcept
 
                 if (current == terminal::SelectionType::none)
                 {
-                    const terminal::CursorState vCursor { terminal::CursorState::unpack (static_cast<int> (jam::ValueTree::getValueFromChildWithID (selScreenNode, id::cursor).getValue())) };
+                    const terminal::CursorState vCursor { terminal::CursorState::unpack (static_cast<int> (jam::Model::getValueFromChildWithID (selScreenNode, id::cursor).getValue())) };
                     node.setProperty (anchorRowId,    vCursor.row, nullptr);
                     node.setProperty (anchorColId,    vCursor.col, nullptr);
                     node.setProperty (selCursorRowId, vCursor.row, nullptr);

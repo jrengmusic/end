@@ -1,0 +1,503 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="_c_s_i_8h" kind="file" language="C++">
+    <compoundname>CSI.h</compoundname>
+    <includes local="no">JuceHeader.h</includes>
+    <includedby refid="terminal_2_parser_8h" local="yes">terminal/Parser.h</includedby>
+    <includedby refid="_video_8h" local="yes">terminal/Video.h</includedby>
+    <incdepgraph>
+      <node id="1">
+        <label>terminal/CSI.h</label>
+        <link refid="_c_s_i_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>JuceHeader.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="8">
+        <label>Main.cpp</label>
+        <link refid="_main_8cpp"/>
+      </node>
+      <node id="7">
+        <label>Main.h</label>
+        <link refid="_main_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>MainComponent.cpp</label>
+        <link refid="_main_component_8cpp"/>
+      </node>
+      <node id="20">
+        <label>MainComponent.h</label>
+        <link refid="_main_component_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>MainComponentActions.cpp</label>
+        <link refid="_main_component_actions_8cpp"/>
+      </node>
+      <node id="9">
+        <label>nexus/Channel.cpp</label>
+        <link refid="_channel_8cpp"/>
+      </node>
+      <node id="10">
+        <label>nexus/Daemon.cpp</label>
+        <link refid="_daemon_8cpp"/>
+      </node>
+      <node id="6">
+        <label>nexus/Daemon.h</label>
+        <link refid="_daemon_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>nexus/Daemon.mm</label>
+        <link refid="_daemon_8mm"/>
+      </node>
+      <node id="12">
+        <label>nexus/DaemonWindows.cpp</label>
+        <link refid="_daemon_windows_8cpp"/>
+      </node>
+      <node id="14">
+        <label>nexus/Link.cpp</label>
+        <link refid="_link_8cpp"/>
+      </node>
+      <node id="13">
+        <label>nexus/Link.h</label>
+        <link refid="_link_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="42">
+        <label>nexus/Nexus.cpp</label>
+        <link refid="_nexus_8cpp"/>
+      </node>
+      <node id="41">
+        <label>nexus/Nexus.h</label>
+        <link refid="_nexus_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>terminal/CSI.h</label>
+        <link refid="_c_s_i_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="44" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>terminal/Input.cpp</label>
+        <link refid="_input_8cpp"/>
+      </node>
+      <node id="15">
+        <label>terminal/Input.h</label>
+        <link refid="_input_8h"/>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="37">
+        <label>terminal/Mouse.cpp</label>
+        <link refid="_mouse_8cpp"/>
+      </node>
+      <node id="36">
+        <label>terminal/Mouse.h</label>
+        <link refid="_mouse_8h"/>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>terminal/Parser.cpp</label>
+        <link refid="terminal_2_parser_8cpp"/>
+      </node>
+      <node id="2">
+        <label>terminal/Parser.h</label>
+        <link refid="terminal_2_parser_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>terminal/ParserAction.cpp</label>
+        <link refid="_parser_action_8cpp"/>
+      </node>
+      <node id="38">
+        <label>terminal/Processor.cpp</label>
+        <link refid="_processor_8cpp"/>
+      </node>
+      <node id="5">
+        <label>terminal/Processor.h</label>
+        <link refid="_processor_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+      </node>
+      <node id="39">
+        <label>terminal/ProcessorEvents.cpp</label>
+        <link refid="_processor_events_8cpp"/>
+      </node>
+      <node id="43">
+        <label>terminal/Session.cpp</label>
+        <link refid="_session_8cpp"/>
+      </node>
+      <node id="40">
+        <label>terminal/Session.h</label>
+        <link refid="_session_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+      </node>
+      <node id="45">
+        <label>terminal/Video.cpp</label>
+        <link refid="_video_8cpp"/>
+      </node>
+      <node id="44">
+        <label>terminal/Video.h</label>
+        <link refid="_video_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="46" relation="include">
+        </childnode>
+        <childnode refid="47" relation="include">
+        </childnode>
+        <childnode refid="48" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="50" relation="include">
+        </childnode>
+        <childnode refid="51" relation="include">
+        </childnode>
+        <childnode refid="52" relation="include">
+        </childnode>
+        <childnode refid="53" relation="include">
+        </childnode>
+        <childnode refid="54" relation="include">
+        </childnode>
+      </node>
+      <node id="46">
+        <label>terminal/VideoCSI.cpp</label>
+        <link refid="_video_c_s_i_8cpp"/>
+      </node>
+      <node id="47">
+        <label>terminal/VideoDCS.cpp</label>
+        <link refid="_video_d_c_s_8cpp"/>
+      </node>
+      <node id="48">
+        <label>terminal/VideoESC.cpp</label>
+        <link refid="_video_e_s_c_8cpp"/>
+      </node>
+      <node id="49">
+        <label>terminal/VideoEdit.cpp</label>
+        <link refid="_video_edit_8cpp"/>
+      </node>
+      <node id="50">
+        <label>terminal/VideoMode.cpp</label>
+        <link refid="_video_mode_8cpp"/>
+      </node>
+      <node id="51">
+        <label>terminal/VideoOSC.cpp</label>
+        <link refid="_video_o_s_c_8cpp"/>
+      </node>
+      <node id="52">
+        <label>terminal/VideoOSCExt.cpp</label>
+        <link refid="_video_o_s_c_ext_8cpp"/>
+      </node>
+      <node id="53">
+        <label>terminal/VideoOps.cpp</label>
+        <link refid="_video_ops_8cpp"/>
+      </node>
+      <node id="54">
+        <label>terminal/VideoSGR.cpp</label>
+        <link refid="_video_s_g_r_8cpp"/>
+      </node>
+      <node id="18">
+        <label>terminal/component/Display.cpp</label>
+        <link refid="_display_8cpp"/>
+      </node>
+      <node id="17">
+        <label>terminal/component/Display.h</label>
+        <link refid="_display_8h"/>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+      </node>
+      <node id="23">
+        <label>terminal/component/LookAndFeel.cpp</label>
+        <link refid="_look_and_feel_8cpp"/>
+      </node>
+      <node id="19">
+        <label>terminal/component/LookAndFeel.h</label>
+        <link refid="_look_and_feel_8h"/>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+      </node>
+      <node id="24">
+        <label>terminal/component/LookAndFeelMenu.cpp</label>
+        <link refid="_look_and_feel_menu_8cpp"/>
+      </node>
+      <node id="25">
+        <label>terminal/component/LookAndFeelTab.cpp</label>
+        <link refid="_look_and_feel_tab_8cpp"/>
+      </node>
+      <node id="31">
+        <label>terminal/component/ModalWindow.cpp</label>
+        <link refid="_modal_window_8cpp"/>
+      </node>
+      <node id="30">
+        <label>terminal/component/ModalWindow.h</label>
+        <link refid="_modal_window_8h"/>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+      </node>
+      <node id="35">
+        <label>terminal/component/Panes.cpp</label>
+        <link refid="_panes_8cpp"/>
+      </node>
+      <node id="34">
+        <label>terminal/component/Panes.h</label>
+        <link refid="_panes_8h"/>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+      </node>
+      <node id="33">
+        <label>terminal/component/Popup.cpp</label>
+        <link refid="_popup_8cpp"/>
+      </node>
+      <node id="32">
+        <label>terminal/component/Popup.h</label>
+        <link refid="_popup_8h"/>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+      </node>
+      <node id="27">
+        <label>terminal/component/Tabs.cpp</label>
+        <link refid="_tabs_8cpp"/>
+      </node>
+      <node id="26">
+        <label>terminal/component/Tabs.h</label>
+        <link refid="_tabs_8h"/>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+      </node>
+      <node id="28">
+        <label>terminal/component/TabsActions.cpp</label>
+        <link refid="_tabs_actions_8cpp"/>
+      </node>
+      <node id="29">
+        <label>terminal/component/TabsClose.cpp</label>
+        <link refid="_tabs_close_8cpp"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structterminal_1_1_c_s_i" prot="public">terminal::CSI</innerclass>
+    <innernamespace refid="namespaceterminal">terminal</innernamespace>
+    <briefdescription>
+<para>CSI (Control Sequence Introducer) parameter accumulator for VT terminal emulation. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>CSI sequences are escape sequences that begin with ESC &apos;[&apos; (0x1B 0x5B) and control cursor movement, text attributes, and other terminal functions. They follow the format:</para>
+<para><programlisting><codeline><highlight class="normal">ESC<sp/>[<sp/>&lt;params&gt;<sp/>&lt;intermediates&gt;<sp/>&lt;</highlight><highlight class="keyword">final</highlight><highlight class="normal">&gt;</highlight></codeline>
+</programlisting></para>
+<para>Where &lt;params&gt; is a semicolon-separated list of decimal numbers, e.g.:<itemizedlist>
+<listitem><para><computeroutput>ESC[1;34m</computeroutput> — set bold (1) and blue foreground (34)</para>
+</listitem><listitem><para><computeroutput>ESC[10;20H</computeroutput> — move cursor to row 10, column 20</para>
+</listitem><listitem><para><computeroutput>ESC[38:2:255:0:0m</computeroutput> — set 24-bit RGB color (extended sub-parameter syntax)</para>
+</listitem></itemizedlist>
+</para>
+<para>This struct accumulates parameters as they are parsed character-by-character by the VT state machine. It supports both standard semicolon separators (<computeroutput>;</computeroutput>) and the extended colon sub-separator syntax (<computeroutput>:</computeroutput>) used in ISO 8613-6 / ITU T.416.</para>
+<para><simplesect kind="see"><para>ParserCSI.cpp for CSI dispatch implementation </para>
+</simplesect>
+<simplesect kind="see"><para><ulink url="https://invisible-island.net/xterm/ctlseqs/ctlseqs.html">https://invisible-island.net/xterm/ctlseqs/ctlseqs.html</ulink> for xterm CSI reference </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#pragma<sp/>once</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;JuceHeader.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespaceterminal" kindref="compound">terminal</ref></highlight></codeline>
+<codeline lineno="30"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="comment">/*____________________________________________________________________________*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="81" refid="structterminal_1_1_c_s_i" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref></highlight></codeline>
+<codeline lineno="82"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="90" refid="structterminal_1_1_c_s_i_1a62001239131af1166d8d99a9c7c0bb2b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">constexpr</highlight><highlight class="normal"><sp/>uint8_t<sp/><ref refid="structterminal_1_1_c_s_i_1a62001239131af1166d8d99a9c7c0bb2b" kindref="member">MAX_PARAMS</ref><sp/>{<sp/>24<sp/>};</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="101" refid="structterminal_1_1_c_s_i_1a4590c3aca4c7b4a33547974bc59c9906" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::array&lt;uint16_t,<sp/>MAX_PARAMS&gt;<sp/><ref refid="structterminal_1_1_c_s_i_1a4590c3aca4c7b4a33547974bc59c9906" kindref="member">values</ref><sp/>{};</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight></codeline>
+<codeline lineno="116" refid="structterminal_1_1_c_s_i_1ac5bb70159f40b4933a4602b77732168c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structterminal_1_1_c_s_i_1ac5bb70159f40b4933a4602b77732168c" kindref="member">subSeparatorBits</ref><sp/>{<sp/>0<sp/>};</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight></codeline>
+<codeline lineno="126" refid="structterminal_1_1_c_s_i_1ab3dded4e066fc2b01f8aa2a71a82d0eb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><ref refid="structterminal_1_1_c_s_i_1ab3dded4e066fc2b01f8aa2a71a82d0eb" kindref="member">count</ref><sp/>{<sp/>0<sp/>};</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight></codeline>
+<codeline lineno="137" refid="structterminal_1_1_c_s_i_1ab4ca2a0bec07ba138196a3e62dd27c10" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><ref refid="structterminal_1_1_c_s_i_1ab4ca2a0bec07ba138196a3e62dd27c10" kindref="member">accumulator</ref><sp/>{<sp/>0<sp/>};</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight></codeline>
+<codeline lineno="149" refid="structterminal_1_1_c_s_i_1a91d13ea91357c8ab601596bc9da18063" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><ref refid="structterminal_1_1_c_s_i_1a91d13ea91357c8ab601596bc9da18063" kindref="member">hasAccumulator</ref><sp/>{<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight></codeline>
+<codeline lineno="174" refid="structterminal_1_1_c_s_i_1a8a3f0c7648031f973e5bb63fd1f81a06" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="structterminal_1_1_c_s_i_1a8a3f0c7648031f973e5bb63fd1f81a06" kindref="member">addDigit</ref><sp/>(uint8_t<sp/>digit)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structterminal_1_1_c_s_i_1ab4ca2a0bec07ba138196a3e62dd27c10" kindref="member">accumulator</ref><sp/>=<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal">uint16_t</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(<ref refid="structterminal_1_1_c_s_i_1ab4ca2a0bec07ba138196a3e62dd27c10" kindref="member">accumulator</ref><sp/>*<sp/>10<sp/>+<sp/>digit);</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structterminal_1_1_c_s_i_1a91d13ea91357c8ab601596bc9da18063" kindref="member">hasAccumulator</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"></highlight></codeline>
+<codeline lineno="221" refid="structterminal_1_1_c_s_i_1a2531da13a92b9ed183e74788fafd555d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="structterminal_1_1_c_s_i_1a2531da13a92b9ed183e74788fafd555d" kindref="member">addSeparator</ref><sp/>(uint8_t<sp/>separatorByte)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="structterminal_1_1_c_s_i_1ab3dded4e066fc2b01f8aa2a71a82d0eb" kindref="member">count</ref><sp/>&lt;<sp/><ref refid="structterminal_1_1_c_s_i_1a62001239131af1166d8d99a9c7c0bb2b" kindref="member">MAX_PARAMS</ref>)</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="structterminal_1_1_c_s_i_1a91d13ea91357c8ab601596bc9da18063" kindref="member">hasAccumulator</ref>)</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structterminal_1_1_c_s_i_1a4590c3aca4c7b4a33547974bc59c9906" kindref="member">values</ref>.at<sp/>(<ref refid="structterminal_1_1_c_s_i_1ab3dded4e066fc2b01f8aa2a71a82d0eb" kindref="member">count</ref>)<sp/>=<sp/><ref refid="structterminal_1_1_c_s_i_1ab4ca2a0bec07ba138196a3e62dd27c10" kindref="member">accumulator</ref>;</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"></highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(separatorByte<sp/>==<sp/></highlight><highlight class="charliteral">&apos;:&apos;</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structterminal_1_1_c_s_i_1ac5bb70159f40b4933a4602b77732168c" kindref="member">subSeparatorBits</ref><sp/>|=<sp/>(1u<sp/>&lt;&lt;<sp/><ref refid="structterminal_1_1_c_s_i_1ab3dded4e066fc2b01f8aa2a71a82d0eb" kindref="member">count</ref>);</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"></highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>++<ref refid="structterminal_1_1_c_s_i_1ab3dded4e066fc2b01f8aa2a71a82d0eb" kindref="member">count</ref>;</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structterminal_1_1_c_s_i_1ab4ca2a0bec07ba138196a3e62dd27c10" kindref="member">accumulator</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structterminal_1_1_c_s_i_1a91d13ea91357c8ab601596bc9da18063" kindref="member">hasAccumulator</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"></highlight></codeline>
+<codeline lineno="267" refid="structterminal_1_1_c_s_i_1a2f4c0fd4d6bf36b880ae052506c8d7d6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="structterminal_1_1_c_s_i_1a2f4c0fd4d6bf36b880ae052506c8d7d6" kindref="member">finalize</ref>()<sp/>noexcept</highlight></codeline>
+<codeline lineno="268"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="structterminal_1_1_c_s_i_1a91d13ea91357c8ab601596bc9da18063" kindref="member">hasAccumulator</ref><sp/>and<sp/><ref refid="structterminal_1_1_c_s_i_1ab3dded4e066fc2b01f8aa2a71a82d0eb" kindref="member">count</ref><sp/>&lt;<sp/><ref refid="structterminal_1_1_c_s_i_1a62001239131af1166d8d99a9c7c0bb2b" kindref="member">MAX_PARAMS</ref>)</highlight></codeline>
+<codeline lineno="270"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structterminal_1_1_c_s_i_1a4590c3aca4c7b4a33547974bc59c9906" kindref="member">values</ref>.at<sp/>(<ref refid="structterminal_1_1_c_s_i_1ab3dded4e066fc2b01f8aa2a71a82d0eb" kindref="member">count</ref>)<sp/>=<sp/><ref refid="structterminal_1_1_c_s_i_1ab4ca2a0bec07ba138196a3e62dd27c10" kindref="member">accumulator</ref>;</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>++<ref refid="structterminal_1_1_c_s_i_1ab3dded4e066fc2b01f8aa2a71a82d0eb" kindref="member">count</ref>;</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structterminal_1_1_c_s_i_1ab4ca2a0bec07ba138196a3e62dd27c10" kindref="member">accumulator</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structterminal_1_1_c_s_i_1a91d13ea91357c8ab601596bc9da18063" kindref="member">hasAccumulator</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="276"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="277"><highlight class="normal"></highlight></codeline>
+<codeline lineno="292" refid="structterminal_1_1_c_s_i_1a58906bacf120dd611ab969af1a46c1bd" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="structterminal_1_1_c_s_i_1a58906bacf120dd611ab969af1a46c1bd" kindref="member">reset</ref>()<sp/>noexcept</highlight></codeline>
+<codeline lineno="293"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="294"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structterminal_1_1_c_s_i_1a4590c3aca4c7b4a33547974bc59c9906" kindref="member">values</ref>.fill<sp/>(uint16_t<sp/>{<sp/>0<sp/>});</highlight></codeline>
+<codeline lineno="295"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structterminal_1_1_c_s_i_1ac5bb70159f40b4933a4602b77732168c" kindref="member">subSeparatorBits</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="296"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structterminal_1_1_c_s_i_1ab3dded4e066fc2b01f8aa2a71a82d0eb" kindref="member">count</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="297"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structterminal_1_1_c_s_i_1ab4ca2a0bec07ba138196a3e62dd27c10" kindref="member">accumulator</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="298"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structterminal_1_1_c_s_i_1a91d13ea91357c8ab601596bc9da18063" kindref="member">hasAccumulator</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="299"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="300"><highlight class="normal"></highlight></codeline>
+<codeline lineno="334" refid="structterminal_1_1_c_s_i_1a47b7740c7f5e36382fbd6812be573b2f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><ref refid="structterminal_1_1_c_s_i_1a47b7740c7f5e36382fbd6812be573b2f" kindref="member">param</ref><sp/>(uint8_t<sp/>index,<sp/>uint16_t<sp/>defaultValue)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="335"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="336"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>result<sp/>{<sp/>defaultValue<sp/>};</highlight></codeline>
+<codeline lineno="337"><highlight class="normal"></highlight></codeline>
+<codeline lineno="338"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(index<sp/>&lt;<sp/><ref refid="structterminal_1_1_c_s_i_1ab3dded4e066fc2b01f8aa2a71a82d0eb" kindref="member">count</ref>)</highlight></codeline>
+<codeline lineno="339"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="340"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>result<sp/>=<sp/><ref refid="structterminal_1_1_c_s_i_1a4590c3aca4c7b4a33547974bc59c9906" kindref="member">values</ref>.at<sp/>(index);</highlight></codeline>
+<codeline lineno="341"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="342"><highlight class="normal"></highlight></codeline>
+<codeline lineno="343"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>result;</highlight></codeline>
+<codeline lineno="344"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="345"><highlight class="normal"></highlight></codeline>
+<codeline lineno="371" refid="structterminal_1_1_c_s_i_1a1efed907e307b75536e3fd94244b0bff" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structterminal_1_1_c_s_i_1a1efed907e307b75536e3fd94244b0bff" kindref="member">isSubSeparator</ref><sp/>(uint8_t<sp/>index)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="372"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="373"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(<ref refid="structterminal_1_1_c_s_i_1ac5bb70159f40b4933a4602b77732168c" kindref="member">subSeparatorBits</ref><sp/>&amp;<sp/>(1u<sp/>&lt;&lt;<sp/>index))<sp/>!=<sp/>0;</highlight></codeline>
+<codeline lineno="374"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="375"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="376"><highlight class="normal"></highlight></codeline>
+<codeline lineno="384"><highlight class="normal"></highlight><highlight class="keyword">static_assert</highlight><highlight class="normal"><sp/>(std::is_trivially_copyable_v&lt;CSI&gt;,</highlight></codeline>
+<codeline lineno="385"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;CSI<sp/>must<sp/>be<sp/>trivially<sp/>copyable&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="386"><highlight class="normal"></highlight></codeline>
+<codeline lineno="388"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>terminal</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="terminal/CSI.h"/>
+  </compounddef>
+</doxygen>

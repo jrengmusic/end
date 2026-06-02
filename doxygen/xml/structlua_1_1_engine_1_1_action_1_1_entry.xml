@@ -1,0 +1,319 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="structlua_1_1_engine_1_1_action_1_1_entry" kind="struct" language="C++" prot="public">
+    <compoundname>lua::Engine::Action::Entry</compoundname>
+    <includes refid="_engine_8h" local="no">Engine.h</includes>
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_action_1_1_entry_1a59462e0f1faa4ea84a874474e7d8b281" prot="public" static="no" mutable="no">
+        <type>juce::String</type>
+        <definition>juce::String lua::Engine::Action::Entry::id</definition>
+        <argsstring></argsstring>
+        <name>id</name>
+        <qualifiedname>lua::Engine::Action::Entry::id</qualifiedname>
+        <briefdescription>
+<para>Unique machine-readable identifier (e.g. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>&quot;lua:my_action&quot;). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="879" column="26" bodyfile="lua/Engine.h" bodystart="879" bodyend="-1"/>
+        <referencedby refid="classlua_1_1_engine_1a934995b7780018f390bced6139881ea4" compoundref="_engine_parse_8cpp" startline="167" endline="210">lua::Engine::parseActions</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_action_1_1_entry_1a0bda5a0ae20ae0c48b2a6acdc048fbf5" prot="public" static="no" mutable="no">
+        <type>juce::String</type>
+        <definition>juce::String lua::Engine::Action::Entry::name</definition>
+        <argsstring></argsstring>
+        <name>name</name>
+        <qualifiedname>lua::Engine::Action::Entry::name</qualifiedname>
+        <briefdescription>
+<para>Human-readable display name. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="882" column="26" bodyfile="lua/Engine.h" bodystart="882" bodyend="-1"/>
+        <referencedby refid="classlua_1_1_engine_1a934995b7780018f390bced6139881ea4" compoundref="_engine_parse_8cpp" startline="167" endline="210">lua::Engine::parseActions</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_action_1_1_entry_1a340c0f3e048891a45069e517aac5660d" prot="public" static="no" mutable="no">
+        <type>juce::String</type>
+        <definition>juce::String lua::Engine::Action::Entry::description</definition>
+        <argsstring></argsstring>
+        <name>description</name>
+        <qualifiedname>lua::Engine::Action::Entry::description</qualifiedname>
+        <briefdescription>
+<para>One-line description shown in the command palette. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="885" column="26" bodyfile="lua/Engine.h" bodystart="885" bodyend="-1"/>
+        <referencedby refid="classlua_1_1_engine_1a934995b7780018f390bced6139881ea4" compoundref="_engine_parse_8cpp" startline="167" endline="210">lua::Engine::parseActions</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_action_1_1_entry_1af47c4edff3db56a595287f29c6f3cb38" prot="public" static="no" mutable="no">
+        <type>juce::String</type>
+        <definition>juce::String lua::Engine::Action::Entry::shortcut</definition>
+        <argsstring></argsstring>
+        <name>shortcut</name>
+        <qualifiedname>lua::Engine::Action::Entry::shortcut</qualifiedname>
+        <briefdescription>
+<para>Shortcut string for this action. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="888" column="26" bodyfile="lua/Engine.h" bodystart="888" bodyend="-1"/>
+        <referencedby refid="classlua_1_1_engine_1a934995b7780018f390bced6139881ea4" compoundref="_engine_parse_8cpp" startline="167" endline="210">lua::Engine::parseActions</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_action_1_1_entry_1abe9ec47ea88522261ee196a8281a8a28" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool lua::Engine::Action::Entry::isModal</definition>
+        <argsstring></argsstring>
+        <name>isModal</name>
+        <qualifiedname>lua::Engine::Action::Entry::isModal</qualifiedname>
+        <initializer>{ false }</initializer>
+        <briefdescription>
+<para>Whether this action requires the prefix key. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="891" column="18" bodyfile="lua/Engine.h" bodystart="891" bodyend="891"/>
+        <referencedby refid="classlua_1_1_engine_1a934995b7780018f390bced6139881ea4" compoundref="_engine_parse_8cpp" startline="167" endline="210">lua::Engine::parseActions</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_action_1_1_entry_1a79b109c90e4064b8f1d2e4e24e4e637a" prot="public" static="no" mutable="no">
+        <type><ref refid="classjam_1_1lua_1_1_function" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::lua::Function</ref></type>
+        <definition>jam::lua::Function lua::Engine::Action::Entry::execute</definition>
+        <argsstring></argsstring>
+        <name>execute</name>
+        <qualifiedname>lua::Engine::Action::Entry::execute</qualifiedname>
+        <briefdescription>
+<para>The Lua function invoked when the action fires. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="894" column="32" bodyfile="lua/Engine.h" bodystart="894" bodyend="-1"/>
+        <referencedby refid="classlua_1_1_engine_1a934995b7780018f390bced6139881ea4" compoundref="_engine_parse_8cpp" startline="167" endline="210">lua::Engine::parseActions</referencedby>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>A single custom Lua action definition. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="15">
+        <label>CallInfo</label>
+        <link refid="struct_call_info" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="5" relation="usage">
+          <edgelabel>func</edgelabel>
+          <edgelabel>top</edgelabel>
+        </childnode>
+        <childnode refid="15" relation="usage">
+          <edgelabel>next</edgelabel>
+          <edgelabel>previous</edgelabel>
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>k</edgelabel>
+        </childnode>
+      </node>
+      <node id="4">
+        <label>GCObject</label>
+        <link refid="struct_g_c_object" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="13">
+        <label>Node</label>
+        <link refid="union_node" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="14" relation="usage">
+          <edgelabel>u</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>i_val</edgelabel>
+        </childnode>
+      </node>
+      <node id="14">
+        <label>Node::NodeKey</label>
+        <link refid="struct_node_1_1_node_key" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="8" relation="usage">
+          <edgelabel>key_val</edgelabel>
+          <edgelabel>value_</edgelabel>
+        </childnode>
+      </node>
+      <node id="6">
+        <label>StackValue</label>
+        <link refid="union_stack_value" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="7" relation="usage">
+          <edgelabel>val</edgelabel>
+        </childnode>
+        <childnode refid="8" relation="usage">
+          <edgelabel>value_</edgelabel>
+        </childnode>
+      </node>
+      <node id="5">
+        <label>StkIdRel</label>
+        <link refid="union_stk_id_rel" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="6" relation="usage">
+          <edgelabel>p</edgelabel>
+        </childnode>
+      </node>
+      <node id="11">
+        <label>TString</label>
+        <link refid="struct_t_string" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+        <childnode refid="11" relation="usage">
+          <edgelabel>hnext</edgelabel>
+        </childnode>
+      </node>
+      <node id="7">
+        <label>TValue</label>
+        <link refid="struct_t_value" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="8" relation="usage">
+          <edgelabel>value_</edgelabel>
+        </childnode>
+      </node>
+      <node id="12">
+        <label>Table</label>
+        <link refid="struct_table" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>gclist</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>array</edgelabel>
+        </childnode>
+        <childnode refid="13" relation="usage">
+          <edgelabel>lastfree</edgelabel>
+          <edgelabel>node</edgelabel>
+        </childnode>
+        <childnode refid="12" relation="usage">
+          <edgelabel>metatable</edgelabel>
+        </childnode>
+      </node>
+      <node id="16">
+        <label>UpVal</label>
+        <link refid="struct_up_val" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+        <childnode refid="16" relation="usage">
+          <edgelabel>next</edgelabel>
+          <edgelabel>previous</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>p</edgelabel>
+          <edgelabel>value</edgelabel>
+        </childnode>
+      </node>
+      <node id="8">
+        <label>Value</label>
+        <link refid="classValue" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag"/>
+      </node>
+      <node id="9">
+        <label>global_State</label>
+        <link refid="structglobal___state" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="10" relation="usage">
+          <edgelabel>strt</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>l_registry</edgelabel>
+          <edgelabel>nilvalue</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>allgc</edgelabel>
+          <edgelabel>allweak</edgelabel>
+          <edgelabel>ephemeron</edgelabel>
+          <edgelabel>finobj</edgelabel>
+          <edgelabel>finobjold1</edgelabel>
+          <edgelabel>finobjrold</edgelabel>
+          <edgelabel>finobjsur</edgelabel>
+          <edgelabel>firstold1</edgelabel>
+          <edgelabel>fixedgc</edgelabel>
+          <edgelabel>gray</edgelabel>
+          <edgelabel>  ...</edgelabel>
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>mainthread</edgelabel>
+          <edgelabel>panic</edgelabel>
+          <edgelabel>twups</edgelabel>
+        </childnode>
+        <childnode refid="11" relation="usage">
+          <edgelabel>memerrmsg</edgelabel>
+          <edgelabel>strcache</edgelabel>
+          <edgelabel>tmname</edgelabel>
+        </childnode>
+        <childnode refid="12" relation="usage">
+          <edgelabel>mt</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>jam::lua::Function</label>
+        <link refid="classjam_1_1lua_1_1_function" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>luaState</edgelabel>
+        </childnode>
+      </node>
+      <node id="1">
+        <label>lua::Engine::Action::Entry</label>
+        <link refid="structlua_1_1_engine_1_1_action_1_1_entry"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>execute</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>lua_State</label>
+        <link refid="structlua___state" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>gclist</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>stack</edgelabel>
+          <edgelabel>stack_last</edgelabel>
+          <edgelabel>tbclist</edgelabel>
+          <edgelabel>top</edgelabel>
+        </childnode>
+        <childnode refid="9" relation="usage">
+          <edgelabel>l_G</edgelabel>
+        </childnode>
+        <childnode refid="15" relation="usage">
+          <edgelabel>base_ci</edgelabel>
+          <edgelabel>ci</edgelabel>
+        </childnode>
+        <childnode refid="16" relation="usage">
+          <edgelabel>openupval</edgelabel>
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>twups</edgelabel>
+        </childnode>
+      </node>
+      <node id="10">
+        <label>stringtable</label>
+        <link refid="structstringtable" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="11" relation="usage">
+          <edgelabel>hash</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="lua/Engine.h" line="876" column="9" bodyfile="lua/Engine.h" bodystart="877" bodyend="895"/>
+    <listofallmembers>
+      <member refid="structlua_1_1_engine_1_1_action_1_1_entry_1a340c0f3e048891a45069e517aac5660d" prot="public" virt="non-virtual"><scope>lua::Engine::Action::Entry</scope><name>description</name></member>
+      <member refid="structlua_1_1_engine_1_1_action_1_1_entry_1a79b109c90e4064b8f1d2e4e24e4e637a" prot="public" virt="non-virtual"><scope>lua::Engine::Action::Entry</scope><name>execute</name></member>
+      <member refid="structlua_1_1_engine_1_1_action_1_1_entry_1a59462e0f1faa4ea84a874474e7d8b281" prot="public" virt="non-virtual"><scope>lua::Engine::Action::Entry</scope><name>id</name></member>
+      <member refid="structlua_1_1_engine_1_1_action_1_1_entry_1abe9ec47ea88522261ee196a8281a8a28" prot="public" virt="non-virtual"><scope>lua::Engine::Action::Entry</scope><name>isModal</name></member>
+      <member refid="structlua_1_1_engine_1_1_action_1_1_entry_1a0bda5a0ae20ae0c48b2a6acdc048fbf5" prot="public" virt="non-virtual"><scope>lua::Engine::Action::Entry</scope><name>name</name></member>
+      <member refid="structlua_1_1_engine_1_1_action_1_1_entry_1af47c4edff3db56a595287f29c6f3cb38" prot="public" virt="non-virtual"><scope>lua::Engine::Action::Entry</scope><name>shortcut</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

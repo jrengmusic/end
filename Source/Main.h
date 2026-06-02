@@ -10,7 +10,7 @@
 #include <JuceHeader.h>
 #include "Map.h"
 #include "MainComponent.h"
-#include "AppState.h"
+#include "AppModel.h"
 #include "lua/Engine.h"
 #include "terminal/action/Action.h"
 #include "nexus/Nexus.h"
@@ -103,11 +103,14 @@ public:
      *
      * @note MESSAGE THREAD — called by the OS or by `JUCEApplication::quit()`.
      *
-     * @see AppState::save
+     * @see AppModel::save
      */
     void systemRequestedQuit() override;
 
 private:
+    /** @brief Diagnostic log -- constructed first, destroyed last. */
+    jam::debug::Log::Scope logScope { juce::File::getSpecialLocation (juce::File::userHomeDirectory).getChildFile ("Documents/Poems/dev/end/diag.log") };
+
     /** @brief Application-owned typeface registry and shared glyph atlas. */
     jam::TypefaceResources typefaceResources;
 
@@ -133,7 +136,7 @@ private:
     lua::Engine luaEngine;
 
     /** @brief Application-level ValueTree. Must be constructed after luaEngine. */
-    AppState appState;
+    AppModel appState;
 
     /** @brief Global action registry. Must be constructed after luaEngine. */
     action::Registry action;

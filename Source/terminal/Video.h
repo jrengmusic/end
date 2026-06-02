@@ -99,8 +99,8 @@ public:
     /**
      * @brief Constructs Video, allocates the owned Buffer and builds Block views.
      *
-     * Allocates a 2-channel Buffer (normal + alternate) with `rows` visible rows
-     * and `cols` columns.  Builds per-channel Block views into the buffer.
+     * Allocates a 2-channel grid (normal + alternate) with `rows` visible rows
+     * and `cols` columns.  Builds per-channel Block views into the grid.
      * The owner must call `setWinsize()` after Display/Screen exist to
      * synchronise internal geometry before the first process() call.
      *
@@ -192,11 +192,11 @@ public:
      */
     void setWinsize (jam::Cell::Rectangle dims) noexcept;
 
-    /** @brief Returns a const reference to the internal row buffer.
+    /** @brief Returns a const reference to the live viewport cell grid (neovim ScreenGrid sense).
      *  Session reads this on the message thread for the flush path.
      *  Tearing tolerance: Video may be writing concurrently on the reader thread.
      *  @note MESSAGE THREAD — same tearing tolerance as the previous atomic-pointer pattern. */
-    const jam::Buffer<jam::Row>& getBuffer() const noexcept { return buffer; }
+    const jam::Buffer<jam::Row>& getGrid() const noexcept { return grid; }
 
     /** @brief Returns a const reference to the Block view for the given screen.
      *  @param screen  Channel index (0 = normal, 1 = alternate).
@@ -324,12 +324,13 @@ public:
 
 private:
     /**
-     * @brief Owned cell buffer — 2 channels (normal + alternate), cols × visibleRows.
+     * @brief Live viewport cell grid — 2 channels (normal + alternate), cols × visibleRows.
      *
      * Disposable scratch.  Resized by setWinsize() while processing is suspended.
-     * Session reads this via getBuffer() on the message thread for the flush path.
+     * Session reads this via getGrid() on the message thread for the flush path.
+     * Neovim ScreenGrid sense: the live viewport cell matrix.
      */
-    jam::Buffer<jam::Row> buffer;
+    jam::Buffer<jam::Row> grid;
 
     /**
      * @brief Per-channel Block views into the owned buffer.
@@ -417,10 +418,6 @@ private:
 
     /** @brief Active screen keyboard enhancement flags. Single register — screen switch loads/saves via State. */
     uint32_t keyboardFlags { 0 };
-
-    /** @brief Rows touched since last flush. Set on cell write, cleared in flush().
-     *  Reader thread only. */
-    juce::HeapBlock<bool> rowTouched;
 
     /** @} */
 

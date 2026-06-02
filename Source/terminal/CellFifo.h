@@ -1,21 +1,67 @@
 /**
  * @file CellFifo.h
- * @brief Lock-free SPSC ring buffer for cross-thread cell row delivery.
+ * @brief Lock-free SPSC ring buffers for cross-thread Char row delivery.
  *
- * Video pushes raw cell rows on the reader thread via pushRow().
- * Processor drains on the message thread via drainInto(), which joins
- * continued rows into logical TextLines and commits them to TextLineArray.
+ * Video pushes raw Char rows on the reader thread via pushHistory() and
+ * pushActive().  The View drains on the message thread via drainHistory()
+ * and drainActive().
  *
- * Storage is a pre-allocated HeapBlock<char> sized at construction.
- * AbstractFifo manages read/write indices — lock-free, SPSC-safe.
+ * Two independent rings — each a jam::BufferSPSC (index-only, drop-oldest):
  *
- * Per-entry layout in the ring (variable-length):
- *   [int32_t cellCount | uint8_t flags | Cell cells[cellCount]]
+ *   history ring — carries departed scrollback lines.  pushHistory() writes to
+ *                  it; drainHistory() joins continued rows into one logical
+ *                  jam::CodeLine (isContinued join — accumulate until a
+ *                  non-continued row finalises the run; a partial run remaining
+ *                  at drain-end is returned with isContinued = true).
  *
- * flags bit 0: isContinued (flexWrap)
+ *   active ring  — carries live viewport rows.  pushActive() writes to it;
+ *                  drainActive() yields one jam::CodeLine per entry, no joining.
+ *
+ * Both rings are DROP-OLDEST: BufferSPSC::prepareToWrite on full advances
+ * validStart (drop-oldest) until the requested space fits — the write always
+ * succeeds, the producer never stalls.  Back-pressure via getHistoryFreeSpace()
+ * / getActiveFreeSpace() is available for callers that prefer to avoid drops.
+ *
+ * Per-entry layout in each ring (variable-length, in uint64_t slots):
+ *   [headerSlot (1) | Char cells[cellCount]]
+ *
+ * headerSlot packs: int32_t cellCount | uint8_t flags | 3 bytes pad
+ *
+ * flags bit 0: isContinued (DECAWM flexWrap)
  * flags bit 1: isJustified
  *
- * @see juce::AbstractFifo
+ * Seqlock (per-entry torn-read guard):
+ *   Each ring carries a HeapBlock<std::atomic<uint64_t>> epoch array — one
+ *   epoch per ring slot.  Only header slots carry live epochs; cell-data slots
+ *   retain their initial value of epochNeverWritten (0).
+ *
+ *   Producer write path for entry with header at ring position h:
+ *     epoch[h].store(existing_epoch | epochOddBit, release)  — in-progress
+ *     memcpy headerSlot + cells into storage
+ *     epoch[h].store((existing_epoch | epochOddBit) + 1, release)  — stable
+ *
+ *   Consumer read path:
+ *     before = epoch[h].load(acquire)
+ *     if before == epochNeverWritten → never-written slot; skip 1, return torn
+ *     if before & epochOddBit       → write-in-progress; skip 1, return torn
+ *     memcpy header from storage[h]
+ *     after = epoch[h].load(acquire)
+ *     if after != before             → reclaimed mid-read; skip 1, return torn
+ *     — header is clean; read cellCount and proceed with cells.
+ *     epoch check (same s1) before + after cell memcpy; if changed → skip, return torn.
+ *     On any torn result the consumer advances past the corrupted slot(s) and stops.
+ *     The next drain call re-enters at the new read front.
+ *
+ * Resync after drop-oldest:
+ *   Because drop-oldest advances validStart in raw slots, the read front may
+ *   land on a cell-data slot after the producer drops into the middle of the
+ *   oldest entry.  Cell-data slots carry epochNeverWritten (0) — the consumer's
+ *   "before == epochNeverWritten" guard fires, the slot is skipped (finishedRead
+ *   advances by 1), and drain exits via ReadResult::torn.  On the next drain
+ *   call the front has advanced past the severed cell data toward the next valid
+ *   header.  One torn result per dropped fragment; all are silent (no delivery).
+ *
+ * @see jam::BufferSPSC
  */
 #pragma once
 
@@ -26,215 +72,515 @@ namespace terminal
 class CellFifo
 {
 public:
-    /** @brief Constructs with the given capacity in Cell-equivalent slots.
-     *  Actual byte allocation includes header overhead per entry.
-     *  @param capacityInCells  Maximum total cells the ring can hold. */
-    explicit CellFifo (int capacityInCells) noexcept
-        : fifo (capacityInCells + headerSlots * (capacityInCells / minCellsPerRow + 1))
-        , buffer (static_cast<size_t> (fifo.getTotalSize()))
-    {
-    }
-
-    /** @brief Pushes one row of cells into the ring. Reader thread only.
-     *
-     *  Writes a header (cellCount + flags packed into headerSlots Cell-sized slots)
-     *  followed by the cell data. If the ring is full, drops oldest entries
-     *  to make room (advances read pointer).
-     *
-     *  @param cells  Pointer to the row's cell data.
-     *  @param count  Number of cells in the row.
-     *  @param flags  Row flags — bit 0: isContinued, bit 1: isJustified.
-     */
-    void pushRow (const jam::Cell* cells, int count, uint8_t flags) noexcept
-    {
-        const int slotsNeeded { headerSlots + count };
-
-        // Drop oldest if ring is full (overflow policy: drop oldest).
-        while (fifo.getFreeSpace() < slotsNeeded)
-        {
-            // Skip one entry from the read side to free space.
-            int s1 { 0 }, b1 { 0 }, s2 { 0 }, b2 { 0 };
-            fifo.prepareToRead (headerSlots, s1, b1, s2, b2);
-
-            if (b1 + b2 >= headerSlots)
-            {
-                // Read the header to find out how many cells to skip.
-                Header hdr {};
-                readHeader (hdr, s1, b1, s2, b2);
-                fifo.finishedRead (headerSlots);
-
-                // Skip the cell data.
-                int cs1 { 0 }, cb1 { 0 }, cs2 { 0 }, cb2 { 0 };
-                fifo.prepareToRead (hdr.cellCount, cs1, cb1, cs2, cb2);
-                fifo.finishedRead (hdr.cellCount);
-            }
-            else
-            {
-                // Not enough data to read a header — ring is corrupt or empty.
-                fifo.finishedRead (b1 + b2);
-                break;
-            }
-        }
-
-        // Write header.
-        int s1 { 0 }, b1 { 0 }, s2 { 0 }, b2 { 0 };
-        fifo.prepareToWrite (slotsNeeded, s1, b1, s2, b2);
-
-        if (b1 + b2 >= slotsNeeded)
-        {
-            // Pack header into first headerSlots slots.
-            Header hdr { count, flags };
-            writeHeader (hdr, s1, b1, s2, b2);
-
-            // Write cell data after header.
-            const int cellStart { (s1 + headerSlots) };
-            const int cellStartWrapped { cellStart >= fifo.getTotalSize() ? cellStart - fifo.getTotalSize() : cellStart };
-
-            // Recalculate blocks for cell data region.
-            const int cellsInBlock1 { juce::jmin (count, fifo.getTotalSize() - cellStartWrapped) };
-            const int cellsInBlock2 { count - cellsInBlock1 };
-
-            std::memcpy (buffer.getData() + cellStartWrapped, cells, static_cast<size_t> (cellsInBlock1) * sizeof (jam::Cell));
-
-            if (cellsInBlock2 > 0)
-                std::memcpy (buffer.getData(), cells + cellsInBlock1, static_cast<size_t> (cellsInBlock2) * sizeof (jam::Cell));
-
-            fifo.finishedWrite (slotsNeeded);
-        }
-    }
-
-    /** @brief Drains all ready entries, joins continued rows into logical TextLines,
-     *  and appends them to the target TextLineArray. Message thread only.
-     *
-     *  @param target  TextLineArray to append committed logical lines to.
-     *  @return Number of logical lines committed. */
-    int drainInto (jam::TextLineArray& target) noexcept
-    {
-        int linesCommitted { 0 };
-        jam::TextLine pending;
-
-        while (fifo.getNumReady() >= headerSlots)
-        {
-            // Read header.
-            int s1 { 0 }, b1 { 0 }, s2 { 0 }, b2 { 0 };
-            fifo.prepareToRead (headerSlots, s1, b1, s2, b2);
-
-            if (b1 + b2 < headerSlots)
-            {
-                fifo.finishedRead (0);
-                break;
-            }
-
-            Header hdr {};
-            readHeader (hdr, s1, b1, s2, b2);
-            fifo.finishedRead (headerSlots);
-
-            // Read cell data.
-            if (hdr.cellCount > 0 and fifo.getNumReady() >= hdr.cellCount)
-            {
-                int cs1 { 0 }, cb1 { 0 }, cs2 { 0 }, cb2 { 0 };
-                fifo.prepareToRead (hdr.cellCount, cs1, cb1, cs2, cb2);
-
-                // Append cells to the pending logical line.
-                const int prevCount { pending.cellCount };
-                pending.cells.realloc (prevCount + hdr.cellCount);
-
-                if (cb1 > 0)
-                    std::memcpy (pending.cells.getData() + prevCount,
-                                 buffer.getData() + cs1,
-                                 static_cast<size_t> (cb1) * sizeof (jam::Cell));
-
-                if (cb2 > 0)
-                    std::memcpy (pending.cells.getData() + prevCount + cb1,
-                                 buffer.getData() + cs2,
-                                 static_cast<size_t> (cb2) * sizeof (jam::Cell));
-
-                pending.cellCount = prevCount + hdr.cellCount;
-                fifo.finishedRead (hdr.cellCount);
-            }
-            else if (hdr.cellCount > 0)
-            {
-                // Not enough cell data ready — shouldn't happen in SPSC, but guard.
-                break;
-            }
-
-            if (hdr.flags & isJustifiedFlag)
-                pending.isJustified = true;
-
-            // If this row is NOT continued, the logical line is complete.
-            if (not (hdr.flags & isContinuedFlag))
-            {
-                pending.isContinued = false;
-                target.add (std::move (pending));
-                pending = {};
-                ++linesCommitted;
-            }
-        }
-
-        // If there's a partial continued line left (all rows were continued),
-        // commit it — the continuation will be joined on the next drain.
-        if (pending.cellCount > 0)
-        {
-            pending.isContinued = true;
-            target.add (std::move (pending));
-            ++linesCommitted;
-        }
-
-        return linesCommitted;
-    }
-
-    /** @brief Reallocates the ring. Called while processing is suspended.
-     *  @param capacityInCells  New capacity in Cell-equivalent slots. */
-    void reset (int capacityInCells) noexcept
-    {
-        const int totalSlots { capacityInCells + headerSlots * (capacityInCells / minCellsPerRow + 1) };
-        fifo.setTotalSize (totalSlots);
-        buffer.realloc (static_cast<size_t> (totalSlots));
-    }
-
-    /** @brief Number of Cell-equivalent slots ready to read. */
-    int getNumReady() const noexcept { return fifo.getNumReady(); }
-
-private:
-    static constexpr int headerSlots { 1 };         ///< Header occupies 1 Cell-sized slot (8 bytes = int32 + uint8 + padding).
-    static constexpr int minCellsPerRow { 1 };       ///< Minimum cells per row for capacity calculation.
-
-public:
     static constexpr uint8_t isContinuedFlag { 0x01 };
     static constexpr uint8_t isJustifiedFlag { 0x02 };
 
-private:
-
-    struct Header
+    /** @brief Constructs with independent capacities for history and active rings.
+     *  @param historyCapacityInChars  Maximum total Chars the history ring can hold.
+     *  @param activeCapacityInChars   Maximum total Chars the active ring can hold. */
+    CellFifo (int historyCapacityInChars, int activeCapacityInChars) noexcept
+        : historyRing    (toRingSlots (historyCapacityInChars))
+        , activeRing     (toRingSlots (activeCapacityInChars))
+        , historyStorage (static_cast<size_t> (historyRing.getTotalSize()))
+        , activeStorage  (static_cast<size_t> (activeRing.getTotalSize()))
+        , historyEpochs  (static_cast<size_t> (historyRing.getTotalSize()))
+        , activeEpochs   (static_cast<size_t> (activeRing.getTotalSize()))
     {
-        int32_t cellCount { 0 };
-        uint8_t flags { 0 };
+        resetEpochs (historyEpochs, historyRing.getTotalSize());
+        resetEpochs (activeEpochs,  activeRing.getTotalSize());
+    }
+
+    /** @brief Pushes one row of Chars into the history ring.  Reader thread only.
+     *
+     *  Packs the row into a uint64_t header + cells and writes via BufferSPSC
+     *  prepareToWrite / finishedWrite with seqlock stamping.  BufferSPSC
+     *  drop-oldest fires inside prepareToWrite when full — the write always
+     *  succeeds.
+     *
+     *  @param chars   Pointer to the row's Char data.
+     *  @param count   Number of Chars in the row.
+     *  @param flags   Row flags — bit 0: isContinued, bit 1: isJustified. */
+    void pushHistory (const jam::Char* chars, int count, uint8_t flags) noexcept
+    {
+        pushEntry (historyRing, historyStorage, historyEpochs, chars, count, flags);
+    }
+
+    /** @brief Drains one logical history line from the history ring.  Message thread only.
+     *
+     *  Accumulates continued rows into an internal pending buffer, joining them
+     *  into one logical jam::CodeLine.  Returns true (with outLine populated) only
+     *  when the last non-continued row of a logical line is reached.  A partial
+     *  continued history run remaining at drain-end is returned with isContinued = true.
+     *
+     *  @param outLine  Receives the joined jam::CodeLine.
+     *  @return true if a complete (or partial tail) entry was produced; false when
+     *          the history ring is empty or a run has not yet completed. */
+    bool drainHistory (jam::CodeLine& outLine) noexcept
+    {
+        bool produced { false };
+
+        while (not produced)
+        {
+            jam::CodeLine raw {};
+            const ReadResult result { readRawRow (historyRing, historyStorage, historyEpochs, raw) };
+
+            if (result == ReadResult::empty or result == ReadResult::torn)
+                break;
+
+            if (result == ReadResult::zeroCellEntry)
+            {
+                // Zero-cell entry: emit pending if any, then continue draining.
+                if (pending.cellCount > 0)
+                {
+                    pending.isContinued = false;
+                    outLine  = std::move (pending);
+                    pending  = {};
+                    produced = true;
+                }
+                // else: silent — loop continues to next entry.
+            }
+            else
+            {
+                // result == ReadResult::rowProduced — join into pending.
+                const int prevCount { pending.cellCount };
+                pending.chars.realloc (prevCount + raw.cellCount);
+
+                std::memcpy (pending.chars.getData() + prevCount,
+                             raw.chars.getData(),
+                             static_cast<size_t> (raw.cellCount) * sizeof (jam::Char));
+
+                pending.cellCount = prevCount + raw.cellCount;
+
+                if (raw.isJustified)
+                    pending.isJustified = true;
+
+                if (not raw.isContinued)
+                {
+                    // End of logical line — emit.
+                    pending.isContinued = false;
+                    outLine  = std::move (pending);
+                    pending  = {};
+                    produced = true;
+                }
+                // else: row is continued — loop to consume the next ring entry.
+            }
+        }
+
+        if (not produced and pending.cellCount > 0
+            and historyRing.getNumReady() < headerSlots)
+        {
+            // Partial continued history run at drain-end — emit with isContinued set.
+            pending.isContinued = true;
+            outLine  = std::move (pending);
+            pending  = {};
+            produced = true;
+        }
+
+        return produced;
+    }
+
+    /** @brief Pushes one row of Chars into the active ring.  Reader thread only.
+     *
+     *  @param chars   Pointer to the row's Char data.
+     *  @param count   Number of Chars in the row.
+     *  @param flags   Row flags — bit 0: isContinued, bit 1: isJustified. */
+    void pushActive (const jam::Char* chars, int count, uint8_t flags) noexcept
+    {
+        pushEntry (activeRing, activeStorage, activeEpochs, chars, count, flags);
+    }
+
+    /** @brief Drains one viewport row from the active ring.  Message thread only.
+     *
+     *  Builds one jam::CodeLine per ring entry — no joining.
+     *
+     *  @param outLine  Receives the viewport row jam::CodeLine.
+     *  @return true if an entry was produced; false when the active ring is empty. */
+    bool drainActive (jam::CodeLine& outLine) noexcept
+    {
+        bool produced { false };
+
+        while (not produced)
+        {
+            jam::CodeLine raw {};
+            const ReadResult result { readRawRow (activeRing, activeStorage, activeEpochs, raw) };
+
+            if (result == ReadResult::empty or result == ReadResult::torn)
+                break;
+
+            if (result == ReadResult::rowProduced)
+            {
+                outLine  = std::move (raw);
+                produced = true;
+            }
+            // Zero-cell entry on the active ring: skip silently (no join accumulator here).
+        }
+
+        return produced;
+    }
+
+    /** @brief Reallocates both rings, storage, and epoch arrays.
+     *  Called while processing is suspended (message thread, no concurrent push).
+     *  @param historyCapacityInChars  New capacity for the history ring in Char-equivalent slots.
+     *  @param activeCapacityInChars   New capacity for the active ring in Char-equivalent slots. */
+    void setSize (int historyCapacityInChars, int activeCapacityInChars) noexcept
+    {
+        const int historySlots { toRingSlots (historyCapacityInChars) };
+        const int activeSlots  { toRingSlots (activeCapacityInChars) };
+
+        historyRing.setTotalSize (historySlots);
+        activeRing.setTotalSize  (activeSlots);
+
+        historyStorage.realloc (static_cast<size_t> (historySlots));
+        activeStorage.realloc  (static_cast<size_t> (activeSlots));
+
+        historyEpochs.realloc (static_cast<size_t> (historySlots));
+        activeEpochs.realloc  (static_cast<size_t> (activeSlots));
+
+        resetEpochs (historyEpochs, historySlots);
+        resetEpochs (activeEpochs,  activeSlots);
+
+        pending = {};
+    }
+
+    /** @brief Number of free uint64_t slots in the history ring (approximation).
+     *  Reader thread only — used for back-pressure gating. */
+    int getHistoryFreeSpace() const noexcept { return historyRing.getFreeSpace(); }
+
+    /** @brief Number of occupied uint64_t slots in the history ring (approximation). */
+    int getHistoryNumReady() const noexcept { return historyRing.getNumReady(); }
+
+    /** @brief Number of free uint64_t slots in the active ring (approximation).
+     *  Reader thread only — used for back-pressure gating. */
+    int getActiveFreeSpace() const noexcept { return activeRing.getFreeSpace(); }
+
+    /** @brief Number of occupied uint64_t slots in the active ring (approximation). */
+    int getActiveNumReady() const noexcept { return activeRing.getNumReady(); }
+
+private:
+    // -------------------------------------------------------------------------
+    // Ring sizing helper
+
+    static constexpr int minCharsPerRow { 1 };
+    static constexpr int headerSlots    { 1 }; ///< Slots per entry header (one uint64_t).
+
+    /** Convert a Char-count capacity into a uint64_t ring slot count.
+     *  Adds per-entry overhead headroom: one header slot per minCharsPerRow cells,
+     *  plus one sentinel slot (AbstractFifo invariant: one slot permanently reserved). */
+    static int toRingSlots (int capacityInChars) noexcept
+    {
+        const int entries    { capacityInChars / minCharsPerRow + 1 };
+        const int totalSlots { capacityInChars + headerSlots * entries + 1 };
+        return juce::jmax (2, totalSlots);
+    }
+
+    // -------------------------------------------------------------------------
+    // Seqlock epoch constants
+
+    /** Epoch value for a slot that has never been written as a header.
+     *  Cell-data slots retain this value; consumers skip them. */
+    static constexpr uint64_t epochNeverWritten { 0 };
+
+    /** Bit mask for the in-progress (odd) epoch indicator. */
+    static constexpr uint64_t epochOddBit       { 1 };
+
+    // -------------------------------------------------------------------------
+    // Header pack / unpack
+
+    /** @brief Pack cellCount + flags into one uint64_t slot (strict-aliasing-clean). */
+    static uint64_t packHeader (int32_t cellCount, uint8_t flags) noexcept
+    {
+        uint64_t word { 0 };
+        std::memcpy (&word,                                            &cellCount, sizeof (int32_t));
+        std::memcpy (reinterpret_cast<char*> (&word) + sizeof (int32_t), &flags, sizeof (uint8_t));
+        return word;
+    }
+
+    /** @brief Unpack cellCount + flags from one uint64_t slot. */
+    static void unpackHeader (uint64_t word, int32_t& cellCount, uint8_t& flags) noexcept
+    {
+        std::memcpy (&cellCount, &word, sizeof (int32_t));
+        std::memcpy (&flags, reinterpret_cast<const char*> (&word) + sizeof (int32_t), sizeof (uint8_t));
+    }
+
+    // -------------------------------------------------------------------------
+    // Epoch array helpers
+
+    using EpochBlock = juce::HeapBlock<std::atomic<uint64_t>>;
+
+    /** @brief Reset all epoch slots to epochNeverWritten (zero-initialise). */
+    static void resetEpochs (EpochBlock& epochs, int slotCount) noexcept
+    {
+        for (int i { 0 }; i < slotCount; ++i)
+            epochs[i].store (epochNeverWritten, std::memory_order_relaxed);
+    }
+
+    // -------------------------------------------------------------------------
+    // ReadResult
+
+    /** @brief Result of a single readRawRow() call — four mutually exclusive states. */
+    enum class ReadResult : uint8_t
+    {
+        empty,         ///< Ring had no ready data — caller should stop draining.
+        torn,          ///< Seqlock detected a torn read — caller should stop draining.
+        zeroCellEntry, ///< Entry consumed; cellCount == 0 — caller handles join semantics.
+        rowProduced,   ///< Entry consumed; outLine is populated.
     };
 
-    juce::AbstractFifo fifo;
-    juce::HeapBlock<jam::Cell> buffer;
+    // -------------------------------------------------------------------------
+    // Per-drain scratch buffer (heap; reallocated as needed)
 
-    void writeHeader (const Header& hdr, int s1, int b1, int /*s2*/, int /*b2*/) noexcept
+    static constexpr int scratchInitialSlots { 256 };
+    juce::HeapBlock<uint64_t> scratch        { scratchInitialSlots };
+    int                       scratchCapacity { scratchInitialSlots };
+
+    /** @brief Ensure scratch can hold at least `needed` uint64_t slots. */
+    void ensureScratch (int needed) noexcept
     {
-        // Header fits in 1 Cell-sized slot (8 bytes). Pack cellCount + flags into the slot.
-        jam::Cell headerCell {};
-        auto* raw { reinterpret_cast<char*> (&headerCell) };
-        std::memcpy (raw, &hdr.cellCount, sizeof (int32_t));
-        std::memcpy (raw + sizeof (int32_t), &hdr.flags, sizeof (uint8_t));
-
-        buffer[s1] = headerCell;
+        if (needed > scratchCapacity)
+        {
+            scratch.realloc (static_cast<size_t> (needed));
+            scratchCapacity = needed;
+        }
     }
 
-    void readHeader (Header& hdr, int s1, int b1, int /*s2*/, int /*b2*/) const noexcept
+    // -------------------------------------------------------------------------
+    // Producer write helper — shared by pushHistory and pushActive
+
+    /** @brief Packs one entry and writes it into the ring with seqlock stamping.
+     *
+     *  BufferSPSC::prepareToWrite handles drop-oldest internally — the write always
+     *  succeeds.  The seqlock stamps the header slot: odd before, even after.
+     *
+     *  @param ring     The BufferSPSC managing indices.
+     *  @param storage  The uint64_t backing store aligned with the ring.
+     *  @param epochs   Epoch array (one entry per ring slot).
+     *  @param chars    Source Char data.
+     *  @param count    Number of Chars.
+     *  @param flags    Row flags. */
+    void pushEntry (jam::BufferSPSC&          ring,
+                    juce::HeapBlock<uint64_t>& storage,
+                    EpochBlock&                epochs,
+                    const jam::Char*           chars,
+                    int                        count,
+                    uint8_t                    flags) noexcept
     {
-        jam::Cell headerCell {};
+        const int slotsNeeded { headerSlots + count };
 
-        headerCell = buffer[s1];
+        int s1 { 0 }, b1 { 0 }, s2 { 0 }, b2 { 0 };
+        ring.prepareToWrite (slotsNeeded, s1, b1, s2, b2);
 
-        auto* raw { reinterpret_cast<const char*> (&headerCell) };
-        std::memcpy (&hdr.cellCount, raw, sizeof (int32_t));
-        std::memcpy (&hdr.flags, raw + sizeof (int32_t), sizeof (uint8_t));
+        // s1 is the header slot position.  Stamp odd (in-progress) before writing.
+        const uint64_t prevEpoch { epochs[s1].load (std::memory_order_relaxed) };
+        const uint64_t oddEpoch  { (prevEpoch | epochOddBit) };
+        epochs[s1].store (oddEpoch, std::memory_order_release);
+
+        // Write header into s1.
+        storage[s1] = packHeader (static_cast<int32_t> (count), flags);
+
+        // Write cells after the header, respecting the ring wrap.
+        // Block 1 covers up to (ringSize - s1) slots from s1.
+        // If the entry wraps, block 2 picks up the remainder from slot 0.
+        // The cell region starts immediately after the header slot.
+        if (count > 0)
+        {
+            const int ringSize  { ring.getTotalSize() };
+            int       cellsLeft { count };
+            int       srcOffset { 0 };
+
+            // Cell start is one slot past the header.
+            int cellPos { s1 + 1 };
+
+            if (cellPos >= ringSize)
+                cellPos -= ringSize;
+
+            // First contiguous segment: min(count, ringSize - cellPos) cells.
+            const int seg1Cells { juce::jmin (cellsLeft, ringSize - cellPos) };
+            std::memcpy (storage.getData() + cellPos,
+                         reinterpret_cast<const uint64_t*> (chars) + srcOffset,
+                         static_cast<size_t> (seg1Cells) * sizeof (uint64_t));
+
+            cellsLeft -= seg1Cells;
+            srcOffset += seg1Cells;
+
+            // Second contiguous segment (wrap-around): starts at slot 0.
+            if (cellsLeft > 0)
+            {
+                std::memcpy (storage.getData(),
+                             reinterpret_cast<const uint64_t*> (chars) + srcOffset,
+                             static_cast<size_t> (cellsLeft) * sizeof (uint64_t));
+            }
+        }
+
+        // Stamp even (stable) — must be strictly greater than oddEpoch.
+        epochs[s1].store (oddEpoch + 1, std::memory_order_release);
+
+        ring.finishedWrite (slotsNeeded);
     }
+
+    // -------------------------------------------------------------------------
+    // Consumer read helper — shared by drainHistory and drainActive
+
+    /** @brief Reads one raw ring entry from a BufferSPSC ring into outLine.
+     *
+     *  Shared mechanics for drainHistory and drainActive.  Checks seqlock
+     *  epoch at the header slot before and after copying — discards and reports
+     *  ReadResult::torn if the producer reclaimed the entry mid-read.
+     *
+     *  Resync: a cell-data slot at the read front carries epochNeverWritten (0);
+     *  the epoch guard fires, the slot is consumed via finishedRead(s1, 1), and
+     *  ReadResult::torn is returned so the caller stops this drain.  The next
+     *  drain call re-enters past the stale slot.
+     *
+     *  @param ring     The BufferSPSC managing indices.
+     *  @param storage  The uint64_t backing store.
+     *  @param epochs   Epoch array.
+     *  @param outLine  Receives the raw CodeLine when ReadResult::rowProduced.
+     *  @return ReadResult indicating outcome. */
+    ReadResult readRawRow (jam::BufferSPSC&          ring,
+                           juce::HeapBlock<uint64_t>& storage,
+                           EpochBlock&                epochs,
+                           jam::CodeLine&             outLine) noexcept
+    {
+        if (ring.getNumReady() < headerSlots)
+            return ReadResult::empty;
+
+        // ---- Read header slot ----
+        int s1 { 0 }, b1 { 0 }, s2 { 0 }, b2 { 0 };
+        ring.prepareToRead (headerSlots, s1, b1, s2, b2);
+
+        if (b1 < headerSlots)
+            return ReadResult::empty;
+
+        // Seqlock: check epoch before reading.
+        const uint64_t epochBefore { epochs[s1].load (std::memory_order_acquire) };
+
+        if (epochBefore == epochNeverWritten or (epochBefore & epochOddBit) != 0)
+        {
+            // Never-written cell-data slot or write-in-progress — skip 1 slot and report torn.
+            ring.finishedRead (s1, headerSlots);
+            return ReadResult::torn;
+        }
+
+        // Copy header word.
+        const uint64_t headerWord { storage[s1] };
+
+        // Seqlock: check epoch after copying.
+        const uint64_t epochAfter { epochs[s1].load (std::memory_order_acquire) };
+
+        if (epochAfter != epochBefore)
+        {
+            // Producer reclaimed this slot mid-read — skip 1 slot and report torn.
+            ring.finishedRead (s1, headerSlots);
+            return ReadResult::torn;
+        }
+
+        // Header is stable — unpack.
+        int32_t cellCount { 0 };
+        uint8_t flags     { 0 };
+        unpackHeader (headerWord, cellCount, flags);
+
+        // Guard: cellCount must be non-negative and plausible.
+        // A cell-data slot that somehow carries a non-zero even epoch (recycled header)
+        // could still yield an implausible cellCount.
+        const int ringCapacity { ring.getTotalSize() };
+        const bool cellCountValid { cellCount >= 0 and cellCount < ringCapacity };
+
+        if (not cellCountValid)
+        {
+            // Implausible cellCount — treat as torn: skip 1 slot.
+            ring.finishedRead (s1, headerSlots);
+            return ReadResult::torn;
+        }
+
+        if (cellCount == 0)
+        {
+            ring.finishedRead (s1, headerSlots);
+            return ReadResult::zeroCellEntry;
+        }
+
+        // ---- Read cell slots ----
+        // Verify the ring has enough ready slots (header + cells).
+        if (ring.getNumReady() < headerSlots + cellCount)
+        {
+            // Partial entry visible — producer hasn't finished writing yet.
+            // Do NOT consume the header; leave the read front where it is.
+            return ReadResult::empty;
+        }
+
+        ensureScratch (cellCount);
+
+        // Cell data occupies the slots immediately after the header slot (s1).
+        // prepareToRead is const / non-advancing — s1 is still the ring front.
+        // Compute cell region directly: starts at slot (s1 + headerSlots) % ringSize.
+        {
+            const int ringSize  { ring.getTotalSize() };
+            int       cellsLeft { cellCount };
+            int       dstOffset { 0 };
+
+            int cellPos { s1 + headerSlots };
+
+            if (cellPos >= ringSize)
+                cellPos -= ringSize;
+
+            const int seg1Cells { juce::jmin (cellsLeft, ringSize - cellPos) };
+
+            // Seqlock epoch check before cell copy.
+            const uint64_t cellEpochBefore { epochs[s1].load (std::memory_order_acquire) };
+
+            std::memcpy (scratch.getData() + dstOffset,
+                         storage.getData() + cellPos,
+                         static_cast<size_t> (seg1Cells) * sizeof (uint64_t));
+
+            cellsLeft -= seg1Cells;
+            dstOffset += seg1Cells;
+
+            if (cellsLeft > 0)
+            {
+                std::memcpy (scratch.getData() + dstOffset,
+                             storage.getData(),
+                             static_cast<size_t> (cellsLeft) * sizeof (uint64_t));
+            }
+
+            // Seqlock epoch check after cell copy.
+            const uint64_t cellEpochAfter { epochs[s1].load (std::memory_order_acquire) };
+
+            if (cellEpochAfter != cellEpochBefore)
+            {
+                // Producer reclaimed this entry while we were copying cells.
+                ring.finishedRead (s1, headerSlots + cellCount);
+                return ReadResult::torn;
+            }
+        }
+
+        // Entry is clean — allocate and populate the CodeLine.
+        outLine.chars.allocate (cellCount, false);
+
+        std::memcpy (outLine.chars.getData(),
+                     scratch.getData(),
+                     static_cast<size_t> (cellCount) * sizeof (jam::Char));
+
+        outLine.cellCount   = cellCount;
+        outLine.isContinued = (flags & isContinuedFlag) != 0;
+        outLine.isJustified = (flags & isJustifiedFlag) != 0;
+
+        ring.finishedRead (s1, headerSlots + cellCount);
+
+        return ReadResult::rowProduced;
+    }
+
+    // =========================================================================
+
+    jam::BufferSPSC           historyRing;
+    jam::BufferSPSC           activeRing;
+
+    juce::HeapBlock<uint64_t> historyStorage;
+    juce::HeapBlock<uint64_t> activeStorage;
+
+    EpochBlock                historyEpochs;
+    EpochBlock                activeEpochs;
+
+    /** @brief Pending partial history line — accumulates continued rows across drainHistory calls. */
+    jam::CodeLine pending;
 
     //==========================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CellFifo)

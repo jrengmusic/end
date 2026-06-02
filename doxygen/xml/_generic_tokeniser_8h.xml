@@ -1,0 +1,194 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="_generic_tokeniser_8h" kind="file" language="C++">
+    <compoundname>GenericTokeniser.h</compoundname>
+    <includes local="no">JuceHeader.h</includes>
+    <includedby refid="_generic_tokeniser_8cpp" local="yes">whelmed/GenericTokeniser.cpp</includedby>
+    <includedby refid="_tokenizer_8h" local="yes">whelmed/Tokenizer.h</includedby>
+    <incdepgraph>
+      <node id="1">
+        <label>whelmed/GenericTokeniser.h</label>
+        <link refid="_generic_tokeniser_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>JuceHeader.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="10">
+        <label>Main.cpp</label>
+        <link refid="_main_8cpp"/>
+      </node>
+      <node id="9">
+        <label>Main.h</label>
+        <link refid="_main_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>MainComponent.cpp</label>
+        <link refid="_main_component_8cpp"/>
+      </node>
+      <node id="8">
+        <label>MainComponent.h</label>
+        <link refid="_main_component_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>MainComponentActions.cpp</label>
+        <link refid="_main_component_actions_8cpp"/>
+      </node>
+      <node id="14">
+        <label>terminal/component/Panes.cpp</label>
+        <link refid="_panes_8cpp"/>
+      </node>
+      <node id="13">
+        <label>terminal/component/Panes.h</label>
+        <link refid="_panes_8h"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>terminal/component/Tabs.cpp</label>
+        <link refid="_tabs_8cpp"/>
+      </node>
+      <node id="15">
+        <label>terminal/component/Tabs.h</label>
+        <link refid="_tabs_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>terminal/component/TabsActions.cpp</label>
+        <link refid="_tabs_actions_8cpp"/>
+      </node>
+      <node id="18">
+        <label>terminal/component/TabsClose.cpp</label>
+        <link refid="_tabs_close_8cpp"/>
+      </node>
+      <node id="2">
+        <label>whelmed/GenericTokeniser.cpp</label>
+        <link refid="_generic_tokeniser_8cpp"/>
+      </node>
+      <node id="1">
+        <label>whelmed/GenericTokeniser.h</label>
+        <link refid="_generic_tokeniser_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>whelmed/InputHandler.cpp</label>
+        <link refid="_input_handler_8cpp"/>
+      </node>
+      <node id="5">
+        <label>whelmed/InputHandler.h</label>
+        <link refid="_input_handler_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="20">
+        <label>whelmed/Screen.cpp</label>
+        <link refid="_screen_8cpp"/>
+      </node>
+      <node id="4">
+        <label>whelmed/Screen.h</label>
+        <link refid="_screen_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>whelmed/Tokenizer.cpp</label>
+        <link refid="_tokenizer_8cpp"/>
+      </node>
+      <node id="3">
+        <label>whelmed/Tokenizer.h</label>
+        <link refid="_tokenizer_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="19">
+        <label>whelmed/component/Component.cpp</label>
+        <link refid="_component_8cpp"/>
+      </node>
+      <node id="7">
+        <label>whelmed/component/Component.h</label>
+        <link refid="_component_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structwhelmed_1_1_language_definition" prot="public">whelmed::LanguageDefinition</innerclass>
+    <innerclass refid="classwhelmed_1_1_generic_tokeniser" prot="public">whelmed::GenericTokeniser</innerclass>
+    <innernamespace refid="namespacewhelmed">whelmed</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#pragma<sp/>once</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;JuceHeader.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespacewhelmed" kindref="compound">whelmed</ref></highlight></codeline>
+<codeline lineno="5"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="comment">/*____________________________________________________________________________*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight></codeline>
+<codeline lineno="8" refid="structwhelmed_1_1_language_definition" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structwhelmed_1_1_language_definition" kindref="compound">LanguageDefinition</ref></highlight></codeline>
+<codeline lineno="9"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="10" refid="structwhelmed_1_1_language_definition_1ae7eb0c584f3b0fd9eee0181f4dbd60db" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::StringArray<sp/><ref refid="structwhelmed_1_1_language_definition_1ae7eb0c584f3b0fd9eee0181f4dbd60db" kindref="member">keywords</ref>;</highlight></codeline>
+<codeline lineno="11" refid="structwhelmed_1_1_language_definition_1a6d1684653ed6109f6da0d9e5a6d8934f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::String<sp/><ref refid="structwhelmed_1_1_language_definition_1a6d1684653ed6109f6da0d9e5a6d8934f" kindref="member">lineComment</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>e.g.<sp/>&quot;//&quot;,<sp/>&quot;#&quot;,<sp/>&quot;--&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12" refid="structwhelmed_1_1_language_definition_1a9fded9072dc73a5d13970bf9091eca88" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::String<sp/><ref refid="structwhelmed_1_1_language_definition_1a9fded9072dc73a5d13970bf9091eca88" kindref="member">blockCommentStart</ref>;<sp/></highlight><highlight class="comment">//<sp/>e.g.<sp/>&quot;/*&quot;,<sp/>&quot;&lt;!--&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13" refid="structwhelmed_1_1_language_definition_1abdb9a2c1013a0b87b246be9a6e6783f2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::String<sp/><ref refid="structwhelmed_1_1_language_definition_1abdb9a2c1013a0b87b246be9a6e6783f2" kindref="member">blockCommentEnd</ref>;<sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>e.g.<sp/>&quot;*/&quot;,<sp/>&quot;--&gt;&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14" refid="structwhelmed_1_1_language_definition_1a7985512492aea09216413cec9fae2233" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structwhelmed_1_1_language_definition_1a7985512492aea09216413cec9fae2233" kindref="member">hasBacktickStrings</ref><sp/>{<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="15"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17" refid="classwhelmed_1_1_generic_tokeniser" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classwhelmed_1_1_generic_tokeniser_1a599de4e7217c8caabf767cdab7fdd9da" kindref="member">GenericTokeniser</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>juce::CodeTokeniser</highlight></codeline>
+<codeline lineno="18"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">explicit</highlight><highlight class="normal"><sp/><ref refid="classwhelmed_1_1_generic_tokeniser_1a599de4e7217c8caabf767cdab7fdd9da" kindref="member">GenericTokeniser</ref><sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structwhelmed_1_1_language_definition" kindref="compound">LanguageDefinition</ref>&amp;<sp/>definition);</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classwhelmed_1_1_generic_tokeniser_1abd5699f66524fecf11b494c2c8c573b1" kindref="member">readNextToken</ref><sp/>(juce::CodeDocument::Iterator&amp;<sp/>source)<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::CodeEditorComponent::ColourScheme<sp/><ref refid="classwhelmed_1_1_generic_tokeniser_1afd92f7967299f704db41d353d93e0b73" kindref="member">getDefaultColourScheme</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="26" refid="classwhelmed_1_1_generic_tokeniser_1ab9df45c01a9ad2a8fc2fa6be73bc9fdd" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structwhelmed_1_1_language_definition" kindref="compound">LanguageDefinition</ref><sp/><ref refid="classwhelmed_1_1_generic_tokeniser_1ab9df45c01a9ad2a8fc2fa6be73bc9fdd" kindref="member">lang</ref>;</highlight></codeline>
+<codeline lineno="27" refid="classwhelmed_1_1_generic_tokeniser_1a65b12e5c61680b8e9d41fcf1816ed4ff" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::StringArray<sp/><ref refid="classwhelmed_1_1_generic_tokeniser_1a65b12e5c61680b8e9d41fcf1816ed4ff" kindref="member">sortedKeywords</ref>;</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="group__juce__core-system_1ga851b02724a8158a7f746c66b5758b3dd" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR</ref><sp/>(<ref refid="classwhelmed_1_1_generic_tokeniser_1a599de4e7217c8caabf767cdab7fdd9da" kindref="member">GenericTokeniser</ref>)</highlight></codeline>
+<codeline lineno="30"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>whelmed</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="whelmed/GenericTokeniser.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,242 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="classterminal_1_1_link_detector" kind="class" language="C++" prot="public">
+    <compoundname>terminal::LinkDetector</compoundname>
+    <includes refid="_link_detector_8h" local="no">LinkDetector.h</includes>
+    <sectiondef kind="public-type">
+      <memberdef kind="enum" id="classterminal_1_1_link_detector_1a11ff9c79f3a6fbcb7ecdc3e7a6f0c67a" prot="public" static="no" strong="yes">
+        <type></type>
+        <name>LinkType</name>
+        <qualifiedname>terminal::LinkDetector::LinkType</qualifiedname>
+        <enumvalue id="classterminal_1_1_link_detector_1a11ff9c79f3a6fbcb7ecdc3e7a6f0c67aa334c4a4c42fdb79d7ebc3e73b517e6f8" prot="public">
+          <name>none</name>
+          <briefdescription>
+<para><ref refid="struct_token" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Token</ref> does not match any known extension or <ref refid="classURL" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">URL</ref> protocol. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classterminal_1_1_link_detector_1a11ff9c79f3a6fbcb7ecdc3e7a6f0c67aa8c7dd922ad47494fc02c388e12c00eac" prot="public">
+          <name>file</name>
+          <briefdescription>
+<para><ref refid="struct_token" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Token</ref> has a known file extension (e.g. </para>
+          </briefdescription>
+          <detaileddescription>
+<para><computeroutput>.cpp</computeroutput>, <computeroutput>.<ref refid="namespacelua" kindref="compound">lua</ref></computeroutput>, <computeroutput>.json</computeroutput>). </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classterminal_1_1_link_detector_1a11ff9c79f3a6fbcb7ecdc3e7a6f0c67aa572d4e421e5e6b9bc11d815e8a027112" prot="public">
+          <name>url</name>
+          <briefdescription>
+<para><ref refid="struct_token" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Token</ref> starts with a recognised <ref refid="classURL" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">URL</ref> protocol (<computeroutput><ulink url="https://">https://</ulink></computeroutput>, <computeroutput><ulink url="http://">http://</ulink></computeroutput>, <computeroutput><ulink url="ftp://">ftp://</ulink></computeroutput>). </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Classification result returned by <computeroutput><ref refid="classterminal_1_1_link_detector_1aeddb512e393bdab04f8ce6aa5c4255a5" kindref="member">classify()</ref></computeroutput>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/LinkDetector.h" line="60" column="5" bodyfile="terminal/LinkDetector.h" bodystart="61" bodyend="70"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="classterminal_1_1_link_detector_1a3af6f8b4039a2cd7834ec625e83c0e8b" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>const std::unordered_set&lt; juce::String &gt; &amp;</type>
+        <definition>static const std::unordered_set&lt; juce::String &gt; &amp; terminal::LinkDetector::builtInExtensions</definition>
+        <argsstring>() noexcept</argsstring>
+        <name>builtInExtensions</name>
+        <qualifiedname>terminal::LinkDetector::builtInExtensions</qualifiedname>
+        <briefdescription>
+<para>Returns the built-in set of known file extensions. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The set is constructed once on first call (static local) and is never modified after initialisation. Extensions are stored in lowercase with a leading dot (e.g. <computeroutput>".cpp"</computeroutput>).</para>
+<para><simplesect kind="return"><para>Const reference to the static extension set. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/LinkDetector.h" line="82" column="37" bodyfile="terminal/LinkDetector.h" bodystart="82" bodyend="101"/>
+        <referencedby refid="classterminal_1_1_link_detector_1a76c8a162a46a7e4a36488f860a8880b7" compoundref="_link_detector_8h" startline="117" endline="131">hasKnownExtension</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classterminal_1_1_link_detector_1a76c8a162a46a7e4a36488f860a8880b7" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool terminal::LinkDetector::hasKnownExtension</definition>
+        <argsstring>(const juce::String &amp;token) noexcept</argsstring>
+        <name>hasKnownExtension</name>
+        <qualifiedname>terminal::LinkDetector::hasKnownExtension</qualifiedname>
+        <param>
+          <type>const juce::String &amp;</type>
+          <declname>token</declname>
+        </param>
+        <briefdescription>
+<para>Returns true when <computeroutput>token</computeroutput> ends with a known file extension. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Extension extraction uses <computeroutput>juce::String::fromLastOccurrenceOf(".", true, false)</computeroutput> so only the suffix from the final dot onward is tested. A token that begins with a dot and has no subsequent dot is treated as a hidden-file extension (e.g. <computeroutput>.gitignore</computeroutput> → extension <computeroutput>.gitignore</computeroutput>).</para>
+<para>Comparison is case-insensitive so <computeroutput>.CPP</computeroutput>, <computeroutput>.Cpp</computeroutput>, and <computeroutput>.cpp</computeroutput> all match.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>token</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The text token to test (e.g. <computeroutput>"<ref refid="_main_8cpp" kindref="compound">main.cpp</ref>"</computeroutput>, <computeroutput>".gitignore"</computeroutput>). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><computeroutput>true</computeroutput> if the extracted extension is in the built-in set. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/LinkDetector.h" line="117" column="17" bodyfile="terminal/LinkDetector.h" bodystart="117" bodyend="131"/>
+        <references refid="classterminal_1_1_link_detector_1a3af6f8b4039a2cd7834ec625e83c0e8b" compoundref="_link_detector_8h" startline="82" endline="101">builtInExtensions</references>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
+        <referencedby refid="classterminal_1_1_link_detector_1aeddb512e393bdab04f8ce6aa5c4255a5" compoundref="_link_detector_8h" startline="164" endline="174">classify</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classterminal_1_1_link_detector_1acaa83a95fff87ecda0e933227bf0a382" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool terminal::LinkDetector::isUrl</definition>
+        <argsstring>(const juce::String &amp;token) noexcept</argsstring>
+        <name>isUrl</name>
+        <qualifiedname>terminal::LinkDetector::isUrl</qualifiedname>
+        <param>
+          <type>const juce::String &amp;</type>
+          <declname>token</declname>
+        </param>
+        <briefdescription>
+<para>Returns true when <computeroutput>token</computeroutput> begins with a recognised <ref refid="classURL" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">URL</ref> protocol. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Recognised protocols: <computeroutput><ulink url="https://">https://</ulink></computeroutput>, <computeroutput><ulink url="http://">http://</ulink></computeroutput>, <computeroutput><ulink url="ftp://">ftp://</ulink></computeroutput>. Comparison is case-insensitive.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>token</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The text token to test. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><computeroutput>true</computeroutput> if <computeroutput>token</computeroutput> starts with any recognised protocol prefix. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/LinkDetector.h" line="143" column="17" bodyfile="terminal/LinkDetector.h" bodystart="143" bodyend="148"/>
+        <referencedby refid="classterminal_1_1_link_detector_1aeddb512e393bdab04f8ce6aa5c4255a5" compoundref="_link_detector_8h" startline="164" endline="174">classify</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classterminal_1_1_link_detector_1aeddb512e393bdab04f8ce6aa5c4255a5" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type><ref refid="classterminal_1_1_link_detector_1a11ff9c79f3a6fbcb7ecdc3e7a6f0c67a" kindref="member">LinkType</ref></type>
+        <definition>static LinkType terminal::LinkDetector::classify</definition>
+        <argsstring>(const juce::String &amp;token) noexcept</argsstring>
+        <name>classify</name>
+        <qualifiedname>terminal::LinkDetector::classify</qualifiedname>
+        <param>
+          <type>const juce::String &amp;</type>
+          <declname>token</declname>
+        </param>
+        <briefdescription>
+<para>Classifies <computeroutput>token</computeroutput> as a <ref refid="classURL" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">URL</ref>, a file path, or neither. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Evaluation order:<orderedlist>
+<listitem><para><computeroutput><ref refid="classterminal_1_1_link_detector_1acaa83a95fff87ecda0e933227bf0a382" kindref="member">isUrl()</ref></computeroutput> — returns <computeroutput><ref refid="classterminal_1_1_link_detector_1a11ff9c79f3a6fbcb7ecdc3e7a6f0c67aa572d4e421e5e6b9bc11d815e8a027112" kindref="member">LinkType::url</ref></computeroutput> if matched.</para>
+</listitem><listitem><para><computeroutput><ref refid="classterminal_1_1_link_detector_1a76c8a162a46a7e4a36488f860a8880b7" kindref="member">hasKnownExtension()</ref></computeroutput> — returns <computeroutput><ref refid="classterminal_1_1_link_detector_1a11ff9c79f3a6fbcb7ecdc3e7a6f0c67aa8c7dd922ad47494fc02c388e12c00eac" kindref="member">LinkType::file</ref></computeroutput> if matched.</para>
+</listitem><listitem><para>Returns <computeroutput><ref refid="classterminal_1_1_link_detector_1a11ff9c79f3a6fbcb7ecdc3e7a6f0c67aa334c4a4c42fdb79d7ebc3e73b517e6f8" kindref="member">LinkType::none</ref></computeroutput>.</para>
+</listitem></orderedlist>
+</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>token</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The text token to classify. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>A <computeroutput><ref refid="classterminal_1_1_link_detector_1a11ff9c79f3a6fbcb7ecdc3e7a6f0c67a" kindref="member">LinkType</ref></computeroutput> value indicating the classification result. </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classterminal_1_1_link_detector_1acaa83a95fff87ecda0e933227bf0a382" kindref="member">isUrl</ref> </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classterminal_1_1_link_detector_1a76c8a162a46a7e4a36488f860a8880b7" kindref="member">hasKnownExtension</ref> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/LinkDetector.h" line="164" column="21" bodyfile="terminal/LinkDetector.h" bodystart="164" bodyend="174"/>
+        <references refid="classterminal_1_1_link_detector_1a11ff9c79f3a6fbcb7ecdc3e7a6f0c67aa8c7dd922ad47494fc02c388e12c00eac" compoundref="_link_detector_8h" startline="66">file</references>
+        <references refid="classterminal_1_1_link_detector_1a76c8a162a46a7e4a36488f860a8880b7" compoundref="_link_detector_8h" startline="117" endline="131">hasKnownExtension</references>
+        <references refid="classterminal_1_1_link_detector_1acaa83a95fff87ecda0e933227bf0a382" compoundref="_link_detector_8h" startline="143" endline="148">isUrl</references>
+        <references refid="classterminal_1_1_link_detector_1a11ff9c79f3a6fbcb7ecdc3e7a6f0c67aa334c4a4c42fdb79d7ebc3e73b517e6f8" compoundref="_link_detector_8h" startline="63">none</references>
+        <references refid="classterminal_1_1_link_detector_1a11ff9c79f3a6fbcb7ecdc3e7a6f0c67aa572d4e421e5e6b9bc11d815e8a027112" compoundref="_link_detector_8h" startline="69">url</references>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Classifies a text token as a <ref refid="classURL" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">URL</ref>, a file path with a known extension, or neither. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>All methods are static — the class is not instantiated. The built-in extension set is constructed once on first use (static local) and reused for every subsequent call.</para>
+<sect1 id="classterminal_1_1_link_detector_1autotoc_md43_1s1"><sect2 id="classterminal_1_1_link_detector_1autotoc_md43_1s2"><sect3 id="classterminal_1_1_link_detector_1autotoc_md43">
+<title>Extension extraction rules</title><para><table rows="7" cols="3"><row>
+<entry thead="yes"><para><ref refid="struct_token" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Token</ref>  </para>
+</entry><entry thead="yes"><para>Extracted extension  </para>
+</entry><entry thead="yes"><para><ref refid="classResult" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Result</ref>  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput><ref refid="_main_8cpp" kindref="compound">main.cpp</ref></computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>.cpp</computeroutput>  </para>
+</entry><entry thead="no"><para>file  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput>.cpp</computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>.cpp</computeroutput>  </para>
+</entry><entry thead="no"><para>file  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput>my.file.cpp</computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>.cpp</computeroutput>  </para>
+</entry><entry thead="no"><para>file  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput>.gitignore</computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>.gitignore</computeroutput>  </para>
+</entry><entry thead="no"><para>file  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput>noexit</computeroutput>  </para>
+</entry><entry thead="no"><para><emphasis>(none)</emphasis>  </para>
+</entry><entry thead="no"><para>none  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput><ulink url="https://x.io">https://x.io</ulink></computeroutput>  </para>
+</entry><entry thead="no"><para>—  </para>
+</entry><entry thead="no"><para>url  </para>
+</entry></row>
+</table>
+</para>
+<para><simplesect kind="see"><para><ref refid="classterminal_1_1_link_detector_1a11ff9c79f3a6fbcb7ecdc3e7a6f0c67a" kindref="member">LinkType</ref> </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classterminal_1_1_link_detector_1aeddb512e393bdab04f8ce6aa5c4255a5" kindref="member">classify</ref> </para>
+</simplesect>
+</para>
+</sect3></sect2></sect1>
+    </detaileddescription>
+    <location file="terminal/LinkDetector.h" line="51" column="1" bodyfile="terminal/LinkDetector.h" bodystart="52" bodyend="175"/>
+    <listofallmembers>
+      <member refid="classterminal_1_1_link_detector_1a3af6f8b4039a2cd7834ec625e83c0e8b" prot="public" virt="non-virtual"><scope>terminal::LinkDetector</scope><name>builtInExtensions</name></member>
+      <member refid="classterminal_1_1_link_detector_1aeddb512e393bdab04f8ce6aa5c4255a5" prot="public" virt="non-virtual"><scope>terminal::LinkDetector</scope><name>classify</name></member>
+      <member refid="classterminal_1_1_link_detector_1a76c8a162a46a7e4a36488f860a8880b7" prot="public" virt="non-virtual"><scope>terminal::LinkDetector</scope><name>hasKnownExtension</name></member>
+      <member refid="classterminal_1_1_link_detector_1acaa83a95fff87ecda0e933227bf0a382" prot="public" virt="non-virtual"><scope>terminal::LinkDetector</scope><name>isUrl</name></member>
+      <member refid="classterminal_1_1_link_detector_1a11ff9c79f3a6fbcb7ecdc3e7a6f0c67a" prot="public" virt="non-virtual"><scope>terminal::LinkDetector</scope><name>LinkType</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

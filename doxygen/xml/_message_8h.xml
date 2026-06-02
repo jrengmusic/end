@@ -1,0 +1,160 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="_message_8h" kind="file" language="C++">
+    <compoundname>Message.h</compoundname>
+    <includes local="no">JuceHeader.h</includes>
+    <includedby refid="_daemon_8h" local="yes">nexus/Daemon.h</includedby>
+    <includedby refid="_encoder_decoder_8h" local="yes">nexus/EncoderDecoder.h</includedby>
+    <includedby refid="_link_8h" local="yes">nexus/Link.h</includedby>
+    <incdepgraph>
+      <node id="1">
+        <label>nexus/Message.h</label>
+        <link refid="_message_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>JuceHeader.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="4">
+        <label>Main.cpp</label>
+        <link refid="_main_8cpp"/>
+      </node>
+      <node id="3">
+        <label>Main.h</label>
+        <link refid="_main_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>nexus/Channel.cpp</label>
+        <link refid="_channel_8cpp"/>
+      </node>
+      <node id="6">
+        <label>nexus/Daemon.cpp</label>
+        <link refid="_daemon_8cpp"/>
+      </node>
+      <node id="2">
+        <label>nexus/Daemon.h</label>
+        <link refid="_daemon_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>nexus/Daemon.mm</label>
+        <link refid="_daemon_8mm"/>
+      </node>
+      <node id="8">
+        <label>nexus/DaemonWindows.cpp</label>
+        <link refid="_daemon_windows_8cpp"/>
+      </node>
+      <node id="10">
+        <label>nexus/EncoderDecoder.cpp</label>
+        <link refid="_encoder_decoder_8cpp"/>
+      </node>
+      <node id="9">
+        <label>nexus/EncoderDecoder.h</label>
+        <link refid="_encoder_decoder_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>nexus/Link.cpp</label>
+        <link refid="_link_8cpp"/>
+      </node>
+      <node id="11">
+        <label>nexus/Link.h</label>
+        <link refid="_link_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>nexus/Message.h</label>
+        <link refid="_message_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innernamespace refid="namespacenexus">nexus</innernamespace>
+    <briefdescription>
+<para>Interprocess protocol message types. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Defines the message kind enumeration used by Channel and Link to identify messages exchanged over JUCE&apos;s <ref refid="classInterprocessConnection" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">InterprocessConnection</ref> (TCP).</para>
+<para>Wire format inside each JUCE IPC frame: uint16_t kind (LE) | payload bytes.</para>
+<sect1 id="_message_8h_1autotoc_md15_1s1"><sect2 id="_message_8h_1autotoc_md15_1s2"><sect3 id="_message_8h_1autotoc_md15">
+<title>Wire protocol</title><para><itemizedlist>
+<listitem><para><computeroutput>createSession(shell, args, cwd, uuid, cols, rows, envID)</computeroutput> — client→daemon; daemon creates if uuid is new, resizes+attaches if uuid exists</para>
+</listitem><listitem><para><computeroutput>loading(uuid, bytes)</computeroutput> — daemon→client initial byte snapshot for the loading phase</para>
+</listitem><listitem><para><computeroutput>output(uuid, bytes)</computeroutput> — daemon→client live PTY bytes</para>
+</listitem><listitem><para><computeroutput>input(uuid, bytes)</computeroutput> — client→daemon keyboard/mouse input</para>
+</listitem><listitem><para><computeroutput>resizeSession(uuid, cols, rows)</computeroutput> — client→daemon</para>
+</listitem><listitem><para><computeroutput>detachSession(uuid)</computeroutput> — client→daemon &quot;stop forwarding&quot; (session keeps running)</para>
+</listitem><listitem><para><computeroutput>killSession(uuid)</computeroutput> — client→daemon &quot;kill this shell&quot; (session destroyed)</para>
+</listitem><listitem><para><computeroutput>sessionKilled(uuid)</computeroutput> — daemon→client &quot;shell exited&quot;</para>
+</listitem><listitem><para><computeroutput>sessions(uuids)</computeroutput> — daemon→client initial session list on hello</para>
+</listitem><listitem><para><computeroutput>stateUpdate(uuid, cwd, fgProcess)</computeroutput> — daemon→client state sync (cwd + foreground process)</para>
+</listitem><listitem><para><computeroutput>hello</computeroutput> / <computeroutput>helloResponse</computeroutput> / <computeroutput>ping</computeroutput> / <computeroutput>pong</computeroutput> — control </para>
+</listitem></itemizedlist>
+</para>
+</sect3></sect2></sect1>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#pragma<sp/>once</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;JuceHeader.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespacenexus" kindref="compound">nexus</ref></highlight></codeline>
+<codeline lineno="30"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="comment">/*____________________________________________________________________________*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42" refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">enum<sp/>class</highlight><highlight class="normal"><sp/><ref refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558" kindref="member">Message</ref><sp/>:<sp/>uint16_t</highlight></codeline>
+<codeline lineno="43"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="44" refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558a5d41402abc4b2a76b9719d911017c592" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558a5d41402abc4b2a76b9719d911017c592" kindref="member">hello</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>0x01,<sp/></highlight></codeline>
+<codeline lineno="45" refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558a3b53b7e8a45325ef6a2d01448275cd7d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558a3b53b7e8a45325ef6a2d01448275cd7d" kindref="member">helloResponse</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>0x02,<sp/></highlight></codeline>
+<codeline lineno="46" refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558adf911f0151f9ef021d410b4be5060972" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558adf911f0151f9ef021d410b4be5060972" kindref="member">ping</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>0x03,<sp/></highlight></codeline>
+<codeline lineno="47" refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558a6fdb087aa3fbfbcb8287a593a0919e61" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558a6fdb087aa3fbfbcb8287a593a0919e61" kindref="member">pong</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>0x04,<sp/></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49" refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558a59e9bf7d476fa502fc0e8c0e9064acfd" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558a59e9bf7d476fa502fc0e8c0e9064acfd" kindref="member">createSession</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>0x10,<sp/></highlight></codeline>
+<codeline lineno="52" refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558ac38ef1618dc5993bf126b5c6c7dc4f68" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558ac38ef1618dc5993bf126b5c6c7dc4f68" kindref="member">detachSession</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>0x14,<sp/></highlight></codeline>
+<codeline lineno="53" refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558a1dbff3841d5ad235c10a69f2a2a0a01b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558a1dbff3841d5ad235c10a69f2a2a0a01b" kindref="member">resizeSession</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>0x15,<sp/></highlight></codeline>
+<codeline lineno="54" refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558aa43c1b0aa53a0c908810c06ab1ff3967" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558aa43c1b0aa53a0c908810c06ab1ff3967" kindref="member">input</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>0x16,<sp/></highlight></codeline>
+<codeline lineno="55" refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558a6c74b0d01e23e4df356de8e12358221e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558a6c74b0d01e23e4df356de8e12358221e" kindref="member">killSession</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>0x17,<sp/></highlight></codeline>
+<codeline lineno="56" refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558a5334c716f5ca33248f777dfe1d32dfd9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558a5334c716f5ca33248f777dfe1d32dfd9" kindref="member">killDaemon</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>0x18,<sp/></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58" refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558aa14fa2166ed698f3d04061f57e5ab9b9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558aa14fa2166ed698f3d04061f57e5ab9b9" kindref="member">loading</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>0x20,<sp/></highlight></codeline>
+<codeline lineno="60" refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558a78e6221f6393d1356681db398f14ce6d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558a78e6221f6393d1356681db398f14ce6d" kindref="member">output</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>0x21,<sp/></highlight></codeline>
+<codeline lineno="62" refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558a8327bad3557ca022e03e2c93cf3486f3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558a8327bad3557ca022e03e2c93cf3486f3" kindref="member">stateUpdate</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>0x22,<sp/></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65" refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558ab3ae4d25149578d11cb4be4efd00fd20" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558ab3ae4d25149578d11cb4be4efd00fd20" kindref="member">sessionKilled</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>0x40,<sp/></highlight></codeline>
+<codeline lineno="66" refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558a161bca2e917335e125291a00fd76a80f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558a161bca2e917335e125291a00fd76a80f" kindref="member">sessions</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>0x50,<sp/></highlight></codeline>
+<codeline lineno="67"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>nexus</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="nexus/Message.h"/>
+  </compounddef>
+</doxygen>

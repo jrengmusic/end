@@ -1,0 +1,520 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="classterminal_1_1_sixel_decoder" kind="class" language="C++" prot="public">
+    <compoundname>terminal::SixelDecoder</compoundname>
+    <includes refid="_sixel_decoder_8h" local="no">SixelDecoder.h</includes>
+    <innerclass refid="structterminal_1_1_sixel_decoder_1_1_colour" prot="private">terminal::SixelDecoder::Colour</innerclass>
+    <sectiondef kind="private-static-attrib">
+      <memberdef kind="variable" id="classterminal_1_1_sixel_decoder_1ae58ccb017de315f145b4834cbac1a5f5" prot="private" static="yes" constexpr="yes" mutable="no">
+        <type>int</type>
+        <definition>int terminal::SixelDecoder::maxPalette</definition>
+        <argsstring></argsstring>
+        <name>maxPalette</name>
+        <qualifiedname>terminal::SixelDecoder::maxPalette</qualifiedname>
+        <initializer>{ 256 }</initializer>
+        <briefdescription>
+<para>Sixel palette size — 256 colour registers per the specification. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/SixelDecoder.h" line="113" column="26" bodyfile="terminal/SixelDecoder.h" bodystart="113" bodyend="113"/>
+        <referencedby refid="classterminal_1_1_sixel_decoder_1a911b8f11f2c6e2018ed0e75ddea855f8" compoundref="_sixel_decoder_8cpp" startline="43" endline="313">decode</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classterminal_1_1_sixel_decoder_1a7688ca35ac161a885b6e5fa30d9aadb8" prot="private" static="yes" mutable="no">
+        <type>const <ref refid="classColour" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Colour</ref></type>
+        <definition>const SixelDecoder::Colour terminal::SixelDecoder::defaultPalette</definition>
+        <argsstring>[maxPalette]</argsstring>
+        <name>defaultPalette</name>
+        <qualifiedname>terminal::SixelDecoder::defaultPalette</qualifiedname>
+        <initializer>{
+    { 0,   0,   0,   255 },  
+    { 51,  51,  204, 255 },  
+    { 204, 51,  51,  255 },  
+    { 51,  204, 51,  255 },  
+    { 204, 51,  204, 255 },  
+    { 51,  204, 204, 255 },  
+    { 204, 204, 51,  255 },  
+    { 147, 147, 147, 255 },  
+    { 77,  77,  77,  255 },  
+    { 51,  51,  255, 255 },  
+    { 255, 51,  51,  255 },  
+    { 51,  255, 51,  255 },  
+    { 255, 51,  255, 255 },  
+    { 51,  255, 255, 255 },  
+    { 255, 255, 51,  255 },  
+    { 255, 255, 255, 255 },  
+    
+}</initializer>
+        <briefdescription>
+<para>Default VT340 palette (indices 0–15). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>VT340-compatible default palette (16 standard colours; rest black).</para>
+<para>Indices 16–255 default to opaque black. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/SixelDecoder.h" line="120" column="25" bodyfile="terminal/SixelDecoder.h" bodystart="120" bodyend="-1"/>
+        <referencedby refid="classterminal_1_1_sixel_decoder_1a911b8f11f2c6e2018ed0e75ddea855f8" compoundref="_sixel_decoder_8cpp" startline="43" endline="313">decode</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="public-func">
+      <memberdef kind="function" id="classterminal_1_1_sixel_decoder_1a5706b9c859eba4c77431853e6771142a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>terminal::SixelDecoder::SixelDecoder</definition>
+        <argsstring>()=default</argsstring>
+        <name>SixelDecoder</name>
+        <qualifiedname>terminal::SixelDecoder::SixelDecoder</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/SixelDecoder.h" line="86" column="5"/>
+      </memberdef>
+      <memberdef kind="function" id="classterminal_1_1_sixel_decoder_1a911b8f11f2c6e2018ed0e75ddea855f8" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type><ref refid="structterminal_1_1_decoded_image" kindref="compound">DecodedImage</ref></type>
+        <definition>DecodedImage terminal::SixelDecoder::decode</definition>
+        <argsstring>(const uint8_t *data, size_t length) noexcept</argsstring>
+        <name>decode</name>
+        <qualifiedname>terminal::SixelDecoder::decode</qualifiedname>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>length</declname>
+        </param>
+        <briefdescription>
+<para>Decode a complete Sixel payload into RGBA pixels. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Raw Sixel bytes (after the DCS <computeroutput>q</computeroutput> final byte). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>length</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of bytes in the payload. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><ref refid="structterminal_1_1_decoded_image" kindref="compound">DecodedImage</ref> with RGBA8 pixels, or an invalid <ref refid="structterminal_1_1_decoded_image" kindref="compound">DecodedImage</ref> on failure.</para>
+</simplesect>
+<simplesect kind="note"><para>READER THREAD only.</para>
+</simplesect>
+</para>
+<sect1 id="classterminal_1_1_sixel_decoder_1autotoc_md65_1s1"><sect2 id="classterminal_1_1_sixel_decoder_1autotoc_md65_1s2"><sect3 id="classterminal_1_1_sixel_decoder_1autotoc_md65">
+<title>Algorithm</title><para><orderedlist>
+<listitem><para>First-pass scan: locate raster attributes <computeroutput>"Ph;Pv</computeroutput> for pre-allocation. If none, start with a default 800×600 buffer.</para>
+</listitem><listitem><para>Initialise palette from VT340 defaults.</para>
+</listitem><listitem><para>Allocate RGBA buffer (zero-filled = transparent black).</para>
+</listitem><listitem><para>Parse loop: dispatch on byte:<itemizedlist>
+<listitem><para><computeroutput>#</computeroutput> → colour define/select</para>
+</listitem><listitem><para><computeroutput>!</computeroutput> → repeat</para>
+</listitem><listitem><para><computeroutput>$</computeroutput> → carriage return</para>
+</listitem><listitem><para><computeroutput>-</computeroutput> → newline (+6 rows)</para>
+</listitem><listitem><para><computeroutput>"</computeroutput> → raster attributes (skip, already scanned)</para>
+</listitem><listitem><para>0x3F–0x7E → sixel data; grow buffer if needed</para>
+</listitem></itemizedlist>
+</para>
+</listitem><listitem><para>Crop result to actual content bounds (cursorX, cursorY + 6).</para>
+</listitem></orderedlist>
+</para>
+<para><simplesect kind="return"><para><ref refid="structterminal_1_1_decoded_image" kindref="compound">DecodedImage</ref> with RGBA8 pixels, or invalid on allocation failure. </para>
+</simplesect>
+<simplesect kind="note"><para>READER THREAD only. </para>
+</simplesect>
+</para>
+</sect3></sect2></sect1>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/SixelDecoder.h" line="97" column="18" bodyfile="terminal/SixelDecoder.cpp" bodystart="43" bodyend="313"/>
+        <references refid="classterminal_1_1_sixel_decoder_1a7688ca35ac161a885b6e5fa30d9aadb8" compoundref="_sixel_decoder_8h" startline="120">defaultPalette</references>
+        <references refid="classterminal_1_1_sixel_decoder_1a02bb5ebc1b2461eecf9aa50db3225f2f" compoundref="_sixel_decoder_parse_8cpp" startline="159" endline="191">growBuffer</references>
+        <references refid="structterminal_1_1_decoded_image_1a6963439c9ddc3ba3496a3aa4d17cb256" compoundref="_sixel_decoder_8h" startline="47" endline="47">terminal::DecodedImage::height</references>
+        <references refid="classterminal_1_1_sixel_decoder_1a2f8735b8d7054788c1195d93425dd013" compoundref="_sixel_decoder_parse_8cpp" startline="109" endline="150">hlsToRgb</references>
+        <references refid="classterminal_1_1_sixel_decoder_1ae58ccb017de315f145b4834cbac1a5f5" compoundref="_sixel_decoder_8h" startline="113" endline="113">maxPalette</references>
+        <references refid="classterminal_1_1_sixel_decoder_1a39d62c6d57869811230dfe024e33162b" compoundref="_sixel_decoder_parse_8cpp" startline="57" endline="101">parseParams</references>
+        <references refid="structterminal_1_1_decoded_image_1aed236a423eb173d5f080f049d1b02811" compoundref="_sixel_decoder_8h" startline="45">terminal::DecodedImage::rgba</references>
+        <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d">row</references>
+        <references refid="structterminal_1_1_decoded_image_1ab6be4c1b32e9fcac20958a41bff9d017" compoundref="_sixel_decoder_8h" startline="46" endline="46">terminal::DecodedImage::width</references>
+        <references refid="classterminal_1_1_sixel_decoder_1a1aa3c9f34019e7ff3af110418fd38af5" compoundref="_sixel_decoder_parse_8cpp" startline="199" endline="221">writeSixelByte</references>
+        <referencedby refid="classterminal_1_1_skit_1adb7fd09d2f0fb5ac03184a4acd1be344" compoundref="_skit_8cpp" startline="86" endline="161">terminal::Skit::processDCS</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="private-static-func">
+      <memberdef kind="function" id="classterminal_1_1_sixel_decoder_1a39d62c6d57869811230dfe024e33162b" prot="private" static="yes" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int terminal::SixelDecoder::parseParams</definition>
+        <argsstring>(const uint8_t *data, size_t length, size_t &amp;pos, int *params, int maxParams) noexcept</argsstring>
+        <name>parseParams</name>
+        <qualifiedname>terminal::SixelDecoder::parseParams</qualifiedname>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>length</declname>
+        </param>
+        <param>
+          <type>size_t &amp;</type>
+          <declname>pos</declname>
+        </param>
+        <param>
+          <type>int *</type>
+          <declname>params</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>maxParams</declname>
+        </param>
+        <briefdescription>
+<para>Parses one &apos;;&apos;-separated decimal integer sequence starting at <computeroutput>pos</computeroutput>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Parses up to <computeroutput>maxParams</computeroutput> &apos;;&apos;-separated decimal integers from <computeroutput>data</computeroutput>.</para>
+<para>Reads up to <computeroutput>maxParams</computeroutput> decimal values separated by &apos;;&apos;. Parsing stops at the first byte that is not a digit or &apos;;&apos;. On return, <computeroutput>pos</computeroutput> points to the first non-consumed byte.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Payload pointer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>length</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Payload length. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current byte offset (in/out). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>params</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output array; must hold at least <computeroutput>maxParams</computeroutput> ints. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maxParams</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum number of parameters to read. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Number of parameters parsed (&gt;= 0).</para>
+</simplesect>
+<simplesect kind="note"><para>READER THREAD.</para>
+</simplesect>
+Advances <computeroutput>pos</computeroutput> past each consumed digit and &apos;;&apos; byte. Stops when the byte at <computeroutput>pos</computeroutput> is not a digit or &apos;;&apos;, or when <computeroutput>pos</computeroutput> &gt;= <computeroutput>length</computeroutput>.</para>
+<para><simplesect kind="return"><para>Number of params written into <computeroutput>params</computeroutput> (0 if none found). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/SixelDecoder.h" line="138" column="16" bodyfile="terminal/SixelDecoderParse.cpp" bodystart="57" bodyend="101"/>
+        <referencedby refid="classterminal_1_1_sixel_decoder_1a911b8f11f2c6e2018ed0e75ddea855f8" compoundref="_sixel_decoder_8cpp" startline="43" endline="313">decode</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classterminal_1_1_sixel_decoder_1a2f8735b8d7054788c1195d93425dd013" prot="private" static="yes" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void terminal::SixelDecoder::hlsToRgb</definition>
+        <argsstring>(int h, int l, int s, uint8_t &amp;r, uint8_t &amp;g, uint8_t &amp;b) noexcept</argsstring>
+        <name>hlsToRgb</name>
+        <qualifiedname>terminal::SixelDecoder::hlsToRgb</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>h</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>l</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>uint8_t &amp;</type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type>uint8_t &amp;</type>
+          <declname>g</declname>
+        </param>
+        <param>
+          <type>uint8_t &amp;</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+<para>Converts HLS (Hue/Lightness/Saturation) to RGB. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Standard HLS→RGB conversion.</para>
+<para>Standard HLS→RGB algorithm. Inputs: H in [0,360], L in [0,100], S in [0,100]. Outputs: r,g,b in [0,255].</para>
+<para><simplesect kind="note"><para>READER THREAD — pure, no side effects.</para>
+</simplesect>
+H in [0,360], L in [0,100], S in [0,100]. Output r,g,b in [0,255]. Uses the two-step hue-to-RGB algorithm (HLS cone model). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/SixelDecoder.h" line="149" column="17" bodyfile="terminal/SixelDecoderParse.cpp" bodystart="109" bodyend="150"/>
+        <references refid="group__juce__audio__plugin__client-Unity_1ga2ee4d4f298ba1bf1bc2f45c681c40ca3">h</references>
+        <referencedby refid="classterminal_1_1_sixel_decoder_1a911b8f11f2c6e2018ed0e75ddea855f8" compoundref="_sixel_decoder_8cpp" startline="43" endline="313">decode</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classterminal_1_1_sixel_decoder_1a02bb5ebc1b2461eecf9aa50db3225f2f" prot="private" static="yes" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool terminal::SixelDecoder::growBuffer</definition>
+        <argsstring>(juce::HeapBlock&lt; uint8_t &gt; &amp;rgba, int &amp;bufferW, int &amp;bufferH, int requiredW, int requiredH) noexcept</argsstring>
+        <name>growBuffer</name>
+        <qualifiedname>terminal::SixelDecoder::growBuffer</qualifiedname>
+        <param>
+          <type>juce::HeapBlock&lt; uint8_t &gt; &amp;</type>
+          <declname>rgba</declname>
+        </param>
+        <param>
+          <type>int &amp;</type>
+          <declname>bufferW</declname>
+        </param>
+        <param>
+          <type>int &amp;</type>
+          <declname>bufferH</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>requiredW</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>requiredH</declname>
+        </param>
+        <briefdescription>
+<para>Ensures the pixel buffer is large enough to hold (requiredW, requiredH). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Ensures the pixel buffer is at least <computeroutput>requiredW</computeroutput> × <computeroutput>requiredH</computeroutput> pixels.</para>
+<para>If the buffer is too small, allocates a new buffer that is at least double the exceeded dimension, copies existing pixels, and updates <computeroutput>bufferW</computeroutput> / <computeroutput>bufferH</computeroutput>.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>rgba</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current buffer <ref refid="classHeapBlock" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">HeapBlock</ref>. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bufferW</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current buffer width (in/out). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bufferH</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current buffer height (in/out). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>requiredW</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Required width in pixels. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>requiredH</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Required height in pixels. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><computeroutput>true</computeroutput> if the buffer is ready; <computeroutput>false</computeroutput> on allocation failure.</para>
+</simplesect>
+<simplesect kind="note"><para>READER THREAD.</para>
+</simplesect>
+Doubles the exceeded dimension(s), allocates a new zero-filled buffer, and copies existing pixels row-by-row from the old buffer. On allocation failure, returns false and leaves the original buffer intact. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/SixelDecoder.h" line="168" column="17" bodyfile="terminal/SixelDecoderParse.cpp" bodystart="159" bodyend="191"/>
+        <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d">row</references>
+        <referencedby refid="classterminal_1_1_sixel_decoder_1a911b8f11f2c6e2018ed0e75ddea855f8" compoundref="_sixel_decoder_8cpp" startline="43" endline="313">decode</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classterminal_1_1_sixel_decoder_1a1aa3c9f34019e7ff3af110418fd38af5" prot="private" static="yes" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void terminal::SixelDecoder::writeSixelByte</definition>
+        <argsstring>(uint8_t *rgba, int bufferW, int bufferH, int x, int y, uint8_t sixelByte, const Colour &amp;colour) noexcept</argsstring>
+        <name>writeSixelByte</name>
+        <qualifiedname>terminal::SixelDecoder::writeSixelByte</qualifiedname>
+        <param>
+          <type>uint8_t *</type>
+          <declname>rgba</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>bufferW</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>bufferH</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>sixelByte</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classColour" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Colour</ref> &amp;</type>
+          <declname>colour</declname>
+        </param>
+        <briefdescription>
+<para>Writes one sixel data character at (x, y) using <computeroutput>colour</computeroutput>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Writes the 6 pixels encoded in <computeroutput>sixelByte</computeroutput> at column <computeroutput>x</computeroutput>, row <computeroutput>y</computeroutput>.</para>
+<para>Extracts 6 bits from <computeroutput>sixelByte</computeroutput> (bit 0 = top pixel) and writes each set bit as an RGBA pixel. Silently skips pixels outside [bufferW, bufferH).</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>rgba</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pixel buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bufferW</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Buffer width in pixels. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bufferH</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Buffer height in pixels. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="group__juce__audio__plugin__client-Unity_1gad0da36b2558901e21e7a30f6c227a45e" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">x</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>X coordinate (column). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="group__juce__audio__plugin__client-Unity_1gae9ace15db486f33243a35ce689893fd9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">y</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Y coordinate of the top pixel in the sixel band. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sixelByte</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Raw sixel character (0x3F–0x7E). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>colour</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="structterminal_1_1_sixel_decoder_1_1_colour" kindref="compound">Colour</ref> to write for set bits.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="note"><para>READER THREAD.</para>
+</simplesect>
+Bit 0 of <computeroutput>sixelByte</computeroutput> maps to the top pixel; bit 5 to the bottom. Pixels beyond [0, bufferW) × [0, bufferH) are silently skipped. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/SixelDecoder.h" line="188" column="17" bodyfile="terminal/SixelDecoderParse.cpp" bodystart="199" bodyend="221"/>
+        <references refid="group__juce__audio__plugin__client-Unity_1gad0da36b2558901e21e7a30f6c227a45e">x</references>
+        <references refid="group__juce__audio__plugin__client-Unity_1gae9ace15db486f33243a35ce689893fd9">y</references>
+        <referencedby refid="classterminal_1_1_sixel_decoder_1a911b8f11f2c6e2018ed0e75ddea855f8" compoundref="_sixel_decoder_8cpp" startline="43" endline="313">decode</referencedby>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Decodes a Sixel byte stream into an RGBA pixel buffer. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Implements the full Sixel parse loop: raster attributes, palette definitions, repeat commands, carriage-return, newline, and sixel data bytes. Buffer growth is handled internally when no raster attributes are present.</para>
+<para><simplesect kind="note"><para>Constructed and used on the READER THREAD only. All methods are single-threaded; no locking is performed. </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>terminal::SixelDecoder</label>
+        <link refid="classterminal_1_1_sixel_decoder"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>defaultPalette</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>terminal::SixelDecoder::Colour</label>
+        <link refid="structterminal_1_1_sixel_decoder_1_1_colour"/>
+      </node>
+    </collaborationgraph>
+    <location file="terminal/SixelDecoder.h" line="83" column="1" bodyfile="terminal/SixelDecoder.h" bodystart="84" bodyend="191"/>
+    <listofallmembers>
+      <member refid="classterminal_1_1_sixel_decoder_1a911b8f11f2c6e2018ed0e75ddea855f8" prot="public" virt="non-virtual"><scope>terminal::SixelDecoder</scope><name>decode</name></member>
+      <member refid="classterminal_1_1_sixel_decoder_1a7688ca35ac161a885b6e5fa30d9aadb8" prot="private" virt="non-virtual"><scope>terminal::SixelDecoder</scope><name>defaultPalette</name></member>
+      <member refid="classterminal_1_1_sixel_decoder_1a02bb5ebc1b2461eecf9aa50db3225f2f" prot="private" virt="non-virtual"><scope>terminal::SixelDecoder</scope><name>growBuffer</name></member>
+      <member refid="classterminal_1_1_sixel_decoder_1a2f8735b8d7054788c1195d93425dd013" prot="private" virt="non-virtual"><scope>terminal::SixelDecoder</scope><name>hlsToRgb</name></member>
+      <member refid="classterminal_1_1_sixel_decoder_1ae58ccb017de315f145b4834cbac1a5f5" prot="private" virt="non-virtual"><scope>terminal::SixelDecoder</scope><name>maxPalette</name></member>
+      <member refid="classterminal_1_1_sixel_decoder_1a39d62c6d57869811230dfe024e33162b" prot="private" virt="non-virtual"><scope>terminal::SixelDecoder</scope><name>parseParams</name></member>
+      <member refid="classterminal_1_1_sixel_decoder_1a5706b9c859eba4c77431853e6771142a" prot="public" virt="non-virtual"><scope>terminal::SixelDecoder</scope><name>SixelDecoder</name></member>
+      <member refid="classterminal_1_1_sixel_decoder_1a1aa3c9f34019e7ff3af110418fd38af5" prot="private" virt="non-virtual"><scope>terminal::SixelDecoder</scope><name>writeSixelByte</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

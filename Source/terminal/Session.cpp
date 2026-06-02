@@ -178,7 +178,7 @@ std::unique_ptr<Session> Session::create (const juce::String& cwd,
     juce::StringPairArray mergedEnv { seedEnv };
     applyShellIntegration (effectiveShell, effectiveArgs, mergedEnv);
 
-    const auto* appState { AppState::getContext() };
+    const auto* appState { AppModel::getContext() };
     const jam::Font font { appState->getFontFamily(),
                            appState->getFontSize(),
                            static_cast<float> (appState->getCellWidth()),
@@ -191,7 +191,7 @@ std::unique_ptr<Session> Session::create (const juce::String& cwd,
 /**
  * @brief Constructs the Session and stores deferred TTY open parameters.
  *
- * Creates Screen, Processor (owns Video and TextLineArray with its own buffer).
+ * Creates Processor (VT pipeline orchestrator).
  * Stores shell/args/cwd/env for start().
  * Does NOT create the TTY — that happens in start() via Processor::startTTY() so
  * screen node atomics exist before the reader thread fires.
@@ -206,12 +206,13 @@ Session::Session (jam::Cell::Rectangle dims,
                   const juce::String& uuid,
                   const jam::Font& font)
     : textBuffer {}
-    , state (textBuffer)
-    , textEditor (font, state)
+    , model (textBuffer)
+    , codeModel (Map::Screen::count)
+    , textEditor (font, codeModel, model)
 {
     const juce::String effectiveUuid { uuid.isNotEmpty() ? uuid : juce::Uuid().toString() };
-    processor = std::make_unique<terminal::Processor> (state, dims, textBuffer, effectiveUuid);
-    state.setId (effectiveUuid);
+    processor = std::make_unique<terminal::Processor> (model, dims, textBuffer, effectiveUuid);
+    model.setId (effectiveUuid);
 
     // Resize coordinator — coalesces dimension changes, suspends/resumes processing.
     wireResizer();
@@ -228,10 +229,10 @@ Session::Session (jam::Cell::Rectangle dims,
 }
 
 /**
- * @brief Constructs a remote Session — Processor + State only, no TTY.
+ * @brief Constructs a remote Session — Processor + Model only, no TTY.
  *
- * Creates Screen, Processor (owns Video and TextLineArray with its own buffer).
- * Wires CWD into State so display logic (tab title, cwd badge)
+ * Creates Processor (VT pipeline orchestrator).
+ * Wires CWD into Model so display logic (tab title, cwd badge)
  * works identically to a local session.  TTY is not created.  Bytes must be
  * fed externally via getProcessor().process().
  *
@@ -243,16 +244,17 @@ Session::Session (jam::Cell::Rectangle dims,
                   const juce::String& uuid,
                   const jam::Font& font)
     : textBuffer {}
-    , state (textBuffer)
-    , textEditor (font, state)
+    , model (textBuffer)
+    , codeModel (Map::Screen::count)
+    , textEditor (font, codeModel, model)
 {
     jassert (dims.isValid());
 
     const juce::String effectiveUuid { uuid.isNotEmpty() ? uuid : juce::Uuid().toString() };
-    processor = std::make_unique<terminal::Processor> (state, dims, textBuffer, effectiveUuid);
-    state.setId (effectiveUuid);
+    processor = std::make_unique<terminal::Processor> (model, dims, textBuffer, effectiveUuid);
+    model.setId (effectiveUuid);
 
-    state.get().setProperty (terminal::id::cwd, cwd, nullptr);
+    model.setTreeProperty (terminal::id::cwd, cwd, nullptr);
 
     wireResizer();
 }
@@ -262,7 +264,7 @@ Session::Session (jam::Cell::Rectangle dims,
  *
  * Called from both constructors after processor and screen are initialized.
  * Creates the jam::Resizer, registers start and stop triggers, and binds
- * winsize Value::Listener to TextEditor's viewport property in State.
+ * winsize Value::Listener to TextEditor's viewport property in Model.
  *
  * Start trigger (buffer/state setup while processing is suspended):
  *   processor->suspendProcessing(true)
@@ -272,7 +274,7 @@ Session::Session (jam::Cell::Rectangle dims,
  * Stop trigger (SIGWINCH after coalescing completes):
  *   processor->prepare(newCols, newRows)
  *
- * Display handles screen.setText via its own vTPC on screenDirty.
+ * Display drains CellFifo into CodeModel via its own vTPC on screenDirty.
  *
  * @note MESSAGE THREAD.
  */
@@ -286,6 +288,12 @@ void Session::wireResizer() noexcept
             processor->suspendProcessing (true);
             processor->prepare (jam::Cell::Rectangle (cell (newCols), cell (newRows)));
             processor->suspendProcessing (false);
+
+            // Alt screen capacity tracks viewport rows (D2: alt capacity = viewport rows).
+            // Executed on the message thread while processing is suspended — CodeModel is safe.
+            codeModel.setActive (Map::Screen::alternate);
+            codeModel.setCapacity (newRows);
+            codeModel.setActive (Map::Screen::normal);
         });
 
     resizer->addTrigger<int, int> (jam::ID::stop,
@@ -295,8 +303,8 @@ void Session::wireResizer() noexcept
         });
 
     // Bind winsize to TextEditor's state property — Value::Listener fires on change.
-    auto teNode { state.get().getChildWithName (jam::TextEditor::properties.at (jam::TextEditor::textEditorId)) };
-    winsize.referTo (teNode.getPropertyAsValue (jam::TextEditor::properties.at (jam::TextEditor::viewportId), nullptr));
+    auto teNode { model.getChildWithName (jam::CodeView::properties.at (jam::CodeView::codeViewId)) };
+    winsize.referTo (teNode.getPropertyAsValue (jam::CodeView::properties.at (jam::CodeView::viewportId), nullptr));
     winsize.addListener (this);
 }
 
@@ -341,7 +349,7 @@ std::unique_ptr<Session> Session::create (jam::Cell::Rectangle dims,
 
     const juce::String effectiveUuid { uuid.isNotEmpty() ? uuid : juce::Uuid().toString() };
 
-    const auto* appState { AppState::getContext() };
+    const auto* appState { AppModel::getContext() };
     const jam::Font font { appState->getFontFamily(),
                            appState->getFontSize(),
                            static_cast<float> (appState->getCellWidth()),
@@ -409,7 +417,18 @@ terminal::Processor& Session::getProcessor() noexcept
  *
  * @note MESSAGE THREAD.
  */
-jam::TextEditor& Session::getTextEditor() noexcept { return textEditor; }
+jam::CodeView& Session::getTextEditor() noexcept { return textEditor; }
+
+/**
+ * @brief Returns the owned CodeModel.
+ *
+ * Display drains CellFifo entries into this model via append (history) and
+ * replaceAt (active tail).  codeModel is declared before textEditor and therefore
+ * constructs first and destroys last — the CodeView reference to it is always valid.
+ *
+ * @note MESSAGE THREAD.
+ */
+jam::CodeModel& Session::getCodeModel() noexcept { return codeModel; }
 
 /**
  * @brief Creates the TTY via Processor::startTTY and starts the reader thread.

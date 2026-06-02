@@ -1,0 +1,225 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="structwhelmed_1_1_input_handler_1_1_selection_keys" kind="struct" language="C++" prot="private">
+    <compoundname>whelmed::InputHandler::SelectionKeys</compoundname>
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structwhelmed_1_1_input_handler_1_1_selection_keys_1a69faa224073caed27d53938b02fe868f" prot="public" static="no" mutable="no">
+        <type>juce::KeyPress</type>
+        <definition>juce::KeyPress whelmed::InputHandler::SelectionKeys::up</definition>
+        <argsstring></argsstring>
+        <name>up</name>
+        <qualifiedname>whelmed::InputHandler::SelectionKeys::up</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/InputHandler.h" line="101" column="24" bodyfile="whelmed/InputHandler.h" bodystart="101" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwhelmed_1_1_input_handler_1_1_selection_keys_1a7734cc0d1987e36d5761a92125bca1f8" prot="public" static="no" mutable="no">
+        <type>juce::KeyPress</type>
+        <definition>juce::KeyPress whelmed::InputHandler::SelectionKeys::down</definition>
+        <argsstring></argsstring>
+        <name>down</name>
+        <qualifiedname>whelmed::InputHandler::SelectionKeys::down</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/InputHandler.h" line="102" column="24" bodyfile="whelmed/InputHandler.h" bodystart="102" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwhelmed_1_1_input_handler_1_1_selection_keys_1aaf4e62f42b6430319c124a7b302de7aa" prot="public" static="no" mutable="no">
+        <type>juce::KeyPress</type>
+        <definition>juce::KeyPress whelmed::InputHandler::SelectionKeys::left</definition>
+        <argsstring></argsstring>
+        <name>left</name>
+        <qualifiedname>whelmed::InputHandler::SelectionKeys::left</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/InputHandler.h" line="103" column="24" bodyfile="whelmed/InputHandler.h" bodystart="103" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwhelmed_1_1_input_handler_1_1_selection_keys_1ac887e3b260b9272ce53d591149effb1e" prot="public" static="no" mutable="no">
+        <type>juce::KeyPress</type>
+        <definition>juce::KeyPress whelmed::InputHandler::SelectionKeys::right</definition>
+        <argsstring></argsstring>
+        <name>right</name>
+        <qualifiedname>whelmed::InputHandler::SelectionKeys::right</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/InputHandler.h" line="104" column="24" bodyfile="whelmed/InputHandler.h" bodystart="104" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwhelmed_1_1_input_handler_1_1_selection_keys_1a0f8806fbea32a3567aa9c656fe23b1b7" prot="public" static="no" mutable="no">
+        <type>juce::KeyPress</type>
+        <definition>juce::KeyPress whelmed::InputHandler::SelectionKeys::visual</definition>
+        <argsstring></argsstring>
+        <name>visual</name>
+        <qualifiedname>whelmed::InputHandler::SelectionKeys::visual</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/InputHandler.h" line="105" column="24" bodyfile="whelmed/InputHandler.h" bodystart="105" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwhelmed_1_1_input_handler_1_1_selection_keys_1a71cdeec04897914c6db150b277a0f65c" prot="public" static="no" mutable="no">
+        <type>juce::KeyPress</type>
+        <definition>juce::KeyPress whelmed::InputHandler::SelectionKeys::visualLine</definition>
+        <argsstring></argsstring>
+        <name>visualLine</name>
+        <qualifiedname>whelmed::InputHandler::SelectionKeys::visualLine</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/InputHandler.h" line="106" column="24" bodyfile="whelmed/InputHandler.h" bodystart="106" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwhelmed_1_1_input_handler_1_1_selection_keys_1aeea188fc1a793ad2b31f7bf8871eb44c" prot="public" static="no" mutable="no">
+        <type>juce::KeyPress</type>
+        <definition>juce::KeyPress whelmed::InputHandler::SelectionKeys::visualBlock</definition>
+        <argsstring></argsstring>
+        <name>visualBlock</name>
+        <qualifiedname>whelmed::InputHandler::SelectionKeys::visualBlock</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/InputHandler.h" line="107" column="24" bodyfile="whelmed/InputHandler.h" bodystart="107" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwhelmed_1_1_input_handler_1_1_selection_keys_1a8978f4478b4219b760e014a7bcf21b3c" prot="public" static="no" mutable="no">
+        <type>juce::KeyPress</type>
+        <definition>juce::KeyPress whelmed::InputHandler::SelectionKeys::copy</definition>
+        <argsstring></argsstring>
+        <name>copy</name>
+        <qualifiedname>whelmed::InputHandler::SelectionKeys::copy</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/InputHandler.h" line="108" column="24" bodyfile="whelmed/InputHandler.h" bodystart="108" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwhelmed_1_1_input_handler_1_1_selection_keys_1a859008504ba671f77408a45d88ba6f07" prot="public" static="no" mutable="no">
+        <type>juce::KeyPress</type>
+        <definition>juce::KeyPress whelmed::InputHandler::SelectionKeys::globalCopy</definition>
+        <argsstring></argsstring>
+        <name>globalCopy</name>
+        <qualifiedname>whelmed::InputHandler::SelectionKeys::globalCopy</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/InputHandler.h" line="109" column="24" bodyfile="whelmed/InputHandler.h" bodystart="109" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwhelmed_1_1_input_handler_1_1_selection_keys_1a02ebcececa5c99264d844d3a1496799f" prot="public" static="no" mutable="no">
+        <type>juce::KeyPress</type>
+        <definition>juce::KeyPress whelmed::InputHandler::SelectionKeys::top</definition>
+        <argsstring></argsstring>
+        <name>top</name>
+        <qualifiedname>whelmed::InputHandler::SelectionKeys::top</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/InputHandler.h" line="110" column="24" bodyfile="whelmed/InputHandler.h" bodystart="110" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwhelmed_1_1_input_handler_1_1_selection_keys_1a53cec59972aedfdc4f9b4a248e47a186" prot="public" static="no" mutable="no">
+        <type>juce::KeyPress</type>
+        <definition>juce::KeyPress whelmed::InputHandler::SelectionKeys::bottom</definition>
+        <argsstring></argsstring>
+        <name>bottom</name>
+        <qualifiedname>whelmed::InputHandler::SelectionKeys::bottom</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/InputHandler.h" line="111" column="24" bodyfile="whelmed/InputHandler.h" bodystart="111" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwhelmed_1_1_input_handler_1_1_selection_keys_1a03354afab302531e94289922148a1e8d" prot="public" static="no" mutable="no">
+        <type>juce::KeyPress</type>
+        <definition>juce::KeyPress whelmed::InputHandler::SelectionKeys::lineStart</definition>
+        <argsstring></argsstring>
+        <name>lineStart</name>
+        <qualifiedname>whelmed::InputHandler::SelectionKeys::lineStart</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/InputHandler.h" line="112" column="24" bodyfile="whelmed/InputHandler.h" bodystart="112" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwhelmed_1_1_input_handler_1_1_selection_keys_1a78549f72f25fc3a4266c17c93af5d0e6" prot="public" static="no" mutable="no">
+        <type>juce::KeyPress</type>
+        <definition>juce::KeyPress whelmed::InputHandler::SelectionKeys::lineEnd</definition>
+        <argsstring></argsstring>
+        <name>lineEnd</name>
+        <qualifiedname>whelmed::InputHandler::SelectionKeys::lineEnd</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/InputHandler.h" line="113" column="24" bodyfile="whelmed/InputHandler.h" bodystart="113" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwhelmed_1_1_input_handler_1_1_selection_keys_1ab239c7ade04a8e0df6437ce47d041725" prot="public" static="no" mutable="no">
+        <type>juce::KeyPress</type>
+        <definition>juce::KeyPress whelmed::InputHandler::SelectionKeys::exit</definition>
+        <argsstring></argsstring>
+        <name>exit</name>
+        <qualifiedname>whelmed::InputHandler::SelectionKeys::exit</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/InputHandler.h" line="114" column="24" bodyfile="whelmed/InputHandler.h" bodystart="114" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="whelmed/InputHandler.h" line="99" column="5" bodyfile="whelmed/InputHandler.h" bodystart="100" bodyend="115"/>
+    <listofallmembers>
+      <member refid="structwhelmed_1_1_input_handler_1_1_selection_keys_1a53cec59972aedfdc4f9b4a248e47a186" prot="public" virt="non-virtual"><scope>whelmed::InputHandler::SelectionKeys</scope><name>bottom</name></member>
+      <member refid="structwhelmed_1_1_input_handler_1_1_selection_keys_1a8978f4478b4219b760e014a7bcf21b3c" prot="public" virt="non-virtual"><scope>whelmed::InputHandler::SelectionKeys</scope><name>copy</name></member>
+      <member refid="structwhelmed_1_1_input_handler_1_1_selection_keys_1a7734cc0d1987e36d5761a92125bca1f8" prot="public" virt="non-virtual"><scope>whelmed::InputHandler::SelectionKeys</scope><name>down</name></member>
+      <member refid="structwhelmed_1_1_input_handler_1_1_selection_keys_1ab239c7ade04a8e0df6437ce47d041725" prot="public" virt="non-virtual"><scope>whelmed::InputHandler::SelectionKeys</scope><name>exit</name></member>
+      <member refid="structwhelmed_1_1_input_handler_1_1_selection_keys_1a859008504ba671f77408a45d88ba6f07" prot="public" virt="non-virtual"><scope>whelmed::InputHandler::SelectionKeys</scope><name>globalCopy</name></member>
+      <member refid="structwhelmed_1_1_input_handler_1_1_selection_keys_1aaf4e62f42b6430319c124a7b302de7aa" prot="public" virt="non-virtual"><scope>whelmed::InputHandler::SelectionKeys</scope><name>left</name></member>
+      <member refid="structwhelmed_1_1_input_handler_1_1_selection_keys_1a78549f72f25fc3a4266c17c93af5d0e6" prot="public" virt="non-virtual"><scope>whelmed::InputHandler::SelectionKeys</scope><name>lineEnd</name></member>
+      <member refid="structwhelmed_1_1_input_handler_1_1_selection_keys_1a03354afab302531e94289922148a1e8d" prot="public" virt="non-virtual"><scope>whelmed::InputHandler::SelectionKeys</scope><name>lineStart</name></member>
+      <member refid="structwhelmed_1_1_input_handler_1_1_selection_keys_1ac887e3b260b9272ce53d591149effb1e" prot="public" virt="non-virtual"><scope>whelmed::InputHandler::SelectionKeys</scope><name>right</name></member>
+      <member refid="structwhelmed_1_1_input_handler_1_1_selection_keys_1a02ebcececa5c99264d844d3a1496799f" prot="public" virt="non-virtual"><scope>whelmed::InputHandler::SelectionKeys</scope><name>top</name></member>
+      <member refid="structwhelmed_1_1_input_handler_1_1_selection_keys_1a69faa224073caed27d53938b02fe868f" prot="public" virt="non-virtual"><scope>whelmed::InputHandler::SelectionKeys</scope><name>up</name></member>
+      <member refid="structwhelmed_1_1_input_handler_1_1_selection_keys_1a0f8806fbea32a3567aa9c656fe23b1b7" prot="public" virt="non-virtual"><scope>whelmed::InputHandler::SelectionKeys</scope><name>visual</name></member>
+      <member refid="structwhelmed_1_1_input_handler_1_1_selection_keys_1aeea188fc1a793ad2b31f7bf8871eb44c" prot="public" virt="non-virtual"><scope>whelmed::InputHandler::SelectionKeys</scope><name>visualBlock</name></member>
+      <member refid="structwhelmed_1_1_input_handler_1_1_selection_keys_1a71cdeec04897914c6db150b277a0f65c" prot="public" virt="non-virtual"><scope>whelmed::InputHandler::SelectionKeys</scope><name>visualLine</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

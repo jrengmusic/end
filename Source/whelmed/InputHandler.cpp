@@ -31,7 +31,7 @@ void InputHandler::buildKeyMap (const lua::Engine::SelectionKeys& keys) noexcept
 
 bool InputHandler::handleKey (const juce::KeyPress& key) noexcept
 {
-    const auto modal { static_cast<ModalType> (AppState::getContext()->getModalType()) };
+    const auto modal { static_cast<ModalType> (AppModel::getContext()->getModalType()) };
     bool handled { false };
 
     if (modal == ModalType::selection)
@@ -56,7 +56,7 @@ bool InputHandler::handleKey (const juce::KeyPress& key) noexcept
     if (not handled)
     {
         // Handle copy keys when mouse selection is active (no modal)
-        const auto selType { static_cast<SelectionType> (AppState::getContext()->getSelectionType()) };
+        const auto selType { static_cast<SelectionType> (AppModel::getContext()->getSelectionType()) };
 
         if (selType != SelectionType::none
             and (key == selectionKeys.copy or key == selectionKeys.globalCopy))
@@ -259,7 +259,7 @@ bool InputHandler::handleCursorMovement (const juce::KeyPress& key) noexcept
 
 void InputHandler::toggleSelectionType (SelectionType target) noexcept
 {
-    auto* appState { AppState::getContext() };
+    auto* appState { AppModel::getContext() };
     const auto current { static_cast<SelectionType> (appState->getSelectionType()) };
     const int cursorBlock { static_cast<int> (state.getProperty (app::id::selCursorBlock)) };
     const int cursorChar  { static_cast<int> (state.getProperty (app::id::selCursorChar)) };
@@ -298,15 +298,15 @@ void InputHandler::copyAndClearSelection() noexcept
     if (text.isNotEmpty())
         juce::SystemClipboard::copyTextToClipboard (text);
 
-    AppState::getContext()->setSelectionType (static_cast<int> (SelectionType::none));
-    AppState::getContext()->setModalType (static_cast<int> (ModalType::none));
+    AppModel::getContext()->setSelectionType (static_cast<int> (SelectionType::none));
+    AppModel::getContext()->setModalType (static_cast<int> (ModalType::none));
     screen.hideCursor();
     screen.repaint();
 }
 
 bool InputHandler::handleSelectionToggle (const juce::KeyPress& key) noexcept
 {
-    auto* appState { AppState::getContext() };
+    auto* appState { AppModel::getContext() };
     bool consumed { false };
 
     if (key == selectionKeys.visual)

@@ -7,7 +7,7 @@
  * and paints the window background with the configured colour and opacity.
  *
  * ### Responsibilities
- * - Sets the initial window size from `AppState` (persisted in `window.state` (standalone)
+ * - Sets the initial window size from `AppModel` (persisted in `window.state` (standalone)
  *   or `<uuid>.display` (daemon client)).
  * - Delegates all keyboard, mouse, and terminal I/O to `terminal::Tabs`.
  * - Registers all user-performable action callbacks with `action::Registry`.
@@ -34,7 +34,7 @@
 
 #pragma once
 #include <JuceHeader.h>
-#include "AppState.h"
+#include "AppModel.h"
 #include "nexus/Nexus.h"
 #include "terminal/Identifier.h"
 #include "terminal/component/Dialog.h"
@@ -71,9 +71,10 @@
  * @see lua::Engine::Display::Window
  * @see action::Registry
  */
-class MainComponent : public juce::Component,
-                      public juce::ValueTree::Listener,
-                      public juce::OpenGLRenderer
+class MainComponent
+    : public juce::Component
+    , public juce::ValueTree::Listener
+    , public juce::OpenGLRenderer
 {
 public:
     /**
@@ -100,7 +101,7 @@ public:
      * @brief Rebuilds actions, applies config to tabs, LookAndFeel, and orientation.
      *
      * Called after the engine reloads `end.lua` — signaled via `app::id::configGeneration`
-     * property change on AppState.  Also called once from the constructor for initial setup.
+     * property change on AppModel.  Also called once from the constructor for initial setup.
      *
      * @note MESSAGE THREAD.
      * @see app::id::configGeneration
@@ -146,7 +147,6 @@ private:
     /** @brief Registers zoom, selection, open-file, and open-markdown actions. @note MESSAGE THREAD. */
     void registerNavigationActions (action::Registry& action);
 
-
     /**
      * @brief Sets the renderer type — GL lifecycle, atlas, and terminal switching.
      *
@@ -158,8 +158,8 @@ private:
     /** @brief Unified Lua engine — config and scripting SSOT. */
     lua::Engine& luaEngine;
 
-    /** @brief Cached AppState reference. */
-    AppState& appState { *AppState::getContext() };
+    /** @brief Cached AppModel reference. */
+    AppModel& appState { *AppModel::getContext() };
 
     /** @brief Application-wide LookAndFeel; set as default, inherited by all children. */
     terminal::LookAndFeel terminalLookAndFeel;
@@ -176,13 +176,13 @@ private:
     /** @brief Status bar overlay; shown during any active modal state (selection, open-file, etc.). */
     std::unique_ptr<StatusBarOverlay> statusBarOverlay;
 
-    /** @brief Persistent wrapper for the AppState NEXUS child node. Must outlive the
+    /** @brief Persistent wrapper for the AppModel NEXUS child node. Must outlive the
      *         listener registration — `addListener` stores the listener in the wrapper
      *         instance, not in the underlying shared object. A temporary wrapper would
      *         destroy its listener list at end-of-statement. */
     juce::ValueTree nexusNode;
 
-    /** @brief Persistent wrapper for the AppState SESSIONS child node.  Listener
+    /** @brief Persistent wrapper for the AppModel SESSIONS child node.  Listener
      *         registration requires the wrapper to outlive it. */
     juce::ValueTree sessionsNode;
 
@@ -193,7 +193,7 @@ private:
 
 #if JUCE_WINDOWS
     /** @brief Fires when the native scale factor changes.
-     *  Updates AppState and resets zoom on all terminals. */
+     *  Updates AppModel and resets zoom on all terminals. */
     juce::NativeScaleFactorNotifier scaleNotifier { this,
                                                     [this] (float)
                                                     {
@@ -206,7 +206,7 @@ private:
      * @brief Creates terminal::Tabs, wires repaint callback, restores tabs.
      * @note MESSAGE THREAD.
      * @see terminal::Tabs
-     * @see AppState
+     * @see AppModel
      */
     void initialiseTabs();
 
@@ -215,10 +215,10 @@ private:
      *
      * Subtracts: title bar (when windowButtons is enabled), tab bar (when multiple tabs shown),
      * and terminal padding from each edge. Used by the restore walker and fresh-tab dim
-     * computation to guarantee deterministic spawn dims from AppState window size.
+     * computation to guarantee deterministic spawn dims from AppModel window size.
      *
-     * @param windowWidth   Pixel width of the window (from AppState or getWidth()).
-     * @param windowHeight  Pixel height of the window (from AppState or getHeight()).
+     * @param windowWidth   Pixel width of the window (from AppModel or getWidth()).
+     * @param windowHeight  Pixel height of the window (from AppModel or getHeight()).
      * @param tabCount      Number of tabs currently open (determines tab bar visibility).
      * @return Content rect with chrome removed, ready to pass to Panes::cellsFromRect.
      * @note MESSAGE THREAD.
@@ -230,8 +230,7 @@ private:
      *
      * @note MESSAGE THREAD.
      */
-    void valueTreePropertyChanged (juce::ValueTree& tree,
-                                   const juce::Identifier& property) override;
+    void valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
 
     /**
      * @brief Fires when a direct child is added to a listened node.
@@ -241,17 +240,14 @@ private:
      *
      * @note MESSAGE THREAD.
      */
-    void valueTreeChildAdded (juce::ValueTree& parent,
-                              juce::ValueTree& child) override;
+    void valueTreeChildAdded (juce::ValueTree& parent, juce::ValueTree& child) override;
 
     /**
      * @brief Fires when a direct child is removed from a listened node.
      *
      * @note MESSAGE THREAD.
      */
-    void valueTreeChildRemoved (juce::ValueTree& parent,
-                                juce::ValueTree& child,
-                                int index) override;
+    void valueTreeChildRemoved (juce::ValueTree& parent, juce::ValueTree& child, int index) override;
 
     //==============================================================================
     /**
@@ -280,5 +276,12 @@ private:
      */
     void showMessageOverlay();
 
+    //==============================================================================
+#if JUCE_DEBUG
+    /** Debug widget for development. */
+    juce::ValueTree debugState { appState.getRootTree() };
+    jam::debug::Widget debug { this, debugState, true };
+#endif// JUCE_DEBUG
+    //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

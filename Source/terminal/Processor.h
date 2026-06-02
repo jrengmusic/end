@@ -1,13 +1,11 @@
 /**
  * @file Processor.h
- * @brief Terminal pipeline orchestrator: owns Parser and Video, references Buffer<Row> and State.
+ * @brief Terminal pipeline orchestrator — owns Parser, Video, CellFifo, and Model&.
  *
- * `Processor` is the pipeline half of the terminal emulator.  It owns the
- * Parser and Video, and routes bytes through the
- * Buffer<Row> and State received from Session:
+ * Processor is the Controller in the audio-plugin architecture:
  *
  * ```
- *  bytes → Processor::process → Parser → Video → State / Buffer<Row> → Display
+ *  bytes → process() → Parser → Video → events → Processor handlers → CellFifo → drainHistory()/drainActive() → Display
  * ```
  *
  * The PTY-side TTY lives in `terminal::Processor` (created by startTTY()).  Processor is
@@ -18,28 +16,29 @@
  * 1. Caller delivers raw bytes on the READER THREAD via `process()`.
  * 2. `process()` forwards to `Parser::process()`.
  * 3. The parser decodes VT sequences and calls Video action methods directly.
- * 4. Video writes cells to `Buffer<Row>`.
- * 5. Video fires events; Processor handlers write State atomics (event dispatch).
- * 6. Responses (e.g. cursor-position reports) are buffered in Video and
- *    flushed back via the `writeToHost` event handler registered in `events`.
- * 7. State::flush() propagates atomic values to the ValueTree on the timer tick,
+ * 4. Video writes cells to `Buffer<Row>` and fires events.
+ * 5. Processor reader-thread handlers push departing rows into the history ring
+ *    via pushHistory() (on pushLine) and live viewport rows into the active ring
+ *    via pushActive() (on screenDirty), then bump the screenDirty ValueTree counter.
+ * 6. Model::flush() propagates atomic values to the ValueTree on the timer tick,
  *    notifying Display via `juce::ValueTree::Listener`.
- * 8. Resize: Processor vTPC detects viewport change (packed cols+rows), resizes buffer,
- *    tells Video via Video::setWinsize(), and fires tty->setWinsize() for SIGWINCH.
- *    Cold-start allocation happens in the constructor before the first bytes flow.
+ * 7. Display pulls via drainHistory()/drainActive() on the message thread and feeds its own CodeView.
+ * 8. Resize: prepare() resizes Video's grid only — CellFifo and CodeView untouched.
  *    Cell pixel changes are applied to Video directly.
  *
  * ### Thread safety
  * - `process()` — READER THREAD only.
  * - All other public methods — MESSAGE THREAD only.
- * - `State` and `Buffer<Row>` handle their own internal thread safety.
+ * - `Model` and `Buffer<Row>` handle their own internal thread safety.
+ * - CellFifo is SPSC: reader thread pushes, message thread drains.
  *
  * @see terminal::Session — owns TTY (via Processor::startTTY) and orchestrates startup.
  * @see jam::Buffer<jam::Row> — flat row storage, stateless data buffer.
  * @see jam::Resizer — coalescing resize coordinator (owned by Session).
  * @see Parser     — VT100/VT520 state machine.
  * @see Video      — terminal state machine: pen, cursor, modes, Buffer<Row> writes.
- * @see State      — atomic terminal parameter store.
+ * @see Model      — atomic terminal parameter store.
+ * @see CellFifo   — SPSC ring: reader pushes Char rows, message thread drains jam::CodeLine.
  */
 
 #pragma once
@@ -47,7 +46,7 @@
 #include <JuceHeader.h>
 
 #include "Keyboard.h"
-#include "State.h"
+#include "Model.h"
 #include "TextBuffer.h"
 #include "Winsize.h"
 #include "tty/TTY.h"
@@ -66,38 +65,45 @@ namespace terminal
 /*____________________________________________________________________________*/
 /**
  * @class Processor
- * @brief Terminal pipeline orchestrator — owns Parser and Video, receives Buffer<Row>& and State& from Session.
+ * @brief Terminal pipeline orchestrator — the single bridge owner and Controller.
  *
- * Processor owns Parser, Video, and two TextLineArrays (one per screen).
- * State is owned by terminal::Session and passed by reference at construction.
- * Video owns Buffer<Row> — the flat cell buffer.
- * Display reads TextLineArray via getTextLineArray().
+ * Processor owns Parser, Video, CellFifo, and holds Model& from Session.
+ * Video owns Buffer<Row> — the flat cell buffer (reader thread, volatile).
+ * Processor is the only object that orchestrates the reader→message bridge:
+ * - Reader-thread event handlers push Char rows into CellFifo.
+ * - drainHistory()/drainActive() expose history and active entries to the View (message thread).
+ * - The View (Display) owns CodeView and applies the drained entries — Processor
+ *   never names CodeView (no Controller→View poking).
+ *
  * Processor owns TTY (created by startTTY()) and routes bytes through the VT pipeline.
  * Bytes arrive via `process()` from whichever source owns the byte stream
  * (local `terminal::Session` callback or IPC byte-forward).
  *
- * Display subscribes as a `juce::ValueTree::Listener` on State's ValueTree.
- * `State::flush()` propagates atomic values to the ValueTree on the timer tick,
+ * Display subscribes as a `juce::ValueTree::Listener` on Model's ValueTree.
+ * `Model::flush()` propagates atomic values to the ValueTree on the timer tick,
  * which notifies Display to repaint.
  *
  * ### Boundary contract
- * `State`, `uuid`, `video`, `parser`, `tty`, and `events` are private.
+ * `Model`, `uuid`, `video`, `parser`, `tty`, `cellFifo`, and `events` are private.
  * External callers access state through the public getter API:
- * - `getState()` — mutable and const references (State is owned by Session).
+ * - `getState()` — mutable and const references (Model is owned by Session).
  * - `getUuid()` — const reference to the stable session UUID.
  * - `startTTY()` — creates and opens the platform TTY, wires data/writeInput/writeToHost events.
  * - `flushResponses()` — flushes queued device responses to the host.
- * - `setBytesObserver()` — registers IPC byte broadcast handler wired by Daemon.
+ * - `registerEvent()` — external collaborators wire functions to events via this pass-through.
+ * - `drainHistory()` — message thread; joins continued rows into one logical jam::CodeLine from the history ring.
+ * - `drainActive()` — message thread; yields one viewport row per call from the active ring.
  *
  * ### Public surface
  * - **Input encoding** — `encodeKeyPress()`, `encodePaste()`, `encodeMouseEvent()`, `encodeFocusEvent()` (const, no side effects)
  * - **Output** — `process()` (called on the reader thread by the byte source)
  * - **Response flushing** — `flushResponses()` (reader thread; called by drain-complete event handler)
- * - **TTY lifecycle** — `startTTY()` creates, wires, and opens the platform TTY; `prepare()` resets CellFifo, resizes Video, rebuilds dirty flags, alternate screen, and sends SIGWINCH after coalescing
+ * - **TTY lifecycle** — `startTTY()` creates, wires, and opens the platform TTY; `prepare()` resizes Video's grid only — CellFifo and CodeView untouched
+ * - **Bridge drain** — `drainHistory()`/`drainActive()` delegate to CellFifo; View calls these to pull rows
  *
  * @note Construct and destroy on the **message thread**.
  *
- * @see jam::Buffer<jam::Row>, Parser, Video, State, terminal::Session, jam::Resizer
+ * @see jam::Buffer<jam::Row>, Parser, Video, Model, terminal::Session, jam::Resizer, CellFifo
  */
 class Processor : public juce::ValueTree::Listener
 {
@@ -107,7 +113,7 @@ public:
      * @brief Constructs the Processor and wires the parser and video pipeline.
      *
      * Constructs Video with the initial terminal dimensions and Parser.
-     * Constructs and owns TextLineArray — capacity set from AppState scrollbackLines.
+     * Constructs CellFifo sized for scrollbackLines × cols worst-case slots.
      * UUID is provided by the caller.
      * Call `startTTY()` from Session::start() to create the platform TTY and
      * route video responses (e.g. cursor-position reports) to the PTY sink.
@@ -118,7 +124,7 @@ public:
      * @param uuid        Stable UUID for this Processor — generated once by the caller.
      * @note MESSAGE THREAD — must be constructed on the message thread.
      */
-    Processor (State& stateRef,
+    Processor (Model& stateRef,
                jam::Cell::Rectangle dims,
                TextBuffer& textBuffer,
                const juce::String& uuid);
@@ -198,17 +204,17 @@ public:
 
     /**
      * @brief Returns a mutable reference to the terminal parameter store.
-     * @return Mutable reference to the owned `State` object.
+     * @return Mutable reference to the owned `Model` object.
      * @note MESSAGE THREAD only.
      */
-    State& getState() noexcept;
+    Model& getState() noexcept;
 
     /**
      * @brief Returns a const reference to the terminal parameter store.
-     * @return Const reference to the owned `State` object.
+     * @return Const reference to the owned `Model` object.
      * @note MESSAGE THREAD only.
      */
-    const State& getState() const noexcept;
+    const Model& getState() const noexcept;
 
     /** @brief Suspends processing — blocks until current process() completes, then sets flag.
      *  While suspended, process() outputs nothing. Same contract as AudioProcessor::suspendProcessing.
@@ -257,57 +263,65 @@ public:
                    const juce::StringPairArray& env,
                    jam::Cell::Rectangle dims) noexcept;
 
-    /** @brief Registers an observer callback that receives raw PTY bytes on the reader thread.
+    /** @brief Registers a function against an event id — transparent pass-through to the events map.
      *
-     *  Called by nexus::Daemon::wireOnBytes() in daemon mode to wire IPC byte broadcast.
-     *  The handler is stored in the events map under id::bytesReceived.
-     *  No-op for sessions that have no byte observers.
+     *  External collaborators (nexus Link/Daemon) wire their own functions to named
+     *  events without the events map being exposed. Add-only: callers register, never fire.
      *
-     *  @param handler  Callback invoked with (const char* bytes, int len).
-     *  @note MESSAGE THREAD — call before the first bytes arrive.
+     *  @tparam Args  Event signature argument types, matching the registered id.
+     *  @param event  Event identifier.
+     *  @param fn     Function to register under @p event.
+     *  @note MESSAGE THREAD — call before the event first fires.
      */
-    void setBytesObserver (std::function<void (const char*, int)> handler) noexcept;
-
-    /** @brief Returns a const reference to the active screen's SSOT content storage.
-     *  Display reads this to pass to Screen::setText for rendering.
-     *  Index 0 = normal (has scrollback), index 1 = alternate (zero scrollback).
-     *  @note MESSAGE THREAD. */
-    const jam::TextLineArray& getTextLineArray() const noexcept
+    template <typename... Args, typename FunctionType>
+    void registerEvent (juce::Identifier event, FunctionType&& fn) noexcept
     {
-        return textLineArrays.at (static_cast<size_t> (state.getActiveScreen()));
+        events.add<Args...> (event, std::forward<FunctionType> (fn));
     }
 
+    /** @brief Drains one logical history line from the history ring.  Delegates to CellFifo::drainHistory.
+     *
+     *  Display calls this on the message thread to pull departed scrollback rows.
+     *  Continued rows are joined into one logical jam::CodeLine by CellFifo before being returned.
+     *
+     *  @param outLine  Receives the joined jam::CodeLine built from Char data and flags.
+     *  @return true if a complete (or partial tail) entry was produced; false when the history ring is empty.
+     *  @note MESSAGE THREAD only.
+     */
+    bool drainHistory (jam::CodeLine& outLine) noexcept;
+
+    /** @brief Drains one viewport row from the active ring.  Delegates to CellFifo::drainActive.
+     *
+     *  Display calls this on the message thread to pull live viewport rows.
+     *  One jam::CodeLine is produced per ring entry — no joining.
+     *
+     *  @param outLine  Receives the viewport row jam::CodeLine built from Char data and flags.
+     *  @return true if an entry was produced; false when the active ring is empty.
+     *  @note MESSAGE THREAD only.
+     */
+    bool drainActive (jam::CodeLine& outLine) noexcept;
+
     /** @brief Prepares Processor for new terminal dimensions.
-     *  Resizes Video buffer, resets CellFifo, rebuilds dirty flags, rebuilds alternate screen.
-     *  Called by Session's Resizer start trigger while processing is suspended.
+     *  Resizes Video's grid only — CellFifo and CodeView are untouched (I3).
+     *  Live zone refreshes on the next screenDirty tick after the shell redraws.
+     *  Called by Session's Resizer stop trigger while processing is suspended.
      *  @param dims  Terminal dimensions in cells.
      *  @note MESSAGE THREAD — safe only while processing is suspended. */
     void prepare (jam::Cell::Rectangle dims) noexcept;
 
 
-    /** @brief Writes raw input bytes to the PTY via the writeInput event handler.
+    /** @brief Writes raw input bytes to the PTY via the id::writeInput event.
      *
      *  Display and Input call this instead of touching events directly.
-     *  Forwards to the writeInput event handler wired in startTTY() (PTY mode)
-     *  or setInputWriter() (remote/IPC mode).
-     *  No-op when writeInput is not registered.
+     *  Forwards to the id::writeInput event registered in startTTY() (PTY mode)
+     *  or via registerEvent() (remote/IPC mode).
+     *  No-op when id::writeInput is not registered.
      *
      *  @param data  Raw byte buffer.
      *  @param len   Number of bytes.
      *  @note MESSAGE THREAD.
      */
     void writeInput (const char* data, int len) noexcept;
-
-    /** @brief Registers the handler invoked by writeInput().
-     *
-     *  Called by Link for remote (IPC-connected) sessions to route keyboard/mouse
-     *  input through the IPC connection instead of a local TTY.
-     *  startTTY() registers this handler internally for PTY sessions.
-     *
-     *  @param handler  Callback invoked with (const char* data, int len).
-     *  @note MESSAGE THREAD — call before the first writeInput() invocation.
-     */
-    void setInputWriter (std::function<void (const char*, int)> handler) noexcept;
 
 private:
     //==============================================================================
@@ -325,18 +339,14 @@ private:
     /** @brief Cross-thread string buffer — owned by terminal::Session. */
     TextBuffer& textBuffer;
 
-    /** @brief Per-screen document buffer — owned by Processor.
-     *  Index 0 = normal screen (scrollback capacity from AppState).
-     *  Index 1 = alternate screen (fixed live rows, cleared and rebuilt on each flush).
-     *  add() on index 0 is message-thread-only — dispatched via callAsync from reader thread. */
-    std::array<jam::TextLineArray, 2> textLineArrays;
-
-    /** @brief SPSC ring buffer for lock-free cross-thread cell row delivery.
-     *  pushLine handler writes on reader thread. screenDirty handler drains on message thread. */
-    CellFifo cellFifo { 1 };
+    /** @brief Two-ring SPSC buffer for lock-free cross-thread cell row delivery.
+     *  history ring — pushLine handler writes departed scrollback rows via pushHistory(); message thread drains via drainHistory().
+     *  active ring  — screenDirty handler writes live viewport rows via pushActive(); message thread drains via drainActive().
+     *  Sized to {1,1} placeholder here; setSize() is called from the ctor and clearBuffer handler with live dims. */
+    CellFifo cellFifo { 1, 1 };
 
     /** @brief Terminal parameter store — owned by terminal::Session, received by reference. */
-    State& state;
+    Model& state;
 
     /** @brief Events map — Video fired events routed through Processor to Session.
      *
@@ -345,7 +355,7 @@ private:
      *  - `id::imageDecoded`        — see Video::onImageDecoded signature — reader thread
      *  - `id::previewFile`         — `(const juce::String&, int, int, int, int)` — reader thread
      *  - `id::registerLink`        — `(const juce::String& uri, const juce::String& params)` — OSC 8 open
-     *  - `id::writeInput`          — `(const char*, int)` — PTY stdin; wired internally by startTTY() or via setInputWriter() for remote sessions
+     *  - `id::writeInput`          — `(const char*, int)` — PTY stdin; wired internally by startTTY() or via registerEvent() for remote sessions
      *  - `id::bell`                — `()` — BEL 0x07; writes `\a` to stderr; message thread
      *  - `id::clipboardChanged`    — `(const juce::String&)` — OSC 52 clipboard write; message thread
      *  - `id::desktopNotification` — `(const juce::String& title, const juce::String& body)` — OSC 9/777; message thread
@@ -397,7 +407,7 @@ private:
     /** @brief Registers Processor-owned event handlers on the events map.
      *
      *  Handlers registered here intercept Video-fired events that require
-     *  State access (which Video does not hold): link ID assignment, shell
+     *  Model access (which Video does not hold): link ID assignment, shell
      *  integration row conversion (screen-relative → absolute), and others.
      *
      *  Called once from the constructor.
@@ -407,18 +417,17 @@ private:
     /** @brief Applies cellWidth/cellHeight PARAM changes to Video. */
     void setCellSize() noexcept;
 
-    /** @brief Drains CellFifo history and overwrites the live zone from Video. */
-    void setText() noexcept;
-
     /** @brief Recomputes displayName from foregroundProcess/cwd on the session root node. */
     void setDisplayName (const juce::ValueTree& tree) noexcept;
 
     /** @brief ValueTree::Listener — reacts to top-down property changes from Display.
      *
-     *  Fires on the message thread when State's ValueTree properties change.
+     *  Fires on the message thread when Model's ValueTree properties change.
      *  Handles cell pixel changes (cellWidth, cellHeight) applied directly to Video,
      *  and displayName recomputation from foregroundProcess / cwd.
-     *  Handles screenDirty — drains CellFifo history rows, overwrites live content from Video via Value::map projection.
+     *  The screenDirty parameter is bumped by the reader-thread screenDirty event handler
+     *  (after pushing live content to CellFifo); the message-thread handler here only
+     *  dispatches the PARAM-path parameters map (setCellSize / future params).
      *  Foreground process query and clear happen on the reader thread in the
      *  outputBlockStart and promptRow event handlers (registerEvents).
      *

@@ -70,7 +70,7 @@ void Video::eraseInDisplay (int mode) noexcept
     const int cRow         { cursorRow.value };
     const int cCol         { cursorCol.value };
     const bool hasBgFill   { penBg.getAlpha() > 0 };
-    const jam::Cell fill   { jam::Cell::erase (eraseStyleId()) };
+    const jam::Char fill   { jam::Char::erase (eraseStyleId()) };
 
     switch (mode)
     {
@@ -78,10 +78,6 @@ void Video::eraseInDisplay (int mode) noexcept
         {
             // Cursor to end of screen
             const int wp0 { 0 };
-
-            // Mark all affected rows dirty.
-            for (int r { cRow }; r < vRows; ++r)
-                rowTouched[r] = true;
 
             // Clear rest of cursor row
             if (hasBgFill)
@@ -94,7 +90,7 @@ void Video::eraseInDisplay (int mode) noexcept
             else
             {
                 jam::Row* const cursorRowPtr { blocks.at (static_cast<size_t> (scr)).getWritePointer (cRow, wp0) };
-                std::memset (&cursorRowPtr->cells[cCol], 0, static_cast<size_t> (nCols - cCol) * sizeof (jam::Cell));
+                std::memset (&cursorRowPtr->cells[cCol], 0, static_cast<size_t> (nCols - cCol) * sizeof (jam::Char));
             }
 
             // Update cursor row metadata after partial or full erase.
@@ -139,10 +135,6 @@ void Video::eraseInDisplay (int mode) noexcept
             // Start of screen to cursor
             const int wp1 { 0 };
 
-            // Mark all affected rows dirty.
-            for (int r { 0 }; r <= cRow; ++r)
-                rowTouched[r] = true;
-
             for (int r { 0 }; r < cRow; ++r)
             {
                 if (hasBgFill)
@@ -172,7 +164,7 @@ void Video::eraseInDisplay (int mode) noexcept
             else
             {
                 jam::Row* const cursorRowPtr { blocks.at (static_cast<size_t> (scr)).getWritePointer (cRow, wp1) };
-                std::memset (&cursorRowPtr->cells[0], 0, static_cast<size_t> (cCol + 1) * sizeof (jam::Cell));
+                std::memset (&cursorRowPtr->cells[0], 0, static_cast<size_t> (cCol + 1) * sizeof (jam::Char));
             }
 
             break;
@@ -182,10 +174,6 @@ void Video::eraseInDisplay (int mode) noexcept
         {
             // Entire screen
             const int wp2 { 0 };
-
-            // Mark all rows dirty.
-            for (int r { 0 }; r < vRows; ++r)
-                rowTouched[r] = true;
 
             if (hasBgFill)
             {
@@ -219,10 +207,6 @@ void Video::eraseInDisplay (int mode) noexcept
         {
             // Clear viewport + scrollback history
             const int wp3 { 0 };
-
-            // Mark all rows dirty.
-            for (int r { 0 }; r < vRows; ++r)
-                rowTouched[r] = true;
 
             if (hasBgFill)
             {
@@ -289,12 +273,9 @@ void Video::eraseInLine (int mode) noexcept
     const int cRow       { cursorRow.value };
     const int cCol       { cursorCol.value };
     const bool hasBgFill { penBg.getAlpha() > 0 };
-    const jam::Cell fill { jam::Cell::erase (eraseStyleId()) };
+    const jam::Char fill { jam::Char::erase (eraseStyleId()) };
 
     const int wpEl { 0 };
-
-    // Cursor row is always affected by all EL modes.
-    rowTouched[cRow] = true;
 
     switch (mode)
     {
@@ -310,7 +291,7 @@ void Video::eraseInLine (int mode) noexcept
             else
             {
                 jam::Row* const rowPtr { blocks.at (static_cast<size_t> (scr)).getWritePointer (cRow, wpEl) };
-                std::memset (&rowPtr->cells[cCol], 0, static_cast<size_t> (nCols - cCol) * sizeof (jam::Cell));
+                std::memset (&rowPtr->cells[cCol], 0, static_cast<size_t> (nCols - cCol) * sizeof (jam::Char));
             }
 
             break;
@@ -328,7 +309,7 @@ void Video::eraseInLine (int mode) noexcept
             else
             {
                 jam::Row* const rowPtr { blocks.at (static_cast<size_t> (scr)).getWritePointer (cRow, wpEl) };
-                std::memset (&rowPtr->cells[0], 0, static_cast<size_t> (cCol + 1) * sizeof (jam::Cell));
+                std::memset (&rowPtr->cells[0], 0, static_cast<size_t> (cCol + 1) * sizeof (jam::Char));
             }
 
             break;
@@ -428,10 +409,6 @@ void Video::shiftLines (int count, bool up) noexcept
     {
         const int clampedCount { juce::jmin (count, bottom - cRow + 1) };
 
-        // Mark all rows in the affected region dirty.
-        for (int r { cRow }; r <= bottom; ++r)
-            rowTouched[r] = true;
-
         if (up)
         {
             for (int n { 0 }; n < clampedCount; ++n)
@@ -456,7 +433,7 @@ void Video::shiftLines (int count, bool up) noexcept
         if (penBg.getAlpha() > 0)
         {
             const int nCols { cols.value };
-            const jam::Cell fill { jam::Cell::erase (eraseStyleId()) };
+            const jam::Char fill { jam::Char::erase (eraseStyleId()) };
 
             if (up)
             {
@@ -518,15 +495,13 @@ void Video::shiftCellsRight (int count) noexcept
 
     if (charsToInsert > 0 and cCol < nCols)
     {
-        rowTouched[cRow] = true;
-
         jam::Row* const rowPtr { blocks.at (static_cast<size_t> (activeScreen)).getWritePointer (cRow, 0) };
 
         std::memmove (&rowPtr->cells[cCol + charsToInsert],
                       &rowPtr->cells[cCol],
-                      static_cast<size_t> (nCols - cCol - charsToInsert) * sizeof (jam::Cell));
+                      static_cast<size_t> (nCols - cCol - charsToInsert) * sizeof (jam::Char));
 
-        const jam::Cell fill { jam::Cell::erase (eraseStyleId()) };
+        const jam::Char fill { jam::Char::erase (eraseStyleId()) };
 
         for (int c { cCol }; c < cCol + charsToInsert; ++c)
             rowPtr->cells[c] = fill;
@@ -556,15 +531,13 @@ void Video::removeCells (int count) noexcept
 
     if (charsToDelete > 0 and cCol < nCols)
     {
-        rowTouched[cRow] = true;
-
         jam::Row* const rowPtr { blocks.at (static_cast<size_t> (activeScreen)).getWritePointer (cRow, 0) };
 
         std::memmove (&rowPtr->cells[cCol],
                       &rowPtr->cells[cCol + charsToDelete],
-                      static_cast<size_t> (nCols - cCol - charsToDelete) * sizeof (jam::Cell));
+                      static_cast<size_t> (nCols - cCol - charsToDelete) * sizeof (jam::Char));
 
-        const jam::Cell fill { jam::Cell::erase (eraseStyleId()) };
+        const jam::Char fill { jam::Char::erase (eraseStyleId()) };
 
         for (int c { nCols - charsToDelete }; c < nCols; ++c)
             rowPtr->cells[c] = fill;
@@ -594,9 +567,7 @@ void Video::eraseCells (int count) noexcept
 
     if (clampedCount > 0)
     {
-        rowTouched[cRow] = true;
-
-        const jam::Cell fill { jam::Cell::erase (eraseStyleId()) };
+        const jam::Char fill { jam::Char::erase (eraseStyleId()) };
         jam::Row* const rowPtr { blocks.at (static_cast<size_t> (activeScreen)).getWritePointer (cRow, 0) };
 
         for (int c { cCol }; c < cCol + clampedCount; ++c)

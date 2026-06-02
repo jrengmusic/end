@@ -23,7 +23,6 @@
  */
 
 #include "TTY.h"
-#include "../Identifier.h"
 
 /**
  * @brief Reader thread main loop.

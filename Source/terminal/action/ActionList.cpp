@@ -27,9 +27,9 @@ List::List (juce::Component& mainWindow, lua::Engine& engine)
 
     addChildComponent (messageOverlay);
 
-    state.get().setProperty (bindingRowIndexId, -1, nullptr);
-    state.get().setProperty (bindingsDirtyId, false, nullptr);
-    state.get().addListener (this);
+    state.setTreeProperty (bindingRowIndexId, -1, nullptr);
+    state.setTreeProperty (bindingsDirtyId, false, nullptr);
+    state.addListener (this);
 
     buildRows();
 
@@ -81,9 +81,9 @@ List::List (juce::Component& mainWindow, lua::Engine& engine)
 
 List::~List()
 {
-    state.get().removeListener (this);
+    state.removeListener (this);
 
-    if (static_cast<bool> (state.get().getProperty (bindingsDirtyId)))
+    if (static_cast<bool> (state.getTreeProperty (bindingsDirtyId)))
     {
         luaEngine.load();
 
@@ -159,8 +159,8 @@ void List::buildRows()
 
         juce::ValueTree node { "ACTION" };
         node.setProperty (jam::ID::id, uuid, nullptr);
-        state.get().appendChild (node, nullptr);
-        jam::ValueTree::attach (state, row.get());
+        state.appendChild (node, nullptr);
+        jam::Model::attach (state, row.get());
 
         addAndMakeVisible (row.get());
         rows.push_back (std::move (row));
@@ -181,8 +181,8 @@ void List::buildRows()
 
             juce::ValueTree node { "ACTION" };
             node.setProperty (jam::ID::id, uuid, nullptr);
-            state.get().appendChild (node, nullptr);
-            jam::ValueTree::attach (state, row.get());
+            state.appendChild (node, nullptr);
+            jam::Model::attach (state, row.get());
 
             rowContainer.addAndMakeVisible (row.get());
             rows.push_back (std::move (row));
@@ -197,8 +197,8 @@ void List::buildRows()
 
         juce::ValueTree node { "ACTION" };
         node.setProperty (jam::ID::id, uuid, nullptr);
-        state.get().appendChild (node, nullptr);
-        jam::ValueTree::attach (state, row.get());
+        state.appendChild (node, nullptr);
+        jam::Model::attach (state, row.get());
 
         rowContainer.addAndMakeVisible (row.get());
         rows.push_back (std::move (row));
@@ -220,8 +220,8 @@ void List::buildRows()
 
         juce::ValueTree node { "ACTION" };
         node.setProperty (jam::ID::id, uuid, nullptr);
-        state.get().appendChild (node, nullptr);
-        jam::ValueTree::attach (state, row.get());
+        state.appendChild (node, nullptr);
+        jam::Model::attach (state, row.get());
 
         rowContainer.addAndMakeVisible (row.get());
         rows.push_back (std::move (row));
@@ -240,8 +240,8 @@ void List::buildRows()
 
             juce::ValueTree node { "ACTION" };
             node.setProperty (jam::ID::id, uuid, nullptr);
-            state.get().appendChild (node, nullptr);
-            jam::ValueTree::attach (state, row.get());
+            state.appendChild (node, nullptr);
+            jam::Model::attach (state, row.get());
 
             rowContainer.addAndMakeVisible (row.get());
             rows.push_back (std::move (row));

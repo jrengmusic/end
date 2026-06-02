@@ -6,18 +6,18 @@
  */
 
 #include "LinkManager.h"
-#include "../AppState.h"
+#include "../AppModel.h"
 
 namespace terminal
 {
 /*____________________________________________________________________________*/
 
-LinkManager::LinkManager (State& s,
+LinkManager::LinkManager (Model& s,
                           std::function<void (const char*, int)> writeToPtyCallback) noexcept
     : state (s)
     , writeToPty (std::move (writeToPtyCallback))
-    , promptRowNode         (jam::ValueTree::getChildWithID (state.get(), id::promptRow.toString()))
-    , activeScreenNode      (jam::ValueTree::getChildWithID (state.get(), id::activeScreen.toString()))
+    , promptRowNode         (jam::Model::getChildWithID (state.getRootTree(), id::promptRow.toString()))
+    , activeScreenNode      (jam::Model::getChildWithID (state.getRootTree(), id::activeScreen.toString()))
 {
     promptRowNode.addListener (this);
     activeScreenNode.addListener (this);
@@ -152,13 +152,13 @@ void LinkManager::dispatch (const LinkSpan& span) const
 
         if (handler == Map::LinkHandler::getContext()->get (Map::LinkHandler::whelmed))
         {
-            // Write path to AppState WINDOW — Tabs::valueTreePropertyChanged consumes it.
-            AppState::getContext()->getWindow().setProperty (app::id::pendingMarkdownFile, path, nullptr);
+            // Write path to AppModel WINDOW — Tabs::valueTreePropertyChanged consumes it.
+            AppModel::getContext()->getWindow().setProperty (app::id::pendingMarkdownFile, path, nullptr);
         }
         else if (handler == Map::LinkHandler::getContext()->get (Map::LinkHandler::image))
         {
-            // Write path to AppState WINDOW — Tabs::valueTreePropertyChanged consumes it.
-            AppState::getContext()->getWindow().setProperty (app::id::pendingImageFile, path, nullptr);
+            // Write path to AppModel WINDOW — Tabs::valueTreePropertyChanged consumes it.
+            AppModel::getContext()->getWindow().setProperty (app::id::pendingImageFile, path, nullptr);
         }
         else
         {

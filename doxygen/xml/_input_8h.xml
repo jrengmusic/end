@@ -1,0 +1,612 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="_input_8h" kind="file" language="C++">
+    <compoundname>Input.h</compoundname>
+    <includes local="no">JuceHeader.h</includes>
+    <includes refid="_screen_selection_8h" local="yes">component/ScreenSelection.h</includes>
+    <includes refid="_selection_type_8h" local="yes">../SelectionType.h</includes>
+    <includes refid="_engine_8h" local="yes">../lua/Engine.h</includes>
+    <includes refid="_processor_8h" local="yes">Processor.h</includes>
+    <includes refid="_link_manager_8h" local="yes">LinkManager.h</includes>
+    <includes refid="_action_8h" local="yes">action/Action.h</includes>
+    <includedby refid="_input_8cpp" local="yes">terminal/Input.cpp</includedby>
+    <includedby refid="_display_8h" local="yes">terminal/component/Display.h</includedby>
+    <incdepgraph>
+      <node id="15">
+        <label>AppIdentifier.h</label>
+        <link refid="_app_identifier_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>../AppModel.h</label>
+        <link refid="_app_model_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>Map.h</label>
+        <link refid="_map_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>../ModalType.h</label>
+        <link refid="_modal_type_8h"/>
+      </node>
+      <node id="4">
+        <label>../../SelectionType.h</label>
+        <link refid="_selection_type_8h"/>
+      </node>
+      <node id="5">
+        <label>../lua/Engine.h</label>
+        <link refid="_engine_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="24">
+        <label>CSI.h</label>
+        <link refid="_c_s_i_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>CellFifo.h</label>
+        <link refid="_cell_fifo_8h"/>
+      </node>
+      <node id="28">
+        <label>CharProps.h</label>
+        <link refid="_char_props_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+      </node>
+      <node id="29">
+        <label>CharPropsData.h</label>
+        <link refid="_char_props_data_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="27">
+        <label>Charset.h</label>
+        <link refid="_charset_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="23">
+        <label>DispatchTable.h</label>
+        <link refid="_dispatch_table_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="36">
+        <label>ITerm2Decoder.h</label>
+        <link refid="_i_term2_decoder_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>Identifier.h</label>
+        <link refid="_identifier_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="34">
+        <label>ImageDecode.h</label>
+        <link refid="_image_decode_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+      </node>
+      <node id="35">
+        <label>ImageDecodeGif.h</label>
+        <link refid="_image_decode_gif_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>terminal/Input.h</label>
+        <link refid="_input_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>Keyboard.h</label>
+        <link refid="_keyboard_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="32">
+        <label>KittyDecoder.h</label>
+        <link refid="_kitty_decoder_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+      </node>
+      <node id="40">
+        <label>LinkDetector.h</label>
+        <link refid="_link_detector_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="38">
+        <label>LinkManager.h</label>
+        <link refid="_link_manager_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+      </node>
+      <node id="39">
+        <label>LinkSpan.h</label>
+        <link refid="_link_span_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="40" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>Model.h</label>
+        <link refid="_model_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="37">
+        <label>Notifications.h</label>
+        <link refid="_notifications_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="30">
+        <label>Palette.h</label>
+        <link refid="_palette_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>Parameter.h</label>
+        <link refid="_parameter_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>Parser.h</label>
+        <link refid="terminal_2_parser_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>Processor.h</label>
+        <link refid="_processor_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+      </node>
+      <node id="33">
+        <label>SixelDecoder.h</label>
+        <link refid="_sixel_decoder_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="31">
+        <label>Skit.h</label>
+        <link refid="_skit_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>TextBuffer.h</label>
+        <link refid="_text_buffer_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="25">
+        <label>Video.h</label>
+        <link refid="_video_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>Winsize.h</label>
+        <link refid="_winsize_8h"/>
+      </node>
+      <node id="6">
+        <label>../terminal/action/Action.h</label>
+        <link refid="_action_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>component/ScreenSelection.h</label>
+        <link refid="_screen_selection_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="18">
+        <label>tty/TTY.h</label>
+        <link refid="_t_t_y_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="19">
+        <label>tty/UnixTTY.h</label>
+        <link refid="_unix_t_t_y_8h"/>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>JuceHeader.h</label>
+      </node>
+      <node id="26">
+        <label>atomic</label>
+      </node>
+      <node id="20">
+        <label>unistd.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="8">
+        <label>Main.cpp</label>
+        <link refid="_main_8cpp"/>
+      </node>
+      <node id="7">
+        <label>Main.h</label>
+        <link refid="_main_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>MainComponent.cpp</label>
+        <link refid="_main_component_8cpp"/>
+      </node>
+      <node id="6">
+        <label>MainComponent.h</label>
+        <link refid="_main_component_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>MainComponentActions.cpp</label>
+        <link refid="_main_component_actions_8cpp"/>
+      </node>
+      <node id="2">
+        <label>terminal/Input.cpp</label>
+        <link refid="_input_8cpp"/>
+      </node>
+      <node id="1">
+        <label>terminal/Input.h</label>
+        <link refid="_input_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>terminal/component/Display.cpp</label>
+        <link refid="_display_8cpp"/>
+      </node>
+      <node id="3">
+        <label>terminal/component/Display.h</label>
+        <link refid="_display_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>terminal/component/LookAndFeel.cpp</label>
+        <link refid="_look_and_feel_8cpp"/>
+      </node>
+      <node id="5">
+        <label>terminal/component/LookAndFeel.h</label>
+        <link refid="_look_and_feel_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>terminal/component/LookAndFeelMenu.cpp</label>
+        <link refid="_look_and_feel_menu_8cpp"/>
+      </node>
+      <node id="13">
+        <label>terminal/component/LookAndFeelTab.cpp</label>
+        <link refid="_look_and_feel_tab_8cpp"/>
+      </node>
+      <node id="19">
+        <label>terminal/component/ModalWindow.cpp</label>
+        <link refid="_modal_window_8cpp"/>
+      </node>
+      <node id="18">
+        <label>terminal/component/ModalWindow.h</label>
+        <link refid="_modal_window_8h"/>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="23">
+        <label>terminal/component/Panes.cpp</label>
+        <link refid="_panes_8cpp"/>
+      </node>
+      <node id="22">
+        <label>terminal/component/Panes.h</label>
+        <link refid="_panes_8h"/>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>terminal/component/Popup.cpp</label>
+        <link refid="_popup_8cpp"/>
+      </node>
+      <node id="20">
+        <label>terminal/component/Popup.h</label>
+        <link refid="_popup_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>terminal/component/Tabs.cpp</label>
+        <link refid="_tabs_8cpp"/>
+      </node>
+      <node id="14">
+        <label>terminal/component/Tabs.h</label>
+        <link refid="_tabs_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>terminal/component/TabsActions.cpp</label>
+        <link refid="_tabs_actions_8cpp"/>
+      </node>
+      <node id="17">
+        <label>terminal/component/TabsClose.cpp</label>
+        <link refid="_tabs_close_8cpp"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="classterminal_1_1_input" prot="public">terminal::Input</innerclass>
+    <innerclass refid="structterminal_1_1_input_1_1_selection_keys" prot="private">terminal::Input::SelectionKeys</innerclass>
+    <innernamespace refid="namespaceterminal">terminal</innernamespace>
+    <briefdescription>
+<para>Handles all keyboard input routing for a terminal processor. </para>
+    </briefdescription>
+    <detaileddescription>
+<para><ref refid="classterminal_1_1_input" kindref="compound">terminal::Input</ref> centralises modal key dispatch, vim-style selection navigation, open-file hint-label key matching, scrollback navigation, and the two-key <computeroutput>gg</computeroutput> sequence. It reads and writes terminal selection state via <computeroutput>Model</computeroutput> parameters directly — no <computeroutput><ref refid="class_display" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Display</ref></computeroutput> members are touched.</para>
+<sect1 id="_input_8h_1autotoc_md38_1s1"><sect2 id="_input_8h_1autotoc_md38_1s2"><sect3 id="_input_8h_1autotoc_md38">
+<title>Responsibilities</title><para><itemizedlist>
+<listitem><para><computeroutput>handleKey()</computeroutput> — top-level dispatch for normal terminals: modal intercept → action system → scroll nav → PTY.</para>
+</listitem><listitem><para><computeroutput>handleKeyDirect()</computeroutput> — direct PTY forward for popup terminals, bypasses action system.</para>
+</listitem><listitem><para><computeroutput>clearSelectionAndScroll()</computeroutput> — clears drag/selection state.</para>
+</listitem><listitem><para><computeroutput>buildKeyMap()</computeroutput> — parses Config key strings into cached <computeroutput><ref refid="classKeyPress" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">KeyPress</ref></computeroutput> objects.</para>
+</listitem><listitem><para><computeroutput>reset()</computeroutput> — clears <computeroutput>pendingG</computeroutput>; called when exiting selection mode.</para>
+</listitem></itemizedlist>
+</para>
+<para><simplesect kind="see"><para><ref refid="classterminal_1_1_processor" kindref="compound">terminal::Processor</ref> </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classterminal_1_1_display" kindref="compound">terminal::Display</ref> </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classterminal_1_1_link_manager" kindref="compound">terminal::LinkManager</ref> </para>
+</simplesect>
+</para>
+</sect3></sect2></sect1>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#pragma<sp/>once</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;JuceHeader.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_screen_selection_8h" kindref="compound">component/ScreenSelection.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_selection_type_8h" kindref="compound">../SelectionType.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_engine_8h" kindref="compound">../lua/Engine.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_processor_8h" kindref="compound">Processor.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_link_manager_8h" kindref="compound">LinkManager.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_action_8h" kindref="compound">action/Action.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespaceterminal" kindref="compound">terminal</ref></highlight></codeline>
+<codeline lineno="33"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="comment">/*____________________________________________________________________________*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46" refid="classterminal_1_1_input" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classterminal_1_1_input_1a342cce343dfcbab48d929f893c1c2180" kindref="member">Input</ref></highlight></codeline>
+<codeline lineno="47"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_input_1a342cce343dfcbab48d929f893c1c2180" kindref="member">Input</ref><sp/>(<ref refid="classterminal_1_1_processor" kindref="compound">terminal::Processor</ref>&amp;<sp/><ref refid="classterminal_1_1_input_1ab65ee160a87332559c5502011776ac4d" kindref="member">processor</ref>,</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_link_manager" kindref="compound">terminal::LinkManager</ref>&amp;<sp/><ref refid="classterminal_1_1_input_1a12cbdcad4dffe88a877044ed049dfd52" kindref="member">linkManager</ref>)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_input_1ae66a767d6935f797838cc3d7174a0b26" kindref="member">handleKey</ref><sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::KeyPress&amp;<sp/>key)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_input_1a35e8eebb62b48a49ff800788e5f7fb74" kindref="member">handleKeyDirect</ref><sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::KeyPress&amp;<sp/>key)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_input_1a4035772413679929ba760a418d452aa4" kindref="member">clearSelectionAndScroll</ref>()<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_input_1ae7b6f83047fe61c15900dd1d29adfc52" kindref="member">buildKeyMap</ref>()<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_input_1aa41be6db2f02bb5898f55e71ca24e216" kindref="member">reset</ref>()<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_input_1aefb73b11e8c1a14a484eb3a45f76ba88" kindref="member">isSelectionCopyKey</ref><sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::KeyPress&amp;<sp/>key)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_input_1a3b1959b308488cf256fb7bfbd787535d" kindref="member">handleModalKey</ref><sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::KeyPress&amp;<sp/>key)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_input_1ace1c358d34fc58663db236f8da1a457e" kindref="member">handleSelectionKey</ref><sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::KeyPress&amp;<sp/>key)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"></highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_input_1a4c32bfe07778917524da28c8c980cb2e" kindref="member">handleOpenFileKey</ref><sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::KeyPress&amp;<sp/>key)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"></highlight></codeline>
+<codeline lineno="155" refid="structterminal_1_1_input_1_1_selection_keys" refkind="compound"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structterminal_1_1_input_1_1_selection_keys" kindref="compound">SelectionKeys</ref></highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="157" refid="structterminal_1_1_input_1_1_selection_keys_1aac8299d8d41489ba0fea1eb9052152d8" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>juce::KeyPress<sp/><ref refid="structterminal_1_1_input_1_1_selection_keys_1aac8299d8d41489ba0fea1eb9052152d8" kindref="member">up</ref>;</highlight></codeline>
+<codeline lineno="158" refid="structterminal_1_1_input_1_1_selection_keys_1aeb42bda3784f46ad395d1e4f78f367bd" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>juce::KeyPress<sp/><ref refid="structterminal_1_1_input_1_1_selection_keys_1aeb42bda3784f46ad395d1e4f78f367bd" kindref="member">down</ref>;</highlight></codeline>
+<codeline lineno="159" refid="structterminal_1_1_input_1_1_selection_keys_1a98b3aeb9c5b9b762b55148474796f58c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>juce::KeyPress<sp/><ref refid="structterminal_1_1_input_1_1_selection_keys_1a98b3aeb9c5b9b762b55148474796f58c" kindref="member">left</ref>;</highlight></codeline>
+<codeline lineno="160" refid="structterminal_1_1_input_1_1_selection_keys_1acaa9e07f3f91ccd46fd4e180255ae8c8" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>juce::KeyPress<sp/><ref refid="structterminal_1_1_input_1_1_selection_keys_1acaa9e07f3f91ccd46fd4e180255ae8c8" kindref="member">right</ref>;</highlight></codeline>
+<codeline lineno="161" refid="structterminal_1_1_input_1_1_selection_keys_1aa664277afcda65525c47cd2e26c63b39" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>juce::KeyPress<sp/><ref refid="structterminal_1_1_input_1_1_selection_keys_1aa664277afcda65525c47cd2e26c63b39" kindref="member">visual</ref>;</highlight></codeline>
+<codeline lineno="162" refid="structterminal_1_1_input_1_1_selection_keys_1a502a2cffe8b3491022e81e3e9b47b273" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>juce::KeyPress<sp/><ref refid="structterminal_1_1_input_1_1_selection_keys_1a502a2cffe8b3491022e81e3e9b47b273" kindref="member">visualLine</ref>;</highlight></codeline>
+<codeline lineno="163" refid="structterminal_1_1_input_1_1_selection_keys_1ab50809877c48cf5cffea8f70175d7211" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>juce::KeyPress<sp/><ref refid="structterminal_1_1_input_1_1_selection_keys_1ab50809877c48cf5cffea8f70175d7211" kindref="member">visualBlock</ref>;</highlight></codeline>
+<codeline lineno="164" refid="structterminal_1_1_input_1_1_selection_keys_1ac1c6202338184495afabf2e9736df84d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>juce::KeyPress<sp/><ref refid="structterminal_1_1_input_1_1_selection_keys_1ac1c6202338184495afabf2e9736df84d" kindref="member">copy</ref>;</highlight></codeline>
+<codeline lineno="165" refid="structterminal_1_1_input_1_1_selection_keys_1a5021cca0a780f0f871baa11b6c56c183" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>juce::KeyPress<sp/><ref refid="structterminal_1_1_input_1_1_selection_keys_1a5021cca0a780f0f871baa11b6c56c183" kindref="member">globalCopy</ref>;</highlight></codeline>
+<codeline lineno="166" refid="structterminal_1_1_input_1_1_selection_keys_1a7accf99c425b372116a8ad0431b1bfc5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>juce::KeyPress<sp/><ref refid="structterminal_1_1_input_1_1_selection_keys_1a7accf99c425b372116a8ad0431b1bfc5" kindref="member">top</ref>;</highlight></codeline>
+<codeline lineno="167" refid="structterminal_1_1_input_1_1_selection_keys_1afaa845cc0c47b405589ef41cadb67062" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>juce::KeyPress<sp/><ref refid="structterminal_1_1_input_1_1_selection_keys_1afaa845cc0c47b405589ef41cadb67062" kindref="member">bottom</ref>;</highlight></codeline>
+<codeline lineno="168" refid="structterminal_1_1_input_1_1_selection_keys_1af858260791234c5d5defc6aca870092a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>juce::KeyPress<sp/><ref refid="structterminal_1_1_input_1_1_selection_keys_1af858260791234c5d5defc6aca870092a" kindref="member">lineStart</ref>;</highlight></codeline>
+<codeline lineno="169" refid="structterminal_1_1_input_1_1_selection_keys_1a87397e426e7ca5eb5990a5449b052158" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>juce::KeyPress<sp/><ref refid="structterminal_1_1_input_1_1_selection_keys_1a87397e426e7ca5eb5990a5449b052158" kindref="member">lineEnd</ref>;</highlight></codeline>
+<codeline lineno="170" refid="structterminal_1_1_input_1_1_selection_keys_1a0904a2fb33b2e9c2dc13a0c31c1b8e14" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>juce::KeyPress<sp/><ref refid="structterminal_1_1_input_1_1_selection_keys_1a0904a2fb33b2e9c2dc13a0c31c1b8e14" kindref="member">exit</ref>;</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"></highlight></codeline>
+<codeline lineno="174" refid="classterminal_1_1_input_1ab65ee160a87332559c5502011776ac4d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_processor" kindref="compound">terminal::Processor</ref>&amp;<sp/><ref refid="classterminal_1_1_input_1ab65ee160a87332559c5502011776ac4d" kindref="member">processor</ref>;</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"></highlight></codeline>
+<codeline lineno="177" refid="classterminal_1_1_input_1a12cbdcad4dffe88a877044ed049dfd52" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_link_manager" kindref="compound">terminal::LinkManager</ref>&amp;<sp/><ref refid="classterminal_1_1_input_1a12cbdcad4dffe88a877044ed049dfd52" kindref="member">linkManager</ref>;</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"></highlight></codeline>
+<codeline lineno="180" refid="classterminal_1_1_input_1a704986bfa32ed4b001b991a236a49204" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structterminal_1_1_input_1_1_selection_keys" kindref="compound">SelectionKeys</ref><sp/><ref refid="classterminal_1_1_input_1a704986bfa32ed4b001b991a236a49204" kindref="member">selectionKeys</ref>;</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"></highlight></codeline>
+<codeline lineno="183" refid="classterminal_1_1_input_1a45e7bf222d6434a9b8648b2a5b64487a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::KeyPress<sp/><ref refid="classterminal_1_1_input_1a45e7bf222d6434a9b8648b2a5b64487a" kindref="member">openFileNextPage</ref>;</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"></highlight></codeline>
+<codeline lineno="186" refid="classterminal_1_1_input_1a3a29cd16b96c01ca3c45dbd7f7162b5f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_input_1a3a29cd16b96c01ca3c45dbd7f7162b5f" kindref="member">pendingG</ref><sp/>{<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="187"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"></highlight></codeline>
+<codeline lineno="190"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>terminal</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="terminal/Input.h"/>
+  </compounddef>
+</doxygen>

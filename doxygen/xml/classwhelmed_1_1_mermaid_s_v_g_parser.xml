@@ -1,0 +1,953 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="classwhelmed_1_1_mermaid_s_v_g_parser" kind="class" language="C++" prot="public">
+    <compoundname>whelmed::MermaidSVGParser</compoundname>
+    <includes refid="_mermaid_s_v_g_parser_8h" local="no">MermaidSVGParser.h</includes>
+    <innerclass refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state" prot="private">whelmed::MermaidSVGParser::PaintState</innerclass>
+    <innerclass refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_path_end_info" prot="private">whelmed::MermaidSVGParser::PathEndInfo</innerclass>
+    <innerclass refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_stack_frame" prot="private">whelmed::MermaidSVGParser::StackFrame</innerclass>
+    <sectiondef kind="private-type">
+      <memberdef kind="typedef" id="classwhelmed_1_1_mermaid_s_v_g_parser_1a781dc2ea72e21e51604d8cdae337f519" prot="private" static="no">
+        <type>std::unordered_map&lt; std::string, <ref refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state" kindref="compound">PaintState</ref> &gt;</type>
+        <definition>using whelmed::MermaidSVGParser::StyleMap = std::unordered_map&lt;std::string, PaintState&gt;</definition>
+        <argsstring></argsstring>
+        <name>StyleMap</name>
+        <qualifiedname>whelmed::MermaidSVGParser::StyleMap</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/MermaidSVGParser.h" line="137" column="5" bodyfile="whelmed/MermaidSVGParser.h" bodystart="137" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classwhelmed_1_1_mermaid_s_v_g_parser_1a3cd61aa5c5cc5b5730aeed97fee782ab" prot="private" static="no">
+        <type>std::unordered_map&lt; std::string, const juce::XmlElement * &gt;</type>
+        <definition>using whelmed::MermaidSVGParser::MarkerMap = std::unordered_map&lt;std::string, const juce::XmlElement*&gt;</definition>
+        <argsstring></argsstring>
+        <name>MarkerMap</name>
+        <qualifiedname>whelmed::MermaidSVGParser::MarkerMap</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/MermaidSVGParser.h" line="138" column="5" bodyfile="whelmed/MermaidSVGParser.h" bodystart="138" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="private-static-attrib">
+      <memberdef kind="variable" id="classwhelmed_1_1_mermaid_s_v_g_parser_1a98549b4a4af496c0f019e4b4813996f7" prot="private" static="yes" constexpr="yes" mutable="no">
+        <type>float</type>
+        <definition>float whelmed::MermaidSVGParser::kCharWidthEstimate</definition>
+        <argsstring></argsstring>
+        <name>kCharWidthEstimate</name>
+        <qualifiedname>whelmed::MermaidSVGParser::kCharWidthEstimate</qualifiedname>
+        <initializer>{ 0.6f }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/MermaidSVGParser.h" line="1222" column="28" bodyfile="whelmed/MermaidSVGParser.h" bodystart="1222" bodyend="1222"/>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a4087f9fae87968cedd488dd0ddf0c0ef" compoundref="_mermaid_s_v_g_parser_8h" startline="954" endline="1041">buildTextPrimitive</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classwhelmed_1_1_mermaid_s_v_g_parser_1afde1a403573958fe7d7231effda08491" prot="private" static="yes" constexpr="yes" mutable="no">
+        <type>int</type>
+        <definition>int whelmed::MermaidSVGParser::kStackReserveSize</definition>
+        <argsstring></argsstring>
+        <name>kStackReserveSize</name>
+        <qualifiedname>whelmed::MermaidSVGParser::kStackReserveSize</qualifiedname>
+        <initializer>{ 64 }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/MermaidSVGParser.h" line="1225" column="26" bodyfile="whelmed/MermaidSVGParser.h" bodystart="1225" bodyend="1225"/>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1af601d1859223339352edc6b89a5a7a33" compoundref="_mermaid_s_v_g_parser_8h" startline="1054" endline="1205">walkElement</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="classwhelmed_1_1_mermaid_s_v_g_parser_1aacc50475bb6b1818a98daf39e9ad1308" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="structwhelmed_1_1_mermaid_parse_result" kindref="compound">MermaidParseResult</ref></type>
+        <definition>static MermaidParseResult whelmed::MermaidSVGParser::parse</definition>
+        <argsstring>(const juce::String &amp;svgString)</argsstring>
+        <name>parse</name>
+        <qualifiedname>whelmed::MermaidSVGParser::parse</qualifiedname>
+        <param>
+          <type>const juce::String &amp;</type>
+          <declname>svgString</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/MermaidSVGParser.h" line="90" column="31" bodyfile="whelmed/MermaidSVGParser.h" bodystart="90" bodyend="122"/>
+        <references refid="namespacejuce_1_1Colours_1a66baf4b357f69a75cd055fecebadba6e">juce::Colours::black</references>
+        <references refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state_1a60597a9befc7570fb4777c0effb8354c" compoundref="_mermaid_s_v_g_parser_8h" startline="129" endline="129">whelmed::MermaidSVGParser::PaintState::fill</references>
+        <references refid="structwhelmed_1_1_mermaid_parse_result_1ad9521eaf3b45c840003086da42310fe9" compoundref="_mermaid_s_v_g_parser_8h" startline="51" endline="51">whelmed::MermaidParseResult::ok</references>
+        <references refid="classwhelmed_1_1_mermaid_s_v_g_parser_1ac16410559f06fdea1db4bd63e5eb8803" compoundref="_mermaid_s_v_g_parser_8h" startline="517" endline="530">parseDefsMarkers</references>
+        <references refid="classwhelmed_1_1_mermaid_s_v_g_parser_1ad4f42702968d7ef246e0a6e9c09ddef6" compoundref="_mermaid_s_v_g_parser_8h" startline="362" endline="390">parseStyleBlock</references>
+        <references refid="classwhelmed_1_1_mermaid_s_v_g_parser_1aa524747ed9644c592e7f9b2739910fd7" compoundref="_mermaid_s_v_g_parser_8h" startline="931" endline="949">parseViewBox</references>
+        <references refid="structwhelmed_1_1_mermaid_parse_result_1aab7552a0f9873203b3d41f9a3a27a998" compoundref="_mermaid_s_v_g_parser_8h" startline="48">whelmed::MermaidParseResult::primitives</references>
+        <references refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state_1ac60a75a288ad78d219068d5b06079edc" compoundref="_mermaid_s_v_g_parser_8h" startline="130" endline="130">whelmed::MermaidSVGParser::PaintState::stroke</references>
+        <references refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state_1a61e9bb7c05abcaf1a5453b975ffd6a94" compoundref="_mermaid_s_v_g_parser_8h" startline="131" endline="131">whelmed::MermaidSVGParser::PaintState::strokeWidth</references>
+        <references refid="structwhelmed_1_1_mermaid_parse_result_1ac75632102749811989ecdbb7ef78c326" compoundref="_mermaid_s_v_g_parser_8h" startline="49">whelmed::MermaidParseResult::texts</references>
+        <references refid="namespacejuce_1_1Colours_1a2d59beef8fef5d9b43c030dc5968a2bb">juce::Colours::transparentBlack</references>
+        <references refid="structwhelmed_1_1_mermaid_parse_result_1a97c9fd33927ab452ca180fb1c49d8372" compoundref="_mermaid_s_v_g_parser_8h" startline="50">whelmed::MermaidParseResult::viewBox</references>
+        <references refid="classwhelmed_1_1_mermaid_s_v_g_parser_1af601d1859223339352edc6b89a5a7a33" compoundref="_mermaid_s_v_g_parser_8h" startline="1054" endline="1205">walkElement</references>
+        <referencedby refid="classwhelmed_1_1_component_1a8775db6d1a2c1afc2e77cd3c8f39da6f" compoundref="_component_8cpp" startline="7" endline="47">whelmed::Component::Component</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a847d8cf7cee861b4177ab98de0423214" compoundref="_component_8cpp" startline="106" endline="160">whelmed::Component::openFile</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="private-static-func">
+      <memberdef kind="function" id="classwhelmed_1_1_mermaid_s_v_g_parser_1a9b2553b1ca599383cf3ad2409f5c38f6" prot="private" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>juce::Colour</type>
+        <definition>static juce::Colour whelmed::MermaidSVGParser::parseColour</definition>
+        <argsstring>(const juce::String &amp;raw, const juce::Colour &amp;currentColour)</argsstring>
+        <name>parseColour</name>
+        <qualifiedname>whelmed::MermaidSVGParser::parseColour</qualifiedname>
+        <param>
+          <type>const juce::String &amp;</type>
+          <declname>raw</declname>
+        </param>
+        <param>
+          <type>const juce::Colour &amp;</type>
+          <declname>currentColour</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/MermaidSVGParser.h" line="143" column="25" bodyfile="whelmed/MermaidSVGParser.h" bodystart="143" bodyend="177"/>
+        <references refid="namespacejuce_1_1Colours_1a66baf4b357f69a75cd055fecebadba6e">juce::Colours::black</references>
+        <references refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a098243e1a62cf8a30134d8db1d5efaa8" compoundref="_mermaid_s_v_g_parser_8h" startline="179" endline="196">parseHex</references>
+        <references refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a32a21a8d0208da82b3cf865191821f43" compoundref="_mermaid_s_v_g_parser_8h" startline="237" endline="255">parseHSL</references>
+        <references refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a23e16c2a8f759d877d6507abff176c41" compoundref="_mermaid_s_v_g_parser_8h" startline="198" endline="215">parseRGB</references>
+        <references refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a2508a992d8ef4a984528d6fe9fb3d9b9" compoundref="_mermaid_s_v_g_parser_8h" startline="217" endline="235">parseRGBA</references>
+        <references refid="namespacejuce_1_1Colours_1a2d59beef8fef5d9b43c030dc5968a2bb">juce::Colours::transparentBlack</references>
+        <references refid="namespacejuce_1_1Colours_1ac8b3c59d761af74ec07480b7acf1ecc8">juce::Colours::white</references>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a53b6fc9e465a1062451fe9a544ab702c" compoundref="_mermaid_s_v_g_parser_8h" startline="542" endline="577">applyInlineStyle</referencedby>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a17c99c96116086050b2c6a7a870d0697" compoundref="_mermaid_s_v_g_parser_8h" startline="450" endline="505">parseCSSBody</referencedby>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a9e6f90fada2e3b5f4379fabd88ef98ef" compoundref="_mermaid_s_v_g_parser_8h" startline="583" endline="633">resolveElementPaint</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classwhelmed_1_1_mermaid_s_v_g_parser_1a098243e1a62cf8a30134d8db1d5efaa8" prot="private" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>juce::Colour</type>
+        <definition>static juce::Colour whelmed::MermaidSVGParser::parseHex</definition>
+        <argsstring>(const juce::String &amp;s)</argsstring>
+        <name>parseHex</name>
+        <qualifiedname>whelmed::MermaidSVGParser::parseHex</qualifiedname>
+        <param>
+          <type>const juce::String &amp;</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/MermaidSVGParser.h" line="179" column="25" bodyfile="whelmed/MermaidSVGParser.h" bodystart="179" bodyend="196"/>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a9b2553b1ca599383cf3ad2409f5c38f6" compoundref="_mermaid_s_v_g_parser_8h" startline="143" endline="177">parseColour</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classwhelmed_1_1_mermaid_s_v_g_parser_1a23e16c2a8f759d877d6507abff176c41" prot="private" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>juce::Colour</type>
+        <definition>static juce::Colour whelmed::MermaidSVGParser::parseRGB</definition>
+        <argsstring>(const juce::String &amp;s)</argsstring>
+        <name>parseRGB</name>
+        <qualifiedname>whelmed::MermaidSVGParser::parseRGB</qualifiedname>
+        <param>
+          <type>const juce::String &amp;</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/MermaidSVGParser.h" line="198" column="25" bodyfile="whelmed/MermaidSVGParser.h" bodystart="198" bodyend="215"/>
+        <references refid="namespacejuce_1_1Colours_1a2d59beef8fef5d9b43c030dc5968a2bb">juce::Colours::transparentBlack</references>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a9b2553b1ca599383cf3ad2409f5c38f6" compoundref="_mermaid_s_v_g_parser_8h" startline="143" endline="177">parseColour</referencedby>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a2508a992d8ef4a984528d6fe9fb3d9b9" compoundref="_mermaid_s_v_g_parser_8h" startline="217" endline="235">parseRGBA</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classwhelmed_1_1_mermaid_s_v_g_parser_1a2508a992d8ef4a984528d6fe9fb3d9b9" prot="private" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>juce::Colour</type>
+        <definition>static juce::Colour whelmed::MermaidSVGParser::parseRGBA</definition>
+        <argsstring>(const juce::String &amp;s)</argsstring>
+        <name>parseRGBA</name>
+        <qualifiedname>whelmed::MermaidSVGParser::parseRGBA</qualifiedname>
+        <param>
+          <type>const juce::String &amp;</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/MermaidSVGParser.h" line="217" column="25" bodyfile="whelmed/MermaidSVGParser.h" bodystart="217" bodyend="235"/>
+        <references refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a23e16c2a8f759d877d6507abff176c41" compoundref="_mermaid_s_v_g_parser_8h" startline="198" endline="215">parseRGB</references>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a9b2553b1ca599383cf3ad2409f5c38f6" compoundref="_mermaid_s_v_g_parser_8h" startline="143" endline="177">parseColour</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classwhelmed_1_1_mermaid_s_v_g_parser_1a32a21a8d0208da82b3cf865191821f43" prot="private" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>juce::Colour</type>
+        <definition>static juce::Colour whelmed::MermaidSVGParser::parseHSL</definition>
+        <argsstring>(const juce::String &amp;s)</argsstring>
+        <name>parseHSL</name>
+        <qualifiedname>whelmed::MermaidSVGParser::parseHSL</qualifiedname>
+        <param>
+          <type>const juce::String &amp;</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/MermaidSVGParser.h" line="237" column="25" bodyfile="whelmed/MermaidSVGParser.h" bodystart="237" bodyend="255"/>
+        <references refid="group__juce__audio__plugin__client-Unity_1ga2ee4d4f298ba1bf1bc2f45c681c40ca3">h</references>
+        <references refid="namespacejuce_1_1Colours_1a2d59beef8fef5d9b43c030dc5968a2bb">juce::Colours::transparentBlack</references>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a9b2553b1ca599383cf3ad2409f5c38f6" compoundref="_mermaid_s_v_g_parser_8h" startline="143" endline="177">parseColour</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classwhelmed_1_1_mermaid_s_v_g_parser_1aa13cb437cafc4986e66a02fdfdf161ef" prot="private" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>float</type>
+        <definition>static float whelmed::MermaidSVGParser::parseStrokeWidth</definition>
+        <argsstring>(const juce::String &amp;raw)</argsstring>
+        <name>parseStrokeWidth</name>
+        <qualifiedname>whelmed::MermaidSVGParser::parseStrokeWidth</qualifiedname>
+        <param>
+          <type>const juce::String &amp;</type>
+          <declname>raw</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/MermaidSVGParser.h" line="260" column="18" bodyfile="whelmed/MermaidSVGParser.h" bodystart="260" bodyend="271"/>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a53b6fc9e465a1062451fe9a544ab702c" compoundref="_mermaid_s_v_g_parser_8h" startline="542" endline="577">applyInlineStyle</referencedby>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a17c99c96116086050b2c6a7a870d0697" compoundref="_mermaid_s_v_g_parser_8h" startline="450" endline="505">parseCSSBody</referencedby>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a9e6f90fada2e3b5f4379fabd88ef98ef" compoundref="_mermaid_s_v_g_parser_8h" startline="583" endline="633">resolveElementPaint</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classwhelmed_1_1_mermaid_s_v_g_parser_1a582a2a0cb0bb8921b5baa38c37590483" prot="private" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>juce::AffineTransform</type>
+        <definition>static juce::AffineTransform whelmed::MermaidSVGParser::parseTransform</definition>
+        <argsstring>(const juce::String &amp;raw)</argsstring>
+        <name>parseTransform</name>
+        <qualifiedname>whelmed::MermaidSVGParser::parseTransform</qualifiedname>
+        <param>
+          <type>const juce::String &amp;</type>
+          <declname>raw</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/MermaidSVGParser.h" line="276" column="34" bodyfile="whelmed/MermaidSVGParser.h" bodystart="276" bodyend="355"/>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1af601d1859223339352edc6b89a5a7a33" compoundref="_mermaid_s_v_g_parser_8h" startline="1054" endline="1205">walkElement</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classwhelmed_1_1_mermaid_s_v_g_parser_1ad4f42702968d7ef246e0a6e9c09ddef6" prot="private" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void whelmed::MermaidSVGParser::parseStyleBlock</definition>
+        <argsstring>(const juce::XmlElement &amp;svgRoot, StyleMap &amp;out)</argsstring>
+        <name>parseStyleBlock</name>
+        <qualifiedname>whelmed::MermaidSVGParser::parseStyleBlock</qualifiedname>
+        <param>
+          <type>const juce::XmlElement &amp;</type>
+          <declname>svgRoot</declname>
+        </param>
+        <param>
+          <type><ref refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a781dc2ea72e21e51604d8cdae337f519" kindref="member">StyleMap</ref> &amp;</type>
+          <declname>out</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/MermaidSVGParser.h" line="362" column="17" bodyfile="whelmed/MermaidSVGParser.h" bodystart="362" bodyend="390"/>
+        <references refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a9afeca08c883ec9d30d3d46e560fd646" compoundref="_mermaid_s_v_g_parser_8h" startline="392" endline="448">parseCSS</references>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1aacc50475bb6b1818a98daf39e9ad1308" compoundref="_mermaid_s_v_g_parser_8h" startline="90" endline="122">parse</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classwhelmed_1_1_mermaid_s_v_g_parser_1a9afeca08c883ec9d30d3d46e560fd646" prot="private" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void whelmed::MermaidSVGParser::parseCSS</definition>
+        <argsstring>(const juce::String &amp;css, StyleMap &amp;out)</argsstring>
+        <name>parseCSS</name>
+        <qualifiedname>whelmed::MermaidSVGParser::parseCSS</qualifiedname>
+        <param>
+          <type>const juce::String &amp;</type>
+          <declname>css</declname>
+        </param>
+        <param>
+          <type><ref refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a781dc2ea72e21e51604d8cdae337f519" kindref="member">StyleMap</ref> &amp;</type>
+          <declname>out</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/MermaidSVGParser.h" line="392" column="17" bodyfile="whelmed/MermaidSVGParser.h" bodystart="392" bodyend="448"/>
+        <references refid="classwhelmed_1_1_mermaid_s_v_g_parser_1aabf388cb9908663fc78453bd19a818cc" compoundref="_mermaid_s_v_g_parser_8h" startline="507" endline="512">mergePaintState</references>
+        <references refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a17c99c96116086050b2c6a7a870d0697" compoundref="_mermaid_s_v_g_parser_8h" startline="450" endline="505">parseCSSBody</references>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1ad4f42702968d7ef246e0a6e9c09ddef6" compoundref="_mermaid_s_v_g_parser_8h" startline="362" endline="390">parseStyleBlock</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classwhelmed_1_1_mermaid_s_v_g_parser_1a17c99c96116086050b2c6a7a870d0697" prot="private" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state" kindref="compound">PaintState</ref></type>
+        <definition>static PaintState whelmed::MermaidSVGParser::parseCSSBody</definition>
+        <argsstring>(const juce::String &amp;body)</argsstring>
+        <name>parseCSSBody</name>
+        <qualifiedname>whelmed::MermaidSVGParser::parseCSSBody</qualifiedname>
+        <param>
+          <type>const juce::String &amp;</type>
+          <declname>body</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/MermaidSVGParser.h" line="450" column="23" bodyfile="whelmed/MermaidSVGParser.h" bodystart="450" bodyend="505"/>
+        <references refid="namespacejuce_1_1Colours_1a66baf4b357f69a75cd055fecebadba6e">juce::Colours::black</references>
+        <references refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state_1a60597a9befc7570fb4777c0effb8354c" compoundref="_mermaid_s_v_g_parser_8h" startline="129" endline="129">whelmed::MermaidSVGParser::PaintState::fill</references>
+        <references refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state_1ad1b353fe2f1cef826919411d9a98012b" compoundref="_mermaid_s_v_g_parser_8h" startline="134" endline="134">whelmed::MermaidSVGParser::PaintState::fontSize</references>
+        <references refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state_1a0b527a84e85c245ed60ace17fa69e62c" compoundref="_mermaid_s_v_g_parser_8h" startline="132" endline="132">whelmed::MermaidSVGParser::PaintState::hasFill</references>
+        <references refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state_1a12a3e1c210e5556734d4eaf42edb3e9d" compoundref="_mermaid_s_v_g_parser_8h" startline="133" endline="133">whelmed::MermaidSVGParser::PaintState::hasStroke</references>
+        <references refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a9b2553b1ca599383cf3ad2409f5c38f6" compoundref="_mermaid_s_v_g_parser_8h" startline="143" endline="177">parseColour</references>
+        <references refid="classwhelmed_1_1_mermaid_s_v_g_parser_1aa13cb437cafc4986e66a02fdfdf161ef" compoundref="_mermaid_s_v_g_parser_8h" startline="260" endline="271">parseStrokeWidth</references>
+        <references refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state_1ac60a75a288ad78d219068d5b06079edc" compoundref="_mermaid_s_v_g_parser_8h" startline="130" endline="130">whelmed::MermaidSVGParser::PaintState::stroke</references>
+        <references refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state_1a61e9bb7c05abcaf1a5453b975ffd6a94" compoundref="_mermaid_s_v_g_parser_8h" startline="131" endline="131">whelmed::MermaidSVGParser::PaintState::strokeWidth</references>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a9afeca08c883ec9d30d3d46e560fd646" compoundref="_mermaid_s_v_g_parser_8h" startline="392" endline="448">parseCSS</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classwhelmed_1_1_mermaid_s_v_g_parser_1aabf388cb9908663fc78453bd19a818cc" prot="private" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void whelmed::MermaidSVGParser::mergePaintState</definition>
+        <argsstring>(PaintState &amp;base, const PaintState &amp;overrideValue)</argsstring>
+        <name>mergePaintState</name>
+        <qualifiedname>whelmed::MermaidSVGParser::mergePaintState</qualifiedname>
+        <param>
+          <type><ref refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state" kindref="compound">PaintState</ref> &amp;</type>
+          <declname>base</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state" kindref="compound">PaintState</ref> &amp;</type>
+          <declname>overrideValue</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/MermaidSVGParser.h" line="507" column="17" bodyfile="whelmed/MermaidSVGParser.h" bodystart="507" bodyend="512"/>
+        <references refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state_1a60597a9befc7570fb4777c0effb8354c" compoundref="_mermaid_s_v_g_parser_8h" startline="129" endline="129">whelmed::MermaidSVGParser::PaintState::fill</references>
+        <references refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state_1a0b527a84e85c245ed60ace17fa69e62c" compoundref="_mermaid_s_v_g_parser_8h" startline="132" endline="132">whelmed::MermaidSVGParser::PaintState::hasFill</references>
+        <references refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state_1a12a3e1c210e5556734d4eaf42edb3e9d" compoundref="_mermaid_s_v_g_parser_8h" startline="133" endline="133">whelmed::MermaidSVGParser::PaintState::hasStroke</references>
+        <references refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state_1ac60a75a288ad78d219068d5b06079edc" compoundref="_mermaid_s_v_g_parser_8h" startline="130" endline="130">whelmed::MermaidSVGParser::PaintState::stroke</references>
+        <references refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state_1a61e9bb7c05abcaf1a5453b975ffd6a94" compoundref="_mermaid_s_v_g_parser_8h" startline="131" endline="131">whelmed::MermaidSVGParser::PaintState::strokeWidth</references>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a9afeca08c883ec9d30d3d46e560fd646" compoundref="_mermaid_s_v_g_parser_8h" startline="392" endline="448">parseCSS</referencedby>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a9e6f90fada2e3b5f4379fabd88ef98ef" compoundref="_mermaid_s_v_g_parser_8h" startline="583" endline="633">resolveElementPaint</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classwhelmed_1_1_mermaid_s_v_g_parser_1ac16410559f06fdea1db4bd63e5eb8803" prot="private" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void whelmed::MermaidSVGParser::parseDefsMarkers</definition>
+        <argsstring>(const juce::XmlElement &amp;svgRoot, MarkerMap &amp;out)</argsstring>
+        <name>parseDefsMarkers</name>
+        <qualifiedname>whelmed::MermaidSVGParser::parseDefsMarkers</qualifiedname>
+        <param>
+          <type>const juce::XmlElement &amp;</type>
+          <declname>svgRoot</declname>
+        </param>
+        <param>
+          <type><ref refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a3cd61aa5c5cc5b5730aeed97fee782ab" kindref="member">MarkerMap</ref> &amp;</type>
+          <declname>out</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/MermaidSVGParser.h" line="517" column="17" bodyfile="whelmed/MermaidSVGParser.h" bodystart="517" bodyend="530"/>
+        <references refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a2daac368a46e1d949fae77d234fc04b4" compoundref="_mermaid_s_v_g_parser_8h" startline="532" endline="537">collectMarkers</references>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1aacc50475bb6b1818a98daf39e9ad1308" compoundref="_mermaid_s_v_g_parser_8h" startline="90" endline="122">parse</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classwhelmed_1_1_mermaid_s_v_g_parser_1a2daac368a46e1d949fae77d234fc04b4" prot="private" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void whelmed::MermaidSVGParser::collectMarkers</definition>
+        <argsstring>(const juce::XmlElement &amp;defs, MarkerMap &amp;out)</argsstring>
+        <name>collectMarkers</name>
+        <qualifiedname>whelmed::MermaidSVGParser::collectMarkers</qualifiedname>
+        <param>
+          <type>const juce::XmlElement &amp;</type>
+          <declname>defs</declname>
+        </param>
+        <param>
+          <type><ref refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a3cd61aa5c5cc5b5730aeed97fee782ab" kindref="member">MarkerMap</ref> &amp;</type>
+          <declname>out</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/MermaidSVGParser.h" line="532" column="17" bodyfile="whelmed/MermaidSVGParser.h" bodystart="532" bodyend="537"/>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1ac16410559f06fdea1db4bd63e5eb8803" compoundref="_mermaid_s_v_g_parser_8h" startline="517" endline="530">parseDefsMarkers</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classwhelmed_1_1_mermaid_s_v_g_parser_1a53b6fc9e465a1062451fe9a544ab702c" prot="private" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void whelmed::MermaidSVGParser::applyInlineStyle</definition>
+        <argsstring>(const juce::String &amp;styleAttr, PaintState &amp;ps, const juce::Colour &amp;currentColour)</argsstring>
+        <name>applyInlineStyle</name>
+        <qualifiedname>whelmed::MermaidSVGParser::applyInlineStyle</qualifiedname>
+        <param>
+          <type>const juce::String &amp;</type>
+          <declname>styleAttr</declname>
+        </param>
+        <param>
+          <type><ref refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state" kindref="compound">PaintState</ref> &amp;</type>
+          <declname>ps</declname>
+        </param>
+        <param>
+          <type>const juce::Colour &amp;</type>
+          <declname>currentColour</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/MermaidSVGParser.h" line="542" column="17" bodyfile="whelmed/MermaidSVGParser.h" bodystart="542" bodyend="577"/>
+        <references refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state_1a60597a9befc7570fb4777c0effb8354c" compoundref="_mermaid_s_v_g_parser_8h" startline="129" endline="129">whelmed::MermaidSVGParser::PaintState::fill</references>
+        <references refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state_1ad1b353fe2f1cef826919411d9a98012b" compoundref="_mermaid_s_v_g_parser_8h" startline="134" endline="134">whelmed::MermaidSVGParser::PaintState::fontSize</references>
+        <references refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state_1a0b527a84e85c245ed60ace17fa69e62c" compoundref="_mermaid_s_v_g_parser_8h" startline="132" endline="132">whelmed::MermaidSVGParser::PaintState::hasFill</references>
+        <references refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state_1a12a3e1c210e5556734d4eaf42edb3e9d" compoundref="_mermaid_s_v_g_parser_8h" startline="133" endline="133">whelmed::MermaidSVGParser::PaintState::hasStroke</references>
+        <references refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a9b2553b1ca599383cf3ad2409f5c38f6" compoundref="_mermaid_s_v_g_parser_8h" startline="143" endline="177">parseColour</references>
+        <references refid="classwhelmed_1_1_mermaid_s_v_g_parser_1aa13cb437cafc4986e66a02fdfdf161ef" compoundref="_mermaid_s_v_g_parser_8h" startline="260" endline="271">parseStrokeWidth</references>
+        <references refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state_1ac60a75a288ad78d219068d5b06079edc" compoundref="_mermaid_s_v_g_parser_8h" startline="130" endline="130">whelmed::MermaidSVGParser::PaintState::stroke</references>
+        <references refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state_1a61e9bb7c05abcaf1a5453b975ffd6a94" compoundref="_mermaid_s_v_g_parser_8h" startline="131" endline="131">whelmed::MermaidSVGParser::PaintState::strokeWidth</references>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a9e6f90fada2e3b5f4379fabd88ef98ef" compoundref="_mermaid_s_v_g_parser_8h" startline="583" endline="633">resolveElementPaint</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classwhelmed_1_1_mermaid_s_v_g_parser_1a9e6f90fada2e3b5f4379fabd88ef98ef" prot="private" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state" kindref="compound">PaintState</ref></type>
+        <definition>static PaintState whelmed::MermaidSVGParser::resolveElementPaint</definition>
+        <argsstring>(const juce::XmlElement &amp;el, const PaintState &amp;inherited, const StyleMap &amp;classStyles)</argsstring>
+        <name>resolveElementPaint</name>
+        <qualifiedname>whelmed::MermaidSVGParser::resolveElementPaint</qualifiedname>
+        <param>
+          <type>const juce::XmlElement &amp;</type>
+          <declname>el</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state" kindref="compound">PaintState</ref> &amp;</type>
+          <declname>inherited</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a781dc2ea72e21e51604d8cdae337f519" kindref="member">StyleMap</ref> &amp;</type>
+          <declname>classStyles</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/MermaidSVGParser.h" line="583" column="23" bodyfile="whelmed/MermaidSVGParser.h" bodystart="583" bodyend="633"/>
+        <references refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a53b6fc9e465a1062451fe9a544ab702c" compoundref="_mermaid_s_v_g_parser_8h" startline="542" endline="577">applyInlineStyle</references>
+        <references refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state_1a60597a9befc7570fb4777c0effb8354c" compoundref="_mermaid_s_v_g_parser_8h" startline="129" endline="129">whelmed::MermaidSVGParser::PaintState::fill</references>
+        <references refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state_1ad1b353fe2f1cef826919411d9a98012b" compoundref="_mermaid_s_v_g_parser_8h" startline="134" endline="134">whelmed::MermaidSVGParser::PaintState::fontSize</references>
+        <references refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state_1a0b527a84e85c245ed60ace17fa69e62c" compoundref="_mermaid_s_v_g_parser_8h" startline="132" endline="132">whelmed::MermaidSVGParser::PaintState::hasFill</references>
+        <references refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state_1a12a3e1c210e5556734d4eaf42edb3e9d" compoundref="_mermaid_s_v_g_parser_8h" startline="133" endline="133">whelmed::MermaidSVGParser::PaintState::hasStroke</references>
+        <references refid="classwhelmed_1_1_mermaid_s_v_g_parser_1aabf388cb9908663fc78453bd19a818cc" compoundref="_mermaid_s_v_g_parser_8h" startline="507" endline="512">mergePaintState</references>
+        <references refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a9b2553b1ca599383cf3ad2409f5c38f6" compoundref="_mermaid_s_v_g_parser_8h" startline="143" endline="177">parseColour</references>
+        <references refid="classwhelmed_1_1_mermaid_s_v_g_parser_1aa13cb437cafc4986e66a02fdfdf161ef" compoundref="_mermaid_s_v_g_parser_8h" startline="260" endline="271">parseStrokeWidth</references>
+        <references refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state_1ac60a75a288ad78d219068d5b06079edc" compoundref="_mermaid_s_v_g_parser_8h" startline="130" endline="130">whelmed::MermaidSVGParser::PaintState::stroke</references>
+        <references refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state_1a61e9bb7c05abcaf1a5453b975ffd6a94" compoundref="_mermaid_s_v_g_parser_8h" startline="131" endline="131">whelmed::MermaidSVGParser::PaintState::strokeWidth</references>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a4087f9fae87968cedd488dd0ddf0c0ef" compoundref="_mermaid_s_v_g_parser_8h" startline="954" endline="1041">buildTextPrimitive</referencedby>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1af601d1859223339352edc6b89a5a7a33" compoundref="_mermaid_s_v_g_parser_8h" startline="1054" endline="1205">walkElement</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classwhelmed_1_1_mermaid_s_v_g_parser_1a73afa939f7c7a3ce6d5f249d45421fd8" prot="private" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>juce::Path</type>
+        <definition>static juce::Path whelmed::MermaidSVGParser::pathFromRect</definition>
+        <argsstring>(const juce::XmlElement &amp;el, const juce::AffineTransform &amp;xf)</argsstring>
+        <name>pathFromRect</name>
+        <qualifiedname>whelmed::MermaidSVGParser::pathFromRect</qualifiedname>
+        <param>
+          <type>const juce::XmlElement &amp;</type>
+          <declname>el</declname>
+        </param>
+        <param>
+          <type>const juce::AffineTransform &amp;</type>
+          <declname>xf</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/MermaidSVGParser.h" line="638" column="23" bodyfile="whelmed/MermaidSVGParser.h" bodystart="638" bodyend="657"/>
+        <references refid="group__juce__audio__plugin__client-Unity_1ga2ee4d4f298ba1bf1bc2f45c681c40ca3">h</references>
+        <references refid="group__juce__audio__plugin__client-Unity_1ga9c08bc30636cc52269cf06d61cf5d4e8">w</references>
+        <references refid="group__juce__audio__plugin__client-Unity_1gad0da36b2558901e21e7a30f6c227a45e">x</references>
+        <references refid="group__juce__audio__plugin__client-Unity_1gae9ace15db486f33243a35ce689893fd9">y</references>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a8d4182f9a936d31dbd348ad8fd1acf65" compoundref="_mermaid_s_v_g_parser_8h" startline="764" endline="827">stampMarker</referencedby>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1af601d1859223339352edc6b89a5a7a33" compoundref="_mermaid_s_v_g_parser_8h" startline="1054" endline="1205">walkElement</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classwhelmed_1_1_mermaid_s_v_g_parser_1a01f4cfbe87781bb3043bcbbe735fa97a" prot="private" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>juce::Path</type>
+        <definition>static juce::Path whelmed::MermaidSVGParser::pathFromCircle</definition>
+        <argsstring>(const juce::XmlElement &amp;el, const juce::AffineTransform &amp;xf)</argsstring>
+        <name>pathFromCircle</name>
+        <qualifiedname>whelmed::MermaidSVGParser::pathFromCircle</qualifiedname>
+        <param>
+          <type>const juce::XmlElement &amp;</type>
+          <declname>el</declname>
+        </param>
+        <param>
+          <type>const juce::AffineTransform &amp;</type>
+          <declname>xf</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/MermaidSVGParser.h" line="659" column="23" bodyfile="whelmed/MermaidSVGParser.h" bodystart="659" bodyend="670"/>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a8d4182f9a936d31dbd348ad8fd1acf65" compoundref="_mermaid_s_v_g_parser_8h" startline="764" endline="827">stampMarker</referencedby>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1af601d1859223339352edc6b89a5a7a33" compoundref="_mermaid_s_v_g_parser_8h" startline="1054" endline="1205">walkElement</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classwhelmed_1_1_mermaid_s_v_g_parser_1af3ace8ae35cb9aafdc96dc4bec926226" prot="private" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>juce::Path</type>
+        <definition>static juce::Path whelmed::MermaidSVGParser::pathFromEllipse</definition>
+        <argsstring>(const juce::XmlElement &amp;el, const juce::AffineTransform &amp;xf)</argsstring>
+        <name>pathFromEllipse</name>
+        <qualifiedname>whelmed::MermaidSVGParser::pathFromEllipse</qualifiedname>
+        <param>
+          <type>const juce::XmlElement &amp;</type>
+          <declname>el</declname>
+        </param>
+        <param>
+          <type>const juce::AffineTransform &amp;</type>
+          <declname>xf</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/MermaidSVGParser.h" line="672" column="23" bodyfile="whelmed/MermaidSVGParser.h" bodystart="672" bodyend="684"/>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1af601d1859223339352edc6b89a5a7a33" compoundref="_mermaid_s_v_g_parser_8h" startline="1054" endline="1205">walkElement</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classwhelmed_1_1_mermaid_s_v_g_parser_1a1cdc391c2853e75b539d36fe06f6fc53" prot="private" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>juce::Path</type>
+        <definition>static juce::Path whelmed::MermaidSVGParser::pathFromLine</definition>
+        <argsstring>(const juce::XmlElement &amp;el, const juce::AffineTransform &amp;xf)</argsstring>
+        <name>pathFromLine</name>
+        <qualifiedname>whelmed::MermaidSVGParser::pathFromLine</qualifiedname>
+        <param>
+          <type>const juce::XmlElement &amp;</type>
+          <declname>el</declname>
+        </param>
+        <param>
+          <type>const juce::AffineTransform &amp;</type>
+          <declname>xf</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/MermaidSVGParser.h" line="686" column="23" bodyfile="whelmed/MermaidSVGParser.h" bodystart="686" bodyend="699"/>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a8d4182f9a936d31dbd348ad8fd1acf65" compoundref="_mermaid_s_v_g_parser_8h" startline="764" endline="827">stampMarker</referencedby>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1af601d1859223339352edc6b89a5a7a33" compoundref="_mermaid_s_v_g_parser_8h" startline="1054" endline="1205">walkElement</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classwhelmed_1_1_mermaid_s_v_g_parser_1a2360b232f87ac49d9a818dae81416eac" prot="private" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>juce::Path</type>
+        <definition>static juce::Path whelmed::MermaidSVGParser::pathFromPolygon</definition>
+        <argsstring>(const juce::XmlElement &amp;el, const juce::AffineTransform &amp;xf)</argsstring>
+        <name>pathFromPolygon</name>
+        <qualifiedname>whelmed::MermaidSVGParser::pathFromPolygon</qualifiedname>
+        <param>
+          <type>const juce::XmlElement &amp;</type>
+          <declname>el</declname>
+        </param>
+        <param>
+          <type>const juce::AffineTransform &amp;</type>
+          <declname>xf</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/MermaidSVGParser.h" line="701" column="23" bodyfile="whelmed/MermaidSVGParser.h" bodystart="701" bodyend="720"/>
+        <references refid="group__juce__audio__plugin__client-Unity_1gad0da36b2558901e21e7a30f6c227a45e">x</references>
+        <references refid="group__juce__audio__plugin__client-Unity_1gae9ace15db486f33243a35ce689893fd9">y</references>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a8d4182f9a936d31dbd348ad8fd1acf65" compoundref="_mermaid_s_v_g_parser_8h" startline="764" endline="827">stampMarker</referencedby>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1af601d1859223339352edc6b89a5a7a33" compoundref="_mermaid_s_v_g_parser_8h" startline="1054" endline="1205">walkElement</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classwhelmed_1_1_mermaid_s_v_g_parser_1a16e42ae1da7b782128a158719dc6f574" prot="private" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>juce::Path</type>
+        <definition>static juce::Path whelmed::MermaidSVGParser::pathFromPolyline</definition>
+        <argsstring>(const juce::XmlElement &amp;el, const juce::AffineTransform &amp;xf)</argsstring>
+        <name>pathFromPolyline</name>
+        <qualifiedname>whelmed::MermaidSVGParser::pathFromPolyline</qualifiedname>
+        <param>
+          <type>const juce::XmlElement &amp;</type>
+          <declname>el</declname>
+        </param>
+        <param>
+          <type>const juce::AffineTransform &amp;</type>
+          <declname>xf</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/MermaidSVGParser.h" line="722" column="23" bodyfile="whelmed/MermaidSVGParser.h" bodystart="722" bodyend="740"/>
+        <references refid="group__juce__audio__plugin__client-Unity_1gad0da36b2558901e21e7a30f6c227a45e">x</references>
+        <references refid="group__juce__audio__plugin__client-Unity_1gae9ace15db486f33243a35ce689893fd9">y</references>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1af601d1859223339352edc6b89a5a7a33" compoundref="_mermaid_s_v_g_parser_8h" startline="1054" endline="1205">walkElement</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classwhelmed_1_1_mermaid_s_v_g_parser_1a08559a6608d14b6ffd9394d6acfa914c" prot="private" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>juce::Path</type>
+        <definition>static juce::Path whelmed::MermaidSVGParser::pathFromSVGPath</definition>
+        <argsstring>(const juce::XmlElement &amp;el, const juce::AffineTransform &amp;xf)</argsstring>
+        <name>pathFromSVGPath</name>
+        <qualifiedname>whelmed::MermaidSVGParser::pathFromSVGPath</qualifiedname>
+        <param>
+          <type>const juce::XmlElement &amp;</type>
+          <declname>el</declname>
+        </param>
+        <param>
+          <type>const juce::AffineTransform &amp;</type>
+          <declname>xf</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/MermaidSVGParser.h" line="742" column="23" bodyfile="whelmed/MermaidSVGParser.h" bodystart="742" bodyend="756"/>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a8d4182f9a936d31dbd348ad8fd1acf65" compoundref="_mermaid_s_v_g_parser_8h" startline="764" endline="827">stampMarker</referencedby>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1af601d1859223339352edc6b89a5a7a33" compoundref="_mermaid_s_v_g_parser_8h" startline="1054" endline="1205">walkElement</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classwhelmed_1_1_mermaid_s_v_g_parser_1a8d4182f9a936d31dbd348ad8fd1acf65" prot="private" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>juce::Path</type>
+        <definition>static juce::Path whelmed::MermaidSVGParser::stampMarker</definition>
+        <argsstring>(const juce::XmlElement &amp;markerEl, juce::Point&lt; float &gt; endpoint, float tangentAngle)</argsstring>
+        <name>stampMarker</name>
+        <qualifiedname>whelmed::MermaidSVGParser::stampMarker</qualifiedname>
+        <param>
+          <type>const juce::XmlElement &amp;</type>
+          <declname>markerEl</declname>
+        </param>
+        <param>
+          <type>juce::Point&lt; float &gt;</type>
+          <declname>endpoint</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>tangentAngle</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/MermaidSVGParser.h" line="764" column="23" bodyfile="whelmed/MermaidSVGParser.h" bodystart="764" bodyend="827"/>
+        <references refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a01f4cfbe87781bb3043bcbbe735fa97a" compoundref="_mermaid_s_v_g_parser_8h" startline="659" endline="670">pathFromCircle</references>
+        <references refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a1cdc391c2853e75b539d36fe06f6fc53" compoundref="_mermaid_s_v_g_parser_8h" startline="686" endline="699">pathFromLine</references>
+        <references refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a2360b232f87ac49d9a818dae81416eac" compoundref="_mermaid_s_v_g_parser_8h" startline="701" endline="720">pathFromPolygon</references>
+        <references refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a73afa939f7c7a3ce6d5f249d45421fd8" compoundref="_mermaid_s_v_g_parser_8h" startline="638" endline="657">pathFromRect</references>
+        <references refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a08559a6608d14b6ffd9394d6acfa914c" compoundref="_mermaid_s_v_g_parser_8h" startline="742" endline="756">pathFromSVGPath</references>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1af601d1859223339352edc6b89a5a7a33" compoundref="_mermaid_s_v_g_parser_8h" startline="1054" endline="1205">walkElement</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classwhelmed_1_1_mermaid_s_v_g_parser_1a2a60bcf5c272d9c36aecce43f31e6e89" prot="private" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_path_end_info" kindref="compound">PathEndInfo</ref></type>
+        <definition>static PathEndInfo whelmed::MermaidSVGParser::getPathEnd</definition>
+        <argsstring>(const juce::Path &amp;path)</argsstring>
+        <name>getPathEnd</name>
+        <qualifiedname>whelmed::MermaidSVGParser::getPathEnd</qualifiedname>
+        <param>
+          <type>const juce::Path &amp;</type>
+          <declname>path</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/MermaidSVGParser.h" line="841" column="24" bodyfile="whelmed/MermaidSVGParser.h" bodystart="841" bodyend="890"/>
+        <references refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_path_end_info_1ae9164e460f9d056d1ecd5fafdce70267" compoundref="_mermaid_s_v_g_parser_8h" startline="836">whelmed::MermaidSVGParser::PathEndInfo::endpoint</references>
+        <references refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_path_end_info_1a8aa541911dc1a1854c27fc34436dcc51" compoundref="_mermaid_s_v_g_parser_8h" startline="837" endline="837">whelmed::MermaidSVGParser::PathEndInfo::tangentAngle</references>
+        <references refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_path_end_info_1a738e7d0225e88b07b394ce7d67acde6c" compoundref="_mermaid_s_v_g_parser_8h" startline="838" endline="838">whelmed::MermaidSVGParser::PathEndInfo::valid</references>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1af601d1859223339352edc6b89a5a7a33" compoundref="_mermaid_s_v_g_parser_8h" startline="1054" endline="1205">walkElement</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classwhelmed_1_1_mermaid_s_v_g_parser_1aac7549de9feace917917f2b9faad5281" prot="private" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_path_end_info" kindref="compound">PathEndInfo</ref></type>
+        <definition>static PathEndInfo whelmed::MermaidSVGParser::getPathStart</definition>
+        <argsstring>(const juce::Path &amp;path)</argsstring>
+        <name>getPathStart</name>
+        <qualifiedname>whelmed::MermaidSVGParser::getPathStart</qualifiedname>
+        <param>
+          <type>const juce::Path &amp;</type>
+          <declname>path</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/MermaidSVGParser.h" line="892" column="24" bodyfile="whelmed/MermaidSVGParser.h" bodystart="892" bodyend="926"/>
+        <references refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_path_end_info_1ae9164e460f9d056d1ecd5fafdce70267" compoundref="_mermaid_s_v_g_parser_8h" startline="836">whelmed::MermaidSVGParser::PathEndInfo::endpoint</references>
+        <references refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_path_end_info_1a8aa541911dc1a1854c27fc34436dcc51" compoundref="_mermaid_s_v_g_parser_8h" startline="837" endline="837">whelmed::MermaidSVGParser::PathEndInfo::tangentAngle</references>
+        <references refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_path_end_info_1a738e7d0225e88b07b394ce7d67acde6c" compoundref="_mermaid_s_v_g_parser_8h" startline="838" endline="838">whelmed::MermaidSVGParser::PathEndInfo::valid</references>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1af601d1859223339352edc6b89a5a7a33" compoundref="_mermaid_s_v_g_parser_8h" startline="1054" endline="1205">walkElement</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classwhelmed_1_1_mermaid_s_v_g_parser_1aa524747ed9644c592e7f9b2739910fd7" prot="private" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>juce::Rectangle&lt; float &gt;</type>
+        <definition>static juce::Rectangle&lt; float &gt; whelmed::MermaidSVGParser::parseViewBox</definition>
+        <argsstring>(const juce::XmlElement &amp;svg)</argsstring>
+        <name>parseViewBox</name>
+        <qualifiedname>whelmed::MermaidSVGParser::parseViewBox</qualifiedname>
+        <param>
+          <type>const juce::XmlElement &amp;</type>
+          <declname>svg</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/MermaidSVGParser.h" line="931" column="28" bodyfile="whelmed/MermaidSVGParser.h" bodystart="931" bodyend="949"/>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1aacc50475bb6b1818a98daf39e9ad1308" compoundref="_mermaid_s_v_g_parser_8h" startline="90" endline="122">parse</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classwhelmed_1_1_mermaid_s_v_g_parser_1a4087f9fae87968cedd488dd0ddf0c0ef" prot="private" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void whelmed::MermaidSVGParser::buildTextPrimitive</definition>
+        <argsstring>(const juce::XmlElement &amp;el, const juce::AffineTransform &amp;xf, const PaintState &amp;ps, const StyleMap &amp;classStyles, std::vector&lt; SVGTextPrimitive &gt; &amp;texts)</argsstring>
+        <name>buildTextPrimitive</name>
+        <qualifiedname>whelmed::MermaidSVGParser::buildTextPrimitive</qualifiedname>
+        <param>
+          <type>const juce::XmlElement &amp;</type>
+          <declname>el</declname>
+        </param>
+        <param>
+          <type>const juce::AffineTransform &amp;</type>
+          <declname>xf</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state" kindref="compound">PaintState</ref> &amp;</type>
+          <declname>ps</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a781dc2ea72e21e51604d8cdae337f519" kindref="member">StyleMap</ref> &amp;</type>
+          <declname>classStyles</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; <ref refid="structwhelmed_1_1_s_v_g_text_primitive" kindref="compound">SVGTextPrimitive</ref> &gt; &amp;</type>
+          <declname>texts</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/MermaidSVGParser.h" line="954" column="17" bodyfile="whelmed/MermaidSVGParser.h" bodystart="954" bodyend="1041"/>
+        <references refid="namespacejuce_1_1Colours_1a66baf4b357f69a75cd055fecebadba6e">juce::Colours::black</references>
+        <references refid="structwhelmed_1_1_s_v_g_text_primitive_1a2076a0cf17ae67cc7699ccf29f6a4c80" compoundref="_mermaid_s_v_g_parser_8h" startline="36">whelmed::SVGTextPrimitive::bounds</references>
+        <references refid="structwhelmed_1_1_s_v_g_text_primitive_1a038da78236aef592e7c783ad8a87a63f" compoundref="_mermaid_s_v_g_parser_8h" startline="37" endline="37">whelmed::SVGTextPrimitive::colour</references>
+        <references refid="structwhelmed_1_1_s_v_g_text_primitive_1a66585417766836ec5049baf72c6cbd4e" compoundref="_mermaid_s_v_g_parser_8h" startline="38" endline="38">whelmed::SVGTextPrimitive::fontSize</references>
+        <references refid="structwhelmed_1_1_s_v_g_text_primitive_1a7114887703d1dbe0e434994f07439c20" compoundref="_mermaid_s_v_g_parser_8h" startline="39" endline="39">whelmed::SVGTextPrimitive::justification</references>
+        <references refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a98549b4a4af496c0f019e4b4813996f7" compoundref="_mermaid_s_v_g_parser_8h" startline="1222" endline="1222">kCharWidthEstimate</references>
+        <references refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a9e6f90fada2e3b5f4379fabd88ef98ef" compoundref="_mermaid_s_v_g_parser_8h" startline="583" endline="633">resolveElementPaint</references>
+        <references refid="structwhelmed_1_1_s_v_g_text_primitive_1a564bd90ceec53eb5c7e66921f3733f0f" compoundref="_mermaid_s_v_g_parser_8h" startline="35">whelmed::SVGTextPrimitive::text</references>
+        <references refid="group__juce__audio__plugin__client-Unity_1gad0da36b2558901e21e7a30f6c227a45e">x</references>
+        <references refid="group__juce__audio__plugin__client-Unity_1gae9ace15db486f33243a35ce689893fd9">y</references>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1af601d1859223339352edc6b89a5a7a33" compoundref="_mermaid_s_v_g_parser_8h" startline="1054" endline="1205">walkElement</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classwhelmed_1_1_mermaid_s_v_g_parser_1af601d1859223339352edc6b89a5a7a33" prot="private" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void whelmed::MermaidSVGParser::walkElement</definition>
+        <argsstring>(const juce::XmlElement &amp;root, const juce::AffineTransform &amp;rootTransform, const PaintState &amp;rootPaint, const StyleMap &amp;classStyles, const MarkerMap &amp;markers, std::vector&lt; SVGPrimitive &gt; &amp;primitives, std::vector&lt; SVGTextPrimitive &gt; &amp;texts)</argsstring>
+        <name>walkElement</name>
+        <qualifiedname>whelmed::MermaidSVGParser::walkElement</qualifiedname>
+        <param>
+          <type>const juce::XmlElement &amp;</type>
+          <declname>root</declname>
+        </param>
+        <param>
+          <type>const juce::AffineTransform &amp;</type>
+          <declname>rootTransform</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state" kindref="compound">PaintState</ref> &amp;</type>
+          <declname>rootPaint</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a781dc2ea72e21e51604d8cdae337f519" kindref="member">StyleMap</ref> &amp;</type>
+          <declname>classStyles</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a3cd61aa5c5cc5b5730aeed97fee782ab" kindref="member">MarkerMap</ref> &amp;</type>
+          <declname>markers</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; <ref refid="structwhelmed_1_1_s_v_g_primitive" kindref="compound">SVGPrimitive</ref> &gt; &amp;</type>
+          <declname>primitives</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; <ref refid="structwhelmed_1_1_s_v_g_text_primitive" kindref="compound">SVGTextPrimitive</ref> &gt; &amp;</type>
+          <declname>texts</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/MermaidSVGParser.h" line="1054" column="17" bodyfile="whelmed/MermaidSVGParser.h" bodystart="1054" bodyend="1205"/>
+        <references refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a4087f9fae87968cedd488dd0ddf0c0ef" compoundref="_mermaid_s_v_g_parser_8h" startline="954" endline="1041">buildTextPrimitive</references>
+        <references refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a010900cad4afe5b14378312d5adb0461" compoundref="_mermaid_s_v_g_parser_8h" startline="1211" endline="1216">extractMarkerRef</references>
+        <references refid="structwhelmed_1_1_s_v_g_primitive_1aef885c59a71bf4c0154e4d156a125d61" compoundref="_mermaid_s_v_g_parser_8h" startline="19" endline="19">whelmed::SVGPrimitive::fillColour</references>
+        <references refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a2a60bcf5c272d9c36aecce43f31e6e89" compoundref="_mermaid_s_v_g_parser_8h" startline="841" endline="890">getPathEnd</references>
+        <references refid="classwhelmed_1_1_mermaid_s_v_g_parser_1aac7549de9feace917917f2b9faad5281" compoundref="_mermaid_s_v_g_parser_8h" startline="892" endline="926">getPathStart</references>
+        <references refid="structwhelmed_1_1_s_v_g_primitive_1a3196f59efe682df67efc0f5c36440803" compoundref="_mermaid_s_v_g_parser_8h" startline="22" endline="22">whelmed::SVGPrimitive::hasFill</references>
+        <references refid="structwhelmed_1_1_s_v_g_primitive_1a1e84fbcb77408e1637daf377528cc8d2" compoundref="_mermaid_s_v_g_parser_8h" startline="23" endline="23">whelmed::SVGPrimitive::hasStroke</references>
+        <references refid="classwhelmed_1_1_mermaid_s_v_g_parser_1afde1a403573958fe7d7231effda08491" compoundref="_mermaid_s_v_g_parser_8h" startline="1225" endline="1225">kStackReserveSize</references>
+        <references refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a582a2a0cb0bb8921b5baa38c37590483" compoundref="_mermaid_s_v_g_parser_8h" startline="276" endline="355">parseTransform</references>
+        <references refid="structwhelmed_1_1_s_v_g_primitive_1a03dfc9cf2f1b5c4c2daf1ed62986617b" compoundref="_mermaid_s_v_g_parser_8h" startline="18">whelmed::SVGPrimitive::path</references>
+        <references refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a01f4cfbe87781bb3043bcbbe735fa97a" compoundref="_mermaid_s_v_g_parser_8h" startline="659" endline="670">pathFromCircle</references>
+        <references refid="classwhelmed_1_1_mermaid_s_v_g_parser_1af3ace8ae35cb9aafdc96dc4bec926226" compoundref="_mermaid_s_v_g_parser_8h" startline="672" endline="684">pathFromEllipse</references>
+        <references refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a1cdc391c2853e75b539d36fe06f6fc53" compoundref="_mermaid_s_v_g_parser_8h" startline="686" endline="699">pathFromLine</references>
+        <references refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a2360b232f87ac49d9a818dae81416eac" compoundref="_mermaid_s_v_g_parser_8h" startline="701" endline="720">pathFromPolygon</references>
+        <references refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a16e42ae1da7b782128a158719dc6f574" compoundref="_mermaid_s_v_g_parser_8h" startline="722" endline="740">pathFromPolyline</references>
+        <references refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a73afa939f7c7a3ce6d5f249d45421fd8" compoundref="_mermaid_s_v_g_parser_8h" startline="638" endline="657">pathFromRect</references>
+        <references refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a08559a6608d14b6ffd9394d6acfa914c" compoundref="_mermaid_s_v_g_parser_8h" startline="742" endline="756">pathFromSVGPath</references>
+        <references refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a9e6f90fada2e3b5f4379fabd88ef98ef" compoundref="_mermaid_s_v_g_parser_8h" startline="583" endline="633">resolveElementPaint</references>
+        <references refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a8d4182f9a936d31dbd348ad8fd1acf65" compoundref="_mermaid_s_v_g_parser_8h" startline="764" endline="827">stampMarker</references>
+        <references refid="structwhelmed_1_1_s_v_g_primitive_1ad8a68fc8ff230ce31de20c71047ee593" compoundref="_mermaid_s_v_g_parser_8h" startline="20" endline="20">whelmed::SVGPrimitive::strokeColour</references>
+        <references refid="structwhelmed_1_1_s_v_g_primitive_1a537dbb80be09caa0b079d05cc900e1cf" compoundref="_mermaid_s_v_g_parser_8h" startline="21" endline="21">whelmed::SVGPrimitive::strokeWidth</references>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1aacc50475bb6b1818a98daf39e9ad1308" compoundref="_mermaid_s_v_g_parser_8h" startline="90" endline="122">parse</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classwhelmed_1_1_mermaid_s_v_g_parser_1a010900cad4afe5b14378312d5adb0461" prot="private" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>juce::String</type>
+        <definition>static juce::String whelmed::MermaidSVGParser::extractMarkerRef</definition>
+        <argsstring>(const juce::String &amp;urlRef)</argsstring>
+        <name>extractMarkerRef</name>
+        <qualifiedname>whelmed::MermaidSVGParser::extractMarkerRef</qualifiedname>
+        <param>
+          <type>const juce::String &amp;</type>
+          <declname>urlRef</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/MermaidSVGParser.h" line="1211" column="25" bodyfile="whelmed/MermaidSVGParser.h" bodystart="1211" bodyend="1216"/>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1af601d1859223339352edc6b89a5a7a33" compoundref="_mermaid_s_v_g_parser_8h" startline="1054" endline="1205">walkElement</referencedby>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Parses mermaid.js SVG string output into flat lists of <ref refid="structwhelmed_1_1_s_v_g_primitive" kindref="compound">SVGPrimitive</ref> and <ref refid="structwhelmed_1_1_s_v_g_text_primitive" kindref="compound">SVGTextPrimitive</ref>, ready for juce::Graphics rendering. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Usage: <programlisting><codeline><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>result<sp/>=<sp/><ref refid="classwhelmed_1_1_mermaid_s_v_g_parser_1aacc50475bb6b1818a98daf39e9ad1308" kindref="member">MermaidSVGParser::parse</ref><sp/>(svgString);</highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(result.ok)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keyword">auto</highlight><highlight class="normal">&amp;<sp/>p<sp/>:<sp/>result.primitives)</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(p.hasFill)</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>g.setColour<sp/>(p.fillColour);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>g.fillPath<sp/>(p.path);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(p.hasStroke)</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>g.setColour<sp/>(p.strokeColour);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>g.strokePath<sp/>(p.path,<sp/>juce::PathStrokeType<sp/>(p.strokeWidth));</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keyword">auto</highlight><highlight class="normal">&amp;<sp/>t<sp/>:<sp/>result.texts)</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>g.setColour<sp/>(t.colour);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>g.setFont<sp/>(t.fontSize);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>g.drawText<sp/>(t.text,<sp/>t.bounds,<sp/>t.justification,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+</programlisting> </para>
+    </detaileddescription>
+    <location file="whelmed/MermaidSVGParser.h" line="86" column="1" bodyfile="whelmed/MermaidSVGParser.h" bodystart="87" bodyend="1228"/>
+    <listofallmembers>
+      <member refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a53b6fc9e465a1062451fe9a544ab702c" prot="private" virt="non-virtual"><scope>whelmed::MermaidSVGParser</scope><name>applyInlineStyle</name></member>
+      <member refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a4087f9fae87968cedd488dd0ddf0c0ef" prot="private" virt="non-virtual"><scope>whelmed::MermaidSVGParser</scope><name>buildTextPrimitive</name></member>
+      <member refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a2daac368a46e1d949fae77d234fc04b4" prot="private" virt="non-virtual"><scope>whelmed::MermaidSVGParser</scope><name>collectMarkers</name></member>
+      <member refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a010900cad4afe5b14378312d5adb0461" prot="private" virt="non-virtual"><scope>whelmed::MermaidSVGParser</scope><name>extractMarkerRef</name></member>
+      <member refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a2a60bcf5c272d9c36aecce43f31e6e89" prot="private" virt="non-virtual"><scope>whelmed::MermaidSVGParser</scope><name>getPathEnd</name></member>
+      <member refid="classwhelmed_1_1_mermaid_s_v_g_parser_1aac7549de9feace917917f2b9faad5281" prot="private" virt="non-virtual"><scope>whelmed::MermaidSVGParser</scope><name>getPathStart</name></member>
+      <member refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a98549b4a4af496c0f019e4b4813996f7" prot="private" virt="non-virtual"><scope>whelmed::MermaidSVGParser</scope><name>kCharWidthEstimate</name></member>
+      <member refid="classwhelmed_1_1_mermaid_s_v_g_parser_1afde1a403573958fe7d7231effda08491" prot="private" virt="non-virtual"><scope>whelmed::MermaidSVGParser</scope><name>kStackReserveSize</name></member>
+      <member refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a3cd61aa5c5cc5b5730aeed97fee782ab" prot="private" virt="non-virtual"><scope>whelmed::MermaidSVGParser</scope><name>MarkerMap</name></member>
+      <member refid="classwhelmed_1_1_mermaid_s_v_g_parser_1aabf388cb9908663fc78453bd19a818cc" prot="private" virt="non-virtual"><scope>whelmed::MermaidSVGParser</scope><name>mergePaintState</name></member>
+      <member refid="classwhelmed_1_1_mermaid_s_v_g_parser_1aacc50475bb6b1818a98daf39e9ad1308" prot="public" virt="non-virtual"><scope>whelmed::MermaidSVGParser</scope><name>parse</name></member>
+      <member refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a9b2553b1ca599383cf3ad2409f5c38f6" prot="private" virt="non-virtual"><scope>whelmed::MermaidSVGParser</scope><name>parseColour</name></member>
+      <member refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a9afeca08c883ec9d30d3d46e560fd646" prot="private" virt="non-virtual"><scope>whelmed::MermaidSVGParser</scope><name>parseCSS</name></member>
+      <member refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a17c99c96116086050b2c6a7a870d0697" prot="private" virt="non-virtual"><scope>whelmed::MermaidSVGParser</scope><name>parseCSSBody</name></member>
+      <member refid="classwhelmed_1_1_mermaid_s_v_g_parser_1ac16410559f06fdea1db4bd63e5eb8803" prot="private" virt="non-virtual"><scope>whelmed::MermaidSVGParser</scope><name>parseDefsMarkers</name></member>
+      <member refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a098243e1a62cf8a30134d8db1d5efaa8" prot="private" virt="non-virtual"><scope>whelmed::MermaidSVGParser</scope><name>parseHex</name></member>
+      <member refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a32a21a8d0208da82b3cf865191821f43" prot="private" virt="non-virtual"><scope>whelmed::MermaidSVGParser</scope><name>parseHSL</name></member>
+      <member refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a23e16c2a8f759d877d6507abff176c41" prot="private" virt="non-virtual"><scope>whelmed::MermaidSVGParser</scope><name>parseRGB</name></member>
+      <member refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a2508a992d8ef4a984528d6fe9fb3d9b9" prot="private" virt="non-virtual"><scope>whelmed::MermaidSVGParser</scope><name>parseRGBA</name></member>
+      <member refid="classwhelmed_1_1_mermaid_s_v_g_parser_1aa13cb437cafc4986e66a02fdfdf161ef" prot="private" virt="non-virtual"><scope>whelmed::MermaidSVGParser</scope><name>parseStrokeWidth</name></member>
+      <member refid="classwhelmed_1_1_mermaid_s_v_g_parser_1ad4f42702968d7ef246e0a6e9c09ddef6" prot="private" virt="non-virtual"><scope>whelmed::MermaidSVGParser</scope><name>parseStyleBlock</name></member>
+      <member refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a582a2a0cb0bb8921b5baa38c37590483" prot="private" virt="non-virtual"><scope>whelmed::MermaidSVGParser</scope><name>parseTransform</name></member>
+      <member refid="classwhelmed_1_1_mermaid_s_v_g_parser_1aa524747ed9644c592e7f9b2739910fd7" prot="private" virt="non-virtual"><scope>whelmed::MermaidSVGParser</scope><name>parseViewBox</name></member>
+      <member refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a01f4cfbe87781bb3043bcbbe735fa97a" prot="private" virt="non-virtual"><scope>whelmed::MermaidSVGParser</scope><name>pathFromCircle</name></member>
+      <member refid="classwhelmed_1_1_mermaid_s_v_g_parser_1af3ace8ae35cb9aafdc96dc4bec926226" prot="private" virt="non-virtual"><scope>whelmed::MermaidSVGParser</scope><name>pathFromEllipse</name></member>
+      <member refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a1cdc391c2853e75b539d36fe06f6fc53" prot="private" virt="non-virtual"><scope>whelmed::MermaidSVGParser</scope><name>pathFromLine</name></member>
+      <member refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a2360b232f87ac49d9a818dae81416eac" prot="private" virt="non-virtual"><scope>whelmed::MermaidSVGParser</scope><name>pathFromPolygon</name></member>
+      <member refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a16e42ae1da7b782128a158719dc6f574" prot="private" virt="non-virtual"><scope>whelmed::MermaidSVGParser</scope><name>pathFromPolyline</name></member>
+      <member refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a73afa939f7c7a3ce6d5f249d45421fd8" prot="private" virt="non-virtual"><scope>whelmed::MermaidSVGParser</scope><name>pathFromRect</name></member>
+      <member refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a08559a6608d14b6ffd9394d6acfa914c" prot="private" virt="non-virtual"><scope>whelmed::MermaidSVGParser</scope><name>pathFromSVGPath</name></member>
+      <member refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a9e6f90fada2e3b5f4379fabd88ef98ef" prot="private" virt="non-virtual"><scope>whelmed::MermaidSVGParser</scope><name>resolveElementPaint</name></member>
+      <member refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a8d4182f9a936d31dbd348ad8fd1acf65" prot="private" virt="non-virtual"><scope>whelmed::MermaidSVGParser</scope><name>stampMarker</name></member>
+      <member refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a781dc2ea72e21e51604d8cdae337f519" prot="private" virt="non-virtual"><scope>whelmed::MermaidSVGParser</scope><name>StyleMap</name></member>
+      <member refid="classwhelmed_1_1_mermaid_s_v_g_parser_1af601d1859223339352edc6b89a5a7a33" prot="private" virt="non-virtual"><scope>whelmed::MermaidSVGParser</scope><name>walkElement</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

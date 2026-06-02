@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="struct_map" kind="struct" language="C++" prot="public">
+    <compoundname>Map</compoundname>
+    <includes refid="_map_8h" local="no">Map.h</includes>
+    <innerclass refid="struct_map_1_1_bool" prot="public">Map::Bool</innerclass>
+    <innerclass refid="struct_map_1_1_screen" prot="public">Map::Screen</innerclass>
+    <innerclass refid="struct_map_1_1_gpu" prot="public">Map::Gpu</innerclass>
+    <innerclass refid="struct_map_1_1_cursor" prot="public">Map::Cursor</innerclass>
+    <innerclass refid="struct_map_1_1_tab_position" prot="public">Map::TabPosition</innerclass>
+    <innerclass refid="struct_map_1_1_renderer" prot="public">Map::Renderer</innerclass>
+    <innerclass refid="struct_map_1_1_pane_type" prot="public">Map::PaneType</innerclass>
+    <innerclass refid="struct_map_1_1_direction" prot="public">Map::Direction</innerclass>
+    <innerclass refid="struct_map_1_1_position" prot="public">Map::Position</innerclass>
+    <innerclass refid="struct_map_1_1_link_handler" prot="public">Map::LinkHandler</innerclass>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="Map.h" line="7" column="1" bodyfile="Map.h" bodystart="8" bodyend="200"/>
+    <listofallmembers>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -4,7 +4,7 @@
  *
  * All Parameter infrastructure (ParameterBase, Parameter<int>, Parameter<const char*>) is provided
  * by jam_data_structures (jam_parameter.h). This header imports them into the
- * Terminal namespace for unqualified use by terminal::State and related code.
+ * Terminal namespace for unqualified use by terminal::Model and related code.
  *
  * @see jam::ParameterBase
  * @see jam::Parameter<int>

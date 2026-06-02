@@ -31,7 +31,7 @@ void List::valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier&)
                     if (registry != nullptr)
                         luaEngine.buildKeyMap (*registry);
 
-                    state.get().setProperty (bindingsDirtyId, true, nullptr);
+                    state.setTreeProperty (bindingsDirtyId, true, nullptr);
                 }
             }
         }
@@ -39,9 +39,9 @@ void List::valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier&)
 }
 
 //==============================================================================
-int List::getBindingRowIndex() const { return static_cast<int> (state.get().getProperty (bindingRowIndexId)); }
+int List::getBindingRowIndex() const { return static_cast<int> (state.getTreeProperty (bindingRowIndexId)); }
 
-void List::setBindingRowIndex (int index) { state.get().setProperty (bindingRowIndexId, index, nullptr); }
+void List::setBindingRowIndex (int index) { state.setTreeProperty (bindingRowIndexId, index, nullptr); }
 
 //==============================================================================
 void List::enterBindingMode()
@@ -87,7 +87,7 @@ bool List::handleBindingKey (const juce::KeyPress& key)
                     luaEngine.patchKey (rows.at (static_cast<std::size_t> (targetIndex))->actionConfigKey, shortcutString);
                     luaEngine.load();
                     luaEngine.buildKeyMap (*registry);
-                    state.get().setProperty (bindingsDirtyId, true, nullptr);
+                    state.setTreeProperty (bindingsDirtyId, true, nullptr);
 
                     if (auto* label { rows.at (static_cast<std::size_t> (targetIndex))->getShortcutLabel() };
                         label != nullptr)

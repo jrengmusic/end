@@ -12,7 +12,7 @@
 #pragma once
 #include <JuceHeader.h>
 #include "../../AppIdentifier.h"
-#include "../../AppState.h"
+#include "../../AppModel.h"
 
 /**
  * @class PaneComponent
@@ -35,10 +35,10 @@ public:
 
     void focusGained (FocusChangeType) override
     {
-        AppState::getContext()->setModalType (0);
-        AppState::getContext()->setSelectionType (0);
-        AppState::getContext()->setActivePaneID (getComponentID());
-        AppState::getContext()->setActivePaneType (getPaneType());
+        AppModel::getContext()->setModalType (0);
+        AppModel::getContext()->setSelectionType (0);
+        AppModel::getContext()->setActivePaneID (getComponentID());
+        AppModel::getContext()->setActivePaneType (getPaneType());
     }
 
     /**
@@ -52,7 +52,7 @@ public:
     virtual juce::String getPaneType() const noexcept = 0;
 
     /**
-     * @brief Returns the pane's root ValueTree for grafting into AppState.
+     * @brief Returns the pane's root ValueTree for grafting into AppModel.
      * @note MESSAGE THREAD.
      */
     virtual juce::ValueTree getValueTree() noexcept = 0;

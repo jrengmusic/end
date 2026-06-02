@@ -1,0 +1,135 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="struct_map_1_1_direction" kind="struct" language="C++" prot="public">
+    <compoundname>Map::Direction</compoundname>
+    <basecompoundref refid="classjam_1_1_map_1_1_instance" prot="public" virt="non-virtual">jam::Map::Instance&lt; Direction &gt;</basecompoundref>
+    <includes refid="_map_8h" local="no">Map.h</includes>
+    <sectiondef kind="public-type">
+      <memberdef kind="enum" id="struct_map_1_1_direction_1a26339c3147cc15168e6f57e5311e02eb" prot="public" static="no" strong="no">
+        <type></type>
+        <name>@267366127114362245337152051343234246065117125375</name>
+        <qualifiedname>Map::Direction::@267366127114362245337152051343234246065117125375</qualifiedname>
+        <enumvalue id="struct_map_1_1_direction_1a26339c3147cc15168e6f57e5311e02eba2405acc619c38fd5c5956fe998b1c1e5" prot="public">
+          <name>vertical</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="struct_map_1_1_direction_1a26339c3147cc15168e6f57e5311e02eba163192a120a2ef0704c5b907acd32227" prot="public">
+          <name>horizontal</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Map.h" line="156" column="9" bodyfile="Map.h" bodystart="156" bodyend="156"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="public-func">
+      <memberdef kind="function" id="struct_map_1_1_direction_1af05562deff5e438fce74ccc6dab6ec9c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Map::Direction::Direction</definition>
+        <argsstring>()</argsstring>
+        <name>Direction</name>
+        <qualifiedname>Map::Direction::Direction</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Map.h" line="148" column="9" bodyfile="Map.h" bodystart="148" bodyend="154"/>
+        <references refid="struct_map_1_1_direction_1a26339c3147cc15168e6f57e5311e02eba163192a120a2ef0704c5b907acd32227" compoundref="_map_8h" startline="156">horizontal</references>
+        <references refid="classjam_1_1_map_1_1_instance_1af839c922a9f9a6c1a8ef2b7102af4d77">jam::Map::Instance&lt; Direction &gt;::map</references>
+        <references refid="struct_map_1_1_direction_1a26339c3147cc15168e6f57e5311e02eba2405acc619c38fd5c5956fe998b1c1e5" compoundref="_map_8h" startline="156">vertical</references>
+      </memberdef>
+      <memberdef kind="function" id="struct_map_1_1_direction_1ae5f7b82c8c2d5bb665bd57d9f245a4e7" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="virtual">
+        <type>const juce::String &amp;</type>
+        <definition>const juce::String &amp; Map::Direction::getDefault</definition>
+        <argsstring>() const noexcept override</argsstring>
+        <name>getDefault</name>
+        <qualifiedname>Map::Direction::getDefault</qualifiedname>
+        <reimplements refid="classjam_1_1_map_1_1_instance_1acf3bf9980fc2a26ba7a0c79c65908550">getDefault</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Map.h" line="158" column="28" bodyfile="Map.h" bodystart="158" bodyend="161"/>
+        <references refid="classjam_1_1_map_1_1_instance_1af839c922a9f9a6c1a8ef2b7102af4d77">jam::Map::Instance&lt; Direction &gt;::map</references>
+        <references refid="struct_map_1_1_direction_1a26339c3147cc15168e6f57e5311e02eba2405acc619c38fd5c5956fe998b1c1e5" compoundref="_map_8h" startline="156">vertical</references>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>Map::Direction</label>
+        <link refid="struct_map_1_1_direction"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>jam::Context&lt; Derived &gt;</label>
+        <link refid="structjam_1_1_context" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+      <node id="2">
+        <label>jam::Map::Instance&lt; Direction &gt;</label>
+        <link refid="classjam_1_1_map_1_1_instance" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>Map::Direction</label>
+        <link refid="struct_map_1_1_direction"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>jam::Context&lt; Derived &gt;</label>
+        <link refid="structjam_1_1_context" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+      <node id="2">
+        <label>jam::Map::Instance&lt; Direction &gt;</label>
+        <link refid="classjam_1_1_map_1_1_instance" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>map</edgelabel>
+        </childnode>
+      </node>
+      <node id="4">
+        <label>std::map&lt; int, juce::String &gt;</label>
+      </node>
+    </collaborationgraph>
+    <location file="Map.h" line="146" column="5" bodyfile="Map.h" bodystart="147" bodyend="162"/>
+    <listofallmembers>
+      <member refid="structjam_1_1_context_1a6e3f38a234db8ff2a9acb5986e72a2de" prot="public" virt="non-virtual"><scope>Map::Direction</scope><name>Context</name></member>
+      <member refid="struct_map_1_1_direction_1af05562deff5e438fce74ccc6dab6ec9c" prot="public" virt="non-virtual"><scope>Map::Direction</scope><name>Direction</name></member>
+      <member refid="classjam_1_1_map_1_1_instance_1a098abe8fd166d7d61763bf0d215799cd" prot="public" virt="non-virtual"><scope>Map::Direction</scope><name>get</name></member>
+      <member refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3" prot="public" virt="non-virtual"><scope>Map::Direction</scope><name>getContext</name></member>
+      <member refid="struct_map_1_1_direction_1ae5f7b82c8c2d5bb665bd57d9f245a4e7" prot="public" virt="virtual"><scope>Map::Direction</scope><name>getDefault</name></member>
+      <member refid="structjam_1_1_context_1a5900ff66cdba02d6f6947cc6d5e8ec3d" prot="private" virt="non-virtual"><scope>Map::Direction</scope><name>head</name></member>
+      <member refid="struct_map_1_1_direction_1a26339c3147cc15168e6f57e5311e02eba163192a120a2ef0704c5b907acd32227" prot="public" virt="non-virtual"><scope>Map::Direction</scope><name>horizontal</name></member>
+      <member refid="classjam_1_1_map_1_1_instance_1af839c922a9f9a6c1a8ef2b7102af4d77" prot="protected" virt="non-virtual"><scope>Map::Direction</scope><name>map</name></member>
+      <member refid="structjam_1_1_context_1a6716feb60b039083ca0c099a506a3474" prot="public" virt="non-virtual"><scope>Map::Direction</scope><name>operator=</name></member>
+      <member refid="structjam_1_1_context_1aa1862120f2983ab7ddef536ba03bb114" prot="private" virt="non-virtual"><scope>Map::Direction</scope><name>previous</name></member>
+      <member refid="struct_map_1_1_direction_1a26339c3147cc15168e6f57e5311e02eba2405acc619c38fd5c5956fe998b1c1e5" prot="public" virt="non-virtual"><scope>Map::Direction</scope><name>vertical</name></member>
+      <member refid="structjam_1_1_context_1a4169820e71837632922d3d17b377aeee" prot="public" virt="virtual"><scope>Map::Direction</scope><name>~Context</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

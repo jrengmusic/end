@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="dir_c549b29247b0723868cf05cb62d308d7" kind="dir">
+    <compoundname>whelmed</compoundname>
+    <innerdir refid="dir_6b710078e5c892f0af32e51ffac12ea9">whelmed/component</innerdir>
+    <innerfile refid="_block_8h">Block.h</innerfile>
+    <innerfile refid="_generic_tokeniser_8cpp">GenericTokeniser.cpp</innerfile>
+    <innerfile refid="_generic_tokeniser_8h">GenericTokeniser.h</innerfile>
+    <innerfile refid="_input_handler_8cpp">InputHandler.cpp</innerfile>
+    <innerfile refid="_input_handler_8h">InputHandler.h</innerfile>
+    <innerfile refid="_mermaid_block_8cpp">MermaidBlock.cpp</innerfile>
+    <innerfile refid="_mermaid_block_8h">MermaidBlock.h</innerfile>
+    <innerfile refid="_mermaid_s_v_g_parser_8h">MermaidSVGParser.h</innerfile>
+    <innerfile refid="whelmed_2_parser_8cpp">Parser.cpp</innerfile>
+    <innerfile refid="whelmed_2_parser_8h">Parser.h</innerfile>
+    <innerfile refid="_screen_8cpp">Screen.cpp</innerfile>
+    <innerfile refid="_screen_8h">Screen.h</innerfile>
+    <innerfile refid="_state_8cpp">State.cpp</innerfile>
+    <innerfile refid="_state_8h">State.h</innerfile>
+    <innerfile refid="_table_block_8cpp">TableBlock.cpp</innerfile>
+    <innerfile refid="_table_block_8h">TableBlock.h</innerfile>
+    <innerfile refid="_text_block_8cpp">TextBlock.cpp</innerfile>
+    <innerfile refid="_text_block_8h">TextBlock.h</innerfile>
+    <innerfile refid="_tokenizer_8cpp">Tokenizer.cpp</innerfile>
+    <innerfile refid="_tokenizer_8h">Tokenizer.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="whelmed/"/>
+  </compounddef>
+</doxygen>

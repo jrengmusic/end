@@ -1,0 +1,490 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="classwhelmed_1_1_parser" kind="class" language="C++" prot="public">
+    <compoundname>whelmed::Parser</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">juce::Thread</basecompoundref>
+    <includes refid="whelmed_2_parser_8h" local="no">Parser.h</includes>
+    <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classwhelmed_1_1_parser_1a0b3630eec446e7cac7b71bc4dae8fcdf" prot="private" static="no" mutable="no">
+        <type><ref refid="classwhelmed_1_1_state" kindref="compound">State</ref> &amp;</type>
+        <definition>State&amp; whelmed::Parser::state</definition>
+        <argsstring></argsstring>
+        <name>state</name>
+        <qualifiedname>whelmed::Parser::state</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/Parser.h" line="21" column="11" bodyfile="whelmed/Parser.h" bodystart="21" bodyend="-1"/>
+        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="7" endline="31">Parser</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="44" endline="91">run</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classwhelmed_1_1_parser_1aa6e7fd7c7999562d74932f9898999505" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int whelmed::Parser::startBlock</definition>
+        <argsstring></argsstring>
+        <name>startBlock</name>
+        <qualifiedname>whelmed::Parser::startBlock</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/Parser.h" line="22" column="9" bodyfile="whelmed/Parser.h" bodystart="22" bodyend="-1"/>
+        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="7" endline="31">Parser</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="44" endline="91">run</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classwhelmed_1_1_parser_1a99d6a3f8c6b27a63cf6e3cf57818b7e9" prot="private" static="no" mutable="no">
+        <type>float</type>
+        <definition>float whelmed::Parser::bodySize</definition>
+        <argsstring></argsstring>
+        <name>bodySize</name>
+        <qualifiedname>whelmed::Parser::bodySize</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/Parser.h" line="24" column="11" bodyfile="whelmed/Parser.h" bodystart="24" bodyend="-1"/>
+        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="7" endline="31">Parser</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="44" endline="91">run</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classwhelmed_1_1_parser_1a2d6ab1866927c262d86a68407bbca58b" prot="private" static="no" mutable="no">
+        <type>float</type>
+        <definition>float whelmed::Parser::h1Size</definition>
+        <argsstring></argsstring>
+        <name>h1Size</name>
+        <qualifiedname>whelmed::Parser::h1Size</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/Parser.h" line="25" column="11" bodyfile="whelmed/Parser.h" bodystart="25" bodyend="-1"/>
+        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="7" endline="31">Parser</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="44" endline="91">run</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classwhelmed_1_1_parser_1a933999e8eebb37ec031d3c8c598c57f6" prot="private" static="no" mutable="no">
+        <type>float</type>
+        <definition>float whelmed::Parser::h2Size</definition>
+        <argsstring></argsstring>
+        <name>h2Size</name>
+        <qualifiedname>whelmed::Parser::h2Size</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/Parser.h" line="26" column="11" bodyfile="whelmed/Parser.h" bodystart="26" bodyend="-1"/>
+        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="7" endline="31">Parser</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="44" endline="91">run</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classwhelmed_1_1_parser_1ae0bb5aa790a98ddce05fd33ce8f1a6e3" prot="private" static="no" mutable="no">
+        <type>float</type>
+        <definition>float whelmed::Parser::h3Size</definition>
+        <argsstring></argsstring>
+        <name>h3Size</name>
+        <qualifiedname>whelmed::Parser::h3Size</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/Parser.h" line="27" column="11" bodyfile="whelmed/Parser.h" bodystart="27" bodyend="-1"/>
+        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="7" endline="31">Parser</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="44" endline="91">run</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classwhelmed_1_1_parser_1a6cf1e4311c846fcc7f7227b0a10300a6" prot="private" static="no" mutable="no">
+        <type>float</type>
+        <definition>float whelmed::Parser::h4Size</definition>
+        <argsstring></argsstring>
+        <name>h4Size</name>
+        <qualifiedname>whelmed::Parser::h4Size</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/Parser.h" line="28" column="11" bodyfile="whelmed/Parser.h" bodystart="28" bodyend="-1"/>
+        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="7" endline="31">Parser</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="44" endline="91">run</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classwhelmed_1_1_parser_1ab7b3d71d8daea0b2f9a9abedb76308ff" prot="private" static="no" mutable="no">
+        <type>float</type>
+        <definition>float whelmed::Parser::h5Size</definition>
+        <argsstring></argsstring>
+        <name>h5Size</name>
+        <qualifiedname>whelmed::Parser::h5Size</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/Parser.h" line="29" column="11" bodyfile="whelmed/Parser.h" bodystart="29" bodyend="-1"/>
+        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="7" endline="31">Parser</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="44" endline="91">run</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classwhelmed_1_1_parser_1a2201808114693d9c45ef6760354e23fe" prot="private" static="no" mutable="no">
+        <type>float</type>
+        <definition>float whelmed::Parser::h6Size</definition>
+        <argsstring></argsstring>
+        <name>h6Size</name>
+        <qualifiedname>whelmed::Parser::h6Size</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/Parser.h" line="30" column="11" bodyfile="whelmed/Parser.h" bodystart="30" bodyend="-1"/>
+        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="7" endline="31">Parser</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="44" endline="91">run</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classwhelmed_1_1_parser_1a127d16e549d18b16c69fbebdc69939c6" prot="private" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour whelmed::Parser::bodyColour</definition>
+        <argsstring></argsstring>
+        <name>bodyColour</name>
+        <qualifiedname>whelmed::Parser::bodyColour</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/Parser.h" line="32" column="18" bodyfile="whelmed/Parser.h" bodystart="32" bodyend="-1"/>
+        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="7" endline="31">Parser</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="44" endline="91">run</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classwhelmed_1_1_parser_1a396a1f2e66629c24e73887efc6ab02f7" prot="private" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour whelmed::Parser::h1Colour</definition>
+        <argsstring></argsstring>
+        <name>h1Colour</name>
+        <qualifiedname>whelmed::Parser::h1Colour</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/Parser.h" line="33" column="18" bodyfile="whelmed/Parser.h" bodystart="33" bodyend="-1"/>
+        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="7" endline="31">Parser</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="44" endline="91">run</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classwhelmed_1_1_parser_1a3c2edd77d0d1d3754703e09fb31e3271" prot="private" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour whelmed::Parser::h2Colour</definition>
+        <argsstring></argsstring>
+        <name>h2Colour</name>
+        <qualifiedname>whelmed::Parser::h2Colour</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/Parser.h" line="34" column="18" bodyfile="whelmed/Parser.h" bodystart="34" bodyend="-1"/>
+        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="7" endline="31">Parser</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="44" endline="91">run</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classwhelmed_1_1_parser_1afbe296285760d010a36fba6f18f7c261" prot="private" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour whelmed::Parser::h3Colour</definition>
+        <argsstring></argsstring>
+        <name>h3Colour</name>
+        <qualifiedname>whelmed::Parser::h3Colour</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/Parser.h" line="35" column="18" bodyfile="whelmed/Parser.h" bodystart="35" bodyend="-1"/>
+        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="7" endline="31">Parser</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="44" endline="91">run</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classwhelmed_1_1_parser_1a110e3f34c6a3758e351f0d81c492290e" prot="private" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour whelmed::Parser::h4Colour</definition>
+        <argsstring></argsstring>
+        <name>h4Colour</name>
+        <qualifiedname>whelmed::Parser::h4Colour</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/Parser.h" line="36" column="18" bodyfile="whelmed/Parser.h" bodystart="36" bodyend="-1"/>
+        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="7" endline="31">Parser</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="44" endline="91">run</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classwhelmed_1_1_parser_1a3deab1a18a22edab439b6b31d1805c66" prot="private" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour whelmed::Parser::h5Colour</definition>
+        <argsstring></argsstring>
+        <name>h5Colour</name>
+        <qualifiedname>whelmed::Parser::h5Colour</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/Parser.h" line="37" column="18" bodyfile="whelmed/Parser.h" bodystart="37" bodyend="-1"/>
+        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="7" endline="31">Parser</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="44" endline="91">run</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classwhelmed_1_1_parser_1ac71d24dd460c432c126541268c31022b" prot="private" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour whelmed::Parser::h6Colour</definition>
+        <argsstring></argsstring>
+        <name>h6Colour</name>
+        <qualifiedname>whelmed::Parser::h6Colour</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/Parser.h" line="38" column="18" bodyfile="whelmed/Parser.h" bodystart="38" bodyend="-1"/>
+        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="7" endline="31">Parser</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="44" endline="91">run</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classwhelmed_1_1_parser_1ab88c4e608bf03dcb787924e47dc139bf" prot="private" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour whelmed::Parser::codeColour</definition>
+        <argsstring></argsstring>
+        <name>codeColour</name>
+        <qualifiedname>whelmed::Parser::codeColour</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/Parser.h" line="39" column="18" bodyfile="whelmed/Parser.h" bodystart="39" bodyend="-1"/>
+        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="7" endline="31">Parser</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="44" endline="91">run</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classwhelmed_1_1_parser_1a4454cb0fb831527460a6749dfab285ef" prot="private" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour whelmed::Parser::linkColour</definition>
+        <argsstring></argsstring>
+        <name>linkColour</name>
+        <qualifiedname>whelmed::Parser::linkColour</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/Parser.h" line="40" column="18" bodyfile="whelmed/Parser.h" bodystart="40" bodyend="-1"/>
+        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="7" endline="31">Parser</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="44" endline="91">run</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="public-func">
+      <memberdef kind="function" id="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>whelmed::Parser::Parser</definition>
+        <argsstring>(State &amp;state, int startBlock)</argsstring>
+        <name>Parser</name>
+        <qualifiedname>whelmed::Parser::Parser</qualifiedname>
+        <param>
+          <type><ref refid="classwhelmed_1_1_state" kindref="compound">State</ref> &amp;</type>
+          <declname>state</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>startBlock</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/Parser.h" line="13" column="5" bodyfile="whelmed/Parser.cpp" bodystart="7" bodyend="31"/>
+        <references refid="classwhelmed_1_1_parser_1a127d16e549d18b16c69fbebdc69939c6" compoundref="whelmed_2_parser_8h" startline="32">bodyColour</references>
+        <references refid="classwhelmed_1_1_parser_1a99d6a3f8c6b27a63cf6e3cf57818b7e9" compoundref="whelmed_2_parser_8h" startline="24">bodySize</references>
+        <references refid="classwhelmed_1_1_parser_1ab88c4e608bf03dcb787924e47dc139bf" compoundref="whelmed_2_parser_8h" startline="39">codeColour</references>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
+        <references refid="classwhelmed_1_1_parser_1a396a1f2e66629c24e73887efc6ab02f7" compoundref="whelmed_2_parser_8h" startline="33">h1Colour</references>
+        <references refid="classwhelmed_1_1_parser_1a2d6ab1866927c262d86a68407bbca58b" compoundref="whelmed_2_parser_8h" startline="25">h1Size</references>
+        <references refid="classwhelmed_1_1_parser_1a3c2edd77d0d1d3754703e09fb31e3271" compoundref="whelmed_2_parser_8h" startline="34">h2Colour</references>
+        <references refid="classwhelmed_1_1_parser_1a933999e8eebb37ec031d3c8c598c57f6" compoundref="whelmed_2_parser_8h" startline="26">h2Size</references>
+        <references refid="classwhelmed_1_1_parser_1afbe296285760d010a36fba6f18f7c261" compoundref="whelmed_2_parser_8h" startline="35">h3Colour</references>
+        <references refid="classwhelmed_1_1_parser_1ae0bb5aa790a98ddce05fd33ce8f1a6e3" compoundref="whelmed_2_parser_8h" startline="27">h3Size</references>
+        <references refid="classwhelmed_1_1_parser_1a110e3f34c6a3758e351f0d81c492290e" compoundref="whelmed_2_parser_8h" startline="36">h4Colour</references>
+        <references refid="classwhelmed_1_1_parser_1a6cf1e4311c846fcc7f7227b0a10300a6" compoundref="whelmed_2_parser_8h" startline="28">h4Size</references>
+        <references refid="classwhelmed_1_1_parser_1a3deab1a18a22edab439b6b31d1805c66" compoundref="whelmed_2_parser_8h" startline="37">h5Colour</references>
+        <references refid="classwhelmed_1_1_parser_1ab7b3d71d8daea0b2f9a9abedb76308ff" compoundref="whelmed_2_parser_8h" startline="29">h5Size</references>
+        <references refid="classwhelmed_1_1_parser_1ac71d24dd460c432c126541268c31022b" compoundref="whelmed_2_parser_8h" startline="38">h6Colour</references>
+        <references refid="classwhelmed_1_1_parser_1a2201808114693d9c45ef6760354e23fe" compoundref="whelmed_2_parser_8h" startline="30">h6Size</references>
+        <references refid="classwhelmed_1_1_parser_1a4454cb0fb831527460a6749dfab285ef" compoundref="whelmed_2_parser_8h" startline="40">linkColour</references>
+        <references refid="classwhelmed_1_1_parser_1ade02c6c2510bed94ddcee46f947268f3" compoundref="whelmed_2_parser_8cpp" startline="39" endline="42">start</references>
+        <references refid="classwhelmed_1_1_parser_1aa6e7fd7c7999562d74932f9898999505" compoundref="whelmed_2_parser_8h" startline="22">startBlock</references>
+        <references refid="classwhelmed_1_1_parser_1a0b3630eec446e7cac7b71bc4dae8fcdf" compoundref="whelmed_2_parser_8h" startline="21">state</references>
+      </memberdef>
+      <memberdef kind="function" id="classwhelmed_1_1_parser_1ae480906e1cd2ed2102d9b92760fbc0a0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>whelmed::Parser::~Parser</definition>
+        <argsstring>() override</argsstring>
+        <name>~Parser</name>
+        <qualifiedname>whelmed::Parser::~Parser</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/Parser.h" line="14" column="5" bodyfile="whelmed/Parser.cpp" bodystart="33" bodyend="37"/>
+      </memberdef>
+      <memberdef kind="function" id="classwhelmed_1_1_parser_1ade02c6c2510bed94ddcee46f947268f3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void whelmed::Parser::start</definition>
+        <argsstring>()</argsstring>
+        <name>start</name>
+        <qualifiedname>whelmed::Parser::start</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/Parser.h" line="16" column="10" bodyfile="whelmed/Parser.cpp" bodystart="39" bodyend="42"/>
+        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="7" endline="31">Parser</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="private-func">
+      <memberdef kind="function" id="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void whelmed::Parser::run</definition>
+        <argsstring>() override</argsstring>
+        <name>run</name>
+        <qualifiedname>whelmed::Parser::run</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/Parser.h" line="19" column="10" bodyfile="whelmed/Parser.cpp" bodystart="44" bodyend="91"/>
+        <references refid="classwhelmed_1_1_parser_1a127d16e549d18b16c69fbebdc69939c6" compoundref="whelmed_2_parser_8h" startline="32">bodyColour</references>
+        <references refid="classwhelmed_1_1_parser_1a99d6a3f8c6b27a63cf6e3cf57818b7e9" compoundref="whelmed_2_parser_8h" startline="24">bodySize</references>
+        <references refid="namespacejam_1_1_markdown_1a4ba238a36059399ca33400bd8e3e7471a518fa5caca6d8a5b52cd9584db42406b">jam::Markdown::Code</references>
+        <references refid="classwhelmed_1_1_parser_1ab88c4e608bf03dcb787924e47dc139bf" compoundref="whelmed_2_parser_8h" startline="39">codeColour</references>
+        <references refid="classwhelmed_1_1_parser_1a396a1f2e66629c24e73887efc6ab02f7" compoundref="whelmed_2_parser_8h" startline="33">h1Colour</references>
+        <references refid="classwhelmed_1_1_parser_1a2d6ab1866927c262d86a68407bbca58b" compoundref="whelmed_2_parser_8h" startline="25">h1Size</references>
+        <references refid="classwhelmed_1_1_parser_1a3c2edd77d0d1d3754703e09fb31e3271" compoundref="whelmed_2_parser_8h" startline="34">h2Colour</references>
+        <references refid="classwhelmed_1_1_parser_1a933999e8eebb37ec031d3c8c598c57f6" compoundref="whelmed_2_parser_8h" startline="26">h2Size</references>
+        <references refid="classwhelmed_1_1_parser_1afbe296285760d010a36fba6f18f7c261" compoundref="whelmed_2_parser_8h" startline="35">h3Colour</references>
+        <references refid="classwhelmed_1_1_parser_1ae0bb5aa790a98ddce05fd33ce8f1a6e3" compoundref="whelmed_2_parser_8h" startline="27">h3Size</references>
+        <references refid="classwhelmed_1_1_parser_1a110e3f34c6a3758e351f0d81c492290e" compoundref="whelmed_2_parser_8h" startline="36">h4Colour</references>
+        <references refid="classwhelmed_1_1_parser_1a6cf1e4311c846fcc7f7227b0a10300a6" compoundref="whelmed_2_parser_8h" startline="28">h4Size</references>
+        <references refid="classwhelmed_1_1_parser_1a3deab1a18a22edab439b6b31d1805c66" compoundref="whelmed_2_parser_8h" startline="37">h5Colour</references>
+        <references refid="classwhelmed_1_1_parser_1ab7b3d71d8daea0b2f9a9abedb76308ff" compoundref="whelmed_2_parser_8h" startline="29">h5Size</references>
+        <references refid="classwhelmed_1_1_parser_1ac71d24dd460c432c126541268c31022b" compoundref="whelmed_2_parser_8h" startline="38">h6Colour</references>
+        <references refid="classwhelmed_1_1_parser_1a2201808114693d9c45ef6760354e23fe" compoundref="whelmed_2_parser_8h" startline="30">h6Size</references>
+        <references refid="namespacejam_1_1_markdown_1a4ba238a36059399ca33400bd8e3e7471a6c6ea9c297669582ad2dd8312f3fecc8">jam::Markdown::Link</references>
+        <references refid="classwhelmed_1_1_parser_1a4454cb0fb831527460a6749dfab285ef" compoundref="whelmed_2_parser_8h" startline="40">linkColour</references>
+        <references refid="namespacejam_1_1_markdown_1a4ba238a36059399ca33400bd8e3e7471ae8277a5f9f30b6cf71fce06914d7cc52">jam::Markdown::None</references>
+        <references refid="classwhelmed_1_1_parser_1aa6e7fd7c7999562d74932f9898999505" compoundref="whelmed_2_parser_8h" startline="22">startBlock</references>
+        <references refid="classwhelmed_1_1_parser_1a0b3630eec446e7cac7b71bc4dae8fcdf" compoundref="whelmed_2_parser_8h" startline="21">state</references>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>juce::Thread</label>
+      </node>
+      <node id="1">
+        <label>whelmed::Parser</label>
+        <link refid="classwhelmed_1_1_parser"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="5">
+        <label>jam::Markdown::ParsedDocument</label>
+        <link refid="structjam_1_1_markdown_1_1_parsed_document" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+      <node id="2">
+        <label>juce::Thread</label>
+      </node>
+      <node id="4">
+        <label>juce::Timer</label>
+      </node>
+      <node id="7">
+        <label>std::atomic&lt; bool &gt;</label>
+      </node>
+      <node id="6">
+        <label>std::atomic&lt; int &gt;</label>
+      </node>
+      <node id="1">
+        <label>whelmed::Parser</label>
+        <link refid="classwhelmed_1_1_parser"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>state</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>whelmed::State</label>
+        <link refid="classwhelmed_1_1_state"/>
+        <childnode refid="4" relation="private-inheritance">
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>document</edgelabel>
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>completedBlockCount</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>parseComplete</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="whelmed/Parser.h" line="10" column="1" bodyfile="whelmed/Parser.h" bodystart="11" bodyend="43"/>
+    <listofallmembers>
+      <member refid="classwhelmed_1_1_parser_1a127d16e549d18b16c69fbebdc69939c6" prot="private" virt="non-virtual"><scope>whelmed::Parser</scope><name>bodyColour</name></member>
+      <member refid="classwhelmed_1_1_parser_1a99d6a3f8c6b27a63cf6e3cf57818b7e9" prot="private" virt="non-virtual"><scope>whelmed::Parser</scope><name>bodySize</name></member>
+      <member refid="classwhelmed_1_1_parser_1ab88c4e608bf03dcb787924e47dc139bf" prot="private" virt="non-virtual"><scope>whelmed::Parser</scope><name>codeColour</name></member>
+      <member refid="classwhelmed_1_1_parser_1a396a1f2e66629c24e73887efc6ab02f7" prot="private" virt="non-virtual"><scope>whelmed::Parser</scope><name>h1Colour</name></member>
+      <member refid="classwhelmed_1_1_parser_1a2d6ab1866927c262d86a68407bbca58b" prot="private" virt="non-virtual"><scope>whelmed::Parser</scope><name>h1Size</name></member>
+      <member refid="classwhelmed_1_1_parser_1a3c2edd77d0d1d3754703e09fb31e3271" prot="private" virt="non-virtual"><scope>whelmed::Parser</scope><name>h2Colour</name></member>
+      <member refid="classwhelmed_1_1_parser_1a933999e8eebb37ec031d3c8c598c57f6" prot="private" virt="non-virtual"><scope>whelmed::Parser</scope><name>h2Size</name></member>
+      <member refid="classwhelmed_1_1_parser_1afbe296285760d010a36fba6f18f7c261" prot="private" virt="non-virtual"><scope>whelmed::Parser</scope><name>h3Colour</name></member>
+      <member refid="classwhelmed_1_1_parser_1ae0bb5aa790a98ddce05fd33ce8f1a6e3" prot="private" virt="non-virtual"><scope>whelmed::Parser</scope><name>h3Size</name></member>
+      <member refid="classwhelmed_1_1_parser_1a110e3f34c6a3758e351f0d81c492290e" prot="private" virt="non-virtual"><scope>whelmed::Parser</scope><name>h4Colour</name></member>
+      <member refid="classwhelmed_1_1_parser_1a6cf1e4311c846fcc7f7227b0a10300a6" prot="private" virt="non-virtual"><scope>whelmed::Parser</scope><name>h4Size</name></member>
+      <member refid="classwhelmed_1_1_parser_1a3deab1a18a22edab439b6b31d1805c66" prot="private" virt="non-virtual"><scope>whelmed::Parser</scope><name>h5Colour</name></member>
+      <member refid="classwhelmed_1_1_parser_1ab7b3d71d8daea0b2f9a9abedb76308ff" prot="private" virt="non-virtual"><scope>whelmed::Parser</scope><name>h5Size</name></member>
+      <member refid="classwhelmed_1_1_parser_1ac71d24dd460c432c126541268c31022b" prot="private" virt="non-virtual"><scope>whelmed::Parser</scope><name>h6Colour</name></member>
+      <member refid="classwhelmed_1_1_parser_1a2201808114693d9c45ef6760354e23fe" prot="private" virt="non-virtual"><scope>whelmed::Parser</scope><name>h6Size</name></member>
+      <member refid="classwhelmed_1_1_parser_1a4454cb0fb831527460a6749dfab285ef" prot="private" virt="non-virtual"><scope>whelmed::Parser</scope><name>linkColour</name></member>
+      <member refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" prot="public" virt="non-virtual"><scope>whelmed::Parser</scope><name>Parser</name></member>
+      <member refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" prot="private" virt="non-virtual"><scope>whelmed::Parser</scope><name>run</name></member>
+      <member refid="classwhelmed_1_1_parser_1ade02c6c2510bed94ddcee46f947268f3" prot="public" virt="non-virtual"><scope>whelmed::Parser</scope><name>start</name></member>
+      <member refid="classwhelmed_1_1_parser_1aa6e7fd7c7999562d74932f9898999505" prot="private" virt="non-virtual"><scope>whelmed::Parser</scope><name>startBlock</name></member>
+      <member refid="classwhelmed_1_1_parser_1a0b3630eec446e7cac7b71bc4dae8fcdf" prot="private" virt="non-virtual"><scope>whelmed::Parser</scope><name>state</name></member>
+      <member refid="classwhelmed_1_1_parser_1ae480906e1cd2ed2102d9b92760fbc0a0" prot="public" virt="non-virtual"><scope>whelmed::Parser</scope><name>~Parser</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

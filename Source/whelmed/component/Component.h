@@ -17,7 +17,7 @@
 #include "../InputHandler.h"
 #include "../MermaidSVGParser.h"
 #include "../../lua/Engine.h"
-#include "../../AppState.h"
+#include "../../AppModel.h"
 #include "../../ModalType.h"
 #include "../../SelectionType.h"
 
@@ -58,7 +58,7 @@ public:
     juce::ValueTree getValueTree() noexcept override;
 
 private:
-    void applyFromAppState() noexcept;
+    void applyFromAppModel() noexcept;
     void valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
 
     State docState;

@@ -8,7 +8,7 @@
  *
  * @par Thread model
  * All methods are **READER THREAD** only.  `setCellSize()` is called by
- * `Processor::process()` on the reader thread when State's cell dimension
+ * `Processor::process()` on the reader thread when Model's cell dimension
  * atomics differ from Video's cached values.
  *
  * @see SixelDecoder

@@ -1,0 +1,142 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="_key_handler_8h" kind="file" language="C++">
+    <compoundname>KeyHandler.h</compoundname>
+    <includes local="no">JuceHeader.h</includes>
+    <includedby refid="_action_list_8h" local="yes">terminal/action/ActionList.h</includedby>
+    <includedby refid="_key_handler_8cpp" local="yes">terminal/action/KeyHandler.cpp</includedby>
+    <incdepgraph>
+      <node id="1">
+        <label>terminal/action/KeyHandler.h</label>
+        <link refid="_key_handler_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>JuceHeader.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="5">
+        <label>Main.cpp</label>
+        <link refid="_main_8cpp"/>
+      </node>
+      <node id="4">
+        <label>Main.h</label>
+        <link refid="_main_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>MainComponent.cpp</label>
+        <link refid="_main_component_8cpp"/>
+      </node>
+      <node id="3">
+        <label>MainComponent.h</label>
+        <link refid="_main_component_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>MainComponentActions.cpp</label>
+        <link refid="_main_component_actions_8cpp"/>
+      </node>
+      <node id="8">
+        <label>terminal/action/ActionList.cpp</label>
+        <link refid="_action_list_8cpp"/>
+      </node>
+      <node id="2">
+        <label>terminal/action/ActionList.h</label>
+        <link refid="_action_list_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>terminal/action/ActionListBinding.cpp</label>
+        <link refid="_action_list_binding_8cpp"/>
+      </node>
+      <node id="10">
+        <label>terminal/action/ActionListSelection.cpp</label>
+        <link refid="_action_list_selection_8cpp"/>
+      </node>
+      <node id="11">
+        <label>terminal/action/KeyHandler.cpp</label>
+        <link refid="_key_handler_8cpp"/>
+      </node>
+      <node id="1">
+        <label>terminal/action/KeyHandler.h</label>
+        <link refid="_key_handler_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="classaction_1_1_key_handler" prot="public">action::KeyHandler</innerclass>
+    <innerclass refid="structaction_1_1_key_handler_1_1_callbacks" prot="public">action::KeyHandler::Callbacks</innerclass>
+    <innernamespace refid="namespaceaction">action</innernamespace>
+    <briefdescription>
+<para>Keyboard dispatch for <ref refid="classaction_1_1_list" kindref="compound">action::List</ref> — unified navigation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#pragma<sp/>once</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;JuceHeader.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespaceaction" kindref="compound">action</ref></highlight></codeline>
+<codeline lineno="11"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="comment">/*____________________________________________________________________________*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21" refid="classaction_1_1_key_handler" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classaction_1_1_key_handler_1a9cff4f5b65c448212d02af620d8119d4" kindref="member">KeyHandler</ref></highlight></codeline>
+<codeline lineno="22"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="24" refid="structaction_1_1_key_handler_1_1_callbacks" refkind="compound"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structaction_1_1_key_handler_1_1_callbacks" kindref="compound">Callbacks</ref></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="26" refid="structaction_1_1_key_handler_1_1_callbacks_1ac5397548f84b96891a6f89f7bc21b8bb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::function&lt;void()&gt;<sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structaction_1_1_key_handler_1_1_callbacks_1ac5397548f84b96891a6f89f7bc21b8bb" kindref="member">executeSelected</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="27" refid="structaction_1_1_key_handler_1_1_callbacks_1a118f74f00cc61a1f15cdc545ad8bb105" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::function&lt;void()&gt;<sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structaction_1_1_key_handler_1_1_callbacks_1a118f74f00cc61a1f15cdc545ad8bb105" kindref="member">dismiss</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="28" refid="structaction_1_1_key_handler_1_1_callbacks_1a842a36d355cbe5588fae75cc9a867f53" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::function&lt;void()&gt;<sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structaction_1_1_key_handler_1_1_callbacks_1a842a36d355cbe5588fae75cc9a867f53" kindref="member">clearSearch</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="29" refid="structaction_1_1_key_handler_1_1_callbacks_1a5fb092a1e01d1b1266f10c08c34723f8" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::function&lt;void()&gt;<sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structaction_1_1_key_handler_1_1_callbacks_1a5fb092a1e01d1b1266f10c08c34723f8" kindref="member">enterBindingMode</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="30" refid="structaction_1_1_key_handler_1_1_callbacks_1a19cb2c00d44a6e1d8a7bbecf217619e7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::function&lt;void(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal">)&gt;<sp/><sp/><sp/><ref refid="structaction_1_1_key_handler_1_1_callbacks_1a19cb2c00d44a6e1d8a7bbecf217619e7" kindref="member">selectRow</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="31" refid="structaction_1_1_key_handler_1_1_callbacks_1a12c9123cc47c8ac9b53de57a6a0710ff" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::function&lt;int()&gt;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structaction_1_1_key_handler_1_1_callbacks_1a12c9123cc47c8ac9b53de57a6a0710ff" kindref="member">visibleRowCount</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="32" refid="structaction_1_1_key_handler_1_1_callbacks_1ae8383a108aa02c12ac0a8cb3961c792a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::function&lt;int()&gt;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structaction_1_1_key_handler_1_1_callbacks_1ae8383a108aa02c12ac0a8cb3961c792a" kindref="member">selectedIndex</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">explicit</highlight><highlight class="normal"><sp/><ref refid="classaction_1_1_key_handler_1a9cff4f5b65c448212d02af620d8119d4" kindref="member">KeyHandler</ref><sp/>(<ref refid="structaction_1_1_key_handler_1_1_callbacks" kindref="compound">Callbacks</ref><sp/><ref refid="classaction_1_1_key_handler_1ae62b299ce0e526c1158a82a870a8068e" kindref="member">callbacks</ref>);</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classaction_1_1_key_handler_1a622d1e4365e2bd5b668b474eb39ae524" kindref="member">handleKey</ref><sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::KeyPress&amp;<sp/>key);</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="40" refid="classaction_1_1_key_handler_1a379c1ef2c674ffbd369f710d45c1091a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">using<sp/></highlight><highlight class="normal"><ref refid="classaction_1_1_key_handler_1a379c1ef2c674ffbd369f710d45c1091a" kindref="member">KeyAction</ref><sp/>=<sp/>std::function&lt;void()&gt;;</highlight></codeline>
+<codeline lineno="41" refid="classaction_1_1_key_handler_1a6817d3ecf994e5c5e8fdb657283c26ad" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">using<sp/></highlight><highlight class="normal"><ref refid="classaction_1_1_key_handler_1a6817d3ecf994e5c5e8fdb657283c26ad" kindref="member">KeyTable</ref><sp/><sp/>=<sp/>std::unordered_map&lt;int,<sp/>KeyAction&gt;;</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43" refid="classaction_1_1_key_handler_1ae62b299ce0e526c1158a82a870a8068e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structaction_1_1_key_handler_1_1_callbacks" kindref="compound">Callbacks</ref><sp/><ref refid="classaction_1_1_key_handler_1ae62b299ce0e526c1158a82a870a8068e" kindref="member">callbacks</ref>;</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45" refid="classaction_1_1_key_handler_1a58f019b6fcbd3bc472c0a761b2f336d3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classaction_1_1_key_handler_1a6817d3ecf994e5c5e8fdb657283c26ad" kindref="member">KeyTable</ref><sp/><ref refid="classaction_1_1_key_handler_1a58f019b6fcbd3bc472c0a761b2f336d3" kindref="member">searchTable</ref>;</highlight></codeline>
+<codeline lineno="46" refid="classaction_1_1_key_handler_1a60e13a4da372559a748d80f11fc1f62f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classaction_1_1_key_handler_1a6817d3ecf994e5c5e8fdb657283c26ad" kindref="member">KeyTable</ref><sp/><ref refid="classaction_1_1_key_handler_1a60e13a4da372559a748d80f11fc1f62f" kindref="member">navigationTable</ref>;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classaction_1_1_key_handler_1af498c10378c633003ccea3c86336e121" kindref="member">buildSearchTable</ref>();</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classaction_1_1_key_handler_1a7de785fa1f1c62c90d7287a14c3a8045" kindref="member">buildNavigationTable</ref>();</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="group__juce__core-system_1ga851b02724a8158a7f746c66b5758b3dd" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR</ref><sp/>(<ref refid="classaction_1_1_key_handler_1a9cff4f5b65c448212d02af620d8119d4" kindref="member">KeyHandler</ref>)</highlight></codeline>
+<codeline lineno="53"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>action</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="terminal/action/KeyHandler.h"/>
+  </compounddef>
+</doxygen>

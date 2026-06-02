@@ -65,10 +65,10 @@
  *
  * @note All functions in this file run on the READER THREAD only.
  *
- * @see jam::Cell — the drawing attribute cell mutated by SGR
+ * @see jam::Char — the packed character atom written by SGR pen state
  * @see palette256At() — xterm-256 colour table accessor
  * @see CSI    — parameter accumulator supplying the SGR parameter list
- * @see jam::Cell — style bit flags (BOLD, ITALIC, UNDERLINE, BLINK, INVERSE, STRIKE)
+ * @see jam::Char — style bit flags (BOLD, ITALIC, UNDERLINE, BLINK, INVERSE, STRIKE)
  */
 
 #include "Video.h"
@@ -251,7 +251,7 @@ static void resetSGRStyle (uint8_t& flags, uint16_t code) noexcept
  * @see parseExtendedColor() — handles 38;5;N and 38;2;R;G;B sub-sequences
  * @see applySGRStyle()   — sets individual style bits
  * @see resetSGRStyle()   — clears individual style bits
- * @see jam::Cell         — the drawing attribute cell being mutated
+ * @see jam::Char         — the packed character atom being written
  */
 void Video::handleSGR (const CSI& params) noexcept
 {

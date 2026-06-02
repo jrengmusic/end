@@ -12,9 +12,9 @@ namespace terminal
 /*____________________________________________________________________________*/
 void Tabs::increaseZoom()
 {
-    const float current { AppState::getContext()->getWindowZoom() };
+    const float current { AppModel::getContext()->getWindowZoom() };
     const float newZoom { juce::jlimit (lua::Engine::zoomMin, lua::Engine::zoomMax, current + lua::Engine::zoomStep) };
-    AppState::getContext()->setWindowZoom (newZoom);
+    AppModel::getContext()->setWindowZoom (newZoom);
 
     for (auto& p : panes)
     {
@@ -27,9 +27,9 @@ void Tabs::increaseZoom()
 
 void Tabs::decreaseZoom()
 {
-    const float current { AppState::getContext()->getWindowZoom() };
+    const float current { AppModel::getContext()->getWindowZoom() };
     const float newZoom { juce::jlimit (lua::Engine::zoomMin, lua::Engine::zoomMax, current - lua::Engine::zoomStep) };
-    AppState::getContext()->setWindowZoom (newZoom);
+    AppModel::getContext()->setWindowZoom (newZoom);
 
     for (auto& p : panes)
     {
@@ -43,7 +43,7 @@ void Tabs::decreaseZoom()
 void Tabs::resetZoom()
 {
     const float defaultZoom { lua::Engine::zoomMin };
-    AppState::getContext()->setWindowZoom (defaultZoom);
+    AppModel::getContext()->setWindowZoom (defaultZoom);
 
     for (auto& p : panes)
     {
@@ -61,8 +61,8 @@ void Tabs::splitHorizontal()
         active->splitHorizontal();
         focusLastTerminal (active);
 
-        if (AppState::getContext()->isDaemonMode())
-            AppState::getContext()->save();
+        if (AppModel::getContext()->isDaemonMode())
+            AppModel::getContext()->save();
     }
 }
 
@@ -73,8 +73,8 @@ void Tabs::splitVertical()
         active->splitVertical();
         focusLastTerminal (active);
 
-        if (AppState::getContext()->isDaemonMode())
-            AppState::getContext()->save();
+        if (AppModel::getContext()->isDaemonMode())
+            AppModel::getContext()->save();
     }
 }
 
@@ -85,8 +85,8 @@ void Tabs::splitActiveWithRatio (const juce::String& direction, bool isVertical,
         active->splitActiveWithRatio (direction, isVertical, ratio);
         focusLastTerminal (active);
 
-        if (AppState::getContext()->isDaemonMode())
-            AppState::getContext()->save();
+        if (AppModel::getContext()->isDaemonMode())
+            AppModel::getContext()->save();
     }
 }
 
@@ -118,7 +118,7 @@ void Tabs::focusPaneRight()
  * @brief Walks saved TAB nodes, creates tabs, and replays splits.
  *
  * Caller must pass a deep copy of the saved TABS tree detached from the live
- * AppState tree — this method walks it directly without aliasing live state.
+ * AppModel tree — this method walks it directly without aliasing live state.
  *
  * For each TAB child: locates the first PANE leaf (DFS, left-first) to obtain
  * uuid and cwd for addNewTab, then recursively descends the PANES subtree
@@ -126,7 +126,7 @@ void Tabs::focusPaneRight()
  * splitAt call per internal PANES node with 2 children. Overwrites the default
  * ratio on each new split node with the saved value.
  *
- * @param savedTabs   Deep copy of the TABS node — not aliased with live AppState.
+ * @param savedTabs   Deep copy of the TABS node — not aliased with live AppModel.
  * @param contentRect Chrome-subtracted pixel rect for dim computation.
  * @note MESSAGE THREAD.
  */

@@ -27,7 +27,7 @@
 #include "Panes.h"
 #include "LookAndFeel.h"
 #include "../../whelmed/component/Component.h"
-#include "../../AppState.h"
+#include "../../AppModel.h"
 #include "../Identifier.h"
 #include "../../nexus/Nexus.h"
 
@@ -66,7 +66,7 @@ public:
      * @brief Create and add a new terminal tab.
      *
      * Creates a new Panes instance, creates its first terminal, grafts the
-     * PANES tree into AppState, and switches to the new tab.
+     * PANES tree into AppModel, and switches to the new tab.
      *
      * @note MESSAGE THREAD.
      */
@@ -76,7 +76,7 @@ public:
      * @brief Walks saved TAB nodes, creates tabs, and replays splits.
      *
      * Caller must pass a deep copy of the saved TABS tree detached from
-     * the live AppState tree — this method walks it directly without aliasing.
+     * the live AppModel tree — this method walks it directly without aliasing.
      *
      * @param savedTabs   Deep copy of the TABS node from `end-<id>.state`.
      * @param contentRect Chrome-subtracted content rect for dim computation.
@@ -349,7 +349,7 @@ private:
      */
     void updateTabBarVisibility();
 
-    /** @brief Tracks focus changes to update the active terminal UUID in AppState. */
+    /** @brief Tracks focus changes to update the active terminal UUID in AppModel. */
     void globalFocusChanged (juce::Component* focusedComponent) override;
 
     /** @brief Updates the tab name when the bound displayName value changes. */
@@ -376,7 +376,7 @@ private:
      * @brief Returns the content rect available for Panes given a tab-bar depth.
      *
      * Uses jam::PaneManager::resizerBarSize as SSOT — matches layoutNode arithmetic exactly.
-     * Falls back to AppState window size when getLocalBounds() is empty (pre-layout on first spawn).
+     * Falls back to AppModel window size when getLocalBounds() is empty (pre-layout on first spawn).
      *
      * @param tabBarDepth  Tab-bar pixel depth to subtract from the base bounds.
      * @return Pixel rect available for the active Panes component.

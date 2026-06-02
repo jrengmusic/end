@@ -14,7 +14,7 @@
  * ### Startup sequence
  * @code
  * lua::Engine ctor    → loads ~/.config/end/end.lua (requires nexus, display, whelmed, keys, popups, actions modules)
- * AppState ctor       → initDefaults() only (no filesystem access)
+ * AppModel ctor       → initDefaults() only (no filesystem access)
  * FontCollection ctor → loads font handles at default size
  * initialise()        → resolves UUID, sets nexus mode, loads state (daemon: full via appState.load(); standalone: window size only),
  *                       creates Window(new MainComponent()), then Nexus + Daemon/Link

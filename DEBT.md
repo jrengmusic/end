@@ -8,6 +8,14 @@
 
 ---
 
+## DEBT-20260602T000000
+
+**Observation:** Content doubling on live output (cd, ls, or any shell command). The previous line's content appears duplicated right after a line feed. The double vanishes once the user types — next tick replaces it with correct content.
+**Divergence:** `id::pushLine` (departing row → history ring) and `id::screenDirty` (viewport rows `[0..cursorRow]` → active ring) both fire from the same `Video::flush()` call per LF. The departing row enters history AND the same row is still present in the active viewport at the moment of the screenDirty push (Video has not yet completed the ring shift for the new state). Display drains history first (permanently appending the row), then drains active (re-appending the same row to the live tail). The row is now in the document twice. Next screenDirty tick, Video has shifted and the live region is rebuilt with fresh content — the duplicate disappears. The history copy stays forever, but the active duplicate is cosmetic-only.
+**Expectation:** The departing row should be removed from the active ring before screenDirty pushes. Either: (a) the ring shift in Video completes before `events.get(id::screenDirty)` fires, or (b) Display's drain logic excludes the first `liveTailExtent` rows from the active ring on the tick when history departures arrived (the rows that just left are now in history, don't re-append). The simpler invariant: pushLine and the live region must not overlap by row index.
+
+---
+
 ## DEBT-20260530T100000
 
 **Observation:** Resize destroys TextLineArray history content. Upsize/downsize eventually creates active prompt at bottom with garbage-filled scrollback. Content that was rendered correctly before resize disappears or is replaced with garbage from Video's zeroed buffer.

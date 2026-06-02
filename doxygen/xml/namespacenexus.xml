@@ -1,0 +1,254 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="namespacenexus" kind="namespace" language="C++">
+    <compoundname>nexus</compoundname>
+    <innerclass refid="classnexus_1_1_daemon" prot="public">nexus::Daemon</innerclass>
+    <innerclass refid="classnexus_1_1_link" prot="public">nexus::Link</innerclass>
+    <sectiondef kind="enum">
+      <memberdef kind="enum" id="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558" prot="public" static="no" strong="yes">
+        <type>uint16_t</type>
+        <name>Message</name>
+        <qualifiedname>nexus::Message</qualifiedname>
+        <enumvalue id="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558a5d41402abc4b2a76b9719d911017c592" prot="public">
+          <name>hello</name>
+          <initializer>= 0x01</initializer>
+          <briefdescription>
+<para>Client → Host: initiate connection, carry version info. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558a3b53b7e8a45325ef6a2d01448275cd7d" prot="public">
+          <name>helloResponse</name>
+          <initializer>= 0x02</initializer>
+          <briefdescription>
+<para>Host → Client: acknowledge Hello, confirm protocol version. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558adf911f0151f9ef021d410b4be5060972" prot="public">
+          <name>ping</name>
+          <initializer>= 0x03</initializer>
+          <briefdescription>
+<para>Either direction: liveness probe. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558a6fdb087aa3fbfbcb8287a593a0919e61" prot="public">
+          <name>pong</name>
+          <initializer>= 0x04</initializer>
+          <briefdescription>
+<para>Either direction: reply to Ping. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558a59e9bf7d476fa502fc0e8c0e9064acfd" prot="public">
+          <name>createSession</name>
+          <initializer>= 0x10</initializer>
+          <briefdescription>
+<para>Client → Host: create or attach to a PTY session. </para>
+          </briefdescription>
+          <detaileddescription>
+<para>Payload: shell | args | cwd | uuid | cols (<ref refid="group__juce__core-maths_1gaf6e23a20bd7abf3ca3c82295c2b323e5" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">uint16</ref>) | rows (<ref refid="group__juce__core-maths_1gaf6e23a20bd7abf3ca3c82295c2b323e5" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">uint16</ref>) | envID. <ref refid="classnexus_1_1_daemon" kindref="compound">Daemon</ref> creates if uuid is new, resizes + attaches if uuid exists. </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558ac38ef1618dc5993bf126b5c6c7dc4f68" prot="public">
+          <name>detachSession</name>
+          <initializer>= 0x14</initializer>
+          <briefdescription>
+<para>Client → Host: unsubscribe from a session (session keeps running). </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558a1dbff3841d5ad235c10a69f2a2a0a01b" prot="public">
+          <name>resizeSession</name>
+          <initializer>= 0x15</initializer>
+          <briefdescription>
+<para>Client → Host: change PTY dimensions for a session. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558aa43c1b0aa53a0c908810c06ab1ff3967" prot="public">
+          <name>input</name>
+          <initializer>= 0x16</initializer>
+          <briefdescription>
+<para>Client → Host: raw bytes to write to PTY stdin. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558a6c74b0d01e23e4df356de8e12358221e" prot="public">
+          <name>killSession</name>
+          <initializer>= 0x17</initializer>
+          <briefdescription>
+<para>Client → Host: kill the shell for a session (session is destroyed). </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558a5334c716f5ca33248f777dfe1d32dfd9" prot="public">
+          <name>killDaemon</name>
+          <initializer>= 0x18</initializer>
+          <briefdescription>
+<para>Client -&gt; Host: shut down the daemon process. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558aa14fa2166ed698f3d04061f57e5ab9b9" prot="public">
+          <name>loading</name>
+          <initializer>= 0x20</initializer>
+          <briefdescription>
+<para>Host → Client: loading-phase byte snapshot for a newly-attached session. </para>
+          </briefdescription>
+          <detaileddescription>
+<para>Payload: uuid (length-prefixed string) + raw PTY bytes. </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558a78e6221f6393d1356681db398f14ce6d" prot="public">
+          <name>output</name>
+          <initializer>= 0x21</initializer>
+          <briefdescription>
+<para>Host → Client: live PTY byte output for a running session. </para>
+          </briefdescription>
+          <detaileddescription>
+<para>Payload: uuid (length-prefixed string) + raw PTY bytes. </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558a8327bad3557ca022e03e2c93cf3486f3" prot="public">
+          <name>stateUpdate</name>
+          <initializer>= 0x22</initializer>
+          <briefdescription>
+<para>Host → Client: Session state update (cwd, foreground process). </para>
+          </briefdescription>
+          <detaileddescription>
+<para>Payload: uuid (length-prefixed) + cwd (length-prefixed) + fgProcess (length-prefixed). </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558ab3ae4d25149578d11cb4be4efd00fd20" prot="public">
+          <name>sessionKilled</name>
+          <initializer>= 0x40</initializer>
+          <briefdescription>
+<para>Host → Client: shell process exited, session will be removed. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558a161bca2e917335e125291a00fd76a80f" prot="public">
+          <name>sessions</name>
+          <initializer>= 0x50</initializer>
+          <briefdescription>
+<para>Host → Client: full list of live session UUIDs (pushed unsolicited). </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Identifies the type of an Interprocess protocol message. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Each enumerator maps to a fixed uint16_t wire value. The kind occupies the first 2 bytes of every JUCE IPC message payload (after JUCE&apos;s 8-byte header).</para>
+<para>Values are stable — do not reuse or renumber existing entries. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="nexus/Message.h" line="42" column="1" bodyfile="nexus/Message.h" bodystart="43" bodyend="67"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="namespacenexus_1a454bd7aee52ad765f75860e775630db0" prot="public" static="no">
+        <type><ref refid="structjam_1_1_binary_codec" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::BinaryCodec</ref></type>
+        <definition>using nexus::Codec = jam::BinaryCodec</definition>
+        <argsstring></argsstring>
+        <name>Codec</name>
+        <qualifiedname>nexus::Codec</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="nexus/EncoderDecoder.h" line="33" column="1" bodyfile="nexus/EncoderDecoder.h" bodystart="33" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="var">
+      <memberdef kind="variable" id="namespacenexus_1a0ac4a3aebeab13ff50bf3acdebef263f" prot="public" static="no" constexpr="yes" mutable="no">
+        <type>juce::uint32</type>
+        <definition>juce::uint32 nexus::wireMagicHeader</definition>
+        <argsstring></argsstring>
+        <name>wireMagicHeader</name>
+        <qualifiedname>nexus::wireMagicHeader</qualifiedname>
+        <initializer>{ 0xe4d52a7f }</initializer>
+        <briefdescription>
+<para>Magic header shared between <ref refid="classnexus_1_1_link" kindref="compound">Link</ref> and Channel. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Single source of truth — declared here, referenced by both connection classes. Passed to juce::InterprocessConnection as the magic number for frame validation. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="nexus/EncoderDecoder.h" line="27" column="24" bodyfile="nexus/EncoderDecoder.h" bodystart="27" bodyend="27"/>
+        <referencedby refid="class_e_n_d_application_1a96fc235a4618e12e65fb65d24578a554" compoundref="_main_8cpp" startline="60" endline="267">ENDApplication::initialise</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="namespacenexus_1aab2d4c2259f848abd4a41714071086fb" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>juce::MemoryBlock</type>
+        <definition>juce::MemoryBlock nexus::encodePdu</definition>
+        <argsstring>(Message kind, const juce::MemoryBlock &amp;payload) noexcept</argsstring>
+        <name>encodePdu</name>
+        <qualifiedname>nexus::encodePdu</qualifiedname>
+        <param>
+          <type><ref refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558" kindref="member">Message</ref></type>
+          <declname>kind</declname>
+        </param>
+        <param>
+          <type>const juce::MemoryBlock &amp;</type>
+          <declname>payload</declname>
+        </param>
+        <briefdescription>
+<para>Encodes <computeroutput>kind</computeroutput> and <computeroutput>payload</computeroutput> into a single <ref refid="classMemoryBlock" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">MemoryBlock</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Wire format: uint16_t kind (LE) | payload bytes. Single source of truth — used by both Channel::sendPdu and <ref refid="classnexus_1_1_link_1a4a8a5ab27bb9640d9db34f4712277a52" kindref="member">Link::sendPdu</ref>.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>kind</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>PDU kind identifier. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>payload</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classOptional" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Optional</ref> payload bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><ref refid="classMemoryBlock" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">MemoryBlock</ref> ready for sendMessage(). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="nexus/EncoderDecoder.cpp" line="14" column="19" bodyfile="nexus/EncoderDecoder.cpp" bodystart="14" bodyend="21" declfile="nexus/EncoderDecoder.h" declline="49" declcolumn="19"/>
+        <referencedby refid="class_e_n_d_application_1a96fc235a4618e12e65fb65d24578a554" compoundref="_main_8cpp" startline="60" endline="267">ENDApplication::initialise</referencedby>
+        <referencedby refid="classnexus_1_1_daemon_1_1_channel_1a3af754db6a9ae3590056c866b15f3a72" compoundref="_channel_8cpp" startline="81" endline="84">nexus::Daemon::Channel::sendPdu</referencedby>
+        <referencedby refid="classnexus_1_1_link_1a4a8a5ab27bb9640d9db34f4712277a52" compoundref="_link_8cpp" startline="245" endline="248">nexus::Link::sendPdu</referencedby>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="nexus/Channel.cpp" line="11" column="1"/>
+  </compounddef>
+</doxygen>

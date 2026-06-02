@@ -1,0 +1,403 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="_video_ops_8cpp" kind="file" language="C++">
+    <compoundname>VideoOps.cpp</compoundname>
+    <includes refid="_video_8h" local="yes">Video.h</includes>
+    <incdepgraph>
+      <node id="11">
+        <label>../Map.h</label>
+        <link refid="_map_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>CSI.h</label>
+        <link refid="_c_s_i_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>CharProps.h</label>
+        <link refid="_char_props_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>CharPropsData.h</label>
+        <link refid="_char_props_data_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>Charset.h</label>
+        <link refid="_charset_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>DispatchTable.h</label>
+        <link refid="_dispatch_table_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>Identifier.h</label>
+        <link refid="_identifier_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>Palette.h</label>
+        <link refid="_palette_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>Video.h</label>
+        <link refid="_video_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>terminal/VideoOps.cpp</label>
+        <link refid="_video_ops_8cpp"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>JuceHeader.h</label>
+      </node>
+      <node id="4">
+        <label>atomic</label>
+      </node>
+    </incdepgraph>
+    <innernamespace refid="namespaceterminal">terminal</innernamespace>
+    <briefdescription>
+<para><ref refid="struct_cursor" kindref="compound">Cursor</ref> movement primitives, tab stop management, and terminal reset for the VT parser. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>This file implements the low-level cursor and tab-stop operations of the Video class. These are the building blocks used by the CSI dispatch handlers in <ref refid="_video_c_s_i_8cpp" kindref="compound">VideoCSI.cpp</ref> and by the ESC dispatch handlers in <ref refid="_video_e_s_c_8cpp" kindref="compound">VideoESC.cpp</ref>.</para>
+<sect1 id="_video_ops_8cpp_1autotoc_md89_1s1"><sect2 id="_video_ops_8cpp_1autotoc_md89">
+<title>Cursor movement primitives</title><para>All movement helpers operate on a screen index (<computeroutput>int</computeroutput>, 0 = normal, 1 = alternate) and clamp their results to valid bounds. They always clear the wrap-pending flag after moving, because a cursor that has been explicitly repositioned should not trigger a deferred wrap on the next printed character.</para>
+<para><table rows="12" cols="2"><row>
+<entry thead="yes"><para>Method  </para>
+</entry><entry thead="yes"><para>VT sequences that use it  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput>cursorMoveUp()</computeroutput>  </para>
+</entry><entry thead="no"><para>CUU (CSI A), CPL (CSI F)  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput>cursorMoveDown()</computeroutput>  </para>
+</entry><entry thead="no"><para>CUD (CSI B), CNL (CSI E)  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput>cursorMoveForward()</computeroutput>  </para>
+</entry><entry thead="no"><para>CUF (CSI C)  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput>cursorMoveBackward()</computeroutput>  </para>
+</entry><entry thead="no"><para>CUB (CSI D)  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput>cursorSetPosition()</computeroutput>  </para>
+</entry><entry thead="no"><para>CUP (CSI H), HVP (CSI f)  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput>cursorSetPositionInOrigin()</computeroutput>  </para>
+</entry><entry thead="no"><para>CUP / HVP with DECOM active  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput>cursorGoToNextLine()</computeroutput>  </para>
+</entry><entry thead="no"><para>LF, VT, FF, IND (ESC D), NEL  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput>cursorClamp()</computeroutput>  </para>
+</entry><entry thead="no"><para>resize()  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput>cursorSetScrollRegion()</computeroutput>  </para>
+</entry><entry thead="no"><para>DECSTBM (CSI r)  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput>cursorResetScrollRegion()</computeroutput>  </para>
+</entry><entry thead="no"><para>reset(), alternate screen switch  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput>effectiveScrollBottom()</computeroutput>  </para>
+</entry><entry thead="no"><para>all scroll-region-aware operations  </para>
+</entry></row>
+</table>
+</para>
+</sect2></sect1>
+<sect1 id="_video_ops_8cpp_1autotoc_md90_1s1"><sect2 id="_video_ops_8cpp_1autotoc_md90">
+<title>Tab stop management</title><para>Tab stops are stored as a <computeroutput>std::vector&lt;char&gt;</computeroutput> indexed by column. A non-zero value at index <computeroutput>c</computeroutput> marks column <computeroutput>c</computeroutput> as a tab stop. The default layout places stops every 8 columns (columns 8, 16, 24, …), matching the VT100 default.</para>
+<para><table rows="6" cols="3"><row>
+<entry thead="yes"><para>Method  </para>
+</entry><entry thead="yes"><para>VT sequence  </para>
+</entry><entry thead="yes"><para>Effect  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput>initializeTabStops()</computeroutput>  </para>
+</entry><entry thead="no"><para>reset(), resize()  </para>
+</entry><entry thead="no"><para>Set stops every 8 columns  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput>nextTabStop()</computeroutput>  </para>
+</entry><entry thead="no"><para>HT (0x09)  </para>
+</entry><entry thead="no"><para>Advance cursor to next stop  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput>setTabStop()</computeroutput>  </para>
+</entry><entry thead="no"><para>HTS (ESC H)  </para>
+</entry><entry thead="no"><para>Set stop at cursor column  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput>clearTabStop()</computeroutput>  </para>
+</entry><entry thead="no"><para>TBC CSI 0 g  </para>
+</entry><entry thead="no"><para>Clear stop at cursor column  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput>clearAllTabStops()</computeroutput>  </para>
+</entry><entry thead="no"><para>TBC CSI 3 g  </para>
+</entry><entry thead="no"><para>Clear all stops  </para>
+</entry></row>
+</table>
+</para>
+</sect2></sect1>
+<sect1 id="_video_ops_8cpp_1autotoc_md91_1s1"><sect2 id="_video_ops_8cpp_1autotoc_md91">
+<title>Cursor save / restore (DECSC / DECRC)</title><para>ESC 7 (DECSC) saves the cursor position and the active pen into <computeroutput>stamp</computeroutput>. ESC 8 (DECRC) restores them. These are handled in <ref refid="_video_e_s_c_8cpp" kindref="compound">VideoESC.cpp</ref> using the <computeroutput>pen</computeroutput> and <computeroutput>stamp</computeroutput> members declared in <ref refid="_video_8h" kindref="compound">Video.h</ref>; no dedicated methods live here for that operation.</para>
+</sect2></sect1>
+<sect1 id="_video_ops_8cpp_1autotoc_md92_1s1"><sect2 id="_video_ops_8cpp_1autotoc_md92">
+<title>Terminal reset (RIS)</title><para>ESC c (RIS — Reset to Initial State) triggers a full terminal reset: <computeroutput>resetCursor()</computeroutput> (this file) resets cursor state and tab stops for both screens; <computeroutput>resetModes()</computeroutput> and <computeroutput>resetPen()</computeroutput> (<ref refid="_video_c_s_i_8cpp" kindref="compound">VideoCSI.cpp</ref>) reset mode flags and drawing attributes.</para>
+<para><simplesect kind="note"><para>All functions in this file run on the READER THREAD only.</para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classGrid" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Grid</ref> — screen buffer whose geometry constrains cursor movement </para>
+</simplesect>
+</para>
+</sect2></sect1>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_video_8h" kindref="compound">Video.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespaceterminal" kindref="compound">terminal</ref></highlight></codeline>
+<codeline lineno="66"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight><highlight class="comment">/*____________________________________________________________________________*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight><highlight class="comment">//<sp/>============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight><highlight class="comment">//<sp/>New<sp/>Ops:<sp/>Cursor</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight><highlight class="comment">//<sp/>============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="89" refid="classterminal_1_1_video_1af7d229fdbb6986bbcf2b77dc3e0cd596" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_video_1af7d229fdbb6986bbcf2b77dc3e0cd596" kindref="member">Video::resetCursor</ref><sp/>(<ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref><sp/><ref refid="classterminal_1_1_video_1a7d86e6ae19b47069012f77b693b8943e" kindref="member">cols</ref>)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1a9bec450cc3eff3266ec6fdb6ec827f02" kindref="member">cursorRow</ref><sp/><sp/><sp/><sp/><sp/>=<sp/>0_cell;</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1a294e7e0c67c33d3b320f63a088ffc2c5" kindref="member">cursorCol</ref><sp/><sp/><sp/><sp/><sp/>=<sp/>0_cell;</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1a14f23095bdb306bf85afdeabce4171c8" kindref="member">cursorVisible</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1aa44cde2a38d72fbcb5bd34a63c98a646" kindref="member">wrapPending</ref><sp/><sp/><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1a4ef5f16ccd7763aaf3f6f586009acace" kindref="member">scrollTop</ref><sp/><sp/><sp/><sp/><sp/>=<sp/>0_cell;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1a62b860b532b97c85bcac109fca555904" kindref="member">scrollBottom</ref><sp/><sp/>=<sp/>0_cell;</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1aeb01f7e9810e9794b82c81568fc35b6a" kindref="member">initializeTabStops</ref><sp/>(<ref refid="classterminal_1_1_video_1a7d86e6ae19b47069012f77b693b8943e" kindref="member">cols</ref>.value);</highlight></codeline>
+<codeline lineno="98"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="121" refid="classterminal_1_1_video_1a47b5e008f3f3fe6ba3fea8d9a5cc1057" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_video_1a47b5e008f3f3fe6ba3fea8d9a5cc1057" kindref="member">Video::cursorMoveUp</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>count)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>top<sp/><sp/><sp/><sp/>{<sp/><ref refid="classterminal_1_1_video_1a4ef5f16ccd7763aaf3f6f586009acace" kindref="member">scrollTop</ref>.value<sp/>};</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>bottom<sp/>{<sp/><ref refid="classterminal_1_1_video_1a4e00e0f415e02fc009c3a42f8182a588" kindref="member">effectiveScrollBottom</ref><sp/>(<ref refid="classterminal_1_1_video_1afc683933d2fd1743fcedd80bac34496b" kindref="member">visibleRows</ref>).value<sp/>};</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">row</ref><sp/><sp/><sp/><sp/>{<sp/><ref refid="classterminal_1_1_video_1a9bec450cc3eff3266ec6fdb6ec827f02" kindref="member">cursorRow</ref>.value<sp/>};</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>withinMargins<sp/>{<sp/><ref refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">row</ref><sp/>&gt;=<sp/>top<sp/>and<sp/><ref refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">row</ref><sp/>&lt;=<sp/>bottom<sp/>};</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>clampTop<sp/>{<sp/>withinMargins<sp/>?<sp/>top<sp/>:<sp/>0<sp/>};</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1a9bec450cc3eff3266ec6fdb6ec827f02" kindref="member">cursorRow</ref><sp/><sp/><sp/>=<sp/><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref><sp/>(juce::jmax<sp/>(clampTop,<sp/><ref refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">row</ref><sp/>-<sp/>count));</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1aa44cde2a38d72fbcb5bd34a63c98a646" kindref="member">wrapPending</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="130"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight></codeline>
+<codeline lineno="154" refid="classterminal_1_1_video_1a263244eb21ddaeeb8f22408249c73809" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_video_1a263244eb21ddaeeb8f22408249c73809" kindref="member">Video::cursorMoveDown</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>count,<sp/><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref><sp/>bottom)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="155"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">row</ref><sp/>{<sp/><ref refid="classterminal_1_1_video_1a9bec450cc3eff3266ec6fdb6ec827f02" kindref="member">cursorRow</ref>.value<sp/>};</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1a9bec450cc3eff3266ec6fdb6ec827f02" kindref="member">cursorRow</ref><sp/><sp/><sp/>=<sp/><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref><sp/>(juce::jmin<sp/>(bottom.value,<sp/><ref refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">row</ref><sp/>+<sp/>count));</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1aa44cde2a38d72fbcb5bd34a63c98a646" kindref="member">wrapPending</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="159"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"></highlight></codeline>
+<codeline lineno="180" refid="classterminal_1_1_video_1a370af57d047c973599fd29f29966d568" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_video_1a370af57d047c973599fd29f29966d568" kindref="member">Video::cursorMoveForward</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>count,<sp/><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref><sp/><ref refid="classterminal_1_1_video_1a7d86e6ae19b47069012f77b693b8943e" kindref="member">cols</ref>)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="181"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>col<sp/>{<sp/><ref refid="classterminal_1_1_video_1a294e7e0c67c33d3b320f63a088ffc2c5" kindref="member">cursorCol</ref>.value<sp/>};</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1a294e7e0c67c33d3b320f63a088ffc2c5" kindref="member">cursorCol</ref><sp/><sp/><sp/>=<sp/><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref><sp/>(juce::jmin<sp/>(<ref refid="classterminal_1_1_video_1a7d86e6ae19b47069012f77b693b8943e" kindref="member">cols</ref>.value<sp/>-<sp/>1,<sp/>col<sp/>+<sp/>count));</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1aa44cde2a38d72fbcb5bd34a63c98a646" kindref="member">wrapPending</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="185"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"></highlight></codeline>
+<codeline lineno="205" refid="classterminal_1_1_video_1a15ac7fae31e690af88e0ec6af5559f5e" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_video_1a15ac7fae31e690af88e0ec6af5559f5e" kindref="member">Video::cursorMoveBackward</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>count)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="206"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>col<sp/>{<sp/><ref refid="classterminal_1_1_video_1a294e7e0c67c33d3b320f63a088ffc2c5" kindref="member">cursorCol</ref>.value<sp/>};</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1a294e7e0c67c33d3b320f63a088ffc2c5" kindref="member">cursorCol</ref><sp/><sp/><sp/>=<sp/><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref><sp/>(juce::jmax<sp/>(0,<sp/>col<sp/>-<sp/>count));</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1aa44cde2a38d72fbcb5bd34a63c98a646" kindref="member">wrapPending</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="210"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"></highlight></codeline>
+<codeline lineno="235" refid="classterminal_1_1_video_1aacbab21b45d7b2590e205e5686551192" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_video_1aacbab21b45d7b2590e205e5686551192" kindref="member">Video::cursorSetPosition</ref><sp/>(<ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref><sp/><ref refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">row</ref>,<sp/><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref><sp/>col,<sp/><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref><sp/><ref refid="classterminal_1_1_video_1a7d86e6ae19b47069012f77b693b8943e" kindref="member">cols</ref>,<sp/><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref><sp/><ref refid="classterminal_1_1_video_1afc683933d2fd1743fcedd80bac34496b" kindref="member">visibleRows</ref>)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="236"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1a9bec450cc3eff3266ec6fdb6ec827f02" kindref="member">cursorRow</ref><sp/><sp/><sp/>=<sp/><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref><sp/>(juce::jlimit<sp/>(0,<sp/><ref refid="classterminal_1_1_video_1afc683933d2fd1743fcedd80bac34496b" kindref="member">visibleRows</ref>.value<sp/>-<sp/>1,<sp/><ref refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">row</ref>.value));</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1a294e7e0c67c33d3b320f63a088ffc2c5" kindref="member">cursorCol</ref><sp/><sp/><sp/>=<sp/><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref><sp/>(juce::jlimit<sp/>(0,<sp/><ref refid="classterminal_1_1_video_1a7d86e6ae19b47069012f77b693b8943e" kindref="member">cols</ref>.value<sp/>-<sp/>1,<sp/>col.value));</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1aa44cde2a38d72fbcb5bd34a63c98a646" kindref="member">wrapPending</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="240"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"></highlight></codeline>
+<codeline lineno="267" refid="classterminal_1_1_video_1a0737b4eff5392d479d52c644a4c2bd8e" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_video_1a0737b4eff5392d479d52c644a4c2bd8e" kindref="member">Video::cursorSetPositionInOrigin</ref><sp/>(<ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref><sp/><ref refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">row</ref>,<sp/><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref><sp/>col,<sp/><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref><sp/><ref refid="classterminal_1_1_video_1a7d86e6ae19b47069012f77b693b8943e" kindref="member">cols</ref>,<sp/><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref><sp/><ref refid="classterminal_1_1_video_1afc683933d2fd1743fcedd80bac34496b" kindref="member">visibleRows</ref>)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="268"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>top<sp/><sp/><sp/><sp/>{<sp/><ref refid="classterminal_1_1_video_1a4ef5f16ccd7763aaf3f6f586009acace" kindref="member">scrollTop</ref>.value<sp/>};</highlight></codeline>
+<codeline lineno="270"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>bottom<sp/>{<sp/><ref refid="classterminal_1_1_video_1a4e00e0f415e02fc009c3a42f8182a588" kindref="member">effectiveScrollBottom</ref><sp/>(<ref refid="classterminal_1_1_video_1afc683933d2fd1743fcedd80bac34496b" kindref="member">visibleRows</ref>).value<sp/>};</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1a9bec450cc3eff3266ec6fdb6ec827f02" kindref="member">cursorRow</ref><sp/><sp/><sp/>=<sp/><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref><sp/>(juce::jlimit<sp/>(top,<sp/>bottom,<sp/><ref refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">row</ref>.value<sp/>+<sp/>top));</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1a294e7e0c67c33d3b320f63a088ffc2c5" kindref="member">cursorCol</ref><sp/><sp/><sp/>=<sp/><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref><sp/>(juce::jlimit<sp/>(0,<sp/><ref refid="classterminal_1_1_video_1a7d86e6ae19b47069012f77b693b8943e" kindref="member">cols</ref>.value<sp/>-<sp/>1,<sp/>col.value));</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1aa44cde2a38d72fbcb5bd34a63c98a646" kindref="member">wrapPending</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="274"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"></highlight></codeline>
+<codeline lineno="301" refid="classterminal_1_1_video_1a6a20d450e0d94549b632156943ce0740" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_video_1a6a20d450e0d94549b632156943ce0740" kindref="member">Video::cursorGoToNextLine</ref><sp/>(<ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref><sp/>bottom,<sp/><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref><sp/><ref refid="classterminal_1_1_video_1afc683933d2fd1743fcedd80bac34496b" kindref="member">visibleRows</ref>)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="302"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="303"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1aa44cde2a38d72fbcb5bd34a63c98a646" kindref="member">wrapPending</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="304"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">row</ref><sp/>{<sp/><ref refid="classterminal_1_1_video_1a9bec450cc3eff3266ec6fdb6ec827f02" kindref="member">cursorRow</ref>.value<sp/>};</highlight></codeline>
+<codeline lineno="305"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>moved<sp/>{<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="306"><highlight class="normal"></highlight></codeline>
+<codeline lineno="307"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">row</ref><sp/>&lt;<sp/>bottom.value)</highlight></codeline>
+<codeline lineno="308"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="309"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1a9bec450cc3eff3266ec6fdb6ec827f02" kindref="member">cursorRow</ref><sp/>=<sp/><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref><sp/>(<ref refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">row</ref><sp/>+<sp/>1);</highlight></codeline>
+<codeline lineno="310"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>moved<sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="311"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="312"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">row</ref><sp/>&gt;<sp/>bottom.value)</highlight></codeline>
+<codeline lineno="313"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="314"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1a9bec450cc3eff3266ec6fdb6ec827f02" kindref="member">cursorRow</ref><sp/>=<sp/><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref><sp/>(juce::jmin<sp/>(<ref refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">row</ref><sp/>+<sp/>1,<sp/><ref refid="classterminal_1_1_video_1afc683933d2fd1743fcedd80bac34496b" kindref="member">visibleRows</ref>.value<sp/>-<sp/>1));</highlight></codeline>
+<codeline lineno="315"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>moved<sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="316"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="317"><highlight class="normal"></highlight></codeline>
+<codeline lineno="318"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>moved;</highlight></codeline>
+<codeline lineno="319"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="320"><highlight class="normal"></highlight></codeline>
+<codeline lineno="341" refid="classterminal_1_1_video_1ac60a0db9ac0c09046dc895ce37982827" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_video_1ac60a0db9ac0c09046dc895ce37982827" kindref="member">Video::cursorClamp</ref><sp/>(<ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref><sp/><ref refid="classterminal_1_1_video_1a7d86e6ae19b47069012f77b693b8943e" kindref="member">cols</ref>,<sp/><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref><sp/><ref refid="classterminal_1_1_video_1afc683933d2fd1743fcedd80bac34496b" kindref="member">visibleRows</ref>)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="342"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="343"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>col<sp/>{<sp/><ref refid="classterminal_1_1_video_1a294e7e0c67c33d3b320f63a088ffc2c5" kindref="member">cursorCol</ref>.value<sp/>};</highlight></codeline>
+<codeline lineno="344"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">row</ref><sp/>{<sp/><ref refid="classterminal_1_1_video_1a9bec450cc3eff3266ec6fdb6ec827f02" kindref="member">cursorRow</ref>.value<sp/>};</highlight></codeline>
+<codeline lineno="345"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1a294e7e0c67c33d3b320f63a088ffc2c5" kindref="member">cursorCol</ref><sp/>=<sp/><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref><sp/>(juce::jlimit<sp/>(0,<sp/><ref refid="classterminal_1_1_video_1a7d86e6ae19b47069012f77b693b8943e" kindref="member">cols</ref>.value<sp/>-<sp/>1,<sp/>col));</highlight></codeline>
+<codeline lineno="346"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1a9bec450cc3eff3266ec6fdb6ec827f02" kindref="member">cursorRow</ref><sp/>=<sp/><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref><sp/>(juce::jlimit<sp/>(0,<sp/><ref refid="classterminal_1_1_video_1afc683933d2fd1743fcedd80bac34496b" kindref="member">visibleRows</ref>.value<sp/>-<sp/>1,<sp/><ref refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">row</ref>));</highlight></codeline>
+<codeline lineno="347"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="348"><highlight class="normal"></highlight></codeline>
+<codeline lineno="366" refid="classterminal_1_1_video_1a4f32bb3ed0d99dc773bd70edcd5a6abe" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_video_1a4f32bb3ed0d99dc773bd70edcd5a6abe" kindref="member">Video::cursorSetScrollRegion</ref><sp/>(<ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref><sp/>top,<sp/><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref><sp/>bottom)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="367"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="368"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1a4ef5f16ccd7763aaf3f6f586009acace" kindref="member">scrollTop</ref><sp/><sp/><sp/><sp/>=<sp/>top;</highlight></codeline>
+<codeline lineno="369"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1a62b860b532b97c85bcac109fca555904" kindref="member">scrollBottom</ref><sp/>=<sp/>bottom;</highlight></codeline>
+<codeline lineno="370"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="371"><highlight class="normal"></highlight></codeline>
+<codeline lineno="387" refid="classterminal_1_1_video_1a3e47e3b4e6a14b426ac3283e7375003b" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_video_1a3e47e3b4e6a14b426ac3283e7375003b" kindref="member">Video::cursorResetScrollRegion</ref>()<sp/>noexcept</highlight></codeline>
+<codeline lineno="388"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="389"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1a4ef5f16ccd7763aaf3f6f586009acace" kindref="member">scrollTop</ref><sp/><sp/><sp/><sp/>=<sp/>0_cell;</highlight></codeline>
+<codeline lineno="390"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1a62b860b532b97c85bcac109fca555904" kindref="member">scrollBottom</ref><sp/>=<sp/>0_cell;</highlight></codeline>
+<codeline lineno="391"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="392"><highlight class="normal"></highlight></codeline>
+<codeline lineno="415" refid="classterminal_1_1_video_1a4e00e0f415e02fc009c3a42f8182a588" refkind="member"><highlight class="normal"><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref><sp/><ref refid="classterminal_1_1_video_1a4e00e0f415e02fc009c3a42f8182a588" kindref="member">Video::effectiveScrollBottom</ref><sp/>(<ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref><sp/><ref refid="classterminal_1_1_video_1afc683933d2fd1743fcedd80bac34496b" kindref="member">visibleRows</ref>)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="416"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="417"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>sb<sp/>{<sp/><ref refid="classterminal_1_1_video_1a62b860b532b97c85bcac109fca555904" kindref="member">scrollBottom</ref>.value<sp/>};</highlight></codeline>
+<codeline lineno="418"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(sb<sp/>&gt;<sp/>0)<sp/>?<sp/><ref refid="classterminal_1_1_video_1a62b860b532b97c85bcac109fca555904" kindref="member">scrollBottom</ref><sp/>:<sp/><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref><sp/>(<ref refid="classterminal_1_1_video_1afc683933d2fd1743fcedd80bac34496b" kindref="member">visibleRows</ref>.value<sp/>-<sp/>1);</highlight></codeline>
+<codeline lineno="419"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="420"><highlight class="normal"></highlight></codeline>
+<codeline lineno="436" refid="classterminal_1_1_video_1a517e79b4c1fa57209244614e40b36682" refkind="member"><highlight class="normal"><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref><sp/><ref refid="classterminal_1_1_video_1a517e79b4c1fa57209244614e40b36682" kindref="member">Video::effectiveClampBottom</ref>()<sp/>const<sp/>noexcept</highlight></codeline>
+<codeline lineno="437"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="438"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">row</ref><sp/>{<sp/><ref refid="classterminal_1_1_video_1a9bec450cc3eff3266ec6fdb6ec827f02" kindref="member">cursorRow</ref>.value<sp/>};</highlight></codeline>
+<codeline lineno="439"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>top<sp/>{<sp/><ref refid="classterminal_1_1_video_1a4ef5f16ccd7763aaf3f6f586009acace" kindref="member">scrollTop</ref>.value<sp/>};</highlight></codeline>
+<codeline lineno="440"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>withinMargins<sp/>{<sp/><ref refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">row</ref><sp/>&gt;=<sp/>top<sp/>and<sp/><ref refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">row</ref><sp/>&lt;=<sp/><ref refid="classterminal_1_1_video_1a73cdc160cd91c698d982ff0181348fa9" kindref="member">activeScrollBottom</ref>().<ref refid="structjam_1_1_cell_1aecd8f8ae6d8912e9b0689382ac96cbb4" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">value</ref><sp/>};</highlight></codeline>
+<codeline lineno="441"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>withinMargins<sp/>?<sp/><ref refid="classterminal_1_1_video_1a73cdc160cd91c698d982ff0181348fa9" kindref="member">activeScrollBottom</ref>()<sp/>:<sp/><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref><sp/>(<ref refid="classterminal_1_1_video_1afc683933d2fd1743fcedd80bac34496b" kindref="member">visibleRows</ref>.value<sp/>-<sp/>1);</highlight></codeline>
+<codeline lineno="442"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="443"><highlight class="normal"></highlight></codeline>
+<codeline lineno="444"><highlight class="normal"></highlight><highlight class="comment">//<sp/>============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="445"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Tab<sp/>Stops</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="446"><highlight class="normal"></highlight><highlight class="comment">//<sp/>============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="447"><highlight class="normal"></highlight></codeline>
+<codeline lineno="455" refid="namespaceterminal_1a9068a8c1ca71e9de6fb19b3045f3745e" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">constexpr</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="namespaceterminal_1a9068a8c1ca71e9de6fb19b3045f3745e" kindref="member">DEFAULT_TAB_WIDTH</ref><sp/>{<sp/>8<sp/>};</highlight></codeline>
+<codeline lineno="456"><highlight class="normal"></highlight></codeline>
+<codeline lineno="481" refid="classterminal_1_1_video_1aeb01f7e9810e9794b82c81568fc35b6a" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_video_1aeb01f7e9810e9794b82c81568fc35b6a" kindref="member">Video::initializeTabStops</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>numCols)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="482"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="483"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1a15cbd7e5fc21aa7bc4bc4fdac9574e19" kindref="member">tabStops</ref>.assign<sp/>(</highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">size_t</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(numCols),<sp/>0);</highlight></codeline>
+<codeline lineno="484"><highlight class="normal"></highlight></codeline>
+<codeline lineno="485"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>col<sp/>{<sp/><ref refid="namespaceterminal_1a9068a8c1ca71e9de6fb19b3045f3745e" kindref="member">DEFAULT_TAB_WIDTH</ref><sp/>};<sp/>col<sp/>&lt;<sp/>numCols;<sp/>col<sp/>+=<sp/><ref refid="namespaceterminal_1a9068a8c1ca71e9de6fb19b3045f3745e" kindref="member">DEFAULT_TAB_WIDTH</ref>)</highlight></codeline>
+<codeline lineno="486"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="487"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1a15cbd7e5fc21aa7bc4bc4fdac9574e19" kindref="member">tabStops</ref>.at<sp/>(</highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">size_t</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(col))<sp/>=<sp/>1;</highlight></codeline>
+<codeline lineno="488"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="489"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="490"><highlight class="normal"></highlight></codeline>
+<codeline lineno="519" refid="classterminal_1_1_video_1aac13015611e02a9d33ded9cdc8180275" refkind="member"><highlight class="normal"><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref><sp/><ref refid="classterminal_1_1_video_1aac13015611e02a9d33ded9cdc8180275" kindref="member">Video::nextTabStop</ref><sp/>(<ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref><sp/><ref refid="classterminal_1_1_video_1a7d86e6ae19b47069012f77b693b8943e" kindref="member">cols</ref>)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="520"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="521"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>nextTab<sp/>{<sp/><ref refid="classterminal_1_1_video_1a294e7e0c67c33d3b320f63a088ffc2c5" kindref="member">cursorCol</ref>.value<sp/>+<sp/>1<sp/>};</highlight></codeline>
+<codeline lineno="522"><highlight class="normal"></highlight></codeline>
+<codeline lineno="523"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(nextTab<sp/>&lt;<sp/><ref refid="classterminal_1_1_video_1a7d86e6ae19b47069012f77b693b8943e" kindref="member">cols</ref>.value)</highlight></codeline>
+<codeline lineno="524"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="525"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(nextTab<sp/>&lt;<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">int</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(<ref refid="classterminal_1_1_video_1a15cbd7e5fc21aa7bc4bc4fdac9574e19" kindref="member">tabStops</ref>.size())<sp/>and<sp/><ref refid="classterminal_1_1_video_1a15cbd7e5fc21aa7bc4bc4fdac9574e19" kindref="member">tabStops</ref>.at<sp/>(</highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">size_t</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(nextTab))<sp/>!=<sp/>0)</highlight></codeline>
+<codeline lineno="526"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="527"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="528"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="529"><highlight class="normal"></highlight></codeline>
+<codeline lineno="530"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>++nextTab;</highlight></codeline>
+<codeline lineno="531"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="532"><highlight class="normal"></highlight></codeline>
+<codeline lineno="533"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref><sp/>(juce::jmin<sp/>(nextTab,<sp/><ref refid="classterminal_1_1_video_1a7d86e6ae19b47069012f77b693b8943e" kindref="member">cols</ref>.value<sp/>-<sp/>1));</highlight></codeline>
+<codeline lineno="534"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="535"><highlight class="normal"></highlight></codeline>
+<codeline lineno="559" refid="classterminal_1_1_video_1a4366067fc9cd2863a01abc7bb650c05b" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_video_1a4366067fc9cd2863a01abc7bb650c05b" kindref="member">Video::prevTabStop</ref>()<sp/>noexcept</highlight></codeline>
+<codeline lineno="560"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="561"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>prevTab<sp/>{<sp/><ref refid="classterminal_1_1_video_1a294e7e0c67c33d3b320f63a088ffc2c5" kindref="member">cursorCol</ref>.value<sp/>-<sp/>1<sp/>};</highlight></codeline>
+<codeline lineno="562"><highlight class="normal"></highlight></codeline>
+<codeline lineno="563"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(prevTab<sp/>&gt;<sp/>0)</highlight></codeline>
+<codeline lineno="564"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="565"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(prevTab<sp/>&lt;<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">int</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(<ref refid="classterminal_1_1_video_1a15cbd7e5fc21aa7bc4bc4fdac9574e19" kindref="member">tabStops</ref>.size())<sp/>and<sp/><ref refid="classterminal_1_1_video_1a15cbd7e5fc21aa7bc4bc4fdac9574e19" kindref="member">tabStops</ref>.at<sp/>(</highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">size_t</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(prevTab))<sp/>!=<sp/>0)</highlight></codeline>
+<codeline lineno="566"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="567"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="568"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="569"><highlight class="normal"></highlight></codeline>
+<codeline lineno="570"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>--prevTab;</highlight></codeline>
+<codeline lineno="571"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="572"><highlight class="normal"></highlight></codeline>
+<codeline lineno="573"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>juce::jmax<sp/>(prevTab,<sp/>0);</highlight></codeline>
+<codeline lineno="574"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="575"><highlight class="normal"></highlight></codeline>
+<codeline lineno="589" refid="classterminal_1_1_video_1a595c7a72257e028cb66aa342ee635afc" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_video_1a595c7a72257e028cb66aa342ee635afc" kindref="member">Video::setTabStop</ref>()<sp/>noexcept</highlight></codeline>
+<codeline lineno="590"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="591"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>col<sp/>{<sp/><ref refid="classterminal_1_1_video_1a294e7e0c67c33d3b320f63a088ffc2c5" kindref="member">cursorCol</ref>.value<sp/>};</highlight></codeline>
+<codeline lineno="592"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(col<sp/>&lt;<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">int</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(<ref refid="classterminal_1_1_video_1a15cbd7e5fc21aa7bc4bc4fdac9574e19" kindref="member">tabStops</ref>.size()))</highlight></codeline>
+<codeline lineno="593"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="594"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1a15cbd7e5fc21aa7bc4bc4fdac9574e19" kindref="member">tabStops</ref>.at<sp/>(</highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">size_t</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(col))<sp/>=<sp/>1;</highlight></codeline>
+<codeline lineno="595"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="596"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="597"><highlight class="normal"></highlight></codeline>
+<codeline lineno="611" refid="classterminal_1_1_video_1a24a65e68ce46d610d7a34358a0b81670" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_video_1a24a65e68ce46d610d7a34358a0b81670" kindref="member">Video::clearTabStop</ref>()<sp/>noexcept</highlight></codeline>
+<codeline lineno="612"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="613"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>col<sp/>{<sp/><ref refid="classterminal_1_1_video_1a294e7e0c67c33d3b320f63a088ffc2c5" kindref="member">cursorCol</ref>.value<sp/>};</highlight></codeline>
+<codeline lineno="614"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(col<sp/>&lt;<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">int</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(<ref refid="classterminal_1_1_video_1a15cbd7e5fc21aa7bc4bc4fdac9574e19" kindref="member">tabStops</ref>.size()))</highlight></codeline>
+<codeline lineno="615"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="616"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1a15cbd7e5fc21aa7bc4bc4fdac9574e19" kindref="member">tabStops</ref>.at<sp/>(</highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">size_t</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(col))<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="617"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="618"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="619"><highlight class="normal"></highlight></codeline>
+<codeline lineno="632" refid="classterminal_1_1_video_1a6fdef6b98a8f014d6540bfe5272b6112" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_video_1a6fdef6b98a8f014d6540bfe5272b6112" kindref="member">Video::clearAllTabStops</ref>()<sp/>noexcept</highlight></codeline>
+<codeline lineno="633"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="634"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_video_1a15cbd7e5fc21aa7bc4bc4fdac9574e19" kindref="member">tabStops</ref>.assign<sp/>(<ref refid="classterminal_1_1_video_1a15cbd7e5fc21aa7bc4bc4fdac9574e19" kindref="member">tabStops</ref>.size(),<sp/>0);</highlight></codeline>
+<codeline lineno="635"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="636"><highlight class="normal"></highlight></codeline>
+<codeline lineno="638"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>terminal</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="terminal/VideoOps.cpp"/>
+  </compounddef>
+</doxygen>

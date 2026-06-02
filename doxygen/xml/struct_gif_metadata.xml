@@ -1,0 +1,107 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="struct_gif_metadata" kind="struct" language="C++" prot="public">
+    <compoundname>GifMetadata</compoundname>
+    <includes refid="_image_decode_gif_8h" local="no">ImageDecodeGif.h</includes>
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="struct_gif_metadata_1ad18b8479665e1d49db6b602b629fc244" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int GifMetadata::canvasWidth</definition>
+        <argsstring></argsstring>
+        <name>canvasWidth</name>
+        <qualifiedname>GifMetadata::canvasWidth</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/ImageDecodeGif.h" line="34" column="9" bodyfile="terminal/ImageDecodeGif.h" bodystart="34" bodyend="34"/>
+        <referencedby refid="namespaceterminal_1ab8471c5f4a063b7f05350297f06c862f" compoundref="_image_decode_mac_8mm" startline="77" endline="359">terminal::loadImageSequenceNative</referencedby>
+        <referencedby refid="_image_decode_gif_8h_1a50307011e1271280d596d647c0b7011e" compoundref="_image_decode_gif_8h" startline="67" endline="196">parseGifMetadata</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="struct_gif_metadata_1ab6e6a0f6f96e3ca706b2690ed74e2ba7" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int GifMetadata::canvasHeight</definition>
+        <argsstring></argsstring>
+        <name>canvasHeight</name>
+        <qualifiedname>GifMetadata::canvasHeight</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/ImageDecodeGif.h" line="35" column="9" bodyfile="terminal/ImageDecodeGif.h" bodystart="35" bodyend="35"/>
+        <referencedby refid="namespaceterminal_1ab8471c5f4a063b7f05350297f06c862f" compoundref="_image_decode_mac_8mm" startline="77" endline="359">terminal::loadImageSequenceNative</referencedby>
+        <referencedby refid="_image_decode_gif_8h_1a50307011e1271280d596d647c0b7011e" compoundref="_image_decode_gif_8h" startline="67" endline="196">parseGifMetadata</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="struct_gif_metadata_1ad01d671748388993e5387b4787fe8c81" prot="public" static="no" mutable="no">
+        <type>std::vector&lt; <ref refid="struct_gif_frame_info" kindref="compound">GifFrameInfo</ref> &gt;</type>
+        <definition>std::vector&lt;GifFrameInfo&gt; GifMetadata::frames</definition>
+        <argsstring></argsstring>
+        <name>frames</name>
+        <qualifiedname>GifMetadata::frames</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/ImageDecodeGif.h" line="36" column="17" bodyfile="terminal/ImageDecodeGif.h" bodystart="36" bodyend="-1"/>
+        <referencedby refid="namespaceterminal_1ab8471c5f4a063b7f05350297f06c862f" compoundref="_image_decode_mac_8mm" startline="77" endline="359">terminal::loadImageSequenceNative</referencedby>
+        <referencedby refid="_image_decode_gif_8h_1a50307011e1271280d596d647c0b7011e" compoundref="_image_decode_gif_8h" startline="67" endline="196">parseGifMetadata</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="struct_gif_metadata_1af1d31d86c7e12ce637aef48a84d4537f" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool GifMetadata::isValid</definition>
+        <argsstring></argsstring>
+        <name>isValid</name>
+        <qualifiedname>GifMetadata::isValid</qualifiedname>
+        <initializer>{ false }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/ImageDecodeGif.h" line="37" column="10" bodyfile="terminal/ImageDecodeGif.h" bodystart="37" bodyend="37"/>
+        <referencedby refid="namespaceterminal_1ab8471c5f4a063b7f05350297f06c862f" compoundref="_image_decode_mac_8mm" startline="77" endline="359">terminal::loadImageSequenceNative</referencedby>
+        <referencedby refid="_image_decode_gif_8h_1a50307011e1271280d596d647c0b7011e" compoundref="_image_decode_gif_8h" startline="67" endline="196">parseGifMetadata</referencedby>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Canvas dimensions and per-frame metadata for an entire GIF stream. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="3">
+        <label>GifFrameInfo</label>
+        <link refid="struct_gif_frame_info"/>
+      </node>
+      <node id="1">
+        <label>GifMetadata</label>
+        <link refid="struct_gif_metadata"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>frames</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>std::vector&lt; GifFrameInfo &gt;</label>
+        <childnode refid="3" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="terminal/ImageDecodeGif.h" line="32" column="1" bodyfile="terminal/ImageDecodeGif.h" bodystart="33" bodyend="38"/>
+    <listofallmembers>
+      <member refid="struct_gif_metadata_1ab6e6a0f6f96e3ca706b2690ed74e2ba7" prot="public" virt="non-virtual"><scope>GifMetadata</scope><name>canvasHeight</name></member>
+      <member refid="struct_gif_metadata_1ad18b8479665e1d49db6b602b629fc244" prot="public" virt="non-virtual"><scope>GifMetadata</scope><name>canvasWidth</name></member>
+      <member refid="struct_gif_metadata_1ad01d671748388993e5387b4787fe8c81" prot="public" virt="non-virtual"><scope>GifMetadata</scope><name>frames</name></member>
+      <member refid="struct_gif_metadata_1af1d31d86c7e12ce637aef48a84d4537f" prot="public" virt="non-virtual"><scope>GifMetadata</scope><name>isValid</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

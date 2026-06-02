@@ -1,0 +1,52 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="structterminal_1_1_private_mode_entry" kind="struct" language="C++" prot="public">
+    <compoundname>terminal::PrivateModeEntry</compoundname>
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structterminal_1_1_private_mode_entry_1a598ffacecbb600e1ac5a532af007a4f5" prot="public" static="no" mutable="no">
+        <type>uint16_t</type>
+        <definition>uint16_t terminal::PrivateModeEntry::modeValue</definition>
+        <argsstring></argsstring>
+        <name>modeValue</name>
+        <qualifiedname>terminal::PrivateModeEntry::modeValue</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/VideoMode.cpp" line="109" column="32" bodyfile="terminal/VideoMode.cpp" bodystart="109" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structterminal_1_1_private_mode_entry_1a4744bf2cace6e1ccd6c8d09729c0db1e" prot="public" static="no" mutable="no">
+        <type>juce::Identifier</type>
+        <definition>juce::Identifier terminal::PrivateModeEntry::id</definition>
+        <argsstring></argsstring>
+        <name>id</name>
+        <qualifiedname>terminal::PrivateModeEntry::id</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/VideoMode.cpp" line="109" column="59" bodyfile="terminal/VideoMode.cpp" bodystart="109" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Lookup-table entry mapping a DECSET/DECRST mode number to a State ID. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Used by <computeroutput><ref refid="namespaceterminal_1aed214bc5b60ecbd71f4fa932c014b6e5" kindref="member">applyPrivateModeTable()</ref></computeroutput> to resolve the most common private mode numbers without a large switch statement.</para>
+<para><simplesect kind="see"><para><ref refid="namespaceterminal_1aab8cfee7123b7b329b6111073e03e4c1" kindref="member">privateModeTable</ref> </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="namespaceterminal_1aed214bc5b60ecbd71f4fa932c014b6e5" kindref="member">applyPrivateModeTable()</ref> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <location file="terminal/VideoMode.cpp" line="109" column="1" bodyfile="terminal/VideoMode.cpp" bodystart="109" bodyend="109"/>
+    <listofallmembers>
+      <member refid="structterminal_1_1_private_mode_entry_1a4744bf2cace6e1ccd6c8d09729c0db1e" prot="public" virt="non-virtual"><scope>terminal::PrivateModeEntry</scope><name>id</name></member>
+      <member refid="structterminal_1_1_private_mode_entry_1a598ffacecbb600e1ac5a532af007a4f5" prot="public" virt="non-virtual"><scope>terminal::PrivateModeEntry</scope><name>modeValue</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,929 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="classnexus_1_1_daemon_1_1_channel" kind="class" language="C++" prot="public">
+    <compoundname>nexus::Daemon::Channel</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">juce::InterprocessConnection</basecompoundref>
+    <includes refid="_daemon_8h" local="no">Daemon.h</includes>
+    <innerclass refid="structnexus_1_1_daemon_1_1_channel_1_1_spawn_payload" prot="private">nexus::Daemon::Channel::SpawnPayload</innerclass>
+    <sectiondef kind="public-static-attrib">
+      <memberdef kind="variable" id="classnexus_1_1_daemon_1_1_channel_1a1f9c7740b49b6acad326b55369e5876f" prot="public" static="yes" constexpr="yes" mutable="no">
+        <type>juce::uint32</type>
+        <definition>juce::uint32 nexus::Daemon::Channel::magicHeader</definition>
+        <argsstring></argsstring>
+        <name>magicHeader</name>
+        <qualifiedname>nexus::Daemon::Channel::magicHeader</qualifiedname>
+        <initializer>{ <ref refid="namespacenexus_1a0ac4a3aebeab13ff50bf3acdebef263f" kindref="member">wireMagicHeader</ref> }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="nexus/Daemon.h" line="69" column="39" bodyfile="nexus/Daemon.h" bodystart="69" bodyend="69"/>
+        <referencedby refid="classnexus_1_1_daemon_1_1_channel_1a295e2abef90eccead958197d4c694613" compoundref="_channel_8cpp" startline="24" endline="29">Channel</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classnexus_1_1_daemon_1_1_channel_1ae522f93607b796e2447ae90368ab649b" prot="private" static="no" mutable="no">
+        <type><ref refid="classnexus_1_1_daemon_1ae74387199323b119531cfcf62cb2f44b" kindref="member">Daemon</ref> &amp;</type>
+        <definition>Daemon&amp; nexus::Daemon::Channel::daemon</definition>
+        <argsstring></argsstring>
+        <name>daemon</name>
+        <qualifiedname>nexus::Daemon::Channel::daemon</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="nexus/Daemon.h" line="92" column="16" bodyfile="nexus/Daemon.h" bodystart="92" bodyend="-1"/>
+        <referencedby refid="classnexus_1_1_daemon_1_1_channel_1a295e2abef90eccead958197d4c694613" compoundref="_channel_8cpp" startline="24" endline="29">Channel</referencedby>
+        <referencedby refid="classnexus_1_1_daemon_1_1_channel_1a87b3e0716c38f67a55e0b2528d3548f9" compoundref="_channel_8cpp" startline="64" endline="68">connectionLost</referencedby>
+        <referencedby refid="classnexus_1_1_daemon_1_1_channel_1adec8c8b370c9bdc520b0db919b41c1fe" compoundref="_channel_8cpp" startline="50" endline="54">connectionMade</referencedby>
+        <referencedby refid="classnexus_1_1_daemon_1_1_channel_1a4695c3d5b7d45f3aed446d22ad939df3" compoundref="_channel_8cpp" startline="109" endline="242">messageReceived</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classnexus_1_1_daemon_1_1_channel_1a5e905ee4ee3a53acb52c6c41d8a694e7" prot="private" static="no" mutable="no">
+        <type><ref refid="class_nexus" kindref="compound">Nexus</ref> &amp;</type>
+        <definition>Nexus&amp; nexus::Daemon::Channel::nexus</definition>
+        <argsstring></argsstring>
+        <name>nexus</name>
+        <qualifiedname>nexus::Daemon::Channel::nexus</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="nexus/Daemon.h" line="93" column="16" bodyfile="nexus/Daemon.h" bodystart="93" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="public-func">
+      <memberdef kind="function" id="classnexus_1_1_daemon_1_1_channel_1a295e2abef90eccead958197d4c694613" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>nexus::Daemon::Channel::Channel</definition>
+        <argsstring>(Daemon &amp;daemon, Nexus &amp;nexus)</argsstring>
+        <name>Channel</name>
+        <qualifiedname>nexus::Daemon::Channel::Channel</qualifiedname>
+        <param>
+          <type><ref refid="classnexus_1_1_daemon_1ae74387199323b119531cfcf62cb2f44b" kindref="member">Daemon</ref> &amp;</type>
+          <declname>daemon</declname>
+          <defname>daemonRef</defname>
+        </param>
+        <param>
+          <type><ref refid="class_nexus" kindref="compound">Nexus</ref> &amp;</type>
+          <declname>nexus</declname>
+          <defname>nexusRef</defname>
+        </param>
+        <briefdescription>
+<para>Constructs the <ref refid="classnexus_1_1_daemon_1_1_channel" kindref="compound">Channel</ref> with message-thread callbacks and custom magic. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>daemonRef</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Owning <ref refid="classnexus_1_1_daemon" kindref="compound">Daemon</ref> — used in <ref refid="classnexus_1_1_daemon_1_1_channel_1a87b3e0716c38f67a55e0b2528d3548f9" kindref="member">connectionLost()</ref> to release this object and for all subscriber/broadcast registry operations. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>nexusRef</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Session pool — used in messageReceived for session lookup and creation. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="nexus/Daemon.h" line="71" column="9" bodyfile="nexus/Channel.cpp" bodystart="24" bodyend="29"/>
+        <references refid="classnexus_1_1_daemon_1ae74387199323b119531cfcf62cb2f44b" compoundref="_daemon_8cpp" startline="25" endline="29">nexus::Daemon::Daemon</references>
+        <references refid="classnexus_1_1_daemon_1_1_channel_1ae522f93607b796e2447ae90368ab649b" compoundref="_daemon_8h" startline="92">daemon</references>
+        <references refid="classnexus_1_1_daemon_1_1_channel_1a1f9c7740b49b6acad326b55369e5876f" compoundref="_daemon_8h" startline="69" endline="69">magicHeader</references>
+      </memberdef>
+      <memberdef kind="function" id="classnexus_1_1_daemon_1_1_channel_1a5b31887e12bfa1ba5d96915a527c4bc3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>nexus::Daemon::Channel::~Channel</definition>
+        <argsstring>() override</argsstring>
+        <name>~Channel</name>
+        <qualifiedname>nexus::Daemon::Channel::~Channel</qualifiedname>
+        <briefdescription>
+<para>Calls <computeroutput>disconnect()</computeroutput> before the vtable is torn down — JUCE contract. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="nexus/Daemon.h" line="72" column="9" bodyfile="nexus/Channel.cpp" bodystart="34" bodyend="37"/>
+      </memberdef>
+      <memberdef kind="function" id="classnexus_1_1_daemon_1_1_channel_1adec8c8b370c9bdc520b0db919b41c1fe" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void nexus::Daemon::Channel::connectionMade</definition>
+        <argsstring>() override</argsstring>
+        <name>connectionMade</name>
+        <qualifiedname>nexus::Daemon::Channel::connectionMade</qualifiedname>
+        <briefdescription>
+<para>Called on the message thread when a client connects. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Adds this connection to the <ref refid="classnexus_1_1_daemon" kindref="compound">Daemon</ref> broadcast list, then immediately pushes a <computeroutput>sessions</computeroutput> PDU containing the UUIDs of all currently-live sessions. The client does not need to request the list — it arrives unsolicited.</para>
+<para><simplesect kind="note"><para>NEXUS PROCESS MESSAGE THREAD. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="nexus/Daemon.h" line="74" column="14" bodyfile="nexus/Channel.cpp" bodystart="50" bodyend="54"/>
+        <references refid="classnexus_1_1_daemon_1_1_channel_1ae522f93607b796e2447ae90368ab649b" compoundref="_daemon_8h" startline="92">daemon</references>
+      </memberdef>
+      <memberdef kind="function" id="classnexus_1_1_daemon_1_1_channel_1a87b3e0716c38f67a55e0b2528d3548f9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void nexus::Daemon::Channel::connectionLost</definition>
+        <argsstring>() override</argsstring>
+        <name>connectionLost</name>
+        <qualifiedname>nexus::Daemon::Channel::connectionLost</qualifiedname>
+        <briefdescription>
+<para>Called on the message thread when the connection is lost. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Removes this connection from the <ref refid="classnexus_1_1_daemon" kindref="compound">Daemon</ref> broadcast list and all per-session subscriber lists. <computeroutput>daemon.removeConnection</computeroutput> destroys this object last.</para>
+<para><simplesect kind="note"><para>NEXUS PROCESS MESSAGE THREAD. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="nexus/Daemon.h" line="75" column="14" bodyfile="nexus/Channel.cpp" bodystart="64" bodyend="68"/>
+        <references refid="classnexus_1_1_daemon_1_1_channel_1ae522f93607b796e2447ae90368ab649b" compoundref="_daemon_8h" startline="92">daemon</references>
+      </memberdef>
+      <memberdef kind="function" id="classnexus_1_1_daemon_1_1_channel_1a4695c3d5b7d45f3aed446d22ad939df3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void nexus::Daemon::Channel::messageReceived</definition>
+        <argsstring>(const juce::MemoryBlock &amp;message) override</argsstring>
+        <name>messageReceived</name>
+        <qualifiedname>nexus::Daemon::Channel::messageReceived</qualifiedname>
+        <param>
+          <type>const juce::MemoryBlock &amp;</type>
+          <declname>message</declname>
+        </param>
+        <briefdescription>
+<para>Dispatches an incoming message from the client. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Decodes <computeroutput><ref refid="classMessage" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Message</ref></computeroutput> kind from the first 2 bytes of <computeroutput>message</computeroutput>, then handles each PDU kind. All work runs on the message thread because <computeroutput>callbacksOnMessageThread</computeroutput> is <computeroutput>true</computeroutput>.</para>
+<para>PDU kinds handled:<itemizedlist>
+<listitem><para><computeroutput>hello</computeroutput> → sends <computeroutput>helloResponse</computeroutput></para>
+</listitem><listitem><para><computeroutput>ping</computeroutput> → sends <computeroutput>pong</computeroutput></para>
+</listitem><listitem><para><computeroutput>createSession</computeroutput> → decodes cwd/uuid/cols/rows; creates if new via nexus.create, subscribes+sends history, then broadcastSessions</para>
+</listitem><listitem><para><computeroutput>input</computeroutput> → decodes uuid + bytes, calls nexus.get(uuid).sendInput</para>
+</listitem><listitem><para><computeroutput>resizeSession</computeroutput> → decodes uuid + cols + rows, resizes Processor then PTY</para>
+</listitem><listitem><para><computeroutput><ref refid="classnexus_1_1_daemon_1aea246ba3a19ec3caa1acff4dc370f075" kindref="member">detachSession</ref></computeroutput> → unregisters subscription via daemon.detachSession</para>
+</listitem><listitem><para><computeroutput>killSession</computeroutput> → calls nexus.remove(uuid)</para>
+</listitem><listitem><para><computeroutput>killDaemon</computeroutput> → calls daemon.killAll() to shut down the daemon process</para>
+</listitem></itemizedlist>
+</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>message</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Raw <ref refid="classMemoryBlock" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">MemoryBlock</ref> received from the JUCE IPC layer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="note"><para>NEXUS PROCESS MESSAGE THREAD. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="nexus/Daemon.h" line="76" column="14" bodyfile="nexus/Channel.cpp" bodystart="109" bodyend="242"/>
+        <references refid="classjam_1_1_code_view_1a93a5ced4b1717717dac8f5d07a4a4f9ca921134cac19521591ed4ad00784c9ea9">jam::CodeView::codeViewId</references>
+        <references refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558a59e9bf7d476fa502fc0e8c0e9064acfd" compoundref="_message_8h" startline="49">nexus::createSession</references>
+        <references refid="classnexus_1_1_daemon_1_1_channel_1ae522f93607b796e2447ae90368ab649b" compoundref="_daemon_8h" startline="92">daemon</references>
+        <references refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558ac38ef1618dc5993bf126b5c6c7dc4f68" compoundref="_message_8h" startline="52">nexus::detachSession</references>
+        <references refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558a5d41402abc4b2a76b9719d911017c592" compoundref="_message_8h" startline="44">nexus::hello</references>
+        <references refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558a3b53b7e8a45325ef6a2d01448275cd7d" compoundref="_message_8h" startline="45">nexus::helloResponse</references>
+        <references refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558aa43c1b0aa53a0c908810c06ab1ff3967" compoundref="_message_8h" startline="54">nexus::input</references>
+        <references refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558a5334c716f5ca33248f777dfe1d32dfd9" compoundref="_message_8h" startline="56">nexus::killDaemon</references>
+        <references refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558a6c74b0d01e23e4df356de8e12358221e" compoundref="_message_8h" startline="55">nexus::killSession</references>
+        <references refid="classnexus_1_1_daemon_1_1_channel_1adaf64c2dec50ba52a8ed097195057017" compoundref="_channel_8cpp" startline="247" endline="268">parseSpawnPayload</references>
+        <references refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558adf911f0151f9ef021d410b4be5060972" compoundref="_message_8h" startline="46">nexus::ping</references>
+        <references refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558a6fdb087aa3fbfbcb8287a593a0919e61" compoundref="_message_8h" startline="47">nexus::pong</references>
+        <references refid="classjam_1_1_code_view_1a6360f1b4243ed6ade7dde533ed2624bb">jam::CodeView::properties</references>
+        <references refid="structjam_1_1_binary_codec_1a848ebdb4c8f7cd27715055a37ccfe0c2">jam::BinaryCodec::readString</references>
+        <references refid="structjam_1_1_binary_codec_1ada9cd1d01ce267297deeba27752ac2ec">jam::BinaryCodec::readUint16</references>
+        <references refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558a1dbff3841d5ad235c10a69f2a2a0a01b" compoundref="_message_8h" startline="53">nexus::resizeSession</references>
+        <references refid="classnexus_1_1_daemon_1_1_channel_1a3af754db6a9ae3590056c866b15f3a72" compoundref="_channel_8cpp" startline="81" endline="84">sendPdu</references>
+        <references refid="classjam_1_1_code_view_1a93a5ced4b1717717dac8f5d07a4a4f9ca135d88d1984394ef6f9b2da476de4e03">jam::CodeView::viewportId</references>
+      </memberdef>
+      <memberdef kind="function" id="classnexus_1_1_daemon_1_1_channel_1a3af754db6a9ae3590056c866b15f3a72" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void nexus::Daemon::Channel::sendPdu</definition>
+        <argsstring>(Message kind, const juce::MemoryBlock &amp;payload={})</argsstring>
+        <name>sendPdu</name>
+        <qualifiedname>nexus::Daemon::Channel::sendPdu</qualifiedname>
+        <param>
+          <type><ref refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558" kindref="member">Message</ref></type>
+          <declname>kind</declname>
+        </param>
+        <param>
+          <type>const juce::MemoryBlock &amp;</type>
+          <declname>payload</declname>
+          <defval>{}</defval>
+        </param>
+        <briefdescription>
+<para>Encodes <computeroutput>kind</computeroutput> and <computeroutput>payload</computeroutput> into a <ref refid="classMemoryBlock" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">MemoryBlock</ref> and sends it. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Wire format inside the JUCE IPC frame: uint16_t kind (LE) | payload bytes.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>kind</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>PDU kind identifier. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>payload</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classOptional" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Optional</ref> payload bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="note"><para>NEXUS PROCESS MESSAGE THREAD. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="nexus/Daemon.h" line="78" column="14" bodyfile="nexus/Channel.cpp" bodystart="81" bodyend="84"/>
+        <references refid="namespacenexus_1aab2d4c2259f848abd4a41714071086fb" compoundref="_encoder_decoder_8cpp" startline="14" endline="21">nexus::encodePdu</references>
+        <referencedby refid="classnexus_1_1_daemon_1a4ab3426405fc0a5636f11e960bb6ba09" compoundref="_daemon_8cpp" startline="264" endline="296">nexus::Daemon::attachSession</referencedby>
+        <referencedby refid="classnexus_1_1_daemon_1a9b9ba8442b73783fea31e162c28d53a8" compoundref="_daemon_8cpp" startline="225" endline="228">nexus::Daemon::broadcastSessions</referencedby>
+        <referencedby refid="classnexus_1_1_daemon_1_1_channel_1a4695c3d5b7d45f3aed446d22ad939df3" compoundref="_channel_8cpp" startline="109" endline="242">messageReceived</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="private-static-func">
+      <memberdef kind="function" id="classnexus_1_1_daemon_1_1_channel_1adaf64c2dec50ba52a8ed097195057017" prot="private" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="structnexus_1_1_daemon_1_1_channel_1_1_spawn_payload" kindref="compound">SpawnPayload</ref></type>
+        <definition>Daemon::Channel::SpawnPayload nexus::Daemon::Channel::parseSpawnPayload</definition>
+        <argsstring>(const uint8_t *payload, int payloadSize)</argsstring>
+        <name>parseSpawnPayload</name>
+        <qualifiedname>nexus::Daemon::Channel::parseSpawnPayload</qualifiedname>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>payload</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>payloadSize</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="nexus/Daemon.h" line="90" column="29" bodyfile="nexus/Channel.cpp" bodystart="247" bodyend="268"/>
+        <references refid="structnexus_1_1_daemon_1_1_channel_1_1_spawn_payload_1a37b147511ca42cf35a76d3afd9d9b1e9" compoundref="_daemon_8h" startline="85" endline="85">nexus::Daemon::Channel::SpawnPayload::cols</references>
+        <references refid="structnexus_1_1_daemon_1_1_channel_1_1_spawn_payload_1a26945c35022d94470984874e1f1c1f70" compoundref="_daemon_8h" startline="83">nexus::Daemon::Channel::SpawnPayload::cwd</references>
+        <references refid="structjam_1_1_binary_codec_1a848ebdb4c8f7cd27715055a37ccfe0c2">jam::BinaryCodec::readString</references>
+        <references refid="structjam_1_1_binary_codec_1ada9cd1d01ce267297deeba27752ac2ec">jam::BinaryCodec::readUint16</references>
+        <references refid="structnexus_1_1_daemon_1_1_channel_1_1_spawn_payload_1a169996a7cc2c5eef3e58fa0c8e3e4fb7" compoundref="_daemon_8h" startline="86" endline="86">nexus::Daemon::Channel::SpawnPayload::rows</references>
+        <references refid="structnexus_1_1_daemon_1_1_channel_1_1_spawn_payload_1adf70391198d2b5cc8b6b3e7e645c1c0b" compoundref="_daemon_8h" startline="84">nexus::Daemon::Channel::SpawnPayload::uuid</references>
+        <references refid="structnexus_1_1_daemon_1_1_channel_1_1_spawn_payload_1aadf592e4bee44c54925f6b7b7fc609f6" compoundref="_daemon_8h" startline="87" endline="87">nexus::Daemon::Channel::SpawnPayload::valid</references>
+        <referencedby refid="classnexus_1_1_daemon_1_1_channel_1a4695c3d5b7d45f3aed446d22ad939df3" compoundref="_channel_8cpp" startline="109" endline="242">messageReceived</referencedby>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Message-thread IPC connection representing one connected client. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>juce::InterprocessConnection</label>
+      </node>
+      <node id="1">
+        <label>nexus::Daemon::Channel</label>
+        <link refid="classnexus_1_1_daemon_1_1_channel"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="59">
+        <label>GraphemeSegmentationResult</label>
+        <link refid="struct_grapheme_segmentation_result"/>
+      </node>
+      <node id="6">
+        <label>Nexus</label>
+        <link refid="class_nexus"/>
+        <childnode refid="7" relation="public-inheritance">
+        </childnode>
+        <childnode refid="8" relation="usage">
+          <edgelabel>sessions</edgelabel>
+        </childnode>
+      </node>
+      <node id="42">
+        <label>TTY</label>
+        <link refid="class_t_t_y"/>
+        <childnode refid="43" relation="public-inheritance">
+        </childnode>
+        <childnode refid="44" relation="usage">
+          <edgelabel>events</edgelabel>
+        </childnode>
+        <childnode refid="45" relation="usage">
+          <edgelabel>shellIntegrationEnv</edgelabel>
+        </childnode>
+      </node>
+      <node id="77">
+        <label>Value</label>
+        <link refid="classValue" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag"/>
+      </node>
+      <node id="11">
+        <label>Value::Listener</label>
+        <link refid="classValue_1_1Listener" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag"/>
+      </node>
+      <node id="19">
+        <label>jam::AnyMap</label>
+        <link refid="classjam_1_1_any_map" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="20" relation="usage">
+          <edgelabel>entries</edgelabel>
+        </childnode>
+        <childnode refid="22" relation="usage">
+          <edgelabel>types</edgelabel>
+        </childnode>
+      </node>
+      <node id="55">
+        <label>jam::Block&lt; jam::Row &gt;</label>
+        <link refid="classjam_1_1_block" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+      <node id="53">
+        <label>jam::Buffer&lt; jam::Row &gt;</label>
+        <link refid="classjam_1_1_buffer" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+      <node id="50">
+        <label>jam::BufferSPSC</label>
+        <link refid="classjam_1_1_buffer_s_p_s_c" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="16" relation="usage">
+          <edgelabel>validStart</edgelabel>
+        </childnode>
+      </node>
+      <node id="31">
+        <label>jam::CaretComponent</label>
+        <link refid="classjam_1_1_caret_component" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="29" relation="usage">
+          <edgelabel>font</edgelabel>
+        </childnode>
+      </node>
+      <node id="56">
+        <label>jam::Cell</label>
+        <link refid="structjam_1_1_cell" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+      <node id="51">
+        <label>jam::CodeLine</label>
+        <link refid="structjam_1_1_code_line" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+      <node id="25">
+        <label>jam::CodeModel</label>
+        <link refid="classjam_1_1_code_model" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="26" relation="usage">
+          <edgelabel>screens</edgelabel>
+        </childnode>
+      </node>
+      <node id="27">
+        <label>jam::CodeView</label>
+        <link refid="classjam_1_1_code_view" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="28" relation="usage">
+          <edgelabel>properties</edgelabel>
+        </childnode>
+        <childnode refid="29" relation="usage">
+          <edgelabel>font</edgelabel>
+        </childnode>
+        <childnode refid="25" relation="usage">
+          <edgelabel>document</edgelabel>
+        </childnode>
+        <childnode refid="30" relation="usage">
+          <edgelabel>caret</edgelabel>
+        </childnode>
+        <childnode refid="32" relation="usage">
+          <edgelabel>stateAttachment</edgelabel>
+        </childnode>
+        <childnode refid="33" relation="usage">
+          <edgelabel>contentView</edgelabel>
+        </childnode>
+        <childnode refid="35" relation="usage">
+          <edgelabel>viewport</edgelabel>
+        </childnode>
+        <childnode refid="37" relation="usage">
+          <edgelabel>arrangement</edgelabel>
+        </childnode>
+        <childnode refid="38" relation="usage">
+          <edgelabel>glyphGraphics</edgelabel>
+        </childnode>
+      </node>
+      <node id="36">
+        <label>jam::CodeView::CodeViewViewport</label>
+        <link refid="structjam_1_1_code_view_1_1_code_view_viewport" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="27" relation="usage">
+          <edgelabel>owner</edgelabel>
+        </childnode>
+      </node>
+      <node id="34">
+        <label>jam::CodeView::ContentView</label>
+        <link refid="structjam_1_1_code_view_1_1_content_view" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="27" relation="usage">
+          <edgelabel>owner</edgelabel>
+        </childnode>
+      </node>
+      <node id="32">
+        <label>jam::ComponentAttachment</label>
+        <link refid="classjam_1_1_component_attachment" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="18" relation="usage">
+          <edgelabel>parentTree</edgelabel>
+        </childnode>
+      </node>
+      <node id="7">
+        <label>jam::Context&lt; Nexus &gt;</label>
+        <link refid="structjam_1_1_context" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+      <node id="29">
+        <label>jam::Font</label>
+        <link refid="structjam_1_1_font" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+      <node id="44">
+        <label>jam::Function::Map&lt; juce::Identifier, void &gt;</label>
+        <link refid="structjam_1_1_function_1_1_map" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+      <node id="18">
+        <label>jam::Model</label>
+        <link refid="classjam_1_1_model" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="19" relation="usage">
+          <edgelabel>params</edgelabel>
+        </childnode>
+        <childnode refid="23" relation="usage">
+          <edgelabel>uniqueNodeMap</edgelabel>
+        </childnode>
+      </node>
+      <node id="26">
+        <label>jam::Owner&lt; jam::CodeModel::Screen &gt;</label>
+        <link refid="classjam_1_1_owner" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+      <node id="78">
+        <label>jam::Owner&lt; nexus::Daemon::Channel &gt;</label>
+        <link refid="classjam_1_1_owner" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+      <node id="76">
+        <label>jam::Resizer</label>
+        <link refid="classjam_1_1_resizer" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="44" relation="usage">
+          <edgelabel>triggers</edgelabel>
+        </childnode>
+      </node>
+      <node id="37">
+        <label>jam::glyph::Arrangement</label>
+        <link refid="classjam_1_1glyph_1_1_arrangement" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+      <node id="38">
+        <label>jam::glyph::Graphics</label>
+        <link refid="classjam_1_1glyph_1_1_graphics" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+      <node id="2">
+        <label>juce::InterprocessConnection</label>
+      </node>
+      <node id="4">
+        <label>juce::InterprocessConnectionServer</label>
+      </node>
+      <node id="43">
+        <label>juce::Thread</label>
+      </node>
+      <node id="5">
+        <label>juce::ValueTree::Listener</label>
+      </node>
+      <node id="3">
+        <label>nexus::Daemon</label>
+        <link refid="classnexus_1_1_daemon"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>nexus</edgelabel>
+        </childnode>
+        <childnode refid="23" relation="usage">
+          <edgelabel>sessionStateRoots</edgelabel>
+        </childnode>
+        <childnode refid="78" relation="usage">
+          <edgelabel>connections</edgelabel>
+        </childnode>
+        <childnode refid="79" relation="usage">
+          <edgelabel>attached</edgelabel>
+        </childnode>
+        <childnode refid="80" relation="usage">
+          <edgelabel>subscribers</edgelabel>
+        </childnode>
+      </node>
+      <node id="1">
+        <label>nexus::Daemon::Channel</label>
+        <link refid="classnexus_1_1_daemon_1_1_channel"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>daemon</edgelabel>
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>nexus</edgelabel>
+        </childnode>
+      </node>
+      <node id="70">
+        <label>std::array&lt; StateRow, STATE_COUNT &gt;</label>
+      </node>
+      <node id="74">
+        <label>std::array&lt; int, 2 &gt;</label>
+      </node>
+      <node id="54">
+        <label>std::array&lt; jam::Block&lt; jam::Row &gt;, 2 &gt;</label>
+        <childnode refid="55" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+      <node id="28">
+        <label>std::array&lt; juce::Identifier, propertyCount &gt;</label>
+      </node>
+      <node id="57">
+        <label>std::array&lt; terminal::Video::SavedCursor, 2 &gt;</label>
+        <childnode refid="58" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+      <node id="72">
+        <label>std::array&lt; uint16_t, MAX_PARAMS &gt;</label>
+      </node>
+      <node id="73">
+        <label>std::array&lt; uint32_t, 2 *maxKeyboardStackDepth &gt;</label>
+      </node>
+      <node id="16">
+        <label>std::atomic&lt; int &gt;</label>
+      </node>
+      <node id="48">
+        <label>std::basic_string&lt; Char &gt;</label>
+      </node>
+      <node id="46">
+        <label>std::pair&lt; std::string, std::string &gt;</label>
+        <childnode refid="47" relation="usage">
+          <edgelabel>first_type</edgelabel>
+          <edgelabel>second_type</edgelabel>
+        </childnode>
+      </node>
+      <node id="47">
+        <label>std::string</label>
+        <childnode refid="48" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="41">
+        <label>std::unique_ptr&lt; TTY &gt;</label>
+        <childnode refid="42" relation="usage">
+          <edgelabel>ptr</edgelabel>
+        </childnode>
+      </node>
+      <node id="30">
+        <label>std::unique_ptr&lt; jam::CaretComponent &gt;</label>
+        <childnode refid="31" relation="usage">
+          <edgelabel>ptr</edgelabel>
+        </childnode>
+      </node>
+      <node id="35">
+        <label>std::unique_ptr&lt; jam::CodeView::CodeViewViewport &gt;</label>
+        <childnode refid="36" relation="usage">
+          <edgelabel>ptr</edgelabel>
+        </childnode>
+      </node>
+      <node id="33">
+        <label>std::unique_ptr&lt; jam::CodeView::ContentView &gt;</label>
+        <childnode refid="34" relation="usage">
+          <edgelabel>ptr</edgelabel>
+        </childnode>
+      </node>
+      <node id="75">
+        <label>std::unique_ptr&lt; jam::Resizer &gt;</label>
+        <childnode refid="76" relation="usage">
+          <edgelabel>ptr</edgelabel>
+        </childnode>
+      </node>
+      <node id="24">
+        <label>std::unique_ptr&lt; std::atomic&lt; int &gt;[]&gt;</label>
+        <childnode refid="16" relation="usage">
+          <edgelabel>ptr</edgelabel>
+        </childnode>
+      </node>
+      <node id="67">
+        <label>std::unique_ptr&lt; terminal::Parser &gt;</label>
+        <childnode refid="68" relation="usage">
+          <edgelabel>ptr</edgelabel>
+        </childnode>
+      </node>
+      <node id="39">
+        <label>std::unique_ptr&lt; terminal::Processor &gt;</label>
+        <childnode refid="40" relation="usage">
+          <edgelabel>ptr</edgelabel>
+        </childnode>
+      </node>
+      <node id="9">
+        <label>std::unique_ptr&lt; terminal::Session &gt;</label>
+        <childnode refid="10" relation="usage">
+          <edgelabel>ptr</edgelabel>
+        </childnode>
+      </node>
+      <node id="14">
+        <label>std::unique_ptr&lt; terminal::TextSlot &gt;</label>
+        <childnode refid="15" relation="usage">
+          <edgelabel>ptr</edgelabel>
+        </childnode>
+      </node>
+      <node id="21">
+        <label>std::unique_ptr&lt; void, Deleter &gt;</label>
+      </node>
+      <node id="22">
+        <label>std::unordered_map&lt; juce::Identifier, std::type_index &gt;</label>
+      </node>
+      <node id="13">
+        <label>std::unordered_map&lt; juce::Identifier, std::unique_ptr&lt; terminal::TextSlot &gt; &gt;</label>
+        <childnode refid="14" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+      <node id="20">
+        <label>std::unordered_map&lt; juce::Identifier, std::unique_ptr&lt; void, Deleter &gt; &gt;</label>
+        <childnode refid="21" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+      <node id="23">
+        <label>std::unordered_map&lt; juce::String, juce::ValueTree &gt;</label>
+      </node>
+      <node id="8">
+        <label>std::unordered_map&lt; juce::String, std::unique_ptr&lt; terminal::Session &gt; &gt;</label>
+        <childnode refid="9" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+      <node id="80">
+        <label>std::unordered_map&lt; juce::String, std::vector&lt; nexus::Daemon::Channel * &gt; &gt;</label>
+        <childnode refid="79" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+      <node id="63">
+        <label>std::unordered_map&lt; uint32_t, terminal::KittyDecoder::ChunkAccumulator &gt;</label>
+        <childnode refid="64" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+      <node id="65">
+        <label>std::unordered_map&lt; uint32_t, terminal::KittyDecoder::StoredImage &gt;</label>
+        <childnode refid="66" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+      <node id="60">
+        <label>std::vector&lt; char &gt;</label>
+      </node>
+      <node id="79">
+        <label>std::vector&lt; nexus::Daemon::Channel * &gt;</label>
+        <childnode refid="1" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+      <node id="45">
+        <label>std::vector&lt; std::pair&lt; std::string, std::string &gt; &gt;</label>
+        <childnode refid="46" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+      <node id="71">
+        <label>terminal::CSI</label>
+        <link refid="structterminal_1_1_c_s_i"/>
+        <childnode refid="72" relation="usage">
+          <edgelabel>values</edgelabel>
+        </childnode>
+      </node>
+      <node id="49">
+        <label>terminal::CellFifo</label>
+        <link refid="classterminal_1_1_cell_fifo"/>
+        <childnode refid="50" relation="usage">
+          <edgelabel>activeRing</edgelabel>
+          <edgelabel>historyRing</edgelabel>
+        </childnode>
+        <childnode refid="51" relation="usage">
+          <edgelabel>pending</edgelabel>
+        </childnode>
+      </node>
+      <node id="69">
+        <label>terminal::DispatchTable</label>
+        <link refid="classterminal_1_1_dispatch_table"/>
+        <childnode refid="70" relation="usage">
+          <edgelabel>table</edgelabel>
+        </childnode>
+      </node>
+      <node id="62">
+        <label>terminal::KittyDecoder</label>
+        <link refid="classterminal_1_1_kitty_decoder"/>
+        <childnode refid="63" relation="usage">
+          <edgelabel>chunks</edgelabel>
+        </childnode>
+        <childnode refid="65" relation="usage">
+          <edgelabel>storedImages</edgelabel>
+        </childnode>
+      </node>
+      <node id="64">
+        <label>terminal::KittyDecoder::ChunkAccumulator</label>
+        <link refid="structterminal_1_1_kitty_decoder_1_1_chunk_accumulator"/>
+      </node>
+      <node id="66">
+        <label>terminal::KittyDecoder::StoredImage</label>
+        <link refid="structterminal_1_1_kitty_decoder_1_1_stored_image"/>
+      </node>
+      <node id="17">
+        <label>terminal::Model</label>
+        <link refid="structterminal_1_1_model"/>
+        <childnode refid="18" relation="public-inheritance">
+        </childnode>
+        <childnode refid="5" relation="private-inheritance">
+        </childnode>
+        <childnode refid="24" relation="usage">
+          <edgelabel>rowDirtyFlags</edgelabel>
+        </childnode>
+        <childnode refid="12" relation="usage">
+          <edgelabel>textBuffer</edgelabel>
+        </childnode>
+      </node>
+      <node id="68">
+        <label>terminal::Parser</label>
+        <link refid="classterminal_1_1_parser"/>
+        <childnode refid="52" relation="usage">
+          <edgelabel>video</edgelabel>
+        </childnode>
+        <childnode refid="69" relation="usage">
+          <edgelabel>dispatchTable</edgelabel>
+        </childnode>
+        <childnode refid="71" relation="usage">
+          <edgelabel>csi</edgelabel>
+        </childnode>
+      </node>
+      <node id="40">
+        <label>terminal::Processor</label>
+        <link refid="classterminal_1_1_processor"/>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+        <childnode refid="41" relation="usage">
+          <edgelabel>tty</edgelabel>
+        </childnode>
+        <childnode refid="12" relation="usage">
+          <edgelabel>textBuffer</edgelabel>
+        </childnode>
+        <childnode refid="49" relation="usage">
+          <edgelabel>cellFifo</edgelabel>
+        </childnode>
+        <childnode refid="17" relation="usage">
+          <edgelabel>state</edgelabel>
+        </childnode>
+        <childnode refid="44" relation="usage">
+          <edgelabel>events</edgelabel>
+          <edgelabel>parameters</edgelabel>
+        </childnode>
+        <childnode refid="52" relation="usage">
+          <edgelabel>video</edgelabel>
+        </childnode>
+        <childnode refid="61" relation="usage">
+          <edgelabel>skit</edgelabel>
+        </childnode>
+        <childnode refid="67" relation="usage">
+          <edgelabel>parser</edgelabel>
+        </childnode>
+        <childnode refid="73" relation="usage">
+          <edgelabel>keyboardModeStack</edgelabel>
+        </childnode>
+        <childnode refid="74" relation="usage">
+          <edgelabel>keyboardModeStackSize</edgelabel>
+        </childnode>
+      </node>
+      <node id="10">
+        <label>terminal::Session</label>
+        <link refid="classterminal_1_1_session"/>
+        <childnode refid="11" relation="private-inheritance">
+        </childnode>
+        <childnode refid="12" relation="usage">
+          <edgelabel>textBuffer</edgelabel>
+        </childnode>
+        <childnode refid="17" relation="usage">
+          <edgelabel>model</edgelabel>
+        </childnode>
+        <childnode refid="25" relation="usage">
+          <edgelabel>codeModel</edgelabel>
+        </childnode>
+        <childnode refid="27" relation="usage">
+          <edgelabel>textEditor</edgelabel>
+        </childnode>
+        <childnode refid="39" relation="usage">
+          <edgelabel>processor</edgelabel>
+        </childnode>
+        <childnode refid="75" relation="usage">
+          <edgelabel>resizer</edgelabel>
+        </childnode>
+        <childnode refid="77" relation="usage">
+          <edgelabel>winsize</edgelabel>
+        </childnode>
+        <childnode refid="56" relation="usage">
+          <edgelabel>startCols</edgelabel>
+          <edgelabel>startRows</edgelabel>
+        </childnode>
+      </node>
+      <node id="61">
+        <label>terminal::Skit</label>
+        <link refid="classterminal_1_1_skit"/>
+        <childnode refid="44" relation="usage">
+          <edgelabel>events</edgelabel>
+        </childnode>
+        <childnode refid="62" relation="usage">
+          <edgelabel>kittyDecoder</edgelabel>
+        </childnode>
+        <childnode refid="56" relation="usage">
+          <edgelabel>lastImageRows</edgelabel>
+        </childnode>
+      </node>
+      <node id="12">
+        <label>terminal::TextBuffer</label>
+        <link refid="structterminal_1_1_text_buffer"/>
+        <childnode refid="13" relation="usage">
+          <edgelabel>slots</edgelabel>
+        </childnode>
+      </node>
+      <node id="15">
+        <label>terminal::TextSlot</label>
+        <link refid="structterminal_1_1_text_slot"/>
+        <childnode refid="16" relation="usage">
+          <edgelabel>active</edgelabel>
+        </childnode>
+      </node>
+      <node id="52">
+        <label>terminal::Video</label>
+        <link refid="classterminal_1_1_video"/>
+        <childnode refid="53" relation="usage">
+          <edgelabel>grid</edgelabel>
+        </childnode>
+        <childnode refid="54" relation="usage">
+          <edgelabel>blocks</edgelabel>
+        </childnode>
+        <childnode refid="44" relation="usage">
+          <edgelabel>events</edgelabel>
+        </childnode>
+        <childnode refid="56" relation="usage">
+          <edgelabel>cols</edgelabel>
+          <edgelabel>cursorCol</edgelabel>
+          <edgelabel>cursorRow</edgelabel>
+          <edgelabel>scrollBottom</edgelabel>
+          <edgelabel>scrollTop</edgelabel>
+          <edgelabel>visibleRows</edgelabel>
+        </childnode>
+        <childnode refid="57" relation="usage">
+          <edgelabel>savedCursor</edgelabel>
+        </childnode>
+        <childnode refid="59" relation="usage">
+          <edgelabel>graphemeState</edgelabel>
+        </childnode>
+        <childnode refid="60" relation="usage">
+          <edgelabel>tabStops</edgelabel>
+        </childnode>
+      </node>
+      <node id="58">
+        <label>terminal::Video::SavedCursor</label>
+        <link refid="structterminal_1_1_video_1_1_saved_cursor"/>
+        <childnode refid="56" relation="usage">
+          <edgelabel>col</edgelabel>
+          <edgelabel>row</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="nexus/Daemon.h" line="66" column="5" bodyfile="nexus/Daemon.h" bodystart="67" bodyend="96"/>
+    <listofallmembers>
+      <member refid="classnexus_1_1_daemon_1_1_channel_1a295e2abef90eccead958197d4c694613" prot="public" virt="non-virtual"><scope>nexus::Daemon::Channel</scope><name>Channel</name></member>
+      <member refid="classnexus_1_1_daemon_1_1_channel_1a87b3e0716c38f67a55e0b2528d3548f9" prot="public" virt="non-virtual"><scope>nexus::Daemon::Channel</scope><name>connectionLost</name></member>
+      <member refid="classnexus_1_1_daemon_1_1_channel_1adec8c8b370c9bdc520b0db919b41c1fe" prot="public" virt="non-virtual"><scope>nexus::Daemon::Channel</scope><name>connectionMade</name></member>
+      <member refid="classnexus_1_1_daemon_1_1_channel_1ae522f93607b796e2447ae90368ab649b" prot="private" virt="non-virtual"><scope>nexus::Daemon::Channel</scope><name>daemon</name></member>
+      <member refid="classnexus_1_1_daemon_1_1_channel_1a1f9c7740b49b6acad326b55369e5876f" prot="public" virt="non-virtual"><scope>nexus::Daemon::Channel</scope><name>magicHeader</name></member>
+      <member refid="classnexus_1_1_daemon_1_1_channel_1a4695c3d5b7d45f3aed446d22ad939df3" prot="public" virt="non-virtual"><scope>nexus::Daemon::Channel</scope><name>messageReceived</name></member>
+      <member refid="classnexus_1_1_daemon_1_1_channel_1a5e905ee4ee3a53acb52c6c41d8a694e7" prot="private" virt="non-virtual"><scope>nexus::Daemon::Channel</scope><name>nexus</name></member>
+      <member refid="classnexus_1_1_daemon_1_1_channel_1adaf64c2dec50ba52a8ed097195057017" prot="private" virt="non-virtual"><scope>nexus::Daemon::Channel</scope><name>parseSpawnPayload</name></member>
+      <member refid="classnexus_1_1_daemon_1_1_channel_1a3af754db6a9ae3590056c866b15f3a72" prot="public" virt="non-virtual"><scope>nexus::Daemon::Channel</scope><name>sendPdu</name></member>
+      <member refid="classnexus_1_1_daemon_1_1_channel_1a5b31887e12bfa1ba5d96915a527c4bc3" prot="public" virt="non-virtual"><scope>nexus::Daemon::Channel</scope><name>~Channel</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

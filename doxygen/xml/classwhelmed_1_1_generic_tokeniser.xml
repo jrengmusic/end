@@ -1,0 +1,151 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="classwhelmed_1_1_generic_tokeniser" kind="class" language="C++" prot="public">
+    <compoundname>whelmed::GenericTokeniser</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">juce::CodeTokeniser</basecompoundref>
+    <includes refid="_generic_tokeniser_8h" local="no">GenericTokeniser.h</includes>
+    <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classwhelmed_1_1_generic_tokeniser_1ab9df45c01a9ad2a8fc2fa6be73bc9fdd" prot="private" static="no" mutable="no">
+        <type><ref refid="structwhelmed_1_1_language_definition" kindref="compound">LanguageDefinition</ref></type>
+        <definition>LanguageDefinition whelmed::GenericTokeniser::lang</definition>
+        <argsstring></argsstring>
+        <name>lang</name>
+        <qualifiedname>whelmed::GenericTokeniser::lang</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/GenericTokeniser.h" line="26" column="24" bodyfile="whelmed/GenericTokeniser.h" bodystart="26" bodyend="-1"/>
+        <referencedby refid="classwhelmed_1_1_generic_tokeniser_1a599de4e7217c8caabf767cdab7fdd9da" compoundref="_generic_tokeniser_8cpp" startline="59" endline="64">GenericTokeniser</referencedby>
+        <referencedby refid="classwhelmed_1_1_generic_tokeniser_1abd5699f66524fecf11b494c2c8c573b1" compoundref="_generic_tokeniser_8cpp" startline="67" endline="321">readNextToken</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classwhelmed_1_1_generic_tokeniser_1a65b12e5c61680b8e9d41fcf1816ed4ff" prot="private" static="no" mutable="no">
+        <type>juce::StringArray</type>
+        <definition>juce::StringArray whelmed::GenericTokeniser::sortedKeywords</definition>
+        <argsstring></argsstring>
+        <name>sortedKeywords</name>
+        <qualifiedname>whelmed::GenericTokeniser::sortedKeywords</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/GenericTokeniser.h" line="27" column="23" bodyfile="whelmed/GenericTokeniser.h" bodystart="27" bodyend="-1"/>
+        <referencedby refid="classwhelmed_1_1_generic_tokeniser_1a599de4e7217c8caabf767cdab7fdd9da" compoundref="_generic_tokeniser_8cpp" startline="59" endline="64">GenericTokeniser</referencedby>
+        <referencedby refid="classwhelmed_1_1_generic_tokeniser_1abd5699f66524fecf11b494c2c8c573b1" compoundref="_generic_tokeniser_8cpp" startline="67" endline="321">readNextToken</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="public-func">
+      <memberdef kind="function" id="classwhelmed_1_1_generic_tokeniser_1a599de4e7217c8caabf767cdab7fdd9da" prot="public" static="no" const="no" explicit="yes" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>whelmed::GenericTokeniser::GenericTokeniser</definition>
+        <argsstring>(const LanguageDefinition &amp;definition)</argsstring>
+        <name>GenericTokeniser</name>
+        <qualifiedname>whelmed::GenericTokeniser::GenericTokeniser</qualifiedname>
+        <param>
+          <type>const <ref refid="structwhelmed_1_1_language_definition" kindref="compound">LanguageDefinition</ref> &amp;</type>
+          <declname>definition</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/GenericTokeniser.h" line="20" column="14" bodyfile="whelmed/GenericTokeniser.cpp" bodystart="59" bodyend="64"/>
+        <references refid="classwhelmed_1_1_generic_tokeniser_1ab9df45c01a9ad2a8fc2fa6be73bc9fdd" compoundref="_generic_tokeniser_8h" startline="26">lang</references>
+        <references refid="classwhelmed_1_1_generic_tokeniser_1a65b12e5c61680b8e9d41fcf1816ed4ff" compoundref="_generic_tokeniser_8h" startline="27">sortedKeywords</references>
+      </memberdef>
+      <memberdef kind="function" id="classwhelmed_1_1_generic_tokeniser_1abd5699f66524fecf11b494c2c8c573b1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int whelmed::GenericTokeniser::readNextToken</definition>
+        <argsstring>(juce::CodeDocument::Iterator &amp;source) override</argsstring>
+        <name>readNextToken</name>
+        <qualifiedname>whelmed::GenericTokeniser::readNextToken</qualifiedname>
+        <param>
+          <type>juce::CodeDocument::Iterator &amp;</type>
+          <declname>source</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/GenericTokeniser.h" line="22" column="9" bodyfile="whelmed/GenericTokeniser.cpp" bodystart="67" bodyend="321"/>
+        <references refid="namespacewhelmed_1af0a09d9fb0f442df8b3348b1d390e3aa" compoundref="_generic_tokeniser_8cpp" startline="38" endline="56">whelmed::consumeUntil</references>
+        <references refid="classwhelmed_1_1_generic_tokeniser_1ab9df45c01a9ad2a8fc2fa6be73bc9fdd" compoundref="_generic_tokeniser_8h" startline="26">lang</references>
+        <references refid="namespacewhelmed_1acb84bdd18021125f32b198eb9c16fe78" compoundref="_generic_tokeniser_8cpp" startline="22" endline="34">whelmed::matchesAhead</references>
+        <references refid="classwhelmed_1_1_generic_tokeniser_1a65b12e5c61680b8e9d41fcf1816ed4ff" compoundref="_generic_tokeniser_8h" startline="27">sortedKeywords</references>
+        <references refid="namespacewhelmed_1a1399a5c8000e7f762703c4a75bea0313" compoundref="_generic_tokeniser_8cpp" startline="15" endline="15">whelmed::tokenBracket</references>
+        <references refid="namespacewhelmed_1a12c9eefd57fe6aa85ada5ae2b7061482" compoundref="_generic_tokeniser_8cpp" startline="8" endline="8">whelmed::tokenComment</references>
+        <references refid="namespacewhelmed_1abc81702fbf516e8eaf4dbdbe75ace5b8" compoundref="_generic_tokeniser_8cpp" startline="7" endline="7">whelmed::tokenError</references>
+        <references refid="namespacewhelmed_1a834b1c39d0ffb83840a9b02ff7a992f8" compoundref="_generic_tokeniser_8cpp" startline="13" endline="13">whelmed::tokenFloat</references>
+        <references refid="namespacewhelmed_1ad658b394f601dcde02cf9cd6e53a2768" compoundref="_generic_tokeniser_8cpp" startline="11" endline="11">whelmed::tokenIdentifier</references>
+        <references refid="namespacewhelmed_1ae1e837f6c25e058821d906c958e44306" compoundref="_generic_tokeniser_8cpp" startline="12" endline="12">whelmed::tokenInteger</references>
+        <references refid="namespacewhelmed_1ab1bbf8e02d2f311020c480fa218020d9" compoundref="_generic_tokeniser_8cpp" startline="9" endline="9">whelmed::tokenKeyword</references>
+        <references refid="namespacewhelmed_1ae2e6c82ad0ee67efa74e867b98bb6076" compoundref="_generic_tokeniser_8cpp" startline="10" endline="10">whelmed::tokenOperator</references>
+        <references refid="namespacewhelmed_1ae17cd1c6befec8cda8d4b97118c5c788" compoundref="_generic_tokeniser_8cpp" startline="16" endline="16">whelmed::tokenPunctuation</references>
+        <references refid="namespacewhelmed_1a506a47b1093e711ee61e5018bc625244" compoundref="_generic_tokeniser_8cpp" startline="14" endline="14">whelmed::tokenString</references>
+      </memberdef>
+      <memberdef kind="function" id="classwhelmed_1_1_generic_tokeniser_1afd92f7967299f704db41d353d93e0b73" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>juce::CodeEditorComponent::ColourScheme</type>
+        <definition>juce::CodeEditorComponent::ColourScheme whelmed::GenericTokeniser::getDefaultColourScheme</definition>
+        <argsstring>() override</argsstring>
+        <name>getDefaultColourScheme</name>
+        <qualifiedname>whelmed::GenericTokeniser::getDefaultColourScheme</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/GenericTokeniser.h" line="23" column="45" bodyfile="whelmed/GenericTokeniser.cpp" bodystart="324" bodyend="327"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>juce::CodeTokeniser</label>
+      </node>
+      <node id="1">
+        <label>whelmed::GenericTokeniser</label>
+        <link refid="classwhelmed_1_1_generic_tokeniser"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>juce::CodeTokeniser</label>
+      </node>
+      <node id="1">
+        <label>whelmed::GenericTokeniser</label>
+        <link refid="classwhelmed_1_1_generic_tokeniser"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>lang</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>whelmed::LanguageDefinition</label>
+        <link refid="structwhelmed_1_1_language_definition"/>
+      </node>
+    </collaborationgraph>
+    <location file="whelmed/GenericTokeniser.h" line="17" column="1" bodyfile="whelmed/GenericTokeniser.h" bodystart="18" bodyend="30"/>
+    <listofallmembers>
+      <member refid="classwhelmed_1_1_generic_tokeniser_1a599de4e7217c8caabf767cdab7fdd9da" prot="public" virt="non-virtual"><scope>whelmed::GenericTokeniser</scope><name>GenericTokeniser</name></member>
+      <member refid="classwhelmed_1_1_generic_tokeniser_1afd92f7967299f704db41d353d93e0b73" prot="public" virt="non-virtual"><scope>whelmed::GenericTokeniser</scope><name>getDefaultColourScheme</name></member>
+      <member refid="classwhelmed_1_1_generic_tokeniser_1ab9df45c01a9ad2a8fc2fa6be73bc9fdd" prot="private" virt="non-virtual"><scope>whelmed::GenericTokeniser</scope><name>lang</name></member>
+      <member refid="classwhelmed_1_1_generic_tokeniser_1abd5699f66524fecf11b494c2c8c573b1" prot="public" virt="non-virtual"><scope>whelmed::GenericTokeniser</scope><name>readNextToken</name></member>
+      <member refid="classwhelmed_1_1_generic_tokeniser_1a65b12e5c61680b8e9d41fcf1816ed4ff" prot="private" virt="non-virtual"><scope>whelmed::GenericTokeniser</scope><name>sortedKeywords</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

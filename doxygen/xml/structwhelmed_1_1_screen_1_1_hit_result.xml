@@ -1,0 +1,48 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="structwhelmed_1_1_screen_1_1_hit_result" kind="struct" language="C++" prot="public">
+    <compoundname>whelmed::Screen::HitResult</compoundname>
+    <includes refid="_screen_8h" local="no">Screen.h</includes>
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structwhelmed_1_1_screen_1_1_hit_result_1ace232899ca9b365c6d9e4bd7920d09de" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int whelmed::Screen::HitResult::block</definition>
+        <argsstring></argsstring>
+        <name>block</name>
+        <qualifiedname>whelmed::Screen::HitResult::block</qualifiedname>
+        <initializer>{ -1 }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/Screen.h" line="95" column="13" bodyfile="whelmed/Screen.h" bodystart="95" bodyend="95"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwhelmed_1_1_screen_1_1_hit_result_1afa9d45d00d74a5557c3815f5ee59efb4" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int whelmed::Screen::HitResult::character</definition>
+        <argsstring></argsstring>
+        <name>character</name>
+        <qualifiedname>whelmed::Screen::HitResult::character</qualifiedname>
+        <initializer>{ -1 }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/Screen.h" line="96" column="13" bodyfile="whelmed/Screen.h" bodystart="96" bodyend="96"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="whelmed/Screen.h" line="93" column="5" bodyfile="whelmed/Screen.h" bodystart="94" bodyend="97"/>
+    <listofallmembers>
+      <member refid="structwhelmed_1_1_screen_1_1_hit_result_1ace232899ca9b365c6d9e4bd7920d09de" prot="public" virt="non-virtual"><scope>whelmed::Screen::HitResult</scope><name>block</name></member>
+      <member refid="structwhelmed_1_1_screen_1_1_hit_result_1afa9d45d00d74a5557c3815f5ee59efb4" prot="public" virt="non-virtual"><scope>whelmed::Screen::HitResult</scope><name>character</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

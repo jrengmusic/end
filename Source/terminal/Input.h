@@ -4,7 +4,7 @@
  *
  * terminal::Input centralises modal key dispatch, vim-style selection navigation,
  * open-file hint-label key matching, scrollback navigation, and the two-key `gg`
- * sequence.  It reads and writes terminal selection state via `State` parameters
+ * sequence.  It reads and writes terminal selection state via `Model` parameters
  * directly — no `Display` members are touched.
  *
  * ### Responsibilities
@@ -126,7 +126,7 @@ private:
     /**
      * @brief Handles a key event while vim-style selection mode is active.
      *
-     * Reads/writes selection state via `State` params.  Returns `true` if the
+     * Reads/writes selection state via `Model` params.  Returns `true` if the
      * key was consumed; always returns `true` (selection mode is fully modal).
      *
      * @param key  The key press.

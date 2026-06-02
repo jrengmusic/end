@@ -14,12 +14,12 @@
  *         +-- TAB
  *             +-- PANES (direction, ratio)
  *                 +-- PANE (uuid) | PANES (nested split)
- *                     +-- SESSION (terminal state, grafted from terminal::State)
+ *                     +-- SESSION (terminal state, grafted from terminal::Model)
  *                     +-- DOCUMENT (whelmed state, grafted from whelmed::State)
  *
  * nexus/<uuid>.nexus  — daemon port only (plain text, no ValueTree).
  *
- * @see AppState
+ * @see AppModel
  * @see terminal::ID (terminal-level identifiers in Source/terminal/data/Identifier.h)
  */
 

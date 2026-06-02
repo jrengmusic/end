@@ -1,0 +1,597 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="struct_cursor" kind="struct" language="C++" prot="public">
+    <compoundname>Cursor</compoundname>
+    <includes refid="_cursor_8h" local="no">Cursor.h</includes>
+    <innerclass refid="struct_cursor_1_1_position" prot="public">Cursor::Position</innerclass>
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="struct_cursor_1a1ba12b307c2a21df6077627f265d1521" prot="public" static="no" mutable="no">
+        <type>juce::Rectangle&lt; float &gt;</type>
+        <definition>juce::Rectangle&lt;float&gt; Cursor::bounds</definition>
+        <argsstring></argsstring>
+        <name>bounds</name>
+        <qualifiedname>Cursor::bounds</qualifiedname>
+        <briefdescription>
+<para>Pixel rect — position and size of the cursor cell/glyph. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Cursor.h" line="30" column="21" bodyfile="Cursor.h" bodystart="30" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_cursor_1a265d88aeb834b2f7d856d3ea2754827d" prot="public" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour Cursor::colour</definition>
+        <argsstring></argsstring>
+        <name>colour</name>
+        <qualifiedname>Cursor::colour</qualifiedname>
+        <briefdescription>
+<para>Draw colour. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Cursor.h" line="31" column="18" bodyfile="Cursor.h" bodystart="31" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_cursor_1ada64735a28e67e7d178ccc21131d1bd3" prot="public" static="no" mutable="no">
+        <type>char32_t</type>
+        <definition>char32_t Cursor::codepoint</definition>
+        <argsstring></argsstring>
+        <name>codepoint</name>
+        <qualifiedname>Cursor::codepoint</qualifiedname>
+        <initializer>{ 0x2588u }</initializer>
+        <briefdescription>
+<para>Unicode codepoint to draw (default: full block U+2588). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Cursor.h" line="32" column="14" bodyfile="Cursor.h" bodystart="32" bodyend="32"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_cursor_1a8e59687545c80370ffa6733d7a156803" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Cursor::shape</definition>
+        <argsstring></argsstring>
+        <name>shape</name>
+        <qualifiedname>Cursor::shape</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+<para>DECSCUSR shape: 0 = user glyph, 1/2 = block, 3/4 = underline, 5/6 = bar. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Cursor.h" line="33" column="9" bodyfile="Cursor.h" bodystart="33" bodyend="33"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_cursor_1a4e66fb370568c9c0d17079544f4a9407" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool Cursor::visible</definition>
+        <argsstring></argsstring>
+        <name>visible</name>
+        <qualifiedname>Cursor::visible</qualifiedname>
+        <initializer>{ false }</initializer>
+        <briefdescription>
+<para>Whether the cursor should be drawn at all. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Cursor.h" line="34" column="10" bodyfile="Cursor.h" bodystart="34" bodyend="34"/>
+      </memberdef>
+      <memberdef kind="variable" id="struct_cursor_1a8f1e0cbae5966aa1435811aa6ed99179" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool Cursor::blinkOn</definition>
+        <argsstring></argsstring>
+        <name>blinkOn</name>
+        <qualifiedname>Cursor::blinkOn</qualifiedname>
+        <initializer>{ true }</initializer>
+        <briefdescription>
+<para>Current blink phase (true = visible). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Cursor.h" line="35" column="10" bodyfile="Cursor.h" bodystart="35" bodyend="35"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="struct_cursor_1a700864ccac751e8135c39a3d052ede36" prot="public" static="yes" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type><ref refid="struct_cursor_1_1_position" kindref="compound">Position</ref></type>
+        <definition>Cursor::Position Cursor::moveLeft</definition>
+        <argsstring>(int cursorBlock, int cursorChar, int prevBlockLength) noexcept</argsstring>
+        <name>moveLeft</name>
+        <qualifiedname>Cursor::moveLeft</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>cursorBlock</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>cursorChar</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>prevBlockLength</declname>
+        </param>
+        <briefdescription>
+<para>Moves cursor left one character, crossing block boundary if at start. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cursorBlock</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current block index. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cursorChar</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current char index within block. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>prevBlockLength</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Text length of the previous block (blockIndex - 1). 0 if no previous block. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>New position. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Cursor.h" line="53" column="21" bodyfile="Cursor.cpp" bodystart="10" bodyend="26"/>
+        <references refid="struct_cursor_1_1_position_1a50a439e3445e7b43b3ddeccc564711a0" compoundref="_cursor_8h" startline="44" endline="44">Cursor::Position::block</references>
+        <references refid="struct_cursor_1_1_position_1a92b14afdf8b29fc2eb08823f7cbcda75" compoundref="_cursor_8h" startline="45" endline="45">Cursor::Position::character</references>
+        <referencedby refid="classwhelmed_1_1_input_handler_1aa315da395df2d2542ce768d3de8a19b3" compoundref="_input_handler_8cpp" startline="148" endline="258">whelmed::InputHandler::handleCursorMovement</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_cursor_1a749017f296c2cdc01dc9a75d6023fd91" prot="public" static="yes" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type><ref refid="struct_cursor_1_1_position" kindref="compound">Position</ref></type>
+        <definition>Cursor::Position Cursor::moveRight</definition>
+        <argsstring>(int cursorBlock, int cursorChar, int blockLength, int maxBlock) noexcept</argsstring>
+        <name>moveRight</name>
+        <qualifiedname>Cursor::moveRight</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>cursorBlock</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>cursorChar</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>blockLength</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>maxBlock</declname>
+        </param>
+        <briefdescription>
+<para>Moves cursor right one character, crossing block boundary if at end. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cursorBlock</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current block index. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cursorChar</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current char index within block. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>blockLength</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Text length of the current block. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maxBlock</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum valid block index. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>New position. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Cursor.h" line="62" column="21" bodyfile="Cursor.cpp" bodystart="28" bodyend="44"/>
+        <references refid="struct_cursor_1_1_position_1a50a439e3445e7b43b3ddeccc564711a0" compoundref="_cursor_8h" startline="44" endline="44">Cursor::Position::block</references>
+        <references refid="struct_cursor_1_1_position_1a92b14afdf8b29fc2eb08823f7cbcda75" compoundref="_cursor_8h" startline="45" endline="45">Cursor::Position::character</references>
+        <referencedby refid="classwhelmed_1_1_input_handler_1aa315da395df2d2542ce768d3de8a19b3" compoundref="_input_handler_8cpp" startline="148" endline="258">whelmed::InputHandler::handleCursorMovement</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_cursor_1ae70863978c8064c064d8ea029117e48a" prot="public" static="yes" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type><ref refid="struct_cursor_1_1_position" kindref="compound">Position</ref></type>
+        <definition>Cursor::Position Cursor::moveUp</definition>
+        <argsstring>(int cursorBlock, int currentLine, int charForPrevLine, int prevBlock, int charForPrevBlockLastLine) noexcept</argsstring>
+        <name>moveUp</name>
+        <qualifiedname>Cursor::moveUp</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>cursorBlock</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>currentLine</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>charForPrevLine</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>prevBlock</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>charForPrevBlockLastLine</declname>
+        </param>
+        <briefdescription>
+<para>Moves cursor up one visual line, preserving column via targetX. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cursorBlock</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current block index. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>currentLine</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current visual line within block. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>charForPrevLine</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="struct_char" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Char</ref> index at targetX on the previous line (caller computed). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>prevBlock</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Block index of previous block (cursorBlock - 1). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>charForPrevBlockLastLine</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="struct_char" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Char</ref> index at targetX on last line of previous block. Used when currentLine == 0. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>New position. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Cursor.h" line="72" column="21" bodyfile="Cursor.cpp" bodystart="46" bodyend="63"/>
+        <references refid="struct_cursor_1_1_position_1a50a439e3445e7b43b3ddeccc564711a0" compoundref="_cursor_8h" startline="44" endline="44">Cursor::Position::block</references>
+        <references refid="struct_cursor_1_1_position_1a92b14afdf8b29fc2eb08823f7cbcda75" compoundref="_cursor_8h" startline="45" endline="45">Cursor::Position::character</references>
+        <referencedby refid="classwhelmed_1_1_input_handler_1aa315da395df2d2542ce768d3de8a19b3" compoundref="_input_handler_8cpp" startline="148" endline="258">whelmed::InputHandler::handleCursorMovement</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_cursor_1ab3772ed2d8e661ddc75b59c8df86c57e" prot="public" static="yes" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type><ref refid="struct_cursor_1_1_position" kindref="compound">Position</ref></type>
+        <definition>Cursor::Position Cursor::moveDown</definition>
+        <argsstring>(int cursorBlock, int currentLine, int lineCount, int charForNextLine, int nextBlock, int charForNextBlockFirstLine, int maxBlock) noexcept</argsstring>
+        <name>moveDown</name>
+        <qualifiedname>Cursor::moveDown</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>cursorBlock</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>currentLine</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>lineCount</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>charForNextLine</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>nextBlock</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>charForNextBlockFirstLine</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>maxBlock</declname>
+        </param>
+        <briefdescription>
+<para>Moves cursor down one visual line, preserving column via targetX. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cursorBlock</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current block index. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>currentLine</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current visual line within block. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>lineCount</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Total visual lines in current block. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>charForNextLine</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="struct_char" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Char</ref> index at targetX on the next line (caller computed). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>nextBlock</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Block index of next block (cursorBlock + 1). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>charForNextBlockFirstLine</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="struct_char" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Char</ref> index at targetX on first line of next block. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maxBlock</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum valid block index. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>New position. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Cursor.h" line="85" column="21" bodyfile="Cursor.cpp" bodystart="65" bodyend="83"/>
+        <references refid="struct_cursor_1_1_position_1a50a439e3445e7b43b3ddeccc564711a0" compoundref="_cursor_8h" startline="44" endline="44">Cursor::Position::block</references>
+        <references refid="struct_cursor_1_1_position_1a92b14afdf8b29fc2eb08823f7cbcda75" compoundref="_cursor_8h" startline="45" endline="45">Cursor::Position::character</references>
+        <referencedby refid="classwhelmed_1_1_input_handler_1aa315da395df2d2542ce768d3de8a19b3" compoundref="_input_handler_8cpp" startline="148" endline="258">whelmed::InputHandler::handleCursorMovement</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_cursor_1ae5934c4fe9ebaaa5a4c6af79fe05141f" prot="public" static="yes" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type><ref refid="struct_cursor_1_1_position" kindref="compound">Position</ref></type>
+        <definition>Cursor::Position Cursor::moveToLineStart</definition>
+        <argsstring>(int cursorBlock, int lineStartChar) noexcept</argsstring>
+        <name>moveToLineStart</name>
+        <qualifiedname>Cursor::moveToLineStart</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>cursorBlock</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>lineStartChar</declname>
+        </param>
+        <briefdescription>
+<para>Moves cursor to the start of the current visual line. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cursorBlock</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current block index (returned unchanged). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>lineStartChar</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>First char index of the current visual line. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>New position. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Cursor.h" line="94" column="21" bodyfile="Cursor.cpp" bodystart="85" bodyend="88"/>
+        <referencedby refid="classwhelmed_1_1_input_handler_1aa315da395df2d2542ce768d3de8a19b3" compoundref="_input_handler_8cpp" startline="148" endline="258">whelmed::InputHandler::handleCursorMovement</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_cursor_1adcc439071d37e5783012854a2207b45b" prot="public" static="yes" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type><ref refid="struct_cursor_1_1_position" kindref="compound">Position</ref></type>
+        <definition>Cursor::Position Cursor::moveToLineEnd</definition>
+        <argsstring>(int cursorBlock, int lineEndChar) noexcept</argsstring>
+        <name>moveToLineEnd</name>
+        <qualifiedname>Cursor::moveToLineEnd</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>cursorBlock</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>lineEndChar</declname>
+        </param>
+        <briefdescription>
+<para>Moves cursor to the end of the current visual line. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cursorBlock</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current block index (returned unchanged). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>lineEndChar</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Last char index of the current visual line. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>New position. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Cursor.h" line="100" column="21" bodyfile="Cursor.cpp" bodystart="90" bodyend="93"/>
+        <referencedby refid="classwhelmed_1_1_input_handler_1aa315da395df2d2542ce768d3de8a19b3" compoundref="_input_handler_8cpp" startline="148" endline="258">whelmed::InputHandler::handleCursorMovement</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_cursor_1aea2830740a35477f114a4838613c5cff" prot="public" static="yes" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type><ref refid="struct_cursor_1_1_position" kindref="compound">Position</ref></type>
+        <definition>Cursor::Position Cursor::moveToTop</definition>
+        <argsstring>() noexcept</argsstring>
+        <name>moveToTop</name>
+        <qualifiedname>Cursor::moveToTop</qualifiedname>
+        <briefdescription>
+<para>Moves cursor to top of document. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para><ref refid="struct_cursor_1_1_position" kindref="compound">Position</ref> {0, 0}. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Cursor.h" line="104" column="21" bodyfile="Cursor.cpp" bodystart="95" bodyend="98"/>
+        <referencedby refid="classwhelmed_1_1_input_handler_1aa315da395df2d2542ce768d3de8a19b3" compoundref="_input_handler_8cpp" startline="148" endline="258">whelmed::InputHandler::handleCursorMovement</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="struct_cursor_1a5f192dfa41c67ccf9930f7a5b298a0d9" prot="public" static="yes" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type><ref refid="struct_cursor_1_1_position" kindref="compound">Position</ref></type>
+        <definition>Cursor::Position Cursor::moveToBottom</definition>
+        <argsstring>(int maxBlock, int lastBlockLength) noexcept</argsstring>
+        <name>moveToBottom</name>
+        <qualifiedname>Cursor::moveToBottom</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>maxBlock</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>lastBlockLength</declname>
+        </param>
+        <briefdescription>
+<para>Moves cursor to bottom of document. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>maxBlock</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Last valid block index. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>lastBlockLength</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Text length of the last block. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>New position. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Cursor.h" line="110" column="21" bodyfile="Cursor.cpp" bodystart="100" bodyend="103"/>
+        <referencedby refid="classwhelmed_1_1_input_handler_1aa315da395df2d2542ce768d3de8a19b3" compoundref="_input_handler_8cpp" startline="148" endline="258">whelmed::InputHandler::handleCursorMovement</referencedby>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Describes a cursor to draw: position, size, colour, shape, codepoint. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>A pure data descriptor. No state, no history, no behaviour. Built per-frame by the owning screen, consumed by the renderer.</para>
+<para>Also serves as the SSOT for cursor position computation via its static functions. Callers query their own data structures and pass raw values; <ref refid="struct_cursor" kindref="compound">Cursor</ref> computes and returns a <ref refid="struct_cursor_1_1_position" kindref="compound">Position</ref> without touching any screen state. </para>
+    </detaileddescription>
+    <location file="Cursor.h" line="28" column="1" bodyfile="Cursor.h" bodystart="29" bodyend="111"/>
+    <listofallmembers>
+      <member refid="struct_cursor_1a8f1e0cbae5966aa1435811aa6ed99179" prot="public" virt="non-virtual"><scope>Cursor</scope><name>blinkOn</name></member>
+      <member refid="struct_cursor_1a1ba12b307c2a21df6077627f265d1521" prot="public" virt="non-virtual"><scope>Cursor</scope><name>bounds</name></member>
+      <member refid="struct_cursor_1ada64735a28e67e7d178ccc21131d1bd3" prot="public" virt="non-virtual"><scope>Cursor</scope><name>codepoint</name></member>
+      <member refid="struct_cursor_1a265d88aeb834b2f7d856d3ea2754827d" prot="public" virt="non-virtual"><scope>Cursor</scope><name>colour</name></member>
+      <member refid="struct_cursor_1ab3772ed2d8e661ddc75b59c8df86c57e" prot="public" virt="non-virtual"><scope>Cursor</scope><name>moveDown</name></member>
+      <member refid="struct_cursor_1a700864ccac751e8135c39a3d052ede36" prot="public" virt="non-virtual"><scope>Cursor</scope><name>moveLeft</name></member>
+      <member refid="struct_cursor_1a749017f296c2cdc01dc9a75d6023fd91" prot="public" virt="non-virtual"><scope>Cursor</scope><name>moveRight</name></member>
+      <member refid="struct_cursor_1a5f192dfa41c67ccf9930f7a5b298a0d9" prot="public" virt="non-virtual"><scope>Cursor</scope><name>moveToBottom</name></member>
+      <member refid="struct_cursor_1adcc439071d37e5783012854a2207b45b" prot="public" virt="non-virtual"><scope>Cursor</scope><name>moveToLineEnd</name></member>
+      <member refid="struct_cursor_1ae5934c4fe9ebaaa5a4c6af79fe05141f" prot="public" virt="non-virtual"><scope>Cursor</scope><name>moveToLineStart</name></member>
+      <member refid="struct_cursor_1aea2830740a35477f114a4838613c5cff" prot="public" virt="non-virtual"><scope>Cursor</scope><name>moveToTop</name></member>
+      <member refid="struct_cursor_1ae70863978c8064c064d8ea029117e48a" prot="public" virt="non-virtual"><scope>Cursor</scope><name>moveUp</name></member>
+      <member refid="struct_cursor_1a8e59687545c80370ffa6733d7a156803" prot="public" virt="non-virtual"><scope>Cursor</scope><name>shape</name></member>
+      <member refid="struct_cursor_1a4e66fb370568c9c0d17079544f4a9407" prot="public" virt="non-virtual"><scope>Cursor</scope><name>visible</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,1436 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="classterminal_1_1_parser" kind="class" language="C++" prot="public">
+    <compoundname>terminal::Parser</compoundname>
+    <includes refid="terminal_2_parser_8h" local="no">Parser.h</includes>
+    <sectiondef kind="public-static-attrib">
+      <memberdef kind="variable" id="classterminal_1_1_parser_1a543c61236bf9731652874fbd0f7a30e8" prot="public" static="yes" constexpr="yes" mutable="no">
+        <type>uint8_t</type>
+        <definition>uint8_t terminal::Parser::MAX_INTERMEDIATES</definition>
+        <argsstring></argsstring>
+        <name>MAX_INTERMEDIATES</name>
+        <qualifiedname>terminal::Parser::MAX_INTERMEDIATES</qualifiedname>
+        <initializer>{ 4 }</initializer>
+        <briefdescription>
+<para>Maximum number of intermediate bytes collected during ESC/CSI sequences. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Intermediate bytes occupy the range 0x20–0x2F and appear between the introducer and the final byte of an escape or <ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> sequence. Four slots is more than sufficient for all standard VT sequences (most use zero or one). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Parser.h" line="104" column="30" bodyfile="terminal/Parser.h" bodystart="104" bodyend="104"/>
+        <referencedby refid="classterminal_1_1_parser_1af78b792dc9d0b8b333bc3c3813391f8d" compoundref="_parser_action_8cpp" startline="115" endline="183">performAction</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classterminal_1_1_parser_1a6fa501042f41cbf8319936a5557d4b95" prot="public" static="yes" constexpr="yes" mutable="no">
+        <type>int</type>
+        <definition>int terminal::Parser::OSC_BUFFER_CAPACITY</definition>
+        <argsstring></argsstring>
+        <name>OSC_BUFFER_CAPACITY</name>
+        <qualifiedname>terminal::Parser::OSC_BUFFER_CAPACITY</qualifiedname>
+        <initializer>{ 512 }</initializer>
+        <briefdescription>
+<para>Initial capacity of the OSC string hybrid buffer in bytes. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>OSC (Operating System Command) strings are terminated by BEL (0x07) or ST (ESC \). 512 bytes covers all practical title and clipboard payloads. The buffer grows geometrically beyond this initial size as needed. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Parser.h" line="113" column="26" bodyfile="terminal/Parser.h" bodystart="113" bodyend="113"/>
+        <referencedby refid="classterminal_1_1_parser_1af78b792dc9d0b8b333bc3c3813391f8d" compoundref="_parser_action_8cpp" startline="115" endline="183">performAction</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classterminal_1_1_parser_1add9fd18d616e24827f1fea161a4a4716" prot="private" static="no" mutable="no">
+        <type><ref refid="classterminal_1_1_video" kindref="compound">Video</ref> &amp;</type>
+        <definition>Video&amp; terminal::Parser::video</definition>
+        <argsstring></argsstring>
+        <name>video</name>
+        <qualifiedname>terminal::Parser::video</qualifiedname>
+        <briefdescription>
+<para>VT command processor receiving all decoded semantic actions. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>All decoded actions are dispatched via direct method calls on this reference. Never accessed from the message thread during parsing.</para>
+<para><simplesect kind="note"><para>READER THREAD — all calls are on the reader thread. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Parser.h" line="150" column="11" bodyfile="terminal/Parser.h" bodystart="150" bodyend="-1"/>
+        <referencedby refid="classterminal_1_1_parser_1a52a832043941b4ea8c2416268d1067fd" compoundref="_parser_action_8cpp" startline="314" endline="342">accumulateUTF8Byte</referencedby>
+        <referencedby refid="classterminal_1_1_parser_1a1a159770aea2f6a76bf82e266aabc11b" compoundref="_parser_action_8cpp" startline="361" endline="374">handlePrintByte</referencedby>
+        <referencedby refid="classterminal_1_1_parser_1af9f5c94aa6c2636dd97bc9d2a9ccaeff" compoundref="terminal_2_parser_8cpp" startline="62" endline="65">Parser</referencedby>
+        <referencedby refid="classterminal_1_1_parser_1af78b792dc9d0b8b333bc3c3813391f8d" compoundref="_parser_action_8cpp" startline="115" endline="183">performAction</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classterminal_1_1_parser_1a45692efabc7168baf8d59ca906c093e2" prot="private" static="no" mutable="no">
+        <type><ref refid="classterminal_1_1_dispatch_table" kindref="compound">DispatchTable</ref></type>
+        <definition>DispatchTable terminal::Parser::dispatchTable</definition>
+        <argsstring></argsstring>
+        <name>dispatchTable</name>
+        <qualifiedname>terminal::Parser::dispatchTable</qualifiedname>
+        <briefdescription>
+<para>O(1) state transition lookup table. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Maps <computeroutput>(<ref refid="namespaceterminal_1a7b1b1278777d02b9ed2c58b069647878" kindref="member">ParserState</ref>, byte) → (nextState, Action)</computeroutput>. Built once in the constructor and never modified. Immutable after construction, so it is safe to read from any thread (though in practice only the reader thread calls <computeroutput>get()</computeroutput>).</para>
+<para><simplesect kind="see"><para><ref refid="classterminal_1_1_dispatch_table" kindref="compound">DispatchTable</ref> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Parser.h" line="162" column="19" bodyfile="terminal/Parser.h" bodystart="162" bodyend="-1"/>
+        <referencedby refid="classterminal_1_1_parser_1a4230d4a0514ad43617e3dd770fe798af" compoundref="terminal_2_parser_8cpp" startline="81" endline="92">process</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classterminal_1_1_parser_1a89a98fcbe03613f60b57514a1bee6c4d" prot="private" static="no" mutable="no">
+        <type><ref refid="namespaceterminal_1a7b1b1278777d02b9ed2c58b069647878" kindref="member">ParserState</ref></type>
+        <definition>ParserState terminal::Parser::currentState</definition>
+        <argsstring></argsstring>
+        <name>currentState</name>
+        <qualifiedname>terminal::Parser::currentState</qualifiedname>
+        <initializer>{ <ref refid="namespaceterminal_1a7b1b1278777d02b9ed2c58b069647878a578552719239a72a2d45ad422f67d24d" kindref="member">ParserState::ground</ref> }</initializer>
+        <briefdescription>
+<para>Current state of the VT parser state machine. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Starts at <computeroutput><ref refid="namespaceterminal_1a7b1b1278777d02b9ed2c58b069647878a578552719239a72a2d45ad422f67d24d" kindref="member">ParserState::ground</ref></computeroutput>. Updated by <computeroutput><ref refid="classterminal_1_1_parser_1a9250fe2e3870803830ebdb06236eadfa" kindref="member">processTransition()</ref></computeroutput> on every byte that causes a state change. The state determines how subsequent bytes are interpreted.</para>
+<para><simplesect kind="see"><para><ref refid="namespaceterminal_1a7b1b1278777d02b9ed2c58b069647878" kindref="member">ParserState</ref> </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classterminal_1_1_parser_1a9250fe2e3870803830ebdb06236eadfa" kindref="member">processTransition()</ref> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Parser.h" line="174" column="17" bodyfile="terminal/Parser.h" bodystart="174" bodyend="174"/>
+        <referencedby refid="classterminal_1_1_parser_1a4230d4a0514ad43617e3dd770fe798af" compoundref="terminal_2_parser_8cpp" startline="81" endline="92">process</referencedby>
+        <referencedby refid="classterminal_1_1_parser_1a9250fe2e3870803830ebdb06236eadfa" compoundref="terminal_2_parser_8cpp" startline="116" endline="128">processTransition</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classterminal_1_1_parser_1aa489539fa89b0b0a25246719c4f87b6c" prot="private" static="no" mutable="no">
+        <type><ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref></type>
+        <definition>CSI terminal::Parser::csi</definition>
+        <argsstring></argsstring>
+        <name>csi</name>
+        <qualifiedname>terminal::Parser::csi</qualifiedname>
+        <briefdescription>
+<para><ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> parameter accumulator for the current <ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> sequence. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Digits and separators are fed into this accumulator via <computeroutput><ref refid="classterminal_1_1_parser_1aa6964d58b5741fcbf2939c4733b7f4e5" kindref="member">handleParam()</ref></computeroutput>. <computeroutput>csi.finalize()</computeroutput> is called before <computeroutput>video.applyCSI()</computeroutput> to commit the last parameter. <computeroutput>csi.reset()</computeroutput> is called on entry to <computeroutput>csiEntry</computeroutput> state.</para>
+<para><simplesect kind="see"><para><ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classterminal_1_1_parser_1aa6964d58b5741fcbf2939c4733b7f4e5" kindref="member">handleParam()</ref> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Parser.h" line="186" column="9" bodyfile="terminal/Parser.h" bodystart="186" bodyend="-1"/>
+        <referencedby refid="classterminal_1_1_parser_1aa6964d58b5741fcbf2939c4733b7f4e5" compoundref="_parser_action_8cpp" startline="399" endline="413">handleParam</referencedby>
+        <referencedby refid="classterminal_1_1_parser_1af78b792dc9d0b8b333bc3c3813391f8d" compoundref="_parser_action_8cpp" startline="115" endline="183">performAction</referencedby>
+        <referencedby refid="classterminal_1_1_parser_1a5292f96c343e8f0b8daf5253022e4778" compoundref="_parser_action_8cpp" startline="208" endline="236">performEntryAction</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classterminal_1_1_parser_1acbebc6c38bfa88fd25fe7a7c80ed63b4" prot="private" static="no" mutable="no">
+        <type>uint8_t</type>
+        <definition>uint8_t terminal::Parser::intermediateBuffer[MAX_INTERMEDIATES]</definition>
+        <argsstring>[MAX_INTERMEDIATES]</argsstring>
+        <name>intermediateBuffer</name>
+        <qualifiedname>terminal::Parser::intermediateBuffer</qualifiedname>
+        <initializer>{}</initializer>
+        <briefdescription>
+<para>Buffer for intermediate bytes collected during ESC/CSI sequences. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Intermediate bytes (0x20–0x2F) appear between the sequence introducer and the final byte. They qualify the meaning of the final byte (e.g. <computeroutput>ESC ( B</computeroutput> selects ASCII charset: intermediate = &apos;(&apos;, final = &apos;B&apos;). At most <computeroutput><ref refid="classterminal_1_1_parser_1a543c61236bf9731652874fbd0f7a30e8" kindref="member">MAX_INTERMEDIATES</ref></computeroutput> bytes are stored; extras are discarded.</para>
+<para><simplesect kind="see"><para><ref refid="classterminal_1_1_parser_1a238da134a6b7f592513a697e86c57769" kindref="member">intermediateCount</ref> </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classterminal_1_1_parser_1a543c61236bf9731652874fbd0f7a30e8" kindref="member">MAX_INTERMEDIATES</ref> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Parser.h" line="199" column="13" bodyfile="terminal/Parser.h" bodystart="199" bodyend="199"/>
+        <referencedby refid="classterminal_1_1_parser_1af78b792dc9d0b8b333bc3c3813391f8d" compoundref="_parser_action_8cpp" startline="115" endline="183">performAction</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classterminal_1_1_parser_1a238da134a6b7f592513a697e86c57769" prot="private" static="no" mutable="no">
+        <type>uint8_t</type>
+        <definition>uint8_t terminal::Parser::intermediateCount</definition>
+        <argsstring></argsstring>
+        <name>intermediateCount</name>
+        <qualifiedname>terminal::Parser::intermediateCount</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+<para>Number of valid bytes currently stored in <computeroutput><ref refid="classterminal_1_1_parser_1acbebc6c38bfa88fd25fe7a7c80ed63b4" kindref="member">intermediateBuffer</ref></computeroutput>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Reset to zero on entry to <computeroutput>escape</computeroutput>, <computeroutput>csiEntry</computeroutput>, and <computeroutput>dcsEntry</computeroutput> states. Incremented by the <computeroutput>collect</computeroutput> action handler.</para>
+<para><simplesect kind="invariant"><para>intermediateCount &lt;= MAX_INTERMEDIATES </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Parser.h" line="209" column="13" bodyfile="terminal/Parser.h" bodystart="209" bodyend="209"/>
+        <referencedby refid="classterminal_1_1_parser_1af78b792dc9d0b8b333bc3c3813391f8d" compoundref="_parser_action_8cpp" startline="115" endline="183">performAction</referencedby>
+        <referencedby refid="classterminal_1_1_parser_1a5292f96c343e8f0b8daf5253022e4778" compoundref="_parser_action_8cpp" startline="208" endline="236">performEntryAction</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classterminal_1_1_parser_1a72b198e9bfc04fa949e5f0d81e07a4b5" prot="private" static="no" mutable="no">
+        <type>char</type>
+        <definition>char terminal::Parser::utf8Accumulator[5]</definition>
+        <argsstring>[5]</argsstring>
+        <name>utf8Accumulator</name>
+        <qualifiedname>terminal::Parser::utf8Accumulator</qualifiedname>
+        <initializer>{}</initializer>
+        <briefdescription>
+<para>Partial UTF-8 sequence accumulation buffer (null-terminated). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>As multi-byte UTF-8 sequences arrive byte-by-byte, continuation bytes are appended here. When <computeroutput><ref refid="classterminal_1_1_parser_1a68101a859eba696a0f2e5e44a5008f4e" kindref="member">utf8AccumulatorLength</ref></computeroutput> reaches the expected length (from <computeroutput><ref refid="classterminal_1_1_parser_1abe253e4be7044cecee33834e03ab7def" kindref="member">expectedUTF8Length()</ref></computeroutput>), the codepoint is decoded and dispatched via <computeroutput>video.print()</computeroutput>. The buffer is 5 bytes: up to 4 UTF-8 bytes plus a null terminator.</para>
+<para><simplesect kind="see"><para><ref refid="classterminal_1_1_parser_1a68101a859eba696a0f2e5e44a5008f4e" kindref="member">utf8AccumulatorLength</ref> </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classterminal_1_1_parser_1a52a832043941b4ea8c2416268d1067fd" kindref="member">accumulateUTF8Byte()</ref> </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classterminal_1_1_parser_1abe253e4be7044cecee33834e03ab7def" kindref="member">expectedUTF8Length()</ref> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Parser.h" line="224" column="10" bodyfile="terminal/Parser.h" bodystart="224" bodyend="224"/>
+        <referencedby refid="classterminal_1_1_parser_1a52a832043941b4ea8c2416268d1067fd" compoundref="_parser_action_8cpp" startline="314" endline="342">accumulateUTF8Byte</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classterminal_1_1_parser_1a68101a859eba696a0f2e5e44a5008f4e" prot="private" static="no" mutable="no">
+        <type>uint8_t</type>
+        <definition>uint8_t terminal::Parser::utf8AccumulatorLength</definition>
+        <argsstring></argsstring>
+        <name>utf8AccumulatorLength</name>
+        <qualifiedname>terminal::Parser::utf8AccumulatorLength</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+<para>Number of bytes currently stored in <computeroutput><ref refid="classterminal_1_1_parser_1a72b198e9bfc04fa949e5f0d81e07a4b5" kindref="member">utf8Accumulator</ref></computeroutput>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Zero means no multi-byte sequence is in progress. When this equals <computeroutput><ref refid="classterminal_1_1_parser_1abe253e4be7044cecee33834e03ab7def" kindref="member">expectedUTF8Length</ref> (<ref refid="classterminal_1_1_parser_1a72b198e9bfc04fa949e5f0d81e07a4b5" kindref="member">utf8Accumulator</ref>[0])</computeroutput>, the sequence is complete.</para>
+<para><simplesect kind="see"><para><ref refid="classterminal_1_1_parser_1a72b198e9bfc04fa949e5f0d81e07a4b5" kindref="member">utf8Accumulator</ref> </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classterminal_1_1_parser_1a52a832043941b4ea8c2416268d1067fd" kindref="member">accumulateUTF8Byte()</ref> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Parser.h" line="235" column="13" bodyfile="terminal/Parser.h" bodystart="235" bodyend="235"/>
+        <referencedby refid="classterminal_1_1_parser_1a52a832043941b4ea8c2416268d1067fd" compoundref="_parser_action_8cpp" startline="314" endline="342">accumulateUTF8Byte</referencedby>
+        <referencedby refid="classterminal_1_1_parser_1a1a159770aea2f6a76bf82e266aabc11b" compoundref="_parser_action_8cpp" startline="361" endline="374">handlePrintByte</referencedby>
+        <referencedby refid="classterminal_1_1_parser_1a5292f96c343e8f0b8daf5253022e4778" compoundref="_parser_action_8cpp" startline="208" endline="236">performEntryAction</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classterminal_1_1_parser_1a677d9933682b381bc2df67e0e4edeeee" prot="private" static="no" mutable="no">
+        <type>juce::HeapBlock&lt; uint8_t &gt;</type>
+        <definition>juce::HeapBlock&lt;uint8_t&gt; terminal::Parser::oscBuffer</definition>
+        <argsstring></argsstring>
+        <name>oscBuffer</name>
+        <qualifiedname>terminal::Parser::oscBuffer</qualifiedname>
+        <briefdescription>
+<para>Hybrid OSC payload buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Lazy-allocated on first OSC sequence.</para>
+<para>OSC strings are accumulated here byte-by-byte as <computeroutput>oscPut</computeroutput> actions arrive. When the OSC terminator (BEL or ST) is received, <computeroutput>video.applyOSC()</computeroutput> is called with a pointer to this buffer and <computeroutput><ref refid="classterminal_1_1_parser_1a683edbe8a3d333c01b67f51964a03d39" kindref="member">oscBufferSize</ref></computeroutput>. The buffer is not null-terminated; <computeroutput><ref refid="classterminal_1_1_parser_1a683edbe8a3d333c01b67f51964a03d39" kindref="member">oscBufferSize</ref></computeroutput> tracks the valid byte count. Starts unallocated and grows geometrically from <computeroutput><ref refid="classterminal_1_1_parser_1a6fa501042f41cbf8319936a5557d4b95" kindref="member">OSC_BUFFER_CAPACITY</ref></computeroutput> on first use.</para>
+<para><simplesect kind="see"><para><ref refid="classterminal_1_1_parser_1a683edbe8a3d333c01b67f51964a03d39" kindref="member">oscBufferSize</ref> </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classterminal_1_1_parser_1a80ec99c5ee404d20570848c130a4451b" kindref="member">oscBufferCapacity</ref> </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classterminal_1_1_parser_1a6fa501042f41cbf8319936a5557d4b95" kindref="member">OSC_BUFFER_CAPACITY</ref> </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classterminal_1_1_parser_1a2c8a71bc4a22229d0d97ae994a5d4f0a" kindref="member">appendToBuffer()</ref> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Parser.h" line="251" column="21" bodyfile="terminal/Parser.h" bodystart="251" bodyend="-1"/>
+        <referencedby refid="classterminal_1_1_parser_1af78b792dc9d0b8b333bc3c3813391f8d" compoundref="_parser_action_8cpp" startline="115" endline="183">performAction</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classterminal_1_1_parser_1a683edbe8a3d333c01b67f51964a03d39" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int terminal::Parser::oscBufferSize</definition>
+        <argsstring></argsstring>
+        <name>oscBufferSize</name>
+        <qualifiedname>terminal::Parser::oscBufferSize</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+<para>Number of valid bytes currently stored in <computeroutput><ref refid="classterminal_1_1_parser_1a677d9933682b381bc2df67e0e4edeeee" kindref="member">oscBuffer</ref></computeroutput>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Reset to zero on entry to <computeroutput>oscString</computeroutput> state.</para>
+<para><simplesect kind="see"><para><ref refid="classterminal_1_1_parser_1a677d9933682b381bc2df67e0e4edeeee" kindref="member">oscBuffer</ref> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Parser.h" line="260" column="9" bodyfile="terminal/Parser.h" bodystart="260" bodyend="260"/>
+        <referencedby refid="classterminal_1_1_parser_1af78b792dc9d0b8b333bc3c3813391f8d" compoundref="_parser_action_8cpp" startline="115" endline="183">performAction</referencedby>
+        <referencedby refid="classterminal_1_1_parser_1a5292f96c343e8f0b8daf5253022e4778" compoundref="_parser_action_8cpp" startline="208" endline="236">performEntryAction</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classterminal_1_1_parser_1a80ec99c5ee404d20570848c130a4451b" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int terminal::Parser::oscBufferCapacity</definition>
+        <argsstring></argsstring>
+        <name>oscBufferCapacity</name>
+        <qualifiedname>terminal::Parser::oscBufferCapacity</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+<para>Allocated capacity of <computeroutput><ref refid="classterminal_1_1_parser_1a677d9933682b381bc2df67e0e4edeeee" kindref="member">oscBuffer</ref></computeroutput> in bytes. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Zero until the first OSC sequence is received. Doubles on overflow.</para>
+<para><simplesect kind="see"><para><ref refid="classterminal_1_1_parser_1a677d9933682b381bc2df67e0e4edeeee" kindref="member">oscBuffer</ref> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Parser.h" line="269" column="9" bodyfile="terminal/Parser.h" bodystart="269" bodyend="269"/>
+        <referencedby refid="classterminal_1_1_parser_1af78b792dc9d0b8b333bc3c3813391f8d" compoundref="_parser_action_8cpp" startline="115" endline="183">performAction</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classterminal_1_1_parser_1a75e9c8c6bc7aa748da31b27fe89ec253" prot="private" static="no" mutable="no">
+        <type>juce::HeapBlock&lt; uint8_t &gt;</type>
+        <definition>juce::HeapBlock&lt;uint8_t&gt; terminal::Parser::dcsBuffer</definition>
+        <argsstring></argsstring>
+        <name>dcsBuffer</name>
+        <qualifiedname>terminal::Parser::dcsBuffer</qualifiedname>
+        <briefdescription>
+<para>Hybrid DCS payload buffer (Sixel). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Lazy-allocated on first DCS q sequence.</para>
+<para>DCS passthrough bytes are accumulated here byte-by-byte as <computeroutput>put</computeroutput> actions arrive. When the DCS terminator (ST) is received, <computeroutput>video.applyDCSPayload()</computeroutput> is called with a pointer to this buffer and <computeroutput><ref refid="classterminal_1_1_parser_1ad077a2c88726c0789fc34ae81fcc920d" kindref="member">dcsBufferSize</ref></computeroutput>. Grows geometrically from 64 KB on first use.</para>
+<para><simplesect kind="see"><para><ref refid="classterminal_1_1_parser_1ad077a2c88726c0789fc34ae81fcc920d" kindref="member">dcsBufferSize</ref> </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classterminal_1_1_parser_1aeb96a68a4a4ff77bf40a239668ec01f6" kindref="member">dcsBufferCapacity</ref> </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classterminal_1_1_parser_1a2c8a71bc4a22229d0d97ae994a5d4f0a" kindref="member">appendToBuffer()</ref> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Parser.h" line="283" column="21" bodyfile="terminal/Parser.h" bodystart="283" bodyend="-1"/>
+        <referencedby refid="classterminal_1_1_parser_1af78b792dc9d0b8b333bc3c3813391f8d" compoundref="_parser_action_8cpp" startline="115" endline="183">performAction</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classterminal_1_1_parser_1ad077a2c88726c0789fc34ae81fcc920d" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int terminal::Parser::dcsBufferSize</definition>
+        <argsstring></argsstring>
+        <name>dcsBufferSize</name>
+        <qualifiedname>terminal::Parser::dcsBufferSize</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+<para>Number of valid bytes currently stored in <computeroutput><ref refid="classterminal_1_1_parser_1a75e9c8c6bc7aa748da31b27fe89ec253" kindref="member">dcsBuffer</ref></computeroutput>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Reset to zero on entry to <computeroutput>dcsEntry</computeroutput> state.</para>
+<para><simplesect kind="see"><para><ref refid="classterminal_1_1_parser_1a75e9c8c6bc7aa748da31b27fe89ec253" kindref="member">dcsBuffer</ref> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Parser.h" line="292" column="9" bodyfile="terminal/Parser.h" bodystart="292" bodyend="292"/>
+        <referencedby refid="classterminal_1_1_parser_1af78b792dc9d0b8b333bc3c3813391f8d" compoundref="_parser_action_8cpp" startline="115" endline="183">performAction</referencedby>
+        <referencedby refid="classterminal_1_1_parser_1a5292f96c343e8f0b8daf5253022e4778" compoundref="_parser_action_8cpp" startline="208" endline="236">performEntryAction</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classterminal_1_1_parser_1aeb96a68a4a4ff77bf40a239668ec01f6" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int terminal::Parser::dcsBufferCapacity</definition>
+        <argsstring></argsstring>
+        <name>dcsBufferCapacity</name>
+        <qualifiedname>terminal::Parser::dcsBufferCapacity</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+<para>Allocated capacity of <computeroutput><ref refid="classterminal_1_1_parser_1a75e9c8c6bc7aa748da31b27fe89ec253" kindref="member">dcsBuffer</ref></computeroutput> in bytes. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Zero until the first DCS sequence is received. Doubles on overflow.</para>
+<para><simplesect kind="see"><para><ref refid="classterminal_1_1_parser_1a75e9c8c6bc7aa748da31b27fe89ec253" kindref="member">dcsBuffer</ref> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Parser.h" line="301" column="9" bodyfile="terminal/Parser.h" bodystart="301" bodyend="301"/>
+        <referencedby refid="classterminal_1_1_parser_1af78b792dc9d0b8b333bc3c3813391f8d" compoundref="_parser_action_8cpp" startline="115" endline="183">performAction</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classterminal_1_1_parser_1ad55a44fe719c349f736e29b5a6655016" prot="private" static="no" mutable="no">
+        <type>juce::HeapBlock&lt; uint8_t &gt;</type>
+        <definition>juce::HeapBlock&lt;uint8_t&gt; terminal::Parser::apcBuffer</definition>
+        <argsstring></argsstring>
+        <name>apcBuffer</name>
+        <qualifiedname>terminal::Parser::apcBuffer</qualifiedname>
+        <briefdescription>
+<para>Hybrid APC payload buffer (Kitty). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Lazy-allocated on first APC sequence.</para>
+<para>APC passthrough bytes are accumulated here byte-by-byte as <computeroutput>apcPut</computeroutput> actions arrive. When the APC terminator (ST) is received, <computeroutput>video.applyAPCPayload()</computeroutput> is called with a pointer to this buffer and <computeroutput><ref refid="classterminal_1_1_parser_1ad419cef47ade94fac49c716aa00e1a28" kindref="member">apcBufferSize</ref></computeroutput>. Grows geometrically from 64 KB on first use.</para>
+<para><simplesect kind="see"><para><ref refid="classterminal_1_1_parser_1ad419cef47ade94fac49c716aa00e1a28" kindref="member">apcBufferSize</ref> </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classterminal_1_1_parser_1a7530a04c126845cd38f71229cfd81122" kindref="member">apcBufferCapacity</ref> </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classterminal_1_1_parser_1a2c8a71bc4a22229d0d97ae994a5d4f0a" kindref="member">appendToBuffer()</ref> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Parser.h" line="315" column="21" bodyfile="terminal/Parser.h" bodystart="315" bodyend="-1"/>
+        <referencedby refid="classterminal_1_1_parser_1af78b792dc9d0b8b333bc3c3813391f8d" compoundref="_parser_action_8cpp" startline="115" endline="183">performAction</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classterminal_1_1_parser_1ad419cef47ade94fac49c716aa00e1a28" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int terminal::Parser::apcBufferSize</definition>
+        <argsstring></argsstring>
+        <name>apcBufferSize</name>
+        <qualifiedname>terminal::Parser::apcBufferSize</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+<para>Number of valid bytes currently stored in <computeroutput><ref refid="classterminal_1_1_parser_1ad55a44fe719c349f736e29b5a6655016" kindref="member">apcBuffer</ref></computeroutput>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Reset to zero on entry to <computeroutput>apcString</computeroutput> state.</para>
+<para><simplesect kind="see"><para><ref refid="classterminal_1_1_parser_1ad55a44fe719c349f736e29b5a6655016" kindref="member">apcBuffer</ref> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Parser.h" line="324" column="9" bodyfile="terminal/Parser.h" bodystart="324" bodyend="324"/>
+        <referencedby refid="classterminal_1_1_parser_1af78b792dc9d0b8b333bc3c3813391f8d" compoundref="_parser_action_8cpp" startline="115" endline="183">performAction</referencedby>
+        <referencedby refid="classterminal_1_1_parser_1a5292f96c343e8f0b8daf5253022e4778" compoundref="_parser_action_8cpp" startline="208" endline="236">performEntryAction</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classterminal_1_1_parser_1a7530a04c126845cd38f71229cfd81122" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int terminal::Parser::apcBufferCapacity</definition>
+        <argsstring></argsstring>
+        <name>apcBufferCapacity</name>
+        <qualifiedname>terminal::Parser::apcBufferCapacity</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+<para>Allocated capacity of <computeroutput><ref refid="classterminal_1_1_parser_1ad55a44fe719c349f736e29b5a6655016" kindref="member">apcBuffer</ref></computeroutput> in bytes. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Zero until the first APC sequence is received. Doubles on overflow.</para>
+<para><simplesect kind="see"><para><ref refid="classterminal_1_1_parser_1ad55a44fe719c349f736e29b5a6655016" kindref="member">apcBuffer</ref> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Parser.h" line="333" column="9" bodyfile="terminal/Parser.h" bodystart="333" bodyend="333"/>
+        <referencedby refid="classterminal_1_1_parser_1af78b792dc9d0b8b333bc3c3813391f8d" compoundref="_parser_action_8cpp" startline="115" endline="183">performAction</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="public-func">
+      <memberdef kind="function" id="classterminal_1_1_parser_1af9f5c94aa6c2636dd97bc9d2a9ccaeff" prot="public" static="no" const="no" explicit="yes" inline="no" noexcept="yes" virt="non-virtual">
+        <type></type>
+        <definition>terminal::Parser::Parser</definition>
+        <argsstring>(Video &amp;video) noexcept</argsstring>
+        <name>Parser</name>
+        <qualifiedname>terminal::Parser::Parser</qualifiedname>
+        <param>
+          <type><ref refid="classterminal_1_1_video" kindref="compound">Video</ref> &amp;</type>
+          <declname>video</declname>
+        </param>
+        <briefdescription>
+<para>Constructs the <ref refid="classterminal_1_1_parser" kindref="compound">Parser</ref> and initialises the dispatch table. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructs the <ref refid="classterminal_1_1_parser" kindref="compound">Parser</ref>, binding it to a <ref refid="classterminal_1_1_video" kindref="compound">Video</ref> reference for direct action dispatch.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="classterminal_1_1_parser_1add9fd18d616e24827f1fea161a4a4716" kindref="member">video</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>VT command processor. All decoded semantic actions (print, applyControlCode, applyCSI, …) are called directly on this reference on the reader thread.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="note"><para>MESSAGE THREAD — construction happens before the reader thread starts.</para>
+</simplesect>
+Stores a reference to <computeroutput><ref refid="classterminal_1_1_parser_1add9fd18d616e24827f1fea161a4a4716" kindref="member">video</ref></computeroutput> for use throughout the parsing lifetime. The <computeroutput><ref refid="classterminal_1_1_dispatch_table" kindref="compound">DispatchTable</ref></computeroutput> member is default-constructed here, which populates the full <computeroutput>(<ref refid="namespaceterminal_1a7b1b1278777d02b9ed2c58b069647878" kindref="member">ParserState</ref>, byte) → <ref refid="structterminal_1_1_transition" kindref="compound">Transition</ref></computeroutput> lookup table.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="classterminal_1_1_parser_1add9fd18d616e24827f1fea161a4a4716" kindref="member">video</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>VT command processor. All decoded semantic actions (print, applyControlCode, applyCSI, …) are called directly on this reference on the reader thread.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="note"><para>MESSAGE THREAD — called before the reader thread starts.</para>
+</simplesect>
+<simplesect kind="see"><para>Parser.h </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Parser.h" line="124" column="14" bodyfile="terminal/Parser.cpp" bodystart="62" bodyend="65"/>
+        <references refid="classterminal_1_1_parser_1add9fd18d616e24827f1fea161a4a4716" compoundref="terminal_2_parser_8h" startline="150">video</references>
+      </memberdef>
+      <memberdef kind="function" id="classterminal_1_1_parser_1a4230d4a0514ad43617e3dd770fe798af" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void terminal::Parser::process</definition>
+        <argsstring>(const uint8_t *data, size_t length) noexcept</argsstring>
+        <name>process</name>
+        <qualifiedname>terminal::Parser::process</qualifiedname>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>length</declname>
+        </param>
+        <briefdescription>
+<para>Processes a block of raw bytes from the PTY. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Processes a block of raw PTY bytes through the VT state machine.</para>
+<para>This is the hot path. Each byte is looked up in the <ref refid="classterminal_1_1_dispatch_table" kindref="compound">DispatchTable</ref> and routed to the appropriate action handler. The method processes the entire <computeroutput>[data, data+length)</computeroutput> range before returning.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to the first byte of the input buffer. Must not be null if <computeroutput>length &gt; 0</computeroutput>. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>length</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of bytes to process. May be zero (no-op).</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="note"><para>READER THREAD only. Must not be called concurrently.</para>
+</simplesect>
+This is the hot path. The method iterates over <computeroutput>[data, data+length)</computeroutput> and routes each byte through the <ref refid="classterminal_1_1_dispatch_table" kindref="compound">DispatchTable</ref> to <computeroutput><ref refid="classterminal_1_1_parser_1a9250fe2e3870803830ebdb06236eadfa" kindref="member">processTransition()</ref></computeroutput>.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to the first byte of the input buffer. Must not be null when <computeroutput>length &gt; 0</computeroutput>. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>length</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of bytes to process. Zero is a no-op.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="note"><para>READER THREAD only. Must not be called concurrently.</para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classterminal_1_1_parser_1a9250fe2e3870803830ebdb06236eadfa" kindref="member">processTransition()</ref> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Parser.h" line="139" column="10" bodyfile="terminal/Parser.cpp" bodystart="81" bodyend="92"/>
+        <references refid="classterminal_1_1_parser_1a89a98fcbe03613f60b57514a1bee6c4d" compoundref="terminal_2_parser_8h" startline="174" endline="174">currentState</references>
+        <references refid="classterminal_1_1_parser_1a45692efabc7168baf8d59ca906c093e2" compoundref="terminal_2_parser_8h" startline="162">dispatchTable</references>
+        <references refid="classterminal_1_1_parser_1a9250fe2e3870803830ebdb06236eadfa" compoundref="terminal_2_parser_8cpp" startline="116" endline="128">processTransition</references>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="private-func">
+      <memberdef kind="function" id="classterminal_1_1_parser_1a9250fe2e3870803830ebdb06236eadfa" prot="private" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void terminal::Parser::processTransition</definition>
+        <argsstring>(uint8_t byte, const Transition &amp;transition) noexcept</argsstring>
+        <name>processTransition</name>
+        <qualifiedname>terminal::Parser::processTransition</qualifiedname>
+        <param>
+          <type>uint8_t</type>
+          <declname>byte</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structterminal_1_1_transition" kindref="compound">Transition</ref> &amp;</type>
+          <declname>transition</declname>
+        </param>
+        <briefdescription>
+<para>Applies a state transition: exit action, transition action, entry action. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Applies a state transition: exit action → transition action → entry action.</para>
+<para>Called by <computeroutput><ref refid="classterminal_1_1_parser_1a4230d4a0514ad43617e3dd770fe798af" kindref="member">process()</ref></computeroutput> for every byte that produces a non-trivial transition (i.e. state change or action). Performs the two-phase Williams model:<orderedlist>
+<listitem><para><computeroutput><ref refid="classterminal_1_1_parser_1af78b792dc9d0b8b333bc3c3813391f8d" kindref="member">performAction</ref> (transition.action, byte)</computeroutput>.</para>
+</listitem><listitem><para><computeroutput><ref refid="classterminal_1_1_parser_1a5292f96c343e8f0b8daf5253022e4778" kindref="member">performEntryAction</ref> (transition.nextState)</computeroutput> if the state is changing.</para>
+</listitem></orderedlist>
+</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>byte</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The input byte that triggered the transition. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>transition</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The <computeroutput>(nextState, <ref refid="namespaceaction" kindref="compound">action</ref>)</computeroutput> pair from the <ref refid="classterminal_1_1_dispatch_table" kindref="compound">DispatchTable</ref>.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="note"><para>READER THREAD only.</para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classterminal_1_1_parser_1af78b792dc9d0b8b333bc3c3813391f8d" kindref="member">performAction()</ref> </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classterminal_1_1_parser_1a5292f96c343e8f0b8daf5253022e4778" kindref="member">performEntryAction()</ref></para>
+</simplesect>
+Implements the two-phase transition model for every byte that produces a non-trivial result:</para>
+<para><orderedlist>
+<listitem><para>Calls <computeroutput><ref refid="classterminal_1_1_parser_1af78b792dc9d0b8b333bc3c3813391f8d" kindref="member">performAction</ref> (transition.action, byte)</computeroutput> unconditionally.</para>
+</listitem><listitem><para>If <computeroutput>transition.nextState != <ref refid="classterminal_1_1_parser_1a89a98fcbe03613f60b57514a1bee6c4d" kindref="member">currentState</ref></computeroutput>, calls <computeroutput><ref refid="classterminal_1_1_parser_1a5292f96c343e8f0b8daf5253022e4778" kindref="member">performEntryAction</ref> (transition.nextState)</computeroutput> to initialise the new state&apos;s accumulators, then updates <computeroutput><ref refid="classterminal_1_1_parser_1a89a98fcbe03613f60b57514a1bee6c4d" kindref="member">currentState</ref></computeroutput>.</para>
+</listitem></orderedlist>
+</para>
+<para>When the state does not change (self-transition), only step 1 runs.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>byte</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The input byte that triggered the transition. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>transition</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The <computeroutput>{nextState, <ref refid="namespaceaction" kindref="compound">action</ref>}</computeroutput> pair returned by <computeroutput>dispatchTable.get()</computeroutput>.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="note"><para>READER THREAD only.</para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classterminal_1_1_parser_1af78b792dc9d0b8b333bc3c3813391f8d" kindref="member">performAction()</ref> </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classterminal_1_1_parser_1a5292f96c343e8f0b8daf5253022e4778" kindref="member">performEntryAction()</ref> </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="_dispatch_table_8h" kindref="compound">DispatchTable.h</ref> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Parser.h" line="352" column="10" bodyfile="terminal/Parser.cpp" bodystart="116" bodyend="128"/>
+        <references refid="classterminal_1_1_parser_1a89a98fcbe03613f60b57514a1bee6c4d" compoundref="terminal_2_parser_8h" startline="174" endline="174">currentState</references>
+        <references refid="classterminal_1_1_parser_1af78b792dc9d0b8b333bc3c3813391f8d" compoundref="_parser_action_8cpp" startline="115" endline="183">performAction</references>
+        <references refid="classterminal_1_1_parser_1a5292f96c343e8f0b8daf5253022e4778" compoundref="_parser_action_8cpp" startline="208" endline="236">performEntryAction</references>
+        <referencedby refid="classterminal_1_1_parser_1a4230d4a0514ad43617e3dd770fe798af" compoundref="terminal_2_parser_8cpp" startline="81" endline="92">process</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classterminal_1_1_parser_1af78b792dc9d0b8b333bc3c3813391f8d" prot="private" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void terminal::Parser::performAction</definition>
+        <argsstring>(ParserAction action, uint8_t byte) noexcept</argsstring>
+        <name>performAction</name>
+        <qualifiedname>terminal::Parser::performAction</qualifiedname>
+        <param>
+          <type><ref refid="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11" kindref="member">ParserAction</ref></type>
+          <declname>action</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>byte</declname>
+        </param>
+        <briefdescription>
+<para>Executes the action associated with a state transition. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Executes the action associated with a state transition, calling <ref refid="classterminal_1_1_video" kindref="compound">Video</ref> methods directly for all semantic actions.</para>
+<para>Dispatches to the appropriate handler based on <computeroutput><ref refid="namespaceaction" kindref="compound">action</ref></computeroutput>:<itemizedlist>
+<listitem><para><computeroutput>print</computeroutput> → <computeroutput><ref refid="classterminal_1_1_parser_1a1a159770aea2f6a76bf82e266aabc11b" kindref="member">handlePrintByte()</ref></computeroutput></para>
+</listitem><listitem><para><computeroutput>execute</computeroutput> → <computeroutput>video.applyControlCode (byte)</computeroutput></para>
+</listitem><listitem><para><computeroutput>collect</computeroutput> → appends to <computeroutput><ref refid="classterminal_1_1_parser_1acbebc6c38bfa88fd25fe7a7c80ed63b4" kindref="member">intermediateBuffer</ref></computeroutput></para>
+</listitem><listitem><para><computeroutput>param</computeroutput> → <computeroutput><ref refid="classterminal_1_1_parser_1aa6964d58b5741fcbf2939c4733b7f4e5" kindref="member">handleParam()</ref></computeroutput></para>
+</listitem><listitem><para><computeroutput>escDispatch</computeroutput> → <computeroutput>video.applyESC (…)</computeroutput></para>
+</listitem><listitem><para><computeroutput>csiDispatch</computeroutput> → <computeroutput>video.applyCSI (…)</computeroutput></para>
+</listitem><listitem><para><computeroutput>oscPut</computeroutput> → <computeroutput><ref refid="classterminal_1_1_parser_1a2c8a71bc4a22229d0d97ae994a5d4f0a" kindref="member">appendToBuffer</ref> (<ref refid="classterminal_1_1_parser_1a677d9933682b381bc2df67e0e4edeeee" kindref="member">oscBuffer</ref>, …)</computeroutput></para>
+</listitem><listitem><para><computeroutput>oscEnd</computeroutput> → <computeroutput>video.applyOSC (…)</computeroutput></para>
+</listitem><listitem><para><computeroutput>hook</computeroutput> → <computeroutput>video.storeDCSHeader (…)</computeroutput></para>
+</listitem><listitem><para><computeroutput>put</computeroutput> → <computeroutput><ref refid="classterminal_1_1_parser_1a2c8a71bc4a22229d0d97ae994a5d4f0a" kindref="member">appendToBuffer</ref> (<ref refid="classterminal_1_1_parser_1a75e9c8c6bc7aa748da31b27fe89ec253" kindref="member">dcsBuffer</ref>, …)</computeroutput></para>
+</listitem><listitem><para><computeroutput>unhook</computeroutput> → <computeroutput>video.applyDCSPayload (…)</computeroutput></para>
+</listitem><listitem><para><computeroutput>apcPut</computeroutput> → <computeroutput><ref refid="classterminal_1_1_parser_1a2c8a71bc4a22229d0d97ae994a5d4f0a" kindref="member">appendToBuffer</ref> (<ref refid="classterminal_1_1_parser_1ad55a44fe719c349f736e29b5a6655016" kindref="member">apcBuffer</ref>, …)</computeroutput></para>
+</listitem><listitem><para><computeroutput>apcEnd</computeroutput> → <computeroutput>video.applyAPCPayload (…)</computeroutput></para>
+</listitem><listitem><para><computeroutput>ignore</computeroutput>/<computeroutput>none</computeroutput> → no-op</para>
+</listitem></itemizedlist>
+</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="namespaceaction" kindref="compound">action</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The action to perform. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>byte</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The input byte associated with the action.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="note"><para>READER THREAD only.</para>
+</simplesect>
+Central dispatcher for all VT actions. Parser-owned accumulation actions (collect, param, put, oscPut, apcPut) are handled inline. All semantic terminal actions (applyControlCode, applyESC, applyCSI, applyOSC, storeDCSHeader, applyDCSPayload, applyAPCPayload) are called directly on <computeroutput><ref refid="classterminal_1_1_parser_1add9fd18d616e24827f1fea161a4a4716" kindref="member">video</ref></computeroutput>. <computeroutput><ref refid="classterminal_1_1_parser_1a1a159770aea2f6a76bf82e266aabc11b" kindref="member">handlePrintByte()</ref></computeroutput> remains on <ref refid="classterminal_1_1_parser" kindref="compound">Parser</ref> and internally calls <computeroutput>video.print()</computeroutput>.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="namespaceaction" kindref="compound">action</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The action to perform, as determined by the <ref refid="classterminal_1_1_dispatch_table" kindref="compound">DispatchTable</ref>. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>byte</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The input byte associated with the action.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="note"><para>READER THREAD only.</para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classterminal_1_1_parser_1a1a159770aea2f6a76bf82e266aabc11b" kindref="member">handlePrintByte()</ref> </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="_video_8h" kindref="compound">Video.h</ref> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Parser.h" line="378" column="10" bodyfile="terminal/ParserAction.cpp" bodystart="115" bodyend="183"/>
+        <references refid="classterminal_1_1_parser_1ad55a44fe719c349f736e29b5a6655016" compoundref="terminal_2_parser_8h" startline="315">apcBuffer</references>
+        <references refid="classterminal_1_1_parser_1a7530a04c126845cd38f71229cfd81122" compoundref="terminal_2_parser_8h" startline="333" endline="333">apcBufferCapacity</references>
+        <references refid="classterminal_1_1_parser_1ad419cef47ade94fac49c716aa00e1a28" compoundref="terminal_2_parser_8h" startline="324" endline="324">apcBufferSize</references>
+        <references refid="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11a264c8dc38a7e3959c763427c895f821c" compoundref="_dispatch_table_8h" startline="96">terminal::apcEnd</references>
+        <references refid="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11abfdd86830285bbe890109cd3eac80ddf" compoundref="_dispatch_table_8h" startline="95">terminal::apcPut</references>
+        <references refid="classterminal_1_1_parser_1a2c8a71bc4a22229d0d97ae994a5d4f0a" compoundref="_parser_action_8cpp" startline="73" endline="90">appendToBuffer</references>
+        <references refid="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11a0788a6922bd5f9f130e7ed8980193bab" compoundref="_dispatch_table_8h" startline="86">terminal::collect</references>
+        <references refid="classterminal_1_1_parser_1aa489539fa89b0b0a25246719c4f87b6c" compoundref="terminal_2_parser_8h" startline="186">csi</references>
+        <references refid="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11a5d13f8b37c9f3bb560c10c79d97554b6" compoundref="_dispatch_table_8h" startline="89">terminal::csiDispatch</references>
+        <references refid="classterminal_1_1_parser_1a75e9c8c6bc7aa748da31b27fe89ec253" compoundref="terminal_2_parser_8h" startline="283">dcsBuffer</references>
+        <references refid="classterminal_1_1_parser_1aeb96a68a4a4ff77bf40a239668ec01f6" compoundref="terminal_2_parser_8h" startline="301" endline="301">dcsBufferCapacity</references>
+        <references refid="classterminal_1_1_parser_1ad077a2c88726c0789fc34ae81fcc920d" compoundref="terminal_2_parser_8h" startline="292" endline="292">dcsBufferSize</references>
+        <references refid="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11a622c3b29c258677d614464846cd91fc6" compoundref="_dispatch_table_8h" startline="88">terminal::escDispatch</references>
+        <references refid="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11aec0cd3cb91fe82b9501f62a528eb07a9" compoundref="_dispatch_table_8h" startline="85">terminal::execute</references>
+        <references refid="classterminal_1_1_parser_1aa6964d58b5741fcbf2939c4733b7f4e5" compoundref="_parser_action_8cpp" startline="399" endline="413">handleParam</references>
+        <references refid="classterminal_1_1_parser_1a1a159770aea2f6a76bf82e266aabc11b" compoundref="_parser_action_8cpp" startline="361" endline="374">handlePrintByte</references>
+        <references refid="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11a5a582ef17d6a088d9cb644e4c1ea3cdd" compoundref="_dispatch_table_8h" startline="93">terminal::hook</references>
+        <references refid="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11a567bc1d268f135496de3d5b946b691f3" compoundref="_dispatch_table_8h" startline="83">terminal::ignore</references>
+        <references refid="classterminal_1_1_parser_1acbebc6c38bfa88fd25fe7a7c80ed63b4" compoundref="terminal_2_parser_8h" startline="199" endline="199">intermediateBuffer</references>
+        <references refid="classterminal_1_1_parser_1a238da134a6b7f592513a697e86c57769" compoundref="terminal_2_parser_8h" startline="209" endline="209">intermediateCount</references>
+        <references refid="classterminal_1_1_parser_1a543c61236bf9731652874fbd0f7a30e8" compoundref="terminal_2_parser_8h" startline="104" endline="104">MAX_INTERMEDIATES</references>
+        <references refid="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11a334c4a4c42fdb79d7ebc3e73b517e6f8" compoundref="_dispatch_table_8h" startline="82">terminal::none</references>
+        <references refid="classterminal_1_1_parser_1a6fa501042f41cbf8319936a5557d4b95" compoundref="terminal_2_parser_8h" startline="113" endline="113">OSC_BUFFER_CAPACITY</references>
+        <references refid="classterminal_1_1_parser_1a677d9933682b381bc2df67e0e4edeeee" compoundref="terminal_2_parser_8h" startline="251">oscBuffer</references>
+        <references refid="classterminal_1_1_parser_1a80ec99c5ee404d20570848c130a4451b" compoundref="terminal_2_parser_8h" startline="269" endline="269">oscBufferCapacity</references>
+        <references refid="classterminal_1_1_parser_1a683edbe8a3d333c01b67f51964a03d39" compoundref="terminal_2_parser_8h" startline="260" endline="260">oscBufferSize</references>
+        <references refid="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11a78cd9348937078efe757b46423b52239" compoundref="_dispatch_table_8h" startline="92">terminal::oscEnd</references>
+        <references refid="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11a59f111e13f706bd92b607dd047ed3f2f" compoundref="_dispatch_table_8h" startline="91">terminal::oscPut</references>
+        <references refid="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11aeca07335a33c5aeb5e1bc7c98b4b9d80" compoundref="_dispatch_table_8h" startline="87">terminal::param</references>
+        <references refid="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11af7531e2d0ea27233ce00b5f01c5bf335" compoundref="_dispatch_table_8h" startline="84">terminal::print</references>
+        <references refid="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11a8e13ffc9fd9d6a6761231a764bdf106b" compoundref="_dispatch_table_8h" startline="90">terminal::put</references>
+        <references refid="namespaceterminal_1ae21c1599fb5843fae3e8c3ce90dd3e11a5e37107d1678b51078224718c60a6eab" compoundref="_dispatch_table_8h" startline="94">terminal::unhook</references>
+        <references refid="classterminal_1_1_parser_1add9fd18d616e24827f1fea161a4a4716" compoundref="terminal_2_parser_8h" startline="150">video</references>
+        <referencedby refid="classterminal_1_1_parser_1a9250fe2e3870803830ebdb06236eadfa" compoundref="terminal_2_parser_8cpp" startline="116" endline="128">processTransition</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classterminal_1_1_parser_1a1a159770aea2f6a76bf82e266aabc11b" prot="private" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void terminal::Parser::handlePrintByte</definition>
+        <argsstring>(uint8_t byte) noexcept</argsstring>
+        <name>handlePrintByte</name>
+        <qualifiedname>terminal::Parser::handlePrintByte</qualifiedname>
+        <param>
+          <type>uint8_t</type>
+          <declname>byte</declname>
+        </param>
+        <briefdescription>
+<para>Handles a printable byte, routing it through UTF-8 accumulation. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Routes a printable byte to <computeroutput>video.print()</computeroutput> directly or through UTF-8 accumulation.</para>
+<para>If the byte is a single-byte ASCII character (0x20–0x7E), dispatches <computeroutput>video.print()</computeroutput> directly. Otherwise forwards to <computeroutput><ref refid="classterminal_1_1_parser_1a52a832043941b4ea8c2416268d1067fd" kindref="member">accumulateUTF8Byte()</ref></computeroutput> to begin or continue a multi-byte sequence.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>byte</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The printable input byte.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="note"><para>READER THREAD only.</para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classterminal_1_1_parser_1a52a832043941b4ea8c2416268d1067fd" kindref="member">accumulateUTF8Byte()</ref></para>
+</simplesect>
+Called by <computeroutput><ref refid="classterminal_1_1_parser_1af78b792dc9d0b8b333bc3c3813391f8d" kindref="member">performAction()</ref></computeroutput> for every <computeroutput>action::print</computeroutput> byte. Two paths:</para>
+<para><itemizedlist>
+<listitem><para><bold>ASCII</bold> (byte ≤ 0x7F): resets <computeroutput><ref refid="classterminal_1_1_parser_1a68101a859eba696a0f2e5e44a5008f4e" kindref="member">utf8AccumulatorLength</ref></computeroutput> to discard any in-progress multi-byte sequence, then calls <computeroutput>video.print()</computeroutput> directly with the codepoint value.</para>
+</listitem><listitem><para><bold>Non-ASCII</bold> (byte &gt; 0x7F): delegates to <computeroutput><ref refid="classterminal_1_1_parser_1a52a832043941b4ea8c2416268d1067fd" kindref="member">accumulateUTF8Byte()</ref></computeroutput> to begin or continue a multi-byte UTF-8 sequence.</para>
+</listitem></itemizedlist>
+</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>byte</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The printable input byte (0x20–0x7E for ASCII, ≥ 0x80 for UTF-8).</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="note"><para>READER THREAD only.</para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classterminal_1_1_parser_1a52a832043941b4ea8c2416268d1067fd" kindref="member">accumulateUTF8Byte()</ref> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Parser.h" line="393" column="10" bodyfile="terminal/ParserAction.cpp" bodystart="361" bodyend="374"/>
+        <references refid="classterminal_1_1_parser_1a52a832043941b4ea8c2416268d1067fd" compoundref="_parser_action_8cpp" startline="314" endline="342">accumulateUTF8Byte</references>
+        <references refid="classterminal_1_1_parser_1a68101a859eba696a0f2e5e44a5008f4e" compoundref="terminal_2_parser_8h" startline="235" endline="235">utf8AccumulatorLength</references>
+        <references refid="classterminal_1_1_parser_1add9fd18d616e24827f1fea161a4a4716" compoundref="terminal_2_parser_8h" startline="150">video</references>
+        <referencedby refid="classterminal_1_1_parser_1af78b792dc9d0b8b333bc3c3813391f8d" compoundref="_parser_action_8cpp" startline="115" endline="183">performAction</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classterminal_1_1_parser_1a52a832043941b4ea8c2416268d1067fd" prot="private" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void terminal::Parser::accumulateUTF8Byte</definition>
+        <argsstring>(uint8_t byte) noexcept</argsstring>
+        <name>accumulateUTF8Byte</name>
+        <qualifiedname>terminal::Parser::accumulateUTF8Byte</qualifiedname>
+        <param>
+          <type>uint8_t</type>
+          <declname>byte</declname>
+        </param>
+        <briefdescription>
+<para>Accumulates a byte into the UTF-8 sequence buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Accumulates a byte into the UTF-8 sequence buffer and decodes when complete.</para>
+<para>Appends <computeroutput>byte</computeroutput> to <computeroutput><ref refid="classterminal_1_1_parser_1a72b198e9bfc04fa949e5f0d81e07a4b5" kindref="member">utf8Accumulator</ref></computeroutput>. When the accumulated length equals <computeroutput><ref refid="classterminal_1_1_parser_1abe253e4be7044cecee33834e03ab7def" kindref="member">expectedUTF8Length</ref> (<ref refid="classterminal_1_1_parser_1a72b198e9bfc04fa949e5f0d81e07a4b5" kindref="member">utf8Accumulator</ref>[0])</computeroutput>, the sequence is decoded to a Unicode codepoint and dispatched via <computeroutput>video.print()</computeroutput>. Invalid sequences (bad continuation bytes, overlong encodings) are silently discarded and the accumulator is reset.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>byte</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The next byte of the UTF-8 sequence (lead or continuation).</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="note"><para>READER THREAD only.</para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classterminal_1_1_parser_1abe253e4be7044cecee33834e03ab7def" kindref="member">expectedUTF8Length()</ref></para>
+</simplesect>
+UTF-8 multi-byte sequences arrive one byte at a time from the PTY stream. This method maintains <computeroutput><ref refid="classterminal_1_1_parser_1a72b198e9bfc04fa949e5f0d81e07a4b5" kindref="member">utf8Accumulator</ref></computeroutput> and <computeroutput><ref refid="classterminal_1_1_parser_1a68101a859eba696a0f2e5e44a5008f4e" kindref="member">utf8AccumulatorLength</ref></computeroutput> across successive calls:</para>
+<para><orderedlist>
+<listitem><para><bold>Lead byte</bold> (≥ 0xC0): resets the accumulator and stores the byte at index 0.</para>
+</listitem><listitem><para><bold>Continuation byte</bold> (0x80–0xBF): appended to the accumulator if a sequence is in progress (<computeroutput><ref refid="classterminal_1_1_parser_1a68101a859eba696a0f2e5e44a5008f4e" kindref="member">utf8AccumulatorLength</ref> &gt; 0</computeroutput>) and the buffer is not full.</para>
+</listitem><listitem><para><bold>Completion check</bold>: after each append, if <computeroutput><ref refid="classterminal_1_1_parser_1a68101a859eba696a0f2e5e44a5008f4e" kindref="member">utf8AccumulatorLength</ref></computeroutput> equals <computeroutput><ref refid="classterminal_1_1_parser_1abe253e4be7044cecee33834e03ab7def" kindref="member">expectedUTF8Length</ref> (<ref refid="classterminal_1_1_parser_1a72b198e9bfc04fa949e5f0d81e07a4b5" kindref="member">utf8Accumulator</ref>[0])</computeroutput>, the sequence is complete. <computeroutput>juce::CharPointer_UTF8</computeroutput> decodes the null-terminated buffer to a Unicode codepoint, which is dispatched via <computeroutput>video.print()</computeroutput>. The accumulator is then reset.</para>
+</listitem></orderedlist>
+</para>
+<para>Invalid sequences (e.g. a continuation byte with no preceding lead byte, or a lead byte that interrupts an in-progress sequence) are silently discarded because the accumulator is only appended to when <computeroutput><ref refid="classterminal_1_1_parser_1a68101a859eba696a0f2e5e44a5008f4e" kindref="member">utf8AccumulatorLength</ref> &gt; 0</computeroutput>.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>byte</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The next byte of the UTF-8 sequence (lead or continuation).</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="note"><para>READER THREAD only.</para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classterminal_1_1_parser_1abe253e4be7044cecee33834e03ab7def" kindref="member">expectedUTF8Length()</ref> </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classterminal_1_1_parser_1a1a159770aea2f6a76bf82e266aabc11b" kindref="member">handlePrintByte()</ref> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Parser.h" line="410" column="10" bodyfile="terminal/ParserAction.cpp" bodystart="314" bodyend="342"/>
+        <references refid="classterminal_1_1_parser_1abe253e4be7044cecee33834e03ab7def" compoundref="_parser_action_8cpp" startline="267" endline="286">expectedUTF8Length</references>
+        <references refid="classterminal_1_1_parser_1a72b198e9bfc04fa949e5f0d81e07a4b5" compoundref="terminal_2_parser_8h" startline="224" endline="224">utf8Accumulator</references>
+        <references refid="classterminal_1_1_parser_1a68101a859eba696a0f2e5e44a5008f4e" compoundref="terminal_2_parser_8h" startline="235" endline="235">utf8AccumulatorLength</references>
+        <references refid="classterminal_1_1_parser_1add9fd18d616e24827f1fea161a4a4716" compoundref="terminal_2_parser_8h" startline="150">video</references>
+        <referencedby refid="classterminal_1_1_parser_1a1a159770aea2f6a76bf82e266aabc11b" compoundref="_parser_action_8cpp" startline="361" endline="374">handlePrintByte</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classterminal_1_1_parser_1aa6964d58b5741fcbf2939c4733b7f4e5" prot="private" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void terminal::Parser::handleParam</definition>
+        <argsstring>(uint8_t byte) noexcept</argsstring>
+        <name>handleParam</name>
+        <qualifiedname>terminal::Parser::handleParam</qualifiedname>
+        <param>
+          <type>uint8_t</type>
+          <declname>byte</declname>
+        </param>
+        <briefdescription>
+<para>Processes a <ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> parameter byte (digit, semicolon, or colon). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Feeds a <ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> parameter byte into the <ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> accumulator.</para>
+<para>Feeds the byte into the <computeroutput><ref refid="classterminal_1_1_parser_1aa489539fa89b0b0a25246719c4f87b6c" kindref="member">csi</ref></computeroutput> accumulator:<itemizedlist>
+<listitem><para>&apos;0&apos;–&apos;9&apos; → <computeroutput>csi.addDigit()</computeroutput></para>
+</listitem><listitem><para>&apos;;&apos; or &apos;:&apos; → <computeroutput>csi.addSeparator()</computeroutput></para>
+</listitem></itemizedlist>
+</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>byte</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The parameter byte (0x30–0x3B range).</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="note"><para>READER THREAD only.</para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="structterminal_1_1_c_s_i_1a8a3f0c7648031f973e5bb63fd1f81a06" kindref="member">CSI::addDigit()</ref> </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="structterminal_1_1_c_s_i_1a2531da13a92b9ed183e74788fafd555d" kindref="member">CSI::addSeparator()</ref></para>
+</simplesect>
+Called by <computeroutput><ref refid="classterminal_1_1_parser_1af78b792dc9d0b8b333bc3c3813391f8d" kindref="member">performAction()</ref></computeroutput> for every <computeroutput>action::param</computeroutput> byte. The byte is classified and forwarded to the appropriate <computeroutput><ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref></computeroutput> method:</para>
+<para><itemizedlist>
+<listitem><para><bold>Digit</bold> (&apos;0&apos;–&apos;9&apos;): <computeroutput>csi.addDigit (byte - &apos;0&apos;)</computeroutput> — extends the current numeric parameter.</para>
+</listitem><listitem><para><bold>Separator</bold> (&apos;;&apos; or &apos;:&apos;): <computeroutput>csi.addSeparator (byte)</computeroutput> — commits the current parameter and begins the next. Colon (<computeroutput>:</computeroutput>) is used for sub-parameters in extended SGR colour sequences (e.g. <computeroutput>38:2:r:g:b</computeroutput>).</para>
+</listitem></itemizedlist>
+</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>byte</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The parameter byte (0x30–0x3B range per the VT spec).</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="note"><para>READER THREAD only.</para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="structterminal_1_1_c_s_i_1a8a3f0c7648031f973e5bb63fd1f81a06" kindref="member">CSI::addDigit()</ref> </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="structterminal_1_1_c_s_i_1a2531da13a92b9ed183e74788fafd555d" kindref="member">CSI::addSeparator()</ref> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Parser.h" line="426" column="10" bodyfile="terminal/ParserAction.cpp" bodystart="399" bodyend="413"/>
+        <references refid="classterminal_1_1_parser_1aa489539fa89b0b0a25246719c4f87b6c" compoundref="terminal_2_parser_8h" startline="186">csi</references>
+        <referencedby refid="classterminal_1_1_parser_1af78b792dc9d0b8b333bc3c3813391f8d" compoundref="_parser_action_8cpp" startline="115" endline="183">performAction</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classterminal_1_1_parser_1a5292f96c343e8f0b8daf5253022e4778" prot="private" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void terminal::Parser::performEntryAction</definition>
+        <argsstring>(ParserState newState) noexcept</argsstring>
+        <name>performEntryAction</name>
+        <qualifiedname>terminal::Parser::performEntryAction</qualifiedname>
+        <param>
+          <type><ref refid="namespaceterminal_1a7b1b1278777d02b9ed2c58b069647878" kindref="member">ParserState</ref></type>
+          <declname>newState</declname>
+        </param>
+        <briefdescription>
+<para>Performs the entry action for a newly entered parser state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Called by <computeroutput><ref refid="classterminal_1_1_parser_1a9250fe2e3870803830ebdb06236eadfa" kindref="member">processTransition()</ref></computeroutput> when the state changes. Entry actions reset state-specific accumulators:<itemizedlist>
+<listitem><para><computeroutput>csiEntry</computeroutput> → <computeroutput>csi.reset()</computeroutput>, <computeroutput><ref refid="classterminal_1_1_parser_1a238da134a6b7f592513a697e86c57769" kindref="member">intermediateCount</ref> = 0</computeroutput></para>
+</listitem><listitem><para><computeroutput>escape</computeroutput> → <computeroutput><ref refid="classterminal_1_1_parser_1a238da134a6b7f592513a697e86c57769" kindref="member">intermediateCount</ref> = 0</computeroutput></para>
+</listitem><listitem><para><computeroutput>oscString</computeroutput> → <computeroutput><ref refid="classterminal_1_1_parser_1a683edbe8a3d333c01b67f51964a03d39" kindref="member">oscBufferSize</ref> = 0</computeroutput></para>
+</listitem><listitem><para><computeroutput>apcString</computeroutput> → <computeroutput><ref refid="classterminal_1_1_parser_1ad419cef47ade94fac49c716aa00e1a28" kindref="member">apcBufferSize</ref> = 0</computeroutput></para>
+</listitem><listitem><para><computeroutput>dcsEntry</computeroutput> → <computeroutput>csi.reset()</computeroutput>, <computeroutput><ref refid="classterminal_1_1_parser_1a238da134a6b7f592513a697e86c57769" kindref="member">intermediateCount</ref> = 0</computeroutput>, <computeroutput><ref refid="classterminal_1_1_parser_1ad077a2c88726c0789fc34ae81fcc920d" kindref="member">dcsBufferSize</ref> = 0</computeroutput></para>
+</listitem></itemizedlist>
+</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>newState</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The state being entered.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="note"><para>READER THREAD only.</para>
+</simplesect>
+Called by <computeroutput><ref refid="classterminal_1_1_parser_1a9250fe2e3870803830ebdb06236eadfa" kindref="member">processTransition()</ref></computeroutput> immediately after <computeroutput><ref refid="classterminal_1_1_parser_1af78b792dc9d0b8b333bc3c3813391f8d" kindref="member">performAction()</ref></computeroutput> when the state changes. Entry actions reset the accumulators that belong to the new state, ensuring no stale data from a previous sequence leaks in:</para>
+<para><itemizedlist>
+<listitem><para><bold>escape</bold> — <computeroutput><ref refid="classterminal_1_1_parser_1a238da134a6b7f592513a697e86c57769" kindref="member">intermediateCount</ref> = 0</computeroutput>: clears intermediate buffer for the new ESC sequence.</para>
+</listitem><listitem><para><bold>csiEntry</bold> — <computeroutput>csi.reset()</computeroutput> + <computeroutput><ref refid="classterminal_1_1_parser_1a238da134a6b7f592513a697e86c57769" kindref="member">intermediateCount</ref> = 0</computeroutput>: clears both the <ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> parameter accumulator and the intermediate buffer.</para>
+</listitem><listitem><para><bold>dcsEntry</bold> — same as <computeroutput>csiEntry</computeroutput> plus <computeroutput><ref refid="classterminal_1_1_parser_1ad077a2c88726c0789fc34ae81fcc920d" kindref="member">dcsBufferSize</ref> = 0</computeroutput>: resets the DCS payload accumulator.</para>
+</listitem><listitem><para><bold>oscString</bold> — <computeroutput><ref refid="classterminal_1_1_parser_1a683edbe8a3d333c01b67f51964a03d39" kindref="member">oscBufferSize</ref> = 0</computeroutput>: clears the hybrid OSC payload buffer.</para>
+</listitem><listitem><para><bold>apcString</bold> — <computeroutput><ref refid="classterminal_1_1_parser_1ad419cef47ade94fac49c716aa00e1a28" kindref="member">apcBufferSize</ref> = 0</computeroutput>: clears the APC payload buffer.</para>
+</listitem><listitem><para>All other states have no entry action (default branch is a no-op).</para>
+</listitem></itemizedlist>
+</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>newState</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The state being entered.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="note"><para>READER THREAD only.</para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classterminal_1_1_parser_1a9250fe2e3870803830ebdb06236eadfa" kindref="member">processTransition()</ref> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Parser.h" line="463" column="10" bodyfile="terminal/ParserAction.cpp" bodystart="208" bodyend="236"/>
+        <references refid="classterminal_1_1_parser_1ad419cef47ade94fac49c716aa00e1a28" compoundref="terminal_2_parser_8h" startline="324" endline="324">apcBufferSize</references>
+        <references refid="namespaceterminal_1a7b1b1278777d02b9ed2c58b069647878a77d497e1e04693a76f53460b0b31475f" compoundref="_dispatch_table_8h" startline="67">terminal::apcString</references>
+        <references refid="classterminal_1_1_parser_1aa489539fa89b0b0a25246719c4f87b6c" compoundref="terminal_2_parser_8h" startline="186">csi</references>
+        <references refid="namespaceterminal_1a7b1b1278777d02b9ed2c58b069647878a04f55a95839cdcff83ad041038d62f05" compoundref="_dispatch_table_8h" startline="56">terminal::csiEntry</references>
+        <references refid="classterminal_1_1_parser_1ad077a2c88726c0789fc34ae81fcc920d" compoundref="terminal_2_parser_8h" startline="292" endline="292">dcsBufferSize</references>
+        <references refid="namespaceterminal_1a7b1b1278777d02b9ed2c58b069647878a320444357942d8d3c9260f52f992bff1" compoundref="_dispatch_table_8h" startline="60">terminal::dcsEntry</references>
+        <references refid="namespaceterminal_1a7b1b1278777d02b9ed2c58b069647878ae0ebc3c409070d07f1df0f2f4132509e" compoundref="_dispatch_table_8h" startline="54">terminal::escape</references>
+        <references refid="classterminal_1_1_parser_1a238da134a6b7f592513a697e86c57769" compoundref="terminal_2_parser_8h" startline="209" endline="209">intermediateCount</references>
+        <references refid="classterminal_1_1_parser_1a683edbe8a3d333c01b67f51964a03d39" compoundref="terminal_2_parser_8h" startline="260" endline="260">oscBufferSize</references>
+        <references refid="namespaceterminal_1a7b1b1278777d02b9ed2c58b069647878a12028958d92529c86ee9708028c9ceae" compoundref="_dispatch_table_8h" startline="65">terminal::oscString</references>
+        <references refid="classterminal_1_1_parser_1a68101a859eba696a0f2e5e44a5008f4e" compoundref="terminal_2_parser_8h" startline="235" endline="235">utf8AccumulatorLength</references>
+        <referencedby refid="classterminal_1_1_parser_1a9250fe2e3870803830ebdb06236eadfa" compoundref="terminal_2_parser_8cpp" startline="116" endline="128">processTransition</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classterminal_1_1_parser_1a2c8a71bc4a22229d0d97ae994a5d4f0a" prot="private" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void terminal::Parser::appendToBuffer</definition>
+        <argsstring>(juce::HeapBlock&lt; uint8_t &gt; &amp;buffer, int &amp;size, int &amp;capacity, uint8_t byte, int initialCapacity) noexcept</argsstring>
+        <name>appendToBuffer</name>
+        <qualifiedname>terminal::Parser::appendToBuffer</qualifiedname>
+        <param>
+          <type>juce::HeapBlock&lt; uint8_t &gt; &amp;</type>
+          <declname>buffer</declname>
+        </param>
+        <param>
+          <type>int &amp;</type>
+          <declname>size</declname>
+        </param>
+        <param>
+          <type>int &amp;</type>
+          <declname>capacity</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>byte</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>initialCapacity</declname>
+        </param>
+        <briefdescription>
+<para>Appends a byte to a hybrid buffer with lazy allocation and geometric growth. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>On first call (<computeroutput>capacity == 0</computeroutput>), allocates <computeroutput>initialCapacity</computeroutput> bytes. On subsequent overflow (<computeroutput>size &gt;= capacity</computeroutput>), doubles the capacity. The existing contents are preserved across reallocations via <computeroutput>std::memcpy</computeroutput>.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buffer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The <computeroutput><ref refid="classHeapBlock" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">HeapBlock</ref></computeroutput> to append to. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current number of valid bytes in <computeroutput>buffer</computeroutput> (in/out). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>capacity</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current allocated capacity of <computeroutput>buffer</computeroutput> (in/out). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>byte</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The byte to append. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>initialCapacity</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Capacity to allocate on the first call.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="note"><para>READER THREAD only. </para>
+</simplesect>
+<simplesect kind="note"><para><computeroutput>noexcept</computeroutput> — allocation failure on the reader thread is unrecoverable; <computeroutput>juce::HeapBlock::allocate</computeroutput> asserts in debug builds.</para>
+</simplesect>
+Handles three cases:</para>
+<para><itemizedlist>
+<listitem><para><bold>First call</bold> (<computeroutput>capacity == 0</computeroutput>): allocates <computeroutput>initialCapacity</computeroutput> bytes via <computeroutput>juce::HeapBlock::allocate</computeroutput>.</para>
+</listitem><listitem><para><bold>Overflow</bold> (<computeroutput>size &gt;= capacity</computeroutput>): doubles the capacity and copies the existing content to the new block via <computeroutput>std::memcpy</computeroutput>.</para>
+</listitem><listitem><para><bold>Normal</bold> (<computeroutput>size &lt; capacity</computeroutput>): writes <computeroutput>byte</computeroutput> directly.</para>
+</listitem></itemizedlist>
+</para>
+<para>After ensuring sufficient capacity, <computeroutput>byte</computeroutput> is stored at <computeroutput>buffer[size]</computeroutput> and <computeroutput>size</computeroutput> is incremented.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buffer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The <computeroutput><ref refid="classHeapBlock" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">HeapBlock</ref></computeroutput> to append to. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current number of valid bytes in <computeroutput>buffer</computeroutput> (in/out). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>capacity</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current allocated capacity of <computeroutput>buffer</computeroutput> (in/out). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>byte</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The byte to append. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>initialCapacity</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Capacity to allocate on the first call.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="note"><para>READER THREAD only.</para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classterminal_1_1_parser_1a677d9933682b381bc2df67e0e4edeeee" kindref="member">oscBuffer</ref> </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classterminal_1_1_parser_1a75e9c8c6bc7aa748da31b27fe89ec253" kindref="member">dcsBuffer</ref> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Parser.h" line="482" column="10" bodyfile="terminal/ParserAction.cpp" bodystart="73" bodyend="90"/>
+        <referencedby refid="classterminal_1_1_parser_1af78b792dc9d0b8b333bc3c3813391f8d" compoundref="_parser_action_8cpp" startline="115" endline="183">performAction</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="private-static-func">
+      <memberdef kind="function" id="classterminal_1_1_parser_1abe253e4be7044cecee33834e03ab7def" prot="private" static="yes" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>uint8_t</type>
+        <definition>uint8_t terminal::Parser::expectedUTF8Length</definition>
+        <argsstring>(uint8_t leadByte) noexcept</argsstring>
+        <name>expectedUTF8Length</name>
+        <qualifiedname>terminal::Parser::expectedUTF8Length</qualifiedname>
+        <param>
+          <type>uint8_t</type>
+          <declname>leadByte</declname>
+        </param>
+        <briefdescription>
+<para>Returns the expected total byte length of a UTF-8 sequence from its lead byte. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><table rows="6" cols="2"><row>
+<entry thead="yes"><para>Lead byte range  </para>
+</entry><entry thead="yes"><para>Sequence length  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>0x00–0x7F  </para>
+</entry><entry thead="no"><para>1  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>0xC0–0xDF  </para>
+</entry><entry thead="no"><para>2  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>0xE0–0xEF  </para>
+</entry><entry thead="no"><para>3  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>0xF0–0xF7  </para>
+</entry><entry thead="no"><para>4  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>Other  </para>
+</entry><entry thead="no"><para>1 (fallback)  </para>
+</entry></row>
+</table>
+</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>leadByte</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The first byte of the UTF-8 sequence.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Expected total byte count (1–4).</para>
+</simplesect>
+<simplesect kind="note"><para>Pure function — no side effects. </para>
+</simplesect>
+<simplesect kind="note"><para>READER THREAD only.</para>
+</simplesect>
+Decodes the sequence length from the high bits of the lead byte using the standard UTF-8 encoding rules:</para>
+<para><table rows="5" cols="3"><row>
+<entry thead="yes"><para>Lead byte range  </para>
+</entry><entry thead="yes"><para>High bits  </para>
+</entry><entry thead="yes"><para>Sequence length  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>0xF0–0xF7  </para>
+</entry><entry thead="no"><para>11110xxx  </para>
+</entry><entry thead="no"><para>4  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>0xE0–0xEF  </para>
+</entry><entry thead="no"><para>1110xxxx  </para>
+</entry><entry thead="no"><para>3  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>0xC0–0xDF  </para>
+</entry><entry thead="no"><para>110xxxxx  </para>
+</entry><entry thead="no"><para>2  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>0x00–0x7F  </para>
+</entry><entry thead="no"><para>0xxxxxxx  </para>
+</entry><entry thead="no"><para>1 (ASCII)  </para>
+</entry></row>
+</table>
+</para>
+<para>Values in the range 0x80–0xBF (continuation bytes) are not valid lead bytes and return 1 as a safe fallback.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>leadByte</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The first byte of the UTF-8 sequence.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Expected total byte count (1–4).</para>
+</simplesect>
+<simplesect kind="note"><para>Pure function — no side effects, no state access. </para>
+</simplesect>
+<simplesect kind="note"><para>READER THREAD only.</para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classterminal_1_1_parser_1a52a832043941b4ea8c2416268d1067fd" kindref="member">accumulateUTF8Byte()</ref> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/Parser.h" line="446" column="20" bodyfile="terminal/ParserAction.cpp" bodystart="267" bodyend="286"/>
+        <referencedby refid="classterminal_1_1_parser_1a52a832043941b4ea8c2416268d1067fd" compoundref="_parser_action_8cpp" startline="314" endline="342">accumulateUTF8Byte</referencedby>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>VT100/VT520 DFA byte decoder — decodes VT sequences and calls <ref refid="classterminal_1_1_video" kindref="compound">Video</ref> methods directly. </para>
+    </briefdescription>
+    <detaileddescription>
+<para><ref refid="classterminal_1_1_parser" kindref="compound">Parser</ref> owns the DFA state, intermediate and parameter accumulators, UTF-8 accumulation, and OSC/DCS/APC payload buffers. It holds a reference to <ref refid="classterminal_1_1_video" kindref="compound">Video</ref> and calls every decoded semantic action directly on it — it does not write cells, move cursors, or touch any terminal state itself.</para>
+<para><simplesect kind="par"><title>Lifecycle</title><para><orderedlist>
+<listitem><para>Construct with a reference to a <computeroutput><ref refid="classterminal_1_1_video" kindref="compound">Video</ref></computeroutput> instance.</para>
+</listitem><listitem><para>Feed raw PTY bytes via <computeroutput><ref refid="classterminal_1_1_parser_1a4230d4a0514ad43617e3dd770fe798af" kindref="member">process()</ref></computeroutput> on the reader thread.</para>
+</listitem></orderedlist>
+</para>
+</simplesect>
+<simplesect kind="note"><para>All methods are READER THREAD only unless otherwise stated.</para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classterminal_1_1_dispatch_table" kindref="compound">DispatchTable</ref> — state transition table used internally </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> — <ref refid="structterminal_1_1_c_s_i" kindref="compound">CSI</ref> parameter accumulator </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classterminal_1_1_video" kindref="compound">Video</ref> — VT <ref refid="group__juce__audio__plugin__client-Unity_1gga485dc2a0e5ed7da3d9f826367b36ee55a6440030ae8284cee96c1c88b356c45a7" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">command</ref> processor receiving all decoded actions </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="10">
+        <label>GraphemeSegmentationResult</label>
+        <link refid="struct_grapheme_segmentation_result"/>
+      </node>
+      <node id="5">
+        <label>jam::Block&lt; jam::Row &gt;</label>
+        <link refid="classjam_1_1_block" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+      <node id="3">
+        <label>jam::Buffer&lt; jam::Row &gt;</label>
+        <link refid="classjam_1_1_buffer" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+      <node id="7">
+        <label>jam::Cell</label>
+        <link refid="structjam_1_1_cell" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+      <node id="6">
+        <label>jam::Function::Map&lt; juce::Identifier, void &gt;</label>
+        <link refid="structjam_1_1_function_1_1_map" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+      <node id="13">
+        <label>std::array&lt; StateRow, STATE_COUNT &gt;</label>
+      </node>
+      <node id="4">
+        <label>std::array&lt; jam::Block&lt; jam::Row &gt;, 2 &gt;</label>
+        <childnode refid="5" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+      <node id="8">
+        <label>std::array&lt; terminal::Video::SavedCursor, 2 &gt;</label>
+        <childnode refid="9" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+      <node id="15">
+        <label>std::array&lt; uint16_t, MAX_PARAMS &gt;</label>
+      </node>
+      <node id="11">
+        <label>std::vector&lt; char &gt;</label>
+      </node>
+      <node id="14">
+        <label>terminal::CSI</label>
+        <link refid="structterminal_1_1_c_s_i"/>
+        <childnode refid="15" relation="usage">
+          <edgelabel>values</edgelabel>
+        </childnode>
+      </node>
+      <node id="12">
+        <label>terminal::DispatchTable</label>
+        <link refid="classterminal_1_1_dispatch_table"/>
+        <childnode refid="13" relation="usage">
+          <edgelabel>table</edgelabel>
+        </childnode>
+      </node>
+      <node id="1">
+        <label>terminal::Parser</label>
+        <link refid="classterminal_1_1_parser"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>video</edgelabel>
+        </childnode>
+        <childnode refid="12" relation="usage">
+          <edgelabel>dispatchTable</edgelabel>
+        </childnode>
+        <childnode refid="14" relation="usage">
+          <edgelabel>csi</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>terminal::Video</label>
+        <link refid="classterminal_1_1_video"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>grid</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>blocks</edgelabel>
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>events</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>cols</edgelabel>
+          <edgelabel>cursorCol</edgelabel>
+          <edgelabel>cursorRow</edgelabel>
+          <edgelabel>scrollBottom</edgelabel>
+          <edgelabel>scrollTop</edgelabel>
+          <edgelabel>visibleRows</edgelabel>
+        </childnode>
+        <childnode refid="8" relation="usage">
+          <edgelabel>savedCursor</edgelabel>
+        </childnode>
+        <childnode refid="10" relation="usage">
+          <edgelabel>graphemeState</edgelabel>
+        </childnode>
+        <childnode refid="11" relation="usage">
+          <edgelabel>tabStops</edgelabel>
+        </childnode>
+      </node>
+      <node id="9">
+        <label>terminal::Video::SavedCursor</label>
+        <link refid="structterminal_1_1_video_1_1_saved_cursor"/>
+        <childnode refid="7" relation="usage">
+          <edgelabel>col</edgelabel>
+          <edgelabel>row</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="terminal/Parser.h" line="94" column="1" bodyfile="terminal/Parser.h" bodystart="95" bodyend="485"/>
+    <listofallmembers>
+      <member refid="classterminal_1_1_parser_1a52a832043941b4ea8c2416268d1067fd" prot="private" virt="non-virtual"><scope>terminal::Parser</scope><name>accumulateUTF8Byte</name></member>
+      <member refid="classterminal_1_1_parser_1ad55a44fe719c349f736e29b5a6655016" prot="private" virt="non-virtual"><scope>terminal::Parser</scope><name>apcBuffer</name></member>
+      <member refid="classterminal_1_1_parser_1a7530a04c126845cd38f71229cfd81122" prot="private" virt="non-virtual"><scope>terminal::Parser</scope><name>apcBufferCapacity</name></member>
+      <member refid="classterminal_1_1_parser_1ad419cef47ade94fac49c716aa00e1a28" prot="private" virt="non-virtual"><scope>terminal::Parser</scope><name>apcBufferSize</name></member>
+      <member refid="classterminal_1_1_parser_1a2c8a71bc4a22229d0d97ae994a5d4f0a" prot="private" virt="non-virtual"><scope>terminal::Parser</scope><name>appendToBuffer</name></member>
+      <member refid="classterminal_1_1_parser_1aa489539fa89b0b0a25246719c4f87b6c" prot="private" virt="non-virtual"><scope>terminal::Parser</scope><name>csi</name></member>
+      <member refid="classterminal_1_1_parser_1a89a98fcbe03613f60b57514a1bee6c4d" prot="private" virt="non-virtual"><scope>terminal::Parser</scope><name>currentState</name></member>
+      <member refid="classterminal_1_1_parser_1a75e9c8c6bc7aa748da31b27fe89ec253" prot="private" virt="non-virtual"><scope>terminal::Parser</scope><name>dcsBuffer</name></member>
+      <member refid="classterminal_1_1_parser_1aeb96a68a4a4ff77bf40a239668ec01f6" prot="private" virt="non-virtual"><scope>terminal::Parser</scope><name>dcsBufferCapacity</name></member>
+      <member refid="classterminal_1_1_parser_1ad077a2c88726c0789fc34ae81fcc920d" prot="private" virt="non-virtual"><scope>terminal::Parser</scope><name>dcsBufferSize</name></member>
+      <member refid="classterminal_1_1_parser_1a45692efabc7168baf8d59ca906c093e2" prot="private" virt="non-virtual"><scope>terminal::Parser</scope><name>dispatchTable</name></member>
+      <member refid="classterminal_1_1_parser_1abe253e4be7044cecee33834e03ab7def" prot="private" virt="non-virtual"><scope>terminal::Parser</scope><name>expectedUTF8Length</name></member>
+      <member refid="classterminal_1_1_parser_1aa6964d58b5741fcbf2939c4733b7f4e5" prot="private" virt="non-virtual"><scope>terminal::Parser</scope><name>handleParam</name></member>
+      <member refid="classterminal_1_1_parser_1a1a159770aea2f6a76bf82e266aabc11b" prot="private" virt="non-virtual"><scope>terminal::Parser</scope><name>handlePrintByte</name></member>
+      <member refid="classterminal_1_1_parser_1acbebc6c38bfa88fd25fe7a7c80ed63b4" prot="private" virt="non-virtual"><scope>terminal::Parser</scope><name>intermediateBuffer</name></member>
+      <member refid="classterminal_1_1_parser_1a238da134a6b7f592513a697e86c57769" prot="private" virt="non-virtual"><scope>terminal::Parser</scope><name>intermediateCount</name></member>
+      <member refid="classterminal_1_1_parser_1a543c61236bf9731652874fbd0f7a30e8" prot="public" virt="non-virtual"><scope>terminal::Parser</scope><name>MAX_INTERMEDIATES</name></member>
+      <member refid="classterminal_1_1_parser_1a6fa501042f41cbf8319936a5557d4b95" prot="public" virt="non-virtual"><scope>terminal::Parser</scope><name>OSC_BUFFER_CAPACITY</name></member>
+      <member refid="classterminal_1_1_parser_1a677d9933682b381bc2df67e0e4edeeee" prot="private" virt="non-virtual"><scope>terminal::Parser</scope><name>oscBuffer</name></member>
+      <member refid="classterminal_1_1_parser_1a80ec99c5ee404d20570848c130a4451b" prot="private" virt="non-virtual"><scope>terminal::Parser</scope><name>oscBufferCapacity</name></member>
+      <member refid="classterminal_1_1_parser_1a683edbe8a3d333c01b67f51964a03d39" prot="private" virt="non-virtual"><scope>terminal::Parser</scope><name>oscBufferSize</name></member>
+      <member refid="classterminal_1_1_parser_1af9f5c94aa6c2636dd97bc9d2a9ccaeff" prot="public" virt="non-virtual"><scope>terminal::Parser</scope><name>Parser</name></member>
+      <member refid="classterminal_1_1_parser_1af78b792dc9d0b8b333bc3c3813391f8d" prot="private" virt="non-virtual"><scope>terminal::Parser</scope><name>performAction</name></member>
+      <member refid="classterminal_1_1_parser_1a5292f96c343e8f0b8daf5253022e4778" prot="private" virt="non-virtual"><scope>terminal::Parser</scope><name>performEntryAction</name></member>
+      <member refid="classterminal_1_1_parser_1a4230d4a0514ad43617e3dd770fe798af" prot="public" virt="non-virtual"><scope>terminal::Parser</scope><name>process</name></member>
+      <member refid="classterminal_1_1_parser_1a9250fe2e3870803830ebdb06236eadfa" prot="private" virt="non-virtual"><scope>terminal::Parser</scope><name>processTransition</name></member>
+      <member refid="classterminal_1_1_parser_1a72b198e9bfc04fa949e5f0d81e07a4b5" prot="private" virt="non-virtual"><scope>terminal::Parser</scope><name>utf8Accumulator</name></member>
+      <member refid="classterminal_1_1_parser_1a68101a859eba696a0f2e5e44a5008f4e" prot="private" virt="non-virtual"><scope>terminal::Parser</scope><name>utf8AccumulatorLength</name></member>
+      <member refid="classterminal_1_1_parser_1add9fd18d616e24827f1fea161a4a4716" prot="private" virt="non-virtual"><scope>terminal::Parser</scope><name>video</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

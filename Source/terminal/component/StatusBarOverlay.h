@@ -77,7 +77,7 @@ public:
      *
      * Starts hidden via `addChildComponent` in MainComponent.
      *
-     * @param tabsTree  The TABS subtree from AppState; listened to for modal property changes.
+     * @param tabsTree  The TABS subtree from AppModel; listened to for modal property changes.
      * @note MESSAGE THREAD.
      */
     StatusBarOverlay (juce::ValueTree tabsTree)

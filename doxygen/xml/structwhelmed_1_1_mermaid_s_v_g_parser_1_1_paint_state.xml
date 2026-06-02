@@ -1,0 +1,137 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state" kind="struct" language="C++" prot="private">
+    <compoundname>whelmed::MermaidSVGParser::PaintState</compoundname>
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state_1a60597a9befc7570fb4777c0effb8354c" prot="public" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour whelmed::MermaidSVGParser::PaintState::fill</definition>
+        <argsstring></argsstring>
+        <name>fill</name>
+        <qualifiedname>whelmed::MermaidSVGParser::PaintState::fill</qualifiedname>
+        <initializer>{ <ref refid="namespacejuce_1_1Colours_1a66baf4b357f69a75cd055fecebadba6e" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">juce::Colours::black</ref> }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/MermaidSVGParser.h" line="129" column="22" bodyfile="whelmed/MermaidSVGParser.h" bodystart="129" bodyend="129"/>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a53b6fc9e465a1062451fe9a544ab702c" compoundref="_mermaid_s_v_g_parser_8h" startline="542" endline="577">whelmed::MermaidSVGParser::applyInlineStyle</referencedby>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1aabf388cb9908663fc78453bd19a818cc" compoundref="_mermaid_s_v_g_parser_8h" startline="507" endline="512">whelmed::MermaidSVGParser::mergePaintState</referencedby>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1aacc50475bb6b1818a98daf39e9ad1308" compoundref="_mermaid_s_v_g_parser_8h" startline="90" endline="122">whelmed::MermaidSVGParser::parse</referencedby>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a17c99c96116086050b2c6a7a870d0697" compoundref="_mermaid_s_v_g_parser_8h" startline="450" endline="505">whelmed::MermaidSVGParser::parseCSSBody</referencedby>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a9e6f90fada2e3b5f4379fabd88ef98ef" compoundref="_mermaid_s_v_g_parser_8h" startline="583" endline="633">whelmed::MermaidSVGParser::resolveElementPaint</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state_1ac60a75a288ad78d219068d5b06079edc" prot="public" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour whelmed::MermaidSVGParser::PaintState::stroke</definition>
+        <argsstring></argsstring>
+        <name>stroke</name>
+        <qualifiedname>whelmed::MermaidSVGParser::PaintState::stroke</qualifiedname>
+        <initializer>{ <ref refid="namespacejuce_1_1Colours_1a2d59beef8fef5d9b43c030dc5968a2bb" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">juce::Colours::transparentBlack</ref> }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/MermaidSVGParser.h" line="130" column="22" bodyfile="whelmed/MermaidSVGParser.h" bodystart="130" bodyend="130"/>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a53b6fc9e465a1062451fe9a544ab702c" compoundref="_mermaid_s_v_g_parser_8h" startline="542" endline="577">whelmed::MermaidSVGParser::applyInlineStyle</referencedby>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1aabf388cb9908663fc78453bd19a818cc" compoundref="_mermaid_s_v_g_parser_8h" startline="507" endline="512">whelmed::MermaidSVGParser::mergePaintState</referencedby>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1aacc50475bb6b1818a98daf39e9ad1308" compoundref="_mermaid_s_v_g_parser_8h" startline="90" endline="122">whelmed::MermaidSVGParser::parse</referencedby>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a17c99c96116086050b2c6a7a870d0697" compoundref="_mermaid_s_v_g_parser_8h" startline="450" endline="505">whelmed::MermaidSVGParser::parseCSSBody</referencedby>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a9e6f90fada2e3b5f4379fabd88ef98ef" compoundref="_mermaid_s_v_g_parser_8h" startline="583" endline="633">whelmed::MermaidSVGParser::resolveElementPaint</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state_1a61e9bb7c05abcaf1a5453b975ffd6a94" prot="public" static="no" mutable="no">
+        <type>float</type>
+        <definition>float whelmed::MermaidSVGParser::PaintState::strokeWidth</definition>
+        <argsstring></argsstring>
+        <name>strokeWidth</name>
+        <qualifiedname>whelmed::MermaidSVGParser::PaintState::strokeWidth</qualifiedname>
+        <initializer>{ 1.0f }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/MermaidSVGParser.h" line="131" column="22" bodyfile="whelmed/MermaidSVGParser.h" bodystart="131" bodyend="131"/>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a53b6fc9e465a1062451fe9a544ab702c" compoundref="_mermaid_s_v_g_parser_8h" startline="542" endline="577">whelmed::MermaidSVGParser::applyInlineStyle</referencedby>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1aabf388cb9908663fc78453bd19a818cc" compoundref="_mermaid_s_v_g_parser_8h" startline="507" endline="512">whelmed::MermaidSVGParser::mergePaintState</referencedby>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1aacc50475bb6b1818a98daf39e9ad1308" compoundref="_mermaid_s_v_g_parser_8h" startline="90" endline="122">whelmed::MermaidSVGParser::parse</referencedby>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a17c99c96116086050b2c6a7a870d0697" compoundref="_mermaid_s_v_g_parser_8h" startline="450" endline="505">whelmed::MermaidSVGParser::parseCSSBody</referencedby>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a9e6f90fada2e3b5f4379fabd88ef98ef" compoundref="_mermaid_s_v_g_parser_8h" startline="583" endline="633">whelmed::MermaidSVGParser::resolveElementPaint</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state_1a0b527a84e85c245ed60ace17fa69e62c" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool whelmed::MermaidSVGParser::PaintState::hasFill</definition>
+        <argsstring></argsstring>
+        <name>hasFill</name>
+        <qualifiedname>whelmed::MermaidSVGParser::PaintState::hasFill</qualifiedname>
+        <initializer>{ true }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/MermaidSVGParser.h" line="132" column="22" bodyfile="whelmed/MermaidSVGParser.h" bodystart="132" bodyend="132"/>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a53b6fc9e465a1062451fe9a544ab702c" compoundref="_mermaid_s_v_g_parser_8h" startline="542" endline="577">whelmed::MermaidSVGParser::applyInlineStyle</referencedby>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1aabf388cb9908663fc78453bd19a818cc" compoundref="_mermaid_s_v_g_parser_8h" startline="507" endline="512">whelmed::MermaidSVGParser::mergePaintState</referencedby>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a17c99c96116086050b2c6a7a870d0697" compoundref="_mermaid_s_v_g_parser_8h" startline="450" endline="505">whelmed::MermaidSVGParser::parseCSSBody</referencedby>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a9e6f90fada2e3b5f4379fabd88ef98ef" compoundref="_mermaid_s_v_g_parser_8h" startline="583" endline="633">whelmed::MermaidSVGParser::resolveElementPaint</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state_1a12a3e1c210e5556734d4eaf42edb3e9d" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool whelmed::MermaidSVGParser::PaintState::hasStroke</definition>
+        <argsstring></argsstring>
+        <name>hasStroke</name>
+        <qualifiedname>whelmed::MermaidSVGParser::PaintState::hasStroke</qualifiedname>
+        <initializer>{ false }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/MermaidSVGParser.h" line="133" column="22" bodyfile="whelmed/MermaidSVGParser.h" bodystart="133" bodyend="133"/>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a53b6fc9e465a1062451fe9a544ab702c" compoundref="_mermaid_s_v_g_parser_8h" startline="542" endline="577">whelmed::MermaidSVGParser::applyInlineStyle</referencedby>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1aabf388cb9908663fc78453bd19a818cc" compoundref="_mermaid_s_v_g_parser_8h" startline="507" endline="512">whelmed::MermaidSVGParser::mergePaintState</referencedby>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a17c99c96116086050b2c6a7a870d0697" compoundref="_mermaid_s_v_g_parser_8h" startline="450" endline="505">whelmed::MermaidSVGParser::parseCSSBody</referencedby>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a9e6f90fada2e3b5f4379fabd88ef98ef" compoundref="_mermaid_s_v_g_parser_8h" startline="583" endline="633">whelmed::MermaidSVGParser::resolveElementPaint</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state_1ad1b353fe2f1cef826919411d9a98012b" prot="public" static="no" mutable="no">
+        <type>float</type>
+        <definition>float whelmed::MermaidSVGParser::PaintState::fontSize</definition>
+        <argsstring></argsstring>
+        <name>fontSize</name>
+        <qualifiedname>whelmed::MermaidSVGParser::PaintState::fontSize</qualifiedname>
+        <initializer>{ 14.0f }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="whelmed/MermaidSVGParser.h" line="134" column="22" bodyfile="whelmed/MermaidSVGParser.h" bodystart="134" bodyend="134"/>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a53b6fc9e465a1062451fe9a544ab702c" compoundref="_mermaid_s_v_g_parser_8h" startline="542" endline="577">whelmed::MermaidSVGParser::applyInlineStyle</referencedby>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a17c99c96116086050b2c6a7a870d0697" compoundref="_mermaid_s_v_g_parser_8h" startline="450" endline="505">whelmed::MermaidSVGParser::parseCSSBody</referencedby>
+        <referencedby refid="classwhelmed_1_1_mermaid_s_v_g_parser_1a9e6f90fada2e3b5f4379fabd88ef98ef" compoundref="_mermaid_s_v_g_parser_8h" startline="583" endline="633">whelmed::MermaidSVGParser::resolveElementPaint</referencedby>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="whelmed/MermaidSVGParser.h" line="127" column="5" bodyfile="whelmed/MermaidSVGParser.h" bodystart="128" bodyend="135"/>
+    <listofallmembers>
+      <member refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state_1a60597a9befc7570fb4777c0effb8354c" prot="public" virt="non-virtual"><scope>whelmed::MermaidSVGParser::PaintState</scope><name>fill</name></member>
+      <member refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state_1ad1b353fe2f1cef826919411d9a98012b" prot="public" virt="non-virtual"><scope>whelmed::MermaidSVGParser::PaintState</scope><name>fontSize</name></member>
+      <member refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state_1a0b527a84e85c245ed60ace17fa69e62c" prot="public" virt="non-virtual"><scope>whelmed::MermaidSVGParser::PaintState</scope><name>hasFill</name></member>
+      <member refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state_1a12a3e1c210e5556734d4eaf42edb3e9d" prot="public" virt="non-virtual"><scope>whelmed::MermaidSVGParser::PaintState</scope><name>hasStroke</name></member>
+      <member refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state_1ac60a75a288ad78d219068d5b06079edc" prot="public" virt="non-virtual"><scope>whelmed::MermaidSVGParser::PaintState</scope><name>stroke</name></member>
+      <member refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state_1a61e9bb7c05abcaf1a5453b975ffd6a94" prot="public" virt="non-virtual"><scope>whelmed::MermaidSVGParser::PaintState</scope><name>strokeWidth</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

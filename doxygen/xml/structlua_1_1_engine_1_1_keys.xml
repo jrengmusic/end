@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="structlua_1_1_engine_1_1_keys" kind="struct" language="C++" prot="public">
+    <compoundname>lua::Engine::Keys</compoundname>
+    <includes refid="_engine_8h" local="no">Engine.h</includes>
+    <innerclass refid="structlua_1_1_engine_1_1_keys_1_1_binding" prot="public">lua::Engine::Keys::Binding</innerclass>
+    <briefdescription>
+<para>Parsed keybinding settings from keys.lua. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="lua/Engine.h" line="783" column="5" bodyfile="lua/Engine.h" bodystart="784" bodyend="812"/>
+    <listofallmembers>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,147 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="structaction_1_1_registry_1_1_entry" kind="struct" language="C++" prot="public">
+    <compoundname>action::Registry::Entry</compoundname>
+    <includes refid="_action_8h" local="no">Action.h</includes>
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structaction_1_1_registry_1_1_entry_1a98214dd008bda3d85d0acef48cc84ea1" prot="public" static="no" mutable="no">
+        <type>juce::String</type>
+        <definition>juce::String action::Registry::Entry::id</definition>
+        <argsstring></argsstring>
+        <name>id</name>
+        <qualifiedname>action::Registry::Entry::id</qualifiedname>
+        <briefdescription>
+<para>Unique machine-readable identifier (e.g. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><computeroutput>"copy"</computeroutput>). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/Action.h" line="91" column="22" bodyfile="terminal/action/Action.h" bodystart="91" bodyend="-1"/>
+        <referencedby refid="classaction_1_1_list_1ab1563b5c6c86287d88a50b7230c157bd" compoundref="_action_list_8cpp" startline="141" endline="252">action::List::buildRows</referencedby>
+        <referencedby refid="classaction_1_1_registry_1ad42f0b09f237c365063fa087c6c393c0" compoundref="_action_8cpp" startline="16" endline="36">action::Registry::registerAction</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structaction_1_1_registry_1_1_entry_1a23bd845cf3d93eb88bd3b25768015778" prot="public" static="no" mutable="no">
+        <type>juce::String</type>
+        <definition>juce::String action::Registry::Entry::name</definition>
+        <argsstring></argsstring>
+        <name>name</name>
+        <qualifiedname>action::Registry::Entry::name</qualifiedname>
+        <briefdescription>
+<para>Human-readable display name (e.g. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><computeroutput>"Copy"</computeroutput>). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/Action.h" line="94" column="22" bodyfile="terminal/action/Action.h" bodystart="94" bodyend="-1"/>
+        <referencedby refid="classaction_1_1_list_1ab1563b5c6c86287d88a50b7230c157bd" compoundref="_action_list_8cpp" startline="141" endline="252">action::List::buildRows</referencedby>
+        <referencedby refid="classaction_1_1_registry_1ad42f0b09f237c365063fa087c6c393c0" compoundref="_action_8cpp" startline="16" endline="36">action::Registry::registerAction</referencedby>
+        <referencedby refid="classaction_1_1_row_1a8ff37bf5f20b5aa67fcb7ec0e5249e50" compoundref="_action_row_8cpp" startline="22" endline="44">action::Row::Row</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structaction_1_1_registry_1_1_entry_1a416a55422b362d00278ff88a0313499a" prot="public" static="no" mutable="no">
+        <type>juce::String</type>
+        <definition>juce::String action::Registry::Entry::description</definition>
+        <argsstring></argsstring>
+        <name>description</name>
+        <qualifiedname>action::Registry::Entry::description</qualifiedname>
+        <briefdescription>
+<para>One-line description shown in the command palette. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/Action.h" line="97" column="22" bodyfile="terminal/action/Action.h" bodystart="97" bodyend="-1"/>
+        <referencedby refid="classaction_1_1_registry_1ad42f0b09f237c365063fa087c6c393c0" compoundref="_action_8cpp" startline="16" endline="36">action::Registry::registerAction</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structaction_1_1_registry_1_1_entry_1a88d6b02e38cc32f62010182589bb6da8" prot="public" static="no" mutable="no">
+        <type>juce::String</type>
+        <definition>juce::String action::Registry::Entry::category</definition>
+        <argsstring></argsstring>
+        <name>category</name>
+        <qualifiedname>action::Registry::Entry::category</qualifiedname>
+        <briefdescription>
+<para>Logical grouping (e.g. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><computeroutput>"Edit"</computeroutput>, <computeroutput>"View"</computeroutput>, <computeroutput>"Panes"</computeroutput>). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/Action.h" line="100" column="22" bodyfile="terminal/action/Action.h" bodystart="100" bodyend="-1"/>
+        <referencedby refid="classaction_1_1_registry_1ad42f0b09f237c365063fa087c6c393c0" compoundref="_action_8cpp" startline="16" endline="36">action::Registry::registerAction</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structaction_1_1_registry_1_1_entry_1a5cc3a0259f7939a7d44b7ea4473871c1" prot="public" static="no" mutable="no">
+        <type>juce::KeyPress</type>
+        <definition>juce::KeyPress action::Registry::Entry::shortcut</definition>
+        <argsstring></argsstring>
+        <name>shortcut</name>
+        <qualifiedname>action::Registry::Entry::shortcut</qualifiedname>
+        <briefdescription>
+<para>Resolved shortcut key (rebuilt from Config on reload). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/Action.h" line="103" column="24" bodyfile="terminal/action/Action.h" bodystart="103" bodyend="-1"/>
+        <referencedby refid="classaction_1_1_list_1ab1563b5c6c86287d88a50b7230c157bd" compoundref="_action_list_8cpp" startline="141" endline="252">action::List::buildRows</referencedby>
+        <referencedby refid="classaction_1_1_row_1a8ff37bf5f20b5aa67fcb7ec0e5249e50" compoundref="_action_row_8cpp" startline="22" endline="44">action::Row::Row</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structaction_1_1_registry_1_1_entry_1a0beebde024e43475ff2cc9068011f8eb" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool action::Registry::Entry::isModal</definition>
+        <argsstring></argsstring>
+        <name>isModal</name>
+        <qualifiedname>action::Registry::Entry::isModal</qualifiedname>
+        <initializer>{ false }</initializer>
+        <briefdescription>
+<para>True if this action requires the prefix key before its shortcut. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/Action.h" line="106" column="14" bodyfile="terminal/action/Action.h" bodystart="106" bodyend="106"/>
+        <referencedby refid="classaction_1_1_registry_1ad42f0b09f237c365063fa087c6c393c0" compoundref="_action_8cpp" startline="16" endline="36">action::Registry::registerAction</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structaction_1_1_registry_1_1_entry_1a9806ce0f05ac5242f66362c06cf34063" prot="public" static="no" mutable="no">
+        <type>std::function&lt; bool()&gt;</type>
+        <definition>std::function&lt;bool()&gt; action::Registry::Entry::execute</definition>
+        <argsstring></argsstring>
+        <name>execute</name>
+        <qualifiedname>action::Registry::Entry::execute</qualifiedname>
+        <briefdescription>
+<para>Invoked when the action is triggered. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns <computeroutput>true</computeroutput> if the action consumed the event (key should not be forwarded to the PTY). Returns <computeroutput>false</computeroutput> to let the key fall through (e.g. copy with no active selection). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/Action.h" line="115" column="23" bodyfile="terminal/action/Action.h" bodystart="115" bodyend="-1"/>
+        <referencedby refid="classaction_1_1_registry_1ad42f0b09f237c365063fa087c6c393c0" compoundref="_action_8cpp" startline="16" endline="36">action::Registry::registerAction</referencedby>
+        <referencedby refid="classaction_1_1_row_1a8ff37bf5f20b5aa67fcb7ec0e5249e50" compoundref="_action_row_8cpp" startline="22" endline="44">action::Row::Row</referencedby>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Immutable descriptor for a single user-performable action. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Populated once via <computeroutput><ref refid="classaction_1_1_registry_1ad42f0b09f237c365063fa087c6c393c0" kindref="member">registerAction()</ref></computeroutput> and never modified afterwards. The <computeroutput><ref refid="structaction_1_1_registry_1_1_entry_1a5cc3a0259f7939a7d44b7ea4473871c1" kindref="member">shortcut</ref></computeroutput> field is the only member updated indirectly: it is re-resolved from Config during <computeroutput>buildKeyMap()</computeroutput>, but the <ref refid="structaction_1_1_registry_1_1_entry" kindref="compound">Entry</ref> itself is not mutated — the key maps are rebuilt from scratch. </para>
+    </detaileddescription>
+    <location file="terminal/action/Action.h" line="88" column="5" bodyfile="terminal/action/Action.h" bodystart="89" bodyend="116"/>
+    <listofallmembers>
+      <member refid="structaction_1_1_registry_1_1_entry_1a88d6b02e38cc32f62010182589bb6da8" prot="public" virt="non-virtual"><scope>action::Registry::Entry</scope><name>category</name></member>
+      <member refid="structaction_1_1_registry_1_1_entry_1a416a55422b362d00278ff88a0313499a" prot="public" virt="non-virtual"><scope>action::Registry::Entry</scope><name>description</name></member>
+      <member refid="structaction_1_1_registry_1_1_entry_1a9806ce0f05ac5242f66362c06cf34063" prot="public" virt="non-virtual"><scope>action::Registry::Entry</scope><name>execute</name></member>
+      <member refid="structaction_1_1_registry_1_1_entry_1a98214dd008bda3d85d0acef48cc84ea1" prot="public" virt="non-virtual"><scope>action::Registry::Entry</scope><name>id</name></member>
+      <member refid="structaction_1_1_registry_1_1_entry_1a0beebde024e43475ff2cc9068011f8eb" prot="public" virt="non-virtual"><scope>action::Registry::Entry</scope><name>isModal</name></member>
+      <member refid="structaction_1_1_registry_1_1_entry_1a23bd845cf3d93eb88bd3b25768015778" prot="public" virt="non-virtual"><scope>action::Registry::Entry</scope><name>name</name></member>
+      <member refid="structaction_1_1_registry_1_1_entry_1a5cc3a0259f7939a7d44b7ea4473871c1" prot="public" virt="non-virtual"><scope>action::Registry::Entry</scope><name>shortcut</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

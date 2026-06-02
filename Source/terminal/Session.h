@@ -1,10 +1,12 @@
 /**
  * @file Session.h
- * @brief PTY-side terminal session: Buffer<Row>, State, and Processor.
+ * @brief PTY-side terminal session: CodeModel, CodeView, Model, and Processor.
  *
  * `terminal::Session` is the data-source half of a terminal connection.  It owns:
- * - The `Buffer<Row>` live cell buffer and `State` atomic parameter store.
- * - The `terminal::Processor` pipeline (Parser → Buffer<Row> → Display).
+ * - `jam::CodeModel` — multi-screen dimensionless document (2 screens for terminal).
+ * - `jam::CodeView` — pure view rendering the CodeModel.
+ * - `Model` — atomic parameter store.
+ * - `terminal::Processor` — VT pipeline (Parser → Video → Buffer<Row> → CellFifo → Display → CodeModel).
  *   Processor owns the TTY — created and opened via `Processor::startTTY()` in `start()`.
  *
  * ### Data flow
@@ -30,7 +32,7 @@
 
 #include <JuceHeader.h>
 #include "TextBuffer.h"
-#include "State.h"
+#include "Model.h"
 #include "Processor.h"
 #include "../lua/Engine.h"
 
@@ -40,7 +42,7 @@ namespace terminal
 
 /**
  * @class terminal::Session
- * @brief PTY-side terminal session — Buffer<Row>, State, and Processor.
+ * @brief PTY-side terminal session — CodeModel, CodeView, Model, and Processor.
  *
  * Constructed by `Nexus` (or its mode-specific delegates).
  * TTY is created and opened by Processor::startTTY(), called from start().
@@ -105,11 +107,11 @@ public:
      *
      * Used by GUI connected to a daemon where the shell runs on the daemon process.
      * Bytes are fed externally via `process()`.  CWD is written
-     * to State so display logic (tab title, cwd badge) works identically to a local session.
+     * to Model so display logic (tab title, cwd badge) works identically to a local session.
      *
      * @param dims   Terminal dimensions in cells. Must be valid.
-     * @param cwd    Initial working directory — written to State.
-     * @param shell  Shell program name (not stored in State; reserved for future use).
+     * @param cwd    Initial working directory — written to Model.
+     * @param shell  Shell program name (not stored in Model; reserved for future use).
      * @param uuid   Session UUID.  Empty = auto-generated.
      * @return Owning unique_ptr to the constructed terminal::Session.
      * @note MESSAGE THREAD.
@@ -142,15 +144,15 @@ public:
              const jam::Font& font);
 
     /**
-     * @brief Constructs a remote Session — Processor + State only, no TTY.
+     * @brief Constructs a remote Session — Processor + Model only, no TTY.
      *
      * Used by Nexus client mode where the daemon owns the shell process.
      * Bytes are fed externally via `getProcessor().process()`.
-     * CWD is written to State so display logic works identically.
+     * CWD is written to Model so display logic works identically.
      *
      * @param dims   Terminal dimensions in cells. Must be valid.
-     * @param cwd    Initial working directory — written to State.
-     * @param shell  Shell program name (not stored in State; reserved for future use).
+     * @param cwd    Initial working directory — written to Model.
+     * @param shell  Shell program name (not stored in Model; reserved for future use).
      * @param uuid   Session UUID.  Empty = auto-generated.
      * @note MESSAGE THREAD.
      */
@@ -238,13 +240,24 @@ public:
      *
      * @note MESSAGE THREAD.
      */
-    jam::TextEditor& getTextEditor() noexcept;
+    jam::CodeView& getTextEditor() noexcept;
+
+    /**
+     * @brief Returns the owned CodeModel.
+     *
+     * Display drains CellFifo entries into this model via append/replaceAt.
+     * CodeModel is declared before textEditor — it constructs first and destroys last.
+     *
+     * @note MESSAGE THREAD.
+     */
+    jam::CodeModel& getCodeModel() noexcept;
 
 private:
     TextBuffer textBuffer;                              ///< Cross-thread string buffer — constructed first.
-    State state;                                        ///< Terminal parameter store — constructed before TextEditor.
-    jam::TextEditor textEditor;                         ///< Terminal viewport renderer — owned by Session.
-    std::unique_ptr<terminal::Processor> processor;     ///< Owns Video and TextLineArray — constructed last.
+    Model model;                                        ///< Terminal parameter store — constructed before CodeModel.
+    jam::CodeModel codeModel;                           ///< Document model — constructed before textEditor; outlives it.
+    jam::CodeView textEditor;                           ///< Terminal viewport renderer — references codeModel.
+    std::unique_ptr<terminal::Processor> processor;     ///< VT pipeline orchestrator — constructed last.
 
     /** @brief Resize coordinator — coalesces dimension changes, suspends/resumes Processor.
      *  Constructed in the constructor body after processor is valid. */

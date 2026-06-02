@@ -1,0 +1,51 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="namespaceaction" kind="namespace" language="C++">
+    <compoundname>action</compoundname>
+    <innerclass refid="classaction_1_1_registry" prot="public">action::Registry</innerclass>
+    <innerclass refid="classaction_1_1_list" prot="public">action::List</innerclass>
+    <innerclass refid="classaction_1_1_row" prot="public">action::Row</innerclass>
+    <innerclass refid="classaction_1_1_key_handler" prot="public">action::KeyHandler</innerclass>
+    <sectiondef kind="enum">
+      <memberdef kind="enum" id="namespaceaction_1a574e68969c4beb9ce7aa66ec0752bb63" prot="public" static="no" strong="yes">
+        <type></type>
+        <name>RowKind</name>
+        <qualifiedname>action::RowKind</qualifiedname>
+        <enumvalue id="namespaceaction_1a574e68969c4beb9ce7aa66ec0752bb63a06a943c59f33a34bb5924aaf72cd2995" prot="public">
+          <name>search</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceaction_1a574e68969c4beb9ce7aa66ec0752bb63a418c5509e2171d55b0aee5c2ea4442b5" prot="public">
+          <name>action</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespaceaction_1a574e68969c4beb9ce7aa66ec0752bb63aa0f0bc95016c862498bbad29d1f4d9d4" prot="public">
+          <name>separator</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Distinguishes row variants in the command palette. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionRow.h" line="16" column="1" bodyfile="terminal/action/ActionRow.h" bodystart="17" bodyend="21"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="terminal/action/Action.cpp" line="3" column="1"/>
+  </compounddef>
+</doxygen>

@@ -189,11 +189,11 @@ void Daemon::Channel::messageReceived (const juce::MemoryBlock& message)
 
                     if (nexus.has (uuid))
                     {
-                        auto teNode { nexus.get (uuid).getProcessor().getState().get().getChildWithName (
-                            jam::TextEditor::properties.at (jam::TextEditor::textEditorId)) };
+                        auto teNode { nexus.get (uuid).getProcessor().getState().getChildWithName (
+                            jam::CodeView::properties.at (jam::CodeView::codeViewId)) };
 
                         if (teNode.isValid())
-                            teNode.setProperty (jam::TextEditor::properties.at (jam::TextEditor::viewportId),
+                            teNode.setProperty (jam::CodeView::properties.at (jam::CodeView::viewportId),
                                                  jam::Cell::Rectangle (cell (static_cast<int> (cols)), cell (static_cast<int> (rows))).pack(),
                                                  nullptr);
                     }

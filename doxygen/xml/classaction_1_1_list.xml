@@ -1,0 +1,1627 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="classaction_1_1_list" kind="class" language="C++" prot="public">
+    <compoundname>action::List</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">juce::Component</basecompoundref>
+    <basecompoundref prot="private" virt="non-virtual">juce::ValueTree::Listener</basecompoundref>
+    <includes refid="_action_list_8h" local="no">ActionList.h</includes>
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classaction_1_1_list_1a4f4d3d334f58752e778160acd3993c37" prot="public" static="no" mutable="no">
+        <type>std::function&lt; void()&gt;</type>
+        <definition>std::function&lt;void()&gt; action::List::onActionRun</definition>
+        <argsstring></argsstring>
+        <name>onActionRun</name>
+        <qualifiedname>action::List::onActionRun</qualifiedname>
+        <briefdescription>
+<para>Called after an action is executed; used for close-on-run behavior. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionList.h" line="66" column="19" bodyfile="terminal/action/ActionList.h" bodystart="66" bodyend="-1"/>
+        <referencedby refid="classaction_1_1_list_1ad420634bf596882ff7baaddfbafb789c" compoundref="_action_list_selection_8cpp" startline="145" endline="169">executeSelected</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classaction_1_1_list_1a795614e610b4d7a0d8b7633438746cd9" prot="public" static="no" mutable="no">
+        <type>std::function&lt; void()&gt;</type>
+        <definition>std::function&lt;void()&gt; action::List::onDismiss</definition>
+        <argsstring></argsstring>
+        <name>onDismiss</name>
+        <qualifiedname>action::List::onDismiss</qualifiedname>
+        <briefdescription>
+<para>Called when the user dismisses the action list via Escape from selection mode. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionList.h" line="69" column="19" bodyfile="terminal/action/ActionList.h" bodystart="69" bodyend="-1"/>
+        <referencedby refid="classaction_1_1_list_1ac904fdaee75d73bf19dfd39b1a9fd505" compoundref="_action_list_8cpp" startline="16" endline="80">List</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="private-static-attrib">
+      <memberdef kind="variable" id="classaction_1_1_list_1a9698853cee7d94c4c3bedbb69c2c8e23" prot="private" static="yes" constexpr="yes" mutable="no">
+        <type>int</type>
+        <definition>int action::List::minimumWidth</definition>
+        <argsstring></argsstring>
+        <name>minimumWidth</name>
+        <qualifiedname>action::List::minimumWidth</qualifiedname>
+        <initializer>{ 600 }</initializer>
+        <briefdescription>
+<para>Minimum width in logical pixels. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionList.h" line="73" column="26" bodyfile="terminal/action/ActionList.h" bodystart="73" bodyend="73"/>
+        <referencedby refid="classaction_1_1_list_1ac904fdaee75d73bf19dfd39b1a9fd505" compoundref="_action_list_8cpp" startline="16" endline="80">List</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classaction_1_1_list_1afb83a3130eb0b47542682ef045af0a2e" prot="private" static="yes" constexpr="yes" mutable="no">
+        <type>int</type>
+        <definition>int action::List::minimumHeight</definition>
+        <argsstring></argsstring>
+        <name>minimumHeight</name>
+        <qualifiedname>action::List::minimumHeight</qualifiedname>
+        <initializer>{ 400 }</initializer>
+        <briefdescription>
+<para>Minimum height in logical pixels. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionList.h" line="76" column="26" bodyfile="terminal/action/ActionList.h" bodystart="76" bodyend="76"/>
+        <referencedby refid="classaction_1_1_list_1ac904fdaee75d73bf19dfd39b1a9fd505" compoundref="_action_list_8cpp" startline="16" endline="80">List</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classaction_1_1_list_1ab8f2ffeb364e659dfb0bbd61f5001767" prot="private" static="yes" constexpr="yes" mutable="no">
+        <type>int</type>
+        <definition>int action::List::rowHeight</definition>
+        <argsstring></argsstring>
+        <name>rowHeight</name>
+        <qualifiedname>action::List::rowHeight</qualifiedname>
+        <initializer>{ 28 }</initializer>
+        <briefdescription>
+<para>Fixed height in pixels for a standard action row. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionList.h" line="79" column="26" bodyfile="terminal/action/ActionList.h" bodystart="79" bodyend="79"/>
+        <referencedby refid="classaction_1_1_list_1a69e450581397474ba019c577eea17c99" compoundref="_action_list_selection_8cpp" startline="62" endline="80">layoutRows</referencedby>
+        <referencedby refid="classaction_1_1_list_1af361864cf6f79fe4c2d7f4796a449cb0" compoundref="_action_list_8cpp" startline="255" endline="270">resized</referencedby>
+        <referencedby refid="classaction_1_1_list_1abd4afa5a9397c5506019c7fed3fdaadd" compoundref="_action_list_selection_8cpp" startline="115" endline="142">selectRow</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classaction_1_1_list_1a712cf8d747c9979782c2aff186cdfde9" prot="private" static="yes" constexpr="yes" mutable="no">
+        <type>int</type>
+        <definition>int action::List::separatorRowHeight</definition>
+        <argsstring></argsstring>
+        <name>separatorRowHeight</name>
+        <qualifiedname>action::List::separatorRowHeight</qualifiedname>
+        <initializer>{ 12 }</initializer>
+        <briefdescription>
+<para>Fixed height in pixels for a separator row. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionList.h" line="82" column="26" bodyfile="terminal/action/ActionList.h" bodystart="82" bodyend="82"/>
+        <referencedby refid="classaction_1_1_list_1a69e450581397474ba019c577eea17c99" compoundref="_action_list_selection_8cpp" startline="62" endline="80">layoutRows</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classaction_1_1_list_1aa712ed24e12e8c5fb9eb751c9523f030" prot="private" static="yes" constexpr="yes" mutable="no">
+        <type>int</type>
+        <definition>int action::List::bindingModeTimeoutMs</definition>
+        <argsstring></argsstring>
+        <name>bindingModeTimeoutMs</name>
+        <qualifiedname>action::List::bindingModeTimeoutMs</qualifiedname>
+        <initializer>{ 60000 }</initializer>
+        <briefdescription>
+<para>Timeout in milliseconds before binding mode auto-exits. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionList.h" line="85" column="26" bodyfile="terminal/action/ActionList.h" bodystart="85" bodyend="85"/>
+        <referencedby refid="classaction_1_1_list_1a2e60fd62b64589dd3781863a017a38f2" compoundref="_action_list_binding_8cpp" startline="47" endline="56">enterBindingMode</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classaction_1_1_list_1aaba3b30a29908d26894870dca20df3ac" prot="private" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier action::List::bindingRowIndexId</definition>
+        <argsstring></argsstring>
+        <name>bindingRowIndexId</name>
+        <qualifiedname>action::List::bindingRowIndexId</qualifiedname>
+        <initializer>{ &quot;bindingRowIndex&quot; }</initializer>
+        <briefdescription>
+<para><ref refid="classValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ValueTree</ref> property key for the currently bound row index (-1 = none). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionList.h" line="88" column="35" bodyfile="terminal/action/ActionList.h" bodystart="88" bodyend="-1"/>
+        <referencedby refid="classaction_1_1_list_1a456c4f33540b4bd3a0b1abce8cae0f0a" compoundref="_action_list_binding_8cpp" startline="42" endline="42">getBindingRowIndex</referencedby>
+        <referencedby refid="classaction_1_1_list_1ac904fdaee75d73bf19dfd39b1a9fd505" compoundref="_action_list_8cpp" startline="16" endline="80">List</referencedby>
+        <referencedby refid="classaction_1_1_list_1a79b74d75ec650cd55175a434d271fff7" compoundref="_action_list_binding_8cpp" startline="44" endline="44">setBindingRowIndex</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classaction_1_1_list_1a81499b3f1e50002faadd3732ec3426e2" prot="private" static="yes" mutable="no">
+        <type>const juce::Identifier</type>
+        <definition>const juce::Identifier action::List::bindingsDirtyId</definition>
+        <argsstring></argsstring>
+        <name>bindingsDirtyId</name>
+        <qualifiedname>action::List::bindingsDirtyId</qualifiedname>
+        <initializer>{ &quot;bindingsDirty&quot; }</initializer>
+        <briefdescription>
+<para><ref refid="classValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ValueTree</ref> property key for the bindings-dirty flag (triggers Config reload on close). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionList.h" line="91" column="35" bodyfile="terminal/action/ActionList.h" bodystart="91" bodyend="-1"/>
+        <referencedby refid="classaction_1_1_list_1abe57586e11e4578ac4b80e40ffc4bc68" compoundref="_action_list_binding_8cpp" startline="65" endline="104">handleBindingKey</referencedby>
+        <referencedby refid="classaction_1_1_list_1ac904fdaee75d73bf19dfd39b1a9fd505" compoundref="_action_list_8cpp" startline="16" endline="80">List</referencedby>
+        <referencedby refid="classaction_1_1_list_1a74b96153c61861b113fa669f7286628d" compoundref="_action_list_binding_8cpp" startline="13" endline="39">valueTreePropertyChanged</referencedby>
+        <referencedby refid="classaction_1_1_list_1adcbb2e7fb9cc2115de5c1c85e1630ac5" compoundref="_action_list_8cpp" startline="82" endline="93">~List</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classaction_1_1_list_1a2b71f48bc3fbd033acbd8ad49a975620" prot="private" static="no" mutable="no">
+        <type>juce::Component &amp;</type>
+        <definition>juce::Component&amp; action::List::main</definition>
+        <argsstring></argsstring>
+        <name>main</name>
+        <qualifiedname>action::List::main</qualifiedname>
+        <briefdescription>
+<para>Reference to the main component; used for size calculations. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionList.h" line="94" column="21" bodyfile="terminal/action/ActionList.h" bodystart="94" bodyend="-1"/>
+        <referencedby refid="classaction_1_1_list_1ac904fdaee75d73bf19dfd39b1a9fd505" compoundref="_action_list_8cpp" startline="16" endline="80">List</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classaction_1_1_list_1a82b8c115f7d164f8c39d7ca142f513fd" prot="private" static="no" mutable="no">
+        <type><ref refid="classlua_1_1_engine" kindref="compound">lua::Engine</ref> &amp;</type>
+        <definition>lua::Engine&amp; action::List::luaEngine</definition>
+        <argsstring></argsstring>
+        <name>luaEngine</name>
+        <qualifiedname>action::List::luaEngine</qualifiedname>
+        <briefdescription>
+<para>Lua engine reference; used for key lookup and patching. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionList.h" line="97" column="17" bodyfile="terminal/action/ActionList.h" bodystart="97" bodyend="-1"/>
+        <referencedby refid="classaction_1_1_list_1ab1563b5c6c86287d88a50b7230c157bd" compoundref="_action_list_8cpp" startline="141" endline="252">buildRows</referencedby>
+        <referencedby refid="classaction_1_1_list_1abe57586e11e4578ac4b80e40ffc4bc68" compoundref="_action_list_binding_8cpp" startline="65" endline="104">handleBindingKey</referencedby>
+        <referencedby refid="classaction_1_1_list_1ac904fdaee75d73bf19dfd39b1a9fd505" compoundref="_action_list_8cpp" startline="16" endline="80">List</referencedby>
+        <referencedby refid="classaction_1_1_list_1a74b96153c61861b113fa669f7286628d" compoundref="_action_list_binding_8cpp" startline="13" endline="39">valueTreePropertyChanged</referencedby>
+        <referencedby refid="classaction_1_1_list_1adcbb2e7fb9cc2115de5c1c85e1630ac5" compoundref="_action_list_8cpp" startline="82" endline="93">~List</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classaction_1_1_list_1a6a16a0291186b5a4c83ee03f0520d160" prot="private" static="no" mutable="no">
+        <type><ref refid="classjam_1_1_model" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Model</ref></type>
+        <definition>jam::Model action::List::state</definition>
+        <argsstring></argsstring>
+        <name>state</name>
+        <qualifiedname>action::List::state</qualifiedname>
+        <initializer>{ &quot;ACTION_LIST&quot; }</initializer>
+        <briefdescription>
+<para><ref refid="classValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ValueTree</ref> root holding ACTION nodes and binding state. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionList.h" line="100" column="16" bodyfile="terminal/action/ActionList.h" bodystart="100" bodyend="100"/>
+        <referencedby refid="classaction_1_1_list_1ab1563b5c6c86287d88a50b7230c157bd" compoundref="_action_list_8cpp" startline="141" endline="252">buildRows</referencedby>
+        <referencedby refid="classaction_1_1_list_1a456c4f33540b4bd3a0b1abce8cae0f0a" compoundref="_action_list_binding_8cpp" startline="42" endline="42">getBindingRowIndex</referencedby>
+        <referencedby refid="classaction_1_1_list_1abe57586e11e4578ac4b80e40ffc4bc68" compoundref="_action_list_binding_8cpp" startline="65" endline="104">handleBindingKey</referencedby>
+        <referencedby refid="classaction_1_1_list_1ac904fdaee75d73bf19dfd39b1a9fd505" compoundref="_action_list_8cpp" startline="16" endline="80">List</referencedby>
+        <referencedby refid="classaction_1_1_list_1a79b74d75ec650cd55175a434d271fff7" compoundref="_action_list_binding_8cpp" startline="44" endline="44">setBindingRowIndex</referencedby>
+        <referencedby refid="classaction_1_1_list_1a74b96153c61861b113fa669f7286628d" compoundref="_action_list_binding_8cpp" startline="13" endline="39">valueTreePropertyChanged</referencedby>
+        <referencedby refid="classaction_1_1_list_1adcbb2e7fb9cc2115de5c1c85e1630ac5" compoundref="_action_list_8cpp" startline="82" endline="93">~List</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classaction_1_1_list_1ab5068c55ae4e70e344e86228b99530f2" prot="private" static="no" mutable="no">
+        <type>juce::Viewport</type>
+        <definition>juce::Viewport action::List::viewport</definition>
+        <argsstring></argsstring>
+        <name>viewport</name>
+        <qualifiedname>action::List::viewport</qualifiedname>
+        <briefdescription>
+<para>Scrollable viewport hosting the rowContainer. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionList.h" line="103" column="20" bodyfile="terminal/action/ActionList.h" bodystart="103" bodyend="-1"/>
+        <referencedby refid="classaction_1_1_list_1a69e450581397474ba019c577eea17c99" compoundref="_action_list_selection_8cpp" startline="62" endline="80">layoutRows</referencedby>
+        <referencedby refid="classaction_1_1_list_1ac904fdaee75d73bf19dfd39b1a9fd505" compoundref="_action_list_8cpp" startline="16" endline="80">List</referencedby>
+        <referencedby refid="classaction_1_1_list_1af361864cf6f79fe4c2d7f4796a449cb0" compoundref="_action_list_8cpp" startline="255" endline="270">resized</referencedby>
+        <referencedby refid="classaction_1_1_list_1abd4afa5a9397c5506019c7fed3fdaadd" compoundref="_action_list_selection_8cpp" startline="115" endline="142">selectRow</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classaction_1_1_list_1ac612680009dbd29fcc48afa44e0c852c" prot="private" static="no" mutable="no">
+        <type>juce::Component</type>
+        <definition>juce::Component action::List::rowContainer</definition>
+        <argsstring></argsstring>
+        <name>rowContainer</name>
+        <qualifiedname>action::List::rowContainer</qualifiedname>
+        <briefdescription>
+<para>Container for all action rows (excluding the search row at index 0). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionList.h" line="106" column="21" bodyfile="terminal/action/ActionList.h" bodystart="106" bodyend="-1"/>
+        <referencedby refid="classaction_1_1_list_1ab1563b5c6c86287d88a50b7230c157bd" compoundref="_action_list_8cpp" startline="141" endline="252">buildRows</referencedby>
+        <referencedby refid="classaction_1_1_list_1a69e450581397474ba019c577eea17c99" compoundref="_action_list_selection_8cpp" startline="62" endline="80">layoutRows</referencedby>
+        <referencedby refid="classaction_1_1_list_1ac904fdaee75d73bf19dfd39b1a9fd505" compoundref="_action_list_8cpp" startline="16" endline="80">List</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classaction_1_1_list_1ae5c0332610df26c061b21ac5fa51cab6" prot="private" static="no" mutable="no">
+        <type><ref refid="classjam_1_1_owner" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Owner</ref>&lt; <ref refid="classaction_1_1_row" kindref="compound">action::Row</ref> &gt;</type>
+        <definition>jam::Owner&lt;action::Row&gt; action::List::rows</definition>
+        <argsstring></argsstring>
+        <name>rows</name>
+        <qualifiedname>action::List::rows</qualifiedname>
+        <briefdescription>
+<para>Owned list of all rows: index 0 is the search box, 1..N are action rows. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionList.h" line="109" column="16" bodyfile="terminal/action/ActionList.h" bodystart="109" bodyend="-1"/>
+        <referencedby refid="classaction_1_1_list_1ab1563b5c6c86287d88a50b7230c157bd" compoundref="_action_list_8cpp" startline="141" endline="252">buildRows</referencedby>
+        <referencedby refid="classaction_1_1_list_1ad420634bf596882ff7baaddfbafb789c" compoundref="_action_list_selection_8cpp" startline="145" endline="169">executeSelected</referencedby>
+        <referencedby refid="classaction_1_1_list_1a954dd770507b08b6920f82c93ea5c253" compoundref="_action_list_selection_8cpp" startline="13" endline="59">filterRows</referencedby>
+        <referencedby refid="classaction_1_1_list_1a57210249001fc1c50c7c74358f3de47f" compoundref="_action_list_selection_8cpp" startline="83" endline="112">findSelectableRow</referencedby>
+        <referencedby refid="classaction_1_1_list_1ac8d431d3d916d30598ccac6335aa8f2c" compoundref="_action_list_selection_8cpp" startline="187" endline="198">getSelectedIndex</referencedby>
+        <referencedby refid="classaction_1_1_list_1abe57586e11e4578ac4b80e40ffc4bc68" compoundref="_action_list_binding_8cpp" startline="65" endline="104">handleBindingKey</referencedby>
+        <referencedby refid="classaction_1_1_list_1a69e450581397474ba019c577eea17c99" compoundref="_action_list_selection_8cpp" startline="62" endline="80">layoutRows</referencedby>
+        <referencedby refid="classaction_1_1_list_1ac904fdaee75d73bf19dfd39b1a9fd505" compoundref="_action_list_8cpp" startline="16" endline="80">List</referencedby>
+        <referencedby refid="classaction_1_1_list_1af361864cf6f79fe4c2d7f4796a449cb0" compoundref="_action_list_8cpp" startline="255" endline="270">resized</referencedby>
+        <referencedby refid="classaction_1_1_list_1abd4afa5a9397c5506019c7fed3fdaadd" compoundref="_action_list_selection_8cpp" startline="115" endline="142">selectRow</referencedby>
+        <referencedby refid="classaction_1_1_list_1a74b96153c61861b113fa669f7286628d" compoundref="_action_list_binding_8cpp" startline="13" endline="39">valueTreePropertyChanged</referencedby>
+        <referencedby refid="classaction_1_1_list_1a84d41756db2ccc78e32106a519de9931" compoundref="_action_list_selection_8cpp" startline="172" endline="184">visibleRowCount</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classaction_1_1_list_1a5812fe7adee91b066c0050fdb3116139" prot="private" static="no" mutable="no">
+        <type><ref refid="class_message_overlay" kindref="compound">MessageOverlay</ref></type>
+        <definition>MessageOverlay action::List::messageOverlay</definition>
+        <argsstring></argsstring>
+        <name>messageOverlay</name>
+        <qualifiedname>action::List::messageOverlay</qualifiedname>
+        <briefdescription>
+<para>Overlay that shows transient messages (e.g. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>binding mode prompt). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionList.h" line="112" column="20" bodyfile="terminal/action/ActionList.h" bodystart="112" bodyend="-1"/>
+        <referencedby refid="classaction_1_1_list_1a2e60fd62b64589dd3781863a017a38f2" compoundref="_action_list_binding_8cpp" startline="47" endline="56">enterBindingMode</referencedby>
+        <referencedby refid="classaction_1_1_list_1a599124b91aef9fffa4c27d04f4cd344d" compoundref="_action_list_binding_8cpp" startline="58" endline="63">exitBindingMode</referencedby>
+        <referencedby refid="classaction_1_1_list_1ac904fdaee75d73bf19dfd39b1a9fd505" compoundref="_action_list_8cpp" startline="16" endline="80">List</referencedby>
+        <referencedby refid="classaction_1_1_list_1af361864cf6f79fe4c2d7f4796a449cb0" compoundref="_action_list_8cpp" startline="255" endline="270">resized</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classaction_1_1_list_1a288a62bad2e63febffce810c4cb4136d" prot="private" static="no" mutable="no">
+        <type>std::optional&lt; <ref refid="classaction_1_1_key_handler" kindref="compound">KeyHandler</ref> &gt;</type>
+        <definition>std::optional&lt;KeyHandler&gt; action::List::keyHandler</definition>
+        <argsstring></argsstring>
+        <name>keyHandler</name>
+        <qualifiedname>action::List::keyHandler</qualifiedname>
+        <briefdescription>
+<para>Keyboard dispatch handler built from navigation and search tables. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionList.h" line="115" column="19" bodyfile="terminal/action/ActionList.h" bodystart="115" bodyend="-1"/>
+        <referencedby refid="classaction_1_1_list_1afc9326beb35569e3f90b35959451771c" compoundref="_action_list_8cpp" startline="273" endline="287">keyPressed</referencedby>
+        <referencedby refid="classaction_1_1_list_1ac904fdaee75d73bf19dfd39b1a9fd505" compoundref="_action_list_8cpp" startline="16" endline="80">List</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="public-func">
+      <memberdef kind="function" id="classaction_1_1_list_1ac904fdaee75d73bf19dfd39b1a9fd505" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>action::List::List</definition>
+        <argsstring>(juce::Component &amp;main, lua::Engine &amp;engine)</argsstring>
+        <name>List</name>
+        <qualifiedname>action::List::List</qualifiedname>
+        <param>
+          <type>juce::Component &amp;</type>
+          <declname>main</declname>
+        </param>
+        <param>
+          <type><ref refid="classlua_1_1_engine" kindref="compound">lua::Engine</ref> &amp;</type>
+          <declname>engine</declname>
+        </param>
+        <briefdescription>
+<para>Constructs the command palette and builds all action rows from <ref refid="classaction_1_1_registry" kindref="compound">Registry</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes size from Config proportions, builds search and action rows, configures fonts and colours. Ready to be hosted in a <ref refid="classterminal_1_1_modal_window" kindref="compound">terminal::ModalWindow</ref> via Popup::show().</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="classaction_1_1_list_1a2b71f48bc3fbd033acbd8ad49a975620" kindref="member">main</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The main component used for size calculations; L&amp;F inherited from this. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>engine</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Lua engine for key lookup and patching. Must outlive the <ref refid="classaction_1_1_list" kindref="compound">List</ref>. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionList.h" line="47" column="5" bodyfile="terminal/action/ActionList.cpp" bodystart="16" bodyend="80"/>
+        <references refid="classaction_1_1_list_1aaba3b30a29908d26894870dca20df3ac" compoundref="_action_list_8h" startline="88">bindingRowIndexId</references>
+        <references refid="classaction_1_1_list_1a81499b3f1e50002faadd3732ec3426e2" compoundref="_action_list_8h" startline="91">bindingsDirtyId</references>
+        <references refid="classaction_1_1_list_1ab1563b5c6c86287d88a50b7230c157bd" compoundref="_action_list_8cpp" startline="141" endline="252">buildRows</references>
+        <references refid="classaction_1_1_list_1a2e60fd62b64589dd3781863a017a38f2" compoundref="_action_list_binding_8cpp" startline="47" endline="56">enterBindingMode</references>
+        <references refid="classaction_1_1_list_1ad420634bf596882ff7baaddfbafb789c" compoundref="_action_list_selection_8cpp" startline="145" endline="169">executeSelected</references>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
+        <references refid="classaction_1_1_list_1ac8d431d3d916d30598ccac6335aa8f2c" compoundref="_action_list_selection_8cpp" startline="187" endline="198">getSelectedIndex</references>
+        <references refid="classaction_1_1_list_1a288a62bad2e63febffce810c4cb4136d" compoundref="_action_list_8h" startline="115">keyHandler</references>
+        <references refid="classaction_1_1_list_1a82b8c115f7d164f8c39d7ca142f513fd" compoundref="_action_list_8h" startline="97">luaEngine</references>
+        <references refid="classaction_1_1_list_1a2b71f48bc3fbd033acbd8ad49a975620" compoundref="_action_list_8h" startline="94">main</references>
+        <references refid="classaction_1_1_list_1a5812fe7adee91b066c0050fdb3116139" compoundref="_action_list_8h" startline="112">messageOverlay</references>
+        <references refid="classaction_1_1_list_1afb83a3130eb0b47542682ef045af0a2e" compoundref="_action_list_8h" startline="76" endline="76">minimumHeight</references>
+        <references refid="classaction_1_1_list_1a9698853cee7d94c4c3bedbb69c2c8e23" compoundref="_action_list_8h" startline="73" endline="73">minimumWidth</references>
+        <references refid="classaction_1_1_list_1a795614e610b4d7a0d8b7633438746cd9" compoundref="_action_list_8h" startline="69">onDismiss</references>
+        <references refid="classaction_1_1_list_1ac612680009dbd29fcc48afa44e0c852c" compoundref="_action_list_8h" startline="106">rowContainer</references>
+        <references refid="classaction_1_1_list_1ae5c0332610df26c061b21ac5fa51cab6" compoundref="_action_list_8h" startline="109">rows</references>
+        <references refid="classaction_1_1_list_1abd4afa5a9397c5506019c7fed3fdaadd" compoundref="_action_list_selection_8cpp" startline="115" endline="142">selectRow</references>
+        <references refid="classaction_1_1_list_1a6a16a0291186b5a4c83ee03f0520d160" compoundref="_action_list_8h" startline="100" endline="100">state</references>
+        <references refid="namespacejam_1ad5845c19b61166ff0092ec1b8beb9d49">jam::toInt</references>
+        <references refid="classaction_1_1_list_1ab5068c55ae4e70e344e86228b99530f2" compoundref="_action_list_8h" startline="103">viewport</references>
+        <references refid="classaction_1_1_list_1a84d41756db2ccc78e32106a519de9931" compoundref="_action_list_selection_8cpp" startline="172" endline="184">visibleRowCount</references>
+      </memberdef>
+      <memberdef kind="function" id="classaction_1_1_list_1adcbb2e7fb9cc2115de5c1c85e1630ac5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>action::List::~List</definition>
+        <argsstring>() override</argsstring>
+        <name>~List</name>
+        <qualifiedname>action::List::~List</qualifiedname>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Reloads Config if bindings were modified during the session. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionList.h" line="50" column="5" bodyfile="terminal/action/ActionList.cpp" bodystart="82" bodyend="93"/>
+        <references refid="classaction_1_1_list_1a81499b3f1e50002faadd3732ec3426e2" compoundref="_action_list_8h" startline="91">bindingsDirtyId</references>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Registry &gt;::getContext</references>
+        <references refid="classaction_1_1_list_1a82b8c115f7d164f8c39d7ca142f513fd" compoundref="_action_list_8h" startline="97">luaEngine</references>
+        <references refid="classaction_1_1_list_1a6a16a0291186b5a4c83ee03f0520d160" compoundref="_action_list_8h" startline="100" endline="100">state</references>
+      </memberdef>
+      <memberdef kind="function" id="classaction_1_1_list_1afc9326beb35569e3f90b35959451771c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool action::List::keyPressed</definition>
+        <argsstring>(const juce::KeyPress &amp;key) override</argsstring>
+        <name>keyPressed</name>
+        <qualifiedname>action::List::keyPressed</qualifiedname>
+        <param>
+          <type>const juce::KeyPress &amp;</type>
+          <declname>key</declname>
+        </param>
+        <briefdescription>
+<para>Routes key presses to <ref refid="classaction_1_1_key_handler" kindref="compound">KeyHandler</ref> or binding mode handler. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Escape in navigation mode calls onDismiss; in search mode either selects the first visible result or clears the search text.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>key</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The key press event to handle. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>True if the key was consumed, false to propagate up. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionList.h" line="60" column="10" bodyfile="terminal/action/ActionList.cpp" bodystart="273" bodyend="287"/>
+        <references refid="classaction_1_1_list_1a456c4f33540b4bd3a0b1abce8cae0f0a" compoundref="_action_list_binding_8cpp" startline="42" endline="42">getBindingRowIndex</references>
+        <references refid="classaction_1_1_list_1abe57586e11e4578ac4b80e40ffc4bc68" compoundref="_action_list_binding_8cpp" startline="65" endline="104">handleBindingKey</references>
+        <references refid="classaction_1_1_list_1a288a62bad2e63febffce810c4cb4136d" compoundref="_action_list_8h" startline="115">keyHandler</references>
+      </memberdef>
+      <memberdef kind="function" id="classaction_1_1_list_1af361864cf6f79fe4c2d7f4796a449cb0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void action::List::resized</definition>
+        <argsstring>() override</argsstring>
+        <name>resized</name>
+        <qualifiedname>action::List::resized</qualifiedname>
+        <briefdescription>
+<para>Lays out the search box, viewport, and message overlay within current bounds. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionList.h" line="63" column="10" bodyfile="terminal/action/ActionList.cpp" bodystart="255" bodyend="270"/>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
+        <references refid="classaction_1_1_list_1a69e450581397474ba019c577eea17c99" compoundref="_action_list_selection_8cpp" startline="62" endline="80">layoutRows</references>
+        <references refid="classaction_1_1_list_1a5812fe7adee91b066c0050fdb3116139" compoundref="_action_list_8h" startline="112">messageOverlay</references>
+        <references refid="classaction_1_1_list_1ab8f2ffeb364e659dfb0bbd61f5001767" compoundref="_action_list_8h" startline="79" endline="79">rowHeight</references>
+        <references refid="classaction_1_1_list_1ae5c0332610df26c061b21ac5fa51cab6" compoundref="_action_list_8h" startline="109">rows</references>
+        <references refid="classaction_1_1_list_1ab5068c55ae4e70e344e86228b99530f2" compoundref="_action_list_8h" startline="103">viewport</references>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="private-func">
+      <memberdef kind="function" id="classaction_1_1_list_1ab1563b5c6c86287d88a50b7230c157bd" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void action::List::buildRows</definition>
+        <argsstring>()</argsstring>
+        <name>buildRows</name>
+        <qualifiedname>action::List::buildRows</qualifiedname>
+        <briefdescription>
+<para>Builds and populates all rows from <ref refid="classaction_1_1_registry" kindref="compound">action::Registry</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Inserts: search row (index 0), global action rows, separator, prefix key row, then modal action rows. Calls <ref refid="classaction_1_1_list_1a69e450581397474ba019c577eea17c99" kindref="member">layoutRows()</ref> on completion. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionList.h" line="122" column="10" bodyfile="terminal/action/ActionList.cpp" bodystart="141" bodyend="252"/>
+        <references refid="classjam_1_1_model_1a453ba02a04d3f7afd493d83a35f2d42e">jam::Model::attach</references>
+        <references refid="classaction_1_1_list_1ac74ca905978b6d98fb5876508df72aff" compoundref="_action_list_8cpp" startline="127" endline="138">configureActionRow</references>
+        <references refid="classaction_1_1_list_1a86f3b32fb6373c6984c8cdea28fdf66d" compoundref="_action_list_8cpp" startline="102" endline="124">configureSearchBox</references>
+        <references refid="classaction_1_1_list_1a954dd770507b08b6920f82c93ea5c253" compoundref="_action_list_selection_8cpp" startline="13" endline="59">filterRows</references>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Registry &gt;::getContext</references>
+        <references refid="classaction_1_1_list_1ac370827b11d8db7cf146a20ae66c909d" compoundref="_action_list_8cpp" startline="96" endline="99">getHighlightColour</references>
+        <references refid="structaction_1_1_registry_1_1_entry_1a98214dd008bda3d85d0acef48cc84ea1" compoundref="_action_8h" startline="91">action::Registry::Entry::id</references>
+        <references refid="structjam_1_1_i_d_1a94afe032a3af21e6f22fb73c9625b60a">jam::ID::id</references>
+        <references refid="group__juce__core-system_1ga1f96ab6751237979b907a54f52a7296a">jassert</references>
+        <references refid="classaction_1_1_list_1a69e450581397474ba019c577eea17c99" compoundref="_action_list_selection_8cpp" startline="62" endline="80">layoutRows</references>
+        <references refid="classaction_1_1_list_1a82b8c115f7d164f8c39d7ca142f513fd" compoundref="_action_list_8h" startline="97">luaEngine</references>
+        <references refid="structaction_1_1_registry_1_1_entry_1a23bd845cf3d93eb88bd3b25768015778" compoundref="_action_8h" startline="94">action::Registry::Entry::name</references>
+        <references refid="classaction_1_1_registry_1af372257d1327b42884e18285f2a8a8e2" compoundref="_action_8cpp" startline="170" endline="244">action::Registry::parseShortcut</references>
+        <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d">row</references>
+        <references refid="classaction_1_1_list_1ac612680009dbd29fcc48afa44e0c852c" compoundref="_action_list_8h" startline="106">rowContainer</references>
+        <references refid="classaction_1_1_list_1ae5c0332610df26c061b21ac5fa51cab6" compoundref="_action_list_8h" startline="109">rows</references>
+        <references refid="namespaceaction_1a574e68969c4beb9ce7aa66ec0752bb63aa0f0bc95016c862498bbad29d1f4d9d4" compoundref="_action_row_8h" startline="20">action::separator</references>
+        <references refid="structaction_1_1_registry_1_1_entry_1a5cc3a0259f7939a7d44b7ea4473871c1" compoundref="_action_8h" startline="103">action::Registry::Entry::shortcut</references>
+        <references refid="classaction_1_1_list_1a6a16a0291186b5a4c83ee03f0520d160" compoundref="_action_list_8h" startline="100" endline="100">state</references>
+        <referencedby refid="classaction_1_1_list_1ac904fdaee75d73bf19dfd39b1a9fd505" compoundref="_action_list_8cpp" startline="16" endline="80">List</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classaction_1_1_list_1a86f3b32fb6373c6984c8cdea28fdf66d" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void action::List::configureSearchBox</definition>
+        <argsstring>(juce::TextEditor &amp;editor)</argsstring>
+        <name>configureSearchBox</name>
+        <qualifiedname>action::List::configureSearchBox</qualifiedname>
+        <param>
+          <type>juce::TextEditor &amp;</type>
+          <declname>editor</declname>
+        </param>
+        <briefdescription>
+<para>Applies font, colour, and input settings to the search <ref refid="classTextEditor" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">TextEditor</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>editor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The <ref refid="classTextEditor" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">TextEditor</ref> widget inside the search <ref refid="classaction_1_1_row" kindref="compound">Row</ref>. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionList.h" line="128" column="10" bodyfile="terminal/action/ActionList.cpp" bodystart="102" bodyend="124"/>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
+        <references refid="namespacejuce_1_1Colours_1a4c4c804a27c84b3c42b85aca7851f0a9">juce::Colours::grey</references>
+        <references refid="namespacejuce_1_1Colours_1a2d59beef8fef5d9b43c030dc5968a2bb">juce::Colours::transparentBlack</references>
+        <referencedby refid="classaction_1_1_list_1ab1563b5c6c86287d88a50b7230c157bd" compoundref="_action_list_8cpp" startline="141" endline="252">buildRows</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classaction_1_1_list_1ac74ca905978b6d98fb5876508df72aff" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void action::List::configureActionRow</definition>
+        <argsstring>(Row &amp;row)</argsstring>
+        <name>configureActionRow</name>
+        <qualifiedname>action::List::configureActionRow</qualifiedname>
+        <param>
+          <type><ref refid="classaction_1_1_row" kindref="compound">Row</ref> &amp;</type>
+          <declname>row</declname>
+        </param>
+        <briefdescription>
+<para>Applies highlight colour and label colours to an action <ref refid="classaction_1_1_row" kindref="compound">Row</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>row</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The action row to style. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionList.h" line="134" column="10" bodyfile="terminal/action/ActionList.cpp" bodystart="127" bodyend="138"/>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
+        <references refid="classaction_1_1_list_1ac370827b11d8db7cf146a20ae66c909d" compoundref="_action_list_8cpp" startline="96" endline="99">getHighlightColour</references>
+        <references refid="group__juce__audio__plugin__client-Unity_1ga010e50efcb9d6d393b9414f09f368dbc">name</references>
+        <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d">row</references>
+        <referencedby refid="classaction_1_1_list_1ab1563b5c6c86287d88a50b7230c157bd" compoundref="_action_list_8cpp" startline="141" endline="252">buildRows</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classaction_1_1_list_1a954dd770507b08b6920f82c93ea5c253" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void action::List::filterRows</definition>
+        <argsstring>(const juce::String &amp;query)</argsstring>
+        <name>filterRows</name>
+        <qualifiedname>action::List::filterRows</qualifiedname>
+        <param>
+          <type>const juce::String &amp;</type>
+          <declname>query</declname>
+        </param>
+        <briefdescription>
+<para>Filters visible rows by fuzzy-matching against <computeroutput>query</computeroutput>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Empty query restores all rows. Non-empty query hides non-matching rows (separators are always hidden during search). Calls <ref refid="classaction_1_1_list_1a69e450581397474ba019c577eea17c99" kindref="member">layoutRows()</ref> and selectRow(0).</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>query</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The search string typed in the search box. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionList.h" line="143" column="10" bodyfile="terminal/action/ActionListSelection.cpp" bodystart="13" bodyend="59"/>
+        <references refid="structjam_1_1_fuzzy_1_1_search_1a0d23ed28912a140adebb3d97b4142423">jam::Fuzzy::Search::getResult</references>
+        <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682cad304ba20e96d87411588eeabac850e34">label</references>
+        <references refid="classaction_1_1_list_1a69e450581397474ba019c577eea17c99" compoundref="_action_list_selection_8cpp" startline="62" endline="80">layoutRows</references>
+        <references refid="classaction_1_1_list_1ae5c0332610df26c061b21ac5fa51cab6" compoundref="_action_list_8h" startline="109">rows</references>
+        <references refid="classaction_1_1_list_1abd4afa5a9397c5506019c7fed3fdaadd" compoundref="_action_list_selection_8cpp" startline="115" endline="142">selectRow</references>
+        <references refid="namespaceaction_1a574e68969c4beb9ce7aa66ec0752bb63aa0f0bc95016c862498bbad29d1f4d9d4" compoundref="_action_row_8h" startline="20">action::separator</references>
+        <referencedby refid="classaction_1_1_list_1ab1563b5c6c86287d88a50b7230c157bd" compoundref="_action_list_8cpp" startline="141" endline="252">buildRows</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classaction_1_1_list_1a69e450581397474ba019c577eea17c99" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void action::List::layoutRows</definition>
+        <argsstring>()</argsstring>
+        <name>layoutRows</name>
+        <qualifiedname>action::List::layoutRows</qualifiedname>
+        <briefdescription>
+<para>Recomputes row positions and resizes rowContainer to fit visible rows. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionList.h" line="146" column="10" bodyfile="terminal/action/ActionListSelection.cpp" bodystart="62" bodyend="80"/>
+        <references refid="classaction_1_1_list_1ac612680009dbd29fcc48afa44e0c852c" compoundref="_action_list_8h" startline="106">rowContainer</references>
+        <references refid="classaction_1_1_list_1ab8f2ffeb364e659dfb0bbd61f5001767" compoundref="_action_list_8h" startline="79" endline="79">rowHeight</references>
+        <references refid="classaction_1_1_list_1ae5c0332610df26c061b21ac5fa51cab6" compoundref="_action_list_8h" startline="109">rows</references>
+        <references refid="namespaceaction_1a574e68969c4beb9ce7aa66ec0752bb63aa0f0bc95016c862498bbad29d1f4d9d4" compoundref="_action_row_8h" startline="20">action::separator</references>
+        <references refid="classaction_1_1_list_1a712cf8d747c9979782c2aff186cdfde9" compoundref="_action_list_8h" startline="82" endline="82">separatorRowHeight</references>
+        <references refid="classaction_1_1_list_1ab5068c55ae4e70e344e86228b99530f2" compoundref="_action_list_8h" startline="103">viewport</references>
+        <referencedby refid="classaction_1_1_list_1ab1563b5c6c86287d88a50b7230c157bd" compoundref="_action_list_8cpp" startline="141" endline="252">buildRows</referencedby>
+        <referencedby refid="classaction_1_1_list_1a954dd770507b08b6920f82c93ea5c253" compoundref="_action_list_selection_8cpp" startline="13" endline="59">filterRows</referencedby>
+        <referencedby refid="classaction_1_1_list_1af361864cf6f79fe4c2d7f4796a449cb0" compoundref="_action_list_8cpp" startline="255" endline="270">resized</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classaction_1_1_list_1a57210249001fc1c50c7c74358f3de47f" prot="private" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int action::List::findSelectableRow</definition>
+        <argsstring>(int index) const</argsstring>
+        <name>findSelectableRow</name>
+        <qualifiedname>action::List::findSelectableRow</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+<para>Resolves the target row index, skipping non-selectable or non-visible rows. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Scans in the direction of travel from <computeroutput>index</computeroutput>. Falls back to 0 (search box) if no valid row is found.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The requested row index. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>The resolved selectable, visible row index. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionList.h" line="156" column="9" bodyfile="terminal/action/ActionListSelection.cpp" bodystart="83" bodyend="112"/>
+        <references refid="classaction_1_1_list_1ac8d431d3d916d30598ccac6335aa8f2c" compoundref="_action_list_selection_8cpp" startline="187" endline="198">getSelectedIndex</references>
+        <references refid="classaction_1_1_list_1ae5c0332610df26c061b21ac5fa51cab6" compoundref="_action_list_8h" startline="109">rows</references>
+        <referencedby refid="classaction_1_1_list_1abd4afa5a9397c5506019c7fed3fdaadd" compoundref="_action_list_selection_8cpp" startline="115" endline="142">selectRow</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classaction_1_1_list_1abd4afa5a9397c5506019c7fed3fdaadd" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void action::List::selectRow</definition>
+        <argsstring>(int index)</argsstring>
+        <name>selectRow</name>
+        <qualifiedname>action::List::selectRow</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+<para>Selects the row at <computeroutput>index</computeroutput>, scrolling into view as needed. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Skips non-selectable or non-visible rows (e.g. separator, filtered-out actions) by stepping in the direction of travel. Clamps to valid range. Grabs keyboard focus when a navigation row is selected.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The target row index to select. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionList.h" line="166" column="10" bodyfile="terminal/action/ActionListSelection.cpp" bodystart="115" bodyend="142"/>
+        <references refid="classaction_1_1_list_1a57210249001fc1c50c7c74358f3de47f" compoundref="_action_list_selection_8cpp" startline="83" endline="112">findSelectableRow</references>
+        <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d">row</references>
+        <references refid="classaction_1_1_list_1ab8f2ffeb364e659dfb0bbd61f5001767" compoundref="_action_list_8h" startline="79" endline="79">rowHeight</references>
+        <references refid="classaction_1_1_list_1ae5c0332610df26c061b21ac5fa51cab6" compoundref="_action_list_8h" startline="109">rows</references>
+        <references refid="classaction_1_1_list_1ab5068c55ae4e70e344e86228b99530f2" compoundref="_action_list_8h" startline="103">viewport</references>
+        <referencedby refid="classaction_1_1_list_1a954dd770507b08b6920f82c93ea5c253" compoundref="_action_list_selection_8cpp" startline="13" endline="59">filterRows</referencedby>
+        <referencedby refid="classaction_1_1_list_1ac904fdaee75d73bf19dfd39b1a9fd505" compoundref="_action_list_8cpp" startline="16" endline="80">List</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classaction_1_1_list_1ad420634bf596882ff7baaddfbafb789c" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void action::List::executeSelected</definition>
+        <argsstring>()</argsstring>
+        <name>executeSelected</name>
+        <qualifiedname>action::List::executeSelected</qualifiedname>
+        <briefdescription>
+<para>Executes the action on the currently selected row. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If row 0 (search) is selected, finds the first visible action row and runs it. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionList.h" line="172" column="10" bodyfile="terminal/action/ActionListSelection.cpp" bodystart="145" bodyend="169"/>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
+        <references refid="classaction_1_1_list_1ac8d431d3d916d30598ccac6335aa8f2c" compoundref="_action_list_selection_8cpp" startline="187" endline="198">getSelectedIndex</references>
+        <references refid="classaction_1_1_list_1a4f4d3d334f58752e778160acd3993c37" compoundref="_action_list_8h" startline="66">onActionRun</references>
+        <references refid="classaction_1_1_list_1ae5c0332610df26c061b21ac5fa51cab6" compoundref="_action_list_8h" startline="109">rows</references>
+        <referencedby refid="classaction_1_1_list_1ac904fdaee75d73bf19dfd39b1a9fd505" compoundref="_action_list_8cpp" startline="16" endline="80">List</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classaction_1_1_list_1a84d41756db2ccc78e32106a519de9931" prot="private" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int action::List::visibleRowCount</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>visibleRowCount</name>
+        <qualifiedname>action::List::visibleRowCount</qualifiedname>
+        <briefdescription>
+<para>Returns the count of visible, selectable rows (excludes search row and separators). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>Number of rows the user can navigate to. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionList.h" line="178" column="9" bodyfile="terminal/action/ActionListSelection.cpp" bodystart="172" bodyend="184"/>
+        <references refid="classaction_1_1_list_1ae5c0332610df26c061b21ac5fa51cab6" compoundref="_action_list_8h" startline="109">rows</references>
+        <referencedby refid="classaction_1_1_list_1ac904fdaee75d73bf19dfd39b1a9fd505" compoundref="_action_list_8cpp" startline="16" endline="80">List</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classaction_1_1_list_1ac8d431d3d916d30598ccac6335aa8f2c" prot="private" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int action::List::getSelectedIndex</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>getSelectedIndex</name>
+        <qualifiedname>action::List::getSelectedIndex</qualifiedname>
+        <briefdescription>
+<para>Returns the index of the currently selected row. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>Selected row index; 0 if no navigation row is selected. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionList.h" line="184" column="9" bodyfile="terminal/action/ActionListSelection.cpp" bodystart="187" bodyend="198"/>
+        <references refid="classaction_1_1_list_1ae5c0332610df26c061b21ac5fa51cab6" compoundref="_action_list_8h" startline="109">rows</references>
+        <referencedby refid="classaction_1_1_list_1a2e60fd62b64589dd3781863a017a38f2" compoundref="_action_list_binding_8cpp" startline="47" endline="56">enterBindingMode</referencedby>
+        <referencedby refid="classaction_1_1_list_1ad420634bf596882ff7baaddfbafb789c" compoundref="_action_list_selection_8cpp" startline="145" endline="169">executeSelected</referencedby>
+        <referencedby refid="classaction_1_1_list_1a57210249001fc1c50c7c74358f3de47f" compoundref="_action_list_selection_8cpp" startline="83" endline="112">findSelectableRow</referencedby>
+        <referencedby refid="classaction_1_1_list_1ac904fdaee75d73bf19dfd39b1a9fd505" compoundref="_action_list_8cpp" startline="16" endline="80">List</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classaction_1_1_list_1ac370827b11d8db7cf146a20ae66c909d" prot="private" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>juce::Colour</type>
+        <definition>juce::Colour action::List::getHighlightColour</definition>
+        <argsstring>() const</argsstring>
+        <name>getHighlightColour</name>
+        <qualifiedname>action::List::getHighlightColour</qualifiedname>
+        <briefdescription>
+<para>Returns the current highlight colour from Config. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>Highlight colour for selected rows. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionList.h" line="190" column="18" bodyfile="terminal/action/ActionList.cpp" bodystart="96" bodyend="99"/>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
+        <referencedby refid="classaction_1_1_list_1ab1563b5c6c86287d88a50b7230c157bd" compoundref="_action_list_8cpp" startline="141" endline="252">buildRows</referencedby>
+        <referencedby refid="classaction_1_1_list_1ac74ca905978b6d98fb5876508df72aff" compoundref="_action_list_8cpp" startline="127" endline="138">configureActionRow</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classaction_1_1_list_1a456c4f33540b4bd3a0b1abce8cae0f0a" prot="private" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int action::List::getBindingRowIndex</definition>
+        <argsstring>() const</argsstring>
+        <name>getBindingRowIndex</name>
+        <qualifiedname>action::List::getBindingRowIndex</qualifiedname>
+        <briefdescription>
+<para>Returns the row index currently in binding mode, or -1 if none. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>Current binding row index. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionList.h" line="196" column="9" bodyfile="terminal/action/ActionListBinding.cpp" bodystart="42" bodyend="42"/>
+        <references refid="classaction_1_1_list_1aaba3b30a29908d26894870dca20df3ac" compoundref="_action_list_8h" startline="88">bindingRowIndexId</references>
+        <references refid="classaction_1_1_list_1a6a16a0291186b5a4c83ee03f0520d160" compoundref="_action_list_8h" startline="100" endline="100">state</references>
+        <referencedby refid="classaction_1_1_list_1abe57586e11e4578ac4b80e40ffc4bc68" compoundref="_action_list_binding_8cpp" startline="65" endline="104">handleBindingKey</referencedby>
+        <referencedby refid="classaction_1_1_list_1afc9326beb35569e3f90b35959451771c" compoundref="_action_list_8cpp" startline="273" endline="287">keyPressed</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classaction_1_1_list_1a79b74d75ec650cd55175a434d271fff7" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void action::List::setBindingRowIndex</definition>
+        <argsstring>(int index)</argsstring>
+        <name>setBindingRowIndex</name>
+        <qualifiedname>action::List::setBindingRowIndex</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+<para>Stores <computeroutput>index</computeroutput> as the active binding row in the <ref refid="classValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ValueTree</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classaction_1_1_row" kindref="compound">Row</ref> index to put into binding mode; -1 to clear. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionList.h" line="202" column="10" bodyfile="terminal/action/ActionListBinding.cpp" bodystart="44" bodyend="44"/>
+        <references refid="classaction_1_1_list_1aaba3b30a29908d26894870dca20df3ac" compoundref="_action_list_8h" startline="88">bindingRowIndexId</references>
+        <references refid="classaction_1_1_list_1a6a16a0291186b5a4c83ee03f0520d160" compoundref="_action_list_8h" startline="100" endline="100">state</references>
+        <referencedby refid="classaction_1_1_list_1a2e60fd62b64589dd3781863a017a38f2" compoundref="_action_list_binding_8cpp" startline="47" endline="56">enterBindingMode</referencedby>
+        <referencedby refid="classaction_1_1_list_1a599124b91aef9fffa4c27d04f4cd344d" compoundref="_action_list_binding_8cpp" startline="58" endline="63">exitBindingMode</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classaction_1_1_list_1a2e60fd62b64589dd3781863a017a38f2" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void action::List::enterBindingMode</definition>
+        <argsstring>()</argsstring>
+        <name>enterBindingMode</name>
+        <qualifiedname>action::List::enterBindingMode</qualifiedname>
+        <briefdescription>
+<para>Enters binding mode for the currently selected row, if selectable. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Shows the <ref refid="class_message_overlay" kindref="compound">MessageOverlay</ref> prompt and stores the row index via <ref refid="classaction_1_1_list_1a79b74d75ec650cd55175a434d271fff7" kindref="member">setBindingRowIndex()</ref>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionList.h" line="208" column="10" bodyfile="terminal/action/ActionListBinding.cpp" bodystart="47" bodyend="56"/>
+        <references refid="classaction_1_1_list_1aa712ed24e12e8c5fb9eb751c9523f030" compoundref="_action_list_8h" startline="85" endline="85">bindingModeTimeoutMs</references>
+        <references refid="classaction_1_1_list_1ac8d431d3d916d30598ccac6335aa8f2c" compoundref="_action_list_selection_8cpp" startline="187" endline="198">getSelectedIndex</references>
+        <references refid="classaction_1_1_list_1a5812fe7adee91b066c0050fdb3116139" compoundref="_action_list_8h" startline="112">messageOverlay</references>
+        <references refid="classaction_1_1_list_1a79b74d75ec650cd55175a434d271fff7" compoundref="_action_list_binding_8cpp" startline="44" endline="44">setBindingRowIndex</references>
+        <referencedby refid="classaction_1_1_list_1ac904fdaee75d73bf19dfd39b1a9fd505" compoundref="_action_list_8cpp" startline="16" endline="80">List</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classaction_1_1_list_1a599124b91aef9fffa4c27d04f4cd344d" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void action::List::exitBindingMode</definition>
+        <argsstring>()</argsstring>
+        <name>exitBindingMode</name>
+        <qualifiedname>action::List::exitBindingMode</qualifiedname>
+        <briefdescription>
+<para>Exits binding mode, hides the <ref refid="class_message_overlay" kindref="compound">MessageOverlay</ref>, and restores keyboard focus. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionList.h" line="211" column="10" bodyfile="terminal/action/ActionListBinding.cpp" bodystart="58" bodyend="63"/>
+        <references refid="classaction_1_1_list_1a5812fe7adee91b066c0050fdb3116139" compoundref="_action_list_8h" startline="112">messageOverlay</references>
+        <references refid="classaction_1_1_list_1a79b74d75ec650cd55175a434d271fff7" compoundref="_action_list_binding_8cpp" startline="44" endline="44">setBindingRowIndex</references>
+        <references refid="structjam_1_1_animator_1a9b25beac56ffed8693b54cf2e594fa6a">jam::Animator::toggleFade</references>
+        <referencedby refid="classaction_1_1_list_1abe57586e11e4578ac4b80e40ffc4bc68" compoundref="_action_list_binding_8cpp" startline="65" endline="104">handleBindingKey</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classaction_1_1_list_1abe57586e11e4578ac4b80e40ffc4bc68" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool action::List::handleBindingKey</definition>
+        <argsstring>(const juce::KeyPress &amp;key)</argsstring>
+        <name>handleBindingKey</name>
+        <qualifiedname>action::List::handleBindingKey</qualifiedname>
+        <param>
+          <type>const juce::KeyPress &amp;</type>
+          <declname>key</declname>
+        </param>
+        <briefdescription>
+<para>Handles a key press while in binding mode. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Ctrl+C exits binding mode without remapping. Any other key is recorded as the new shortcut for the bound row, patches Config, and rebuilds the key map.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>key</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The key press to record or cancel with. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>True if the key was consumed by binding mode. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionList.h" line="221" column="10" bodyfile="terminal/action/ActionListBinding.cpp" bodystart="65" bodyend="104"/>
+        <references refid="classaction_1_1_list_1a81499b3f1e50002faadd3732ec3426e2" compoundref="_action_list_8h" startline="91">bindingsDirtyId</references>
+        <references refid="classaction_1_1_list_1a599124b91aef9fffa4c27d04f4cd344d" compoundref="_action_list_binding_8cpp" startline="58" endline="63">exitBindingMode</references>
+        <references refid="classaction_1_1_list_1a456c4f33540b4bd3a0b1abce8cae0f0a" compoundref="_action_list_binding_8cpp" startline="42" endline="42">getBindingRowIndex</references>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Registry &gt;::getContext</references>
+        <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682cad304ba20e96d87411588eeabac850e34">label</references>
+        <references refid="classaction_1_1_list_1a82b8c115f7d164f8c39d7ca142f513fd" compoundref="_action_list_8h" startline="97">luaEngine</references>
+        <references refid="classaction_1_1_list_1ae5c0332610df26c061b21ac5fa51cab6" compoundref="_action_list_8h" startline="109">rows</references>
+        <references refid="classaction_1_1_registry_1aa0baadfadc5b0e64b4a903e64012fced" compoundref="_action_8cpp" startline="247" endline="306">action::Registry::shortcutToString</references>
+        <references refid="classaction_1_1_list_1a6a16a0291186b5a4c83ee03f0520d160" compoundref="_action_list_8h" startline="100" endline="100">state</references>
+        <referencedby refid="classaction_1_1_list_1afc9326beb35569e3f90b35959451771c" compoundref="_action_list_8cpp" startline="273" endline="287">keyPressed</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classaction_1_1_list_1a74b96153c61861b113fa669f7286628d" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void action::List::valueTreePropertyChanged</definition>
+        <argsstring>(juce::ValueTree &amp;tree, const juce::Identifier &amp;property) override</argsstring>
+        <name>valueTreePropertyChanged</name>
+        <qualifiedname>action::List::valueTreePropertyChanged</qualifiedname>
+        <param>
+          <type>juce::ValueTree &amp;</type>
+          <declname>tree</declname>
+        </param>
+        <param>
+          <type>const juce::Identifier &amp;</type>
+          <declname>property</declname>
+        </param>
+        <briefdescription>
+<para>Responds to <ref refid="classValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ValueTree</ref> property changes — patches Config and rebuilds key map. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Called by JUCE when any property on the ACTION_LIST tree changes. Compares each action row&apos;s current shortcut label against Config; patches any divergence and marks bindingsDirty for Config reload on destruction.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The <ref refid="classValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ValueTree</ref> that changed. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>property</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The identifier of the property that changed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="terminal/action/ActionList.h" line="232" column="10" bodyfile="terminal/action/ActionListBinding.cpp" bodystart="13" bodyend="39"/>
+        <references refid="classaction_1_1_list_1a81499b3f1e50002faadd3732ec3426e2" compoundref="_action_list_8h" startline="91">bindingsDirtyId</references>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Registry &gt;::getContext</references>
+        <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682cad304ba20e96d87411588eeabac850e34">label</references>
+        <references refid="classaction_1_1_list_1a82b8c115f7d164f8c39d7ca142f513fd" compoundref="_action_list_8h" startline="97">luaEngine</references>
+        <references refid="classaction_1_1_list_1ae5c0332610df26c061b21ac5fa51cab6" compoundref="_action_list_8h" startline="109">rows</references>
+        <references refid="classaction_1_1_list_1a6a16a0291186b5a4c83ee03f0520d160" compoundref="_action_list_8h" startline="100" endline="100">state</references>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Command palette component with fuzzy search and keyboard navigation. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Self-contained: builds rows from the <ref refid="classaction_1_1_registry" kindref="compound">action::Registry</ref> on construction, manages selection state, and handles all keyboard input through <ref refid="classaction_1_1_key_handler" kindref="compound">KeyHandler</ref>. Hosted inside a <ref refid="classterminal_1_1_modal_window" kindref="compound">terminal::ModalWindow</ref> via Popup::show(). Escape is not consumed — it falls through to the hosting ModalWindow for dismissal. State changes (binding edits, dirty flag) propagate via juce::ValueTree::Listener.</para>
+<para><simplesect kind="see"><para><ref refid="classaction_1_1_registry" kindref="compound">action::Registry</ref> </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classaction_1_1_row" kindref="compound">action::Row</ref> </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classaction_1_1_key_handler" kindref="compound">action::KeyHandler</ref> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>action::List</label>
+        <link refid="classaction_1_1_list"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>juce::Component</label>
+      </node>
+      <node id="3">
+        <label>juce::ValueTree::Listener</label>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="49">
+        <label>CallInfo</label>
+        <link refid="struct_call_info" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="39" relation="usage">
+          <edgelabel>func</edgelabel>
+          <edgelabel>top</edgelabel>
+        </childnode>
+        <childnode refid="49" relation="usage">
+          <edgelabel>next</edgelabel>
+          <edgelabel>previous</edgelabel>
+        </childnode>
+        <childnode refid="37" relation="usage">
+          <edgelabel>k</edgelabel>
+        </childnode>
+      </node>
+      <node id="38">
+        <label>GCObject</label>
+        <link refid="struct_g_c_object" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="38" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="69">
+        <label>MessageOverlay</label>
+        <link refid="class_message_overlay"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="70" relation="private-inheritance">
+        </childnode>
+        <childnode refid="14" relation="usage">
+          <edgelabel>resizeCols</edgelabel>
+          <edgelabel>resizeRows</edgelabel>
+        </childnode>
+      </node>
+      <node id="47">
+        <label>Node</label>
+        <link refid="union_node" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="48" relation="usage">
+          <edgelabel>u</edgelabel>
+        </childnode>
+        <childnode refid="41" relation="usage">
+          <edgelabel>i_val</edgelabel>
+        </childnode>
+      </node>
+      <node id="48">
+        <label>Node::NodeKey</label>
+        <link refid="struct_node_1_1_node_key" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="42" relation="usage">
+          <edgelabel>key_val</edgelabel>
+          <edgelabel>value_</edgelabel>
+        </childnode>
+      </node>
+      <node id="40">
+        <label>StackValue</label>
+        <link refid="union_stack_value" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="41" relation="usage">
+          <edgelabel>val</edgelabel>
+        </childnode>
+        <childnode refid="42" relation="usage">
+          <edgelabel>value_</edgelabel>
+        </childnode>
+      </node>
+      <node id="39">
+        <label>StkIdRel</label>
+        <link refid="union_stk_id_rel" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="40" relation="usage">
+          <edgelabel>p</edgelabel>
+        </childnode>
+      </node>
+      <node id="45">
+        <label>TString</label>
+        <link refid="struct_t_string" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="38" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+        <childnode refid="45" relation="usage">
+          <edgelabel>hnext</edgelabel>
+        </childnode>
+      </node>
+      <node id="41">
+        <label>TValue</label>
+        <link refid="struct_t_value" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="42" relation="usage">
+          <edgelabel>value_</edgelabel>
+        </childnode>
+      </node>
+      <node id="46">
+        <label>Table</label>
+        <link refid="struct_table" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="38" relation="usage">
+          <edgelabel>gclist</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+        <childnode refid="41" relation="usage">
+          <edgelabel>array</edgelabel>
+        </childnode>
+        <childnode refid="47" relation="usage">
+          <edgelabel>lastfree</edgelabel>
+          <edgelabel>node</edgelabel>
+        </childnode>
+        <childnode refid="46" relation="usage">
+          <edgelabel>metatable</edgelabel>
+        </childnode>
+      </node>
+      <node id="50">
+        <label>UpVal</label>
+        <link refid="struct_up_val" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="38" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+        <childnode refid="50" relation="usage">
+          <edgelabel>next</edgelabel>
+          <edgelabel>previous</edgelabel>
+        </childnode>
+        <childnode refid="41" relation="usage">
+          <edgelabel>p</edgelabel>
+          <edgelabel>value</edgelabel>
+        </childnode>
+      </node>
+      <node id="42">
+        <label>Value</label>
+        <link refid="classValue" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag"/>
+      </node>
+      <node id="1">
+        <label>action::List</label>
+        <link refid="classaction_1_1_list"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="private-inheritance">
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>luaEngine</edgelabel>
+        </childnode>
+        <childnode refid="62" relation="usage">
+          <edgelabel>state</edgelabel>
+        </childnode>
+        <childnode refid="68" relation="usage">
+          <edgelabel>rows</edgelabel>
+        </childnode>
+        <childnode refid="69" relation="usage">
+          <edgelabel>messageOverlay</edgelabel>
+        </childnode>
+      </node>
+      <node id="43">
+        <label>global_State</label>
+        <link refid="structglobal___state" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="44" relation="usage">
+          <edgelabel>strt</edgelabel>
+        </childnode>
+        <childnode refid="41" relation="usage">
+          <edgelabel>l_registry</edgelabel>
+          <edgelabel>nilvalue</edgelabel>
+        </childnode>
+        <childnode refid="38" relation="usage">
+          <edgelabel>allgc</edgelabel>
+          <edgelabel>allweak</edgelabel>
+          <edgelabel>ephemeron</edgelabel>
+          <edgelabel>finobj</edgelabel>
+          <edgelabel>finobjold1</edgelabel>
+          <edgelabel>finobjrold</edgelabel>
+          <edgelabel>finobjsur</edgelabel>
+          <edgelabel>firstold1</edgelabel>
+          <edgelabel>fixedgc</edgelabel>
+          <edgelabel>gray</edgelabel>
+          <edgelabel>  ...</edgelabel>
+        </childnode>
+        <childnode refid="37" relation="usage">
+          <edgelabel>mainthread</edgelabel>
+          <edgelabel>panic</edgelabel>
+          <edgelabel>twups</edgelabel>
+        </childnode>
+        <childnode refid="45" relation="usage">
+          <edgelabel>memerrmsg</edgelabel>
+          <edgelabel>strcache</edgelabel>
+          <edgelabel>tmname</edgelabel>
+        </childnode>
+        <childnode refid="46" relation="usage">
+          <edgelabel>mt</edgelabel>
+        </childnode>
+      </node>
+      <node id="63">
+        <label>jam::AnyMap</label>
+        <link refid="classjam_1_1_any_map" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="64" relation="usage">
+          <edgelabel>entries</edgelabel>
+        </childnode>
+        <childnode refid="66" relation="usage">
+          <edgelabel>types</edgelabel>
+        </childnode>
+      </node>
+      <node id="14">
+        <label>jam::Cell</label>
+        <link refid="structjam_1_1_cell" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+      <node id="5">
+        <label>jam::Context&lt; Engine &gt;</label>
+        <link refid="structjam_1_1_context" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+      <node id="56">
+        <label>jam::File::Watcher</label>
+        <link refid="structjam_1_1_file_1_1_watcher" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="57" relation="usage">
+          <edgelabel>timers</edgelabel>
+        </childnode>
+      </node>
+      <node id="59">
+        <label>jam::File::Watcher::CoalesceTimer</label>
+        <link refid="structjam_1_1_file_1_1_watcher_1_1_coalesce_timer" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="56" relation="usage">
+          <edgelabel>owner</edgelabel>
+        </childnode>
+      </node>
+      <node id="6">
+        <label>jam::File::Watcher::Listener</label>
+        <link refid="classjam_1_1_file_1_1_watcher_1_1_listener" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+      <node id="62">
+        <label>jam::Model</label>
+        <link refid="classjam_1_1_model" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="63" relation="usage">
+          <edgelabel>params</edgelabel>
+        </childnode>
+        <childnode refid="67" relation="usage">
+          <edgelabel>uniqueNodeMap</edgelabel>
+        </childnode>
+      </node>
+      <node id="68">
+        <label>jam::Owner&lt; action::Row &gt;</label>
+        <link refid="classjam_1_1_owner" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+      <node id="36">
+        <label>jam::lua::Function</label>
+        <link refid="classjam_1_1lua_1_1_function" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="37" relation="usage">
+          <edgelabel>luaState</edgelabel>
+        </childnode>
+      </node>
+      <node id="53">
+        <label>jam::lua::State</label>
+        <link refid="classjam_1_1lua_1_1_state" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="37" relation="usage">
+          <edgelabel>luaState</edgelabel>
+        </childnode>
+        <childnode refid="54" relation="usage">
+          <edgelabel>registeredFunctions</edgelabel>
+        </childnode>
+        <childnode refid="55" relation="usage">
+          <edgelabel>registeredRawFunctions</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>juce::Component</label>
+      </node>
+      <node id="70">
+        <label>juce::Timer</label>
+      </node>
+      <node id="3">
+        <label>juce::ValueTree::Listener</label>
+      </node>
+      <node id="4">
+        <label>lua::Engine</label>
+        <link refid="classlua_1_1_engine"/>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+        <childnode refid="6" relation="public-inheritance">
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>nexus</edgelabel>
+        </childnode>
+        <childnode refid="15" relation="usage">
+          <edgelabel>display</edgelabel>
+        </childnode>
+        <childnode refid="28" relation="usage">
+          <edgelabel>whelmed</edgelabel>
+        </childnode>
+        <childnode refid="29" relation="usage">
+          <edgelabel>keys</edgelabel>
+        </childnode>
+        <childnode refid="30" relation="usage">
+          <edgelabel>popup</edgelabel>
+        </childnode>
+        <childnode refid="33" relation="usage">
+          <edgelabel>action</edgelabel>
+        </childnode>
+        <childnode refid="51" relation="usage">
+          <edgelabel>keyMappings</edgelabel>
+        </childnode>
+        <childnode refid="53" relation="usage">
+          <edgelabel>lua</edgelabel>
+        </childnode>
+        <childnode refid="56" relation="usage">
+          <edgelabel>watcher</edgelabel>
+        </childnode>
+        <childnode refid="60" relation="usage">
+          <edgelabel>displayCallbacks</edgelabel>
+        </childnode>
+        <childnode refid="61" relation="usage">
+          <edgelabel>popupCallbacks</edgelabel>
+        </childnode>
+      </node>
+      <node id="33">
+        <label>lua::Engine::Action</label>
+        <link refid="structlua_1_1_engine_1_1_action"/>
+        <childnode refid="34" relation="usage">
+          <edgelabel>entries</edgelabel>
+        </childnode>
+      </node>
+      <node id="35">
+        <label>lua::Engine::Action::Entry</label>
+        <link refid="structlua_1_1_engine_1_1_action_1_1_entry"/>
+        <childnode refid="36" relation="usage">
+          <edgelabel>execute</edgelabel>
+        </childnode>
+      </node>
+      <node id="15">
+        <label>lua::Engine::Display</label>
+        <link refid="structlua_1_1_engine_1_1_display"/>
+        <childnode refid="16" relation="usage">
+          <edgelabel>window</edgelabel>
+        </childnode>
+        <childnode refid="17" relation="usage">
+          <edgelabel>colours</edgelabel>
+        </childnode>
+        <childnode refid="19" relation="usage">
+          <edgelabel>cursor</edgelabel>
+        </childnode>
+        <childnode refid="20" relation="usage">
+          <edgelabel>font</edgelabel>
+        </childnode>
+        <childnode refid="21" relation="usage">
+          <edgelabel>tab</edgelabel>
+        </childnode>
+        <childnode refid="22" relation="usage">
+          <edgelabel>pane</edgelabel>
+        </childnode>
+        <childnode refid="23" relation="usage">
+          <edgelabel>overlay</edgelabel>
+        </childnode>
+        <childnode refid="24" relation="usage">
+          <edgelabel>menu</edgelabel>
+        </childnode>
+        <childnode refid="25" relation="usage">
+          <edgelabel>actionList</edgelabel>
+        </childnode>
+        <childnode refid="26" relation="usage">
+          <edgelabel>statusBar</edgelabel>
+        </childnode>
+        <childnode refid="27" relation="usage">
+          <edgelabel>popup</edgelabel>
+        </childnode>
+      </node>
+      <node id="25">
+        <label>lua::Engine::Display::ActionList</label>
+        <link refid="structlua_1_1_engine_1_1_display_1_1_action_list"/>
+      </node>
+      <node id="17">
+        <label>lua::Engine::Display::Colours</label>
+        <link refid="structlua_1_1_engine_1_1_display_1_1_colours"/>
+        <childnode refid="18" relation="usage">
+          <edgelabel>ansi</edgelabel>
+        </childnode>
+      </node>
+      <node id="19">
+        <label>lua::Engine::Display::Cursor</label>
+        <link refid="structlua_1_1_engine_1_1_display_1_1_cursor"/>
+      </node>
+      <node id="20">
+        <label>lua::Engine::Display::Font</label>
+        <link refid="structlua_1_1_engine_1_1_display_1_1_font"/>
+      </node>
+      <node id="24">
+        <label>lua::Engine::Display::Menu</label>
+        <link refid="structlua_1_1_engine_1_1_display_1_1_menu"/>
+      </node>
+      <node id="23">
+        <label>lua::Engine::Display::Overlay</label>
+        <link refid="structlua_1_1_engine_1_1_display_1_1_overlay"/>
+      </node>
+      <node id="22">
+        <label>lua::Engine::Display::Pane</label>
+        <link refid="structlua_1_1_engine_1_1_display_1_1_pane"/>
+      </node>
+      <node id="27">
+        <label>lua::Engine::Display::PopupBorder</label>
+        <link refid="structlua_1_1_engine_1_1_display_1_1_popup_border"/>
+      </node>
+      <node id="26">
+        <label>lua::Engine::Display::StatusBar</label>
+        <link refid="structlua_1_1_engine_1_1_display_1_1_status_bar"/>
+      </node>
+      <node id="21">
+        <label>lua::Engine::Display::Tab</label>
+        <link refid="structlua_1_1_engine_1_1_display_1_1_tab"/>
+      </node>
+      <node id="16">
+        <label>lua::Engine::Display::Window</label>
+        <link refid="structlua_1_1_engine_1_1_display_1_1_window"/>
+      </node>
+      <node id="60">
+        <label>lua::Engine::DisplayCallbacks</label>
+        <link refid="structlua_1_1_engine_1_1_display_callbacks"/>
+      </node>
+      <node id="52">
+        <label>lua::Engine::KeyMapping</label>
+        <link refid="structlua_1_1_engine_1_1_key_mapping"/>
+      </node>
+      <node id="29">
+        <label>lua::Engine::Keys</label>
+        <link refid="structlua_1_1_engine_1_1_keys"/>
+      </node>
+      <node id="7">
+        <label>lua::Engine::Nexus</label>
+        <link refid="structlua_1_1_engine_1_1_nexus"/>
+        <childnode refid="8" relation="usage">
+          <edgelabel>shell</edgelabel>
+        </childnode>
+        <childnode refid="9" relation="usage">
+          <edgelabel>terminal</edgelabel>
+        </childnode>
+        <childnode refid="10" relation="usage">
+          <edgelabel>hyperlinks</edgelabel>
+        </childnode>
+        <childnode refid="13" relation="usage">
+          <edgelabel>image</edgelabel>
+        </childnode>
+      </node>
+      <node id="10">
+        <label>lua::Engine::Nexus::Hyperlinks</label>
+        <link refid="structlua_1_1_engine_1_1_nexus_1_1_hyperlinks"/>
+        <childnode refid="11" relation="usage">
+          <edgelabel>handlers</edgelabel>
+        </childnode>
+        <childnode refid="12" relation="usage">
+          <edgelabel>extensions</edgelabel>
+        </childnode>
+      </node>
+      <node id="13">
+        <label>lua::Engine::Nexus::Image</label>
+        <link refid="structlua_1_1_engine_1_1_nexus_1_1_image"/>
+        <childnode refid="14" relation="usage">
+          <edgelabel>cols</edgelabel>
+          <edgelabel>rows</edgelabel>
+        </childnode>
+      </node>
+      <node id="8">
+        <label>lua::Engine::Nexus::Shell</label>
+        <link refid="structlua_1_1_engine_1_1_nexus_1_1_shell"/>
+      </node>
+      <node id="9">
+        <label>lua::Engine::Nexus::Terminal</label>
+        <link refid="structlua_1_1_engine_1_1_nexus_1_1_terminal"/>
+      </node>
+      <node id="30">
+        <label>lua::Engine::Popup</label>
+        <link refid="structlua_1_1_engine_1_1_popup"/>
+        <childnode refid="14" relation="usage">
+          <edgelabel>defaultCols</edgelabel>
+          <edgelabel>defaultRows</edgelabel>
+        </childnode>
+        <childnode refid="31" relation="usage">
+          <edgelabel>entries</edgelabel>
+        </childnode>
+      </node>
+      <node id="32">
+        <label>lua::Engine::Popup::Entry</label>
+        <link refid="structlua_1_1_engine_1_1_popup_1_1_entry"/>
+        <childnode refid="14" relation="usage">
+          <edgelabel>cols</edgelabel>
+          <edgelabel>rows</edgelabel>
+        </childnode>
+      </node>
+      <node id="61">
+        <label>lua::Engine::PopupCallbacks</label>
+        <link refid="structlua_1_1_engine_1_1_popup_callbacks"/>
+      </node>
+      <node id="28">
+        <label>lua::Engine::Whelmed</label>
+        <link refid="structlua_1_1_engine_1_1_whelmed"/>
+      </node>
+      <node id="37">
+        <label>lua_State</label>
+        <link refid="structlua___state" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="38" relation="usage">
+          <edgelabel>gclist</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+        <childnode refid="39" relation="usage">
+          <edgelabel>stack</edgelabel>
+          <edgelabel>stack_last</edgelabel>
+          <edgelabel>tbclist</edgelabel>
+          <edgelabel>top</edgelabel>
+        </childnode>
+        <childnode refid="43" relation="usage">
+          <edgelabel>l_G</edgelabel>
+        </childnode>
+        <childnode refid="49" relation="usage">
+          <edgelabel>base_ci</edgelabel>
+          <edgelabel>ci</edgelabel>
+        </childnode>
+        <childnode refid="50" relation="usage">
+          <edgelabel>openupval</edgelabel>
+        </childnode>
+        <childnode refid="37" relation="usage">
+          <edgelabel>twups</edgelabel>
+        </childnode>
+      </node>
+      <node id="18">
+        <label>std::array&lt; juce::Colour, 16 &gt;</label>
+      </node>
+      <node id="51">
+        <label>std::array&lt; lua::Engine::KeyMapping, keyMappingCount &gt;</label>
+        <childnode refid="52" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+      <node id="55">
+        <label>std::list&lt; std::function&lt; int(lua_State *)&gt; &gt;</label>
+      </node>
+      <node id="54">
+        <label>std::list&lt; std::function&lt; void()&gt; &gt;</label>
+      </node>
+      <node id="57">
+        <label>std::map&lt; juce::File, std::unique_ptr&lt; jam::File::Watcher::CoalesceTimer &gt; &gt;</label>
+        <childnode refid="58" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+      <node id="58">
+        <label>std::unique_ptr&lt; jam::File::Watcher::CoalesceTimer &gt;</label>
+        <childnode refid="59" relation="usage">
+          <edgelabel>ptr</edgelabel>
+        </childnode>
+      </node>
+      <node id="65">
+        <label>std::unique_ptr&lt; void, Deleter &gt;</label>
+      </node>
+      <node id="66">
+        <label>std::unordered_map&lt; juce::Identifier, std::type_index &gt;</label>
+      </node>
+      <node id="64">
+        <label>std::unordered_map&lt; juce::Identifier, std::unique_ptr&lt; void, Deleter &gt; &gt;</label>
+        <childnode refid="65" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+      <node id="11">
+        <label>std::unordered_map&lt; juce::String, juce::String &gt;</label>
+      </node>
+      <node id="67">
+        <label>std::unordered_map&lt; juce::String, juce::ValueTree &gt;</label>
+      </node>
+      <node id="12">
+        <label>std::unordered_set&lt; juce::String &gt;</label>
+      </node>
+      <node id="34">
+        <label>std::vector&lt; lua::Engine::Action::Entry &gt;</label>
+        <childnode refid="35" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+      <node id="31">
+        <label>std::vector&lt; lua::Engine::Popup::Entry &gt;</label>
+        <childnode refid="32" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+      <node id="44">
+        <label>stringtable</label>
+        <link refid="structstringtable" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="45" relation="usage">
+          <edgelabel>hash</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="terminal/action/ActionList.h" line="33" column="1" bodyfile="terminal/action/ActionList.h" bodystart="36" bodyend="236"/>
+    <listofallmembers>
+      <member refid="classaction_1_1_list_1aa712ed24e12e8c5fb9eb751c9523f030" prot="private" virt="non-virtual"><scope>action::List</scope><name>bindingModeTimeoutMs</name></member>
+      <member refid="classaction_1_1_list_1aaba3b30a29908d26894870dca20df3ac" prot="private" virt="non-virtual"><scope>action::List</scope><name>bindingRowIndexId</name></member>
+      <member refid="classaction_1_1_list_1a81499b3f1e50002faadd3732ec3426e2" prot="private" virt="non-virtual"><scope>action::List</scope><name>bindingsDirtyId</name></member>
+      <member refid="classaction_1_1_list_1ab1563b5c6c86287d88a50b7230c157bd" prot="private" virt="non-virtual"><scope>action::List</scope><name>buildRows</name></member>
+      <member refid="classaction_1_1_list_1ac74ca905978b6d98fb5876508df72aff" prot="private" virt="non-virtual"><scope>action::List</scope><name>configureActionRow</name></member>
+      <member refid="classaction_1_1_list_1a86f3b32fb6373c6984c8cdea28fdf66d" prot="private" virt="non-virtual"><scope>action::List</scope><name>configureSearchBox</name></member>
+      <member refid="classaction_1_1_list_1a2e60fd62b64589dd3781863a017a38f2" prot="private" virt="non-virtual"><scope>action::List</scope><name>enterBindingMode</name></member>
+      <member refid="classaction_1_1_list_1ad420634bf596882ff7baaddfbafb789c" prot="private" virt="non-virtual"><scope>action::List</scope><name>executeSelected</name></member>
+      <member refid="classaction_1_1_list_1a599124b91aef9fffa4c27d04f4cd344d" prot="private" virt="non-virtual"><scope>action::List</scope><name>exitBindingMode</name></member>
+      <member refid="classaction_1_1_list_1a954dd770507b08b6920f82c93ea5c253" prot="private" virt="non-virtual"><scope>action::List</scope><name>filterRows</name></member>
+      <member refid="classaction_1_1_list_1a57210249001fc1c50c7c74358f3de47f" prot="private" virt="non-virtual"><scope>action::List</scope><name>findSelectableRow</name></member>
+      <member refid="classaction_1_1_list_1a456c4f33540b4bd3a0b1abce8cae0f0a" prot="private" virt="non-virtual"><scope>action::List</scope><name>getBindingRowIndex</name></member>
+      <member refid="classaction_1_1_list_1ac370827b11d8db7cf146a20ae66c909d" prot="private" virt="non-virtual"><scope>action::List</scope><name>getHighlightColour</name></member>
+      <member refid="classaction_1_1_list_1ac8d431d3d916d30598ccac6335aa8f2c" prot="private" virt="non-virtual"><scope>action::List</scope><name>getSelectedIndex</name></member>
+      <member refid="classaction_1_1_list_1abe57586e11e4578ac4b80e40ffc4bc68" prot="private" virt="non-virtual"><scope>action::List</scope><name>handleBindingKey</name></member>
+      <member refid="classaction_1_1_list_1a288a62bad2e63febffce810c4cb4136d" prot="private" virt="non-virtual"><scope>action::List</scope><name>keyHandler</name></member>
+      <member refid="classaction_1_1_list_1afc9326beb35569e3f90b35959451771c" prot="public" virt="non-virtual"><scope>action::List</scope><name>keyPressed</name></member>
+      <member refid="classaction_1_1_list_1a69e450581397474ba019c577eea17c99" prot="private" virt="non-virtual"><scope>action::List</scope><name>layoutRows</name></member>
+      <member refid="classaction_1_1_list_1ac904fdaee75d73bf19dfd39b1a9fd505" prot="public" virt="non-virtual"><scope>action::List</scope><name>List</name></member>
+      <member refid="classaction_1_1_list_1a82b8c115f7d164f8c39d7ca142f513fd" prot="private" virt="non-virtual"><scope>action::List</scope><name>luaEngine</name></member>
+      <member refid="classaction_1_1_list_1a2b71f48bc3fbd033acbd8ad49a975620" prot="private" virt="non-virtual"><scope>action::List</scope><name>main</name></member>
+      <member refid="classaction_1_1_list_1a5812fe7adee91b066c0050fdb3116139" prot="private" virt="non-virtual"><scope>action::List</scope><name>messageOverlay</name></member>
+      <member refid="classaction_1_1_list_1afb83a3130eb0b47542682ef045af0a2e" prot="private" virt="non-virtual"><scope>action::List</scope><name>minimumHeight</name></member>
+      <member refid="classaction_1_1_list_1a9698853cee7d94c4c3bedbb69c2c8e23" prot="private" virt="non-virtual"><scope>action::List</scope><name>minimumWidth</name></member>
+      <member refid="classaction_1_1_list_1a4f4d3d334f58752e778160acd3993c37" prot="public" virt="non-virtual"><scope>action::List</scope><name>onActionRun</name></member>
+      <member refid="classaction_1_1_list_1a795614e610b4d7a0d8b7633438746cd9" prot="public" virt="non-virtual"><scope>action::List</scope><name>onDismiss</name></member>
+      <member refid="classaction_1_1_list_1af361864cf6f79fe4c2d7f4796a449cb0" prot="public" virt="non-virtual"><scope>action::List</scope><name>resized</name></member>
+      <member refid="classaction_1_1_list_1ac612680009dbd29fcc48afa44e0c852c" prot="private" virt="non-virtual"><scope>action::List</scope><name>rowContainer</name></member>
+      <member refid="classaction_1_1_list_1ab8f2ffeb364e659dfb0bbd61f5001767" prot="private" virt="non-virtual"><scope>action::List</scope><name>rowHeight</name></member>
+      <member refid="classaction_1_1_list_1ae5c0332610df26c061b21ac5fa51cab6" prot="private" virt="non-virtual"><scope>action::List</scope><name>rows</name></member>
+      <member refid="classaction_1_1_list_1abd4afa5a9397c5506019c7fed3fdaadd" prot="private" virt="non-virtual"><scope>action::List</scope><name>selectRow</name></member>
+      <member refid="classaction_1_1_list_1a712cf8d747c9979782c2aff186cdfde9" prot="private" virt="non-virtual"><scope>action::List</scope><name>separatorRowHeight</name></member>
+      <member refid="classaction_1_1_list_1a79b74d75ec650cd55175a434d271fff7" prot="private" virt="non-virtual"><scope>action::List</scope><name>setBindingRowIndex</name></member>
+      <member refid="classaction_1_1_list_1a6a16a0291186b5a4c83ee03f0520d160" prot="private" virt="non-virtual"><scope>action::List</scope><name>state</name></member>
+      <member refid="classaction_1_1_list_1a74b96153c61861b113fa669f7286628d" prot="private" virt="non-virtual"><scope>action::List</scope><name>valueTreePropertyChanged</name></member>
+      <member refid="classaction_1_1_list_1ab5068c55ae4e70e344e86228b99530f2" prot="private" virt="non-virtual"><scope>action::List</scope><name>viewport</name></member>
+      <member refid="classaction_1_1_list_1a84d41756db2ccc78e32106a519de9931" prot="private" virt="non-virtual"><scope>action::List</scope><name>visibleRowCount</name></member>
+      <member refid="classaction_1_1_list_1adcbb2e7fb9cc2115de5c1c85e1630ac5" prot="public" virt="non-virtual"><scope>action::List</scope><name>~List</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

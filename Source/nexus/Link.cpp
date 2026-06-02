@@ -76,9 +76,9 @@ void Link::beginConnectAttempts() noexcept
  * @brief Periodic retry callback fired every 100 ms by the JUCE timer.
  *
  * Each tick reads the port from the `.nexus` file on disk and attempts
- * `connectToSocket`.  Reading from disk rather than AppState in-memory means
+ * `connectToSocket`.  Reading from disk rather than AppModel in-memory means
  * the timer can succeed on the very first tick that the daemon has written its
- * port file, even before AppState has been updated.
+ * port file, even before AppModel has been updated.
  * On success the timer stops itself; JUCE will fire `Link::connectionMade`.
  * On exhaustion the timer stops and a failure line is logged.
  *
@@ -87,7 +87,7 @@ void Link::beginConnectAttempts() noexcept
 void Link::ConnectTimer::timerCallback()
 {
     bool connected { false };
-    const juce::File nexusFile { AppState::getContext()->getNexusFile() };
+    const juce::File nexusFile { AppModel::getContext()->getNexusFile() };
 
     if (nexusFile.existsAsFile())
     {
@@ -294,7 +294,7 @@ void Link::messageReceived (const juce::MemoryBlock& message)
 // =============================================================================
 
 /**
- * @brief Handles `Message::sessions` — rewrites AppState SESSIONS subtree.
+ * @brief Handles `Message::sessions` — rewrites AppModel SESSIONS subtree.
  *
  * Wire format: uint16_t count | N × (uint32_t len + UTF-8 bytes).
  * Removes the nexus-connect LOADING operation on first receipt.
@@ -331,7 +331,7 @@ void Link::handleSessions (const uint8_t* payload, int payloadSize)
             sessionsNode.appendChild (session, nullptr);
         }
 
-        auto nexusNode { AppState::getContext()->getNexusNode() };
+        auto nexusNode { AppModel::getContext()->getNexusNode() };
         auto existing { nexusNode.getChildWithName (app::id::SESSIONS) };
 
         if (existing.isValid())
@@ -342,7 +342,7 @@ void Link::handleSessions (const uint8_t* payload, int payloadSize)
 }
 
 /**
- * @brief Handles `Message::sessionKilled` — removes the exited UUID from AppState.
+ * @brief Handles `Message::sessionKilled` — removes the exited UUID from AppModel.
  *
  * @note NEXUS PROCESS MESSAGE THREAD.
  */
@@ -353,8 +353,8 @@ void Link::handleSessionKilled (const uint8_t* payload, int payloadSize)
 
     if (uuid.isNotEmpty())
     {
-        auto sessionsNode { AppState::getContext()->getSessionsNode() };
-        auto exitedSession { jam::ValueTree::getChildWithID (sessionsNode, uuid) };
+        auto sessionsNode { AppModel::getContext()->getSessionsNode() };
+        auto exitedSession { jam::Model::getChildWithID (sessionsNode, uuid) };
 
         if (exitedSession.isValid())
             exitedSession.getParent().removeChild (exitedSession, nullptr);
@@ -455,10 +455,10 @@ void Link::handleStateUpdate (const uint8_t* payload, int payloadSize)
                 auto& proc { ctx->get (uuid).getProcessor() };
 
                 if (cwd.isNotEmpty())
-                    proc.getState().get().setProperty (terminal::id::cwd, cwd, nullptr);
+                    proc.getState().setTreeProperty (terminal::id::cwd, cwd, nullptr);
 
                 if (fgProcess.isNotEmpty())
-                    proc.getState().get().setProperty (terminal::id::foregroundProcess, fgProcess, nullptr);
+                    proc.getState().setTreeProperty (terminal::id::foregroundProcess, fgProcess, nullptr);
             }
         }
     }
@@ -493,13 +493,13 @@ void Link::valueTreeChildAdded (juce::ValueTree&, juce::ValueTree& child)
                                session.getProcessor().getState().getVisibleRows().value);
 
             // Wire user input (keyboard, mouse) to daemon via Link IPC.
-            session.getProcessor().setInputWriter ([this, uuid] (const char* data, int len)
+            session.getProcessor().registerEvent<const char*, int> (terminal::id::writeInput, [this, uuid] (const char* data, int len)
             {
                 sendInput (uuid, data, len);
             });
 
             // Track session State VT for resize forwarding.
-            juce::ValueTree stateRoot { session.getProcessor().getState().get() };
+            juce::ValueTree stateRoot { session.getProcessor().getState().getRootTree() };
             clientSessionStateRoots[uuid] = stateRoot;
             stateRoot.addListener (this);
         }
@@ -547,8 +547,8 @@ void Link::valueTreeChildRemoved (juce::ValueTree&, juce::ValueTree& child, int)
  */
 void Link::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
 {
-    if (property == jam::TextEditor::properties.at (jam::TextEditor::viewportId)
-        and tree.getType() == jam::TextEditor::properties.at (jam::TextEditor::textEditorId))
+    if (property == jam::CodeView::properties.at (jam::CodeView::viewportId)
+        and tree.getType() == jam::CodeView::properties.at (jam::CodeView::codeViewId))
     {
         const juce::ValueTree sessionRoot { tree.getParent() };
 

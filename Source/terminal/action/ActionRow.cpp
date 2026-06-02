@@ -10,7 +10,7 @@ namespace action
 /*____________________________________________________________________________*/
 
 Row::Row (int index, const juce::String& uuid)
-    : ObjectID<Row> (uuid)
+    : ComponentWithID<Row> (uuid)
     , rowIndex (index)
     , kind (RowKind::search)
 {
@@ -20,7 +20,7 @@ Row::Row (int index, const juce::String& uuid)
 }
 
 Row::Row (int index, const juce::String& uuid, const Registry::Entry& entry)
-    : ObjectID<Row> (uuid)
+    : ComponentWithID<Row> (uuid)
     , rowIndex (index)
     , kind (RowKind::action)
 {
@@ -44,7 +44,7 @@ Row::Row (int index, const juce::String& uuid, const Registry::Entry& entry)
 }
 
 Row::Row (int index, const juce::String& uuid, RowKind rowKind)
-    : ObjectID<Row> (uuid)
+    : ComponentWithID<Row> (uuid)
     , rowIndex (index)
     , kind (rowKind)
 {

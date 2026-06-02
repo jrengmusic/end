@@ -1,0 +1,93 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="structlua_1_1_engine_1_1_display_1_1_status_bar" kind="struct" language="C++" prot="public">
+    <compoundname>lua::Engine::Display::StatusBar</compoundname>
+    <includes refid="_engine_8h" local="no">Engine.h</includes>
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_display_1_1_status_bar_1a32b1e66b99cd6b0b3a364a075885b6dc" prot="public" static="no" mutable="no">
+        <type>juce::String</type>
+        <definition>juce::String lua::Engine::Display::StatusBar::position</definition>
+        <argsstring></argsstring>
+        <name>position</name>
+        <qualifiedname>lua::Engine::Display::StatusBar::position</qualifiedname>
+        <initializer>{ &quot;bottom&quot; }</initializer>
+        <briefdescription>
+<para>Status bar position (&quot;top&quot;, &quot;bottom&quot;). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="479" column="26" bodyfile="lua/Engine.h" bodystart="479" bodyend="479"/>
+        <referencedby refid="namespacelua_1ad0765e4a8d2a333c174036c8bc89bad0" compoundref="_engine_parse_display_8cpp" startline="204" endline="352">lua::parseDisplayMisc</referencedby>
+        <referencedby refid="namespacelua_1a74fca56bfc76dcd640f6f1803a8afc67" compoundref="_engine_defaults_8cpp" startline="130" endline="186">lua::writeDisplayMiscDefaults</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_display_1_1_status_bar_1a54e64fed5c483c79b0883f5d0e81bc27" prot="public" static="no" mutable="no">
+        <type>juce::String</type>
+        <definition>juce::String lua::Engine::Display::StatusBar::fontFamily</definition>
+        <argsstring></argsstring>
+        <name>fontFamily</name>
+        <qualifiedname>lua::Engine::Display::StatusBar::fontFamily</qualifiedname>
+        <initializer>{ &quot;Display Mono&quot; }</initializer>
+        <briefdescription>
+<para><ref refid="structlua_1_1_engine_1_1_display_1_1_font" kindref="compound">Font</ref> family for status bar text. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="482" column="26" bodyfile="lua/Engine.h" bodystart="482" bodyend="482"/>
+        <referencedby refid="namespacelua_1ad0765e4a8d2a333c174036c8bc89bad0" compoundref="_engine_parse_display_8cpp" startline="204" endline="352">lua::parseDisplayMisc</referencedby>
+        <referencedby refid="namespacelua_1a74fca56bfc76dcd640f6f1803a8afc67" compoundref="_engine_defaults_8cpp" startline="130" endline="186">lua::writeDisplayMiscDefaults</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_display_1_1_status_bar_1ae0ca0b53368ba009a636a71a83b66736" prot="public" static="no" mutable="no">
+        <type>float</type>
+        <definition>float lua::Engine::Display::StatusBar::fontSize</definition>
+        <argsstring></argsstring>
+        <name>fontSize</name>
+        <qualifiedname>lua::Engine::Display::StatusBar::fontSize</qualifiedname>
+        <initializer>{ 12.0f }</initializer>
+        <briefdescription>
+<para><ref refid="structlua_1_1_engine_1_1_display_1_1_font" kindref="compound">Font</ref> size for status bar text. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="485" column="19" bodyfile="lua/Engine.h" bodystart="485" bodyend="485"/>
+        <referencedby refid="namespacelua_1ad0765e4a8d2a333c174036c8bc89bad0" compoundref="_engine_parse_display_8cpp" startline="204" endline="352">lua::parseDisplayMisc</referencedby>
+        <referencedby refid="namespacelua_1a74fca56bfc76dcd640f6f1803a8afc67" compoundref="_engine_defaults_8cpp" startline="130" endline="186">lua::writeDisplayMiscDefaults</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_display_1_1_status_bar_1afdcc461225e6c4e459969f9036f361c8" prot="public" static="no" mutable="no">
+        <type>juce::String</type>
+        <definition>juce::String lua::Engine::Display::StatusBar::fontStyle</definition>
+        <argsstring></argsstring>
+        <name>fontStyle</name>
+        <qualifiedname>lua::Engine::Display::StatusBar::fontStyle</qualifiedname>
+        <initializer>{ &quot;Bold&quot; }</initializer>
+        <briefdescription>
+<para><ref refid="structlua_1_1_engine_1_1_display_1_1_font" kindref="compound">Font</ref> style for status bar text. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="488" column="26" bodyfile="lua/Engine.h" bodystart="488" bodyend="488"/>
+        <referencedby refid="namespacelua_1ad0765e4a8d2a333c174036c8bc89bad0" compoundref="_engine_parse_display_8cpp" startline="204" endline="352">lua::parseDisplayMisc</referencedby>
+        <referencedby refid="namespacelua_1a74fca56bfc76dcd640f6f1803a8afc67" compoundref="_engine_defaults_8cpp" startline="130" endline="186">lua::writeDisplayMiscDefaults</referencedby>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Status bar position and font settings. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="lua/Engine.h" line="476" column="9" bodyfile="lua/Engine.h" bodystart="477" bodyend="489"/>
+    <listofallmembers>
+      <member refid="structlua_1_1_engine_1_1_display_1_1_status_bar_1a54e64fed5c483c79b0883f5d0e81bc27" prot="public" virt="non-virtual"><scope>lua::Engine::Display::StatusBar</scope><name>fontFamily</name></member>
+      <member refid="structlua_1_1_engine_1_1_display_1_1_status_bar_1ae0ca0b53368ba009a636a71a83b66736" prot="public" virt="non-virtual"><scope>lua::Engine::Display::StatusBar</scope><name>fontSize</name></member>
+      <member refid="structlua_1_1_engine_1_1_display_1_1_status_bar_1afdcc461225e6c4e459969f9036f361c8" prot="public" virt="non-virtual"><scope>lua::Engine::Display::StatusBar</scope><name>fontStyle</name></member>
+      <member refid="structlua_1_1_engine_1_1_display_1_1_status_bar_1a32b1e66b99cd6b0b3a364a075885b6dc" prot="public" virt="non-virtual"><scope>lua::Engine::Display::StatusBar</scope><name>position</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -37,8 +37,8 @@ Component::Component()
     addAndMakeVisible (viewport);
     addChildComponent (loaderOverlay);
     viewport.addMouseListener (this, true);
-    AppState::getContext()->getTabs().addListener (this);
-    AppState::getContext()->get().addListener (this);
+    AppModel::getContext()->getTabs().addListener (this);
+    AppModel::getContext()->addListener (this);
 
     if (auto* engine { lua::Engine::getContext() }; engine != nullptr)
         inputHandler.buildKeyMap (engine->getSelectionKeys());
@@ -48,8 +48,8 @@ Component::Component()
 
 Component::~Component()
 {
-    AppState::getContext()->get().removeListener (this);
-    AppState::getContext()->getTabs().removeListener (this);
+    AppModel::getContext()->removeListener (this);
+    AppModel::getContext()->getTabs().removeListener (this);
     viewport.removeMouseListener (this);
     state.removeListener (this);
 }
@@ -63,7 +63,7 @@ bool Component::keyPressed (const juce::KeyPress& key)
     return inputHandler.handleKey (key);
 }
 
-void Component::applyFromAppState() noexcept
+void Component::applyFromAppModel() noexcept
 {
     screen.load (docState.getDocument(), std::numeric_limits<int>::max());
     resized();
@@ -172,8 +172,8 @@ void Component::enterSelectionMode() noexcept
     state.setProperty (app::id::selCursorChar, 0, nullptr);
     state.setProperty (app::id::selAnchorBlock, firstVisible, nullptr);
     state.setProperty (app::id::selAnchorChar, 0, nullptr);
-    AppState::getContext()->setSelectionType (static_cast<int> (SelectionType::none));
-    AppState::getContext()->setModalType (static_cast<int> (ModalType::selection));
+    AppModel::getContext()->setSelectionType (static_cast<int> (SelectionType::none));
+    AppModel::getContext()->setModalType (static_cast<int> (ModalType::selection));
     inputHandler.reset();
     screen.updateCursor (firstVisible, 0);
     screen.repaint();
@@ -198,15 +198,15 @@ void Component::copySelection() noexcept
     if (text.isNotEmpty())
         juce::SystemClipboard::copyTextToClipboard (text);
 
-    AppState::getContext()->setSelectionType (static_cast<int> (SelectionType::none));
-    AppState::getContext()->setModalType (static_cast<int> (ModalType::none));
+    AppModel::getContext()->setSelectionType (static_cast<int> (SelectionType::none));
+    AppModel::getContext()->setModalType (static_cast<int> (ModalType::none));
     screen.hideCursor();
     screen.repaint();
 }
 
 bool Component::hasSelection() const noexcept
 {
-    return AppState::getContext()->getSelectionType() != static_cast<int> (SelectionType::none);
+    return AppModel::getContext()->getSelectionType() != static_cast<int> (SelectionType::none);
 }
 
 juce::ValueTree Component::getValueTree() noexcept { return state; }
@@ -217,9 +217,9 @@ juce::ValueTree Component::getValueTree() noexcept { return state; }
 
 void Component::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
 {
-    if (tree == AppState::getContext()->get())
+    if (tree == AppModel::getContext()->getRootTree())
     {
-        applyFromAppState();
+        applyFromAppModel();
     }
     else
     {

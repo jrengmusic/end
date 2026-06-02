@@ -3,7 +3,7 @@
  * @brief JUCE-backed TCP server that accepts Interprocess client connections.
  *
  * `nexus::Daemon` wraps `juce::InterprocessConnectionServer` to listen on a
- * TCP port, write the bound port to AppState (which persists it to
+ * TCP port, write the bound port to AppModel (which persists it to
  * `~/.config/end/nexus/<uuid>.nexus`), and create a `nexus::Channel`
  * for each accepted client.
  *
@@ -32,7 +32,7 @@
 #include "Message.h"
 #include "EncoderDecoder.h"
 #include "../AppIdentifier.h"
-#include "../AppState.h"
+#include "../AppModel.h"
 #include "../terminal/Processor.h"
 #include "../terminal/Identifier.h"
 
@@ -46,9 +46,9 @@ namespace nexus
  *        the broadcast and per-session subscriber registries.
  *
  * Owned by `ENDApplication`.  `start()` calls `beginWaitingForSocket()`, writes
- * the bound port to AppState (persisted to the nexus state file), and caches
+ * the bound port to AppModel (persisted to the nexus state file), and caches
  * it in `activePort`.  `stop()` calls the base `InterprocessConnectionServer::stop()`.
- * Nexus port file deletion is handled by AppState::deleteNexusFile() on quit.
+ * Nexus port file deletion is handled by AppModel::deleteNexusFile() on quit.
  *
  * @par Thread context
  * `start()` / `stop()` — NEXUS PROCESS MESSAGE THREAD.
@@ -126,11 +126,11 @@ public:
     ~Daemon() override;
 
     /**
-     * @brief Starts listening on @p port and writes the bound port to AppState.
+     * @brief Starts listening on @p port and writes the bound port to AppModel.
      *
      * Tries @p port first.  If @p port is 0, `beginWaitingForSocket` returns the
      * OS-assigned port via `getBoundPort()`.  On success, calls
-     * `AppState::getContext()->setPort(activePort)` which persists the port to
+     * `AppModel::getContext()->setPort(activePort)` which persists the port to
      * `~/.config/end/nexus/<uuid>.nexus` so clients can probe it.
      *
      * @param port  Port to try.  0 = let OS choose.

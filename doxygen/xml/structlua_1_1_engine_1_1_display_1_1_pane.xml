@@ -1,0 +1,55 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="structlua_1_1_engine_1_1_display_1_1_pane" kind="struct" language="C++" prot="public">
+    <compoundname>lua::Engine::Display::Pane</compoundname>
+    <includes refid="_engine_8h" local="no">Engine.h</includes>
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_display_1_1_pane_1a6f2bc93e7f5d09034ebed6baf6201bd5" prot="public" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour lua::Engine::Display::Pane::barColour</definition>
+        <argsstring></argsstring>
+        <name>barColour</name>
+        <qualifiedname>lua::Engine::Display::Pane::barColour</qualifiedname>
+        <initializer>{ 0xff33535b }</initializer>
+        <briefdescription>
+<para><ref refid="structlua_1_1_engine_1_1_display_1_1_pane" kindref="compound">Pane</ref> divider bar background colour. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="382" column="26" bodyfile="lua/Engine.h" bodystart="382" bodyend="382"/>
+        <referencedby refid="namespacelua_1ad0765e4a8d2a333c174036c8bc89bad0" compoundref="_engine_parse_display_8cpp" startline="204" endline="352">lua::parseDisplayMisc</referencedby>
+        <referencedby refid="namespacelua_1a74fca56bfc76dcd640f6f1803a8afc67" compoundref="_engine_defaults_8cpp" startline="130" endline="186">lua::writeDisplayMiscDefaults</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structlua_1_1_engine_1_1_display_1_1_pane_1aa117515e820e15957102471807752d07" prot="public" static="no" mutable="no">
+        <type>juce::Colour</type>
+        <definition>juce::Colour lua::Engine::Display::Pane::barHighlight</definition>
+        <argsstring></argsstring>
+        <name>barHighlight</name>
+        <qualifiedname>lua::Engine::Display::Pane::barHighlight</qualifiedname>
+        <initializer>{ 0xff4e8c93 }</initializer>
+        <briefdescription>
+<para><ref refid="structlua_1_1_engine_1_1_display_1_1_pane" kindref="compound">Pane</ref> divider bar highlight colour (focused pane). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lua/Engine.h" line="385" column="26" bodyfile="lua/Engine.h" bodystart="385" bodyend="385"/>
+        <referencedby refid="namespacelua_1ad0765e4a8d2a333c174036c8bc89bad0" compoundref="_engine_parse_display_8cpp" startline="204" endline="352">lua::parseDisplayMisc</referencedby>
+        <referencedby refid="namespacelua_1a74fca56bfc76dcd640f6f1803a8afc67" compoundref="_engine_defaults_8cpp" startline="130" endline="186">lua::writeDisplayMiscDefaults</referencedby>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para><ref refid="structlua_1_1_engine_1_1_display_1_1_pane" kindref="compound">Pane</ref> split bar colours. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="lua/Engine.h" line="379" column="9" bodyfile="lua/Engine.h" bodystart="380" bodyend="386"/>
+    <listofallmembers>
+      <member refid="structlua_1_1_engine_1_1_display_1_1_pane_1a6f2bc93e7f5d09034ebed6baf6201bd5" prot="public" virt="non-virtual"><scope>lua::Engine::Display::Pane</scope><name>barColour</name></member>
+      <member refid="structlua_1_1_engine_1_1_display_1_1_pane_1aa117515e820e15957102471807752d07" prot="public" virt="non-virtual"><scope>lua::Engine::Display::Pane</scope><name>barHighlight</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

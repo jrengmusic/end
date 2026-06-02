@@ -1,0 +1,98 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="structnexus_1_1_daemon_1_1_channel_1_1_spawn_payload" kind="struct" language="C++" prot="private">
+    <compoundname>nexus::Daemon::Channel::SpawnPayload</compoundname>
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structnexus_1_1_daemon_1_1_channel_1_1_spawn_payload_1a26945c35022d94470984874e1f1c1f70" prot="public" static="no" mutable="no">
+        <type>juce::String</type>
+        <definition>juce::String nexus::Daemon::Channel::SpawnPayload::cwd</definition>
+        <argsstring></argsstring>
+        <name>cwd</name>
+        <qualifiedname>nexus::Daemon::Channel::SpawnPayload::cwd</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="nexus/Daemon.h" line="83" column="26" bodyfile="nexus/Daemon.h" bodystart="83" bodyend="-1"/>
+        <referencedby refid="classnexus_1_1_daemon_1_1_channel_1adaf64c2dec50ba52a8ed097195057017" compoundref="_channel_8cpp" startline="247" endline="268">nexus::Daemon::Channel::parseSpawnPayload</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structnexus_1_1_daemon_1_1_channel_1_1_spawn_payload_1adf70391198d2b5cc8b6b3e7e645c1c0b" prot="public" static="no" mutable="no">
+        <type>juce::String</type>
+        <definition>juce::String nexus::Daemon::Channel::SpawnPayload::uuid</definition>
+        <argsstring></argsstring>
+        <name>uuid</name>
+        <qualifiedname>nexus::Daemon::Channel::SpawnPayload::uuid</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="nexus/Daemon.h" line="84" column="26" bodyfile="nexus/Daemon.h" bodystart="84" bodyend="-1"/>
+        <referencedby refid="classnexus_1_1_daemon_1_1_channel_1adaf64c2dec50ba52a8ed097195057017" compoundref="_channel_8cpp" startline="247" endline="268">nexus::Daemon::Channel::parseSpawnPayload</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structnexus_1_1_daemon_1_1_channel_1_1_spawn_payload_1a37b147511ca42cf35a76d3afd9d9b1e9" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int nexus::Daemon::Channel::SpawnPayload::cols</definition>
+        <argsstring></argsstring>
+        <name>cols</name>
+        <qualifiedname>nexus::Daemon::Channel::SpawnPayload::cols</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="nexus/Daemon.h" line="85" column="17" bodyfile="nexus/Daemon.h" bodystart="85" bodyend="85"/>
+        <referencedby refid="classnexus_1_1_daemon_1_1_channel_1adaf64c2dec50ba52a8ed097195057017" compoundref="_channel_8cpp" startline="247" endline="268">nexus::Daemon::Channel::parseSpawnPayload</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structnexus_1_1_daemon_1_1_channel_1_1_spawn_payload_1a169996a7cc2c5eef3e58fa0c8e3e4fb7" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int nexus::Daemon::Channel::SpawnPayload::rows</definition>
+        <argsstring></argsstring>
+        <name>rows</name>
+        <qualifiedname>nexus::Daemon::Channel::SpawnPayload::rows</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="nexus/Daemon.h" line="86" column="17" bodyfile="nexus/Daemon.h" bodystart="86" bodyend="86"/>
+        <referencedby refid="classnexus_1_1_daemon_1_1_channel_1adaf64c2dec50ba52a8ed097195057017" compoundref="_channel_8cpp" startline="247" endline="268">nexus::Daemon::Channel::parseSpawnPayload</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structnexus_1_1_daemon_1_1_channel_1_1_spawn_payload_1aadf592e4bee44c54925f6b7b7fc609f6" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool nexus::Daemon::Channel::SpawnPayload::valid</definition>
+        <argsstring></argsstring>
+        <name>valid</name>
+        <qualifiedname>nexus::Daemon::Channel::SpawnPayload::valid</qualifiedname>
+        <initializer>{ false }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="nexus/Daemon.h" line="87" column="18" bodyfile="nexus/Daemon.h" bodystart="87" bodyend="87"/>
+        <referencedby refid="classnexus_1_1_daemon_1_1_channel_1adaf64c2dec50ba52a8ed097195057017" compoundref="_channel_8cpp" startline="247" endline="268">nexus::Daemon::Channel::parseSpawnPayload</referencedby>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="nexus/Daemon.h" line="81" column="9" bodyfile="nexus/Daemon.h" bodystart="82" bodyend="88"/>
+    <listofallmembers>
+      <member refid="structnexus_1_1_daemon_1_1_channel_1_1_spawn_payload_1a37b147511ca42cf35a76d3afd9d9b1e9" prot="public" virt="non-virtual"><scope>nexus::Daemon::Channel::SpawnPayload</scope><name>cols</name></member>
+      <member refid="structnexus_1_1_daemon_1_1_channel_1_1_spawn_payload_1a26945c35022d94470984874e1f1c1f70" prot="public" virt="non-virtual"><scope>nexus::Daemon::Channel::SpawnPayload</scope><name>cwd</name></member>
+      <member refid="structnexus_1_1_daemon_1_1_channel_1_1_spawn_payload_1a169996a7cc2c5eef3e58fa0c8e3e4fb7" prot="public" virt="non-virtual"><scope>nexus::Daemon::Channel::SpawnPayload</scope><name>rows</name></member>
+      <member refid="structnexus_1_1_daemon_1_1_channel_1_1_spawn_payload_1adf70391198d2b5cc8b6b3e7e645c1c0b" prot="public" virt="non-virtual"><scope>nexus::Daemon::Channel::SpawnPayload</scope><name>uuid</name></member>
+      <member refid="structnexus_1_1_daemon_1_1_channel_1_1_spawn_payload_1aadf592e4bee44c54925f6b7b7fc609f6" prot="public" virt="non-virtual"><scope>nexus::Daemon::Channel::SpawnPayload</scope><name>valid</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

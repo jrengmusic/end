@@ -49,15 +49,15 @@ void Mouse::handleDown (const juce::MouseEvent& event)
     {
         const auto hitCell { jam::Cell::Point::fromPixel (juce::Point<int> { event.x, event.y }, physCellWidth, physCellHeight) };
         const int absRow { toAbsoluteRow (hitCell.y) };
-        auto node { processor.getState().get().getChildWithName (jam::TextEditor::properties.at (jam::TextEditor::textEditorId)) };
+        auto node { processor.getState().getChildWithName (jam::CodeView::properties.at (jam::CodeView::codeViewId)) };
 
         if (node.isValid())
         {
-            node.setProperty (jam::TextEditor::properties.at (jam::TextEditor::selectionTypeId), static_cast<int> (terminal::SelectionType::visualLine), nullptr);
-            node.setProperty (jam::TextEditor::properties.at (jam::TextEditor::selectionAnchorRowId), absRow, nullptr);
-            node.setProperty (jam::TextEditor::properties.at (jam::TextEditor::selectionAnchorColId), 0, nullptr);
-            node.setProperty (jam::TextEditor::properties.at (jam::TextEditor::selectionCursorRowId), absRow, nullptr);
-            node.setProperty (jam::TextEditor::properties.at (jam::TextEditor::selectionCursorColId), 0, nullptr);
+            node.setProperty (jam::CodeView::properties.at (jam::CodeView::selectionTypeId), static_cast<int> (terminal::SelectionType::visualLine), nullptr);
+            node.setProperty (jam::CodeView::properties.at (jam::CodeView::selectionAnchorRowId), absRow, nullptr);
+            node.setProperty (jam::CodeView::properties.at (jam::CodeView::selectionAnchorColId), 0, nullptr);
+            node.setProperty (jam::CodeView::properties.at (jam::CodeView::selectionCursorRowId), absRow, nullptr);
+            node.setProperty (jam::CodeView::properties.at (jam::CodeView::selectionCursorColId), 0, nullptr);
         }
 
         dragAnchor = { hitCell.x, absRow };
@@ -67,7 +67,7 @@ void Mouse::handleDown (const juce::MouseEvent& event)
     {
         const auto hitCell { jam::Cell::Point::fromPixel (juce::Point<int> { event.x, event.y }, physCellWidth, physCellHeight) };
         const int absRow { toAbsoluteRow (hitCell.y) };
-        auto node { processor.getState().get().getChildWithName (jam::TextEditor::properties.at (jam::TextEditor::textEditorId)) };
+        auto node { processor.getState().getChildWithName (jam::CodeView::properties.at (jam::CodeView::codeViewId)) };
 
         if (not processor.getState().isModal())
         {
@@ -78,7 +78,7 @@ void Mouse::handleDown (const juce::MouseEvent& event)
                 linkManager.dispatch (*matched);
 
                 if (node.isValid())
-                    node.setProperty (jam::TextEditor::properties.at (jam::TextEditor::selectionTypeId), static_cast<int> (terminal::SelectionType::none), nullptr);
+                    node.setProperty (jam::CodeView::properties.at (jam::CodeView::selectionTypeId), static_cast<int> (terminal::SelectionType::none), nullptr);
 
                 dragAnchor = { hitCell.x, absRow };
                 dragActive = false;
@@ -86,7 +86,7 @@ void Mouse::handleDown (const juce::MouseEvent& event)
             else
             {
                 if (node.isValid())
-                    node.setProperty (jam::TextEditor::properties.at (jam::TextEditor::selectionTypeId), static_cast<int> (terminal::SelectionType::none), nullptr);
+                    node.setProperty (jam::CodeView::properties.at (jam::CodeView::selectionTypeId), static_cast<int> (terminal::SelectionType::none), nullptr);
 
                 dragAnchor = { hitCell.x, absRow };
                 dragActive = false;
@@ -95,7 +95,7 @@ void Mouse::handleDown (const juce::MouseEvent& event)
         else
         {
             if (node.isValid())
-                node.setProperty (jam::TextEditor::properties.at (jam::TextEditor::selectionTypeId), static_cast<int> (terminal::SelectionType::none), nullptr);
+                node.setProperty (jam::CodeView::properties.at (jam::CodeView::selectionTypeId), static_cast<int> (terminal::SelectionType::none), nullptr);
 
             dragAnchor = { hitCell.x, absRow };
             dragActive = false;
@@ -118,15 +118,15 @@ void Mouse::handleDoubleClick (const juce::MouseEvent& event)
         const int wordStart { hitCell.x };
         const int wordEnd { hitCell.x };
         const int absRow { toAbsoluteRow (hitCell.y) };
-        auto node { processor.getState().get().getChildWithName (jam::TextEditor::properties.at (jam::TextEditor::textEditorId)) };
+        auto node { processor.getState().getChildWithName (jam::CodeView::properties.at (jam::CodeView::codeViewId)) };
 
         if (node.isValid())
         {
-            node.setProperty (jam::TextEditor::properties.at (jam::TextEditor::selectionTypeId), static_cast<int> (terminal::SelectionType::visual), nullptr);
-            node.setProperty (jam::TextEditor::properties.at (jam::TextEditor::selectionAnchorRowId), absRow, nullptr);
-            node.setProperty (jam::TextEditor::properties.at (jam::TextEditor::selectionAnchorColId), wordStart, nullptr);
-            node.setProperty (jam::TextEditor::properties.at (jam::TextEditor::selectionCursorRowId), absRow, nullptr);
-            node.setProperty (jam::TextEditor::properties.at (jam::TextEditor::selectionCursorColId), wordEnd, nullptr);
+            node.setProperty (jam::CodeView::properties.at (jam::CodeView::selectionTypeId), static_cast<int> (terminal::SelectionType::visual), nullptr);
+            node.setProperty (jam::CodeView::properties.at (jam::CodeView::selectionAnchorRowId), absRow, nullptr);
+            node.setProperty (jam::CodeView::properties.at (jam::CodeView::selectionAnchorColId), wordStart, nullptr);
+            node.setProperty (jam::CodeView::properties.at (jam::CodeView::selectionCursorRowId), absRow, nullptr);
+            node.setProperty (jam::CodeView::properties.at (jam::CodeView::selectionCursorColId), wordEnd, nullptr);
         }
 
         dragAnchor = { wordStart, absRow };
@@ -158,15 +158,15 @@ void Mouse::handleDrag (const juce::MouseEvent& event)
 
         if (manhattanDist >= 2)
         {
-            auto node { processor.getState().get().getChildWithName (jam::TextEditor::properties.at (jam::TextEditor::textEditorId)) };
+            auto node { processor.getState().getChildWithName (jam::CodeView::properties.at (jam::CodeView::codeViewId)) };
 
             if (not dragActive)
             {
                 if (node.isValid())
                 {
-                    node.setProperty (jam::TextEditor::properties.at (jam::TextEditor::selectionTypeId), static_cast<int> (terminal::SelectionType::visual), nullptr);
-                    node.setProperty (jam::TextEditor::properties.at (jam::TextEditor::selectionAnchorRowId), dragAnchor.y, nullptr);
-                    node.setProperty (jam::TextEditor::properties.at (jam::TextEditor::selectionAnchorColId), dragAnchor.x, nullptr);
+                    node.setProperty (jam::CodeView::properties.at (jam::CodeView::selectionTypeId), static_cast<int> (terminal::SelectionType::visual), nullptr);
+                    node.setProperty (jam::CodeView::properties.at (jam::CodeView::selectionAnchorRowId), dragAnchor.y, nullptr);
+                    node.setProperty (jam::CodeView::properties.at (jam::CodeView::selectionAnchorColId), dragAnchor.x, nullptr);
                 }
 
                 dragActive = true;
@@ -174,8 +174,8 @@ void Mouse::handleDrag (const juce::MouseEvent& event)
 
             if (node.isValid())
             {
-                node.setProperty (jam::TextEditor::properties.at (jam::TextEditor::selectionCursorRowId), clampedAbsRow, nullptr);
-                node.setProperty (jam::TextEditor::properties.at (jam::TextEditor::selectionCursorColId), clampedCol, nullptr);
+                node.setProperty (jam::CodeView::properties.at (jam::CodeView::selectionCursorRowId), clampedAbsRow, nullptr);
+                node.setProperty (jam::CodeView::properties.at (jam::CodeView::selectionCursorColId), clampedCol, nullptr);
             }
         }
     }

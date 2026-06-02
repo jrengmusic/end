@@ -5,7 +5,7 @@
  * This translation unit implements:
  *
  * - Construction, dimension update (`setWinsize()`), and cached geometry (`calc()`).
- * - `setWinsize()` and `setCellSize()` — cross-thread dimension setters.
+ * - `setWinsize()`, `setCellSize()` — cross-thread dimension setters.
  * - Mode flag SSOT (`modePtr()`, `getMode()`, `setMode()`).
  * - `activeScrollBottom()` — effective scroll region bottom.
  * - `scrollUpAndFill()` / `scrollDownAndFill()` — DRY single-row scroll + fill helpers.
@@ -43,7 +43,7 @@ namespace terminal
  * @brief Constructs the Video, allocates the owned Buffer and builds Block views.
  *
  * Allocates a 2-channel Buffer (normal + alternate) with `rows` visible rows
- * and `cols` columns.  Builds per-channel Block views into the buffer.
+ * and `cols` columns.  Builds per-channel Block views into the grid.
  * Internal terminal state is initialised to VT power-on defaults
  * (cursor at home, autoWrap on, cursor visible).
  *
@@ -51,7 +51,7 @@ namespace terminal
  * after construction to synchronise internal geometry before the first process().
  *
  * @param dims    Terminal dimensions in cells.
- * @param events  Events map owned by Processor.  Video fires events through this map.
+ * @param events  Events map owned by Processor.
  *
  * @note MESSAGE THREAD — called before the reader thread starts.
  *
@@ -63,10 +63,9 @@ Video::Video (jam::Cell::Rectangle dims,
               jam::Function::Map<juce::Identifier, void>& events) noexcept
     : events (events)
 {
-    buffer.setSize (2, dims.getHeight().value, dims.getWidth().value);
-    blocks.at (0) = jam::Block<jam::Row> (buffer, 0);
-    blocks.at (1) = jam::Block<jam::Row> (buffer, 1);
-    rowTouched.allocate (static_cast<size_t> (dims.getHeight().value), true);
+    grid.setSize (2, dims.getHeight().value, dims.getWidth().value);
+    blocks.at (0) = jam::Block<jam::Row> (grid, 0);
+    blocks.at (1) = jam::Block<jam::Row> (grid, 1);
 }
 
 /**
@@ -87,9 +86,9 @@ void Video::calc() noexcept
 }
 
 /**
- * @brief Resizes the owned buffer and resets cursor, scroll region, and tab stops.
+ * @brief Resizes the owned grid and resets cursor, scroll region, and tab stops.
  *
- * Resizes the owned 2-channel Buffer to newRows × newCols, rebuilds per-channel
+ * Resizes the owned 2-channel grid to newRows × newCols, rebuilds per-channel
  * Block views, reads ring heads from the rebuilt blocks, resets geometry state,
  * and calls calc() to synchronise internal cached geometry.
  *
@@ -110,10 +109,9 @@ void Video::setWinsize (jam::Cell::Rectangle dims) noexcept
     cursorResetScrollRegion();
     initializeTabStops (dims.getWidth().value);
 
-    buffer.setSize (2, dims.getHeight().value, dims.getWidth().value);
-    blocks.at (0) = jam::Block<jam::Row> (buffer, 0);
-    blocks.at (1) = jam::Block<jam::Row> (buffer, 1);
-    rowTouched.allocate (static_cast<size_t> (dims.getHeight().value), true);
+    grid.setSize (2, dims.getHeight().value, dims.getWidth().value);
+    blocks.at (0) = jam::Block<jam::Row> (grid, 0);
+    blocks.at (1) = jam::Block<jam::Row> (grid, 1);
 
     calc();
 }
@@ -167,20 +165,6 @@ void Video::flush() noexcept
     events.get (id::mouseAllTracking,    bool (mouseAllTracking));
     events.get (id::focusEvents,         bool (focusEvents));
     events.get (id::win32InputMode,      bool (win32InputMode));
-
-    // Mark dirty rows in State via events — fires before screenDirty so Processor
-    // row-dirty flags are set before the repaint path runs.
-    if (events.contains (id::rowDirty))
-    {
-        for (int r { 0 }; r < visibleRows.value; ++r)
-        {
-            if (rowTouched[r])
-            {
-                events.get (id::rowDirty, r);
-                rowTouched[r] = false;
-            }
-        }
-    }
 
     if (events.contains (id::screenDirty))
         events.get (id::screenDirty);
@@ -357,16 +341,12 @@ void Video::scrollUpAndFill (int top, int bottom, int count) noexcept
             }
         }
 
-        // Mark all rows in the scrolled region as touched.
-        for (int r { top }; r <= bottom; ++r)
-            rowTouched[r] = true;
-
         if (top == 0 and events.contains (id::scrollUp))
             events.get (id::scrollUp, int (clampedCount));
 
         if (penBg.getAlpha() > 0)
         {
-            const jam::Cell fill { jam::Cell::erase (eraseStyleId()) };
+            const jam::Char fill { jam::Char::erase (eraseStyleId()) };
             const int numCols { cols.value };
 
             for (int r { bottom - clampedCount + 1 }; r <= bottom; ++r)
@@ -424,7 +404,7 @@ void Video::scrollDownAndFill (int top, int bottom) noexcept
     if (penBg.getAlpha() > 0)
     {
         jam::Row* const row { blocks.at (static_cast<size_t> (scr)).getWritePointer (top, 0) };
-        const jam::Cell fill { jam::Cell::erase (eraseStyleId()) };
+        const jam::Char fill { jam::Char::erase (eraseStyleId()) };
         const int numCols { cols.value };
 
         for (int col { 0 }; col < numCols; ++col)
@@ -507,7 +487,7 @@ void Video::resolveWrapPending (int /*scr*/) noexcept
  * 1. Any pending wrap is resolved via `resolveWrapPending()`.
  * 2. If the character is wide (width 2) and would overflow the right margin,
  *    the cursor wraps to the next line (if auto-wrap is enabled).
- * 3. A packed `jam::Cell` is built from the codepoint, styleId (via Stamp),
+ * 3. A packed `jam::Char` is built from the codepoint, styleId (via Stamp),
  *    and wide hint.  The cell is written to Grid via getWritePointer().
  * 4. For wide characters, a second cell with SPACER_TAIL is written
  *    to the adjacent column.
@@ -534,11 +514,11 @@ void Video::print (uint32_t codepoint) noexcept
 
     if (segResult.addToCurrentCell())
     {
-        jam::Cell* const baseCell { &blocks.at (static_cast<size_t> (scr)).getWritePointer (lastWriteRow, 0)->cells[lastWriteCol] };
+        jam::Char* const baseCell { &blocks.at (static_cast<size_t> (scr)).getWritePointer (lastWriteRow, 0)->cells[lastWriteCol] };
 
         jam::Grapheme::Entry cluster {};
 
-        if (baseCell->contentTag() == jam::Cell::CONTENT_GRAPHEME)
+        if (baseCell->contentTag() == jam::Char::CONTENT_GRAPHEME)
         {
             cluster = jam::Grapheme::getContext()->get (baseCell->codepoint());
 
@@ -556,7 +536,7 @@ void Video::print (uint32_t codepoint) noexcept
         }
 
         const uint32_t graphemeIndex { static_cast<uint32_t> (jam::Grapheme::getContext()->addIfNotAlreadyThere (cluster)) };
-        *baseCell = jam::Cell::make (graphemeIndex, jam::Cell::CONTENT_GRAPHEME,
+        *baseCell = jam::Char::make (graphemeIndex, jam::Char::CONTENT_GRAPHEME,
                                      baseCell->wide(), baseCell->styleId());
     }
     else
@@ -603,7 +583,7 @@ void Video::print (uint32_t codepoint) noexcept
         const int writeCol { cursorCol.value };
 
         const uint32_t cp { translateCharset (codepoint, useLineDrawing) };
-        const uint8_t wideHint { charWidth == 2 ? jam::Cell::WIDE : jam::Cell::NARROW };
+        const uint8_t wideHint { charWidth == 2 ? jam::Char::WIDE : jam::Char::NARROW };
 
         uint16_t sid;
 
@@ -617,12 +597,11 @@ void Video::print (uint32_t codepoint) noexcept
             sid = currentStyleId();
         }
 
-        const jam::Cell glyph { jam::Cell::make (cp, jam::Cell::CONTENT_CODEPOINT, wideHint, sid) };
+        const jam::Char glyph { jam::Char::make (cp, jam::Char::CONTENT_CODEPOINT, wideHint, sid) };
 
         jam::Row* const writeRowPtr { blocks.at (static_cast<size_t> (scr)).getWritePointer (writeRow, 0) };
         writeRowPtr->cells[writeCol] = glyph;
         writeRowPtr->usedCols = static_cast<uint16_t> (juce::jmax (static_cast<int> (writeRowPtr->usedCols), writeCol + charWidth));
-        rowTouched[writeRow] = true;
 
         // Stamp consecutive blanks as FLEX_GAP — elastic whitespace for reflow.
         if (cp == 0x20 and writeCol > 0)
@@ -631,10 +610,10 @@ void Video::print (uint32_t codepoint) noexcept
 
             if (prev.codepoint() == 0x20)
             {
-                if (prev.contentTag() != jam::Cell::FLEX_GAP)
-                    prev = jam::Cell::make (0x20, jam::Cell::FLEX_GAP, jam::Cell::NARROW, prev.styleId());
+                if (prev.contentTag() != jam::Char::FLEX_GAP)
+                    prev = jam::Char::make (0x20, jam::Char::FLEX_GAP, jam::Char::NARROW, prev.styleId());
 
-                writeRowPtr->cells[writeCol] = jam::Cell::make (0x20, jam::Cell::FLEX_GAP, jam::Cell::NARROW, sid);
+                writeRowPtr->cells[writeCol] = jam::Char::make (0x20, jam::Char::FLEX_GAP, jam::Char::NARROW, sid);
                 writeRowPtr->flags |= jam::Row::justify;
             }
         }
@@ -645,8 +624,8 @@ void Video::print (uint32_t codepoint) noexcept
 
         if (charWidth == 2 and writeCol + 1 < numCols)
         {
-            const jam::Cell cont { jam::Cell::make (0, jam::Cell::CONTENT_CODEPOINT,
-                                                    jam::Cell::SPACER_TAIL, sid) };
+            const jam::Char cont { jam::Char::make (0, jam::Char::CONTENT_CODEPOINT,
+                                                    jam::Char::SPACER_TAIL, sid) };
             writeRowPtr->cells[writeCol + 1] = cont;
         }
 

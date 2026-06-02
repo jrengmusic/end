@@ -41,7 +41,7 @@
  * Constructor body:
  * 1. `setOpaque(false)` — tells JUCE the component has transparency.
  * 2. `initialiseOverlays()` — creates overlays, shows startup errors.
- * 3. `setSize()` — reads window dimensions from AppState.
+ * 3. `setSize()` — reads window dimensions from AppModel.
  * 4. `setDefaultLookAndFeel()` — applies terminalLookAndFeel to all children.
  *
  * Note: `applyConfig()` is NOT called from the ctor. It is called from
@@ -60,13 +60,13 @@ MainComponent::MainComponent (lua::Engine& engine)
 
         auto typeface { std::make_unique<jam::Typeface> (cfg->display.font.family,
 #if JUCE_MAC
-                                                          "Apple Color Emoji",
+                                                         "Apple Color Emoji",
 #elif JUCE_WINDOWS
-                                                          "Segoe UI Emoji",
+                                                         "Segoe UI Emoji",
 #else
-                                                          "Noto Color Emoji",
+                                                         "Noto Color Emoji",
 #endif
-                                                          cfg->dpiCorrectedFontSize()) };
+                                                         cfg->dpiCorrectedFontSize()) };
 
         // Style variant — font metadata declares bold.
         typeface->registerStyleFont (jam::fonts::DisplayMonoBold_ttf, jam::fonts::DisplayMonoBold_ttfSize);
@@ -107,23 +107,53 @@ MainComponent::MainComponent (lua::Engine& engine)
     //==============================================================================
     // Wire lua::Engine display and popup callbacks.
     lua::Engine::DisplayCallbacks displayCb;
-    displayCb.splitHorizontal = [this] { tabs->splitHorizontal(); };
-    displayCb.splitVertical   = [this] { tabs->splitVertical(); };
-    displayCb.splitWithRatio  = [this] (const juce::String& dir, bool isVert, double ratio)
-        { tabs->splitActiveWithRatio (dir, isVert, ratio); };
-    displayCb.newTab    = [this] { tabs->addNewTab(); };
-    displayCb.closeTab  = [this] { tabs->closeActiveTab(); };
-    displayCb.nextTab   = [this] { tabs->selectNextTab(); };
-    displayCb.prevTab   = [this] { tabs->selectPreviousTab(); };
+    displayCb.splitHorizontal = [this]
+    {
+        tabs->splitHorizontal();
+    };
+    displayCb.splitVertical = [this]
+    {
+        tabs->splitVertical();
+    };
+    displayCb.splitWithRatio = [this] (const juce::String& dir, bool isVert, double ratio)
+    {
+        tabs->splitActiveWithRatio (dir, isVert, ratio);
+    };
+    displayCb.newTab = [this]
+    {
+        tabs->addNewTab();
+    };
+    displayCb.closeTab = [this]
+    {
+        tabs->closeActiveTab();
+    };
+    displayCb.nextTab = [this]
+    {
+        tabs->selectNextTab();
+    };
+    displayCb.prevTab = [this]
+    {
+        tabs->selectPreviousTab();
+    };
     displayCb.focusPane = [this] (int dx, int dy)
     {
-        if (dx < 0) tabs->focusPaneLeft();
-        else if (dx > 0) tabs->focusPaneRight();
-        else if (dy < 0) tabs->focusPaneUp();
-        else if (dy > 0) tabs->focusPaneDown();
+        if (dx < 0)
+            tabs->focusPaneLeft();
+        else if (dx > 0)
+            tabs->focusPaneRight();
+        else if (dy < 0)
+            tabs->focusPaneUp();
+        else if (dy > 0)
+            tabs->focusPaneDown();
     };
-    displayCb.closePane  = [this] { tabs->closeActiveTab(); };
-    displayCb.renameTab  = [this] (const juce::String& name) { tabs->renameActiveTab (name); };
+    displayCb.closePane = [this]
+    {
+        tabs->closeActiveTab();
+    };
+    displayCb.renameTab = [this] (const juce::String& name)
+    {
+        tabs->renameActiveTab (name);
+    };
 
     lua::Engine::PopupCallbacks popupCb;
     popupCb.launchPopup = [this] (const juce::String& /*name*/,
@@ -138,31 +168,32 @@ MainComponent::MainComponent (lua::Engine& engine)
             const auto* cfg { lua::Engine::getContext() };
             const auto shell { cfg->nexus.shell.program };
             const auto configShellArgs { cfg->nexus.shell.args };
-            auto shellArgs { (configShellArgs.isNotEmpty() ? configShellArgs + " " : juce::String())
-                             + "-c " + command
+            auto shellArgs { (configShellArgs.isNotEmpty() ? configShellArgs + " " : juce::String()) + "-c " + command
                              + (args.isNotEmpty() ? " " + args : "") };
 
             const cell cols { popupCols.value > 0 ? popupCols : cfg->popup.defaultCols };
             const cell rows { popupRows.value > 0 ? popupRows : cfg->popup.defaultRows };
 
             const float fontSize { cfg->dpiCorrectedFontSize() };
-            const jam::Font font { cfg->display.font.family, fontSize,
-                                   cfg->display.font.cellWidth, cfg->display.font.lineHeight };
+            const jam::Font font {
+                cfg->display.font.family, fontSize, cfg->display.font.cellWidth, cfg->display.font.lineHeight
+            };
             jassert (font.cellWidth > 0 and font.cellHeight > 0);
 
             const int titleBarHeight { cfg->display.window.buttons ? app::titleBarHeight : 0 };
-            const int paddingTop    { cfg->nexus.terminal.paddingTop };
-            const int paddingRight  { cfg->nexus.terminal.paddingRight };
+            const int paddingTop { cfg->nexus.terminal.paddingTop };
+            const int paddingRight { cfg->nexus.terminal.paddingRight };
             const int paddingBottom { cfg->nexus.terminal.paddingBottom };
-            const int paddingLeft   { cfg->nexus.terminal.paddingLeft };
+            const int paddingLeft { cfg->nexus.terminal.paddingLeft };
 
             const auto cellPx { jam::Cell::Rectangle (cols, rows).toPixel (font.cellWidth, font.cellHeight) };
-            const int pixelWidth  { cellPx.getWidth()  + paddingLeft + paddingRight };
+            const int pixelWidth { cellPx.getWidth() + paddingLeft + paddingRight };
             const int pixelHeight { cellPx.getHeight() + paddingTop + paddingBottom + titleBarHeight };
 
             const auto effectiveCwd { cwd.isNotEmpty() ? cwd : appState.getPwd() };
 
-            auto termSession { terminal::Session::create (effectiveCwd, jam::Cell::Rectangle (cols, rows), shell, shellArgs) };
+            auto termSession { terminal::Session::create (
+                effectiveCwd, jam::Cell::Rectangle (cols, rows), shell, shellArgs) };
             auto* sessionPtr { termSession.get() };
 
             auto terminal { std::make_unique<terminal::Display> (*termSession) };
@@ -189,19 +220,19 @@ void MainComponent::applyConfig()
     registerActions();
 
     const auto* cfg { lua::Engine::getContext() };
-    appState.setFontFamily          (cfg->display.font.family);
-    appState.setFontSize            (static_cast<float> (cfg->dpiCorrectedFontSize()));
-    appState.setScrollbackLines     (cfg->nexus.terminal.scrollbackLines);
-    appState.setCellWidth           (cfg->display.font.cellWidth);
-    appState.setLineHeight          (cfg->display.font.lineHeight);
-    appState.setCursorCodepoint     (cfg->display.cursor.codepoint);
-    appState.setCursorStyle         (cfg->display.cursor.style);
+    appState.setFontFamily (cfg->display.font.family);
+    appState.setFontSize (static_cast<float> (cfg->dpiCorrectedFontSize()));
+    appState.setScrollbackLines (cfg->nexus.terminal.scrollbackLines);
+    appState.setCellWidth (cfg->display.font.cellWidth);
+    appState.setLineHeight (cfg->display.font.lineHeight);
+    appState.setCursorCodepoint (cfg->display.cursor.codepoint);
+    appState.setCursorStyle (cfg->display.cursor.style);
     appState.setCursorBlinkInterval (cfg->display.cursor.blinkInterval);
-    appState.setPaddingTop          (cfg->nexus.terminal.paddingTop);
-    appState.setPaddingRight        (cfg->nexus.terminal.paddingRight);
-    appState.setPaddingBottom       (cfg->nexus.terminal.paddingBottom);
-    appState.setPaddingLeft         (cfg->nexus.terminal.paddingLeft);
-    appState.setRendererType        (cfg->nexus.gpu);
+    appState.setPaddingTop (cfg->nexus.terminal.paddingTop);
+    appState.setPaddingRight (cfg->nexus.terminal.paddingRight);
+    appState.setPaddingBottom (cfg->nexus.terminal.paddingBottom);
+    appState.setPaddingLeft (cfg->nexus.terminal.paddingLeft);
+    appState.setRendererType (cfg->nexus.gpu);
     jam::Typeface::getAtlas().setEmbolden (cfg->display.font.embolden);
 
     if (tabs != nullptr)
@@ -217,7 +248,8 @@ void MainComponent::applyConfig()
 void MainComponent::setRenderer (app::RendererType rendererType)
 {
     const bool isUsingGpu { rendererType == app::RendererType::gpu };
-    const auto atlasSize { isUsingGpu ? jam::glyph::AtlasSize::standard : jam::glyph::AtlasSize::compact }; // AtlasSize stays in jam::glyph
+    const auto atlasSize { isUsingGpu ? jam::glyph::AtlasSize::standard
+                                      : jam::glyph::AtlasSize::compact };// AtlasSize stays in jam::glyph
     jam::Typeface::setAtlasSize (atlasSize);
 
     // Always detach first — setOpenGLVersionRequired/setComponentPaintingEnabled
@@ -235,14 +267,8 @@ void MainComponent::setRenderer (app::RendererType rendererType)
     setOpaque (not isUsingGpu);
 }
 
-void MainComponent::newOpenGLContextCreated()
-{
-    jam::BackgroundBlur::enableWindowTransparency();
-}
-void MainComponent::renderOpenGL()
-{
-    juce::OpenGLHelpers::clear (juce::Colours::transparentBlack);
-}
+void MainComponent::newOpenGLContextCreated() { jam::BackgroundBlur::enableWindowTransparency(); }
+void MainComponent::renderOpenGL() { juce::OpenGLHelpers::clear (juce::Colours::transparentBlack); }
 void MainComponent::openGLContextClosing() {}
 
 void MainComponent::paint (juce::Graphics& g)
@@ -285,7 +311,8 @@ void MainComponent::resized()
     {
         const juce::String position { lua::Engine::getContext()->display.statusBar.position };
         const int barHeight { statusBarOverlay->getPreferredHeight() };
-        const int y { (position == Map::Position::getContext()->get (Map::Position::top)) ? 0 : getHeight() - barHeight };
+        const int y { (position == Map::Position::getContext()->get (Map::Position::top)) ? 0
+                                                                                          : getHeight() - barHeight };
         statusBarOverlay->setBounds (0, y, getWidth(), barHeight);
     }
 }
@@ -354,8 +381,8 @@ void MainComponent::valueTreePropertyChanged (juce::ValueTree& tree, const juce:
             if (auto* window { findParentComponentOfClass<terminal::Window>() }; window != nullptr)
             {
                 const auto* cfg { lua::Engine::getContext() };
-                window->setGlass (cfg->display.window.colour.withAlpha (cfg->display.window.opacity),
-                                  cfg->display.window.blurRadius);
+                window->setGlass (
+                    cfg->display.window.colour.withAlpha (cfg->display.window.opacity), cfg->display.window.blurRadius);
             }
 
 #if JUCE_WINDOWS
@@ -459,7 +486,8 @@ juce::Rectangle<int> MainComponent::getContentRect (int windowWidth, int windowH
 
     if (tabBarDepth > 0)
     {
-        const auto orientation { terminal::Tabs::orientationFromString (lua::Engine::getContext()->display.tab.position) };
+        const auto orientation { terminal::Tabs::orientationFromString (
+            lua::Engine::getContext()->display.tab.position) };
 
         if (orientation == jam::TabbedButtonBar::TabsAtTop)
             content = content.withTrimmedTop (tabBarDepth);
@@ -490,8 +518,9 @@ void MainComponent::showMessageOverlay()
     {
         const auto* cfg { lua::Engine::getContext() };
         const float fontSize { cfg->dpiCorrectedFontSize() };
-        const jam::Font font { appState.getFontFamily(), fontSize,
-                               cfg->display.font.cellWidth, cfg->display.font.lineHeight };
+        const jam::Font font {
+            appState.getFontFamily(), fontSize, cfg->display.font.cellWidth, cfg->display.font.lineHeight
+        };
 
         if (font.cellWidth > 0)
         {
@@ -509,10 +538,10 @@ void MainComponent::showMessageOverlay()
                 content = content.withTrimmedRight (depth);
 
             const int titleBarHeight { cfg->display.window.buttons ? app::titleBarHeight : 0 };
-            const int padTop    { cfg->nexus.terminal.paddingTop };
-            const int padRight  { cfg->nexus.terminal.paddingRight };
+            const int padTop { cfg->nexus.terminal.paddingTop };
+            const int padRight { cfg->nexus.terminal.paddingRight };
             const int padBottom { cfg->nexus.terminal.paddingBottom };
-            const int padLeft   { cfg->nexus.terminal.paddingLeft };
+            const int padLeft { cfg->nexus.terminal.paddingLeft };
 
             content.removeFromTop (titleBarHeight);
             content.removeFromTop (padTop);
@@ -532,13 +561,13 @@ void MainComponent::showMessageOverlay()
 /**
  * @brief Creates terminal::Tabs, wires repaint callback, restores tabs.
  *
- * Reads the saved tab count from AppState. If tabs were saved, clears the
+ * Reads the saved tab count from AppModel. If tabs were saved, clears the
  * TABS subtree and recreates that many tabs (addNewTab rebuilds the tree).
  * Falls back to one tab if no saved state exists.
  *
  * @note MESSAGE THREAD.
  * @see terminal::Tabs
- * @see AppState
+ * @see AppModel
  */
 void MainComponent::initialiseTabs()
 {
@@ -574,7 +603,7 @@ void MainComponent::initialiseTabs()
         if (tabsNode.getChild (i).getType() == app::id::TAB)
             tabsNode.removeChild (i, nullptr);
     }
-    AppState::getContext()->setActivePaneType (Map::PaneType::getContext()->get (Map::PaneType::terminal));
+    AppModel::getContext()->setActivePaneType (Map::PaneType::getContext()->get (Map::PaneType::terminal));
 
     if (savedTabCount > 0)
     {
@@ -585,7 +614,7 @@ void MainComponent::initialiseTabs()
         tabs->addNewTab();
     }
 
-    AppState::getContext()->setActiveTabIndex (0);
+    AppModel::getContext()->setActiveTabIndex (0);
 
     setRenderer (appState.getRendererType());
 

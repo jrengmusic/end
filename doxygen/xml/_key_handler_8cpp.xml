@@ -1,0 +1,132 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="_key_handler_8cpp" kind="file" language="C++">
+    <compoundname>KeyHandler.cpp</compoundname>
+    <includes refid="_key_handler_8h" local="yes">KeyHandler.h</includes>
+    <incdepgraph>
+      <node id="1">
+        <label>terminal/action/KeyHandler.cpp</label>
+        <link refid="_key_handler_8cpp"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>KeyHandler.h</label>
+        <link refid="_key_handler_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>JuceHeader.h</label>
+      </node>
+    </incdepgraph>
+    <innernamespace refid="namespaceaction">action</innernamespace>
+    <briefdescription>
+<para>Keyboard dispatch for <ref refid="classaction_1_1_list" kindref="compound">action::List</ref> — unified navigation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_key_handler_8h" kindref="compound">KeyHandler.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespaceaction" kindref="compound">action</ref></highlight></codeline>
+<codeline lineno="9"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="comment">/*____________________________________________________________________________*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12" refid="classaction_1_1_key_handler_1a9cff4f5b65c448212d02af620d8119d4" refkind="member"><highlight class="normal"><ref refid="classaction_1_1_key_handler_1a9cff4f5b65c448212d02af620d8119d4" kindref="member">KeyHandler::KeyHandler</ref><sp/>(<ref refid="structaction_1_1_key_handler_1_1_callbacks" kindref="compound">Callbacks</ref><sp/>cbs)</highlight></codeline>
+<codeline lineno="13"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/><ref refid="classaction_1_1_key_handler_1ae62b299ce0e526c1158a82a870a8068e" kindref="member">callbacks</ref><sp/>(<ref refid="namespacestd" kindref="compound">std</ref>::move<sp/>(cbs))</highlight></codeline>
+<codeline lineno="14"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="15"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classaction_1_1_key_handler_1af498c10378c633003ccea3c86336e121" kindref="member">buildSearchTable</ref>();</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classaction_1_1_key_handler_1a7de785fa1f1c62c90d7287a14c3a8045" kindref="member">buildNavigationTable</ref>();</highlight></codeline>
+<codeline lineno="17"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20" refid="classaction_1_1_key_handler_1af498c10378c633003ccea3c86336e121" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classaction_1_1_key_handler_1af498c10378c633003ccea3c86336e121" kindref="member">KeyHandler::buildSearchTable</ref>()</highlight></codeline>
+<codeline lineno="21"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classaction_1_1_key_handler_1a58f019b6fcbd3bc472c0a761b2f336d3" kindref="member">searchTable</ref>[juce::KeyPress::escapeKey]<sp/>=<sp/>[</highlight><highlight class="keyword">this</highlight><highlight class="normal">]</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classaction_1_1_key_handler_1ae62b299ce0e526c1158a82a870a8068e" kindref="member">callbacks</ref>.visibleRowCount()<sp/>&gt;<sp/>0)</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classaction_1_1_key_handler_1ae62b299ce0e526c1158a82a870a8068e" kindref="member">callbacks</ref>.selectRow<sp/>(1);</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classaction_1_1_key_handler_1ae62b299ce0e526c1158a82a870a8068e" kindref="member">callbacks</ref>.clearSearch();</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classaction_1_1_key_handler_1a58f019b6fcbd3bc472c0a761b2f336d3" kindref="member">searchTable</ref>[juce::KeyPress::returnKey]<sp/>=<sp/>[</highlight><highlight class="keyword">this</highlight><highlight class="normal">]</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classaction_1_1_key_handler_1ae62b299ce0e526c1158a82a870a8068e" kindref="member">callbacks</ref>.executeSelected();</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="34"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37" refid="classaction_1_1_key_handler_1a7de785fa1f1c62c90d7287a14c3a8045" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classaction_1_1_key_handler_1a7de785fa1f1c62c90d7287a14c3a8045" kindref="member">KeyHandler::buildNavigationTable</ref>()</highlight></codeline>
+<codeline lineno="38"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classaction_1_1_key_handler_1a60e13a4da372559a748d80f11fc1f62f" kindref="member">navigationTable</ref>[</highlight><highlight class="charliteral">&apos;J&apos;</highlight><highlight class="normal">]<sp/>=<sp/>[</highlight><highlight class="keyword">this</highlight><highlight class="normal">]</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classaction_1_1_key_handler_1ae62b299ce0e526c1158a82a870a8068e" kindref="member">callbacks</ref>.selectRow<sp/>(<ref refid="classaction_1_1_key_handler_1ae62b299ce0e526c1158a82a870a8068e" kindref="member">callbacks</ref>.selectedIndex()<sp/>+<sp/>1);</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classaction_1_1_key_handler_1a60e13a4da372559a748d80f11fc1f62f" kindref="member">navigationTable</ref>[</highlight><highlight class="charliteral">&apos;K&apos;</highlight><highlight class="normal">]<sp/>=<sp/>[</highlight><highlight class="keyword">this</highlight><highlight class="normal">]</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classaction_1_1_key_handler_1ae62b299ce0e526c1158a82a870a8068e" kindref="member">callbacks</ref>.selectRow<sp/>(<ref refid="classaction_1_1_key_handler_1ae62b299ce0e526c1158a82a870a8068e" kindref="member">callbacks</ref>.selectedIndex()<sp/>-<sp/>1);</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classaction_1_1_key_handler_1a60e13a4da372559a748d80f11fc1f62f" kindref="member">navigationTable</ref>[</highlight><highlight class="charliteral">&apos;I&apos;</highlight><highlight class="normal">]<sp/>=<sp/>[</highlight><highlight class="keyword">this</highlight><highlight class="normal">]</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classaction_1_1_key_handler_1ae62b299ce0e526c1158a82a870a8068e" kindref="member">callbacks</ref>.selectRow<sp/>(0);</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classaction_1_1_key_handler_1a60e13a4da372559a748d80f11fc1f62f" kindref="member">navigationTable</ref>[juce::KeyPress::downKey]<sp/>=<sp/>[</highlight><highlight class="keyword">this</highlight><highlight class="normal">]</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classaction_1_1_key_handler_1ae62b299ce0e526c1158a82a870a8068e" kindref="member">callbacks</ref>.selectRow<sp/>(<ref refid="classaction_1_1_key_handler_1ae62b299ce0e526c1158a82a870a8068e" kindref="member">callbacks</ref>.selectedIndex()<sp/>+<sp/>1);</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classaction_1_1_key_handler_1a60e13a4da372559a748d80f11fc1f62f" kindref="member">navigationTable</ref>[juce::KeyPress::upKey]<sp/>=<sp/>[</highlight><highlight class="keyword">this</highlight><highlight class="normal">]</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classaction_1_1_key_handler_1ae62b299ce0e526c1158a82a870a8068e" kindref="member">callbacks</ref>.selectRow<sp/>(<ref refid="classaction_1_1_key_handler_1ae62b299ce0e526c1158a82a870a8068e" kindref="member">callbacks</ref>.selectedIndex()<sp/>-<sp/>1);</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classaction_1_1_key_handler_1a60e13a4da372559a748d80f11fc1f62f" kindref="member">navigationTable</ref>[juce::KeyPress::escapeKey]<sp/>=<sp/>[</highlight><highlight class="keyword">this</highlight><highlight class="normal">]</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classaction_1_1_key_handler_1ae62b299ce0e526c1158a82a870a8068e" kindref="member">callbacks</ref>.dismiss();</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classaction_1_1_key_handler_1a60e13a4da372559a748d80f11fc1f62f" kindref="member">navigationTable</ref>[juce::KeyPress::returnKey]<sp/>=<sp/>[</highlight><highlight class="keyword">this</highlight><highlight class="normal">]</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classaction_1_1_key_handler_1ae62b299ce0e526c1158a82a870a8068e" kindref="member">callbacks</ref>.executeSelected();</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="73"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="76" refid="classaction_1_1_key_handler_1a622d1e4365e2bd5b668b474eb39ae524" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classaction_1_1_key_handler_1a622d1e4365e2bd5b668b474eb39ae524" kindref="member">KeyHandler::handleKey</ref><sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::KeyPress&amp;<sp/>key)</highlight></codeline>
+<codeline lineno="77"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>handled<sp/>{<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Shift+Return<sp/>=<sp/>binding<sp/>mode<sp/>(only<sp/>from<sp/>navigation,<sp/>not<sp/>search).</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classaction_1_1_key_handler_1ae62b299ce0e526c1158a82a870a8068e" kindref="member">callbacks</ref>.selectedIndex()<sp/>&gt;<sp/>0</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>and<sp/>key.getKeyCode()<sp/>==<sp/>juce::KeyPress::returnKey</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>and<sp/>key.getModifiers().isShiftDown())</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classaction_1_1_key_handler_1ae62b299ce0e526c1158a82a870a8068e" kindref="member">callbacks</ref>.enterBindingMode();</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>handled<sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal">&amp;<sp/><ref refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caaab9e1de16f38176f86d7a92ba337a8d" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">table</ref><sp/>{<sp/><ref refid="classaction_1_1_key_handler_1ae62b299ce0e526c1158a82a870a8068e" kindref="member">callbacks</ref>.selectedIndex()<sp/>==<sp/>0<sp/>?<sp/><ref refid="classaction_1_1_key_handler_1a58f019b6fcbd3bc472c0a761b2f336d3" kindref="member">searchTable</ref><sp/>:<sp/><ref refid="classaction_1_1_key_handler_1a60e13a4da372559a748d80f11fc1f62f" kindref="member">navigationTable</ref><sp/>};</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>it<sp/>{<sp/><ref refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caaab9e1de16f38176f86d7a92ba337a8d" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">table</ref>.find<sp/>(key.getKeyCode())<sp/>};</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>handled<sp/>=<sp/>it<sp/>!=<sp/><ref refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caaab9e1de16f38176f86d7a92ba337a8d" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">table</ref>.end();</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(handled)</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>it-&gt;second();</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>handled;</highlight></codeline>
+<codeline lineno="100"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>action</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="terminal/action/KeyHandler.cpp"/>
+  </compounddef>
+</doxygen>

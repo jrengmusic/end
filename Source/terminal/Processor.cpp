@@ -2,9 +2,8 @@
  * @file Processor.cpp
  * @brief Implementation of the terminal pipeline orchestrator.
  *
- * Implements Processor — the pipeline half that owns State (the APVTS), Video
- * (the terminal state machine), and Parser,
- * Video owns the cell buffer (Buffer<Row>).
+ * Implements Processor — the Controller that owns Video (terminal state machine),
+ * CellFifo (reader→message bridge), Parser, and Model&.
  * The PTY-side TTY is owned by Processor and created by startTTY().
  *
  * ### Thread contexts used in this file
@@ -20,31 +19,13 @@ namespace terminal
 {
 /*____________________________________________________________________________*/
 
-static jam::TextLine buildTextLine (const jam::Row* videoRow) noexcept
-{
-    jam::TextLine line;
-    const int usedCols { static_cast<int> (videoRow->usedCols) };
-
-    if (usedCols > 0)
-    {
-        line.cells.allocate (usedCols, true);
-        line.cellCount = usedCols;
-        std::memcpy (line.cells.getData(), videoRow->cells, static_cast<size_t> (usedCols) * sizeof (jam::Cell));
-    }
-
-    line.isContinued = (videoRow->flags & jam::Row::flexWrap) != 0;
-    line.isJustified = (videoRow->flags & jam::Row::justify)  != 0;
-
-    return line;
-}
-
 /**
- * @brief Constructs the Processor: binds State& and TextBuffer&; constructs Video (with owned buffer) and Parser.
+ * @brief Constructs the Processor: binds Model& and TextBuffer&; constructs Video and Parser.
  *
- * State is owned by terminal::Session and passed by reference.
+ * Model is owned by terminal::Session and passed by reference.
  * Video is owned by this Processor and receives the initial terminal dimensions and the events map.
  * Parser is owned by this Processor and receives Video& reference directly.
- * TextLineArray is owned by this Processor — capacity set from AppState scrollbackLines.
+ * CellFifo is sized for scrollbackLines × cols worst-case Char slots.
  * UUID is provided by the caller — no internal generation.
  * Buffer resize is handled by prepare() called from Session's Resizer stop trigger.
  *
@@ -55,7 +36,7 @@ static jam::TextLine buildTextLine (const jam::Row* videoRow) noexcept
  *
  * @note MESSAGE THREAD — must be constructed on the message thread.
  */
-Processor::Processor (State& stateRef,
+Processor::Processor (Model& stateRef,
                       jam::Cell::Rectangle dims,
                       TextBuffer& textBufferRef,
                       const juce::String& uuid)
@@ -65,24 +46,18 @@ Processor::Processor (State& stateRef,
     , skit (events)
     , uuid (uuid)
 {
-    const int scrollbackLines { AppState::getContext()->getRawParameterValue<int> (app::id::scrollbackLines)->load() };
-    textLineArrays.at (0).setCapacity (scrollbackLines);
-
-    // Alternate screen: pre-populate at viewport dimensions (zero scrollback, full rebuild on flush).
-    for (int i { 0 }; i < dims.getHeight().value; ++i)
-        textLineArrays.at (1).add (jam::TextLine {});
+    const int scrollbackLines { AppModel::getContext()->getRawParameterValue<int> (app::id::scrollbackLines)->load() };
+    cellFifo.setSize (scrollbackLines * dims.getWidth().value, dims.getHeight().value * dims.getWidth().value);
 
     state.rebuildRowDirtyFlags (dims.getHeight().value);
-    cellFifo.reset (scrollbackLines * dims.getWidth().value);
 
     registerEvents();
 
-    parameters.add (id::cellWidth,   [this] { setCellSize(); });
-    parameters.add (id::cellHeight,  [this] { setCellSize(); });
-    parameters.add (id::screenDirty, [this] { setText(); });
+    parameters.add (id::cellWidth,  [this] { setCellSize(); });
+    parameters.add (id::cellHeight, [this] { setCellSize(); });
 
     parser = std::make_unique<Parser> (video);
-    state.get().addListener (this);
+    state.addListener (this);
 }
 
 // =============================================================================
@@ -91,7 +66,7 @@ Processor::Processor (State& stateRef,
  * @brief Destroys the Processor.
  *
  * Removes the ValueTree listener first — ComponentAttachment ungraft on
- * TextEditor destruction fires VT events; Processor must not be in the
+ * CodeView destruction fires VT events; Processor must not be in the
  * listener list at that point.  Then closes the TTY — stops the reader
  * thread before the events map is destroyed by member destruction.
  * Reader thread joins inside close(), so events.get(id::data) cannot
@@ -101,7 +76,7 @@ Processor::Processor (State& stateRef,
  */
 Processor::~Processor()
 {
-    state.get().removeListener (this);
+    state.removeListener (this);
 
     if (tty != nullptr)
         tty->close();
@@ -202,7 +177,7 @@ void Processor::resetKeyboardMode (int s) noexcept
 /**
  * @brief ValueTree::Listener — reacts to top-down property changes from Display.
  *
- * Fires on the message thread when State's ValueTree properties change.
+ * Fires on the message thread when Model's ValueTree properties change.
  * Handles cell pixel changes (cellWidth, cellHeight) applied directly to Video,
  * and displayName recomputation from foregroundProcess / cwd.
  * Handles screenDirty — drains CellFifo history rows, overwrites live content from Video via Value::map projection.
@@ -214,7 +189,7 @@ void Processor::resetKeyboardMode (int s) noexcept
 void Processor::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
 {
     // PARAM children flush via id::value — dispatch on paramId via parameters map.
-    if (property == id::value and tree.getType() == jam::ValueTree::PARAM)
+    if (property == id::value and tree.getType() == jam::Model::PARAM)
     {
         const juce::Identifier paramId { tree.getProperty (id::id).toString() };
 
@@ -232,108 +207,44 @@ void Processor::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Ide
 
 void Processor::setCellSize() noexcept
 {
-    auto displayNode { state.get().getChildWithName (id::DISPLAY) };
+    auto displayNode { state.getChildWithName (id::DISPLAY) };
     const int cellW { static_cast<int> (
-        jam::ValueTree::getValueFromChildWithID (displayNode, id::cellWidth).getValue()) };
+        jam::Model::getValueFromChildWithID (displayNode, id::cellWidth).getValue()) };
     const int cellH { static_cast<int> (
-        jam::ValueTree::getValueFromChildWithID (displayNode, id::cellHeight).getValue()) };
+        jam::Model::getValueFromChildWithID (displayNode, id::cellHeight).getValue()) };
     video.setCellSize (cellW, cellH);
 }
 
-// Normal screen: drain CellFifo history + overwrite live zone from Video. Alternate screen: full viewport flush.
 // =============================================================================
 
-void Processor::setText() noexcept
+/**
+ * @brief Drains one logical history line from the history ring. Message thread.
+ *
+ * Delegates to CellFifo::drainHistory — Processor does not apply the entry to any editor.
+ * The View (Display) is the sole CodeModel owner and applies drained entries directly.
+ *
+ * @param outLine  Receives the joined jam::CodeLine built from Char data and flags.
+ * @return true if a complete (or partial tail) entry was produced; false when the history ring is empty.
+ * @note MESSAGE THREAD only.
+ */
+bool Processor::drainHistory (jam::CodeLine& outLine) noexcept
 {
-    const int activeScreen { state.getActiveScreen() };
+    return cellFifo.drainHistory (outLine);
+}
 
-    const jam::Buffer<jam::Row>& buf { video.getBuffer() };
-    const int numRows { buf.getNumRows() };
-    const int numCols { buf.getNumCols() };
-
-    if (numRows > 0 and numCols > 0)
-    {
-        const jam::Block<jam::Row> block {
-            buf.getChannelPointer (activeScreen),
-            0,
-            0,
-            numRows,
-            numCols,
-            buf.getRowStrideBytes(),
-            numRows
-        };
-
-        if (activeScreen == Map::Screen::normal)
-        {
-            auto& normalArray { textLineArrays.at (0) };
-            const int visibleRows { numRows };
-            const int contentRows { video.getCursorRow().value + 1 };
-            const int drainCount { cellFifo.getNumReady() };
-            const juce::Identifier screenId { Map::Screen::getContext()->get (activeScreen) };
-            const int oldLiveRows { state.loadValue (screenId, id::liveRows) };
-
-            if (drainCount > 0 or normalArray.totalRows() < contentRows)
-            {
-                // Phase 1: Remove old live zone from tail.
-                const int removeCount { std::min (oldLiveRows, normalArray.totalRows()) };
-
-                if (removeCount > 0)
-                    normalArray.remove (juce::Range<int> (normalArray.totalRows() - removeCount, normalArray.totalRows()));
-
-                // Phase 2: Drain CellFifo — appends history rows to tail.
-                cellFifo.drainInto (normalArray);
-
-                // Phase 3: Append live content from Video [0..cursorRow].
-                for (int r { 0 }; r < contentRows; ++r)
-                {
-                    const jam::Row* const videoRow { block.getRowPointer (r) };
-                    normalArray.add (buildTextLine (videoRow));
-                }
-
-                state.storeValue (screenId, id::liveRows, contentRows);
-
-                // Consume dirty flags — phase 3 rebuilt all content rows unconditionally.
-                for (int r { 0 }; r < contentRows; ++r)
-                    state.consumeRowDirty (r);
-            }
-            else
-            {
-                // No new history — overwrite only dirty rows in-place.
-                const int total { normalArray.totalRows() };
-
-                for (int r { 0 }; r < contentRows; ++r)
-                {
-                    if (state.consumeRowDirty (r))
-                    {
-                        const int tlaIndex { jam::Value::map (r, 0, contentRows - 1,
-                                                              total - contentRows,
-                                                              total - 1) };
-
-                        // Guard: during transient states (clearBuffer callAsync, rapid resize),
-                        // total can temporarily be less than contentRows.
-                        // The next tick's full rebuild path corrects it.
-                        if (tlaIndex >= 0 and tlaIndex < total)
-                        {
-                            const jam::Row* const videoRow { block.getRowPointer (r) };
-                            normalArray.set (tlaIndex, buildTextLine (videoRow));
-                        }
-                    }
-                }
-            }
-        }
-        else
-        {
-            // Alternate screen: full viewport flush from Video. Clear and rebuild.
-            auto& altArray { textLineArrays.at (1) };
-            altArray.clear();
-
-            for (int r { 0 }; r < numRows; ++r)
-            {
-                const jam::Row* const row { block.getRowPointer (r) };
-                altArray.add (buildTextLine (row));
-            }
-        }
-    }
+/**
+ * @brief Drains one viewport row from the active ring. Message thread.
+ *
+ * Delegates to CellFifo::drainActive — Processor does not apply the entry to any editor.
+ * The View (Display) is the sole CodeModel owner and applies drained entries directly.
+ *
+ * @param outLine  Receives the viewport row jam::CodeLine built from Char data and flags.
+ * @return true if an entry was produced; false when the active ring is empty.
+ * @note MESSAGE THREAD only.
+ */
+bool Processor::drainActive (jam::CodeLine& outLine) noexcept
+{
+    return cellFifo.drainActive (outLine);
 }
 
 void Processor::setDisplayName (const juce::ValueTree& tree) noexcept
@@ -352,7 +263,7 @@ void Processor::setDisplayName (const juce::ValueTree& tree) noexcept
     }
 
     if (name.isNotEmpty())
-        state.get().setProperty (app::id::displayName, name, nullptr);
+        state.setTreeProperty (app::id::displayName, name, nullptr);
 }
 
 // =============================================================================
@@ -379,9 +290,9 @@ juce::String Processor::encodeKeyPress (const juce::KeyPress& key) const noexcep
         const bool applicationCursor { state.getMode (id::applicationCursor) };
         const int activeScr { state.getActiveScreen() };
         const juce::Identifier kbScreenId { Map::Screen::getContext()->get (activeScr) };
-        auto kbScreenNode { state.get().getChildWithName (kbScreenId) };
+        auto kbScreenNode { state.getChildWithName (kbScreenId) };
         const uint32_t keyboardFlags { static_cast<uint32_t> (
-            static_cast<int> (jam::ValueTree::getValueFromChildWithID (kbScreenNode, id::keyboardFlags).getValue())) };
+            static_cast<int> (jam::Model::getValueFromChildWithID (kbScreenNode, id::keyboardFlags).getValue())) };
         seq = Keyboard::map (key, applicationCursor, keyboardFlags);
     }
 
@@ -490,8 +401,8 @@ void Processor::suspendProcessing (bool shouldBeSuspended) noexcept
     suspended = shouldBeSuspended;
 }
 
-State& Processor::getState() noexcept { return state; }
-const State& Processor::getState() const noexcept { return state; }
+Model& Processor::getState() noexcept { return state; }
+const Model& Processor::getState() const noexcept { return state; }
 
 const juce::String& Processor::getUuid() const noexcept { return uuid; }
 
@@ -549,8 +460,8 @@ void Processor::startTTY (const juce::String& shell,
 /**
  * @brief Prepares Processor for new terminal dimensions.
  *
- * Resizes Video and rebuilds dirty flags.  TextLineArrays and CellFifo are
- * NOT touched — history is preserved, in-flight departures drain normally.
+ * Resizes Video's grid only — CellFifo and CodeView are untouched (I3).
+ * History is preserved; in-flight departures drain normally.
  * Live zone refreshes on the next screenDirty tick when the shell redraws
  * after SIGWINCH.
  *
@@ -580,31 +491,6 @@ void Processor::writeInput (const char* data, int len) noexcept
         events.get (id::writeInput, data, len);
 }
 
-/**
- * @brief Registers the writeInput event handler.
- *
- * Called by Link for remote (IPC-connected) sessions to route input through IPC.
- * startTTY() calls this internally for PTY sessions.
- *
- * @note MESSAGE THREAD.
- */
-void Processor::setInputWriter (std::function<void (const char*, int)> handler) noexcept
-{
-    events.add<const char*, int> (id::writeInput, std::move (handler));
-}
-
-/**
- * @brief Registers an IPC byte broadcast observer on the events map.
- *
- * The registered handler fires on the reader thread inside the id::data handler,
- * before callbackLock is acquired.  Used by nexus::Daemon::wireOnBytes() in daemon mode.
- *
- * @note MESSAGE THREAD — call before the first bytes arrive.
- */
-void Processor::setBytesObserver (std::function<void (const char*, int)> handler) noexcept
-{
-    events.add<const char*, int> (id::bytesReceived, std::move (handler));
-}
 
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace terminal

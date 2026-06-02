@@ -23,7 +23,7 @@
  * @endcode
  *
  * @see terminal::PendingImage
- * @see terminal::State::addImageNode()
+ * @see terminal::Model::addImageNode()
  */
 
 #pragma once

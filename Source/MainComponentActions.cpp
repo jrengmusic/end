@@ -439,7 +439,7 @@ void MainComponent::showReloadMessage()
 
     if (reloadError.isEmpty())
     {
-        const auto rendererType { AppState::getContext()->getRendererType() };
+        const auto rendererType { AppModel::getContext()->getRendererType() };
         const juce::String rendererName { rendererType == app::RendererType::gpu
                                               ? Map::Renderer::getContext()->get (Map::Renderer::gpu).toUpperCase()
                                               : Map::Renderer::getContext()->get (Map::Renderer::cpu).toUpperCase() };
