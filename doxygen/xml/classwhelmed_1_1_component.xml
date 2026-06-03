@@ -21,7 +21,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="whelmed/component/Component.h" line="76" column="21" bodyfile="whelmed/component/Component.h" bodystart="76" bodyend="-1"/>
-        <referencedby refid="classwhelmed_1_1_component_1a05a7199a25806394c1dcc70afaf5ad16" compoundref="_component_8cpp" startline="70" endline="74">graftDocumentInto</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a05a7199a25806394c1dcc70afaf5ad16" compoundref="_component_8cpp" startline="67" endline="71">graftDocumentInto</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classwhelmed_1_1_component_1a6785371364f21ac36c7cf39e155a4f08" prot="private" static="no" mutable="no">
         <type><ref refid="classwhelmed_1_1_state" kindref="compound">State</ref></type>
@@ -36,10 +36,10 @@
         <inbodydescription>
         </inbodydescription>
         <location file="whelmed/component/Component.h" line="78" column="11" bodyfile="whelmed/component/Component.h" bodystart="78" bodyend="-1"/>
-        <referencedby refid="classwhelmed_1_1_component_1a2940a683822f0f372d38b8f285237d5c" compoundref="_component_8cpp" startline="85" endline="92">applyFromAppModel</referencedby>
-        <referencedby refid="classwhelmed_1_1_component_1a8775db6d1a2c1afc2e77cd3c8f39da6f" compoundref="_component_8cpp" startline="7" endline="47">Component</referencedby>
-        <referencedby refid="classwhelmed_1_1_component_1a847d8cf7cee861b4177ab98de0423214" compoundref="_component_8cpp" startline="125" endline="179">openFile</referencedby>
-        <referencedby refid="classwhelmed_1_1_component_1ab33051f05dd5e6585dc190b4fb0b733b" compoundref="_component_8cpp" startline="235" endline="305">valueTreePropertyChanged</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a2940a683822f0f372d38b8f285237d5c" compoundref="_component_8cpp" startline="82" endline="88">applyFromAppModel</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a8775db6d1a2c1afc2e77cd3c8f39da6f" compoundref="_component_8cpp" startline="7" endline="45">Component</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a847d8cf7cee861b4177ab98de0423214" compoundref="_component_8cpp" startline="121" endline="175">openFile</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1ab33051f05dd5e6585dc190b4fb0b733b" compoundref="_component_8cpp" startline="231" endline="301">valueTreePropertyChanged</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classwhelmed_1_1_component_1a8e3953bddc99a229d57063cc096b3686" prot="private" static="no" mutable="no">
         <type>juce::ValueTree</type>
@@ -54,14 +54,14 @@
         <inbodydescription>
         </inbodydescription>
         <location file="whelmed/component/Component.h" line="79" column="21" bodyfile="whelmed/component/Component.h" bodystart="79" bodyend="-1"/>
-        <referencedby refid="classwhelmed_1_1_component_1a8775db6d1a2c1afc2e77cd3c8f39da6f" compoundref="_component_8cpp" startline="7" endline="47">Component</referencedby>
-        <referencedby refid="classwhelmed_1_1_component_1abd70119f118c4b0e82842f01129d8c0a" compoundref="_component_8cpp" startline="201" endline="224">copySelection</referencedby>
-        <referencedby refid="classwhelmed_1_1_component_1a86f04f40924c6a7c074d4200c95f7377" compoundref="_component_8cpp" startline="187" endline="199">enterSelectionMode</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a8775db6d1a2c1afc2e77cd3c8f39da6f" compoundref="_component_8cpp" startline="7" endline="45">Component</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1abd70119f118c4b0e82842f01129d8c0a" compoundref="_component_8cpp" startline="197" endline="220">copySelection</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a86f04f40924c6a7c074d4200c95f7377" compoundref="_component_8cpp" startline="183" endline="195">enterSelectionMode</referencedby>
         <referencedby refid="classwhelmed_1_1_component_1a482d97622a31a99d3c7a7e528585c35b" compoundref="_component_8h" startline="58" endline="58">getDocumentTree</referencedby>
-        <referencedby refid="classwhelmed_1_1_component_1a05a7199a25806394c1dcc70afaf5ad16" compoundref="_component_8cpp" startline="70" endline="74">graftDocumentInto</referencedby>
-        <referencedby refid="classwhelmed_1_1_component_1a847d8cf7cee861b4177ab98de0423214" compoundref="_component_8cpp" startline="125" endline="179">openFile</referencedby>
-        <referencedby refid="classwhelmed_1_1_component_1ab33051f05dd5e6585dc190b4fb0b733b" compoundref="_component_8cpp" startline="235" endline="305">valueTreePropertyChanged</referencedby>
-        <referencedby refid="classwhelmed_1_1_component_1ae500b88725913a9c7edc6573252eb827" compoundref="_component_8cpp" startline="49" endline="55">~Component</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a05a7199a25806394c1dcc70afaf5ad16" compoundref="_component_8cpp" startline="67" endline="71">graftDocumentInto</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a847d8cf7cee861b4177ab98de0423214" compoundref="_component_8cpp" startline="121" endline="175">openFile</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1ab33051f05dd5e6585dc190b4fb0b733b" compoundref="_component_8cpp" startline="231" endline="301">valueTreePropertyChanged</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1ae500b88725913a9c7edc6573252eb827" compoundref="_component_8cpp" startline="47" endline="52">~Component</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classwhelmed_1_1_component_1a8e96d42e97ced5ad89bfc77e02f6b95d" prot="private" static="no" mutable="no">
         <type>std::unique_ptr&lt; <ref refid="classwhelmed_1_1_parser" kindref="compound">Parser</ref> &gt;</type>
@@ -76,7 +76,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="whelmed/component/Component.h" line="80" column="21" bodyfile="whelmed/component/Component.h" bodystart="80" bodyend="-1"/>
-        <referencedby refid="classwhelmed_1_1_component_1a847d8cf7cee861b4177ab98de0423214" compoundref="_component_8cpp" startline="125" endline="179">openFile</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a847d8cf7cee861b4177ab98de0423214" compoundref="_component_8cpp" startline="121" endline="175">openFile</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classwhelmed_1_1_component_1ab67f655c4105d72ac20c29206c40ca38" prot="private" static="no" mutable="no">
         <type>juce::Viewport</type>
@@ -91,12 +91,12 @@
         <inbodydescription>
         </inbodydescription>
         <location file="whelmed/component/Component.h" line="82" column="20" bodyfile="whelmed/component/Component.h" bodystart="82" bodyend="-1"/>
-        <referencedby refid="classwhelmed_1_1_component_1a8775db6d1a2c1afc2e77cd3c8f39da6f" compoundref="_component_8cpp" startline="7" endline="47">Component</referencedby>
-        <referencedby refid="classwhelmed_1_1_component_1a86f04f40924c6a7c074d4200c95f7377" compoundref="_component_8cpp" startline="187" endline="199">enterSelectionMode</referencedby>
-        <referencedby refid="classwhelmed_1_1_component_1a847d8cf7cee861b4177ab98de0423214" compoundref="_component_8cpp" startline="125" endline="179">openFile</referencedby>
-        <referencedby refid="classwhelmed_1_1_component_1aa54841dba3e98bc427e664f9b98a6b60" compoundref="_component_8cpp" startline="104" endline="119">resized</referencedby>
-        <referencedby refid="classwhelmed_1_1_component_1ab33051f05dd5e6585dc190b4fb0b733b" compoundref="_component_8cpp" startline="235" endline="305">valueTreePropertyChanged</referencedby>
-        <referencedby refid="classwhelmed_1_1_component_1ae500b88725913a9c7edc6573252eb827" compoundref="_component_8cpp" startline="49" endline="55">~Component</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a8775db6d1a2c1afc2e77cd3c8f39da6f" compoundref="_component_8cpp" startline="7" endline="45">Component</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a86f04f40924c6a7c074d4200c95f7377" compoundref="_component_8cpp" startline="183" endline="195">enterSelectionMode</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a847d8cf7cee861b4177ab98de0423214" compoundref="_component_8cpp" startline="121" endline="175">openFile</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1aa54841dba3e98bc427e664f9b98a6b60" compoundref="_component_8cpp" startline="100" endline="115">resized</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1ab33051f05dd5e6585dc190b4fb0b733b" compoundref="_component_8cpp" startline="231" endline="301">valueTreePropertyChanged</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1ae500b88725913a9c7edc6573252eb827" compoundref="_component_8cpp" startline="47" endline="52">~Component</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classwhelmed_1_1_component_1aac7e72e2b7079afff1c7cdb6e456f17d" prot="private" static="no" mutable="no">
         <type><ref refid="classwhelmed_1_1_screen" kindref="compound">Screen</ref></type>
@@ -111,13 +111,13 @@
         <inbodydescription>
         </inbodydescription>
         <location file="whelmed/component/Component.h" line="83" column="12" bodyfile="whelmed/component/Component.h" bodystart="83" bodyend="-1"/>
-        <referencedby refid="classwhelmed_1_1_component_1a2940a683822f0f372d38b8f285237d5c" compoundref="_component_8cpp" startline="85" endline="92">applyFromAppModel</referencedby>
-        <referencedby refid="classwhelmed_1_1_component_1a8775db6d1a2c1afc2e77cd3c8f39da6f" compoundref="_component_8cpp" startline="7" endline="47">Component</referencedby>
-        <referencedby refid="classwhelmed_1_1_component_1abd70119f118c4b0e82842f01129d8c0a" compoundref="_component_8cpp" startline="201" endline="224">copySelection</referencedby>
-        <referencedby refid="classwhelmed_1_1_component_1a86f04f40924c6a7c074d4200c95f7377" compoundref="_component_8cpp" startline="187" endline="199">enterSelectionMode</referencedby>
-        <referencedby refid="classwhelmed_1_1_component_1a847d8cf7cee861b4177ab98de0423214" compoundref="_component_8cpp" startline="125" endline="179">openFile</referencedby>
-        <referencedby refid="classwhelmed_1_1_component_1aa54841dba3e98bc427e664f9b98a6b60" compoundref="_component_8cpp" startline="104" endline="119">resized</referencedby>
-        <referencedby refid="classwhelmed_1_1_component_1ab33051f05dd5e6585dc190b4fb0b733b" compoundref="_component_8cpp" startline="235" endline="305">valueTreePropertyChanged</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a2940a683822f0f372d38b8f285237d5c" compoundref="_component_8cpp" startline="82" endline="88">applyFromAppModel</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a8775db6d1a2c1afc2e77cd3c8f39da6f" compoundref="_component_8cpp" startline="7" endline="45">Component</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1abd70119f118c4b0e82842f01129d8c0a" compoundref="_component_8cpp" startline="197" endline="220">copySelection</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a86f04f40924c6a7c074d4200c95f7377" compoundref="_component_8cpp" startline="183" endline="195">enterSelectionMode</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a847d8cf7cee861b4177ab98de0423214" compoundref="_component_8cpp" startline="121" endline="175">openFile</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1aa54841dba3e98bc427e664f9b98a6b60" compoundref="_component_8cpp" startline="100" endline="115">resized</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1ab33051f05dd5e6585dc190b4fb0b733b" compoundref="_component_8cpp" startline="231" endline="301">valueTreePropertyChanged</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classwhelmed_1_1_component_1adc62421984cf72f09b8ceb5aa396387e" prot="private" static="no" mutable="no">
         <type><ref refid="classwhelmed_1_1_input_handler" kindref="compound">InputHandler</ref></type>
@@ -133,10 +133,10 @@
         <inbodydescription>
         </inbodydescription>
         <location file="whelmed/component/Component.h" line="84" column="18" bodyfile="whelmed/component/Component.h" bodystart="84" bodyend="84"/>
-        <referencedby refid="classwhelmed_1_1_component_1a2940a683822f0f372d38b8f285237d5c" compoundref="_component_8cpp" startline="85" endline="92">applyFromAppModel</referencedby>
-        <referencedby refid="classwhelmed_1_1_component_1a8775db6d1a2c1afc2e77cd3c8f39da6f" compoundref="_component_8cpp" startline="7" endline="47">Component</referencedby>
-        <referencedby refid="classwhelmed_1_1_component_1a86f04f40924c6a7c074d4200c95f7377" compoundref="_component_8cpp" startline="187" endline="199">enterSelectionMode</referencedby>
-        <referencedby refid="classwhelmed_1_1_component_1a78df8bcf40c8decf118df75d915a2f85" compoundref="_component_8cpp" startline="80" endline="83">keyPressed</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a2940a683822f0f372d38b8f285237d5c" compoundref="_component_8cpp" startline="82" endline="88">applyFromAppModel</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a8775db6d1a2c1afc2e77cd3c8f39da6f" compoundref="_component_8cpp" startline="7" endline="45">Component</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a86f04f40924c6a7c074d4200c95f7377" compoundref="_component_8cpp" startline="183" endline="195">enterSelectionMode</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a78df8bcf40c8decf118df75d915a2f85" compoundref="_component_8cpp" startline="77" endline="80">keyPressed</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classwhelmed_1_1_component_1afa5c58cf198087efd1749c29f5f2c932" prot="private" static="no" mutable="no">
         <type><ref refid="class_loader_overlay" kindref="compound">::LoaderOverlay</ref></type>
@@ -151,10 +151,10 @@
         <inbodydescription>
         </inbodydescription>
         <location file="whelmed/component/Component.h" line="85" column="21" bodyfile="whelmed/component/Component.h" bodystart="85" bodyend="-1"/>
-        <referencedby refid="classwhelmed_1_1_component_1a8775db6d1a2c1afc2e77cd3c8f39da6f" compoundref="_component_8cpp" startline="7" endline="47">Component</referencedby>
-        <referencedby refid="classwhelmed_1_1_component_1a847d8cf7cee861b4177ab98de0423214" compoundref="_component_8cpp" startline="125" endline="179">openFile</referencedby>
-        <referencedby refid="classwhelmed_1_1_component_1aa54841dba3e98bc427e664f9b98a6b60" compoundref="_component_8cpp" startline="104" endline="119">resized</referencedby>
-        <referencedby refid="classwhelmed_1_1_component_1ab33051f05dd5e6585dc190b4fb0b733b" compoundref="_component_8cpp" startline="235" endline="305">valueTreePropertyChanged</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a8775db6d1a2c1afc2e77cd3c8f39da6f" compoundref="_component_8cpp" startline="7" endline="45">Component</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a847d8cf7cee861b4177ab98de0423214" compoundref="_component_8cpp" startline="121" endline="175">openFile</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1aa54841dba3e98bc427e664f9b98a6b60" compoundref="_component_8cpp" startline="100" endline="115">resized</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1ab33051f05dd5e6585dc190b4fb0b733b" compoundref="_component_8cpp" startline="231" endline="301">valueTreePropertyChanged</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classwhelmed_1_1_component_1ade0413790f7110d4fc7165db3f2efd4a" prot="private" static="no" mutable="no">
         <type>std::unique_ptr&lt; jam::Mermaid::Parser &gt;</type>
@@ -169,8 +169,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="whelmed/component/Component.h" line="87" column="21" bodyfile="whelmed/component/Component.h" bodystart="87" bodyend="-1"/>
-        <referencedby refid="classwhelmed_1_1_component_1a8775db6d1a2c1afc2e77cd3c8f39da6f" compoundref="_component_8cpp" startline="7" endline="47">Component</referencedby>
-        <referencedby refid="classwhelmed_1_1_component_1a847d8cf7cee861b4177ab98de0423214" compoundref="_component_8cpp" startline="125" endline="179">openFile</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a8775db6d1a2c1afc2e77cd3c8f39da6f" compoundref="_component_8cpp" startline="7" endline="45">Component</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1a847d8cf7cee861b4177ab98de0423214" compoundref="_component_8cpp" startline="121" endline="175">openFile</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">
@@ -186,11 +186,10 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="whelmed/component/Component.h" line="43" column="5" bodyfile="whelmed/component/Component.cpp" bodystart="7" bodyend="47"/>
+        <location file="whelmed/component/Component.h" line="43" column="5" bodyfile="whelmed/component/Component.cpp" bodystart="7" bodyend="45"/>
         <references refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9">code</references>
         <references refid="classwhelmed_1_1_component_1a6785371364f21ac36c7cf39e155a4f08" compoundref="_component_8h" startline="78">docState</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
-        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
         <references refid="classwhelmed_1_1_component_1adc62421984cf72f09b8ceb5aa396387e" compoundref="_component_8h" startline="84" endline="84">inputHandler</references>
         <references refid="classwhelmed_1_1_component_1afa5c58cf198087efd1749c29f5f2c932" compoundref="_component_8h" startline="85">loaderOverlay</references>
         <references refid="classwhelmed_1_1_component_1ade0413790f7110d4fc7165db3f2efd4a" compoundref="_component_8h" startline="87">mermaidParser</references>
@@ -211,7 +210,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="whelmed/component/Component.h" line="44" column="5" bodyfile="whelmed/component/Component.cpp" bodystart="49" bodyend="55"/>
+        <location file="whelmed/component/Component.h" line="44" column="5" bodyfile="whelmed/component/Component.cpp" bodystart="47" bodyend="52"/>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
         <references refid="classwhelmed_1_1_component_1a8e3953bddc99a229d57063cc096b3686" compoundref="_component_8h" startline="79">state</references>
         <references refid="classwhelmed_1_1_component_1ab67f655c4105d72ac20c29206c40ca38" compoundref="_component_8h" startline="82">viewport</references>
@@ -288,7 +287,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="whelmed/component/Component.h" line="49" column="10" bodyfile="whelmed/component/Component.cpp" bodystart="80" bodyend="83"/>
+        <location file="whelmed/component/Component.h" line="49" column="10" bodyfile="whelmed/component/Component.cpp" bodystart="77" bodyend="80"/>
         <references refid="classwhelmed_1_1_component_1adc62421984cf72f09b8ceb5aa396387e" compoundref="_component_8h" startline="84" endline="84">inputHandler</references>
       </memberdef>
       <memberdef kind="function" id="classwhelmed_1_1_component_1a6b7cd66a2eb6b28d9f4d4ea69c957e40" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -307,7 +306,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="whelmed/component/Component.h" line="50" column="10" bodyfile="whelmed/component/Component.cpp" bodystart="181" bodyend="185"/>
+        <location file="whelmed/component/Component.h" line="50" column="10" bodyfile="whelmed/component/Component.cpp" bodystart="177" bodyend="181"/>
       </memberdef>
       <memberdef kind="function" id="classwhelmed_1_1_component_1a6dcf4b986fb0e77a4c3860cbe07c49a2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -325,8 +324,10 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="whelmed/component/Component.h" line="51" column="10" bodyfile="whelmed/component/Component.cpp" bodystart="98" bodyend="102"/>
-        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
+        <location file="whelmed/component/Component.h" line="51" column="10" bodyfile="whelmed/component/Component.cpp" bodystart="94" bodyend="98"/>
+        <references refid="namespaceapp_1_1id_1aa85c6b3e2e596e138f02e1922bb52055" compoundref="_app_identifier_8h" startline="189" endline="189">app::id::background</references>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
+        <references refid="namespaceapp_1_1id_1af38a58466b0c9efb4717d0c6e9fef1d4" compoundref="_app_identifier_8h" startline="81" endline="81">app::id::WHELMED_LUA</references>
       </memberdef>
       <memberdef kind="function" id="classwhelmed_1_1_component_1aa54841dba3e98bc427e664f9b98a6b60" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -340,12 +341,17 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="whelmed/component/Component.h" line="52" column="10" bodyfile="whelmed/component/Component.cpp" bodystart="104" bodyend="119"/>
-        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
+        <location file="whelmed/component/Component.h" line="52" column="10" bodyfile="whelmed/component/Component.cpp" bodystart="100" bodyend="115"/>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
         <references refid="classwhelmed_1_1_component_1afa5c58cf198087efd1749c29f5f2c932" compoundref="_component_8h" startline="85">loaderOverlay</references>
+        <references refid="namespaceapp_1_1id_1acfa111d16fc6a40eb179b4e496247979" compoundref="_app_identifier_8h" startline="129" endline="129">app::id::paddingBottom</references>
+        <references refid="namespaceapp_1_1id_1a37eb7fcd4532f25ae03eea286dc63bdf" compoundref="_app_identifier_8h" startline="130" endline="130">app::id::paddingLeft</references>
+        <references refid="namespaceapp_1_1id_1a4940ac67c76c901cb06c9a0c8e7c9054" compoundref="_app_identifier_8h" startline="128" endline="128">app::id::paddingRight</references>
+        <references refid="namespaceapp_1_1id_1a3208662b768447eb28e81c638a5c91d7" compoundref="_app_identifier_8h" startline="127" endline="127">app::id::paddingTop</references>
         <references refid="classwhelmed_1_1_component_1aac7e72e2b7079afff1c7cdb6e456f17d" compoundref="_component_8h" startline="83">screen</references>
         <references refid="classwhelmed_1_1_component_1ab67f655c4105d72ac20c29206c40ca38" compoundref="_component_8h" startline="82">viewport</references>
-        <referencedby refid="classwhelmed_1_1_component_1a2940a683822f0f372d38b8f285237d5c" compoundref="_component_8cpp" startline="85" endline="92">applyFromAppModel</referencedby>
+        <references refid="namespaceapp_1_1id_1af38a58466b0c9efb4717d0c6e9fef1d4" compoundref="_app_identifier_8h" startline="81" endline="81">app::id::WHELMED_LUA</references>
+        <referencedby refid="classwhelmed_1_1_component_1a2940a683822f0f372d38b8f285237d5c" compoundref="_component_8cpp" startline="82" endline="88">applyFromAppModel</referencedby>
       </memberdef>
       <memberdef kind="function" id="classwhelmed_1_1_component_1a847d8cf7cee861b4177ab98de0423214" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -363,22 +369,22 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="whelmed/component/Component.h" line="54" column="10" bodyfile="whelmed/component/Component.cpp" bodystart="125" bodyend="179"/>
-        <references refid="namespaceapp_1_1id_1a4c409f870661881993ac818c73a32c82" compoundref="_app_identifier_8h" startline="113" endline="113">app::id::blockCount</references>
+        <location file="whelmed/component/Component.h" line="54" column="10" bodyfile="whelmed/component/Component.cpp" bodystart="121" bodyend="175"/>
+        <references refid="namespaceapp_1_1id_1a4c409f870661881993ac818c73a32c82" compoundref="_app_identifier_8h" startline="132" endline="132">app::id::blockCount</references>
         <references refid="group__juce__audio__plugin__client-Unity_1ga45a5b7c00a796a23f01673cef1dbe0a9">code</references>
-        <references refid="namespaceapp_1_1id_1a5db3df1548793287f6642045bb68fe2a" compoundref="_app_identifier_8h" startline="85" endline="85">app::id::displayName</references>
+        <references refid="namespaceapp_1_1id_1a5db3df1548793287f6642045bb68fe2a" compoundref="_app_identifier_8h" startline="104" endline="104">app::id::displayName</references>
         <references refid="classwhelmed_1_1_component_1a6785371364f21ac36c7cf39e155a4f08" compoundref="_component_8h" startline="78">docState</references>
-        <references refid="namespaceapp_1_1id_1a5dbba8dbe5bf9ef207c18905d8bae100" compoundref="_app_identifier_8h" startline="84" endline="84">app::id::filePath</references>
+        <references refid="namespaceapp_1_1id_1a5dbba8dbe5bf9ef207c18905d8bae100" compoundref="_app_identifier_8h" startline="103" endline="103">app::id::filePath</references>
         <references refid="classwhelmed_1_1_component_1afa5c58cf198087efd1749c29f5f2c932" compoundref="_component_8h" startline="85">loaderOverlay</references>
         <references refid="classwhelmed_1_1_component_1ade0413790f7110d4fc7165db3f2efd4a" compoundref="_component_8h" startline="87">mermaidParser</references>
         <references refid="structjam_1_1_markdown_1_1_parser_1a4da0351503dd15d606e0d3070092e58c">jam::Markdown::Parser::parse</references>
         <references refid="classwhelmed_1_1_mermaid_s_v_g_parser_1aacc50475bb6b1818a98daf39e9ad1308" compoundref="_mermaid_s_v_g_parser_8h" startline="90" endline="122">whelmed::MermaidSVGParser::parse</references>
-        <references refid="namespaceapp_1_1id_1ae480d402f2c4854e10a819621b23f6d0" compoundref="_app_identifier_8h" startline="114" endline="114">app::id::parseComplete</references>
+        <references refid="namespaceapp_1_1id_1ae480d402f2c4854e10a819621b23f6d0" compoundref="_app_identifier_8h" startline="133" endline="133">app::id::parseComplete</references>
         <references refid="classwhelmed_1_1_component_1a8e96d42e97ced5ad89bfc77e02f6b95d" compoundref="_component_8h" startline="80">parser</references>
         <references refid="classwhelmed_1_1_component_1aac7e72e2b7079afff1c7cdb6e456f17d" compoundref="_component_8h" startline="83">screen</references>
-        <references refid="namespaceapp_1_1id_1a8056e4239f4b22fce564a395bbbcb52a" compoundref="_app_identifier_8h" startline="87" endline="87">app::id::scrollOffset</references>
+        <references refid="namespaceapp_1_1id_1a8056e4239f4b22fce564a395bbbcb52a" compoundref="_app_identifier_8h" startline="106" endline="106">app::id::scrollOffset</references>
         <references refid="classwhelmed_1_1_component_1a8e3953bddc99a229d57063cc096b3686" compoundref="_component_8h" startline="79">state</references>
-        <references refid="namespaceapp_1_1id_1abad3be16444df05531528d3e30735ebd" compoundref="_app_identifier_8h" startline="115" endline="115">app::id::totalBlocks</references>
+        <references refid="namespaceapp_1_1id_1abad3be16444df05531528d3e30735ebd" compoundref="_app_identifier_8h" startline="134" endline="134">app::id::totalBlocks</references>
         <references refid="classwhelmed_1_1_component_1ab67f655c4105d72ac20c29206c40ca38" compoundref="_component_8h" startline="82">viewport</references>
       </memberdef>
       <memberdef kind="function" id="classwhelmed_1_1_component_1a86f04f40924c6a7c074d4200c95f7377" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="virtual">
@@ -398,15 +404,15 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="whelmed/component/Component.h" line="55" column="10" bodyfile="whelmed/component/Component.cpp" bodystart="187" bodyend="199"/>
+        <location file="whelmed/component/Component.h" line="55" column="10" bodyfile="whelmed/component/Component.cpp" bodystart="183" bodyend="195"/>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
         <references refid="classwhelmed_1_1_component_1adc62421984cf72f09b8ceb5aa396387e" compoundref="_component_8h" startline="84" endline="84">inputHandler</references>
         <references refid="_selection_type_8h_1acffca3b33fddce63d3220bc7487e879da334c4a4c42fdb79d7ebc3e73b517e6f8" compoundref="_selection_type_8h" startline="22">none</references>
         <references refid="classwhelmed_1_1_component_1aac7e72e2b7079afff1c7cdb6e456f17d" compoundref="_component_8h" startline="83">screen</references>
-        <references refid="namespaceapp_1_1id_1ae541c86458bee0db98858cb134c69379" compoundref="_app_identifier_8h" startline="118" endline="118">app::id::selAnchorBlock</references>
-        <references refid="namespaceapp_1_1id_1ab2b4791778841d9e46a8ea36c17e4266" compoundref="_app_identifier_8h" startline="119" endline="119">app::id::selAnchorChar</references>
-        <references refid="namespaceapp_1_1id_1a044c24e7e6b652dbbd38a9ed2aaee9ed" compoundref="_app_identifier_8h" startline="116" endline="116">app::id::selCursorBlock</references>
-        <references refid="namespaceapp_1_1id_1a53f4e3db60bb5963c1ba6f10958e1c96" compoundref="_app_identifier_8h" startline="117" endline="117">app::id::selCursorChar</references>
+        <references refid="namespaceapp_1_1id_1ae541c86458bee0db98858cb134c69379" compoundref="_app_identifier_8h" startline="137" endline="137">app::id::selAnchorBlock</references>
+        <references refid="namespaceapp_1_1id_1ab2b4791778841d9e46a8ea36c17e4266" compoundref="_app_identifier_8h" startline="138" endline="138">app::id::selAnchorChar</references>
+        <references refid="namespaceapp_1_1id_1a044c24e7e6b652dbbd38a9ed2aaee9ed" compoundref="_app_identifier_8h" startline="135" endline="135">app::id::selCursorBlock</references>
+        <references refid="namespaceapp_1_1id_1a53f4e3db60bb5963c1ba6f10958e1c96" compoundref="_app_identifier_8h" startline="136" endline="136">app::id::selCursorChar</references>
         <references refid="_modal_type_8h_1a1878c47fb0486dfcf512d127b5342816aef5714e0519bfaa645cdff7d28843b70" compoundref="_modal_type_8h" startline="29">selection</references>
         <references refid="classwhelmed_1_1_component_1a8e3953bddc99a229d57063cc096b3686" compoundref="_component_8h" startline="79">state</references>
         <references refid="classwhelmed_1_1_component_1ab67f655c4105d72ac20c29206c40ca38" compoundref="_component_8h" startline="82">viewport</references>
@@ -428,14 +434,14 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="whelmed/component/Component.h" line="56" column="10" bodyfile="whelmed/component/Component.cpp" bodystart="201" bodyend="224"/>
+        <location file="whelmed/component/Component.h" line="56" column="10" bodyfile="whelmed/component/Component.cpp" bodystart="197" bodyend="220"/>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
         <references refid="_selection_type_8h_1acffca3b33fddce63d3220bc7487e879da334c4a4c42fdb79d7ebc3e73b517e6f8" compoundref="_selection_type_8h" startline="22">none</references>
         <references refid="classwhelmed_1_1_component_1aac7e72e2b7079afff1c7cdb6e456f17d" compoundref="_component_8h" startline="83">screen</references>
-        <references refid="namespaceapp_1_1id_1ae541c86458bee0db98858cb134c69379" compoundref="_app_identifier_8h" startline="118" endline="118">app::id::selAnchorBlock</references>
-        <references refid="namespaceapp_1_1id_1ab2b4791778841d9e46a8ea36c17e4266" compoundref="_app_identifier_8h" startline="119" endline="119">app::id::selAnchorChar</references>
-        <references refid="namespaceapp_1_1id_1a044c24e7e6b652dbbd38a9ed2aaee9ed" compoundref="_app_identifier_8h" startline="116" endline="116">app::id::selCursorBlock</references>
-        <references refid="namespaceapp_1_1id_1a53f4e3db60bb5963c1ba6f10958e1c96" compoundref="_app_identifier_8h" startline="117" endline="117">app::id::selCursorChar</references>
+        <references refid="namespaceapp_1_1id_1ae541c86458bee0db98858cb134c69379" compoundref="_app_identifier_8h" startline="137" endline="137">app::id::selAnchorBlock</references>
+        <references refid="namespaceapp_1_1id_1ab2b4791778841d9e46a8ea36c17e4266" compoundref="_app_identifier_8h" startline="138" endline="138">app::id::selAnchorChar</references>
+        <references refid="namespaceapp_1_1id_1a044c24e7e6b652dbbd38a9ed2aaee9ed" compoundref="_app_identifier_8h" startline="135" endline="135">app::id::selCursorBlock</references>
+        <references refid="namespaceapp_1_1id_1a53f4e3db60bb5963c1ba6f10958e1c96" compoundref="_app_identifier_8h" startline="136" endline="136">app::id::selCursorChar</references>
         <references refid="classwhelmed_1_1_component_1a8e3953bddc99a229d57063cc096b3686" compoundref="_component_8h" startline="79">state</references>
       </memberdef>
       <memberdef kind="function" id="classwhelmed_1_1_component_1a25ca3a9b8aeb7f125d2ca8c46851743a" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="virtual">
@@ -455,7 +461,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="whelmed/component/Component.h" line="57" column="10" bodyfile="whelmed/component/Component.cpp" bodystart="226" bodyend="229"/>
+        <location file="whelmed/component/Component.h" line="57" column="10" bodyfile="whelmed/component/Component.cpp" bodystart="222" bodyend="225"/>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
         <references refid="_selection_type_8h_1acffca3b33fddce63d3220bc7487e879da334c4a4c42fdb79d7ebc3e73b517e6f8" compoundref="_selection_type_8h" startline="22">none</references>
       </memberdef>
@@ -509,7 +515,7 @@ Destroying this <ref refid="classwhelmed_1_1_component" kindref="compound">Compo
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="whelmed/component/Component.h" line="69" column="10" bodyfile="whelmed/component/Component.cpp" bodystart="70" bodyend="74"/>
+        <location file="whelmed/component/Component.h" line="69" column="10" bodyfile="whelmed/component/Component.cpp" bodystart="67" bodyend="71"/>
         <references refid="classwhelmed_1_1_component_1a3382319ca77bd3fd529003683a9aeec2" compoundref="_component_8h" startline="76">documentAttachment</references>
         <references refid="group__juce__core-system_1ga1f96ab6751237979b907a54f52a7296a">jassert</references>
         <references refid="classwhelmed_1_1_component_1a8e3953bddc99a229d57063cc096b3686" compoundref="_component_8h" startline="79">state</references>
@@ -528,13 +534,13 @@ Destroying this <ref refid="classwhelmed_1_1_component" kindref="compound">Compo
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="whelmed/component/Component.h" line="72" column="10" bodyfile="whelmed/component/Component.cpp" bodystart="85" bodyend="92"/>
+        <location file="whelmed/component/Component.h" line="72" column="10" bodyfile="whelmed/component/Component.cpp" bodystart="82" bodyend="88"/>
         <references refid="classwhelmed_1_1_component_1a6785371364f21ac36c7cf39e155a4f08" compoundref="_component_8h" startline="78">docState</references>
-        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
         <references refid="classwhelmed_1_1_component_1adc62421984cf72f09b8ceb5aa396387e" compoundref="_component_8h" startline="84" endline="84">inputHandler</references>
-        <references refid="classwhelmed_1_1_component_1aa54841dba3e98bc427e664f9b98a6b60" compoundref="_component_8cpp" startline="104" endline="119">resized</references>
+        <references refid="classwhelmed_1_1_component_1aa54841dba3e98bc427e664f9b98a6b60" compoundref="_component_8cpp" startline="100" endline="115">resized</references>
         <references refid="classwhelmed_1_1_component_1aac7e72e2b7079afff1c7cdb6e456f17d" compoundref="_component_8h" startline="83">screen</references>
-        <referencedby refid="classwhelmed_1_1_component_1ab33051f05dd5e6585dc190b4fb0b733b" compoundref="_component_8cpp" startline="235" endline="305">valueTreePropertyChanged</referencedby>
+        <referencedby refid="classwhelmed_1_1_component_1ab33051f05dd5e6585dc190b4fb0b733b" compoundref="_component_8cpp" startline="231" endline="301">valueTreePropertyChanged</referencedby>
       </memberdef>
       <memberdef kind="function" id="classwhelmed_1_1_component_1ab33051f05dd5e6585dc190b4fb0b733b" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -556,21 +562,21 @@ Destroying this <ref refid="classwhelmed_1_1_component" kindref="compound">Compo
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="whelmed/component/Component.h" line="73" column="10" bodyfile="whelmed/component/Component.cpp" bodystart="235" bodyend="305"/>
-        <references refid="classwhelmed_1_1_component_1a2940a683822f0f372d38b8f285237d5c" compoundref="_component_8cpp" startline="85" endline="92">applyFromAppModel</references>
-        <references refid="namespaceapp_1_1id_1a4c409f870661881993ac818c73a32c82" compoundref="_app_identifier_8h" startline="113" endline="113">app::id::blockCount</references>
+        <location file="whelmed/component/Component.h" line="73" column="10" bodyfile="whelmed/component/Component.cpp" bodystart="231" bodyend="301"/>
+        <references refid="classwhelmed_1_1_component_1a2940a683822f0f372d38b8f285237d5c" compoundref="_component_8cpp" startline="82" endline="88">applyFromAppModel</references>
+        <references refid="namespaceapp_1_1id_1a4c409f870661881993ac818c73a32c82" compoundref="_app_identifier_8h" startline="132" endline="132">app::id::blockCount</references>
         <references refid="classwhelmed_1_1_component_1a6785371364f21ac36c7cf39e155a4f08" compoundref="_component_8h" startline="78">docState</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
         <references refid="classwhelmed_1_1_component_1afa5c58cf198087efd1749c29f5f2c932" compoundref="_component_8h" startline="85">loaderOverlay</references>
-        <references refid="namespaceapp_1_1id_1a3ea51650d77e7927b174bf0dc5cf0f5d" compoundref="_app_identifier_8h" startline="77" endline="77">app::id::modalType</references>
+        <references refid="namespaceapp_1_1id_1a3ea51650d77e7927b174bf0dc5cf0f5d" compoundref="_app_identifier_8h" startline="96" endline="96">app::id::modalType</references>
         <references refid="_modal_type_8h_1a1878c47fb0486dfcf512d127b5342816a334c4a4c42fdb79d7ebc3e73b517e6f8" compoundref="_modal_type_8h" startline="28">none</references>
         <references refid="classwhelmed_1_1_component_1aac7e72e2b7079afff1c7cdb6e456f17d" compoundref="_component_8h" startline="83">screen</references>
-        <references refid="namespaceapp_1_1id_1ae541c86458bee0db98858cb134c69379" compoundref="_app_identifier_8h" startline="118" endline="118">app::id::selAnchorBlock</references>
-        <references refid="namespaceapp_1_1id_1ab2b4791778841d9e46a8ea36c17e4266" compoundref="_app_identifier_8h" startline="119" endline="119">app::id::selAnchorChar</references>
-        <references refid="namespaceapp_1_1id_1a044c24e7e6b652dbbd38a9ed2aaee9ed" compoundref="_app_identifier_8h" startline="116" endline="116">app::id::selCursorBlock</references>
-        <references refid="namespaceapp_1_1id_1a53f4e3db60bb5963c1ba6f10958e1c96" compoundref="_app_identifier_8h" startline="117" endline="117">app::id::selCursorChar</references>
+        <references refid="namespaceapp_1_1id_1ae541c86458bee0db98858cb134c69379" compoundref="_app_identifier_8h" startline="137" endline="137">app::id::selAnchorBlock</references>
+        <references refid="namespaceapp_1_1id_1ab2b4791778841d9e46a8ea36c17e4266" compoundref="_app_identifier_8h" startline="138" endline="138">app::id::selAnchorChar</references>
+        <references refid="namespaceapp_1_1id_1a044c24e7e6b652dbbd38a9ed2aaee9ed" compoundref="_app_identifier_8h" startline="135" endline="135">app::id::selCursorBlock</references>
+        <references refid="namespaceapp_1_1id_1a53f4e3db60bb5963c1ba6f10958e1c96" compoundref="_app_identifier_8h" startline="136" endline="136">app::id::selCursorChar</references>
         <references refid="classwhelmed_1_1_component_1a8e3953bddc99a229d57063cc096b3686" compoundref="_component_8h" startline="79">state</references>
-        <references refid="namespaceapp_1_1id_1abad3be16444df05531528d3e30735ebd" compoundref="_app_identifier_8h" startline="115" endline="115">app::id::totalBlocks</references>
+        <references refid="namespaceapp_1_1id_1abad3be16444df05531528d3e30735ebd" compoundref="_app_identifier_8h" startline="134" endline="134">app::id::totalBlocks</references>
         <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682cac0af77cf8294ff93a5cdb2963ca9f038">tree</references>
         <references refid="classwhelmed_1_1_component_1ab67f655c4105d72ac20c29206c40ca38" compoundref="_component_8h" startline="82">viewport</references>
       </memberdef>

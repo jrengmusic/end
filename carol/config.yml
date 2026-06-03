@@ -7,18 +7,17 @@ version: "1.0"
 project:
   name: "end"
   path: "/Users/jreng/Documents/Poems/dev/end"
-  initialized: "2026-06-02"
+  initialized: "2026-06-03"
 
 carol:
   mode: "symlink"  # or "portable"
-  version: "0.0.17"
+  version: "0.0.18"
 
 agents:
   # Track which agents are assigned to roles
   # PRIMARY agents
   oracle: "Not Assigned"
   counselor: "Not Assigned"
-  surgeon: "Not Assigned"
   # Secondary agents
   engineer: "Not Assigned"
   librarian: "Not Assigned"

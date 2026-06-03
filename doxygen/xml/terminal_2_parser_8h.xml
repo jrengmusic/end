@@ -400,7 +400,7 @@
     </briefdescription>
     <detaileddescription>
 <para>Parser is the byte-processing DFA of the terminal emulator. It consumes raw bytes from the PTY reader thread, drives a Paul Flo Williams–style state machine, decodes multi-byte UTF-8 sequences, and dispatches semantic actions by calling <computeroutput>Video</computeroutput> methods directly. Parser holds no terminal state, no <ref refid="classGrid" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Grid</ref> reference, no pen, and no cursor — those live entirely in Video.</para>
-<sect1 id="terminal_2_parser_8h_1autotoc_md51_1s1"><sect2 id="terminal_2_parser_8h_1autotoc_md51">
+<sect1 id="terminal_2_parser_8h_1autotoc_md52_1s1"><sect2 id="terminal_2_parser_8h_1autotoc_md52">
 <title>State machine model</title><para>The parser follows the state machine described at: <ulink url="https://vt100.net/emu/dec_ansi_parser">https://vt100.net/emu/dec_ansi_parser</ulink></para>
 <para>Each input byte is looked up in a DispatchTable that maps <computeroutput>(ParserState, byte) → (nextState, Action)</computeroutput> in O(1). The parser then:<orderedlist>
 <listitem><para>Performs the exit action for the current state (if any).</para>
@@ -417,10 +417,10 @@
 </simplesect>
 </para>
 </sect2></sect1>
-<sect1 id="terminal_2_parser_8h_1autotoc_md52_1s1"><sect2 id="terminal_2_parser_8h_1autotoc_md52">
+<sect1 id="terminal_2_parser_8h_1autotoc_md53_1s1"><sect2 id="terminal_2_parser_8h_1autotoc_md53">
 <title>UTF-8 decoding</title><para>Multi-byte UTF-8 sequences are accumulated byte-by-byte in <computeroutput>utf8Accumulator</computeroutput>. <computeroutput>expectedUTF8Length()</computeroutput> determines the total byte count from the lead byte. Once the expected number of continuation bytes have been received, the codepoint is decoded and dispatched via <computeroutput>video.print(…)</computeroutput>. Invalid sequences are silently discarded (the accumulator is reset).</para>
 </sect2></sect1>
-<sect1 id="terminal_2_parser_8h_1autotoc_md53_1s1"><sect2 id="terminal_2_parser_8h_1autotoc_md53">
+<sect1 id="terminal_2_parser_8h_1autotoc_md54_1s1"><sect2 id="terminal_2_parser_8h_1autotoc_md54">
 <title>Dispatch model</title><para><table rows="8" cols="2"><row>
 <entry thead="yes"><para>Action  </para>
 </entry><entry thead="yes"><para>Video method called  </para>
@@ -456,7 +456,7 @@
 </table>
 </para>
 </sect2></sect1>
-<sect1 id="terminal_2_parser_8h_1autotoc_md54_1s1"><sect2 id="terminal_2_parser_8h_1autotoc_md54">
+<sect1 id="terminal_2_parser_8h_1autotoc_md55_1s1"><sect2 id="terminal_2_parser_8h_1autotoc_md55">
 <title>Thread model</title><para><bold>All methods are READER THREAD only.</bold> Parser is constructed on the message thread but <computeroutput>process()</computeroutput> and every method it calls run exclusively on the PTY reader thread. No locks are held during processing; Video methods are called directly on the reader thread.</para>
 <para><simplesect kind="see"><para>DispatchTable — O(1) state transition lookup table </para>
 </simplesect>

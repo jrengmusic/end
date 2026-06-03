@@ -16,6 +16,14 @@
 
 ---
 
+## DEBT-20260602T204214
+
+**Observation:** resizer bar missing after closing the pane
+**Divergence:** create couple of splits, close the pane, one by one, the are splits left without resizer bar, usually first split
+**Expectation:** when there are still at least 2 split, there should be at least one resizer bar between them
+
+---
+
 ## DEBT-20260530T100000
 
 **Observation:** Resize destroys TextLineArray history content. Upsize/downsize eventually creates active prompt at bottom with garbage-filled scrollback. Content that was rendered correctly before resize disappears or is replaced with garbage from Video's zeroed buffer.
@@ -32,8 +40,6 @@
 
 ---
 
----
-
 ## DEBT-20260501T193217
 
 **Observation:** split third V/H from action list did not split viewport symetrically
@@ -41,14 +47,6 @@
 **Expectation:** any split  action from any trigger should be identical
 
 ---
-
-
-
-
-
-
-
-
 
 ## DEBT-20260411T100058
 

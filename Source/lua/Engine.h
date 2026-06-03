@@ -1,23 +1,30 @@
 /**
  * @file Engine.h
- * @brief Unified Lua configuration and scripting engine for END.
+ * @brief Lua config parser — writes CONFIG tree in place, owns action/key lifecycle.
  *
- * lua::Engine is the single owner of the persistent Lua state that drives all
- * user-tunable settings (previously split across Config and WhelmedConfig) and
- * all keybinding/action definitions (previously owned by Scripting::Engine).
+ * lua::Engine is a pure parser. It receives a CONFIG juce::ValueTree from AppModel,
+ * runs end.lua and all module files through a persistent Lua state, and writes
+ * parsed properties directly into the CONFIG subtree. It does NOT own a file watcher,
+ * does NOT expose config struct members as public state, and is NOT a Context.
  *
- * It inherits `jam::Context<Engine>` for process-wide singleton access and
- * `jam::File::Watcher::Listener` for hot-reload on config file changes.
+ * Key/action lifecycle data (bindings, popup entries, custom actions) is retained
+ * internally and exposed only via the public API (registerActions, buildKeyMap,
+ * getSelectionKeys, etc.).
  *
  * @note All public methods are called on the MESSAGE THREAD.
  *
+ * @see AppModel
  * @see action::Registry
  */
 
 #pragma once
-
 #include <JuceHeader.h>
+#include "../AppIdentifier.h"
+#include "../Map.h"
 #include "../terminal/action/Action.h"
+// Forward-declare jam::Model to avoid circular includes — AppModel.h includes Engine.h,
+// so we cannot include the full jam_model.h header here.
+namespace jam { class Model; }
 
 namespace lua
 {
@@ -25,701 +32,20 @@ namespace lua
 
 /**
  * @class lua::Engine
- * @brief Loads end.lua and its require'd modules, owns all parsed config state, and
- *        provides key bindings and action registration.
+ * @brief Receives a CONFIG ValueTree and writes parsed Lua config properties in place.
  *
- * Replaces Config, WhelmedConfig, and Scripting::Engine as the single config
- * surface.  The persistent Lua state lives for the duration of the Engine so
- * that custom action `execute` functions remain callable at keypress time.
+ * Engine is a pure parser: it owns the persistent Lua state so that custom action
+ * `execute` functions remain callable at keypress time, and it maintains internal
+ * vectors for key bindings, popup entries, and custom actions. All config scalars
+ * (display, nexus, whelmed, keys prefix/timeout, popup defaults) are written into
+ * the CONFIG ValueTree received via load().
  *
  * @par Thread context
  * All public methods are MESSAGE THREAD only.
  */
 class Engine
-    : public jam::Context<Engine>
-    , public jam::File::Watcher::Listener
 {
 public:
-    //==========================================================================
-    /**
-     * @struct Nexus
-     * @brief Configuration for the top-level nexus/shell integration module.
-     */
-    struct Nexus
-    {
-        /**
-         * @struct Shell
-         * @brief Shell program and integration settings.
-         */
-        struct Shell
-        {
-            /** @brief Shell executable name. Platform-conditional. */
-#if JUCE_MAC
-            juce::String program { "zsh" };
-#elif JUCE_LINUX
-            juce::String program { "bash" };
-#elif JUCE_WINDOWS
-            juce::String program { "powershell.exe" };
-#endif
-
-            /** @brief Arguments passed to the shell at startup. */
-#if JUCE_WINDOWS
-            juce::String args { "" };
-#else
-            juce::String args { "-l" };
-#endif
-
-            /** @brief Whether shell integration is enabled. */
-            bool integration { true };
-        };
-
-        /**
-         * @struct Terminal
-         * @brief Terminal display and input settings.
-         */
-        struct Terminal
-        {
-            /** @brief Number of lines to keep in the scrollback buffer. */
-            int scrollbackLines { 10000 };
-
-            /** @brief Number of lines to scroll per step. */
-            int scrollStep { 5 };
-
-            /** @brief Top padding in pixels. */
-            int paddingTop { 10 };
-
-            /** @brief Right padding in pixels. */
-            int paddingRight { 10 };
-
-            /** @brief Bottom padding in pixels. */
-            int paddingBottom { 10 };
-
-            /** @brief Left padding in pixels. */
-            int paddingLeft { 10 };
-
-            /** @brief Separator inserted between multiple dropped files. */
-            juce::String dropMultifiles { "space" };
-
-            /** @brief Whether dropped file paths are quoted. */
-            bool dropQuoted { true };
-        };
-
-        /**
-         * @struct Hyperlinks
-         * @brief Hyperlink detection and external handler settings.
-         */
-        struct Hyperlinks
-        {
-            /** @brief Default editor used for file:// hyperlinks. */
-            juce::String editor { "nvim" };
-
-            /** @brief Map from URL scheme/extension to handler command. */
-            std::unordered_map<juce::String, juce::String> handlers;
-
-            /** @brief File extensions treated as clickable. */
-            std::unordered_set<juce::String> extensions;
-        };
-
-        /**
-         * @struct Image
-         * @brief Inline terminal image rendering settings.
-         */
-        struct Image
-        {
-            /** @brief Maximum RGBA bytes retained in the inline image atlas before eviction. Default: 32 MiB. */
-            int atlasBudgetBytes { 32 * 1024 * 1024 };
-
-            /** @brief Native preview panel width in terminal columns [10, 200]. */
-            cell cols { 40 };
-
-            /** @brief Native preview panel height in terminal rows [5, 100]. */
-            cell rows { 20 };
-
-            /** @brief Native preview padding in physical pixels [0, 64]. */
-            int padding { 10 };
-
-            /** @brief Maximum image atlas dimension in pixels. Images exceeding this are downscaled. Range: 1024 - 8192. */
-            int atlasDimension { 4096 };
-
-            /** @brief Draw a native border around the preview region. */
-            bool border { true };
-        };
-
-        /** @brief GPU acceleration mode ("auto", "opengl", "software"). */
-        juce::String gpu { "auto" };
-
-        /** @brief Whether END runs as a background daemon. */
-        bool daemon { false };
-
-        /** @brief Whether config files are watched and hot-reloaded. */
-        bool autoReload { true };
-
-        /** @brief Shell settings. */
-        Shell shell;
-
-        /** @brief Terminal display and input settings. */
-        Terminal terminal;
-
-        /** @brief Hyperlink detection settings. */
-        Hyperlinks hyperlinks;
-
-        /** @brief Inline image rendering and native preview settings. */
-        Image image;
-    };
-
-    //==========================================================================
-    /**
-     * @struct Display
-     * @brief All visual appearance settings for the terminal window.
-     */
-    struct Display
-    {
-        /**
-         * @struct Window
-         * @brief Native window geometry and decoration settings.
-         */
-        struct Window
-        {
-            /** @brief Window title bar text. */
-            juce::String title { ProjectInfo::projectName };
-
-            /** @brief Initial window width in pixels. */
-            int width { 640 };
-
-            /** @brief Initial window height in pixels. */
-            int height { 480 };
-
-            /** @brief Window background colour. */
-            juce::Colour colour { 0xff090d12 };
-
-            /** @brief Background opacity (0.0 = fully transparent, 1.0 = fully opaque). */
-            float opacity { 0.75f };
-
-            /** @brief Blur radius applied to the window background. */
-            float blurRadius { 32.0f };
-
-            /** @brief Whether the window floats above all other windows. */
-            bool alwaysOnTop { false };
-
-            /** @brief Whether native title bar buttons are shown. */
-            bool buttons { false };
-
-            /** @brief Windows only: whether DWM blur is forced. */
-            bool forceDwm { true };
-
-            /** @brief Whether window size is persisted across restarts. */
-            bool saveSize { true };
-
-            /** @brief Whether a confirmation dialog is shown on exit. */
-            bool confirmationOnExit { true };
-        };
-
-        /**
-         * @struct Colours
-         * @brief Full colour palette for the terminal.
-         */
-        struct Colours
-        {
-            /** @brief Default text foreground colour. */
-            juce::Colour foreground { 0xffa1d6e5 };// skyFall
-
-            /** @brief Default cell background colour. */
-            juce::Colour background { 0x00000000 };// transparent (glass shows through)
-
-            /** @brief Cursor glyph colour. */
-            juce::Colour cursor { 0xff4e8c93 };// paradiso
-
-            /** @brief Selection highlight colour. */
-            juce::Colour selection { 0x2000ddee };// fishBoy semi-transparent
-
-            /** @brief Selection-mode cursor colour. */
-            juce::Colour selectionCursor { 0xff00ddee };// fishBoy
-
-            /** @brief The 16 standard ANSI palette entries. */
-            std::array<juce::Colour, 16> ansi
-            {{
-                juce::Colour (0xff090d12),// 0  black          — bunker
-                juce::Colour (0xfffc704c),// 1  red            — preciousPersimmon
-                juce::Colour (0xffc5f0e9),// 2  green          — gentleCold
-                juce::Colour (0xfff3f5c5),// 3  yellow         — silkStar
-                juce::Colour (0xff8cc9d9),// 4  blue           — dolphin
-                juce::Colour (0xff519299),// 5  magenta        — lagoon
-                juce::Colour (0xff699daa),// 6  cyan           — tranquiliTeal
-                juce::Colour (0xffdddddd),// 7  white          — frostbite
-                juce::Colour (0xff33535b),// 8  bright black   — mediterranea
-                juce::Colour (0xfffc704c),// 9  bright red     — preciousPersimmon
-                juce::Colour (0xffbafffd),// 10 bright green   — paleSky
-                juce::Colour (0xfffeffd2),// 11 bright yellow  — mattWhite
-                juce::Colour (0xff67dfef),// 12 bright blue    — poseidonJr
-                juce::Colour (0xff01c2d2),// 13 bright magenta — caribbeanBlue
-                juce::Colour (0xff00c8d8),// 14 bright cyan    — blueBikini
-                juce::Colour (0xffbafffd),// 15 bright white   — paleSky
-            }};
-
-            /** @brief TextEditor widget background fill (behind the cell grid). */
-            juce::Colour editorBackground { 0x00000000 };// transparent (glass shows through)
-
-            /** @brief TextEditor widget outline colour. */
-            juce::Colour editorOutline { 0x00000000 };// transparent (no outline)
-
-            /** @brief Status bar background colour. */
-            juce::Colour statusBar { 0xff090d12 };// bunker
-
-            /** @brief Status bar label background colour. */
-            juce::Colour statusBarLabelBg { 0xff112130 };// trappedDarkness
-
-            /** @brief Status bar label foreground colour. */
-            juce::Colour statusBarLabelFg { 0xff4e8c93 };// paradiso
-
-            /** @brief Status bar spinner colour. */
-            juce::Colour statusBarSpinner { 0xff00c8d8 };// blueBikini
-
-            /** @brief Hint label background colour (Open File mode). */
-            juce::Colour hintLabelBg { 0xff00ffff };// cyan
-
-            /** @brief Hint label foreground colour (Open File mode). */
-            juce::Colour hintLabelFg { 0xff111111 };// near-black
-
-            /** @brief Terminal scrollbar thumb colour. */
-            juce::Colour scrollbarThumb { 0x802c4144 };// littleMermaid semi-transparent
-
-            /** @brief Terminal scrollbar track colour. */
-            juce::Colour scrollbarTrack { 0x00000000 };// transparent
-        };
-
-        /**
-         * @struct Cursor
-         * @brief Cursor glyph and blink settings.
-         */
-        struct Cursor
-        {
-            /** @brief Unicode codepoint for the cursor glyph. */
-            char32_t codepoint { 0x2588u };
-
-            /** @brief Whether the cursor blinks. */
-            bool blink { true };
-
-            /** @brief Blink period in milliseconds (half-cycle). */
-            int blinkInterval { 500 };
-
-            /** @brief When true, always use the user cursor, ignoring DECSCUSR and OSC 12. */
-            bool force { false };
-
-            /** @brief Geometric cursor shape used as fallback when glyph rendering fails.
-             *  Values match DECSCUSR: 1 = block, 3 = underline, 5 = bar. */
-            int style { 1 };
-        };
-
-        /**
-         * @struct Font
-         * @brief Primary terminal font settings.
-         */
-        struct Font
-        {
-            /** @brief Font family name. */
-            juce::String family { "Display Mono" };
-
-            /** @brief Base font size in points. */
-            float size { 12.0f };
-
-            /** @brief Whether OpenType ligature substitution is enabled. */
-            bool ligatures { true };
-
-            /** @brief Whether synthetic bold is applied. */
-            bool embolden { true };
-
-            /** @brief Line height multiplier. */
-            float lineHeight { 1.0f };
-
-            /** @brief Cell width multiplier. */
-            float cellWidth { 1.0f };
-
-            /** @brief Windows only: whether size follows desktop DPI scale. */
-            bool desktopScale { false };
-        };
-
-        /**
-         * @struct Tab
-         * @brief Tab bar font and colour settings.
-         */
-        struct Tab
-        {
-            /** @brief Font family for tab labels. */
-            juce::String family { "Display Mono" };
-
-            /** @brief Font size for tab labels. */
-            float size { 12.0f };
-
-            /** @brief Active tab foreground colour. */
-            juce::Colour foreground { 0xff00c8d8 };// blueBikini
-
-            /** @brief Inactive tab foreground colour. */
-            juce::Colour inactive { 0xff33535b };// mediterranea
-
-            /** @brief Tab bar position ("left", "right", "top", "bottom"). */
-            juce::String position { "left" };
-
-            /** @brief Tab separator line colour. */
-            juce::Colour line { 0xff2c4144 };// littleMermaid
-
-            /** @brief Active tab background colour. */
-            juce::Colour active { 0xff002b35 };// midnightDreams
-
-            /** @brief Active tab indicator colour. */
-            juce::Colour indicator { 0xff01c2d2 };// caribbeanBlue
-
-            /** @brief Path to SVG file for custom tab button graphics. Empty = built-in. */
-            juce::String buttonSvg;
-        };
-
-        /**
-         * @struct Pane
-         * @brief Pane split bar colours.
-         */
-        struct Pane
-        {
-            /** @brief Pane divider bar background colour. */
-            juce::Colour barColour { 0xff33535b };// mediterranea
-
-            /** @brief Pane divider bar highlight colour (focused pane). */
-            juce::Colour barHighlight { 0xff4e8c93 };// paradiso
-        };
-
-        /**
-         * @struct Overlay
-         * @brief Overlay text font and colour settings.
-         */
-        struct Overlay
-        {
-            /** @brief Font family for overlay text. */
-            juce::String family { "Display Mono" };
-
-            /** @brief Font size for overlay text. */
-            float size { 14.0f };
-
-            /** @brief Overlay text colour. */
-            juce::Colour colour { 0xff4e8c93 };// paradiso
-        };
-
-        /**
-         * @struct Menu
-         * @brief Context menu appearance settings.
-         */
-        struct Menu
-        {
-            /** @brief Context menu background opacity. */
-            float opacity { 0.65f };
-        };
-
-        /**
-         * @struct ActionList
-         * @brief Command palette / action list appearance settings.
-         */
-        struct ActionList
-        {
-            /** @brief Whether the list closes after running an action. */
-            bool closeOnRun { true };
-
-            /** @brief List position on screen ("top", "center", "bottom"). */
-            juce::String position { "top" };
-
-            /** @brief Font family for action names. */
-            juce::String nameFamily { "Display" };
-
-            /** @brief Font style for action names. */
-            juce::String nameStyle { "Bold" };
-
-            /** @brief Font size for action names. */
-            float nameSize { 13.0f };
-
-            /** @brief Font family for shortcut labels. */
-            juce::String shortcutFamily { "Display Mono" };
-
-            /** @brief Font style for shortcut labels. */
-            juce::String shortcutStyle { "Bold" };
-
-            /** @brief Font size for shortcut labels. */
-            float shortcutSize { 12.0f };
-
-            /** @brief Top padding in pixels. */
-            int paddingTop { 10 };
-
-            /** @brief Right padding in pixels. */
-            int paddingRight { 10 };
-
-            /** @brief Bottom padding in pixels. */
-            int paddingBottom { 10 };
-
-            /** @brief Left padding in pixels. */
-            int paddingLeft { 10 };
-
-            /** @brief Action name text colour. */
-            juce::Colour nameColour { 0xffa1d6e5 };// skyFall
-
-            /** @brief Shortcut label text colour. */
-            juce::Colour shortcutColour { 0xff00c8d8 };// blueBikini
-
-            /** @brief List width as a fraction of the window width. */
-            float width { 0.3f };
-
-            /** @brief List height as a fraction of the window height. */
-            float height { 0.3f };
-
-            /** @brief Highlighted row background colour. */
-            juce::Colour highlightColour { 0x2000ddee };// fishBoy semi-transparent
-        };
-
-        /**
-         * @struct StatusBar
-         * @brief Status bar position and font settings.
-         */
-        struct StatusBar
-        {
-            /** @brief Status bar position ("top", "bottom"). */
-            juce::String position { "bottom" };
-
-            /** @brief Font family for status bar text. */
-            juce::String fontFamily { "Display Mono" };
-
-            /** @brief Font size for status bar text. */
-            float fontSize { 12.0f };
-
-            /** @brief Font style for status bar text. */
-            juce::String fontStyle { "Bold" };
-        };
-
-        /**
-         * @struct PopupBorder
-         * @brief Popup window border appearance settings.
-         */
-        struct PopupBorder
-        {
-            /** @brief Popup border colour. */
-            juce::Colour borderColour { 0xff4e8c93 };// paradiso
-
-            /** @brief Popup border width in pixels. */
-            float borderWidth { 1.0f };
-        };
-
-        /** @brief Window geometry and decoration settings. */
-        Window window;
-
-        /** @brief Terminal colour palette. */
-        Colours colours;
-
-        /** @brief Cursor glyph and blink settings. */
-        Cursor cursor;
-
-        /** @brief Primary terminal font. */
-        Font font;
-
-        /** @brief Tab bar appearance. */
-        Tab tab;
-
-        /** @brief Pane divider appearance. */
-        Pane pane;
-
-        /** @brief Overlay text appearance. */
-        Overlay overlay;
-
-        /** @brief Context menu appearance. */
-        Menu menu;
-
-        /** @brief Command palette appearance. */
-        ActionList actionList;
-
-        /** @brief Status bar settings. */
-        StatusBar statusBar;
-
-        /** @brief Popup window border settings. */
-        PopupBorder popup;
-
-        /** @brief Terminal scrollbar width in pixels. 0 = hidden. */
-        int scrollbarWidth { 8 };
-    };
-
-    //==========================================================================
-    /**
-     * @struct Whelmed
-     * @brief All appearance and behaviour settings for the Whelmed markdown viewer.
-     */
-    struct Whelmed
-    {
-        /** @brief Body text font family. */
-        juce::String fontFamily { "Display" };
-
-        /** @brief Body text font style. */
-        juce::String fontStyle { "Medium" };
-
-        /** @brief Body text font size. */
-        float fontSize { 16.0f };
-
-        /** @brief Inline code font family. */
-        juce::String codeFamily { "Display Mono" };
-
-        /** @brief Inline code font size. */
-        float codeSize { 12.0f };
-
-        /** @brief Inline code font style. */
-        juce::String codeStyle { "Medium" };
-
-        /** @brief H1 heading font size. */
-        float h1Size { 28.0f };
-
-        /** @brief H2 heading font size. */
-        float h2Size { 28.0f };
-
-        /** @brief H3 heading font size. */
-        float h3Size { 24.0f };
-
-        /** @brief H4 heading font size. */
-        float h4Size { 20.0f };
-
-        /** @brief H5 heading font size. */
-        float h5Size { 18.0f };
-
-        /** @brief H6 heading font size. */
-        float h6Size { 16.0f };
-
-        /** @brief Line height multiplier for body text. */
-        float lineHeight { 1.5f };
-
-        /** @brief Document background colour. */
-        juce::Colour background { 0xff0d141c };// corbeau
-
-        /** @brief Body text colour. */
-        juce::Colour bodyColour { 0xffb3f9f5 };
-
-        /** @brief Inline code text colour. */
-        juce::Colour codeColour { 0xff00d0ff };
-
-        /** @brief Hyperlink text colour. */
-        juce::Colour linkColour { 0xff01c2d2 };// caribbeanBlue
-
-        /** @brief H1 heading colour. */
-        juce::Colour h1Colour { 0xffd4c8a0 };
-
-        /** @brief H2 heading colour. */
-        juce::Colour h2Colour { 0xffd4c8a0 };
-
-        /** @brief H3 heading colour. */
-        juce::Colour h3Colour { 0xffd4c8a0 };
-
-        /** @brief H4 heading colour. */
-        juce::Colour h4Colour { 0xffd4c8a0 };
-
-        /** @brief H5 heading colour. */
-        juce::Colour h5Colour { 0xffd4c8a0 };
-
-        /** @brief H6 heading colour. */
-        juce::Colour h6Colour { 0xffd4c8a0 };
-
-        /** @brief Code fence block background colour. */
-        juce::Colour codeFenceBackground { 0xff090d12 };// bunker
-
-        /** @brief Progress bar track colour. */
-        juce::Colour progressBackground { 0xff1a1a1a };
-
-        /** @brief Progress bar fill colour. */
-        juce::Colour progressForeground { 0xff4488cc };
-
-        /** @brief Progress percentage text colour. */
-        juce::Colour progressTextColour { 0xffcccccc };
-
-        /** @brief Progress bar spinner colour. */
-        juce::Colour progressSpinnerColour { 0xff4488cc };
-
-        /** @brief Top content padding in pixels. */
-        int paddingTop { 10 };
-
-        /** @brief Right content padding in pixels. */
-        int paddingRight { 10 };
-
-        /** @brief Bottom content padding in pixels. */
-        int paddingBottom { 10 };
-
-        /** @brief Left content padding in pixels. */
-        int paddingLeft { 10 };
-
-        /** @brief Syntax highlight: error token colour. */
-        juce::Colour tokenError { 0xfff74a4a };
-
-        /** @brief Syntax highlight: comment colour. */
-        juce::Colour tokenComment { 0xff6080c0 };
-
-        /** @brief Syntax highlight: keyword colour. */
-        juce::Colour tokenKeyword { 0xff1919ff };
-
-        /** @brief Syntax highlight: operator colour. */
-        juce::Colour tokenOperator { 0xffb0b0b0 };
-
-        /** @brief Syntax highlight: identifier colour. */
-        juce::Colour tokenIdentifier { 0xff00c6ff };
-
-        /** @brief Syntax highlight: integer literal colour. */
-        juce::Colour tokenInteger { 0xff00ff00 };
-
-        /** @brief Syntax highlight: float literal colour. */
-        juce::Colour tokenFloat { 0xff00ff00 };
-
-        /** @brief Syntax highlight: string literal colour. */
-        juce::Colour tokenString { 0xffffc0c0 };
-
-        /** @brief Syntax highlight: bracket/paren colour. */
-        juce::Colour tokenBracket { 0xff80ffff };
-
-        /** @brief Syntax highlight: punctuation colour. */
-        juce::Colour tokenPunctuation { 0xffff9080 };
-
-        /** @brief Syntax highlight: preprocessor directive colour. */
-        juce::Colour tokenPreprocessor { 0xff9aff00 };
-
-        /** @brief Table background colour. */
-        juce::Colour tableBackground { 0xff090d12 };// bunker
-
-        /** @brief Table header row background colour. */
-        juce::Colour tableHeaderBackground { 0xff112130 };// trappedDarkness
-
-        /** @brief Alternating table row background colour. */
-        juce::Colour tableRowAlt { 0xff0d141c };// corbeau
-
-        /** @brief Table border colour. */
-        juce::Colour tableBorderColour { 0xff2c4144 };// littleMermaid
-
-        /** @brief Table header text colour. */
-        juce::Colour tableHeaderText { 0xffbafffd };// paleSky
-
-        /** @brief Table cell text colour. */
-        juce::Colour tableCellText { 0xffb3f9f5 };
-
-        /** @brief Scrollbar thumb colour. */
-        juce::Colour scrollbarThumb { 0xff2c4144 };// littleMermaid
-
-        /** @brief Scrollbar track colour. */
-        juce::Colour scrollbarTrack { 0xff0d141c };// corbeau
-
-        /** @brief Scrollbar background colour. */
-        juce::Colour scrollbarBackground { 0xff0d141c };// corbeau
-
-        /** @brief Key binding to scroll down. */
-        juce::String scrollDown { "j" };
-
-        /** @brief Key binding to scroll up. */
-        juce::String scrollUp { "k" };
-
-        /** @brief Key binding to scroll to top. */
-        juce::String scrollTop { "gg" };
-
-        /** @brief Key binding to scroll to bottom. */
-        juce::String scrollBottom { "G" };
-
-        /** @brief Scroll step in pixels. */
-        int scrollStep { 50 };
-
-        /** @brief Text selection highlight colour. */
-        juce::Colour selectionColour { 0x8000c8d8 };
-    };
-
     //==========================================================================
     /**
      * @struct SelectionKeys
@@ -773,129 +99,6 @@ public:
 
         /** @brief Open file under cursor on next page. */
         juce::KeyPress openFileNextPage;
-    };
-
-    //==========================================================================
-    /**
-     * @struct Keys
-     * @brief Parsed keybinding settings from keys.lua.
-     */
-    struct Keys
-    {
-        /**
-         * @struct Binding
-         * @brief A single parsed key binding entry.
-         */
-        struct Binding
-        {
-            /** @brief The action ID this binding triggers. */
-            juce::String actionId;
-
-            /** @brief The shortcut string as written in keys.lua. */
-            juce::String shortcutString;
-
-            /** @brief Whether this action requires the prefix key. */
-            bool isModal { false };
-        };
-
-        /** @brief The prefix key shortcut string (e.g. the backtick character). */
-        juce::String prefix { "`" };
-
-        /** @brief Milliseconds before the waiting-for-modal-key state times out. */
-        int prefixTimeout { 1000 };
-
-        /** @brief All parsed key bindings. */
-        std::vector<Binding> bindings;
-
-        /** @brief Selection-mode key bindings. */
-        SelectionKeys selection;
-    };
-
-    //==========================================================================
-    /**
-     * @struct Popup
-     * @brief Parsed popup terminal configuration from popups.lua.
-     */
-    struct Popup
-    {
-        /**
-         * @struct Entry
-         * @brief A single popup terminal definition.
-         */
-        struct Entry
-        {
-            /** @brief Display name for the popup (used as action name). */
-            juce::String name;
-
-            /** @brief Shell command to run inside the popup. */
-            juce::String command;
-
-            /** @brief Arguments for the popup command. */
-            juce::String args;
-
-            /** @brief Working directory for the popup. */
-            juce::String cwd;
-
-            /** @brief Popup terminal column count (0 = use default). */
-            cell cols { 0 };
-
-            /** @brief Popup terminal row count (0 = use default). */
-            cell rows { 0 };
-
-            /** @brief Modal binding key string for this popup. */
-            juce::String modal;
-
-            /** @brief Global binding key string for this popup. */
-            juce::String global;
-        };
-
-        /** @brief Default popup terminal column count. */
-        cell defaultCols { 70 };
-
-        /** @brief Default popup terminal row count. */
-        cell defaultRows { 20 };
-
-        /** @brief Default popup screen position ("center", "top", "bottom"). */
-        juce::String defaultPosition { "center" };
-
-        /** @brief All parsed popup entries. */
-        std::vector<Entry> entries;
-    };
-
-    //==========================================================================
-    /**
-     * @struct Action
-     * @brief Parsed custom Lua action definitions from actions.lua.
-     */
-    struct Action
-    {
-        /**
-         * @struct Entry
-         * @brief A single custom Lua action definition.
-         */
-        struct Entry
-        {
-            /** @brief Unique machine-readable identifier (e.g. "lua:my_action"). */
-            juce::String id;
-
-            /** @brief Human-readable display name. */
-            juce::String name;
-
-            /** @brief One-line description shown in the command palette. */
-            juce::String description;
-
-            /** @brief Shortcut string for this action. */
-            juce::String shortcut;
-
-            /** @brief Whether this action requires the prefix key. */
-            bool isModal { false };
-
-            /** @brief The Lua function invoked when the action fires. */
-            jam::lua::Function execute;
-        };
-
-        /** @brief All parsed custom action entries. */
-        std::vector<Entry> entries;
     };
 
     //==========================================================================
@@ -1021,29 +224,22 @@ public:
     Engine();
 
     /** @brief Destructor. */
-    ~Engine() override;
+    ~Engine();
 
     /**
-     * @brief Loads (or reloads) end.lua and all module files from ~/.config/end/.
+     * @brief Loads end.lua and all module files, writing parsed values into the model.
      *
      * Creates a fresh Lua state, registers the API tables, runs end.lua and all
-     * module files, and parses all module tables. On first launch, writes default
-     * config files from BinaryData if they do not exist.
+     * module files, and writes all parsed scalar config properties via model.setValue().
+     * On first launch, writes default config files from BinaryData if they do not exist.
      *
-     * Safe to call multiple times (hot-reload). Each call replaces all parsed state.
+     * Each call replaces all parsed state. model is stored as a pointer for use
+     * by buildTheme(), dpiCorrectedFontSize(), buildKeyMap(), and getPrefixString().
      *
+     * @param model  The AppModel instance. Engine writes config via model.setValue().
      * @note MESSAGE THREAD.
      */
-    void load();
-
-    /**
-     * @brief Triggers a full reload of all config files.
-     *
-     * Equivalent to calling load() from the file watcher callback path.
-     *
-     * @note MESSAGE THREAD.
-     */
-    void reload();
+    void load (jam::Model& model);
 
     /**
      * @brief Sets the display/pane operation callbacks.
@@ -1087,7 +283,8 @@ public:
      * @brief Populates the registry's key maps from all parsed bindings.
      *
      * Handles built-in key bindings, popup bindings, custom action bindings,
-     * prefix key, and prefix timeout. Must be called after all actions are registered.
+     * prefix key, and prefix timeout. Prefix string and timeout are read from the
+     * CONFIG/KEYS node. Must be called after all actions are registered.
      *
      * @param registry  The action registry whose key maps to populate.
      * @note MESSAGE THREAD.
@@ -1136,10 +333,10 @@ public:
     juce::String getActionLuaKey (const juce::String& actionId) const;
 
     /**
-     * @brief Returns the parsed prefix shortcut string.
-     * @return Const reference to the prefix string.
+     * @brief Returns the parsed prefix shortcut string from the CONFIG/KEYS node.
+     * @return Prefix string value.
      */
-    const juce::String& getPrefixString() const noexcept;
+    juce::String getPrefixString() const noexcept;
 
     /**
      * @brief Returns the shortcut string for a given action.lua key, or empty if not found.
@@ -1149,13 +346,13 @@ public:
     juce::String getShortcutString (const juce::String& actionLuaKey) const;
 
     /**
-     * @brief Constructs a Theme from the current display.colours config.
+     * @brief Constructs a Theme from the current CONFIG/DISPLAY colour properties.
      * @return A fully populated Theme struct.
      */
     Theme buildTheme() const;
 
     /**
-     * @brief Returns display.font.size corrected for the current DPI scale.
+     * @brief Returns the font size from CONFIG/DISPLAY corrected for the current DPI scale.
      * @return DPI-adjusted font size in points.
      */
     float dpiCorrectedFontSize() const noexcept;
@@ -1189,25 +386,6 @@ public:
         @note Thread-safe — returns a fixed path.
     */
     static juce::File getConfigPath();
-
-    //==========================================================================
-    /** @brief Top-level nexus and shell configuration. */
-    Nexus nexus;
-
-    /** @brief All visual display settings. */
-    Display display;
-
-    /** @brief Whelmed markdown viewer settings. */
-    Whelmed whelmed;
-
-    /** @brief Key binding and prefix settings. */
-    Keys keys;
-
-    /** @brief Popup terminal definitions. */
-    Popup popup;
-
-    /** @brief Custom Lua action definitions. */
-    Action action;
 
 private:
     //==========================================================================
@@ -1263,9 +441,114 @@ private:
     // clang-format on
 
     //==========================================================================
-    /** @brief Called by jam::File::Watcher when a watched file changes. */
-    void fileChanged (const juce::File& file, jam::File::Watcher::Event event) override;
+    /**
+     * @struct Keys
+     * @brief Parsed key binding data retained between parse and buildKeyMap.
+     */
+    struct Keys
+    {
+        /**
+         * @struct Binding
+         * @brief A single parsed key binding entry.
+         */
+        struct Binding
+        {
+            /** @brief The action ID this binding triggers. */
+            juce::String actionId;
 
+            /** @brief The shortcut string as written in keys.lua. */
+            juce::String shortcutString;
+
+            /** @brief Whether this action requires the prefix key. */
+            bool isModal { false };
+        };
+
+        /** @brief All parsed key bindings. */
+        std::vector<Binding> bindings;
+
+        /** @brief Selection-mode key bindings. */
+        SelectionKeys selection;
+    };
+
+    //==========================================================================
+    /**
+     * @struct Popup
+     * @brief Parsed popup terminal entries retained between parse and registerActions.
+     */
+    struct Popup
+    {
+        /**
+         * @struct Entry
+         * @brief A single popup terminal definition.
+         */
+        struct Entry
+        {
+            /** @brief Display name for the popup (used as action name). */
+            juce::String name;
+
+            /** @brief Shell command to run inside the popup. */
+            juce::String command;
+
+            /** @brief Arguments for the popup command. */
+            juce::String args;
+
+            /** @brief Working directory for the popup. */
+            juce::String cwd;
+
+            /** @brief Popup terminal column count (0 = use default). */
+            cell cols { 0 };
+
+            /** @brief Popup terminal row count (0 = use default). */
+            cell rows { 0 };
+
+            /** @brief Modal binding key string for this popup. */
+            juce::String modal;
+
+            /** @brief Global binding key string for this popup. */
+            juce::String global;
+        };
+
+        /** @brief All parsed popup entries. */
+        std::vector<Entry> entries;
+    };
+
+    //==========================================================================
+    /**
+     * @struct Action
+     * @brief Parsed custom Lua action definitions retained between parse and registerActions.
+     */
+    struct Action
+    {
+        /**
+         * @struct Entry
+         * @brief A single custom Lua action definition.
+         */
+        struct Entry
+        {
+            /** @brief Unique machine-readable identifier (e.g. "lua:my_action"). */
+            juce::String id;
+
+            /** @brief Human-readable display name. */
+            juce::String name;
+
+            /** @brief One-line description shown in the command palette. */
+            juce::String description;
+
+            /** @brief Shortcut string for this action. */
+            juce::String shortcut;
+
+            /** @brief Whether this action requires the prefix key. */
+            bool isModal { false };
+
+            /** @brief The Lua function invoked when the action fires. */
+            jam::lua::Function execute;
+        };
+
+        /** @brief All parsed custom action entries. */
+        std::vector<Entry> entries;
+    };
+
+    //==========================================================================
     /** @brief Writes default config files to ~/.config/end/ if they do not exist. */
     void writeDefaults();
 
@@ -1290,33 +573,33 @@ private:
     /** @brief Writes default_whelmed.lua to configDir if whelmed.lua is absent. */
     void writeWhelmedDefaults (const juce::File& configDir);
 
-    /** @brief Parses the nexus table from the loaded Lua state. */
+    /** @brief Parses the nexus table from the loaded Lua state into the CONFIG/NEXUS node. */
     void parseNexus();
 
-    /** @brief Parses the display table from the loaded Lua state. */
+    /** @brief Parses the display table from the loaded Lua state into the CONFIG/DISPLAY node. */
     void parseDisplay();
 
-    /** @brief Parses the whelmed table from the loaded Lua state. */
+    /** @brief Parses the whelmed table from the loaded Lua state into the CONFIG/WHELMED node. */
     void parseWhelmed();
 
-    /** @brief Parses the keys table from keys.lua. */
+    /** @brief Parses the keys table from keys.lua — bindings into keys member, prefix/timeout into CONFIG/KEYS. */
     void parseKeys();
 
-    /** @brief Parses the popups table from popups.lua. */
+    /** @brief Parses the popups table from popups.lua — entries into popup member, defaults into CONFIG/POPUPS. */
     void parsePopups();
 
-    /** @brief Parses the actions table from actions.lua. */
+    /** @brief Parses the actions table from actions.lua into the action member. */
     void parseActions();
 
-    /** @brief Parses the selection key bindings from keys.lua. */
+    /** @brief Parses the selection key bindings from keys.lua into keys.selection. */
     void parseSelectionKeys();
 
     //==========================================================================
+    /** @brief Pointer to the AppModel instance. Set by load(). Never null after first load(). */
+    jam::Model* model { nullptr };
+
     /** @brief The persistent Lua state. */
     jam::lua::State lua;
-
-    /** @brief File system watcher for hot-reload. */
-    jam::File::Watcher watcher;
 
     /** @brief Pane/tab operation callbacks wired by MainComponent. */
     DisplayCallbacks displayCallbacks;
@@ -1329,6 +612,21 @@ private:
 
     /** @brief Whether the current key file supports on-disk patching. */
     bool keyFileRemappable { true };
+
+    /** @brief Parsed key bindings — rebuilt on each load(). */
+    Keys keys;
+
+    /** @brief Parsed popup entries — rebuilt on each load(). */
+    Popup popup;
+
+    /** @brief Parsed custom Lua actions — rebuilt on each load(). */
+    Action action;
+
+    /** @brief Hyperlink handler map — rebuilt on each load(). */
+    std::unordered_map<juce::String, juce::String> handlers;
+
+    /** @brief Clickable extension set — rebuilt on each load(). */
+    std::unordered_set<juce::String> extensions;
 
     //==========================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Engine)

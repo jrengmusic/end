@@ -34,14 +34,12 @@
     <innerclass refid="structterminal_1_1_pending_image" prot="public">terminal::PendingImage</innerclass>
     <innerclass refid="classterminal_1_1_sixel_decoder" prot="public">terminal::SixelDecoder</innerclass>
     <innerclass refid="classterminal_1_1_skit" prot="public">terminal::Skit</innerclass>
-    <innerclass refid="structterminal_1_1_text_slot" prot="public">terminal::TextSlot</innerclass>
-    <innerclass refid="structterminal_1_1_text_buffer" prot="public">terminal::TextBuffer</innerclass>
     <innerclass refid="classterminal_1_1_video" prot="public">terminal::Video</innerclass>
     <innerclass refid="structterminal_1_1_private_mode_entry" prot="public">terminal::PrivateModeEntry</innerclass>
     <innerclass refid="structterminal_1_1_osc_header" prot="public">terminal::OscHeader</innerclass>
     <innerclass refid="structterminal_1_1_winsize" prot="public">terminal::Winsize</innerclass>
-    <innerclass refid="structterminal_1_1_parameter_base" prot="public">terminal::ParameterBase</innerclass>
     <innerclass refid="structterminal_1_1_parameter" prot="public">terminal::Parameter</innerclass>
+    <innerclass refid="structterminal_1_1_parameter_text" prot="public">terminal::ParameterText</innerclass>
     <innernamespace refid="namespaceterminal_1_1id">terminal::id</innernamespace>
     <sectiondef kind="enum">
       <memberdef kind="enum" id="namespaceterminal_1a7b1b1278777d02b9ed2c58b069647878" prot="public" static="no" strong="yes">
@@ -347,7 +345,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/Model.h" line="16" column="1" bodyfile="ModalType.h" bodystart="27" bodyend="32"/>
+        <location file="terminal/Model.h" line="14" column="1" bodyfile="ModalType.h" bodystart="27" bodyend="32"/>
       </memberdef>
       <memberdef kind="enum" id="namespaceterminal_1acffca3b33fddce63d3220bc7487e879d" prot="public" static="no" strong="yes">
         <type></type>
@@ -361,7 +359,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/Model.h" line="17" column="1" bodyfile="SelectionType.h" bodystart="21" bodyend="26"/>
+        <location file="terminal/Model.h" line="15" column="1" bodyfile="SelectionType.h" bodystart="21" bodyend="26"/>
       </memberdef>
     </sectiondef>
     <sectiondef kind="var">
@@ -738,7 +736,7 @@
         </inbodydescription>
         <location file="terminal/component/LookAndFeelMenu.cpp" line="19" column="13" bodyfile="terminal/component/LookAndFeelMenu.cpp" bodystart="19" bodyend="27"/>
         <references refid="group__juce__audio__plugin__client-Unity_1gae9ace15db486f33243a35ce689893fd9">y</references>
-        <referencedby refid="classterminal_1_1_look_and_feel_1a68ae7c0401a004635be9c6aee34a78e7" compoundref="_look_and_feel_menu_8cpp" startline="71" endline="139">terminal::LookAndFeel::drawPopupMenuItem</referencedby>
+        <referencedby refid="classterminal_1_1_look_and_feel_1a68ae7c0401a004635be9c6aee34a78e7" compoundref="_look_and_feel_menu_8cpp" startline="72" endline="140">terminal::LookAndFeel::drawPopupMenuItem</referencedby>
       </memberdef>
       <memberdef kind="function" id="namespaceterminal_1a62a5134aa7cf3353a9e29cb7f0968e54" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -792,7 +790,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/component/LookAndFeelMenu.cpp" line="36" column="13" bodyfile="terminal/component/LookAndFeelMenu.cpp" bodystart="36" bodyend="48"/>
-        <referencedby refid="classterminal_1_1_look_and_feel_1a68ae7c0401a004635be9c6aee34a78e7" compoundref="_look_and_feel_menu_8cpp" startline="71" endline="139">terminal::LookAndFeel::drawPopupMenuItem</referencedby>
+        <referencedby refid="classterminal_1_1_look_and_feel_1a68ae7c0401a004635be9c6aee34a78e7" compoundref="_look_and_feel_menu_8cpp" startline="72" endline="140">terminal::LookAndFeel::drawPopupMenuItem</referencedby>
       </memberdef>
       <memberdef kind="function" id="namespaceterminal_1a688ccfb4d64021c0279a5072fc2ae5cd" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>juce::Rectangle&lt; float &gt;</type>
@@ -1091,7 +1089,7 @@
         </inbodydescription>
         <location file="terminal/Notifications.cpp" line="36" column="6" bodyfile="terminal/Notifications.cpp" bodystart="36" bodyend="53" declfile="terminal/Notifications.h" declline="28" declcolumn="6"/>
         <references refid="group__juce__audio__plugin__client-Unity_1gga485dc2a0e5ed7da3d9f826367b36ee55a6440030ae8284cee96c1c88b356c45a7">command</references>
-        <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="442">terminal::Processor::registerEvents</referencedby>
       </memberdef>
       <memberdef kind="function" id="namespaceterminal_1a7150de9530263cc14bf60f813543623a" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -1151,7 +1149,7 @@
         </inbodydescription>
         <location file="terminal/Palette.h" line="67" column="13" bodyfile="terminal/Palette.h" bodystart="67" bodyend="70"/>
         <references refid="namespaceterminal_1a7c280ac96375daa7306ea3309285fc8f" compoundref="_palette_8h" startline="39" endline="56">ANSI_16</references>
-        <referencedby refid="classterminal_1_1_look_and_feel_1a39c354f2d95da338fd80326c04f97054" compoundref="_look_and_feel_8cpp" startline="32" endline="97">terminal::LookAndFeel::setColours</referencedby>
+        <referencedby refid="classterminal_1_1_look_and_feel_1a39c354f2d95da338fd80326c04f97054" compoundref="_look_and_feel_8cpp" startline="32" endline="106">terminal::LookAndFeel::setColours</referencedby>
       </memberdef>
       <memberdef kind="function" id="namespaceterminal_1a0d1f9088115851476e5d1ab9a667bfe2" prot="public" static="no" constexpr="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
         <type>uint8_t</type>

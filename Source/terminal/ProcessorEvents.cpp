@@ -325,7 +325,7 @@ void Processor::registerEvents() noexcept
     events.add (id::screenDirty,
                 [this]
                 {
-                    const int activeScr { state.loadValue (id::SESSION, id::activeScreen) };
+                    const int activeScr { state.loadValue<int> (id::SESSION, id::activeScreen) };
 
                     const jam::Buffer<jam::Row>& buf { video.getGrid() };
                     const int numRingRows { buf.getNumRows() };
@@ -360,12 +360,8 @@ void Processor::registerEvents() noexcept
                         cellFifo.pushActive (liveRow->cells, usedCols, flags);
                     }
 
-                    jam::debug::Log::write ("PUSH activeScr=" + juce::String (activeScr)
-                                            + " cursorRow=" + juce::String (cursorRow)
-                                            + " activeReady=" + juce::String (cellFifo.getActiveNumReady()));
-
                     const juce::Identifier dirtyScreenId { Map::Screen::getContext()->get (activeScr) };
-                    const int current { state.loadValue (dirtyScreenId, id::screenDirty) };
+                    const int current { state.loadValue<int> (dirtyScreenId, id::screenDirty) };
                     state.storeValue (dirtyScreenId, id::screenDirty, current + 1);
                 });
 
@@ -374,7 +370,7 @@ void Processor::registerEvents() noexcept
     events.add<int> (id::cursor,
                      [this] (int packedCursor)
                      {
-                         const juce::Identifier cursorScreenId { Map::Screen::getContext()->get (state.loadValue (id::SESSION, id::activeScreen)) };
+                         const juce::Identifier cursorScreenId { Map::Screen::getContext()->get (state.loadValue<int> (id::SESSION, id::activeScreen)) };
                          state.storeValue (cursorScreenId, id::cursor, packedCursor);
                          state.setSnapshotDirty();
                      });

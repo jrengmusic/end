@@ -20,7 +20,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/component/ModalWindow.h" line="65" column="28" bodyfile="terminal/component/ModalWindow.h" bodystart="65" bodyend="65"/>
-        <referencedby refid="classterminal_1_1_modal_window_1a461679934998700aef180ab263a056b6" compoundref="_modal_window_8cpp" startline="33" endline="40">paint</referencedby>
+        <referencedby refid="classterminal_1_1_modal_window_1a461679934998700aef180ab263a056b6" compoundref="_modal_window_8cpp" startline="34" endline="41">paint</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">
@@ -78,10 +78,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/ModalWindow.h" line="56" column="5" bodyfile="terminal/component/ModalWindow.cpp" bodystart="20" bodyend="31"/>
-        <references refid="classjam_1_1_window_1ad2774b7f581825d992778717b23d2db6">jam::Window::blurRadius</references>
-        <references refid="classterminal_1_1_modal_window_1a83bae0e1c4489c29c46f85c2b4404946" compoundref="_modal_window_8cpp" startline="20" endline="31">ModalWindow</references>
-        <referencedby refid="classterminal_1_1_modal_window_1a83bae0e1c4489c29c46f85c2b4404946" compoundref="_modal_window_8cpp" startline="20" endline="31">ModalWindow</referencedby>
+        <location file="terminal/component/ModalWindow.h" line="56" column="5" bodyfile="terminal/component/ModalWindow.cpp" bodystart="21" bodyend="32"/>
+        <references refid="classterminal_1_1_modal_window_1a83bae0e1c4489c29c46f85c2b4404946" compoundref="_modal_window_8cpp" startline="21" endline="32">ModalWindow</references>
+        <referencedby refid="classterminal_1_1_modal_window_1a83bae0e1c4489c29c46f85c2b4404946" compoundref="_modal_window_8cpp" startline="21" endline="32">ModalWindow</referencedby>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_modal_window_1a461679934998700aef180ab263a056b6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -99,9 +98,12 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/ModalWindow.h" line="60" column="10" bodyfile="terminal/component/ModalWindow.cpp" bodystart="33" bodyend="40"/>
+        <location file="terminal/component/ModalWindow.h" line="60" column="10" bodyfile="terminal/component/ModalWindow.cpp" bodystart="34" bodyend="41"/>
         <references refid="classterminal_1_1_modal_window_1af15aa315dcf559b089cdc4dc1387b0c4" compoundref="_modal_window_8h" startline="65" endline="65">cornerSize</references>
-        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
+        <references refid="namespaceapp_1_1id_1a24815b9015e0395936a1718769739fff" compoundref="_app_identifier_8h" startline="80" endline="80">app::id::DISPLAY_LUA</references>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
+        <references refid="namespaceapp_1_1id_1ac9aacbb4cfb9378c6c433673aa6292f9" compoundref="_app_identifier_8h" startline="269" endline="269">app::id::popupBorderColour</references>
+        <references refid="namespaceapp_1_1id_1ad6a9840a545fa986ac88170f4861b80a" compoundref="_app_identifier_8h" startline="270" endline="270">app::id::popupBorderWidth</references>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_modal_window_1a09144f154716c78f450ad9f9effe624e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>bool</type>
@@ -119,7 +121,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/ModalWindow.h" line="61" column="10" bodyfile="terminal/component/ModalWindow.cpp" bodystart="42" bodyend="42"/>
+        <location file="terminal/component/ModalWindow.h" line="61" column="10" bodyfile="terminal/component/ModalWindow.cpp" bodystart="43" bodyend="43"/>
       </memberdef>
     </sectiondef>
     <briefdescription>

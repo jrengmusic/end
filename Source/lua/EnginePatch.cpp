@@ -9,6 +9,7 @@
  */
 
 #include "Engine.h"
+#include "../AppIdentifier.h"
 
 namespace lua
 {
@@ -23,7 +24,7 @@ void Engine::patchKey (const juce::String& key, const juce::String& value)
     const juce::String leafName { key.substring (dotIndex + 1) };
 
     const juce::File configDir { getConfigPath() };
-    const juce::File keysFile { configDir.getChildFile ("keys.lua") };
+    const juce::File keysFile { configDir.getChildFile (app::id::keysLua) };
     juce::String content { keysFile.loadFileAsString() };
 
     // All keys.lua values are strings (shortcuts), so always quote.
@@ -147,7 +148,7 @@ juce::String Engine::getShortcutString (const juce::String& actionLuaKey) const
 
     if (leafName == "prefix")
     {
-        result = keys.prefix;
+        result = model->getValue<juce::String> (app::id::KEYS_LUA, app::id::prefix);
     }
     else
     {

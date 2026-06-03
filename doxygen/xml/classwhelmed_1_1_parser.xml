@@ -18,8 +18,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="whelmed/Parser.h" line="21" column="11" bodyfile="whelmed/Parser.h" bodystart="21" bodyend="-1"/>
-        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="7" endline="31">Parser</referencedby>
-        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="44" endline="91">run</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="8" endline="32">Parser</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="45" endline="92">run</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classwhelmed_1_1_parser_1aa6e7fd7c7999562d74932f9898999505" prot="private" static="no" mutable="no">
         <type>int</type>
@@ -34,8 +34,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="whelmed/Parser.h" line="22" column="9" bodyfile="whelmed/Parser.h" bodystart="22" bodyend="-1"/>
-        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="7" endline="31">Parser</referencedby>
-        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="44" endline="91">run</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="8" endline="32">Parser</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="45" endline="92">run</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classwhelmed_1_1_parser_1a99d6a3f8c6b27a63cf6e3cf57818b7e9" prot="private" static="no" mutable="no">
         <type>float</type>
@@ -50,8 +50,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="whelmed/Parser.h" line="24" column="11" bodyfile="whelmed/Parser.h" bodystart="24" bodyend="-1"/>
-        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="7" endline="31">Parser</referencedby>
-        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="44" endline="91">run</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="8" endline="32">Parser</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="45" endline="92">run</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classwhelmed_1_1_parser_1a2d6ab1866927c262d86a68407bbca58b" prot="private" static="no" mutable="no">
         <type>float</type>
@@ -66,8 +66,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="whelmed/Parser.h" line="25" column="11" bodyfile="whelmed/Parser.h" bodystart="25" bodyend="-1"/>
-        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="7" endline="31">Parser</referencedby>
-        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="44" endline="91">run</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="8" endline="32">Parser</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="45" endline="92">run</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classwhelmed_1_1_parser_1a933999e8eebb37ec031d3c8c598c57f6" prot="private" static="no" mutable="no">
         <type>float</type>
@@ -82,8 +82,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="whelmed/Parser.h" line="26" column="11" bodyfile="whelmed/Parser.h" bodystart="26" bodyend="-1"/>
-        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="7" endline="31">Parser</referencedby>
-        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="44" endline="91">run</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="8" endline="32">Parser</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="45" endline="92">run</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classwhelmed_1_1_parser_1ae0bb5aa790a98ddce05fd33ce8f1a6e3" prot="private" static="no" mutable="no">
         <type>float</type>
@@ -98,8 +98,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="whelmed/Parser.h" line="27" column="11" bodyfile="whelmed/Parser.h" bodystart="27" bodyend="-1"/>
-        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="7" endline="31">Parser</referencedby>
-        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="44" endline="91">run</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="8" endline="32">Parser</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="45" endline="92">run</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classwhelmed_1_1_parser_1a6cf1e4311c846fcc7f7227b0a10300a6" prot="private" static="no" mutable="no">
         <type>float</type>
@@ -114,8 +114,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="whelmed/Parser.h" line="28" column="11" bodyfile="whelmed/Parser.h" bodystart="28" bodyend="-1"/>
-        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="7" endline="31">Parser</referencedby>
-        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="44" endline="91">run</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="8" endline="32">Parser</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="45" endline="92">run</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classwhelmed_1_1_parser_1ab7b3d71d8daea0b2f9a9abedb76308ff" prot="private" static="no" mutable="no">
         <type>float</type>
@@ -130,8 +130,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="whelmed/Parser.h" line="29" column="11" bodyfile="whelmed/Parser.h" bodystart="29" bodyend="-1"/>
-        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="7" endline="31">Parser</referencedby>
-        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="44" endline="91">run</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="8" endline="32">Parser</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="45" endline="92">run</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classwhelmed_1_1_parser_1a2201808114693d9c45ef6760354e23fe" prot="private" static="no" mutable="no">
         <type>float</type>
@@ -146,8 +146,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="whelmed/Parser.h" line="30" column="11" bodyfile="whelmed/Parser.h" bodystart="30" bodyend="-1"/>
-        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="7" endline="31">Parser</referencedby>
-        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="44" endline="91">run</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="8" endline="32">Parser</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="45" endline="92">run</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classwhelmed_1_1_parser_1a127d16e549d18b16c69fbebdc69939c6" prot="private" static="no" mutable="no">
         <type>juce::Colour</type>
@@ -162,8 +162,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="whelmed/Parser.h" line="32" column="18" bodyfile="whelmed/Parser.h" bodystart="32" bodyend="-1"/>
-        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="7" endline="31">Parser</referencedby>
-        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="44" endline="91">run</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="8" endline="32">Parser</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="45" endline="92">run</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classwhelmed_1_1_parser_1a396a1f2e66629c24e73887efc6ab02f7" prot="private" static="no" mutable="no">
         <type>juce::Colour</type>
@@ -178,8 +178,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="whelmed/Parser.h" line="33" column="18" bodyfile="whelmed/Parser.h" bodystart="33" bodyend="-1"/>
-        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="7" endline="31">Parser</referencedby>
-        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="44" endline="91">run</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="8" endline="32">Parser</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="45" endline="92">run</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classwhelmed_1_1_parser_1a3c2edd77d0d1d3754703e09fb31e3271" prot="private" static="no" mutable="no">
         <type>juce::Colour</type>
@@ -194,8 +194,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="whelmed/Parser.h" line="34" column="18" bodyfile="whelmed/Parser.h" bodystart="34" bodyend="-1"/>
-        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="7" endline="31">Parser</referencedby>
-        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="44" endline="91">run</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="8" endline="32">Parser</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="45" endline="92">run</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classwhelmed_1_1_parser_1afbe296285760d010a36fba6f18f7c261" prot="private" static="no" mutable="no">
         <type>juce::Colour</type>
@@ -210,8 +210,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="whelmed/Parser.h" line="35" column="18" bodyfile="whelmed/Parser.h" bodystart="35" bodyend="-1"/>
-        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="7" endline="31">Parser</referencedby>
-        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="44" endline="91">run</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="8" endline="32">Parser</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="45" endline="92">run</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classwhelmed_1_1_parser_1a110e3f34c6a3758e351f0d81c492290e" prot="private" static="no" mutable="no">
         <type>juce::Colour</type>
@@ -226,8 +226,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="whelmed/Parser.h" line="36" column="18" bodyfile="whelmed/Parser.h" bodystart="36" bodyend="-1"/>
-        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="7" endline="31">Parser</referencedby>
-        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="44" endline="91">run</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="8" endline="32">Parser</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="45" endline="92">run</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classwhelmed_1_1_parser_1a3deab1a18a22edab439b6b31d1805c66" prot="private" static="no" mutable="no">
         <type>juce::Colour</type>
@@ -242,8 +242,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="whelmed/Parser.h" line="37" column="18" bodyfile="whelmed/Parser.h" bodystart="37" bodyend="-1"/>
-        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="7" endline="31">Parser</referencedby>
-        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="44" endline="91">run</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="8" endline="32">Parser</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="45" endline="92">run</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classwhelmed_1_1_parser_1ac71d24dd460c432c126541268c31022b" prot="private" static="no" mutable="no">
         <type>juce::Colour</type>
@@ -258,8 +258,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="whelmed/Parser.h" line="38" column="18" bodyfile="whelmed/Parser.h" bodystart="38" bodyend="-1"/>
-        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="7" endline="31">Parser</referencedby>
-        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="44" endline="91">run</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="8" endline="32">Parser</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="45" endline="92">run</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classwhelmed_1_1_parser_1ab88c4e608bf03dcb787924e47dc139bf" prot="private" static="no" mutable="no">
         <type>juce::Colour</type>
@@ -274,8 +274,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="whelmed/Parser.h" line="39" column="18" bodyfile="whelmed/Parser.h" bodystart="39" bodyend="-1"/>
-        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="7" endline="31">Parser</referencedby>
-        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="44" endline="91">run</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="8" endline="32">Parser</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="45" endline="92">run</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classwhelmed_1_1_parser_1a4454cb0fb831527460a6749dfab285ef" prot="private" static="no" mutable="no">
         <type>juce::Colour</type>
@@ -290,8 +290,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="whelmed/Parser.h" line="40" column="18" bodyfile="whelmed/Parser.h" bodystart="40" bodyend="-1"/>
-        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="7" endline="31">Parser</referencedby>
-        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="44" endline="91">run</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="8" endline="32">Parser</referencedby>
+        <referencedby refid="classwhelmed_1_1_parser_1a698a41ba9321b3f36fb20f93d2a891a3" compoundref="whelmed_2_parser_8cpp" startline="45" endline="92">run</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">
@@ -315,27 +315,44 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="whelmed/Parser.h" line="13" column="5" bodyfile="whelmed/Parser.cpp" bodystart="7" bodyend="31"/>
+        <location file="whelmed/Parser.h" line="13" column="5" bodyfile="whelmed/Parser.cpp" bodystart="8" bodyend="32"/>
+        <references refid="namespaceapp_1_1id_1a52ae58d30601371b81d01482e3309917" compoundref="_app_identifier_8h" startline="291" endline="291">app::id::bodyColour</references>
         <references refid="classwhelmed_1_1_parser_1a127d16e549d18b16c69fbebdc69939c6" compoundref="whelmed_2_parser_8h" startline="32">bodyColour</references>
         <references refid="classwhelmed_1_1_parser_1a99d6a3f8c6b27a63cf6e3cf57818b7e9" compoundref="whelmed_2_parser_8h" startline="24">bodySize</references>
+        <references refid="namespaceapp_1_1id_1a4ef5f0b110037ae468c6f396feb5295f" compoundref="_app_identifier_8h" startline="292" endline="292">app::id::codeColour</references>
         <references refid="classwhelmed_1_1_parser_1ab88c4e608bf03dcb787924e47dc139bf" compoundref="whelmed_2_parser_8h" startline="39">codeColour</references>
-        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
+        <references refid="namespaceapp_1_1id_1a4affa12e1041cbac52db6146cfeb8669" compoundref="_app_identifier_8h" startline="99" endline="99">app::id::fontSize</references>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
+        <references refid="namespaceapp_1_1id_1a0d47ddc2796c1bff5cbab6603d22815c" compoundref="_app_identifier_8h" startline="294" endline="294">app::id::h1Colour</references>
         <references refid="classwhelmed_1_1_parser_1a396a1f2e66629c24e73887efc6ab02f7" compoundref="whelmed_2_parser_8h" startline="33">h1Colour</references>
+        <references refid="namespaceapp_1_1id_1ac98dbc6263419d63deee50a712d8542b" compoundref="_app_identifier_8h" startline="285" endline="285">app::id::h1Size</references>
         <references refid="classwhelmed_1_1_parser_1a2d6ab1866927c262d86a68407bbca58b" compoundref="whelmed_2_parser_8h" startline="25">h1Size</references>
+        <references refid="namespaceapp_1_1id_1a0ff18ee33f012e953a7876bc88ae7788" compoundref="_app_identifier_8h" startline="295" endline="295">app::id::h2Colour</references>
         <references refid="classwhelmed_1_1_parser_1a3c2edd77d0d1d3754703e09fb31e3271" compoundref="whelmed_2_parser_8h" startline="34">h2Colour</references>
+        <references refid="namespaceapp_1_1id_1a9e65d6d96ed5ae9d2adaef5b9180c9c7" compoundref="_app_identifier_8h" startline="286" endline="286">app::id::h2Size</references>
         <references refid="classwhelmed_1_1_parser_1a933999e8eebb37ec031d3c8c598c57f6" compoundref="whelmed_2_parser_8h" startline="26">h2Size</references>
+        <references refid="namespaceapp_1_1id_1a8018f054bfa783bc78da6c978d625e74" compoundref="_app_identifier_8h" startline="296" endline="296">app::id::h3Colour</references>
         <references refid="classwhelmed_1_1_parser_1afbe296285760d010a36fba6f18f7c261" compoundref="whelmed_2_parser_8h" startline="35">h3Colour</references>
+        <references refid="namespaceapp_1_1id_1ae13f583ab8a59ae1f1cc9cf84c361e35" compoundref="_app_identifier_8h" startline="287" endline="287">app::id::h3Size</references>
         <references refid="classwhelmed_1_1_parser_1ae0bb5aa790a98ddce05fd33ce8f1a6e3" compoundref="whelmed_2_parser_8h" startline="27">h3Size</references>
+        <references refid="namespaceapp_1_1id_1a07078d19dd37b19ebd567197d6b9cc6b" compoundref="_app_identifier_8h" startline="297" endline="297">app::id::h4Colour</references>
         <references refid="classwhelmed_1_1_parser_1a110e3f34c6a3758e351f0d81c492290e" compoundref="whelmed_2_parser_8h" startline="36">h4Colour</references>
+        <references refid="namespaceapp_1_1id_1a2486d733c843f90972f7d9fe5ded1089" compoundref="_app_identifier_8h" startline="288" endline="288">app::id::h4Size</references>
         <references refid="classwhelmed_1_1_parser_1a6cf1e4311c846fcc7f7227b0a10300a6" compoundref="whelmed_2_parser_8h" startline="28">h4Size</references>
+        <references refid="namespaceapp_1_1id_1a140cca350b9776148a3fccd8ba9f7e04" compoundref="_app_identifier_8h" startline="298" endline="298">app::id::h5Colour</references>
         <references refid="classwhelmed_1_1_parser_1a3deab1a18a22edab439b6b31d1805c66" compoundref="whelmed_2_parser_8h" startline="37">h5Colour</references>
+        <references refid="namespaceapp_1_1id_1a5cc364c46a9fde4b3109ce56b7e3c08a" compoundref="_app_identifier_8h" startline="289" endline="289">app::id::h5Size</references>
         <references refid="classwhelmed_1_1_parser_1ab7b3d71d8daea0b2f9a9abedb76308ff" compoundref="whelmed_2_parser_8h" startline="29">h5Size</references>
+        <references refid="namespaceapp_1_1id_1abbcfae93cf8d068934f685be08e73010" compoundref="_app_identifier_8h" startline="299" endline="299">app::id::h6Colour</references>
         <references refid="classwhelmed_1_1_parser_1ac71d24dd460c432c126541268c31022b" compoundref="whelmed_2_parser_8h" startline="38">h6Colour</references>
+        <references refid="namespaceapp_1_1id_1abe73dbb6ccdde794ba183f63128f1c52" compoundref="_app_identifier_8h" startline="290" endline="290">app::id::h6Size</references>
         <references refid="classwhelmed_1_1_parser_1a2201808114693d9c45ef6760354e23fe" compoundref="whelmed_2_parser_8h" startline="30">h6Size</references>
+        <references refid="namespaceapp_1_1id_1abc5c147bdc38eadc2cbda8a97f40a944" compoundref="_app_identifier_8h" startline="293" endline="293">app::id::linkColour</references>
         <references refid="classwhelmed_1_1_parser_1a4454cb0fb831527460a6749dfab285ef" compoundref="whelmed_2_parser_8h" startline="40">linkColour</references>
-        <references refid="classwhelmed_1_1_parser_1ade02c6c2510bed94ddcee46f947268f3" compoundref="whelmed_2_parser_8cpp" startline="39" endline="42">start</references>
+        <references refid="classwhelmed_1_1_parser_1ade02c6c2510bed94ddcee46f947268f3" compoundref="whelmed_2_parser_8cpp" startline="40" endline="43">start</references>
         <references refid="classwhelmed_1_1_parser_1aa6e7fd7c7999562d74932f9898999505" compoundref="whelmed_2_parser_8h" startline="22">startBlock</references>
         <references refid="classwhelmed_1_1_parser_1a0b3630eec446e7cac7b71bc4dae8fcdf" compoundref="whelmed_2_parser_8h" startline="21">state</references>
+        <references refid="namespaceapp_1_1id_1af38a58466b0c9efb4717d0c6e9fef1d4" compoundref="_app_identifier_8h" startline="81" endline="81">app::id::WHELMED_LUA</references>
       </memberdef>
       <memberdef kind="function" id="classwhelmed_1_1_parser_1ae480906e1cd2ed2102d9b92760fbc0a0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type></type>
@@ -349,7 +366,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="whelmed/Parser.h" line="14" column="5" bodyfile="whelmed/Parser.cpp" bodystart="33" bodyend="37"/>
+        <location file="whelmed/Parser.h" line="14" column="5" bodyfile="whelmed/Parser.cpp" bodystart="34" bodyend="38"/>
       </memberdef>
       <memberdef kind="function" id="classwhelmed_1_1_parser_1ade02c6c2510bed94ddcee46f947268f3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -363,8 +380,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="whelmed/Parser.h" line="16" column="10" bodyfile="whelmed/Parser.cpp" bodystart="39" bodyend="42"/>
-        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="7" endline="31">Parser</referencedby>
+        <location file="whelmed/Parser.h" line="16" column="10" bodyfile="whelmed/Parser.cpp" bodystart="40" bodyend="43"/>
+        <referencedby refid="classwhelmed_1_1_parser_1a2ee60ba1e7bbc4aeba4ec8704ff5e8a7" compoundref="whelmed_2_parser_8cpp" startline="8" endline="32">Parser</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="private-func">
@@ -380,7 +397,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="whelmed/Parser.h" line="19" column="10" bodyfile="whelmed/Parser.cpp" bodystart="44" bodyend="91"/>
+        <location file="whelmed/Parser.h" line="19" column="10" bodyfile="whelmed/Parser.cpp" bodystart="45" bodyend="92"/>
         <references refid="classwhelmed_1_1_parser_1a127d16e549d18b16c69fbebdc69939c6" compoundref="whelmed_2_parser_8h" startline="32">bodyColour</references>
         <references refid="classwhelmed_1_1_parser_1a99d6a3f8c6b27a63cf6e3cf57818b7e9" compoundref="whelmed_2_parser_8h" startline="24">bodySize</references>
         <references refid="namespacejam_1_1_markdown_1a4ba238a36059399ca33400bd8e3e7471a518fa5caca6d8a5b52cd9584db42406b">jam::Markdown::Code</references>

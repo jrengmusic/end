@@ -47,7 +47,6 @@
 
 #include "Keyboard.h"
 #include "Model.h"
-#include "TextBuffer.h"
 #include "Winsize.h"
 #include "tty/TTY.h"
 #if JUCE_MAC || JUCE_LINUX
@@ -120,13 +119,11 @@ public:
      *
      * @param stateRef    Terminal parameter store — owned by terminal::Session.
      * @param dims        Terminal dimensions in cells.
-     * @param textBuffer  Cross-thread string buffer owned by terminal::Session.
      * @param uuid        Stable UUID for this Processor — generated once by the caller.
      * @note MESSAGE THREAD — must be constructed on the message thread.
      */
     Processor (Model& stateRef,
                jam::Cell::Rectangle dims,
-               TextBuffer& textBuffer,
                const juce::String& uuid);
 
     /**
@@ -335,9 +332,6 @@ private:
 
     /** @brief Owned PTY — created by startTTY().  Null in IPC client mode (remote sessions). */
     std::unique_ptr<TTY> tty;
-
-    /** @brief Cross-thread string buffer — owned by terminal::Session. */
-    TextBuffer& textBuffer;
 
     /** @brief Two-ring SPSC buffer for lock-free cross-thread cell row delivery.
      *  history ring — pushLine handler writes departed scrollback rows via pushHistory(); message thread drains via drainHistory().

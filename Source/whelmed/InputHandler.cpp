@@ -88,12 +88,12 @@ void InputHandler::reset() noexcept
 
 bool InputHandler::handleNavigation (const juce::KeyPress& key) noexcept
 {
-    const auto* cfg { lua::Engine::getContext() };
-    const int scrollStep             { cfg->whelmed.scrollStep };
-    const juce::String scrollDown   { cfg->whelmed.scrollDown };
-    const juce::String scrollUp     { cfg->whelmed.scrollUp };
-    const juce::String scrollTop    { cfg->whelmed.scrollTop };
-    const juce::String scrollBottom { cfg->whelmed.scrollBottom };
+    const auto* appState { AppModel::getContext() };
+    const int scrollStep             { appState->getValue<int> (app::id::WHELMED_LUA, app::id::scrollStep) };
+    const juce::String scrollDown   { appState->getValue<juce::String> (app::id::WHELMED_LUA, app::id::scrollDown) };
+    const juce::String scrollUp     { appState->getValue<juce::String> (app::id::WHELMED_LUA, app::id::scrollUp) };
+    const juce::String scrollTop    { appState->getValue<juce::String> (app::id::WHELMED_LUA, app::id::scrollTop) };
+    const juce::String scrollBottom { appState->getValue<juce::String> (app::id::WHELMED_LUA, app::id::scrollBottom) };
 
     const auto keyChar { key.getTextCharacter() };
     bool handled { false };

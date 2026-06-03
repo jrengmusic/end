@@ -8,6 +8,7 @@
  */
 
 #include "ModalWindow.h"
+#include "../../AppModel.h"
 
 namespace terminal
 {
@@ -23,8 +24,8 @@ ModalWindow::ModalWindow (std::unique_ptr<juce::Component> content,
     : jam::ModalWindow (std::move (content),
                         centreAround,
                         std::move (dismissCallback),
-                        lua::Engine::getContext()->display.window.opacity,
-                        lua::Engine::getContext()->display.window.blurRadius)
+                        AppModel::getContext()->getValue<float> (app::id::DISPLAY_LUA, app::id::windowOpacity),
+                        AppModel::getContext()->getValue<int> (app::id::DISPLAY_LUA, app::id::windowBlurRadius))
 {
     // No onRepaintNeeded wiring needed — terminal repaints via JUCE's normal
     // component repaint mechanism.
@@ -32,11 +33,11 @@ ModalWindow::ModalWindow (std::unique_ptr<juce::Component> content,
 
 void ModalWindow::paint (juce::Graphics& g)
 {
-    const auto* cfg { lua::Engine::getContext() };
-    const auto borderWidth { cfg->display.popup.borderWidth };
+    const auto* appState { AppModel::getContext() };
+    const auto borderWidth { appState->getValue<float> (app::id::DISPLAY_LUA, app::id::popupBorderWidth) };
 
-    g.setColour (cfg->display.popup.borderColour);
-    g.drawRoundedRectangle (getLocalBounds().reduced (2 * borderWidth).toFloat(), cornerSize, borderWidth);
+    g.setColour (juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::DISPLAY_LUA, app::id::popupBorderColour))));
+    g.drawRoundedRectangle (getLocalBounds().reduced (static_cast<int> (2.0f * borderWidth)).toFloat(), cornerSize, borderWidth);
 }
 
 bool ModalWindow::keyPressed (const juce::KeyPress&) { return false; }

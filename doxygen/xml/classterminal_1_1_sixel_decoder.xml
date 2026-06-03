@@ -115,7 +115,7 @@
 <simplesect kind="note"><para>READER THREAD only.</para>
 </simplesect>
 </para>
-<sect1 id="classterminal_1_1_sixel_decoder_1autotoc_md65_1s1"><sect2 id="classterminal_1_1_sixel_decoder_1autotoc_md65_1s2"><sect3 id="classterminal_1_1_sixel_decoder_1autotoc_md65">
+<sect1 id="classterminal_1_1_sixel_decoder_1autotoc_md66_1s1"><sect2 id="classterminal_1_1_sixel_decoder_1autotoc_md66_1s2"><sect3 id="classterminal_1_1_sixel_decoder_1autotoc_md66">
 <title>Algorithm</title><para><orderedlist>
 <listitem><para>First-pass scan: locate raster attributes <computeroutput>"Ph;Pv</computeroutput> for pre-allocation. If none, start with a default 800×600 buffer.</para>
 </listitem><listitem><para>Initialise palette from VT340 defaults.</para>

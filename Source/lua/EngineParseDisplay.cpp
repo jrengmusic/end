@@ -6,10 +6,14 @@
  * parseDisplayWindow, parseDisplayColours, parseDisplayCursor,
  * parseDisplayFont, parseDisplayTab, parseDisplayMisc.
  *
+ * All parsed values are written via model.setValue(app::id::DISPLAY_LUA, ...).
+ * Every field is always written — either the parsed Lua value or the default.
+ *
  * @see lua::Engine
  */
 
 #include "Engine.h"
+#include "../AppIdentifier.h"
 #include "../Map.h"
 
 namespace lua
@@ -17,93 +21,172 @@ namespace lua
 /*____________________________________________________________________________*/
 
 //==============================================================================
-static void parseDisplayWindow (Engine::Display::Window& window, jam::lua::Value& displayTable)
+static void parseDisplayWindow (jam::Model& model, jam::lua::Value& displayTable)
 {
     jam::lua::Value t { displayTable["window"] };
 
     if (t.isTable())
     {
-        auto title { t["title"].optional<juce::String>() };
-        if (title.has_value()) window.title = title.value();
+        auto titleVal { t["title"].optional<juce::String>() };
+        model.setValue (app::id::DISPLAY_LUA, app::id::windowTitle,
+                        titleVal.has_value() ? titleVal.value() : juce::String (ProjectInfo::projectName));
 
-        auto width { t["width"].optional<double>() };
-        if (width.has_value()) window.width = static_cast<int> (width.value());
+        auto widthVal { t["width"].optional<double>() };
+        model.setValue (app::id::DISPLAY_LUA, app::id::windowWidth,
+                        widthVal.has_value() ? static_cast<int> (widthVal.value()) : 640);
 
-        auto height { t["height"].optional<double>() };
-        if (height.has_value()) window.height = static_cast<int> (height.value());
+        auto heightVal { t["height"].optional<double>() };
+        model.setValue (app::id::DISPLAY_LUA, app::id::windowHeight,
+                        heightVal.has_value() ? static_cast<int> (heightVal.value()) : 480);
 
-        auto colour { t["colour"].optional<juce::String>() };
-        if (colour.has_value()) window.colour = Engine::parseColour (colour.value());
+        auto colourVal { t["colour"].optional<juce::String>() };
+        const juce::Colour windowColour { colourVal.has_value() ? Engine::parseColour (colourVal.value()) : juce::Colour (0xff090d12) };
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::windowColour, static_cast<int> (windowColour.getARGB()));
 
-        auto opacity { t["opacity"].optional<double>() };
-        if (opacity.has_value())
-            window.opacity = static_cast<float> (juce::jlimit (0.0, 1.0, opacity.value()));
+        auto opacityVal { t["opacity"].optional<double>() };
+        model.setValue (app::id::DISPLAY_LUA, app::id::windowOpacity,
+                               opacityVal.has_value()
+                                   ? static_cast<float> (juce::jlimit (0.0, 1.0, opacityVal.value()))
+                                   : 0.75f);
 
-        auto blurRadius { t["blur_radius"].optional<double>() };
-        if (blurRadius.has_value())
-            window.blurRadius = static_cast<float> (juce::jlimit (0.0, 100.0, blurRadius.value()));
+        auto blurRadiusVal { t["blur_radius"].optional<double>() };
+        model.setValue (app::id::DISPLAY_LUA, app::id::windowBlurRadius,
+                               blurRadiusVal.has_value()
+                                   ? static_cast<float> (juce::jlimit (0.0, 100.0, blurRadiusVal.value()))
+                                   : 32.0f);
 
-        auto alwaysOnTop { t["always_on_top"].optional<juce::String>() };
-        if (alwaysOnTop.has_value()) window.alwaysOnTop = Map::Bool::getContext()->get (alwaysOnTop.value()) == Map::Bool::yes;
+        auto alwaysOnTopVal { t["always_on_top"].optional<juce::String>() };
+        model.setValue (app::id::DISPLAY_LUA, app::id::windowAlwaysOnTop,
+                        alwaysOnTopVal.has_value() ? (Map::Bool::getContext()->get (alwaysOnTopVal.value()) == Map::Bool::yes ? 1 : 0) : 0);
 
-        auto buttons { t["buttons"].optional<juce::String>() };
-        if (buttons.has_value()) window.buttons = Map::Bool::getContext()->get (buttons.value()) == Map::Bool::yes;
+        auto buttonsVal { t["buttons"].optional<juce::String>() };
+        model.setValue (app::id::DISPLAY_LUA, app::id::windowButtons,
+                        buttonsVal.has_value() ? (Map::Bool::getContext()->get (buttonsVal.value()) == Map::Bool::yes ? 1 : 0) : 0);
 
-        auto forceDwm { t["force_dwm"].optional<juce::String>() };
-        if (forceDwm.has_value()) window.forceDwm = Map::Bool::getContext()->get (forceDwm.value()) == Map::Bool::yes;
+        auto forceDwmVal { t["force_dwm"].optional<juce::String>() };
+        model.setValue (app::id::DISPLAY_LUA, app::id::windowForceDwm,
+                        forceDwmVal.has_value() ? (Map::Bool::getContext()->get (forceDwmVal.value()) == Map::Bool::yes ? 1 : 0) : 1);
 
-        auto saveSize { t["save_size"].optional<juce::String>() };
-        if (saveSize.has_value()) window.saveSize = Map::Bool::getContext()->get (saveSize.value()) == Map::Bool::yes;
+        auto saveSizeVal { t["save_size"].optional<juce::String>() };
+        model.setValue (app::id::DISPLAY_LUA, app::id::windowSaveSize,
+                        saveSizeVal.has_value() ? (Map::Bool::getContext()->get (saveSizeVal.value()) == Map::Bool::yes ? 1 : 0) : 1);
 
-        auto confirmationOnExit { t["confirmation_on_exit"].optional<juce::String>() };
-        if (confirmationOnExit.has_value())
-            window.confirmationOnExit = Map::Bool::getContext()->get (confirmationOnExit.value()) == Map::Bool::yes;
+        auto confirmationOnExitVal { t["confirmation_on_exit"].optional<juce::String>() };
+        model.setValue (app::id::DISPLAY_LUA, app::id::windowConfirmationOnExit,
+                        confirmationOnExitVal.has_value() ? (Map::Bool::getContext()->get (confirmationOnExitVal.value()) == Map::Bool::yes ? 1 : 0) : 1);
+    }
+    else
+    {
+        model.setValue (app::id::DISPLAY_LUA, app::id::windowTitle,              juce::String (ProjectInfo::projectName));
+        model.setValue (app::id::DISPLAY_LUA, app::id::windowWidth,              640);
+        model.setValue (app::id::DISPLAY_LUA, app::id::windowHeight,             480);
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::windowColour,             static_cast<int> (juce::Colour (0xff090d12).getARGB()));
+        model.setValue (app::id::DISPLAY_LUA, app::id::windowOpacity,    0.75f);
+        model.setValue (app::id::DISPLAY_LUA, app::id::windowBlurRadius, 32.0f);
+        model.setValue (app::id::DISPLAY_LUA, app::id::windowAlwaysOnTop,        0);
+        model.setValue (app::id::DISPLAY_LUA, app::id::windowButtons,            0);
+        model.setValue (app::id::DISPLAY_LUA, app::id::windowForceDwm,           1);
+        model.setValue (app::id::DISPLAY_LUA, app::id::windowSaveSize,           1);
+        model.setValue (app::id::DISPLAY_LUA, app::id::windowConfirmationOnExit, 1);
     }
 }
 
-static void parseDisplayColours (Engine::Display::Colours& colours, jam::lua::Value& displayTable)
+static void parseDisplayColours (jam::Model& model, jam::lua::Value& displayTable)
 {
     jam::lua::Value t { displayTable["colours"] };
 
+    auto readColourProperty = [&t, &model] (const char* luaKey,
+                                             const juce::Identifier& propId,
+                                             juce::Colour defaultColour)
+    {
+        auto val { t[luaKey].optional<juce::String>() };
+        const juce::Colour colour { val.has_value() ? Engine::parseColour (val.value()) : defaultColour };
+        model.setValue<int> (app::id::DISPLAY_LUA, propId, static_cast<int> (colour.getARGB()));
+    };
+
     if (t.isTable())
     {
-        auto readColour = [&t] (const char* key, juce::Colour& target)
-        {
-            auto val { t[key].optional<juce::String>() };
-            if (val.has_value()) target = Engine::parseColour (val.value());
-        };
+        readColourProperty ("foreground",          app::id::foreground,            juce::Colour (0xffa1d6e5));
+        readColourProperty ("background",          app::id::background,            juce::Colour (0x00000000));
+        readColourProperty ("cursor",              app::id::cursorColour,          juce::Colour (0xff4e8c93));
+        readColourProperty ("selection",           app::id::selectionColour,       juce::Colour (0x2000ddee));
+        readColourProperty ("selection_cursor",    app::id::selectionCursorColour, juce::Colour (0xff00ddee));
+        readColourProperty ("status_bar",          app::id::statusBarColour,       juce::Colour (0xff090d12));
+        readColourProperty ("status_bar_label_bg", app::id::statusBarLabelBg,      juce::Colour (0xff112130));
+        readColourProperty ("status_bar_label_fg", app::id::statusBarLabelFg,      juce::Colour (0xff4e8c93));
+        readColourProperty ("status_bar_spinner",  app::id::statusBarSpinner,      juce::Colour (0xff00c8d8));
+        readColourProperty ("hint_label_bg",       app::id::hintLabelBg,           juce::Colour (0xff00ffff));
+        readColourProperty ("hint_label_fg",       app::id::hintLabelFg,           juce::Colour (0xff111111));
+        readColourProperty ("editor_background",   app::id::editorBackground,      juce::Colour (0x00000000));
+        readColourProperty ("editor_outline",      app::id::editorOutline,         juce::Colour (0x00000000));
+        readColourProperty ("scrollbar_thumb",     app::id::scrollbarThumb,        juce::Colour (0x802c4144));
+        readColourProperty ("scrollbar_track",     app::id::scrollbarTrack,        juce::Colour (0x00000000));
 
-        readColour ("foreground",           colours.foreground);
-        readColour ("background",           colours.background);
-        readColour ("cursor",               colours.cursor);
-        readColour ("selection",            colours.selection);
-        readColour ("selection_cursor",     colours.selectionCursor);
-        readColour ("status_bar",           colours.statusBar);
-        readColour ("status_bar_label_bg",  colours.statusBarLabelBg);
-        readColour ("status_bar_label_fg",  colours.statusBarLabelFg);
-        readColour ("status_bar_spinner",   colours.statusBarSpinner);
-        readColour ("hint_label_bg",        colours.hintLabelBg);
-        readColour ("hint_label_fg",        colours.hintLabelFg);
-        readColour ("editor_background",    colours.editorBackground);
-        readColour ("editor_outline",       colours.editorOutline);
-        readColour ("scrollbar_thumb",      colours.scrollbarThumb);
-        readColour ("scrollbar_track",      colours.scrollbarTrack);
-
-        static const std::array<const char*, 16> ansiNames {{
+        static const std::array<const char*, 16> ansiLuaKeys {{
             "black", "red", "green", "yellow", "blue", "magenta", "cyan", "white",
             "bright_black", "bright_red", "bright_green", "bright_yellow",
             "bright_blue", "bright_magenta", "bright_cyan", "bright_white"
         }};
 
+        static const std::array<juce::uint32, 16> ansiDefaults {{
+            0xff090d12, 0xfffc704c, 0xffc5f0e9, 0xfff3f5c5,
+            0xff8cc9d9, 0xff519299, 0xff699daa, 0xffdddddd,
+            0xff33535b, 0xfffc704c, 0xffbafffd, 0xfffeffd2,
+            0xff67dfef, 0xff01c2d2, 0xff00c8d8, 0xffbafffd
+        }};
+
+        static const std::array<const juce::Identifier*, 16> ansiIds {{
+            &app::id::ansi0,  &app::id::ansi1,  &app::id::ansi2,  &app::id::ansi3,
+            &app::id::ansi4,  &app::id::ansi5,  &app::id::ansi6,  &app::id::ansi7,
+            &app::id::ansi8,  &app::id::ansi9,  &app::id::ansi10, &app::id::ansi11,
+            &app::id::ansi12, &app::id::ansi13, &app::id::ansi14, &app::id::ansi15
+        }};
+
         for (size_t i { 0 }; i < 16; ++i)
         {
-            auto val { t[ansiNames.at (i)].optional<juce::String>() };
-            if (val.has_value()) colours.ansi.at (i) = Engine::parseColour (val.value());
+            auto val { t[ansiLuaKeys.at (i)].optional<juce::String>() };
+            const juce::Colour colour { val.has_value() ? Engine::parseColour (val.value()) : juce::Colour (ansiDefaults.at (i)) };
+            model.setValue<int> (app::id::DISPLAY_LUA, *ansiIds.at (i), static_cast<int> (colour.getARGB()));
         }
+    }
+    else
+    {
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::foreground,            static_cast<int> (juce::Colour (0xffa1d6e5).getARGB()));
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::background,            static_cast<int> (juce::Colour (0x00000000).getARGB()));
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::cursorColour,          static_cast<int> (juce::Colour (0xff4e8c93).getARGB()));
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::selectionColour,       static_cast<int> (juce::Colour (0x2000ddee).getARGB()));
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::selectionCursorColour, static_cast<int> (juce::Colour (0xff00ddee).getARGB()));
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::statusBarColour,       static_cast<int> (juce::Colour (0xff090d12).getARGB()));
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::statusBarLabelBg,      static_cast<int> (juce::Colour (0xff112130).getARGB()));
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::statusBarLabelFg,      static_cast<int> (juce::Colour (0xff4e8c93).getARGB()));
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::statusBarSpinner,      static_cast<int> (juce::Colour (0xff00c8d8).getARGB()));
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::hintLabelBg,           static_cast<int> (juce::Colour (0xff00ffff).getARGB()));
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::hintLabelFg,           static_cast<int> (juce::Colour (0xff111111).getARGB()));
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::editorBackground,      static_cast<int> (juce::Colour (0x00000000).getARGB()));
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::editorOutline,         static_cast<int> (juce::Colour (0x00000000).getARGB()));
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::scrollbarThumb,        static_cast<int> (juce::Colour (0x802c4144).getARGB()));
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::scrollbarTrack,        static_cast<int> (juce::Colour (0x00000000).getARGB()));
+
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::ansi0,  static_cast<int> (juce::Colour (0xff090d12).getARGB()));
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::ansi1,  static_cast<int> (juce::Colour (0xfffc704c).getARGB()));
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::ansi2,  static_cast<int> (juce::Colour (0xffc5f0e9).getARGB()));
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::ansi3,  static_cast<int> (juce::Colour (0xfff3f5c5).getARGB()));
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::ansi4,  static_cast<int> (juce::Colour (0xff8cc9d9).getARGB()));
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::ansi5,  static_cast<int> (juce::Colour (0xff519299).getARGB()));
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::ansi6,  static_cast<int> (juce::Colour (0xff699daa).getARGB()));
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::ansi7,  static_cast<int> (juce::Colour (0xffdddddd).getARGB()));
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::ansi8,  static_cast<int> (juce::Colour (0xff33535b).getARGB()));
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::ansi9,  static_cast<int> (juce::Colour (0xfffc704c).getARGB()));
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::ansi10, static_cast<int> (juce::Colour (0xffbafffd).getARGB()));
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::ansi11, static_cast<int> (juce::Colour (0xfffeffd2).getARGB()));
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::ansi12, static_cast<int> (juce::Colour (0xff67dfef).getARGB()));
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::ansi13, static_cast<int> (juce::Colour (0xff01c2d2).getARGB()));
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::ansi14, static_cast<int> (juce::Colour (0xff00c8d8).getARGB()));
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::ansi15, static_cast<int> (juce::Colour (0xffbafffd).getARGB()));
     }
 }
 
-static void parseDisplayCursor (Engine::Display::Cursor& cursor, jam::lua::Value& displayTable)
+static void parseDisplayCursor (jam::Model& model, jam::lua::Value& displayTable)
 {
     jam::lua::Value t { displayTable["cursor"] };
 
@@ -111,108 +194,163 @@ static void parseDisplayCursor (Engine::Display::Cursor& cursor, jam::lua::Value
     {
         auto charVal { t["char"].optional<juce::String>() };
 
-        if (charVal.has_value())
-        {
-            const juce::String charStr { charVal.value() };
+        if (charVal.has_value() and charVal.value().isNotEmpty())
+            model.setValue (app::id::DISPLAY_LUA, app::id::cursorCodepoint, static_cast<int> (charVal.value()[0]));
+        else
+            model.setValue (app::id::DISPLAY_LUA, app::id::cursorCodepoint, static_cast<int> (0x2588u));
 
-            if (charStr.isNotEmpty())
-                cursor.codepoint = static_cast<char32_t> (charStr[0]);
-        }
+        auto blinkVal { t["blink"].optional<juce::String>() };
+        model.setValue (app::id::DISPLAY_LUA, app::id::cursorBlink,
+                        blinkVal.has_value() ? (Map::Bool::getContext()->get (blinkVal.value()) == Map::Bool::yes ? 1 : 0) : 1);
 
-        auto blink { t["blink"].optional<juce::String>() };
-        if (blink.has_value()) cursor.blink = Map::Bool::getContext()->get (blink.value()) == Map::Bool::yes;
+        auto blinkIntervalVal { t["blink_interval"].optional<double>() };
+        model.setValue (app::id::DISPLAY_LUA, app::id::cursorBlinkInterval,
+                        blinkIntervalVal.has_value()
+                            ? juce::jlimit (100, 5000, static_cast<int> (blinkIntervalVal.value()))
+                            : 500);
 
-        auto blinkInterval { t["blink_interval"].optional<double>() };
-        if (blinkInterval.has_value())
-            cursor.blinkInterval = juce::jlimit (100, 5000, static_cast<int> (blinkInterval.value()));
+        auto forceVal { t["force"].optional<juce::String>() };
+        model.setValue (app::id::DISPLAY_LUA, app::id::cursorForce,
+                        forceVal.has_value() ? (Map::Bool::getContext()->get (forceVal.value()) == Map::Bool::yes ? 1 : 0) : 0);
 
-        auto force { t["force"].optional<juce::String>() };
-        if (force.has_value()) cursor.force = Map::Bool::getContext()->get (force.value()) == Map::Bool::yes;
-
-        auto style { t["style"].optional<juce::String>() };
-
-        if (style.has_value())
-            cursor.style = Map::Cursor::getContext()->get (style.value());
+        auto styleVal { t["style"].optional<juce::String>() };
+        model.setValue (app::id::DISPLAY_LUA, app::id::cursorStyle,
+                        styleVal.has_value() ? Map::Cursor::getContext()->get (styleVal.value()) : 1);
+    }
+    else
+    {
+        model.setValue (app::id::DISPLAY_LUA, app::id::cursorCodepoint,     static_cast<int> (0x2588u));
+        model.setValue (app::id::DISPLAY_LUA, app::id::cursorBlink,         1);
+        model.setValue (app::id::DISPLAY_LUA, app::id::cursorBlinkInterval, 500);
+        model.setValue (app::id::DISPLAY_LUA, app::id::cursorForce,         0);
+        model.setValue (app::id::DISPLAY_LUA, app::id::cursorStyle,         1);
     }
 }
 
-static void parseDisplayFont (Engine::Display::Font& font, jam::lua::Value& displayTable)
+static void parseDisplayFont (jam::Model& model, jam::lua::Value& displayTable)
 {
     jam::lua::Value t { displayTable["font"] };
 
     if (t.isTable())
     {
-        auto family { t["family"].optional<juce::String>() };
-        if (family.has_value()) font.family = family.value();
+        auto familyVal { t["family"].optional<juce::String>() };
+        model.setValue (app::id::DISPLAY_LUA, app::id::fontFamily,
+                        familyVal.has_value() ? familyVal.value() : juce::String ("Display Mono"));
 
-        auto size { t["size"].optional<double>() };
-        if (size.has_value())
-            font.size = static_cast<float> (juce::jlimit (1.0, 200.0, size.value()));
+        auto sizeVal { t["size"].optional<double>() };
+        model.setValue (app::id::DISPLAY_LUA, app::id::fontSize,
+                               sizeVal.has_value()
+                                   ? static_cast<float> (juce::jlimit (1.0, 200.0, sizeVal.value()))
+                                   : 12.0f);
 
-        auto ligatures { t["ligatures"].optional<juce::String>() };
-        if (ligatures.has_value()) font.ligatures = Map::Bool::getContext()->get (ligatures.value()) == Map::Bool::yes;
+        auto ligaturesVal { t["ligatures"].optional<juce::String>() };
+        model.setValue (app::id::DISPLAY_LUA, app::id::fontLigatures,
+                        ligaturesVal.has_value() ? (Map::Bool::getContext()->get (ligaturesVal.value()) == Map::Bool::yes ? 1 : 0) : 1);
 
-        auto embolden { t["embolden"].optional<juce::String>() };
-        if (embolden.has_value()) font.embolden = Map::Bool::getContext()->get (embolden.value()) == Map::Bool::yes;
+        auto emboldenVal { t["embolden"].optional<juce::String>() };
+        model.setValue (app::id::DISPLAY_LUA, app::id::fontEmbolden,
+                        emboldenVal.has_value() ? (Map::Bool::getContext()->get (emboldenVal.value()) == Map::Bool::yes ? 1 : 0) : 1);
 
-        auto lineHeight { t["line_height"].optional<double>() };
-        if (lineHeight.has_value())
-            font.lineHeight = static_cast<float> (juce::jlimit (0.5, 3.0, lineHeight.value()));
+        auto lineHeightVal { t["line_height"].optional<double>() };
+        model.setValue (app::id::DISPLAY_LUA, app::id::lineHeight,
+                               lineHeightVal.has_value()
+                                   ? static_cast<float> (juce::jlimit (0.5, 3.0, lineHeightVal.value()))
+                                   : 1.0f);
 
-        auto cellWidth { t["cell_width"].optional<double>() };
-        if (cellWidth.has_value())
-            font.cellWidth = static_cast<float> (juce::jlimit (0.5, 3.0, cellWidth.value()));
+        auto cellWidthVal { t["cell_width"].optional<double>() };
+        model.setValue (app::id::DISPLAY_LUA, app::id::cellWidth,
+                               cellWidthVal.has_value()
+                                   ? static_cast<float> (juce::jlimit (0.5, 3.0, cellWidthVal.value()))
+                                   : 1.0f);
 
-        auto desktopScale { t["desktop_scale"].optional<juce::String>() };
-        if (desktopScale.has_value()) font.desktopScale = Map::Bool::getContext()->get (desktopScale.value()) == Map::Bool::yes;
+        auto desktopScaleVal { t["desktop_scale"].optional<juce::String>() };
+        model.setValue (app::id::DISPLAY_LUA, app::id::fontDesktopScale,
+                        desktopScaleVal.has_value() ? (Map::Bool::getContext()->get (desktopScaleVal.value()) == Map::Bool::yes ? 1 : 0) : 0);
+    }
+    else
+    {
+        model.setValue (app::id::DISPLAY_LUA, app::id::fontFamily,       juce::String ("Display Mono"));
+        model.setValue (app::id::DISPLAY_LUA, app::id::fontSize,    12.0f);
+        model.setValue (app::id::DISPLAY_LUA, app::id::fontLigatures,    1);
+        model.setValue (app::id::DISPLAY_LUA, app::id::fontEmbolden,     1);
+        model.setValue (app::id::DISPLAY_LUA, app::id::lineHeight, 1.0f);
+        model.setValue (app::id::DISPLAY_LUA, app::id::cellWidth,  1.0f);
+        model.setValue (app::id::DISPLAY_LUA, app::id::fontDesktopScale, 0);
     }
 }
 
-static void parseDisplayTab (Engine::Display::Tab& tab, jam::lua::Value& displayTable)
+static void parseDisplayTab (jam::Model& model, jam::lua::Value& displayTable)
 {
     jam::lua::Value t { displayTable["tab"] };
 
+    auto readColourProperty = [&t, &model] (const char* luaKey,
+                                             const juce::Identifier& propId,
+                                             juce::Colour defaultColour)
+    {
+        auto val { t[luaKey].optional<juce::String>() };
+        const juce::Colour colour { val.has_value() ? Engine::parseColour (val.value()) : defaultColour };
+        model.setValue<int> (app::id::DISPLAY_LUA, propId, static_cast<int> (colour.getARGB()));
+    };
+
     if (t.isTable())
     {
-        auto family { t["family"].optional<juce::String>() };
-        if (family.has_value()) tab.family = family.value();
+        auto familyVal { t["family"].optional<juce::String>() };
+        model.setValue (app::id::DISPLAY_LUA, app::id::tabFamily,
+                        familyVal.has_value() ? familyVal.value() : juce::String ("Display Mono"));
 
-        auto size { t["size"].optional<double>() };
-        if (size.has_value())
-            tab.size = static_cast<float> (juce::jlimit (1.0, 200.0, size.value()));
+        auto sizeVal { t["size"].optional<double>() };
+        model.setValue (app::id::DISPLAY_LUA, app::id::tabSize,
+                               sizeVal.has_value()
+                                   ? static_cast<float> (juce::jlimit (1.0, 200.0, sizeVal.value()))
+                                   : 12.0f);
 
-        auto readColour = [&t] (const char* key, juce::Colour& target)
-        {
-            auto val { t[key].optional<juce::String>() };
-            if (val.has_value()) target = Engine::parseColour (val.value());
-        };
+        readColourProperty ("foreground", app::id::tabForeground, juce::Colour (0xff00c8d8));
+        readColourProperty ("inactive",   app::id::tabInactive,   juce::Colour (0xff33535b));
+        readColourProperty ("line",       app::id::tabLine,       juce::Colour (0xff2c4144));
+        readColourProperty ("active",     app::id::tabActive,     juce::Colour (0xff002b35));
+        readColourProperty ("indicator",  app::id::tabIndicator,  juce::Colour (0xff01c2d2));
 
-        readColour ("foreground", tab.foreground);
-        readColour ("inactive",   tab.inactive);
-        readColour ("line",       tab.line);
-        readColour ("active",     tab.active);
-        readColour ("indicator",  tab.indicator);
+        auto positionVal { t["position"].optional<juce::String>() };
+        model.setValue (app::id::DISPLAY_LUA, app::id::tabPosition,
+                        positionVal.has_value() ? positionVal.value() : juce::String ("left"));
 
-        auto position { t["position"].optional<juce::String>() };
-        if (position.has_value()) tab.position = position.value();
-
-        auto buttonSvg { t["button_svg"].optional<juce::String>() };
-        if (buttonSvg.has_value()) tab.buttonSvg = buttonSvg.value();
+        auto buttonSvgVal { t["button_svg"].optional<juce::String>() };
+        model.setValue (app::id::DISPLAY_LUA, app::id::tabButtonSvg,
+                        buttonSvgVal.has_value() ? buttonSvgVal.value() : juce::String());
+    }
+    else
+    {
+        model.setValue (app::id::DISPLAY_LUA, app::id::tabFamily,     juce::String ("Display Mono"));
+        model.setValue (app::id::DISPLAY_LUA, app::id::tabSize, 12.0f);
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::tabForeground, static_cast<int> (juce::Colour (0xff00c8d8).getARGB()));
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::tabInactive,   static_cast<int> (juce::Colour (0xff33535b).getARGB()));
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::tabLine,       static_cast<int> (juce::Colour (0xff2c4144).getARGB()));
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::tabActive,     static_cast<int> (juce::Colour (0xff002b35).getARGB()));
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::tabIndicator,  static_cast<int> (juce::Colour (0xff01c2d2).getARGB()));
+        model.setValue (app::id::DISPLAY_LUA, app::id::tabPosition,   juce::String ("left"));
+        model.setValue (app::id::DISPLAY_LUA, app::id::tabButtonSvg,  juce::String());
     }
 }
 
-static void parseDisplayMisc (Engine::Display& display, jam::lua::Value& displayTable)
+static void parseDisplayMisc (jam::Model& model, jam::lua::Value& displayTable)
 {
     // Pane sub-table
     jam::lua::Value paneTable { displayTable["pane"] };
 
     if (paneTable.isTable())
     {
-        auto barColour { paneTable["bar_colour"].optional<juce::String>() };
-        if (barColour.has_value()) display.pane.barColour = Engine::parseColour (barColour.value());
+        auto barColourVal { paneTable["bar_colour"].optional<juce::String>() };
+        const juce::Colour barColour { barColourVal.has_value() ? Engine::parseColour (barColourVal.value()) : juce::Colour (0xff33535b) };
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::paneBarColour, static_cast<int> (barColour.getARGB()));
 
-        auto barHighlight { paneTable["bar_highlight"].optional<juce::String>() };
-        if (barHighlight.has_value()) display.pane.barHighlight = Engine::parseColour (barHighlight.value());
+        auto barHighlightVal { paneTable["bar_highlight"].optional<juce::String>() };
+        const juce::Colour barHighlight { barHighlightVal.has_value() ? Engine::parseColour (barHighlightVal.value()) : juce::Colour (0xff4e8c93) };
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::paneBarHighlight, static_cast<int> (barHighlight.getARGB()));
+    }
+    else
+    {
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::paneBarColour,    static_cast<int> (juce::Colour (0xff33535b).getARGB()));
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::paneBarHighlight, static_cast<int> (juce::Colour (0xff4e8c93).getARGB()));
     }
 
     // Overlay sub-table
@@ -220,15 +358,25 @@ static void parseDisplayMisc (Engine::Display& display, jam::lua::Value& display
 
     if (overlayTable.isTable())
     {
-        auto family { overlayTable["family"].optional<juce::String>() };
-        if (family.has_value()) display.overlay.family = family.value();
+        auto familyVal { overlayTable["family"].optional<juce::String>() };
+        model.setValue (app::id::DISPLAY_LUA, app::id::overlayFamily,
+                        familyVal.has_value() ? familyVal.value() : juce::String ("Display Mono"));
 
-        auto size { overlayTable["size"].optional<double>() };
-        if (size.has_value())
-            display.overlay.size = static_cast<float> (juce::jlimit (1.0, 200.0, size.value()));
+        auto sizeVal { overlayTable["size"].optional<double>() };
+        model.setValue (app::id::DISPLAY_LUA, app::id::overlaySize,
+                               sizeVal.has_value()
+                                   ? static_cast<float> (juce::jlimit (1.0, 200.0, sizeVal.value()))
+                                   : 14.0f);
 
-        auto colour { overlayTable["colour"].optional<juce::String>() };
-        if (colour.has_value()) display.overlay.colour = Engine::parseColour (colour.value());
+        auto colourVal { overlayTable["colour"].optional<juce::String>() };
+        const juce::Colour overlayColour { colourVal.has_value() ? Engine::parseColour (colourVal.value()) : juce::Colour (0xff4e8c93) };
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::overlayColour, static_cast<int> (overlayColour.getARGB()));
+    }
+    else
+    {
+        model.setValue (app::id::DISPLAY_LUA, app::id::overlayFamily, juce::String ("Display Mono"));
+        model.setValue (app::id::DISPLAY_LUA, app::id::overlaySize, 14.0f);
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::overlayColour, static_cast<int> (juce::Colour (0xff4e8c93).getARGB()));
     }
 
     // Menu sub-table
@@ -236,9 +384,15 @@ static void parseDisplayMisc (Engine::Display& display, jam::lua::Value& display
 
     if (menuTable.isTable())
     {
-        auto opacity { menuTable["opacity"].optional<double>() };
-        if (opacity.has_value())
-            display.menu.opacity = static_cast<float> (juce::jlimit (0.0, 1.0, opacity.value()));
+        auto opacityVal { menuTable["opacity"].optional<double>() };
+        model.setValue (app::id::DISPLAY_LUA, app::id::menuOpacity,
+                               opacityVal.has_value()
+                                   ? static_cast<float> (juce::jlimit (0.0, 1.0, opacityVal.value()))
+                                   : 0.65f);
+    }
+    else
+    {
+        model.setValue (app::id::DISPLAY_LUA, app::id::menuOpacity, 0.65f);
     }
 
     // Action list sub-table
@@ -246,71 +400,121 @@ static void parseDisplayMisc (Engine::Display& display, jam::lua::Value& display
 
     if (t.isTable())
     {
-        auto closeOnRun { t["close_on_run"].optional<juce::String>() };
-        if (closeOnRun.has_value()) display.actionList.closeOnRun = Map::Bool::getContext()->get (closeOnRun.value()) == Map::Bool::yes;
+        auto closeOnRunVal { t["close_on_run"].optional<juce::String>() };
+        model.setValue (app::id::DISPLAY_LUA, app::id::actionListCloseOnRun,
+                        closeOnRunVal.has_value() ? (Map::Bool::getContext()->get (closeOnRunVal.value()) == Map::Bool::yes ? 1 : 0) : 1);
 
-        auto position { t["position"].optional<juce::String>() };
-        if (position.has_value()) display.actionList.position = position.value();
+        auto positionVal { t["position"].optional<juce::String>() };
+        model.setValue (app::id::DISPLAY_LUA, app::id::actionListPosition,
+                        positionVal.has_value() ? positionVal.value() : juce::String ("top"));
 
-        auto nameFamily { t["name_font_family"].optional<juce::String>() };
-        if (nameFamily.has_value()) display.actionList.nameFamily = nameFamily.value();
+        auto nameFamilyVal { t["name_font_family"].optional<juce::String>() };
+        model.setValue (app::id::DISPLAY_LUA, app::id::actionListNameFamily,
+                        nameFamilyVal.has_value() ? nameFamilyVal.value() : juce::String ("Display"));
 
-        auto nameStyle { t["name_font_style"].optional<juce::String>() };
-        if (nameStyle.has_value()) display.actionList.nameStyle = nameStyle.value();
+        auto nameStyleVal { t["name_font_style"].optional<juce::String>() };
+        model.setValue (app::id::DISPLAY_LUA, app::id::actionListNameStyle,
+                        nameStyleVal.has_value() ? nameStyleVal.value() : juce::String ("Bold"));
 
-        auto nameSize { t["name_font_size"].optional<double>() };
-        if (nameSize.has_value())
-            display.actionList.nameSize = static_cast<float> (juce::jlimit (6.0, 72.0, nameSize.value()));
+        auto nameSizeVal { t["name_font_size"].optional<double>() };
+        model.setValue (app::id::DISPLAY_LUA, app::id::actionListNameSize,
+                               nameSizeVal.has_value()
+                                   ? static_cast<float> (juce::jlimit (6.0, 72.0, nameSizeVal.value()))
+                                   : 13.0f);
 
-        auto shortcutFamily { t["shortcut_font_family"].optional<juce::String>() };
-        if (shortcutFamily.has_value()) display.actionList.shortcutFamily = shortcutFamily.value();
+        auto shortcutFamilyVal { t["shortcut_font_family"].optional<juce::String>() };
+        model.setValue (app::id::DISPLAY_LUA, app::id::actionListShortcutFamily,
+                        shortcutFamilyVal.has_value() ? shortcutFamilyVal.value() : juce::String ("Display Mono"));
 
-        auto shortcutStyle { t["shortcut_font_style"].optional<juce::String>() };
-        if (shortcutStyle.has_value()) display.actionList.shortcutStyle = shortcutStyle.value();
+        auto shortcutStyleVal { t["shortcut_font_style"].optional<juce::String>() };
+        model.setValue (app::id::DISPLAY_LUA, app::id::actionListShortcutStyle,
+                        shortcutStyleVal.has_value() ? shortcutStyleVal.value() : juce::String ("Bold"));
 
-        auto shortcutSize { t["shortcut_font_size"].optional<double>() };
-        if (shortcutSize.has_value())
-            display.actionList.shortcutSize = static_cast<float> (juce::jlimit (6.0, 72.0, shortcutSize.value()));
+        auto shortcutSizeVal { t["shortcut_font_size"].optional<double>() };
+        model.setValue (app::id::DISPLAY_LUA, app::id::actionListShortcutSize,
+                               shortcutSizeVal.has_value()
+                                   ? static_cast<float> (juce::jlimit (6.0, 72.0, shortcutSizeVal.value()))
+                                   : 12.0f);
 
         jam::lua::Value p { t["padding"] };
 
         if (p.isTable())
         {
-            auto paddingTop { p[1].optional<double>() };
-            if (paddingTop.has_value())
-                display.actionList.paddingTop = juce::jlimit (0, 50, static_cast<int> (paddingTop.value()));
+            auto paddingTopVal { p[1].optional<double>() };
+            model.setValue (app::id::DISPLAY_LUA, app::id::actionListPaddingTop,
+                            paddingTopVal.has_value()
+                                ? juce::jlimit (0, 50, static_cast<int> (paddingTopVal.value()))
+                                : 10);
 
-            auto paddingRight { p[2].optional<double>() };
-            if (paddingRight.has_value())
-                display.actionList.paddingRight = juce::jlimit (0, 50, static_cast<int> (paddingRight.value()));
+            auto paddingRightVal { p[2].optional<double>() };
+            model.setValue (app::id::DISPLAY_LUA, app::id::actionListPaddingRight,
+                            paddingRightVal.has_value()
+                                ? juce::jlimit (0, 50, static_cast<int> (paddingRightVal.value()))
+                                : 10);
 
-            auto paddingBottom { p[3].optional<double>() };
-            if (paddingBottom.has_value())
-                display.actionList.paddingBottom = juce::jlimit (0, 50, static_cast<int> (paddingBottom.value()));
+            auto paddingBottomVal { p[3].optional<double>() };
+            model.setValue (app::id::DISPLAY_LUA, app::id::actionListPaddingBottom,
+                            paddingBottomVal.has_value()
+                                ? juce::jlimit (0, 50, static_cast<int> (paddingBottomVal.value()))
+                                : 10);
 
-            auto paddingLeft { p[4].optional<double>() };
-            if (paddingLeft.has_value())
-                display.actionList.paddingLeft = juce::jlimit (0, 50, static_cast<int> (paddingLeft.value()));
+            auto paddingLeftVal { p[4].optional<double>() };
+            model.setValue (app::id::DISPLAY_LUA, app::id::actionListPaddingLeft,
+                            paddingLeftVal.has_value()
+                                ? juce::jlimit (0, 50, static_cast<int> (paddingLeftVal.value()))
+                                : 10);
+        }
+        else
+        {
+            model.setValue (app::id::DISPLAY_LUA, app::id::actionListPaddingTop,    10);
+            model.setValue (app::id::DISPLAY_LUA, app::id::actionListPaddingRight,  10);
+            model.setValue (app::id::DISPLAY_LUA, app::id::actionListPaddingBottom, 10);
+            model.setValue (app::id::DISPLAY_LUA, app::id::actionListPaddingLeft,   10);
         }
 
-        auto nameColour { t["name_colour"].optional<juce::String>() };
-        if (nameColour.has_value()) display.actionList.nameColour = Engine::parseColour (nameColour.value());
+        auto nameColourVal { t["name_colour"].optional<juce::String>() };
+        const juce::Colour nameColour { nameColourVal.has_value() ? Engine::parseColour (nameColourVal.value()) : juce::Colour (0xffa1d6e5) };
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::actionListNameColour, static_cast<int> (nameColour.getARGB()));
 
-        auto shortcutColour { t["shortcut_colour"].optional<juce::String>() };
-        if (shortcutColour.has_value())
-            display.actionList.shortcutColour = Engine::parseColour (shortcutColour.value());
+        auto shortcutColourVal { t["shortcut_colour"].optional<juce::String>() };
+        const juce::Colour shortcutColour { shortcutColourVal.has_value() ? Engine::parseColour (shortcutColourVal.value()) : juce::Colour (0xff00c8d8) };
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::actionListShortcutColour, static_cast<int> (shortcutColour.getARGB()));
 
-        auto width { t["width"].optional<double>() };
-        if (width.has_value())
-            display.actionList.width = static_cast<float> (juce::jlimit (0.1, 1.0, width.value()));
+        auto widthVal { t["width"].optional<double>() };
+        model.setValue (app::id::DISPLAY_LUA, app::id::actionListWidth,
+                               widthVal.has_value()
+                                   ? static_cast<float> (juce::jlimit (0.1, 1.0, widthVal.value()))
+                                   : 0.3f);
 
-        auto height { t["height"].optional<double>() };
-        if (height.has_value())
-            display.actionList.height = static_cast<float> (juce::jlimit (0.1, 1.0, height.value()));
+        auto heightVal { t["height"].optional<double>() };
+        model.setValue (app::id::DISPLAY_LUA, app::id::actionListHeight,
+                               heightVal.has_value()
+                                   ? static_cast<float> (juce::jlimit (0.1, 1.0, heightVal.value()))
+                                   : 0.3f);
 
-        auto highlightColour { t["highlight_colour"].optional<juce::String>() };
-        if (highlightColour.has_value())
-            display.actionList.highlightColour = Engine::parseColour (highlightColour.value());
+        auto highlightColourVal { t["highlight_colour"].optional<juce::String>() };
+        const juce::Colour highlightColour { highlightColourVal.has_value() ? Engine::parseColour (highlightColourVal.value()) : juce::Colour (0x2000ddee) };
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::actionListHighlightColour, static_cast<int> (highlightColour.getARGB()));
+    }
+    else
+    {
+        model.setValue (app::id::DISPLAY_LUA, app::id::actionListCloseOnRun,     1);
+        model.setValue (app::id::DISPLAY_LUA, app::id::actionListPosition,       juce::String ("top"));
+        model.setValue (app::id::DISPLAY_LUA, app::id::actionListNameFamily,     juce::String ("Display"));
+        model.setValue (app::id::DISPLAY_LUA, app::id::actionListNameStyle,      juce::String ("Bold"));
+        model.setValue (app::id::DISPLAY_LUA, app::id::actionListNameSize,  13.0f);
+        model.setValue (app::id::DISPLAY_LUA, app::id::actionListShortcutFamily, juce::String ("Display Mono"));
+        model.setValue (app::id::DISPLAY_LUA, app::id::actionListShortcutStyle,  juce::String ("Bold"));
+        model.setValue (app::id::DISPLAY_LUA, app::id::actionListShortcutSize, 12.0f);
+        model.setValue (app::id::DISPLAY_LUA, app::id::actionListPaddingTop,     10);
+        model.setValue (app::id::DISPLAY_LUA, app::id::actionListPaddingRight,   10);
+        model.setValue (app::id::DISPLAY_LUA, app::id::actionListPaddingBottom,  10);
+        model.setValue (app::id::DISPLAY_LUA, app::id::actionListPaddingLeft,    10);
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::actionListNameColour,     static_cast<int> (juce::Colour (0xffa1d6e5).getARGB()));
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::actionListShortcutColour, static_cast<int> (juce::Colour (0xff00c8d8).getARGB()));
+        model.setValue (app::id::DISPLAY_LUA, app::id::actionListWidth,  0.3f);
+        model.setValue (app::id::DISPLAY_LUA, app::id::actionListHeight, 0.3f);
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::actionListHighlightColour, static_cast<int> (juce::Colour (0x2000ddee).getARGB()));
     }
 
     // Status bar sub-table
@@ -318,18 +522,30 @@ static void parseDisplayMisc (Engine::Display& display, jam::lua::Value& display
 
     if (statusBarTable.isTable())
     {
-        auto position { statusBarTable["position"].optional<juce::String>() };
-        if (position.has_value()) display.statusBar.position = position.value();
+        auto positionVal { statusBarTable["position"].optional<juce::String>() };
+        model.setValue (app::id::DISPLAY_LUA, app::id::statusBarPosition,
+                        positionVal.has_value() ? positionVal.value() : juce::String ("bottom"));
 
-        auto fontFamily { statusBarTable["font_family"].optional<juce::String>() };
-        if (fontFamily.has_value()) display.statusBar.fontFamily = fontFamily.value();
+        auto fontFamilyVal { statusBarTable["font_family"].optional<juce::String>() };
+        model.setValue (app::id::DISPLAY_LUA, app::id::statusBarFontFamily,
+                        fontFamilyVal.has_value() ? fontFamilyVal.value() : juce::String ("Display Mono"));
 
-        auto fontSize { statusBarTable["font_size"].optional<double>() };
-        if (fontSize.has_value())
-            display.statusBar.fontSize = static_cast<float> (juce::jlimit (6.0, 48.0, fontSize.value()));
+        auto fontSizeVal { statusBarTable["font_size"].optional<double>() };
+        model.setValue (app::id::DISPLAY_LUA, app::id::statusBarFontSize,
+                               fontSizeVal.has_value()
+                                   ? static_cast<float> (juce::jlimit (6.0, 48.0, fontSizeVal.value()))
+                                   : 12.0f);
 
-        auto fontStyle { statusBarTable["font_style"].optional<juce::String>() };
-        if (fontStyle.has_value()) display.statusBar.fontStyle = fontStyle.value();
+        auto fontStyleVal { statusBarTable["font_style"].optional<juce::String>() };
+        model.setValue (app::id::DISPLAY_LUA, app::id::statusBarFontStyle,
+                        fontStyleVal.has_value() ? fontStyleVal.value() : juce::String ("Bold"));
+    }
+    else
+    {
+        model.setValue (app::id::DISPLAY_LUA, app::id::statusBarPosition,   juce::String ("bottom"));
+        model.setValue (app::id::DISPLAY_LUA, app::id::statusBarFontFamily, juce::String ("Display Mono"));
+        model.setValue (app::id::DISPLAY_LUA, app::id::statusBarFontSize, 12.0f);
+        model.setValue (app::id::DISPLAY_LUA, app::id::statusBarFontStyle,  juce::String ("Bold"));
     }
 
     // Popup border sub-table
@@ -337,34 +553,44 @@ static void parseDisplayMisc (Engine::Display& display, jam::lua::Value& display
 
     if (popupBorderTable.isTable())
     {
-        auto borderColour { popupBorderTable["border_colour"].optional<juce::String>() };
-        if (borderColour.has_value()) display.popup.borderColour = Engine::parseColour (borderColour.value());
+        auto borderColourVal { popupBorderTable["border_colour"].optional<juce::String>() };
+        const juce::Colour borderColour { borderColourVal.has_value() ? Engine::parseColour (borderColourVal.value()) : juce::Colour (0xff4e8c93) };
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::popupBorderColour, static_cast<int> (borderColour.getARGB()));
 
-        auto borderWidth { popupBorderTable["border_width"].optional<double>() };
-        if (borderWidth.has_value())
-            display.popup.borderWidth = static_cast<float> (juce::jlimit (0.0, 10.0, borderWidth.value()));
+        auto borderWidthVal { popupBorderTable["border_width"].optional<double>() };
+        model.setValue (app::id::DISPLAY_LUA, app::id::popupBorderWidth,
+                               borderWidthVal.has_value()
+                                   ? static_cast<float> (juce::jlimit (0.0, 10.0, borderWidthVal.value()))
+                                   : 1.0f);
+    }
+    else
+    {
+        model.setValue<int> (app::id::DISPLAY_LUA, app::id::popupBorderColour, static_cast<int> (juce::Colour (0xff4e8c93).getARGB()));
+        model.setValue (app::id::DISPLAY_LUA, app::id::popupBorderWidth, 1.0f);
     }
 
     // Scrollbar width
-    auto scrollbarWidth { displayTable["scrollbar_width"].optional<double>() };
-    if (scrollbarWidth.has_value())
-        display.scrollbarWidth = juce::jlimit (0, 64, static_cast<int> (scrollbarWidth.value()));
+    auto scrollbarWidthVal { displayTable["scrollbar_width"].optional<double>() };
+    model.setValue (app::id::DISPLAY_LUA, app::id::scrollbarWidth,
+                    scrollbarWidthVal.has_value()
+                        ? juce::jlimit (0, 64, static_cast<int> (scrollbarWidthVal.value()))
+                        : 8);
 }
 
 //==============================================================================
 void Engine::parseDisplay()
 {
+    jassert (model != nullptr);
+
     jam::lua::Value displayTable { lua["END"]["display"] };
 
-    if (displayTable.isTable())
-    {
-        parseDisplayWindow  (display.window,  displayTable);
-        parseDisplayColours (display.colours, displayTable);
-        parseDisplayCursor  (display.cursor,  displayTable);
-        parseDisplayFont    (display.font,    displayTable);
-        parseDisplayTab     (display.tab,     displayTable);
-        parseDisplayMisc    (display,         displayTable);
-    }
+    // Each helper handles the absent-table case by writing defaults, so always call all.
+    parseDisplayWindow  (*model, displayTable);
+    parseDisplayColours (*model, displayTable);
+    parseDisplayCursor  (*model, displayTable);
+    parseDisplayFont    (*model, displayTable);
+    parseDisplayTab     (*model, displayTable);
+    parseDisplayMisc    (*model, displayTable);
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

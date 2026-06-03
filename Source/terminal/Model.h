@@ -1,8 +1,6 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "Parameter.h"
-#include "TextBuffer.h"
 #include "Identifier.h"
 #include "../ModalType.h"
 #include "../SelectionType.h"
@@ -24,7 +22,7 @@ using ::SelectionType;
  * ### Architecture
  * Mirrors JUCE AudioProcessorValueTreeState (APVTS) 1:1:
  * - `Parameters.xml` declares the schema (ParameterLayout equivalent).
- * - `Parameter<int>` / `Parameter<const char*>` are the adapters (ParameterAdapter equivalent).
+ * - `Parameter<int>` / `ParameterText` are the adapters (ParameterAdapter equivalent).
  * - One `jam::AnyMap params` (nested for hierarchy) is the adapter table.
  * - One `juce::ValueTree state` is the SSOT for the UI.
  * - `flush()` is the one loop — each Parameter writes itself (no-arg flush).
@@ -32,7 +30,7 @@ using ::SelectionType;
  * ### Map structure
  * ```
  * params {
- *   id::SESSION   → AnyMap { root-level Parameter<int>s + Parameter<const char*>s }
+ *   id::SESSION   → AnyMap { root-level Parameter<int>s + ParameterTexts }
  *   id::MODES     → AnyMap { mode Parameter<int>s }
  *   id::NORMAL    → AnyMap { per-screen Parameter<int>s for normal buffer }
  *   id::ALTERNATE → AnyMap { per-screen Parameter<int>s for alternate buffer }
@@ -66,10 +64,9 @@ struct Model
     /**
      * @brief Constructs the Model, walks Parameters.xml via buildLayout,
      *        populates the parameter map, and starts the flush timer at 60 Hz.
-     * @param textBuffer  Session-owned double-buffered string storage.
      * @note MESSAGE THREAD.
      */
-    explicit Model (TextBuffer& textBuffer);
+    Model();
 
     /** @note MESSAGE THREAD. */
     ~Model() override;
@@ -79,15 +76,16 @@ struct Model
     //==========================================================================
 
     /**
-     * @brief Creates one Parameter<const char*> for a TEXT parameter.
+     * @brief Creates one ParameterText for a TEXT parameter.
      *
      * The parameter flushes to a direct property on rootNode (not a PARAM child).
      *
      * @param id       Property identifier (e.g. id::title).
      * @param rootNode The SESSION ValueTree node (direct property target).
+     * @param maxlen   Maximum bytes stored in ParameterText (excluding NUL).
      * @note MESSAGE THREAD — called from constructor only.
      */
-    void addTextParameter (const juce::Identifier& id, juce::ValueTree& rootNode) noexcept;
+    void addTextParameter (const juce::Identifier& id, juce::ValueTree& rootNode, int maxlen) noexcept;
 
     //==========================================================================
     // Reader-thread setters — lock-free, noexcept
@@ -104,9 +102,8 @@ struct Model
 
     /** @brief Builds the parameter schema from XML into this Model's ValueTree and AnyMap.
      *  @param xml         Parsed AppParameters XML element.
-     *  @param textBuffer  TextBuffer for TEXT parameter slot registration.
      */
-    void buildLayout (const juce::XmlElement& xml, TextBuffer& textBuffer);
+    void buildLayout (const juce::XmlElement& xml);
 
     // OSC 133 shell integration
     void setOutputBlockStart (cell row) noexcept;
@@ -135,10 +132,6 @@ struct Model
     void setHintPage (int page) noexcept;
     void setHintTotalPages (int total) noexcept;
 
-    // Cross-thread read/write — any thread, lock-free.
-    void storeValue (const juce::Identifier& groupId, const juce::Identifier& paramId, int value) noexcept;
-    int loadValue (const juce::Identifier& groupId, const juce::Identifier& paramId) const noexcept;
-
     // Per-row flush-dirty flags — reader thread writes, message thread consumes.
     void setRowDirty (int row) noexcept;
     bool consumeRowDirty (int row) noexcept;
@@ -152,9 +145,6 @@ private:
     int rowDirtyCount { 0 };
     static int resolveLayoutDefault (const juce::XmlElement& elem) noexcept;
 
-    void storeTextValue (const juce::Identifier& groupId, const juce::Identifier& paramId, const char* ptr) noexcept;
-
-    TextBuffer& textBuffer;
 };
 
 /**______________________________END OF NAMESPACE______________________________*/

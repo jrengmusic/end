@@ -31,7 +31,6 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "TextBuffer.h"
 #include "Model.h"
 #include "Processor.h"
 #include "../lua/Engine.h"
@@ -267,7 +266,7 @@ public:
     jam::CodeModel& getCodeModel() noexcept;
 
 private:
-    TextBuffer textBuffer;                              ///< Cross-thread string buffer — constructed first.
+    // Cross-thread string buffer — gone. Slots now live in ParameterText.
     Model model;                                        ///< Terminal parameter store — constructed before CodeModel.
     jam::CodeModel codeModel;                           ///< Document model — constructed before textEditor; outlives it.
     jam::CodeView textEditor;                           ///< Terminal viewport renderer — references codeModel.

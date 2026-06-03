@@ -21,10 +21,8 @@ namespace terminal
 
 Processor::Processor (Model& stateRef,
                       jam::Cell::Rectangle dims,
-                      TextBuffer& textBufferRef,
                       const juce::String& uuid)
-    : textBuffer (textBufferRef)
-    , state (stateRef)
+    : state (stateRef)
     , video (dims, events)
     , skit (events)
     , uuid (uuid)

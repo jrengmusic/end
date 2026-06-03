@@ -816,7 +816,7 @@ Reads the port from the <computeroutput>.<ref refid="namespacenexus" kindref="co
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Nexus &gt;::getContext</references>
         <references refid="class_nexus_1ade6dadb309a76f68f71c07e0cfbfd91a" compoundref="_nexus_8cpp" startline="191" endline="194">Nexus::has</references>
         <references refid="group__juce__core-system_1ga1f96ab6751237979b907a54f52a7296a">jassert</references>
-        <references refid="classterminal_1_1_session_1abb0ae0c49ab531409e6b37b8568a9196" compoundref="_session_8cpp" startline="346" endline="359">terminal::Session::process</references>
+        <references refid="classterminal_1_1_session_1abb0ae0c49ab531409e6b37b8568a9196" compoundref="_session_8cpp" startline="344" endline="357">terminal::Session::process</references>
         <references refid="structjam_1_1_binary_codec_1a848ebdb4c8f7cd27715055a37ccfe0c2">jam::BinaryCodec::readString</references>
         <referencedby refid="classnexus_1_1_link_1ac311d791316cffb2280d4fcdf3250db8" compoundref="_link_8cpp" startline="268" endline="292">messageReceived</referencedby>
       </memberdef>
@@ -851,7 +851,7 @@ Reads the port from the <computeroutput>.<ref refid="namespacenexus" kindref="co
         <references refid="class_nexus_1ade6dadb309a76f68f71c07e0cfbfd91a" compoundref="_nexus_8cpp" startline="191" endline="194">Nexus::has</references>
         <references refid="group__juce__core-system_1ga1f96ab6751237979b907a54f52a7296a">jassert</references>
         <references refid="structjam_1_1_binary_codec_1a848ebdb4c8f7cd27715055a37ccfe0c2">jam::BinaryCodec::readString</references>
-        <references refid="classterminal_1_1_session_1ae4bbd533249defc772ecb6805408312f" compoundref="_session_8cpp" startline="376" endline="379">terminal::Session::setStateInformation</references>
+        <references refid="classterminal_1_1_session_1ae4bbd533249defc772ecb6805408312f" compoundref="_session_8cpp" startline="374" endline="377">terminal::Session::setStateInformation</references>
         <referencedby refid="classnexus_1_1_link_1ac311d791316cffb2280d4fcdf3250db8" compoundref="_link_8cpp" startline="268" endline="292">messageReceived</referencedby>
       </memberdef>
       <memberdef kind="function" id="classnexus_1_1_link_1a90d54f4bafa0d44a37b998c844f931d3" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -884,7 +884,7 @@ Reads the port from the <computeroutput>.<ref refid="namespacenexus" kindref="co
         <references refid="namespaceterminal_1_1id_1adb1918ba2082b206d57bc4e3f969a5b0" compoundref="_identifier_8h" startline="160" endline="160">terminal::id::foregroundProcess</references>
         <references refid="class_nexus_1a9ad908d99f7c23d12cafae8926008656" compoundref="_nexus_8cpp" startline="172" endline="184">Nexus::get</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Nexus &gt;::getContext</references>
-        <references refid="classterminal_1_1_session_1a3564c58fc509e22d7e900071233cea5e" compoundref="_session_8cpp" startline="386" endline="390">terminal::Session::getProcessor</references>
+        <references refid="classterminal_1_1_session_1a3564c58fc509e22d7e900071233cea5e" compoundref="_session_8cpp" startline="384" endline="388">terminal::Session::getProcessor</references>
         <references refid="class_nexus_1ade6dadb309a76f68f71c07e0cfbfd91a" compoundref="_nexus_8cpp" startline="191" endline="194">Nexus::has</references>
         <references refid="group__juce__core-system_1ga1f96ab6751237979b907a54f52a7296a">jassert</references>
         <references refid="structjam_1_1_binary_codec_1a848ebdb4c8f7cd27715055a37ccfe0c2">jam::BinaryCodec::readString</references>

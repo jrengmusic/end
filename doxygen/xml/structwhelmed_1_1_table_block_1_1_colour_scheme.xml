@@ -18,7 +18,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="whelmed/TableBlock.h" line="25" column="22" bodyfile="whelmed/TableBlock.h" bodystart="25" bodyend="25"/>
-        <referencedby refid="classwhelmed_1_1_screen_1a057600229b15e2602dc42283320d8522" compoundref="_screen_8cpp" startline="87" endline="172">whelmed::Screen::createBlock</referencedby>
+        <referencedby refid="classwhelmed_1_1_screen_1a057600229b15e2602dc42283320d8522" compoundref="_screen_8cpp" startline="88" endline="173">whelmed::Screen::createBlock</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structwhelmed_1_1_table_block_1_1_colour_scheme_1ae53ba2b1902ad3377523a8a8b5f5b4ae" prot="public" static="no" mutable="no">
         <type>juce::Colour</type>
@@ -34,7 +34,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="whelmed/TableBlock.h" line="26" column="22" bodyfile="whelmed/TableBlock.h" bodystart="26" bodyend="26"/>
-        <referencedby refid="classwhelmed_1_1_screen_1a057600229b15e2602dc42283320d8522" compoundref="_screen_8cpp" startline="87" endline="172">whelmed::Screen::createBlock</referencedby>
+        <referencedby refid="classwhelmed_1_1_screen_1a057600229b15e2602dc42283320d8522" compoundref="_screen_8cpp" startline="88" endline="173">whelmed::Screen::createBlock</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structwhelmed_1_1_table_block_1_1_colour_scheme_1a9158932013e60b099281a9d45de7ac9b" prot="public" static="no" mutable="no">
         <type>juce::Colour</type>
@@ -50,7 +50,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="whelmed/TableBlock.h" line="27" column="22" bodyfile="whelmed/TableBlock.h" bodystart="27" bodyend="27"/>
-        <referencedby refid="classwhelmed_1_1_screen_1a057600229b15e2602dc42283320d8522" compoundref="_screen_8cpp" startline="87" endline="172">whelmed::Screen::createBlock</referencedby>
+        <referencedby refid="classwhelmed_1_1_screen_1a057600229b15e2602dc42283320d8522" compoundref="_screen_8cpp" startline="88" endline="173">whelmed::Screen::createBlock</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structwhelmed_1_1_table_block_1_1_colour_scheme_1a4c90ab2f4d5df559b976d220e4bc221e" prot="public" static="no" mutable="no">
         <type>juce::Colour</type>
@@ -66,7 +66,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="whelmed/TableBlock.h" line="28" column="22" bodyfile="whelmed/TableBlock.h" bodystart="28" bodyend="28"/>
-        <referencedby refid="classwhelmed_1_1_screen_1a057600229b15e2602dc42283320d8522" compoundref="_screen_8cpp" startline="87" endline="172">whelmed::Screen::createBlock</referencedby>
+        <referencedby refid="classwhelmed_1_1_screen_1a057600229b15e2602dc42283320d8522" compoundref="_screen_8cpp" startline="88" endline="173">whelmed::Screen::createBlock</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structwhelmed_1_1_table_block_1_1_colour_scheme_1ab9f7528b6dbaa8b896525f861289becc" prot="public" static="no" mutable="no">
         <type>juce::Colour</type>
@@ -82,7 +82,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="whelmed/TableBlock.h" line="29" column="22" bodyfile="whelmed/TableBlock.h" bodystart="29" bodyend="29"/>
-        <referencedby refid="classwhelmed_1_1_screen_1a057600229b15e2602dc42283320d8522" compoundref="_screen_8cpp" startline="87" endline="172">whelmed::Screen::createBlock</referencedby>
+        <referencedby refid="classwhelmed_1_1_screen_1a057600229b15e2602dc42283320d8522" compoundref="_screen_8cpp" startline="88" endline="173">whelmed::Screen::createBlock</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structwhelmed_1_1_table_block_1_1_colour_scheme_1a56838261a5279c1d3537e210a933af89" prot="public" static="no" mutable="no">
         <type>juce::Colour</type>
@@ -98,7 +98,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="whelmed/TableBlock.h" line="30" column="22" bodyfile="whelmed/TableBlock.h" bodystart="30" bodyend="30"/>
-        <referencedby refid="classwhelmed_1_1_screen_1a057600229b15e2602dc42283320d8522" compoundref="_screen_8cpp" startline="87" endline="172">whelmed::Screen::createBlock</referencedby>
+        <referencedby refid="classwhelmed_1_1_screen_1a057600229b15e2602dc42283320d8522" compoundref="_screen_8cpp" startline="88" endline="173">whelmed::Screen::createBlock</referencedby>
       </memberdef>
     </sectiondef>
     <briefdescription>

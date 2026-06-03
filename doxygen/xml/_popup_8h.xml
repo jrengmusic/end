@@ -11,8 +11,8 @@
     <includedby refid="_main_component_8h" local="yes">MainComponent.h</includedby>
     <includedby refid="_popup_8cpp" local="yes">terminal/component/Popup.cpp</includedby>
     <incdepgraph>
-      <node id="13">
-        <label>AppIdentifier.h</label>
+      <node id="4">
+        <label>../AppIdentifier.h</label>
         <link refid="_app_identifier_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
@@ -22,21 +22,21 @@
         <link refid="_app_model_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
-        <childnode refid="13" relation="include">
+        <childnode refid="4" relation="include">
         </childnode>
         <childnode refid="3" relation="include">
         </childnode>
-        <childnode refid="9" relation="include">
+        <childnode refid="6" relation="include">
         </childnode>
-        <childnode refid="14" relation="include">
+        <childnode refid="5" relation="include">
         </childnode>
       </node>
-      <node id="14">
-        <label>Map.h</label>
+      <node id="5">
+        <label>../Map.h</label>
         <link refid="_map_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
-        <childnode refid="9" relation="include">
+        <childnode refid="6" relation="include">
         </childnode>
       </node>
       <node id="10">
@@ -54,145 +54,145 @@
         </childnode>
         <childnode refid="4" relation="include">
         </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
       </node>
-      <node id="24">
+      <node id="22">
         <label>CSI.h</label>
         <link refid="_c_s_i_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
       </node>
-      <node id="21">
+      <node id="19">
         <label>CellFifo.h</label>
         <link refid="_cell_fifo_8h"/>
       </node>
-      <node id="28">
+      <node id="26">
         <label>CharProps.h</label>
         <link refid="_char_props_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
-        <childnode refid="29" relation="include">
+        <childnode refid="27" relation="include">
         </childnode>
       </node>
-      <node id="29">
+      <node id="27">
         <label>CharPropsData.h</label>
         <link refid="_char_props_data_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
       </node>
-      <node id="27">
+      <node id="25">
         <label>Charset.h</label>
         <link refid="_charset_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
       </node>
-      <node id="23">
+      <node id="21">
         <label>DispatchTable.h</label>
         <link refid="_dispatch_table_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
       </node>
-      <node id="36">
+      <node id="34">
         <label>ITerm2Decoder.h</label>
         <link refid="_i_term2_decoder_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
-        <childnode refid="34" relation="include">
+        <childnode refid="32" relation="include">
         </childnode>
-        <childnode refid="33" relation="include">
+        <childnode refid="31" relation="include">
         </childnode>
       </node>
-      <node id="9">
-        <label>Identifier.h</label>
+      <node id="6">
+        <label>terminal/Identifier.h</label>
         <link refid="_identifier_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
       </node>
-      <node id="34">
+      <node id="32">
         <label>ImageDecode.h</label>
         <link refid="_image_decode_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
-        <childnode refid="35" relation="include">
+        <childnode refid="33" relation="include">
         </childnode>
       </node>
-      <node id="35">
+      <node id="33">
         <label>ImageDecodeGif.h</label>
         <link refid="_image_decode_gif_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
       </node>
-      <node id="41">
+      <node id="39">
         <label>../Input.h</label>
         <link refid="_input_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
-        <childnode refid="42" relation="include">
+        <childnode refid="40" relation="include">
         </childnode>
         <childnode refid="11" relation="include">
         </childnode>
         <childnode refid="3" relation="include">
         </childnode>
-        <childnode refid="15" relation="include">
+        <childnode refid="13" relation="include">
         </childnode>
-        <childnode refid="43" relation="include">
+        <childnode refid="41" relation="include">
         </childnode>
-        <childnode refid="4" relation="include">
+        <childnode refid="7" relation="include">
         </childnode>
       </node>
-      <node id="16">
+      <node id="14">
         <label>Keyboard.h</label>
         <link refid="_keyboard_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
       </node>
-      <node id="32">
+      <node id="30">
         <label>KittyDecoder.h</label>
         <link refid="_kitty_decoder_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
-        <childnode refid="33" relation="include">
+        <childnode refid="31" relation="include">
         </childnode>
-        <childnode refid="34" relation="include">
+        <childnode refid="32" relation="include">
         </childnode>
       </node>
-      <node id="45">
+      <node id="43">
         <label>LinkDetector.h</label>
         <link refid="_link_detector_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
-        <childnode refid="3" relation="include">
+        <childnode refid="12" relation="include">
         </childnode>
       </node>
-      <node id="43">
+      <node id="41">
         <label>LinkManager.h</label>
         <link refid="_link_manager_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
-        <childnode refid="44" relation="include">
+        <childnode refid="42" relation="include">
         </childnode>
-        <childnode refid="7" relation="include">
+        <childnode refid="9" relation="include">
         </childnode>
-        <childnode refid="45" relation="include">
+        <childnode refid="43" relation="include">
         </childnode>
       </node>
-      <node id="44">
+      <node id="42">
         <label>LinkSpan.h</label>
         <link refid="_link_span_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
-        <childnode refid="45" relation="include">
+        <childnode refid="43" relation="include">
         </childnode>
       </node>
-      <node id="7">
+      <node id="9">
         <label>Model.h</label>
         <link refid="_model_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
-        <childnode refid="8" relation="include">
-        </childnode>
         <childnode refid="6" relation="include">
-        </childnode>
-        <childnode refid="9" relation="include">
         </childnode>
         <childnode refid="10" relation="include">
         </childnode>
@@ -202,183 +202,167 @@
         </childnode>
         <childnode refid="12" relation="include">
         </childnode>
-        <childnode refid="14" relation="include">
+        <childnode refid="5" relation="include">
         </childnode>
       </node>
-      <node id="46">
+      <node id="44">
         <label>../Mouse.h</label>
         <link refid="_mouse_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
-        <childnode refid="15" relation="include">
+        <childnode refid="13" relation="include">
         </childnode>
-        <childnode refid="43" relation="include">
+        <childnode refid="41" relation="include">
         </childnode>
       </node>
-      <node id="37">
+      <node id="35">
         <label>Notifications.h</label>
         <link refid="_notifications_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
       </node>
-      <node id="30">
+      <node id="28">
         <label>Palette.h</label>
         <link refid="_palette_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
       </node>
-      <node id="8">
-        <label>Parameter.h</label>
-        <link refid="_parameter_8h"/>
-        <childnode refid="2" relation="include">
-        </childnode>
-      </node>
-      <node id="22">
+      <node id="20">
         <label>Parser.h</label>
         <link refid="terminal_2_parser_8h"/>
         <childnode refid="2" relation="include">
-        </childnode>
-        <childnode refid="23" relation="include">
-        </childnode>
-        <childnode refid="24" relation="include">
-        </childnode>
-        <childnode refid="25" relation="include">
-        </childnode>
-      </node>
-      <node id="15">
-        <label>Processor.h</label>
-        <link refid="_processor_8h"/>
-        <childnode refid="2" relation="include">
-        </childnode>
-        <childnode refid="16" relation="include">
-        </childnode>
-        <childnode refid="7" relation="include">
-        </childnode>
-        <childnode refid="6" relation="include">
-        </childnode>
-        <childnode refid="17" relation="include">
-        </childnode>
-        <childnode refid="18" relation="include">
-        </childnode>
-        <childnode refid="19" relation="include">
         </childnode>
         <childnode refid="21" relation="include">
         </childnode>
         <childnode refid="22" relation="include">
         </childnode>
-        <childnode refid="31" relation="include">
-        </childnode>
-        <childnode refid="25" relation="include">
-        </childnode>
-        <childnode refid="37" relation="include">
+        <childnode refid="23" relation="include">
         </childnode>
       </node>
-      <node id="5">
+      <node id="13">
+        <label>Processor.h</label>
+        <link refid="_processor_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
         <label>../Session.h</label>
         <link refid="_session_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
-        <childnode refid="6" relation="include">
+        <childnode refid="9" relation="include">
         </childnode>
-        <childnode refid="7" relation="include">
-        </childnode>
-        <childnode refid="15" relation="include">
+        <childnode refid="13" relation="include">
         </childnode>
         <childnode refid="3" relation="include">
         </childnode>
       </node>
-      <node id="33">
+      <node id="31">
         <label>SixelDecoder.h</label>
         <link refid="_sixel_decoder_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
       </node>
-      <node id="31">
+      <node id="29">
         <label>Skit.h</label>
         <link refid="_skit_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
-        <childnode refid="32" relation="include">
-        </childnode>
-        <childnode refid="36" relation="include">
-        </childnode>
-        <childnode refid="33" relation="include">
+        <childnode refid="30" relation="include">
         </childnode>
         <childnode refid="34" relation="include">
         </childnode>
-        <childnode refid="9" relation="include">
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
         </childnode>
       </node>
-      <node id="6">
-        <label>TextBuffer.h</label>
-        <link refid="_text_buffer_8h"/>
-        <childnode refid="2" relation="include">
-        </childnode>
-      </node>
-      <node id="25">
+      <node id="23">
         <label>Video.h</label>
         <link refid="_video_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
-        <childnode refid="26" relation="include">
-        </childnode>
-        <childnode refid="27" relation="include">
-        </childnode>
-        <childnode refid="23" relation="include">
-        </childnode>
         <childnode refid="24" relation="include">
         </childnode>
-        <childnode refid="9" relation="include">
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
         </childnode>
         <childnode refid="28" relation="include">
         </childnode>
-        <childnode refid="14" relation="include">
-        </childnode>
-        <childnode refid="30" relation="include">
-        </childnode>
       </node>
-      <node id="17">
+      <node id="15">
         <label>Winsize.h</label>
         <link refid="_winsize_8h"/>
       </node>
-      <node id="4">
+      <node id="7">
         <label>../terminal/action/Action.h</label>
         <link refid="_action_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
       </node>
-      <node id="39">
+      <node id="37">
         <label>Display.h</label>
         <link refid="_display_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
-        <childnode refid="40" relation="include">
+        <childnode refid="38" relation="include">
         </childnode>
-        <childnode refid="5" relation="include">
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="44" relation="include">
         </childnode>
         <childnode refid="41" relation="include">
         </childnode>
-        <childnode refid="46" relation="include">
-        </childnode>
-        <childnode refid="43" relation="include">
-        </childnode>
       </node>
-      <node id="38">
+      <node id="36">
         <label>ModalWindow.h</label>
         <link refid="_modal_window_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
         <childnode refid="3" relation="include">
         </childnode>
-        <childnode refid="39" relation="include">
+        <childnode refid="37" relation="include">
         </childnode>
       </node>
-      <node id="40">
+      <node id="38">
         <label>PaneView.h</label>
         <link refid="_pane_view_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
-        <childnode refid="13" relation="include">
+        <childnode refid="4" relation="include">
         </childnode>
         <childnode refid="12" relation="include">
         </childnode>
@@ -390,16 +374,16 @@
         </childnode>
         <childnode refid="3" relation="include">
         </childnode>
-        <childnode refid="5" relation="include">
+        <childnode refid="8" relation="include">
         </childnode>
-        <childnode refid="9" relation="include">
+        <childnode refid="6" relation="include">
         </childnode>
-        <childnode refid="38" relation="include">
+        <childnode refid="36" relation="include">
         </childnode>
-        <childnode refid="39" relation="include">
+        <childnode refid="37" relation="include">
         </childnode>
       </node>
-      <node id="42">
+      <node id="40">
         <label>component/ScreenSelection.h</label>
         <link refid="_screen_selection_8h"/>
         <childnode refid="2" relation="include">
@@ -407,31 +391,31 @@
         <childnode refid="11" relation="include">
         </childnode>
       </node>
-      <node id="18">
+      <node id="16">
         <label>tty/TTY.h</label>
         <link refid="_t_t_y_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
-        <childnode refid="9" relation="include">
+        <childnode refid="6" relation="include">
         </childnode>
-        <childnode refid="17" relation="include">
+        <childnode refid="15" relation="include">
         </childnode>
       </node>
-      <node id="19">
+      <node id="17">
         <label>tty/UnixTTY.h</label>
         <link refid="_unix_t_t_y_8h"/>
-        <childnode refid="18" relation="include">
+        <childnode refid="16" relation="include">
         </childnode>
-        <childnode refid="20" relation="include">
+        <childnode refid="18" relation="include">
         </childnode>
       </node>
       <node id="2">
         <label>JuceHeader.h</label>
       </node>
-      <node id="26">
+      <node id="24">
         <label>atomic</label>
       </node>
-      <node id="20">
+      <node id="18">
         <label>unistd.h</label>
       </node>
     </incdepgraph>
@@ -484,7 +468,7 @@
     </briefdescription>
     <detaileddescription>
 <para><ref refid="classterminal_1_1_popup" kindref="compound">terminal::Popup</ref> creates a modal <ref refid="classterminal_1_1_modal_window" kindref="compound">terminal::ModalWindow</ref> with native glass blur that hosts any juce::Component as content. The dialog blocks input to all other components while active and dismisses on Escape or close button.</para>
-<sect1 id="_popup_8h_1autotoc_md28_1s1"><sect2 id="_popup_8h_1autotoc_md28_1s2"><sect3 id="_popup_8h_1autotoc_md28">
+<sect1 id="_popup_8h_1autotoc_md29_1s1"><sect2 id="_popup_8h_1autotoc_md29_1s2"><sect3 id="_popup_8h_1autotoc_md29">
 <title>Ownership</title><para><itemizedlist>
 <listitem><para>Popup owns the ModalWindow via std::unique_ptr.</para>
 </listitem><listitem><para>The ModalWindow owns the content component via setContentOwned().</para>
@@ -492,10 +476,10 @@
 </listitem></itemizedlist>
 </para>
 </sect3></sect2></sect1>
-<sect1 id="_popup_8h_1autotoc_md29_1s1"><sect2 id="_popup_8h_1autotoc_md29_1s2"><sect3 id="_popup_8h_1autotoc_md29">
+<sect1 id="_popup_8h_1autotoc_md30_1s1"><sect2 id="_popup_8h_1autotoc_md30_1s2"><sect3 id="_popup_8h_1autotoc_md30">
 <title>Glass blur</title><para><ref refid="classterminal_1_1_modal_window" kindref="compound">terminal::ModalWindow</ref> inherits <ref refid="classjam_1_1_modal_window" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::ModalWindow</ref> which inherits <ref refid="classjam_1_1_window" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Window</ref>. Blur is applied on first visibility via the Window deferred mechanism.</para>
 </sect3></sect2></sect1>
-<sect1 id="_popup_8h_1autotoc_md30_1s1"><sect2 id="_popup_8h_1autotoc_md30_1s2"><sect3 id="_popup_8h_1autotoc_md30">
+<sect1 id="_popup_8h_1autotoc_md31_1s1"><sect2 id="_popup_8h_1autotoc_md31_1s2"><sect3 id="_popup_8h_1autotoc_md31">
 <title>Dismiss mechanisms</title><para><itemizedlist>
 <listitem><para><bold>Escape</bold> — ModalWindow::keyPressed() handles Escape and calls closeButtonPressed().</para>
 </listitem><listitem><para><bold>Close button</bold> — closeButtonPressed() calls exitModalState (0).</para>
@@ -503,7 +487,7 @@
 </listitem></itemizedlist>
 </para>
 </sect3></sect2></sect1>
-<sect1 id="_popup_8h_1autotoc_md31_1s1"><sect2 id="_popup_8h_1autotoc_md31_1s2"><sect3 id="_popup_8h_1autotoc_md31">
+<sect1 id="_popup_8h_1autotoc_md32_1s1"><sect2 id="_popup_8h_1autotoc_md32_1s2"><sect3 id="_popup_8h_1autotoc_md32">
 <title>Config keys read</title><para><itemizedlist>
 <listitem><para><computeroutput>lua::Engine::display.window.colour</computeroutput> — glass tint colour</para>
 </listitem><listitem><para><computeroutput>lua::Engine::display.window.opacity</computeroutput> — glass opacity (float, 0.0–1.0)</para>

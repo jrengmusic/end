@@ -183,13 +183,13 @@
     </briefdescription>
     <detaileddescription>
 <para><computeroutput>ScreenSelection</computeroutput> stores the two endpoints of a user text selection as grid coordinates (column, row) and provides <computeroutput>contains()</computeroutput> for per-cell hit testing during snapshot construction.</para>
-<sect1 id="_screen_selection_8h_1autotoc_md32_1s1"><sect2 id="_screen_selection_8h_1autotoc_md32">
+<sect1 id="_screen_selection_8h_1autotoc_md33_1s1"><sect2 id="_screen_selection_8h_1autotoc_md33">
 <title>Coordinate system</title><para>Both <computeroutput>anchor</computeroutput> and <computeroutput><ref refid="group__juce__core-files_1ga4a3194f4f741f9bd653f28733358f62c" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">end</ref></computeroutput> are in <bold>grid space</bold> — column and row indices within the visible terminal grid, not pixel coordinates. The anchor is the point where the user started the selection (mouse-down); the end is the current drag position (mouse-drag / mouse-up).</para>
 </sect2></sect1>
-<sect1 id="_screen_selection_8h_1autotoc_md33_1s1"><sect2 id="_screen_selection_8h_1autotoc_md33">
+<sect1 id="_screen_selection_8h_1autotoc_md34_1s1"><sect2 id="_screen_selection_8h_1autotoc_md34">
 <title>Normalisation</title><para><computeroutput>contains()</computeroutput> normalises the two endpoints into reading order before testing, so the struct is valid regardless of whether the user dragged forwards or backwards.</para>
 </sect2></sect1>
-<sect1 id="_screen_selection_8h_1autotoc_md34_1s1"><sect2 id="_screen_selection_8h_1autotoc_md34">
+<sect1 id="_screen_selection_8h_1autotoc_md35_1s1"><sect2 id="_screen_selection_8h_1autotoc_md35">
 <title>Rendering</title><para>The selection is rendered as a transparent colour overlay on top of the normal cell background. The renderer calls <computeroutput>containsCell()</computeroutput> for every cell and highlights selected cells using the configured selection colour.</para>
 <para><programlisting><codeline><highlight class="normal">ScreenSelection<sp/>sel;</highlight></codeline>
 <codeline><highlight class="normal">sel.anchor<sp/>=<sp/>{<sp/>3,<sp/>2<sp/>};<sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>column<sp/>3,<sp/>row<sp/>2</highlight><highlight class="normal"></highlight></codeline>

@@ -6,12 +6,30 @@
     <includes refid="_engine_8h" local="yes">../../lua/Engine.h</includes>
     <includedby refid="_windows_t_t_y_8cpp" local="yes">terminal/tty/WindowsTTY.cpp</includedby>
     <incdepgraph>
+      <node id="7">
+        <label>../AppIdentifier.h</label>
+        <link refid="_app_identifier_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>../Map.h</label>
+        <link refid="_map_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
       <node id="6">
         <label>../../lua/Engine.h</label>
         <link refid="_engine_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
         <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
         </childnode>
       </node>
       <node id="4">
@@ -24,7 +42,7 @@
         <label>../Winsize.h</label>
         <link refid="_winsize_8h"/>
       </node>
-      <node id="7">
+      <node id="9">
         <label>../terminal/action/Action.h</label>
         <link refid="_action_8h"/>
         <childnode refid="3" relation="include">
@@ -69,7 +87,7 @@
     </briefdescription>
     <detaileddescription>
 <para>WindowsTTY wraps the Windows Pseudo Console (ConPTY) API introduced in Windows 10 version 1809 (build 17763). ConPTY provides a VT-compatible pseudo-terminal that allows Win32 console applications to be driven by a terminal emulator without the legacy Console Host.</para>
-<sect1 id="_windows_t_t_y_8h_1autotoc_md79_1s1"><sect2 id="_windows_t_t_y_8h_1autotoc_md79_1s2"><sect3 id="_windows_t_t_y_8h_1autotoc_md79">
+<sect1 id="_windows_t_t_y_8h_1autotoc_md80_1s1"><sect2 id="_windows_t_t_y_8h_1autotoc_md80_1s2"><sect3 id="_windows_t_t_y_8h_1autotoc_md80">
 <title>ConPTY pipe topology (Microsoft Terminal model)</title><para><programlisting><codeline><highlight class="normal">WindowsTTY<sp/>(parent)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ConPTY<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>shell<sp/>(child)</highlight></codeline>
 <codeline><highlight class="normal">─────────────────────────────────<sp/><sp/><sp/><sp/>──────────────────────<sp/><sp/>──────────────</highlight></codeline>
 <codeline><highlight class="normal">pipe<sp/>(server,<sp/>DUPLEX,<sp/>overlapped)<sp/>◄──►<sp/>client<sp/>(hInput)<sp/><sp/>──►<sp/>child<sp/>stdin</highlight></codeline>
@@ -80,7 +98,7 @@
 <codeline><highlight class="normal">Same<sp/>client<sp/>handle<sp/>passed<sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>both<sp/>hInput<sp/>and<sp/>hOutput<sp/>to<sp/>CreatePseudoConsole.</highlight></codeline>
 </programlisting></para>
 </sect3></sect2></sect1>
-<sect1 id="_windows_t_t_y_8h_1autotoc_md80_1s1"><sect2 id="_windows_t_t_y_8h_1autotoc_md80_1s2"><sect3 id="_windows_t_t_y_8h_1autotoc_md80">
+<sect1 id="_windows_t_t_y_8h_1autotoc_md81_1s1"><sect2 id="_windows_t_t_y_8h_1autotoc_md81_1s2"><sect3 id="_windows_t_t_y_8h_1autotoc_md81">
 <title>Pipe creation — NT API (matches Microsoft Terminal exactly)</title><para>The pipe is created using <computeroutput>NtCreateNamedPipeFile</computeroutput> and <computeroutput>NtCreateFile</computeroutput> loaded via <computeroutput>GetProcAddress</computeroutput> on <computeroutput>ntdll.dll</computeroutput>, replicating the <computeroutput>CreateOverlappedPipe</computeroutput> implementation in Microsoft Terminal&apos;s <computeroutput>utils.cpp</computeroutput>. This avoids the read/write contention that occurs with <computeroutput>CreateNamedPipeW</computeroutput> on a duplex pipe.</para>
 <para><orderedlist>
 <listitem><para>A handle to <computeroutput>\Device\<ref refid="classNamedPipe" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">NamedPipe</ref>\\endiskip</computeroutput> is opened once via <computeroutput>NtCreateFile</computeroutput> and cached in a static local.</para>
@@ -89,7 +107,7 @@
 </listitem></orderedlist>
 </para>
 </sect3></sect2></sect1>
-<sect1 id="_windows_t_t_y_8h_1autotoc_md81_1s1"><sect2 id="_windows_t_t_y_8h_1autotoc_md81_1s2"><sect3 id="_windows_t_t_y_8h_1autotoc_md81">
+<sect1 id="_windows_t_t_y_8h_1autotoc_md82_1s1"><sect2 id="_windows_t_t_y_8h_1autotoc_md82_1s2"><sect3 id="_windows_t_t_y_8h_1autotoc_md82">
 <title>Overlapped I/O model</title><para>Both read and write operations use overlapped I/O with manual-reset events:<itemizedlist>
 <listitem><para><computeroutput>waitForData()</computeroutput> issues an overlapped <computeroutput>ReadFile</computeroutput>, waits for the event, and stores the result in an internal buffer.</para>
 </listitem><listitem><para><computeroutput>read()</computeroutput> copies from the internal buffer to the caller&apos;s buffer.</para>
@@ -97,7 +115,7 @@
 </listitem></itemizedlist>
 </para>
 </sect3></sect2></sect1>
-<sect1 id="_windows_t_t_y_8h_1autotoc_md82_1s1"><sect2 id="_windows_t_t_y_8h_1autotoc_md82_1s2"><sect3 id="_windows_t_t_y_8h_1autotoc_md82">
+<sect1 id="_windows_t_t_y_8h_1autotoc_md83_1s1"><sect2 id="_windows_t_t_y_8h_1autotoc_md83_1s2"><sect3 id="_windows_t_t_y_8h_1autotoc_md83">
 <title>Handle ownership table</title><para><table rows="7" cols="3"><row>
 <entry thead="yes"><para>Handle  </para>
 </entry><entry thead="yes"><para>Owner after open()  </para>
@@ -136,14 +154,14 @@
 </table>
 </para>
 </sect3></sect2></sect1>
-<sect1 id="_windows_t_t_y_8h_1autotoc_md83_1s1"><sect2 id="_windows_t_t_y_8h_1autotoc_md83_1s2"><sect3 id="_windows_t_t_y_8h_1autotoc_md83">
+<sect1 id="_windows_t_t_y_8h_1autotoc_md84_1s1"><sect2 id="_windows_t_t_y_8h_1autotoc_md84_1s2"><sect3 id="_windows_t_t_y_8h_1autotoc_md84">
 <title>Thread model</title><para><itemizedlist>
 <listitem><para><computeroutput>open()</computeroutput>, <computeroutput>close()</computeroutput>, <computeroutput>write()</computeroutput>, <computeroutput>setWinsize()</computeroutput> — message thread</para>
 </listitem><listitem><para><computeroutput>read()</computeroutput>, <computeroutput>waitForData()</computeroutput> — reader thread (called from <ref refid="class_t_t_y_1a5069e6a70b48c9e44fef6d6fd8fa2b31" kindref="member">TTY::run</ref>)</para>
 </listitem></itemizedlist>
 </para>
 </sect3></sect2></sect1>
-<sect1 id="_windows_t_t_y_8h_1autotoc_md84_1s1"><sect2 id="_windows_t_t_y_8h_1autotoc_md84_1s2"><sect3 id="_windows_t_t_y_8h_1autotoc_md84">
+<sect1 id="_windows_t_t_y_8h_1autotoc_md85_1s1"><sect2 id="_windows_t_t_y_8h_1autotoc_md85_1s2"><sect3 id="_windows_t_t_y_8h_1autotoc_md85">
 <title>Shutdown sequence</title><para><orderedlist>
 <listitem><para><computeroutput>signalThreadShouldExit()</computeroutput> — tell reader thread to stop.</para>
 </listitem><listitem><para><computeroutput>ClosePseudoConsole()</computeroutput> — sends CTRL_CLOSE_EVENT to clients, then breaks the pipe. <bold>Must</bold> happen while the reader thread is still alive to avoid a ConPTY deadlock. The broken pipe unblocks the reader&apos;s overlapped read.</para>

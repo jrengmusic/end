@@ -19,18 +19,18 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/component/Panes.h" line="279" column="16" bodyfile="terminal/component/Panes.h" bodystart="279" bodyend="-1"/>
-        <referencedby refid="classterminal_1_1_panes_1a44a61d2e4234947bee7481e31eb583d8" compoundref="_panes_8cpp" startline="274" endline="343">closePane</referencedby>
-        <referencedby refid="classterminal_1_1_panes_1a545b7ac2fc793c6d53763d94ac31bc13" compoundref="_panes_8cpp" startline="194" endline="235">closeWhelmed</referencedby>
-        <referencedby refid="classterminal_1_1_panes_1ae621cef26f4911722fb51c0d376ef2eb" compoundref="_panes_8cpp" startline="103" endline="141">createTerminal</referencedby>
-        <referencedby refid="classterminal_1_1_panes_1ad789e421f3f053d4acc0393b6a0113eb" compoundref="_panes_8cpp" startline="150" endline="192">createWhelmed</referencedby>
-        <referencedby refid="classterminal_1_1_panes_1abc0c940abfae4f7843fc38e4e9640a30" compoundref="_panes_8cpp" startline="541" endline="597">focusPane</referencedby>
-        <referencedby refid="classterminal_1_1_panes_1abe18f6e6e0a26157ecfd131c32567a35" compoundref="_panes_8cpp" startline="264" endline="264">getPanes</referencedby>
-        <referencedby refid="classterminal_1_1_panes_1a70d784186f382abaca5ca5712de25b0f" compoundref="_panes_8cpp" startline="256" endline="256">isEmpty</referencedby>
-        <referencedby refid="classterminal_1_1_panes_1af3d48b750087989d7669ebff4919c085" compoundref="_panes_8cpp" startline="444" endline="447">resized</referencedby>
-        <referencedby refid="classterminal_1_1_panes_1a1acffea5f924bf298d68ff9be17f0e43" compoundref="_panes_8cpp" startline="416" endline="437">splitActive</referencedby>
-        <referencedby refid="classterminal_1_1_panes_1a84ce2b04c95990c03a7f21f76da89dbc" compoundref="_panes_8cpp" startline="364" endline="414">splitAt</referencedby>
-        <referencedby refid="classterminal_1_1_panes_1adfbcfe5d7d66050d58b6d7ddc0341973" compoundref="_panes_8cpp" startline="486" endline="539">valueTreePropertyChanged</referencedby>
-        <referencedby refid="classterminal_1_1_panes_1abf5087515b417ec5b6c451256177268a" compoundref="_panes_8cpp" startline="454" endline="473">visibilityChanged</referencedby>
+        <referencedby refid="classterminal_1_1_panes_1a44a61d2e4234947bee7481e31eb583d8" compoundref="_panes_8cpp" startline="275" endline="344">closePane</referencedby>
+        <referencedby refid="classterminal_1_1_panes_1a545b7ac2fc793c6d53763d94ac31bc13" compoundref="_panes_8cpp" startline="195" endline="236">closeWhelmed</referencedby>
+        <referencedby refid="classterminal_1_1_panes_1ae621cef26f4911722fb51c0d376ef2eb" compoundref="_panes_8cpp" startline="104" endline="142">createTerminal</referencedby>
+        <referencedby refid="classterminal_1_1_panes_1ad789e421f3f053d4acc0393b6a0113eb" compoundref="_panes_8cpp" startline="151" endline="193">createWhelmed</referencedby>
+        <referencedby refid="classterminal_1_1_panes_1abc0c940abfae4f7843fc38e4e9640a30" compoundref="_panes_8cpp" startline="542" endline="598">focusPane</referencedby>
+        <referencedby refid="classterminal_1_1_panes_1abe18f6e6e0a26157ecfd131c32567a35" compoundref="_panes_8cpp" startline="265" endline="265">getPanes</referencedby>
+        <referencedby refid="classterminal_1_1_panes_1a70d784186f382abaca5ca5712de25b0f" compoundref="_panes_8cpp" startline="257" endline="257">isEmpty</referencedby>
+        <referencedby refid="classterminal_1_1_panes_1af3d48b750087989d7669ebff4919c085" compoundref="_panes_8cpp" startline="445" endline="448">resized</referencedby>
+        <referencedby refid="classterminal_1_1_panes_1a1acffea5f924bf298d68ff9be17f0e43" compoundref="_panes_8cpp" startline="417" endline="438">splitActive</referencedby>
+        <referencedby refid="classterminal_1_1_panes_1a84ce2b04c95990c03a7f21f76da89dbc" compoundref="_panes_8cpp" startline="365" endline="415">splitAt</referencedby>
+        <referencedby refid="classterminal_1_1_panes_1adfbcfe5d7d66050d58b6d7ddc0341973" compoundref="_panes_8cpp" startline="487" endline="540">valueTreePropertyChanged</referencedby>
+        <referencedby refid="classterminal_1_1_panes_1abf5087515b417ec5b6c451256177268a" compoundref="_panes_8cpp" startline="455" endline="474">visibilityChanged</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classterminal_1_1_panes_1a1a0aafbe9647720713c2c25a56583398" prot="private" static="no" mutable="no">
         <type><ref refid="classjam_1_1_pane_manager" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::PaneManager</ref></type>
@@ -45,13 +45,13 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/component/Panes.h" line="280" column="22" bodyfile="terminal/component/Panes.h" bodystart="280" bodyend="-1"/>
-        <referencedby refid="classterminal_1_1_panes_1a44a61d2e4234947bee7481e31eb583d8" compoundref="_panes_8cpp" startline="274" endline="343">closePane</referencedby>
-        <referencedby refid="classterminal_1_1_panes_1ae621cef26f4911722fb51c0d376ef2eb" compoundref="_panes_8cpp" startline="103" endline="141">createTerminal</referencedby>
-        <referencedby refid="classterminal_1_1_panes_1ad789e421f3f053d4acc0393b6a0113eb" compoundref="_panes_8cpp" startline="150" endline="192">createWhelmed</referencedby>
-        <referencedby refid="classterminal_1_1_panes_1afff2c75cecbe22591842bdb6eda8cc61" compoundref="_panes_8cpp" startline="272" endline="272">getState</referencedby>
-        <referencedby refid="classterminal_1_1_panes_1af3d48b750087989d7669ebff4919c085" compoundref="_panes_8cpp" startline="444" endline="447">resized</referencedby>
-        <referencedby refid="classterminal_1_1_panes_1a84ce2b04c95990c03a7f21f76da89dbc" compoundref="_panes_8cpp" startline="364" endline="414">splitAt</referencedby>
-        <referencedby refid="classterminal_1_1_panes_1abf5087515b417ec5b6c451256177268a" compoundref="_panes_8cpp" startline="454" endline="473">visibilityChanged</referencedby>
+        <referencedby refid="classterminal_1_1_panes_1a44a61d2e4234947bee7481e31eb583d8" compoundref="_panes_8cpp" startline="275" endline="344">closePane</referencedby>
+        <referencedby refid="classterminal_1_1_panes_1ae621cef26f4911722fb51c0d376ef2eb" compoundref="_panes_8cpp" startline="104" endline="142">createTerminal</referencedby>
+        <referencedby refid="classterminal_1_1_panes_1ad789e421f3f053d4acc0393b6a0113eb" compoundref="_panes_8cpp" startline="151" endline="193">createWhelmed</referencedby>
+        <referencedby refid="classterminal_1_1_panes_1afff2c75cecbe22591842bdb6eda8cc61" compoundref="_panes_8cpp" startline="273" endline="273">getState</referencedby>
+        <referencedby refid="classterminal_1_1_panes_1af3d48b750087989d7669ebff4919c085" compoundref="_panes_8cpp" startline="445" endline="448">resized</referencedby>
+        <referencedby refid="classterminal_1_1_panes_1a84ce2b04c95990c03a7f21f76da89dbc" compoundref="_panes_8cpp" startline="365" endline="415">splitAt</referencedby>
+        <referencedby refid="classterminal_1_1_panes_1abf5087515b417ec5b6c451256177268a" compoundref="_panes_8cpp" startline="455" endline="474">visibilityChanged</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classterminal_1_1_panes_1af57f298d699f5b8f235fbfa08db7a061" prot="private" static="no" mutable="no">
         <type><ref refid="classjam_1_1_owner" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Owner</ref>&lt; <ref refid="classjam_1_1_pane_resizer_bar" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::PaneResizerBar</ref> &gt;</type>
@@ -66,9 +66,9 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/component/Panes.h" line="281" column="16" bodyfile="terminal/component/Panes.h" bodystart="281" bodyend="-1"/>
-        <referencedby refid="classterminal_1_1_panes_1a44a61d2e4234947bee7481e31eb583d8" compoundref="_panes_8cpp" startline="274" endline="343">closePane</referencedby>
-        <referencedby refid="classterminal_1_1_panes_1af3d48b750087989d7669ebff4919c085" compoundref="_panes_8cpp" startline="444" endline="447">resized</referencedby>
-        <referencedby refid="classterminal_1_1_panes_1a84ce2b04c95990c03a7f21f76da89dbc" compoundref="_panes_8cpp" startline="364" endline="414">splitAt</referencedby>
+        <referencedby refid="classterminal_1_1_panes_1a44a61d2e4234947bee7481e31eb583d8" compoundref="_panes_8cpp" startline="275" endline="344">closePane</referencedby>
+        <referencedby refid="classterminal_1_1_panes_1af3d48b750087989d7669ebff4919c085" compoundref="_panes_8cpp" startline="445" endline="448">resized</referencedby>
+        <referencedby refid="classterminal_1_1_panes_1a84ce2b04c95990c03a7f21f76da89dbc" compoundref="_panes_8cpp" startline="365" endline="415">splitAt</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classterminal_1_1_panes_1a8f08d295d7a65b3a411d3bd21486931b" prot="private" static="no" mutable="no">
         <type>std::unordered_map&lt; juce::String, juce::ValueTree &gt;</type>
@@ -83,9 +83,9 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/component/Panes.h" line="282" column="24" bodyfile="terminal/component/Panes.h" bodystart="282" bodyend="-1"/>
-        <referencedby refid="classterminal_1_1_panes_1a44a61d2e4234947bee7481e31eb583d8" compoundref="_panes_8cpp" startline="274" endline="343">closePane</referencedby>
-        <referencedby refid="classterminal_1_1_panes_1ad1a3c2671dc6902d6e47da870b68cfa8" compoundref="_panes_8cpp" startline="243" endline="248">setTerminalCallbacks</referencedby>
-        <referencedby refid="classterminal_1_1_panes_1adfbcfe5d7d66050d58b6d7ddc0341973" compoundref="_panes_8cpp" startline="486" endline="539">valueTreePropertyChanged</referencedby>
+        <referencedby refid="classterminal_1_1_panes_1a44a61d2e4234947bee7481e31eb583d8" compoundref="_panes_8cpp" startline="275" endline="344">closePane</referencedby>
+        <referencedby refid="classterminal_1_1_panes_1ad1a3c2671dc6902d6e47da870b68cfa8" compoundref="_panes_8cpp" startline="244" endline="249">setTerminalCallbacks</referencedby>
+        <referencedby refid="classterminal_1_1_panes_1adfbcfe5d7d66050d58b6d7ddc0341973" compoundref="_panes_8cpp" startline="487" endline="540">valueTreePropertyChanged</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">
@@ -125,19 +125,19 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/component/Panes.h" line="59" column="5"/>
-        <references refid="classterminal_1_1_panes_1a44a61d2e4234947bee7481e31eb583d8" compoundref="_panes_8cpp" startline="274" endline="343">closePane</references>
-        <references refid="classterminal_1_1_panes_1abc0c940abfae4f7843fc38e4e9640a30" compoundref="_panes_8cpp" startline="541" endline="597">focusPane</references>
-        <references refid="classterminal_1_1_panes_1abe18f6e6e0a26157ecfd131c32567a35" compoundref="_panes_8cpp" startline="264" endline="264">getPanes</references>
-        <references refid="classterminal_1_1_panes_1afff2c75cecbe22591842bdb6eda8cc61" compoundref="_panes_8cpp" startline="272" endline="272">getState</references>
-        <references refid="classterminal_1_1_panes_1af3d48b750087989d7669ebff4919c085" compoundref="_panes_8cpp" startline="444" endline="447">resized</references>
-        <references refid="classterminal_1_1_panes_1ad1a3c2671dc6902d6e47da870b68cfa8" compoundref="_panes_8cpp" startline="243" endline="248">setTerminalCallbacks</references>
-        <references refid="classterminal_1_1_panes_1a1acffea5f924bf298d68ff9be17f0e43" compoundref="_panes_8cpp" startline="416" endline="437">splitActive</references>
-        <references refid="classterminal_1_1_panes_1a85f3651e2ec4e705c909074254b630df" compoundref="_panes_8cpp" startline="359" endline="362">splitActiveWithRatio</references>
-        <references refid="classterminal_1_1_panes_1a84ce2b04c95990c03a7f21f76da89dbc" compoundref="_panes_8cpp" startline="364" endline="414">splitAt</references>
-        <references refid="classterminal_1_1_panes_1a35e7c7bce90af00e49660c12da93e749" compoundref="_panes_8cpp" startline="350" endline="350">splitHorizontal</references>
-        <references refid="classterminal_1_1_panes_1aab6a997c1d7bdf490a7338aca3c9cd2b" compoundref="_panes_8cpp" startline="357" endline="357">splitVertical</references>
-        <references refid="classterminal_1_1_panes_1adfbcfe5d7d66050d58b6d7ddc0341973" compoundref="_panes_8cpp" startline="486" endline="539">valueTreePropertyChanged</references>
-        <references refid="classterminal_1_1_panes_1abf5087515b417ec5b6c451256177268a" compoundref="_panes_8cpp" startline="454" endline="473">visibilityChanged</references>
+        <references refid="classterminal_1_1_panes_1a44a61d2e4234947bee7481e31eb583d8" compoundref="_panes_8cpp" startline="275" endline="344">closePane</references>
+        <references refid="classterminal_1_1_panes_1abc0c940abfae4f7843fc38e4e9640a30" compoundref="_panes_8cpp" startline="542" endline="598">focusPane</references>
+        <references refid="classterminal_1_1_panes_1abe18f6e6e0a26157ecfd131c32567a35" compoundref="_panes_8cpp" startline="265" endline="265">getPanes</references>
+        <references refid="classterminal_1_1_panes_1afff2c75cecbe22591842bdb6eda8cc61" compoundref="_panes_8cpp" startline="273" endline="273">getState</references>
+        <references refid="classterminal_1_1_panes_1af3d48b750087989d7669ebff4919c085" compoundref="_panes_8cpp" startline="445" endline="448">resized</references>
+        <references refid="classterminal_1_1_panes_1ad1a3c2671dc6902d6e47da870b68cfa8" compoundref="_panes_8cpp" startline="244" endline="249">setTerminalCallbacks</references>
+        <references refid="classterminal_1_1_panes_1a1acffea5f924bf298d68ff9be17f0e43" compoundref="_panes_8cpp" startline="417" endline="438">splitActive</references>
+        <references refid="classterminal_1_1_panes_1a85f3651e2ec4e705c909074254b630df" compoundref="_panes_8cpp" startline="360" endline="363">splitActiveWithRatio</references>
+        <references refid="classterminal_1_1_panes_1a84ce2b04c95990c03a7f21f76da89dbc" compoundref="_panes_8cpp" startline="365" endline="415">splitAt</references>
+        <references refid="classterminal_1_1_panes_1a35e7c7bce90af00e49660c12da93e749" compoundref="_panes_8cpp" startline="351" endline="351">splitHorizontal</references>
+        <references refid="classterminal_1_1_panes_1aab6a997c1d7bdf490a7338aca3c9cd2b" compoundref="_panes_8cpp" startline="358" endline="358">splitVertical</references>
+        <references refid="classterminal_1_1_panes_1adfbcfe5d7d66050d58b6d7ddc0341973" compoundref="_panes_8cpp" startline="487" endline="540">valueTreePropertyChanged</references>
+        <references refid="classterminal_1_1_panes_1abf5087515b417ec5b6c451256177268a" compoundref="_panes_8cpp" startline="455" endline="474">visibilityChanged</references>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_panes_1ae621cef26f4911722fb51c0d376ef2eb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>juce::String</type>
@@ -196,19 +196,19 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Panes.h" line="113" column="18" bodyfile="terminal/component/Panes.cpp" bodystart="103" bodyend="141"/>
+        <location file="terminal/component/Panes.h" line="113" column="18" bodyfile="terminal/component/Panes.cpp" bodystart="104" bodyend="142"/>
         <references refid="classjam_1_1_pane_manager_1a5318bac989d380aa730755d6b135f7f1">jam::PaneManager::findLeaf</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Nexus &gt;::getContext</references>
         <references refid="structjam_1_1_cell_1_1_rectangle_1a6fd3c1980b15bde3963479e0d23a938f">jam::Cell::Rectangle::getHeight</references>
-        <references refid="classterminal_1_1_session_1a3564c58fc509e22d7e900071233cea5e" compoundref="_session_8cpp" startline="386" endline="390">terminal::Session::getProcessor</references>
-        <references refid="classterminal_1_1_processor_1ace3fe08e06ad8427e1275f8b195d9373" compoundref="_processor_8cpp" startline="375" endline="375">terminal::Processor::getUuid</references>
+        <references refid="classterminal_1_1_session_1a3564c58fc509e22d7e900071233cea5e" compoundref="_session_8cpp" startline="384" endline="388">terminal::Session::getProcessor</references>
+        <references refid="classterminal_1_1_processor_1ace3fe08e06ad8427e1275f8b195d9373" compoundref="_processor_8cpp" startline="373" endline="373">terminal::Processor::getUuid</references>
         <references refid="structjam_1_1_cell_1_1_rectangle_1a840c42ca4c36a43986eb1c931bc5f7d0">jam::Cell::Rectangle::getWidth</references>
-        <references refid="classterminal_1_1_session_1a3c1867e57ecc25b8eceddb05a6a79b81" compoundref="_session_8cpp" startline="423" endline="427">terminal::Session::graftInto</references>
+        <references refid="classterminal_1_1_session_1a3c1867e57ecc25b8eceddb05a6a79b81" compoundref="_session_8cpp" startline="421" endline="425">terminal::Session::graftInto</references>
         <references refid="group__juce__core-system_1ga1f96ab6751237979b907a54f52a7296a">jassert</references>
         <references refid="classterminal_1_1_panes_1a1a0aafbe9647720713c2c25a56583398" compoundref="_panes_8h" startline="280">paneManager</references>
         <references refid="classterminal_1_1_panes_1a92e830507d3791c610edb752f9436fd0" compoundref="_panes_8h" startline="279">panes</references>
-        <references refid="classterminal_1_1_panes_1ad1a3c2671dc6902d6e47da870b68cfa8" compoundref="_panes_8cpp" startline="243" endline="248">setTerminalCallbacks</references>
-        <references refid="classterminal_1_1_session_1a2cc000f4ffcb31cb35195118eb542404" compoundref="_session_8cpp" startline="439" endline="447">terminal::Session::start</references>
+        <references refid="classterminal_1_1_panes_1ad1a3c2671dc6902d6e47da870b68cfa8" compoundref="_panes_8cpp" startline="244" endline="249">setTerminalCallbacks</references>
+        <references refid="classterminal_1_1_session_1a2cc000f4ffcb31cb35195118eb542404" compoundref="_session_8cpp" startline="437" endline="445">terminal::Session::start</references>
         <references refid="structjam_1_1_cell_1aecd8f8ae6d8912e9b0689382ac96cbb4">jam::Cell::value</references>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_panes_1ad789e421f3f053d4acc0393b6a0113eb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -243,7 +243,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Panes.h" line="124" column="18" bodyfile="terminal/component/Panes.cpp" bodystart="150" bodyend="192"/>
+        <location file="terminal/component/Panes.h" line="124" column="18" bodyfile="terminal/component/Panes.cpp" bodystart="151" bodyend="193"/>
         <references refid="struct_map_1_1_pane_type_1a26b29bb01d0ebc96052d9f071b2794cea18f46a8540c5418cc6372fb1e7b83d92" compoundref="_map_8h" startline="138">Map::PaneType::document</references>
         <references refid="classjam_1_1_pane_manager_1a5318bac989d380aa730755d6b135f7f1">jam::PaneManager::findLeaf</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
@@ -251,7 +251,7 @@
         <references refid="group__juce__core-system_1ga1f96ab6751237979b907a54f52a7296a">jassert</references>
         <references refid="classterminal_1_1_panes_1a1a0aafbe9647720713c2c25a56583398" compoundref="_panes_8h" startline="280">paneManager</references>
         <references refid="classterminal_1_1_panes_1a92e830507d3791c610edb752f9436fd0" compoundref="_panes_8h" startline="279">panes</references>
-        <references refid="classterminal_1_1_panes_1af3d48b750087989d7669ebff4919c085" compoundref="_panes_8cpp" startline="444" endline="447">resized</references>
+        <references refid="classterminal_1_1_panes_1af3d48b750087989d7669ebff4919c085" compoundref="_panes_8cpp" startline="445" endline="448">resized</references>
         <references refid="struct_map_1_1_pane_type_1a26b29bb01d0ebc96052d9f071b2794ceac0919083fc9d573f2caea390a3625410" compoundref="_map_8h" startline="138">Map::PaneType::terminal</references>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_panes_1a545b7ac2fc793c6d53763d94ac31bc13" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -266,7 +266,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Panes.h" line="126" column="10" bodyfile="terminal/component/Panes.cpp" bodystart="194" bodyend="235"/>
+        <location file="terminal/component/Panes.h" line="126" column="10" bodyfile="terminal/component/Panes.cpp" bodystart="195" bodyend="236"/>
         <references refid="struct_map_1_1_pane_type_1a26b29bb01d0ebc96052d9f071b2794cea18f46a8540c5418cc6372fb1e7b83d92" compoundref="_map_8h" startline="138">Map::PaneType::document</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Derived &gt;::getContext</references>
@@ -297,7 +297,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Panes.h" line="137" column="10" bodyfile="terminal/component/Panes.cpp" bodystart="256" bodyend="256"/>
+        <location file="terminal/component/Panes.h" line="137" column="10" bodyfile="terminal/component/Panes.cpp" bodystart="257" bodyend="257"/>
         <references refid="classterminal_1_1_panes_1a92e830507d3791c610edb752f9436fd0" compoundref="_panes_8h" startline="279">panes</references>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_panes_1abe18f6e6e0a26157ecfd131c32567a35" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
@@ -324,7 +324,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Panes.h" line="148" column="16" bodyfile="terminal/component/Panes.cpp" bodystart="264" bodyend="264"/>
+        <location file="terminal/component/Panes.h" line="148" column="16" bodyfile="terminal/component/Panes.cpp" bodystart="265" bodyend="265"/>
         <references refid="classterminal_1_1_panes_1a92e830507d3791c610edb752f9436fd0" compoundref="_panes_8h" startline="279">panes</references>
         <referencedby refid="classterminal_1_1_tabs_1a863ca28fe3d0acf185e44417df0e870a" compoundref="_tabs_8cpp" startline="434" endline="446">terminal::Tabs::focusLastTerminal</referencedby>
         <referencedby refid="classterminal_1_1_panes_1a6d463312d3021382f8e901c379f4b21a">~Panes</referencedby>
@@ -353,7 +353,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Panes.h" line="159" column="21" bodyfile="terminal/component/Panes.cpp" bodystart="272" bodyend="272"/>
+        <location file="terminal/component/Panes.h" line="159" column="21" bodyfile="terminal/component/Panes.cpp" bodystart="273" bodyend="273"/>
         <references refid="classterminal_1_1_panes_1a1a0aafbe9647720713c2c25a56583398" compoundref="_panes_8h" startline="280">paneManager</references>
         <referencedby refid="classterminal_1_1_panes_1a6d463312d3021382f8e901c379f4b21a">~Panes</referencedby>
       </memberdef>
@@ -387,16 +387,16 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Panes.h" line="171" column="10" bodyfile="terminal/component/Panes.cpp" bodystart="274" bodyend="343"/>
+        <location file="terminal/component/Panes.h" line="171" column="10" bodyfile="terminal/component/Panes.cpp" bodystart="275" bodyend="344"/>
         <references refid="classjam_1_1_pane_manager_1a5318bac989d380aa730755d6b135f7f1">jam::PaneManager::findLeaf</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Nexus &gt;::getContext</references>
         <references refid="group__juce__core-system_1ga1f96ab6751237979b907a54f52a7296a">jassert</references>
         <references refid="classterminal_1_1_panes_1a1a0aafbe9647720713c2c25a56583398" compoundref="_panes_8h" startline="280">paneManager</references>
         <references refid="classterminal_1_1_panes_1a92e830507d3791c610edb752f9436fd0" compoundref="_panes_8h" startline="279">panes</references>
-        <references refid="classterminal_1_1_panes_1af3d48b750087989d7669ebff4919c085" compoundref="_panes_8cpp" startline="444" endline="447">resized</references>
+        <references refid="classterminal_1_1_panes_1af3d48b750087989d7669ebff4919c085" compoundref="_panes_8cpp" startline="445" endline="448">resized</references>
         <references refid="classterminal_1_1_panes_1af57f298d699f5b8f235fbfa08db7a061" compoundref="_panes_8h" startline="281">resizerBars</references>
         <references refid="classterminal_1_1_panes_1a8f08d295d7a65b3a411d3bd21486931b" compoundref="_panes_8h" startline="282">sessionStateTrees</references>
-        <referencedby refid="classterminal_1_1_panes_1adfbcfe5d7d66050d58b6d7ddc0341973" compoundref="_panes_8cpp" startline="486" endline="539">valueTreePropertyChanged</referencedby>
+        <referencedby refid="classterminal_1_1_panes_1adfbcfe5d7d66050d58b6d7ddc0341973" compoundref="_panes_8cpp" startline="487" endline="540">valueTreePropertyChanged</referencedby>
         <referencedby refid="classterminal_1_1_panes_1a6d463312d3021382f8e901c379f4b21a">~Panes</referencedby>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_panes_1a84ce2b04c95990c03a7f21f76da89dbc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -514,21 +514,21 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Panes.h" line="189" column="10" bodyfile="terminal/component/Panes.cpp" bodystart="364" bodyend="414"/>
+        <location file="terminal/component/Panes.h" line="189" column="10" bodyfile="terminal/component/Panes.cpp" bodystart="365" bodyend="415"/>
         <references refid="classjam_1_1_pane_manager_1a5318bac989d380aa730755d6b135f7f1">jam::PaneManager::findLeaf</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Nexus &gt;::getContext</references>
-        <references refid="classterminal_1_1_session_1a3564c58fc509e22d7e900071233cea5e" compoundref="_session_8cpp" startline="386" endline="390">terminal::Session::getProcessor</references>
-        <references refid="classterminal_1_1_processor_1ace3fe08e06ad8427e1275f8b195d9373" compoundref="_processor_8cpp" startline="375" endline="375">terminal::Processor::getUuid</references>
-        <references refid="classterminal_1_1_session_1a3c1867e57ecc25b8eceddb05a6a79b81" compoundref="_session_8cpp" startline="423" endline="427">terminal::Session::graftInto</references>
+        <references refid="classterminal_1_1_session_1a3564c58fc509e22d7e900071233cea5e" compoundref="_session_8cpp" startline="384" endline="388">terminal::Session::getProcessor</references>
+        <references refid="classterminal_1_1_processor_1ace3fe08e06ad8427e1275f8b195d9373" compoundref="_processor_8cpp" startline="373" endline="373">terminal::Processor::getUuid</references>
+        <references refid="classterminal_1_1_session_1a3c1867e57ecc25b8eceddb05a6a79b81" compoundref="_session_8cpp" startline="421" endline="425">terminal::Session::graftInto</references>
         <references refid="group__juce__core-system_1ga1f96ab6751237979b907a54f52a7296a">jassert</references>
         <references refid="classterminal_1_1_panes_1a1a0aafbe9647720713c2c25a56583398" compoundref="_panes_8h" startline="280">paneManager</references>
         <references refid="classterminal_1_1_panes_1a92e830507d3791c610edb752f9436fd0" compoundref="_panes_8h" startline="279">panes</references>
-        <references refid="classterminal_1_1_panes_1af3d48b750087989d7669ebff4919c085" compoundref="_panes_8cpp" startline="444" endline="447">resized</references>
+        <references refid="classterminal_1_1_panes_1af3d48b750087989d7669ebff4919c085" compoundref="_panes_8cpp" startline="445" endline="448">resized</references>
         <references refid="classterminal_1_1_panes_1af57f298d699f5b8f235fbfa08db7a061" compoundref="_panes_8h" startline="281">resizerBars</references>
-        <references refid="classterminal_1_1_panes_1ad1a3c2671dc6902d6e47da870b68cfa8" compoundref="_panes_8cpp" startline="243" endline="248">setTerminalCallbacks</references>
-        <references refid="classterminal_1_1_session_1a2cc000f4ffcb31cb35195118eb542404" compoundref="_session_8cpp" startline="439" endline="447">terminal::Session::start</references>
+        <references refid="classterminal_1_1_panes_1ad1a3c2671dc6902d6e47da870b68cfa8" compoundref="_panes_8cpp" startline="244" endline="249">setTerminalCallbacks</references>
+        <references refid="classterminal_1_1_session_1a2cc000f4ffcb31cb35195118eb542404" compoundref="_session_8cpp" startline="437" endline="445">terminal::Session::start</references>
         <references refid="structjam_1_1_cell_1aecd8f8ae6d8912e9b0689382ac96cbb4">jam::Cell::value</references>
-        <referencedby refid="classterminal_1_1_panes_1a1acffea5f924bf298d68ff9be17f0e43" compoundref="_panes_8cpp" startline="416" endline="437">splitActive</referencedby>
+        <referencedby refid="classterminal_1_1_panes_1a1acffea5f924bf298d68ff9be17f0e43" compoundref="_panes_8cpp" startline="417" endline="438">splitActive</referencedby>
         <referencedby refid="classterminal_1_1_panes_1a6d463312d3021382f8e901c379f4b21a">~Panes</referencedby>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_panes_1a35e7c7bce90af00e49660c12da93e749" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -550,9 +550,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Panes.h" line="204" column="10" bodyfile="terminal/component/Panes.cpp" bodystart="350" bodyend="350"/>
+        <location file="terminal/component/Panes.h" line="204" column="10" bodyfile="terminal/component/Panes.cpp" bodystart="351" bodyend="351"/>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Derived &gt;::getContext</references>
-        <references refid="classterminal_1_1_panes_1a1acffea5f924bf298d68ff9be17f0e43" compoundref="_panes_8cpp" startline="416" endline="437">splitActive</references>
+        <references refid="classterminal_1_1_panes_1a1acffea5f924bf298d68ff9be17f0e43" compoundref="_panes_8cpp" startline="417" endline="438">splitActive</references>
         <references refid="struct_map_1_1_direction_1a26339c3147cc15168e6f57e5311e02eba2405acc619c38fd5c5956fe998b1c1e5" compoundref="_map_8h" startline="156">Map::Direction::vertical</references>
         <referencedby refid="classterminal_1_1_panes_1a6d463312d3021382f8e901c379f4b21a">~Panes</referencedby>
       </memberdef>
@@ -575,10 +575,10 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Panes.h" line="212" column="10" bodyfile="terminal/component/Panes.cpp" bodystart="357" bodyend="357"/>
+        <location file="terminal/component/Panes.h" line="212" column="10" bodyfile="terminal/component/Panes.cpp" bodystart="358" bodyend="358"/>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Derived &gt;::getContext</references>
         <references refid="struct_map_1_1_direction_1a26339c3147cc15168e6f57e5311e02eba163192a120a2ef0704c5b907acd32227" compoundref="_map_8h" startline="156">Map::Direction::horizontal</references>
-        <references refid="classterminal_1_1_panes_1a1acffea5f924bf298d68ff9be17f0e43" compoundref="_panes_8cpp" startline="416" endline="437">splitActive</references>
+        <references refid="classterminal_1_1_panes_1a1acffea5f924bf298d68ff9be17f0e43" compoundref="_panes_8cpp" startline="417" endline="438">splitActive</references>
         <referencedby refid="classterminal_1_1_panes_1a6d463312d3021382f8e901c379f4b21a">~Panes</referencedby>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_panes_1a85f3651e2ec4e705c909074254b630df" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -634,8 +634,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Panes.h" line="223" column="10" bodyfile="terminal/component/Panes.cpp" bodystart="359" bodyend="362"/>
-        <references refid="classterminal_1_1_panes_1a1acffea5f924bf298d68ff9be17f0e43" compoundref="_panes_8cpp" startline="416" endline="437">splitActive</references>
+        <location file="terminal/component/Panes.h" line="223" column="10" bodyfile="terminal/component/Panes.cpp" bodystart="360" bodyend="363"/>
+        <references refid="classterminal_1_1_panes_1a1acffea5f924bf298d68ff9be17f0e43" compoundref="_panes_8cpp" startline="417" endline="438">splitActive</references>
         <referencedby refid="classterminal_1_1_panes_1a6d463312d3021382f8e901c379f4b21a">~Panes</referencedby>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_panes_1abc0c940abfae4f7843fc38e4e9640a30" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -680,7 +680,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Panes.h" line="234" column="10" bodyfile="terminal/component/Panes.cpp" bodystart="541" bodyend="597"/>
+        <location file="terminal/component/Panes.h" line="234" column="10" bodyfile="terminal/component/Panes.cpp" bodystart="542" bodyend="598"/>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
         <references refid="classterminal_1_1_panes_1a92e830507d3791c610edb752f9436fd0" compoundref="_panes_8h" startline="279">panes</references>
         <referencedby refid="classterminal_1_1_panes_1a6d463312d3021382f8e901c379f4b21a">~Panes</referencedby>
@@ -705,14 +705,14 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Panes.h" line="244" column="10" bodyfile="terminal/component/Panes.cpp" bodystart="444" bodyend="447"/>
+        <location file="terminal/component/Panes.h" line="244" column="10" bodyfile="terminal/component/Panes.cpp" bodystart="445" bodyend="448"/>
         <references refid="classjam_1_1_pane_manager_1a28529dbdfab9f0f3b437adc431eb9634">jam::PaneManager::layout</references>
         <references refid="classterminal_1_1_panes_1a1a0aafbe9647720713c2c25a56583398" compoundref="_panes_8h" startline="280">paneManager</references>
         <references refid="classterminal_1_1_panes_1a92e830507d3791c610edb752f9436fd0" compoundref="_panes_8h" startline="279">panes</references>
         <references refid="classterminal_1_1_panes_1af57f298d699f5b8f235fbfa08db7a061" compoundref="_panes_8h" startline="281">resizerBars</references>
-        <referencedby refid="classterminal_1_1_panes_1a44a61d2e4234947bee7481e31eb583d8" compoundref="_panes_8cpp" startline="274" endline="343">closePane</referencedby>
-        <referencedby refid="classterminal_1_1_panes_1ad789e421f3f053d4acc0393b6a0113eb" compoundref="_panes_8cpp" startline="150" endline="192">createWhelmed</referencedby>
-        <referencedby refid="classterminal_1_1_panes_1a84ce2b04c95990c03a7f21f76da89dbc" compoundref="_panes_8cpp" startline="364" endline="414">splitAt</referencedby>
+        <referencedby refid="classterminal_1_1_panes_1a44a61d2e4234947bee7481e31eb583d8" compoundref="_panes_8cpp" startline="275" endline="344">closePane</referencedby>
+        <referencedby refid="classterminal_1_1_panes_1ad789e421f3f053d4acc0393b6a0113eb" compoundref="_panes_8cpp" startline="151" endline="193">createWhelmed</referencedby>
+        <referencedby refid="classterminal_1_1_panes_1a84ce2b04c95990c03a7f21f76da89dbc" compoundref="_panes_8cpp" startline="365" endline="415">splitAt</referencedby>
         <referencedby refid="classterminal_1_1_panes_1a6d463312d3021382f8e901c379f4b21a">~Panes</referencedby>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_panes_1adfbcfe5d7d66050d58b6d7ddc0341973" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -740,8 +740,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Panes.h" line="247" column="10" bodyfile="terminal/component/Panes.cpp" bodystart="486" bodyend="539"/>
-        <references refid="classterminal_1_1_panes_1a44a61d2e4234947bee7481e31eb583d8" compoundref="_panes_8cpp" startline="274" endline="343">closePane</references>
+        <location file="terminal/component/Panes.h" line="247" column="10" bodyfile="terminal/component/Panes.cpp" bodystart="487" bodyend="540"/>
+        <references refid="classterminal_1_1_panes_1a44a61d2e4234947bee7481e31eb583d8" compoundref="_panes_8cpp" startline="275" endline="344">closePane</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
         <references refid="namespaceterminal_1_1id_1a4cea21a405bc847e5f7b62e8957dda2f" compoundref="_identifier_8h" startline="107" endline="107">terminal::id::id</references>
         <references refid="classterminal_1_1_panes_1a92e830507d3791c610edb752f9436fd0" compoundref="_panes_8h" startline="279">panes</references>
@@ -771,7 +771,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Panes.h" line="257" column="10" bodyfile="terminal/component/Panes.cpp" bodystart="454" bodyend="473"/>
+        <location file="terminal/component/Panes.h" line="257" column="10" bodyfile="terminal/component/Panes.cpp" bodystart="455" bodyend="474"/>
         <references refid="namespaceapp_1_1id_1a9a9123c0d63aa046272530c9b72b475b" compoundref="_app_identifier_8h" startline="65" endline="65">app::id::DOCUMENT</references>
         <references refid="classjam_1_1_pane_manager_1a5318bac989d380aa730755d6b135f7f1">jam::PaneManager::findLeaf</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Derived &gt;::getContext</references>
@@ -814,18 +814,27 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Panes.h" line="73" column="22" bodyfile="terminal/component/Panes.cpp" bodystart="34" bodyend="66"/>
+        <location file="terminal/component/Panes.h" line="73" column="22" bodyfile="terminal/component/Panes.cpp" bodystart="34" bodyend="67"/>
         <references refid="structjam_1_1_font_1a7eaadf8cff31c90d759339153197544e">jam::Font::cellHeight</references>
+        <references refid="namespaceapp_1_1id_1a85c1e78989b72416aac80246796ad6a1" compoundref="_app_identifier_8h" startline="122" endline="122">app::id::cellWidth</references>
         <references refid="structjam_1_1_font_1a242a8b90fcd977d98e7bff48cbea2e29">jam::Font::cellWidth</references>
+        <references refid="namespaceapp_1_1id_1a24815b9015e0395936a1718769739fff" compoundref="_app_identifier_8h" startline="80" endline="80">app::id::DISPLAY_LUA</references>
+        <references refid="namespaceapp_1_1id_1a47ebe0ac537eacf5d3ba399228f4480f" compoundref="_app_identifier_8h" startline="98" endline="98">app::id::fontFamily</references>
         <references refid="structjam_1_1_cell_1_1_rectangle_1aabcbe216a06a05584c753c346ccd769b">jam::Cell::Rectangle::fromPixel</references>
-        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
         <references refid="structjam_1_1_typeface_1ab986e3fa41d1563d4078bd2f30c4da8d">jam::Typeface::getDisplayScale</references>
         <references refid="group__juce__core-system_1ga1f96ab6751237979b907a54f52a7296a">jassert</references>
+        <references refid="namespaceapp_1_1id_1aae909a2bc7647e37cb3c0773f92f715d" compoundref="_app_identifier_8h" startline="123" endline="123">app::id::lineHeight</references>
+        <references refid="namespaceapp_1_1id_1aebfb69e225077dbd1c419356ef5362f3" compoundref="_app_identifier_8h" startline="79" endline="79">app::id::NEXUS_LUA</references>
+        <references refid="namespaceapp_1_1id_1acfa111d16fc6a40eb179b4e496247979" compoundref="_app_identifier_8h" startline="129" endline="129">app::id::paddingBottom</references>
+        <references refid="namespaceapp_1_1id_1a37eb7fcd4532f25ae03eea286dc63bdf" compoundref="_app_identifier_8h" startline="130" endline="130">app::id::paddingLeft</references>
+        <references refid="namespaceapp_1_1id_1a4940ac67c76c901cb06c9a0c8e7c9054" compoundref="_app_identifier_8h" startline="128" endline="128">app::id::paddingRight</references>
+        <references refid="namespaceapp_1_1id_1a3208662b768447eb28e81c638a5c91d7" compoundref="_app_identifier_8h" startline="127" endline="127">app::id::paddingTop</references>
         <references refid="namespacejam_1ad5845c19b61166ff0092ec1b8beb9d49">jam::toInt</references>
         <references refid="structjam_1_1_cell_1aecd8f8ae6d8912e9b0689382ac96cbb4">jam::Cell::value</references>
         <referencedby refid="classterminal_1_1_tabs_1a1c61449d446b6d55db1ef8a4a81940c5" compoundref="_tabs_8cpp" startline="60" endline="70">terminal::Tabs::addNewTab</referencedby>
         <referencedby refid="classterminal_1_1_tabs_1a729530e36f5facd240fdf7fc725f9be4" compoundref="_tabs_actions_8cpp" startline="117" endline="226">terminal::Tabs::restore</referencedby>
-        <referencedby refid="classterminal_1_1_panes_1a1acffea5f924bf298d68ff9be17f0e43" compoundref="_panes_8cpp" startline="416" endline="437">splitActive</referencedby>
+        <referencedby refid="classterminal_1_1_panes_1a1acffea5f924bf298d68ff9be17f0e43" compoundref="_panes_8cpp" startline="417" endline="438">splitActive</referencedby>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_panes_1aaf2b3c04c159ddd577517257f0c5c439" prot="public" static="yes" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
         <type>std::pair&lt; juce::Rectangle&lt; int &gt;, juce::Rectangle&lt; int &gt; &gt;</type>
@@ -883,12 +892,12 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Panes.h" line="91" column="9" bodyfile="terminal/component/Panes.cpp" bodystart="72" bodyend="99"/>
+        <location file="terminal/component/Panes.h" line="91" column="9" bodyfile="terminal/component/Panes.cpp" bodystart="73" bodyend="100"/>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Derived &gt;::getContext</references>
         <references refid="classjam_1_1_pane_manager_1ac5064e2d4efbfb85d2f1e7da475ce700">jam::PaneManager::resizerBarSize</references>
         <references refid="struct_map_1_1_direction_1a26339c3147cc15168e6f57e5311e02eba2405acc619c38fd5c5956fe998b1c1e5" compoundref="_map_8h" startline="156">Map::Direction::vertical</references>
         <referencedby refid="classterminal_1_1_tabs_1a729530e36f5facd240fdf7fc725f9be4" compoundref="_tabs_actions_8cpp" startline="117" endline="226">terminal::Tabs::restore</referencedby>
-        <referencedby refid="classterminal_1_1_panes_1a1acffea5f924bf298d68ff9be17f0e43" compoundref="_panes_8cpp" startline="416" endline="437">splitActive</referencedby>
+        <referencedby refid="classterminal_1_1_panes_1a1acffea5f924bf298d68ff9be17f0e43" compoundref="_panes_8cpp" startline="417" endline="438">splitActive</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="private-func">
@@ -922,10 +931,10 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Panes.h" line="265" column="10" bodyfile="terminal/component/Panes.cpp" bodystart="243" bodyend="248"/>
+        <location file="terminal/component/Panes.h" line="265" column="10" bodyfile="terminal/component/Panes.cpp" bodystart="244" bodyend="249"/>
         <references refid="classterminal_1_1_panes_1a8f08d295d7a65b3a411d3bd21486931b" compoundref="_panes_8h" startline="282">sessionStateTrees</references>
-        <referencedby refid="classterminal_1_1_panes_1ae621cef26f4911722fb51c0d376ef2eb" compoundref="_panes_8cpp" startline="103" endline="141">createTerminal</referencedby>
-        <referencedby refid="classterminal_1_1_panes_1a84ce2b04c95990c03a7f21f76da89dbc" compoundref="_panes_8cpp" startline="364" endline="414">splitAt</referencedby>
+        <referencedby refid="classterminal_1_1_panes_1ae621cef26f4911722fb51c0d376ef2eb" compoundref="_panes_8cpp" startline="104" endline="142">createTerminal</referencedby>
+        <referencedby refid="classterminal_1_1_panes_1a84ce2b04c95990c03a7f21f76da89dbc" compoundref="_panes_8cpp" startline="365" endline="415">splitAt</referencedby>
         <referencedby refid="classterminal_1_1_panes_1a6d463312d3021382f8e901c379f4b21a">~Panes</referencedby>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_panes_1a1acffea5f924bf298d68ff9be17f0e43" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -981,16 +990,16 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/Panes.h" line="277" column="10" bodyfile="terminal/component/Panes.cpp" bodystart="416" bodyend="437"/>
-        <references refid="classterminal_1_1_panes_1a463d85b2307a842999b33e86f916be82" compoundref="_panes_8cpp" startline="34" endline="66">cellsFromRect</references>
+        <location file="terminal/component/Panes.h" line="277" column="10" bodyfile="terminal/component/Panes.cpp" bodystart="417" bodyend="438"/>
+        <references refid="classterminal_1_1_panes_1a463d85b2307a842999b33e86f916be82" compoundref="_panes_8cpp" startline="34" endline="67">cellsFromRect</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
         <references refid="group__juce__core-system_1ga1f96ab6751237979b907a54f52a7296a">jassert</references>
         <references refid="classterminal_1_1_panes_1a92e830507d3791c610edb752f9436fd0" compoundref="_panes_8h" startline="279">panes</references>
-        <references refid="classterminal_1_1_panes_1a84ce2b04c95990c03a7f21f76da89dbc" compoundref="_panes_8cpp" startline="364" endline="414">splitAt</references>
-        <references refid="classterminal_1_1_panes_1aaf2b3c04c159ddd577517257f0c5c439" compoundref="_panes_8cpp" startline="72" endline="99">splitRect</references>
-        <referencedby refid="classterminal_1_1_panes_1a85f3651e2ec4e705c909074254b630df" compoundref="_panes_8cpp" startline="359" endline="362">splitActiveWithRatio</referencedby>
-        <referencedby refid="classterminal_1_1_panes_1a35e7c7bce90af00e49660c12da93e749" compoundref="_panes_8cpp" startline="350" endline="350">splitHorizontal</referencedby>
-        <referencedby refid="classterminal_1_1_panes_1aab6a997c1d7bdf490a7338aca3c9cd2b" compoundref="_panes_8cpp" startline="357" endline="357">splitVertical</referencedby>
+        <references refid="classterminal_1_1_panes_1a84ce2b04c95990c03a7f21f76da89dbc" compoundref="_panes_8cpp" startline="365" endline="415">splitAt</references>
+        <references refid="classterminal_1_1_panes_1aaf2b3c04c159ddd577517257f0c5c439" compoundref="_panes_8cpp" startline="73" endline="100">splitRect</references>
+        <referencedby refid="classterminal_1_1_panes_1a85f3651e2ec4e705c909074254b630df" compoundref="_panes_8cpp" startline="360" endline="363">splitActiveWithRatio</referencedby>
+        <referencedby refid="classterminal_1_1_panes_1a35e7c7bce90af00e49660c12da93e749" compoundref="_panes_8cpp" startline="351" endline="351">splitHorizontal</referencedby>
+        <referencedby refid="classterminal_1_1_panes_1aab6a997c1d7bdf490a7338aca3c9cd2b" compoundref="_panes_8cpp" startline="358" endline="358">splitVertical</referencedby>
         <referencedby refid="classterminal_1_1_panes_1a6d463312d3021382f8e901c379f4b21a">~Panes</referencedby>
       </memberdef>
     </sectiondef>

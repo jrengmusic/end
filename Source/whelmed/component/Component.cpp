@@ -38,17 +38,14 @@ Component::Component()
     addChildComponent (loaderOverlay);
     viewport.addMouseListener (this, true);
     AppModel::getContext()->getTabs().addListener (this);
-    AppModel::getContext()->addListener (this);
 
-    if (auto* engine { lua::Engine::getContext() }; engine != nullptr)
-        inputHandler.buildKeyMap (engine->getSelectionKeys());
+    inputHandler.buildKeyMap (AppModel::getContext()->getSelectionKeys());
 
     screen.setStateTree (state);
 }
 
 Component::~Component()
 {
-    AppModel::getContext()->removeListener (this);
     AppModel::getContext()->getTabs().removeListener (this);
     viewport.removeMouseListener (this);
     state.removeListener (this);
@@ -87,8 +84,7 @@ void Component::applyFromAppModel() noexcept
     screen.load (docState.getDocument(), std::numeric_limits<int>::max());
     resized();
 
-    if (auto* engine { lua::Engine::getContext() }; engine != nullptr)
-        inputHandler.buildKeyMap (engine->getSelectionKeys());
+    inputHandler.buildKeyMap (AppModel::getContext()->getSelectionKeys());
 }
 
 // ============================================================================
@@ -97,18 +93,18 @@ void Component::applyFromAppModel() noexcept
 
 void Component::paint (juce::Graphics& g)
 {
-    const juce::Colour bg { lua::Engine::getContext()->whelmed.background };
+    const juce::Colour bg { juce::Colour (static_cast<juce::uint32> (AppModel::getContext()->getValue<int> (app::id::WHELMED_LUA, app::id::background))) };
     g.fillAll (bg);
 }
 
 void Component::resized()
 {
-    const auto* cfg { lua::Engine::getContext() };
+    const auto* appState { AppModel::getContext() };
     auto contentArea { getLocalBounds() };
-    contentArea.removeFromTop    (cfg->whelmed.paddingTop);
-    contentArea.removeFromRight  (cfg->whelmed.paddingRight);
-    contentArea.removeFromBottom (cfg->whelmed.paddingBottom);
-    contentArea.removeFromLeft   (cfg->whelmed.paddingLeft);
+    contentArea.removeFromTop    (appState->getValue<int> (app::id::WHELMED_LUA, app::id::paddingTop));
+    contentArea.removeFromRight  (appState->getValue<int> (app::id::WHELMED_LUA, app::id::paddingRight));
+    contentArea.removeFromBottom (appState->getValue<int> (app::id::WHELMED_LUA, app::id::paddingBottom));
+    contentArea.removeFromLeft   (appState->getValue<int> (app::id::WHELMED_LUA, app::id::paddingLeft));
 
     viewport.setBounds (contentArea);
     screen.setSize (viewport.getMaximumVisibleWidth(), juce::jmax (1, screen.getHeight()));

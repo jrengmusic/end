@@ -471,7 +471,7 @@
     </briefdescription>
     <detaileddescription>
 <para>Video is the VT command processor. It holds calculation inputs (cursor, pen, modes — working copies synced from State) and writes the <ref refid="classGrid" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Grid</ref> access buffer. It receives decoded semantic actions from Parser (print, applyControlCode, applyCSI, applyESC, applyOSC, storeDCSHeader/applyDCSPayload, applyAPCPayload) and translates them into <ref refid="classGrid" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Grid</ref> mutations.</para>
-<sect1 id="_video_8h_1autotoc_md85_1s1"><sect2 id="_video_8h_1autotoc_md85">
+<sect1 id="_video_8h_1autotoc_md86_1s1"><sect2 id="_video_8h_1autotoc_md86">
 <title>Responsibilities</title><para><table rows="9" cols="2"><row>
 <entry thead="yes"><para>Action class  </para>
 </entry><entry thead="yes"><para>Handled by  </para>
@@ -511,10 +511,10 @@
 </table>
 </para>
 </sect2></sect1>
-<sect1 id="_video_8h_1autotoc_md86_1s1"><sect2 id="_video_8h_1autotoc_md86">
+<sect1 id="_video_8h_1autotoc_md87_1s1"><sect2 id="_video_8h_1autotoc_md87">
 <title>Zero Model knowledge</title><para>Video holds calculation inputs internally — working copies of terminal state. State is the SSOT. Video fires events through the events map; Processor handlers write State atomics (event dispatch pattern). No UI or Model types are referenced.</para>
 </sect2></sect1>
-<sect1 id="_video_8h_1autotoc_md87_1s1"><sect2 id="_video_8h_1autotoc_md87">
+<sect1 id="_video_8h_1autotoc_md88_1s1"><sect2 id="_video_8h_1autotoc_md88">
 <title>Thread model</title><para><bold>All methods are READER THREAD only.</bold> <computeroutput>setWinsize()</computeroutput> (which subsumes the former <computeroutput>resize()</computeroutput> + <computeroutput>calc()</computeroutput> sequence) and <computeroutput>setCellSize()</computeroutput> are called by Processor::process() on the reader thread after consuming pending values from State atomics written by message-thread callers.</para>
 <para><simplesect kind="see"><para>Parser — DFA byte decoder that drives Video&apos;s <ref refid="namespaceaction" kindref="compound">action</ref> methods </para>
 </simplesect>

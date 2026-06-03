@@ -346,7 +346,7 @@ void Tabs::updateTabBarVisibility()
 
 void Tabs::applyOrientation()
 {
-    const auto orientation { orientationFromString (lua::Engine::getContext()->display.tab.position) };
+    const auto orientation { orientationFromString (AppModel::getContext()->getValue<juce::String> (app::id::DISPLAY_LUA, app::id::tabPosition)) };
     setOrientation (orientation);
     updateTabBarVisibility();
 }

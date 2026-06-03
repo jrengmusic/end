@@ -17,8 +17,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lua/Engine.h" line="792" column="26" bodyfile="lua/Engine.h" bodystart="792" bodyend="-1"/>
-        <referencedby refid="classlua_1_1_engine_1a4765dbbcf6e7317d43de691f87f3556c" compoundref="_engine_parse_8cpp" startline="18" endline="47">lua::Engine::parseKeys</referencedby>
+        <location file="lua/Engine.h" line="457" column="26" bodyfile="lua/Engine.h" bodystart="457" bodyend="-1"/>
+        <referencedby refid="classlua_1_1_engine_1a4765dbbcf6e7317d43de691f87f3556c" compoundref="_engine_parse_8cpp" startline="19" endline="57">lua::Engine::parseKeys</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structlua_1_1_engine_1_1_keys_1_1_binding_1a5557f767b376370d27de502520cf62e5" prot="public" static="no" mutable="no">
         <type>juce::String</type>
@@ -33,8 +33,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lua/Engine.h" line="795" column="26" bodyfile="lua/Engine.h" bodystart="795" bodyend="-1"/>
-        <referencedby refid="classlua_1_1_engine_1a4765dbbcf6e7317d43de691f87f3556c" compoundref="_engine_parse_8cpp" startline="18" endline="47">lua::Engine::parseKeys</referencedby>
+        <location file="lua/Engine.h" line="460" column="26" bodyfile="lua/Engine.h" bodystart="460" bodyend="-1"/>
+        <referencedby refid="classlua_1_1_engine_1a4765dbbcf6e7317d43de691f87f3556c" compoundref="_engine_parse_8cpp" startline="19" endline="57">lua::Engine::parseKeys</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structlua_1_1_engine_1_1_keys_1_1_binding_1a9cc63db89c089816943dcf898bb8f7a2" prot="public" static="no" mutable="no">
         <type>bool</type>
@@ -50,8 +50,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lua/Engine.h" line="798" column="18" bodyfile="lua/Engine.h" bodystart="798" bodyend="798"/>
-        <referencedby refid="classlua_1_1_engine_1a4765dbbcf6e7317d43de691f87f3556c" compoundref="_engine_parse_8cpp" startline="18" endline="47">lua::Engine::parseKeys</referencedby>
+        <location file="lua/Engine.h" line="463" column="18" bodyfile="lua/Engine.h" bodystart="463" bodyend="463"/>
+        <referencedby refid="classlua_1_1_engine_1a4765dbbcf6e7317d43de691f87f3556c" compoundref="_engine_parse_8cpp" startline="19" endline="57">lua::Engine::parseKeys</referencedby>
       </memberdef>
     </sectiondef>
     <briefdescription>
@@ -59,7 +59,7 @@
     </briefdescription>
     <detaileddescription>
     </detaileddescription>
-    <location file="lua/Engine.h" line="789" column="9" bodyfile="lua/Engine.h" bodystart="790" bodyend="799"/>
+    <location file="lua/Engine.h" line="454" column="9" bodyfile="lua/Engine.h" bodystart="455" bodyend="464"/>
     <listofallmembers>
       <member refid="structlua_1_1_engine_1_1_keys_1_1_binding_1a5977964a5edfc8b232eaa5b9eb4768f4" prot="public" virt="non-virtual"><scope>lua::Engine::Keys::Binding</scope><name>actionId</name></member>
       <member refid="structlua_1_1_engine_1_1_keys_1_1_binding_1a9cc63db89c089816943dcf898bb8f7a2" prot="public" virt="non-virtual"><scope>lua::Engine::Keys::Binding</scope><name>isModal</name></member>

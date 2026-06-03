@@ -109,23 +109,12 @@ private:
     terminal::Input input;
     terminal::Mouse mouse;
 
-    /** @brief Dedicated listener for AppModel config changes (font, cursor, padding).
-     *  Separated from Display's own ValueTree::Listener to avoid double-fire:
-     *  SESSION is grafted under AppModel, so a single Listener on both trees
-     *  receives terminal PARAM changes twice. */
-    struct ConfigListener : private juce::ValueTree::Listener
-    {
-        explicit ConfigListener (Display& d) noexcept : display (d) {}
-        void start() noexcept;
-        void stop() noexcept;
-    private:
-        Display& display;
-        juce::ValueTree appState;
-        void valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
-    };
-    ConfigListener configListener { *this };
+    /** @brief CONFIG/DISPLAY node handle — Display listens on this for config changes. */
+    juce::ValueTree configDisplay;
 
-    void applyFromAppModel() noexcept;
+    /** @brief Reads CONFIG/DISPLAY, writes font+caret to CODE_VIEW node, writes cell metrics to DISPLAY node. */
+    void applyConfigToCodeView() noexcept;
+
     void valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
 
     //==============================================================================

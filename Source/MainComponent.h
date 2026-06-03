@@ -45,7 +45,6 @@
 #include "terminal/component/MessageOverlay.h"
 #include "terminal/component/Popup.h"
 #include "terminal/component/Tabs.h"
-#include "lua/Engine.h"
 #include "terminal/action/Action.h"
 #include "terminal/action/ActionList.h"
 #include "terminal/component/StatusBarOverlay.h"
@@ -80,12 +79,23 @@ class MainComponent
 public:
     /**
      * @brief Constructs the component, creates terminal::Tabs, sets initial size.
-     * @param engine  The unified Lua engine — owns config and scripting state.
      */
-    explicit MainComponent (lua::Engine& engine);
+    MainComponent();
 
     /** @brief Removes ValueTree listeners and tears down LookAndFeel. */
     ~MainComponent() override;
+
+    /**
+     * @brief Registers all user-performable actions with `action::Registry`.
+     *
+     * Called from Main.cpp after the Window exists, so that setRenderer's
+     * dynamic_cast<jam::Window*>(getTopLevelComponent()) succeeds.
+     * Also re-called by the configGeneration reload path.
+     *
+     * @note MESSAGE THREAD.
+     * @see action::Registry
+     */
+    void registerActions();
 
     /**
      * @brief Fills the full bounds to terminal::Tabs.
@@ -97,17 +107,6 @@ public:
     void newOpenGLContextCreated() override;
     void renderOpenGL() override;
     void openGLContextClosing() override;
-
-    /**
-     * @brief Rebuilds actions, applies config to tabs, LookAndFeel, and orientation.
-     *
-     * Called after the engine reloads `end.lua` — signaled via `app::id::configGeneration`
-     * property change on AppModel.  Also called once from the constructor for initial setup.
-     *
-     * @note MESSAGE THREAD.
-     * @see app::id::configGeneration
-     */
-    void applyConfig();
 
     /**
      * @brief Shows the reload result overlay — success or error.
@@ -122,17 +121,6 @@ public:
     void showReloadMessage();
 
 private:
-    /**
-     * @brief Registers all user-performable actions with `action::Registry`.
-     *
-     * Clears existing actions, delegates to grouped register* methods, then
-     * rebuilds the key map.
-     *
-     * @note MESSAGE THREAD.
-     * @see action::Registry
-     */
-    void registerActions();
-
     /** @brief Registers copy, paste, and newline actions. @note MESSAGE THREAD. */
     void registerEditActions (action::Registry& action);
 
@@ -155,9 +143,6 @@ private:
      * @note MESSAGE THREAD.
      */
     void setRenderer (app::RendererType rendererType);
-
-    /** @brief Unified Lua engine — config and scripting SSOT. */
-    lua::Engine& luaEngine;
 
     /** @brief Cached AppModel reference. */
     AppModel& appState { *AppModel::getContext() };
@@ -186,6 +171,10 @@ private:
     /** @brief Persistent wrapper for the AppModel SESSIONS child node.  Listener
      *         registration requires the wrapper to outlive it. */
     juce::ValueTree sessionsNode;
+
+    /** @brief Persistent wrapper for the AppModel CONFIG node. Listener registration
+     *         requires the wrapper to outlive it (same reason as nexusNode). */
+    juce::ValueTree configNode;
 
     /** @brief Modal popup dialog; shows content in a glass window. */
     terminal::Popup popup;

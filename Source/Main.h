@@ -11,7 +11,6 @@
 #include "Map.h"
 #include "MainComponent.h"
 #include "AppModel.h"
-#include "lua/Engine.h"
 #include "terminal/action/Action.h"
 #include "nexus/Nexus.h"
 #include "nexus/Daemon.h"
@@ -25,12 +24,11 @@
  *
  * Inherits `juce::JUCEApplication` and implements the four lifecycle hooks
  * required by the JUCE application model.  Member construction order is
- * significant: `luaEngine` must be fully constructed before `appState`
- * (which reads font family and window dims from luaEngine), and both must
- * exist before `initialise()` creates the window.
+ * significant: `appState` owns the Engine internally and must be constructed
+ * before `initialise()` creates the window.
  *
  * @par Ownership
- * - `luaEngine` and `appState` are value members — they are destroyed last.
+ * - `appState` is a value member — owns lua::Engine internally, destroyed last.
  * - `nexus`, `daemon`, `link`, and `mainWindow` are `unique_ptr` members reset
  *   in `shutdown()` in dependency order.
  *
@@ -108,9 +106,6 @@ public:
     void systemRequestedQuit() override;
 
 private:
-    /** @brief Diagnostic log -- constructed first, destroyed last. */
-    jam::debug::Log::Scope logScope { juce::File::getSpecialLocation (juce::File::userHomeDirectory).getChildFile ("Documents/Poems/dev/end/diag.log") };
-
     /** @brief Application-owned typeface registry and shared glyph atlas. */
     jam::TypefaceResources typefaceResources;
 
@@ -120,7 +115,7 @@ private:
     /** @brief Application-owned grapheme cluster table — self-registers as jam::Grapheme::getContext() on construction. */
     jam::Grapheme graphemeContext;
 
-    /** @brief All Map contexts — must be constructed before luaEngine (parsers use them). */
+    /** @brief All Map contexts — must be constructed before appState (parsers use them). */
     Map::Bool boolMap;
     Map::Screen screenMap;
     Map::Cursor cursorMap;
@@ -132,13 +127,10 @@ private:
     Map::Position positionMap;
     Map::LinkHandler linkHandlerMap;
 
-    /** @brief Unified Lua config and scripting engine. Must be constructed before appState. */
-    lua::Engine luaEngine;
-
-    /** @brief Application-level ValueTree. Must be constructed after luaEngine. */
+    /** @brief Application-level ValueTree. Owns lua::Engine internally. */
     AppModel appState;
 
-    /** @brief Global action registry. Must be constructed after luaEngine. */
+    /** @brief Global action registry. Must be constructed after appState. */
     action::Registry action;
 
     /** @brief Session pool — owns all terminal::Session objects.

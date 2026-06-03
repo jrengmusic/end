@@ -6,6 +6,7 @@
  */
 
 #include "Session.h"
+#include "../AppModel.h"
 
 // =============================================================================
 // Shell integration helpers
@@ -52,7 +53,7 @@ void Session::applyShellIntegration (const juce::String& shell, juce::String& ar
     // login shells when SHLVL<=1.  Harmless on macOS/Linux where it is unused.
     seedEnv.set ("CHERE_INVOKING", "1");
 
-    if (lua::Engine::getContext()->nexus.shell.integration)
+    if (AppModel::getContext()->getValue<int> (app::id::NEXUS_LUA, app::id::shellIntegration) != 0)
     {
         const juce::File configDir { lua::Engine::getConfigPath() };
 
@@ -168,21 +169,20 @@ std::unique_ptr<Session> Session::create (const juce::String& cwd,
 {
     jassert (dims.isValid());
 
-    const auto* cfg { lua::Engine::getContext() };
+    const auto* appState { AppModel::getContext() };
     const juce::String effectiveShell { shell.isNotEmpty()
                                             ? shell
-                                            : cfg->nexus.shell.program };
+                                            : appState->getValue<juce::String> (app::id::NEXUS_LUA, app::id::shellProgram) };
     juce::String effectiveArgs { args.isNotEmpty() ? args
-                                                   : cfg->nexus.shell.args };
+                                                   : appState->getValue<juce::String> (app::id::NEXUS_LUA, app::id::shellArgs) };
 
     juce::StringPairArray mergedEnv { seedEnv };
     applyShellIntegration (effectiveShell, effectiveArgs, mergedEnv);
 
-    const auto* appState { AppModel::getContext() };
-    const jam::Font font { appState->getFontFamily(),
-                           appState->getFontSize(),
-                           static_cast<float> (appState->getCellWidth()),
-                           static_cast<float> (appState->getLineHeight()) };
+    const jam::Font font { appState->getValue<juce::String> (app::id::DISPLAY_LUA, app::id::fontFamily),
+                           appState->dpiCorrectedFontSize(),
+                           appState->getValue<float> (app::id::DISPLAY_LUA, app::id::cellWidth),
+                           appState->getValue<float> (app::id::DISPLAY_LUA, app::id::lineHeight) };
 
     auto session { std::make_unique<Session> (dims, effectiveShell, effectiveArgs, cwd, mergedEnv, uuid, font) };
     return session;
@@ -195,13 +195,12 @@ Session::Session (jam::Cell::Rectangle dims,
                   const juce::StringPairArray& seedEnv,
                   const juce::String& uuid,
                   const jam::Font& font)
-    : textBuffer {}
-    , model (textBuffer)
+    : model {}
     , codeModel (Map::Screen::count)
     , textEditor (font, codeModel, model.getRootTree())
 {
     const juce::String effectiveUuid { uuid.isNotEmpty() ? uuid : juce::Uuid().toString() };
-    processor = std::make_unique<terminal::Processor> (model, dims, textBuffer, effectiveUuid);
+    processor = std::make_unique<terminal::Processor> (model, dims, effectiveUuid);
     model.setId (effectiveUuid);
 
     // Resize coordinator — coalesces dimension changes, suspends/resumes processing.
@@ -223,15 +222,14 @@ Session::Session (jam::Cell::Rectangle dims,
                   const juce::String& shell,
                   const juce::String& uuid,
                   const jam::Font& font)
-    : textBuffer {}
-    , model (textBuffer)
+    : model {}
     , codeModel (Map::Screen::count)
     , textEditor (font, codeModel, model.getRootTree())
 {
     jassert (dims.isValid());
 
     const juce::String effectiveUuid { uuid.isNotEmpty() ? uuid : juce::Uuid().toString() };
-    processor = std::make_unique<terminal::Processor> (model, dims, textBuffer, effectiveUuid);
+    processor = std::make_unique<terminal::Processor> (model, dims, effectiveUuid);
     model.setId (effectiveUuid);
 
     model.setTreeProperty (terminal::id::cwd, cwd, nullptr);
@@ -330,10 +328,10 @@ std::unique_ptr<Session> Session::create (jam::Cell::Rectangle dims,
     const juce::String effectiveUuid { uuid.isNotEmpty() ? uuid : juce::Uuid().toString() };
 
     const auto* appState { AppModel::getContext() };
-    const jam::Font font { appState->getFontFamily(),
-                           appState->getFontSize(),
-                           static_cast<float> (appState->getCellWidth()),
-                           static_cast<float> (appState->getLineHeight()) };
+    const jam::Font font { appState->getValue<juce::String> (app::id::DISPLAY_LUA, app::id::fontFamily),
+                           appState->dpiCorrectedFontSize(),
+                           appState->getValue<float> (app::id::DISPLAY_LUA, app::id::cellWidth),
+                           appState->getValue<float> (app::id::DISPLAY_LUA, app::id::lineHeight) };
 
     return std::make_unique<Session> (dims, cwd, shell, effectiveUuid, font);
 }

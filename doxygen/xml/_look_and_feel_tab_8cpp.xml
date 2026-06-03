@@ -4,39 +4,39 @@
     <compoundname>LookAndFeelTab.cpp</compoundname>
     <includes refid="_look_and_feel_8h" local="yes">LookAndFeel.h</includes>
     <incdepgraph>
-      <node id="9">
-        <label>../../AppIdentifier.h</label>
+      <node id="5">
+        <label>../AppIdentifier.h</label>
         <link refid="_app_identifier_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
       </node>
-      <node id="10">
+      <node id="12">
         <label>../../AppModel.h</label>
         <link refid="_app_model_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
-        <childnode refid="9" relation="include">
+        <childnode refid="5" relation="include">
         </childnode>
         <childnode refid="4" relation="include">
         </childnode>
-        <childnode refid="11" relation="include">
+        <childnode refid="7" relation="include">
         </childnode>
-        <childnode refid="12" relation="include">
+        <childnode refid="6" relation="include">
         </childnode>
       </node>
-      <node id="12">
-        <label>Map.h</label>
+      <node id="6">
+        <label>../Map.h</label>
         <link refid="_map_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
-        <childnode refid="11" relation="include">
+        <childnode refid="7" relation="include">
         </childnode>
       </node>
-      <node id="17">
+      <node id="15">
         <label>../ModalType.h</label>
         <link refid="_modal_type_8h"/>
       </node>
-      <node id="18">
+      <node id="16">
         <label>../SelectionType.h</label>
         <link refid="_selection_type_8h"/>
       </node>
@@ -47,223 +47,215 @@
         </childnode>
         <childnode refid="5" relation="include">
         </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
       </node>
-      <node id="28">
+      <node id="26">
         <label>CSI.h</label>
         <link refid="_c_s_i_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
       </node>
-      <node id="25">
+      <node id="23">
         <label>CellFifo.h</label>
         <link refid="_cell_fifo_8h"/>
       </node>
-      <node id="32">
+      <node id="30">
         <label>CharProps.h</label>
         <link refid="_char_props_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
-        <childnode refid="33" relation="include">
+        <childnode refid="31" relation="include">
         </childnode>
       </node>
-      <node id="33">
+      <node id="31">
         <label>CharPropsData.h</label>
         <link refid="_char_props_data_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
       </node>
-      <node id="31">
+      <node id="29">
         <label>Charset.h</label>
         <link refid="_charset_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
       </node>
-      <node id="27">
+      <node id="25">
         <label>DispatchTable.h</label>
         <link refid="_dispatch_table_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
       </node>
-      <node id="39">
+      <node id="37">
         <label>ITerm2Decoder.h</label>
         <link refid="_i_term2_decoder_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
-        <childnode refid="37" relation="include">
+        <childnode refid="35" relation="include">
         </childnode>
-        <childnode refid="36" relation="include">
+        <childnode refid="34" relation="include">
         </childnode>
       </node>
-      <node id="11">
+      <node id="7">
         <label>terminal/Identifier.h</label>
         <link refid="_identifier_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
       </node>
-      <node id="37">
+      <node id="35">
         <label>ImageDecode.h</label>
         <link refid="_image_decode_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
-        <childnode refid="38" relation="include">
+        <childnode refid="36" relation="include">
         </childnode>
       </node>
-      <node id="38">
+      <node id="36">
         <label>ImageDecodeGif.h</label>
         <link refid="_image_decode_gif_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
       </node>
-      <node id="41">
+      <node id="39">
         <label>../Input.h</label>
         <link refid="_input_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
-        <childnode refid="42" relation="include">
+        <childnode refid="40" relation="include">
         </childnode>
-        <childnode refid="18" relation="include">
+        <childnode refid="16" relation="include">
         </childnode>
         <childnode refid="4" relation="include">
         </childnode>
-        <childnode refid="19" relation="include">
+        <childnode refid="17" relation="include">
         </childnode>
-        <childnode refid="43" relation="include">
+        <childnode refid="41" relation="include">
         </childnode>
-        <childnode refid="5" relation="include">
+        <childnode refid="8" relation="include">
         </childnode>
       </node>
-      <node id="20">
+      <node id="18">
         <label>Keyboard.h</label>
         <link refid="_keyboard_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
       </node>
-      <node id="35">
+      <node id="33">
         <label>KittyDecoder.h</label>
         <link refid="_kitty_decoder_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
-        <childnode refid="36" relation="include">
+        <childnode refid="34" relation="include">
         </childnode>
-        <childnode refid="37" relation="include">
+        <childnode refid="35" relation="include">
         </childnode>
       </node>
-      <node id="45">
+      <node id="43">
         <label>LinkDetector.h</label>
         <link refid="_link_detector_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
-        <childnode refid="4" relation="include">
+        <childnode refid="12" relation="include">
         </childnode>
       </node>
-      <node id="43">
+      <node id="41">
         <label>LinkManager.h</label>
         <link refid="_link_manager_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
-        <childnode refid="44" relation="include">
-        </childnode>
-        <childnode refid="15" relation="include">
-        </childnode>
-        <childnode refid="45" relation="include">
-        </childnode>
-      </node>
-      <node id="44">
-        <label>LinkSpan.h</label>
-        <link refid="_link_span_8h"/>
-        <childnode refid="3" relation="include">
-        </childnode>
-        <childnode refid="45" relation="include">
-        </childnode>
-      </node>
-      <node id="15">
-        <label>Model.h</label>
-        <link refid="_model_8h"/>
-        <childnode refid="3" relation="include">
-        </childnode>
-        <childnode refid="16" relation="include">
+        <childnode refid="42" relation="include">
         </childnode>
         <childnode refid="14" relation="include">
-        </childnode>
-        <childnode refid="11" relation="include">
-        </childnode>
-        <childnode refid="17" relation="include">
-        </childnode>
-        <childnode refid="18" relation="include">
-        </childnode>
-        <childnode refid="4" relation="include">
-        </childnode>
-        <childnode refid="10" relation="include">
-        </childnode>
-        <childnode refid="12" relation="include">
-        </childnode>
-      </node>
-      <node id="46">
-        <label>../Mouse.h</label>
-        <link refid="_mouse_8h"/>
-        <childnode refid="3" relation="include">
-        </childnode>
-        <childnode refid="19" relation="include">
         </childnode>
         <childnode refid="43" relation="include">
         </childnode>
       </node>
-      <node id="40">
+      <node id="42">
+        <label>LinkSpan.h</label>
+        <link refid="_link_span_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="43" relation="include">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>Model.h</label>
+        <link refid="_model_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="44">
+        <label>../Mouse.h</label>
+        <link refid="_mouse_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+      </node>
+      <node id="38">
         <label>Notifications.h</label>
         <link refid="_notifications_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
       </node>
-      <node id="6">
+      <node id="9">
         <label>../Palette.h</label>
         <link refid="_palette_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
       </node>
-      <node id="16">
-        <label>Parameter.h</label>
-        <link refid="_parameter_8h"/>
-        <childnode refid="3" relation="include">
-        </childnode>
-      </node>
-      <node id="26">
+      <node id="24">
         <label>Parser.h</label>
         <link refid="terminal_2_parser_8h"/>
         <childnode refid="3" relation="include">
-        </childnode>
-        <childnode refid="27" relation="include">
-        </childnode>
-        <childnode refid="28" relation="include">
-        </childnode>
-        <childnode refid="29" relation="include">
-        </childnode>
-      </node>
-      <node id="19">
-        <label>Processor.h</label>
-        <link refid="_processor_8h"/>
-        <childnode refid="3" relation="include">
-        </childnode>
-        <childnode refid="20" relation="include">
-        </childnode>
-        <childnode refid="15" relation="include">
-        </childnode>
-        <childnode refid="14" relation="include">
-        </childnode>
-        <childnode refid="21" relation="include">
-        </childnode>
-        <childnode refid="22" relation="include">
-        </childnode>
-        <childnode refid="23" relation="include">
         </childnode>
         <childnode refid="25" relation="include">
         </childnode>
         <childnode refid="26" relation="include">
         </childnode>
-        <childnode refid="34" relation="include">
+        <childnode refid="27" relation="include">
         </childnode>
-        <childnode refid="29" relation="include">
+      </node>
+      <node id="17">
+        <label>Processor.h</label>
+        <link refid="_processor_8h"/>
+        <childnode refid="3" relation="include">
         </childnode>
-        <childnode refid="40" relation="include">
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
         </childnode>
       </node>
       <node id="13">
@@ -273,87 +265,79 @@
         </childnode>
         <childnode refid="14" relation="include">
         </childnode>
-        <childnode refid="15" relation="include">
-        </childnode>
-        <childnode refid="19" relation="include">
+        <childnode refid="17" relation="include">
         </childnode>
         <childnode refid="4" relation="include">
         </childnode>
       </node>
-      <node id="36">
+      <node id="34">
         <label>SixelDecoder.h</label>
         <link refid="_sixel_decoder_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
       </node>
-      <node id="34">
+      <node id="32">
         <label>Skit.h</label>
         <link refid="_skit_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
-        <childnode refid="35" relation="include">
-        </childnode>
-        <childnode refid="39" relation="include">
-        </childnode>
-        <childnode refid="36" relation="include">
+        <childnode refid="33" relation="include">
         </childnode>
         <childnode refid="37" relation="include">
         </childnode>
-        <childnode refid="11" relation="include">
+        <childnode refid="34" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
         </childnode>
       </node>
-      <node id="14">
-        <label>TextBuffer.h</label>
-        <link refid="_text_buffer_8h"/>
-        <childnode refid="3" relation="include">
-        </childnode>
-      </node>
-      <node id="29">
+      <node id="27">
         <label>Video.h</label>
         <link refid="_video_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
-        <childnode refid="30" relation="include">
-        </childnode>
-        <childnode refid="31" relation="include">
-        </childnode>
-        <childnode refid="27" relation="include">
-        </childnode>
         <childnode refid="28" relation="include">
         </childnode>
-        <childnode refid="11" relation="include">
+        <childnode refid="29" relation="include">
         </childnode>
-        <childnode refid="32" relation="include">
+        <childnode refid="25" relation="include">
         </childnode>
-        <childnode refid="12" relation="include">
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
         </childnode>
         <childnode refid="6" relation="include">
         </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
       </node>
-      <node id="21">
+      <node id="19">
         <label>Winsize.h</label>
         <link refid="_winsize_8h"/>
       </node>
-      <node id="5">
+      <node id="8">
         <label>../terminal/action/Action.h</label>
         <link refid="_action_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
       </node>
-      <node id="7">
+      <node id="10">
         <label>Display.h</label>
         <link refid="_display_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
-        <childnode refid="8" relation="include">
+        <childnode refid="11" relation="include">
         </childnode>
         <childnode refid="13" relation="include">
         </childnode>
+        <childnode refid="39" relation="include">
+        </childnode>
+        <childnode refid="44" relation="include">
+        </childnode>
         <childnode refid="41" relation="include">
-        </childnode>
-        <childnode refid="46" relation="include">
-        </childnode>
-        <childnode refid="43" relation="include">
         </childnode>
       </node>
       <node id="2">
@@ -363,9 +347,9 @@
         </childnode>
         <childnode refid="4" relation="include">
         </childnode>
-        <childnode refid="6" relation="include">
+        <childnode refid="9" relation="include">
         </childnode>
-        <childnode refid="7" relation="include">
+        <childnode refid="10" relation="include">
         </childnode>
       </node>
       <node id="1">
@@ -374,49 +358,49 @@
         <childnode refid="2" relation="include">
         </childnode>
       </node>
-      <node id="8">
+      <node id="11">
         <label>PaneView.h</label>
         <link refid="_pane_view_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
-        <childnode refid="9" relation="include">
+        <childnode refid="5" relation="include">
         </childnode>
-        <childnode refid="10" relation="include">
+        <childnode refid="12" relation="include">
         </childnode>
       </node>
-      <node id="42">
+      <node id="40">
         <label>component/ScreenSelection.h</label>
         <link refid="_screen_selection_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
-        <childnode refid="18" relation="include">
+        <childnode refid="16" relation="include">
         </childnode>
       </node>
-      <node id="22">
+      <node id="20">
         <label>tty/TTY.h</label>
         <link refid="_t_t_y_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
-        <childnode refid="11" relation="include">
+        <childnode refid="7" relation="include">
         </childnode>
-        <childnode refid="21" relation="include">
+        <childnode refid="19" relation="include">
         </childnode>
       </node>
-      <node id="23">
+      <node id="21">
         <label>tty/UnixTTY.h</label>
         <link refid="_unix_t_t_y_8h"/>
-        <childnode refid="22" relation="include">
+        <childnode refid="20" relation="include">
         </childnode>
-        <childnode refid="24" relation="include">
+        <childnode refid="22" relation="include">
         </childnode>
       </node>
       <node id="3">
         <label>JuceHeader.h</label>
       </node>
-      <node id="30">
+      <node id="28">
         <label>atomic</label>
       </node>
-      <node id="24">
+      <node id="22">
         <label>unistd.h</label>
       </node>
     </incdepgraph>
@@ -602,63 +586,65 @@
 <codeline lineno="209"><highlight class="normal"></highlight></codeline>
 <codeline lineno="210" refid="classterminal_1_1_look_and_feel_1a189a3a23ba93ed6fddd8ef277e2f4794" refkind="member"><highlight class="normal">juce::Font<sp/><ref refid="classterminal_1_1_look_and_feel_1a251b60a8fe6037c53478c340a166b0de" kindref="member">LookAndFeel::getTabButtonFont</ref><sp/>(<ref refid="classjam_1_1_tab_bar_button" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::TabBarButton</ref>&amp;,<sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal">)</highlight></codeline>
 <codeline lineno="211"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal">*<sp/>cfg<sp/>{<sp/><ref refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">lua::Engine::getContext</ref>()<sp/>};</highlight></codeline>
-<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>juce::Font<sp/>{<sp/>juce::FontOptions()</highlight></codeline>
-<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.withName<sp/>(cfg-&gt;display.tab.family)</highlight></codeline>
-<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.withPointHeight<sp/>(cfg-&gt;display.tab.size)<sp/>};</highlight></codeline>
-<codeline lineno="216"><highlight class="normal">}</highlight></codeline>
-<codeline lineno="217"><highlight class="normal"></highlight></codeline>
-<codeline lineno="218" refid="classterminal_1_1_look_and_feel_1a131594ce1c49e84ec061be5df37ebd20" refkind="member"><highlight class="normal">juce::Rectangle&lt;int&gt;<sp/><ref refid="classterminal_1_1_look_and_feel_1a131594ce1c49e84ec061be5df37ebd20" kindref="member">LookAndFeel::getTabButtonExtraComponentBounds</ref><sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classjam_1_1_tab_bar_button" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::TabBarButton</ref>&amp;,</highlight></codeline>
-<codeline lineno="219"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>juce::Rectangle&lt;int&gt;&amp;<sp/>textArea,</highlight></codeline>
-<codeline lineno="220"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>juce::Component&amp;)</highlight></codeline>
-<codeline lineno="221"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>textArea;</highlight></codeline>
-<codeline lineno="223"><highlight class="normal">}</highlight></codeline>
-<codeline lineno="224"><highlight class="normal"></highlight></codeline>
-<codeline lineno="225" refid="classterminal_1_1_look_and_feel_1a602f4da8bf98a6ff2f1cb33d3ae4444a" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_look_and_feel_1a602f4da8bf98a6ff2f1cb33d3ae4444a" kindref="member">LookAndFeel::drawTabButtonText</ref><sp/>(<ref refid="classjam_1_1_tab_bar_button" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::TabBarButton</ref>&amp;,<sp/>juce::Graphics&amp;,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal">,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal">)<sp/>{}</highlight></codeline>
-<codeline lineno="226"><highlight class="normal"></highlight></codeline>
-<codeline lineno="227" refid="classterminal_1_1_look_and_feel_1a1d63d3e792eaa9082926ecbe45dd510c" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_look_and_feel_1a1d63d3e792eaa9082926ecbe45dd510c" kindref="member">LookAndFeel::drawTabAreaBehindFrontButton</ref><sp/>(<ref refid="classjam_1_1_tabbed_button_bar" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::TabbedButtonBar</ref>&amp;,<sp/>juce::Graphics&amp;,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">)<sp/>{}</highlight></codeline>
-<codeline lineno="228"><highlight class="normal"></highlight></codeline>
-<codeline lineno="229" refid="classterminal_1_1_look_and_feel_1afb1a3a02fac7c9052e7bbc4c5a52c5db" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_look_and_feel_1afb1a3a02fac7c9052e7bbc4c5a52c5db" kindref="member">LookAndFeel::createTabButtonShape</ref><sp/>(<ref refid="classjam_1_1_tab_bar_button" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::TabBarButton</ref>&amp;<sp/><ref refid="group__juce__audio__plugin__client-Unity_1gac9a690ac771d86f797f87594f6dfa694" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">button</ref>,<sp/>juce::Path&amp;<sp/>path,</highlight></codeline>
-<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal">,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal">)</highlight></codeline>
-<codeline lineno="231"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/>path<sp/>=<sp/><ref refid="classterminal_1_1_look_and_feel_1a5a8071f7bdf6f656db1fd58842ffa1d7" kindref="member">getTabButtonShape</ref><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1gac9a690ac771d86f797f87594f6dfa694" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">button</ref>.getActiveArea().toFloat().reduced<sp/>(0,<sp/><ref refid="classterminal_1_1_look_and_feel_1ac8e99173433b98234f3b9d662c2a8ec1" kindref="member">buttonInset</ref>));</highlight></codeline>
-<codeline lineno="233"><highlight class="normal">}</highlight></codeline>
-<codeline lineno="234"><highlight class="normal"></highlight></codeline>
-<codeline lineno="235" refid="classterminal_1_1_look_and_feel_1ac36cf6eb5eab63a0dc9e67e703cdd1fd" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_look_and_feel_1ac36cf6eb5eab63a0dc9e67e703cdd1fd" kindref="member">LookAndFeel::fillTabButtonShape</ref><sp/>(<ref refid="classjam_1_1_tab_bar_button" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::TabBarButton</ref>&amp;,<sp/>juce::Graphics&amp;,</highlight></codeline>
-<codeline lineno="236"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Path&amp;,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal">,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal">)<sp/>{}</highlight></codeline>
-<codeline lineno="237"><highlight class="normal"></highlight></codeline>
-<codeline lineno="238"><highlight class="normal"></highlight><highlight class="comment">//<sp/>---------------------------------------------------------------------------</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="239"><highlight class="normal"></highlight></codeline>
-<codeline lineno="252" refid="classterminal_1_1_look_and_feel_1abe330f190f36b8d4bbcdd7b848ba5d59" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_look_and_feel_1abe330f190f36b8d4bbcdd7b848ba5d59" kindref="member">LookAndFeel::getTabButtonBestWidth</ref><sp/>(juce::TabBarButton&amp;<sp/><ref refid="group__juce__audio__plugin__client-Unity_1gac9a690ac771d86f797f87594f6dfa694" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">button</ref>,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>tabDepth)</highlight></codeline>
-<codeline lineno="253"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="254"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>font<sp/>{<sp/><ref refid="classterminal_1_1_look_and_feel_1a251b60a8fe6037c53478c340a166b0de" kindref="member">getTabButtonFont</ref><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1gac9a690ac771d86f797f87594f6dfa694" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">button</ref>,<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">float</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(tabDepth))<sp/>};</highlight></codeline>
-<codeline lineno="255"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>charWidth<sp/>{<sp/>juce::TextLayout::getStringWidth<sp/>(font,<sp/></highlight><highlight class="stringliteral">&quot;M&quot;</highlight><highlight class="normal">)<sp/>};</highlight></codeline>
-<codeline lineno="256"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>minWidth<sp/>{<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">int</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(charWidth<sp/>*<sp/><ref refid="classterminal_1_1_look_and_feel_1abdc5fdbdf5e13bb6a76561ba4ff08406" kindref="member">minTabChars</ref>)<sp/>+<sp/><ref refid="classterminal_1_1_look_and_feel_1a5cf2b6304876b80951095a95008811d6" kindref="member">horizontalPadding</ref><sp/>*<sp/>2<sp/>+<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">int</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(<ref refid="classterminal_1_1_look_and_feel_1afb71e3cbe0205690abc8ed633d6a5095" kindref="member">skew</ref>)<sp/>};</highlight></codeline>
-<codeline lineno="257"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>maxWidth<sp/>{<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">int</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(charWidth<sp/>*<sp/><ref refid="classterminal_1_1_look_and_feel_1a4bb1879b29f1ed9863c13b19553cc890" kindref="member">maxTabChars</ref>)<sp/>+<sp/><ref refid="classterminal_1_1_look_and_feel_1a5cf2b6304876b80951095a95008811d6" kindref="member">horizontalPadding</ref><sp/>*<sp/>2<sp/>+<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">int</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(<ref refid="classterminal_1_1_look_and_feel_1afb71e3cbe0205690abc8ed633d6a5095" kindref="member">skew</ref>)<sp/>};</highlight></codeline>
-<codeline lineno="258"><highlight class="normal"></highlight></codeline>
-<codeline lineno="259"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>textWidth<sp/>{<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">int</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(</highlight></codeline>
-<codeline lineno="260"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::ceil<sp/>(juce::TextLayout::getStringWidth<sp/>(font,<sp/><ref refid="group__juce__audio__plugin__client-Unity_1gac9a690ac771d86f797f87594f6dfa694" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">button</ref>.getButtonText())))<sp/>};</highlight></codeline>
-<codeline lineno="261"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>totalWidth<sp/>{<sp/>textWidth<sp/>+<sp/><ref refid="classterminal_1_1_look_and_feel_1a5cf2b6304876b80951095a95008811d6" kindref="member">horizontalPadding</ref><sp/>*<sp/>2<sp/>+<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">int</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(<ref refid="classterminal_1_1_look_and_feel_1afb71e3cbe0205690abc8ed633d6a5095" kindref="member">skew</ref>)<sp/>};</highlight></codeline>
-<codeline lineno="262"><highlight class="normal"></highlight></codeline>
-<codeline lineno="263"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>juce::jlimit<sp/>(minWidth,<sp/>maxWidth,<sp/>totalWidth);</highlight></codeline>
-<codeline lineno="264"><highlight class="normal">}</highlight></codeline>
-<codeline lineno="265"><highlight class="normal"></highlight></codeline>
-<codeline lineno="278" refid="classterminal_1_1_look_and_feel_1a251b60a8fe6037c53478c340a166b0de" refkind="member"><highlight class="normal">juce::Font<sp/><ref refid="classterminal_1_1_look_and_feel_1a251b60a8fe6037c53478c340a166b0de" kindref="member">LookAndFeel::getTabButtonFont</ref><sp/>(juce::TabBarButton&amp;<sp/><ref refid="group__juce__audio__plugin__client-Unity_1gac9a690ac771d86f797f87594f6dfa694" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">button</ref>,<sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>height)</highlight></codeline>
-<codeline lineno="279"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="280"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal">*<sp/>cfg<sp/>{<sp/><ref refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">lua::Engine::getContext</ref>()<sp/>};</highlight></codeline>
-<codeline lineno="281"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>juce::Font<sp/>{<sp/>juce::FontOptions()</highlight></codeline>
-<codeline lineno="282"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.withName<sp/>(cfg-&gt;display.tab.family)</highlight></codeline>
-<codeline lineno="283"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.withPointHeight<sp/>(cfg-&gt;display.tab.size)<sp/>};</highlight></codeline>
-<codeline lineno="284"><highlight class="normal">}</highlight></codeline>
-<codeline lineno="285"><highlight class="normal"></highlight></codeline>
-<codeline lineno="292" refid="classterminal_1_1_look_and_feel_1a2e45c790f7903de37a7b8e0d897d1725" refkind="member"><highlight class="normal">juce::Button*<sp/><ref refid="classterminal_1_1_look_and_feel_1a2e45c790f7903de37a7b8e0d897d1725" kindref="member">LookAndFeel::createTabBarExtrasButton</ref>()</highlight></codeline>
-<codeline lineno="293"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="294"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>JUCE<sp/>API<sp/>convention:<sp/>createTabBarExtrasButton<sp/>returns<sp/>raw<sp/>pointer,<sp/>caller<sp/>takes<sp/>ownership.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="295"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">new</highlight><highlight class="normal"><sp/>juce::TextButton<sp/>(</highlight><highlight class="stringliteral">&quot;&gt;&quot;</highlight><highlight class="normal">);</highlight></codeline>
-<codeline lineno="296"><highlight class="normal">}</highlight></codeline>
-<codeline lineno="297"><highlight class="normal"></highlight></codeline>
-<codeline lineno="299"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>terminal</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal">*<sp/>appState<sp/>{<sp/><ref refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">AppModel::getContext</ref>()<sp/>};</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>tabSize<sp/>{<sp/>appState-&gt;getValue&lt;</highlight><highlight class="keywordtype">float</highlight><highlight class="normal">&gt;<sp/>(<ref refid="namespaceapp_1_1id_1a24815b9015e0395936a1718769739fff" kindref="member">app::id::DISPLAY_LUA</ref>,<sp/><ref refid="namespaceapp_1_1id_1a7be2d28c7878ac93c697069b8157668b" kindref="member">app::id::tabSize</ref>)<sp/>};</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>juce::Font<sp/>{<sp/>juce::FontOptions()</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.withName<sp/>(appState-&gt;getValue&lt;juce::String&gt;<sp/>(<ref refid="namespaceapp_1_1id_1a24815b9015e0395936a1718769739fff" kindref="member">app::id::DISPLAY_LUA</ref>,<sp/><ref refid="namespaceapp_1_1id_1aa19ad42e806a8ba1eab57e5b7576fbec" kindref="member">app::id::tabFamily</ref>))</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.withPointHeight<sp/>(juce::jmax<sp/>(1.0f,<sp/>tabSize))<sp/>};</highlight></codeline>
+<codeline lineno="217"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"></highlight></codeline>
+<codeline lineno="219" refid="classterminal_1_1_look_and_feel_1a131594ce1c49e84ec061be5df37ebd20" refkind="member"><highlight class="normal">juce::Rectangle&lt;int&gt;<sp/><ref refid="classterminal_1_1_look_and_feel_1a131594ce1c49e84ec061be5df37ebd20" kindref="member">LookAndFeel::getTabButtonExtraComponentBounds</ref><sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classjam_1_1_tab_bar_button" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::TabBarButton</ref>&amp;,</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>juce::Rectangle&lt;int&gt;&amp;<sp/>textArea,</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>juce::Component&amp;)</highlight></codeline>
+<codeline lineno="222"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>textArea;</highlight></codeline>
+<codeline lineno="224"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"></highlight></codeline>
+<codeline lineno="226" refid="classterminal_1_1_look_and_feel_1a602f4da8bf98a6ff2f1cb33d3ae4444a" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_look_and_feel_1a602f4da8bf98a6ff2f1cb33d3ae4444a" kindref="member">LookAndFeel::drawTabButtonText</ref><sp/>(<ref refid="classjam_1_1_tab_bar_button" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::TabBarButton</ref>&amp;,<sp/>juce::Graphics&amp;,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal">,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal">)<sp/>{}</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"></highlight></codeline>
+<codeline lineno="228" refid="classterminal_1_1_look_and_feel_1a1d63d3e792eaa9082926ecbe45dd510c" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_look_and_feel_1a1d63d3e792eaa9082926ecbe45dd510c" kindref="member">LookAndFeel::drawTabAreaBehindFrontButton</ref><sp/>(<ref refid="classjam_1_1_tabbed_button_bar" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::TabbedButtonBar</ref>&amp;,<sp/>juce::Graphics&amp;,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">)<sp/>{}</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"></highlight></codeline>
+<codeline lineno="230" refid="classterminal_1_1_look_and_feel_1afb1a3a02fac7c9052e7bbc4c5a52c5db" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_look_and_feel_1afb1a3a02fac7c9052e7bbc4c5a52c5db" kindref="member">LookAndFeel::createTabButtonShape</ref><sp/>(<ref refid="classjam_1_1_tab_bar_button" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::TabBarButton</ref>&amp;<sp/><ref refid="group__juce__audio__plugin__client-Unity_1gac9a690ac771d86f797f87594f6dfa694" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">button</ref>,<sp/>juce::Path&amp;<sp/>path,</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal">,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="232"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/>path<sp/>=<sp/><ref refid="classterminal_1_1_look_and_feel_1a5a8071f7bdf6f656db1fd58842ffa1d7" kindref="member">getTabButtonShape</ref><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1gac9a690ac771d86f797f87594f6dfa694" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">button</ref>.getActiveArea().toFloat().reduced<sp/>(0,<sp/><ref refid="classterminal_1_1_look_and_feel_1ac8e99173433b98234f3b9d662c2a8ec1" kindref="member">buttonInset</ref>));</highlight></codeline>
+<codeline lineno="234"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"></highlight></codeline>
+<codeline lineno="236" refid="classterminal_1_1_look_and_feel_1ac36cf6eb5eab63a0dc9e67e703cdd1fd" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_look_and_feel_1ac36cf6eb5eab63a0dc9e67e703cdd1fd" kindref="member">LookAndFeel::fillTabButtonShape</ref><sp/>(<ref refid="classjam_1_1_tab_bar_button" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::TabBarButton</ref>&amp;,<sp/>juce::Graphics&amp;,</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Path&amp;,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal">,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal">)<sp/>{}</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"></highlight></codeline>
+<codeline lineno="239"><highlight class="normal"></highlight><highlight class="comment">//<sp/>---------------------------------------------------------------------------</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="240"><highlight class="normal"></highlight></codeline>
+<codeline lineno="253" refid="classterminal_1_1_look_and_feel_1abe330f190f36b8d4bbcdd7b848ba5d59" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_look_and_feel_1abe330f190f36b8d4bbcdd7b848ba5d59" kindref="member">LookAndFeel::getTabButtonBestWidth</ref><sp/>(juce::TabBarButton&amp;<sp/><ref refid="group__juce__audio__plugin__client-Unity_1gac9a690ac771d86f797f87594f6dfa694" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">button</ref>,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>tabDepth)</highlight></codeline>
+<codeline lineno="254"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>font<sp/>{<sp/><ref refid="classterminal_1_1_look_and_feel_1a251b60a8fe6037c53478c340a166b0de" kindref="member">getTabButtonFont</ref><sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1gac9a690ac771d86f797f87594f6dfa694" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">button</ref>,<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">float</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(tabDepth))<sp/>};</highlight></codeline>
+<codeline lineno="256"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>charWidth<sp/>{<sp/>juce::TextLayout::getStringWidth<sp/>(font,<sp/></highlight><highlight class="stringliteral">&quot;M&quot;</highlight><highlight class="normal">)<sp/>};</highlight></codeline>
+<codeline lineno="257"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>minWidth<sp/>{<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">int</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(charWidth<sp/>*<sp/><ref refid="classterminal_1_1_look_and_feel_1abdc5fdbdf5e13bb6a76561ba4ff08406" kindref="member">minTabChars</ref>)<sp/>+<sp/><ref refid="classterminal_1_1_look_and_feel_1a5cf2b6304876b80951095a95008811d6" kindref="member">horizontalPadding</ref><sp/>*<sp/>2<sp/>+<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">int</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(<ref refid="classterminal_1_1_look_and_feel_1afb71e3cbe0205690abc8ed633d6a5095" kindref="member">skew</ref>)<sp/>};</highlight></codeline>
+<codeline lineno="258"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>maxWidth<sp/>{<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">int</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(charWidth<sp/>*<sp/><ref refid="classterminal_1_1_look_and_feel_1a4bb1879b29f1ed9863c13b19553cc890" kindref="member">maxTabChars</ref>)<sp/>+<sp/><ref refid="classterminal_1_1_look_and_feel_1a5cf2b6304876b80951095a95008811d6" kindref="member">horizontalPadding</ref><sp/>*<sp/>2<sp/>+<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">int</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(<ref refid="classterminal_1_1_look_and_feel_1afb71e3cbe0205690abc8ed633d6a5095" kindref="member">skew</ref>)<sp/>};</highlight></codeline>
+<codeline lineno="259"><highlight class="normal"></highlight></codeline>
+<codeline lineno="260"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>textWidth<sp/>{<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">int</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(</highlight></codeline>
+<codeline lineno="261"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::ceil<sp/>(juce::TextLayout::getStringWidth<sp/>(font,<sp/><ref refid="group__juce__audio__plugin__client-Unity_1gac9a690ac771d86f797f87594f6dfa694" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">button</ref>.getButtonText())))<sp/>};</highlight></codeline>
+<codeline lineno="262"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>totalWidth<sp/>{<sp/>textWidth<sp/>+<sp/><ref refid="classterminal_1_1_look_and_feel_1a5cf2b6304876b80951095a95008811d6" kindref="member">horizontalPadding</ref><sp/>*<sp/>2<sp/>+<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">int</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(<ref refid="classterminal_1_1_look_and_feel_1afb71e3cbe0205690abc8ed633d6a5095" kindref="member">skew</ref>)<sp/>};</highlight></codeline>
+<codeline lineno="263"><highlight class="normal"></highlight></codeline>
+<codeline lineno="264"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>juce::jlimit<sp/>(minWidth,<sp/>maxWidth,<sp/>totalWidth);</highlight></codeline>
+<codeline lineno="265"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="266"><highlight class="normal"></highlight></codeline>
+<codeline lineno="279" refid="classterminal_1_1_look_and_feel_1a251b60a8fe6037c53478c340a166b0de" refkind="member"><highlight class="normal">juce::Font<sp/><ref refid="classterminal_1_1_look_and_feel_1a251b60a8fe6037c53478c340a166b0de" kindref="member">LookAndFeel::getTabButtonFont</ref><sp/>(juce::TabBarButton&amp;<sp/><ref refid="group__juce__audio__plugin__client-Unity_1gac9a690ac771d86f797f87594f6dfa694" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">button</ref>,<sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>height)</highlight></codeline>
+<codeline lineno="280"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="281"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::ignoreUnused<sp/>(<ref refid="group__juce__audio__plugin__client-Unity_1gac9a690ac771d86f797f87594f6dfa694" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">button</ref>,<sp/>height);</highlight></codeline>
+<codeline lineno="282"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal">*<sp/>appState<sp/>{<sp/><ref refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">AppModel::getContext</ref>()<sp/>};</highlight></codeline>
+<codeline lineno="283"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>juce::Font<sp/>{<sp/>juce::FontOptions()</highlight></codeline>
+<codeline lineno="284"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.withName<sp/>(appState-&gt;getValue&lt;juce::String&gt;<sp/>(<ref refid="namespaceapp_1_1id_1a24815b9015e0395936a1718769739fff" kindref="member">app::id::DISPLAY_LUA</ref>,<sp/><ref refid="namespaceapp_1_1id_1aa19ad42e806a8ba1eab57e5b7576fbec" kindref="member">app::id::tabFamily</ref>))</highlight></codeline>
+<codeline lineno="285"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.withPointHeight<sp/>(appState-&gt;getValue&lt;</highlight><highlight class="keywordtype">float</highlight><highlight class="normal">&gt;<sp/>(<ref refid="namespaceapp_1_1id_1a24815b9015e0395936a1718769739fff" kindref="member">app::id::DISPLAY_LUA</ref>,<sp/><ref refid="namespaceapp_1_1id_1a7be2d28c7878ac93c697069b8157668b" kindref="member">app::id::tabSize</ref>))<sp/>};</highlight></codeline>
+<codeline lineno="286"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="287"><highlight class="normal"></highlight></codeline>
+<codeline lineno="294" refid="classterminal_1_1_look_and_feel_1a2e45c790f7903de37a7b8e0d897d1725" refkind="member"><highlight class="normal">juce::Button*<sp/><ref refid="classterminal_1_1_look_and_feel_1a2e45c790f7903de37a7b8e0d897d1725" kindref="member">LookAndFeel::createTabBarExtrasButton</ref>()</highlight></codeline>
+<codeline lineno="295"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="296"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>JUCE<sp/>API<sp/>convention:<sp/>createTabBarExtrasButton<sp/>returns<sp/>raw<sp/>pointer,<sp/>caller<sp/>takes<sp/>ownership.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="297"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">new</highlight><highlight class="normal"><sp/>juce::TextButton<sp/>(</highlight><highlight class="stringliteral">&quot;&gt;&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="298"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="299"><highlight class="normal"></highlight></codeline>
+<codeline lineno="301"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>terminal</highlight><highlight class="normal"></highlight></codeline>
     </programlisting>
     <location file="terminal/component/LookAndFeelTab.cpp"/>
   </compounddef>

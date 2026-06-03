@@ -109,7 +109,7 @@
     </briefdescription>
     <detaileddescription>
 <para>This file owns the main processing loop and the state transition machinery. Action dispatch, UTF-8 accumulation, and CSI/buffer helpers live in <computeroutput><ref refid="_parser_action_8cpp" kindref="compound">ParserAction.cpp</ref></computeroutput>.</para>
-<sect1 id="terminal_2_parser_8cpp_1autotoc_md49_1s1"><sect2 id="terminal_2_parser_8cpp_1autotoc_md49">
+<sect1 id="terminal_2_parser_8cpp_1autotoc_md50_1s1"><sect2 id="terminal_2_parser_8cpp_1autotoc_md50">
 <title>Byte processing pipeline</title><para><programlisting><codeline><highlight class="normal">PTY<sp/>bytes</highlight></codeline>
 <codeline><highlight class="normal"><sp/><sp/><sp/><sp/>│</highlight></codeline>
 <codeline><highlight class="normal"><sp/><sp/><sp/><sp/>▼</highlight></codeline>
@@ -124,7 +124,7 @@
 <codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>└─<sp/>performEntryAction(nextState)<sp/><sp/><sp/><sp/><sp/>←<sp/>ParserAction.cpp</highlight></codeline>
 </programlisting></para>
 </sect2></sect1>
-<sect1 id="terminal_2_parser_8cpp_1autotoc_md50_1s1"><sect2 id="terminal_2_parser_8cpp_1autotoc_md50">
+<sect1 id="terminal_2_parser_8cpp_1autotoc_md51_1s1"><sect2 id="terminal_2_parser_8cpp_1autotoc_md51">
 <title>Thread model</title><para><bold>All methods in this file are READER THREAD only</bold>, except the constructor which is called on the MESSAGE THREAD before the reader thread starts.</para>
 <para><simplesect kind="see"><para>Parser.h — class declaration, member documentation, and lifecycle notes </para>
 </simplesect>

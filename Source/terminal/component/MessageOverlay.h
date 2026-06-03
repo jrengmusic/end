@@ -44,7 +44,7 @@
 
 #pragma once
 #include <JuceHeader.h>
-#include "../../lua/Engine.h"
+#include "../../AppModel.h"
 
 /**
  * @class MessageOverlay
@@ -211,12 +211,12 @@ public:
      */
     void paint (juce::Graphics& g) override
     {
-        const auto* cfg { lua::Engine::getContext() };
-        const auto bgColour { cfg->display.window.colour };
-        const auto fgColour { cfg->display.overlay.colour };
+        const auto* appState { AppModel::getContext() };
+        const auto bgColour { juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::DISPLAY_LUA, app::id::windowColour))) };
+        const auto fgColour { juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::DISPLAY_LUA, app::id::overlayColour))) };
         const juce::FontOptions font { juce::FontOptions()
-                                           .withName (cfg->display.overlay.family)
-                                           .withPointHeight (cfg->display.overlay.size) };
+                                           .withName (appState->getValue<juce::String> (app::id::DISPLAY_LUA, app::id::overlayFamily))
+                                           .withPointHeight (appState->getValue<float> (app::id::DISPLAY_LUA, app::id::overlaySize)) };
 
         if (imageMode and previewImage.isValid())
         {

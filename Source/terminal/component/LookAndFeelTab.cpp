@@ -209,10 +209,11 @@ int LookAndFeel::getTabButtonBestWidth (jam::TabBarButton& button, int tabDepth)
 
 juce::Font LookAndFeel::getTabButtonFont (jam::TabBarButton&, float)
 {
-    const auto* cfg { lua::Engine::getContext() };
+    const auto* appState { AppModel::getContext() };
+    const float tabSize { appState->getValue<float> (app::id::DISPLAY_LUA, app::id::tabSize) };
     return juce::Font { juce::FontOptions()
-                            .withName (cfg->display.tab.family)
-                            .withPointHeight (cfg->display.tab.size) };
+                            .withName (appState->getValue<juce::String> (app::id::DISPLAY_LUA, app::id::tabFamily))
+                            .withPointHeight (juce::jmax (1.0f, tabSize)) };
 }
 
 juce::Rectangle<int> LookAndFeel::getTabButtonExtraComponentBounds (const jam::TabBarButton&,
@@ -277,10 +278,11 @@ int LookAndFeel::getTabButtonBestWidth (juce::TabBarButton& button, int tabDepth
  */
 juce::Font LookAndFeel::getTabButtonFont (juce::TabBarButton& button, float height)
 {
-    const auto* cfg { lua::Engine::getContext() };
+    juce::ignoreUnused (button, height);
+    const auto* appState { AppModel::getContext() };
     return juce::Font { juce::FontOptions()
-                            .withName (cfg->display.tab.family)
-                            .withPointHeight (cfg->display.tab.size) };
+                            .withName (appState->getValue<juce::String> (app::id::DISPLAY_LUA, app::id::tabFamily))
+                            .withPointHeight (appState->getValue<float> (app::id::DISPLAY_LUA, app::id::tabSize)) };
 }
 
 /**

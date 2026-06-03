@@ -20,7 +20,7 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "../lua/Engine.h"
+#include "../AppModel.h"
 
 namespace terminal
 {
@@ -124,7 +124,7 @@ public:
         {
             const juce::String ext { token.fromLastOccurrenceOf (".", true, false).toLowerCase() };
             result = builtInExtensions().count (ext) > 0
-                     or lua::Engine::getContext()->isClickableExtension (ext);
+                     or AppModel::getContext()->isClickableExtension (ext);
         }
 
         return result;

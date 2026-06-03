@@ -34,11 +34,12 @@ Panes::~Panes() = default;
 std::pair<cell, cell> Panes::cellsFromRect (juce::Rectangle<int> paneRect) noexcept
 {
     // Physical-pixel math — matches Screen::calc() exactly (SSOT).
-    const auto* cfg { lua::Engine::getContext() };
+    const auto* appState { AppModel::getContext() };
     const float scale { jam::Typeface::getDisplayScale() };
-    const float fontSize { cfg->dpiCorrectedFontSize() };
-    const jam::Font font { cfg->display.font.family, fontSize,
-                           cfg->display.font.cellWidth, cfg->display.font.lineHeight };
+    const float fontSize { appState->dpiCorrectedFontSize() };
+    const float cellWidth  { appState->getValue<float> (app::id::DISPLAY_LUA, app::id::cellWidth) };
+    const float lineHeight { appState->getValue<float> (app::id::DISPLAY_LUA, app::id::lineHeight) };
+    const jam::Font font { appState->getValue<juce::String> (app::id::DISPLAY_LUA, app::id::fontFamily), fontSize, cellWidth, lineHeight };
     jassert (font.cellWidth > 0 and font.cellHeight > 0);
 
     const int physCellW { jam::toInt (static_cast<float> (font.cellWidth) * scale, true) };
@@ -46,10 +47,10 @@ std::pair<cell, cell> Panes::cellsFromRect (juce::Rectangle<int> paneRect) noexc
 
     jassert (physCellW > 0 and physCellH > 0);
 
-    const int paddingTop    { cfg->nexus.terminal.paddingTop };
-    const int paddingRight  { cfg->nexus.terminal.paddingRight };
-    const int paddingBottom { cfg->nexus.terminal.paddingBottom };
-    const int paddingLeft   { cfg->nexus.terminal.paddingLeft };
+    const int paddingTop    { appState->getValue<int> (app::id::NEXUS_LUA, app::id::paddingTop) };
+    const int paddingRight  { appState->getValue<int> (app::id::NEXUS_LUA, app::id::paddingRight) };
+    const int paddingBottom { appState->getValue<int> (app::id::NEXUS_LUA, app::id::paddingBottom) };
+    const int paddingLeft   { appState->getValue<int> (app::id::NEXUS_LUA, app::id::paddingLeft) };
 
     const int contentW { paneRect.getWidth()  - paddingLeft - paddingRight };
     const int contentH { paneRect.getHeight() - paddingTop  - paddingBottom };

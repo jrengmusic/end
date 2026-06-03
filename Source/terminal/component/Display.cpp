@@ -28,18 +28,22 @@ terminal::Display::Display (terminal::Session& sessionToUse)
     addAndMakeVisible (session.getTextEditor());
     session.getTextEditor().addKeyListener (this);
 
-    configListener.start();
+    // Listen on CONFIG/DISPLAY for font/caret/config changes.
+    // On property change, Display writes to CODE_VIEW node → CodeView self-listens and reacts.
+    configDisplay = AppModel::getContext()->getConfig().getChildWithName (app::id::DISPLAY_LUA);
+    configDisplay.addListener (this);
+
+    // Initial population — write CONFIG values to CODE_VIEW node.
+    applyConfigToCodeView();
 
     // Listen to per-session terminal state for content updates (screenDirty).
     state.addListener (this);
-
-    applyFromAppModel();
 }
 
 terminal::Display::~Display()
 {
     state.removeListener (this);
-    configListener.stop();
+    configDisplay.removeListener (this);
     session.getTextEditor().removeKeyListener (this);
 }
 
@@ -48,59 +52,55 @@ juce::String terminal::Display::getPaneType() const noexcept
 {
     return Map::PaneType::getContext()->get (Map::PaneType::terminal);
 }
-void terminal::Display::applyFromAppModel() noexcept
+
+void terminal::Display::applyConfigToCodeView() noexcept
 {
-    const auto* appState { AppModel::getContext() };
+    auto codeNode { state.getChildWithName (jam::CodeView::properties.at (jam::CodeView::codeViewId)) };
 
-    const jam::Font font { appState->getFontFamily(),
-                           appState->getFontSize(),
-                           static_cast<float> (appState->getCellWidth()),
-                           static_cast<float> (appState->getLineHeight()) };
+    if (codeNode.isValid())
+    {
+        const auto* appState { AppModel::getContext() };
+        const juce::String family { appState->getValue<juce::String> (app::id::DISPLAY_LUA, app::id::fontFamily) };
+        const float cellW { appState->getValue<float> (app::id::DISPLAY_LUA, app::id::cellWidth) };
+        const float lineH { appState->getValue<float> (app::id::DISPLAY_LUA, app::id::lineHeight) };
+        const jam::Font font { family, appState->dpiCorrectedFontSize(), cellW, lineH };
 
-    session.getTextEditor().setFont (font);
-    session.getTextEditor().setCaretChar (jam::toChar (appState->getCursorCodepoint()));
-    session.getTextEditor().setCaretShape (appState->getCursorStyle());
-    session.getTextEditor().setCaretBlinkRate (appState->getCursorBlinkInterval());
+        // Write font to CODE_VIEW node — CodeView self-listens and rebuilds jam::Font.
+        codeNode.setProperty (jam::CodeView::properties.at (jam::CodeView::fontFamilyId),     family,        nullptr);
+        codeNode.setProperty (jam::CodeView::properties.at (jam::CodeView::fontSizeId),       font.fontSize, nullptr);
+        codeNode.setProperty (jam::CodeView::properties.at (jam::CodeView::fontCellWidthId),  cellW,         nullptr);
+        codeNode.setProperty (jam::CodeView::properties.at (jam::CodeView::fontLineHeightId), lineH,         nullptr);
 
-    state.setValue (terminal::id::DISPLAY, terminal::id::cellWidth,  font.cellWidth);
-    state.setValue (terminal::id::DISPLAY, terminal::id::cellHeight, font.cellHeight);
-    state.setValue (terminal::id::DISPLAY, terminal::id::baseline,   font.baseline);
-    state.setValue (terminal::id::DISPLAY, terminal::id::fontSize,   static_cast<int> (font.fontSize));
+        // Write caret to CODE_VIEW node.
+        codeNode.setProperty (jam::CodeView::properties.at (jam::CodeView::caretCodepointId),     appState->getValue<int> (app::id::DISPLAY_LUA, app::id::cursorCodepoint), nullptr);
+        codeNode.setProperty (jam::CodeView::properties.at (jam::CodeView::caretStyleId),         appState->getValue<int> (app::id::DISPLAY_LUA, app::id::cursorStyle),     nullptr);
+        codeNode.setProperty (jam::CodeView::properties.at (jam::CodeView::caretBlinkIntervalId), appState->getValue<int> (app::id::DISPLAY_LUA, app::id::cursorBlinkInterval), nullptr);
 
-    mouse.setCellSize (font.cellWidth, font.cellHeight);
-    input.buildKeyMap();
-}
+        // Write DISPLAY node cell metrics — sole authority for reader thread.
+        state.setValue (terminal::id::DISPLAY, terminal::id::cellWidth,  font.cellWidth);
+        state.setValue (terminal::id::DISPLAY, terminal::id::cellHeight, font.cellHeight);
+        state.setValue (terminal::id::DISPLAY, terminal::id::baseline,   font.baseline);
+        state.setValue (terminal::id::DISPLAY, terminal::id::fontSize,   static_cast<int> (font.fontSize));
 
-void terminal::Display::ConfigListener::start() noexcept
-{
-    appState = AppModel::getContext()->getRootTree();
-    appState.addListener (this);
-}
-
-void terminal::Display::ConfigListener::stop() noexcept
-{
-    appState.removeListener (this);
-}
-
-void terminal::Display::ConfigListener::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier&)
-{
-    if (tree.getParent() == appState)
-        display.applyFromAppModel();
+        mouse.setCellSize (font.cellWidth, font.cellHeight);
+        input.buildKeyMap();
+    }
 }
 
 void terminal::Display::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
 {
-    if (property == id::value and tree.getType() == jam::Model::PARAM)
+    // CONFIG/DISPLAY PARAM changed — propagate to CODE_VIEW node.
+    if (property == id::value and tree.getType() == jam::Model::PARAM and tree.getParent() == configDisplay)
+    {
+        applyConfigToCodeView();
+    }
+    else if (property == id::value and tree.getType() == jam::Model::PARAM)
     {
         const juce::Identifier paramId { tree.getProperty (id::id).toString() };
         const int activeScreen { static_cast<int> (jam::ValueTree::getValueFromChildWithID (state.getRootTree(), id::activeScreen).getValue()) };
 
         if (paramId == id::screenDirty or paramId == id::activeScreen)
         {
-            jam::debug::Log::write ("DRAIN paramId=" + paramId.toString()
-                                    + " activeScreen=" + juce::String (activeScreen)
-                                    + " parent=" + tree.getParent().getType().toString());
-
             session.getTextEditor().setWrapEnabled (activeScreen == Map::Screen::normal);
 
             jam::CodeModel& doc { session.getCodeModel() };
@@ -161,10 +161,6 @@ void terminal::Display::valueTreePropertyChanged (juce::ValueTree& tree, const j
 
                 liveTailExtent.at (static_cast<size_t> (activeScreen)) = newExtent;
                 session.getTextEditor().setViewportLineCount (newExtent);
-
-                jam::debug::Log::write ("DRAIN done historyLines=" + juce::String (doc.getNumLines() - newExtent)
-                                        + " liveExtent=" + juce::String (newExtent)
-                                        + " totalLines=" + juce::String (doc.getNumLines()));
             }
 
             session.getTextEditor().calc();
@@ -219,10 +215,10 @@ void terminal::Display::resized()
 {
     const auto* appState { AppModel::getContext() };
     const auto contentBounds { getLocalBounds()
-                                   .withTrimmedTop (appState->getPaddingTop())
-                                   .withTrimmedRight (appState->getPaddingRight())
-                                   .withTrimmedBottom (appState->getPaddingBottom())
-                                   .withTrimmedLeft (appState->getPaddingLeft()) };
+                                   .withTrimmedTop (appState->getValue<int> (app::id::NEXUS_LUA, app::id::paddingTop))
+                                   .withTrimmedRight (appState->getValue<int> (app::id::NEXUS_LUA, app::id::paddingRight))
+                                   .withTrimmedBottom (appState->getValue<int> (app::id::NEXUS_LUA, app::id::paddingBottom))
+                                   .withTrimmedLeft (appState->getValue<int> (app::id::NEXUS_LUA, app::id::paddingLeft)) };
 
     // setBounds triggers CodeView::resized() -> updateWinsize() -> winsize property -> Session::valueChanged.
     session.getTextEditor().setBounds (contentBounds);

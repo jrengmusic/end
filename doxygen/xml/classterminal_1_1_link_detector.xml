@@ -97,7 +97,7 @@
         </inbodydescription>
         <location file="terminal/LinkDetector.h" line="117" column="17" bodyfile="terminal/LinkDetector.h" bodystart="117" bodyend="131"/>
         <references refid="classterminal_1_1_link_detector_1a3af6f8b4039a2cd7834ec625e83c0e8b" compoundref="_link_detector_8h" startline="82" endline="101">builtInExtensions</references>
-        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
         <referencedby refid="classterminal_1_1_link_detector_1aeddb512e393bdab04f8ce6aa5c4255a5" compoundref="_link_detector_8h" startline="164" endline="174">classify</referencedby>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_link_detector_1acaa83a95fff87ecda0e933227bf0a382" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
@@ -185,7 +185,7 @@
     </briefdescription>
     <detaileddescription>
 <para>All methods are static — the class is not instantiated. The built-in extension set is constructed once on first use (static local) and reused for every subsequent call.</para>
-<sect1 id="classterminal_1_1_link_detector_1autotoc_md43_1s1"><sect2 id="classterminal_1_1_link_detector_1autotoc_md43_1s2"><sect3 id="classterminal_1_1_link_detector_1autotoc_md43">
+<sect1 id="classterminal_1_1_link_detector_1autotoc_md44_1s1"><sect2 id="classterminal_1_1_link_detector_1autotoc_md44_1s2"><sect3 id="classterminal_1_1_link_detector_1autotoc_md44">
 <title>Extension extraction rules</title><para><table rows="7" cols="3"><row>
 <entry thead="yes"><para><ref refid="struct_token" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Token</ref>  </para>
 </entry><entry thead="yes"><para>Extracted extension  </para>

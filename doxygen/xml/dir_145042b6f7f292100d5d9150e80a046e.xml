@@ -40,7 +40,6 @@
     <innerfile refid="_notifications_8h">Notifications.h</innerfile>
     <innerfile refid="_notifications_8mm">Notifications.mm</innerfile>
     <innerfile refid="_palette_8h">Palette.h</innerfile>
-    <innerfile refid="_parameter_8h">Parameter.h</innerfile>
     <innerfile refid="terminal_2_parser_8cpp">Parser.cpp</innerfile>
     <innerfile refid="terminal_2_parser_8h">Parser.h</innerfile>
     <innerfile refid="_parser_action_8cpp">ParserAction.cpp</innerfile>
@@ -54,7 +53,6 @@
     <innerfile refid="_sixel_decoder_parse_8cpp">SixelDecoderParse.cpp</innerfile>
     <innerfile refid="_skit_8cpp">Skit.cpp</innerfile>
     <innerfile refid="_skit_8h">Skit.h</innerfile>
-    <innerfile refid="_text_buffer_8h">TextBuffer.h</innerfile>
     <innerfile refid="_video_8cpp">Video.cpp</innerfile>
     <innerfile refid="_video_8h">Video.h</innerfile>
     <innerfile refid="_video_c_s_i_8cpp">VideoCSI.cpp</innerfile>

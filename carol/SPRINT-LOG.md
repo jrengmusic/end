@@ -1,5 +1,68 @@
 # SPRINT-LOG
 
+## Sprint 42: ParameterText Unification, Templated Verbs, XML-Driven CONFIG, Colour Int Migration
+
+**Date:** 2026-06-03 — 2026-06-04
+
+### Agents Participated
+- COUNSELOR: plan design, discussion, delegation, plan tracking
+- Engineer: Phase 1 (jam::Model cleanup), Phase 2 (AppModel XML-driven build), colour writer migration, colour reader migration, EngineConfig fix, diagnostics strip, Engine by-value, dead API strip, getInstanceID rename, build fixes (createCopy, loadValue<int>, setValue<juce::Colour> specialization, addParameter<juce::Colour> deletion, explicit-instantiation list)
+- Pathfinder: call-site inventory (setValue/getValue/addParameter/storeValue), colour write/read site inventory, AppModel convenience API inventory, Engine by-value feasibility, git status
+- Auditor: Phase 1 + Phase 2 validation (15 grep-zero checks + 5 structural checks)
+- Librarian: juce::ValueTree::fromXml attribute mapping verification
+
+### Files Modified (jam — 4 source files)
+- `jam_data_structures/value_tree/jam_parameter.h` — deleted Parameter<const char*>, added+deleted Parameter<juce::Colour> (colours are Parameter<int>), updated file-level doc
+- `jam_data_structures/value_tree/jam_parameter_text.h` — shipped (prior session, no changes this sprint)
+- `jam_data_structures/model/jam_model.h` — templated storeValue<T>/loadValue<T> declarations, addParameter<T> made idempotent (getChildWithID reuse), addParameter<juce::Colour> specialization added+deleted, doxygen updated
+- `jam_data_structures/model/jam_model.cpp` — setValue<T> rewritten (generic + juce::String specialization, no if constexpr), getValue<juce::Colour> specialization added+deleted, storeValue<T>/loadValue<T> bodies added, storeValue(const char*,int) hot-path preserved (direct ParameterText::store), juce::var instantiations deleted, explicit-instantiation list: int/float/juce::String only
+
+### Files Modified (end — 18 source files)
+- `Source/AppIdentifier.h:352` — added colourType identifier
+- `Source/AppParameters.xml` — added CONFIG section (6 type nodes, ~150 properties with defaults)
+- `Source/AppModel.h` — build() signature changed to const juce::ValueTree&, createAndAddParameter declared, resolveAppLayoutDefault deleted, Engine by-value (lua::Engine engine), dead API stripped (setTabPosition, etc.), getInstanceUuid→getInstanceID, setInstanceUuid→setInstanceID
+- `Source/AppModel.cpp` — ctor collapsed ~330→~25 lines, build() rewritten as two-pass (structural copy + applyFunctionRecursively), createAndAddParameter added (type-dispatch: string/colour/bool/float/int), addStr/addColour lambdas deleted, resolveAppLayoutDefault deleted, jassert(xml!=nullptr) deleted, engine by-value (engine. not engine->), diagnostics stripped
+- `Source/Main.cpp` — getInstanceUuid→getInstanceID, setInstanceUuid→setInstanceID
+- `Source/MainComponent.cpp:363` — colour fromString→int
+- `Source/terminal/Model.h` — derived storeValue/loadValue overloads deleted, storeTextValue deleted
+- `Source/terminal/Model.cpp` — derived storeValue/loadValue impls deleted, storeTextValue deleted, jassert(xml!=nullptr) deleted, xml inlined into buildLayout
+- `Source/terminal/ProcessorEvents.cpp:328,364,373` — loadValue→loadValue<int>
+- `Source/terminal/component/LookAndFeel.cpp` — 23 colour fromString→int
+- `Source/terminal/component/ModalWindow.cpp` — 1 colour fromString→int
+- `Source/terminal/component/LoaderOverlay.h` — 2 colour fromString→int
+- `Source/terminal/component/MessageOverlay.h` — 2 colour fromString→int
+- `Source/terminal/component/LookAndFeelMenu.cpp` — 1 colour fromString→int
+- `Source/terminal/action/ActionList.cpp` — 6 colour fromString→int
+- `Source/lua/EngineParseDisplay.cpp` — 55 colour toString→getARGB
+- `Source/lua/EngineParseConfig.cpp` — 37 colour toString→getARGB, readColour lambda in buildTheme migrated
+- `Source/whelmed/Screen.cpp` — 22 colour fromString→int
+- `Source/whelmed/Tokenizer.cpp` — 12 colour fromString→int
+- `Source/whelmed/Parser.cpp` — 9 colour fromString→int
+- `Source/whelmed/component/Component.cpp` — 1 colour fromString→int
+
+### Alignment Check
+- [x] BLESSED principles followed (B: Engine by-value RAII; L: ctor ~25 lines, no lambdas; E: templated verbs, XML defaults named; S-SSOT: one XML schema, one build walk; S-Stateless: flush is sync point; E-Encapsulation: colour int conversion internal; D: no if constexpr)
+- [x] NAMES.md adhered (getInstanceID, createAndAddParameter, colourType — all ratified)
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- if constexpr discriminator in setValue<T> eliminated — generic template + juce::String specialization
+- juce::var instantiations (zero callers) deleted
+- AppModel ctor magic-constant soup (~150 inlined defaults) moved to AppParameters.xml
+- Colour string round-trip eliminated — colours stored as Parameter<int> (ARGB packed), ~162 call sites migrated
+- addStr / addColour lambdas (7 copies) eliminated — createAndAddParameter walks XML
+- jassert(xml!=nullptr) garbage guards removed from both AppModel and terminal::Model ctors
+- Engine heap allocation eliminated — by-value member
+- Dead convenience API stripped
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 41: Architectural Hygiene — Blast E: Strip Getters, registerAtomics, Doxygen Hygiene
 
 **Date:** 2026-06-02

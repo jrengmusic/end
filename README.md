@@ -17,8 +17,6 @@ Most modern popular terminals available today (as this README is written) fall i
 
 ## Architecture
 
-I really hate the term "AI slop." The generalization that every piece of open source software written, developed, and assisted by coding agents is slop is Idiocracy. Just because I could ask my clankers to translate a popular terminal emulator into my domain does not mean it would automagically manifest into the best terminal ever developed.
-
 END's architecture is nowhere to be found in any published open source terminal project. This is beyond any training data any existing LLM could have been trained on. The peculiar choice of JUCE — a framework notoriously designed for building cross-platform audio plugins — may be counterintuitive to those unfamiliar with the stack.
 
 This is my domain-specific expertise. A domain where lock-free threads and block-free message threads are non-negotiable. END is built upon that exact philosophy. No mutex anywhere. An architectural pattern that has tripped even the most advanced pattern-matching clankers from truly comprehending the machinery.

@@ -10,6 +10,7 @@
  */
 
 #include "Engine.h"
+#include "../AppIdentifier.h"
 
 namespace lua
 {
@@ -122,31 +123,57 @@ juce::Colour Engine::parseColour (const juce::String& input)
 //==============================================================================
 Engine::Theme Engine::buildTheme() const
 {
+    jassert (model != nullptr);
+
+    auto readColour = [this] (const juce::Identifier& propId, juce::Colour fallback) -> juce::Colour
+    {
+        const int raw { model->getValue<int> (app::id::DISPLAY_LUA, propId) };
+        return raw != 0 ? juce::Colour (static_cast<juce::uint32> (raw)) : fallback;
+    };
+
     Theme theme;
-    theme.defaultForeground     = display.colours.foreground;
-    theme.defaultBackground     = display.colours.background;
-    theme.selectionColour       = display.colours.selection;
-    theme.selectionCursorColour = display.colours.selectionCursor;
-    theme.cursorColour          = display.colours.cursor;
-    theme.cursorCodepoint       = display.cursor.codepoint;
-    theme.cursorForce           = display.cursor.force;
-    theme.hintLabelBg           = display.colours.hintLabelBg;
-    theme.hintLabelFg           = display.colours.hintLabelFg;
-    theme.ansi                  = display.colours.ansi;
+    theme.defaultForeground     = readColour (app::id::foreground,            juce::Colour (0xffa1d6e5));
+    theme.defaultBackground     = readColour (app::id::background,            juce::Colour (0x00000000));
+    theme.selectionColour       = readColour (app::id::selectionColour,       juce::Colour (0x2000ddee));
+    theme.selectionCursorColour = readColour (app::id::selectionCursorColour, juce::Colour (0xff00ddee));
+    theme.cursorColour          = readColour (app::id::cursorColour,          juce::Colour (0xff4e8c93));
+    theme.hintLabelBg           = readColour (app::id::hintLabelBg,           juce::Colour (0xff00ffff));
+    theme.hintLabelFg           = readColour (app::id::hintLabelFg,           juce::Colour (0xff111111));
+    theme.cursorCodepoint       = static_cast<char32_t> (model->getValue<int> (app::id::DISPLAY_LUA, app::id::cursorCodepoint));
+    theme.cursorForce           = model->getValue<int> (app::id::DISPLAY_LUA, app::id::cursorForce) != 0;
+
+    static const std::array<const juce::Identifier*, 16> ansiIds {{
+        &app::id::ansi0,  &app::id::ansi1,  &app::id::ansi2,  &app::id::ansi3,
+        &app::id::ansi4,  &app::id::ansi5,  &app::id::ansi6,  &app::id::ansi7,
+        &app::id::ansi8,  &app::id::ansi9,  &app::id::ansi10, &app::id::ansi11,
+        &app::id::ansi12, &app::id::ansi13, &app::id::ansi14, &app::id::ansi15
+    }};
+
+    static const std::array<juce::uint32, 16> ansiDefaults {{
+        0xff090d12, 0xfffc704c, 0xffc5f0e9, 0xfff3f5c5,
+        0xff8cc9d9, 0xff519299, 0xff699daa, 0xffdddddd,
+        0xff33535b, 0xfffc704c, 0xffbafffd, 0xfffeffd2,
+        0xff67dfef, 0xff01c2d2, 0xff00c8d8, 0xffbafffd
+    }};
+
+    for (size_t i { 0 }; i < 16; ++i)
+        theme.ansi.at (i) = readColour (*ansiIds.at (i), juce::Colour (ansiDefaults.at (i)));
+
     return theme;
 }
 
 float Engine::dpiCorrectedFontSize() const noexcept
 {
-    float corrected { display.font.size };
+    jassert (model != nullptr);
+    float corrected { model->getValue<float> (app::id::DISPLAY_LUA, app::id::fontSize) };
 
 #if JUCE_WINDOWS
-    if (not display.font.desktopScale)
+    if (model->getValue<int> (app::id::DISPLAY_LUA, app::id::fontDesktopScale) == 0)
     {
         const float scale { jam::Typeface::getDisplayScale() };
 
         if (scale > 0.0f)
-            corrected = display.font.size / scale;
+            corrected = corrected / scale;
     }
 #endif
 
@@ -156,9 +183,9 @@ float Engine::dpiCorrectedFontSize() const noexcept
 juce::String Engine::getHandler (const juce::String& extension) const noexcept
 {
     juce::String result;
-    const auto it { nexus.hyperlinks.handlers.find (extension) };
+    const auto it { handlers.find (extension) };
 
-    if (it != nexus.hyperlinks.handlers.end())
+    if (it != handlers.end())
         result = it->second;
 
     return result;
@@ -166,8 +193,8 @@ juce::String Engine::getHandler (const juce::String& extension) const noexcept
 
 bool Engine::isClickableExtension (const juce::String& extension) const noexcept
 {
-    return nexus.hyperlinks.extensions.count (extension) > 0
-        or nexus.hyperlinks.handlers.count (extension) > 0;
+    return extensions.count (extension) > 0
+        or handlers.count (extension) > 0;
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

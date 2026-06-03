@@ -18,8 +18,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lua/Engine.h" line="879" column="26" bodyfile="lua/Engine.h" bodystart="879" bodyend="-1"/>
-        <referencedby refid="classlua_1_1_engine_1a934995b7780018f390bced6139881ea4" compoundref="_engine_parse_8cpp" startline="167" endline="210">lua::Engine::parseActions</referencedby>
+        <location file="lua/Engine.h" line="529" column="26" bodyfile="lua/Engine.h" bodystart="529" bodyend="-1"/>
+        <referencedby refid="classlua_1_1_engine_1a934995b7780018f390bced6139881ea4" compoundref="_engine_parse_8cpp" startline="194" endline="237">lua::Engine::parseActions</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structlua_1_1_engine_1_1_action_1_1_entry_1a0bda5a0ae20ae0c48b2a6acdc048fbf5" prot="public" static="no" mutable="no">
         <type>juce::String</type>
@@ -34,8 +34,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lua/Engine.h" line="882" column="26" bodyfile="lua/Engine.h" bodystart="882" bodyend="-1"/>
-        <referencedby refid="classlua_1_1_engine_1a934995b7780018f390bced6139881ea4" compoundref="_engine_parse_8cpp" startline="167" endline="210">lua::Engine::parseActions</referencedby>
+        <location file="lua/Engine.h" line="532" column="26" bodyfile="lua/Engine.h" bodystart="532" bodyend="-1"/>
+        <referencedby refid="classlua_1_1_engine_1a934995b7780018f390bced6139881ea4" compoundref="_engine_parse_8cpp" startline="194" endline="237">lua::Engine::parseActions</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structlua_1_1_engine_1_1_action_1_1_entry_1a340c0f3e048891a45069e517aac5660d" prot="public" static="no" mutable="no">
         <type>juce::String</type>
@@ -50,8 +50,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lua/Engine.h" line="885" column="26" bodyfile="lua/Engine.h" bodystart="885" bodyend="-1"/>
-        <referencedby refid="classlua_1_1_engine_1a934995b7780018f390bced6139881ea4" compoundref="_engine_parse_8cpp" startline="167" endline="210">lua::Engine::parseActions</referencedby>
+        <location file="lua/Engine.h" line="535" column="26" bodyfile="lua/Engine.h" bodystart="535" bodyend="-1"/>
+        <referencedby refid="classlua_1_1_engine_1a934995b7780018f390bced6139881ea4" compoundref="_engine_parse_8cpp" startline="194" endline="237">lua::Engine::parseActions</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structlua_1_1_engine_1_1_action_1_1_entry_1af47c4edff3db56a595287f29c6f3cb38" prot="public" static="no" mutable="no">
         <type>juce::String</type>
@@ -66,8 +66,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lua/Engine.h" line="888" column="26" bodyfile="lua/Engine.h" bodystart="888" bodyend="-1"/>
-        <referencedby refid="classlua_1_1_engine_1a934995b7780018f390bced6139881ea4" compoundref="_engine_parse_8cpp" startline="167" endline="210">lua::Engine::parseActions</referencedby>
+        <location file="lua/Engine.h" line="538" column="26" bodyfile="lua/Engine.h" bodystart="538" bodyend="-1"/>
+        <referencedby refid="classlua_1_1_engine_1a934995b7780018f390bced6139881ea4" compoundref="_engine_parse_8cpp" startline="194" endline="237">lua::Engine::parseActions</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structlua_1_1_engine_1_1_action_1_1_entry_1abe9ec47ea88522261ee196a8281a8a28" prot="public" static="no" mutable="no">
         <type>bool</type>
@@ -83,8 +83,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lua/Engine.h" line="891" column="18" bodyfile="lua/Engine.h" bodystart="891" bodyend="891"/>
-        <referencedby refid="classlua_1_1_engine_1a934995b7780018f390bced6139881ea4" compoundref="_engine_parse_8cpp" startline="167" endline="210">lua::Engine::parseActions</referencedby>
+        <location file="lua/Engine.h" line="541" column="18" bodyfile="lua/Engine.h" bodystart="541" bodyend="541"/>
+        <referencedby refid="classlua_1_1_engine_1a934995b7780018f390bced6139881ea4" compoundref="_engine_parse_8cpp" startline="194" endline="237">lua::Engine::parseActions</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structlua_1_1_engine_1_1_action_1_1_entry_1a79b109c90e4064b8f1d2e4e24e4e637a" prot="public" static="no" mutable="no">
         <type><ref refid="classjam_1_1lua_1_1_function" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::lua::Function</ref></type>
@@ -99,8 +99,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lua/Engine.h" line="894" column="32" bodyfile="lua/Engine.h" bodystart="894" bodyend="-1"/>
-        <referencedby refid="classlua_1_1_engine_1a934995b7780018f390bced6139881ea4" compoundref="_engine_parse_8cpp" startline="167" endline="210">lua::Engine::parseActions</referencedby>
+        <location file="lua/Engine.h" line="544" column="32" bodyfile="lua/Engine.h" bodystart="544" bodyend="-1"/>
+        <referencedby refid="classlua_1_1_engine_1a934995b7780018f390bced6139881ea4" compoundref="_engine_parse_8cpp" startline="194" endline="237">lua::Engine::parseActions</referencedby>
       </memberdef>
     </sectiondef>
     <briefdescription>
@@ -306,7 +306,7 @@
         </childnode>
       </node>
     </collaborationgraph>
-    <location file="lua/Engine.h" line="876" column="9" bodyfile="lua/Engine.h" bodystart="877" bodyend="895"/>
+    <location file="lua/Engine.h" line="526" column="9" bodyfile="lua/Engine.h" bodystart="527" bodyend="545"/>
     <listofallmembers>
       <member refid="structlua_1_1_engine_1_1_action_1_1_entry_1a340c0f3e048891a45069e517aac5660d" prot="public" virt="non-virtual"><scope>lua::Engine::Action::Entry</scope><name>description</name></member>
       <member refid="structlua_1_1_engine_1_1_action_1_1_entry_1a79b109c90e4064b8f1d2e4e24e4e637a" prot="public" virt="non-virtual"><scope>lua::Engine::Action::Entry</scope><name>execute</name></member>

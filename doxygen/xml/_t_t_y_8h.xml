@@ -350,7 +350,7 @@
     </briefdescription>
     <detaileddescription>
 <para><ref refid="class_t_t_y" kindref="compound">TTY</ref> is the platform-agnostic interface for managing a pseudo-terminal connection to a shell process. It owns the reader thread (inheriting from juce::Thread) and defines the contract that platform implementations must fulfil.</para>
-<sect1 id="_t_t_y_8h_1autotoc_md67_1s1"><sect2 id="_t_t_y_8h_1autotoc_md67_1s2"><sect3 id="_t_t_y_8h_1autotoc_md67">
+<sect1 id="_t_t_y_8h_1autotoc_md68_1s1"><sect2 id="_t_t_y_8h_1autotoc_md68_1s2"><sect3 id="_t_t_y_8h_1autotoc_md68">
 <title>Architecture</title><para><programlisting><codeline><highlight class="normal"><ref refid="classMessage" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Message</ref><sp/>thread<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Reader<sp/>thread<sp/>(<ref refid="class_t_t_y_1a5069e6a70b48c9e44fef6d6fd8fa2b31" kindref="member">TTY::run</ref>)</highlight></codeline>
 <codeline><highlight class="normal">─────────────<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>──────────────────────────────────────────────</highlight></codeline>
 <codeline><highlight class="normal">open()<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>waitForData()<sp/>—<sp/>blocks<sp/>up<sp/>to<sp/>100<sp/>ms</highlight></codeline>
@@ -360,10 +360,10 @@
 <codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>events.get(shellExited)<sp/>—<sp/>fired<sp/>on<sp/>EOF</highlight></codeline>
 </programlisting></para>
 </sect3></sect2></sect1>
-<sect1 id="_t_t_y_8h_1autotoc_md68_1s1"><sect2 id="_t_t_y_8h_1autotoc_md68_1s2"><sect3 id="_t_t_y_8h_1autotoc_md68">
+<sect1 id="_t_t_y_8h_1autotoc_md69_1s1"><sect2 id="_t_t_y_8h_1autotoc_md69_1s2"><sect3 id="_t_t_y_8h_1autotoc_md69">
 <title>Callback model</title><para>All data delivery is routed through the events map. The reader thread fires <computeroutput>id::data</computeroutput> for each chunk (hot path). On drain, the reader fires <computeroutput>id::drainComplete</computeroutput> through the events map. On EOF, the reader fires <computeroutput>id::shellExited</computeroutput> through the events map. All three events are registered by Processor in registerEvents() before startTTY() opens the <ref refid="class_t_t_y" kindref="compound">TTY</ref>.</para>
 </sect3></sect2></sect1>
-<sect1 id="_t_t_y_8h_1autotoc_md69_1s1"><sect2 id="_t_t_y_8h_1autotoc_md69_1s2"><sect3 id="_t_t_y_8h_1autotoc_md69">
+<sect1 id="_t_t_y_8h_1autotoc_md70_1s1"><sect2 id="_t_t_y_8h_1autotoc_md70_1s2"><sect3 id="_t_t_y_8h_1autotoc_md70">
 <title>Resize protocol</title><para>The message thread calls <computeroutput>grid.resize()</computeroutput> and <computeroutput>parser.resize()</computeroutput> directly, then calls <computeroutput>setWinsize()</computeroutput> to notify the shell via SIGWINCH.</para>
 <para><simplesect kind="see"><para><ref refid="class_unix_t_t_y" kindref="compound">UnixTTY</ref> macOS / Linux implementation via forkpty() </para>
 </simplesect>

@@ -17,8 +17,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lua/Engine.h" line="958" column="13" bodyfile="lua/Engine.h" bodystart="958" bodyend="-1"/>
-        <referencedby refid="class_main_component_1a1fe9b104d3b6eb88315ace959285ead4" compoundref="_main_component_8cpp" startline="54" endline="215">MainComponent::MainComponent</referencedby>
+        <location file="lua/Engine.h" line="161" column="13" bodyfile="lua/Engine.h" bodystart="161" bodyend="-1"/>
+        <referencedby refid="class_main_component_1a85254935b98beac9128189c6a577d7be" compoundref="_main_component_8cpp" startline="54" endline="219">MainComponent::MainComponent</referencedby>
       </memberdef>
     </sectiondef>
     <briefdescription>
@@ -27,7 +27,7 @@
     <detaileddescription>
 <para>Wired by <ref refid="class_main_component" kindref="compound">MainComponent</ref>. <ref refid="classlua_1_1_engine" kindref="compound">Engine</ref> invokes this when a popup action executes. </para>
     </detaileddescription>
-    <location file="lua/Engine.h" line="949" column="5" bodyfile="lua/Engine.h" bodystart="950" bodyend="959"/>
+    <location file="lua/Engine.h" line="152" column="5" bodyfile="lua/Engine.h" bodystart="153" bodyend="162"/>
     <listofallmembers>
       <member refid="structlua_1_1_engine_1_1_popup_callbacks_1ab218fe95873fdb6fc9060dfd38af817d" prot="public" virt="non-virtual"><scope>lua::Engine::PopupCallbacks</scope><name>launchPopup</name></member>
     </listofallmembers>

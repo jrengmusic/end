@@ -16,7 +16,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lua/Engine.h" line="1223" column="20" bodyfile="lua/Engine.h" bodystart="1223" bodyend="-1"/>
+        <location file="lua/Engine.h" line="401" column="20" bodyfile="lua/Engine.h" bodystart="401" bodyend="-1"/>
       </memberdef>
       <memberdef kind="variable" id="structlua_1_1_engine_1_1_key_mapping_1a20649d9b2ef68a872ee1079c5a7cab99" prot="public" static="no" mutable="no">
         <type>const char *</type>
@@ -31,7 +31,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lua/Engine.h" line="1226" column="20" bodyfile="lua/Engine.h" bodystart="1226" bodyend="-1"/>
+        <location file="lua/Engine.h" line="404" column="20" bodyfile="lua/Engine.h" bodystart="404" bodyend="-1"/>
       </memberdef>
       <memberdef kind="variable" id="structlua_1_1_engine_1_1_key_mapping_1a931a16ba333c1e38acda59172aaee151" prot="public" static="no" mutable="no">
         <type>bool</type>
@@ -46,7 +46,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lua/Engine.h" line="1229" column="14" bodyfile="lua/Engine.h" bodystart="1229" bodyend="-1"/>
+        <location file="lua/Engine.h" line="407" column="14" bodyfile="lua/Engine.h" bodystart="407" bodyend="-1"/>
       </memberdef>
     </sectiondef>
     <briefdescription>
@@ -55,7 +55,7 @@
     <detaileddescription>
 <para>Maps a Lua key name to an action ID and records whether the action is modal. </para>
     </detaileddescription>
-    <location file="lua/Engine.h" line="1220" column="5" bodyfile="lua/Engine.h" bodystart="1221" bodyend="1230"/>
+    <location file="lua/Engine.h" line="398" column="5" bodyfile="lua/Engine.h" bodystart="399" bodyend="408"/>
     <listofallmembers>
       <member refid="structlua_1_1_engine_1_1_key_mapping_1a20649d9b2ef68a872ee1079c5a7cab99" prot="public" virt="non-virtual"><scope>lua::Engine::KeyMapping</scope><name>actionId</name></member>
       <member refid="structlua_1_1_engine_1_1_key_mapping_1a931a16ba333c1e38acda59172aaee151" prot="public" virt="non-virtual"><scope>lua::Engine::KeyMapping</scope><name>isModal</name></member>

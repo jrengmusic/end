@@ -248,9 +248,9 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/component/StatusBarOverlay.h" line="103" column="10" bodyfile="terminal/component/StatusBarOverlay.h" bodystart="103" bodyend="109"/>
-        <references refid="namespaceapp_1_1id_1a3ea51650d77e7927b174bf0dc5cf0f5d" compoundref="_app_identifier_8h" startline="77" endline="77">app::id::modalType</references>
+        <references refid="namespaceapp_1_1id_1a3ea51650d77e7927b174bf0dc5cf0f5d" compoundref="_app_identifier_8h" startline="96" endline="96">app::id::modalType</references>
         <references refid="class_status_bar_overlay_1a36a7a9d11215ee6c86c513af7a912c09" compoundref="_status_bar_overlay_8h" startline="119" endline="167">refresh</references>
-        <references refid="namespaceapp_1_1id_1aef98bdb7eb091fb3036b15e7e50a95a1" compoundref="_app_identifier_8h" startline="78" endline="78">app::id::selectionType</references>
+        <references refid="namespaceapp_1_1id_1aef98bdb7eb091fb3036b15e7e50a95a1" compoundref="_app_identifier_8h" startline="97" endline="97">app::id::selectionType</references>
         <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682cac0af77cf8294ff93a5cdb2963ca9f038">tree</references>
       </memberdef>
       <memberdef kind="function" id="class_status_bar_overlay_1a36a7a9d11215ee6c86c513af7a912c09" prot="public" static="no" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
@@ -274,10 +274,10 @@
         <references refid="class_status_bar_overlay_1a9630fa1ea85c954fe676b01b3c7f0c40" compoundref="_status_bar_overlay_8h" startline="255" endline="255">hintPage</references>
         <references refid="class_status_bar_overlay_1a8259086fac0499254cbc54766fe9c762" compoundref="_status_bar_overlay_8h" startline="258" endline="258">hintTotalPages</references>
         <references refid="class_status_bar_overlay_1a65666faebb8846d8018054408d02f0c0" compoundref="_status_bar_overlay_8h" startline="252">label</references>
-        <references refid="namespaceapp_1_1id_1a3ea51650d77e7927b174bf0dc5cf0f5d" compoundref="_app_identifier_8h" startline="77" endline="77">app::id::modalType</references>
+        <references refid="namespaceapp_1_1id_1a3ea51650d77e7927b174bf0dc5cf0f5d" compoundref="_app_identifier_8h" startline="96" endline="96">app::id::modalType</references>
         <references refid="_modal_type_8h_1a1878c47fb0486dfcf512d127b5342816ae685fa8f409b4d1940a55acd187f280b" compoundref="_modal_type_8h" startline="30">openFile</references>
         <references refid="_modal_type_8h_1a1878c47fb0486dfcf512d127b5342816aef5714e0519bfaa645cdff7d28843b70" compoundref="_modal_type_8h" startline="29">selection</references>
-        <references refid="namespaceapp_1_1id_1aef98bdb7eb091fb3036b15e7e50a95a1" compoundref="_app_identifier_8h" startline="78" endline="78">app::id::selectionType</references>
+        <references refid="namespaceapp_1_1id_1aef98bdb7eb091fb3036b15e7e50a95a1" compoundref="_app_identifier_8h" startline="97" endline="97">app::id::selectionType</references>
         <references refid="class_status_bar_overlay_1a1d9831743d5ad5d59caf1310d68724a4" compoundref="_status_bar_overlay_8h" startline="249">tabs</references>
         <references refid="_selection_type_8h_1acffca3b33fddce63d3220bc7487e879da1dfb6b98aef3416e03d50fd2fb525600" compoundref="_selection_type_8h" startline="23">visual</references>
         <references refid="_selection_type_8h_1acffca3b33fddce63d3220bc7487e879dacc278d409df0f08d94c2cc2225afd8e2" compoundref="_selection_type_8h" startline="25">visualBlock</references>
@@ -352,7 +352,9 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/component/StatusBarOverlay.h" line="198" column="9" bodyfile="terminal/component/StatusBarOverlay.h" bodystart="198" bodyend="202"/>
-        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
+        <references refid="namespaceapp_1_1id_1a24815b9015e0395936a1718769739fff" compoundref="_app_identifier_8h" startline="80" endline="80">app::id::DISPLAY_LUA</references>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
+        <references refid="namespaceapp_1_1id_1aad1c3ec17d1db4cb60d3b465ee53c62e" compoundref="_app_identifier_8h" startline="265" endline="265">app::id::statusBarFontSize</references>
         <references refid="class_status_bar_overlay_1a8350403c5a1022f688c1f7f6262ad905" compoundref="_status_bar_overlay_8h" startline="264" endline="264">verticalPadding</references>
       </memberdef>
       <memberdef kind="function" id="class_status_bar_overlay_1a769641a1dca9e4b78bb73bf5ad667feb" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
@@ -396,11 +398,15 @@
         </inbodydescription>
         <location file="terminal/component/StatusBarOverlay.h" line="222" column="10" bodyfile="terminal/component/StatusBarOverlay.h" bodystart="222" bodyend="245"/>
         <references refid="class_status_bar_overlay_1a1b8e43fdf96727d8ea5b92e3dd5cb3fead7e7e03e80caa298c7bf975a467c5102" compoundref="_status_bar_overlay_8h" startline="70">barBackgroundColourId</references>
-        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
+        <references refid="namespaceapp_1_1id_1a24815b9015e0395936a1718769739fff" compoundref="_app_identifier_8h" startline="80" endline="80">app::id::DISPLAY_LUA</references>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
         <references refid="class_status_bar_overlay_1a65666faebb8846d8018054408d02f0c0" compoundref="_status_bar_overlay_8h" startline="252">label</references>
         <references refid="class_status_bar_overlay_1a1b8e43fdf96727d8ea5b92e3dd5cb3fea38fa2a112c411626975684b7f3f78416" compoundref="_status_bar_overlay_8h" startline="71">labelBackgroundColourId</references>
         <references refid="class_status_bar_overlay_1adfa1fc388ae89f7af924c71f27af00f3" compoundref="_status_bar_overlay_8h" startline="261" endline="261">labelPadding</references>
         <references refid="class_status_bar_overlay_1a1b8e43fdf96727d8ea5b92e3dd5cb3feafaa088b633bd2b31155e97c91a0106b8" compoundref="_status_bar_overlay_8h" startline="72">labelTextColourId</references>
+        <references refid="namespaceapp_1_1id_1a0acbbdb7581dc87265c6c30a1ce35023" compoundref="_app_identifier_8h" startline="264" endline="264">app::id::statusBarFontFamily</references>
+        <references refid="namespaceapp_1_1id_1aad1c3ec17d1db4cb60d3b465ee53c62e" compoundref="_app_identifier_8h" startline="265" endline="265">app::id::statusBarFontSize</references>
+        <references refid="namespaceapp_1_1id_1ad0bcda5999a67171487f552172258d91" compoundref="_app_identifier_8h" startline="266" endline="266">app::id::statusBarFontStyle</references>
       </memberdef>
     </sectiondef>
     <briefdescription>

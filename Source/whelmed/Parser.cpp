@@ -1,4 +1,5 @@
 #include "Parser.h"
+#include "../AppModel.h"
 
 namespace whelmed
 {
@@ -9,25 +10,25 @@ Parser::Parser (State& s, int start)
     , state (s)
     , startBlock (start)
 {
-    const auto* cfg { lua::Engine::getContext() };
+    const auto* appState { AppModel::getContext() };
 
-    bodySize = cfg->whelmed.fontSize;
-    h1Size   = cfg->whelmed.h1Size;
-    h2Size   = cfg->whelmed.h2Size;
-    h3Size   = cfg->whelmed.h3Size;
-    h4Size   = cfg->whelmed.h4Size;
-    h5Size   = cfg->whelmed.h5Size;
-    h6Size   = cfg->whelmed.h6Size;
+    bodySize = appState->getValue<float> (app::id::WHELMED_LUA, app::id::fontSize);
+    h1Size   = appState->getValue<float> (app::id::WHELMED_LUA, app::id::h1Size);
+    h2Size   = appState->getValue<float> (app::id::WHELMED_LUA, app::id::h2Size);
+    h3Size   = appState->getValue<float> (app::id::WHELMED_LUA, app::id::h3Size);
+    h4Size   = appState->getValue<float> (app::id::WHELMED_LUA, app::id::h4Size);
+    h5Size   = appState->getValue<float> (app::id::WHELMED_LUA, app::id::h5Size);
+    h6Size   = appState->getValue<float> (app::id::WHELMED_LUA, app::id::h6Size);
 
-    bodyColour = cfg->whelmed.bodyColour;
-    h1Colour   = cfg->whelmed.h1Colour;
-    h2Colour   = cfg->whelmed.h2Colour;
-    h3Colour   = cfg->whelmed.h3Colour;
-    h4Colour   = cfg->whelmed.h4Colour;
-    h5Colour   = cfg->whelmed.h5Colour;
-    h6Colour   = cfg->whelmed.h6Colour;
-    codeColour = cfg->whelmed.codeColour;
-    linkColour = cfg->whelmed.linkColour;
+    bodyColour = juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::WHELMED_LUA, app::id::bodyColour)));
+    h1Colour   = juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::WHELMED_LUA, app::id::h1Colour)));
+    h2Colour   = juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::WHELMED_LUA, app::id::h2Colour)));
+    h3Colour   = juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::WHELMED_LUA, app::id::h3Colour)));
+    h4Colour   = juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::WHELMED_LUA, app::id::h4Colour)));
+    h5Colour   = juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::WHELMED_LUA, app::id::h5Colour)));
+    h6Colour   = juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::WHELMED_LUA, app::id::h6Colour)));
+    codeColour = juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::WHELMED_LUA, app::id::codeColour)));
+    linkColour = juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::WHELMED_LUA, app::id::linkColour)));
 }
 
 Parser::~Parser()

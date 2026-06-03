@@ -6,6 +6,7 @@
  */
 
 #include "Input.h"
+#include "../AppModel.h"
 
 namespace terminal
 {
@@ -88,7 +89,7 @@ void Input::clearSelectionAndScroll() noexcept
 
 void Input::buildKeyMap() noexcept
 {
-    const auto& keys { lua::Engine::getContext()->keys.selection };
+    const auto& keys { AppModel::getContext()->getSelectionKeys() };
     selectionKeys.up          = keys.up;
     selectionKeys.down        = keys.down;
     selectionKeys.left        = keys.left;

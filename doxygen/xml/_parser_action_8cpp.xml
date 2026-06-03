@@ -109,7 +109,7 @@
     </briefdescription>
     <detaileddescription>
 <para>This translation unit implements <computeroutput>Parser::performAction()</computeroutput>, <computeroutput>Parser::performEntryAction()</computeroutput>, the UTF-8 byte accumulation path, and the buffer append primitive. The hot-path loop and state transition machinery live in <computeroutput>Parser.cpp</computeroutput>.</para>
-<sect1 id="_parser_action_8cpp_1autotoc_md55_1s1"><sect2 id="_parser_action_8cpp_1autotoc_md55">
+<sect1 id="_parser_action_8cpp_1autotoc_md56_1s1"><sect2 id="_parser_action_8cpp_1autotoc_md56">
 <title>performAction() dispatch table</title><para><table rows="15" cols="2"><row>
 <entry thead="yes"><para>Action  </para>
 </entry><entry thead="yes"><para>Effect  </para>
@@ -173,7 +173,7 @@
 </table>
 </para>
 </sect2></sect1>
-<sect1 id="_parser_action_8cpp_1autotoc_md56_1s1"><sect2 id="_parser_action_8cpp_1autotoc_md56">
+<sect1 id="_parser_action_8cpp_1autotoc_md57_1s1"><sect2 id="_parser_action_8cpp_1autotoc_md57">
 <title>Thread model</title><para><bold>All methods in this file are READER THREAD only.</bold></para>
 <para><simplesect kind="see"><para>Parser.h — class declaration, member documentation, and lifecycle notes </para>
 </simplesect>

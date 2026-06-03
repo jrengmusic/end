@@ -79,7 +79,7 @@ void MainComponent::registerApplicationActions (action::Registry& action)
                            {
                                if (not popup.isActive())
                                {
-                                   if (not lua::Engine::getContext()->display.window.confirmationOnExit)
+                                   if (not static_cast<bool> (appState.getValue<int> (app::id::DISPLAY_LUA, app::id::windowConfirmationOnExit)))
                                    {
                                        juce::JUCEApplication::getInstance()->systemRequestedQuit();
                                    }
@@ -143,7 +143,7 @@ void MainComponent::registerApplicationActions (action::Registry& action)
                            false,
                            [this]() -> bool
                            {
-                               luaEngine.reload();
+                               appState.reload();
                                showReloadMessage();
                                return true;
                            });
@@ -177,7 +177,7 @@ void MainComponent::registerApplicationActions (action::Registry& action)
                            {
                                if (not popup.isActive())
                                {
-                                   auto list { std::make_unique<action::List> (*this, luaEngine) };
+                                   auto list { std::make_unique<action::List> (*this) };
 
                                    list->onActionRun = [this]
                                    {
@@ -435,7 +435,7 @@ void MainComponent::registerNavigationActions (action::Registry& action)
 /** @note MESSAGE THREAD. */
 void MainComponent::showReloadMessage()
 {
-    const auto& reloadError { luaEngine.getLoadError() };
+    const auto& reloadError { appState.getLoadError() };
 
     if (reloadError.isEmpty())
     {

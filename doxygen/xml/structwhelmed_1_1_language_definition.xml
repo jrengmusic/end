@@ -17,7 +17,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="whelmed/GenericTokeniser.h" line="10" column="23" bodyfile="whelmed/GenericTokeniser.h" bodystart="10" bodyend="-1"/>
-        <referencedby refid="namespacewhelmed_1a1924fd35e30f33e37677b7ac7bc2d786" compoundref="_tokenizer_8cpp" startline="7" endline="141">whelmed::getLanguageDefinition</referencedby>
+        <referencedby refid="namespacewhelmed_1a1924fd35e30f33e37677b7ac7bc2d786" compoundref="_tokenizer_8cpp" startline="8" endline="142">whelmed::getLanguageDefinition</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structwhelmed_1_1_language_definition_1a6d1684653ed6109f6da0d9e5a6d8934f" prot="public" static="no" mutable="no">
         <type>juce::String</type>
@@ -32,7 +32,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="whelmed/GenericTokeniser.h" line="11" column="18" bodyfile="whelmed/GenericTokeniser.h" bodystart="11" bodyend="-1"/>
-        <referencedby refid="namespacewhelmed_1a1924fd35e30f33e37677b7ac7bc2d786" compoundref="_tokenizer_8cpp" startline="7" endline="141">whelmed::getLanguageDefinition</referencedby>
+        <referencedby refid="namespacewhelmed_1a1924fd35e30f33e37677b7ac7bc2d786" compoundref="_tokenizer_8cpp" startline="8" endline="142">whelmed::getLanguageDefinition</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structwhelmed_1_1_language_definition_1a9fded9072dc73a5d13970bf9091eca88" prot="public" static="no" mutable="no">
         <type>juce::String</type>
@@ -47,7 +47,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="whelmed/GenericTokeniser.h" line="12" column="18" bodyfile="whelmed/GenericTokeniser.h" bodystart="12" bodyend="-1"/>
-        <referencedby refid="namespacewhelmed_1a1924fd35e30f33e37677b7ac7bc2d786" compoundref="_tokenizer_8cpp" startline="7" endline="141">whelmed::getLanguageDefinition</referencedby>
+        <referencedby refid="namespacewhelmed_1a1924fd35e30f33e37677b7ac7bc2d786" compoundref="_tokenizer_8cpp" startline="8" endline="142">whelmed::getLanguageDefinition</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structwhelmed_1_1_language_definition_1abdb9a2c1013a0b87b246be9a6e6783f2" prot="public" static="no" mutable="no">
         <type>juce::String</type>
@@ -62,7 +62,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="whelmed/GenericTokeniser.h" line="13" column="18" bodyfile="whelmed/GenericTokeniser.h" bodystart="13" bodyend="-1"/>
-        <referencedby refid="namespacewhelmed_1a1924fd35e30f33e37677b7ac7bc2d786" compoundref="_tokenizer_8cpp" startline="7" endline="141">whelmed::getLanguageDefinition</referencedby>
+        <referencedby refid="namespacewhelmed_1a1924fd35e30f33e37677b7ac7bc2d786" compoundref="_tokenizer_8cpp" startline="8" endline="142">whelmed::getLanguageDefinition</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structwhelmed_1_1_language_definition_1a7985512492aea09216413cec9fae2233" prot="public" static="no" mutable="no">
         <type>bool</type>
@@ -78,7 +78,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="whelmed/GenericTokeniser.h" line="14" column="10" bodyfile="whelmed/GenericTokeniser.h" bodystart="14" bodyend="14"/>
-        <referencedby refid="namespacewhelmed_1a1924fd35e30f33e37677b7ac7bc2d786" compoundref="_tokenizer_8cpp" startline="7" endline="141">whelmed::getLanguageDefinition</referencedby>
+        <referencedby refid="namespacewhelmed_1a1924fd35e30f33e37677b7ac7bc2d786" compoundref="_tokenizer_8cpp" startline="8" endline="142">whelmed::getLanguageDefinition</referencedby>
       </memberdef>
     </sectiondef>
     <briefdescription>

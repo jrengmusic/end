@@ -19,12 +19,12 @@
         <location file="terminal/component/Display.h" line="122" column="17" bodyfile="terminal/component/Display.h" bodystart="122" bodyend="-1"/>
         <referencedby refid="structterminal_1_1_display_1_1_config_listener_1a10c2d53b02019034a43005814278a391" compoundref="_display_8cpp" startline="85" endline="89">valueTreePropertyChanged</referencedby>
       </memberdef>
-      <memberdef kind="variable" id="structterminal_1_1_display_1_1_config_listener_1a902ac720324f356942feb46e3c0c208d" prot="private" static="no" mutable="no">
+      <memberdef kind="variable" id="structterminal_1_1_display_1_1_config_listener_1ac2e181e5d4f1fa86ec2c0a229e25e893" prot="private" static="no" mutable="no">
         <type>juce::ValueTree</type>
-        <definition>juce::ValueTree terminal::Display::ConfigListener::appState</definition>
+        <definition>juce::ValueTree terminal::Display::ConfigListener::configTree</definition>
         <argsstring></argsstring>
-        <name>appState</name>
-        <qualifiedname>terminal::Display::ConfigListener::appState</qualifiedname>
+        <name>configTree</name>
+        <qualifiedname>terminal::Display::ConfigListener::configTree</qualifiedname>
         <briefdescription>
         </briefdescription>
         <detaileddescription>
@@ -70,7 +70,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/component/Display.h" line="119" column="14" bodyfile="terminal/component/Display.cpp" bodystart="74" bodyend="78"/>
-        <references refid="structterminal_1_1_display_1_1_config_listener_1a902ac720324f356942feb46e3c0c208d" compoundref="_display_8h" startline="123">appState</references>
+        <references refid="structterminal_1_1_display_1_1_config_listener_1ac2e181e5d4f1fa86ec2c0a229e25e893" compoundref="_display_8h" startline="123">configTree</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
       </memberdef>
       <memberdef kind="function" id="structterminal_1_1_display_1_1_config_listener_1a3f4b874e3064af96f4ada315eaa4e470" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
@@ -86,7 +86,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/component/Display.h" line="120" column="14" bodyfile="terminal/component/Display.cpp" bodystart="80" bodyend="83"/>
-        <references refid="structterminal_1_1_display_1_1_config_listener_1a902ac720324f356942feb46e3c0c208d" compoundref="_display_8h" startline="123">appState</references>
+        <references refid="structterminal_1_1_display_1_1_config_listener_1ac2e181e5d4f1fa86ec2c0a229e25e893" compoundref="_display_8h" startline="123">configTree</references>
       </memberdef>
     </sectiondef>
     <sectiondef kind="private-func">
@@ -111,7 +111,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/component/Display.h" line="124" column="14" bodyfile="terminal/component/Display.cpp" bodystart="85" bodyend="89"/>
-        <references refid="structterminal_1_1_display_1_1_config_listener_1a902ac720324f356942feb46e3c0c208d" compoundref="_display_8h" startline="123">appState</references>
+        <references refid="structterminal_1_1_display_1_1_config_listener_1ac2e181e5d4f1fa86ec2c0a229e25e893" compoundref="_display_8h" startline="123">configTree</references>
         <references refid="structterminal_1_1_display_1_1_config_listener_1a800c7d8dc8dd5f5b3aff7b1b7b0da769" compoundref="_display_8h" startline="122">display</references>
         <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682cac0af77cf8294ff93a5cdb2963ca9f038">tree</references>
       </memberdef>
@@ -793,8 +793,8 @@
     </collaborationgraph>
     <location file="terminal/component/Display.h" line="116" column="5" bodyfile="terminal/component/Display.h" bodystart="117" bodyend="125"/>
     <listofallmembers>
-      <member refid="structterminal_1_1_display_1_1_config_listener_1a902ac720324f356942feb46e3c0c208d" prot="private" virt="non-virtual"><scope>terminal::Display::ConfigListener</scope><name>appState</name></member>
       <member refid="structterminal_1_1_display_1_1_config_listener_1ab2321b389d513daaf39861a62605bc1e" prot="public" virt="non-virtual"><scope>terminal::Display::ConfigListener</scope><name>ConfigListener</name></member>
+      <member refid="structterminal_1_1_display_1_1_config_listener_1ac2e181e5d4f1fa86ec2c0a229e25e893" prot="private" virt="non-virtual"><scope>terminal::Display::ConfigListener</scope><name>configTree</name></member>
       <member refid="structterminal_1_1_display_1_1_config_listener_1a800c7d8dc8dd5f5b3aff7b1b7b0da769" prot="private" virt="non-virtual"><scope>terminal::Display::ConfigListener</scope><name>display</name></member>
       <member refid="structterminal_1_1_display_1_1_config_listener_1aff3bc9ae4a92be4a5768f72f09d3af89" prot="public" virt="non-virtual"><scope>terminal::Display::ConfigListener</scope><name>start</name></member>
       <member refid="structterminal_1_1_display_1_1_config_listener_1a3f4b874e3064af96f4ada315eaa4e470" prot="public" virt="non-virtual"><scope>terminal::Display::ConfigListener</scope><name>stop</name></member>

@@ -282,7 +282,7 @@
         <references refid="group__juce__core-system_1ga1f96ab6751237979b907a54f52a7296a">jassert</references>
         <references refid="structaction_1_1_registry_1_1_entry_1a23bd845cf3d93eb88bd3b25768015778" compoundref="_action_8h" startline="94">action::Registry::Entry::name</references>
         <references refid="group__juce__audio__plugin__client-Unity_1ga010e50efcb9d6d393b9414f09f368dbc">name</references>
-        <referencedby refid="classlua_1_1_engine_1ab81770bb4f894e14e7d0f826da836782" compoundref="_engine_8cpp" startline="247" endline="300">lua::Engine::registerActions</referencedby>
+        <referencedby refid="classlua_1_1_engine_1ab81770bb4f894e14e7d0f826da836782" compoundref="_engine_8cpp" startline="221" endline="274">lua::Engine::registerActions</referencedby>
       </memberdef>
       <memberdef kind="function" id="classaction_1_1_registry_1a2231016d02d69811ca59394703f1ee12" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>bool</type>
@@ -408,7 +408,7 @@
         <references refid="classaction_1_1_registry_1af372257d1327b42884e18285f2a8a8e2" compoundref="_action_8cpp" startline="170" endline="244">parseShortcut</references>
         <references refid="classaction_1_1_registry_1ad6d4755e2636d32124eeca007dbe7f91" compoundref="_action_8h" startline="251">prefixKey</references>
         <references refid="classaction_1_1_registry_1ac48bb89a0eab376950bc4c7d2c862eb0" compoundref="_action_8h" startline="254" endline="254">prefixTimeoutMs</references>
-        <referencedby refid="classlua_1_1_engine_1ac144ae5680da1b7c307bb15c8f87af80" compoundref="_engine_8cpp" startline="302" endline="329">lua::Engine::buildKeyMap</referencedby>
+        <referencedby refid="classlua_1_1_engine_1ac144ae5680da1b7c307bb15c8f87af80" compoundref="_engine_8cpp" startline="276" endline="305">lua::Engine::buildKeyMap</referencedby>
       </memberdef>
       <memberdef kind="function" id="classaction_1_1_registry_1a9293bb3cd16657bb8f5f66a6d0c4a4c1" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
         <type>const std::vector&lt; <ref refid="structaction_1_1_registry_1_1_entry" kindref="compound">Entry</ref> &gt; &amp;</type>
@@ -465,8 +465,8 @@
         </inbodydescription>
         <location file="terminal/action/Action.h" line="214" column="27" bodyfile="terminal/action/Action.cpp" bodystart="170" bodyend="244"/>
         <referencedby refid="classaction_1_1_registry_1a8064de18edb0abfc46f5b41a08f8d638" compoundref="_action_8cpp" startline="130" endline="167">buildKeyMap</referencedby>
-        <referencedby refid="classaction_1_1_list_1ab1563b5c6c86287d88a50b7230c157bd" compoundref="_action_list_8cpp" startline="141" endline="252">action::List::buildRows</referencedby>
-        <referencedby refid="classlua_1_1_engine_1a66d36bb90d77ffe66a9c7e80853207ba" compoundref="_engine_parse_8cpp" startline="50" endline="101">lua::Engine::parseSelectionKeys</referencedby>
+        <referencedby refid="classaction_1_1_list_1ab1563b5c6c86287d88a50b7230c157bd" compoundref="_action_list_8cpp" startline="144" endline="255">action::List::buildRows</referencedby>
+        <referencedby refid="classlua_1_1_engine_1a66d36bb90d77ffe66a9c7e80853207ba" compoundref="_engine_parse_8cpp" startline="60" endline="111">lua::Engine::parseSelectionKeys</referencedby>
         <referencedby refid="classaction_1_1_registry_1ab459c431a149a647f9ed43f58e370198">Registry</referencedby>
       </memberdef>
       <memberdef kind="function" id="classaction_1_1_registry_1aa0baadfadc5b0e64b4a903e64012fced" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">

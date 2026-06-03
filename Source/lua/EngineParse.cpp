@@ -9,6 +9,7 @@
  */
 
 #include "Engine.h"
+#include "../AppIdentifier.h"
 
 namespace lua
 {
@@ -17,6 +18,8 @@ namespace lua
 //==============================================================================
 void Engine::parseKeys()
 {
+    jassert (model != nullptr);
+
     jam::lua::Value keysTable { lua["END"]["keys"] };
 
     if (keysTable.isTable())
@@ -38,11 +41,18 @@ void Engine::parseKeys()
             }
         }
 
-        auto prefix { keysTable["prefix"].optional<juce::String>() };
-        if (prefix.has_value()) keys.prefix = prefix.value();
+        auto prefixVal { keysTable["prefix"].optional<juce::String>() };
+        model->setValue (app::id::KEYS_LUA, app::id::prefix,
+                         prefixVal.has_value() ? prefixVal.value() : juce::String ("`"));
 
-        auto timeout { keysTable["prefix_timeout"].optional<int>() };
-        if (timeout.has_value()) keys.prefixTimeout = timeout.value();
+        auto timeoutVal { keysTable["prefix_timeout"].optional<int>() };
+        model->setValue (app::id::KEYS_LUA, app::id::prefixTimeout,
+                         timeoutVal.has_value() ? timeoutVal.value() : 1000);
+    }
+    else
+    {
+        model->setValue (app::id::KEYS_LUA, app::id::prefix,        juce::String ("`"));
+        model->setValue (app::id::KEYS_LUA, app::id::prefixTimeout, 1000);
     }
 }
 
@@ -103,6 +113,8 @@ void Engine::parseSelectionKeys()
 //==============================================================================
 void Engine::parsePopups()
 {
+    jassert (model != nullptr);
+
     jam::lua::Value popupsTable { lua["END"]["popups"] };
 
     if (popupsTable.isTable())
@@ -112,14 +124,23 @@ void Engine::parsePopups()
 
         if (defaultsTable.isTable())
         {
-            auto defaultCols { defaultsTable["cols"].optional<int>() };
-            if (defaultCols.has_value()) popup.defaultCols = cell (defaultCols.value());
+            auto defaultColsVal { defaultsTable["cols"].optional<int>() };
+            model->setValue (app::id::POPUPS_LUA, app::id::defaultCols,
+                             defaultColsVal.has_value() ? defaultColsVal.value() : 70);
 
-            auto defaultRows { defaultsTable["rows"].optional<int>() };
-            if (defaultRows.has_value()) popup.defaultRows = cell (defaultRows.value());
+            auto defaultRowsVal { defaultsTable["rows"].optional<int>() };
+            model->setValue (app::id::POPUPS_LUA, app::id::defaultRows,
+                             defaultRowsVal.has_value() ? defaultRowsVal.value() : 20);
 
-            auto defaultPosition { defaultsTable["position"].optional<juce::String>() };
-            if (defaultPosition.has_value()) popup.defaultPosition = defaultPosition.value();
+            auto defaultPositionVal { defaultsTable["position"].optional<juce::String>() };
+            model->setValue (app::id::POPUPS_LUA, app::id::defaultPosition,
+                             defaultPositionVal.has_value() ? defaultPositionVal.value() : juce::String ("center"));
+        }
+        else
+        {
+            model->setValue (app::id::POPUPS_LUA, app::id::defaultCols,     70);
+            model->setValue (app::id::POPUPS_LUA, app::id::defaultRows,     20);
+            model->setValue (app::id::POPUPS_LUA, app::id::defaultPosition, juce::String ("center"));
         }
 
         // Iterate remaining entries (skip "defaults" key)
@@ -160,6 +181,12 @@ void Engine::parsePopups()
                 }
             }
         });
+    }
+    else
+    {
+        model->setValue (app::id::POPUPS_LUA, app::id::defaultCols,     70);
+        model->setValue (app::id::POPUPS_LUA, app::id::defaultRows,     20);
+        model->setValue (app::id::POPUPS_LUA, app::id::defaultPosition, juce::String ("center"));
     }
 }
 

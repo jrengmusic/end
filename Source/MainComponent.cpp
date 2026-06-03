@@ -51,13 +51,13 @@
  *
  * @note MESSAGE THREAD — called from ENDApplication::initialise().
  */
-MainComponent::MainComponent (lua::Engine& engine)
-    : luaEngine (engine)
+MainComponent::MainComponent()
 {
     {
-        const auto* cfg { lua::Engine::getContext() };
+        const juce::String fontFamily { appState.getValue<juce::String> (app::id::DISPLAY_LUA, app::id::fontFamily) };
+        const float fontSize { appState.dpiCorrectedFontSize() };
 
-        auto typeface { std::make_unique<jam::Typeface> (cfg->display.font.family,
+        auto typeface { std::make_unique<jam::Typeface> (fontFamily,
 #if JUCE_MAC
                                                          "Apple Color Emoji",
 #elif JUCE_WINDOWS
@@ -65,7 +65,7 @@ MainComponent::MainComponent (lua::Engine& engine)
 #else
                                                          "Noto Color Emoji",
 #endif
-                                                         cfg->dpiCorrectedFontSize()) };
+                                                         fontSize) };
 
         // Style variant — font metadata declares bold.
         typeface->registerStyleFont (jam::fonts::DisplayMonoBold_ttf, jam::fonts::DisplayMonoBold_ttfSize);
@@ -76,7 +76,7 @@ MainComponent::MainComponent (lua::Engine& engine)
         const auto [nfData, nfSize] { BinaryData::fetcher ("SymbolsNerdFont-Regular.ttf") };
         typeface->addFallbackFont (nfData, nfSize);
 
-        jam::Typeface::registerTypeface (cfg->display.font.family, std::move (typeface));
+        jam::Typeface::registerTypeface (fontFamily, std::move (typeface));
     }
 
     setOpaque (appState.getRendererType() == app::RendererType::cpu);
@@ -88,6 +88,8 @@ MainComponent::MainComponent (lua::Engine& engine)
     nexusNode = appState.getNexusNode();
     nexusNode.addListener (this);
     appState.getWindow().addListener (this);
+    configNode = appState.getConfig();
+    configNode.addListener (this);
 
     // Session is constructed AFTER MainComponent in both modes, so listeners are live
     // before any tree mutations occur.
@@ -104,7 +106,7 @@ MainComponent::MainComponent (lua::Engine& engine)
     setSize (appState.getWindowWidth(), appState.getWindowHeight());
 
     //==============================================================================
-    // Wire lua::Engine display and popup callbacks.
+    // Wire display and popup callbacks through AppModel delegation.
     lua::Engine::DisplayCallbacks displayCb;
     displayCb.splitHorizontal = [this]
     {
@@ -164,29 +166,32 @@ MainComponent::MainComponent (lua::Engine& engine)
     {
         if (not popup.isActive())
         {
-            const auto* cfg { lua::Engine::getContext() };
-            const auto shell { cfg->nexus.shell.program };
-            const auto configShellArgs { cfg->nexus.shell.args };
+            const auto shell { appState.getValue<juce::String> (app::id::NEXUS_LUA, app::id::shellProgram) };
+            const auto configShellArgs { appState.getValue<juce::String> (app::id::NEXUS_LUA, app::id::shellArgs) };
             auto shellArgs { (configShellArgs.isNotEmpty() ? configShellArgs + " " : juce::String()) + "-c " + command
                              + (args.isNotEmpty() ? " " + args : "") };
 
-            const cell cols { popupCols.value > 0 ? popupCols : cfg->popup.defaultCols };
-            const cell rows { popupRows.value > 0 ? popupRows : cfg->popup.defaultRows };
+            const cell cols { popupCols.value > 0 ? popupCols
+                                                   : cell (appState.getValue<int> (app::id::POPUPS_LUA, app::id::defaultCols)) };
+            const cell rows { popupRows.value > 0 ? popupRows
+                                                  : cell (appState.getValue<int> (app::id::POPUPS_LUA, app::id::defaultRows)) };
 
-            const float fontSize { cfg->dpiCorrectedFontSize() };
-            const jam::Font font {
-                cfg->display.font.family, fontSize, cfg->display.font.cellWidth, cfg->display.font.lineHeight
-            };
+            const float fontSize { appState.dpiCorrectedFontSize() };
+            const juce::String fontFamily { appState.getValue<juce::String> (app::id::DISPLAY_LUA, app::id::fontFamily) };
+            const float cellWidth  { appState.getValue<float> (app::id::DISPLAY_LUA, app::id::cellWidth) };
+            const float lineHeight { appState.getValue<float> (app::id::DISPLAY_LUA, app::id::lineHeight) };
+            const jam::Font font { fontFamily, fontSize, cellWidth, lineHeight };
             jassert (font.cellWidth > 0 and font.cellHeight > 0);
 
-            const int titleBarHeight { cfg->display.window.buttons ? app::titleBarHeight : 0 };
-            const int paddingTop { cfg->nexus.terminal.paddingTop };
-            const int paddingRight { cfg->nexus.terminal.paddingRight };
-            const int paddingBottom { cfg->nexus.terminal.paddingBottom };
-            const int paddingLeft { cfg->nexus.terminal.paddingLeft };
+            const bool hasButtons { appState.getValue<int> (app::id::DISPLAY_LUA, app::id::windowButtons) != 0 };
+            const int titleBarHeight { hasButtons ? app::titleBarHeight : 0 };
+            const int paddingTop    { appState.getValue<int> (app::id::NEXUS_LUA, app::id::paddingTop) };
+            const int paddingRight  { appState.getValue<int> (app::id::NEXUS_LUA, app::id::paddingRight) };
+            const int paddingBottom { appState.getValue<int> (app::id::NEXUS_LUA, app::id::paddingBottom) };
+            const int paddingLeft   { appState.getValue<int> (app::id::NEXUS_LUA, app::id::paddingLeft) };
 
             const auto cellPx { jam::Cell::Rectangle (cols, rows).toPixel (font.cellWidth, font.cellHeight) };
-            const int pixelWidth { cellPx.getWidth() + paddingLeft + paddingRight };
+            const int pixelWidth  { cellPx.getWidth()  + paddingLeft + paddingRight };
             const int pixelHeight { cellPx.getHeight() + paddingTop + paddingBottom + titleBarHeight };
 
             const auto effectiveCwd { cwd.isNotEmpty() ? cwd : appState.getPwd() };
@@ -208,40 +213,9 @@ MainComponent::MainComponent (lua::Engine& engine)
         }
     };
 
-    luaEngine.setDisplayCallbacks (std::move (displayCb));
-    luaEngine.setPopupCallbacks (std::move (popupCb));
-    luaEngine.registerApiTable();
-    luaEngine.load();
-}
-
-void MainComponent::applyConfig()
-{
-    registerActions();
-
-    const auto* cfg { lua::Engine::getContext() };
-    appState.setFontFamily (cfg->display.font.family);
-    appState.setFontSize (static_cast<float> (cfg->dpiCorrectedFontSize()));
-    appState.setScrollbackLines (cfg->nexus.terminal.scrollbackLines);
-    appState.setCellWidth (cfg->display.font.cellWidth);
-    appState.setLineHeight (cfg->display.font.lineHeight);
-    appState.setCursorCodepoint (cfg->display.cursor.codepoint);
-    appState.setCursorStyle (cfg->display.cursor.style);
-    appState.setCursorBlinkInterval (cfg->display.cursor.blinkInterval);
-    appState.setPaddingTop (cfg->nexus.terminal.paddingTop);
-    appState.setPaddingRight (cfg->nexus.terminal.paddingRight);
-    appState.setPaddingBottom (cfg->nexus.terminal.paddingBottom);
-    appState.setPaddingLeft (cfg->nexus.terminal.paddingLeft);
-    appState.setRendererType (cfg->nexus.gpu);
-    jam::Typeface::getAtlas().setEmbolden (cfg->display.font.embolden);
-
-    if (tabs != nullptr)
-    {
-        setRenderer (appState.getRendererType());
-        tabs->applyOrientation();
-    }
-
-    terminalLookAndFeel.setColours();
-    sendLookAndFeelChange();
+    appState.setDisplayCallbacks (std::move (displayCb));
+    appState.setPopupCallbacks (std::move (popupCb));
+    appState.registerApiTable();
 }
 
 void MainComponent::setRenderer (app::RendererType rendererType)
@@ -308,7 +282,7 @@ void MainComponent::resized()
     // Position status bar overlay: full-width at configured edge.
     // No space is reserved when hidden — the bar overlays the terminal area.
     {
-        const juce::String position { lua::Engine::getContext()->display.statusBar.position };
+        const juce::String position { appState.getValue<juce::String> (app::id::DISPLAY_LUA, app::id::statusBarPosition) };
         const int barHeight { statusBarOverlay->getPreferredHeight() };
         const int y { (position == Map::Position::getContext()->get (Map::Position::top)) ? 0
                                                                                           : getHeight() - barHeight };
@@ -334,6 +308,7 @@ MainComponent::~MainComponent()
 
     nexusNode.removeListener (this);
     appState.getWindow().removeListener (this);
+    configNode.removeListener (this);
     setLookAndFeel (nullptr);
     juce::LookAndFeel::setDefaultLookAndFeel (nullptr);
 }
@@ -352,19 +327,21 @@ void MainComponent::valueTreePropertyChanged (juce::ValueTree& tree, const juce:
     {
         if (property == app::id::fontFamily)
         {
-            auto* typeface { jam::Typeface::findTypeface (appState.getFontFamily()) };
+            const juce::String fontFamily { appState.getValue<juce::String> (app::id::DISPLAY_LUA, app::id::fontFamily) };
+            auto* typeface { jam::Typeface::findTypeface (fontFamily) };
 
             if (typeface != nullptr)
-                typeface->setFontFamily (appState.getFontFamily());
+                typeface->setFontFamily (fontFamily);
 
             appState.markAtlasDirty();
         }
         else if (property == app::id::fontSize)
         {
-            auto* typeface { jam::Typeface::findTypeface (appState.getFontFamily()) };
+            const juce::String fontFamily { appState.getValue<juce::String> (app::id::DISPLAY_LUA, app::id::fontFamily) };
+            auto* typeface { jam::Typeface::findTypeface (fontFamily) };
 
             if (typeface != nullptr)
-                typeface->setFontSize (appState.getFontSize());
+                typeface->setFontSize (appState.dpiCorrectedFontSize());
 
             appState.markAtlasDirty();
         }
@@ -372,23 +349,38 @@ void MainComponent::valueTreePropertyChanged (juce::ValueTree& tree, const juce:
         {
             appState.markAtlasDirty();
         }
-        else if (property == app::id::configGeneration)
-        {
-            applyConfig();
-            showReloadMessage();
+    }
+    else if (tree == configNode and property == app::id::configGeneration)
+    {
+        appState.setRendererType (appState.getValue<juce::String> (app::id::NEXUS_LUA, app::id::gpu));
 
-            if (auto* window { findParentComponentOfClass<terminal::Window>() }; window != nullptr)
-            {
-                const auto* cfg { lua::Engine::getContext() };
-                window->setGlass (
-                    cfg->display.window.colour.withAlpha (cfg->display.window.opacity), cfg->display.window.blurRadius);
-            }
+        registerActions();
+        showReloadMessage();
+
+        if (auto* window { findParentComponentOfClass<terminal::Window>() }; window != nullptr)
+        {
+            window->setGlass (
+                juce::Colour (static_cast<juce::uint32> (appState.getValue<int> (app::id::DISPLAY_LUA, app::id::windowColour)))
+                    .withAlpha (appState.getValue<float> (app::id::DISPLAY_LUA, app::id::windowOpacity)),
+                appState.getValue<float> (app::id::DISPLAY_LUA, app::id::windowBlurRadius));
+        }
 
 #if JUCE_WINDOWS
-            if (isWindows11() and appState.getRendererType() == app::RendererType::cpu)
-                jam::BackgroundBlur::applyForceEffectRegistry (lua::Engine::getContext()->display.window.forceDwm);
-#endif
+        if (isWindows11() and appState.getRendererType() == app::RendererType::cpu)
+        {
+            jam::BackgroundBlur::applyForceEffectRegistry (
+                appState.getValue<int> (app::id::DISPLAY_LUA, app::id::windowForceDwm) != 0);
         }
+#endif
+
+        if (tabs != nullptr)
+        {
+            setRenderer (appState.getRendererType());
+            tabs->applyOrientation();
+        }
+
+        terminalLookAndFeel.setColours();
+        sendLookAndFeelChange();
     }
 }
 
@@ -456,10 +448,10 @@ void MainComponent::registerActions()
     registerNavigationActions (action);
 
     // Register popup + custom Lua actions from actions.lua and popups.lua.
-    luaEngine.registerActions (action);
+    appState.registerActions (action);
 
     // Build key maps from keys.lua bindings.
-    luaEngine.buildKeyMap (action);
+    appState.buildKeyMap (action);
 }
 
 juce::Rectangle<int> MainComponent::getContentRect (int windowWidth, int windowHeight, int tabCount) const noexcept
@@ -473,7 +465,7 @@ juce::Rectangle<int> MainComponent::getContentRect (int windowWidth, int windowH
     if (tabBarDepth > 0)
     {
         const auto orientation { terminal::Tabs::orientationFromString (
-            lua::Engine::getContext()->display.tab.position) };
+            appState.getValue<juce::String> (app::id::DISPLAY_LUA, app::id::tabPosition)) };
 
         if (orientation == jam::TabbedButtonBar::TabsAtTop)
             content = content.withTrimmedTop (tabBarDepth);
@@ -502,11 +494,10 @@ void MainComponent::showMessageOverlay()
 {
     if (messageOverlay != nullptr)
     {
-        const auto* cfg { lua::Engine::getContext() };
-        const float fontSize { cfg->dpiCorrectedFontSize() };
-        const jam::Font font {
-            appState.getFontFamily(), fontSize, cfg->display.font.cellWidth, cfg->display.font.lineHeight
-        };
+        const float fontSize { appState.dpiCorrectedFontSize() };
+        const float cellWidth  { appState.getValue<float> (app::id::DISPLAY_LUA, app::id::cellWidth) };
+        const float lineHeight { appState.getValue<float> (app::id::DISPLAY_LUA, app::id::lineHeight) };
+        const jam::Font font { appState.getValue<juce::String> (app::id::DISPLAY_LUA, app::id::fontFamily), fontSize, cellWidth, lineHeight };
 
         if (font.cellWidth > 0)
         {
@@ -523,11 +514,12 @@ void MainComponent::showMessageOverlay()
             else if (orientation == juce::TabbedButtonBar::TabsAtRight)
                 content = content.withTrimmedRight (depth);
 
-            const int titleBarHeight { cfg->display.window.buttons ? app::titleBarHeight : 0 };
-            const int padTop { cfg->nexus.terminal.paddingTop };
-            const int padRight { cfg->nexus.terminal.paddingRight };
-            const int padBottom { cfg->nexus.terminal.paddingBottom };
-            const int padLeft { cfg->nexus.terminal.paddingLeft };
+            const bool hasButtons { appState.getValue<int> (app::id::DISPLAY_LUA, app::id::windowButtons) != 0 };
+            const int titleBarHeight { hasButtons ? app::titleBarHeight : 0 };
+            const int padTop    { appState.getValue<int> (app::id::NEXUS_LUA, app::id::paddingTop) };
+            const int padRight  { appState.getValue<int> (app::id::NEXUS_LUA, app::id::paddingRight) };
+            const int padBottom { appState.getValue<int> (app::id::NEXUS_LUA, app::id::paddingBottom) };
+            const int padLeft   { appState.getValue<int> (app::id::NEXUS_LUA, app::id::paddingLeft) };
 
             content.removeFromTop (titleBarHeight);
             content.removeFromTop (padTop);
@@ -558,7 +550,8 @@ void MainComponent::showMessageOverlay()
 void MainComponent::initialiseTabs()
 {
     tabs = std::make_unique<terminal::Tabs> (
-        terminal::Tabs::orientationFromString (lua::Engine::getContext()->display.tab.position));
+        terminal::Tabs::orientationFromString (
+            appState.getValue<juce::String> (app::id::DISPLAY_LUA, app::id::tabPosition)));
     addAndMakeVisible (tabs.get());
 
     // Restore tabs and split layout from `<uuid>.display` when present (daemon client mode).
@@ -635,7 +628,7 @@ void MainComponent::initialiseOverlays()
     addChildComponent (messageOverlay.get());
     addChildComponent (statusBarOverlay.get());
 
-    if (const auto& startupError { luaEngine.getLoadError() }; startupError.isNotEmpty())
+    if (const auto& startupError { appState.getLoadError() }; startupError.isNotEmpty())
     {
         juce::MessageManager::callAsync (
             [this, error = startupError]

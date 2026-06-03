@@ -1,58 +1,9 @@
 <?xml version='1.0' encoding='UTF-8' standalone='no'?>
 <doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
-  <compounddef id="structlua_1_1_engine_1_1_popup" kind="struct" language="C++" prot="public">
+  <compounddef id="structlua_1_1_engine_1_1_popup" kind="struct" language="C++" prot="private">
     <compoundname>lua::Engine::Popup</compoundname>
-    <includes refid="_engine_8h" local="no">Engine.h</includes>
     <innerclass refid="structlua_1_1_engine_1_1_popup_1_1_entry" prot="public">lua::Engine::Popup::Entry</innerclass>
     <sectiondef kind="public-attrib">
-      <memberdef kind="variable" id="structlua_1_1_engine_1_1_popup_1a48f7529b6236385aa8c17c72388856dd" prot="public" static="no" mutable="no">
-        <type><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref></type>
-        <definition>cell lua::Engine::Popup::defaultCols</definition>
-        <argsstring></argsstring>
-        <name>defaultCols</name>
-        <qualifiedname>lua::Engine::Popup::defaultCols</qualifiedname>
-        <initializer>{ 70 }</initializer>
-        <briefdescription>
-<para>Default popup terminal column count. </para>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="lua/Engine.h" line="853" column="14" bodyfile="lua/Engine.h" bodystart="853" bodyend="853"/>
-      </memberdef>
-      <memberdef kind="variable" id="structlua_1_1_engine_1_1_popup_1a7395ffce1f36b1d3f2e9c03737dc0a88" prot="public" static="no" mutable="no">
-        <type><ref refid="jam__cell_8h_1adb968df47f8b9dd5aa6a35499c35c9f6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">cell</ref></type>
-        <definition>cell lua::Engine::Popup::defaultRows</definition>
-        <argsstring></argsstring>
-        <name>defaultRows</name>
-        <qualifiedname>lua::Engine::Popup::defaultRows</qualifiedname>
-        <initializer>{ 20 }</initializer>
-        <briefdescription>
-<para>Default popup terminal row count. </para>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="lua/Engine.h" line="856" column="14" bodyfile="lua/Engine.h" bodystart="856" bodyend="856"/>
-      </memberdef>
-      <memberdef kind="variable" id="structlua_1_1_engine_1_1_popup_1ae8e5a09a9bdedb4e9315b7f437941814" prot="public" static="no" mutable="no">
-        <type>juce::String</type>
-        <definition>juce::String lua::Engine::Popup::defaultPosition</definition>
-        <argsstring></argsstring>
-        <name>defaultPosition</name>
-        <qualifiedname>lua::Engine::Popup::defaultPosition</qualifiedname>
-        <initializer>{ &quot;center&quot; }</initializer>
-        <briefdescription>
-<para>Default popup screen position (&quot;center&quot;, &quot;top&quot;, &quot;bottom&quot;). </para>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="lua/Engine.h" line="859" column="22" bodyfile="lua/Engine.h" bodystart="859" bodyend="859"/>
-      </memberdef>
       <memberdef kind="variable" id="structlua_1_1_engine_1_1_popup_1a28e699a715d6990ed71c059063f577d3" prot="public" static="no" mutable="no">
         <type>std::vector&lt; <ref refid="structlua_1_1_engine_1_1_popup_1_1_entry" kindref="compound">Entry</ref> &gt;</type>
         <definition>std::vector&lt;Entry&gt; lua::Engine::Popup::entries</definition>
@@ -66,16 +17,16 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lua/Engine.h" line="862" column="21" bodyfile="lua/Engine.h" bodystart="862" bodyend="-1"/>
+        <location file="lua/Engine.h" line="512" column="21" bodyfile="lua/Engine.h" bodystart="512" bodyend="-1"/>
       </memberdef>
     </sectiondef>
     <briefdescription>
-<para>Parsed popup terminal configuration from popups.lua. </para>
+<para>Parsed popup terminal entries retained between parse and registerActions. </para>
     </briefdescription>
     <detaileddescription>
     </detaileddescription>
     <collaborationgraph>
-      <node id="2">
+      <node id="4">
         <label>jam::Cell</label>
         <link refid="structjam_1_1_cell" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
@@ -83,33 +34,26 @@
         <label>lua::Engine::Popup</label>
         <link refid="structlua_1_1_engine_1_1_popup"/>
         <childnode refid="2" relation="usage">
-          <edgelabel>defaultCols</edgelabel>
-          <edgelabel>defaultRows</edgelabel>
-        </childnode>
-        <childnode refid="3" relation="usage">
           <edgelabel>entries</edgelabel>
         </childnode>
       </node>
-      <node id="4">
+      <node id="3">
         <label>lua::Engine::Popup::Entry</label>
         <link refid="structlua_1_1_engine_1_1_popup_1_1_entry"/>
-        <childnode refid="2" relation="usage">
+        <childnode refid="4" relation="usage">
           <edgelabel>cols</edgelabel>
           <edgelabel>rows</edgelabel>
         </childnode>
       </node>
-      <node id="3">
+      <node id="2">
         <label>std::vector&lt; lua::Engine::Popup::Entry &gt;</label>
-        <childnode refid="4" relation="usage">
+        <childnode refid="3" relation="usage">
           <edgelabel>elements</edgelabel>
         </childnode>
       </node>
     </collaborationgraph>
-    <location file="lua/Engine.h" line="819" column="5" bodyfile="lua/Engine.h" bodystart="820" bodyend="863"/>
+    <location file="lua/Engine.h" line="478" column="5" bodyfile="lua/Engine.h" bodystart="479" bodyend="513"/>
     <listofallmembers>
-      <member refid="structlua_1_1_engine_1_1_popup_1a48f7529b6236385aa8c17c72388856dd" prot="public" virt="non-virtual"><scope>lua::Engine::Popup</scope><name>defaultCols</name></member>
-      <member refid="structlua_1_1_engine_1_1_popup_1ae8e5a09a9bdedb4e9315b7f437941814" prot="public" virt="non-virtual"><scope>lua::Engine::Popup</scope><name>defaultPosition</name></member>
-      <member refid="structlua_1_1_engine_1_1_popup_1a7395ffce1f36b1d3f2e9c03737dc0a88" prot="public" virt="non-virtual"><scope>lua::Engine::Popup</scope><name>defaultRows</name></member>
       <member refid="structlua_1_1_engine_1_1_popup_1a28e699a715d6990ed71c059063f577d3" prot="public" virt="non-virtual"><scope>lua::Engine::Popup</scope><name>entries</name></member>
     </listofallmembers>
   </compounddef>

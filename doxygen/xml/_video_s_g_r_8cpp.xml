@@ -97,7 +97,7 @@
     </briefdescription>
     <detaileddescription>
 <para>This file implements the SGR subsystem of the Video class. SGR sequences (<computeroutput>ESC [ &lt;params&gt; m</computeroutput>) control all visual text attributes: style flags (bold, italic, underline, blink, inverse, strike) and foreground/background colors (<ref refid="namespace_a_n_s_i" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">ANSI</ref> 16-color palette, 256-color palette, and 24-bit RGB).</para>
-<sect1 id="_video_s_g_r_8cpp_1autotoc_md93_1s1"><sect2 id="_video_s_g_r_8cpp_1autotoc_md93">
+<sect1 id="_video_s_g_r_8cpp_1autotoc_md94_1s1"><sect2 id="_video_s_g_r_8cpp_1autotoc_md94">
 <title>SGR parameter table</title><para><table rows="27" cols="2"><row>
 <entry thead="yes"><para>Code(s)  </para>
 </entry><entry thead="yes"><para>Effect  </para>
@@ -209,7 +209,7 @@
 </table>
 </para>
 </sect2></sect1>
-<sect1 id="_video_s_g_r_8cpp_1autotoc_md94_1s1"><sect2 id="_video_s_g_r_8cpp_1autotoc_md94">
+<sect1 id="_video_s_g_r_8cpp_1autotoc_md95_1s1"><sect2 id="_video_s_g_r_8cpp_1autotoc_md95">
 <title>Extended color encoding</title><para>Two syntaxes are accepted for 256-color and 24-bit RGB colors:</para>
 <para><simplesect kind="par"><title>Semicolon syntax (ECMA-48 / xterm)</title><para><programlisting><codeline><highlight class="normal">ESC<sp/>[<sp/>38<sp/>;<sp/>5<sp/>;<sp/>N<sp/>m<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>—<sp/>256-color<sp/>palette,<sp/>index<sp/>N</highlight></codeline>
 <codeline><highlight class="normal">ESC<sp/>[<sp/>38<sp/>;<sp/>2<sp/>;<sp/>R<sp/>;<sp/><ref refid="lstate_8h_1a103db2de6edf3420c6c6c9a282562406" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">G</ref><sp/>;<sp/>B<sp/>m<sp/><sp/>—<sp/>24-bit<sp/>RGB</highlight></codeline>
@@ -221,7 +221,7 @@
 </simplesect>
 Both syntaxes are handled by <computeroutput>parseExtendedColor()</computeroutput>, which reads the sub-type from <computeroutput>params.values[i+1]</computeroutput> and advances the index accordingly.</para>
 </sect2></sect1>
-<sect1 id="_video_s_g_r_8cpp_1autotoc_md95_1s1"><sect2 id="_video_s_g_r_8cpp_1autotoc_md95">
+<sect1 id="_video_s_g_r_8cpp_1autotoc_md96_1s1"><sect2 id="_video_s_g_r_8cpp_1autotoc_md96">
 <title>Theme sentinel</title><para><computeroutput>juce::Colour{}</computeroutput> (fully transparent, alpha == 0) is the theme-default sentinel. SGR 39 and 49 reset fg/bg to this value. The renderer checks <computeroutput>getAlpha() == 0</computeroutput> and substitutes the active UI theme colour.</para>
 <para><simplesect kind="note"><para>All functions in this file run on the READER THREAD only.</para>
 </simplesect>

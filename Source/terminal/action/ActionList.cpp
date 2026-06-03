@@ -13,9 +13,8 @@ const juce::Identifier List::bindingRowIndexId { "bindingRowIndex" };
 const juce::Identifier List::bindingsDirtyId { "bindingsDirty" };
 
 //==============================================================================
-List::List (juce::Component& mainWindow, lua::Engine& engine)
+List::List (juce::Component& mainWindow)
     : main (mainWindow)
-    , luaEngine (engine)
 {
     setOpaque (false);
     setWantsKeyboardFocus (true);
@@ -33,12 +32,14 @@ List::List (juce::Component& mainWindow, lua::Engine& engine)
 
     buildRows();
 
-    const auto* cfg { lua::Engine::getContext() };
-    const int padH { cfg->display.actionList.paddingLeft + cfg->display.actionList.paddingRight };
-    const int padV { cfg->display.actionList.paddingTop  + cfg->display.actionList.paddingBottom };
+    const auto* appState { AppModel::getContext() };
+    const int padH { appState->getValue<int> (app::id::DISPLAY_LUA, app::id::actionListPaddingLeft)
+                   + appState->getValue<int> (app::id::DISPLAY_LUA, app::id::actionListPaddingRight) };
+    const int padV { appState->getValue<int> (app::id::DISPLAY_LUA, app::id::actionListPaddingTop)
+                   + appState->getValue<int> (app::id::DISPLAY_LUA, app::id::actionListPaddingBottom) };
 
-    const int proportionalWidth  { jam::toInt (cfg->display.actionList.width  * main.getWidth()  + padH) };
-    const int proportionalHeight { jam::toInt (cfg->display.actionList.height * main.getHeight() + padV) };
+    const int proportionalWidth  { jam::toInt (appState->getValue<float> (app::id::DISPLAY_LUA, app::id::actionListWidth)  * main.getWidth()  + static_cast<float> (padH)) };
+    const int proportionalHeight { jam::toInt (appState->getValue<float> (app::id::DISPLAY_LUA, app::id::actionListHeight) * main.getHeight() + static_cast<float> (padV)) };
 
     const int width { juce::jmax (minimumWidth, proportionalWidth) };
     const int height { juce::jmax (minimumHeight, proportionalHeight) };
@@ -85,17 +86,17 @@ List::~List()
 
     if (static_cast<bool> (state.getTreeProperty (bindingsDirtyId)))
     {
-        luaEngine.load();
+        AppModel::getContext()->reload();
 
         if (auto* registry { action::Registry::getContext() }; registry != nullptr)
-            luaEngine.buildKeyMap (*registry);
+            AppModel::getContext()->buildKeyMap (*registry);
     }
 }
 
 //==============================================================================
 juce::Colour List::getHighlightColour() const
 {
-    return lua::Engine::getContext()->display.actionList.highlightColour;
+    return juce::Colour (static_cast<juce::uint32> (AppModel::getContext()->getValue<int> (app::id::DISPLAY_LUA, app::id::actionListHighlightColour)));
 }
 
 //==============================================================================
@@ -109,18 +110,20 @@ void List::configureSearchBox (juce::TextEditor& editor)
     editor.setWantsKeyboardFocus (true);
     editor.setEscapeAndReturnKeysConsumed (false);
 
-    const auto* cfg { lua::Engine::getContext() };
+    const auto* appState { AppModel::getContext() };
+    const juce::Colour windowColour { juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::DISPLAY_LUA, app::id::windowColour))) };
+    const float opacity { appState->getValue<float> (app::id::DISPLAY_LUA, app::id::windowOpacity) };
     editor.setColour (
         juce::TextEditor::backgroundColourId,
-        cfg->display.window.colour.withAlpha (cfg->display.window.opacity));
-    editor.setColour (juce::TextEditor::textColourId,            cfg->display.colours.foreground);
-    editor.setColour (juce::CaretComponent::caretColourId,       cfg->display.colours.cursor);
+        windowColour.withAlpha (opacity));
+    editor.setColour (juce::TextEditor::textColourId,            juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::DISPLAY_LUA, app::id::foreground))));
+    editor.setColour (juce::CaretComponent::caretColourId,       juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::DISPLAY_LUA, app::id::cursorColour))));
     editor.setColour (juce::TextEditor::outlineColourId,         juce::Colours::transparentBlack);
     editor.setColour (juce::TextEditor::focusedOutlineColourId,  juce::Colours::transparentBlack);
 
     editor.setFont (juce::Font (juce::FontOptions()
-                                    .withName (cfg->display.font.family)
-                                    .withPointHeight (cfg->display.font.size)));
+                                    .withName (appState->getValue<juce::String> (app::id::DISPLAY_LUA, app::id::fontFamily))
+                                    .withPointHeight (appState->getValue<float> (app::id::DISPLAY_LUA, app::id::fontSize))));
 }
 
 //==============================================================================
@@ -128,13 +131,13 @@ void List::configureActionRow (Row& row)
 {
     row.highlightColour = getHighlightColour();
 
-    const auto* cfg { lua::Engine::getContext() };
+    const auto* appState { AppModel::getContext() };
 
     if (auto* name { row.getNameLabel() }; name != nullptr)
-        name->setColour (juce::Label::textColourId, cfg->display.actionList.nameColour);
+        name->setColour (juce::Label::textColourId, juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::DISPLAY_LUA, app::id::actionListNameColour))));
 
     if (auto* shortcut { row.getShortcutLabel() }; shortcut != nullptr)
-        shortcut->setColour (juce::Label::textColourId, cfg->display.actionList.shortcutColour);
+        shortcut->setColour (juce::Label::textColourId, juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::DISPLAY_LUA, app::id::actionListShortcutColour))));
 }
 
 //==============================================================================
@@ -175,7 +178,7 @@ void List::buildRows()
         {
             const juce::String uuid { juce::Uuid().toString() };
             auto row { std::make_unique<Row> (static_cast<int> (rows.size()), uuid, entry) };
-            row->actionConfigKey = luaEngine.getActionLuaKey (entry.id);
+            row->actionConfigKey = AppModel::getContext()->getActionLuaKey (entry.id);
 
             configureActionRow (*row);
 
@@ -211,7 +214,7 @@ void List::buildRows()
         Registry::Entry prefixEntry;
         prefixEntry.id = "prefix";
         prefixEntry.name = "Prefix";
-        prefixEntry.shortcut = Registry::parseShortcut (luaEngine.getPrefixString());
+        prefixEntry.shortcut = Registry::parseShortcut (AppModel::getContext()->getPrefixString());
 
         auto row { std::make_unique<Row> (static_cast<int> (rows.size()), uuid, prefixEntry) };
         row->actionConfigKey = "keys.prefix";
@@ -234,7 +237,7 @@ void List::buildRows()
         {
             const juce::String uuid { juce::Uuid().toString() };
             auto row { std::make_unique<Row> (static_cast<int> (rows.size()), uuid, entry) };
-            row->actionConfigKey = luaEngine.getActionLuaKey (entry.id);
+            row->actionConfigKey = AppModel::getContext()->getActionLuaKey (entry.id);
 
             configureActionRow (*row);
 
@@ -255,11 +258,11 @@ void List::buildRows()
 void List::resized()
 {
     auto bounds { getLocalBounds() };
-    const auto* cfg { lua::Engine::getContext() };
-    bounds.removeFromTop    (cfg->display.actionList.paddingTop);
-    bounds.removeFromRight  (cfg->display.actionList.paddingRight);
-    bounds.removeFromBottom (cfg->display.actionList.paddingBottom);
-    bounds.removeFromLeft   (cfg->display.actionList.paddingLeft);
+    const auto* appState { AppModel::getContext() };
+    bounds.removeFromTop    (appState->getValue<int> (app::id::DISPLAY_LUA, app::id::actionListPaddingTop));
+    bounds.removeFromRight  (appState->getValue<int> (app::id::DISPLAY_LUA, app::id::actionListPaddingRight));
+    bounds.removeFromBottom (appState->getValue<int> (app::id::DISPLAY_LUA, app::id::actionListPaddingBottom));
+    bounds.removeFromLeft   (appState->getValue<int> (app::id::DISPLAY_LUA, app::id::actionListPaddingLeft));
 
     if (not rows.empty())
         rows.at (0)->setBounds (bounds.removeFromTop (rowHeight));

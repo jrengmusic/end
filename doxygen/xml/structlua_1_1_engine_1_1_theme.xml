@@ -18,8 +18,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lua/Engine.h" line="975" column="22" bodyfile="lua/Engine.h" bodystart="975" bodyend="975"/>
-        <referencedby refid="classlua_1_1_engine_1aef97b23c743508a21d03a60a4618772b" compoundref="_engine_config_8cpp" startline="123" endline="137">lua::Engine::buildTheme</referencedby>
+        <location file="lua/Engine.h" line="178" column="22" bodyfile="lua/Engine.h" bodystart="178" bodyend="178"/>
+        <referencedby refid="classlua_1_1_engine_1aef97b23c743508a21d03a60a4618772b" compoundref="_engine_config_8cpp" startline="124" endline="163">lua::Engine::buildTheme</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structlua_1_1_engine_1_1_theme_1a8f2acd7ce2cbdb6f1cb3f77da1a54e0c" prot="public" static="no" mutable="no">
         <type>juce::Colour</type>
@@ -35,8 +35,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lua/Engine.h" line="978" column="22" bodyfile="lua/Engine.h" bodystart="978" bodyend="978"/>
-        <referencedby refid="classlua_1_1_engine_1aef97b23c743508a21d03a60a4618772b" compoundref="_engine_config_8cpp" startline="123" endline="137">lua::Engine::buildTheme</referencedby>
+        <location file="lua/Engine.h" line="181" column="22" bodyfile="lua/Engine.h" bodystart="181" bodyend="181"/>
+        <referencedby refid="classlua_1_1_engine_1aef97b23c743508a21d03a60a4618772b" compoundref="_engine_config_8cpp" startline="124" endline="163">lua::Engine::buildTheme</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structlua_1_1_engine_1_1_theme_1acd716bc40907c33794a2e86ca5bbdcb2" prot="public" static="no" mutable="no">
         <type>juce::Colour</type>
@@ -52,8 +52,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lua/Engine.h" line="981" column="22" bodyfile="lua/Engine.h" bodystart="981" bodyend="981"/>
-        <referencedby refid="classlua_1_1_engine_1aef97b23c743508a21d03a60a4618772b" compoundref="_engine_config_8cpp" startline="123" endline="137">lua::Engine::buildTheme</referencedby>
+        <location file="lua/Engine.h" line="184" column="22" bodyfile="lua/Engine.h" bodystart="184" bodyend="184"/>
+        <referencedby refid="classlua_1_1_engine_1aef97b23c743508a21d03a60a4618772b" compoundref="_engine_config_8cpp" startline="124" endline="163">lua::Engine::buildTheme</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structlua_1_1_engine_1_1_theme_1ac99d767817a39bb80f127ef4f4cd1422" prot="public" static="no" mutable="no">
         <type>juce::Colour</type>
@@ -69,8 +69,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lua/Engine.h" line="984" column="22" bodyfile="lua/Engine.h" bodystart="984" bodyend="984"/>
-        <referencedby refid="classlua_1_1_engine_1aef97b23c743508a21d03a60a4618772b" compoundref="_engine_config_8cpp" startline="123" endline="137">lua::Engine::buildTheme</referencedby>
+        <location file="lua/Engine.h" line="187" column="22" bodyfile="lua/Engine.h" bodystart="187" bodyend="187"/>
+        <referencedby refid="classlua_1_1_engine_1aef97b23c743508a21d03a60a4618772b" compoundref="_engine_config_8cpp" startline="124" endline="163">lua::Engine::buildTheme</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structlua_1_1_engine_1_1_theme_1a14c0eea9b376abc7dbc9199ce5603aeb" prot="public" static="no" mutable="no">
         <type>juce::Colour</type>
@@ -86,8 +86,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lua/Engine.h" line="987" column="22" bodyfile="lua/Engine.h" bodystart="987" bodyend="987"/>
-        <referencedby refid="classlua_1_1_engine_1aef97b23c743508a21d03a60a4618772b" compoundref="_engine_config_8cpp" startline="123" endline="137">lua::Engine::buildTheme</referencedby>
+        <location file="lua/Engine.h" line="190" column="22" bodyfile="lua/Engine.h" bodystart="190" bodyend="190"/>
+        <referencedby refid="classlua_1_1_engine_1aef97b23c743508a21d03a60a4618772b" compoundref="_engine_config_8cpp" startline="124" endline="163">lua::Engine::buildTheme</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structlua_1_1_engine_1_1_theme_1ae3c8ef54f5f11a687e272bc5f6851463" prot="public" static="no" mutable="no">
         <type>juce::Colour</type>
@@ -103,8 +103,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lua/Engine.h" line="990" column="22" bodyfile="lua/Engine.h" bodystart="990" bodyend="990"/>
-        <referencedby refid="classlua_1_1_engine_1aef97b23c743508a21d03a60a4618772b" compoundref="_engine_config_8cpp" startline="123" endline="137">lua::Engine::buildTheme</referencedby>
+        <location file="lua/Engine.h" line="193" column="22" bodyfile="lua/Engine.h" bodystart="193" bodyend="193"/>
+        <referencedby refid="classlua_1_1_engine_1aef97b23c743508a21d03a60a4618772b" compoundref="_engine_config_8cpp" startline="124" endline="163">lua::Engine::buildTheme</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structlua_1_1_engine_1_1_theme_1a2a210f1f2e1e3d7be53c7247be1e61b1" prot="public" static="no" mutable="no">
         <type>juce::Colour</type>
@@ -120,8 +120,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lua/Engine.h" line="993" column="22" bodyfile="lua/Engine.h" bodystart="993" bodyend="993"/>
-        <referencedby refid="classlua_1_1_engine_1aef97b23c743508a21d03a60a4618772b" compoundref="_engine_config_8cpp" startline="123" endline="137">lua::Engine::buildTheme</referencedby>
+        <location file="lua/Engine.h" line="196" column="22" bodyfile="lua/Engine.h" bodystart="196" bodyend="196"/>
+        <referencedby refid="classlua_1_1_engine_1aef97b23c743508a21d03a60a4618772b" compoundref="_engine_config_8cpp" startline="124" endline="163">lua::Engine::buildTheme</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structlua_1_1_engine_1_1_theme_1ace64761e8f2b160b58a83c6e2bb27fe4" prot="public" static="no" mutable="no">
         <type>char32_t</type>
@@ -137,8 +137,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lua/Engine.h" line="996" column="18" bodyfile="lua/Engine.h" bodystart="996" bodyend="996"/>
-        <referencedby refid="classlua_1_1_engine_1aef97b23c743508a21d03a60a4618772b" compoundref="_engine_config_8cpp" startline="123" endline="137">lua::Engine::buildTheme</referencedby>
+        <location file="lua/Engine.h" line="199" column="18" bodyfile="lua/Engine.h" bodystart="199" bodyend="199"/>
+        <referencedby refid="classlua_1_1_engine_1aef97b23c743508a21d03a60a4618772b" compoundref="_engine_config_8cpp" startline="124" endline="163">lua::Engine::buildTheme</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structlua_1_1_engine_1_1_theme_1ac09768ca565f9a8d56776d3d0facd8d0" prot="public" static="no" mutable="no">
         <type>bool</type>
@@ -154,8 +154,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lua/Engine.h" line="999" column="14" bodyfile="lua/Engine.h" bodystart="999" bodyend="999"/>
-        <referencedby refid="classlua_1_1_engine_1aef97b23c743508a21d03a60a4618772b" compoundref="_engine_config_8cpp" startline="123" endline="137">lua::Engine::buildTheme</referencedby>
+        <location file="lua/Engine.h" line="202" column="14" bodyfile="lua/Engine.h" bodystart="202" bodyend="202"/>
+        <referencedby refid="classlua_1_1_engine_1aef97b23c743508a21d03a60a4618772b" compoundref="_engine_config_8cpp" startline="124" endline="163">lua::Engine::buildTheme</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structlua_1_1_engine_1_1_theme_1ad8f6eea70fa865e41aa4eff5b1429397" prot="public" static="no" mutable="no">
         <type>std::array&lt; juce::Colour, 16 &gt;</type>
@@ -172,15 +172,15 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lua/Engine.h" line="1006" column="20" bodyfile="lua/Engine.h" bodystart="1006" bodyend="1006"/>
-        <referencedby refid="classlua_1_1_engine_1aef97b23c743508a21d03a60a4618772b" compoundref="_engine_config_8cpp" startline="123" endline="137">lua::Engine::buildTheme</referencedby>
+        <location file="lua/Engine.h" line="209" column="20" bodyfile="lua/Engine.h" bodystart="209" bodyend="209"/>
+        <referencedby refid="classlua_1_1_engine_1aef97b23c743508a21d03a60a4618772b" compoundref="_engine_config_8cpp" startline="124" endline="163">lua::Engine::buildTheme</referencedby>
       </memberdef>
     </sectiondef>
     <briefdescription>
 <para>Resolved colour set built from the current config values. </para>
     </briefdescription>
     <detaileddescription>
-<para>Constructed by <ref refid="classlua_1_1_engine_1aef97b23c743508a21d03a60a4618772b" kindref="member">buildTheme()</ref> and passed to Screen::setTheme(). Decouples the renderer from <ref refid="classlua_1_1_engine" kindref="compound">Engine</ref> so the renderer never calls <ref refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">Engine::getContext()</ref> directly.</para>
+<para>Constructed by <ref refid="classlua_1_1_engine_1aef97b23c743508a21d03a60a4618772b" kindref="member">buildTheme()</ref> and passed to Screen::setTheme(). Decouples the renderer from <ref refid="classlua_1_1_engine" kindref="compound">Engine</ref> so the renderer never calls Engine::getContext() directly.</para>
 <para><simplesect kind="see"><para><ref refid="classlua_1_1_engine_1aef97b23c743508a21d03a60a4618772b" kindref="member">Engine::buildTheme</ref> </para>
 </simplesect>
 </para>
@@ -197,7 +197,7 @@
         <label>std::array&lt; juce::Colour, 16 &gt;</label>
       </node>
     </collaborationgraph>
-    <location file="lua/Engine.h" line="972" column="5" bodyfile="lua/Engine.h" bodystart="973" bodyend="1007"/>
+    <location file="lua/Engine.h" line="175" column="5" bodyfile="lua/Engine.h" bodystart="176" bodyend="210"/>
     <listofallmembers>
       <member refid="structlua_1_1_engine_1_1_theme_1ad8f6eea70fa865e41aa4eff5b1429397" prot="public" virt="non-virtual"><scope>lua::Engine::Theme</scope><name>ansi</name></member>
       <member refid="structlua_1_1_engine_1_1_theme_1ace64761e8f2b160b58a83c6e2bb27fe4" prot="public" virt="non-virtual"><scope>lua::Engine::Theme</scope><name>cursorCodepoint</name></member>

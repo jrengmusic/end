@@ -2,7 +2,15 @@
 
 **RFC:** RFC-terminal-state-foundation.md
 **Date:** 2026-06-02
+**Last verified:** 2026-06-04
 **BLESSED Compliance:** verified
+
+**Ground truth (2026-06-04):**
+- Steps 0–7: DONE (shipped in prior sprints)
+- Step 8 (AppModel config authority): see `PLAN-appmodel-config-authority.md` — Steps 1-3 DONE, Steps 4-7 remain
+- Step 9 (delete ConfigListener workaround): NOT DONE (depends on Step 8 completion)
+- Step 10 (ARCHITECTURE.md + sweep): NOT DONE (depends on Step 9)
+- Track 3 (`PLAN-parameter-text.md`): DONE — ParameterText shipped, jam::Model templated verbs, AppModel XML-driven CONFIG build, colour int migration, Engine by-value
 **Language / Framework Constraints:** C++17 / JUCE — LANGUAGE.md: C++/JUCE is the BLESSED reference, no overrides. No build commands (ARCHITECT only); @Auditor validates against CONTRACT, not compilation.
 
 ---

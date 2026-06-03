@@ -39,7 +39,7 @@
     </briefdescription>
     <detaileddescription>
 <para>This file contains only <ref refid="class_t_t_y_1a5069e6a70b48c9e44fef6d6fd8fa2b31" kindref="member">TTY::run()</ref>, the reader thread loop that is common to all platform implementations. Platform-specific code lives in <ref refid="_unix_t_t_y_8cpp" kindref="compound">UnixTTY.cpp</ref> and <ref refid="_windows_t_t_y_8cpp" kindref="compound">WindowsTTY.cpp</ref>.</para>
-<sect1 id="_t_t_y_8cpp_1autotoc_md66_1s1"><sect2 id="_t_t_y_8cpp_1autotoc_md66_1s2"><sect3 id="_t_t_y_8cpp_1autotoc_md66">
+<sect1 id="_t_t_y_8cpp_1autotoc_md67_1s1"><sect2 id="_t_t_y_8cpp_1autotoc_md67_1s2"><sect3 id="_t_t_y_8cpp_1autotoc_md67">
 <title>Reader thread lifecycle</title><para><orderedlist>
 <listitem><para><ref refid="classThread" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Thread</ref> starts inside the platform <computeroutput>open()</computeroutput> call via <computeroutput>startThread()</computeroutput>.</para>
 </listitem><listitem><para><computeroutput>run()</computeroutput> sets thread priority to high and enters the main poll loop.</para>

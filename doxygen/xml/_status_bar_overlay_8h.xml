@@ -5,14 +5,36 @@
     <includes local="no">JuceHeader.h</includes>
     <includes refid="_selection_type_8h" local="yes">../../SelectionType.h</includes>
     <includes refid="_modal_type_8h" local="yes">../../ModalType.h</includes>
-    <includes refid="_engine_8h" local="yes">../../lua/Engine.h</includes>
+    <includes refid="_app_model_8h" local="yes">../../AppModel.h</includes>
     <includes refid="_app_identifier_8h" local="yes">../../AppIdentifier.h</includes>
     <includedby refid="_main_component_8h" local="yes">MainComponent.h</includedby>
     <incdepgraph>
-      <node id="7">
-        <label>../../AppIdentifier.h</label>
+      <node id="6">
+        <label>AppIdentifier.h</label>
         <link refid="_app_identifier_8h"/>
         <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>../../AppModel.h</label>
+        <link refid="_app_model_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>../Map.h</label>
+        <link refid="_map_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
         </childnode>
       </node>
       <node id="4">
@@ -23,15 +45,25 @@
         <label>../../SelectionType.h</label>
         <link refid="_selection_type_8h"/>
       </node>
-      <node id="5">
-        <label>../../lua/Engine.h</label>
+      <node id="7">
+        <label>lua/Engine.h</label>
         <link refid="_engine_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
         <childnode refid="6" relation="include">
         </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
       </node>
-      <node id="6">
+      <node id="9">
+        <label>terminal/Identifier.h</label>
+        <link refid="_identifier_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
         <label>../terminal/action/Action.h</label>
         <link refid="_action_8h"/>
         <childnode refid="2" relation="include">
@@ -48,7 +80,7 @@
         </childnode>
         <childnode refid="5" relation="include">
         </childnode>
-        <childnode refid="7" relation="include">
+        <childnode refid="6" relation="include">
         </childnode>
       </node>
       <node id="2">
@@ -97,17 +129,17 @@
     </briefdescription>
     <detaileddescription>
 <para><ref refid="class_status_bar_overlay" kindref="compound">StatusBarOverlay</ref> spans the entire <ref refid="class_main_component" kindref="compound">MainComponent</ref> width and is positioned at either the top or bottom edge, controlled by <computeroutput>keys.status_bar_position</computeroutput> in Config. It is non-interactive and passes all mouse events through.</para>
-<sect1 id="_status_bar_overlay_8h_1autotoc_md35_1s1"><sect2 id="_status_bar_overlay_8h_1autotoc_md35_1s2"><sect3 id="_status_bar_overlay_8h_1autotoc_md35">
+<sect1 id="_status_bar_overlay_8h_1autotoc_md36_1s1"><sect2 id="_status_bar_overlay_8h_1autotoc_md36_1s2"><sect3 id="_status_bar_overlay_8h_1autotoc_md36">
 <title>Layout</title><para>The bar is divided into two regions:<itemizedlist>
 <listitem><para><bold>Mode label</bold> — a text-width rectangle on the left filled with <computeroutput>labelBackgroundColourId</computeroutput>, showing &quot;VISUAL&quot;, &quot;OPEN&quot;, etc.</para>
 </listitem><listitem><para><bold>Bar background</bold> — the remainder of the width filled with <computeroutput>barBackgroundColourId</computeroutput>.</para>
 </listitem></itemizedlist>
 </para>
 </sect3></sect2></sect1>
-<sect1 id="_status_bar_overlay_8h_1autotoc_md36_1s1"><sect2 id="_status_bar_overlay_8h_1autotoc_md36_1s2"><sect3 id="_status_bar_overlay_8h_1autotoc_md36">
+<sect1 id="_status_bar_overlay_8h_1autotoc_md37_1s1"><sect2 id="_status_bar_overlay_8h_1autotoc_md37_1s2"><sect3 id="_status_bar_overlay_8h_1autotoc_md37">
 <title>Visibility</title><para>Hidden when <computeroutput><ref refid="_modal_type_8h_1a1878c47fb0486dfcf512d127b5342816a334c4a4c42fdb79d7ebc3e73b517e6f8" kindref="member">ModalType::none</ref></computeroutput>. Shown immediately (no fade) when any active modal type is set. When hidden, no space is reserved in the layout; <ref refid="class_main_component_1a339148bc43089300e10d5883a0a80726" kindref="member">MainComponent::resized()</ref> adjusts bounds accordingly.</para>
 </sect3></sect2></sect1>
-<sect1 id="_status_bar_overlay_8h_1autotoc_md37_1s1"><sect2 id="_status_bar_overlay_8h_1autotoc_md37_1s2"><sect3 id="_status_bar_overlay_8h_1autotoc_md37">
+<sect1 id="_status_bar_overlay_8h_1autotoc_md38_1s1"><sect2 id="_status_bar_overlay_8h_1autotoc_md38_1s2"><sect3 id="_status_bar_overlay_8h_1autotoc_md38">
 <title>Colours</title><para>Three custom ColourIds are registered in <computeroutput><ref refid="classterminal_1_1_look_and_feel" kindref="compound">terminal::LookAndFeel</ref></computeroutput> and applied via <computeroutput>setColour()</computeroutput> in <computeroutput>LookAndFeel::setColours()</computeroutput>. The overlay reads them via <computeroutput>findColour()</computeroutput> so they participate in JUCE&apos;s colour inheritance system.</para>
 <para><simplesect kind="note"><para>All methods are called on the <bold>MESSAGE THREAD</bold>.</para>
 </simplesect>
@@ -129,7 +161,7 @@
 <codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;JuceHeader.h&gt;</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_selection_type_8h" kindref="compound">../../SelectionType.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_modal_type_8h" kindref="compound">../../ModalType.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_engine_8h" kindref="compound">../../lua/Engine.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_app_model_8h" kindref="compound">../../AppModel.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_app_identifier_8h" kindref="compound">../../AppIdentifier.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="40"><highlight class="normal"></highlight></codeline>
 <codeline lineno="58" refid="class_status_bar_overlay" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_status_bar_overlay_1a53b4d773563edc71d08b33c0f6cc326e" kindref="member">StatusBarOverlay</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>juce::Component,</highlight></codeline>
@@ -226,18 +258,18 @@
 <codeline lineno="188"><highlight class="normal"></highlight></codeline>
 <codeline lineno="198" refid="class_status_bar_overlay_1acfcad7dfdbc4ec8576bfef32f62556eb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="class_status_bar_overlay_1acfcad7dfdbc4ec8576bfef32f62556eb" kindref="member">getPreferredHeight</ref>()<sp/>const<sp/>noexcept</highlight></codeline>
 <codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
-<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>fontSize<sp/>{<sp/><ref refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">lua::Engine::getContext</ref>()-&gt;display.statusBar.fontSize<sp/>};</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>fontSize<sp/>{<sp/><ref refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">AppModel::getContext</ref>()-&gt;getValue&lt;</highlight><highlight class="keywordtype">float</highlight><highlight class="normal">&gt;<sp/>(<ref refid="namespaceapp_1_1id_1a24815b9015e0395936a1718769739fff" kindref="member">app::id::DISPLAY_LUA</ref>,<sp/><ref refid="namespaceapp_1_1id_1aad1c3ec17d1db4cb60d3b465ee53c62e" kindref="member">app::id::statusBarFontSize</ref>)<sp/>};</highlight></codeline>
 <codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>juce::roundToInt<sp/>(fontSize)<sp/>+<sp/>2<sp/>*<sp/><ref refid="class_status_bar_overlay_1a8350403c5a1022f688c1f7f6262ad905" kindref="member">verticalPadding</ref>;</highlight></codeline>
 <codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
 <codeline lineno="203"><highlight class="normal"></highlight></codeline>
 <codeline lineno="222" refid="class_status_bar_overlay_1a769641a1dca9e4b78bb73bf5ad667feb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_status_bar_overlay_1a769641a1dca9e4b78bb73bf5ad667feb" kindref="member">paint</ref><sp/>(juce::Graphics&amp;<sp/>g)</highlight><highlight class="keyword"><sp/>override</highlight></codeline>
 <codeline lineno="223"><highlight class="keyword"><sp/><sp/><sp/><sp/></highlight><highlight class="normal">{</highlight></codeline>
 <codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>bounds<sp/>{<sp/>getLocalBounds()<sp/>};</highlight></codeline>
-<codeline lineno="225"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal">*<sp/>cfg<sp/>{<sp/><ref refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">lua::Engine::getContext</ref>()<sp/>};</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal">*<sp/>appState<sp/>{<sp/><ref refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">AppModel::getContext</ref>()<sp/>};</highlight></codeline>
 <codeline lineno="226"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::Font<sp/>font<sp/>{<sp/>juce::FontOptions<sp/>{}</highlight></codeline>
-<codeline lineno="227"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.withName<sp/>(cfg-&gt;display.statusBar.fontFamily)</highlight></codeline>
-<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.withPointHeight<sp/>(cfg-&gt;display.statusBar.fontSize)</highlight></codeline>
-<codeline lineno="229"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.withStyle<sp/>(cfg-&gt;display.statusBar.fontStyle)<sp/>};</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.withName<sp/>(appState-&gt;getValue&lt;juce::String&gt;<sp/>(<ref refid="namespaceapp_1_1id_1a24815b9015e0395936a1718769739fff" kindref="member">app::id::DISPLAY_LUA</ref>,<sp/><ref refid="namespaceapp_1_1id_1a0acbbdb7581dc87265c6c30a1ce35023" kindref="member">app::id::statusBarFontFamily</ref>))</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.withPointHeight<sp/>(appState-&gt;getValue&lt;</highlight><highlight class="keywordtype">float</highlight><highlight class="normal">&gt;<sp/>(<ref refid="namespaceapp_1_1id_1a24815b9015e0395936a1718769739fff" kindref="member">app::id::DISPLAY_LUA</ref>,<sp/><ref refid="namespaceapp_1_1id_1aad1c3ec17d1db4cb60d3b465ee53c62e" kindref="member">app::id::statusBarFontSize</ref>))</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.withStyle<sp/>(appState-&gt;getValue&lt;juce::String&gt;<sp/>(<ref refid="namespaceapp_1_1id_1a24815b9015e0395936a1718769739fff" kindref="member">app::id::DISPLAY_LUA</ref>,<sp/><ref refid="namespaceapp_1_1id_1ad0bcda5999a67171487f552172258d91" kindref="member">app::id::statusBarFontStyle</ref>))<sp/>};</highlight></codeline>
 <codeline lineno="230"><highlight class="normal"></highlight></codeline>
 <codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>g.setColour<sp/>(findColour<sp/>(<ref refid="class_status_bar_overlay_1a1b8e43fdf96727d8ea5b92e3dd5cb3fead7e7e03e80caa298c7bf975a467c5102" kindref="member">barBackgroundColourId</ref>));</highlight></codeline>
 <codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>g.fillRect<sp/>(bounds);</highlight></codeline>

@@ -31,23 +31,24 @@ LookAndFeel::LookAndFeel() { setColours(); }
  */
 void LookAndFeel::setColours()
 {
-    const auto* cfg { lua::Engine::getContext() };
-    const auto fg          { cfg->display.colours.foreground };
-    const auto windowColour { cfg->display.window.colour };
-    const auto menuOpacity  { cfg->display.menu.opacity };
+    const auto* appState { AppModel::getContext() };
+    const auto fg           { juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::DISPLAY_LUA, app::id::foreground))) };
+    const auto windowColour { juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::DISPLAY_LUA, app::id::windowColour))) };
+    const auto menuOpacity  { appState->getValue<float> (app::id::DISPLAY_LUA, app::id::menuOpacity) };
+    const auto cursorColour { juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::DISPLAY_LUA, app::id::cursorColour))) };
 
-    setColour (cursorColourId, cfg->display.colours.cursor);
+    setColour (cursorColourId, cursorColour);
 
-    setColour (jam::TabbedButtonBar::tabTextColourId,      cfg->display.tab.inactive);
-    setColour (jam::TabbedButtonBar::frontTextColourId,    cfg->display.tab.foreground);
+    setColour (jam::TabbedButtonBar::tabTextColourId,      juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::DISPLAY_LUA, app::id::tabInactive))));
+    setColour (jam::TabbedButtonBar::frontTextColourId,    juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::DISPLAY_LUA, app::id::tabForeground))));
     setColour (jam::TabbedButtonBar::tabOutlineColourId,   juce::Colours::transparentBlack);
     setColour (jam::TabbedButtonBar::frontOutlineColourId, juce::Colours::transparentBlack);
     setColour (jam::TabbedComponent::backgroundColourId,   juce::Colours::transparentBlack);
     setColour (jam::TabbedComponent::outlineColourId,      juce::Colours::transparentBlack);
     setColour (tabBarBackgroundColourId, juce::Colours::transparentBlack);
-    setColour (tabLineColourId,          cfg->display.tab.line);
-    setColour (tabActiveColourId,        cfg->display.tab.active);
-    setColour (tabIndicatorColourId,     cfg->display.tab.indicator);
+    setColour (tabLineColourId,          juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::DISPLAY_LUA, app::id::tabLine))));
+    setColour (tabActiveColourId,        juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::DISPLAY_LUA, app::id::tabActive))));
+    setColour (tabIndicatorColourId,     juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::DISPLAY_LUA, app::id::tabIndicator))));
 
     setColour (juce::PopupMenu::backgroundColourId,            windowColour.withAlpha (menuOpacity));
     setColour (juce::PopupMenu::textColourId,                  fg);
@@ -62,33 +63,41 @@ void LookAndFeel::setColours()
     setColour (juce::TextButton::buttonOnColourId, juce::Colours::transparentBlack);
     setColour (juce::ComboBox::outlineColourId,    windowColour.brighter (0.15f));
 
-    setColour (paneBarColourId,          cfg->display.pane.barColour);
-    setColour (paneBarHighlightColourId, cfg->display.pane.barHighlight);
+    setColour (paneBarColourId,          juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::DISPLAY_LUA, app::id::paneBarColour))));
+    setColour (paneBarHighlightColourId, juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::DISPLAY_LUA, app::id::paneBarHighlight))));
 
-    setColour (statusBarBackgroundColourId,      cfg->display.colours.statusBar);
-    setColour (statusBarLabelBackgroundColourId, cfg->display.colours.statusBarLabelBg);
-    setColour (statusBarLabelTextColourId,       cfg->display.colours.statusBarLabelFg);
+    setColour (statusBarBackgroundColourId,      juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::DISPLAY_LUA, app::id::statusBarColour))));
+    setColour (statusBarLabelBackgroundColourId, juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::DISPLAY_LUA, app::id::statusBarLabelBg))));
+    setColour (statusBarLabelTextColourId,       juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::DISPLAY_LUA, app::id::statusBarLabelFg))));
 
     setColour (juce::DocumentWindow::backgroundColourId, windowColour);
 
-    setColour (juce::ScrollBar::thumbColourId,      cfg->display.colours.scrollbarThumb);
-    setColour (juce::ScrollBar::trackColourId,      cfg->display.colours.scrollbarTrack);
+    setColour (juce::ScrollBar::thumbColourId,      juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::DISPLAY_LUA, app::id::scrollbarThumb))));
+    setColour (juce::ScrollBar::trackColourId,      juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::DISPLAY_LUA, app::id::scrollbarTrack))));
     setColour (juce::ScrollBar::backgroundColourId, juce::Colours::transparentBlack);
 
-    setColour (jam::CodeView::backgroundColourId,     cfg->display.colours.background);
-    setColour (jam::CodeView::outlineColourId,        cfg->display.colours.editorOutline);
-    setColour (jam::CodeView::focusedOutlineColourId, cfg->display.colours.editorOutline);
-    setColour (jam::CodeView::textColourId,           cfg->display.colours.foreground);
-    setColour (jam::CaretComponent::caretColourId,    cfg->display.colours.cursor);
-    setColour (Display::cursorColourId,              cfg->display.colours.cursor);
-    setColour (Display::selectionColourId,           cfg->display.colours.selection);
-    setColour (Display::selectionCursorColourId,     cfg->display.colours.selectionCursor);
-    setColour (Display::hintLabelFgColourId,         cfg->display.colours.hintLabelFg);
-    setColour (Display::hintLabelBgColourId,         cfg->display.colours.hintLabelBg);
+    setColour (jam::CodeView::backgroundColourId,     juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::DISPLAY_LUA, app::id::background))));
+    setColour (jam::CodeView::outlineColourId,        juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::DISPLAY_LUA, app::id::editorOutline))));
+    setColour (jam::CodeView::focusedOutlineColourId, juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::DISPLAY_LUA, app::id::editorOutline))));
+    setColour (jam::CodeView::textColourId,           fg);
+    setColour (jam::CaretComponent::caretColourId,    cursorColour);
+    setColour (Display::cursorColourId,               cursorColour);
+    setColour (Display::selectionColourId,            juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::DISPLAY_LUA, app::id::selectionColour))));
+    setColour (Display::selectionCursorColourId,      juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::DISPLAY_LUA, app::id::selectionCursorColour))));
+    setColour (Display::hintLabelFgColourId,          juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::DISPLAY_LUA, app::id::hintLabelFg))));
+    setColour (Display::hintLabelBgColourId,          juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::DISPLAY_LUA, app::id::hintLabelBg))));
+
+    static const std::array<const juce::Identifier*, 16> ansiIds
+    {
+        &app::id::ansi0,  &app::id::ansi1,  &app::id::ansi2,  &app::id::ansi3,
+        &app::id::ansi4,  &app::id::ansi5,  &app::id::ansi6,  &app::id::ansi7,
+        &app::id::ansi8,  &app::id::ansi9,  &app::id::ansi10, &app::id::ansi11,
+        &app::id::ansi12, &app::id::ansi13, &app::id::ansi14, &app::id::ansi15
+    };
 
     for (int i { 0 }; i < 16; ++i)
     {
-        const juce::Colour ansi { cfg->display.colours.ansi[static_cast<size_t> (i)] };
+        const juce::Colour ansi { juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::DISPLAY_LUA, *ansiIds[static_cast<size_t> (i)]))) };
         setColour (Display::ansi0ColourId + i, ansi);
         terminal::setAnsi16Colour (i, ansi);
     }
@@ -119,8 +128,7 @@ void LookAndFeel::loadTabButtonSvg()
     svgInactiveCenter = {};
     svgInactiveRight  = {};
 
-    const auto* cfg { lua::Engine::getContext() };
-    const auto svgPath { cfg->display.tab.buttonSvg };
+    const auto svgPath { AppModel::getContext()->getValue<juce::String> (app::id::DISPLAY_LUA, app::id::tabButtonSvg) };
 
     if (svgPath.isNotEmpty())
     {
@@ -189,10 +197,10 @@ void LookAndFeel::loadTabButtonSvg()
  */
 int LookAndFeel::getTabBarHeight() noexcept
 {
-    const auto* cfg { lua::Engine::getContext() };
+    const auto* appState { AppModel::getContext() };
     const juce::Font font { juce::FontOptions()
-                                .withName (cfg->display.tab.family)
-                                .withPointHeight (cfg->display.tab.size) };
+                                .withName (appState->getValue<juce::String> (app::id::DISPLAY_LUA, app::id::tabFamily))
+                                .withPointHeight (appState->getValue<float> (app::id::DISPLAY_LUA, app::id::tabSize)) };
     return juce::roundToInt (font.getHeight() / tabFontRatio);
 }
 
@@ -206,26 +214,26 @@ int LookAndFeel::getTabBarHeight() noexcept
  */
 juce::Font LookAndFeel::getPopupMenuFont()
 {
-    const auto* cfg { lua::Engine::getContext() };
+    const auto* appState { AppModel::getContext() };
     return juce::Font { juce::FontOptions()
-                            .withName (cfg->display.tab.family)
-                            .withPointHeight (cfg->display.tab.size) };
+                            .withName (appState->getValue<juce::String> (app::id::DISPLAY_LUA, app::id::tabFamily))
+                            .withPointHeight (appState->getValue<float> (app::id::DISPLAY_LUA, app::id::tabSize)) };
 }
 
 juce::Font LookAndFeel::getTextButtonFont (juce::TextButton& button, int buttonHeight)
 {
-    const auto* cfg { lua::Engine::getContext() };
+    const auto* appState { AppModel::getContext() };
     const auto fontRole { button.getProperties()[jam::ID::font].toString() };
 
     juce::Font result { juce::FontOptions()
-                            .withName (cfg->display.tab.family)
+                            .withName (appState->getValue<juce::String> (app::id::DISPLAY_LUA, app::id::tabFamily))
                             .withPointHeight (static_cast<float> (buttonHeight) * 0.6f) };
 
     if (fontRole == jam::ID::name.toString())
         result = juce::Font { juce::FontOptions()
-                                  .withName (cfg->display.actionList.nameFamily)
-                                  .withStyle (cfg->display.actionList.nameStyle)
-                                  .withPointHeight (cfg->display.actionList.nameSize) };
+                                  .withName (appState->getValue<juce::String> (app::id::DISPLAY_LUA, app::id::actionListNameFamily))
+                                  .withStyle (appState->getValue<juce::String> (app::id::DISPLAY_LUA, app::id::actionListNameStyle))
+                                  .withPointHeight (appState->getValue<float> (app::id::DISPLAY_LUA, app::id::actionListNameSize)) };
 
     return result;
 }
@@ -236,21 +244,21 @@ juce::Font LookAndFeel::getLabelFont (juce::Label& label)
 
     const auto& props { label.getProperties() };
     const auto fontRole { props[jam::ID::font].toString() };
-    const auto* cfg { lua::Engine::getContext() };
+    const auto* appState { AppModel::getContext() };
 
     if (fontRole == jam::ID::name.toString())
     {
         result = juce::Font { juce::FontOptions()
-                                  .withName (cfg->display.actionList.nameFamily)
-                                  .withStyle (cfg->display.actionList.nameStyle)
-                                  .withPointHeight (cfg->display.actionList.nameSize) };
+                                  .withName (appState->getValue<juce::String> (app::id::DISPLAY_LUA, app::id::actionListNameFamily))
+                                  .withStyle (appState->getValue<juce::String> (app::id::DISPLAY_LUA, app::id::actionListNameStyle))
+                                  .withPointHeight (appState->getValue<float> (app::id::DISPLAY_LUA, app::id::actionListNameSize)) };
     }
     else if (fontRole == jam::ID::keyPress.toString())
     {
         result = juce::Font { juce::FontOptions()
-                                  .withName (cfg->display.actionList.shortcutFamily)
-                                  .withStyle (cfg->display.actionList.shortcutStyle)
-                                  .withPointHeight (cfg->display.actionList.shortcutSize) };
+                                  .withName (appState->getValue<juce::String> (app::id::DISPLAY_LUA, app::id::actionListShortcutFamily))
+                                  .withStyle (appState->getValue<juce::String> (app::id::DISPLAY_LUA, app::id::actionListShortcutStyle))
+                                  .withPointHeight (appState->getValue<float> (app::id::DISPLAY_LUA, app::id::actionListShortcutSize)) };
     }
 
     return result;
@@ -264,7 +272,7 @@ juce::Font LookAndFeel::getLabelFont (juce::Label& label)
  */
 int LookAndFeel::getDefaultScrollbarWidth()
 {
-    return lua::Engine::getContext()->display.scrollbarWidth;
+    return AppModel::getContext()->getValue<int> (app::id::DISPLAY_LUA, app::id::scrollbarWidth);
 }
 
 void LookAndFeel::drawStretchableLayoutResizerBar (juce::Graphics& g,

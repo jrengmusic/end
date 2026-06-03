@@ -193,7 +193,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="nexus/EncoderDecoder.h" line="27" column="24" bodyfile="nexus/EncoderDecoder.h" bodystart="27" bodyend="27"/>
-        <referencedby refid="class_e_n_d_application_1a96fc235a4618e12e65fb65d24578a554" compoundref="_main_8cpp" startline="60" endline="267">ENDApplication::initialise</referencedby>
+        <referencedby refid="class_e_n_d_application_1a96fc235a4618e12e65fb65d24578a554" compoundref="_main_8cpp" startline="60" endline="271">ENDApplication::initialise</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="func">
@@ -240,7 +240,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="nexus/EncoderDecoder.cpp" line="14" column="19" bodyfile="nexus/EncoderDecoder.cpp" bodystart="14" bodyend="21" declfile="nexus/EncoderDecoder.h" declline="49" declcolumn="19"/>
-        <referencedby refid="class_e_n_d_application_1a96fc235a4618e12e65fb65d24578a554" compoundref="_main_8cpp" startline="60" endline="267">ENDApplication::initialise</referencedby>
+        <referencedby refid="class_e_n_d_application_1a96fc235a4618e12e65fb65d24578a554" compoundref="_main_8cpp" startline="60" endline="271">ENDApplication::initialise</referencedby>
         <referencedby refid="classnexus_1_1_daemon_1_1_channel_1a3af754db6a9ae3590056c866b15f3a72" compoundref="_channel_8cpp" startline="81" endline="84">nexus::Daemon::Channel::sendPdu</referencedby>
         <referencedby refid="classnexus_1_1_link_1a4a8a5ab27bb9640d9db34f4712277a52" compoundref="_link_8cpp" startline="245" endline="248">nexus::Link::sendPdu</referencedby>
       </memberdef>

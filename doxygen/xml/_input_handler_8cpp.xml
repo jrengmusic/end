@@ -21,7 +21,7 @@
         </childnode>
         <childnode refid="10" relation="include">
         </childnode>
-        <childnode refid="11" relation="include">
+        <childnode refid="9" relation="include">
         </childnode>
       </node>
       <node id="18">
@@ -30,8 +30,8 @@
         <childnode refid="3" relation="include">
         </childnode>
       </node>
-      <node id="11">
-        <label>Map.h</label>
+      <node id="9">
+        <label>../Map.h</label>
         <link refid="_map_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
@@ -51,7 +51,11 @@
         <link refid="_engine_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
         <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
         </childnode>
       </node>
       <node id="10">
@@ -60,7 +64,7 @@
         <childnode refid="3" relation="include">
         </childnode>
       </node>
-      <node id="9">
+      <node id="11">
         <label>../terminal/action/Action.h</label>
         <link refid="_action_8h"/>
         <childnode refid="3" relation="include">
@@ -99,7 +103,7 @@
         </childnode>
         <childnode refid="12" relation="include">
         </childnode>
-        <childnode refid="9" relation="include">
+        <childnode refid="11" relation="include">
         </childnode>
         <childnode refid="7" relation="include">
         </childnode>
@@ -273,12 +277,12 @@
 <codeline lineno="88"><highlight class="normal"></highlight></codeline>
 <codeline lineno="89" refid="classwhelmed_1_1_input_handler_1a713d5fbdab836504c0b34fe66fc043ac" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classwhelmed_1_1_input_handler_1a713d5fbdab836504c0b34fe66fc043ac" kindref="member">InputHandler::handleNavigation</ref><sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::KeyPress&amp;<sp/>key)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="90"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal">*<sp/>cfg<sp/>{<sp/><ref refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">lua::Engine::getContext</ref>()<sp/>};</highlight></codeline>
-<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>scrollStep<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/>cfg-&gt;whelmed.scrollStep<sp/>};</highlight></codeline>
-<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::String<sp/>scrollDown<sp/><sp/><sp/>{<sp/>cfg-&gt;whelmed.scrollDown<sp/>};</highlight></codeline>
-<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::String<sp/>scrollUp<sp/><sp/><sp/><sp/><sp/>{<sp/>cfg-&gt;whelmed.scrollUp<sp/>};</highlight></codeline>
-<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::String<sp/>scrollTop<sp/><sp/><sp/><sp/>{<sp/>cfg-&gt;whelmed.scrollTop<sp/>};</highlight></codeline>
-<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::String<sp/>scrollBottom<sp/>{<sp/>cfg-&gt;whelmed.scrollBottom<sp/>};</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal">*<sp/>appState<sp/>{<sp/><ref refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">AppModel::getContext</ref>()<sp/>};</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>scrollStep<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/>appState-&gt;getValue&lt;</highlight><highlight class="keywordtype">int</highlight><highlight class="normal">&gt;<sp/>(<ref refid="namespaceapp_1_1id_1af38a58466b0c9efb4717d0c6e9fef1d4" kindref="member">app::id::WHELMED_LUA</ref>,<sp/><ref refid="namespaceapp_1_1id_1a55c2ff42f88c49f150e13de30c974d9d" kindref="member">app::id::scrollStep</ref>)<sp/>};</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::String<sp/>scrollDown<sp/><sp/><sp/>{<sp/>appState-&gt;getValue&lt;juce::String&gt;<sp/>(<ref refid="namespaceapp_1_1id_1af38a58466b0c9efb4717d0c6e9fef1d4" kindref="member">app::id::WHELMED_LUA</ref>,<sp/><ref refid="namespaceapp_1_1id_1afd275faf67380d984e51ebdea341395c" kindref="member">app::id::scrollDown</ref>)<sp/>};</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::String<sp/>scrollUp<sp/><sp/><sp/><sp/><sp/>{<sp/>appState-&gt;getValue&lt;juce::String&gt;<sp/>(<ref refid="namespaceapp_1_1id_1af38a58466b0c9efb4717d0c6e9fef1d4" kindref="member">app::id::WHELMED_LUA</ref>,<sp/><ref refid="namespaceapp_1_1id_1ac0656642c438f1af1bf14e1aaa69399f" kindref="member">app::id::scrollUp</ref>)<sp/>};</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::String<sp/>scrollTop<sp/><sp/><sp/><sp/>{<sp/>appState-&gt;getValue&lt;juce::String&gt;<sp/>(<ref refid="namespaceapp_1_1id_1af38a58466b0c9efb4717d0c6e9fef1d4" kindref="member">app::id::WHELMED_LUA</ref>,<sp/><ref refid="namespaceapp_1_1id_1af607d92f2813b69d4bb003060d4edebe" kindref="member">app::id::scrollTop</ref>)<sp/>};</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::String<sp/>scrollBottom<sp/>{<sp/>appState-&gt;getValue&lt;juce::String&gt;<sp/>(<ref refid="namespaceapp_1_1id_1af38a58466b0c9efb4717d0c6e9fef1d4" kindref="member">app::id::WHELMED_LUA</ref>,<sp/><ref refid="namespaceapp_1_1id_1ae8d866eeefab0444493f84a8ebd77849" kindref="member">app::id::scrollBottom</ref>)<sp/>};</highlight></codeline>
 <codeline lineno="97"><highlight class="normal"></highlight></codeline>
 <codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>keyChar<sp/>{<sp/>key.getTextCharacter()<sp/>};</highlight></codeline>
 <codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>handled<sp/>{<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal"><sp/>};</highlight></codeline>

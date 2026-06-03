@@ -3,19 +3,57 @@
   <compounddef id="_message_overlay_8h" kind="file" language="C++">
     <compoundname>MessageOverlay.h</compoundname>
     <includes local="no">JuceHeader.h</includes>
-    <includes refid="_engine_8h" local="yes">../../lua/Engine.h</includes>
+    <includes refid="_app_model_8h" local="yes">../../AppModel.h</includes>
     <includedby refid="_main_component_8h" local="yes">MainComponent.h</includedby>
     <includedby refid="_action_list_8h" local="yes">terminal/action/ActionList.h</includedby>
     <incdepgraph>
+      <node id="4">
+        <label>AppIdentifier.h</label>
+        <link refid="_app_identifier_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
       <node id="3">
-        <label>../../lua/Engine.h</label>
+        <label>../../AppModel.h</label>
+        <link refid="_app_model_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>../Map.h</label>
+        <link refid="_map_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>lua/Engine.h</label>
         <link refid="_engine_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
         <childnode refid="4" relation="include">
         </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
       </node>
-      <node id="4">
+      <node id="7">
+        <label>terminal/Identifier.h</label>
+        <link refid="_identifier_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
         <label>../terminal/action/Action.h</label>
         <link refid="_action_8h"/>
         <childnode refid="2" relation="include">
@@ -107,16 +145,16 @@
 </listitem><listitem><para><bold>Window size</bold> — ruler overlay shown on resize (see <computeroutput>showResize()</computeroutput>).</para>
 </listitem></itemizedlist>
 </para>
-<sect1 id="_message_overlay_8h_1autotoc_md24_1s1"><sect2 id="_message_overlay_8h_1autotoc_md24_1s2"><sect3 id="_message_overlay_8h_1autotoc_md24">
+<sect1 id="_message_overlay_8h_1autotoc_md25_1s1"><sect2 id="_message_overlay_8h_1autotoc_md25_1s2"><sect3 id="_message_overlay_8h_1autotoc_md25">
 <title>Resize ruler</title><para><computeroutput>showResize()</computeroutput> switches the overlay into ruler mode. <computeroutput>paintRulers()</computeroutput> draws two crossed ruler lines — horizontal at 2/3 from the top (1/3 from the bottom) and vertical at 2/3 from the left (1/3 from the right) — placing them near the bottom-right resize handle. Each ruler is a <computeroutput>juce::Path</computeroutput> stroke with perpendicular end ticks and an inline label (<computeroutput>--- 80 col ---</computeroutput>, <computeroutput>--- 24 row ---</computeroutput>) with a gap cut out of the line behind the text.</para>
 </sect3></sect2></sect1>
-<sect1 id="_message_overlay_8h_1autotoc_md25_1s1"><sect2 id="_message_overlay_8h_1autotoc_md25_1s2"><sect3 id="_message_overlay_8h_1autotoc_md25">
+<sect1 id="_message_overlay_8h_1autotoc_md26_1s1"><sect2 id="_message_overlay_8h_1autotoc_md26_1s2"><sect3 id="_message_overlay_8h_1autotoc_md26">
 <title>Fade animation</title><para>Visibility transitions use <computeroutput><ref refid="structjam_1_1_animator_1a9b25beac56ffed8693b54cf2e594fa6a" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Animator::toggleFade()</ref></computeroutput> for smooth fade-in / fade-out. A <computeroutput>juce::Timer</computeroutput> triggers the fade-out after the configured display duration.</para>
 </sect3></sect2></sect1>
-<sect1 id="_message_overlay_8h_1autotoc_md26_1s1"><sect2 id="_message_overlay_8h_1autotoc_md26_1s2"><sect3 id="_message_overlay_8h_1autotoc_md26">
+<sect1 id="_message_overlay_8h_1autotoc_md27_1s1"><sect2 id="_message_overlay_8h_1autotoc_md27_1s2"><sect3 id="_message_overlay_8h_1autotoc_md27">
 <title>Image preview</title><para><computeroutput>showImage()</computeroutput> switches the overlay into image mode. The image is drawn right-aligned (right half of the overlay) with <computeroutput><ref refid="classRectanglePlacement_1afd5464553fd6bb41d697f3fc1d7427edadf52ee04f4f43cfcc6049d49833dd946" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">RectanglePlacement::centred</ref> | onlyReduceInSize</computeroutput> and 16 px padding. The overlay intercepts mouse clicks while in image mode so that any click anywhere on the window dismisses it. <computeroutput>dismissImage()</computeroutput> fades out and restores mouse passthrough.</para>
 </sect3></sect2></sect1>
-<sect1 id="_message_overlay_8h_1autotoc_md27_1s1"><sect2 id="_message_overlay_8h_1autotoc_md27_1s2"><sect3 id="_message_overlay_8h_1autotoc_md27">
+<sect1 id="_message_overlay_8h_1autotoc_md28_1s1"><sect2 id="_message_overlay_8h_1autotoc_md28_1s2"><sect3 id="_message_overlay_8h_1autotoc_md28">
 <title>Mouse passthrough</title><para><computeroutput>setInterceptsMouseClicks(false, false)</computeroutput> ensures the overlay never captures mouse events in message/resize mode, so selection and scrolling work normally while it is visible. <ref refid="classImage" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Image</ref> mode temporarily overrides this.</para>
 <para><simplesect kind="note"><para>All methods are called on the <bold>MESSAGE THREAD</bold>.</para>
 </simplesect>
@@ -136,7 +174,7 @@
 <codeline lineno="44"><highlight class="normal"></highlight></codeline>
 <codeline lineno="45"><highlight class="normal"></highlight><highlight class="preprocessor">#pragma<sp/>once</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="46"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;JuceHeader.h&gt;</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="47"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_engine_8h" kindref="compound">../../lua/Engine.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_app_model_8h" kindref="compound">../../AppModel.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="48"><highlight class="normal"></highlight></codeline>
 <codeline lineno="61" refid="class_message_overlay" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="class_message_overlay_1acdf5c0627a4e906b5f9151aaa7a4f8e1" kindref="member">MessageOverlay</ref></highlight></codeline>
 <codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>juce::Component</highlight></codeline>
@@ -216,12 +254,12 @@
 <codeline lineno="201"><highlight class="normal"></highlight></codeline>
 <codeline lineno="212" refid="class_message_overlay_1aeaea2831b40866641f24efffb547e2c4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_message_overlay_1aeaea2831b40866641f24efffb547e2c4" kindref="member">paint</ref><sp/>(juce::Graphics&amp;<sp/>g)</highlight><highlight class="keyword"><sp/>override</highlight></codeline>
 <codeline lineno="213"><highlight class="keyword"><sp/><sp/><sp/><sp/></highlight><highlight class="normal">{</highlight></codeline>
-<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal">*<sp/>cfg<sp/>{<sp/><ref refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">lua::Engine::getContext</ref>()<sp/>};</highlight></codeline>
-<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>bgColour<sp/>{<sp/>cfg-&gt;display.window.colour<sp/>};</highlight></codeline>
-<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>fgColour<sp/>{<sp/>cfg-&gt;display.overlay.colour<sp/>};</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal">*<sp/>appState<sp/>{<sp/><ref refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">AppModel::getContext</ref>()<sp/>};</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>bgColour<sp/>{<sp/>juce::Colour<sp/>(</highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal">juce::uint32</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(appState-&gt;getValue&lt;</highlight><highlight class="keywordtype">int</highlight><highlight class="normal">&gt;<sp/>(<ref refid="namespaceapp_1_1id_1a24815b9015e0395936a1718769739fff" kindref="member">app::id::DISPLAY_LUA</ref>,<sp/><ref refid="namespaceapp_1_1id_1aacf1d941ece69d43b705d3f1238fba52" kindref="member">app::id::windowColour</ref>)))<sp/>};</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>fgColour<sp/>{<sp/>juce::Colour<sp/>(</highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal">juce::uint32</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(appState-&gt;getValue&lt;</highlight><highlight class="keywordtype">int</highlight><highlight class="normal">&gt;<sp/>(<ref refid="namespaceapp_1_1id_1a24815b9015e0395936a1718769739fff" kindref="member">app::id::DISPLAY_LUA</ref>,<sp/><ref refid="namespaceapp_1_1id_1a66882a1899acc8c961154c2d383f9483" kindref="member">app::id::overlayColour</ref>)))<sp/>};</highlight></codeline>
 <codeline lineno="217"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::FontOptions<sp/>font<sp/>{<sp/>juce::FontOptions()</highlight></codeline>
-<codeline lineno="218"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.withName<sp/>(cfg-&gt;display.overlay.family)</highlight></codeline>
-<codeline lineno="219"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.withPointHeight<sp/>(cfg-&gt;display.overlay.size)<sp/>};</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.withName<sp/>(appState-&gt;getValue&lt;juce::String&gt;<sp/>(<ref refid="namespaceapp_1_1id_1a24815b9015e0395936a1718769739fff" kindref="member">app::id::DISPLAY_LUA</ref>,<sp/><ref refid="namespaceapp_1_1id_1a33aa122805fab67713a5bd4caea745cd" kindref="member">app::id::overlayFamily</ref>))</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.withPointHeight<sp/>(appState-&gt;getValue&lt;</highlight><highlight class="keywordtype">float</highlight><highlight class="normal">&gt;<sp/>(<ref refid="namespaceapp_1_1id_1a24815b9015e0395936a1718769739fff" kindref="member">app::id::DISPLAY_LUA</ref>,<sp/><ref refid="namespaceapp_1_1id_1a389dcd133162a346affb3d7858a01ce1" kindref="member">app::id::overlaySize</ref>))<sp/>};</highlight></codeline>
 <codeline lineno="220"><highlight class="normal"></highlight></codeline>
 <codeline lineno="221"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="class_message_overlay_1a8e0703b29060cf8b49e791c0bcb0a2d0" kindref="member">imageMode</ref><sp/>and<sp/><ref refid="class_message_overlay_1a343848d12b3fc0e5cae342535e1af772" kindref="member">previewImage</ref>.isValid())</highlight></codeline>
 <codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>

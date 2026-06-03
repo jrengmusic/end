@@ -102,7 +102,7 @@
     <detaileddescription>
 <para>Defines the message kind enumeration used by Channel and Link to identify messages exchanged over JUCE&apos;s <ref refid="classInterprocessConnection" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">InterprocessConnection</ref> (TCP).</para>
 <para>Wire format inside each JUCE IPC frame: uint16_t kind (LE) | payload bytes.</para>
-<sect1 id="_message_8h_1autotoc_md15_1s1"><sect2 id="_message_8h_1autotoc_md15_1s2"><sect3 id="_message_8h_1autotoc_md15">
+<sect1 id="_message_8h_1autotoc_md16_1s1"><sect2 id="_message_8h_1autotoc_md16_1s2"><sect3 id="_message_8h_1autotoc_md16">
 <title>Wire protocol</title><para><itemizedlist>
 <listitem><para><computeroutput>createSession(shell, args, cwd, uuid, cols, rows, envID)</computeroutput> — client→daemon; daemon creates if uuid is new, resizes+attaches if uuid exists</para>
 </listitem><listitem><para><computeroutput>loading(uuid, bytes)</computeroutput> — daemon→client initial byte snapshot for the loading phase</para>

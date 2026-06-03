@@ -38,25 +38,45 @@
         </childnode>
         <childnode refid="10" relation="include">
         </childnode>
-        <childnode refid="11" relation="include">
+        <childnode refid="15" relation="include">
         </childnode>
-        <childnode refid="16" relation="include">
+        <childnode refid="17" relation="include">
         </childnode>
         <childnode refid="18" relation="include">
         </childnode>
-        <childnode refid="19" relation="include">
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
         </childnode>
         <childnode refid="51" relation="include">
         </childnode>
-        <childnode refid="37" relation="include">
-        </childnode>
-        <childnode refid="29" relation="include">
-        </childnode>
-        <childnode refid="54" relation="include">
+        <childnode refid="52" relation="include">
         </childnode>
         <childnode refid="56" relation="include">
         </childnode>
-        <childnode refid="52" relation="include">
+        <childnode refid="58" relation="include">
+        </childnode>
+        <childnode refid="61" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="62" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="63" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="64" relation="include">
+        </childnode>
+        <childnode refid="66" relation="include">
+        </childnode>
+        <childnode refid="67" relation="include">
+        </childnode>
+        <childnode refid="69" relation="include">
+        </childnode>
+        <childnode refid="59" relation="include">
         </childnode>
       </node>
       <node id="3">
@@ -87,7 +107,7 @@
         <label>MainComponentActions.cpp</label>
         <link refid="_main_component_actions_8cpp"/>
       </node>
-      <node id="10">
+      <node id="70">
         <label>lua/Engine.cpp</label>
         <link refid="_engine_8cpp"/>
       </node>
@@ -96,101 +116,87 @@
         <link refid="_engine_8h"/>
         <childnode refid="8" relation="include">
         </childnode>
-        <childnode refid="2" relation="include">
-        </childnode>
-        <childnode refid="4" relation="include">
-        </childnode>
-        <childnode refid="10" relation="include">
-        </childnode>
-        <childnode refid="58" relation="include">
-        </childnode>
-        <childnode refid="59" relation="include">
-        </childnode>
-        <childnode refid="60" relation="include">
-        </childnode>
-        <childnode refid="61" relation="include">
-        </childnode>
-        <childnode refid="62" relation="include">
-        </childnode>
-        <childnode refid="63" relation="include">
-        </childnode>
-        <childnode refid="48" relation="include">
-        </childnode>
-        <childnode refid="21" relation="include">
-        </childnode>
-        <childnode refid="64" relation="include">
-        </childnode>
-        <childnode refid="19" relation="include">
-        </childnode>
-        <childnode refid="47" relation="include">
-        </childnode>
-        <childnode refid="66" relation="include">
-        </childnode>
         <childnode refid="70" relation="include">
+        </childnode>
+        <childnode refid="71" relation="include">
         </childnode>
         <childnode refid="72" relation="include">
         </childnode>
-        <childnode refid="25" relation="include">
-        </childnode>
         <childnode refid="73" relation="include">
-        </childnode>
-        <childnode refid="33" relation="include">
-        </childnode>
-        <childnode refid="37" relation="include">
-        </childnode>
-        <childnode refid="35" relation="include">
         </childnode>
         <childnode refid="74" relation="include">
         </childnode>
         <childnode refid="75" relation="include">
         </childnode>
-        <childnode refid="54" relation="include">
+        <childnode refid="76" relation="include">
+        </childnode>
+        <childnode refid="49" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
+        <childnode refid="48" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
         </childnode>
         <childnode refid="77" relation="include">
         </childnode>
-        <childnode refid="56" relation="include">
+        <childnode refid="64" relation="include">
         </childnode>
         <childnode refid="79" relation="include">
         </childnode>
-        <childnode refid="52" relation="include">
+        <childnode refid="67" relation="include">
+        </childnode>
+        <childnode refid="80" relation="include">
+        </childnode>
+        <childnode refid="59" relation="include">
         </childnode>
       </node>
-      <node id="58">
+      <node id="71">
         <label>lua/EngineConfig.cpp</label>
         <link refid="_engine_config_8cpp"/>
       </node>
-      <node id="59">
+      <node id="72">
         <label>lua/EngineDefaults.cpp</label>
         <link refid="_engine_defaults_8cpp"/>
       </node>
-      <node id="60">
+      <node id="73">
         <label>lua/EngineParse.cpp</label>
         <link refid="_engine_parse_8cpp"/>
       </node>
-      <node id="61">
+      <node id="74">
         <label>lua/EngineParseConfig.cpp</label>
         <link refid="_engine_parse_config_8cpp"/>
       </node>
-      <node id="62">
+      <node id="75">
         <label>lua/EngineParseDisplay.cpp</label>
         <link refid="_engine_parse_display_8cpp"/>
       </node>
-      <node id="63">
+      <node id="76">
         <label>lua/EnginePatch.cpp</label>
         <link refid="_engine_patch_8cpp"/>
       </node>
-      <node id="12">
+      <node id="11">
         <label>nexus/Channel.cpp</label>
         <link refid="_channel_8cpp"/>
       </node>
-      <node id="13">
+      <node id="12">
         <label>nexus/Daemon.cpp</label>
         <link refid="_daemon_8cpp"/>
       </node>
-      <node id="11">
+      <node id="10">
         <label>nexus/Daemon.h</label>
         <link refid="_daemon_8h"/>
         <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
         </childnode>
         <childnode refid="12" relation="include">
         </childnode>
@@ -198,179 +204,177 @@
         </childnode>
         <childnode refid="14" relation="include">
         </childnode>
-        <childnode refid="15" relation="include">
-        </childnode>
       </node>
-      <node id="14">
+      <node id="13">
         <label>nexus/Daemon.mm</label>
         <link refid="_daemon_8mm"/>
       </node>
-      <node id="15">
+      <node id="14">
         <label>nexus/DaemonWindows.cpp</label>
         <link refid="_daemon_windows_8cpp"/>
       </node>
-      <node id="17">
+      <node id="16">
         <label>nexus/Link.cpp</label>
         <link refid="_link_8cpp"/>
       </node>
-      <node id="16">
+      <node id="15">
         <label>nexus/Link.h</label>
         <link refid="_link_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
-        <childnode refid="17" relation="include">
+        <childnode refid="16" relation="include">
         </childnode>
       </node>
-      <node id="49">
+      <node id="50">
         <label>nexus/Nexus.cpp</label>
         <link refid="_nexus_8cpp"/>
       </node>
-      <node id="48">
+      <node id="49">
         <label>nexus/Nexus.h</label>
         <link refid="_nexus_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
         <childnode refid="4" relation="include">
         </childnode>
-        <childnode refid="11" relation="include">
+        <childnode refid="10" relation="include">
         </childnode>
-        <childnode refid="16" relation="include">
+        <childnode refid="15" relation="include">
         </childnode>
-        <childnode refid="49" relation="include">
+        <childnode refid="50" relation="include">
         </childnode>
-        <childnode refid="37" relation="include">
+        <childnode refid="35" relation="include">
         </childnode>
-        <childnode refid="29" relation="include">
+        <childnode refid="27" relation="include">
         </childnode>
       </node>
-      <node id="22">
+      <node id="17">
         <label>terminal/Input.cpp</label>
         <link refid="_input_8cpp"/>
       </node>
-      <node id="21">
+      <node id="20">
         <label>terminal/Input.h</label>
         <link refid="_input_8h"/>
-        <childnode refid="22" relation="include">
+        <childnode refid="17" relation="include">
         </childnode>
-        <childnode refid="23" relation="include">
-        </childnode>
-      </node>
-      <node id="64">
-        <label>terminal/LinkDetector.h</label>
-        <link refid="_link_detector_8h"/>
-        <childnode refid="20" relation="include">
-        </childnode>
-        <childnode refid="65" relation="include">
+        <childnode refid="21" relation="include">
         </childnode>
       </node>
       <node id="18">
+        <label>terminal/LinkDetector.h</label>
+        <link refid="_link_detector_8h"/>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="41" relation="include">
+        </childnode>
+      </node>
+      <node id="37">
         <label>terminal/LinkManager.cpp</label>
         <link refid="_link_manager_8cpp"/>
       </node>
-      <node id="20">
+      <node id="19">
         <label>terminal/LinkManager.h</label>
         <link refid="_link_manager_8h"/>
-        <childnode refid="21" relation="include">
+        <childnode refid="20" relation="include">
         </childnode>
-        <childnode refid="18" relation="include">
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="38" relation="include">
         </childnode>
         <childnode refid="39" relation="include">
         </childnode>
-        <childnode refid="40" relation="include">
-        </childnode>
-        <childnode refid="23" relation="include">
+        <childnode refid="21" relation="include">
         </childnode>
       </node>
-      <node id="39">
+      <node id="38">
         <label>terminal/LinkManagerScan.cpp</label>
         <link refid="_link_manager_scan_8cpp"/>
       </node>
-      <node id="65">
+      <node id="41">
         <label>terminal/LinkSpan.h</label>
         <link refid="_link_span_8h"/>
-        <childnode refid="20" relation="include">
+        <childnode refid="19" relation="include">
         </childnode>
       </node>
-      <node id="42">
+      <node id="43">
         <label>terminal/Model.cpp</label>
         <link refid="_model_8cpp"/>
       </node>
-      <node id="19">
+      <node id="42">
         <label>terminal/Model.h</label>
         <link refid="_model_8h"/>
-        <childnode refid="20" relation="include">
-        </childnode>
-        <childnode refid="42" relation="include">
+        <childnode refid="19" relation="include">
         </childnode>
         <childnode refid="43" relation="include">
         </childnode>
         <childnode refid="44" relation="include">
         </childnode>
-        <childnode refid="47" relation="include">
+        <childnode refid="45" relation="include">
+        </childnode>
+        <childnode refid="48" relation="include">
         </childnode>
       </node>
-      <node id="43">
+      <node id="44">
         <label>terminal/ModelFlush.cpp</label>
         <link refid="_model_flush_8cpp"/>
       </node>
-      <node id="41">
+      <node id="40">
         <label>terminal/Mouse.cpp</label>
         <link refid="_mouse_8cpp"/>
       </node>
-      <node id="40">
+      <node id="39">
         <label>terminal/Mouse.h</label>
         <link refid="_mouse_8h"/>
-        <childnode refid="41" relation="include">
-        </childnode>
-        <childnode refid="23" relation="include">
-        </childnode>
-      </node>
-      <node id="45">
-        <label>terminal/Processor.cpp</label>
-        <link refid="_processor_8cpp"/>
-      </node>
-      <node id="44">
-        <label>terminal/Processor.h</label>
-        <link refid="_processor_8h"/>
-        <childnode refid="11" relation="include">
-        </childnode>
-        <childnode refid="16" relation="include">
+        <childnode refid="40" relation="include">
         </childnode>
         <childnode refid="21" relation="include">
         </childnode>
-        <childnode refid="40" relation="include">
+      </node>
+      <node id="46">
+        <label>terminal/Processor.cpp</label>
+        <link refid="_processor_8cpp"/>
+      </node>
+      <node id="45">
+        <label>terminal/Processor.h</label>
+        <link refid="_processor_8h"/>
+        <childnode refid="10" relation="include">
         </childnode>
-        <childnode refid="45" relation="include">
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="39" relation="include">
         </childnode>
         <childnode refid="46" relation="include">
         </childnode>
         <childnode refid="47" relation="include">
         </childnode>
-        <childnode refid="37" relation="include">
+        <childnode refid="48" relation="include">
+        </childnode>
+        <childnode refid="35" relation="include">
         </childnode>
       </node>
-      <node id="46">
+      <node id="47">
         <label>terminal/ProcessorEvents.cpp</label>
         <link refid="_processor_events_8cpp"/>
       </node>
-      <node id="50">
+      <node id="51">
         <label>terminal/Session.cpp</label>
         <link refid="_session_8cpp"/>
       </node>
-      <node id="47">
+      <node id="48">
         <label>terminal/Session.h</label>
         <link refid="_session_8h"/>
-        <childnode refid="11" relation="include">
+        <childnode refid="10" relation="include">
         </childnode>
-        <childnode refid="48" relation="include">
+        <childnode refid="49" relation="include">
         </childnode>
-        <childnode refid="50" relation="include">
+        <childnode refid="51" relation="include">
         </childnode>
-        <childnode refid="23" relation="include">
-        </childnode>
-        <childnode refid="37" relation="include">
+        <childnode refid="21" relation="include">
         </childnode>
         <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
         </childnode>
       </node>
       <node id="81">
@@ -386,38 +390,38 @@
         </childnode>
         <childnode refid="7" relation="include">
         </childnode>
-        <childnode refid="21" relation="include">
+        <childnode refid="20" relation="include">
         </childnode>
         <childnode refid="81" relation="include">
         </childnode>
-        <childnode refid="66" relation="include">
+        <childnode refid="52" relation="include">
         </childnode>
         <childnode refid="82" relation="include">
         </childnode>
-        <childnode refid="54" relation="include">
+        <childnode refid="64" relation="include">
         </childnode>
       </node>
-      <node id="67">
+      <node id="53">
         <label>terminal/action/ActionList.cpp</label>
         <link refid="_action_list_8cpp"/>
       </node>
-      <node id="66">
+      <node id="52">
         <label>terminal/action/ActionList.h</label>
         <link refid="_action_list_8h"/>
         <childnode refid="4" relation="include">
         </childnode>
-        <childnode refid="67" relation="include">
+        <childnode refid="53" relation="include">
         </childnode>
-        <childnode refid="68" relation="include">
+        <childnode refid="54" relation="include">
         </childnode>
-        <childnode refid="69" relation="include">
+        <childnode refid="55" relation="include">
         </childnode>
       </node>
-      <node id="68">
+      <node id="54">
         <label>terminal/action/ActionListBinding.cpp</label>
         <link refid="_action_list_binding_8cpp"/>
       </node>
-      <node id="69">
+      <node id="55">
         <label>terminal/action/ActionListSelection.cpp</label>
         <link refid="_action_list_selection_8cpp"/>
       </node>
@@ -428,235 +432,235 @@
       <node id="82">
         <label>terminal/action/ActionRow.h</label>
         <link refid="_action_row_8h"/>
-        <childnode refid="66" relation="include">
+        <childnode refid="52" relation="include">
         </childnode>
         <childnode refid="83" relation="include">
         </childnode>
       </node>
-      <node id="71">
+      <node id="57">
         <label>terminal/component/Dialog.cpp</label>
         <link refid="_dialog_8cpp"/>
       </node>
-      <node id="70">
+      <node id="56">
         <label>terminal/component/Dialog.h</label>
         <link refid="_dialog_8h"/>
         <childnode refid="4" relation="include">
         </childnode>
-        <childnode refid="71" relation="include">
+        <childnode refid="57" relation="include">
         </childnode>
       </node>
-      <node id="24">
+      <node id="22">
         <label>terminal/component/Display.cpp</label>
         <link refid="_display_8cpp"/>
       </node>
-      <node id="23">
+      <node id="21">
         <label>terminal/component/Display.h</label>
         <link refid="_display_8h"/>
-        <childnode refid="24" relation="include">
+        <childnode refid="22" relation="include">
         </childnode>
-        <childnode refid="25" relation="include">
+        <childnode refid="23" relation="include">
         </childnode>
-        <childnode refid="33" relation="include">
-        </childnode>
-        <childnode refid="37" relation="include">
+        <childnode refid="31" relation="include">
         </childnode>
         <childnode refid="35" relation="include">
         </childnode>
-        <childnode refid="29" relation="include">
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
         </childnode>
       </node>
-      <node id="72">
+      <node id="58">
         <label>terminal/component/LoaderOverlay.h</label>
         <link refid="_loader_overlay_8h"/>
-        <childnode refid="52" relation="include">
+        <childnode refid="59" relation="include">
         </childnode>
       </node>
-      <node id="26">
+      <node id="24">
         <label>terminal/component/LookAndFeel.cpp</label>
         <link refid="_look_and_feel_8cpp"/>
       </node>
-      <node id="25">
+      <node id="23">
         <label>terminal/component/LookAndFeel.h</label>
         <link refid="_look_and_feel_8h"/>
         <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
         </childnode>
         <childnode refid="26" relation="include">
         </childnode>
         <childnode refid="27" relation="include">
         </childnode>
-        <childnode refid="28" relation="include">
-        </childnode>
-        <childnode refid="29" relation="include">
-        </childnode>
       </node>
-      <node id="27">
+      <node id="25">
         <label>terminal/component/LookAndFeelMenu.cpp</label>
         <link refid="_look_and_feel_menu_8cpp"/>
       </node>
-      <node id="28">
+      <node id="26">
         <label>terminal/component/LookAndFeelTab.cpp</label>
         <link refid="_look_and_feel_tab_8cpp"/>
       </node>
-      <node id="73">
+      <node id="61">
         <label>terminal/component/MessageOverlay.h</label>
         <link refid="_message_overlay_8h"/>
         <childnode refid="4" relation="include">
         </childnode>
-        <childnode refid="66" relation="include">
+        <childnode refid="52" relation="include">
         </childnode>
       </node>
-      <node id="34">
+      <node id="32">
         <label>terminal/component/ModalWindow.cpp</label>
         <link refid="_modal_window_8cpp"/>
       </node>
-      <node id="33">
+      <node id="31">
         <label>terminal/component/ModalWindow.h</label>
         <link refid="_modal_window_8h"/>
-        <childnode refid="34" relation="include">
+        <childnode refid="32" relation="include">
         </childnode>
-        <childnode refid="35" relation="include">
+        <childnode refid="33" relation="include">
         </childnode>
       </node>
-      <node id="51">
+      <node id="62">
         <label>terminal/component/PaneView.h</label>
         <link refid="_pane_view_8h"/>
         <childnode refid="4" relation="include">
         </childnode>
-        <childnode refid="23" relation="include">
+        <childnode refid="21" relation="include">
         </childnode>
-        <childnode refid="37" relation="include">
+        <childnode refid="35" relation="include">
         </childnode>
-        <childnode refid="52" relation="include">
-        </childnode>
-      </node>
-      <node id="38">
-        <label>terminal/component/Panes.cpp</label>
-        <link refid="_panes_8cpp"/>
-      </node>
-      <node id="37">
-        <label>terminal/component/Panes.h</label>
-        <link refid="_panes_8h"/>
-        <childnode refid="38" relation="include">
-        </childnode>
-        <childnode refid="29" relation="include">
+        <childnode refid="59" relation="include">
         </childnode>
       </node>
       <node id="36">
+        <label>terminal/component/Panes.cpp</label>
+        <link refid="_panes_8cpp"/>
+      </node>
+      <node id="35">
+        <label>terminal/component/Panes.h</label>
+        <link refid="_panes_8h"/>
+        <childnode refid="36" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+      </node>
+      <node id="34">
         <label>terminal/component/Popup.cpp</label>
         <link refid="_popup_8cpp"/>
       </node>
-      <node id="35">
+      <node id="33">
         <label>terminal/component/Popup.h</label>
         <link refid="_popup_8h"/>
         <childnode refid="4" relation="include">
         </childnode>
-        <childnode refid="36" relation="include">
+        <childnode refid="34" relation="include">
         </childnode>
       </node>
-      <node id="74">
+      <node id="63">
         <label>terminal/component/StatusBarOverlay.h</label>
         <link refid="_status_bar_overlay_8h"/>
         <childnode refid="4" relation="include">
         </childnode>
       </node>
-      <node id="30">
+      <node id="28">
         <label>terminal/component/Tabs.cpp</label>
         <link refid="_tabs_8cpp"/>
       </node>
-      <node id="29">
+      <node id="27">
         <label>terminal/component/Tabs.h</label>
         <link refid="_tabs_8h"/>
         <childnode refid="4" relation="include">
         </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
         <childnode refid="30" relation="include">
         </childnode>
-        <childnode refid="31" relation="include">
-        </childnode>
-        <childnode refid="32" relation="include">
-        </childnode>
       </node>
-      <node id="31">
+      <node id="29">
         <label>terminal/component/TabsActions.cpp</label>
         <link refid="_tabs_actions_8cpp"/>
       </node>
-      <node id="32">
+      <node id="30">
         <label>terminal/component/TabsClose.cpp</label>
         <link refid="_tabs_close_8cpp"/>
       </node>
-      <node id="76">
+      <node id="78">
         <label>terminal/tty/WindowsTTY.cpp</label>
         <link refid="_windows_t_t_y_8cpp"/>
       </node>
-      <node id="75">
+      <node id="77">
         <label>terminal/tty/WindowsTTY.h</label>
         <link refid="_windows_t_t_y_8h"/>
-        <childnode refid="76" relation="include">
+        <childnode refid="78" relation="include">
         </childnode>
       </node>
-      <node id="55">
+      <node id="65">
         <label>whelmed/InputHandler.cpp</label>
         <link refid="_input_handler_8cpp"/>
       </node>
-      <node id="54">
+      <node id="64">
         <label>whelmed/InputHandler.h</label>
         <link refid="_input_handler_8h"/>
-        <childnode refid="55" relation="include">
+        <childnode refid="65" relation="include">
         </childnode>
-        <childnode refid="52" relation="include">
+        <childnode refid="59" relation="include">
         </childnode>
       </node>
-      <node id="78">
+      <node id="66">
         <label>whelmed/Parser.cpp</label>
         <link refid="whelmed_2_parser_8cpp"/>
       </node>
-      <node id="77">
+      <node id="79">
         <label>whelmed/Parser.h</label>
         <link refid="whelmed_2_parser_8h"/>
-        <childnode refid="78" relation="include">
+        <childnode refid="66" relation="include">
         </childnode>
-        <childnode refid="52" relation="include">
+        <childnode refid="59" relation="include">
         </childnode>
       </node>
-      <node id="57">
+      <node id="68">
         <label>whelmed/Screen.cpp</label>
         <link refid="_screen_8cpp"/>
       </node>
-      <node id="56">
+      <node id="67">
         <label>whelmed/Screen.h</label>
         <link refid="_screen_8h"/>
-        <childnode refid="54" relation="include">
+        <childnode refid="64" relation="include">
         </childnode>
-        <childnode refid="57" relation="include">
+        <childnode refid="68" relation="include">
         </childnode>
-        <childnode refid="52" relation="include">
+        <childnode refid="59" relation="include">
         </childnode>
       </node>
-      <node id="80">
+      <node id="69">
         <label>whelmed/Tokenizer.cpp</label>
         <link refid="_tokenizer_8cpp"/>
       </node>
-      <node id="79">
+      <node id="80">
         <label>whelmed/Tokenizer.h</label>
         <link refid="_tokenizer_8h"/>
-        <childnode refid="56" relation="include">
+        <childnode refid="67" relation="include">
         </childnode>
-        <childnode refid="80" relation="include">
+        <childnode refid="69" relation="include">
         </childnode>
       </node>
-      <node id="53">
+      <node id="60">
         <label>whelmed/component/Component.cpp</label>
         <link refid="_component_8cpp"/>
       </node>
-      <node id="52">
+      <node id="59">
         <label>whelmed/component/Component.h</label>
         <link refid="_component_8h"/>
         <childnode refid="4" relation="include">
         </childnode>
-        <childnode refid="37" relation="include">
+        <childnode refid="35" relation="include">
         </childnode>
-        <childnode refid="29" relation="include">
+        <childnode refid="27" relation="include">
         </childnode>
-        <childnode refid="53" relation="include">
+        <childnode refid="60" relation="include">
         </childnode>
       </node>
     </invincdepgraph>
@@ -671,7 +675,7 @@
     </briefdescription>
     <detaileddescription>
 <para><computeroutput><ref refid="classaction_1_1_registry" kindref="compound">action::Registry</ref></computeroutput> is the single owner of all user-performable actions in END. It holds a fixed action table (entries never change after construction), a key map rebuilt on every config reload, and the prefix state machine previously implemented in <computeroutput>ModalKeyBinding</computeroutput>.</para>
-<sect1 id="_action_8h_1autotoc_md19_1s1"><sect2 id="_action_8h_1autotoc_md19_1s2"><sect3 id="_action_8h_1autotoc_md19">
+<sect1 id="_action_8h_1autotoc_md20_1s1"><sect2 id="_action_8h_1autotoc_md20_1s2"><sect3 id="_action_8h_1autotoc_md20">
 <title>Lifecycle</title><para><orderedlist>
 <listitem><para>Constructed once (typically by <computeroutput><ref refid="class_main_component" kindref="compound">MainComponent</ref></computeroutput>).</para>
 </listitem><listitem><para>Caller registers every action via <computeroutput>registerAction()</computeroutput>.</para>
@@ -681,7 +685,7 @@
 </listitem></orderedlist>
 </para>
 </sect3></sect2></sect1>
-<sect1 id="_action_8h_1autotoc_md20_1s1"><sect2 id="_action_8h_1autotoc_md20_1s2"><sect3 id="_action_8h_1autotoc_md20">
+<sect1 id="_action_8h_1autotoc_md21_1s1"><sect2 id="_action_8h_1autotoc_md21_1s2"><sect3 id="_action_8h_1autotoc_md21">
 <title>Key resolution order</title><para><orderedlist>
 <listitem><para>If in <bold>waiting</bold> state: look up key in modal bindings → execute → idle.</para>
 </listitem><listitem><para>If in <bold>idle</bold> state and key equals the prefix key: enter <bold>waiting</bold> state.</para>

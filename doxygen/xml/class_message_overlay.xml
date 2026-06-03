@@ -619,11 +619,15 @@
         </inbodydescription>
         <location file="terminal/component/MessageOverlay.h" line="212" column="10" bodyfile="terminal/component/MessageOverlay.h" bodystart="212" bodyend="268"/>
         <references refid="class_message_overlay_1ad83f82b4333072775aeb7ca04e7f2dc3" compoundref="_message_overlay_8h" startline="443" endline="443">backgroundAlpha</references>
-        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
+        <references refid="namespaceapp_1_1id_1a24815b9015e0395936a1718769739fff" compoundref="_app_identifier_8h" startline="80" endline="80">app::id::DISPLAY_LUA</references>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
         <references refid="class_message_overlay_1a8e0703b29060cf8b49e791c0bcb0a2d0" compoundref="_message_overlay_8h" startline="418" endline="418">imageMode</references>
         <references refid="class_message_overlay_1aa7983b724070057d8ccc859e42dd9245" compoundref="_message_overlay_8h" startline="446" endline="446">imagePaddingPx</references>
         <references refid="class_message_overlay_1ac8115e493047cbdf11bdd36c62248229" compoundref="_message_overlay_8h" startline="452" endline="452">maxLines</references>
         <references refid="class_message_overlay_1a9ac4daa8553d9ff9b9b36993ac9733e8" compoundref="_message_overlay_8h" startline="412">message</references>
+        <references refid="namespaceapp_1_1id_1a66882a1899acc8c961154c2d383f9483" compoundref="_app_identifier_8h" startline="238" endline="238">app::id::overlayColour</references>
+        <references refid="namespaceapp_1_1id_1a33aa122805fab67713a5bd4caea745cd" compoundref="_app_identifier_8h" startline="236" endline="236">app::id::overlayFamily</references>
+        <references refid="namespaceapp_1_1id_1a389dcd133162a346affb3d7858a01ce1" compoundref="_app_identifier_8h" startline="237" endline="237">app::id::overlaySize</references>
         <references refid="class_message_overlay_1a05db852ad61501a3dd8cb4cdcc93600d" compoundref="_message_overlay_8h" startline="299" endline="400">paintRulers</references>
         <references refid="class_message_overlay_1a343848d12b3fc0e5cae342535e1af772" compoundref="_message_overlay_8h" startline="421">previewImage</references>
         <references refid="class_message_overlay_1af55ed5abc74accddc32297470a34b8d5" compoundref="_message_overlay_8h" startline="424" endline="424">resizeCols</references>
@@ -634,6 +638,7 @@
         <references refid="class_message_overlay_1a9d5b8e881f0b933f9f2ce9682223fa7c" compoundref="_message_overlay_8h" startline="430" endline="430">resizePadTop</references>
         <references refid="class_message_overlay_1ab5db45944e4b5971b0fe6d2e326e40f2" compoundref="_message_overlay_8h" startline="427" endline="427">resizeRows</references>
         <references refid="class_message_overlay_1a66ef06abef3c6476cb00313ad30e3d42" compoundref="_message_overlay_8h" startline="449" endline="449">textPadding</references>
+        <references refid="namespaceapp_1_1id_1aacf1d941ece69d43b705d3f1238fba52" compoundref="_app_identifier_8h" startline="168" endline="168">app::id::windowColour</references>
       </memberdef>
     </sectiondef>
     <sectiondef kind="private-static-func">

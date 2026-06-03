@@ -97,7 +97,7 @@
     </briefdescription>
     <detaileddescription>
 <para>This file implements the low-level cursor and tab-stop operations of the Video class. These are the building blocks used by the CSI dispatch handlers in <ref refid="_video_c_s_i_8cpp" kindref="compound">VideoCSI.cpp</ref> and by the ESC dispatch handlers in <ref refid="_video_e_s_c_8cpp" kindref="compound">VideoESC.cpp</ref>.</para>
-<sect1 id="_video_ops_8cpp_1autotoc_md89_1s1"><sect2 id="_video_ops_8cpp_1autotoc_md89">
+<sect1 id="_video_ops_8cpp_1autotoc_md90_1s1"><sect2 id="_video_ops_8cpp_1autotoc_md90">
 <title>Cursor movement primitives</title><para>All movement helpers operate on a screen index (<computeroutput>int</computeroutput>, 0 = normal, 1 = alternate) and clamp their results to valid bounds. They always clear the wrap-pending flag after moving, because a cursor that has been explicitly repositioned should not trigger a deferred wrap on the next printed character.</para>
 <para><table rows="12" cols="2"><row>
 <entry thead="yes"><para>Method  </para>
@@ -150,7 +150,7 @@
 </table>
 </para>
 </sect2></sect1>
-<sect1 id="_video_ops_8cpp_1autotoc_md90_1s1"><sect2 id="_video_ops_8cpp_1autotoc_md90">
+<sect1 id="_video_ops_8cpp_1autotoc_md91_1s1"><sect2 id="_video_ops_8cpp_1autotoc_md91">
 <title>Tab stop management</title><para>Tab stops are stored as a <computeroutput>std::vector&lt;char&gt;</computeroutput> indexed by column. A non-zero value at index <computeroutput>c</computeroutput> marks column <computeroutput>c</computeroutput> as a tab stop. The default layout places stops every 8 columns (columns 8, 16, 24, …), matching the VT100 default.</para>
 <para><table rows="6" cols="3"><row>
 <entry thead="yes"><para>Method  </para>
@@ -185,10 +185,10 @@
 </table>
 </para>
 </sect2></sect1>
-<sect1 id="_video_ops_8cpp_1autotoc_md91_1s1"><sect2 id="_video_ops_8cpp_1autotoc_md91">
+<sect1 id="_video_ops_8cpp_1autotoc_md92_1s1"><sect2 id="_video_ops_8cpp_1autotoc_md92">
 <title>Cursor save / restore (DECSC / DECRC)</title><para>ESC 7 (DECSC) saves the cursor position and the active pen into <computeroutput>stamp</computeroutput>. ESC 8 (DECRC) restores them. These are handled in <ref refid="_video_e_s_c_8cpp" kindref="compound">VideoESC.cpp</ref> using the <computeroutput>pen</computeroutput> and <computeroutput>stamp</computeroutput> members declared in <ref refid="_video_8h" kindref="compound">Video.h</ref>; no dedicated methods live here for that operation.</para>
 </sect2></sect1>
-<sect1 id="_video_ops_8cpp_1autotoc_md92_1s1"><sect2 id="_video_ops_8cpp_1autotoc_md92">
+<sect1 id="_video_ops_8cpp_1autotoc_md93_1s1"><sect2 id="_video_ops_8cpp_1autotoc_md93">
 <title>Terminal reset (RIS)</title><para>ESC c (RIS — Reset to Initial State) triggers a full terminal reset: <computeroutput>resetCursor()</computeroutput> (this file) resets cursor state and tab stops for both screens; <computeroutput>resetModes()</computeroutput> and <computeroutput>resetPen()</computeroutput> (<ref refid="_video_c_s_i_8cpp" kindref="compound">VideoCSI.cpp</ref>) reset mode flags and drawing attributes.</para>
 <para><simplesect kind="note"><para>All functions in this file run on the READER THREAD only.</para>
 </simplesect>

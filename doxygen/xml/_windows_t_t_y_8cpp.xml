@@ -4,12 +4,30 @@
     <compoundname>WindowsTTY.cpp</compoundname>
     <includes refid="_windows_t_t_y_8h" local="yes">WindowsTTY.h</includes>
     <incdepgraph>
+      <node id="8">
+        <label>../AppIdentifier.h</label>
+        <link refid="_app_identifier_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>../Map.h</label>
+        <link refid="_map_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
       <node id="7">
         <label>../../lua/Engine.h</label>
         <link refid="_engine_8h"/>
         <childnode refid="4" relation="include">
         </childnode>
         <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
         </childnode>
       </node>
       <node id="5">
@@ -22,7 +40,7 @@
         <label>../Winsize.h</label>
         <link refid="_winsize_8h"/>
       </node>
-      <node id="8">
+      <node id="10">
         <label>../terminal/action/Action.h</label>
         <link refid="_action_8h"/>
         <childnode refid="4" relation="include">
@@ -61,17 +79,17 @@
     </briefdescription>
     <detaileddescription>
 <para>This file implements the WindowsTTY interface using the Windows Pseudo Console (ConPTY) API with a single duplex overlapped named pipe, following the I/O model used by Microsoft Terminal&apos;s ConptyConnection.</para>
-<sect1 id="_windows_t_t_y_8cpp_1autotoc_md74_1s1"><sect2 id="_windows_t_t_y_8cpp_1autotoc_md74_1s2"><sect3 id="_windows_t_t_y_8cpp_1autotoc_md74">
+<sect1 id="_windows_t_t_y_8cpp_1autotoc_md75_1s1"><sect2 id="_windows_t_t_y_8cpp_1autotoc_md75_1s2"><sect3 id="_windows_t_t_y_8cpp_1autotoc_md75">
 <title>Architecture overview</title><para><programlisting><codeline><highlight class="normal">WindowsTTY<sp/>(parent)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ConPTY<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>shell<sp/>(child)</highlight></codeline>
 <codeline><highlight class="normal">─────────────────────────────────<sp/><sp/><sp/><sp/>──────────────────────<sp/><sp/>──────────────</highlight></codeline>
 <codeline><highlight class="normal">pipe<sp/>(server,<sp/>DUPLEX,<sp/>overlapped)<sp/>◄──►<sp/>client<sp/>(hInput)<sp/><sp/>──►<sp/>child<sp/>stdin</highlight></codeline>
 <codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>◄──►<sp/>client<sp/>(hOutput)<sp/>◄──<sp/>child<sp/>stdout/stderr</highlight></codeline>
 </programlisting></para>
 </sect3></sect2></sect1>
-<sect1 id="_windows_t_t_y_8cpp_1autotoc_md75_1s1"><sect2 id="_windows_t_t_y_8cpp_1autotoc_md75_1s2"><sect3 id="_windows_t_t_y_8cpp_1autotoc_md75">
+<sect1 id="_windows_t_t_y_8cpp_1autotoc_md76_1s1"><sect2 id="_windows_t_t_y_8cpp_1autotoc_md76_1s2"><sect3 id="_windows_t_t_y_8cpp_1autotoc_md76">
 <title>Pipe topology</title><para>A single named pipe is created with <computeroutput>PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED</computeroutput>. The client end is opened with <computeroutput>CreateFileW</computeroutput> and passed for <bold>both</bold> <computeroutput>hInput</computeroutput> and <computeroutput>hOutput</computeroutput> to <computeroutput>CreatePseudoConsole</computeroutput>. After <computeroutput>CreateProcessW</computeroutput> the client handle is closed — ConPTY owns it internally. The parent retains only the server handle (<computeroutput>pipe</computeroutput>) for all I/O.</para>
 </sect3></sect2></sect1>
-<sect1 id="_windows_t_t_y_8cpp_1autotoc_md76_1s1"><sect2 id="_windows_t_t_y_8cpp_1autotoc_md76_1s2"><sect3 id="_windows_t_t_y_8cpp_1autotoc_md76">
+<sect1 id="_windows_t_t_y_8cpp_1autotoc_md77_1s1"><sect2 id="_windows_t_t_y_8cpp_1autotoc_md77_1s2"><sect3 id="_windows_t_t_y_8cpp_1autotoc_md77">
 <title>Overlapped I/O model</title><para><itemizedlist>
 <listitem><para><computeroutput>waitForData()</computeroutput> issues <computeroutput>ReadFile</computeroutput> with <computeroutput>readOverlapped</computeroutput>, waits on <computeroutput>readEvent</computeroutput>, and stores the result in <computeroutput>readBuffer</computeroutput> / <computeroutput>readBufferBytes</computeroutput>.</para>
 </listitem><listitem><para><computeroutput>read()</computeroutput> copies from <computeroutput>readBuffer</computeroutput> to the caller&apos;s buffer.</para>
@@ -79,7 +97,7 @@
 </listitem></itemizedlist>
 </para>
 </sect3></sect2></sect1>
-<sect1 id="_windows_t_t_y_8cpp_1autotoc_md77_1s1"><sect2 id="_windows_t_t_y_8cpp_1autotoc_md77_1s2"><sect3 id="_windows_t_t_y_8cpp_1autotoc_md77">
+<sect1 id="_windows_t_t_y_8cpp_1autotoc_md78_1s1"><sect2 id="_windows_t_t_y_8cpp_1autotoc_md78_1s2"><sect3 id="_windows_t_t_y_8cpp_1autotoc_md78">
 <title>Handle ownership after open()</title><para><table rows="7" cols="3"><row>
 <entry thead="yes"><para>Handle  </para>
 </entry><entry thead="yes"><para>Owner after open()  </para>
@@ -118,7 +136,7 @@
 </table>
 </para>
 </sect3></sect2></sect1>
-<sect1 id="_windows_t_t_y_8cpp_1autotoc_md78_1s1"><sect2 id="_windows_t_t_y_8cpp_1autotoc_md78_1s2"><sect3 id="_windows_t_t_y_8cpp_1autotoc_md78">
+<sect1 id="_windows_t_t_y_8cpp_1autotoc_md79_1s1"><sect2 id="_windows_t_t_y_8cpp_1autotoc_md79_1s2"><sect3 id="_windows_t_t_y_8cpp_1autotoc_md79">
 <title>Shutdown sequence</title><para><orderedlist>
 <listitem><para><computeroutput>signalThreadShouldExit()</computeroutput> — tell reader thread to stop.</para>
 </listitem><listitem><para><computeroutput>TerminateProcess()</computeroutput> child immediately — fastest path to unblock the reader&apos;s overlapped <computeroutput>ReadFile</computeroutput>. No SIGTERM grace; instant kill per ARCHITECT.</para>

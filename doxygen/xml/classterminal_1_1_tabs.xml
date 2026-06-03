@@ -137,11 +137,11 @@ Computes terminal dimensions from the current <ref refid="classterminal_1_1_tabs
         </inbodydescription>
         <location file="terminal/component/Tabs.h" line="73" column="10" bodyfile="terminal/component/Tabs.cpp" bodystart="60" bodyend="70"/>
         <references refid="classterminal_1_1_tabs_1a1c61449d446b6d55db1ef8a4a81940c5" compoundref="_tabs_8cpp" startline="60" endline="70">addNewTab</references>
-        <references refid="classterminal_1_1_panes_1a463d85b2307a842999b33e86f916be82" compoundref="_panes_8cpp" startline="34" endline="66">terminal::Panes::cellsFromRect</references>
+        <references refid="classterminal_1_1_panes_1a463d85b2307a842999b33e86f916be82" compoundref="_panes_8cpp" startline="34" endline="67">terminal::Panes::cellsFromRect</references>
         <references refid="classterminal_1_1_tabs_1ac8b48284fc4a7d62a011f609a2435498" compoundref="_tabs_8cpp" startline="359" endline="381">computeContentRect</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
         <references refid="classjam_1_1_tabbed_component_1ac5f456bea7b56037aec76b429fed0118">jam::TabbedComponent::getNumTabs</references>
-        <references refid="classterminal_1_1_look_and_feel_1a68b26f555aca509e3fb071b489e70672" compoundref="_look_and_feel_8cpp" startline="190" endline="197">terminal::LookAndFeel::getTabBarHeight</references>
+        <references refid="classterminal_1_1_look_and_feel_1a68b26f555aca509e3fb071b489e70672" compoundref="_look_and_feel_8cpp" startline="198" endline="205">terminal::LookAndFeel::getTabBarHeight</references>
         <referencedby refid="classterminal_1_1_tabs_1a1c61449d446b6d55db1ef8a4a81940c5" compoundref="_tabs_8cpp" startline="60" endline="70">addNewTab</referencedby>
         <referencedby refid="classterminal_1_1_tabs_1a729530e36f5facd240fdf7fc725f9be4" compoundref="_tabs_actions_8cpp" startline="117" endline="226">restore</referencedby>
       </memberdef>
@@ -189,7 +189,7 @@ Computes terminal dimensions from the current <ref refid="classterminal_1_1_tabs
         </inbodydescription>
         <location file="terminal/component/Tabs.h" line="85" column="10" bodyfile="terminal/component/TabsActions.cpp" bodystart="117" bodyend="226"/>
         <references refid="classterminal_1_1_tabs_1a1c61449d446b6d55db1ef8a4a81940c5" compoundref="_tabs_8cpp" startline="60" endline="70">addNewTab</references>
-        <references refid="classterminal_1_1_panes_1a463d85b2307a842999b33e86f916be82" compoundref="_panes_8cpp" startline="34" endline="66">terminal::Panes::cellsFromRect</references>
+        <references refid="classterminal_1_1_panes_1a463d85b2307a842999b33e86f916be82" compoundref="_panes_8cpp" startline="34" endline="67">terminal::Panes::cellsFromRect</references>
         <references refid="namespaceterminal_1_1id_1a0d551d759a87363c22a6d1712cf26cd9" compoundref="_identifier_8h" startline="157" endline="157">terminal::id::cwd</references>
         <references refid="classjam_1_1_pane_manager_1a5318bac989d380aa730755d6b135f7f1">jam::PaneManager::findLeaf</references>
         <references refid="classterminal_1_1_tabs_1a0abe28bd37aef6df7f43f8f5335e3737" compoundref="_tabs_8cpp" startline="112" endline="121">getActivePanes</references>
@@ -201,7 +201,7 @@ Computes terminal dimensions from the current <ref refid="classterminal_1_1_tabs
         <references refid="namespaceapp_1_1id_1abcf86f0cdf896a33b56cd1dce582f219" compoundref="_app_identifier_8h" startline="64" endline="64">app::id::PANE</references>
         <references refid="namespaceapp_1_1id_1a77bea35c2a1535e966a095d72de7e3c5" compoundref="_app_identifier_8h" startline="63" endline="63">app::id::PANES</references>
         <references refid="namespaceterminal_1_1id_1a9ca6b6efc0a9c3a15bc0d0f78b60e90d" compoundref="_identifier_8h" startline="82" endline="82">terminal::id::SESSION</references>
-        <references refid="classterminal_1_1_panes_1aaf2b3c04c159ddd577517257f0c5c439" compoundref="_panes_8cpp" startline="72" endline="99">terminal::Panes::splitRect</references>
+        <references refid="classterminal_1_1_panes_1aaf2b3c04c159ddd577517257f0c5c439" compoundref="_panes_8cpp" startline="73" endline="100">terminal::Panes::splitRect</references>
         <references refid="namespaceapp_1_1id_1aa5522fd872a6a64424e5bed786eeb4c2" compoundref="_app_identifier_8h" startline="62" endline="62">app::id::TAB</references>
         <references refid="struct_map_1_1_direction_1a26339c3147cc15168e6f57e5311e02eba2405acc619c38fd5c5956fe998b1c1e5" compoundref="_map_8h" startline="156">Map::Direction::vertical</references>
       </memberdef>
@@ -261,7 +261,7 @@ Computes terminal dimensions from the current <ref refid="classterminal_1_1_tabs
         </inbodydescription>
         <location file="terminal/component/Tabs.h" line="100" column="10" bodyfile="terminal/component/Tabs.cpp" bodystart="72" bodyend="104"/>
         <references refid="classjam_1_1_tabbed_component_1a48ed2fc19a6c4ea1cb34d6726e4acedf">jam::TabbedComponent::addTab</references>
-        <references refid="namespaceapp_1_1id_1a5db3df1548793287f6642045bb68fe2a" compoundref="_app_identifier_8h" startline="85" endline="85">app::id::displayName</references>
+        <references refid="namespaceapp_1_1id_1a5db3df1548793287f6642045bb68fe2a" compoundref="_app_identifier_8h" startline="104" endline="104">app::id::displayName</references>
         <references refid="classjam_1_1_pane_manager_1a5318bac989d380aa730755d6b135f7f1">jam::PaneManager::findLeaf</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
         <references refid="structjam_1_1_cell_1_1_rectangle_1a6fd3c1980b15bde3963479e0d23a938f">jam::Cell::Rectangle::getHeight</references>
@@ -629,7 +629,7 @@ Iterates all <ref refid="classterminal_1_1_panes" kindref="compound">Panes</ref>
         <references refid="group__juce__audio__plugin__client-Unity_1ga010e50efcb9d6d393b9414f09f368dbc">name</references>
         <references refid="classjam_1_1_tabbed_button_bar_1af8d789906e5a378ccef72472f0e28ca7">jam::TabbedButtonBar::setTabName</references>
         <references refid="classterminal_1_1_tabs_1a2f7fa10e88139cf8a40f5ec4ac8a4547" compoundref="_tabs_8h" startline="386">tabName</references>
-        <references refid="namespaceapp_1_1id_1a26da4c7c28fb31bec9a510aa30048c94" compoundref="_app_identifier_8h" startline="86" endline="86">app::id::userTabName</references>
+        <references refid="namespaceapp_1_1id_1a26da4c7c28fb31bec9a510aa30048c94" compoundref="_app_identifier_8h" startline="105" endline="105">app::id::userTabName</references>
         <referencedby refid="classterminal_1_1_tabs_1a149a8a3f7cdfc1171b2bc4f768715a9b" compoundref="_tabs_8cpp" startline="417" endline="432">showRenameEditor</referencedby>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_tabs_1a1aa9d932fe786e8537ff3f11f0d7da53" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
@@ -782,9 +782,9 @@ Iterates all <ref refid="classterminal_1_1_panes" kindref="compound">Panes</ref>
         <location file="terminal/component/Tabs.h" line="251" column="10" bodyfile="terminal/component/TabsActions.cpp" bodystart="13" bodyend="26"/>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
         <references refid="classterminal_1_1_tabs_1a82916cff1a50f7edea5cbbe15f0ad91b" compoundref="_tabs_8h" startline="387">panes</references>
-        <references refid="classlua_1_1_engine_1a1ba41349603261d5c8311f51c6fbfbd8" compoundref="_engine_8h" startline="1014" endline="1014">lua::Engine::zoomMax</references>
-        <references refid="classlua_1_1_engine_1ae6f156566d6edd39a943e998f4ae3350" compoundref="_engine_8h" startline="1011" endline="1011">lua::Engine::zoomMin</references>
-        <references refid="classlua_1_1_engine_1a94426bd459969305dca91f8451a076b4" compoundref="_engine_8h" startline="1017" endline="1017">lua::Engine::zoomStep</references>
+        <references refid="classlua_1_1_engine_1a1ba41349603261d5c8311f51c6fbfbd8" compoundref="_engine_8h" startline="217" endline="217">lua::Engine::zoomMax</references>
+        <references refid="classlua_1_1_engine_1ae6f156566d6edd39a943e998f4ae3350" compoundref="_engine_8h" startline="214" endline="214">lua::Engine::zoomMin</references>
+        <references refid="classlua_1_1_engine_1a94426bd459969305dca91f8451a076b4" compoundref="_engine_8h" startline="220" endline="220">lua::Engine::zoomStep</references>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_tabs_1a379ad0319cf90f9e958a953351ad0487" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -806,9 +806,9 @@ Iterates all <ref refid="classterminal_1_1_panes" kindref="compound">Panes</ref>
         <location file="terminal/component/Tabs.h" line="260" column="10" bodyfile="terminal/component/TabsActions.cpp" bodystart="28" bodyend="41"/>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
         <references refid="classterminal_1_1_tabs_1a82916cff1a50f7edea5cbbe15f0ad91b" compoundref="_tabs_8h" startline="387">panes</references>
-        <references refid="classlua_1_1_engine_1a1ba41349603261d5c8311f51c6fbfbd8" compoundref="_engine_8h" startline="1014" endline="1014">lua::Engine::zoomMax</references>
-        <references refid="classlua_1_1_engine_1ae6f156566d6edd39a943e998f4ae3350" compoundref="_engine_8h" startline="1011" endline="1011">lua::Engine::zoomMin</references>
-        <references refid="classlua_1_1_engine_1a94426bd459969305dca91f8451a076b4" compoundref="_engine_8h" startline="1017" endline="1017">lua::Engine::zoomStep</references>
+        <references refid="classlua_1_1_engine_1a1ba41349603261d5c8311f51c6fbfbd8" compoundref="_engine_8h" startline="217" endline="217">lua::Engine::zoomMax</references>
+        <references refid="classlua_1_1_engine_1ae6f156566d6edd39a943e998f4ae3350" compoundref="_engine_8h" startline="214" endline="214">lua::Engine::zoomMin</references>
+        <references refid="classlua_1_1_engine_1a94426bd459969305dca91f8451a076b4" compoundref="_engine_8h" startline="220" endline="220">lua::Engine::zoomStep</references>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_tabs_1a1958204f8bbe3b4e857610859cc04c82" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -830,7 +830,7 @@ Iterates all <ref refid="classterminal_1_1_panes" kindref="compound">Panes</ref>
         <location file="terminal/component/Tabs.h" line="269" column="10" bodyfile="terminal/component/TabsActions.cpp" bodystart="43" bodyend="55"/>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
         <references refid="classterminal_1_1_tabs_1a82916cff1a50f7edea5cbbe15f0ad91b" compoundref="_tabs_8h" startline="387">panes</references>
-        <references refid="classlua_1_1_engine_1ae6f156566d6edd39a943e998f4ae3350" compoundref="_engine_8h" startline="1011" endline="1011">lua::Engine::zoomMin</references>
+        <references refid="classlua_1_1_engine_1ae6f156566d6edd39a943e998f4ae3350" compoundref="_engine_8h" startline="214" endline="214">lua::Engine::zoomMin</references>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_tabs_1a4970768526522b46338cfa387f8c979d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -1026,9 +1026,11 @@ Iterates all <ref refid="classterminal_1_1_panes" kindref="compound">Panes</ref>
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/component/Tabs.h" line="312" column="10" bodyfile="terminal/component/Tabs.cpp" bodystart="347" bodyend="352"/>
-        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
+        <references refid="namespaceapp_1_1id_1a24815b9015e0395936a1718769739fff" compoundref="_app_identifier_8h" startline="80" endline="80">app::id::DISPLAY_LUA</references>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
         <references refid="classterminal_1_1_tabs_1af9554bcebf7a4a22da705a401b700e67" compoundref="_tabs_8cpp" startline="354" endline="357">orientationFromString</references>
         <references refid="classjam_1_1_tabbed_component_1ad982540d7f5a188fa012550971ebb4d5">jam::TabbedComponent::setOrientation</references>
+        <references refid="namespaceapp_1_1id_1a48acab878605c9d99508d5c2e0c44afc" compoundref="_app_identifier_8h" startline="225" endline="225">app::id::tabPosition</references>
         <references refid="classterminal_1_1_tabs_1a9262082162f833cbff7abfc2df27da8d" compoundref="_tabs_8cpp" startline="341" endline="345">updateTabBarVisibility</references>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_tabs_1aae2712d1125d237aa289c65cdfb8c869" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -1089,8 +1091,8 @@ Iterates all <ref refid="classterminal_1_1_panes" kindref="compound">Panes</ref>
         <location file="terminal/component/Tabs.h" line="319" column="46" bodyfile="terminal/component/Tabs.cpp" bodystart="354" bodyend="357"/>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Derived &gt;::getContext</references>
         <referencedby refid="classterminal_1_1_tabs_1a3f74fca2e5aba5f00b855853b55c7859" compoundref="_tabs_8cpp" startline="347" endline="352">applyOrientation</referencedby>
-        <referencedby refid="class_main_component_1a2887187bf68d26044bb55e5d4a6456f0" compoundref="_main_component_8cpp" startline="465" endline="489">MainComponent::getContentRect</referencedby>
-        <referencedby refid="class_main_component_1a3e048893b0fb515c367cdc2dd69de164" compoundref="_main_component_8cpp" startline="558" endline="608">MainComponent::initialiseTabs</referencedby>
+        <referencedby refid="class_main_component_1a2887187bf68d26044bb55e5d4a6456f0" compoundref="_main_component_8cpp" startline="457" endline="481">MainComponent::getContentRect</referencedby>
+        <referencedby refid="class_main_component_1a3e048893b0fb515c367cdc2dd69de164" compoundref="_main_component_8cpp" startline="550" endline="601">MainComponent::initialiseTabs</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="private-func">
@@ -1166,7 +1168,7 @@ Tab bar is hidden (depth 0) when only one tab exists, and shown at the height de
         </inbodydescription>
         <location file="terminal/component/Tabs.h" line="349" column="10" bodyfile="terminal/component/Tabs.cpp" bodystart="341" bodyend="345"/>
         <references refid="classjam_1_1_tabbed_component_1ac5f456bea7b56037aec76b429fed0118">jam::TabbedComponent::getNumTabs</references>
-        <references refid="classterminal_1_1_look_and_feel_1a68b26f555aca509e3fb071b489e70672" compoundref="_look_and_feel_8cpp" startline="190" endline="197">terminal::LookAndFeel::getTabBarHeight</references>
+        <references refid="classterminal_1_1_look_and_feel_1a68b26f555aca509e3fb071b489e70672" compoundref="_look_and_feel_8cpp" startline="198" endline="205">terminal::LookAndFeel::getTabBarHeight</references>
         <references refid="classjam_1_1_tabbed_component_1a06e222e02207dc35e297c236e175d46f">jam::TabbedComponent::setTabBarDepth</references>
         <referencedby refid="classterminal_1_1_tabs_1a15a9e5789878b9646a8c026b94f33391" compoundref="_tabs_8cpp" startline="72" endline="104">addNewTab</referencedby>
         <referencedby refid="classterminal_1_1_tabs_1a3f74fca2e5aba5f00b855853b55c7859" compoundref="_tabs_8cpp" startline="347" endline="352">applyOrientation</referencedby>
@@ -1191,7 +1193,7 @@ Tab bar is hidden (depth 0) when only one tab exists, and shown at the height de
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/component/Tabs.h" line="352" column="10" bodyfile="terminal/component/Tabs.cpp" bodystart="140" bodyend="150"/>
-        <references refid="namespaceapp_1_1id_1a5db3df1548793287f6642045bb68fe2a" compoundref="_app_identifier_8h" startline="85" endline="85">app::id::displayName</references>
+        <references refid="namespaceapp_1_1id_1a5db3df1548793287f6642045bb68fe2a" compoundref="_app_identifier_8h" startline="104" endline="104">app::id::displayName</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
         <references refid="classterminal_1_1_tabs_1a2f7fa10e88139cf8a40f5ec4ac8a4547" compoundref="_tabs_8h" startline="386">tabName</references>
       </memberdef>
@@ -1219,7 +1221,7 @@ Tab bar is hidden (depth 0) when only one tab exists, and shown at the height de
         <references refid="group__juce__audio__plugin__client-Unity_1ga010e50efcb9d6d393b9414f09f368dbc">name</references>
         <references refid="classjam_1_1_tabbed_button_bar_1af8d789906e5a378ccef72472f0e28ca7">jam::TabbedButtonBar::setTabName</references>
         <references refid="classterminal_1_1_tabs_1a2f7fa10e88139cf8a40f5ec4ac8a4547" compoundref="_tabs_8h" startline="386">tabName</references>
-        <references refid="namespaceapp_1_1id_1a26da4c7c28fb31bec9a510aa30048c94" compoundref="_app_identifier_8h" startline="86" endline="86">app::id::userTabName</references>
+        <references refid="namespaceapp_1_1id_1a26da4c7c28fb31bec9a510aa30048c94" compoundref="_app_identifier_8h" startline="105" endline="105">app::id::userTabName</references>
       </memberdef>
       <memberdef kind="function" id="classterminal_1_1_tabs_1abcaf46a9fb44a74ec66caa955dd64d29" prot="private" static="no" const="no" explicit="no" inline="no" virt="virtual">
         <type>void</type>
@@ -1311,8 +1313,8 @@ Tab bar is hidden (depth 0) when only one tab exists, and shown at the height de
         </inbodydescription>
         <location file="terminal/component/Tabs.h" line="364" column="10" bodyfile="terminal/component/Tabs.cpp" bodystart="458" bodyend="479"/>
         <references refid="classterminal_1_1_tabs_1a0abe28bd37aef6df7f43f8f5335e3737" compoundref="_tabs_8cpp" startline="112" endline="121">getActivePanes</references>
-        <references refid="namespaceapp_1_1id_1af4b579159e05cc121f8ba57c25cf6a42" compoundref="_app_identifier_8h" startline="102" endline="102">app::id::pendingImageFile</references>
-        <references refid="namespaceapp_1_1id_1aceb488e669313b802438e6366c5d36cd" compoundref="_app_identifier_8h" startline="98" endline="98">app::id::pendingMarkdownFile</references>
+        <references refid="namespaceapp_1_1id_1af4b579159e05cc121f8ba57c25cf6a42" compoundref="_app_identifier_8h" startline="121" endline="121">app::id::pendingImageFile</references>
+        <references refid="namespaceapp_1_1id_1aceb488e669313b802438e6366c5d36cd" compoundref="_app_identifier_8h" startline="117" endline="117">app::id::pendingMarkdownFile</references>
         <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682cac0af77cf8294ff93a5cdb2963ca9f038">tree</references>
         <references refid="namespaceapp_1_1id_1ad631a0e4b1eadb61ac0c085f90800bb8" compoundref="_app_identifier_8h" startline="55" endline="55">app::id::WINDOW</references>
       </memberdef>
@@ -1396,7 +1398,7 @@ Tab bar is hidden (depth 0) when only one tab exists, and shown at the height de
         </inbodydescription>
         <location file="terminal/component/Tabs.h" line="372" column="10" bodyfile="terminal/component/Tabs.cpp" bodystart="434" bodyend="446"/>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
-        <references refid="classterminal_1_1_panes_1abe18f6e6e0a26157ecfd131c32567a35" compoundref="_panes_8cpp" startline="264" endline="264">terminal::Panes::getPanes</references>
+        <references refid="classterminal_1_1_panes_1abe18f6e6e0a26157ecfd131c32567a35" compoundref="_panes_8cpp" startline="265" endline="265">terminal::Panes::getPanes</references>
         <referencedby refid="classterminal_1_1_tabs_1add413ac4cc371268a6912b11e8df2e9a" compoundref="_tabs_actions_8cpp" startline="81" endline="91">splitActiveWithRatio</referencedby>
         <referencedby refid="classterminal_1_1_tabs_1a4970768526522b46338cfa387f8c979d" compoundref="_tabs_actions_8cpp" startline="57" endline="67">splitHorizontal</referencedby>
         <referencedby refid="classterminal_1_1_tabs_1a598bf44f87631a35ac4eb00efc4f8e68" compoundref="_tabs_actions_8cpp" startline="69" endline="79">splitVertical</referencedby>

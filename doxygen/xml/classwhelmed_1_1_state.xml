@@ -108,13 +108,13 @@
         <inbodydescription>
         </inbodydescription>
         <location file="whelmed/State.h" line="12" column="5" bodyfile="whelmed/State.cpp" bodystart="7" bodyend="18"/>
-        <references refid="namespaceapp_1_1id_1a4c409f870661881993ac818c73a32c82" compoundref="_app_identifier_8h" startline="113" endline="113">app::id::blockCount</references>
-        <references refid="namespaceapp_1_1id_1a5db3df1548793287f6642045bb68fe2a" compoundref="_app_identifier_8h" startline="85" endline="85">app::id::displayName</references>
-        <references refid="namespaceapp_1_1id_1a5dbba8dbe5bf9ef207c18905d8bae100" compoundref="_app_identifier_8h" startline="84" endline="84">app::id::filePath</references>
-        <references refid="namespaceapp_1_1id_1ae480d402f2c4854e10a819621b23f6d0" compoundref="_app_identifier_8h" startline="114" endline="114">app::id::parseComplete</references>
-        <references refid="namespaceapp_1_1id_1a8056e4239f4b22fce564a395bbbcb52a" compoundref="_app_identifier_8h" startline="87" endline="87">app::id::scrollOffset</references>
+        <references refid="namespaceapp_1_1id_1a4c409f870661881993ac818c73a32c82" compoundref="_app_identifier_8h" startline="132" endline="132">app::id::blockCount</references>
+        <references refid="namespaceapp_1_1id_1a5db3df1548793287f6642045bb68fe2a" compoundref="_app_identifier_8h" startline="104" endline="104">app::id::displayName</references>
+        <references refid="namespaceapp_1_1id_1a5dbba8dbe5bf9ef207c18905d8bae100" compoundref="_app_identifier_8h" startline="103" endline="103">app::id::filePath</references>
+        <references refid="namespaceapp_1_1id_1ae480d402f2c4854e10a819621b23f6d0" compoundref="_app_identifier_8h" startline="133" endline="133">app::id::parseComplete</references>
+        <references refid="namespaceapp_1_1id_1a8056e4239f4b22fce564a395bbbcb52a" compoundref="_app_identifier_8h" startline="106" endline="106">app::id::scrollOffset</references>
         <references refid="classwhelmed_1_1_state_1a99645fb70ab99f5ddd9cc97904eb5dac" compoundref="_state_8h" startline="28">state</references>
-        <references refid="namespaceapp_1_1id_1abad3be16444df05531528d3e30735ebd" compoundref="_app_identifier_8h" startline="115" endline="115">app::id::totalBlocks</references>
+        <references refid="namespaceapp_1_1id_1abad3be16444df05531528d3e30735ebd" compoundref="_app_identifier_8h" startline="134" endline="134">app::id::totalBlocks</references>
       </memberdef>
       <memberdef kind="function" id="classwhelmed_1_1_state_1a6f2ae300015aaf1a650828f6cfcd2bb0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type></type>
@@ -276,10 +276,10 @@
         <inbodydescription>
         </inbodydescription>
         <location file="whelmed/State.h" line="26" column="10" bodyfile="whelmed/State.cpp" bodystart="59" bodyend="79"/>
-        <references refid="namespaceapp_1_1id_1a4c409f870661881993ac818c73a32c82" compoundref="_app_identifier_8h" startline="113" endline="113">app::id::blockCount</references>
+        <references refid="namespaceapp_1_1id_1a4c409f870661881993ac818c73a32c82" compoundref="_app_identifier_8h" startline="132" endline="132">app::id::blockCount</references>
         <references refid="classwhelmed_1_1_state_1a32fe3e4f3e7054baa903cf1139fae916" compoundref="_state_8h" startline="31" endline="31">completedBlockCount</references>
         <references refid="classwhelmed_1_1_state_1ae35ecc970766578738110d64c266c788" compoundref="_state_8h" startline="33" endline="33">lastFlushedBlockCount</references>
-        <references refid="namespaceapp_1_1id_1ae480d402f2c4854e10a819621b23f6d0" compoundref="_app_identifier_8h" startline="114" endline="114">app::id::parseComplete</references>
+        <references refid="namespaceapp_1_1id_1ae480d402f2c4854e10a819621b23f6d0" compoundref="_app_identifier_8h" startline="133" endline="133">app::id::parseComplete</references>
         <references refid="classwhelmed_1_1_state_1aecd91b6663e67d9df54935c35679d85a" compoundref="_state_8h" startline="32" endline="32">parseComplete</references>
         <references refid="classwhelmed_1_1_state_1a99645fb70ab99f5ddd9cc97904eb5dac" compoundref="_state_8h" startline="28">state</references>
         <referencedby refid="classwhelmed_1_1_state_1afc25b6e370bafa45092e90d936185d55" compoundref="_state_8cpp" startline="48" endline="57">timerCallback</referencedby>

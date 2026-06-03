@@ -30,7 +30,7 @@
 
 #pragma once
 #include <JuceHeader.h>
-#include "../../lua/Engine.h"
+#include "../../AppModel.h"
 
 namespace terminal
 {
@@ -163,11 +163,10 @@ public:
     void lookAndFeelChanged() override;
 
 private:
-    const lua::Engine& config { *lua::Engine::getContext() };
     const juce::FontOptions font { juce::FontOptions()
-                                       .withName (config.display.actionList.nameFamily)
-                                       .withStyle (config.display.actionList.nameStyle)
-                                       .withPointHeight (config.display.actionList.nameSize) };
+                                       .withName (AppModel::getContext()->getValue<juce::String> (app::id::DISPLAY_LUA, app::id::actionListNameFamily))
+                                       .withStyle (AppModel::getContext()->getValue<juce::String> (app::id::DISPLAY_LUA, app::id::actionListNameStyle))
+                                       .withPointHeight (AppModel::getContext()->getValue<float> (app::id::DISPLAY_LUA, app::id::actionListNameSize)) };
     //==========================================================================
     static constexpr int padding { 12 };
     const int textHeight { jam::toInt (font.getPointHeight()) };

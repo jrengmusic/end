@@ -321,11 +321,11 @@
         <references refid="classwhelmed_1_1_input_handler_1a990e818e1a37da6258143a4f7ba65244" compoundref="_input_handler_8h" startline="91" endline="91">pendingG</references>
         <references refid="classwhelmed_1_1_input_handler_1ae63589821e45844c25a3c4889d9a3050" compoundref="_input_handler_8h" startline="97" endline="97">preferredX</references>
         <references refid="classwhelmed_1_1_input_handler_1aa61ac1a16af09ec41ffed997a5c407f3" compoundref="_input_handler_8h" startline="87">screen</references>
-        <references refid="namespaceapp_1_1id_1a044c24e7e6b652dbbd38a9ed2aaee9ed" compoundref="_app_identifier_8h" startline="116" endline="116">app::id::selCursorBlock</references>
-        <references refid="namespaceapp_1_1id_1a53f4e3db60bb5963c1ba6f10958e1c96" compoundref="_app_identifier_8h" startline="117" endline="117">app::id::selCursorChar</references>
+        <references refid="namespaceapp_1_1id_1a044c24e7e6b652dbbd38a9ed2aaee9ed" compoundref="_app_identifier_8h" startline="135" endline="135">app::id::selCursorBlock</references>
+        <references refid="namespaceapp_1_1id_1a53f4e3db60bb5963c1ba6f10958e1c96" compoundref="_app_identifier_8h" startline="136" endline="136">app::id::selCursorChar</references>
         <references refid="classwhelmed_1_1_input_handler_1af93f6a40e7c7aa2e770451b7f9c6c1fa" compoundref="_input_handler_8h" startline="117">selectionKeys</references>
         <references refid="classwhelmed_1_1_input_handler_1a4a7aff74fdf6b97f1e221ed0a37cb532" compoundref="_input_handler_8h" startline="88">state</references>
-        <references refid="namespaceapp_1_1id_1abad3be16444df05531528d3e30735ebd" compoundref="_app_identifier_8h" startline="115" endline="115">app::id::totalBlocks</references>
+        <references refid="namespaceapp_1_1id_1abad3be16444df05531528d3e30735ebd" compoundref="_app_identifier_8h" startline="134" endline="134">app::id::totalBlocks</references>
         <referencedby refid="classwhelmed_1_1_input_handler_1aa0a289583de73c7387b42d2382da724c" compoundref="_input_handler_8cpp" startline="32" endline="80">handleKey</referencedby>
       </memberdef>
       <memberdef kind="function" id="classwhelmed_1_1_input_handler_1a0f9823f84d346ef9b2d06e6238eec1dc" prot="private" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
@@ -374,10 +374,16 @@
         <inbodydescription>
         </inbodydescription>
         <location file="whelmed/InputHandler.h" line="82" column="10" bodyfile="whelmed/InputHandler.cpp" bodystart="89" bodyend="146"/>
-        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
         <references refid="classwhelmed_1_1_input_handler_1a3a731c9216714c9e60e2f97e3771d7df" compoundref="_input_handler_8h" startline="94" endline="94">pendingPrefix</references>
         <references refid="classwhelmed_1_1_input_handler_1aa61ac1a16af09ec41ffed997a5c407f3" compoundref="_input_handler_8h" startline="87">screen</references>
+        <references refid="namespaceapp_1_1id_1ae8d866eeefab0444493f84a8ebd77849" compoundref="_app_identifier_8h" startline="326" endline="326">app::id::scrollBottom</references>
+        <references refid="namespaceapp_1_1id_1afd275faf67380d984e51ebdea341395c" compoundref="_app_identifier_8h" startline="323" endline="323">app::id::scrollDown</references>
+        <references refid="namespaceapp_1_1id_1a55c2ff42f88c49f150e13de30c974d9d" compoundref="_app_identifier_8h" startline="150" endline="150">app::id::scrollStep</references>
+        <references refid="namespaceapp_1_1id_1af607d92f2813b69d4bb003060d4edebe" compoundref="_app_identifier_8h" startline="325" endline="325">app::id::scrollTop</references>
+        <references refid="namespaceapp_1_1id_1ac0656642c438f1af1bf14e1aaa69399f" compoundref="_app_identifier_8h" startline="324" endline="324">app::id::scrollUp</references>
         <references refid="classwhelmed_1_1_input_handler_1a5dbf526e3fc11ca787c82416c9bd306e" compoundref="_input_handler_8h" startline="86">viewport</references>
+        <references refid="namespaceapp_1_1id_1af38a58466b0c9efb4717d0c6e9fef1d4" compoundref="_app_identifier_8h" startline="81" endline="81">app::id::WHELMED_LUA</references>
         <referencedby refid="classwhelmed_1_1_input_handler_1aa0a289583de73c7387b42d2382da724c" compoundref="_input_handler_8cpp" startline="32" endline="80">handleKey</referencedby>
       </memberdef>
       <memberdef kind="function" id="classwhelmed_1_1_input_handler_1a5bc9a55e4a8dac5168d09cb444e31790" prot="private" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
@@ -400,10 +406,10 @@
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
         <references refid="_selection_type_8h_1acffca3b33fddce63d3220bc7487e879da334c4a4c42fdb79d7ebc3e73b517e6f8" compoundref="_selection_type_8h" startline="22">none</references>
         <references refid="classwhelmed_1_1_input_handler_1aa61ac1a16af09ec41ffed997a5c407f3" compoundref="_input_handler_8h" startline="87">screen</references>
-        <references refid="namespaceapp_1_1id_1ae541c86458bee0db98858cb134c69379" compoundref="_app_identifier_8h" startline="118" endline="118">app::id::selAnchorBlock</references>
-        <references refid="namespaceapp_1_1id_1ab2b4791778841d9e46a8ea36c17e4266" compoundref="_app_identifier_8h" startline="119" endline="119">app::id::selAnchorChar</references>
-        <references refid="namespaceapp_1_1id_1a044c24e7e6b652dbbd38a9ed2aaee9ed" compoundref="_app_identifier_8h" startline="116" endline="116">app::id::selCursorBlock</references>
-        <references refid="namespaceapp_1_1id_1a53f4e3db60bb5963c1ba6f10958e1c96" compoundref="_app_identifier_8h" startline="117" endline="117">app::id::selCursorChar</references>
+        <references refid="namespaceapp_1_1id_1ae541c86458bee0db98858cb134c69379" compoundref="_app_identifier_8h" startline="137" endline="137">app::id::selAnchorBlock</references>
+        <references refid="namespaceapp_1_1id_1ab2b4791778841d9e46a8ea36c17e4266" compoundref="_app_identifier_8h" startline="138" endline="138">app::id::selAnchorChar</references>
+        <references refid="namespaceapp_1_1id_1a044c24e7e6b652dbbd38a9ed2aaee9ed" compoundref="_app_identifier_8h" startline="135" endline="135">app::id::selCursorBlock</references>
+        <references refid="namespaceapp_1_1id_1a53f4e3db60bb5963c1ba6f10958e1c96" compoundref="_app_identifier_8h" startline="136" endline="136">app::id::selCursorChar</references>
         <references refid="_modal_type_8h_1a1878c47fb0486dfcf512d127b5342816aef5714e0519bfaa645cdff7d28843b70" compoundref="_modal_type_8h" startline="29">selection</references>
         <references refid="classwhelmed_1_1_input_handler_1a4a7aff74fdf6b97f1e221ed0a37cb532" compoundref="_input_handler_8h" startline="88">state</references>
         <referencedby refid="classwhelmed_1_1_input_handler_1a0f9823f84d346ef9b2d06e6238eec1dc" compoundref="_input_handler_8cpp" startline="307" endline="357">handleSelectionToggle</referencedby>
@@ -424,10 +430,10 @@
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
         <references refid="_selection_type_8h_1acffca3b33fddce63d3220bc7487e879da334c4a4c42fdb79d7ebc3e73b517e6f8" compoundref="_selection_type_8h" startline="22">none</references>
         <references refid="classwhelmed_1_1_input_handler_1aa61ac1a16af09ec41ffed997a5c407f3" compoundref="_input_handler_8h" startline="87">screen</references>
-        <references refid="namespaceapp_1_1id_1ae541c86458bee0db98858cb134c69379" compoundref="_app_identifier_8h" startline="118" endline="118">app::id::selAnchorBlock</references>
-        <references refid="namespaceapp_1_1id_1ab2b4791778841d9e46a8ea36c17e4266" compoundref="_app_identifier_8h" startline="119" endline="119">app::id::selAnchorChar</references>
-        <references refid="namespaceapp_1_1id_1a044c24e7e6b652dbbd38a9ed2aaee9ed" compoundref="_app_identifier_8h" startline="116" endline="116">app::id::selCursorBlock</references>
-        <references refid="namespaceapp_1_1id_1a53f4e3db60bb5963c1ba6f10958e1c96" compoundref="_app_identifier_8h" startline="117" endline="117">app::id::selCursorChar</references>
+        <references refid="namespaceapp_1_1id_1ae541c86458bee0db98858cb134c69379" compoundref="_app_identifier_8h" startline="137" endline="137">app::id::selAnchorBlock</references>
+        <references refid="namespaceapp_1_1id_1ab2b4791778841d9e46a8ea36c17e4266" compoundref="_app_identifier_8h" startline="138" endline="138">app::id::selAnchorChar</references>
+        <references refid="namespaceapp_1_1id_1a044c24e7e6b652dbbd38a9ed2aaee9ed" compoundref="_app_identifier_8h" startline="135" endline="135">app::id::selCursorBlock</references>
+        <references refid="namespaceapp_1_1id_1a53f4e3db60bb5963c1ba6f10958e1c96" compoundref="_app_identifier_8h" startline="136" endline="136">app::id::selCursorChar</references>
         <references refid="classwhelmed_1_1_input_handler_1a4a7aff74fdf6b97f1e221ed0a37cb532" compoundref="_input_handler_8h" startline="88">state</references>
         <referencedby refid="classwhelmed_1_1_input_handler_1aa0a289583de73c7387b42d2382da724c" compoundref="_input_handler_8cpp" startline="32" endline="80">handleKey</referencedby>
         <referencedby refid="classwhelmed_1_1_input_handler_1a0f9823f84d346ef9b2d06e6238eec1dc" compoundref="_input_handler_8cpp" startline="307" endline="357">handleSelectionToggle</referencedby>

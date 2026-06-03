@@ -129,7 +129,7 @@ terminal::Session& Nexus::create (const juce::String& cwd,
         // Client mode — create a local remote (no-TTY) session.
         // The events VT child-added fires inside the delegated create overload,
         // which Link observes to send the createSession PDU and wire IPC.
-        const juce::String shell { lua::Engine::getContext()->nexus.shell.program };
+        const juce::String shell { AppModel::getContext()->getValue<juce::String> (app::id::NEXUS_LUA, app::id::shellProgram) };
         result = &create (dims, cwd, shell, uuid);
     }
     else

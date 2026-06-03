@@ -35,7 +35,7 @@
 #include <JuceHeader.h>
 #include "../../SelectionType.h"
 #include "../../ModalType.h"
-#include "../../lua/Engine.h"
+#include "../../AppModel.h"
 #include "../../AppIdentifier.h"
 
 /**
@@ -197,7 +197,7 @@ public:
      */
     int getPreferredHeight() const noexcept
     {
-        const float fontSize { lua::Engine::getContext()->display.statusBar.fontSize };
+        const float fontSize { AppModel::getContext()->getValue<float> (app::id::DISPLAY_LUA, app::id::statusBarFontSize) };
         return juce::roundToInt (fontSize) + 2 * verticalPadding;
     }
 
@@ -222,11 +222,11 @@ public:
     void paint (juce::Graphics& g) override
     {
         const auto bounds { getLocalBounds() };
-        const auto* cfg { lua::Engine::getContext() };
+        const auto* appState { AppModel::getContext() };
         const juce::Font font { juce::FontOptions {}
-                                    .withName (cfg->display.statusBar.fontFamily)
-                                    .withPointHeight (cfg->display.statusBar.fontSize)
-                                    .withStyle (cfg->display.statusBar.fontStyle) };
+                                    .withName (appState->getValue<juce::String> (app::id::DISPLAY_LUA, app::id::statusBarFontFamily))
+                                    .withPointHeight (appState->getValue<float> (app::id::DISPLAY_LUA, app::id::statusBarFontSize))
+                                    .withStyle (appState->getValue<juce::String> (app::id::DISPLAY_LUA, app::id::statusBarFontStyle)) };
 
         g.setColour (findColour (barBackgroundColourId));
         g.fillRect (bounds);

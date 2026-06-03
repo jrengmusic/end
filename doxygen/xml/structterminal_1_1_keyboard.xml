@@ -692,7 +692,7 @@
         <references refid="structterminal_1_1_keyboard_1a2370eb92bbaf43758373a429f80224ba" compoundref="_keyboard_8h" startline="166" endline="217">mapCtrl</references>
         <references refid="structterminal_1_1_keyboard_1a30eeb3e7a4cc8f9b685dac20fcb00bfe" compoundref="_keyboard_8h" startline="320" endline="370">mapPlain</references>
         <references refid="group__juce__audio__plugin__client-Unity_1gaa58b301e5a3a8001feb356b3fea37ce8">mods</references>
-        <referencedby refid="classterminal_1_1_processor_1ac27d1456511a72a12a478c90f90eda0e" compoundref="_processor_8cpp" startline="241" endline="266">terminal::Processor::encodeKeyPress</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1ac27d1456511a72a12a478c90f90eda0e" compoundref="_processor_8cpp" startline="239" endline="264">terminal::Processor::encodeKeyPress</referencedby>
         <referencedby refid="structterminal_1_1_keyboard_1a5375f5be758722772b23c16ad99ddf7c" compoundref="_keyboard_8h" startline="239" endline="301">mapAlt</referencedby>
       </memberdef>
     </sectiondef>

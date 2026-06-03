@@ -19,10 +19,10 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/LoaderOverlay.h" line="114" column="9" bodyfile="terminal/component/LoaderOverlay.h" bodystart="114" bodyend="114"/>
-        <referencedby refid="class_loader_overlay_1ae476d9fae3b39588e5c4fbd49d8a3b62" compoundref="_loader_overlay_8h" startline="51" endline="105">paint</referencedby>
+        <location file="terminal/component/LoaderOverlay.h" line="113" column="9" bodyfile="terminal/component/LoaderOverlay.h" bodystart="113" bodyend="113"/>
+        <referencedby refid="class_loader_overlay_1ae476d9fae3b39588e5c4fbd49d8a3b62" compoundref="_loader_overlay_8h" startline="51" endline="104">paint</referencedby>
         <referencedby refid="class_loader_overlay_1a12689d9d0bd5c793517da7caefc7555b" compoundref="_loader_overlay_8h" startline="28" endline="36">show</referencedby>
-        <referencedby refid="class_loader_overlay_1a707265b83404ae5284e696193d6fefd9" compoundref="_loader_overlay_8h" startline="108" endline="112">timerCallback</referencedby>
+        <referencedby refid="class_loader_overlay_1a707265b83404ae5284e696193d6fefd9" compoundref="_loader_overlay_8h" startline="107" endline="111">timerCallback</referencedby>
       </memberdef>
       <memberdef kind="variable" id="class_loader_overlay_1a3627940e686b54e5a10ace00fa5adb46" prot="private" static="no" mutable="no">
         <type>int</type>
@@ -37,8 +37,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/LoaderOverlay.h" line="115" column="9" bodyfile="terminal/component/LoaderOverlay.h" bodystart="115" bodyend="115"/>
-        <referencedby refid="class_loader_overlay_1ae476d9fae3b39588e5c4fbd49d8a3b62" compoundref="_loader_overlay_8h" startline="51" endline="105">paint</referencedby>
+        <location file="terminal/component/LoaderOverlay.h" line="114" column="9" bodyfile="terminal/component/LoaderOverlay.h" bodystart="114" bodyend="114"/>
+        <referencedby refid="class_loader_overlay_1ae476d9fae3b39588e5c4fbd49d8a3b62" compoundref="_loader_overlay_8h" startline="51" endline="104">paint</referencedby>
         <referencedby refid="class_loader_overlay_1a12689d9d0bd5c793517da7caefc7555b" compoundref="_loader_overlay_8h" startline="28" endline="36">show</referencedby>
         <referencedby refid="class_loader_overlay_1a65fb76d96a2572f49d2573e2f21080cd" compoundref="_loader_overlay_8h" startline="38" endline="43">update</referencedby>
       </memberdef>
@@ -55,8 +55,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/LoaderOverlay.h" line="116" column="9" bodyfile="terminal/component/LoaderOverlay.h" bodystart="116" bodyend="116"/>
-        <referencedby refid="class_loader_overlay_1ae476d9fae3b39588e5c4fbd49d8a3b62" compoundref="_loader_overlay_8h" startline="51" endline="105">paint</referencedby>
+        <location file="terminal/component/LoaderOverlay.h" line="115" column="9" bodyfile="terminal/component/LoaderOverlay.h" bodystart="115" bodyend="115"/>
+        <referencedby refid="class_loader_overlay_1ae476d9fae3b39588e5c4fbd49d8a3b62" compoundref="_loader_overlay_8h" startline="51" endline="104">paint</referencedby>
         <referencedby refid="class_loader_overlay_1a12689d9d0bd5c793517da7caefc7555b" compoundref="_loader_overlay_8h" startline="28" endline="36">show</referencedby>
         <referencedby refid="class_loader_overlay_1a65fb76d96a2572f49d2573e2f21080cd" compoundref="_loader_overlay_8h" startline="38" endline="43">update</referencedby>
       </memberdef>
@@ -73,8 +73,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/LoaderOverlay.h" line="117" column="18" bodyfile="terminal/component/LoaderOverlay.h" bodystart="117" bodyend="117"/>
-        <referencedby refid="class_loader_overlay_1ae476d9fae3b39588e5c4fbd49d8a3b62" compoundref="_loader_overlay_8h" startline="51" endline="105">paint</referencedby>
+        <location file="terminal/component/LoaderOverlay.h" line="116" column="18" bodyfile="terminal/component/LoaderOverlay.h" bodystart="116" bodyend="116"/>
+        <referencedby refid="class_loader_overlay_1ae476d9fae3b39588e5c4fbd49d8a3b62" compoundref="_loader_overlay_8h" startline="51" endline="104">paint</referencedby>
         <referencedby refid="class_loader_overlay_1a12689d9d0bd5c793517da7caefc7555b" compoundref="_loader_overlay_8h" startline="28" endline="36">show</referencedby>
       </memberdef>
     </sectiondef>
@@ -92,8 +92,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/LoaderOverlay.h" line="120" column="26" bodyfile="terminal/component/LoaderOverlay.h" bodystart="120" bodyend="120"/>
-        <referencedby refid="class_loader_overlay_1a707265b83404ae5284e696193d6fefd9" compoundref="_loader_overlay_8h" startline="108" endline="112">timerCallback</referencedby>
+        <location file="terminal/component/LoaderOverlay.h" line="119" column="26" bodyfile="terminal/component/LoaderOverlay.h" bodystart="119" bodyend="119"/>
+        <referencedby refid="class_loader_overlay_1a707265b83404ae5284e696193d6fefd9" compoundref="_loader_overlay_8h" startline="107" endline="111">timerCallback</referencedby>
       </memberdef>
       <memberdef kind="variable" id="class_loader_overlay_1a7626bfa1de0296b6e7a435b2f31325bc" prot="private" static="yes" constexpr="yes" mutable="no">
         <type>std::array&lt; juce::juce_wchar, <ref refid="class_loader_overlay_1a52857b5ec0f23e2fabe8f2da3ee97f44" kindref="member">frameCount</ref> &gt;</type>
@@ -119,8 +119,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/LoaderOverlay.h" line="121" column="33" bodyfile="terminal/component/LoaderOverlay.h" bodystart="121" bodyend="132"/>
-        <referencedby refid="class_loader_overlay_1ae476d9fae3b39588e5c4fbd49d8a3b62" compoundref="_loader_overlay_8h" startline="51" endline="105">paint</referencedby>
+        <location file="terminal/component/LoaderOverlay.h" line="120" column="33" bodyfile="terminal/component/LoaderOverlay.h" bodystart="120" bodyend="131"/>
+        <referencedby refid="class_loader_overlay_1ae476d9fae3b39588e5c4fbd49d8a3b62" compoundref="_loader_overlay_8h" startline="51" endline="104">paint</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">
@@ -160,10 +160,10 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/component/LoaderOverlay.h" line="28" column="10" bodyfile="terminal/component/LoaderOverlay.h" bodystart="28" bodyend="36"/>
-        <references refid="class_loader_overlay_1a3627940e686b54e5a10ace00fa5adb46" compoundref="_loader_overlay_8h" startline="115" endline="115">builtCount</references>
-        <references refid="class_loader_overlay_1a893271893e4dcba5de89b0a30a4ecbd9" compoundref="_loader_overlay_8h" startline="117" endline="117">displayMessage</references>
-        <references refid="class_loader_overlay_1a920346302affdac07219f903a73e3ba1" compoundref="_loader_overlay_8h" startline="114" endline="114">frameIndex</references>
-        <references refid="class_loader_overlay_1a0d96704540da236638c8ffc7c2cb3658" compoundref="_loader_overlay_8h" startline="116" endline="116">totalCount</references>
+        <references refid="class_loader_overlay_1a3627940e686b54e5a10ace00fa5adb46" compoundref="_loader_overlay_8h" startline="114" endline="114">builtCount</references>
+        <references refid="class_loader_overlay_1a893271893e4dcba5de89b0a30a4ecbd9" compoundref="_loader_overlay_8h" startline="116" endline="116">displayMessage</references>
+        <references refid="class_loader_overlay_1a920346302affdac07219f903a73e3ba1" compoundref="_loader_overlay_8h" startline="113" endline="113">frameIndex</references>
+        <references refid="class_loader_overlay_1a0d96704540da236638c8ffc7c2cb3658" compoundref="_loader_overlay_8h" startline="115" endline="115">totalCount</references>
       </memberdef>
       <memberdef kind="function" id="class_loader_overlay_1a65fb76d96a2572f49d2573e2f21080cd" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
         <type>void</type>
@@ -186,8 +186,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/component/LoaderOverlay.h" line="38" column="10" bodyfile="terminal/component/LoaderOverlay.h" bodystart="38" bodyend="43"/>
-        <references refid="class_loader_overlay_1a3627940e686b54e5a10ace00fa5adb46" compoundref="_loader_overlay_8h" startline="115" endline="115">builtCount</references>
-        <references refid="class_loader_overlay_1a0d96704540da236638c8ffc7c2cb3658" compoundref="_loader_overlay_8h" startline="116" endline="116">totalCount</references>
+        <references refid="class_loader_overlay_1a3627940e686b54e5a10ace00fa5adb46" compoundref="_loader_overlay_8h" startline="114" endline="114">builtCount</references>
+        <references refid="class_loader_overlay_1a0d96704540da236638c8ffc7c2cb3658" compoundref="_loader_overlay_8h" startline="115" endline="115">totalCount</references>
       </memberdef>
       <memberdef kind="function" id="class_loader_overlay_1a87ffe7e441988bcb94d3793555befede" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
         <type>void</type>
@@ -219,13 +219,18 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/LoaderOverlay.h" line="51" column="10" bodyfile="terminal/component/LoaderOverlay.h" bodystart="51" bodyend="105"/>
-        <references refid="class_loader_overlay_1a3627940e686b54e5a10ace00fa5adb46" compoundref="_loader_overlay_8h" startline="115" endline="115">builtCount</references>
-        <references refid="class_loader_overlay_1a893271893e4dcba5de89b0a30a4ecbd9" compoundref="_loader_overlay_8h" startline="117" endline="117">displayMessage</references>
-        <references refid="class_loader_overlay_1a920346302affdac07219f903a73e3ba1" compoundref="_loader_overlay_8h" startline="114" endline="114">frameIndex</references>
-        <references refid="class_loader_overlay_1a7626bfa1de0296b6e7a435b2f31325bc" compoundref="_loader_overlay_8h" startline="121" endline="132">frames</references>
-        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
-        <references refid="class_loader_overlay_1a0d96704540da236638c8ffc7c2cb3658" compoundref="_loader_overlay_8h" startline="116" endline="116">totalCount</references>
+        <location file="terminal/component/LoaderOverlay.h" line="51" column="10" bodyfile="terminal/component/LoaderOverlay.h" bodystart="51" bodyend="104"/>
+        <references refid="class_loader_overlay_1a3627940e686b54e5a10ace00fa5adb46" compoundref="_loader_overlay_8h" startline="114" endline="114">builtCount</references>
+        <references refid="namespaceapp_1_1id_1a24815b9015e0395936a1718769739fff" compoundref="_app_identifier_8h" startline="80" endline="80">app::id::DISPLAY_LUA</references>
+        <references refid="class_loader_overlay_1a893271893e4dcba5de89b0a30a4ecbd9" compoundref="_loader_overlay_8h" startline="116" endline="116">displayMessage</references>
+        <references refid="class_loader_overlay_1a920346302affdac07219f903a73e3ba1" compoundref="_loader_overlay_8h" startline="113" endline="113">frameIndex</references>
+        <references refid="class_loader_overlay_1a7626bfa1de0296b6e7a435b2f31325bc" compoundref="_loader_overlay_8h" startline="120" endline="131">frames</references>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
+        <references refid="namespaceapp_1_1id_1a66882a1899acc8c961154c2d383f9483" compoundref="_app_identifier_8h" startline="238" endline="238">app::id::overlayColour</references>
+        <references refid="namespaceapp_1_1id_1a33aa122805fab67713a5bd4caea745cd" compoundref="_app_identifier_8h" startline="236" endline="236">app::id::overlayFamily</references>
+        <references refid="namespaceapp_1_1id_1a389dcd133162a346affb3d7858a01ce1" compoundref="_app_identifier_8h" startline="237" endline="237">app::id::overlaySize</references>
+        <references refid="class_loader_overlay_1a0d96704540da236638c8ffc7c2cb3658" compoundref="_loader_overlay_8h" startline="115" endline="115">totalCount</references>
+        <references refid="namespaceapp_1_1id_1aacf1d941ece69d43b705d3f1238fba52" compoundref="_app_identifier_8h" startline="168" endline="168">app::id::windowColour</references>
       </memberdef>
     </sectiondef>
     <sectiondef kind="private-func">
@@ -241,9 +246,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/component/LoaderOverlay.h" line="108" column="10" bodyfile="terminal/component/LoaderOverlay.h" bodystart="108" bodyend="112"/>
-        <references refid="class_loader_overlay_1a52857b5ec0f23e2fabe8f2da3ee97f44" compoundref="_loader_overlay_8h" startline="120" endline="120">frameCount</references>
-        <references refid="class_loader_overlay_1a920346302affdac07219f903a73e3ba1" compoundref="_loader_overlay_8h" startline="114" endline="114">frameIndex</references>
+        <location file="terminal/component/LoaderOverlay.h" line="107" column="10" bodyfile="terminal/component/LoaderOverlay.h" bodystart="107" bodyend="111"/>
+        <references refid="class_loader_overlay_1a52857b5ec0f23e2fabe8f2da3ee97f44" compoundref="_loader_overlay_8h" startline="119" endline="119">frameCount</references>
+        <references refid="class_loader_overlay_1a920346302affdac07219f903a73e3ba1" compoundref="_loader_overlay_8h" startline="113" endline="113">frameIndex</references>
       </memberdef>
     </sectiondef>
     <briefdescription>
@@ -288,7 +293,7 @@
         <label>std::array&lt; juce::juce_wchar, frameCount &gt;</label>
       </node>
     </collaborationgraph>
-    <location file="terminal/component/LoaderOverlay.h" line="18" column="1" bodyfile="terminal/component/LoaderOverlay.h" bodystart="20" bodyend="135"/>
+    <location file="terminal/component/LoaderOverlay.h" line="18" column="1" bodyfile="terminal/component/LoaderOverlay.h" bodystart="20" bodyend="134"/>
     <listofallmembers>
       <member refid="class_loader_overlay_1a3627940e686b54e5a10ace00fa5adb46" prot="private" virt="non-virtual"><scope>LoaderOverlay</scope><name>builtCount</name></member>
       <member refid="class_loader_overlay_1a893271893e4dcba5de89b0a30a4ecbd9" prot="private" virt="non-virtual"><scope>LoaderOverlay</scope><name>displayMessage</name></member>

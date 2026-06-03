@@ -88,7 +88,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/LinkSpan.h" line="68" column="18" bodyfile="terminal/LinkSpan.h" bodystart="68" bodyend="-1"/>
-        <referencedby refid="classterminal_1_1_link_manager_1a31972897ab13d8ab670c6c5abd749e57" compoundref="_link_manager_8cpp" startline="146" endline="196">terminal::LinkManager::dispatch</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1a31972897ab13d8ab670c6c5abd749e57" compoundref="_link_manager_8cpp" startline="146" endline="195">terminal::LinkManager::dispatch</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structterminal_1_1_link_span_1a3ad3e13b38a398c1fd8550f33b193fba" prot="public" static="no" mutable="no">
         <type><ref refid="classterminal_1_1_link_detector_1a11ff9c79f3a6fbcb7ecdc3e7a6f0c67a" kindref="member">LinkDetector::LinkType</ref></type>
@@ -105,7 +105,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="terminal/LinkSpan.h" line="71" column="28" bodyfile="terminal/LinkSpan.h" bodystart="71" bodyend="71"/>
-        <referencedby refid="classterminal_1_1_link_manager_1a31972897ab13d8ab670c6c5abd749e57" compoundref="_link_manager_8cpp" startline="146" endline="196">terminal::LinkManager::dispatch</referencedby>
+        <referencedby refid="classterminal_1_1_link_manager_1a31972897ab13d8ab670c6c5abd749e57" compoundref="_link_manager_8cpp" startline="146" endline="195">terminal::LinkManager::dispatch</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structterminal_1_1_link_span_1a2abeaf75b4072054b68ede2dae4c617b" prot="public" static="no" mutable="no">
         <type>char</type>

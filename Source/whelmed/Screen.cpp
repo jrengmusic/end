@@ -9,8 +9,9 @@ Screen::Screen() { setOpaque (false); }
 int Screen::load (const jam::Markdown::ParsedDocument& doc, int viewportHeight)
 {
     clear();
-    bodyFontSize = lua::Engine::getContext()->whelmed.fontSize;
-    lineHeight   = lua::Engine::getContext()->whelmed.lineHeight;
+    const auto* appState { AppModel::getContext() };
+    bodyFontSize = appState->getValue<float> (app::id::WHELMED_LUA, app::id::fontSize);
+    lineHeight   = appState->getValue<float> (app::id::WHELMED_LUA, app::id::lineHeight);
 
     // Create all entries
     for (int i { 0 }; i < doc.blockCount; ++i)
@@ -90,7 +91,7 @@ std::unique_ptr<Block> Screen::createBlock (const jam::Markdown::ParsedDocument&
     const auto& block { doc.blocks[blockIndex] };
     std::unique_ptr<Block> result;
 
-    const auto* cfg { lua::Engine::getContext() };
+    const auto* appState { AppModel::getContext() };
 
     if (block.type == jam::Markdown::BlockType::Markdown)
     {
@@ -102,8 +103,8 @@ std::unique_ptr<Block> Screen::createBlock (const jam::Markdown::ParsedDocument&
             juce::AttributedString as;
             as.append ("\n",
                        juce::Font (juce::FontOptions()
-                           .withName (cfg->whelmed.fontFamily)
-                           .withPointHeight (cfg->whelmed.fontSize)),
+                           .withName (appState->getValue<juce::String> (app::id::WHELMED_LUA, app::id::fontFamily))
+                           .withPointHeight (appState->getValue<float> (app::id::WHELMED_LUA, app::id::fontSize))),
                        juce::Colours::transparentBlack);
             auto textBlock { std::make_unique<TextBlock> (std::move (as)) };
 
@@ -130,7 +131,7 @@ std::unique_ptr<Block> Screen::createBlock (const jam::Markdown::ParsedDocument&
 
         juce::AttributedString as { whelmed::tokenize (code, language) };
 
-        const auto bgColour { cfg->whelmed.codeFenceBackground };
+        const auto bgColour { juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::WHELMED_LUA, app::id::codeFenceBackground))) };
 
         auto textBlock { std::make_unique<TextBlock> (std::move (as), bgColour) };
 
@@ -148,18 +149,18 @@ std::unique_ptr<Block> Screen::createBlock (const jam::Markdown::ParsedDocument&
         juce::String tableMarkdown { juce::String::fromUTF8 (doc.text + block.contentOffset, block.contentLength) };
         auto tableBlock { std::make_unique<TableBlock> (
             juce::Font (juce::FontOptions()
-                .withName (cfg->whelmed.fontFamily)
-                .withPointHeight (cfg->whelmed.fontSize)
-                .withStyle (cfg->whelmed.fontStyle))) };
+                .withName (appState->getValue<juce::String> (app::id::WHELMED_LUA, app::id::fontFamily))
+                .withPointHeight (appState->getValue<float> (app::id::WHELMED_LUA, app::id::fontSize))
+                .withStyle (appState->getValue<juce::String> (app::id::WHELMED_LUA, app::id::fontStyle)))) };
         tableBlock->setTableMarkdown (tableMarkdown);
 
         TableBlock::ColourScheme colours;
-        colours.background       = cfg->whelmed.tableBackground;
-        colours.headerBackground = cfg->whelmed.tableHeaderBackground;
-        colours.rowAlt           = cfg->whelmed.tableRowAlt;
-        colours.borderColour     = cfg->whelmed.tableBorderColour;
-        colours.headerText       = cfg->whelmed.tableHeaderText;
-        colours.cellText         = cfg->whelmed.tableCellText;
+        colours.background       = juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::WHELMED_LUA, app::id::tableBackground)));
+        colours.headerBackground = juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::WHELMED_LUA, app::id::tableHeaderBackground)));
+        colours.rowAlt           = juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::WHELMED_LUA, app::id::tableRowAlt)));
+        colours.borderColour     = juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::WHELMED_LUA, app::id::tableBorderColour)));
+        colours.headerText       = juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::WHELMED_LUA, app::id::tableHeaderText)));
+        colours.cellText         = juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::WHELMED_LUA, app::id::tableCellText)));
         tableBlock->setColourScheme (colours);
 
         if (width > 0)
@@ -179,24 +180,24 @@ juce::AttributedString Screen::buildAttributedString (const jam::Markdown::Parse
 
     static constexpr int kMaxHeadingLevel { 6 };
 
-    const auto* cfg { lua::Engine::getContext() };
+    const auto* appState { AppModel::getContext() };
 
     auto resolveBlockStyle = [&] (const jam::Markdown::Block& b) -> std::pair<float, juce::Colour>
     {
-        const float sizes[] { cfg->whelmed.fontSize,
-                              cfg->whelmed.h1Size,
-                              cfg->whelmed.h2Size,
-                              cfg->whelmed.h3Size,
-                              cfg->whelmed.h4Size,
-                              cfg->whelmed.h5Size,
-                              cfg->whelmed.h6Size };
-        const juce::Colour colours[] { cfg->whelmed.bodyColour,
-                                       cfg->whelmed.h1Colour,
-                                       cfg->whelmed.h2Colour,
-                                       cfg->whelmed.h3Colour,
-                                       cfg->whelmed.h4Colour,
-                                       cfg->whelmed.h5Colour,
-                                       cfg->whelmed.h6Colour };
+        const float sizes[] { appState->getValue<float> (app::id::WHELMED_LUA, app::id::fontSize),
+                              appState->getValue<float> (app::id::WHELMED_LUA, app::id::h1Size),
+                              appState->getValue<float> (app::id::WHELMED_LUA, app::id::h2Size),
+                              appState->getValue<float> (app::id::WHELMED_LUA, app::id::h3Size),
+                              appState->getValue<float> (app::id::WHELMED_LUA, app::id::h4Size),
+                              appState->getValue<float> (app::id::WHELMED_LUA, app::id::h5Size),
+                              appState->getValue<float> (app::id::WHELMED_LUA, app::id::h6Size) };
+        const juce::Colour colours[] { juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::WHELMED_LUA, app::id::bodyColour))),
+                                       juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::WHELMED_LUA, app::id::h1Colour))),
+                                       juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::WHELMED_LUA, app::id::h2Colour))),
+                                       juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::WHELMED_LUA, app::id::h3Colour))),
+                                       juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::WHELMED_LUA, app::id::h4Colour))),
+                                       juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::WHELMED_LUA, app::id::h5Colour))),
+                                       juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::WHELMED_LUA, app::id::h6Colour))) };
 
         const int level { juce::jlimit (0, kMaxHeadingLevel, b.level) };
         return { sizes[level], colours[level] };
@@ -209,12 +210,12 @@ juce::AttributedString Screen::buildAttributedString (const jam::Markdown::Parse
 
     if (block.spanCount == 0)
     {
-        const juce::String fontStyle { block.level > 0 ? "Bold" : cfg->whelmed.fontStyle };
+        const juce::String fontStyleStr { block.level > 0 ? "Bold" : appState->getValue<juce::String> (app::id::WHELMED_LUA, app::id::fontStyle) };
         as.append (blockContent + "\n",
                    juce::Font (juce::FontOptions()
-                       .withName (cfg->whelmed.fontFamily)
+                       .withName (appState->getValue<juce::String> (app::id::WHELMED_LUA, app::id::fontFamily))
                        .withPointHeight (blockFontSize)
-                       .withStyle (fontStyle)),
+                       .withStyle (fontStyleStr)),
                    blockColour);
     }
     else
@@ -229,17 +230,17 @@ juce::AttributedString Screen::buildAttributedString (const jam::Markdown::Parse
             const bool isBold { (span.style & jam::Markdown::Bold) != jam::Markdown::None };
             const bool isItalic { (span.style & jam::Markdown::Italic) != jam::Markdown::None };
 
-            const juce::String family { isCode ? cfg->whelmed.codeFamily
-                                               : cfg->whelmed.fontFamily };
+            const juce::String family { isCode ? appState->getValue<juce::String> (app::id::WHELMED_LUA, app::id::codeFamily)
+                                               : appState->getValue<juce::String> (app::id::WHELMED_LUA, app::id::fontFamily) };
 
             juce::Colour spanColour { blockColour };
 
             if (isCode)
-                spanColour = cfg->whelmed.codeColour;
+                spanColour = juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::WHELMED_LUA, app::id::codeColour)));
             else if (isLink)
-                spanColour = cfg->whelmed.linkColour;
+                spanColour = juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::WHELMED_LUA, app::id::linkColour)));
 
-            juce::String style { block.level > 0 ? "Bold" : cfg->whelmed.fontStyle };
+            juce::String style { block.level > 0 ? "Bold" : appState->getValue<juce::String> (app::id::WHELMED_LUA, app::id::fontStyle) };
 
             if (isBold and isItalic)
                 style = "Bold Italic";
@@ -255,7 +256,7 @@ juce::AttributedString Screen::buildAttributedString (const jam::Markdown::Parse
 
         as.append ("\n",
                    juce::Font (juce::FontOptions()
-                       .withName (cfg->whelmed.fontFamily)
+                       .withName (appState->getValue<juce::String> (app::id::WHELMED_LUA, app::id::fontFamily))
                        .withPointHeight (blockFontSize)),
                    blockColour);
     }
@@ -294,7 +295,7 @@ void Screen::updateCursor (int blockIndex, int charIndex) noexcept
             {
                 glyphBounds.translate (0.0f, static_cast<float> (entry.y));
 
-                const auto theme { lua::Engine::getContext()->buildTheme() };
+                const auto theme { AppModel::getContext()->buildTheme() };
 
                 cursor.bounds    = glyphBounds;
                 cursor.colour    = theme.selectionCursorColour;
@@ -669,7 +670,7 @@ void Screen::paint (juce::Graphics& g)
 
     if (selType != SelectionType::none)
     {
-        const auto selColour { lua::Engine::getContext()->whelmed.selectionColour };
+        const auto selColour { juce::Colour (static_cast<juce::uint32> (AppModel::getContext()->getValue<int> (app::id::WHELMED_LUA, app::id::selectionColour))) };
         g.setColour (selColour);
 
         const bool anchorFirst { selAnchorBlock < selCursorBlock
@@ -814,15 +815,15 @@ void Screen::paintMermaidSpinner (juce::Graphics& g, juce::Rectangle<int> area) 
         0x280F // ⠏
     };
 
-    const auto* loaderCfg { lua::Engine::getContext() };
+    const auto* appState { AppModel::getContext() };
 
-    const auto spinnerColour { loaderCfg->display.colours.statusBarSpinner };
-    const auto textColour    { loaderCfg->display.colours.statusBarLabelFg };
+    const auto spinnerColour { juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::DISPLAY_LUA, app::id::statusBarSpinner))) };
+    const auto textColour    { juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::DISPLAY_LUA, app::id::statusBarLabelFg))) };
 
     g.setFont (juce::FontOptions()
-                   .withName (loaderCfg->display.statusBar.fontFamily)
-                   .withPointHeight (loaderCfg->display.statusBar.fontSize)
-                   .withStyle (loaderCfg->display.statusBar.fontStyle));
+                   .withName (appState->getValue<juce::String> (app::id::DISPLAY_LUA, app::id::statusBarFontFamily))
+                   .withPointHeight (appState->getValue<float> (app::id::DISPLAY_LUA, app::id::statusBarFontSize))
+                   .withStyle (appState->getValue<juce::String> (app::id::DISPLAY_LUA, app::id::statusBarFontStyle)));
 
     const juce::String spinnerChar { juce::String::charToString (frames.at ((size_t) spinnerFrame)) };
     const juce::String labelText { " Loading Diagram" };

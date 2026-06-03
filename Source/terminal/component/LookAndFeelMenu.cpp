@@ -59,10 +59,11 @@ void LookAndFeel::preparePopupMenuWindow (juce::Component& newWindow)
         {
             if (safeComponent != nullptr)
             {
-                const auto* cfg { lua::Engine::getContext() };
-                jam::BackgroundBlur::enable (safeComponent.getComponent(),
-                                             cfg->display.window.blurRadius,
-                                             cfg->display.window.colour.withAlpha (cfg->display.menu.opacity));
+                const auto* appState { AppModel::getContext() };
+                const int blurRadius { appState->getValue<int> (app::id::DISPLAY_LUA, app::id::windowBlurRadius) };
+                const juce::Colour colour { juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::DISPLAY_LUA, app::id::windowColour)))
+                                                .withAlpha (appState->getValue<float> (app::id::DISPLAY_LUA, app::id::menuOpacity)) };
+                jam::BackgroundBlur::enable (safeComponent.getComponent(), blurRadius, colour);
             }
         });
 #endif

@@ -21,15 +21,15 @@ void List::valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier&)
             if (auto* label { rows.at (static_cast<std::size_t> (i))->getShortcutLabel() }; label != nullptr)
             {
                 const auto currentShortcut { label->getText() };
-                const auto engineShortcut { luaEngine.getShortcutString (rows.at (static_cast<std::size_t> (i))->actionConfigKey) };
+                const auto engineShortcut { AppModel::getContext()->getShortcutString (rows.at (static_cast<std::size_t> (i))->actionConfigKey) };
 
                 if (currentShortcut != engineShortcut)
                 {
-                    luaEngine.patchKey (rows.at (static_cast<std::size_t> (i))->actionConfigKey, currentShortcut);
-                    luaEngine.load();
+                    AppModel::getContext()->overrideShortcut (rows.at (static_cast<std::size_t> (i))->actionConfigKey, currentShortcut);
+                    AppModel::getContext()->reload();
 
                     if (registry != nullptr)
-                        luaEngine.buildKeyMap (*registry);
+                        AppModel::getContext()->buildKeyMap (*registry);
 
                     state.setTreeProperty (bindingsDirtyId, true, nullptr);
                 }
@@ -84,9 +84,9 @@ bool List::handleBindingKey (const juce::KeyPress& key)
 
                 if (rows.at (static_cast<std::size_t> (targetIndex))->actionConfigKey.isNotEmpty())
                 {
-                    luaEngine.patchKey (rows.at (static_cast<std::size_t> (targetIndex))->actionConfigKey, shortcutString);
-                    luaEngine.load();
-                    luaEngine.buildKeyMap (*registry);
+                    AppModel::getContext()->overrideShortcut (rows.at (static_cast<std::size_t> (targetIndex))->actionConfigKey, shortcutString);
+                    AppModel::getContext()->reload();
+                    AppModel::getContext()->buildKeyMap (*registry);
                     state.setTreeProperty (bindingsDirtyId, true, nullptr);
 
                     if (auto* label { rows.at (static_cast<std::size_t> (targetIndex))->getShortcutLabel() };

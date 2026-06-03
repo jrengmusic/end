@@ -307,7 +307,7 @@
     </briefdescription>
     <detaileddescription>
 <para>This header implements the keypress-to-escape-sequence mapping layer used by the terminal emulator. It converts raw JUCE key events into the byte strings that a PTY/shell process expects to receive on stdin.</para>
-<sect1 id="_keyboard_8h_1autotoc_md39_1s1"><sect2 id="_keyboard_8h_1autotoc_md39">
+<sect1 id="_keyboard_8h_1autotoc_md40_1s1"><sect2 id="_keyboard_8h_1autotoc_md40">
 <title>xterm Key Sequence Format</title><para>xterm uses three sequence families:</para>
 <para><table rows="4" cols="4"><row>
 <entry thead="yes"><para>Family  </para>
@@ -335,7 +335,7 @@
 </entry></row>
 </table>
 </para>
-<sect3 id="_keyboard_8h_1autotoc_md40">
+<sect3 id="_keyboard_8h_1autotoc_md41">
 <title>Modifier Encoding</title><para>When a modifier key (Shift, Alt, Ctrl) is held alongside a special key, xterm encodes the combination as a numeric parameter <computeroutput>N</computeroutput> inserted before the final byte of the sequence:</para>
 <para><programlisting><codeline><highlight class="normal">N<sp/>=<sp/>1<sp/>+<sp/>shift_bit<sp/>+<sp/>alt_bit<sp/>+<sp/>ctrl_bit</highlight></codeline>
 </programlisting></para>
@@ -388,10 +388,10 @@
 </para>
 <para>When <computeroutput>N == 1</computeroutput> (no modifiers) the <computeroutput>1;</computeroutput> parameter is omitted entirely.</para>
 </sect3>
-<sect3 id="_keyboard_8h_1autotoc_md41">
+<sect3 id="_keyboard_8h_1autotoc_md42">
 <title>Ctrl+Letter Encoding</title><para>Ctrl+A through Ctrl+Z produce control characters 0x01–0x1A. Ctrl+@ and Ctrl+Space produce NUL (0x00). A small set of punctuation characters have dedicated Ctrl mappings (e.g. Ctrl+[ → ESC, Ctrl+\ → FS, Ctrl+] → GS).</para>
 </sect3>
-<sect3 id="_keyboard_8h_1autotoc_md42">
+<sect3 id="_keyboard_8h_1autotoc_md43">
 <title>Alt Prefix</title><para>Alt is handled by prepending ESC (<computeroutput>\x1b</computeroutput>) to whatever sequence the key would produce without Alt. If the key produces no special sequence, the text character is prefixed instead (e.g. Alt+a → <computeroutput>\x1ba</computeroutput>). </para>
 </sect3>
 </sect2></sect1>

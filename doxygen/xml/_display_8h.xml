@@ -32,22 +32,22 @@
         </childnode>
         <childnode refid="8" relation="include">
         </childnode>
-        <childnode refid="9" relation="include">
+        <childnode refid="7" relation="include">
         </childnode>
       </node>
-      <node id="9">
-        <label>Map.h</label>
+      <node id="7">
+        <label>../Map.h</label>
         <link refid="_map_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
         <childnode refid="8" relation="include">
         </childnode>
       </node>
-      <node id="14">
+      <node id="12">
         <label>../ModalType.h</label>
         <link refid="_modal_type_8h"/>
       </node>
-      <node id="15">
+      <node id="13">
         <label>../SelectionType.h</label>
         <link refid="_selection_type_8h"/>
       </node>
@@ -56,53 +56,57 @@
         <link refid="_engine_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
         <childnode refid="7" relation="include">
         </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
       </node>
-      <node id="25">
+      <node id="23">
         <label>CSI.h</label>
         <link refid="_c_s_i_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
       </node>
-      <node id="22">
+      <node id="20">
         <label>CellFifo.h</label>
         <link refid="_cell_fifo_8h"/>
       </node>
-      <node id="29">
+      <node id="27">
         <label>CharProps.h</label>
         <link refid="_char_props_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
-        <childnode refid="30" relation="include">
+        <childnode refid="28" relation="include">
         </childnode>
       </node>
-      <node id="30">
+      <node id="28">
         <label>CharPropsData.h</label>
         <link refid="_char_props_data_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
       </node>
-      <node id="28">
+      <node id="26">
         <label>Charset.h</label>
         <link refid="_charset_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
       </node>
-      <node id="24">
+      <node id="22">
         <label>DispatchTable.h</label>
         <link refid="_dispatch_table_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
       </node>
-      <node id="37">
+      <node id="35">
         <label>ITerm2Decoder.h</label>
         <link refid="_i_term2_decoder_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
-        <childnode refid="35" relation="include">
+        <childnode refid="33" relation="include">
         </childnode>
-        <childnode refid="34" relation="include">
+        <childnode refid="32" relation="include">
         </childnode>
       </node>
       <node id="8">
@@ -111,170 +115,158 @@
         <childnode refid="2" relation="include">
         </childnode>
       </node>
-      <node id="35">
+      <node id="33">
         <label>ImageDecode.h</label>
         <link refid="_image_decode_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
-        <childnode refid="36" relation="include">
+        <childnode refid="34" relation="include">
         </childnode>
       </node>
-      <node id="36">
+      <node id="34">
         <label>ImageDecodeGif.h</label>
         <link refid="_image_decode_gif_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
       </node>
-      <node id="39">
+      <node id="37">
         <label>../Input.h</label>
         <link refid="_input_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
-        <childnode refid="40" relation="include">
+        <childnode refid="38" relation="include">
         </childnode>
-        <childnode refid="15" relation="include">
+        <childnode refid="13" relation="include">
         </childnode>
         <childnode refid="6" relation="include">
         </childnode>
-        <childnode refid="16" relation="include">
+        <childnode refid="14" relation="include">
         </childnode>
-        <childnode refid="41" relation="include">
+        <childnode refid="39" relation="include">
         </childnode>
-        <childnode refid="7" relation="include">
+        <childnode refid="9" relation="include">
         </childnode>
       </node>
-      <node id="17">
+      <node id="15">
         <label>Keyboard.h</label>
         <link refid="_keyboard_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
       </node>
-      <node id="33">
+      <node id="31">
         <label>KittyDecoder.h</label>
         <link refid="_kitty_decoder_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
-        <childnode refid="34" relation="include">
+        <childnode refid="32" relation="include">
         </childnode>
-        <childnode refid="35" relation="include">
+        <childnode refid="33" relation="include">
         </childnode>
       </node>
-      <node id="43">
+      <node id="41">
         <label>LinkDetector.h</label>
         <link refid="_link_detector_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
-        <childnode refid="6" relation="include">
+        <childnode refid="5" relation="include">
         </childnode>
       </node>
-      <node id="41">
+      <node id="39">
         <label>LinkManager.h</label>
         <link refid="_link_manager_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
-        <childnode refid="42" relation="include">
+        <childnode refid="40" relation="include">
         </childnode>
-        <childnode refid="12" relation="include">
+        <childnode refid="11" relation="include">
         </childnode>
-        <childnode refid="43" relation="include">
+        <childnode refid="41" relation="include">
         </childnode>
       </node>
-      <node id="42">
+      <node id="40">
         <label>LinkSpan.h</label>
         <link refid="_link_span_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
-        <childnode refid="43" relation="include">
+        <childnode refid="41" relation="include">
         </childnode>
       </node>
-      <node id="12">
+      <node id="11">
         <label>Model.h</label>
         <link refid="_model_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
-        <childnode refid="13" relation="include">
-        </childnode>
-        <childnode refid="11" relation="include">
-        </childnode>
         <childnode refid="8" relation="include">
         </childnode>
-        <childnode refid="14" relation="include">
+        <childnode refid="12" relation="include">
         </childnode>
-        <childnode refid="15" relation="include">
+        <childnode refid="13" relation="include">
         </childnode>
         <childnode refid="6" relation="include">
         </childnode>
         <childnode refid="5" relation="include">
         </childnode>
-        <childnode refid="9" relation="include">
+        <childnode refid="7" relation="include">
         </childnode>
       </node>
-      <node id="44">
+      <node id="42">
         <label>../Mouse.h</label>
         <link refid="_mouse_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
-        <childnode refid="16" relation="include">
+        <childnode refid="14" relation="include">
         </childnode>
-        <childnode refid="41" relation="include">
+        <childnode refid="39" relation="include">
         </childnode>
       </node>
-      <node id="38">
+      <node id="36">
         <label>Notifications.h</label>
         <link refid="_notifications_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
       </node>
-      <node id="31">
+      <node id="29">
         <label>Palette.h</label>
         <link refid="_palette_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
       </node>
-      <node id="13">
-        <label>Parameter.h</label>
-        <link refid="_parameter_8h"/>
-        <childnode refid="2" relation="include">
-        </childnode>
-      </node>
-      <node id="23">
+      <node id="21">
         <label>Parser.h</label>
         <link refid="terminal_2_parser_8h"/>
         <childnode refid="2" relation="include">
-        </childnode>
-        <childnode refid="24" relation="include">
-        </childnode>
-        <childnode refid="25" relation="include">
-        </childnode>
-        <childnode refid="26" relation="include">
-        </childnode>
-      </node>
-      <node id="16">
-        <label>Processor.h</label>
-        <link refid="_processor_8h"/>
-        <childnode refid="2" relation="include">
-        </childnode>
-        <childnode refid="17" relation="include">
-        </childnode>
-        <childnode refid="12" relation="include">
-        </childnode>
-        <childnode refid="11" relation="include">
-        </childnode>
-        <childnode refid="18" relation="include">
-        </childnode>
-        <childnode refid="19" relation="include">
-        </childnode>
-        <childnode refid="20" relation="include">
         </childnode>
         <childnode refid="22" relation="include">
         </childnode>
         <childnode refid="23" relation="include">
         </childnode>
-        <childnode refid="32" relation="include">
+        <childnode refid="24" relation="include">
         </childnode>
-        <childnode refid="26" relation="include">
+      </node>
+      <node id="14">
+        <label>Processor.h</label>
+        <link refid="_processor_8h"/>
+        <childnode refid="2" relation="include">
         </childnode>
-        <childnode refid="38" relation="include">
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="36" relation="include">
         </childnode>
       </node>
       <node id="10">
@@ -284,68 +276,60 @@
         </childnode>
         <childnode refid="11" relation="include">
         </childnode>
-        <childnode refid="12" relation="include">
-        </childnode>
-        <childnode refid="16" relation="include">
+        <childnode refid="14" relation="include">
         </childnode>
         <childnode refid="6" relation="include">
         </childnode>
       </node>
-      <node id="34">
+      <node id="32">
         <label>SixelDecoder.h</label>
         <link refid="_sixel_decoder_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
       </node>
-      <node id="32">
+      <node id="30">
         <label>Skit.h</label>
         <link refid="_skit_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
-        <childnode refid="33" relation="include">
-        </childnode>
-        <childnode refid="37" relation="include">
-        </childnode>
-        <childnode refid="34" relation="include">
+        <childnode refid="31" relation="include">
         </childnode>
         <childnode refid="35" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
         </childnode>
         <childnode refid="8" relation="include">
         </childnode>
       </node>
-      <node id="11">
-        <label>TextBuffer.h</label>
-        <link refid="_text_buffer_8h"/>
-        <childnode refid="2" relation="include">
-        </childnode>
-      </node>
-      <node id="26">
+      <node id="24">
         <label>Video.h</label>
         <link refid="_video_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
-        <childnode refid="27" relation="include">
-        </childnode>
-        <childnode refid="28" relation="include">
-        </childnode>
-        <childnode refid="24" relation="include">
-        </childnode>
         <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
         </childnode>
         <childnode refid="8" relation="include">
         </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
         <childnode refid="29" relation="include">
         </childnode>
-        <childnode refid="9" relation="include">
-        </childnode>
-        <childnode refid="31" relation="include">
-        </childnode>
       </node>
-      <node id="18">
+      <node id="16">
         <label>Winsize.h</label>
         <link refid="_winsize_8h"/>
       </node>
-      <node id="7">
+      <node id="9">
         <label>../terminal/action/Action.h</label>
         <link refid="_action_8h"/>
         <childnode refid="2" relation="include">
@@ -360,11 +344,11 @@
         </childnode>
         <childnode refid="10" relation="include">
         </childnode>
+        <childnode refid="37" relation="include">
+        </childnode>
+        <childnode refid="42" relation="include">
+        </childnode>
         <childnode refid="39" relation="include">
-        </childnode>
-        <childnode refid="44" relation="include">
-        </childnode>
-        <childnode refid="41" relation="include">
         </childnode>
       </node>
       <node id="3">
@@ -377,39 +361,39 @@
         <childnode refid="5" relation="include">
         </childnode>
       </node>
-      <node id="40">
+      <node id="38">
         <label>component/ScreenSelection.h</label>
         <link refid="_screen_selection_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
-        <childnode refid="15" relation="include">
+        <childnode refid="13" relation="include">
         </childnode>
       </node>
-      <node id="19">
+      <node id="17">
         <label>tty/TTY.h</label>
         <link refid="_t_t_y_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
         <childnode refid="8" relation="include">
         </childnode>
-        <childnode refid="18" relation="include">
+        <childnode refid="16" relation="include">
         </childnode>
       </node>
-      <node id="20">
+      <node id="18">
         <label>tty/UnixTTY.h</label>
         <link refid="_unix_t_t_y_8h"/>
-        <childnode refid="19" relation="include">
+        <childnode refid="17" relation="include">
         </childnode>
-        <childnode refid="21" relation="include">
+        <childnode refid="19" relation="include">
         </childnode>
       </node>
       <node id="2">
         <label>JuceHeader.h</label>
       </node>
-      <node id="27">
+      <node id="25">
         <label>atomic</label>
       </node>
-      <node id="21">
+      <node id="19">
         <label>unistd.h</label>
       </node>
     </incdepgraph>
@@ -550,7 +534,6 @@
       </node>
     </invincdepgraph>
     <innerclass refid="classterminal_1_1_display" prot="public">terminal::Display</innerclass>
-    <innerclass refid="structterminal_1_1_display_1_1_config_listener" prot="private">terminal::Display::ConfigListener</innerclass>
     <innernamespace refid="namespaceterminal">terminal</innernamespace>
     <briefdescription>
     </briefdescription>
@@ -650,26 +633,17 @@
 <codeline lineno="109" refid="classterminal_1_1_display_1a56902129be2ac08d4fd6b026387f3c30" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_input" kindref="compound">terminal::Input</ref><sp/><ref refid="classterminal_1_1_display_1a56902129be2ac08d4fd6b026387f3c30" kindref="member">input</ref>;</highlight></codeline>
 <codeline lineno="110" refid="classterminal_1_1_display_1a76b9f59f3f9b03f6b34d92f73e38b657" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_mouse" kindref="compound">terminal::Mouse</ref><sp/><ref refid="classterminal_1_1_display_1a76b9f59f3f9b03f6b34d92f73e38b657" kindref="member">mouse</ref>;</highlight></codeline>
 <codeline lineno="111"><highlight class="normal"></highlight></codeline>
-<codeline lineno="116" refid="structterminal_1_1_display_1_1_config_listener" refkind="compound"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structterminal_1_1_display_1_1_config_listener_1ab2321b389d513daaf39861a62605bc1e" kindref="member">ConfigListener</ref><sp/>:<sp/></highlight><highlight class="keyword">private</highlight><highlight class="normal"><sp/>juce::ValueTree::Listener</highlight></codeline>
-<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
-<codeline lineno="118" refid="structterminal_1_1_display_1_1_config_listener_1ab2321b389d513daaf39861a62605bc1e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">explicit</highlight><highlight class="normal"><sp/><ref refid="structterminal_1_1_display_1_1_config_listener_1ab2321b389d513daaf39861a62605bc1e" kindref="member">ConfigListener</ref><sp/>(<ref refid="classterminal_1_1_display_1a795559c55785fb2637b1a3b873d84515" kindref="member">Display</ref>&amp;<sp/>d)<sp/>noexcept<sp/>:<sp/><ref refid="structterminal_1_1_display_1_1_config_listener_1a800c7d8dc8dd5f5b3aff7b1b7b0da769" kindref="member">display</ref><sp/>(d)<sp/>{}</highlight></codeline>
-<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="structterminal_1_1_display_1_1_config_listener_1aff3bc9ae4a92be4a5768f72f09d3af89" kindref="member">start</ref>()<sp/>noexcept;</highlight></codeline>
-<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="structterminal_1_1_display_1_1_config_listener_1a3f4b874e3064af96f4ada315eaa4e470" kindref="member">stop</ref>()<sp/>noexcept;</highlight></codeline>
-<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/>private:</highlight></codeline>
-<codeline lineno="122" refid="structterminal_1_1_display_1_1_config_listener_1a800c7d8dc8dd5f5b3aff7b1b7b0da769" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classterminal_1_1_display_1a795559c55785fb2637b1a3b873d84515" kindref="member">Display</ref>&amp;<sp/><ref refid="structterminal_1_1_display_1_1_config_listener_1a800c7d8dc8dd5f5b3aff7b1b7b0da769" kindref="member">display</ref>;</highlight></codeline>
-<codeline lineno="123" refid="structterminal_1_1_display_1_1_config_listener_1a902ac720324f356942feb46e3c0c208d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">juce</ref>::<ref refid="classValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ValueTree</ref><sp/><ref refid="structterminal_1_1_display_1_1_config_listener_1a902ac720324f356942feb46e3c0c208d" kindref="member">appState</ref>;</highlight></codeline>
-<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="structterminal_1_1_display_1_1_config_listener_1a10c2d53b02019034a43005814278a391" kindref="member">valueTreePropertyChanged</ref><sp/>(<ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">juce</ref>::<ref refid="classValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ValueTree</ref>&amp;<sp/><ref refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682cac0af77cf8294ff93a5cdb2963ca9f038" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">tree</ref>,<sp/>const<sp/><ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">juce</ref>::<ref refid="classIdentifier" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Identifier</ref>&amp;<sp/>property)<sp/>override;</highlight></codeline>
-<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/>};</highlight></codeline>
-<codeline lineno="126" refid="classterminal_1_1_display_1a2dd6e6eb013b7d0a9302c321d5d75c4d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structterminal_1_1_display_1_1_config_listener" kindref="compound">ConfigListener</ref><sp/><ref refid="classterminal_1_1_display_1a2dd6e6eb013b7d0a9302c321d5d75c4d" kindref="member">configListener</ref><sp/>{<sp/>*</highlight><highlight class="keyword">this</highlight><highlight class="normal"><sp/>};</highlight></codeline>
-<codeline lineno="127"><highlight class="normal"></highlight></codeline>
-<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_display_1add336f50de49e963b5491ad266173662" kindref="member">applyFromAppModel</ref>()<sp/>noexcept;</highlight></codeline>
-<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="structterminal_1_1_display_1_1_config_listener_1a10c2d53b02019034a43005814278a391" kindref="member">valueTreePropertyChanged</ref><sp/>(<ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">juce</ref>::<ref refid="classValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ValueTree</ref>&amp;<sp/><ref refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682cac0af77cf8294ff93a5cdb2963ca9f038" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">tree</ref>,<sp/>const<sp/><ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">juce</ref>::<ref refid="classIdentifier" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Identifier</ref>&amp;<sp/>property)<sp/>override;</highlight></codeline>
-<codeline lineno="130"><highlight class="normal"></highlight></codeline>
-<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="group__juce__core-system_1ga851b02724a8158a7f746c66b5758b3dd" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR</ref><sp/>(<ref refid="classterminal_1_1_display" kindref="compound">Display</ref>)</highlight></codeline>
-<codeline lineno="133"><highlight class="normal">};</highlight></codeline>
-<codeline lineno="134"><highlight class="normal"></highlight></codeline>
-<codeline lineno="136"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>terminal</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="113" refid="classterminal_1_1_display_1a5f1969179a0aff688134fac27ea5d4bc" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::ValueTree<sp/><ref refid="classterminal_1_1_display_1a5f1969179a0aff688134fac27ea5d4bc" kindref="member">configDisplay</ref>;</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_display_1a5b061c7f308917ead2d65a7d0100a4b9" kindref="member">applyConfigToCodeView</ref>()<sp/>noexcept;</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classterminal_1_1_display_1a03eba79fe456af4968d7f483d9f240f0" kindref="member">valueTreePropertyChanged</ref><sp/>(<ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">juce</ref>::<ref refid="classValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">ValueTree</ref>&amp;<sp/><ref refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682cac0af77cf8294ff93a5cdb2963ca9f038" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">tree</ref>,<sp/>const<sp/><ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">juce</ref>::<ref refid="classIdentifier" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Identifier</ref>&amp;<sp/>property)<sp/>override;</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="group__juce__core-system_1ga851b02724a8158a7f746c66b5758b3dd" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR</ref><sp/>(<ref refid="classterminal_1_1_display_1a795559c55785fb2637b1a3b873d84515" kindref="member">Display</ref>)</highlight></codeline>
+<codeline lineno="122"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>terminal</highlight><highlight class="normal"></highlight></codeline>
     </programlisting>
     <location file="terminal/component/Display.h"/>
   </compounddef>

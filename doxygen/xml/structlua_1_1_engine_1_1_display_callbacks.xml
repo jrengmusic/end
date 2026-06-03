@@ -17,8 +17,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lua/Engine.h" line="912" column="23" bodyfile="lua/Engine.h" bodystart="912" bodyend="-1"/>
-        <referencedby refid="class_main_component_1a1fe9b104d3b6eb88315ace959285ead4" compoundref="_main_component_8cpp" startline="54" endline="215">MainComponent::MainComponent</referencedby>
+        <location file="lua/Engine.h" line="115" column="23" bodyfile="lua/Engine.h" bodystart="115" bodyend="-1"/>
+        <referencedby refid="class_main_component_1a85254935b98beac9128189c6a577d7be" compoundref="_main_component_8cpp" startline="54" endline="219">MainComponent::MainComponent</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structlua_1_1_engine_1_1_display_callbacks_1a7948e1cb5e6f15fb5ef96c7415e1be48" prot="public" static="no" mutable="no">
         <type>std::function&lt; void()&gt;</type>
@@ -33,8 +33,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lua/Engine.h" line="915" column="23" bodyfile="lua/Engine.h" bodystart="915" bodyend="-1"/>
-        <referencedby refid="class_main_component_1a1fe9b104d3b6eb88315ace959285ead4" compoundref="_main_component_8cpp" startline="54" endline="215">MainComponent::MainComponent</referencedby>
+        <location file="lua/Engine.h" line="118" column="23" bodyfile="lua/Engine.h" bodystart="118" bodyend="-1"/>
+        <referencedby refid="class_main_component_1a85254935b98beac9128189c6a577d7be" compoundref="_main_component_8cpp" startline="54" endline="219">MainComponent::MainComponent</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structlua_1_1_engine_1_1_display_callbacks_1a3f035c63c507dfad738ddbedb14df7ff" prot="public" static="no" mutable="no">
         <type>std::function&lt; void(const juce::String &amp;, bool, double)&gt;</type>
@@ -49,8 +49,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lua/Engine.h" line="918" column="23" bodyfile="lua/Engine.h" bodystart="918" bodyend="-1"/>
-        <referencedby refid="class_main_component_1a1fe9b104d3b6eb88315ace959285ead4" compoundref="_main_component_8cpp" startline="54" endline="215">MainComponent::MainComponent</referencedby>
+        <location file="lua/Engine.h" line="121" column="23" bodyfile="lua/Engine.h" bodystart="121" bodyend="-1"/>
+        <referencedby refid="class_main_component_1a85254935b98beac9128189c6a577d7be" compoundref="_main_component_8cpp" startline="54" endline="219">MainComponent::MainComponent</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structlua_1_1_engine_1_1_display_callbacks_1a3092c8d846ab75c173dc7af54c89f820" prot="public" static="no" mutable="no">
         <type>std::function&lt; void()&gt;</type>
@@ -65,8 +65,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lua/Engine.h" line="921" column="23" bodyfile="lua/Engine.h" bodystart="921" bodyend="-1"/>
-        <referencedby refid="class_main_component_1a1fe9b104d3b6eb88315ace959285ead4" compoundref="_main_component_8cpp" startline="54" endline="215">MainComponent::MainComponent</referencedby>
+        <location file="lua/Engine.h" line="124" column="23" bodyfile="lua/Engine.h" bodystart="124" bodyend="-1"/>
+        <referencedby refid="class_main_component_1a85254935b98beac9128189c6a577d7be" compoundref="_main_component_8cpp" startline="54" endline="219">MainComponent::MainComponent</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structlua_1_1_engine_1_1_display_callbacks_1ab0745b147b2b20cc17d61e605bed2f68" prot="public" static="no" mutable="no">
         <type>std::function&lt; void()&gt;</type>
@@ -81,8 +81,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lua/Engine.h" line="924" column="23" bodyfile="lua/Engine.h" bodystart="924" bodyend="-1"/>
-        <referencedby refid="class_main_component_1a1fe9b104d3b6eb88315ace959285ead4" compoundref="_main_component_8cpp" startline="54" endline="215">MainComponent::MainComponent</referencedby>
+        <location file="lua/Engine.h" line="127" column="23" bodyfile="lua/Engine.h" bodystart="127" bodyend="-1"/>
+        <referencedby refid="class_main_component_1a85254935b98beac9128189c6a577d7be" compoundref="_main_component_8cpp" startline="54" endline="219">MainComponent::MainComponent</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structlua_1_1_engine_1_1_display_callbacks_1af02a6a09204680af7e8b4e8c0186e090" prot="public" static="no" mutable="no">
         <type>std::function&lt; void()&gt;</type>
@@ -97,8 +97,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lua/Engine.h" line="927" column="23" bodyfile="lua/Engine.h" bodystart="927" bodyend="-1"/>
-        <referencedby refid="class_main_component_1a1fe9b104d3b6eb88315ace959285ead4" compoundref="_main_component_8cpp" startline="54" endline="215">MainComponent::MainComponent</referencedby>
+        <location file="lua/Engine.h" line="130" column="23" bodyfile="lua/Engine.h" bodystart="130" bodyend="-1"/>
+        <referencedby refid="class_main_component_1a85254935b98beac9128189c6a577d7be" compoundref="_main_component_8cpp" startline="54" endline="219">MainComponent::MainComponent</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structlua_1_1_engine_1_1_display_callbacks_1a7a14b475fe28fff5ca0d367ad990633e" prot="public" static="no" mutable="no">
         <type>std::function&lt; void()&gt;</type>
@@ -113,8 +113,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lua/Engine.h" line="930" column="23" bodyfile="lua/Engine.h" bodystart="930" bodyend="-1"/>
-        <referencedby refid="class_main_component_1a1fe9b104d3b6eb88315ace959285ead4" compoundref="_main_component_8cpp" startline="54" endline="215">MainComponent::MainComponent</referencedby>
+        <location file="lua/Engine.h" line="133" column="23" bodyfile="lua/Engine.h" bodystart="133" bodyend="-1"/>
+        <referencedby refid="class_main_component_1a85254935b98beac9128189c6a577d7be" compoundref="_main_component_8cpp" startline="54" endline="219">MainComponent::MainComponent</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structlua_1_1_engine_1_1_display_callbacks_1a5ef1d4e42063125c4dc9fb57681ca9d3" prot="public" static="no" mutable="no">
         <type>std::function&lt; void(int, int)&gt;</type>
@@ -129,8 +129,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lua/Engine.h" line="933" column="23" bodyfile="lua/Engine.h" bodystart="933" bodyend="-1"/>
-        <referencedby refid="class_main_component_1a1fe9b104d3b6eb88315ace959285ead4" compoundref="_main_component_8cpp" startline="54" endline="215">MainComponent::MainComponent</referencedby>
+        <location file="lua/Engine.h" line="136" column="23" bodyfile="lua/Engine.h" bodystart="136" bodyend="-1"/>
+        <referencedby refid="class_main_component_1a85254935b98beac9128189c6a577d7be" compoundref="_main_component_8cpp" startline="54" endline="219">MainComponent::MainComponent</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structlua_1_1_engine_1_1_display_callbacks_1a6e49abed9d4d128e4bff347a0310453d" prot="public" static="no" mutable="no">
         <type>std::function&lt; void()&gt;</type>
@@ -145,8 +145,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lua/Engine.h" line="936" column="23" bodyfile="lua/Engine.h" bodystart="936" bodyend="-1"/>
-        <referencedby refid="class_main_component_1a1fe9b104d3b6eb88315ace959285ead4" compoundref="_main_component_8cpp" startline="54" endline="215">MainComponent::MainComponent</referencedby>
+        <location file="lua/Engine.h" line="139" column="23" bodyfile="lua/Engine.h" bodystart="139" bodyend="-1"/>
+        <referencedby refid="class_main_component_1a85254935b98beac9128189c6a577d7be" compoundref="_main_component_8cpp" startline="54" endline="219">MainComponent::MainComponent</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structlua_1_1_engine_1_1_display_callbacks_1a72af807ea2ae1fe9183cadaf15577636" prot="public" static="no" mutable="no">
         <type>std::function&lt; void(const juce::String &amp;)&gt;</type>
@@ -162,8 +162,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lua/Engine.h" line="939" column="23" bodyfile="lua/Engine.h" bodystart="939" bodyend="-1"/>
-        <referencedby refid="class_main_component_1a1fe9b104d3b6eb88315ace959285ead4" compoundref="_main_component_8cpp" startline="54" endline="215">MainComponent::MainComponent</referencedby>
+        <location file="lua/Engine.h" line="142" column="23" bodyfile="lua/Engine.h" bodystart="142" bodyend="-1"/>
+        <referencedby refid="class_main_component_1a85254935b98beac9128189c6a577d7be" compoundref="_main_component_8cpp" startline="54" endline="219">MainComponent::MainComponent</referencedby>
       </memberdef>
     </sectiondef>
     <briefdescription>
@@ -172,7 +172,7 @@
     <detaileddescription>
 <para>Wired by <ref refid="class_main_component" kindref="compound">MainComponent</ref> to Tabs methods. <ref refid="classlua_1_1_engine" kindref="compound">Engine</ref> invokes these from Lua custom action functions. </para>
     </detaileddescription>
-    <location file="lua/Engine.h" line="909" column="5" bodyfile="lua/Engine.h" bodystart="910" bodyend="940"/>
+    <location file="lua/Engine.h" line="112" column="5" bodyfile="lua/Engine.h" bodystart="113" bodyend="143"/>
     <listofallmembers>
       <member refid="structlua_1_1_engine_1_1_display_callbacks_1a6e49abed9d4d128e4bff347a0310453d" prot="public" virt="non-virtual"><scope>lua::Engine::DisplayCallbacks</scope><name>closePane</name></member>
       <member refid="structlua_1_1_engine_1_1_display_callbacks_1ab0745b147b2b20cc17d61e605bed2f68" prot="public" virt="non-virtual"><scope>lua::Engine::DisplayCallbacks</scope><name>closeTab</name></member>

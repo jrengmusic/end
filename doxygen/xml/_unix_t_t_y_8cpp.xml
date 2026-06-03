@@ -187,7 +187,7 @@
     </briefdescription>
     <detaileddescription>
 <para>All PTY interaction goes through the master file descriptor. The master is set to <computeroutput>O_NONBLOCK</computeroutput> after fork so the reader thread can drain it without blocking. <computeroutput>poll()</computeroutput> is used to wait for data with a timeout, keeping the reader thread responsive to resize requests and thread-exit signals.</para>
-<sect1 id="_unix_t_t_y_8cpp_1autotoc_md70_1s1"><sect2 id="_unix_t_t_y_8cpp_1autotoc_md70_1s2"><sect3 id="_unix_t_t_y_8cpp_1autotoc_md70">
+<sect1 id="_unix_t_t_y_8cpp_1autotoc_md71_1s1"><sect2 id="_unix_t_t_y_8cpp_1autotoc_md71_1s2"><sect3 id="_unix_t_t_y_8cpp_1autotoc_md71">
 <title>Platform headers</title><para><itemizedlist>
 <listitem><para>macOS: <computeroutput>&lt;util.h&gt;</computeroutput> provides <computeroutput>openpty()</computeroutput></para>
 </listitem><listitem><para>Linux: <computeroutput>&lt;pty.h&gt;</computeroutput> provides <computeroutput>openpty()</computeroutput></para>

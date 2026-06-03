@@ -160,7 +160,7 @@ void List::executeSelected()
         if (rows.at (static_cast<std::size_t> (target))->run != nullptr)
             rows.at (static_cast<std::size_t> (target))->run();
 
-        if (lua::Engine::getContext()->display.actionList.closeOnRun)
+        if (AppModel::getContext()->getValue<int> (app::id::DISPLAY_LUA, app::id::actionListCloseOnRun) != 0)
         {
             if (onActionRun != nullptr)
                 onActionRun();

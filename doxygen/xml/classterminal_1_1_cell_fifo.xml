@@ -80,7 +80,7 @@
         </inbodydescription>
         <location file="terminal/CellFifo.h" line="75" column="30" bodyfile="terminal/CellFifo.h" bodystart="75" bodyend="75"/>
         <referencedby refid="classterminal_1_1_cell_fifo_1a76e85c5e92618d98d5ab5eb94714202b" compoundref="_cell_fifo_8h" startline="439" endline="569">readRawRow</referencedby>
-        <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="442">terminal::Processor::registerEvents</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classterminal_1_1_cell_fifo_1a6fbc7e910e94c4ffbf859673a5e33823" prot="public" static="yes" constexpr="yes" mutable="no">
         <type>uint8_t</type>
@@ -97,7 +97,7 @@
         </inbodydescription>
         <location file="terminal/CellFifo.h" line="76" column="30" bodyfile="terminal/CellFifo.h" bodystart="76" bodyend="76"/>
         <referencedby refid="classterminal_1_1_cell_fifo_1a76e85c5e92618d98d5ab5eb94714202b" compoundref="_cell_fifo_8h" startline="439" endline="569">readRawRow</referencedby>
-        <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="446">terminal::Processor::registerEvents</referencedby>
+        <referencedby refid="classterminal_1_1_processor_1a98ec1324e7a2f091ff6d9bdd17ab57c7" compoundref="_processor_events_8cpp" startline="89" endline="442">terminal::Processor::registerEvents</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="private-static-attrib">

@@ -98,7 +98,7 @@
     <detaileddescription>
 <para>This file implements the screen-editing subsystem of the Video class. It covers all operations that modify the content of the <ref refid="classGrid" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Grid</ref> without moving the cursor to a new position: erasing regions, inserting and deleting lines, inserting and deleting characters within a line, and switching between the normal and alternate screen buffers.</para>
 <para>All operations write directly to the <ref refid="classGrid" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">Grid</ref> cell buffer on the reader thread.</para>
-<sect1 id="_video_edit_8cpp_1autotoc_md88_1s1"><sect2 id="_video_edit_8cpp_1autotoc_md88">
+<sect1 id="_video_edit_8cpp_1autotoc_md89_1s1"><sect2 id="_video_edit_8cpp_1autotoc_md89">
 <title>Operations implemented</title><para><table rows="8" cols="4"><row>
 <entry thead="yes"><para>VT sequence  </para>
 </entry><entry thead="yes"><para>CSI final  </para>

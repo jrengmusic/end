@@ -232,7 +232,7 @@ void Mouse::handleWheel (const juce::MouseEvent& event,
                          const juce::MouseWheelDetails& wheel,
                          std::function<void (int)> setScrollFn)
 {
-    const int scrollLines { lua::Engine::getContext()->nexus.terminal.scrollStep };
+    const int scrollLines { AppModel::getContext()->getValue<int> (app::id::NEXUS_LUA, app::id::scrollStep) };
     const auto activeScreen { static_cast<int> (jam::ValueTree::getValueFromChildWithID (processor.getState().getRootTree(), terminal::id::activeScreen).getValue()) };
 
     if (not wheel.isSmooth)

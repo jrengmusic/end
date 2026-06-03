@@ -41,45 +41,27 @@
     <path>lua/</path>
     <filename>_engine_8cpp.html</filename>
     <includes id="_engine_8h" name="Engine.h" local="yes" import="no" module="no" objc="no">Engine.h</includes>
-    <includes id="_map_8h" name="Map.h" local="yes" import="no" module="no" objc="no">../Map.h</includes>
-    <includes id="_app_model_8h" name="AppModel.h" local="yes" import="no" module="no" objc="no">../AppModel.h</includes>
     <namespace>lua</namespace>
   </compound>
   <compound kind="file">
     <name>Engine.h</name>
     <path>lua/</path>
     <filename>_engine_8h.html</filename>
+    <includes id="_app_identifier_8h" name="AppIdentifier.h" local="yes" import="no" module="no" objc="no">../AppIdentifier.h</includes>
+    <includes id="_map_8h" name="Map.h" local="yes" import="no" module="no" objc="no">../Map.h</includes>
     <includes id="_action_8h" name="Action.h" local="yes" import="no" module="no" objc="no">../terminal/action/Action.h</includes>
     <class kind="class">lua::Engine</class>
-    <class kind="struct">lua::Engine::Nexus</class>
-    <class kind="struct">lua::Engine::Nexus::Shell</class>
-    <class kind="struct">lua::Engine::Nexus::Terminal</class>
-    <class kind="struct">lua::Engine::Nexus::Hyperlinks</class>
-    <class kind="struct">lua::Engine::Nexus::Image</class>
-    <class kind="struct">lua::Engine::Display</class>
-    <class kind="struct">lua::Engine::Display::Window</class>
-    <class kind="struct">lua::Engine::Display::Colours</class>
-    <class kind="struct">lua::Engine::Display::Cursor</class>
-    <class kind="struct">lua::Engine::Display::Font</class>
-    <class kind="struct">lua::Engine::Display::Tab</class>
-    <class kind="struct">lua::Engine::Display::Pane</class>
-    <class kind="struct">lua::Engine::Display::Overlay</class>
-    <class kind="struct">lua::Engine::Display::Menu</class>
-    <class kind="struct">lua::Engine::Display::ActionList</class>
-    <class kind="struct">lua::Engine::Display::StatusBar</class>
-    <class kind="struct">lua::Engine::Display::PopupBorder</class>
-    <class kind="struct">lua::Engine::Whelmed</class>
     <class kind="struct">lua::Engine::SelectionKeys</class>
+    <class kind="struct">lua::Engine::DisplayCallbacks</class>
+    <class kind="struct">lua::Engine::PopupCallbacks</class>
+    <class kind="struct">lua::Engine::Theme</class>
+    <class kind="struct">lua::Engine::KeyMapping</class>
     <class kind="struct">lua::Engine::Keys</class>
     <class kind="struct">lua::Engine::Keys::Binding</class>
     <class kind="struct">lua::Engine::Popup</class>
     <class kind="struct">lua::Engine::Popup::Entry</class>
     <class kind="struct">lua::Engine::Action</class>
     <class kind="struct">lua::Engine::Action::Entry</class>
-    <class kind="struct">lua::Engine::DisplayCallbacks</class>
-    <class kind="struct">lua::Engine::PopupCallbacks</class>
-    <class kind="struct">lua::Engine::Theme</class>
-    <class kind="struct">lua::Engine::KeyMapping</class>
     <namespace>lua</namespace>
   </compound>
   <compound kind="file">
@@ -87,6 +69,7 @@
     <path>lua/</path>
     <filename>_engine_config_8cpp.html</filename>
     <includes id="_engine_8h" name="Engine.h" local="yes" import="no" module="no" objc="no">Engine.h</includes>
+    <includes id="_app_identifier_8h" name="AppIdentifier.h" local="yes" import="no" module="no" objc="no">../AppIdentifier.h</includes>
     <namespace>lua</namespace>
   </compound>
   <compound kind="file">
@@ -94,6 +77,7 @@
     <path>lua/</path>
     <filename>_engine_defaults_8cpp.html</filename>
     <includes id="_engine_8h" name="Engine.h" local="yes" import="no" module="no" objc="no">Engine.h</includes>
+    <includes id="_app_identifier_8h" name="AppIdentifier.h" local="yes" import="no" module="no" objc="no">../AppIdentifier.h</includes>
     <includes id="_map_8h" name="Map.h" local="yes" import="no" module="no" objc="no">../Map.h</includes>
     <namespace>lua</namespace>
   </compound>
@@ -102,6 +86,7 @@
     <path>lua/</path>
     <filename>_engine_parse_8cpp.html</filename>
     <includes id="_engine_8h" name="Engine.h" local="yes" import="no" module="no" objc="no">Engine.h</includes>
+    <includes id="_app_identifier_8h" name="AppIdentifier.h" local="yes" import="no" module="no" objc="no">../AppIdentifier.h</includes>
     <namespace>lua</namespace>
   </compound>
   <compound kind="file">
@@ -109,6 +94,7 @@
     <path>lua/</path>
     <filename>_engine_parse_config_8cpp.html</filename>
     <includes id="_engine_8h" name="Engine.h" local="yes" import="no" module="no" objc="no">Engine.h</includes>
+    <includes id="_app_identifier_8h" name="AppIdentifier.h" local="yes" import="no" module="no" objc="no">../AppIdentifier.h</includes>
     <includes id="_map_8h" name="Map.h" local="yes" import="no" module="no" objc="no">../Map.h</includes>
     <namespace>lua</namespace>
   </compound>
@@ -117,6 +103,7 @@
     <path>lua/</path>
     <filename>_engine_parse_display_8cpp.html</filename>
     <includes id="_engine_8h" name="Engine.h" local="yes" import="no" module="no" objc="no">Engine.h</includes>
+    <includes id="_app_identifier_8h" name="AppIdentifier.h" local="yes" import="no" module="no" objc="no">../AppIdentifier.h</includes>
     <includes id="_map_8h" name="Map.h" local="yes" import="no" module="no" objc="no">../Map.h</includes>
     <namespace>lua</namespace>
   </compound>
@@ -125,6 +112,7 @@
     <path>lua/</path>
     <filename>_engine_patch_8cpp.html</filename>
     <includes id="_engine_8h" name="Engine.h" local="yes" import="no" module="no" objc="no">Engine.h</includes>
+    <includes id="_app_identifier_8h" name="AppIdentifier.h" local="yes" import="no" module="no" objc="no">../AppIdentifier.h</includes>
     <namespace>lua</namespace>
   </compound>
   <compound kind="file">
@@ -140,7 +128,6 @@
     <includes id="_map_8h" name="Map.h" local="yes" import="no" module="no" objc="no">Map.h</includes>
     <includes id="_main_component_8h" name="MainComponent.h" local="yes" import="no" module="no" objc="no">MainComponent.h</includes>
     <includes id="_app_model_8h" name="AppModel.h" local="yes" import="no" module="no" objc="no">AppModel.h</includes>
-    <includes id="_engine_8h" name="Engine.h" local="yes" import="no" module="no" objc="no">lua/Engine.h</includes>
     <includes id="_action_8h" name="Action.h" local="yes" import="no" module="no" objc="no">terminal/action/Action.h</includes>
     <includes id="_nexus_8h" name="Nexus.h" local="yes" import="no" module="no" objc="no">nexus/Nexus.h</includes>
     <includes id="_daemon_8h" name="Daemon.h" local="yes" import="no" module="no" objc="no">nexus/Daemon.h</includes>
@@ -168,7 +155,6 @@
     <includes id="_message_overlay_8h" name="MessageOverlay.h" local="yes" import="no" module="no" objc="no">terminal/component/MessageOverlay.h</includes>
     <includes id="_popup_8h" name="Popup.h" local="yes" import="no" module="no" objc="no">terminal/component/Popup.h</includes>
     <includes id="_tabs_8h" name="Tabs.h" local="yes" import="no" module="no" objc="no">terminal/component/Tabs.h</includes>
-    <includes id="_engine_8h" name="Engine.h" local="yes" import="no" module="no" objc="no">lua/Engine.h</includes>
     <includes id="_action_8h" name="Action.h" local="yes" import="no" module="no" objc="no">terminal/action/Action.h</includes>
     <includes id="_action_list_8h" name="ActionList.h" local="yes" import="no" module="no" objc="no">terminal/action/ActionList.h</includes>
     <includes id="_status_bar_overlay_8h" name="StatusBarOverlay.h" local="yes" import="no" module="no" objc="no">terminal/component/StatusBarOverlay.h</includes>
@@ -366,7 +352,7 @@
     <name>ActionList.h</name>
     <path>terminal/action/</path>
     <filename>_action_list_8h.html</filename>
-    <includes id="_engine_8h" name="Engine.h" local="yes" import="no" module="no" objc="no">../../lua/Engine.h</includes>
+    <includes id="_app_model_8h" name="AppModel.h" local="yes" import="no" module="no" objc="no">../../AppModel.h</includes>
     <includes id="_message_overlay_8h" name="MessageOverlay.h" local="yes" import="no" module="no" objc="no">../component/MessageOverlay.h</includes>
     <includes id="_action_8h" name="Action.h" local="yes" import="no" module="no" objc="no">Action.h</includes>
     <includes id="_action_row_8h" name="ActionRow.h" local="yes" import="no" module="no" objc="no">ActionRow.h</includes>
@@ -631,7 +617,7 @@
     <name>Dialog.h</name>
     <path>terminal/component/</path>
     <filename>_dialog_8h.html</filename>
-    <includes id="_engine_8h" name="Engine.h" local="yes" import="no" module="no" objc="no">../../lua/Engine.h</includes>
+    <includes id="_app_model_8h" name="AppModel.h" local="yes" import="no" module="no" objc="no">../../AppModel.h</includes>
     <class kind="class">terminal::Dialog</class>
     <namespace>terminal</namespace>
   </compound>
@@ -651,14 +637,13 @@
     <includes id="_mouse_8h" name="Mouse.h" local="yes" import="no" module="no" objc="no">../Mouse.h</includes>
     <includes id="_link_manager_8h" name="LinkManager.h" local="yes" import="no" module="no" objc="no">../LinkManager.h</includes>
     <class kind="class">terminal::Display</class>
-    <class kind="struct">terminal::Display::ConfigListener</class>
     <namespace>terminal</namespace>
   </compound>
   <compound kind="file">
     <name>LoaderOverlay.h</name>
     <path>terminal/component/</path>
     <filename>_loader_overlay_8h.html</filename>
-    <includes id="_engine_8h" name="Engine.h" local="yes" import="no" module="no" objc="no">../../lua/Engine.h</includes>
+    <includes id="_app_model_8h" name="AppModel.h" local="yes" import="no" module="no" objc="no">../../AppModel.h</includes>
     <class kind="class">LoaderOverlay</class>
   </compound>
   <compound kind="file">
@@ -696,7 +681,7 @@
     <name>MessageOverlay.h</name>
     <path>terminal/component/</path>
     <filename>_message_overlay_8h.html</filename>
-    <includes id="_engine_8h" name="Engine.h" local="yes" import="no" module="no" objc="no">../../lua/Engine.h</includes>
+    <includes id="_app_model_8h" name="AppModel.h" local="yes" import="no" module="no" objc="no">../../AppModel.h</includes>
     <class kind="class">MessageOverlay</class>
   </compound>
   <compound kind="file">
@@ -704,6 +689,7 @@
     <path>terminal/component/</path>
     <filename>_modal_window_8cpp.html</filename>
     <includes id="_modal_window_8h" name="ModalWindow.h" local="yes" import="no" module="no" objc="no">ModalWindow.h</includes>
+    <includes id="_app_model_8h" name="AppModel.h" local="yes" import="no" module="no" objc="no">../../AppModel.h</includes>
     <namespace>terminal</namespace>
   </compound>
   <compound kind="file">
@@ -792,7 +778,7 @@
     <filename>_status_bar_overlay_8h.html</filename>
     <includes id="_selection_type_8h" name="SelectionType.h" local="yes" import="no" module="no" objc="no">../../SelectionType.h</includes>
     <includes id="_modal_type_8h" name="ModalType.h" local="yes" import="no" module="no" objc="no">../../ModalType.h</includes>
-    <includes id="_engine_8h" name="Engine.h" local="yes" import="no" module="no" objc="no">../../lua/Engine.h</includes>
+    <includes id="_app_model_8h" name="AppModel.h" local="yes" import="no" module="no" objc="no">../../AppModel.h</includes>
     <includes id="_app_identifier_8h" name="AppIdentifier.h" local="yes" import="no" module="no" objc="no">../../AppIdentifier.h</includes>
     <class kind="class">StatusBarOverlay</class>
   </compound>
@@ -929,6 +915,7 @@
     <path>terminal/</path>
     <filename>_input_8cpp.html</filename>
     <includes id="_input_8h" name="Input.h" local="yes" import="no" module="no" objc="no">Input.h</includes>
+    <includes id="_app_model_8h" name="AppModel.h" local="yes" import="no" module="no" objc="no">../AppModel.h</includes>
     <namespace>terminal</namespace>
   </compound>
   <compound kind="file">
@@ -1006,7 +993,7 @@
     <name>LinkDetector.h</name>
     <path>terminal/</path>
     <filename>_link_detector_8h.html</filename>
-    <includes id="_engine_8h" name="Engine.h" local="yes" import="no" module="no" objc="no">../lua/Engine.h</includes>
+    <includes id="_app_model_8h" name="AppModel.h" local="yes" import="no" module="no" objc="no">../AppModel.h</includes>
     <class kind="class">terminal::LinkDetector</class>
     <namespace>terminal</namespace>
   </compound>
@@ -1048,14 +1035,14 @@
     <path>terminal/</path>
     <filename>_model_8cpp.html</filename>
     <includes id="_model_8h" name="Model.h" local="yes" import="no" module="no" objc="no">Model.h</includes>
+    <class kind="struct">terminal::Parameter</class>
+    <class kind="struct">terminal::ParameterText</class>
     <namespace>terminal</namespace>
   </compound>
   <compound kind="file">
     <name>Model.h</name>
     <path>terminal/</path>
     <filename>_model_8h.html</filename>
-    <includes id="_parameter_8h" name="Parameter.h" local="yes" import="no" module="no" objc="no">Parameter.h</includes>
-    <includes id="_text_buffer_8h" name="TextBuffer.h" local="yes" import="no" module="no" objc="no">TextBuffer.h</includes>
     <includes id="_identifier_8h" name="Identifier.h" local="yes" import="no" module="no" objc="no">Identifier.h</includes>
     <includes id="_modal_type_8h" name="ModalType.h" local="yes" import="no" module="no" objc="no">../ModalType.h</includes>
     <includes id="_selection_type_8h" name="SelectionType.h" local="yes" import="no" module="no" objc="no">../SelectionType.h</includes>
@@ -1116,14 +1103,6 @@
     <namespace>terminal</namespace>
   </compound>
   <compound kind="file">
-    <name>Parameter.h</name>
-    <path>terminal/</path>
-    <filename>_parameter_8h.html</filename>
-    <class kind="struct">terminal::ParameterBase</class>
-    <class kind="struct">terminal::Parameter</class>
-    <namespace>terminal</namespace>
-  </compound>
-  <compound kind="file">
     <name>Parser.cpp</name>
     <path>terminal/</path>
     <filename>terminal_2_parser_8cpp.html</filename>
@@ -1135,6 +1114,7 @@
     <path>whelmed/</path>
     <filename>whelmed_2_parser_8cpp.html</filename>
     <includes id="whelmed_2_parser_8h" name="Parser.h" local="yes" import="no" module="no" objc="no">Parser.h</includes>
+    <includes id="_app_model_8h" name="AppModel.h" local="yes" import="no" module="no" objc="no">../AppModel.h</includes>
     <namespace>whelmed</namespace>
   </compound>
   <compound kind="file">
@@ -1176,7 +1156,6 @@
     <filename>_processor_8h.html</filename>
     <includes id="_keyboard_8h" name="Keyboard.h" local="yes" import="no" module="no" objc="no">Keyboard.h</includes>
     <includes id="_model_8h" name="Model.h" local="yes" import="no" module="no" objc="no">Model.h</includes>
-    <includes id="_text_buffer_8h" name="TextBuffer.h" local="yes" import="no" module="no" objc="no">TextBuffer.h</includes>
     <includes id="_winsize_8h" name="Winsize.h" local="yes" import="no" module="no" objc="no">Winsize.h</includes>
     <includes id="_t_t_y_8h" name="TTY.h" local="yes" import="no" module="no" objc="no">tty/TTY.h</includes>
     <includes id="_unix_t_t_y_8h" name="UnixTTY.h" local="yes" import="no" module="no" objc="no">tty/UnixTTY.h</includes>
@@ -1200,13 +1179,13 @@
     <path>terminal/</path>
     <filename>_session_8cpp.html</filename>
     <includes id="_session_8h" name="Session.h" local="yes" import="no" module="no" objc="no">Session.h</includes>
+    <includes id="_app_model_8h" name="AppModel.h" local="yes" import="no" module="no" objc="no">../AppModel.h</includes>
     <namespace>terminal</namespace>
   </compound>
   <compound kind="file">
     <name>Session.h</name>
     <path>terminal/</path>
     <filename>_session_8h.html</filename>
-    <includes id="_text_buffer_8h" name="TextBuffer.h" local="yes" import="no" module="no" objc="no">TextBuffer.h</includes>
     <includes id="_model_8h" name="Model.h" local="yes" import="no" module="no" objc="no">Model.h</includes>
     <includes id="_processor_8h" name="Processor.h" local="yes" import="no" module="no" objc="no">Processor.h</includes>
     <includes id="_engine_8h" name="Engine.h" local="yes" import="no" module="no" objc="no">../lua/Engine.h</includes>
@@ -1254,14 +1233,6 @@
     <includes id="_image_decode_8h" name="ImageDecode.h" local="yes" import="no" module="no" objc="no">ImageDecode.h</includes>
     <includes id="_identifier_8h" name="Identifier.h" local="yes" import="no" module="no" objc="no">Identifier.h</includes>
     <class kind="class">terminal::Skit</class>
-    <namespace>terminal</namespace>
-  </compound>
-  <compound kind="file">
-    <name>TextBuffer.h</name>
-    <path>terminal/</path>
-    <filename>_text_buffer_8h.html</filename>
-    <class kind="struct">terminal::TextSlot</class>
-    <class kind="struct">terminal::TextBuffer</class>
     <namespace>terminal</namespace>
   </compound>
   <compound kind="file">
@@ -1584,6 +1555,7 @@
     <path>whelmed/</path>
     <filename>_tokenizer_8cpp.html</filename>
     <includes id="_tokenizer_8h" name="Tokenizer.h" local="yes" import="no" module="no" objc="no">Tokenizer.h</includes>
+    <includes id="_app_model_8h" name="AppModel.h" local="yes" import="no" module="no" objc="no">../AppModel.h</includes>
     <namespace>whelmed</namespace>
   </compound>
   <compound kind="file">
@@ -1607,133 +1579,11 @@
     </member>
   </compound>
   <compound kind="struct">
-    <name>lua::Engine::Display::ActionList</name>
-    <filename>structlua_1_1_engine_1_1_display_1_1_action_list.html</filename>
-    <member kind="variable">
-      <type>bool</type>
-      <name>closeOnRun</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_action_list.html</anchorfile>
-      <anchor>ac9cd652f47e362ca8b4ba401adafe990</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::String</type>
-      <name>position</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_action_list.html</anchorfile>
-      <anchor>aa49c2797ef5c5912cd41b94f0d7cd368</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::String</type>
-      <name>nameFamily</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_action_list.html</anchorfile>
-      <anchor>a20f824fe40edf6ff1d4bf934922c3e93</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::String</type>
-      <name>nameStyle</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_action_list.html</anchorfile>
-      <anchor>ac0919a8904789812ec14dc23e7eac44b</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>float</type>
-      <name>nameSize</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_action_list.html</anchorfile>
-      <anchor>afe33c14f6e14d5de0112561b2103a07b</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::String</type>
-      <name>shortcutFamily</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_action_list.html</anchorfile>
-      <anchor>a6f129efe1a9da8e94609c3bbf3dc46a0</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::String</type>
-      <name>shortcutStyle</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_action_list.html</anchorfile>
-      <anchor>a8c3e86e4f663c2326c8895cc97831e67</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>float</type>
-      <name>shortcutSize</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_action_list.html</anchorfile>
-      <anchor>a9bb8cd9a85b021e4f704fbefdfda17ac</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>int</type>
-      <name>paddingTop</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_action_list.html</anchorfile>
-      <anchor>a925164b3634672f736748e9277cf712c</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>int</type>
-      <name>paddingRight</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_action_list.html</anchorfile>
-      <anchor>a4d580d934df2659b15ce85f01bd04f19</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>int</type>
-      <name>paddingBottom</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_action_list.html</anchorfile>
-      <anchor>aefa1ea187059b5a39cdcc06ac58647d1</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>int</type>
-      <name>paddingLeft</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_action_list.html</anchorfile>
-      <anchor>a80fa2e2130dff5418cfcc448d4ed222d</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>nameColour</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_action_list.html</anchorfile>
-      <anchor>abc0ac7b8fe656707eb0eb7d108f48576</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>shortcutColour</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_action_list.html</anchorfile>
-      <anchor>ae84ebcf5eb54ffd1c9c6de61ff1f437e</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>float</type>
-      <name>width</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_action_list.html</anchorfile>
-      <anchor>a50ca47bff40d9fd37f75b329a258dc28</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>float</type>
-      <name>height</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_action_list.html</anchorfile>
-      <anchor>a49ae5345f945425920ea53ee1f853216</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>highlightColour</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_action_list.html</anchorfile>
-      <anchor>a6da19c801eef0f93103fdacd64e51872</anchor>
-      <arglist></arglist>
-    </member>
-  </compound>
-  <compound kind="struct">
     <name>AppModel</name>
     <filename>struct_app_model.html</filename>
     <base>jam::Model</base>
     <base>jam::Context&lt; AppModel &gt;</base>
+    <base>jam::File::Watcher::Listener</base>
     <member kind="function">
       <type></type>
       <name>AppModel</name>
@@ -1767,13 +1617,6 @@
       <name>getSessionsNode</name>
       <anchorfile>struct_app_model.html</anchorfile>
       <anchor>a5bf961bf2da4f58edc44f53491d07b8b</anchor>
-      <arglist>() noexcept</arglist>
-    </member>
-    <member kind="function">
-      <type>juce::ValueTree</type>
-      <name>getLoadingNode</name>
-      <anchorfile>struct_app_model.html</anchorfile>
-      <anchor>a5f039d3461dcecd5581225bdadb0ce0c</anchor>
       <arglist>() noexcept</arglist>
     </member>
     <member kind="function">
@@ -1819,178 +1662,10 @@
       <arglist>(float zoom)</arglist>
     </member>
     <member kind="function">
-      <type>juce::String</type>
-      <name>getFontFamily</name>
-      <anchorfile>struct_app_model.html</anchorfile>
-      <anchor>a148268915563bf57f4d8dd331bdc8af1</anchor>
-      <arglist>() const noexcept</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>setFontFamily</name>
-      <anchorfile>struct_app_model.html</anchorfile>
-      <anchor>a2dae0bf677d786df54592add4b6f7653</anchor>
-      <arglist>(const juce::String &amp;family)</arglist>
-    </member>
-    <member kind="function">
-      <type>float</type>
-      <name>getFontSize</name>
-      <anchorfile>struct_app_model.html</anchorfile>
-      <anchor>a453da06259ecb0b83b6966771efe1f82</anchor>
-      <arglist>() const noexcept</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>setFontSize</name>
-      <anchorfile>struct_app_model.html</anchorfile>
-      <anchor>a73228906a27ee0e0ddd749e02c55f507</anchor>
-      <arglist>(float size)</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>setScrollbackLines</name>
-      <anchorfile>struct_app_model.html</anchorfile>
-      <anchor>ad280d1276cb136d455b3703332875eb7</anchor>
-      <arglist>(int lines)</arglist>
-    </member>
-    <member kind="function">
-      <type>int</type>
-      <name>getCellWidth</name>
-      <anchorfile>struct_app_model.html</anchorfile>
-      <anchor>a5fc7272cc6caa1a510d0c956f205c256</anchor>
-      <arglist>() const noexcept</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>setCellWidth</name>
-      <anchorfile>struct_app_model.html</anchorfile>
-      <anchor>a3f6234ea491efa3ba0e13ed5a9af75e4</anchor>
-      <arglist>(int width)</arglist>
-    </member>
-    <member kind="function">
-      <type>int</type>
-      <name>getLineHeight</name>
-      <anchorfile>struct_app_model.html</anchorfile>
-      <anchor>a78b708f95c7b81a30c9bfb4628b37aec</anchor>
-      <arglist>() const noexcept</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>setLineHeight</name>
-      <anchorfile>struct_app_model.html</anchorfile>
-      <anchor>ac145b163fefb0d869844801bdaa4c8bf</anchor>
-      <arglist>(int height)</arglist>
-    </member>
-    <member kind="function">
-      <type>int</type>
-      <name>getCursorCodepoint</name>
-      <anchorfile>struct_app_model.html</anchorfile>
-      <anchor>af02fabcbf42bda957de3b79dac0a78eb</anchor>
-      <arglist>() const noexcept</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>setCursorCodepoint</name>
-      <anchorfile>struct_app_model.html</anchorfile>
-      <anchor>a39175ac839f1cdf8b41bb102c84d42c8</anchor>
-      <arglist>(int codepoint)</arglist>
-    </member>
-    <member kind="function">
-      <type>int</type>
-      <name>getCursorStyle</name>
-      <anchorfile>struct_app_model.html</anchorfile>
-      <anchor>a47f5c036e7701087b9d30678735b3ec6</anchor>
-      <arglist>() const noexcept</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>setCursorStyle</name>
-      <anchorfile>struct_app_model.html</anchorfile>
-      <anchor>ac304758f2277b44b5b69ea99ada92d04</anchor>
-      <arglist>(int style)</arglist>
-    </member>
-    <member kind="function">
-      <type>int</type>
-      <name>getCursorBlinkInterval</name>
-      <anchorfile>struct_app_model.html</anchorfile>
-      <anchor>a5a51fd63625855b3bdbdd7fa466f232a</anchor>
-      <arglist>() const noexcept</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>setCursorBlinkInterval</name>
-      <anchorfile>struct_app_model.html</anchorfile>
-      <anchor>a8c682c57a734c44ede583208fbac1c82</anchor>
-      <arglist>(int ms)</arglist>
-    </member>
-    <member kind="function">
-      <type>int</type>
-      <name>getPaddingTop</name>
-      <anchorfile>struct_app_model.html</anchorfile>
-      <anchor>aa949203f52b596440b04ae76adab7f11</anchor>
-      <arglist>() const noexcept</arglist>
-    </member>
-    <member kind="function">
-      <type>int</type>
-      <name>getPaddingRight</name>
-      <anchorfile>struct_app_model.html</anchorfile>
-      <anchor>ad2b662a4bd93e688cf7592de22f0c775</anchor>
-      <arglist>() const noexcept</arglist>
-    </member>
-    <member kind="function">
-      <type>int</type>
-      <name>getPaddingBottom</name>
-      <anchorfile>struct_app_model.html</anchorfile>
-      <anchor>a9a402d8ba04ebc4e1d6f791d39c30635</anchor>
-      <arglist>() const noexcept</arglist>
-    </member>
-    <member kind="function">
-      <type>int</type>
-      <name>getPaddingLeft</name>
-      <anchorfile>struct_app_model.html</anchorfile>
-      <anchor>a52e345195bfb1e87f33cd472e55fdb6c</anchor>
-      <arglist>() const noexcept</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>setPaddingTop</name>
-      <anchorfile>struct_app_model.html</anchorfile>
-      <anchor>a1c5acbd174197755b89450577edde968</anchor>
-      <arglist>(int value)</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>setPaddingRight</name>
-      <anchorfile>struct_app_model.html</anchorfile>
-      <anchor>ab092f12f2c1cee0814e6f24d425d054f</anchor>
-      <arglist>(int value)</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>setPaddingBottom</name>
-      <anchorfile>struct_app_model.html</anchorfile>
-      <anchor>a46c958c3311f69d050c0e6e31613ba7a</anchor>
-      <arglist>(int value)</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>setPaddingLeft</name>
-      <anchorfile>struct_app_model.html</anchorfile>
-      <anchor>a1053e78981e1c1d287348ad06135dd42</anchor>
-      <arglist>(int value)</arglist>
-    </member>
-    <member kind="function">
       <type>void</type>
       <name>markAtlasDirty</name>
       <anchorfile>struct_app_model.html</anchorfile>
       <anchor>abe273920682ed70f9076ae15e5d7842b</anchor>
-      <arglist>() noexcept</arglist>
-    </member>
-    <member kind="function">
-      <type>bool</type>
-      <name>consumeAtlasDirty</name>
-      <anchorfile>struct_app_model.html</anchorfile>
-      <anchor>a69f7c3a0edf15cba770d166f2b2222b8</anchor>
       <arglist>() noexcept</arglist>
     </member>
     <member kind="function">
@@ -2016,17 +1691,10 @@
     </member>
     <member kind="function">
       <type>void</type>
-      <name>setInstanceUuid</name>
+      <name>setInstanceID</name>
       <anchorfile>struct_app_model.html</anchorfile>
-      <anchor>add3a497f60aa25b17b4974b74792c7ac</anchor>
+      <anchor>addd152a610daaad73f2a37a74fb78e8d</anchor>
       <arglist>(const juce::String &amp;uuid)</arglist>
-    </member>
-    <member kind="function">
-      <type>juce::String</type>
-      <name>getInstanceUuid</name>
-      <anchorfile>struct_app_model.html</anchorfile>
-      <anchor>af47dcc23d7369b6fb9f72d32cc0bbaa3</anchor>
-      <arglist>() const noexcept</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -2043,32 +1711,11 @@
       <arglist>() const noexcept</arglist>
     </member>
     <member kind="function">
-      <type>int</type>
-      <name>getActiveTabIndex</name>
-      <anchorfile>struct_app_model.html</anchorfile>
-      <anchor>af9e76c672704046b019df53ac5b7c2ff</anchor>
-      <arglist>() const noexcept</arglist>
-    </member>
-    <member kind="function">
       <type>void</type>
       <name>setActiveTabIndex</name>
       <anchorfile>struct_app_model.html</anchorfile>
       <anchor>a75038d249a33b5f32667b8cf1da894ed</anchor>
       <arglist>(int index)</arglist>
-    </member>
-    <member kind="function">
-      <type>juce::String</type>
-      <name>getTabPosition</name>
-      <anchorfile>struct_app_model.html</anchorfile>
-      <anchor>af41a958ece0fed17ed0f1a1c444e2671</anchor>
-      <arglist>() const noexcept</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>setTabPosition</name>
-      <anchorfile>struct_app_model.html</anchorfile>
-      <anchor>afc32c48a7dbb67ad069e18510497e93c</anchor>
-      <arglist>(const juce::String &amp;position)</arglist>
     </member>
     <member kind="function">
       <type>juce::ValueTree</type>
@@ -2231,25 +1878,179 @@
       <anchor>acde520240a05e0ff5b3880557c291a0a</anchor>
       <arglist>() const</arglist>
     </member>
+    <member kind="function">
+      <type>juce::ValueTree</type>
+      <name>getConfig</name>
+      <anchorfile>struct_app_model.html</anchorfile>
+      <anchor>a5a968d31d1ee27c00a4ec5410e6ddb5c</anchor>
+      <arglist>() const noexcept</arglist>
+    </member>
+    <member kind="function">
+      <type>lua::Engine::Theme</type>
+      <name>buildTheme</name>
+      <anchorfile>struct_app_model.html</anchorfile>
+      <anchor>a429c172336738085bdcfc574ac3fe099</anchor>
+      <arglist>() const</arglist>
+    </member>
+    <member kind="function">
+      <type>const lua::Engine::SelectionKeys &amp;</type>
+      <name>getSelectionKeys</name>
+      <anchorfile>struct_app_model.html</anchorfile>
+      <anchor>ac4e9e32da7e70b4a27a8331065f2da58</anchor>
+      <arglist>() const</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>isClickableExtension</name>
+      <anchorfile>struct_app_model.html</anchorfile>
+      <anchor>aec9c7ffdf4cd50d72bf1acbe4b47da7f</anchor>
+      <arglist>(const juce::String &amp;ext) const noexcept</arglist>
+    </member>
+    <member kind="function">
+      <type>juce::String</type>
+      <name>getHandler</name>
+      <anchorfile>struct_app_model.html</anchorfile>
+      <anchor>a549f68891d3e1765e76571afc74bdb47</anchor>
+      <arglist>(const juce::String &amp;ext) const noexcept</arglist>
+    </member>
+    <member kind="function">
+      <type>float</type>
+      <name>dpiCorrectedFontSize</name>
+      <anchorfile>struct_app_model.html</anchorfile>
+      <anchor>a861c89300ad29e92076c62208c6c39a6</anchor>
+      <arglist>() const noexcept</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>registerActions</name>
+      <anchorfile>struct_app_model.html</anchorfile>
+      <anchor>a76a4602401e7469c2f5f82ecd5fa35f1</anchor>
+      <arglist>(action::Registry &amp;r)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>buildKeyMap</name>
+      <anchorfile>struct_app_model.html</anchorfile>
+      <anchor>a5f30dbdbaf5f67a1625e8f3fccbed820</anchor>
+      <arglist>(action::Registry &amp;r)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>registerApiTable</name>
+      <anchorfile>struct_app_model.html</anchorfile>
+      <anchor>a6d8f518d03e2c453399f35ac111aeb17</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>setDisplayCallbacks</name>
+      <anchorfile>struct_app_model.html</anchorfile>
+      <anchor>ae844f099d83545ccc97c63b4392dcf9d</anchor>
+      <arglist>(lua::Engine::DisplayCallbacks c)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>setPopupCallbacks</name>
+      <anchorfile>struct_app_model.html</anchorfile>
+      <anchor>a6a18b457953efd73acacb7e8b2636b74</anchor>
+      <arglist>(lua::Engine::PopupCallbacks c)</arglist>
+    </member>
+    <member kind="function">
+      <type>const juce::String &amp;</type>
+      <name>getLoadError</name>
+      <anchorfile>struct_app_model.html</anchorfile>
+      <anchor>a1f7402db84b50aaa3cca3f77dfda9f53</anchor>
+      <arglist>() const</arglist>
+    </member>
+    <member kind="function">
+      <type>juce::String</type>
+      <name>getShortcutString</name>
+      <anchorfile>struct_app_model.html</anchorfile>
+      <anchor>a6d7ee5a320654d262a0264e1d3629153</anchor>
+      <arglist>(const juce::String &amp;k) const</arglist>
+    </member>
+    <member kind="function">
+      <type>juce::String</type>
+      <name>getActionLuaKey</name>
+      <anchorfile>struct_app_model.html</anchorfile>
+      <anchor>abc63083381b6051f6cca1dc88870ddc7</anchor>
+      <arglist>(const juce::String &amp;a) const</arglist>
+    </member>
+    <member kind="function">
+      <type>juce::String</type>
+      <name>getPrefixString</name>
+      <anchorfile>struct_app_model.html</anchorfile>
+      <anchor>a2ea77daa69a602d42744cab39c0f9fa4</anchor>
+      <arglist>() const noexcept</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>isKeyFileRemappable</name>
+      <anchorfile>struct_app_model.html</anchorfile>
+      <anchor>a907d066522a6edbd1792bdda8b470ed7</anchor>
+      <arglist>() const noexcept</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>overrideShortcut</name>
+      <anchorfile>struct_app_model.html</anchorfile>
+      <anchor>ac4309885bf014d58a17e47358aea7173</anchor>
+      <arglist>(const juce::String &amp;key, const juce::String &amp;value)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>reload</name>
+      <anchorfile>struct_app_model.html</anchorfile>
+      <anchor>a7330d1ef0c684fcf831f81327d05ef11</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" protection="private">
+      <type>void</type>
+      <name>fileChanged</name>
+      <anchorfile>struct_app_model.html</anchorfile>
+      <anchor>abb1bd909972941e34fe1da72ac09050b</anchor>
+      <arglist>(const juce::File &amp;file, jam::File::Watcher::Event event) override</arglist>
+    </member>
     <member kind="function" protection="private">
       <type>void</type>
       <name>build</name>
       <anchorfile>struct_app_model.html</anchorfile>
-      <anchor>adc4141a6e63d9801a6e3c027f729f74d</anchor>
-      <arglist>(const juce::XmlElement &amp;xml)</arglist>
+      <anchor>ac6aa77a24312ba9cdb66f9aa5c287f14</anchor>
+      <arglist>(const juce::ValueTree &amp;source)</arglist>
     </member>
-    <member kind="function" protection="private" static="yes">
-      <type>static juce::var</type>
-      <name>resolveAppLayoutDefault</name>
+    <member kind="function" protection="private">
+      <type>bool</type>
+      <name>createAndAddParameter</name>
       <anchorfile>struct_app_model.html</anchorfile>
-      <anchor>ac12d30deb94ace7428cfa1260a6f69d1</anchor>
-      <arglist>(const juce::XmlElement &amp;elem) noexcept</arglist>
+      <anchor>a9c27ed5937516c6f403e16741a0f2bda</anchor>
+      <arglist>(const juce::ValueTree &amp;node)</arglist>
+    </member>
+    <member kind="function" protection="private">
+      <type>juce::String</type>
+      <name>getInstanceID</name>
+      <anchorfile>struct_app_model.html</anchorfile>
+      <anchor>abe27481602236963b99ea1ffc58ed993</anchor>
+      <arglist>() const noexcept</arglist>
     </member>
     <member kind="variable" protection="private">
       <type>juce::ValueTree</type>
       <name>activeSession</name>
       <anchorfile>struct_app_model.html</anchorfile>
       <anchor>a1db76cb2c0b58e4854cd8bdc6ffff3a9</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="private">
+      <type>lua::Engine</type>
+      <name>engine</name>
+      <anchorfile>struct_app_model.html</anchorfile>
+      <anchor>ad226635025fc40d9ee723cb2b154c411</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="private">
+      <type>jam::File::Watcher</type>
+      <name>watcher</name>
+      <anchorfile>struct_app_model.html</anchorfile>
+      <anchor>a1f34a2ccaed98b98e038ca55334e152a</anchor>
       <arglist></arglist>
     </member>
   </compound>
@@ -3081,122 +2882,6 @@
     </member>
   </compound>
   <compound kind="struct">
-    <name>lua::Engine::Display::Colours</name>
-    <filename>structlua_1_1_engine_1_1_display_1_1_colours.html</filename>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>foreground</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_colours.html</anchorfile>
-      <anchor>aa0125b71958ec42c8e235a73a1d5e962</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>background</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_colours.html</anchorfile>
-      <anchor>af9d1c4cfff57b04210b1801644a9a11f</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>cursor</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_colours.html</anchorfile>
-      <anchor>abb6ba5968eb9ca4efa5c0ba6479d2908</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>selection</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_colours.html</anchorfile>
-      <anchor>a455f7274644aaaa75a5c4aa5904cbf85</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>selectionCursor</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_colours.html</anchorfile>
-      <anchor>a9329aaaf2e793fed8a9bf094e3aeb391</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>std::array&lt; juce::Colour, 16 &gt;</type>
-      <name>ansi</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_colours.html</anchorfile>
-      <anchor>a94aa7b2c0c82985177ff87fcab0a57a1</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>editorBackground</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_colours.html</anchorfile>
-      <anchor>a8d7164e99e52acddb3d2338fba7f595e</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>editorOutline</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_colours.html</anchorfile>
-      <anchor>aab23afaf2a46a40c182af0b32b757cfb</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>statusBar</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_colours.html</anchorfile>
-      <anchor>a78c338d187640388d1de9c42a5a033a8</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>statusBarLabelBg</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_colours.html</anchorfile>
-      <anchor>ae889f8fc59964c47427afeda7b031071</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>statusBarLabelFg</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_colours.html</anchorfile>
-      <anchor>a03a87c58d5df397a604078266274e44f</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>statusBarSpinner</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_colours.html</anchorfile>
-      <anchor>af35c9b2263cfcba10027f05f64d0bf12</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>hintLabelBg</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_colours.html</anchorfile>
-      <anchor>a8743c79ea848ae34f5b1c1b26db60c1c</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>hintLabelFg</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_colours.html</anchorfile>
-      <anchor>afb58572d28c10061238f9d0539456724</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>scrollbarThumb</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_colours.html</anchorfile>
-      <anchor>a6d82de92fc4822f0c88f362b7203a483</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>scrollbarTrack</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_colours.html</anchorfile>
-      <anchor>aa430ea243c8d704cc02b9ec59c63d571</anchor>
-      <arglist></arglist>
-    </member>
-  </compound>
-  <compound kind="struct">
     <name>whelmed::TableBlock::ColourScheme</name>
     <filename>structwhelmed_1_1_table_block_1_1_colour_scheme.html</filename>
     <member kind="variable">
@@ -3423,52 +3108,6 @@
     </member>
   </compound>
   <compound kind="struct">
-    <name>terminal::Display::ConfigListener</name>
-    <filename>structterminal_1_1_display_1_1_config_listener.html</filename>
-    <member kind="function">
-      <type></type>
-      <name>ConfigListener</name>
-      <anchorfile>structterminal_1_1_display_1_1_config_listener.html</anchorfile>
-      <anchor>ab2321b389d513daaf39861a62605bc1e</anchor>
-      <arglist>(Display &amp;d) noexcept</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>start</name>
-      <anchorfile>structterminal_1_1_display_1_1_config_listener.html</anchorfile>
-      <anchor>aff3bc9ae4a92be4a5768f72f09d3af89</anchor>
-      <arglist>() noexcept</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>stop</name>
-      <anchorfile>structterminal_1_1_display_1_1_config_listener.html</anchorfile>
-      <anchor>a3f4b874e3064af96f4ada315eaa4e470</anchor>
-      <arglist>() noexcept</arglist>
-    </member>
-    <member kind="function" protection="private">
-      <type>void</type>
-      <name>valueTreePropertyChanged</name>
-      <anchorfile>structterminal_1_1_display_1_1_config_listener.html</anchorfile>
-      <anchor>a10c2d53b02019034a43005814278a391</anchor>
-      <arglist>(juce::ValueTree &amp;tree, const juce::Identifier &amp;property) override</arglist>
-    </member>
-    <member kind="variable" protection="private">
-      <type>Display &amp;</type>
-      <name>display</name>
-      <anchorfile>structterminal_1_1_display_1_1_config_listener.html</anchorfile>
-      <anchor>a800c7d8dc8dd5f5b3aff7b1b7b0da769</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable" protection="private">
-      <type>juce::ValueTree</type>
-      <name>appState</name>
-      <anchorfile>structterminal_1_1_display_1_1_config_listener.html</anchorfile>
-      <anchor>a902ac720324f356942feb46e3c0c208d</anchor>
-      <arglist></arglist>
-    </member>
-  </compound>
-  <compound kind="struct">
     <name>nexus::Link::ConnectTimer</name>
     <filename>structnexus_1_1_link_1_1_connect_timer.html</filename>
     <member kind="function">
@@ -3688,45 +3327,6 @@
       <name>blinkOn</name>
       <anchorfile>struct_cursor.html</anchorfile>
       <anchor>a8f1e0cbae5966aa1435811aa6ed99179</anchor>
-      <arglist></arglist>
-    </member>
-  </compound>
-  <compound kind="struct">
-    <name>lua::Engine::Display::Cursor</name>
-    <filename>structlua_1_1_engine_1_1_display_1_1_cursor.html</filename>
-    <member kind="variable">
-      <type>char32_t</type>
-      <name>codepoint</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_cursor.html</anchorfile>
-      <anchor>a3b8fa1e9c425d91fc6f3f9a214b39d9e</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>bool</type>
-      <name>blink</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_cursor.html</anchorfile>
-      <anchor>ad2320cafdcbee55c9a54302e9ce43f34</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>int</type>
-      <name>blinkInterval</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_cursor.html</anchorfile>
-      <anchor>aef3e7bedd2a7f8d9040cc24f8770313d</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>bool</type>
-      <name>force</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_cursor.html</anchorfile>
-      <anchor>a9bcdb22c570472a225ec03005eceb50f</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>int</type>
-      <name>style</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_cursor.html</anchorfile>
-      <anchor>ac86792bbd25d9739eb73847bb3ac6db7</anchor>
       <arglist></arglist>
     </member>
   </compound>
@@ -4257,13 +3857,6 @@
       <arglist></arglist>
     </member>
     <member kind="variable" protection="private">
-      <type>const lua::Engine &amp;</type>
-      <name>config</name>
-      <anchorfile>classterminal_1_1_dialog.html</anchorfile>
-      <anchor>a85662a71c5ae313179c6b6ccbcb8c52d</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable" protection="private">
       <type>const juce::FontOptions</type>
       <name>font</name>
       <anchorfile>classterminal_1_1_dialog.html</anchorfile>
@@ -4542,111 +4135,11 @@
       <arglist></arglist>
     </member>
   </compound>
-  <compound kind="struct">
-    <name>lua::Engine::Display</name>
-    <filename>structlua_1_1_engine_1_1_display.html</filename>
-    <class kind="struct">lua::Engine::Display::Window</class>
-    <class kind="struct">lua::Engine::Display::Colours</class>
-    <class kind="struct">lua::Engine::Display::Cursor</class>
-    <class kind="struct">lua::Engine::Display::Font</class>
-    <class kind="struct">lua::Engine::Display::Tab</class>
-    <class kind="struct">lua::Engine::Display::Pane</class>
-    <class kind="struct">lua::Engine::Display::Overlay</class>
-    <class kind="struct">lua::Engine::Display::Menu</class>
-    <class kind="struct">lua::Engine::Display::ActionList</class>
-    <class kind="struct">lua::Engine::Display::StatusBar</class>
-    <class kind="struct">lua::Engine::Display::PopupBorder</class>
-    <member kind="variable">
-      <type>Window</type>
-      <name>window</name>
-      <anchorfile>structlua_1_1_engine_1_1_display.html</anchorfile>
-      <anchor>a1ed1120e690119e7e692ac5228ac1df3</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>Colours</type>
-      <name>colours</name>
-      <anchorfile>structlua_1_1_engine_1_1_display.html</anchorfile>
-      <anchor>af8c3c6b5544c1c9a38c83bc5830be3bb</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>Cursor</type>
-      <name>cursor</name>
-      <anchorfile>structlua_1_1_engine_1_1_display.html</anchorfile>
-      <anchor>a49ac5346608b3dcca83e12b4d15da1d5</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>Font</type>
-      <name>font</name>
-      <anchorfile>structlua_1_1_engine_1_1_display.html</anchorfile>
-      <anchor>ad381a34c0708ef97a647c36fe7cffbd7</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>Tab</type>
-      <name>tab</name>
-      <anchorfile>structlua_1_1_engine_1_1_display.html</anchorfile>
-      <anchor>afb863984934a57eca589d297cc9b48c0</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>Pane</type>
-      <name>pane</name>
-      <anchorfile>structlua_1_1_engine_1_1_display.html</anchorfile>
-      <anchor>a44d22afac9d86f2d50d8cd4bc28885bb</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>Overlay</type>
-      <name>overlay</name>
-      <anchorfile>structlua_1_1_engine_1_1_display.html</anchorfile>
-      <anchor>a554884c117b50314c11d9d36eec02f19</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>Menu</type>
-      <name>menu</name>
-      <anchorfile>structlua_1_1_engine_1_1_display.html</anchorfile>
-      <anchor>a4fcc7e2433d0b0e7f68073006a80bc1e</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>ActionList</type>
-      <name>actionList</name>
-      <anchorfile>structlua_1_1_engine_1_1_display.html</anchorfile>
-      <anchor>ab2c57e6bb4a8506d4e4e81beb6b8f8b2</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>StatusBar</type>
-      <name>statusBar</name>
-      <anchorfile>structlua_1_1_engine_1_1_display.html</anchorfile>
-      <anchor>a013fdf623adc4f239105be36be4c79d3</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>PopupBorder</type>
-      <name>popup</name>
-      <anchorfile>structlua_1_1_engine_1_1_display.html</anchorfile>
-      <anchor>abf1a37ac4119755d04392da91d20479e</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>int</type>
-      <name>scrollbarWidth</name>
-      <anchorfile>structlua_1_1_engine_1_1_display.html</anchorfile>
-      <anchor>a864fd2fcdef348de9e063e9a48076aaa</anchor>
-      <arglist></arglist>
-    </member>
-  </compound>
   <compound kind="class">
     <name>terminal::Display</name>
     <filename>classterminal_1_1_display.html</filename>
     <base>PaneView</base>
     <base>jam::ValueTree::ComponentWithID&lt; Display &gt;</base>
-    <class kind="struct">terminal::Display::ConfigListener</class>
     <member kind="enumeration">
       <type></type>
       <name>ColourIds</name>
@@ -5069,9 +4562,9 @@
     </member>
     <member kind="function" protection="private">
       <type>void</type>
-      <name>applyFromAppModel</name>
+      <name>applyConfigToCodeView</name>
       <anchorfile>classterminal_1_1_display.html</anchorfile>
-      <anchor>add336f50de49e963b5491ad266173662</anchor>
+      <anchor>a5b061c7f308917ead2d65a7d0100a4b9</anchor>
       <arglist>() noexcept</arglist>
     </member>
     <member kind="function" protection="private">
@@ -5138,10 +4631,10 @@
       <arglist></arglist>
     </member>
     <member kind="variable" protection="private">
-      <type>ConfigListener</type>
-      <name>configListener</name>
+      <type>juce::ValueTree</type>
+      <name>configDisplay</name>
       <anchorfile>classterminal_1_1_display.html</anchorfile>
-      <anchor>a2dd6e6eb013b7d0a9302c321d5d75c4d</anchor>
+      <anchor>a5f1969179a0aff688134fac27ea5d4bc</anchor>
       <arglist></arglist>
     </member>
   </compound>
@@ -5279,13 +4772,6 @@
       <arglist>()</arglist>
     </member>
     <member kind="variable" protection="private">
-      <type>jam::debug::Log::Scope</type>
-      <name>logScope</name>
-      <anchorfile>class_e_n_d_application.html</anchorfile>
-      <anchor>a02a82a77e54040af5f5e8683bdac4804</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable" protection="private">
       <type>jam::TypefaceResources</type>
       <name>typefaceResources</name>
       <anchorfile>class_e_n_d_application.html</anchorfile>
@@ -5377,13 +4863,6 @@
       <arglist></arglist>
     </member>
     <member kind="variable" protection="private">
-      <type>lua::Engine</type>
-      <name>luaEngine</name>
-      <anchorfile>class_e_n_d_application.html</anchorfile>
-      <anchor>a565e433cc396adfa8e0949d6dc6f4bfc</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable" protection="private">
       <type>AppModel</type>
       <name>appState</name>
       <anchorfile>class_e_n_d_application.html</anchorfile>
@@ -5440,19 +4919,14 @@
   <compound kind="class">
     <name>lua::Engine</name>
     <filename>classlua_1_1_engine.html</filename>
-    <base>jam::Context&lt; Engine &gt;</base>
-    <base>jam::File::Watcher::Listener</base>
-    <class kind="struct">lua::Engine::Nexus</class>
-    <class kind="struct">lua::Engine::Display</class>
-    <class kind="struct">lua::Engine::Whelmed</class>
     <class kind="struct">lua::Engine::SelectionKeys</class>
-    <class kind="struct">lua::Engine::Keys</class>
-    <class kind="struct">lua::Engine::Popup</class>
-    <class kind="struct">lua::Engine::Action</class>
     <class kind="struct">lua::Engine::DisplayCallbacks</class>
     <class kind="struct">lua::Engine::PopupCallbacks</class>
     <class kind="struct">lua::Engine::Theme</class>
     <class kind="struct">lua::Engine::KeyMapping</class>
+    <class kind="struct">lua::Engine::Keys</class>
+    <class kind="struct">lua::Engine::Popup</class>
+    <class kind="struct">lua::Engine::Action</class>
     <member kind="function">
       <type></type>
       <name>Engine</name>
@@ -5464,22 +4938,15 @@
       <type></type>
       <name>~Engine</name>
       <anchorfile>classlua_1_1_engine.html</anchorfile>
-      <anchor>af5a0d9e101546d415ec7bd3f485addf9</anchor>
-      <arglist>() override</arglist>
+      <anchor>ad8aa673b77a50963525267dc775a9c03</anchor>
+      <arglist>()</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>load</name>
       <anchorfile>classlua_1_1_engine.html</anchorfile>
-      <anchor>ad9890e6f9e1b4f30ce7766bb9ded00f7</anchor>
-      <arglist>()</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>reload</name>
-      <anchorfile>classlua_1_1_engine.html</anchorfile>
-      <anchor>af028d4813e69b9b55d82639a3105cdb1</anchor>
-      <arglist>()</arglist>
+      <anchor>a5167bc8b7a29c1355253aeae483d8b1d</anchor>
+      <arglist>(jam::Model &amp;model)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -5552,10 +5019,10 @@
       <arglist>(const juce::String &amp;actionId) const</arglist>
     </member>
     <member kind="function">
-      <type>const juce::String &amp;</type>
+      <type>juce::String</type>
       <name>getPrefixString</name>
       <anchorfile>classlua_1_1_engine.html</anchorfile>
-      <anchor>ab0d6271feb32ed89a3a9c3c517aace5b</anchor>
+      <anchor>a6f2d1cafd200a22601172cd9d540e62b</anchor>
       <arglist>() const noexcept</arglist>
     </member>
     <member kind="function">
@@ -5607,48 +5074,6 @@
       <anchor>a2a3f09ff613e66ae01cde493dbbe4395</anchor>
       <arglist>()</arglist>
     </member>
-    <member kind="variable">
-      <type>Nexus</type>
-      <name>nexus</name>
-      <anchorfile>classlua_1_1_engine.html</anchorfile>
-      <anchor>a730187b1c890e6416f3d5941801bdf3c</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>Display</type>
-      <name>display</name>
-      <anchorfile>classlua_1_1_engine.html</anchorfile>
-      <anchor>a487998fa6e9865337ece55987c2c336f</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>Whelmed</type>
-      <name>whelmed</name>
-      <anchorfile>classlua_1_1_engine.html</anchorfile>
-      <anchor>a1c571d5258788983fbc7e40760288fbe</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>Keys</type>
-      <name>keys</name>
-      <anchorfile>classlua_1_1_engine.html</anchorfile>
-      <anchor>a2fa5e83e7fb75415e78df3c694d5c3bf</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>Popup</type>
-      <name>popup</name>
-      <anchorfile>classlua_1_1_engine.html</anchorfile>
-      <anchor>aefc7cf2d306ea6616b20dff9adb8d01a</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>Action</type>
-      <name>action</name>
-      <anchorfile>classlua_1_1_engine.html</anchorfile>
-      <anchor>a6857f13b2da1c7793565aa97ec81369c</anchor>
-      <arglist></arglist>
-    </member>
     <member kind="variable" static="yes">
       <type>static constexpr float</type>
       <name>zoomMin</name>
@@ -5669,13 +5094,6 @@
       <anchorfile>classlua_1_1_engine.html</anchorfile>
       <anchor>a94426bd459969305dca91f8451a076b4</anchor>
       <arglist></arglist>
-    </member>
-    <member kind="function" protection="private">
-      <type>void</type>
-      <name>fileChanged</name>
-      <anchorfile>classlua_1_1_engine.html</anchorfile>
-      <anchor>a26a18eaa2cb36c90ef4be49785582c09</anchor>
-      <arglist>(const juce::File &amp;file, jam::File::Watcher::Event event) override</arglist>
     </member>
     <member kind="function" protection="private">
       <type>void</type>
@@ -5783,17 +5201,17 @@
       <arglist>()</arglist>
     </member>
     <member kind="variable" protection="private">
+      <type>jam::Model *</type>
+      <name>model</name>
+      <anchorfile>classlua_1_1_engine.html</anchorfile>
+      <anchor>aa6cb2216fc616386bee44355fc66599b</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="private">
       <type>jam::lua::State</type>
       <name>lua</name>
       <anchorfile>classlua_1_1_engine.html</anchorfile>
       <anchor>a90db1d1966b61a670a71fcbf278feebf</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable" protection="private">
-      <type>jam::File::Watcher</type>
-      <name>watcher</name>
-      <anchorfile>classlua_1_1_engine.html</anchorfile>
-      <anchor>a4bc6e43bd59e5b77ecfc1fa08e305baf</anchor>
       <arglist></arglist>
     </member>
     <member kind="variable" protection="private">
@@ -5822,6 +5240,41 @@
       <name>keyFileRemappable</name>
       <anchorfile>classlua_1_1_engine.html</anchorfile>
       <anchor>a103ff5b512e003e2ad1057aba10b5a4d</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="private">
+      <type>Keys</type>
+      <name>keys</name>
+      <anchorfile>classlua_1_1_engine.html</anchorfile>
+      <anchor>a2fa5e83e7fb75415e78df3c694d5c3bf</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="private">
+      <type>Popup</type>
+      <name>popup</name>
+      <anchorfile>classlua_1_1_engine.html</anchorfile>
+      <anchor>aefc7cf2d306ea6616b20dff9adb8d01a</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="private">
+      <type>Action</type>
+      <name>action</name>
+      <anchorfile>classlua_1_1_engine.html</anchorfile>
+      <anchor>a6857f13b2da1c7793565aa97ec81369c</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="private">
+      <type>std::unordered_map&lt; juce::String, juce::String &gt;</type>
+      <name>handlers</name>
+      <anchorfile>classlua_1_1_engine.html</anchorfile>
+      <anchor>a2e693f8e7259ed70f6aa1d99f7526244</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="private">
+      <type>std::unordered_set&lt; juce::String &gt;</type>
+      <name>extensions</name>
+      <anchorfile>classlua_1_1_engine.html</anchorfile>
+      <anchor>a03b5e8884251d6b997cbe557bb71dcb8</anchor>
       <arglist></arglist>
     </member>
     <member kind="variable" protection="private" static="yes">
@@ -5995,59 +5448,6 @@
       <name>global</name>
       <anchorfile>structlua_1_1_engine_1_1_popup_1_1_entry.html</anchorfile>
       <anchor>a3b44dcffcdaeff953d53f89d59324531</anchor>
-      <arglist></arglist>
-    </member>
-  </compound>
-  <compound kind="struct">
-    <name>lua::Engine::Display::Font</name>
-    <filename>structlua_1_1_engine_1_1_display_1_1_font.html</filename>
-    <member kind="variable">
-      <type>juce::String</type>
-      <name>family</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_font.html</anchorfile>
-      <anchor>a0bf1671f01db586d10a184b07b945680</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>float</type>
-      <name>size</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_font.html</anchorfile>
-      <anchor>a65e33b308dc812826f9cfec4edfafe80</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>bool</type>
-      <name>ligatures</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_font.html</anchorfile>
-      <anchor>ad6a04f1b5ac7f25bc6df8e40e372c93d</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>bool</type>
-      <name>embolden</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_font.html</anchorfile>
-      <anchor>ae86e9c52b833ff0cd4fbcd09ffa2fc5d</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>float</type>
-      <name>lineHeight</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_font.html</anchorfile>
-      <anchor>a3b4ec2aa185cf57d6c9c6cb5802460b8</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>float</type>
-      <name>cellWidth</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_font.html</anchorfile>
-      <anchor>a5ba6cfb7cb51e5eb27c368461a9062f9</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>bool</type>
-      <name>desktopScale</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_font.html</anchorfile>
-      <anchor>ab4b907de2cfdb0e10a1628d608c75b03</anchor>
       <arglist></arglist>
     </member>
   </compound>
@@ -6274,77 +5674,6 @@
       <name>character</name>
       <anchorfile>structwhelmed_1_1_screen_1_1_hit_result.html</anchorfile>
       <anchor>afa9d45d00d74a5557c3815f5ee59efb4</anchor>
-      <arglist></arglist>
-    </member>
-  </compound>
-  <compound kind="struct">
-    <name>lua::Engine::Nexus::Hyperlinks</name>
-    <filename>structlua_1_1_engine_1_1_nexus_1_1_hyperlinks.html</filename>
-    <member kind="variable">
-      <type>juce::String</type>
-      <name>editor</name>
-      <anchorfile>structlua_1_1_engine_1_1_nexus_1_1_hyperlinks.html</anchorfile>
-      <anchor>a67a6ef710cca4eaca355f3a0efa86dbb</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>std::unordered_map&lt; juce::String, juce::String &gt;</type>
-      <name>handlers</name>
-      <anchorfile>structlua_1_1_engine_1_1_nexus_1_1_hyperlinks.html</anchorfile>
-      <anchor>a49c5d6f0467c54908153e3e8508cf111</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>std::unordered_set&lt; juce::String &gt;</type>
-      <name>extensions</name>
-      <anchorfile>structlua_1_1_engine_1_1_nexus_1_1_hyperlinks.html</anchorfile>
-      <anchor>a5d4f084d22b50ae71b9ce22708070486</anchor>
-      <arglist></arglist>
-    </member>
-  </compound>
-  <compound kind="struct">
-    <name>lua::Engine::Nexus::Image</name>
-    <filename>structlua_1_1_engine_1_1_nexus_1_1_image.html</filename>
-    <member kind="variable">
-      <type>int</type>
-      <name>atlasBudgetBytes</name>
-      <anchorfile>structlua_1_1_engine_1_1_nexus_1_1_image.html</anchorfile>
-      <anchor>a253f83063c37f747747add5ff8cc3925</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>cell</type>
-      <name>cols</name>
-      <anchorfile>structlua_1_1_engine_1_1_nexus_1_1_image.html</anchorfile>
-      <anchor>accb593abb47b006169afab9f046892c2</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>cell</type>
-      <name>rows</name>
-      <anchorfile>structlua_1_1_engine_1_1_nexus_1_1_image.html</anchorfile>
-      <anchor>ae8c337784f428fd0a4dffc5bc9811c3a</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>int</type>
-      <name>padding</name>
-      <anchorfile>structlua_1_1_engine_1_1_nexus_1_1_image.html</anchorfile>
-      <anchor>a3fbfc1276aa9402b93bb8bcf1c485f75</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>int</type>
-      <name>atlasDimension</name>
-      <anchorfile>structlua_1_1_engine_1_1_nexus_1_1_image.html</anchorfile>
-      <anchor>afc84e7c82edd705439f1a802817c4673</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>bool</type>
-      <name>border</name>
-      <anchorfile>structlua_1_1_engine_1_1_nexus_1_1_image.html</anchorfile>
-      <anchor>a58a9513907e0ea4d72d3c91ca08fb617</anchor>
       <arglist></arglist>
     </member>
   </compound>
@@ -6985,20 +6314,6 @@
     <name>lua::Engine::Keys</name>
     <filename>structlua_1_1_engine_1_1_keys.html</filename>
     <class kind="struct">lua::Engine::Keys::Binding</class>
-    <member kind="variable">
-      <type>juce::String</type>
-      <name>prefix</name>
-      <anchorfile>structlua_1_1_engine_1_1_keys.html</anchorfile>
-      <anchor>aee5fe8a4d97b7219d8c4bd7752615c58</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>int</type>
-      <name>prefixTimeout</name>
-      <anchorfile>structlua_1_1_engine_1_1_keys.html</anchorfile>
-      <anchor>a734505d6e2ec86eafe4aa71cc8bd988f</anchor>
-      <arglist></arglist>
-    </member>
     <member kind="variable">
       <type>std::vector&lt; Binding &gt;</type>
       <name>bindings</name>
@@ -7839,8 +7154,8 @@
       <type></type>
       <name>List</name>
       <anchorfile>classaction_1_1_list.html</anchorfile>
-      <anchor>ac904fdaee75d73bf19dfd39b1a9fd505</anchor>
-      <arglist>(juce::Component &amp;main, lua::Engine &amp;engine)</arglist>
+      <anchor>ad522a1f35a36a45d33fa1624b644a9ee</anchor>
+      <arglist>(juce::Component &amp;main)</arglist>
     </member>
     <member kind="function">
       <type></type>
@@ -8001,13 +7316,6 @@
       <name>main</name>
       <anchorfile>classaction_1_1_list.html</anchorfile>
       <anchor>a2b71f48bc3fbd033acbd8ad49a975620</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable" protection="private">
-      <type>lua::Engine &amp;</type>
-      <name>luaEngine</name>
-      <anchorfile>classaction_1_1_list.html</anchorfile>
-      <anchor>a82b8c115f7d164f8c39d7ca142f513fd</anchor>
       <arglist></arglist>
     </member>
     <member kind="variable" protection="private">
@@ -8672,8 +7980,8 @@
       <type></type>
       <name>MainComponent</name>
       <anchorfile>class_main_component.html</anchorfile>
-      <anchor>a1fe9b104d3b6eb88315ace959285ead4</anchor>
-      <arglist>(lua::Engine &amp;engine)</arglist>
+      <anchor>a85254935b98beac9128189c6a577d7be</anchor>
+      <arglist>()</arglist>
     </member>
     <member kind="function">
       <type></type>
@@ -8681,6 +7989,13 @@
       <anchorfile>class_main_component.html</anchorfile>
       <anchor>afc7d0481eafa95da42e728443102f92e</anchor>
       <arglist>() override</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>registerActions</name>
+      <anchorfile>class_main_component.html</anchorfile>
+      <anchor>ab7554fd4973879f87d71254e5eee19d7</anchor>
+      <arglist>()</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -8719,23 +8034,9 @@
     </member>
     <member kind="function">
       <type>void</type>
-      <name>applyConfig</name>
-      <anchorfile>class_main_component.html</anchorfile>
-      <anchor>a7a32301bc3f0ca6c370fa7e3b0348e70</anchor>
-      <arglist>()</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
       <name>showReloadMessage</name>
       <anchorfile>class_main_component.html</anchorfile>
       <anchor>a94eb6ae94c2dbf664de22bb5f5bb152d</anchor>
-      <arglist>()</arglist>
-    </member>
-    <member kind="function" protection="private">
-      <type>void</type>
-      <name>registerActions</name>
-      <anchorfile>class_main_component.html</anchorfile>
-      <anchor>ab7554fd4973879f87d71254e5eee19d7</anchor>
       <arglist>()</arglist>
     </member>
     <member kind="function" protection="private">
@@ -8837,13 +8138,6 @@
       <arglist>()</arglist>
     </member>
     <member kind="variable" protection="private">
-      <type>lua::Engine &amp;</type>
-      <name>luaEngine</name>
-      <anchorfile>class_main_component.html</anchorfile>
-      <anchor>a7d124435a9afe4c27e922376764dcf64</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable" protection="private">
       <type>AppModel &amp;</type>
       <name>appState</name>
       <anchorfile>class_main_component.html</anchorfile>
@@ -8900,6 +8194,13 @@
       <arglist></arglist>
     </member>
     <member kind="variable" protection="private">
+      <type>juce::ValueTree</type>
+      <name>configNode</name>
+      <anchorfile>class_main_component.html</anchorfile>
+      <anchor>a6cd776a0d10d7206c9bd02891acd30fb</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="private">
       <type>terminal::Popup</type>
       <name>popup</name>
       <anchorfile>class_main_component.html</anchorfile>
@@ -8920,17 +8221,6 @@
     <class kind="struct">Map::Direction</class>
     <class kind="struct">Map::Position</class>
     <class kind="struct">Map::LinkHandler</class>
-  </compound>
-  <compound kind="struct">
-    <name>lua::Engine::Display::Menu</name>
-    <filename>structlua_1_1_engine_1_1_display_1_1_menu.html</filename>
-    <member kind="variable">
-      <type>float</type>
-      <name>opacity</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_menu.html</anchorfile>
-      <anchor>afb261947818c252c95028274827e28a8</anchor>
-      <arglist></arglist>
-    </member>
   </compound>
   <compound kind="class">
     <name>whelmed::MermaidBlock</name>
@@ -9497,8 +8787,8 @@
       <type></type>
       <name>Model</name>
       <anchorfile>structterminal_1_1_model.html</anchorfile>
-      <anchor>a427730d8b641247c8c4015b740f7c3c3</anchor>
-      <arglist>(TextBuffer &amp;textBuffer)</arglist>
+      <anchor>a037da433d8bb1d96cd7d03f7abc51dc3</anchor>
+      <arglist>()</arglist>
     </member>
     <member kind="function">
       <type></type>
@@ -9511,8 +8801,8 @@
       <type>void</type>
       <name>addTextParameter</name>
       <anchorfile>structterminal_1_1_model.html</anchorfile>
-      <anchor>aef97b8774a8b4bd87be42862a1693c40</anchor>
-      <arglist>(const juce::Identifier &amp;id, juce::ValueTree &amp;rootNode) noexcept</arglist>
+      <anchor>af9de0ceca29c79ee054019ab9011a507</anchor>
+      <arglist>(const juce::Identifier &amp;id, juce::ValueTree &amp;rootNode, int maxlen) noexcept</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -9560,8 +8850,8 @@
       <type>void</type>
       <name>buildLayout</name>
       <anchorfile>structterminal_1_1_model.html</anchorfile>
-      <anchor>a7ab986ba96c3d9b8b1c8088318bc3591</anchor>
-      <arglist>(const juce::XmlElement &amp;xml, TextBuffer &amp;textBuffer)</arglist>
+      <anchor>ae6048f15fecb68c50cba2fe6d40aa445</anchor>
+      <arglist>(const juce::XmlElement &amp;xml)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -9656,20 +8946,6 @@
     </member>
     <member kind="function">
       <type>void</type>
-      <name>storeValue</name>
-      <anchorfile>structterminal_1_1_model.html</anchorfile>
-      <anchor>ae2ada044b1923f232b03ba371f1fa578</anchor>
-      <arglist>(const juce::Identifier &amp;groupId, const juce::Identifier &amp;paramId, int value) noexcept</arglist>
-    </member>
-    <member kind="function">
-      <type>int</type>
-      <name>loadValue</name>
-      <anchorfile>structterminal_1_1_model.html</anchorfile>
-      <anchor>a572e69bbfff16e9707bfecafdc0a4df2</anchor>
-      <arglist>(const juce::Identifier &amp;groupId, const juce::Identifier &amp;paramId) const noexcept</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
       <name>setRowDirty</name>
       <anchorfile>structterminal_1_1_model.html</anchorfile>
       <anchor>af9ce5323e3f635afa5176b9f0c250904</anchor>
@@ -9696,13 +8972,6 @@
       <anchor>a9c4e8559c3bc543dc4529e497dcfaf27</anchor>
       <arglist>() noexcept</arglist>
     </member>
-    <member kind="function" protection="private">
-      <type>void</type>
-      <name>storeTextValue</name>
-      <anchorfile>structterminal_1_1_model.html</anchorfile>
-      <anchor>ae49c1f8c5de0987061e27c6be212f248</anchor>
-      <arglist>(const juce::Identifier &amp;groupId, const juce::Identifier &amp;paramId, const char *ptr) noexcept</arglist>
-    </member>
     <member kind="function" protection="private" static="yes">
       <type>static int</type>
       <name>resolveLayoutDefault</name>
@@ -9722,13 +8991,6 @@
       <name>rowDirtyCount</name>
       <anchorfile>structterminal_1_1_model.html</anchorfile>
       <anchor>a8f9bf2233d109cf4da3fdc8904b44c47</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable" protection="private">
-      <type>TextBuffer &amp;</type>
-      <name>textBuffer</name>
-      <anchorfile>structterminal_1_1_model.html</anchorfile>
-      <anchor>a4a59e2e5bdad31dfced6e8f753dd4251</anchor>
       <arglist></arglist>
     </member>
   </compound>
@@ -9859,63 +9121,6 @@
       <name>dragActive</name>
       <anchorfile>classterminal_1_1_mouse.html</anchorfile>
       <anchor>a28f99a89abff8239228b012bd4b4d7f9</anchor>
-      <arglist></arglist>
-    </member>
-  </compound>
-  <compound kind="struct">
-    <name>lua::Engine::Nexus</name>
-    <filename>structlua_1_1_engine_1_1_nexus.html</filename>
-    <class kind="struct">lua::Engine::Nexus::Shell</class>
-    <class kind="struct">lua::Engine::Nexus::Terminal</class>
-    <class kind="struct">lua::Engine::Nexus::Hyperlinks</class>
-    <class kind="struct">lua::Engine::Nexus::Image</class>
-    <member kind="variable">
-      <type>juce::String</type>
-      <name>gpu</name>
-      <anchorfile>structlua_1_1_engine_1_1_nexus.html</anchorfile>
-      <anchor>ad2b3e5be573ff83fc0189e5ad283196e</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>bool</type>
-      <name>daemon</name>
-      <anchorfile>structlua_1_1_engine_1_1_nexus.html</anchorfile>
-      <anchor>a3cdd6069a8db6851577933a5a7078715</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>bool</type>
-      <name>autoReload</name>
-      <anchorfile>structlua_1_1_engine_1_1_nexus.html</anchorfile>
-      <anchor>a74b5f4f6366453dd481f2f9e170a3560</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>Shell</type>
-      <name>shell</name>
-      <anchorfile>structlua_1_1_engine_1_1_nexus.html</anchorfile>
-      <anchor>a4bbb8f8f6467672f3593407e285feb02</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>Terminal</type>
-      <name>terminal</name>
-      <anchorfile>structlua_1_1_engine_1_1_nexus.html</anchorfile>
-      <anchor>a86d23a3de60ea81e5426623f294856d9</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>Hyperlinks</type>
-      <name>hyperlinks</name>
-      <anchorfile>structlua_1_1_engine_1_1_nexus.html</anchorfile>
-      <anchor>a399cc220050bb6510d3b934ace26a325</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>Image</type>
-      <name>image</name>
-      <anchorfile>structlua_1_1_engine_1_1_nexus.html</anchorfile>
-      <anchor>a3ed5f73ad35d809cebc97879a62f1cfe</anchor>
       <arglist></arglist>
     </member>
   </compound>
@@ -10113,31 +9318,6 @@
       <arglist></arglist>
     </member>
   </compound>
-  <compound kind="struct">
-    <name>lua::Engine::Display::Overlay</name>
-    <filename>structlua_1_1_engine_1_1_display_1_1_overlay.html</filename>
-    <member kind="variable">
-      <type>juce::String</type>
-      <name>family</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_overlay.html</anchorfile>
-      <anchor>a4a1b0f04eac36164b89d32f3e71bf619</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>float</type>
-      <name>size</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_overlay.html</anchorfile>
-      <anchor>aa24614649dce15139f08e6121e140de0</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>colour</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_overlay.html</anchorfile>
-      <anchor>a895613ea68ba8f16800944e1fb83991e</anchor>
-      <arglist></arglist>
-    </member>
-  </compound>
   <compound kind="class">
     <name>terminal::Overlay</name>
     <filename>classterminal_1_1_overlay.html</filename>
@@ -10319,24 +9499,6 @@
       <name>fontSize</name>
       <anchorfile>structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state.html</anchorfile>
       <anchor>ad1b353fe2f1cef826919411d9a98012b</anchor>
-      <arglist></arglist>
-    </member>
-  </compound>
-  <compound kind="struct">
-    <name>lua::Engine::Display::Pane</name>
-    <filename>structlua_1_1_engine_1_1_display_1_1_pane.html</filename>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>barColour</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_pane.html</anchorfile>
-      <anchor>a6f2bc93e7f5d09034ebed6baf6201bd5</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>barHighlight</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_pane.html</anchorfile>
-      <anchor>aa117515e820e15957102471807752d07</anchor>
       <arglist></arglist>
     </member>
   </compound>
@@ -10628,8 +9790,9 @@
     <templarg>class typename T</templarg>
   </compound>
   <compound kind="struct">
-    <name>terminal::ParameterBase</name>
-    <filename>structterminal_1_1_parameter_base.html</filename>
+    <name>terminal::ParameterText</name>
+    <filename>structterminal_1_1_parameter_text.html</filename>
+    <base>jam::ParameterBase</base>
   </compound>
   <compound kind="struct">
     <name>whelmed::TableBlock::ParsedTable</name>
@@ -11090,27 +10253,6 @@
     <filename>structlua_1_1_engine_1_1_popup.html</filename>
     <class kind="struct">lua::Engine::Popup::Entry</class>
     <member kind="variable">
-      <type>cell</type>
-      <name>defaultCols</name>
-      <anchorfile>structlua_1_1_engine_1_1_popup.html</anchorfile>
-      <anchor>a48f7529b6236385aa8c17c72388856dd</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>cell</type>
-      <name>defaultRows</name>
-      <anchorfile>structlua_1_1_engine_1_1_popup.html</anchorfile>
-      <anchor>a7395ffce1f36b1d3f2e9c03737dc0a88</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::String</type>
-      <name>defaultPosition</name>
-      <anchorfile>structlua_1_1_engine_1_1_popup.html</anchorfile>
-      <anchor>ae8e5a09a9bdedb4e9315b7f437941814</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
       <type>std::vector&lt; Entry &gt;</type>
       <name>entries</name>
       <anchorfile>structlua_1_1_engine_1_1_popup.html</anchorfile>
@@ -11210,24 +10352,6 @@
       <name>watchedStateRoot</name>
       <anchorfile>classterminal_1_1_popup.html</anchorfile>
       <anchor>a9570579e9e1f248e780d8c29c7774dfa</anchor>
-      <arglist></arglist>
-    </member>
-  </compound>
-  <compound kind="struct">
-    <name>lua::Engine::Display::PopupBorder</name>
-    <filename>structlua_1_1_engine_1_1_display_1_1_popup_border.html</filename>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>borderColour</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_popup_border.html</anchorfile>
-      <anchor>a38004c1d6e6adc4dea728b0b57a687ff</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>float</type>
-      <name>borderWidth</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_popup_border.html</anchorfile>
-      <anchor>a469ee5e52905776aa25e6fc6bf202c7a</anchor>
       <arglist></arglist>
     </member>
   </compound>
@@ -11340,8 +10464,8 @@
       <type></type>
       <name>Processor</name>
       <anchorfile>classterminal_1_1_processor.html</anchorfile>
-      <anchor>a55c3277d5426fc60a5318834bc630226</anchor>
-      <arglist>(Model &amp;stateRef, jam::Cell::Rectangle dims, TextBuffer &amp;textBuffer, const juce::String &amp;uuid)</arglist>
+      <anchor>a6026a2eb6baae65eec7f829ba7be14f1</anchor>
+      <arglist>(Model &amp;stateRef, jam::Cell::Rectangle dims, const juce::String &amp;uuid)</arglist>
     </member>
     <member kind="function">
       <type></type>
@@ -11551,13 +10675,6 @@
       <name>tty</name>
       <anchorfile>classterminal_1_1_processor.html</anchorfile>
       <anchor>a4534de76e2da21696a636f73aba6bbe4</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable" protection="private">
-      <type>TextBuffer &amp;</type>
-      <name>textBuffer</name>
-      <anchorfile>classterminal_1_1_processor.html</anchorfile>
-      <anchor>a3b05a9e67a6a3b36afda303ee5414010</anchor>
       <arglist></arglist>
     </member>
     <member kind="variable" protection="private">
@@ -13034,13 +12151,6 @@
       <arglist>() noexcept</arglist>
     </member>
     <member kind="variable" protection="private">
-      <type>TextBuffer</type>
-      <name>textBuffer</name>
-      <anchorfile>classterminal_1_1_session.html</anchorfile>
-      <anchor>aaa8e1b576cc60163585e7615177366e7</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable" protection="private">
       <type>Model</type>
       <name>model</name>
       <anchorfile>classterminal_1_1_session.html</anchorfile>
@@ -13129,31 +12239,6 @@
       <name>startEnv</name>
       <anchorfile>classterminal_1_1_session.html</anchorfile>
       <anchor>a8768ebcca93bc4ff9d4c9f82193b137c</anchor>
-      <arglist></arglist>
-    </member>
-  </compound>
-  <compound kind="struct">
-    <name>lua::Engine::Nexus::Shell</name>
-    <filename>structlua_1_1_engine_1_1_nexus_1_1_shell.html</filename>
-    <member kind="variable">
-      <type>juce::String</type>
-      <name>program</name>
-      <anchorfile>structlua_1_1_engine_1_1_nexus_1_1_shell.html</anchorfile>
-      <anchor>aeed83e98a3233c9df039a395c8fd5995</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::String</type>
-      <name>args</name>
-      <anchorfile>structlua_1_1_engine_1_1_nexus_1_1_shell.html</anchorfile>
-      <anchor>a0aab4be13147acc6718842b1f19fae70</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>bool</type>
-      <name>integration</name>
-      <anchorfile>structlua_1_1_engine_1_1_nexus_1_1_shell.html</anchorfile>
-      <anchor>abfbb4f9e17daf1a82568de70d775282c</anchor>
       <arglist></arglist>
     </member>
   </compound>
@@ -13500,38 +12585,6 @@
       <arglist></arglist>
     </member>
   </compound>
-  <compound kind="struct">
-    <name>lua::Engine::Display::StatusBar</name>
-    <filename>structlua_1_1_engine_1_1_display_1_1_status_bar.html</filename>
-    <member kind="variable">
-      <type>juce::String</type>
-      <name>position</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_status_bar.html</anchorfile>
-      <anchor>a32b1e66b99cd6b0b3a364a075885b6dc</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::String</type>
-      <name>fontFamily</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_status_bar.html</anchorfile>
-      <anchor>a54e64fed5c483c79b0883f5d0e81bc27</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>float</type>
-      <name>fontSize</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_status_bar.html</anchorfile>
-      <anchor>ae0ca0b53368ba009a636a71a83b66736</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::String</type>
-      <name>fontStyle</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_status_bar.html</anchorfile>
-      <anchor>afdcc461225e6c4e459969f9036f361c8</anchor>
-      <arglist></arglist>
-    </member>
-  </compound>
   <compound kind="class">
     <name>StatusBarOverlay</name>
     <filename>class_status_bar_overlay.html</filename>
@@ -13777,73 +12830,6 @@
       <name>justification</name>
       <anchorfile>structwhelmed_1_1_s_v_g_text_primitive.html</anchorfile>
       <anchor>a7114887703d1dbe0e434994f07439c20</anchor>
-      <arglist></arglist>
-    </member>
-  </compound>
-  <compound kind="struct">
-    <name>lua::Engine::Display::Tab</name>
-    <filename>structlua_1_1_engine_1_1_display_1_1_tab.html</filename>
-    <member kind="variable">
-      <type>juce::String</type>
-      <name>family</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_tab.html</anchorfile>
-      <anchor>a618ba1a939f9dad1a8d464e05082924e</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>float</type>
-      <name>size</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_tab.html</anchorfile>
-      <anchor>afe1e0121dd82a246ec38f43dfe166cb4</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>foreground</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_tab.html</anchorfile>
-      <anchor>a5e93c1aee62edf505600b1eefd4aaa4e</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>inactive</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_tab.html</anchorfile>
-      <anchor>ad47d2c9470e5f1604522c67c2bc35609</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::String</type>
-      <name>position</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_tab.html</anchorfile>
-      <anchor>aedcd2ef7c76baedc0985a0958ac4b2bc</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>line</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_tab.html</anchorfile>
-      <anchor>adae511f55f6600db46619f670998761e</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>active</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_tab.html</anchorfile>
-      <anchor>a407e5254d00da6fc48ee95fd71ffcb0b</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>indicator</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_tab.html</anchorfile>
-      <anchor>aa2205847da7f55407610594db8f8f246</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::String</type>
-      <name>buttonSvg</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_tab.html</anchorfile>
-      <anchor>a0d0f07795cb9683aed5a52970d43e4c0</anchor>
       <arglist></arglist>
     </member>
   </compound>
@@ -14464,66 +13450,6 @@
       <arglist></arglist>
     </member>
   </compound>
-  <compound kind="struct">
-    <name>lua::Engine::Nexus::Terminal</name>
-    <filename>structlua_1_1_engine_1_1_nexus_1_1_terminal.html</filename>
-    <member kind="variable">
-      <type>int</type>
-      <name>scrollbackLines</name>
-      <anchorfile>structlua_1_1_engine_1_1_nexus_1_1_terminal.html</anchorfile>
-      <anchor>aff762cc5157be2a56113443d6363fc26</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>int</type>
-      <name>scrollStep</name>
-      <anchorfile>structlua_1_1_engine_1_1_nexus_1_1_terminal.html</anchorfile>
-      <anchor>a275597629ccf721fb342de51aa3af2d8</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>int</type>
-      <name>paddingTop</name>
-      <anchorfile>structlua_1_1_engine_1_1_nexus_1_1_terminal.html</anchorfile>
-      <anchor>a6cc88db69a21d438841450b559451bc2</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>int</type>
-      <name>paddingRight</name>
-      <anchorfile>structlua_1_1_engine_1_1_nexus_1_1_terminal.html</anchorfile>
-      <anchor>a8c10663375d5b28ade5d433c3a978838</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>int</type>
-      <name>paddingBottom</name>
-      <anchorfile>structlua_1_1_engine_1_1_nexus_1_1_terminal.html</anchorfile>
-      <anchor>a373f7e0df1de6a02daaa62e349267f6c</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>int</type>
-      <name>paddingLeft</name>
-      <anchorfile>structlua_1_1_engine_1_1_nexus_1_1_terminal.html</anchorfile>
-      <anchor>a98198ba7476ec1c450e7bb312383208c</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::String</type>
-      <name>dropMultifiles</name>
-      <anchorfile>structlua_1_1_engine_1_1_nexus_1_1_terminal.html</anchorfile>
-      <anchor>a8f3cb4262d4b913a9d100f429b20f252</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>bool</type>
-      <name>dropQuoted</name>
-      <anchorfile>structlua_1_1_engine_1_1_nexus_1_1_terminal.html</anchorfile>
-      <anchor>a038060d278c9109472dd951e93718929</anchor>
-      <arglist></arglist>
-    </member>
-  </compound>
   <compound kind="class">
     <name>whelmed::TextBlock</name>
     <filename>classwhelmed_1_1_text_block.html</filename>
@@ -14659,70 +13585,6 @@
       <name>cachedWidth</name>
       <anchorfile>classwhelmed_1_1_text_block.html</anchorfile>
       <anchor>aeeb9aa24c0aa9dd69b24038304153f06</anchor>
-      <arglist></arglist>
-    </member>
-  </compound>
-  <compound kind="struct">
-    <name>terminal::TextBuffer</name>
-    <filename>structterminal_1_1_text_buffer.html</filename>
-    <member kind="function">
-      <type>void</type>
-      <name>addSlot</name>
-      <anchorfile>structterminal_1_1_text_buffer.html</anchorfile>
-      <anchor>a0f896d193583d8f6fdc08c2c520b194c</anchor>
-      <arglist>(const juce::Identifier &amp;id, int maxlen)</arglist>
-    </member>
-    <member kind="function">
-      <type>const char *</type>
-      <name>write</name>
-      <anchorfile>structterminal_1_1_text_buffer.html</anchorfile>
-      <anchor>a749580d10b9f5a103fdfe022f62b51f2</anchor>
-      <arglist>(const juce::Identifier &amp;id, const char *src, int length) noexcept</arglist>
-    </member>
-    <member kind="variable" protection="private">
-      <type>std::unordered_map&lt; juce::Identifier, std::unique_ptr&lt; TextSlot &gt; &gt;</type>
-      <name>slots</name>
-      <anchorfile>structterminal_1_1_text_buffer.html</anchorfile>
-      <anchor>abeb17b64667c3a82a8545a0f9eda0e35</anchor>
-      <arglist></arglist>
-    </member>
-  </compound>
-  <compound kind="struct">
-    <name>terminal::TextSlot</name>
-    <filename>structterminal_1_1_text_slot.html</filename>
-    <member kind="function">
-      <type></type>
-      <name>TextSlot</name>
-      <anchorfile>structterminal_1_1_text_slot.html</anchorfile>
-      <anchor>a6b0da13550984289bac65f5f741181d2</anchor>
-      <arglist>(int maxlen) noexcept</arglist>
-    </member>
-    <member kind="function">
-      <type>const char *</type>
-      <name>write</name>
-      <anchorfile>structterminal_1_1_text_slot.html</anchorfile>
-      <anchor>a6b50e54ec0dd603cfaea3204ac3ec368</anchor>
-      <arglist>(const char *src, int length) noexcept</arglist>
-    </member>
-    <member kind="variable" protection="private">
-      <type>juce::HeapBlock&lt; char &gt;</type>
-      <name>buffers</name>
-      <anchorfile>structterminal_1_1_text_slot.html</anchorfile>
-      <anchor>a0d3d7dd992360305c3e766fef53b06a8</anchor>
-      <arglist>[2]</arglist>
-    </member>
-    <member kind="variable" protection="private">
-      <type>std::atomic&lt; int &gt;</type>
-      <name>active</name>
-      <anchorfile>structterminal_1_1_text_slot.html</anchorfile>
-      <anchor>a12a62d05024f9c46178d2b6aa15dd912</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable" protection="private">
-      <type>int</type>
-      <name>bufferSize</name>
-      <anchorfile>structterminal_1_1_text_slot.html</anchorfile>
-      <anchor>ad1e98b99ce33442e170206b3d296093a</anchor>
       <arglist></arglist>
     </member>
   </compound>
@@ -17261,497 +16123,6 @@
       <arglist>(const char *response) noexcept</arglist>
     </member>
   </compound>
-  <compound kind="struct">
-    <name>lua::Engine::Whelmed</name>
-    <filename>structlua_1_1_engine_1_1_whelmed.html</filename>
-    <member kind="variable">
-      <type>juce::String</type>
-      <name>fontFamily</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>ac6d2757474490cf11b6b0e8b36c8c94b</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::String</type>
-      <name>fontStyle</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>a98efcbf2c60c58e0ff273935e205bc62</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>float</type>
-      <name>fontSize</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>a47250cb0f381e1124c7e7b56ae9b0d47</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::String</type>
-      <name>codeFamily</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>a9608cc35f48dba9b72c235dc1923a8a5</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>float</type>
-      <name>codeSize</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>ab8f6ff3b647cecc7e577c264080631f9</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::String</type>
-      <name>codeStyle</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>aac47d5abcb23b2d7838f9649c258091c</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>float</type>
-      <name>h1Size</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>a0ce3e2358da5a18fbb2814f1bd8767de</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>float</type>
-      <name>h2Size</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>af0ac0e5c25e945b0135ac51a57e587a5</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>float</type>
-      <name>h3Size</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>aaa05edf8fb1f7620c59918b26d8f1b80</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>float</type>
-      <name>h4Size</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>aec433098297cc95a085178091f496de4</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>float</type>
-      <name>h5Size</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>a9bec494c99c377dc0d5e3f5d5b1ad7a7</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>float</type>
-      <name>h6Size</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>a4713a4fa06b99d66b4a65b14b3206098</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>float</type>
-      <name>lineHeight</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>a21d946ac384c2eed128e943ba47d1889</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>background</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>aedab3185e3a061a4c80f7b0412e1e479</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>bodyColour</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>a4d1ca2c52e24c2024f24a9db139b41b8</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>codeColour</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>a954e20382bf4366ab40d3da7a529dfca</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>linkColour</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>aeb8f9ece8570b7b82632ba24b9940edb</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>h1Colour</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>ab993e4e0d43a9a84b2d0ad4226cd3397</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>h2Colour</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>afe602506974a84e103ddc7bd7bcdb36f</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>h3Colour</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>a4c51841fcc6185ca024a980ee300f9da</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>h4Colour</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>a06d9e32126fbe5fe74578ff3d01875f4</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>h5Colour</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>af6ff31dd602b5a2663f66df31c561882</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>h6Colour</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>a00a205d5be32cbab43b03756afec2dab</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>codeFenceBackground</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>a034dd727dca6de7b9d809fa1f6b9fe2a</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>progressBackground</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>a8b2da2a32f954d6a88518584eb55179a</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>progressForeground</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>ae3ad84701d67e0803b790d2610c8e93d</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>progressTextColour</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>af78bbd00e1bdeee60557b476a2f47278</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>progressSpinnerColour</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>a76472fe645ea647d262734736743606d</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>int</type>
-      <name>paddingTop</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>a08bb47b0140a0b68dd00c3e610ccb1b6</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>int</type>
-      <name>paddingRight</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>aa4afde15ccfa87cb5330758b403d4c09</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>int</type>
-      <name>paddingBottom</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>a2cd0fbe4082e02e7439fc81a8ce5f234</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>int</type>
-      <name>paddingLeft</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>aebcb4ffafc1fdfbbafe0fadf46560f09</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>tokenError</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>a4b9c0648fc7cb5ecae1a442f2ee0aac3</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>tokenComment</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>a43a5f420d03f1f428d5a66a46b88dd59</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>tokenKeyword</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>aca7a58000aa7cf7c6375ff95b45f7d90</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>tokenOperator</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>ab1dd5afe2ce34a7c9dd0f93bbfc4ad79</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>tokenIdentifier</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>a4a3492c1e2d2f63f886447439ccd4a3f</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>tokenInteger</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>ade6406da8f9d3f9df1341433cdf99969</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>tokenFloat</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>a95c82d8a5418bf8ff2c705beb62e39a4</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>tokenString</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>a8273bb1d49ee079aee2fcaeb4895b609</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>tokenBracket</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>ad0341f79733e79eb940254b9e73d9750</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>tokenPunctuation</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>a66ce34720e95fe09d4ce4f4368672b84</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>tokenPreprocessor</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>af8a9097584a0354c43d3abd2d781b3f0</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>tableBackground</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>a52489e48b82b6b2998b9fdfa87d24b00</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>tableHeaderBackground</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>a0dc6eebcd9160afd8897029ba43b3cf9</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>tableRowAlt</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>a2c24f03c50a1f3bcde46877dad6b6dc4</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>tableBorderColour</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>ac6cebf8d2c721df8097b975c658c91a0</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>tableHeaderText</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>ad43fea370d29db107f30d6da1d435166</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>tableCellText</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>a25f44fc9506361a5c032bfa3663c0eff</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>scrollbarThumb</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>a03e64e81909e4456676a9bb1749eee77</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>scrollbarTrack</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>aaaede5efb3bc47809dc560ab3e2b3dae</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>scrollbarBackground</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>ac7bfc8e7139d00f2550cde6e571a733f</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::String</type>
-      <name>scrollDown</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>aaafe9f4edae400ec37dac694a5918674</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::String</type>
-      <name>scrollUp</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>aa73b5991a5561751fbb8fde798836da0</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::String</type>
-      <name>scrollTop</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>a47a531a5473bb5ac1145368644ea548d</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::String</type>
-      <name>scrollBottom</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>a40961b942480388d22a30faeec037fe1</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>int</type>
-      <name>scrollStep</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>a186416b208bc76c09667b4874d2182fd</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>selectionColour</name>
-      <anchorfile>structlua_1_1_engine_1_1_whelmed.html</anchorfile>
-      <anchor>a27303dc14b1dd6f529ed53603b22423d</anchor>
-      <arglist></arglist>
-    </member>
-  </compound>
-  <compound kind="struct">
-    <name>lua::Engine::Display::Window</name>
-    <filename>structlua_1_1_engine_1_1_display_1_1_window.html</filename>
-    <member kind="variable">
-      <type>juce::String</type>
-      <name>title</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_window.html</anchorfile>
-      <anchor>a3808aa8a5350e91b1cf293df3b7ec197</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>int</type>
-      <name>width</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_window.html</anchorfile>
-      <anchor>a50b0063a549ebb718e214cdf1bc91159</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>int</type>
-      <name>height</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_window.html</anchorfile>
-      <anchor>a93c513106593da611a0fab5d91344a60</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>colour</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_window.html</anchorfile>
-      <anchor>a4191919387d4ecd75f214165e0e8ec37</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>float</type>
-      <name>opacity</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_window.html</anchorfile>
-      <anchor>a8baa410a65723b67f348119738a219c6</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>float</type>
-      <name>blurRadius</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_window.html</anchorfile>
-      <anchor>ab8f2c5cf810022ca77c5a9116ad23c38</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>bool</type>
-      <name>alwaysOnTop</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_window.html</anchorfile>
-      <anchor>a509befe65e44169402da0640af65740a</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>bool</type>
-      <name>buttons</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_window.html</anchorfile>
-      <anchor>ad12cd1d137457c62fa9b28029e6e43a7</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>bool</type>
-      <name>forceDwm</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_window.html</anchorfile>
-      <anchor>aa4ffdc69e39522c4924905fdbb67f0bd</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>bool</type>
-      <name>saveSize</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_window.html</anchorfile>
-      <anchor>aa37e923087a23c15863c76060edc7573</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>bool</type>
-      <name>confirmationOnExit</name>
-      <anchorfile>structlua_1_1_engine_1_1_display_1_1_window.html</anchorfile>
-      <anchor>aeec52eeb9c6769a754c67de63c23448b</anchor>
-      <arglist></arglist>
-    </member>
-  </compound>
   <compound kind="class">
     <name>terminal::Window</name>
     <filename>classterminal_1_1_window.html</filename>
@@ -17990,6 +16361,104 @@
       <name>DOCUMENT</name>
       <anchorfile>namespaceapp_1_1id.html</anchorfile>
       <anchor>a9a9123c0d63aa046272530c9b72b475b</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::String</type>
+      <name>endLua</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>ad3e3ea56ded27ce86dfe97c646ceef06</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::String</type>
+      <name>nexusLua</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a620b08cededa1db9993d5fbe8d8b5c4f</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::String</type>
+      <name>displayLua</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>af0bfabfeeb804ef81ec237f75d50154d</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::String</type>
+      <name>whelmedLua</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a079db63eedfafc4b1480dc0ba8c58827</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::String</type>
+      <name>keysLua</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>aa2276f79d790f614ff77afeb78852e54</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::String</type>
+      <name>popupsLua</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>aa8dfb9401156e5732e6510ec5d3c2e63</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::String</type>
+      <name>actionsLua</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>afeaa2973cf7cf87d923dc2125386746a</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>CONFIG</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>ad0d59ab3453ad62947cd66f19a20e836</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>NEXUS_LUA</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>aebfb69e225077dbd1c419356ef5362f3</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>DISPLAY_LUA</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a24815b9015e0395936a1718769739fff</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>WHELMED_LUA</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>af38a58466b0c9efb4717d0c6e9fef1d4</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>KEYS_LUA</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>ae3ffd71106a7c549f8e930d5b58d9546</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>POPUPS_LUA</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a185751ff79ae0c1cd3a6f32899fb3667</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>ACTIONS_LUA</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>af8abfa5f30a216c6ee27c2f433e8884a</anchor>
       <arglist></arglist>
     </member>
     <member kind="variable" static="yes">
@@ -18267,6 +16736,1077 @@
     </member>
     <member kind="variable" static="yes">
       <type>static const juce::Identifier</type>
+      <name>gpu</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>ab715694ed87fdb8f729208c00c12f1d0</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>daemon</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>aeb4a0365c43ad17ee491dbd5d23b4e1d</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>autoReload</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a723d1ad7da5625f3564af47fd868b304</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>shellProgram</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a65d259fa0bbe51a8e356394bd958d925</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>shellArgs</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>ab986741fd9e941121ca6be45df95a6b7</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>shellIntegration</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a94a3c290e8c770bcb57a9638bcf48e2f</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>scrollStep</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a55c2ff42f88c49f150e13de30c974d9d</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>dropMultifiles</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a8d78b5919d9c34813b53cccd40a11bbb</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>dropQuoted</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a9f066d09d639f92c2ca2f9b67d356464</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>hyperlinkEditor</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a056bca88c70edd6e60dd61971c13441a</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>imageAtlasBudgetBytes</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a608275eac9582b771d6a0c918cd3fd66</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>imageCols</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>aa3a50dd9759e98bcd106a6a5cb956be7</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>imageRows</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a78bfc2ad550fa090e31bc30e3e350785</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>imagePadding</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a9c13ac99f84d3befaec128bed00fff03</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>imageAtlasDimension</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a1a5adde1505851eb21a2e74bb3eefd32</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>imageBorder</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>ac11c0245312c71e8ae00fa828a4d83de</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>windowTitle</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>afe02a1f6363d87dc7852478a4d410992</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>windowWidth</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a7f9dd393c98d00380acb25d333689d6d</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>windowHeight</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>af1cee5c8f7d2c0f5881fa65d5188f05b</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>windowColour</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>aacf1d941ece69d43b705d3f1238fba52</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>windowOpacity</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a69a24e62617ef3817d155464736d1a6d</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>windowBlurRadius</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a448e5298092c1bea70e69c1a3eae5727</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>windowAlwaysOnTop</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>ad35c494c788f76c44282cc4e43491c7c</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>windowButtons</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a783ff7e539d7015b86f169312c6ca551</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>windowForceDwm</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a00ce33ba95b038f20be5568d1596f498</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>windowSaveSize</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>aca1923f6370fc67197ce409736ae09d2</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>windowConfirmationOnExit</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a18da028edfcc7e14d1b71edb726da92f</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>fontLigatures</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a3aa85000db36fd34f1fa9c3d5812e6c4</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>fontEmbolden</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a3fb7e4c0c0ec8729be34fbb77c60c915</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>fontDesktopScale</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a1caf6134953b6902a9b75124c1c5a9d1</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>cursorBlink</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>ae5ca2f5afffc259179903905a510bcca</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>cursorForce</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a7c835adb3ca111800e79f570d8951fb3</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>foreground</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>ae1cf6feb9724196f45603765d63a3337</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>background</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>aa85c6b3e2e596e138f02e1922bb52055</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>cursorColour</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>abbe92598c63a60ebb0da1fa5c9186803</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>selectionColour</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a7a41e75f8fd5fb0b51e64aa75f4d0d37</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>selectionCursorColour</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>ae63f7ad1cffe9acbcc97808dfc773aae</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>ansi0</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a0821c46cb3f78c71dcdd9d48985d30ec</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>ansi1</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>aea4cf6a3ab6e25af838a229a2b83d7e3</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>ansi2</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a7a3f006df3691ffa56716c85245b1b7a</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>ansi3</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a9ff85b43926f15f32e525419bd07d6ae</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>ansi4</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>ab59c5a79f910830e8e541bc70ddedb1b</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>ansi5</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a87718e7834db5bfec4e9bd443fd89a74</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>ansi6</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a620e004f9a71170539f792faf0a75d1a</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>ansi7</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>aa9256846d7bf7b223e20b1bbe83ca479</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>ansi8</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a095b2b617f85c71a01048ba3f9dd1097</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>ansi9</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a8e157c6e93ed4473e90f2cd63cecb983</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>ansi10</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>aeb08addf4a80472866ebeef26b46d2f3</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>ansi11</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>aecad7f2dfe24df0c32e2552bcff6e18d</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>ansi12</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>afd2c14f09f4fb851943705c1d46ed71c</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>ansi13</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a5a3922513e0b6e231975e8f048785da8</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>ansi14</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>aad91c2fdc1f9ad2e82d75bb61f998544</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>ansi15</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>ae8028469d764fa24564058d462c2384c</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>editorBackground</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a8422c310334d2352ab9fab57fcd7119a</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>editorOutline</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a09568f871c0376dc19d681e584aff2ca</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>statusBarColour</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a784e0c2f687fb30a6ef87f58212c73e1</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>statusBarLabelBg</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a999c565c8db8719eccd82c14e39f0acb</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>statusBarLabelFg</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a55d001546adb9a99a7abc7a02b0f3306</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>statusBarSpinner</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>ab6ba69a43038813bd8abd965ab609ba1</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>hintLabelBg</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>aebfa1cea3b513039f8315bdd77cb2bf5</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>hintLabelFg</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a95ee97750bbdd1439631ffdc48ab2d0b</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>scrollbarThumb</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>adc949e7d57587f132319d6b8289ab960</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>scrollbarTrack</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a934fbd7a0afdcfff16ad04ea552cb22a</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>tabFamily</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>aa19ad42e806a8ba1eab57e5b7576fbec</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>tabSize</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a7be2d28c7878ac93c697069b8157668b</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>tabForeground</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>aaef53125ee528bc6448630e912049bc0</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>tabInactive</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a480d86ad4abbcf6e97cc178062ff55a4</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>tabPosition</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a48acab878605c9d99508d5c2e0c44afc</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>tabLine</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>ac7f38615aa39a51422de23967359fc9b</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>tabActive</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a1da955a542142ee76d4819c12652aaf2</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>tabIndicator</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a0f3ecea39c40c90838b9fd2e01a7f9d3</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>tabButtonSvg</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>aa9657453416f38186ddc9bdf76d0e393</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>paneBarColour</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a21b1b6f3dd9a00dd7f763627e91fd971</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>paneBarHighlight</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>ad0793da523a302f770375f899babe427</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>overlayFamily</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a33aa122805fab67713a5bd4caea745cd</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>overlaySize</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a389dcd133162a346affb3d7858a01ce1</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>overlayColour</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a66882a1899acc8c961154c2d383f9483</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>menuOpacity</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>ab0d7c2cd5c7488722af18c2e5e83b074</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>actionListCloseOnRun</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>ad79fc770a41ef0bf9c7abe6215489944</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>actionListPosition</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>ad46fd96eede5520ac31f83c91592bdc9</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>actionListNameFamily</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a2b9afdce726af5f5c28038ca226f6e64</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>actionListNameStyle</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>aa2cabe4a76fcc1d135fb8b0a3803824f</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>actionListNameSize</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a88b5555a5362c0e718c8d1e0db04beab</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>actionListShortcutFamily</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a976eb45ad9f048dcf7747b3d31870e1e</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>actionListShortcutStyle</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a9b4ebc912079f79009bcbd09910f2c5c</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>actionListShortcutSize</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a73518a3d97535f86bb11fc91e422ddd4</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>actionListPaddingTop</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>aac2aa092d24a3de6ae6b49b269f4d887</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>actionListPaddingRight</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a10c4004d2f1bdb33f4797b5da79b49d9</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>actionListPaddingBottom</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a933f830f0486128f43838da4ff8e038c</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>actionListPaddingLeft</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a0444aeadd2b085b73cabe9b02665e906</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>actionListNameColour</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a6853f508224d7132862bbe86ba37bfd0</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>actionListShortcutColour</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a27dbc7912b3a3d2fd0b4411f3a13861d</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>actionListWidth</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>ac95773a33e9ba0ae3d7673f712f6128c</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>actionListHeight</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a682fa9bf0988cf9d93fbcbb9c917247d</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>actionListHighlightColour</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a2cbaf122d9da348b193847c7a41f189d</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>statusBarPosition</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a9489d7d8ae1186d9a0afae1b2086dcf3</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>statusBarFontFamily</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a0acbbdb7581dc87265c6c30a1ce35023</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>statusBarFontSize</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>aad1c3ec17d1db4cb60d3b465ee53c62e</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>statusBarFontStyle</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>ad0bcda5999a67171487f552172258d91</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>popupBorderColour</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>ac9aacbb4cfb9378c6c433673aa6292f9</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>popupBorderWidth</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>ad6a9840a545fa986ac88170f4861b80a</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>scrollbarWidth</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>aee26aa0ec8b10993d33be806d8a73780</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>fontStyle</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a6fe51178af03fba7a3b631863efef769</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>codeFamily</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a951f6ab2b34bd9500bcc234ce536d95a</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>codeSize</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a15d2a53f07fddfe598923b0e9d93e13b</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>codeStyle</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>af1dea9c35c05a981e7926b5a5fe5d787</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>h1Size</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>ac98dbc6263419d63deee50a712d8542b</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>h2Size</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a9e65d6d96ed5ae9d2adaef5b9180c9c7</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>h3Size</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>ae13f583ab8a59ae1f1cc9cf84c361e35</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>h4Size</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a2486d733c843f90972f7d9fe5ded1089</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>h5Size</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a5cc364c46a9fde4b3109ce56b7e3c08a</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>h6Size</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>abe73dbb6ccdde794ba183f63128f1c52</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>bodyColour</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a52ae58d30601371b81d01482e3309917</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>codeColour</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a4ef5f0b110037ae468c6f396feb5295f</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>linkColour</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>abc5c147bdc38eadc2cbda8a97f40a944</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>h1Colour</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a0d47ddc2796c1bff5cbab6603d22815c</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>h2Colour</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a0ff18ee33f012e953a7876bc88ae7788</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>h3Colour</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a8018f054bfa783bc78da6c978d625e74</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>h4Colour</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a07078d19dd37b19ebd567197d6b9cc6b</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>h5Colour</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a140cca350b9776148a3fccd8ba9f7e04</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>h6Colour</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>abbcfae93cf8d068934f685be08e73010</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>codeFenceBackground</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>afdd1affaf7f66f8faf52a2935ef80fcf</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>progressBackground</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a9c3bba61ce0ee97233a1d1b898582840</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>progressForeground</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>ad925d58f6cacade4ae57ee99cecf5c23</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>progressTextColour</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a14bd015b20493c318ca82e325a72c1ec</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>progressSpinnerColour</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a7f078637a531d9b496188b66e2756ddd</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>tokenError</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a53311a5489b9b09268e5c3d363044509</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>tokenComment</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a940380d27c15520af3125a2aacdb2835</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>tokenKeyword</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a2cc66ede328e309d1170ccce33dd69a7</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>tokenOperator</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a71957eee8ce2ac0e4172ee5cc751b7ea</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>tokenIdentifier</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a62de102d67bf00941e1e02a6cf419392</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>tokenInteger</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a13a8d93f17d1fb981c681e25131f00f8</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>tokenFloat</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a7cb1edf4e1c2e5f206ea598cc48cf188</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>tokenString</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a492d01dcb0fa394c718f0e46632807e8</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>tokenBracket</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a23814bdd75081b39c639e51a5e52b2b3</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>tokenPunctuation</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a0d02346bdd2d393b97d9634205664385</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>tokenPreprocessor</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>aac5e0fa316ccb72120c6bc7c99c0e1b6</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>tableBackground</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a75d698af282667d1876298a89d665686</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>tableHeaderBackground</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a4b3da11dde502d98b854953b0367dbfc</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>tableRowAlt</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a9761e1106ad19af67f725c57d9a171f1</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>tableBorderColour</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a2998077a0db0710b1520a64148ed86ba</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>tableHeaderText</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>aa5e641723bf66ff3d0a509b1f43944c4</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>tableCellText</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a7e5de7110c5e488d1501431c7a739fd8</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>scrollbarBackground</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a2ae7461b03651360e50418c15377d1da</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>scrollDown</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>afd275faf67380d984e51ebdea341395c</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>scrollUp</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>ac0656642c438f1af1bf14e1aaa69399f</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>scrollTop</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>af607d92f2813b69d4bb003060d4edebe</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>scrollBottom</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>ae8d866eeefab0444493f84a8ebd77849</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>prefix</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a46133449d4dab4e7944ed4ff0d1e3f46</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>prefixTimeout</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a0d5230511735b9c481e1ccb17734e2eb</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>defaultCols</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>ac308defcf1b7632e18d5632e07414805</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>defaultRows</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a7fa0145d52e1c99af0cd65ef34b47361</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>defaultPosition</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>aa599a0c2aa8afa08ac5e2d4745b5c66d</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
       <name>type</name>
       <anchorfile>namespaceapp_1_1id.html</anchorfile>
       <anchor>ae576c239b4056906a6e377c6362ec71e</anchor>
@@ -18301,6 +17841,13 @@
       <arglist></arglist>
     </member>
     <member kind="variable" static="yes">
+      <type>static const juce::Identifier</type>
+      <name>colourType</name>
+      <anchorfile>namespaceapp_1_1id.html</anchorfile>
+      <anchor>a196fadd33553c8fa26d74617acf49b01</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
       <type>static const juce::String</type>
       <name>appMetadata</name>
       <anchorfile>namespaceapp_1_1id.html</anchorfile>
@@ -18330,78 +17877,78 @@
       <type>static void</type>
       <name>writeDisplayFontDefaults</name>
       <anchorfile>namespacelua.html</anchorfile>
-      <anchor>a84688fe3676b1acb96938671ae61aca1</anchor>
-      <arglist>(juce::String &amp;content, const Engine::Display &amp;display)</arglist>
+      <anchor>a18f3f51d648af4b40e2c33d1a9809335</anchor>
+      <arglist>(juce::String &amp;content)</arglist>
     </member>
     <member kind="function" static="yes">
       <type>static void</type>
       <name>writeDisplayColoursDefaults</name>
       <anchorfile>namespacelua.html</anchorfile>
-      <anchor>ae224faeb7592d43d2452dce47a6fbe9c</anchor>
-      <arglist>(juce::String &amp;content, const Engine::Display &amp;display)</arglist>
+      <anchor>a2b32be140ae7fb07860526e31f4b2890</anchor>
+      <arglist>(juce::String &amp;content)</arglist>
     </member>
     <member kind="function" static="yes">
       <type>static void</type>
       <name>writeDisplayWindowDefaults</name>
       <anchorfile>namespacelua.html</anchorfile>
-      <anchor>a56676579556000e1e07f1ff4a7431912</anchor>
-      <arglist>(juce::String &amp;content, const Engine::Display &amp;display)</arglist>
+      <anchor>ad430767a63f28cf228c4d0bc16e4ad79</anchor>
+      <arglist>(juce::String &amp;content)</arglist>
     </member>
     <member kind="function" static="yes">
       <type>static void</type>
       <name>writeDisplayTabDefaults</name>
       <anchorfile>namespacelua.html</anchorfile>
-      <anchor>aeb90992aad67a29fa2080492a875f565</anchor>
-      <arglist>(juce::String &amp;content, const Engine::Display &amp;display)</arglist>
+      <anchor>adde2dd9c8b1eeb9a7af7de8167c77d88</anchor>
+      <arglist>(juce::String &amp;content)</arglist>
     </member>
     <member kind="function" static="yes">
       <type>static void</type>
       <name>writeDisplayMiscDefaults</name>
       <anchorfile>namespacelua.html</anchorfile>
-      <anchor>a74fca56bfc76dcd640f6f1803a8afc67</anchor>
-      <arglist>(juce::String &amp;content, const Engine::Display &amp;display)</arglist>
+      <anchor>a529ffb84adfdb858001747571af461d0</anchor>
+      <arglist>(juce::String &amp;content)</arglist>
     </member>
     <member kind="function" static="yes">
       <type>static void</type>
       <name>parseDisplayWindow</name>
       <anchorfile>namespacelua.html</anchorfile>
-      <anchor>a458e0fc1c9cf643521c62520025de868</anchor>
-      <arglist>(Engine::Display::Window &amp;window, jam::lua::Value &amp;displayTable)</arglist>
+      <anchor>a0603e240e7a0bdb567750f6f4745d977</anchor>
+      <arglist>(jam::Model &amp;model, jam::lua::Value &amp;displayTable)</arglist>
     </member>
     <member kind="function" static="yes">
       <type>static void</type>
       <name>parseDisplayColours</name>
       <anchorfile>namespacelua.html</anchorfile>
-      <anchor>a06a39bc0e84ed14f91bebcd1355678c4</anchor>
-      <arglist>(Engine::Display::Colours &amp;colours, jam::lua::Value &amp;displayTable)</arglist>
+      <anchor>a67a15b5bd9e27be9499c2028eaaa3178</anchor>
+      <arglist>(jam::Model &amp;model, jam::lua::Value &amp;displayTable)</arglist>
     </member>
     <member kind="function" static="yes">
       <type>static void</type>
       <name>parseDisplayCursor</name>
       <anchorfile>namespacelua.html</anchorfile>
-      <anchor>ae7636387e2db7b1d5cb53d5ee82a0ae9</anchor>
-      <arglist>(Engine::Display::Cursor &amp;cursor, jam::lua::Value &amp;displayTable)</arglist>
+      <anchor>ab1f749ba59f32154943afd7e3139f999</anchor>
+      <arglist>(jam::Model &amp;model, jam::lua::Value &amp;displayTable)</arglist>
     </member>
     <member kind="function" static="yes">
       <type>static void</type>
       <name>parseDisplayFont</name>
       <anchorfile>namespacelua.html</anchorfile>
-      <anchor>a406bd58f8e8ddba2341dfed224dbd900</anchor>
-      <arglist>(Engine::Display::Font &amp;font, jam::lua::Value &amp;displayTable)</arglist>
+      <anchor>ad7938817879befc63ad3d9fac09d2837</anchor>
+      <arglist>(jam::Model &amp;model, jam::lua::Value &amp;displayTable)</arglist>
     </member>
     <member kind="function" static="yes">
       <type>static void</type>
       <name>parseDisplayTab</name>
       <anchorfile>namespacelua.html</anchorfile>
-      <anchor>a0286c8cb5de1bc7f0a7f756c8f4de238</anchor>
-      <arglist>(Engine::Display::Tab &amp;tab, jam::lua::Value &amp;displayTable)</arglist>
+      <anchor>a2bdf6af96321442c41815cbe9cdc9a5e</anchor>
+      <arglist>(jam::Model &amp;model, jam::lua::Value &amp;displayTable)</arglist>
     </member>
     <member kind="function" static="yes">
       <type>static void</type>
       <name>parseDisplayMisc</name>
       <anchorfile>namespacelua.html</anchorfile>
-      <anchor>ad0765e4a8d2a333c174036c8bc89bad0</anchor>
-      <arglist>(Engine::Display &amp;display, jam::lua::Value &amp;displayTable)</arglist>
+      <anchor>a56a32193c73ba7441f334e65b8939cad</anchor>
+      <arglist>(jam::Model &amp;model, jam::lua::Value &amp;displayTable)</arglist>
     </member>
   </compound>
   <compound kind="namespace">
@@ -18494,14 +18041,12 @@
     <class kind="struct">terminal::PendingImage</class>
     <class kind="class">terminal::SixelDecoder</class>
     <class kind="class">terminal::Skit</class>
-    <class kind="struct">terminal::TextSlot</class>
-    <class kind="struct">terminal::TextBuffer</class>
     <class kind="class">terminal::Video</class>
     <class kind="struct">terminal::PrivateModeEntry</class>
     <class kind="struct">terminal::OscHeader</class>
     <class kind="struct">terminal::Winsize</class>
-    <class kind="struct">terminal::ParameterBase</class>
     <class kind="struct">terminal::Parameter</class>
+    <class kind="struct">terminal::ParameterText</class>
     <member kind="enumeration">
       <type></type>
       <name>ParserState</name>
@@ -19586,7 +19131,6 @@
     <file>Notifications.h</file>
     <file>Notifications.mm</file>
     <file>Palette.h</file>
-    <file>Parameter.h</file>
     <file>Parser.cpp</file>
     <file>Parser.h</file>
     <file>ParserAction.cpp</file>
@@ -19600,7 +19144,6 @@
     <file>SixelDecoderParse.cpp</file>
     <file>Skit.cpp</file>
     <file>Skit.h</file>
-    <file>TextBuffer.h</file>
     <file>Video.cpp</file>
     <file>Video.h</file>
     <file>VideoCSI.cpp</file>

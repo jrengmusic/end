@@ -154,8 +154,7 @@ void LinkManager::dispatch (const LinkSpan& span) const
         const juce::String path { span.uri.fromFirstOccurrenceOf ("file://", false, false) };
         const juce::String ext { juce::File (path).getFileExtension().toLowerCase() };
 
-        const auto* cfg { lua::Engine::getContext() };
-        const juce::String handler { cfg->getHandler (ext) };
+        const juce::String handler { AppModel::getContext()->getHandler (ext) };
 
         if (handler == Map::LinkHandler::getContext()->get (Map::LinkHandler::whelmed))
         {
@@ -171,7 +170,7 @@ void LinkManager::dispatch (const LinkSpan& span) const
         {
             const juce::String opener { handler.isNotEmpty() and handler != Map::LinkHandler::getContext()->get (Map::LinkHandler::whelmed)
                                             ? handler
-                                            : cfg->nexus.hyperlinks.editor };
+                                            : AppModel::getContext()->getValue<juce::String> (app::id::NEXUS_LUA, app::id::hyperlinkEditor) };
             // Replaces getMode() — reads bracketedPaste from MODES node directly.
             const juce::ValueTree dispatchModes { state.getChildWithName (terminal::id::MODES) };
             const bool bracketed { static_cast<int> (jam::ValueTree::getValueFromChildWithID (dispatchModes, terminal::id::bracketedPaste).getValue()) != 0 };

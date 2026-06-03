@@ -6,7 +6,7 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "../../lua/Engine.h"
+#include "../../AppModel.h"
 #include "../component/MessageOverlay.h"
 #include "Action.h"
 #include "ActionRow.h"
@@ -41,10 +41,9 @@ public:
      * configures fonts and colours. Ready to be hosted in a terminal::ModalWindow
      * via Popup::show().
      *
-     * @param main    The main component used for size calculations; L&F inherited from this.
-     * @param engine  Lua engine for key lookup and patching. Must outlive the List.
+     * @param main  The main component used for size calculations; L&F inherited from this.
      */
-    List (juce::Component& main, lua::Engine& engine);
+    explicit List (juce::Component& main);
 
     /** @brief Destructor. Reloads Config if bindings were modified during the session. */
     ~List() override;
@@ -92,9 +91,6 @@ private:
 
     /** @brief Reference to the main component; used for size calculations. */
     juce::Component& main;
-
-    /** @brief Lua engine reference; used for key lookup and patching. */
-    lua::Engine& luaEngine;
 
     /** @brief ValueTree root holding ACTION nodes and binding state. */
     jam::Model state { "ACTION_LIST" };

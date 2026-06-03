@@ -1,4 +1,5 @@
 #include "Tokenizer.h"
+#include "../AppModel.h"
 
 namespace whelmed
 {
@@ -144,14 +145,14 @@ static LanguageDefinition getLanguageDefinition (const juce::String& language)
 juce::AttributedString tokenize (const juce::String& code,
                                   const juce::String& language)
 {
-    const auto* cfg { lua::Engine::getContext() };
+    const auto* appState { AppModel::getContext() };
 
     const juce::Font monoFont { juce::FontOptions()
-                                    .withName (cfg->whelmed.codeFamily)
-                                    .withPointHeight (cfg->whelmed.codeSize)
-                                    .withStyle (cfg->whelmed.codeStyle) };
+                                    .withName (appState->getValue<juce::String> (app::id::WHELMED_LUA, app::id::codeFamily))
+                                    .withPointHeight (appState->getValue<float> (app::id::WHELMED_LUA, app::id::codeSize))
+                                    .withStyle (appState->getValue<juce::String> (app::id::WHELMED_LUA, app::id::codeStyle)) };
 
-    const juce::Colour fallbackColour { cfg->whelmed.codeColour };
+    const juce::Colour fallbackColour { juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::WHELMED_LUA, app::id::codeColour))) };
 
     std::unique_ptr<juce::CodeTokeniser> tokeniser;
 
@@ -185,19 +186,20 @@ juce::AttributedString tokenize (const juce::String& code,
     }
     else
     {
+        const auto* appState { AppModel::getContext() };
         const juce::Colour tokenColours[]
         {
-            cfg->whelmed.tokenError,
-            cfg->whelmed.tokenComment,
-            cfg->whelmed.tokenKeyword,
-            cfg->whelmed.tokenOperator,
-            cfg->whelmed.tokenIdentifier,
-            cfg->whelmed.tokenInteger,
-            cfg->whelmed.tokenFloat,
-            cfg->whelmed.tokenString,
-            cfg->whelmed.tokenBracket,
-            cfg->whelmed.tokenPunctuation,
-            cfg->whelmed.tokenPreprocessor,
+            juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::WHELMED_LUA, app::id::tokenError))),
+            juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::WHELMED_LUA, app::id::tokenComment))),
+            juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::WHELMED_LUA, app::id::tokenKeyword))),
+            juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::WHELMED_LUA, app::id::tokenOperator))),
+            juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::WHELMED_LUA, app::id::tokenIdentifier))),
+            juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::WHELMED_LUA, app::id::tokenInteger))),
+            juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::WHELMED_LUA, app::id::tokenFloat))),
+            juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::WHELMED_LUA, app::id::tokenString))),
+            juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::WHELMED_LUA, app::id::tokenBracket))),
+            juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::WHELMED_LUA, app::id::tokenPunctuation))),
+            juce::Colour (static_cast<juce::uint32> (appState->getValue<int> (app::id::WHELMED_LUA, app::id::tokenPreprocessor))),
         };
 
         static constexpr int kTokenColourCount { 11 };

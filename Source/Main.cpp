@@ -52,7 +52,7 @@ ENDApplication::ENDApplication()
 {
     const auto probeResult { jam::GpuProbe::probe() };
     appState.setGpuAvailable (probeResult.isAvailable);
-    appState.setRendererType (lua::Engine::getContext()->nexus.gpu);
+    appState.setRendererType (appState.getValue<juce::String> (app::id::NEXUS_LUA, app::id::gpu));
 }
 
 //==============================================================================
@@ -84,8 +84,6 @@ void ENDApplication::initialise (const juce::String& commandLine)
     const auto args { getCommandLineParameterArray() };
     const int nexusFlagIndex { args.indexOf ("--nexus") };
     const bool isNexusFlag { nexusFlagIndex >= 0 };
-
-    const auto* cfg { lua::Engine::getContext() };
 
     if (isNexusFlag)
     {
@@ -168,7 +166,7 @@ void ENDApplication::initialise (const juce::String& commandLine)
             // ---- Headless daemon mode ----------------------------------------
             // nexusArg is the UUID.
             const juce::String daemonUuid { nexusArg.isNotEmpty() ? nexusArg : juce::Uuid().toString() };
-            appState.setInstanceUuid (daemonUuid);
+            appState.setInstanceID (daemonUuid);
             appState.load();
 
             // Ensure nexus/ directory exists before the server writes its port.
@@ -187,14 +185,15 @@ void ENDApplication::initialise (const juce::String& commandLine)
     }
     else
     {
-        const bool daemonEnabled { cfg->nexus.daemon };
+        const bool daemonEnabled { appState.getValue<int> (app::id::NEXUS_LUA, app::id::daemon) != 0 };
+        const bool saveSize { appState.getValue<int> (app::id::DISPLAY_LUA, app::id::windowSaveSize) != 0 };
 
         if (not daemonEnabled)
         {
             // ---- Single-process mode (nexus = false) --------------------
             // No daemon, no IPC.  Standalone persists only window size
             // via loadWindowState/saveWindowState (window.state).
-            if (cfg->display.window.saveSize)
+            if (saveSize)
                 appState.loadWindowState();
         }
 
@@ -202,34 +201,39 @@ void ENDApplication::initialise (const juce::String& commandLine)
         {
             // ---- Client mode (nexus = true, no --nexus flag) -------------
             const juce::String resolvedUuid { resolveNexusInstance() };
-            appState.setInstanceUuid (resolvedUuid);
+            appState.setInstanceID (resolvedUuid);
             appState.setDaemonMode (true);
 
             const bool hadState { appState.getStateFile().existsAsFile() };
             appState.load();
 
-            if (not hadState and cfg->display.window.saveSize)
+            if (not hadState and saveSize)
                 appState.loadWindowState();
         }
 
 #if JUCE_WINDOWS
         if (isWindows11() and appState.getRendererType() == app::RendererType::cpu)
         {
-            jam::BackgroundBlur::applyForceEffectRegistry (cfg->display.window.forceDwm);
+            jam::BackgroundBlur::applyForceEffectRegistry (appState.getValue<int> (app::id::DISPLAY_LUA, app::id::windowForceDwm) != 0);
         }
 #endif
 
-        auto* mainComponent { new MainComponent (luaEngine) };
+        auto* mainComponent { new MainComponent() };
         mainWindow.reset (new terminal::Window (
-            mainComponent, cfg->display.window.title, cfg->display.window.alwaysOnTop, cfg->display.window.buttons));
+            mainComponent,
+            appState.getValue<juce::String> (app::id::DISPLAY_LUA, app::id::windowTitle),
+            appState.getValue<int> (app::id::DISPLAY_LUA, app::id::windowAlwaysOnTop) != 0,
+            appState.getValue<int> (app::id::DISPLAY_LUA, app::id::windowButtons) != 0));
 
         mainWindow->setGlass (
-            cfg->display.window.colour.withAlpha (cfg->display.window.opacity), cfg->display.window.blurRadius);
+            juce::Colour (static_cast<juce::uint32> (appState.getValue<int> (app::id::DISPLAY_LUA, app::id::windowColour)))
+                .withAlpha (appState.getValue<float> (app::id::DISPLAY_LUA, app::id::windowOpacity)),
+            appState.getValue<int> (app::id::DISPLAY_LUA, app::id::windowBlurRadius));
 
-        // P: applyConfig fires here — after Window exists — so that
+        // P: registerActions fires here — after Window exists — so that
         // dynamic_cast<jam::Window*>(getTopLevelComponent()) inside
         // MainComponent::setRenderer succeeds.
-        mainComponent->applyConfig();
+        mainComponent->registerActions();
 
         // JUCE InterprocessConnection manages its own reader thread internally.
         // No startThread() call is needed.
@@ -281,7 +285,7 @@ void ENDApplication::systemRequestedQuit()
     //   exits via onAllSessionsExited after sessions are destroyed.
     if (mainWindow != nullptr)
     {
-        if (lua::Engine::getContext()->display.window.saveSize)
+        if (appState.getValue<int> (app::id::DISPLAY_LUA, app::id::windowSaveSize) != 0)
             appState.saveWindowState();
     }
 
@@ -364,7 +368,7 @@ juce::String ENDApplication::resolveNexusInstance()
             {
                 // Claim succeeded — keep the lock for the process lifetime.
                 clientLock = std::move (candidateLock);
-                appState.setInstanceUuid (candidateUuid);
+                appState.setInstanceID (candidateUuid);
                 appState.setValue (app::id::port, port);
                 resolvedUuid = candidateUuid;
             }

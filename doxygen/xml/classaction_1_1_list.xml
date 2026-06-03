@@ -19,7 +19,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/action/ActionList.h" line="66" column="19" bodyfile="terminal/action/ActionList.h" bodystart="66" bodyend="-1"/>
+        <location file="terminal/action/ActionList.h" line="65" column="19" bodyfile="terminal/action/ActionList.h" bodystart="65" bodyend="-1"/>
         <referencedby refid="classaction_1_1_list_1ad420634bf596882ff7baaddfbafb789c" compoundref="_action_list_selection_8cpp" startline="145" endline="169">executeSelected</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classaction_1_1_list_1a795614e610b4d7a0d8b7633438746cd9" prot="public" static="no" mutable="no">
@@ -35,8 +35,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/action/ActionList.h" line="69" column="19" bodyfile="terminal/action/ActionList.h" bodystart="69" bodyend="-1"/>
-        <referencedby refid="classaction_1_1_list_1ac904fdaee75d73bf19dfd39b1a9fd505" compoundref="_action_list_8cpp" startline="16" endline="80">List</referencedby>
+        <location file="terminal/action/ActionList.h" line="68" column="19" bodyfile="terminal/action/ActionList.h" bodystart="68" bodyend="-1"/>
+        <referencedby refid="classaction_1_1_list_1ad522a1f35a36a45d33fa1624b644a9ee" compoundref="_action_list_8cpp" startline="16" endline="81">List</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="private-static-attrib">
@@ -54,8 +54,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/action/ActionList.h" line="73" column="26" bodyfile="terminal/action/ActionList.h" bodystart="73" bodyend="73"/>
-        <referencedby refid="classaction_1_1_list_1ac904fdaee75d73bf19dfd39b1a9fd505" compoundref="_action_list_8cpp" startline="16" endline="80">List</referencedby>
+        <location file="terminal/action/ActionList.h" line="72" column="26" bodyfile="terminal/action/ActionList.h" bodystart="72" bodyend="72"/>
+        <referencedby refid="classaction_1_1_list_1ad522a1f35a36a45d33fa1624b644a9ee" compoundref="_action_list_8cpp" startline="16" endline="81">List</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classaction_1_1_list_1afb83a3130eb0b47542682ef045af0a2e" prot="private" static="yes" constexpr="yes" mutable="no">
         <type>int</type>
@@ -71,8 +71,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/action/ActionList.h" line="76" column="26" bodyfile="terminal/action/ActionList.h" bodystart="76" bodyend="76"/>
-        <referencedby refid="classaction_1_1_list_1ac904fdaee75d73bf19dfd39b1a9fd505" compoundref="_action_list_8cpp" startline="16" endline="80">List</referencedby>
+        <location file="terminal/action/ActionList.h" line="75" column="26" bodyfile="terminal/action/ActionList.h" bodystart="75" bodyend="75"/>
+        <referencedby refid="classaction_1_1_list_1ad522a1f35a36a45d33fa1624b644a9ee" compoundref="_action_list_8cpp" startline="16" endline="81">List</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classaction_1_1_list_1ab8f2ffeb364e659dfb0bbd61f5001767" prot="private" static="yes" constexpr="yes" mutable="no">
         <type>int</type>
@@ -88,9 +88,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/action/ActionList.h" line="79" column="26" bodyfile="terminal/action/ActionList.h" bodystart="79" bodyend="79"/>
+        <location file="terminal/action/ActionList.h" line="78" column="26" bodyfile="terminal/action/ActionList.h" bodystart="78" bodyend="78"/>
         <referencedby refid="classaction_1_1_list_1a69e450581397474ba019c577eea17c99" compoundref="_action_list_selection_8cpp" startline="62" endline="80">layoutRows</referencedby>
-        <referencedby refid="classaction_1_1_list_1af361864cf6f79fe4c2d7f4796a449cb0" compoundref="_action_list_8cpp" startline="255" endline="270">resized</referencedby>
+        <referencedby refid="classaction_1_1_list_1af361864cf6f79fe4c2d7f4796a449cb0" compoundref="_action_list_8cpp" startline="258" endline="273">resized</referencedby>
         <referencedby refid="classaction_1_1_list_1abd4afa5a9397c5506019c7fed3fdaadd" compoundref="_action_list_selection_8cpp" startline="115" endline="142">selectRow</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classaction_1_1_list_1a712cf8d747c9979782c2aff186cdfde9" prot="private" static="yes" constexpr="yes" mutable="no">
@@ -107,7 +107,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/action/ActionList.h" line="82" column="26" bodyfile="terminal/action/ActionList.h" bodystart="82" bodyend="82"/>
+        <location file="terminal/action/ActionList.h" line="81" column="26" bodyfile="terminal/action/ActionList.h" bodystart="81" bodyend="81"/>
         <referencedby refid="classaction_1_1_list_1a69e450581397474ba019c577eea17c99" compoundref="_action_list_selection_8cpp" startline="62" endline="80">layoutRows</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classaction_1_1_list_1aa712ed24e12e8c5fb9eb751c9523f030" prot="private" static="yes" constexpr="yes" mutable="no">
@@ -124,7 +124,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/action/ActionList.h" line="85" column="26" bodyfile="terminal/action/ActionList.h" bodystart="85" bodyend="85"/>
+        <location file="terminal/action/ActionList.h" line="84" column="26" bodyfile="terminal/action/ActionList.h" bodystart="84" bodyend="84"/>
         <referencedby refid="classaction_1_1_list_1a2e60fd62b64589dd3781863a017a38f2" compoundref="_action_list_binding_8cpp" startline="47" endline="56">enterBindingMode</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classaction_1_1_list_1aaba3b30a29908d26894870dca20df3ac" prot="private" static="yes" mutable="no">
@@ -141,9 +141,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/action/ActionList.h" line="88" column="35" bodyfile="terminal/action/ActionList.h" bodystart="88" bodyend="-1"/>
+        <location file="terminal/action/ActionList.h" line="87" column="35" bodyfile="terminal/action/ActionList.h" bodystart="87" bodyend="-1"/>
         <referencedby refid="classaction_1_1_list_1a456c4f33540b4bd3a0b1abce8cae0f0a" compoundref="_action_list_binding_8cpp" startline="42" endline="42">getBindingRowIndex</referencedby>
-        <referencedby refid="classaction_1_1_list_1ac904fdaee75d73bf19dfd39b1a9fd505" compoundref="_action_list_8cpp" startline="16" endline="80">List</referencedby>
+        <referencedby refid="classaction_1_1_list_1ad522a1f35a36a45d33fa1624b644a9ee" compoundref="_action_list_8cpp" startline="16" endline="81">List</referencedby>
         <referencedby refid="classaction_1_1_list_1a79b74d75ec650cd55175a434d271fff7" compoundref="_action_list_binding_8cpp" startline="44" endline="44">setBindingRowIndex</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classaction_1_1_list_1a81499b3f1e50002faadd3732ec3426e2" prot="private" static="yes" mutable="no">
@@ -160,11 +160,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/action/ActionList.h" line="91" column="35" bodyfile="terminal/action/ActionList.h" bodystart="91" bodyend="-1"/>
+        <location file="terminal/action/ActionList.h" line="90" column="35" bodyfile="terminal/action/ActionList.h" bodystart="90" bodyend="-1"/>
         <referencedby refid="classaction_1_1_list_1abe57586e11e4578ac4b80e40ffc4bc68" compoundref="_action_list_binding_8cpp" startline="65" endline="104">handleBindingKey</referencedby>
-        <referencedby refid="classaction_1_1_list_1ac904fdaee75d73bf19dfd39b1a9fd505" compoundref="_action_list_8cpp" startline="16" endline="80">List</referencedby>
+        <referencedby refid="classaction_1_1_list_1ad522a1f35a36a45d33fa1624b644a9ee" compoundref="_action_list_8cpp" startline="16" endline="81">List</referencedby>
         <referencedby refid="classaction_1_1_list_1a74b96153c61861b113fa669f7286628d" compoundref="_action_list_binding_8cpp" startline="13" endline="39">valueTreePropertyChanged</referencedby>
-        <referencedby refid="classaction_1_1_list_1adcbb2e7fb9cc2115de5c1c85e1630ac5" compoundref="_action_list_8cpp" startline="82" endline="93">~List</referencedby>
+        <referencedby refid="classaction_1_1_list_1adcbb2e7fb9cc2115de5c1c85e1630ac5" compoundref="_action_list_8cpp" startline="83" endline="94">~List</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="private-attrib">
@@ -181,28 +181,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/action/ActionList.h" line="94" column="21" bodyfile="terminal/action/ActionList.h" bodystart="94" bodyend="-1"/>
-        <referencedby refid="classaction_1_1_list_1ac904fdaee75d73bf19dfd39b1a9fd505" compoundref="_action_list_8cpp" startline="16" endline="80">List</referencedby>
-      </memberdef>
-      <memberdef kind="variable" id="classaction_1_1_list_1a82b8c115f7d164f8c39d7ca142f513fd" prot="private" static="no" mutable="no">
-        <type><ref refid="classlua_1_1_engine" kindref="compound">lua::Engine</ref> &amp;</type>
-        <definition>lua::Engine&amp; action::List::luaEngine</definition>
-        <argsstring></argsstring>
-        <name>luaEngine</name>
-        <qualifiedname>action::List::luaEngine</qualifiedname>
-        <briefdescription>
-<para>Lua engine reference; used for key lookup and patching. </para>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="terminal/action/ActionList.h" line="97" column="17" bodyfile="terminal/action/ActionList.h" bodystart="97" bodyend="-1"/>
-        <referencedby refid="classaction_1_1_list_1ab1563b5c6c86287d88a50b7230c157bd" compoundref="_action_list_8cpp" startline="141" endline="252">buildRows</referencedby>
-        <referencedby refid="classaction_1_1_list_1abe57586e11e4578ac4b80e40ffc4bc68" compoundref="_action_list_binding_8cpp" startline="65" endline="104">handleBindingKey</referencedby>
-        <referencedby refid="classaction_1_1_list_1ac904fdaee75d73bf19dfd39b1a9fd505" compoundref="_action_list_8cpp" startline="16" endline="80">List</referencedby>
-        <referencedby refid="classaction_1_1_list_1a74b96153c61861b113fa669f7286628d" compoundref="_action_list_binding_8cpp" startline="13" endline="39">valueTreePropertyChanged</referencedby>
-        <referencedby refid="classaction_1_1_list_1adcbb2e7fb9cc2115de5c1c85e1630ac5" compoundref="_action_list_8cpp" startline="82" endline="93">~List</referencedby>
+        <location file="terminal/action/ActionList.h" line="93" column="21" bodyfile="terminal/action/ActionList.h" bodystart="93" bodyend="-1"/>
+        <referencedby refid="classaction_1_1_list_1ad522a1f35a36a45d33fa1624b644a9ee" compoundref="_action_list_8cpp" startline="16" endline="81">List</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classaction_1_1_list_1a6a16a0291186b5a4c83ee03f0520d160" prot="private" static="no" mutable="no">
         <type><ref refid="classjam_1_1_model" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Model</ref></type>
@@ -218,14 +198,14 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/action/ActionList.h" line="100" column="16" bodyfile="terminal/action/ActionList.h" bodystart="100" bodyend="100"/>
-        <referencedby refid="classaction_1_1_list_1ab1563b5c6c86287d88a50b7230c157bd" compoundref="_action_list_8cpp" startline="141" endline="252">buildRows</referencedby>
+        <location file="terminal/action/ActionList.h" line="96" column="16" bodyfile="terminal/action/ActionList.h" bodystart="96" bodyend="96"/>
+        <referencedby refid="classaction_1_1_list_1ab1563b5c6c86287d88a50b7230c157bd" compoundref="_action_list_8cpp" startline="144" endline="255">buildRows</referencedby>
         <referencedby refid="classaction_1_1_list_1a456c4f33540b4bd3a0b1abce8cae0f0a" compoundref="_action_list_binding_8cpp" startline="42" endline="42">getBindingRowIndex</referencedby>
         <referencedby refid="classaction_1_1_list_1abe57586e11e4578ac4b80e40ffc4bc68" compoundref="_action_list_binding_8cpp" startline="65" endline="104">handleBindingKey</referencedby>
-        <referencedby refid="classaction_1_1_list_1ac904fdaee75d73bf19dfd39b1a9fd505" compoundref="_action_list_8cpp" startline="16" endline="80">List</referencedby>
+        <referencedby refid="classaction_1_1_list_1ad522a1f35a36a45d33fa1624b644a9ee" compoundref="_action_list_8cpp" startline="16" endline="81">List</referencedby>
         <referencedby refid="classaction_1_1_list_1a79b74d75ec650cd55175a434d271fff7" compoundref="_action_list_binding_8cpp" startline="44" endline="44">setBindingRowIndex</referencedby>
         <referencedby refid="classaction_1_1_list_1a74b96153c61861b113fa669f7286628d" compoundref="_action_list_binding_8cpp" startline="13" endline="39">valueTreePropertyChanged</referencedby>
-        <referencedby refid="classaction_1_1_list_1adcbb2e7fb9cc2115de5c1c85e1630ac5" compoundref="_action_list_8cpp" startline="82" endline="93">~List</referencedby>
+        <referencedby refid="classaction_1_1_list_1adcbb2e7fb9cc2115de5c1c85e1630ac5" compoundref="_action_list_8cpp" startline="83" endline="94">~List</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classaction_1_1_list_1ab5068c55ae4e70e344e86228b99530f2" prot="private" static="no" mutable="no">
         <type>juce::Viewport</type>
@@ -240,10 +220,10 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/action/ActionList.h" line="103" column="20" bodyfile="terminal/action/ActionList.h" bodystart="103" bodyend="-1"/>
+        <location file="terminal/action/ActionList.h" line="99" column="20" bodyfile="terminal/action/ActionList.h" bodystart="99" bodyend="-1"/>
         <referencedby refid="classaction_1_1_list_1a69e450581397474ba019c577eea17c99" compoundref="_action_list_selection_8cpp" startline="62" endline="80">layoutRows</referencedby>
-        <referencedby refid="classaction_1_1_list_1ac904fdaee75d73bf19dfd39b1a9fd505" compoundref="_action_list_8cpp" startline="16" endline="80">List</referencedby>
-        <referencedby refid="classaction_1_1_list_1af361864cf6f79fe4c2d7f4796a449cb0" compoundref="_action_list_8cpp" startline="255" endline="270">resized</referencedby>
+        <referencedby refid="classaction_1_1_list_1ad522a1f35a36a45d33fa1624b644a9ee" compoundref="_action_list_8cpp" startline="16" endline="81">List</referencedby>
+        <referencedby refid="classaction_1_1_list_1af361864cf6f79fe4c2d7f4796a449cb0" compoundref="_action_list_8cpp" startline="258" endline="273">resized</referencedby>
         <referencedby refid="classaction_1_1_list_1abd4afa5a9397c5506019c7fed3fdaadd" compoundref="_action_list_selection_8cpp" startline="115" endline="142">selectRow</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classaction_1_1_list_1ac612680009dbd29fcc48afa44e0c852c" prot="private" static="no" mutable="no">
@@ -259,10 +239,10 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/action/ActionList.h" line="106" column="21" bodyfile="terminal/action/ActionList.h" bodystart="106" bodyend="-1"/>
-        <referencedby refid="classaction_1_1_list_1ab1563b5c6c86287d88a50b7230c157bd" compoundref="_action_list_8cpp" startline="141" endline="252">buildRows</referencedby>
+        <location file="terminal/action/ActionList.h" line="102" column="21" bodyfile="terminal/action/ActionList.h" bodystart="102" bodyend="-1"/>
+        <referencedby refid="classaction_1_1_list_1ab1563b5c6c86287d88a50b7230c157bd" compoundref="_action_list_8cpp" startline="144" endline="255">buildRows</referencedby>
         <referencedby refid="classaction_1_1_list_1a69e450581397474ba019c577eea17c99" compoundref="_action_list_selection_8cpp" startline="62" endline="80">layoutRows</referencedby>
-        <referencedby refid="classaction_1_1_list_1ac904fdaee75d73bf19dfd39b1a9fd505" compoundref="_action_list_8cpp" startline="16" endline="80">List</referencedby>
+        <referencedby refid="classaction_1_1_list_1ad522a1f35a36a45d33fa1624b644a9ee" compoundref="_action_list_8cpp" startline="16" endline="81">List</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classaction_1_1_list_1ae5c0332610df26c061b21ac5fa51cab6" prot="private" static="no" mutable="no">
         <type><ref refid="classjam_1_1_owner" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Owner</ref>&lt; <ref refid="classaction_1_1_row" kindref="compound">action::Row</ref> &gt;</type>
@@ -277,16 +257,16 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/action/ActionList.h" line="109" column="16" bodyfile="terminal/action/ActionList.h" bodystart="109" bodyend="-1"/>
-        <referencedby refid="classaction_1_1_list_1ab1563b5c6c86287d88a50b7230c157bd" compoundref="_action_list_8cpp" startline="141" endline="252">buildRows</referencedby>
+        <location file="terminal/action/ActionList.h" line="105" column="16" bodyfile="terminal/action/ActionList.h" bodystart="105" bodyend="-1"/>
+        <referencedby refid="classaction_1_1_list_1ab1563b5c6c86287d88a50b7230c157bd" compoundref="_action_list_8cpp" startline="144" endline="255">buildRows</referencedby>
         <referencedby refid="classaction_1_1_list_1ad420634bf596882ff7baaddfbafb789c" compoundref="_action_list_selection_8cpp" startline="145" endline="169">executeSelected</referencedby>
         <referencedby refid="classaction_1_1_list_1a954dd770507b08b6920f82c93ea5c253" compoundref="_action_list_selection_8cpp" startline="13" endline="59">filterRows</referencedby>
         <referencedby refid="classaction_1_1_list_1a57210249001fc1c50c7c74358f3de47f" compoundref="_action_list_selection_8cpp" startline="83" endline="112">findSelectableRow</referencedby>
         <referencedby refid="classaction_1_1_list_1ac8d431d3d916d30598ccac6335aa8f2c" compoundref="_action_list_selection_8cpp" startline="187" endline="198">getSelectedIndex</referencedby>
         <referencedby refid="classaction_1_1_list_1abe57586e11e4578ac4b80e40ffc4bc68" compoundref="_action_list_binding_8cpp" startline="65" endline="104">handleBindingKey</referencedby>
         <referencedby refid="classaction_1_1_list_1a69e450581397474ba019c577eea17c99" compoundref="_action_list_selection_8cpp" startline="62" endline="80">layoutRows</referencedby>
-        <referencedby refid="classaction_1_1_list_1ac904fdaee75d73bf19dfd39b1a9fd505" compoundref="_action_list_8cpp" startline="16" endline="80">List</referencedby>
-        <referencedby refid="classaction_1_1_list_1af361864cf6f79fe4c2d7f4796a449cb0" compoundref="_action_list_8cpp" startline="255" endline="270">resized</referencedby>
+        <referencedby refid="classaction_1_1_list_1ad522a1f35a36a45d33fa1624b644a9ee" compoundref="_action_list_8cpp" startline="16" endline="81">List</referencedby>
+        <referencedby refid="classaction_1_1_list_1af361864cf6f79fe4c2d7f4796a449cb0" compoundref="_action_list_8cpp" startline="258" endline="273">resized</referencedby>
         <referencedby refid="classaction_1_1_list_1abd4afa5a9397c5506019c7fed3fdaadd" compoundref="_action_list_selection_8cpp" startline="115" endline="142">selectRow</referencedby>
         <referencedby refid="classaction_1_1_list_1a74b96153c61861b113fa669f7286628d" compoundref="_action_list_binding_8cpp" startline="13" endline="39">valueTreePropertyChanged</referencedby>
         <referencedby refid="classaction_1_1_list_1a84d41756db2ccc78e32106a519de9931" compoundref="_action_list_selection_8cpp" startline="172" endline="184">visibleRowCount</referencedby>
@@ -305,11 +285,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/action/ActionList.h" line="112" column="20" bodyfile="terminal/action/ActionList.h" bodystart="112" bodyend="-1"/>
+        <location file="terminal/action/ActionList.h" line="108" column="20" bodyfile="terminal/action/ActionList.h" bodystart="108" bodyend="-1"/>
         <referencedby refid="classaction_1_1_list_1a2e60fd62b64589dd3781863a017a38f2" compoundref="_action_list_binding_8cpp" startline="47" endline="56">enterBindingMode</referencedby>
         <referencedby refid="classaction_1_1_list_1a599124b91aef9fffa4c27d04f4cd344d" compoundref="_action_list_binding_8cpp" startline="58" endline="63">exitBindingMode</referencedby>
-        <referencedby refid="classaction_1_1_list_1ac904fdaee75d73bf19dfd39b1a9fd505" compoundref="_action_list_8cpp" startline="16" endline="80">List</referencedby>
-        <referencedby refid="classaction_1_1_list_1af361864cf6f79fe4c2d7f4796a449cb0" compoundref="_action_list_8cpp" startline="255" endline="270">resized</referencedby>
+        <referencedby refid="classaction_1_1_list_1ad522a1f35a36a45d33fa1624b644a9ee" compoundref="_action_list_8cpp" startline="16" endline="81">List</referencedby>
+        <referencedby refid="classaction_1_1_list_1af361864cf6f79fe4c2d7f4796a449cb0" compoundref="_action_list_8cpp" startline="258" endline="273">resized</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classaction_1_1_list_1a288a62bad2e63febffce810c4cb4136d" prot="private" static="no" mutable="no">
         <type>std::optional&lt; <ref refid="classaction_1_1_key_handler" kindref="compound">KeyHandler</ref> &gt;</type>
@@ -324,25 +304,21 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/action/ActionList.h" line="115" column="19" bodyfile="terminal/action/ActionList.h" bodystart="115" bodyend="-1"/>
-        <referencedby refid="classaction_1_1_list_1afc9326beb35569e3f90b35959451771c" compoundref="_action_list_8cpp" startline="273" endline="287">keyPressed</referencedby>
-        <referencedby refid="classaction_1_1_list_1ac904fdaee75d73bf19dfd39b1a9fd505" compoundref="_action_list_8cpp" startline="16" endline="80">List</referencedby>
+        <location file="terminal/action/ActionList.h" line="111" column="19" bodyfile="terminal/action/ActionList.h" bodystart="111" bodyend="-1"/>
+        <referencedby refid="classaction_1_1_list_1afc9326beb35569e3f90b35959451771c" compoundref="_action_list_8cpp" startline="276" endline="290">keyPressed</referencedby>
+        <referencedby refid="classaction_1_1_list_1ad522a1f35a36a45d33fa1624b644a9ee" compoundref="_action_list_8cpp" startline="16" endline="81">List</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">
-      <memberdef kind="function" id="classaction_1_1_list_1ac904fdaee75d73bf19dfd39b1a9fd505" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+      <memberdef kind="function" id="classaction_1_1_list_1ad522a1f35a36a45d33fa1624b644a9ee" prot="public" static="no" const="no" explicit="yes" inline="no" virt="non-virtual">
         <type></type>
         <definition>action::List::List</definition>
-        <argsstring>(juce::Component &amp;main, lua::Engine &amp;engine)</argsstring>
+        <argsstring>(juce::Component &amp;main)</argsstring>
         <name>List</name>
         <qualifiedname>action::List::List</qualifiedname>
         <param>
           <type>juce::Component &amp;</type>
           <declname>main</declname>
-        </param>
-        <param>
-          <type><ref refid="classlua_1_1_engine" kindref="compound">lua::Engine</ref> &amp;</type>
-          <declname>engine</declname>
         </param>
         <briefdescription>
 <para>Constructs the command palette and builds all action rows from <ref refid="classaction_1_1_registry" kindref="compound">Registry</ref>. </para>
@@ -357,40 +333,38 @@
 <para>The main component used for size calculations; L&amp;F inherited from this. </para>
 </parameterdescription>
 </parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>engine</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>Lua engine for key lookup and patching. Must outlive the <ref refid="classaction_1_1_list" kindref="compound">List</ref>. </para>
-</parameterdescription>
-</parameteritem>
 </parameterlist>
 </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/action/ActionList.h" line="47" column="5" bodyfile="terminal/action/ActionList.cpp" bodystart="16" bodyend="80"/>
-        <references refid="classaction_1_1_list_1aaba3b30a29908d26894870dca20df3ac" compoundref="_action_list_8h" startline="88">bindingRowIndexId</references>
-        <references refid="classaction_1_1_list_1a81499b3f1e50002faadd3732ec3426e2" compoundref="_action_list_8h" startline="91">bindingsDirtyId</references>
-        <references refid="classaction_1_1_list_1ab1563b5c6c86287d88a50b7230c157bd" compoundref="_action_list_8cpp" startline="141" endline="252">buildRows</references>
+        <location file="terminal/action/ActionList.h" line="46" column="14" bodyfile="terminal/action/ActionList.cpp" bodystart="16" bodyend="81"/>
+        <references refid="namespaceapp_1_1id_1a682fa9bf0988cf9d93fbcbb9c917247d" compoundref="_app_identifier_8h" startline="259" endline="259">app::id::actionListHeight</references>
+        <references refid="namespaceapp_1_1id_1a933f830f0486128f43838da4ff8e038c" compoundref="_app_identifier_8h" startline="254" endline="254">app::id::actionListPaddingBottom</references>
+        <references refid="namespaceapp_1_1id_1a0444aeadd2b085b73cabe9b02665e906" compoundref="_app_identifier_8h" startline="255" endline="255">app::id::actionListPaddingLeft</references>
+        <references refid="namespaceapp_1_1id_1a10c4004d2f1bdb33f4797b5da79b49d9" compoundref="_app_identifier_8h" startline="253" endline="253">app::id::actionListPaddingRight</references>
+        <references refid="namespaceapp_1_1id_1aac2aa092d24a3de6ae6b49b269f4d887" compoundref="_app_identifier_8h" startline="252" endline="252">app::id::actionListPaddingTop</references>
+        <references refid="namespaceapp_1_1id_1ac95773a33e9ba0ae3d7673f712f6128c" compoundref="_app_identifier_8h" startline="258" endline="258">app::id::actionListWidth</references>
+        <references refid="classaction_1_1_list_1aaba3b30a29908d26894870dca20df3ac" compoundref="_action_list_8h" startline="87">bindingRowIndexId</references>
+        <references refid="classaction_1_1_list_1a81499b3f1e50002faadd3732ec3426e2" compoundref="_action_list_8h" startline="90">bindingsDirtyId</references>
+        <references refid="classaction_1_1_list_1ab1563b5c6c86287d88a50b7230c157bd" compoundref="_action_list_8cpp" startline="144" endline="255">buildRows</references>
+        <references refid="namespaceapp_1_1id_1a24815b9015e0395936a1718769739fff" compoundref="_app_identifier_8h" startline="80" endline="80">app::id::DISPLAY_LUA</references>
         <references refid="classaction_1_1_list_1a2e60fd62b64589dd3781863a017a38f2" compoundref="_action_list_binding_8cpp" startline="47" endline="56">enterBindingMode</references>
         <references refid="classaction_1_1_list_1ad420634bf596882ff7baaddfbafb789c" compoundref="_action_list_selection_8cpp" startline="145" endline="169">executeSelected</references>
-        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
         <references refid="classaction_1_1_list_1ac8d431d3d916d30598ccac6335aa8f2c" compoundref="_action_list_selection_8cpp" startline="187" endline="198">getSelectedIndex</references>
-        <references refid="classaction_1_1_list_1a288a62bad2e63febffce810c4cb4136d" compoundref="_action_list_8h" startline="115">keyHandler</references>
-        <references refid="classaction_1_1_list_1a82b8c115f7d164f8c39d7ca142f513fd" compoundref="_action_list_8h" startline="97">luaEngine</references>
-        <references refid="classaction_1_1_list_1a2b71f48bc3fbd033acbd8ad49a975620" compoundref="_action_list_8h" startline="94">main</references>
-        <references refid="classaction_1_1_list_1a5812fe7adee91b066c0050fdb3116139" compoundref="_action_list_8h" startline="112">messageOverlay</references>
-        <references refid="classaction_1_1_list_1afb83a3130eb0b47542682ef045af0a2e" compoundref="_action_list_8h" startline="76" endline="76">minimumHeight</references>
-        <references refid="classaction_1_1_list_1a9698853cee7d94c4c3bedbb69c2c8e23" compoundref="_action_list_8h" startline="73" endline="73">minimumWidth</references>
-        <references refid="classaction_1_1_list_1a795614e610b4d7a0d8b7633438746cd9" compoundref="_action_list_8h" startline="69">onDismiss</references>
-        <references refid="classaction_1_1_list_1ac612680009dbd29fcc48afa44e0c852c" compoundref="_action_list_8h" startline="106">rowContainer</references>
-        <references refid="classaction_1_1_list_1ae5c0332610df26c061b21ac5fa51cab6" compoundref="_action_list_8h" startline="109">rows</references>
+        <references refid="classaction_1_1_list_1a288a62bad2e63febffce810c4cb4136d" compoundref="_action_list_8h" startline="111">keyHandler</references>
+        <references refid="classaction_1_1_list_1a2b71f48bc3fbd033acbd8ad49a975620" compoundref="_action_list_8h" startline="93">main</references>
+        <references refid="classaction_1_1_list_1a5812fe7adee91b066c0050fdb3116139" compoundref="_action_list_8h" startline="108">messageOverlay</references>
+        <references refid="classaction_1_1_list_1afb83a3130eb0b47542682ef045af0a2e" compoundref="_action_list_8h" startline="75" endline="75">minimumHeight</references>
+        <references refid="classaction_1_1_list_1a9698853cee7d94c4c3bedbb69c2c8e23" compoundref="_action_list_8h" startline="72" endline="72">minimumWidth</references>
+        <references refid="classaction_1_1_list_1a795614e610b4d7a0d8b7633438746cd9" compoundref="_action_list_8h" startline="68">onDismiss</references>
+        <references refid="classaction_1_1_list_1ac612680009dbd29fcc48afa44e0c852c" compoundref="_action_list_8h" startline="102">rowContainer</references>
+        <references refid="classaction_1_1_list_1ae5c0332610df26c061b21ac5fa51cab6" compoundref="_action_list_8h" startline="105">rows</references>
         <references refid="classaction_1_1_list_1abd4afa5a9397c5506019c7fed3fdaadd" compoundref="_action_list_selection_8cpp" startline="115" endline="142">selectRow</references>
-        <references refid="classaction_1_1_list_1a6a16a0291186b5a4c83ee03f0520d160" compoundref="_action_list_8h" startline="100" endline="100">state</references>
+        <references refid="classaction_1_1_list_1a6a16a0291186b5a4c83ee03f0520d160" compoundref="_action_list_8h" startline="96" endline="96">state</references>
         <references refid="namespacejam_1ad5845c19b61166ff0092ec1b8beb9d49">jam::toInt</references>
-        <references refid="classaction_1_1_list_1ab5068c55ae4e70e344e86228b99530f2" compoundref="_action_list_8h" startline="103">viewport</references>
+        <references refid="classaction_1_1_list_1ab5068c55ae4e70e344e86228b99530f2" compoundref="_action_list_8h" startline="99">viewport</references>
         <references refid="classaction_1_1_list_1a84d41756db2ccc78e32106a519de9931" compoundref="_action_list_selection_8cpp" startline="172" endline="184">visibleRowCount</references>
       </memberdef>
       <memberdef kind="function" id="classaction_1_1_list_1adcbb2e7fb9cc2115de5c1c85e1630ac5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -407,11 +381,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/action/ActionList.h" line="50" column="5" bodyfile="terminal/action/ActionList.cpp" bodystart="82" bodyend="93"/>
-        <references refid="classaction_1_1_list_1a81499b3f1e50002faadd3732ec3426e2" compoundref="_action_list_8h" startline="91">bindingsDirtyId</references>
+        <location file="terminal/action/ActionList.h" line="49" column="5" bodyfile="terminal/action/ActionList.cpp" bodystart="83" bodyend="94"/>
+        <references refid="classaction_1_1_list_1a81499b3f1e50002faadd3732ec3426e2" compoundref="_action_list_8h" startline="90">bindingsDirtyId</references>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Registry &gt;::getContext</references>
-        <references refid="classaction_1_1_list_1a82b8c115f7d164f8c39d7ca142f513fd" compoundref="_action_list_8h" startline="97">luaEngine</references>
-        <references refid="classaction_1_1_list_1a6a16a0291186b5a4c83ee03f0520d160" compoundref="_action_list_8h" startline="100" endline="100">state</references>
+        <references refid="classaction_1_1_list_1a6a16a0291186b5a4c83ee03f0520d160" compoundref="_action_list_8h" startline="96" endline="96">state</references>
       </memberdef>
       <memberdef kind="function" id="classaction_1_1_list_1afc9326beb35569e3f90b35959451771c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>bool</type>
@@ -443,10 +417,10 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/action/ActionList.h" line="60" column="10" bodyfile="terminal/action/ActionList.cpp" bodystart="273" bodyend="287"/>
+        <location file="terminal/action/ActionList.h" line="59" column="10" bodyfile="terminal/action/ActionList.cpp" bodystart="276" bodyend="290"/>
         <references refid="classaction_1_1_list_1a456c4f33540b4bd3a0b1abce8cae0f0a" compoundref="_action_list_binding_8cpp" startline="42" endline="42">getBindingRowIndex</references>
         <references refid="classaction_1_1_list_1abe57586e11e4578ac4b80e40ffc4bc68" compoundref="_action_list_binding_8cpp" startline="65" endline="104">handleBindingKey</references>
-        <references refid="classaction_1_1_list_1a288a62bad2e63febffce810c4cb4136d" compoundref="_action_list_8h" startline="115">keyHandler</references>
+        <references refid="classaction_1_1_list_1a288a62bad2e63febffce810c4cb4136d" compoundref="_action_list_8h" startline="111">keyHandler</references>
       </memberdef>
       <memberdef kind="function" id="classaction_1_1_list_1af361864cf6f79fe4c2d7f4796a449cb0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -461,13 +435,18 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/action/ActionList.h" line="63" column="10" bodyfile="terminal/action/ActionList.cpp" bodystart="255" bodyend="270"/>
-        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
+        <location file="terminal/action/ActionList.h" line="62" column="10" bodyfile="terminal/action/ActionList.cpp" bodystart="258" bodyend="273"/>
+        <references refid="namespaceapp_1_1id_1a933f830f0486128f43838da4ff8e038c" compoundref="_app_identifier_8h" startline="254" endline="254">app::id::actionListPaddingBottom</references>
+        <references refid="namespaceapp_1_1id_1a0444aeadd2b085b73cabe9b02665e906" compoundref="_app_identifier_8h" startline="255" endline="255">app::id::actionListPaddingLeft</references>
+        <references refid="namespaceapp_1_1id_1a10c4004d2f1bdb33f4797b5da79b49d9" compoundref="_app_identifier_8h" startline="253" endline="253">app::id::actionListPaddingRight</references>
+        <references refid="namespaceapp_1_1id_1aac2aa092d24a3de6ae6b49b269f4d887" compoundref="_app_identifier_8h" startline="252" endline="252">app::id::actionListPaddingTop</references>
+        <references refid="namespaceapp_1_1id_1a24815b9015e0395936a1718769739fff" compoundref="_app_identifier_8h" startline="80" endline="80">app::id::DISPLAY_LUA</references>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
         <references refid="classaction_1_1_list_1a69e450581397474ba019c577eea17c99" compoundref="_action_list_selection_8cpp" startline="62" endline="80">layoutRows</references>
-        <references refid="classaction_1_1_list_1a5812fe7adee91b066c0050fdb3116139" compoundref="_action_list_8h" startline="112">messageOverlay</references>
-        <references refid="classaction_1_1_list_1ab8f2ffeb364e659dfb0bbd61f5001767" compoundref="_action_list_8h" startline="79" endline="79">rowHeight</references>
-        <references refid="classaction_1_1_list_1ae5c0332610df26c061b21ac5fa51cab6" compoundref="_action_list_8h" startline="109">rows</references>
-        <references refid="classaction_1_1_list_1ab5068c55ae4e70e344e86228b99530f2" compoundref="_action_list_8h" startline="103">viewport</references>
+        <references refid="classaction_1_1_list_1a5812fe7adee91b066c0050fdb3116139" compoundref="_action_list_8h" startline="108">messageOverlay</references>
+        <references refid="classaction_1_1_list_1ab8f2ffeb364e659dfb0bbd61f5001767" compoundref="_action_list_8h" startline="78" endline="78">rowHeight</references>
+        <references refid="classaction_1_1_list_1ae5c0332610df26c061b21ac5fa51cab6" compoundref="_action_list_8h" startline="105">rows</references>
+        <references refid="classaction_1_1_list_1ab5068c55ae4e70e344e86228b99530f2" compoundref="_action_list_8h" startline="99">viewport</references>
       </memberdef>
     </sectiondef>
     <sectiondef kind="private-func">
@@ -485,27 +464,27 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/action/ActionList.h" line="122" column="10" bodyfile="terminal/action/ActionList.cpp" bodystart="141" bodyend="252"/>
+        <location file="terminal/action/ActionList.h" line="118" column="10" bodyfile="terminal/action/ActionList.cpp" bodystart="144" bodyend="255"/>
         <references refid="classjam_1_1_model_1a453ba02a04d3f7afd493d83a35f2d42e">jam::Model::attach</references>
-        <references refid="classaction_1_1_list_1ac74ca905978b6d98fb5876508df72aff" compoundref="_action_list_8cpp" startline="127" endline="138">configureActionRow</references>
-        <references refid="classaction_1_1_list_1a86f3b32fb6373c6984c8cdea28fdf66d" compoundref="_action_list_8cpp" startline="102" endline="124">configureSearchBox</references>
+        <references refid="classaction_1_1_list_1ac74ca905978b6d98fb5876508df72aff" compoundref="_action_list_8cpp" startline="130" endline="141">configureActionRow</references>
+        <references refid="classaction_1_1_list_1a86f3b32fb6373c6984c8cdea28fdf66d" compoundref="_action_list_8cpp" startline="103" endline="127">configureSearchBox</references>
         <references refid="classaction_1_1_list_1a954dd770507b08b6920f82c93ea5c253" compoundref="_action_list_selection_8cpp" startline="13" endline="59">filterRows</references>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Registry &gt;::getContext</references>
-        <references refid="classaction_1_1_list_1ac370827b11d8db7cf146a20ae66c909d" compoundref="_action_list_8cpp" startline="96" endline="99">getHighlightColour</references>
+        <references refid="classaction_1_1_list_1ac370827b11d8db7cf146a20ae66c909d" compoundref="_action_list_8cpp" startline="97" endline="100">getHighlightColour</references>
         <references refid="structaction_1_1_registry_1_1_entry_1a98214dd008bda3d85d0acef48cc84ea1" compoundref="_action_8h" startline="91">action::Registry::Entry::id</references>
         <references refid="structjam_1_1_i_d_1a94afe032a3af21e6f22fb73c9625b60a">jam::ID::id</references>
         <references refid="group__juce__core-system_1ga1f96ab6751237979b907a54f52a7296a">jassert</references>
         <references refid="classaction_1_1_list_1a69e450581397474ba019c577eea17c99" compoundref="_action_list_selection_8cpp" startline="62" endline="80">layoutRows</references>
-        <references refid="classaction_1_1_list_1a82b8c115f7d164f8c39d7ca142f513fd" compoundref="_action_list_8h" startline="97">luaEngine</references>
         <references refid="structaction_1_1_registry_1_1_entry_1a23bd845cf3d93eb88bd3b25768015778" compoundref="_action_8h" startline="94">action::Registry::Entry::name</references>
         <references refid="classaction_1_1_registry_1af372257d1327b42884e18285f2a8a8e2" compoundref="_action_8cpp" startline="170" endline="244">action::Registry::parseShortcut</references>
         <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d">row</references>
-        <references refid="classaction_1_1_list_1ac612680009dbd29fcc48afa44e0c852c" compoundref="_action_list_8h" startline="106">rowContainer</references>
-        <references refid="classaction_1_1_list_1ae5c0332610df26c061b21ac5fa51cab6" compoundref="_action_list_8h" startline="109">rows</references>
+        <references refid="classaction_1_1_list_1ac612680009dbd29fcc48afa44e0c852c" compoundref="_action_list_8h" startline="102">rowContainer</references>
+        <references refid="classaction_1_1_list_1ae5c0332610df26c061b21ac5fa51cab6" compoundref="_action_list_8h" startline="105">rows</references>
         <references refid="namespaceaction_1a574e68969c4beb9ce7aa66ec0752bb63aa0f0bc95016c862498bbad29d1f4d9d4" compoundref="_action_row_8h" startline="20">action::separator</references>
         <references refid="structaction_1_1_registry_1_1_entry_1a5cc3a0259f7939a7d44b7ea4473871c1" compoundref="_action_8h" startline="103">action::Registry::Entry::shortcut</references>
-        <references refid="classaction_1_1_list_1a6a16a0291186b5a4c83ee03f0520d160" compoundref="_action_list_8h" startline="100" endline="100">state</references>
-        <referencedby refid="classaction_1_1_list_1ac904fdaee75d73bf19dfd39b1a9fd505" compoundref="_action_list_8cpp" startline="16" endline="80">List</referencedby>
+        <references refid="classaction_1_1_list_1a6a16a0291186b5a4c83ee03f0520d160" compoundref="_action_list_8h" startline="96" endline="96">state</references>
+        <referencedby refid="classaction_1_1_list_1ad522a1f35a36a45d33fa1624b644a9ee" compoundref="_action_list_8cpp" startline="16" endline="81">List</referencedby>
       </memberdef>
       <memberdef kind="function" id="classaction_1_1_list_1a86f3b32fb6373c6984c8cdea28fdf66d" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -534,11 +513,18 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/action/ActionList.h" line="128" column="10" bodyfile="terminal/action/ActionList.cpp" bodystart="102" bodyend="124"/>
-        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
+        <location file="terminal/action/ActionList.h" line="124" column="10" bodyfile="terminal/action/ActionList.cpp" bodystart="103" bodyend="127"/>
+        <references refid="namespaceapp_1_1id_1abbe92598c63a60ebb0da1fa5c9186803" compoundref="_app_identifier_8h" startline="190" endline="190">app::id::cursorColour</references>
+        <references refid="namespaceapp_1_1id_1a24815b9015e0395936a1718769739fff" compoundref="_app_identifier_8h" startline="80" endline="80">app::id::DISPLAY_LUA</references>
+        <references refid="namespaceapp_1_1id_1a47ebe0ac537eacf5d3ba399228f4480f" compoundref="_app_identifier_8h" startline="98" endline="98">app::id::fontFamily</references>
+        <references refid="namespaceapp_1_1id_1a4affa12e1041cbac52db6146cfeb8669" compoundref="_app_identifier_8h" startline="99" endline="99">app::id::fontSize</references>
+        <references refid="namespaceapp_1_1id_1ae1cf6feb9724196f45603765d63a3337" compoundref="_app_identifier_8h" startline="188" endline="188">app::id::foreground</references>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
         <references refid="namespacejuce_1_1Colours_1a4c4c804a27c84b3c42b85aca7851f0a9">juce::Colours::grey</references>
         <references refid="namespacejuce_1_1Colours_1a2d59beef8fef5d9b43c030dc5968a2bb">juce::Colours::transparentBlack</references>
-        <referencedby refid="classaction_1_1_list_1ab1563b5c6c86287d88a50b7230c157bd" compoundref="_action_list_8cpp" startline="141" endline="252">buildRows</referencedby>
+        <references refid="namespaceapp_1_1id_1aacf1d941ece69d43b705d3f1238fba52" compoundref="_app_identifier_8h" startline="168" endline="168">app::id::windowColour</references>
+        <references refid="namespaceapp_1_1id_1a69a24e62617ef3817d155464736d1a6d" compoundref="_app_identifier_8h" startline="169" endline="169">app::id::windowOpacity</references>
+        <referencedby refid="classaction_1_1_list_1ab1563b5c6c86287d88a50b7230c157bd" compoundref="_action_list_8cpp" startline="144" endline="255">buildRows</referencedby>
       </memberdef>
       <memberdef kind="function" id="classaction_1_1_list_1ac74ca905978b6d98fb5876508df72aff" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -567,12 +553,15 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/action/ActionList.h" line="134" column="10" bodyfile="terminal/action/ActionList.cpp" bodystart="127" bodyend="138"/>
-        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
-        <references refid="classaction_1_1_list_1ac370827b11d8db7cf146a20ae66c909d" compoundref="_action_list_8cpp" startline="96" endline="99">getHighlightColour</references>
+        <location file="terminal/action/ActionList.h" line="130" column="10" bodyfile="terminal/action/ActionList.cpp" bodystart="130" bodyend="141"/>
+        <references refid="namespaceapp_1_1id_1a6853f508224d7132862bbe86ba37bfd0" compoundref="_app_identifier_8h" startline="256" endline="256">app::id::actionListNameColour</references>
+        <references refid="namespaceapp_1_1id_1a27dbc7912b3a3d2fd0b4411f3a13861d" compoundref="_app_identifier_8h" startline="257" endline="257">app::id::actionListShortcutColour</references>
+        <references refid="namespaceapp_1_1id_1a24815b9015e0395936a1718769739fff" compoundref="_app_identifier_8h" startline="80" endline="80">app::id::DISPLAY_LUA</references>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
+        <references refid="classaction_1_1_list_1ac370827b11d8db7cf146a20ae66c909d" compoundref="_action_list_8cpp" startline="97" endline="100">getHighlightColour</references>
         <references refid="group__juce__audio__plugin__client-Unity_1ga010e50efcb9d6d393b9414f09f368dbc">name</references>
         <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d">row</references>
-        <referencedby refid="classaction_1_1_list_1ab1563b5c6c86287d88a50b7230c157bd" compoundref="_action_list_8cpp" startline="141" endline="252">buildRows</referencedby>
+        <referencedby refid="classaction_1_1_list_1ab1563b5c6c86287d88a50b7230c157bd" compoundref="_action_list_8cpp" startline="144" endline="255">buildRows</referencedby>
       </memberdef>
       <memberdef kind="function" id="classaction_1_1_list_1a954dd770507b08b6920f82c93ea5c253" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -602,14 +591,14 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/action/ActionList.h" line="143" column="10" bodyfile="terminal/action/ActionListSelection.cpp" bodystart="13" bodyend="59"/>
+        <location file="terminal/action/ActionList.h" line="139" column="10" bodyfile="terminal/action/ActionListSelection.cpp" bodystart="13" bodyend="59"/>
         <references refid="structjam_1_1_fuzzy_1_1_search_1a0d23ed28912a140adebb3d97b4142423">jam::Fuzzy::Search::getResult</references>
         <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682cad304ba20e96d87411588eeabac850e34">label</references>
         <references refid="classaction_1_1_list_1a69e450581397474ba019c577eea17c99" compoundref="_action_list_selection_8cpp" startline="62" endline="80">layoutRows</references>
-        <references refid="classaction_1_1_list_1ae5c0332610df26c061b21ac5fa51cab6" compoundref="_action_list_8h" startline="109">rows</references>
+        <references refid="classaction_1_1_list_1ae5c0332610df26c061b21ac5fa51cab6" compoundref="_action_list_8h" startline="105">rows</references>
         <references refid="classaction_1_1_list_1abd4afa5a9397c5506019c7fed3fdaadd" compoundref="_action_list_selection_8cpp" startline="115" endline="142">selectRow</references>
         <references refid="namespaceaction_1a574e68969c4beb9ce7aa66ec0752bb63aa0f0bc95016c862498bbad29d1f4d9d4" compoundref="_action_row_8h" startline="20">action::separator</references>
-        <referencedby refid="classaction_1_1_list_1ab1563b5c6c86287d88a50b7230c157bd" compoundref="_action_list_8cpp" startline="141" endline="252">buildRows</referencedby>
+        <referencedby refid="classaction_1_1_list_1ab1563b5c6c86287d88a50b7230c157bd" compoundref="_action_list_8cpp" startline="144" endline="255">buildRows</referencedby>
       </memberdef>
       <memberdef kind="function" id="classaction_1_1_list_1a69e450581397474ba019c577eea17c99" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -624,16 +613,16 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/action/ActionList.h" line="146" column="10" bodyfile="terminal/action/ActionListSelection.cpp" bodystart="62" bodyend="80"/>
-        <references refid="classaction_1_1_list_1ac612680009dbd29fcc48afa44e0c852c" compoundref="_action_list_8h" startline="106">rowContainer</references>
-        <references refid="classaction_1_1_list_1ab8f2ffeb364e659dfb0bbd61f5001767" compoundref="_action_list_8h" startline="79" endline="79">rowHeight</references>
-        <references refid="classaction_1_1_list_1ae5c0332610df26c061b21ac5fa51cab6" compoundref="_action_list_8h" startline="109">rows</references>
+        <location file="terminal/action/ActionList.h" line="142" column="10" bodyfile="terminal/action/ActionListSelection.cpp" bodystart="62" bodyend="80"/>
+        <references refid="classaction_1_1_list_1ac612680009dbd29fcc48afa44e0c852c" compoundref="_action_list_8h" startline="102">rowContainer</references>
+        <references refid="classaction_1_1_list_1ab8f2ffeb364e659dfb0bbd61f5001767" compoundref="_action_list_8h" startline="78" endline="78">rowHeight</references>
+        <references refid="classaction_1_1_list_1ae5c0332610df26c061b21ac5fa51cab6" compoundref="_action_list_8h" startline="105">rows</references>
         <references refid="namespaceaction_1a574e68969c4beb9ce7aa66ec0752bb63aa0f0bc95016c862498bbad29d1f4d9d4" compoundref="_action_row_8h" startline="20">action::separator</references>
-        <references refid="classaction_1_1_list_1a712cf8d747c9979782c2aff186cdfde9" compoundref="_action_list_8h" startline="82" endline="82">separatorRowHeight</references>
-        <references refid="classaction_1_1_list_1ab5068c55ae4e70e344e86228b99530f2" compoundref="_action_list_8h" startline="103">viewport</references>
-        <referencedby refid="classaction_1_1_list_1ab1563b5c6c86287d88a50b7230c157bd" compoundref="_action_list_8cpp" startline="141" endline="252">buildRows</referencedby>
+        <references refid="classaction_1_1_list_1a712cf8d747c9979782c2aff186cdfde9" compoundref="_action_list_8h" startline="81" endline="81">separatorRowHeight</references>
+        <references refid="classaction_1_1_list_1ab5068c55ae4e70e344e86228b99530f2" compoundref="_action_list_8h" startline="99">viewport</references>
+        <referencedby refid="classaction_1_1_list_1ab1563b5c6c86287d88a50b7230c157bd" compoundref="_action_list_8cpp" startline="144" endline="255">buildRows</referencedby>
         <referencedby refid="classaction_1_1_list_1a954dd770507b08b6920f82c93ea5c253" compoundref="_action_list_selection_8cpp" startline="13" endline="59">filterRows</referencedby>
-        <referencedby refid="classaction_1_1_list_1af361864cf6f79fe4c2d7f4796a449cb0" compoundref="_action_list_8cpp" startline="255" endline="270">resized</referencedby>
+        <referencedby refid="classaction_1_1_list_1af361864cf6f79fe4c2d7f4796a449cb0" compoundref="_action_list_8cpp" startline="258" endline="273">resized</referencedby>
       </memberdef>
       <memberdef kind="function" id="classaction_1_1_list_1a57210249001fc1c50c7c74358f3de47f" prot="private" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
         <type>int</type>
@@ -665,9 +654,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/action/ActionList.h" line="156" column="9" bodyfile="terminal/action/ActionListSelection.cpp" bodystart="83" bodyend="112"/>
+        <location file="terminal/action/ActionList.h" line="152" column="9" bodyfile="terminal/action/ActionListSelection.cpp" bodystart="83" bodyend="112"/>
         <references refid="classaction_1_1_list_1ac8d431d3d916d30598ccac6335aa8f2c" compoundref="_action_list_selection_8cpp" startline="187" endline="198">getSelectedIndex</references>
-        <references refid="classaction_1_1_list_1ae5c0332610df26c061b21ac5fa51cab6" compoundref="_action_list_8h" startline="109">rows</references>
+        <references refid="classaction_1_1_list_1ae5c0332610df26c061b21ac5fa51cab6" compoundref="_action_list_8h" startline="105">rows</references>
         <referencedby refid="classaction_1_1_list_1abd4afa5a9397c5506019c7fed3fdaadd" compoundref="_action_list_selection_8cpp" startline="115" endline="142">selectRow</referencedby>
       </memberdef>
       <memberdef kind="function" id="classaction_1_1_list_1abd4afa5a9397c5506019c7fed3fdaadd" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -698,14 +687,14 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/action/ActionList.h" line="166" column="10" bodyfile="terminal/action/ActionListSelection.cpp" bodystart="115" bodyend="142"/>
+        <location file="terminal/action/ActionList.h" line="162" column="10" bodyfile="terminal/action/ActionListSelection.cpp" bodystart="115" bodyend="142"/>
         <references refid="classaction_1_1_list_1a57210249001fc1c50c7c74358f3de47f" compoundref="_action_list_selection_8cpp" startline="83" endline="112">findSelectableRow</references>
         <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682caf1965a857bc285d26fe22023aa5ab50d">row</references>
-        <references refid="classaction_1_1_list_1ab8f2ffeb364e659dfb0bbd61f5001767" compoundref="_action_list_8h" startline="79" endline="79">rowHeight</references>
-        <references refid="classaction_1_1_list_1ae5c0332610df26c061b21ac5fa51cab6" compoundref="_action_list_8h" startline="109">rows</references>
-        <references refid="classaction_1_1_list_1ab5068c55ae4e70e344e86228b99530f2" compoundref="_action_list_8h" startline="103">viewport</references>
+        <references refid="classaction_1_1_list_1ab8f2ffeb364e659dfb0bbd61f5001767" compoundref="_action_list_8h" startline="78" endline="78">rowHeight</references>
+        <references refid="classaction_1_1_list_1ae5c0332610df26c061b21ac5fa51cab6" compoundref="_action_list_8h" startline="105">rows</references>
+        <references refid="classaction_1_1_list_1ab5068c55ae4e70e344e86228b99530f2" compoundref="_action_list_8h" startline="99">viewport</references>
         <referencedby refid="classaction_1_1_list_1a954dd770507b08b6920f82c93ea5c253" compoundref="_action_list_selection_8cpp" startline="13" endline="59">filterRows</referencedby>
-        <referencedby refid="classaction_1_1_list_1ac904fdaee75d73bf19dfd39b1a9fd505" compoundref="_action_list_8cpp" startline="16" endline="80">List</referencedby>
+        <referencedby refid="classaction_1_1_list_1ad522a1f35a36a45d33fa1624b644a9ee" compoundref="_action_list_8cpp" startline="16" endline="81">List</referencedby>
       </memberdef>
       <memberdef kind="function" id="classaction_1_1_list_1ad420634bf596882ff7baaddfbafb789c" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -721,12 +710,14 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/action/ActionList.h" line="172" column="10" bodyfile="terminal/action/ActionListSelection.cpp" bodystart="145" bodyend="169"/>
-        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
+        <location file="terminal/action/ActionList.h" line="168" column="10" bodyfile="terminal/action/ActionListSelection.cpp" bodystart="145" bodyend="169"/>
+        <references refid="namespaceapp_1_1id_1ad79fc770a41ef0bf9c7abe6215489944" compoundref="_app_identifier_8h" startline="244" endline="244">app::id::actionListCloseOnRun</references>
+        <references refid="namespaceapp_1_1id_1a24815b9015e0395936a1718769739fff" compoundref="_app_identifier_8h" startline="80" endline="80">app::id::DISPLAY_LUA</references>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
         <references refid="classaction_1_1_list_1ac8d431d3d916d30598ccac6335aa8f2c" compoundref="_action_list_selection_8cpp" startline="187" endline="198">getSelectedIndex</references>
-        <references refid="classaction_1_1_list_1a4f4d3d334f58752e778160acd3993c37" compoundref="_action_list_8h" startline="66">onActionRun</references>
-        <references refid="classaction_1_1_list_1ae5c0332610df26c061b21ac5fa51cab6" compoundref="_action_list_8h" startline="109">rows</references>
-        <referencedby refid="classaction_1_1_list_1ac904fdaee75d73bf19dfd39b1a9fd505" compoundref="_action_list_8cpp" startline="16" endline="80">List</referencedby>
+        <references refid="classaction_1_1_list_1a4f4d3d334f58752e778160acd3993c37" compoundref="_action_list_8h" startline="65">onActionRun</references>
+        <references refid="classaction_1_1_list_1ae5c0332610df26c061b21ac5fa51cab6" compoundref="_action_list_8h" startline="105">rows</references>
+        <referencedby refid="classaction_1_1_list_1ad522a1f35a36a45d33fa1624b644a9ee" compoundref="_action_list_8cpp" startline="16" endline="81">List</referencedby>
       </memberdef>
       <memberdef kind="function" id="classaction_1_1_list_1a84d41756db2ccc78e32106a519de9931" prot="private" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
         <type>int</type>
@@ -744,9 +735,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/action/ActionList.h" line="178" column="9" bodyfile="terminal/action/ActionListSelection.cpp" bodystart="172" bodyend="184"/>
-        <references refid="classaction_1_1_list_1ae5c0332610df26c061b21ac5fa51cab6" compoundref="_action_list_8h" startline="109">rows</references>
-        <referencedby refid="classaction_1_1_list_1ac904fdaee75d73bf19dfd39b1a9fd505" compoundref="_action_list_8cpp" startline="16" endline="80">List</referencedby>
+        <location file="terminal/action/ActionList.h" line="174" column="9" bodyfile="terminal/action/ActionListSelection.cpp" bodystart="172" bodyend="184"/>
+        <references refid="classaction_1_1_list_1ae5c0332610df26c061b21ac5fa51cab6" compoundref="_action_list_8h" startline="105">rows</references>
+        <referencedby refid="classaction_1_1_list_1ad522a1f35a36a45d33fa1624b644a9ee" compoundref="_action_list_8cpp" startline="16" endline="81">List</referencedby>
       </memberdef>
       <memberdef kind="function" id="classaction_1_1_list_1ac8d431d3d916d30598ccac6335aa8f2c" prot="private" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
         <type>int</type>
@@ -764,12 +755,12 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/action/ActionList.h" line="184" column="9" bodyfile="terminal/action/ActionListSelection.cpp" bodystart="187" bodyend="198"/>
-        <references refid="classaction_1_1_list_1ae5c0332610df26c061b21ac5fa51cab6" compoundref="_action_list_8h" startline="109">rows</references>
+        <location file="terminal/action/ActionList.h" line="180" column="9" bodyfile="terminal/action/ActionListSelection.cpp" bodystart="187" bodyend="198"/>
+        <references refid="classaction_1_1_list_1ae5c0332610df26c061b21ac5fa51cab6" compoundref="_action_list_8h" startline="105">rows</references>
         <referencedby refid="classaction_1_1_list_1a2e60fd62b64589dd3781863a017a38f2" compoundref="_action_list_binding_8cpp" startline="47" endline="56">enterBindingMode</referencedby>
         <referencedby refid="classaction_1_1_list_1ad420634bf596882ff7baaddfbafb789c" compoundref="_action_list_selection_8cpp" startline="145" endline="169">executeSelected</referencedby>
         <referencedby refid="classaction_1_1_list_1a57210249001fc1c50c7c74358f3de47f" compoundref="_action_list_selection_8cpp" startline="83" endline="112">findSelectableRow</referencedby>
-        <referencedby refid="classaction_1_1_list_1ac904fdaee75d73bf19dfd39b1a9fd505" compoundref="_action_list_8cpp" startline="16" endline="80">List</referencedby>
+        <referencedby refid="classaction_1_1_list_1ad522a1f35a36a45d33fa1624b644a9ee" compoundref="_action_list_8cpp" startline="16" endline="81">List</referencedby>
       </memberdef>
       <memberdef kind="function" id="classaction_1_1_list_1ac370827b11d8db7cf146a20ae66c909d" prot="private" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
         <type>juce::Colour</type>
@@ -787,10 +778,12 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/action/ActionList.h" line="190" column="18" bodyfile="terminal/action/ActionList.cpp" bodystart="96" bodyend="99"/>
-        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Engine &gt;::getContext</references>
-        <referencedby refid="classaction_1_1_list_1ab1563b5c6c86287d88a50b7230c157bd" compoundref="_action_list_8cpp" startline="141" endline="252">buildRows</referencedby>
-        <referencedby refid="classaction_1_1_list_1ac74ca905978b6d98fb5876508df72aff" compoundref="_action_list_8cpp" startline="127" endline="138">configureActionRow</referencedby>
+        <location file="terminal/action/ActionList.h" line="186" column="18" bodyfile="terminal/action/ActionList.cpp" bodystart="97" bodyend="100"/>
+        <references refid="namespaceapp_1_1id_1a2cbaf122d9da348b193847c7a41f189d" compoundref="_app_identifier_8h" startline="260" endline="260">app::id::actionListHighlightColour</references>
+        <references refid="namespaceapp_1_1id_1a24815b9015e0395936a1718769739fff" compoundref="_app_identifier_8h" startline="80" endline="80">app::id::DISPLAY_LUA</references>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
+        <referencedby refid="classaction_1_1_list_1ab1563b5c6c86287d88a50b7230c157bd" compoundref="_action_list_8cpp" startline="144" endline="255">buildRows</referencedby>
+        <referencedby refid="classaction_1_1_list_1ac74ca905978b6d98fb5876508df72aff" compoundref="_action_list_8cpp" startline="130" endline="141">configureActionRow</referencedby>
       </memberdef>
       <memberdef kind="function" id="classaction_1_1_list_1a456c4f33540b4bd3a0b1abce8cae0f0a" prot="private" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
         <type>int</type>
@@ -808,11 +801,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/action/ActionList.h" line="196" column="9" bodyfile="terminal/action/ActionListBinding.cpp" bodystart="42" bodyend="42"/>
-        <references refid="classaction_1_1_list_1aaba3b30a29908d26894870dca20df3ac" compoundref="_action_list_8h" startline="88">bindingRowIndexId</references>
-        <references refid="classaction_1_1_list_1a6a16a0291186b5a4c83ee03f0520d160" compoundref="_action_list_8h" startline="100" endline="100">state</references>
+        <location file="terminal/action/ActionList.h" line="192" column="9" bodyfile="terminal/action/ActionListBinding.cpp" bodystart="42" bodyend="42"/>
+        <references refid="classaction_1_1_list_1aaba3b30a29908d26894870dca20df3ac" compoundref="_action_list_8h" startline="87">bindingRowIndexId</references>
+        <references refid="classaction_1_1_list_1a6a16a0291186b5a4c83ee03f0520d160" compoundref="_action_list_8h" startline="96" endline="96">state</references>
         <referencedby refid="classaction_1_1_list_1abe57586e11e4578ac4b80e40ffc4bc68" compoundref="_action_list_binding_8cpp" startline="65" endline="104">handleBindingKey</referencedby>
-        <referencedby refid="classaction_1_1_list_1afc9326beb35569e3f90b35959451771c" compoundref="_action_list_8cpp" startline="273" endline="287">keyPressed</referencedby>
+        <referencedby refid="classaction_1_1_list_1afc9326beb35569e3f90b35959451771c" compoundref="_action_list_8cpp" startline="276" endline="290">keyPressed</referencedby>
       </memberdef>
       <memberdef kind="function" id="classaction_1_1_list_1a79b74d75ec650cd55175a434d271fff7" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -841,9 +834,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/action/ActionList.h" line="202" column="10" bodyfile="terminal/action/ActionListBinding.cpp" bodystart="44" bodyend="44"/>
-        <references refid="classaction_1_1_list_1aaba3b30a29908d26894870dca20df3ac" compoundref="_action_list_8h" startline="88">bindingRowIndexId</references>
-        <references refid="classaction_1_1_list_1a6a16a0291186b5a4c83ee03f0520d160" compoundref="_action_list_8h" startline="100" endline="100">state</references>
+        <location file="terminal/action/ActionList.h" line="198" column="10" bodyfile="terminal/action/ActionListBinding.cpp" bodystart="44" bodyend="44"/>
+        <references refid="classaction_1_1_list_1aaba3b30a29908d26894870dca20df3ac" compoundref="_action_list_8h" startline="87">bindingRowIndexId</references>
+        <references refid="classaction_1_1_list_1a6a16a0291186b5a4c83ee03f0520d160" compoundref="_action_list_8h" startline="96" endline="96">state</references>
         <referencedby refid="classaction_1_1_list_1a2e60fd62b64589dd3781863a017a38f2" compoundref="_action_list_binding_8cpp" startline="47" endline="56">enterBindingMode</referencedby>
         <referencedby refid="classaction_1_1_list_1a599124b91aef9fffa4c27d04f4cd344d" compoundref="_action_list_binding_8cpp" startline="58" endline="63">exitBindingMode</referencedby>
       </memberdef>
@@ -861,12 +854,12 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/action/ActionList.h" line="208" column="10" bodyfile="terminal/action/ActionListBinding.cpp" bodystart="47" bodyend="56"/>
-        <references refid="classaction_1_1_list_1aa712ed24e12e8c5fb9eb751c9523f030" compoundref="_action_list_8h" startline="85" endline="85">bindingModeTimeoutMs</references>
+        <location file="terminal/action/ActionList.h" line="204" column="10" bodyfile="terminal/action/ActionListBinding.cpp" bodystart="47" bodyend="56"/>
+        <references refid="classaction_1_1_list_1aa712ed24e12e8c5fb9eb751c9523f030" compoundref="_action_list_8h" startline="84" endline="84">bindingModeTimeoutMs</references>
         <references refid="classaction_1_1_list_1ac8d431d3d916d30598ccac6335aa8f2c" compoundref="_action_list_selection_8cpp" startline="187" endline="198">getSelectedIndex</references>
-        <references refid="classaction_1_1_list_1a5812fe7adee91b066c0050fdb3116139" compoundref="_action_list_8h" startline="112">messageOverlay</references>
+        <references refid="classaction_1_1_list_1a5812fe7adee91b066c0050fdb3116139" compoundref="_action_list_8h" startline="108">messageOverlay</references>
         <references refid="classaction_1_1_list_1a79b74d75ec650cd55175a434d271fff7" compoundref="_action_list_binding_8cpp" startline="44" endline="44">setBindingRowIndex</references>
-        <referencedby refid="classaction_1_1_list_1ac904fdaee75d73bf19dfd39b1a9fd505" compoundref="_action_list_8cpp" startline="16" endline="80">List</referencedby>
+        <referencedby refid="classaction_1_1_list_1ad522a1f35a36a45d33fa1624b644a9ee" compoundref="_action_list_8cpp" startline="16" endline="81">List</referencedby>
       </memberdef>
       <memberdef kind="function" id="classaction_1_1_list_1a599124b91aef9fffa4c27d04f4cd344d" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -881,8 +874,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/action/ActionList.h" line="211" column="10" bodyfile="terminal/action/ActionListBinding.cpp" bodystart="58" bodyend="63"/>
-        <references refid="classaction_1_1_list_1a5812fe7adee91b066c0050fdb3116139" compoundref="_action_list_8h" startline="112">messageOverlay</references>
+        <location file="terminal/action/ActionList.h" line="207" column="10" bodyfile="terminal/action/ActionListBinding.cpp" bodystart="58" bodyend="63"/>
+        <references refid="classaction_1_1_list_1a5812fe7adee91b066c0050fdb3116139" compoundref="_action_list_8h" startline="108">messageOverlay</references>
         <references refid="classaction_1_1_list_1a79b74d75ec650cd55175a434d271fff7" compoundref="_action_list_binding_8cpp" startline="44" endline="44">setBindingRowIndex</references>
         <references refid="structjam_1_1_animator_1a9b25beac56ffed8693b54cf2e594fa6a">jam::Animator::toggleFade</references>
         <referencedby refid="classaction_1_1_list_1abe57586e11e4578ac4b80e40ffc4bc68" compoundref="_action_list_binding_8cpp" startline="65" endline="104">handleBindingKey</referencedby>
@@ -917,17 +910,17 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/action/ActionList.h" line="221" column="10" bodyfile="terminal/action/ActionListBinding.cpp" bodystart="65" bodyend="104"/>
-        <references refid="classaction_1_1_list_1a81499b3f1e50002faadd3732ec3426e2" compoundref="_action_list_8h" startline="91">bindingsDirtyId</references>
+        <location file="terminal/action/ActionList.h" line="217" column="10" bodyfile="terminal/action/ActionListBinding.cpp" bodystart="65" bodyend="104"/>
+        <references refid="classaction_1_1_list_1a81499b3f1e50002faadd3732ec3426e2" compoundref="_action_list_8h" startline="90">bindingsDirtyId</references>
         <references refid="classaction_1_1_list_1a599124b91aef9fffa4c27d04f4cd344d" compoundref="_action_list_binding_8cpp" startline="58" endline="63">exitBindingMode</references>
         <references refid="classaction_1_1_list_1a456c4f33540b4bd3a0b1abce8cae0f0a" compoundref="_action_list_binding_8cpp" startline="42" endline="42">getBindingRowIndex</references>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Registry &gt;::getContext</references>
         <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682cad304ba20e96d87411588eeabac850e34">label</references>
-        <references refid="classaction_1_1_list_1a82b8c115f7d164f8c39d7ca142f513fd" compoundref="_action_list_8h" startline="97">luaEngine</references>
-        <references refid="classaction_1_1_list_1ae5c0332610df26c061b21ac5fa51cab6" compoundref="_action_list_8h" startline="109">rows</references>
+        <references refid="classaction_1_1_list_1ae5c0332610df26c061b21ac5fa51cab6" compoundref="_action_list_8h" startline="105">rows</references>
         <references refid="classaction_1_1_registry_1aa0baadfadc5b0e64b4a903e64012fced" compoundref="_action_8cpp" startline="247" endline="306">action::Registry::shortcutToString</references>
-        <references refid="classaction_1_1_list_1a6a16a0291186b5a4c83ee03f0520d160" compoundref="_action_list_8h" startline="100" endline="100">state</references>
-        <referencedby refid="classaction_1_1_list_1afc9326beb35569e3f90b35959451771c" compoundref="_action_list_8cpp" startline="273" endline="287">keyPressed</referencedby>
+        <references refid="classaction_1_1_list_1a6a16a0291186b5a4c83ee03f0520d160" compoundref="_action_list_8h" startline="96" endline="96">state</references>
+        <referencedby refid="classaction_1_1_list_1afc9326beb35569e3f90b35959451771c" compoundref="_action_list_8cpp" startline="276" endline="290">keyPressed</referencedby>
       </memberdef>
       <memberdef kind="function" id="classaction_1_1_list_1a74b96153c61861b113fa669f7286628d" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -969,13 +962,13 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="terminal/action/ActionList.h" line="232" column="10" bodyfile="terminal/action/ActionListBinding.cpp" bodystart="13" bodyend="39"/>
-        <references refid="classaction_1_1_list_1a81499b3f1e50002faadd3732ec3426e2" compoundref="_action_list_8h" startline="91">bindingsDirtyId</references>
+        <location file="terminal/action/ActionList.h" line="228" column="10" bodyfile="terminal/action/ActionListBinding.cpp" bodystart="13" bodyend="39"/>
+        <references refid="classaction_1_1_list_1a81499b3f1e50002faadd3732ec3426e2" compoundref="_action_list_8h" startline="90">bindingsDirtyId</references>
+        <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; AppModel &gt;::getContext</references>
         <references refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Registry &gt;::getContext</references>
         <references refid="group__juce__gui__basics-accessibility_1gaf1349587ab6cac7e882cd63e1976682cad304ba20e96d87411588eeabac850e34">label</references>
-        <references refid="classaction_1_1_list_1a82b8c115f7d164f8c39d7ca142f513fd" compoundref="_action_list_8h" startline="97">luaEngine</references>
-        <references refid="classaction_1_1_list_1ae5c0332610df26c061b21ac5fa51cab6" compoundref="_action_list_8h" startline="109">rows</references>
-        <references refid="classaction_1_1_list_1a6a16a0291186b5a4c83ee03f0520d160" compoundref="_action_list_8h" startline="100" endline="100">state</references>
+        <references refid="classaction_1_1_list_1ae5c0332610df26c061b21ac5fa51cab6" compoundref="_action_list_8h" startline="105">rows</references>
+        <references refid="classaction_1_1_list_1a6a16a0291186b5a4c83ee03f0520d160" compoundref="_action_list_8h" startline="96" endline="96">state</references>
       </memberdef>
     </sectiondef>
     <briefdescription>
@@ -1008,128 +1001,17 @@
       </node>
     </inheritancegraph>
     <collaborationgraph>
-      <node id="52">
-        <label>CallInfo</label>
-        <link refid="struct_call_info" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="42" relation="usage">
-          <edgelabel>func</edgelabel>
-          <edgelabel>top</edgelabel>
-        </childnode>
-        <childnode refid="52" relation="usage">
-          <edgelabel>next</edgelabel>
-          <edgelabel>previous</edgelabel>
-        </childnode>
-        <childnode refid="40" relation="usage">
-          <edgelabel>k</edgelabel>
-        </childnode>
-      </node>
-      <node id="41">
-        <label>GCObject</label>
-        <link refid="struct_g_c_object" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="41" relation="usage">
-          <edgelabel>next</edgelabel>
-        </childnode>
-      </node>
-      <node id="72">
+      <node id="11">
         <label>MessageOverlay</label>
         <link refid="class_message_overlay"/>
         <childnode refid="2" relation="public-inheritance">
         </childnode>
-        <childnode refid="73" relation="private-inheritance">
+        <childnode refid="12" relation="private-inheritance">
         </childnode>
-        <childnode refid="14" relation="usage">
+        <childnode refid="13" relation="usage">
           <edgelabel>resizeCols</edgelabel>
           <edgelabel>resizeRows</edgelabel>
         </childnode>
-      </node>
-      <node id="50">
-        <label>Node</label>
-        <link refid="union_node" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="51" relation="usage">
-          <edgelabel>u</edgelabel>
-        </childnode>
-        <childnode refid="44" relation="usage">
-          <edgelabel>i_val</edgelabel>
-        </childnode>
-      </node>
-      <node id="51">
-        <label>Node::NodeKey</label>
-        <link refid="struct_node_1_1_node_key" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="45" relation="usage">
-          <edgelabel>key_val</edgelabel>
-          <edgelabel>value_</edgelabel>
-        </childnode>
-      </node>
-      <node id="43">
-        <label>StackValue</label>
-        <link refid="union_stack_value" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="44" relation="usage">
-          <edgelabel>val</edgelabel>
-        </childnode>
-        <childnode refid="45" relation="usage">
-          <edgelabel>value_</edgelabel>
-        </childnode>
-      </node>
-      <node id="42">
-        <label>StkIdRel</label>
-        <link refid="union_stk_id_rel" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="43" relation="usage">
-          <edgelabel>p</edgelabel>
-        </childnode>
-      </node>
-      <node id="48">
-        <label>TString</label>
-        <link refid="struct_t_string" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="41" relation="usage">
-          <edgelabel>next</edgelabel>
-        </childnode>
-        <childnode refid="48" relation="usage">
-          <edgelabel>hnext</edgelabel>
-        </childnode>
-      </node>
-      <node id="44">
-        <label>TValue</label>
-        <link refid="struct_t_value" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="45" relation="usage">
-          <edgelabel>value_</edgelabel>
-        </childnode>
-      </node>
-      <node id="49">
-        <label>Table</label>
-        <link refid="struct_table" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="41" relation="usage">
-          <edgelabel>gclist</edgelabel>
-          <edgelabel>next</edgelabel>
-        </childnode>
-        <childnode refid="44" relation="usage">
-          <edgelabel>array</edgelabel>
-        </childnode>
-        <childnode refid="50" relation="usage">
-          <edgelabel>lastfree</edgelabel>
-          <edgelabel>node</edgelabel>
-        </childnode>
-        <childnode refid="49" relation="usage">
-          <edgelabel>metatable</edgelabel>
-        </childnode>
-      </node>
-      <node id="53">
-        <label>UpVal</label>
-        <link refid="struct_up_val" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="41" relation="usage">
-          <edgelabel>next</edgelabel>
-        </childnode>
-        <childnode refid="53" relation="usage">
-          <edgelabel>next</edgelabel>
-          <edgelabel>previous</edgelabel>
-        </childnode>
-        <childnode refid="44" relation="usage">
-          <edgelabel>p</edgelabel>
-          <edgelabel>value</edgelabel>
-        </childnode>
-      </node>
-      <node id="45">
-        <label>Value</label>
-        <link refid="classValue" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag"/>
       </node>
       <node id="1">
         <label>action::List</label>
@@ -1139,470 +1021,69 @@
         <childnode refid="3" relation="private-inheritance">
         </childnode>
         <childnode refid="4" relation="usage">
-          <edgelabel>luaEngine</edgelabel>
-        </childnode>
-        <childnode refid="65" relation="usage">
           <edgelabel>state</edgelabel>
         </childnode>
-        <childnode refid="71" relation="usage">
+        <childnode refid="10" relation="usage">
           <edgelabel>rows</edgelabel>
         </childnode>
-        <childnode refid="72" relation="usage">
+        <childnode refid="11" relation="usage">
           <edgelabel>messageOverlay</edgelabel>
         </childnode>
       </node>
-      <node id="46">
-        <label>global_State</label>
-        <link refid="structglobal___state" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="47" relation="usage">
-          <edgelabel>strt</edgelabel>
-        </childnode>
-        <childnode refid="44" relation="usage">
-          <edgelabel>l_registry</edgelabel>
-          <edgelabel>nilvalue</edgelabel>
-        </childnode>
-        <childnode refid="41" relation="usage">
-          <edgelabel>allgc</edgelabel>
-          <edgelabel>allweak</edgelabel>
-          <edgelabel>ephemeron</edgelabel>
-          <edgelabel>finobj</edgelabel>
-          <edgelabel>finobjold1</edgelabel>
-          <edgelabel>finobjrold</edgelabel>
-          <edgelabel>finobjsur</edgelabel>
-          <edgelabel>firstold1</edgelabel>
-          <edgelabel>fixedgc</edgelabel>
-          <edgelabel>gray</edgelabel>
-          <edgelabel>  ...</edgelabel>
-        </childnode>
-        <childnode refid="40" relation="usage">
-          <edgelabel>mainthread</edgelabel>
-          <edgelabel>panic</edgelabel>
-          <edgelabel>twups</edgelabel>
-        </childnode>
-        <childnode refid="48" relation="usage">
-          <edgelabel>memerrmsg</edgelabel>
-          <edgelabel>strcache</edgelabel>
-          <edgelabel>tmname</edgelabel>
-        </childnode>
-        <childnode refid="49" relation="usage">
-          <edgelabel>mt</edgelabel>
-        </childnode>
-      </node>
-      <node id="66">
+      <node id="5">
         <label>jam::AnyMap</label>
         <link refid="classjam_1_1_any_map" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="67" relation="usage">
+        <childnode refid="6" relation="usage">
           <edgelabel>entries</edgelabel>
         </childnode>
-        <childnode refid="69" relation="usage">
+        <childnode refid="8" relation="usage">
           <edgelabel>types</edgelabel>
         </childnode>
       </node>
-      <node id="14">
+      <node id="13">
         <label>jam::Cell</label>
         <link refid="structjam_1_1_cell" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
       </node>
-      <node id="5">
-        <label>jam::Context&lt; Engine &gt;</label>
-        <link refid="structjam_1_1_context" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-      </node>
-      <node id="59">
-        <label>jam::File::Watcher</label>
-        <link refid="structjam_1_1_file_1_1_watcher" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="60" relation="usage">
-          <edgelabel>timers</edgelabel>
-        </childnode>
-      </node>
-      <node id="62">
-        <label>jam::File::Watcher::CoalesceTimer</label>
-        <link refid="structjam_1_1_file_1_1_watcher_1_1_coalesce_timer" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="59" relation="usage">
-          <edgelabel>owner</edgelabel>
-        </childnode>
-      </node>
-      <node id="6">
-        <label>jam::File::Watcher::Listener</label>
-        <link refid="classjam_1_1_file_1_1_watcher_1_1_listener" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-      </node>
-      <node id="65">
+      <node id="4">
         <label>jam::Model</label>
         <link refid="classjam_1_1_model" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="66" relation="usage">
+        <childnode refid="5" relation="usage">
           <edgelabel>params</edgelabel>
         </childnode>
-        <childnode refid="70" relation="usage">
+        <childnode refid="9" relation="usage">
           <edgelabel>uniqueNodeMap</edgelabel>
         </childnode>
       </node>
-      <node id="71">
+      <node id="10">
         <label>jam::Owner&lt; action::Row &gt;</label>
         <link refid="classjam_1_1_owner" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-      </node>
-      <node id="39">
-        <label>jam::lua::Function</label>
-        <link refid="classjam_1_1lua_1_1_function" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="40" relation="usage">
-          <edgelabel>luaState</edgelabel>
-        </childnode>
-      </node>
-      <node id="56">
-        <label>jam::lua::State</label>
-        <link refid="classjam_1_1lua_1_1_state" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="40" relation="usage">
-          <edgelabel>luaState</edgelabel>
-        </childnode>
-        <childnode refid="57" relation="usage">
-          <edgelabel>registeredFunctions</edgelabel>
-        </childnode>
-        <childnode refid="58" relation="usage">
-          <edgelabel>registeredRawFunctions</edgelabel>
-        </childnode>
       </node>
       <node id="2">
         <label>juce::Component</label>
       </node>
-      <node id="73">
+      <node id="12">
         <label>juce::Timer</label>
       </node>
       <node id="3">
         <label>juce::ValueTree::Listener</label>
       </node>
-      <node id="4">
-        <label>lua::Engine</label>
-        <link refid="classlua_1_1_engine"/>
-        <childnode refid="5" relation="public-inheritance">
-        </childnode>
-        <childnode refid="6" relation="public-inheritance">
-        </childnode>
-        <childnode refid="7" relation="usage">
-          <edgelabel>nexus</edgelabel>
-        </childnode>
-        <childnode refid="15" relation="usage">
-          <edgelabel>display</edgelabel>
-        </childnode>
-        <childnode refid="28" relation="usage">
-          <edgelabel>whelmed</edgelabel>
-        </childnode>
-        <childnode refid="29" relation="usage">
-          <edgelabel>keys</edgelabel>
-        </childnode>
-        <childnode refid="33" relation="usage">
-          <edgelabel>popup</edgelabel>
-        </childnode>
-        <childnode refid="36" relation="usage">
-          <edgelabel>action</edgelabel>
-        </childnode>
-        <childnode refid="54" relation="usage">
-          <edgelabel>keyMappings</edgelabel>
-        </childnode>
-        <childnode refid="56" relation="usage">
-          <edgelabel>lua</edgelabel>
-        </childnode>
-        <childnode refid="59" relation="usage">
-          <edgelabel>watcher</edgelabel>
-        </childnode>
-        <childnode refid="63" relation="usage">
-          <edgelabel>displayCallbacks</edgelabel>
-        </childnode>
-        <childnode refid="64" relation="usage">
-          <edgelabel>popupCallbacks</edgelabel>
-        </childnode>
-      </node>
-      <node id="36">
-        <label>lua::Engine::Action</label>
-        <link refid="structlua_1_1_engine_1_1_action"/>
-        <childnode refid="37" relation="usage">
-          <edgelabel>entries</edgelabel>
-        </childnode>
-      </node>
-      <node id="38">
-        <label>lua::Engine::Action::Entry</label>
-        <link refid="structlua_1_1_engine_1_1_action_1_1_entry"/>
-        <childnode refid="39" relation="usage">
-          <edgelabel>execute</edgelabel>
-        </childnode>
-      </node>
-      <node id="15">
-        <label>lua::Engine::Display</label>
-        <link refid="structlua_1_1_engine_1_1_display"/>
-        <childnode refid="16" relation="usage">
-          <edgelabel>window</edgelabel>
-        </childnode>
-        <childnode refid="17" relation="usage">
-          <edgelabel>colours</edgelabel>
-        </childnode>
-        <childnode refid="19" relation="usage">
-          <edgelabel>cursor</edgelabel>
-        </childnode>
-        <childnode refid="20" relation="usage">
-          <edgelabel>font</edgelabel>
-        </childnode>
-        <childnode refid="21" relation="usage">
-          <edgelabel>tab</edgelabel>
-        </childnode>
-        <childnode refid="22" relation="usage">
-          <edgelabel>pane</edgelabel>
-        </childnode>
-        <childnode refid="23" relation="usage">
-          <edgelabel>overlay</edgelabel>
-        </childnode>
-        <childnode refid="24" relation="usage">
-          <edgelabel>menu</edgelabel>
-        </childnode>
-        <childnode refid="25" relation="usage">
-          <edgelabel>actionList</edgelabel>
-        </childnode>
-        <childnode refid="26" relation="usage">
-          <edgelabel>statusBar</edgelabel>
-        </childnode>
-        <childnode refid="27" relation="usage">
-          <edgelabel>popup</edgelabel>
-        </childnode>
-      </node>
-      <node id="25">
-        <label>lua::Engine::Display::ActionList</label>
-        <link refid="structlua_1_1_engine_1_1_display_1_1_action_list"/>
-      </node>
-      <node id="17">
-        <label>lua::Engine::Display::Colours</label>
-        <link refid="structlua_1_1_engine_1_1_display_1_1_colours"/>
-        <childnode refid="18" relation="usage">
-          <edgelabel>ansi</edgelabel>
-        </childnode>
-      </node>
-      <node id="19">
-        <label>lua::Engine::Display::Cursor</label>
-        <link refid="structlua_1_1_engine_1_1_display_1_1_cursor"/>
-      </node>
-      <node id="20">
-        <label>lua::Engine::Display::Font</label>
-        <link refid="structlua_1_1_engine_1_1_display_1_1_font"/>
-      </node>
-      <node id="24">
-        <label>lua::Engine::Display::Menu</label>
-        <link refid="structlua_1_1_engine_1_1_display_1_1_menu"/>
-      </node>
-      <node id="23">
-        <label>lua::Engine::Display::Overlay</label>
-        <link refid="structlua_1_1_engine_1_1_display_1_1_overlay"/>
-      </node>
-      <node id="22">
-        <label>lua::Engine::Display::Pane</label>
-        <link refid="structlua_1_1_engine_1_1_display_1_1_pane"/>
-      </node>
-      <node id="27">
-        <label>lua::Engine::Display::PopupBorder</label>
-        <link refid="structlua_1_1_engine_1_1_display_1_1_popup_border"/>
-      </node>
-      <node id="26">
-        <label>lua::Engine::Display::StatusBar</label>
-        <link refid="structlua_1_1_engine_1_1_display_1_1_status_bar"/>
-      </node>
-      <node id="21">
-        <label>lua::Engine::Display::Tab</label>
-        <link refid="structlua_1_1_engine_1_1_display_1_1_tab"/>
-      </node>
-      <node id="16">
-        <label>lua::Engine::Display::Window</label>
-        <link refid="structlua_1_1_engine_1_1_display_1_1_window"/>
-      </node>
-      <node id="63">
-        <label>lua::Engine::DisplayCallbacks</label>
-        <link refid="structlua_1_1_engine_1_1_display_callbacks"/>
-      </node>
-      <node id="55">
-        <label>lua::Engine::KeyMapping</label>
-        <link refid="structlua_1_1_engine_1_1_key_mapping"/>
-      </node>
-      <node id="29">
-        <label>lua::Engine::Keys</label>
-        <link refid="structlua_1_1_engine_1_1_keys"/>
-        <childnode refid="30" relation="usage">
-          <edgelabel>bindings</edgelabel>
-        </childnode>
-        <childnode refid="32" relation="usage">
-          <edgelabel>selection</edgelabel>
-        </childnode>
-      </node>
-      <node id="31">
-        <label>lua::Engine::Keys::Binding</label>
-        <link refid="structlua_1_1_engine_1_1_keys_1_1_binding"/>
-      </node>
       <node id="7">
-        <label>lua::Engine::Nexus</label>
-        <link refid="structlua_1_1_engine_1_1_nexus"/>
-        <childnode refid="8" relation="usage">
-          <edgelabel>shell</edgelabel>
-        </childnode>
-        <childnode refid="9" relation="usage">
-          <edgelabel>terminal</edgelabel>
-        </childnode>
-        <childnode refid="10" relation="usage">
-          <edgelabel>hyperlinks</edgelabel>
-        </childnode>
-        <childnode refid="13" relation="usage">
-          <edgelabel>image</edgelabel>
-        </childnode>
-      </node>
-      <node id="10">
-        <label>lua::Engine::Nexus::Hyperlinks</label>
-        <link refid="structlua_1_1_engine_1_1_nexus_1_1_hyperlinks"/>
-        <childnode refid="11" relation="usage">
-          <edgelabel>handlers</edgelabel>
-        </childnode>
-        <childnode refid="12" relation="usage">
-          <edgelabel>extensions</edgelabel>
-        </childnode>
-      </node>
-      <node id="13">
-        <label>lua::Engine::Nexus::Image</label>
-        <link refid="structlua_1_1_engine_1_1_nexus_1_1_image"/>
-        <childnode refid="14" relation="usage">
-          <edgelabel>cols</edgelabel>
-          <edgelabel>rows</edgelabel>
-        </childnode>
-      </node>
-      <node id="8">
-        <label>lua::Engine::Nexus::Shell</label>
-        <link refid="structlua_1_1_engine_1_1_nexus_1_1_shell"/>
-      </node>
-      <node id="9">
-        <label>lua::Engine::Nexus::Terminal</label>
-        <link refid="structlua_1_1_engine_1_1_nexus_1_1_terminal"/>
-      </node>
-      <node id="33">
-        <label>lua::Engine::Popup</label>
-        <link refid="structlua_1_1_engine_1_1_popup"/>
-        <childnode refid="14" relation="usage">
-          <edgelabel>defaultCols</edgelabel>
-          <edgelabel>defaultRows</edgelabel>
-        </childnode>
-        <childnode refid="34" relation="usage">
-          <edgelabel>entries</edgelabel>
-        </childnode>
-      </node>
-      <node id="35">
-        <label>lua::Engine::Popup::Entry</label>
-        <link refid="structlua_1_1_engine_1_1_popup_1_1_entry"/>
-        <childnode refid="14" relation="usage">
-          <edgelabel>cols</edgelabel>
-          <edgelabel>rows</edgelabel>
-        </childnode>
-      </node>
-      <node id="64">
-        <label>lua::Engine::PopupCallbacks</label>
-        <link refid="structlua_1_1_engine_1_1_popup_callbacks"/>
-      </node>
-      <node id="32">
-        <label>lua::Engine::SelectionKeys</label>
-        <link refid="structlua_1_1_engine_1_1_selection_keys"/>
-      </node>
-      <node id="28">
-        <label>lua::Engine::Whelmed</label>
-        <link refid="structlua_1_1_engine_1_1_whelmed"/>
-      </node>
-      <node id="40">
-        <label>lua_State</label>
-        <link refid="structlua___state" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="41" relation="usage">
-          <edgelabel>gclist</edgelabel>
-          <edgelabel>next</edgelabel>
-        </childnode>
-        <childnode refid="42" relation="usage">
-          <edgelabel>stack</edgelabel>
-          <edgelabel>stack_last</edgelabel>
-          <edgelabel>tbclist</edgelabel>
-          <edgelabel>top</edgelabel>
-        </childnode>
-        <childnode refid="46" relation="usage">
-          <edgelabel>l_G</edgelabel>
-        </childnode>
-        <childnode refid="52" relation="usage">
-          <edgelabel>base_ci</edgelabel>
-          <edgelabel>ci</edgelabel>
-        </childnode>
-        <childnode refid="53" relation="usage">
-          <edgelabel>openupval</edgelabel>
-        </childnode>
-        <childnode refid="40" relation="usage">
-          <edgelabel>twups</edgelabel>
-        </childnode>
-      </node>
-      <node id="18">
-        <label>std::array&lt; juce::Colour, 16 &gt;</label>
-      </node>
-      <node id="54">
-        <label>std::array&lt; lua::Engine::KeyMapping, keyMappingCount &gt;</label>
-        <childnode refid="55" relation="usage">
-          <edgelabel>elements</edgelabel>
-        </childnode>
-      </node>
-      <node id="58">
-        <label>std::list&lt; std::function&lt; int(lua_State *)&gt; &gt;</label>
-      </node>
-      <node id="57">
-        <label>std::list&lt; std::function&lt; void()&gt; &gt;</label>
-      </node>
-      <node id="60">
-        <label>std::map&lt; juce::File, std::unique_ptr&lt; jam::File::Watcher::CoalesceTimer &gt; &gt;</label>
-        <childnode refid="61" relation="usage">
-          <edgelabel>elements</edgelabel>
-        </childnode>
-      </node>
-      <node id="61">
-        <label>std::unique_ptr&lt; jam::File::Watcher::CoalesceTimer &gt;</label>
-        <childnode refid="62" relation="usage">
-          <edgelabel>ptr</edgelabel>
-        </childnode>
-      </node>
-      <node id="68">
         <label>std::unique_ptr&lt; void, Deleter &gt;</label>
       </node>
-      <node id="69">
+      <node id="8">
         <label>std::unordered_map&lt; juce::Identifier, std::type_index &gt;</label>
       </node>
-      <node id="67">
+      <node id="6">
         <label>std::unordered_map&lt; juce::Identifier, std::unique_ptr&lt; void, Deleter &gt; &gt;</label>
-        <childnode refid="68" relation="usage">
+        <childnode refid="7" relation="usage">
           <edgelabel>elements</edgelabel>
         </childnode>
       </node>
-      <node id="11">
-        <label>std::unordered_map&lt; juce::String, juce::String &gt;</label>
-      </node>
-      <node id="70">
+      <node id="9">
         <label>std::unordered_map&lt; juce::String, juce::ValueTree &gt;</label>
       </node>
-      <node id="12">
-        <label>std::unordered_set&lt; juce::String &gt;</label>
-      </node>
-      <node id="37">
-        <label>std::vector&lt; lua::Engine::Action::Entry &gt;</label>
-        <childnode refid="38" relation="usage">
-          <edgelabel>elements</edgelabel>
-        </childnode>
-      </node>
-      <node id="30">
-        <label>std::vector&lt; lua::Engine::Keys::Binding &gt;</label>
-        <childnode refid="31" relation="usage">
-          <edgelabel>elements</edgelabel>
-        </childnode>
-      </node>
-      <node id="34">
-        <label>std::vector&lt; lua::Engine::Popup::Entry &gt;</label>
-        <childnode refid="35" relation="usage">
-          <edgelabel>elements</edgelabel>
-        </childnode>
-      </node>
-      <node id="47">
-        <label>stringtable</label>
-        <link refid="structstringtable" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="48" relation="usage">
-          <edgelabel>hash</edgelabel>
-        </childnode>
-      </node>
     </collaborationgraph>
-    <location file="terminal/action/ActionList.h" line="33" column="1" bodyfile="terminal/action/ActionList.h" bodystart="36" bodyend="236"/>
+    <location file="terminal/action/ActionList.h" line="33" column="1" bodyfile="terminal/action/ActionList.h" bodystart="36" bodyend="232"/>
     <listofallmembers>
       <member refid="classaction_1_1_list_1aa712ed24e12e8c5fb9eb751c9523f030" prot="private" virt="non-virtual"><scope>action::List</scope><name>bindingModeTimeoutMs</name></member>
       <member refid="classaction_1_1_list_1aaba3b30a29908d26894870dca20df3ac" prot="private" virt="non-virtual"><scope>action::List</scope><name>bindingRowIndexId</name></member>
@@ -1622,8 +1103,7 @@
       <member refid="classaction_1_1_list_1a288a62bad2e63febffce810c4cb4136d" prot="private" virt="non-virtual"><scope>action::List</scope><name>keyHandler</name></member>
       <member refid="classaction_1_1_list_1afc9326beb35569e3f90b35959451771c" prot="public" virt="non-virtual"><scope>action::List</scope><name>keyPressed</name></member>
       <member refid="classaction_1_1_list_1a69e450581397474ba019c577eea17c99" prot="private" virt="non-virtual"><scope>action::List</scope><name>layoutRows</name></member>
-      <member refid="classaction_1_1_list_1ac904fdaee75d73bf19dfd39b1a9fd505" prot="public" virt="non-virtual"><scope>action::List</scope><name>List</name></member>
-      <member refid="classaction_1_1_list_1a82b8c115f7d164f8c39d7ca142f513fd" prot="private" virt="non-virtual"><scope>action::List</scope><name>luaEngine</name></member>
+      <member refid="classaction_1_1_list_1ad522a1f35a36a45d33fa1624b644a9ee" prot="public" virt="non-virtual"><scope>action::List</scope><name>List</name></member>
       <member refid="classaction_1_1_list_1a2b71f48bc3fbd033acbd8ad49a975620" prot="private" virt="non-virtual"><scope>action::List</scope><name>main</name></member>
       <member refid="classaction_1_1_list_1a5812fe7adee91b066c0050fdb3116139" prot="private" virt="non-virtual"><scope>action::List</scope><name>messageOverlay</name></member>
       <member refid="classaction_1_1_list_1afb83a3130eb0b47542682ef045af0a2e" prot="private" virt="non-virtual"><scope>action::List</scope><name>minimumHeight</name></member>

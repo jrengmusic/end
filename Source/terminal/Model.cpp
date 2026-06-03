@@ -3,16 +3,13 @@
 namespace terminal
 {
 /*____________________________________________________________________________*/
+using jam::Parameter;
+using jam::ParameterText;
 
-Model::Model (TextBuffer& tb)
+Model::Model()
     : jam::Model (id::SESSION)
-    , textBuffer (tb)
 {
-    auto xml { jam::XML::getFromBinary (jam::IDref::parametersXml) };
-    jassert (xml != nullptr);
-
-    buildLayout (*xml, textBuffer);
-
+    buildLayout (*jam::XML::getFromBinary (jam::IDref::parametersXml));
     startTimerHz (60);
 }
 
@@ -40,7 +37,7 @@ int Model::resolveLayoutDefault (const juce::XmlElement& elem) noexcept
     return result;
 }
 
-void Model::buildLayout (const juce::XmlElement& xml, TextBuffer& tb)
+void Model::buildLayout (const juce::XmlElement& xml)
 {
     // All groups are nested AnyMaps so flush() can iterate uniformly.
     params.add<jam::AnyMap> (id::SESSION);
@@ -118,34 +115,19 @@ void Model::buildLayout (const juce::XmlElement& xml, TextBuffer& tb)
         }
         else if (tag == id::TEXT.toString())
         {
-            // TEXT parameter — Parameter<const char*> in SESSION group, slot in TextBuffer.
+            // TEXT parameter — ParameterText in SESSION group.
             const juce::Identifier textId { child->getStringAttribute (id::id.toString()) };
             const int maxlen              { child->getIntAttribute (id::maxlen.toString()) };
 
-            addTextParameter (textId, rootNode);
-            tb.addSlot (textId, maxlen);
+            addTextParameter (textId, rootNode, maxlen);
         }
     }
 }
 
-void Model::addTextParameter (const juce::Identifier& id, juce::ValueTree& rootNode) noexcept
+void Model::addTextParameter (const juce::Identifier& id, juce::ValueTree& rootNode, int maxlen) noexcept
 {
     auto* sessionGroup { params.get<jam::AnyMap> (id::SESSION) };
-    sessionGroup->add<Parameter<const char*>> (id, id, rootNode, id);
-}
-
-//==========================================================================
-// Reader-thread store helpers
-//==========================================================================
-
-void Model::storeValue (const juce::Identifier& groupId, const juce::Identifier& paramId, int value) noexcept
-{
-    params.get<jam::AnyMap> (groupId)->get<Parameter<int>> (paramId)->store (value);
-}
-
-int Model::loadValue (const juce::Identifier& groupId, const juce::Identifier& paramId) const noexcept
-{
-    return params.get<jam::AnyMap> (groupId)->get<Parameter<int>> (paramId)->load();
+    sessionGroup->add<ParameterText> (id, id, rootNode, id, maxlen, juce::String{});
 }
 
 //==========================================================================
@@ -176,11 +158,6 @@ void Model::rebuildRowDirtyFlags (int newVisibleRows) noexcept
     rowDirtyCount = newVisibleRows;
 }
 
-void Model::storeTextValue (const juce::Identifier& groupId, const juce::Identifier& paramId, const char* ptr) noexcept
-{
-    params.get<jam::AnyMap> (groupId)->get<Parameter<const char*>> (paramId)->store (ptr);
-}
-
 //==========================================================================
 // Reader-thread setters
 //==========================================================================
@@ -193,20 +170,17 @@ void Model::setMode (const juce::Identifier& id, bool v) noexcept { storeValue (
 
 void Model::setTitle (const char* src, int length) noexcept
 {
-    auto* p { textBuffer.write (id::title, src, length) };
-    storeTextValue (id::SESSION, id::title, p);
+    storeValue (id::SESSION, id::title, src, length);
 }
 
 void Model::setCwd (const char* src, int length) noexcept
 {
-    auto* p { textBuffer.write (id::cwd, src, length) };
-    storeTextValue (id::SESSION, id::cwd, p);
+    storeValue (id::SESSION, id::cwd, src, length);
 }
 
 void Model::setForegroundProcess (const char* src, int length) noexcept
 {
-    auto* p { textBuffer.write (id::foregroundProcess, src, length) };
-    storeTextValue (id::SESSION, id::foregroundProcess, p);
+    storeValue (id::SESSION, id::foregroundProcess, src, length);
 }
 
 //==========================================================================

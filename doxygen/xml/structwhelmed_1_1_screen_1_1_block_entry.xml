@@ -30,7 +30,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="whelmed/Screen.h" line="116" column="34" bodyfile="whelmed/Screen.h" bodystart="116" bodyend="-1"/>
-        <referencedby refid="classwhelmed_1_1_screen_1a1829b18228b8722dcc52bc3ec3d8806d" compoundref="_screen_8cpp" startline="9" endline="49">whelmed::Screen::load</referencedby>
+        <referencedby refid="classwhelmed_1_1_screen_1a1829b18228b8722dcc52bc3ec3d8806d" compoundref="_screen_8cpp" startline="9" endline="50">whelmed::Screen::load</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structwhelmed_1_1_screen_1_1_block_entry_1abaee333001559348ec77c2747dd216c5" prot="public" static="no" mutable="no">
         <type>int</type>

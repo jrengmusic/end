@@ -17,7 +17,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lua/Engine.h" line="733" column="24" bodyfile="lua/Engine.h" bodystart="733" bodyend="-1"/>
+        <location file="lua/Engine.h" line="59" column="24" bodyfile="lua/Engine.h" bodystart="59" bodyend="-1"/>
       </memberdef>
       <memberdef kind="variable" id="structlua_1_1_engine_1_1_selection_keys_1a163d6b03dcac41a4bc435daf45725884" prot="public" static="no" mutable="no">
         <type>juce::KeyPress</type>
@@ -32,7 +32,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lua/Engine.h" line="736" column="24" bodyfile="lua/Engine.h" bodystart="736" bodyend="-1"/>
+        <location file="lua/Engine.h" line="62" column="24" bodyfile="lua/Engine.h" bodystart="62" bodyend="-1"/>
       </memberdef>
       <memberdef kind="variable" id="structlua_1_1_engine_1_1_selection_keys_1a13526ee5aed3aae3529aae18179d236b" prot="public" static="no" mutable="no">
         <type>juce::KeyPress</type>
@@ -47,7 +47,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lua/Engine.h" line="739" column="24" bodyfile="lua/Engine.h" bodystart="739" bodyend="-1"/>
+        <location file="lua/Engine.h" line="65" column="24" bodyfile="lua/Engine.h" bodystart="65" bodyend="-1"/>
       </memberdef>
       <memberdef kind="variable" id="structlua_1_1_engine_1_1_selection_keys_1a62520fc26c22ddafefaf5ebc32a2ecf9" prot="public" static="no" mutable="no">
         <type>juce::KeyPress</type>
@@ -62,7 +62,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lua/Engine.h" line="742" column="24" bodyfile="lua/Engine.h" bodystart="742" bodyend="-1"/>
+        <location file="lua/Engine.h" line="68" column="24" bodyfile="lua/Engine.h" bodystart="68" bodyend="-1"/>
       </memberdef>
       <memberdef kind="variable" id="structlua_1_1_engine_1_1_selection_keys_1ab38e2533b0ede5f916f9375f5add26e3" prot="public" static="no" mutable="no">
         <type>juce::KeyPress</type>
@@ -77,7 +77,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lua/Engine.h" line="745" column="24" bodyfile="lua/Engine.h" bodystart="745" bodyend="-1"/>
+        <location file="lua/Engine.h" line="71" column="24" bodyfile="lua/Engine.h" bodystart="71" bodyend="-1"/>
       </memberdef>
       <memberdef kind="variable" id="structlua_1_1_engine_1_1_selection_keys_1a3ed3b7ee5b27fcd1e50c21cdd9d4b680" prot="public" static="no" mutable="no">
         <type>juce::KeyPress</type>
@@ -92,7 +92,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lua/Engine.h" line="748" column="24" bodyfile="lua/Engine.h" bodystart="748" bodyend="-1"/>
+        <location file="lua/Engine.h" line="74" column="24" bodyfile="lua/Engine.h" bodystart="74" bodyend="-1"/>
       </memberdef>
       <memberdef kind="variable" id="structlua_1_1_engine_1_1_selection_keys_1a1ead22245493c8f9bf44400030ebf3d1" prot="public" static="no" mutable="no">
         <type>juce::KeyPress</type>
@@ -107,7 +107,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lua/Engine.h" line="751" column="24" bodyfile="lua/Engine.h" bodystart="751" bodyend="-1"/>
+        <location file="lua/Engine.h" line="77" column="24" bodyfile="lua/Engine.h" bodystart="77" bodyend="-1"/>
       </memberdef>
       <memberdef kind="variable" id="structlua_1_1_engine_1_1_selection_keys_1a6ce2088e5ac72faf51cbb0dec4813638" prot="public" static="no" mutable="no">
         <type>juce::KeyPress</type>
@@ -122,7 +122,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lua/Engine.h" line="754" column="24" bodyfile="lua/Engine.h" bodystart="754" bodyend="-1"/>
+        <location file="lua/Engine.h" line="80" column="24" bodyfile="lua/Engine.h" bodystart="80" bodyend="-1"/>
       </memberdef>
       <memberdef kind="variable" id="structlua_1_1_engine_1_1_selection_keys_1ac25e42452471f1256ed05819338a4efb" prot="public" static="no" mutable="no">
         <type>juce::KeyPress</type>
@@ -137,7 +137,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lua/Engine.h" line="757" column="24" bodyfile="lua/Engine.h" bodystart="757" bodyend="-1"/>
+        <location file="lua/Engine.h" line="83" column="24" bodyfile="lua/Engine.h" bodystart="83" bodyend="-1"/>
       </memberdef>
       <memberdef kind="variable" id="structlua_1_1_engine_1_1_selection_keys_1a7e97391c4a06ab55213d7ab954435478" prot="public" static="no" mutable="no">
         <type>juce::KeyPress</type>
@@ -152,7 +152,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lua/Engine.h" line="760" column="24" bodyfile="lua/Engine.h" bodystart="760" bodyend="-1"/>
+        <location file="lua/Engine.h" line="86" column="24" bodyfile="lua/Engine.h" bodystart="86" bodyend="-1"/>
       </memberdef>
       <memberdef kind="variable" id="structlua_1_1_engine_1_1_selection_keys_1a269187446d750d27435eca85834b6a76" prot="public" static="no" mutable="no">
         <type>juce::KeyPress</type>
@@ -167,7 +167,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lua/Engine.h" line="763" column="24" bodyfile="lua/Engine.h" bodystart="763" bodyend="-1"/>
+        <location file="lua/Engine.h" line="89" column="24" bodyfile="lua/Engine.h" bodystart="89" bodyend="-1"/>
       </memberdef>
       <memberdef kind="variable" id="structlua_1_1_engine_1_1_selection_keys_1a830852450f7d63cbfab0723b826f5ea5" prot="public" static="no" mutable="no">
         <type>juce::KeyPress</type>
@@ -182,7 +182,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lua/Engine.h" line="766" column="24" bodyfile="lua/Engine.h" bodystart="766" bodyend="-1"/>
+        <location file="lua/Engine.h" line="92" column="24" bodyfile="lua/Engine.h" bodystart="92" bodyend="-1"/>
       </memberdef>
       <memberdef kind="variable" id="structlua_1_1_engine_1_1_selection_keys_1ac54e986913c0b336c5de7a250be9bd4d" prot="public" static="no" mutable="no">
         <type>juce::KeyPress</type>
@@ -197,7 +197,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lua/Engine.h" line="769" column="24" bodyfile="lua/Engine.h" bodystart="769" bodyend="-1"/>
+        <location file="lua/Engine.h" line="95" column="24" bodyfile="lua/Engine.h" bodystart="95" bodyend="-1"/>
       </memberdef>
       <memberdef kind="variable" id="structlua_1_1_engine_1_1_selection_keys_1a4f579dbb36bcdb5175b6cab2f61f4c8c" prot="public" static="no" mutable="no">
         <type>juce::KeyPress</type>
@@ -212,7 +212,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lua/Engine.h" line="772" column="24" bodyfile="lua/Engine.h" bodystart="772" bodyend="-1"/>
+        <location file="lua/Engine.h" line="98" column="24" bodyfile="lua/Engine.h" bodystart="98" bodyend="-1"/>
       </memberdef>
       <memberdef kind="variable" id="structlua_1_1_engine_1_1_selection_keys_1a1c6033bbace75a15e77ceeb346d821ad" prot="public" static="no" mutable="no">
         <type>juce::KeyPress</type>
@@ -227,7 +227,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lua/Engine.h" line="775" column="24" bodyfile="lua/Engine.h" bodystart="775" bodyend="-1"/>
+        <location file="lua/Engine.h" line="101" column="24" bodyfile="lua/Engine.h" bodystart="101" bodyend="-1"/>
       </memberdef>
     </sectiondef>
     <briefdescription>
@@ -236,7 +236,7 @@
     <detaileddescription>
 <para>Consumed by <ref refid="classterminal_1_1_input" kindref="compound">terminal::Input</ref> and <ref refid="classwhelmed_1_1_input_handler" kindref="compound">whelmed::InputHandler</ref> via <ref refid="classlua_1_1_engine_1ae87d4ee1a95737d622acabdb952ac1a2" kindref="member">getSelectionKeys()</ref>. </para>
     </detaileddescription>
-    <location file="lua/Engine.h" line="730" column="5" bodyfile="lua/Engine.h" bodystart="731" bodyend="776"/>
+    <location file="lua/Engine.h" line="56" column="5" bodyfile="lua/Engine.h" bodystart="57" bodyend="102"/>
     <listofallmembers>
       <member refid="structlua_1_1_engine_1_1_selection_keys_1a269187446d750d27435eca85834b6a76" prot="public" virt="non-virtual"><scope>lua::Engine::SelectionKeys</scope><name>bottom</name></member>
       <member refid="structlua_1_1_engine_1_1_selection_keys_1a6ce2088e5ac72faf51cbb0dec4813638" prot="public" virt="non-virtual"><scope>lua::Engine::SelectionKeys</scope><name>copy</name></member>

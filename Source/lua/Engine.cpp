@@ -2,10 +2,9 @@
  * @file Engine.cpp
  * @brief Core lifecycle for lua::Engine.
  *
- * Contains: constructor, destructor, load(), reload(), setDisplayCallbacks(),
+ * Contains: constructor, destructor, load(), setDisplayCallbacks(),
  * setPopupCallbacks(), registerApiTable(), registerActions(), buildKeyMap(),
- * getSelectionKeys(), getLoadError(), isKeyFileRemappable(), getPrefixString(),
- * fileChanged().
+ * getSelectionKeys(), getLoadError(), isKeyFileRemappable(), getPrefixString().
  *
  * Defaults are implemented in EngineDefaults.cpp.
  * Domain utilities (parseColour, buildTheme, etc.) are in EngineConfig.cpp.
@@ -16,8 +15,6 @@
  */
 
 #include "Engine.h"
-#include "../Map.h"
-#include "../AppModel.h"
 
 namespace lua
 {
@@ -32,36 +29,28 @@ juce::File Engine::getConfigPath()
 Engine::Engine()
 {
     writeDefaults();
-
-    const juce::File configDir { getConfigPath() };
-    watcher.addFolder (configDir);
-    watcher.coalesceEvents (300);
-    watcher.addListener (this);
-
-    load();
 }
 
 Engine::~Engine()
 {
-    watcher.removeListener (this);
-
     // action.entries holds jam::lua::Function refs into the Lua state.
-    // Members destroy in reverse declaration order — action (public) is declared
-    // before lua (private), so action would outlive lua.  Clear here to ensure
-    // Function refs are released while the Lua state is still alive.
+    // Members destroy in reverse declaration order — action is declared after lua,
+    // so action outlives lua. Clear here to ensure Function refs are released
+    // while the Lua state is still alive.
     action.entries.clear();
 }
 
 //==============================================================================
-void Engine::load()
+void Engine::load (jam::Model& newModel)
 {
-    // Reset all parsed state to aggregate defaults
-    nexus = Nexus {};
-    display = Display {};
-    whelmed = Whelmed {};
-    keys = Keys {};
-    popup = Popup {};
-    action = Action {};
+    model = &newModel;
+
+    // Reset internal parsed state — CONFIG properties are handled by parse methods.
+    keys           = Keys {};
+    popup          = Popup {};
+    action         = Action {};
+    handlers.clear();
+    extensions.clear();
     loadError.clear();
     keyFileRemappable = true;
 
@@ -76,7 +65,7 @@ void Engine::load()
     const auto packagePath { configDir.getFullPathName().replace ("\\", "/") + "/?.lua" };
     lua["package"].setField ("path", packagePath);
 
-    const auto endFile { configDir.getChildFile ("end.lua") };
+    const auto endFile { configDir.getChildFile (app::id::endLua) };
 
     if (endFile.existsAsFile())
     {
@@ -120,7 +109,7 @@ void Engine::load()
             parsePopups();
             parseActions();
 
-            const auto keysFile { configDir.getChildFile ("keys.lua") };
+            const auto keysFile { configDir.getChildFile (app::id::keysLua) };
 
             if (keysFile.existsAsFile())
             {
@@ -132,21 +121,6 @@ void Engine::load()
         {
             loadError = result.getErrorMessage();
         }
-    }
-}
-
-void Engine::reload()
-{
-    load();
-
-    // Increment configGeneration on the WINDOW node so MainComponent's VT listener
-    // detects the reload and calls applyConfig() + showReloadMessage().
-    // WINDOW is the node MainComponent already listens to for font/renderer changes.
-    if (AppModel::getContext() != nullptr)
-    {
-        auto windowNode { AppModel::getContext()->getWindow() };
-        const int current { static_cast<int> (windowNode.getProperty (app::id::configGeneration, 0)) };
-        windowNode.setProperty (app::id::configGeneration, current + 1, nullptr);
     }
 }
 
@@ -325,7 +299,9 @@ void Engine::buildKeyMap (::action::Registry& registry)
             bindings.push_back ({ actionEntry.id, actionEntry.shortcut, actionEntry.isModal });
     }
 
-    registry.buildKeyMap (keys.prefix, keys.prefixTimeout, bindings);
+    const juce::String prefixStr { model->getValue<juce::String> (app::id::KEYS_LUA, app::id::prefix) };
+    const int timeout { model->getValue<int> (app::id::KEYS_LUA, app::id::prefixTimeout) };
+    registry.buildKeyMap (prefixStr, timeout, bindings);
 }
 
 //==============================================================================
@@ -336,13 +312,10 @@ const juce::String& Engine::getLoadError() const noexcept { return loadError; }
 bool Engine::isKeyFileRemappable() const noexcept { return keyFileRemappable; }
 
 //==============================================================================
-const juce::String& Engine::getPrefixString() const noexcept { return keys.prefix; }
-
-//==============================================================================
-void Engine::fileChanged (const juce::File& file, jam::File::Watcher::Event event)
+juce::String Engine::getPrefixString() const noexcept
 {
-    if (event == jam::File::Watcher::Event::fileUpdated and nexus.autoReload and file.hasFileExtension ("lua"))
-        reload();
+    jassert (model != nullptr);
+    return model->getValue<juce::String> (app::id::KEYS_LUA, app::id::prefix);
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

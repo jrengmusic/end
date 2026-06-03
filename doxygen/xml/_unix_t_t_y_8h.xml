@@ -332,7 +332,7 @@
     </briefdescription>
     <detaileddescription>
 <para><ref refid="class_unix_t_t_y" kindref="compound">UnixTTY</ref> creates a POSIX PTY pair via <computeroutput>openpty()</computeroutput>, forks a child process, and connects the child&apos;s stdio to the slave fd. The parent retains the master fd for reading shell output and writing keyboard input.</para>
-<sect1 id="_unix_t_t_y_8h_1autotoc_md71_1s1"><sect2 id="_unix_t_t_y_8h_1autotoc_md71_1s2"><sect3 id="_unix_t_t_y_8h_1autotoc_md71">
+<sect1 id="_unix_t_t_y_8h_1autotoc_md72_1s1"><sect2 id="_unix_t_t_y_8h_1autotoc_md72_1s2"><sect3 id="_unix_t_t_y_8h_1autotoc_md72">
 <title>PTY pair lifecycle</title><para><programlisting><codeline><highlight class="normal">Parent<sp/>(<ref refid="class_unix_t_t_y" kindref="compound">UnixTTY</ref>)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Child<sp/>(shell)</highlight></codeline>
 <codeline><highlight class="normal">─────────────────────────────<sp/><sp/><sp/>─────────────────────────────────────</highlight></codeline>
 <codeline><highlight class="normal">openpty()<sp/>→<sp/>master,<sp/>slaveFd<sp/><sp/><sp/><sp/><sp/>(inherits<sp/>slaveFd<sp/>from<sp/>fork)</highlight></codeline>
@@ -342,10 +342,10 @@
 <codeline><highlight class="normal">startThread()<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>execl(shell,<sp/></highlight><highlight class="stringliteral">&quot;-l&quot;</highlight><highlight class="normal">)<sp/>—<sp/>replace<sp/>with<sp/>shell</highlight></codeline>
 </programlisting></para>
 </sect3></sect2></sect1>
-<sect1 id="_unix_t_t_y_8h_1autotoc_md72_1s1"><sect2 id="_unix_t_t_y_8h_1autotoc_md72_1s2"><sect3 id="_unix_t_t_y_8h_1autotoc_md72">
+<sect1 id="_unix_t_t_y_8h_1autotoc_md73_1s1"><sect2 id="_unix_t_t_y_8h_1autotoc_md73_1s2"><sect3 id="_unix_t_t_y_8h_1autotoc_md73">
 <title>Environment setup</title><para>The child sets <computeroutput>TERM=xterm-256color</computeroutput> unconditionally and sets <computeroutput>LANG=UTF-8</computeroutput> if not already present in the environment. The shell binary is taken from the <computeroutput>SHELL</computeroutput> environment variable, falling back to <computeroutput>/bin/bash</computeroutput>.</para>
 </sect3></sect2></sect1>
-<sect1 id="_unix_t_t_y_8h_1autotoc_md73_1s1"><sect2 id="_unix_t_t_y_8h_1autotoc_md73_1s2"><sect3 id="_unix_t_t_y_8h_1autotoc_md73">
+<sect1 id="_unix_t_t_y_8h_1autotoc_md74_1s1"><sect2 id="_unix_t_t_y_8h_1autotoc_md74_1s2"><sect3 id="_unix_t_t_y_8h_1autotoc_md74">
 <title>Destructor / shutdown sequence (instant kill)</title><para><orderedlist>
 <listitem><para>Signal reader thread to exit.</para>
 </listitem><listitem><para>Send SIGKILL to the child and block on waitpid to reap.</para>

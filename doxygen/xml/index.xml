@@ -3,75 +3,29 @@
   <compound refid="structlua_1_1_engine_1_1_action" kind="struct"><name>lua::Engine::Action</name>
     <member refid="structlua_1_1_engine_1_1_action_1a7b51961a6ac398625503ef1079b98e69" kind="variable"><name>entries</name></member>
   </compound>
-  <compound refid="structlua_1_1_engine_1_1_display_1_1_action_list" kind="struct"><name>lua::Engine::Display::ActionList</name>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_action_list_1ac9cd652f47e362ca8b4ba401adafe990" kind="variable"><name>closeOnRun</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_action_list_1aa49c2797ef5c5912cd41b94f0d7cd368" kind="variable"><name>position</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_action_list_1a20f824fe40edf6ff1d4bf934922c3e93" kind="variable"><name>nameFamily</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_action_list_1ac0919a8904789812ec14dc23e7eac44b" kind="variable"><name>nameStyle</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_action_list_1afe33c14f6e14d5de0112561b2103a07b" kind="variable"><name>nameSize</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_action_list_1a6f129efe1a9da8e94609c3bbf3dc46a0" kind="variable"><name>shortcutFamily</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_action_list_1a8c3e86e4f663c2326c8895cc97831e67" kind="variable"><name>shortcutStyle</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_action_list_1a9bb8cd9a85b021e4f704fbefdfda17ac" kind="variable"><name>shortcutSize</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_action_list_1a925164b3634672f736748e9277cf712c" kind="variable"><name>paddingTop</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_action_list_1a4d580d934df2659b15ce85f01bd04f19" kind="variable"><name>paddingRight</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_action_list_1aefa1ea187059b5a39cdcc06ac58647d1" kind="variable"><name>paddingBottom</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_action_list_1a80fa2e2130dff5418cfcc448d4ed222d" kind="variable"><name>paddingLeft</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_action_list_1abc0ac7b8fe656707eb0eb7d108f48576" kind="variable"><name>nameColour</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_action_list_1ae84ebcf5eb54ffd1c9c6de61ff1f437e" kind="variable"><name>shortcutColour</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_action_list_1a50ca47bff40d9fd37f75b329a258dc28" kind="variable"><name>width</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_action_list_1a49ae5345f945425920ea53ee1f853216" kind="variable"><name>height</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_action_list_1a6da19c801eef0f93103fdacd64e51872" kind="variable"><name>highlightColour</name></member>
-  </compound>
   <compound refid="struct_app_model" kind="struct"><name>AppModel</name>
     <member refid="struct_app_model_1a1db76cb2c0b58e4854cd8bdc6ffff3a9" kind="variable"><name>activeSession</name></member>
+    <member refid="struct_app_model_1ad226635025fc40d9ee723cb2b154c411" kind="variable"><name>engine</name></member>
+    <member refid="struct_app_model_1a1f34a2ccaed98b98e038ca55334e152a" kind="variable"><name>watcher</name></member>
     <member refid="struct_app_model_1abe400a13f767af47666a679942ccf1c5" kind="function"><name>AppModel</name></member>
     <member refid="struct_app_model_1a67ab3004ccbe2822a8a0abb9fa96ace3" kind="function"><name>~AppModel</name></member>
     <member refid="struct_app_model_1a33fc400cec078d808f6017c45574e10e" kind="function"><name>getWindow</name></member>
     <member refid="struct_app_model_1a732683754e18e0d3dbd93583bed3912b" kind="function"><name>getNexusNode</name></member>
     <member refid="struct_app_model_1a5bf961bf2da4f58edc44f53491d07b8b" kind="function"><name>getSessionsNode</name></member>
-    <member refid="struct_app_model_1a5f039d3461dcecd5581225bdadb0ce0c" kind="function"><name>getLoadingNode</name></member>
     <member refid="struct_app_model_1ad2ff3c0021a5923d44ad091734b7b589" kind="function"><name>getTabs</name></member>
     <member refid="struct_app_model_1ae391c9b55e9992a7ac88b2840b7e3079" kind="function"><name>getWindowWidth</name></member>
     <member refid="struct_app_model_1a36329693e74ae4f67d91b3abbe50cbb9" kind="function"><name>getWindowHeight</name></member>
     <member refid="struct_app_model_1ab65b479731c9d0efaf812f630dc6df23" kind="function"><name>getWindowZoom</name></member>
     <member refid="struct_app_model_1a5486d899a2fd3715f8977c815bcb0eb5" kind="function"><name>setWindowSize</name></member>
     <member refid="struct_app_model_1a0e6e5e29864e321a25bcd1bc8fbdcdf2" kind="function"><name>setWindowZoom</name></member>
-    <member refid="struct_app_model_1a148268915563bf57f4d8dd331bdc8af1" kind="function"><name>getFontFamily</name></member>
-    <member refid="struct_app_model_1a2dae0bf677d786df54592add4b6f7653" kind="function"><name>setFontFamily</name></member>
-    <member refid="struct_app_model_1a453da06259ecb0b83b6966771efe1f82" kind="function"><name>getFontSize</name></member>
-    <member refid="struct_app_model_1a73228906a27ee0e0ddd749e02c55f507" kind="function"><name>setFontSize</name></member>
-    <member refid="struct_app_model_1ad280d1276cb136d455b3703332875eb7" kind="function"><name>setScrollbackLines</name></member>
-    <member refid="struct_app_model_1a5fc7272cc6caa1a510d0c956f205c256" kind="function"><name>getCellWidth</name></member>
-    <member refid="struct_app_model_1a3f6234ea491efa3ba0e13ed5a9af75e4" kind="function"><name>setCellWidth</name></member>
-    <member refid="struct_app_model_1a78b708f95c7b81a30c9bfb4628b37aec" kind="function"><name>getLineHeight</name></member>
-    <member refid="struct_app_model_1ac145b163fefb0d869844801bdaa4c8bf" kind="function"><name>setLineHeight</name></member>
-    <member refid="struct_app_model_1af02fabcbf42bda957de3b79dac0a78eb" kind="function"><name>getCursorCodepoint</name></member>
-    <member refid="struct_app_model_1a39175ac839f1cdf8b41bb102c84d42c8" kind="function"><name>setCursorCodepoint</name></member>
-    <member refid="struct_app_model_1a47f5c036e7701087b9d30678735b3ec6" kind="function"><name>getCursorStyle</name></member>
-    <member refid="struct_app_model_1ac304758f2277b44b5b69ea99ada92d04" kind="function"><name>setCursorStyle</name></member>
-    <member refid="struct_app_model_1a5a51fd63625855b3bdbdd7fa466f232a" kind="function"><name>getCursorBlinkInterval</name></member>
-    <member refid="struct_app_model_1a8c682c57a734c44ede583208fbac1c82" kind="function"><name>setCursorBlinkInterval</name></member>
-    <member refid="struct_app_model_1aa949203f52b596440b04ae76adab7f11" kind="function"><name>getPaddingTop</name></member>
-    <member refid="struct_app_model_1ad2b662a4bd93e688cf7592de22f0c775" kind="function"><name>getPaddingRight</name></member>
-    <member refid="struct_app_model_1a9a402d8ba04ebc4e1d6f791d39c30635" kind="function"><name>getPaddingBottom</name></member>
-    <member refid="struct_app_model_1a52e345195bfb1e87f33cd472e55fdb6c" kind="function"><name>getPaddingLeft</name></member>
-    <member refid="struct_app_model_1a1c5acbd174197755b89450577edde968" kind="function"><name>setPaddingTop</name></member>
-    <member refid="struct_app_model_1ab092f12f2c1cee0814e6f24d425d054f" kind="function"><name>setPaddingRight</name></member>
-    <member refid="struct_app_model_1a46c958c3311f69d050c0e6e31613ba7a" kind="function"><name>setPaddingBottom</name></member>
-    <member refid="struct_app_model_1a1053e78981e1c1d287348ad06135dd42" kind="function"><name>setPaddingLeft</name></member>
     <member refid="struct_app_model_1abe273920682ed70f9076ae15e5d7842b" kind="function"><name>markAtlasDirty</name></member>
-    <member refid="struct_app_model_1a69f7c3a0edf15cba770d166f2b2222b8" kind="function"><name>consumeAtlasDirty</name></member>
     <member refid="struct_app_model_1ae1b2239313dc86889de4137db2b2a19a" kind="function"><name>getRendererType</name></member>
     <member refid="struct_app_model_1aae67bc48e392b48d0a269ad489a9d33e" kind="function"><name>setRendererType</name></member>
     <member refid="struct_app_model_1ac974e4042f7b19970e14c876ab0144da" kind="function"><name>setGpuAvailable</name></member>
-    <member refid="struct_app_model_1add3a497f60aa25b17b4974b74792c7ac" kind="function"><name>setInstanceUuid</name></member>
-    <member refid="struct_app_model_1af47dcc23d7369b6fb9f72d32cc0bbaa3" kind="function"><name>getInstanceUuid</name></member>
+    <member refid="struct_app_model_1addd152a610daaad73f2a37a74fb78e8d" kind="function"><name>setInstanceID</name></member>
     <member refid="struct_app_model_1a1bb1a3c23e730b48fc4c86b958bb5c3d" kind="function"><name>setDaemonMode</name></member>
     <member refid="struct_app_model_1a13a5563e524c4ff72fde7b72b11b9977" kind="function"><name>isDaemonMode</name></member>
-    <member refid="struct_app_model_1af9e76c672704046b019df53ac5b7c2ff" kind="function"><name>getActiveTabIndex</name></member>
     <member refid="struct_app_model_1a75038d249a33b5f32667b8cf1da894ed" kind="function"><name>setActiveTabIndex</name></member>
-    <member refid="struct_app_model_1af41a958ece0fed17ed0f1a1c444e2671" kind="function"><name>getTabPosition</name></member>
-    <member refid="struct_app_model_1afc32c48a7dbb67ad069e18510497e93c" kind="function"><name>setTabPosition</name></member>
     <member refid="struct_app_model_1a97e7b0dbabbf20a8f35682722b8268be" kind="function"><name>addTab</name></member>
     <member refid="struct_app_model_1af0eb41847a5138c20cca20a23d5d8283" kind="function"><name>removeTab</name></member>
     <member refid="struct_app_model_1a4588cfbb14ca0c3ebb0f1b3ae593e02a" kind="function"><name>getTab</name></member>
@@ -95,8 +49,28 @@
     <member refid="struct_app_model_1a62ef186466e64e89f89e0d0847c282bb" kind="function"><name>getStateFile</name></member>
     <member refid="struct_app_model_1aa8d1f246d97775f7f3c9e21cae213f9f" kind="function"><name>getNexusFile</name></member>
     <member refid="struct_app_model_1acde520240a05e0ff5b3880557c291a0a" kind="function"><name>getWindowState</name></member>
-    <member refid="struct_app_model_1adc4141a6e63d9801a6e3c027f729f74d" kind="function"><name>build</name></member>
-    <member refid="struct_app_model_1ac12d30deb94ace7428cfa1260a6f69d1" kind="function"><name>resolveAppLayoutDefault</name></member>
+    <member refid="struct_app_model_1a5a968d31d1ee27c00a4ec5410e6ddb5c" kind="function"><name>getConfig</name></member>
+    <member refid="struct_app_model_1a429c172336738085bdcfc574ac3fe099" kind="function"><name>buildTheme</name></member>
+    <member refid="struct_app_model_1ac4e9e32da7e70b4a27a8331065f2da58" kind="function"><name>getSelectionKeys</name></member>
+    <member refid="struct_app_model_1aec9c7ffdf4cd50d72bf1acbe4b47da7f" kind="function"><name>isClickableExtension</name></member>
+    <member refid="struct_app_model_1a549f68891d3e1765e76571afc74bdb47" kind="function"><name>getHandler</name></member>
+    <member refid="struct_app_model_1a861c89300ad29e92076c62208c6c39a6" kind="function"><name>dpiCorrectedFontSize</name></member>
+    <member refid="struct_app_model_1a76a4602401e7469c2f5f82ecd5fa35f1" kind="function"><name>registerActions</name></member>
+    <member refid="struct_app_model_1a5f30dbdbaf5f67a1625e8f3fccbed820" kind="function"><name>buildKeyMap</name></member>
+    <member refid="struct_app_model_1a6d8f518d03e2c453399f35ac111aeb17" kind="function"><name>registerApiTable</name></member>
+    <member refid="struct_app_model_1ae844f099d83545ccc97c63b4392dcf9d" kind="function"><name>setDisplayCallbacks</name></member>
+    <member refid="struct_app_model_1a6a18b457953efd73acacb7e8b2636b74" kind="function"><name>setPopupCallbacks</name></member>
+    <member refid="struct_app_model_1a1f7402db84b50aaa3cca3f77dfda9f53" kind="function"><name>getLoadError</name></member>
+    <member refid="struct_app_model_1a6d7ee5a320654d262a0264e1d3629153" kind="function"><name>getShortcutString</name></member>
+    <member refid="struct_app_model_1abc63083381b6051f6cca1dc88870ddc7" kind="function"><name>getActionLuaKey</name></member>
+    <member refid="struct_app_model_1a2ea77daa69a602d42744cab39c0f9fa4" kind="function"><name>getPrefixString</name></member>
+    <member refid="struct_app_model_1a907d066522a6edbd1792bdda8b470ed7" kind="function"><name>isKeyFileRemappable</name></member>
+    <member refid="struct_app_model_1ac4309885bf014d58a17e47358aea7173" kind="function"><name>overrideShortcut</name></member>
+    <member refid="struct_app_model_1a7330d1ef0c684fcf831f81327d05ef11" kind="function"><name>reload</name></member>
+    <member refid="struct_app_model_1abb1bd909972941e34fe1da72ac09050b" kind="function"><name>fileChanged</name></member>
+    <member refid="struct_app_model_1ac6aa77a24312ba9cdb66f9aa5c287f14" kind="function"><name>build</name></member>
+    <member refid="struct_app_model_1a9c27ed5937516c6f403e16741a0f2bda" kind="function"><name>createAndAddParameter</name></member>
+    <member refid="struct_app_model_1abe27481602236963b99ea1ffc58ed993" kind="function"><name>getInstanceID</name></member>
   </compound>
   <compound refid="structaction_1_1_registry_1_1_binding" kind="struct"><name>action::Registry::Binding</name>
     <member refid="structaction_1_1_registry_1_1_binding_1ab07b0ac4f67f91b136344c3e6d8e694a" kind="variable"><name>actionId</name></member>
@@ -236,24 +210,6 @@
     <member refid="structterminal_1_1_sixel_decoder_1_1_colour_1a013c24180f23b3ba1c26fc5cfc0daf12" kind="variable"><name>b</name></member>
     <member refid="structterminal_1_1_sixel_decoder_1_1_colour_1a05b27994471d8c8d0e56da5bdd3cfe17" kind="variable"><name>a</name></member>
   </compound>
-  <compound refid="structlua_1_1_engine_1_1_display_1_1_colours" kind="struct"><name>lua::Engine::Display::Colours</name>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_colours_1aa0125b71958ec42c8e235a73a1d5e962" kind="variable"><name>foreground</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_colours_1af9d1c4cfff57b04210b1801644a9a11f" kind="variable"><name>background</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_colours_1abb6ba5968eb9ca4efa5c0ba6479d2908" kind="variable"><name>cursor</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_colours_1a455f7274644aaaa75a5c4aa5904cbf85" kind="variable"><name>selection</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_colours_1a9329aaaf2e793fed8a9bf094e3aeb391" kind="variable"><name>selectionCursor</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_colours_1a94aa7b2c0c82985177ff87fcab0a57a1" kind="variable"><name>ansi</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_colours_1a8d7164e99e52acddb3d2338fba7f595e" kind="variable"><name>editorBackground</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_colours_1aab23afaf2a46a40c182af0b32b757cfb" kind="variable"><name>editorOutline</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_colours_1a78c338d187640388d1de9c42a5a033a8" kind="variable"><name>statusBar</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_colours_1ae889f8fc59964c47427afeda7b031071" kind="variable"><name>statusBarLabelBg</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_colours_1a03a87c58d5df397a604078266274e44f" kind="variable"><name>statusBarLabelFg</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_colours_1af35c9b2263cfcba10027f05f64d0bf12" kind="variable"><name>statusBarSpinner</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_colours_1a8743c79ea848ae34f5b1c1b26db60c1c" kind="variable"><name>hintLabelBg</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_colours_1afb58572d28c10061238f9d0539456724" kind="variable"><name>hintLabelFg</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_colours_1a6d82de92fc4822f0c88f362b7203a483" kind="variable"><name>scrollbarThumb</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_colours_1aa430ea243c8d704cc02b9ec59c63d571" kind="variable"><name>scrollbarTrack</name></member>
-  </compound>
   <compound refid="structwhelmed_1_1_table_block_1_1_colour_scheme" kind="struct"><name>whelmed::TableBlock::ColourScheme</name>
     <member refid="structwhelmed_1_1_table_block_1_1_colour_scheme_1a91c51923e12fd3f88ae8f349be057cda" kind="variable"><name>background</name></member>
     <member refid="structwhelmed_1_1_table_block_1_1_colour_scheme_1ae53ba2b1902ad3377523a8a8b5f5b4ae" kind="variable"><name>headerBackground</name></member>
@@ -288,14 +244,6 @@
     <member refid="classwhelmed_1_1_component_1a05a7199a25806394c1dcc70afaf5ad16" kind="function"><name>graftDocumentInto</name></member>
     <member refid="classwhelmed_1_1_component_1a2940a683822f0f372d38b8f285237d5c" kind="function"><name>applyFromAppModel</name></member>
     <member refid="classwhelmed_1_1_component_1ab33051f05dd5e6585dc190b4fb0b733b" kind="function"><name>valueTreePropertyChanged</name></member>
-  </compound>
-  <compound refid="structterminal_1_1_display_1_1_config_listener" kind="struct"><name>terminal::Display::ConfigListener</name>
-    <member refid="structterminal_1_1_display_1_1_config_listener_1a800c7d8dc8dd5f5b3aff7b1b7b0da769" kind="variable"><name>display</name></member>
-    <member refid="structterminal_1_1_display_1_1_config_listener_1a902ac720324f356942feb46e3c0c208d" kind="variable"><name>appState</name></member>
-    <member refid="structterminal_1_1_display_1_1_config_listener_1ab2321b389d513daaf39861a62605bc1e" kind="function"><name>ConfigListener</name></member>
-    <member refid="structterminal_1_1_display_1_1_config_listener_1aff3bc9ae4a92be4a5768f72f09d3af89" kind="function"><name>start</name></member>
-    <member refid="structterminal_1_1_display_1_1_config_listener_1a3f4b874e3064af96f4ada315eaa4e470" kind="function"><name>stop</name></member>
-    <member refid="structterminal_1_1_display_1_1_config_listener_1a10c2d53b02019034a43005814278a391" kind="function"><name>valueTreePropertyChanged</name></member>
   </compound>
   <compound refid="structnexus_1_1_link_1_1_connect_timer" kind="struct"><name>nexus::Link::ConnectTimer</name>
     <member refid="structnexus_1_1_link_1_1_connect_timer_1a7c53c3784981fca5df078f71d75c6ad4" kind="variable"><name>owner</name></member>
@@ -332,13 +280,6 @@
     <member refid="struct_cursor_1adcc439071d37e5783012854a2207b45b" kind="function"><name>moveToLineEnd</name></member>
     <member refid="struct_cursor_1aea2830740a35477f114a4838613c5cff" kind="function"><name>moveToTop</name></member>
     <member refid="struct_cursor_1a5f192dfa41c67ccf9930f7a5b298a0d9" kind="function"><name>moveToBottom</name></member>
-  </compound>
-  <compound refid="structlua_1_1_engine_1_1_display_1_1_cursor" kind="struct"><name>lua::Engine::Display::Cursor</name>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_cursor_1a3b8fa1e9c425d91fc6f3f9a214b39d9e" kind="variable"><name>codepoint</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_cursor_1ad2320cafdcbee55c9a54302e9ce43f34" kind="variable"><name>blink</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_cursor_1aef3e7bedd2a7f8d9040cc24f8770313d" kind="variable"><name>blinkInterval</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_cursor_1a9bcdb22c570472a225ec03005eceb50f" kind="variable"><name>force</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_cursor_1ac86792bbd25d9739eb73847bb3ac6db7" kind="variable"><name>style</name></member>
   </compound>
   <compound refid="struct_map_1_1_cursor" kind="struct"><name>Map::Cursor</name>
     <member refid="struct_map_1_1_cursor_1afaf40f3a7720ace47e3410a88cafff27" kind="enum"><name>@276321167147024365076336025061066043045231020040</name></member>
@@ -402,7 +343,6 @@
     <member refid="classterminal_1_1_dialog_1ac03dbb20ce3f3a88463fcbac47a11f89" kind="variable"><name>onYes</name></member>
     <member refid="classterminal_1_1_dialog_1a76fc0605aaaf61ac1d60ed64019f3fea" kind="variable"><name>onNo</name></member>
     <member refid="classterminal_1_1_dialog_1a0df7e92d6f614578f490aacf220b43f4" kind="variable"><name>onDismiss</name></member>
-    <member refid="classterminal_1_1_dialog_1a85662a71c5ae313179c6b6ccbcb8c52d" kind="variable"><name>config</name></member>
     <member refid="classterminal_1_1_dialog_1ac6947ff992c4e389f9174ee9f573dee6" kind="variable"><name>font</name></member>
     <member refid="classterminal_1_1_dialog_1a32d113a1cedbfe0be626a2b10856b885" kind="variable"><name>textHeight</name></member>
     <member refid="classterminal_1_1_dialog_1a5d3f32ea19fe5ebfb36ca12b63e9394f" kind="variable"><name>buttonHeight</name></member>
@@ -456,20 +396,6 @@
     <member refid="classterminal_1_1_dispatch_table_1a762c69cb4a1396a4abd490d915a5b211" kind="function"><name>buildSosPmApc</name></member>
     <member refid="classterminal_1_1_dispatch_table_1a4d459440edad6f5fd29731543646f56c" kind="function"><name>buildApcString</name></member>
   </compound>
-  <compound refid="structlua_1_1_engine_1_1_display" kind="struct"><name>lua::Engine::Display</name>
-    <member refid="structlua_1_1_engine_1_1_display_1a1ed1120e690119e7e692ac5228ac1df3" kind="variable"><name>window</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1af8c3c6b5544c1c9a38c83bc5830be3bb" kind="variable"><name>colours</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1a49ac5346608b3dcca83e12b4d15da1d5" kind="variable"><name>cursor</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1ad381a34c0708ef97a647c36fe7cffbd7" kind="variable"><name>font</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1afb863984934a57eca589d297cc9b48c0" kind="variable"><name>tab</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1a44d22afac9d86f2d50d8cd4bc28885bb" kind="variable"><name>pane</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1a554884c117b50314c11d9d36eec02f19" kind="variable"><name>overlay</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1a4fcc7e2433d0b0e7f68073006a80bc1e" kind="variable"><name>menu</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1ab2c57e6bb4a8506d4e4e81beb6b8f8b2" kind="variable"><name>actionList</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1a013fdf623adc4f239105be36be4c79d3" kind="variable"><name>statusBar</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1abf1a37ac4119755d04392da91d20479e" kind="variable"><name>popup</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1a864fd2fcdef348de9e063e9a48076aaa" kind="variable"><name>scrollbarWidth</name></member>
-  </compound>
   <compound refid="classterminal_1_1_display" kind="class"><name>terminal::Display</name>
     <member refid="classterminal_1_1_display_1ae191378e54e5671c8f04a878881bcbf1" kind="enum"><name>ColourIds</name></member>
     <member refid="classterminal_1_1_display_1ae191378e54e5671c8f04a878881bcbf1aedcf556d8c0c7b2c66f6e1c58bf5a3ac" kind="enumvalue"><name>cursorColourId</name></member>
@@ -501,7 +427,7 @@
     <member refid="classterminal_1_1_display_1aa29d50a3ba2b5ac9b6a1f6921189f31b" kind="variable"><name>linkManager</name></member>
     <member refid="classterminal_1_1_display_1a56902129be2ac08d4fd6b026387f3c30" kind="variable"><name>input</name></member>
     <member refid="classterminal_1_1_display_1a76b9f59f3f9b03f6b34d92f73e38b657" kind="variable"><name>mouse</name></member>
-    <member refid="classterminal_1_1_display_1a2dd6e6eb013b7d0a9302c321d5d75c4d" kind="variable"><name>configListener</name></member>
+    <member refid="classterminal_1_1_display_1a5f1969179a0aff688134fac27ea5d4bc" kind="variable"><name>configDisplay</name></member>
     <member refid="classterminal_1_1_display_1a795559c55785fb2637b1a3b873d84515" kind="function"><name>Display</name></member>
     <member refid="classterminal_1_1_display_1accefc1db87d2bb3984c7aed643255470" kind="function"><name>~Display</name></member>
     <member refid="classterminal_1_1_display_1a2e77bd710b79769f795c1a09d65775e9" kind="function"><name>getPaneType</name></member>
@@ -525,7 +451,7 @@
     <member refid="classterminal_1_1_display_1a5842e4fc854cec2d5bfd1c065596d052" kind="function"><name>mouseDrag</name></member>
     <member refid="classterminal_1_1_display_1a849a0f93e5fca3755cf5f150b2bcd022" kind="function"><name>mouseUp</name></member>
     <member refid="classterminal_1_1_display_1ad63a8688a5f8134792125bb6850c3aaa" kind="function"><name>mouseMove</name></member>
-    <member refid="classterminal_1_1_display_1add336f50de49e963b5491ad266173662" kind="function"><name>applyFromAppModel</name></member>
+    <member refid="classterminal_1_1_display_1a5b061c7f308917ead2d65a7d0100a4b9" kind="function"><name>applyConfigToCodeView</name></member>
     <member refid="classterminal_1_1_display_1a03eba79fe456af4968d7f483d9f240f0" kind="function"><name>valueTreePropertyChanged</name></member>
   </compound>
   <compound refid="structlua_1_1_engine_1_1_display_callbacks" kind="struct"><name>lua::Engine::DisplayCallbacks</name>
@@ -541,7 +467,6 @@
     <member refid="structlua_1_1_engine_1_1_display_callbacks_1a72af807ea2ae1fe9183cadaf15577636" kind="variable"><name>renameTab</name></member>
   </compound>
   <compound refid="class_e_n_d_application" kind="class"><name>ENDApplication</name>
-    <member refid="class_e_n_d_application_1a02a82a77e54040af5f5e8683bdac4804" kind="variable"><name>logScope</name></member>
     <member refid="class_e_n_d_application_1a92cbbb5aeb0c592bd833eca564f022d4" kind="variable"><name>typefaceResources</name></member>
     <member refid="class_e_n_d_application_1a24d310801727c1d6bbef9e363b3b15ca" kind="variable"><name>stampContext</name></member>
     <member refid="class_e_n_d_application_1a1a899bf77071fbeceac30d7494290662" kind="variable"><name>graphemeContext</name></member>
@@ -555,7 +480,6 @@
     <member refid="class_e_n_d_application_1a45b43034d5ed53ebd46f2cc6517ac78a" kind="variable"><name>directionMap</name></member>
     <member refid="class_e_n_d_application_1aefe93114b83148b68f584e1b818f1487" kind="variable"><name>positionMap</name></member>
     <member refid="class_e_n_d_application_1aa5c49cf5581b1bdbfe3fbf58438168ad" kind="variable"><name>linkHandlerMap</name></member>
-    <member refid="class_e_n_d_application_1a565e433cc396adfa8e0949d6dc6f4bfc" kind="variable"><name>luaEngine</name></member>
     <member refid="class_e_n_d_application_1a3db4dc71dc79fdf81a30d8c605851403" kind="variable"><name>appState</name></member>
     <member refid="class_e_n_d_application_1aef26248399c32d6f4a83f5c12628babf" kind="variable"><name>action</name></member>
     <member refid="class_e_n_d_application_1ab6938f2a5d2f232ebbc4c1713dff3d74" kind="variable"><name>nexus</name></member>
@@ -578,24 +502,22 @@
     <member refid="classlua_1_1_engine_1ae6f156566d6edd39a943e998f4ae3350" kind="variable"><name>zoomMin</name></member>
     <member refid="classlua_1_1_engine_1a1ba41349603261d5c8311f51c6fbfbd8" kind="variable"><name>zoomMax</name></member>
     <member refid="classlua_1_1_engine_1a94426bd459969305dca91f8451a076b4" kind="variable"><name>zoomStep</name></member>
-    <member refid="classlua_1_1_engine_1a730187b1c890e6416f3d5941801bdf3c" kind="variable"><name>nexus</name></member>
-    <member refid="classlua_1_1_engine_1a487998fa6e9865337ece55987c2c336f" kind="variable"><name>display</name></member>
-    <member refid="classlua_1_1_engine_1a1c571d5258788983fbc7e40760288fbe" kind="variable"><name>whelmed</name></member>
-    <member refid="classlua_1_1_engine_1a2fa5e83e7fb75415e78df3c694d5c3bf" kind="variable"><name>keys</name></member>
-    <member refid="classlua_1_1_engine_1aefc7cf2d306ea6616b20dff9adb8d01a" kind="variable"><name>popup</name></member>
-    <member refid="classlua_1_1_engine_1a6857f13b2da1c7793565aa97ec81369c" kind="variable"><name>action</name></member>
     <member refid="classlua_1_1_engine_1a81bd1a17333fcbaa9cff6a1735de1845" kind="variable"><name>keyMappingCount</name></member>
     <member refid="classlua_1_1_engine_1a836652390278a90fba60df480ac2867e" kind="variable"><name>keyMappings</name></member>
+    <member refid="classlua_1_1_engine_1aa6cb2216fc616386bee44355fc66599b" kind="variable"><name>model</name></member>
     <member refid="classlua_1_1_engine_1a90db1d1966b61a670a71fcbf278feebf" kind="variable"><name>lua</name></member>
-    <member refid="classlua_1_1_engine_1a4bc6e43bd59e5b77ecfc1fa08e305baf" kind="variable"><name>watcher</name></member>
     <member refid="classlua_1_1_engine_1a0215676aca02c5462c99c180d010f780" kind="variable"><name>displayCallbacks</name></member>
     <member refid="classlua_1_1_engine_1a7aca9fbc5629cd30b125b745c70440e8" kind="variable"><name>popupCallbacks</name></member>
     <member refid="classlua_1_1_engine_1ac3974738484aea1b18744797c70f78d9" kind="variable"><name>loadError</name></member>
     <member refid="classlua_1_1_engine_1a103ff5b512e003e2ad1057aba10b5a4d" kind="variable"><name>keyFileRemappable</name></member>
+    <member refid="classlua_1_1_engine_1a2fa5e83e7fb75415e78df3c694d5c3bf" kind="variable"><name>keys</name></member>
+    <member refid="classlua_1_1_engine_1aefc7cf2d306ea6616b20dff9adb8d01a" kind="variable"><name>popup</name></member>
+    <member refid="classlua_1_1_engine_1a6857f13b2da1c7793565aa97ec81369c" kind="variable"><name>action</name></member>
+    <member refid="classlua_1_1_engine_1a2e693f8e7259ed70f6aa1d99f7526244" kind="variable"><name>handlers</name></member>
+    <member refid="classlua_1_1_engine_1a03b5e8884251d6b997cbe557bb71dcb8" kind="variable"><name>extensions</name></member>
     <member refid="classlua_1_1_engine_1a93f2a4915aa00c1827a62e13937c9625" kind="function"><name>Engine</name></member>
-    <member refid="classlua_1_1_engine_1af5a0d9e101546d415ec7bd3f485addf9" kind="function"><name>~Engine</name></member>
-    <member refid="classlua_1_1_engine_1ad9890e6f9e1b4f30ce7766bb9ded00f7" kind="function"><name>load</name></member>
-    <member refid="classlua_1_1_engine_1af028d4813e69b9b55d82639a3105cdb1" kind="function"><name>reload</name></member>
+    <member refid="classlua_1_1_engine_1ad8aa673b77a50963525267dc775a9c03" kind="function"><name>~Engine</name></member>
+    <member refid="classlua_1_1_engine_1a5167bc8b7a29c1355253aeae483d8b1d" kind="function"><name>load</name></member>
     <member refid="classlua_1_1_engine_1a29032722d0854c7d23afe518573425f9" kind="function"><name>setDisplayCallbacks</name></member>
     <member refid="classlua_1_1_engine_1aa70deed765d15020ae7a6043f6c89a5a" kind="function"><name>setPopupCallbacks</name></member>
     <member refid="classlua_1_1_engine_1ae314ec9058de8fbae4f5144e055becc0" kind="function"><name>registerApiTable</name></member>
@@ -606,7 +528,7 @@
     <member refid="classlua_1_1_engine_1ae2261ea537a36e744e2128daabf33af6" kind="function"><name>isKeyFileRemappable</name></member>
     <member refid="classlua_1_1_engine_1a0fdb21f285521fa8fb12a88a308da9c4" kind="function"><name>patchKey</name></member>
     <member refid="classlua_1_1_engine_1ac9b83c4663538eddf3a130846971b23c" kind="function"><name>getActionLuaKey</name></member>
-    <member refid="classlua_1_1_engine_1ab0d6271feb32ed89a3a9c3c517aace5b" kind="function"><name>getPrefixString</name></member>
+    <member refid="classlua_1_1_engine_1a6f2d1cafd200a22601172cd9d540e62b" kind="function"><name>getPrefixString</name></member>
     <member refid="classlua_1_1_engine_1ac0c14159cc40c6657626295e28d8e7fb" kind="function"><name>getShortcutString</name></member>
     <member refid="classlua_1_1_engine_1aef97b23c743508a21d03a60a4618772b" kind="function"><name>buildTheme</name></member>
     <member refid="classlua_1_1_engine_1aa5470c194c31359e618d77db98586aca" kind="function"><name>dpiCorrectedFontSize</name></member>
@@ -614,7 +536,6 @@
     <member refid="classlua_1_1_engine_1ac087245f0d9b611589069014bd4bd5d8" kind="function"><name>isClickableExtension</name></member>
     <member refid="classlua_1_1_engine_1aa86ffb259a21a3f079963ab08906be0d" kind="function"><name>parseColour</name></member>
     <member refid="classlua_1_1_engine_1a2a3f09ff613e66ae01cde493dbbe4395" kind="function"><name>getConfigPath</name></member>
-    <member refid="classlua_1_1_engine_1a26a18eaa2cb36c90ef4be49785582c09" kind="function"><name>fileChanged</name></member>
     <member refid="classlua_1_1_engine_1a35baf38e568f8857a7dce33af15069a2" kind="function"><name>writeDefaults</name></member>
     <member refid="classlua_1_1_engine_1ad19fd4c9217bbb93e27454599d238f0e" kind="function"><name>writeEndDefaults</name></member>
     <member refid="classlua_1_1_engine_1a67e3cd4c7407ff4477b95fb2d9921e5c" kind="function"><name>writeNexusDefaults</name></member>
@@ -658,15 +579,6 @@
     <member refid="structlua_1_1_engine_1_1_popup_1_1_entry_1a929e94492c42ec4d0a4417ee44039cc3" kind="variable"><name>modal</name></member>
     <member refid="structlua_1_1_engine_1_1_popup_1_1_entry_1a3b44dcffcdaeff953d53f89d59324531" kind="variable"><name>global</name></member>
   </compound>
-  <compound refid="structlua_1_1_engine_1_1_display_1_1_font" kind="struct"><name>lua::Engine::Display::Font</name>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_font_1a0bf1671f01db586d10a184b07b945680" kind="variable"><name>family</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_font_1a65e33b308dc812826f9cfec4edfafe80" kind="variable"><name>size</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_font_1ad6a04f1b5ac7f25bc6df8e40e372c93d" kind="variable"><name>ligatures</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_font_1ae86e9c52b833ff0cd4fbcd09ffa2fc5d" kind="variable"><name>embolden</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_font_1a3b4ec2aa185cf57d6c9c6cb5802460b8" kind="variable"><name>lineHeight</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_font_1a5ba6cfb7cb51e5eb27c368461a9062f9" kind="variable"><name>cellWidth</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_font_1ab4b907de2cfdb0e10a1628d608c75b03" kind="variable"><name>desktopScale</name></member>
-  </compound>
   <compound refid="classwhelmed_1_1_generic_tokeniser" kind="class"><name>whelmed::GenericTokeniser</name>
     <member refid="classwhelmed_1_1_generic_tokeniser_1ab9df45c01a9ad2a8fc2fa6be73bc9fdd" kind="variable"><name>lang</name></member>
     <member refid="classwhelmed_1_1_generic_tokeniser_1a65b12e5c61680b8e9d41fcf1816ed4ff" kind="variable"><name>sortedKeywords</name></member>
@@ -707,19 +619,6 @@
   <compound refid="structwhelmed_1_1_screen_1_1_hit_result" kind="struct"><name>whelmed::Screen::HitResult</name>
     <member refid="structwhelmed_1_1_screen_1_1_hit_result_1ace232899ca9b365c6d9e4bd7920d09de" kind="variable"><name>block</name></member>
     <member refid="structwhelmed_1_1_screen_1_1_hit_result_1afa9d45d00d74a5557c3815f5ee59efb4" kind="variable"><name>character</name></member>
-  </compound>
-  <compound refid="structlua_1_1_engine_1_1_nexus_1_1_hyperlinks" kind="struct"><name>lua::Engine::Nexus::Hyperlinks</name>
-    <member refid="structlua_1_1_engine_1_1_nexus_1_1_hyperlinks_1a67a6ef710cca4eaca355f3a0efa86dbb" kind="variable"><name>editor</name></member>
-    <member refid="structlua_1_1_engine_1_1_nexus_1_1_hyperlinks_1a49c5d6f0467c54908153e3e8508cf111" kind="variable"><name>handlers</name></member>
-    <member refid="structlua_1_1_engine_1_1_nexus_1_1_hyperlinks_1a5d4f084d22b50ae71b9ce22708070486" kind="variable"><name>extensions</name></member>
-  </compound>
-  <compound refid="structlua_1_1_engine_1_1_nexus_1_1_image" kind="struct"><name>lua::Engine::Nexus::Image</name>
-    <member refid="structlua_1_1_engine_1_1_nexus_1_1_image_1a253f83063c37f747747add5ff8cc3925" kind="variable"><name>atlasBudgetBytes</name></member>
-    <member refid="structlua_1_1_engine_1_1_nexus_1_1_image_1accb593abb47b006169afab9f046892c2" kind="variable"><name>cols</name></member>
-    <member refid="structlua_1_1_engine_1_1_nexus_1_1_image_1ae8c337784f428fd0a4dffc5bc9811c3a" kind="variable"><name>rows</name></member>
-    <member refid="structlua_1_1_engine_1_1_nexus_1_1_image_1a3fbfc1276aa9402b93bb8bcf1c485f75" kind="variable"><name>padding</name></member>
-    <member refid="structlua_1_1_engine_1_1_nexus_1_1_image_1afc84e7c82edd705439f1a802817c4673" kind="variable"><name>atlasDimension</name></member>
-    <member refid="structlua_1_1_engine_1_1_nexus_1_1_image_1a58a9513907e0ea4d72d3c91ca08fb617" kind="variable"><name>border</name></member>
   </compound>
   <compound refid="structterminal_1_1_image_sequence" kind="struct"><name>terminal::ImageSequence</name>
     <member refid="structterminal_1_1_image_sequence_1a950cadf179eb7f70a0e665eaf834d0d4" kind="variable"><name>pixels</name></member>
@@ -822,8 +721,6 @@
     <member refid="structlua_1_1_engine_1_1_key_mapping_1a931a16ba333c1e38acda59172aaee151" kind="variable"><name>isModal</name></member>
   </compound>
   <compound refid="structlua_1_1_engine_1_1_keys" kind="struct"><name>lua::Engine::Keys</name>
-    <member refid="structlua_1_1_engine_1_1_keys_1aee5fe8a4d97b7219d8c4bd7752615c58" kind="variable"><name>prefix</name></member>
-    <member refid="structlua_1_1_engine_1_1_keys_1a734505d6e2ec86eafe4aa71cc8bd988f" kind="variable"><name>prefixTimeout</name></member>
     <member refid="structlua_1_1_engine_1_1_keys_1afb89757287d37b3b14d08d6df7e64f5e" kind="variable"><name>bindings</name></member>
     <member refid="structlua_1_1_engine_1_1_keys_1acfff04ddb56741df32f6092c1fea73f2" kind="variable"><name>selection</name></member>
   </compound>
@@ -969,14 +866,13 @@
     <member refid="classaction_1_1_list_1aaba3b30a29908d26894870dca20df3ac" kind="variable"><name>bindingRowIndexId</name></member>
     <member refid="classaction_1_1_list_1a81499b3f1e50002faadd3732ec3426e2" kind="variable"><name>bindingsDirtyId</name></member>
     <member refid="classaction_1_1_list_1a2b71f48bc3fbd033acbd8ad49a975620" kind="variable"><name>main</name></member>
-    <member refid="classaction_1_1_list_1a82b8c115f7d164f8c39d7ca142f513fd" kind="variable"><name>luaEngine</name></member>
     <member refid="classaction_1_1_list_1a6a16a0291186b5a4c83ee03f0520d160" kind="variable"><name>state</name></member>
     <member refid="classaction_1_1_list_1ab5068c55ae4e70e344e86228b99530f2" kind="variable"><name>viewport</name></member>
     <member refid="classaction_1_1_list_1ac612680009dbd29fcc48afa44e0c852c" kind="variable"><name>rowContainer</name></member>
     <member refid="classaction_1_1_list_1ae5c0332610df26c061b21ac5fa51cab6" kind="variable"><name>rows</name></member>
     <member refid="classaction_1_1_list_1a5812fe7adee91b066c0050fdb3116139" kind="variable"><name>messageOverlay</name></member>
     <member refid="classaction_1_1_list_1a288a62bad2e63febffce810c4cb4136d" kind="variable"><name>keyHandler</name></member>
-    <member refid="classaction_1_1_list_1ac904fdaee75d73bf19dfd39b1a9fd505" kind="function"><name>List</name></member>
+    <member refid="classaction_1_1_list_1ad522a1f35a36a45d33fa1624b644a9ee" kind="function"><name>List</name></member>
     <member refid="classaction_1_1_list_1adcbb2e7fb9cc2115de5c1c85e1630ac5" kind="function"><name>~List</name></member>
     <member refid="classaction_1_1_list_1afc9326beb35569e3f90b35959451771c" kind="function"><name>keyPressed</name></member>
     <member refid="classaction_1_1_list_1af361864cf6f79fe4c2d7f4796a449cb0" kind="function"><name>resized</name></member>
@@ -1075,7 +971,6 @@
     <member refid="classterminal_1_1_look_and_feel_1a59aa59b76ca56651ee887ce900ba5d07" kind="function"><name>drawTabButtonCore</name></member>
   </compound>
   <compound refid="class_main_component" kind="class"><name>MainComponent</name>
-    <member refid="class_main_component_1a7d124435a9afe4c27e922376764dcf64" kind="variable"><name>luaEngine</name></member>
     <member refid="class_main_component_1a60b47af60485c2469a891d08495e1921" kind="variable"><name>appState</name></member>
     <member refid="class_main_component_1a613a1f13f3771bb136f02c753b10bbad" kind="variable"><name>terminalLookAndFeel</name></member>
     <member refid="class_main_component_1a06c6773ec30bc15b0ac6f7ebacc08b78" kind="variable"><name>openGLContext</name></member>
@@ -1084,17 +979,17 @@
     <member refid="class_main_component_1a9828810f1f16a744c507bd5063b25f44" kind="variable"><name>statusBarOverlay</name></member>
     <member refid="class_main_component_1a7288532a5bfc662226a8dfd4359c9bbf" kind="variable"><name>nexusNode</name></member>
     <member refid="class_main_component_1add6236e7d1d88965f82aa3190bed6e4b" kind="variable"><name>sessionsNode</name></member>
+    <member refid="class_main_component_1a6cd776a0d10d7206c9bd02891acd30fb" kind="variable"><name>configNode</name></member>
     <member refid="class_main_component_1a7d0c696c06a167890fb58e3a608a0aff" kind="variable"><name>popup</name></member>
-    <member refid="class_main_component_1a1fe9b104d3b6eb88315ace959285ead4" kind="function"><name>MainComponent</name></member>
+    <member refid="class_main_component_1a85254935b98beac9128189c6a577d7be" kind="function"><name>MainComponent</name></member>
     <member refid="class_main_component_1afc7d0481eafa95da42e728443102f92e" kind="function"><name>~MainComponent</name></member>
+    <member refid="class_main_component_1ab7554fd4973879f87d71254e5eee19d7" kind="function"><name>registerActions</name></member>
     <member refid="class_main_component_1a339148bc43089300e10d5883a0a80726" kind="function"><name>resized</name></member>
     <member refid="class_main_component_1a0f1717686e9ae1cd697238b41c347725" kind="function"><name>paint</name></member>
     <member refid="class_main_component_1a074cd47a69a9110f6e04a605d8877e66" kind="function"><name>newOpenGLContextCreated</name></member>
     <member refid="class_main_component_1ad4116b4b1b615c708117bd73401c659d" kind="function"><name>renderOpenGL</name></member>
     <member refid="class_main_component_1afccac133c419b628b0ce0fd8c428b79d" kind="function"><name>openGLContextClosing</name></member>
-    <member refid="class_main_component_1a7a32301bc3f0ca6c370fa7e3b0348e70" kind="function"><name>applyConfig</name></member>
     <member refid="class_main_component_1a94eb6ae94c2dbf664de22bb5f5bb152d" kind="function"><name>showReloadMessage</name></member>
-    <member refid="class_main_component_1ab7554fd4973879f87d71254e5eee19d7" kind="function"><name>registerActions</name></member>
     <member refid="class_main_component_1aaf14fa21c2d5e1d85620b5eb5a5b2871" kind="function"><name>registerEditActions</name></member>
     <member refid="class_main_component_1af8f4fbba4aef2485def605f4b918f46e" kind="function"><name>registerApplicationActions</name></member>
     <member refid="class_main_component_1a9da137e4574abb68eb9c7887a21144c9" kind="function"><name>registerTabActions</name></member>
@@ -1111,9 +1006,6 @@
     <member refid="class_main_component_1ab003af1c38a7da38d907980bb47630dd" kind="function"><name>showMessageOverlay</name></member>
   </compound>
   <compound refid="struct_map" kind="struct"><name>Map</name>
-  </compound>
-  <compound refid="structlua_1_1_engine_1_1_display_1_1_menu" kind="struct"><name>lua::Engine::Display::Menu</name>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_menu_1afb261947818c252c95028274827e28a8" kind="variable"><name>opacity</name></member>
   </compound>
   <compound refid="classwhelmed_1_1_mermaid_block" kind="class"><name>whelmed::MermaidBlock</name>
     <member refid="classwhelmed_1_1_mermaid_block_1ad9b895034e8d31417c4050b287fb3001" kind="variable"><name>kPlaceholderHeight</name></member>
@@ -1204,17 +1096,16 @@
   <compound refid="structterminal_1_1_model" kind="struct"><name>terminal::Model</name>
     <member refid="structterminal_1_1_model_1aec857d602404999be9e38047f195cc6c" kind="variable"><name>rowDirtyFlags</name></member>
     <member refid="structterminal_1_1_model_1a8f9bf2233d109cf4da3fdc8904b44c47" kind="variable"><name>rowDirtyCount</name></member>
-    <member refid="structterminal_1_1_model_1a4a59e2e5bdad31dfced6e8f753dd4251" kind="variable"><name>textBuffer</name></member>
-    <member refid="structterminal_1_1_model_1a427730d8b641247c8c4015b740f7c3c3" kind="function"><name>Model</name></member>
+    <member refid="structterminal_1_1_model_1a037da433d8bb1d96cd7d03f7abc51dc3" kind="function"><name>Model</name></member>
     <member refid="structterminal_1_1_model_1a5910f5e7a2b8f617cd42d07fa9d9d57b" kind="function"><name>~Model</name></member>
-    <member refid="structterminal_1_1_model_1aef97b8774a8b4bd87be42862a1693c40" kind="function"><name>addTextParameter</name></member>
+    <member refid="structterminal_1_1_model_1af9de0ceca29c79ee054019ab9011a507" kind="function"><name>addTextParameter</name></member>
     <member refid="structterminal_1_1_model_1a3a0252dd50dd3de170de4f60cf00a6e6" kind="function"><name>setId</name></member>
     <member refid="structterminal_1_1_model_1ab66e64775abf6c51f8250df8c50461cb" kind="function"><name>setScreen</name></member>
     <member refid="structterminal_1_1_model_1ad500ddcb5ed1166edddc88c7b4e089c0" kind="function"><name>setMode</name></member>
     <member refid="structterminal_1_1_model_1aa0e2b35761335b2e03a4ba2f5a4abff5" kind="function"><name>setTitle</name></member>
     <member refid="structterminal_1_1_model_1a77b39c03cb2601687a4978d8df3d3415" kind="function"><name>setCwd</name></member>
     <member refid="structterminal_1_1_model_1a8bc5f83f625fe7cd18314d199f0cc500" kind="function"><name>setForegroundProcess</name></member>
-    <member refid="structterminal_1_1_model_1a7ab986ba96c3d9b8b1c8088318bc3591" kind="function"><name>buildLayout</name></member>
+    <member refid="structterminal_1_1_model_1ae6048f15fecb68c50cba2fe6d40aa445" kind="function"><name>buildLayout</name></member>
     <member refid="structterminal_1_1_model_1ab9c597923e8fdcb8240709c4d856f160" kind="function"><name>setOutputBlockStart</name></member>
     <member refid="structterminal_1_1_model_1af0e21e00d90bbc9b343143edccc328f4" kind="function"><name>setOutputBlockEnd</name></member>
     <member refid="structterminal_1_1_model_1a1bcc24d11a98aa621b738ce796a8cecc" kind="function"><name>extendOutputBlock</name></member>
@@ -1228,14 +1119,11 @@
     <member refid="structterminal_1_1_model_1aad782d12a0ce3e431da6a125d053a174" kind="function"><name>dismissPreview</name></member>
     <member refid="structterminal_1_1_model_1a530c92941be8fb977d50c971db120b20" kind="function"><name>setHintPage</name></member>
     <member refid="structterminal_1_1_model_1aa943b54264f59c5d38862e3fbf9e54d9" kind="function"><name>setHintTotalPages</name></member>
-    <member refid="structterminal_1_1_model_1ae2ada044b1923f232b03ba371f1fa578" kind="function"><name>storeValue</name></member>
-    <member refid="structterminal_1_1_model_1a572e69bbfff16e9707bfecafdc0a4df2" kind="function"><name>loadValue</name></member>
     <member refid="structterminal_1_1_model_1af9ce5323e3f635afa5176b9f0c250904" kind="function"><name>setRowDirty</name></member>
     <member refid="structterminal_1_1_model_1a5e3b83e26af6c6c7be7c16c8cd2f7cee" kind="function"><name>consumeRowDirty</name></member>
     <member refid="structterminal_1_1_model_1a2e55cbe6698f6b3b9a5517d78bb398eb" kind="function"><name>rebuildRowDirtyFlags</name></member>
     <member refid="structterminal_1_1_model_1a9c4e8559c3bc543dc4529e497dcfaf27" kind="function"><name>refresh</name></member>
     <member refid="structterminal_1_1_model_1a5519c794b349ea904e4a2bf7b41dc037" kind="function"><name>resolveLayoutDefault</name></member>
-    <member refid="structterminal_1_1_model_1ae49c1f8c5de0987061e27c6be212f248" kind="function"><name>storeTextValue</name></member>
   </compound>
   <compound refid="classterminal_1_1_mouse" kind="class"><name>terminal::Mouse</name>
     <member refid="classterminal_1_1_mouse_1a720b88385c6c2e3c09264f380bb6531e" kind="variable"><name>trackpadDeltaScale</name></member>
@@ -1256,15 +1144,6 @@
     <member refid="classterminal_1_1_mouse_1a7a6c76efde85b0e1fb959af34b231afd" kind="function"><name>setCellSize</name></member>
     <member refid="classterminal_1_1_mouse_1a121ba6baba449a38de550335155c381e" kind="function"><name>shouldForwardToPty</name></member>
     <member refid="classterminal_1_1_mouse_1aec8658c1e313d498211b237c03867ceb" kind="function"><name>toAbsoluteRow</name></member>
-  </compound>
-  <compound refid="structlua_1_1_engine_1_1_nexus" kind="struct"><name>lua::Engine::Nexus</name>
-    <member refid="structlua_1_1_engine_1_1_nexus_1ad2b3e5be573ff83fc0189e5ad283196e" kind="variable"><name>gpu</name></member>
-    <member refid="structlua_1_1_engine_1_1_nexus_1a3cdd6069a8db6851577933a5a7078715" kind="variable"><name>daemon</name></member>
-    <member refid="structlua_1_1_engine_1_1_nexus_1a74b5f4f6366453dd481f2f9e170a3560" kind="variable"><name>autoReload</name></member>
-    <member refid="structlua_1_1_engine_1_1_nexus_1a4bbb8f8f6467672f3593407e285feb02" kind="variable"><name>shell</name></member>
-    <member refid="structlua_1_1_engine_1_1_nexus_1a86d23a3de60ea81e5426623f294856d9" kind="variable"><name>terminal</name></member>
-    <member refid="structlua_1_1_engine_1_1_nexus_1a399cc220050bb6510d3b934ace26a325" kind="variable"><name>hyperlinks</name></member>
-    <member refid="structlua_1_1_engine_1_1_nexus_1a3ed5f73ad35d809cebc97879a62f1cfe" kind="variable"><name>image</name></member>
   </compound>
   <compound refid="class_nexus" kind="class"><name>Nexus</name>
     <member refid="class_nexus_1a20348d03b8bf34d7959322970374cfac" kind="function"><name>setMode</name></member>
@@ -1289,11 +1168,6 @@
   <compound refid="structterminal_1_1_osc_header" kind="struct"><name>terminal::OscHeader</name>
     <member refid="structterminal_1_1_osc_header_1afd92985c81f3c04b307ce44da4a2ec3e" kind="variable"><name>commandNumber</name></member>
     <member refid="structterminal_1_1_osc_header_1adb659f9f7c83f7b53cc1f9da4fc6fca7" kind="variable"><name>dataStart</name></member>
-  </compound>
-  <compound refid="structlua_1_1_engine_1_1_display_1_1_overlay" kind="struct"><name>lua::Engine::Display::Overlay</name>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_overlay_1a4a1b0f04eac36164b89d32f3e71bf619" kind="variable"><name>family</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_overlay_1aa24614649dce15139f08e6121e140de0" kind="variable"><name>size</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_overlay_1a895613ea68ba8f16800944e1fb83991e" kind="variable"><name>colour</name></member>
   </compound>
   <compound refid="classterminal_1_1_overlay" kind="class"><name>terminal::Overlay</name>
     <member refid="classterminal_1_1_overlay_1aeca7be49e2fbcd6cafbb73eb5afdad82" kind="variable"><name>borderCornerRadius</name></member>
@@ -1323,10 +1197,6 @@
     <member refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state_1a0b527a84e85c245ed60ace17fa69e62c" kind="variable"><name>hasFill</name></member>
     <member refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state_1a12a3e1c210e5556734d4eaf42edb3e9d" kind="variable"><name>hasStroke</name></member>
     <member refid="structwhelmed_1_1_mermaid_s_v_g_parser_1_1_paint_state_1ad1b353fe2f1cef826919411d9a98012b" kind="variable"><name>fontSize</name></member>
-  </compound>
-  <compound refid="structlua_1_1_engine_1_1_display_1_1_pane" kind="struct"><name>lua::Engine::Display::Pane</name>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_pane_1a6f2bc93e7f5d09034ebed6baf6201bd5" kind="variable"><name>barColour</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_pane_1aa117515e820e15957102471807752d07" kind="variable"><name>barHighlight</name></member>
   </compound>
   <compound refid="classterminal_1_1_panes" kind="class"><name>terminal::Panes</name>
     <member refid="classterminal_1_1_panes_1a92e830507d3791c610edb752f9436fd0" kind="variable"><name>panes</name></member>
@@ -1374,12 +1244,19 @@
   </compound>
   <compound refid="structterminal_1_1_parameter" kind="struct"><name>terminal::Parameter</name>
   </compound>
-  <compound refid="structterminal_1_1_parameter_base" kind="struct"><name>terminal::ParameterBase</name>
-    <member refid="structjam_1_1_parameter_base_1ae056ec08b83cb00c85f6bd8561d0a5e8" kind="variable"><name>id</name></member>
-    <member refid="structjam_1_1_parameter_base_1a5f90de4148e4df7925a58e5b5d38a550" kind="function"><name>ParameterBase</name></member>
-    <member refid="structjam_1_1_parameter_base_1afbe15bcd03552eb51610c3f27a3389a5" kind="function"><name>~ParameterBase</name></member>
-    <member refid="structjam_1_1_parameter_base_1a9ed66cc4015a238a76c70bea49d9ba9e" kind="function"><name>flush</name></member>
-    <member refid="structjam_1_1_parameter_base_1aee9d383a6cbdbb24900f1de30ae42e52" kind="function"><name>restoreValues</name></member>
+  <compound refid="structterminal_1_1_parameter_text" kind="struct"><name>terminal::ParameterText</name>
+    <member refid="structjam_1_1_parameter_text_1a684d2da809f4580638796ed1ab355c84" kind="variable"><name>buffers</name></member>
+    <member refid="structjam_1_1_parameter_text_1a42407eaf4e82f386d58856ee33cbfe7b" kind="variable"><name>active</name></member>
+    <member refid="structjam_1_1_parameter_text_1a85203198acdd48d727cc26d5c8fd6ef0" kind="variable"><name>needsUpdate</name></member>
+    <member refid="structjam_1_1_parameter_text_1a7ab9935905dd23b8b8fa1b658024d4d4" kind="variable"><name>tree</name></member>
+    <member refid="structjam_1_1_parameter_text_1a3e556ba68d903fb20714c6a628573888" kind="variable"><name>key</name></member>
+    <member refid="structjam_1_1_parameter_text_1a7b46f289a33f7b49aedd3f6d443fe0ee" kind="variable"><name>bufferSize</name></member>
+    <member refid="structjam_1_1_parameter_text_1ad9d074a5bbdeced9e71c7843648e4dad" kind="function"><name>ParameterText</name></member>
+    <member refid="structjam_1_1_parameter_text_1a3905d65901b8cb83b6e81f12a91ff451" kind="function"><name>store</name></member>
+    <member refid="structjam_1_1_parameter_text_1a7c76354d7fadbbeb348a4573d61f14e6" kind="function"><name>store</name></member>
+    <member refid="structjam_1_1_parameter_text_1a05d806d9650e7f74b524e118162ccdb8" kind="function"><name>load</name></member>
+    <member refid="structjam_1_1_parameter_text_1a61e42d533f36b669d67ec0abc06ee900" kind="function"><name>flush</name></member>
+    <member refid="structjam_1_1_parameter_text_1a40103381b2026b86830b221100677f61" kind="function"><name>restoreValues</name></member>
   </compound>
   <compound refid="structwhelmed_1_1_table_block_1_1_parsed_table" kind="struct"><name>whelmed::TableBlock::ParsedTable</name>
     <member refid="structwhelmed_1_1_table_block_1_1_parsed_table_1a8fda6d3ef4fbf3bdf3c0d19571c3d37b" kind="variable"><name>headers</name></member>
@@ -1454,9 +1331,6 @@
     <member refid="structterminal_1_1_pending_image_1aca8af2b0da7d3362447f85c2660c2f41" kind="variable"><name>height</name></member>
   </compound>
   <compound refid="structlua_1_1_engine_1_1_popup" kind="struct"><name>lua::Engine::Popup</name>
-    <member refid="structlua_1_1_engine_1_1_popup_1a48f7529b6236385aa8c17c72388856dd" kind="variable"><name>defaultCols</name></member>
-    <member refid="structlua_1_1_engine_1_1_popup_1a7395ffce1f36b1d3f2e9c03737dc0a88" kind="variable"><name>defaultRows</name></member>
-    <member refid="structlua_1_1_engine_1_1_popup_1ae8e5a09a9bdedb4e9315b7f437941814" kind="variable"><name>defaultPosition</name></member>
     <member refid="structlua_1_1_engine_1_1_popup_1a28e699a715d6990ed71c059063f577d3" kind="variable"><name>entries</name></member>
   </compound>
   <compound refid="classterminal_1_1_popup" kind="class"><name>terminal::Popup</name>
@@ -1473,10 +1347,6 @@
     <member refid="classterminal_1_1_popup_1af2750981f40615e58546c1528ce2c307" kind="function"><name>setTerminalSession</name></member>
     <member refid="classterminal_1_1_popup_1a6878254c4370918c27b8825f8dcc0373" kind="function"><name>valueTreePropertyChanged</name></member>
     <member refid="classterminal_1_1_popup_1ad602905f8dd9bc8033bf7dda99fc5fbe" kind="function"><name>removePopupSession</name></member>
-  </compound>
-  <compound refid="structlua_1_1_engine_1_1_display_1_1_popup_border" kind="struct"><name>lua::Engine::Display::PopupBorder</name>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_popup_border_1a38004c1d6e6adc4dea728b0b57a687ff" kind="variable"><name>borderColour</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_popup_border_1a469ee5e52905776aa25e6fc6bf202c7a" kind="variable"><name>borderWidth</name></member>
   </compound>
   <compound refid="structlua_1_1_engine_1_1_popup_callbacks" kind="struct"><name>lua::Engine::PopupCallbacks</name>
     <member refid="structlua_1_1_engine_1_1_popup_callbacks_1ab218fe95873fdb6fc9060dfd38af817d" kind="variable"><name>launchPopup</name></member>
@@ -1501,7 +1371,6 @@
     <member refid="classterminal_1_1_processor_1abf031ef650e3f70cc79ca29dd55a2c4e" kind="variable"><name>callbackLock</name></member>
     <member refid="classterminal_1_1_processor_1a2b62f523aeca583458eda8d1121aeb7d" kind="variable"><name>suspended</name></member>
     <member refid="classterminal_1_1_processor_1a4534de76e2da21696a636f73aba6bbe4" kind="variable"><name>tty</name></member>
-    <member refid="classterminal_1_1_processor_1a3b05a9e67a6a3b36afda303ee5414010" kind="variable"><name>textBuffer</name></member>
     <member refid="classterminal_1_1_processor_1a6f89754723e68d9a91fd0728847b78bb" kind="variable"><name>cellFifo</name></member>
     <member refid="classterminal_1_1_processor_1ac2b32187140bb9bc999e907bd9a569ed" kind="variable"><name>state</name></member>
     <member refid="classterminal_1_1_processor_1a02a0d4f4dd8580a7ca241f7f0387b4a0" kind="variable"><name>events</name></member>
@@ -1513,7 +1382,7 @@
     <member refid="classterminal_1_1_processor_1ab284e95d4c0053c7913b64a60feb2678" kind="variable"><name>keyboardModeStack</name></member>
     <member refid="classterminal_1_1_processor_1a40ce1a363dda32b422f5f343fb177696" kind="variable"><name>keyboardModeStackSize</name></member>
     <member refid="classterminal_1_1_processor_1a7fc8f84c2593144977c99bcf139af4de" kind="variable"><name>maxKeyboardStackDepth</name></member>
-    <member refid="classterminal_1_1_processor_1a55c3277d5426fc60a5318834bc630226" kind="function"><name>Processor</name></member>
+    <member refid="classterminal_1_1_processor_1a6026a2eb6baae65eec7f829ba7be14f1" kind="function"><name>Processor</name></member>
     <member refid="classterminal_1_1_processor_1a922912d666c99384f62557062cb96085" kind="function"><name>~Processor</name></member>
     <member refid="classterminal_1_1_processor_1ac27d1456511a72a12a478c90f90eda0e" kind="function"><name>encodeKeyPress</name></member>
     <member refid="classterminal_1_1_processor_1a7e952949b06abd72a91595e5d664c8d0" kind="function"><name>encodePaste</name></member>
@@ -1740,7 +1609,6 @@
     <member refid="structwhelmed_1_1_input_handler_1_1_selection_keys_1ab239c7ade04a8e0df6437ce47d041725" kind="variable"><name>exit</name></member>
   </compound>
   <compound refid="classterminal_1_1_session" kind="class"><name>terminal::Session</name>
-    <member refid="classterminal_1_1_session_1aaa8e1b576cc60163585e7615177366e7" kind="variable"><name>textBuffer</name></member>
     <member refid="classterminal_1_1_session_1a7712bc3d4e34edcfb11c47422034b776" kind="variable"><name>model</name></member>
     <member refid="classterminal_1_1_session_1a474b13fc8444f0c79cc4304cdb865fe9" kind="variable"><name>codeModel</name></member>
     <member refid="classterminal_1_1_session_1a079b742836a2110e1970f200bea45bb0" kind="variable"><name>textEditor</name></member>
@@ -1771,11 +1639,6 @@
     <member refid="classterminal_1_1_session_1a6747e486197dd6c877ff6fcc58d249e5" kind="function"><name>getCodeModel</name></member>
     <member refid="classterminal_1_1_session_1a5d34f5ca789e460df2c561549677ead2" kind="function"><name>valueChanged</name></member>
     <member refid="classterminal_1_1_session_1aff0af46c6625bf5266b0ecd24b2aa5d9" kind="function"><name>wireResizer</name></member>
-  </compound>
-  <compound refid="structlua_1_1_engine_1_1_nexus_1_1_shell" kind="struct"><name>lua::Engine::Nexus::Shell</name>
-    <member refid="structlua_1_1_engine_1_1_nexus_1_1_shell_1aeed83e98a3233c9df039a395c8fd5995" kind="variable"><name>program</name></member>
-    <member refid="structlua_1_1_engine_1_1_nexus_1_1_shell_1a0aab4be13147acc6718842b1f19fae70" kind="variable"><name>args</name></member>
-    <member refid="structlua_1_1_engine_1_1_nexus_1_1_shell_1abfbb4f9e17daf1a82568de70d775282c" kind="variable"><name>integration</name></member>
   </compound>
   <compound refid="classterminal_1_1_sixel_decoder" kind="class"><name>terminal::SixelDecoder</name>
     <member refid="classterminal_1_1_sixel_decoder_1ae58ccb017de315f145b4834cbac1a5f5" kind="variable"><name>maxPalette</name></member>
@@ -1833,12 +1696,6 @@
     <member refid="classwhelmed_1_1_state_1afc25b6e370bafa45092e90d936185d55" kind="function"><name>timerCallback</name></member>
     <member refid="classwhelmed_1_1_state_1a8aba6122fdb2ef5b27bf641ae5504dac" kind="function"><name>flush</name></member>
   </compound>
-  <compound refid="structlua_1_1_engine_1_1_display_1_1_status_bar" kind="struct"><name>lua::Engine::Display::StatusBar</name>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_status_bar_1a32b1e66b99cd6b0b3a364a075885b6dc" kind="variable"><name>position</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_status_bar_1a54e64fed5c483c79b0883f5d0e81bc27" kind="variable"><name>fontFamily</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_status_bar_1ae0ca0b53368ba009a636a71a83b66736" kind="variable"><name>fontSize</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_status_bar_1afdcc461225e6c4e459969f9036f361c8" kind="variable"><name>fontStyle</name></member>
-  </compound>
   <compound refid="class_status_bar_overlay" kind="class"><name>StatusBarOverlay</name>
     <member refid="class_status_bar_overlay_1a1b8e43fdf96727d8ea5b92e3dd5cb3fe" kind="enum"><name>ColourIds</name></member>
     <member refid="class_status_bar_overlay_1a1b8e43fdf96727d8ea5b92e3dd5cb3fead7e7e03e80caa298c7bf975a467c5102" kind="enumvalue"><name>barBackgroundColourId</name></member>
@@ -1877,17 +1734,6 @@
     <member refid="structwhelmed_1_1_s_v_g_text_primitive_1a038da78236aef592e7c783ad8a87a63f" kind="variable"><name>colour</name></member>
     <member refid="structwhelmed_1_1_s_v_g_text_primitive_1a66585417766836ec5049baf72c6cbd4e" kind="variable"><name>fontSize</name></member>
     <member refid="structwhelmed_1_1_s_v_g_text_primitive_1a7114887703d1dbe0e434994f07439c20" kind="variable"><name>justification</name></member>
-  </compound>
-  <compound refid="structlua_1_1_engine_1_1_display_1_1_tab" kind="struct"><name>lua::Engine::Display::Tab</name>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_tab_1a618ba1a939f9dad1a8d464e05082924e" kind="variable"><name>family</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_tab_1afe1e0121dd82a246ec38f43dfe166cb4" kind="variable"><name>size</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_tab_1a5e93c1aee62edf505600b1eefd4aaa4e" kind="variable"><name>foreground</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_tab_1ad47d2c9470e5f1604522c67c2bc35609" kind="variable"><name>inactive</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_tab_1aedcd2ef7c76baedc0985a0958ac4b2bc" kind="variable"><name>position</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_tab_1adae511f55f6600db46619f670998761e" kind="variable"><name>line</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_tab_1a407e5254d00da6fc48ee95fd71ffcb0b" kind="variable"><name>active</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_tab_1aa2205847da7f55407610594db8f8f246" kind="variable"><name>indicator</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_tab_1a0d0f07795cb9683aed5a52970d43e4c0" kind="variable"><name>buttonSvg</name></member>
   </compound>
   <compound refid="classwhelmed_1_1_table_block" kind="class"><name>whelmed::TableBlock</name>
     <member refid="classwhelmed_1_1_table_block_1aa5c93ab7c45ba988617e493e953cf768" kind="enum"><name>Align</name></member>
@@ -1981,16 +1827,6 @@
     <member refid="classterminal_1_1_tabs_1a863ca28fe3d0acf185e44417df0e870a" kind="function"><name>focusLastTerminal</name></member>
     <member refid="classterminal_1_1_tabs_1ac8b48284fc4a7d62a011f609a2435498" kind="function"><name>computeContentRect</name></member>
   </compound>
-  <compound refid="structlua_1_1_engine_1_1_nexus_1_1_terminal" kind="struct"><name>lua::Engine::Nexus::Terminal</name>
-    <member refid="structlua_1_1_engine_1_1_nexus_1_1_terminal_1aff762cc5157be2a56113443d6363fc26" kind="variable"><name>scrollbackLines</name></member>
-    <member refid="structlua_1_1_engine_1_1_nexus_1_1_terminal_1a275597629ccf721fb342de51aa3af2d8" kind="variable"><name>scrollStep</name></member>
-    <member refid="structlua_1_1_engine_1_1_nexus_1_1_terminal_1a6cc88db69a21d438841450b559451bc2" kind="variable"><name>paddingTop</name></member>
-    <member refid="structlua_1_1_engine_1_1_nexus_1_1_terminal_1a8c10663375d5b28ade5d433c3a978838" kind="variable"><name>paddingRight</name></member>
-    <member refid="structlua_1_1_engine_1_1_nexus_1_1_terminal_1a373f7e0df1de6a02daaa62e349267f6c" kind="variable"><name>paddingBottom</name></member>
-    <member refid="structlua_1_1_engine_1_1_nexus_1_1_terminal_1a98198ba7476ec1c450e7bb312383208c" kind="variable"><name>paddingLeft</name></member>
-    <member refid="structlua_1_1_engine_1_1_nexus_1_1_terminal_1a8f3cb4262d4b913a9d100f429b20f252" kind="variable"><name>dropMultifiles</name></member>
-    <member refid="structlua_1_1_engine_1_1_nexus_1_1_terminal_1a038060d278c9109472dd951e93718929" kind="variable"><name>dropQuoted</name></member>
-  </compound>
   <compound refid="classwhelmed_1_1_text_block" kind="class"><name>whelmed::TextBlock</name>
     <member refid="classwhelmed_1_1_text_block_1a921c7de6434d0012e70b46cdc15e76b4" kind="variable"><name>source</name></member>
     <member refid="classwhelmed_1_1_text_block_1a0a7b0f38484bab1880641ea57c2485bf" kind="variable"><name>textLayout</name></member>
@@ -2011,18 +1847,6 @@
     <member refid="classwhelmed_1_1_text_block_1a0fd6db75b3dd0faad10a5032891cc943" kind="function"><name>getCharForLine</name></member>
     <member refid="classwhelmed_1_1_text_block_1a06a7c9bae2815f6b6b86af26b34f2d0b" kind="function"><name>getCharX</name></member>
     <member refid="classwhelmed_1_1_text_block_1ae632aa3756d6ce728d8b4631c8c7486e" kind="function"><name>hitTest</name></member>
-  </compound>
-  <compound refid="structterminal_1_1_text_buffer" kind="struct"><name>terminal::TextBuffer</name>
-    <member refid="structterminal_1_1_text_buffer_1abeb17b64667c3a82a8545a0f9eda0e35" kind="variable"><name>slots</name></member>
-    <member refid="structterminal_1_1_text_buffer_1a0f896d193583d8f6fdc08c2c520b194c" kind="function"><name>addSlot</name></member>
-    <member refid="structterminal_1_1_text_buffer_1a749580d10b9f5a103fdfe022f62b51f2" kind="function"><name>write</name></member>
-  </compound>
-  <compound refid="structterminal_1_1_text_slot" kind="struct"><name>terminal::TextSlot</name>
-    <member refid="structterminal_1_1_text_slot_1a0d3d7dd992360305c3e766fef53b06a8" kind="variable"><name>buffers</name></member>
-    <member refid="structterminal_1_1_text_slot_1a12a62d05024f9c46178d2b6aa15dd912" kind="variable"><name>active</name></member>
-    <member refid="structterminal_1_1_text_slot_1ad1e98b99ce33442e170206b3d296093a" kind="variable"><name>bufferSize</name></member>
-    <member refid="structterminal_1_1_text_slot_1a6b0da13550984289bac65f5f741181d2" kind="function"><name>TextSlot</name></member>
-    <member refid="structterminal_1_1_text_slot_1a6b50e54ec0dd603cfaea3204ac3ec368" kind="function"><name>write</name></member>
   </compound>
   <compound refid="structlua_1_1_engine_1_1_theme" kind="struct"><name>lua::Engine::Theme</name>
     <member refid="structlua_1_1_engine_1_1_theme_1a2b8bd4f0ffe15b02334c2015fc6a872a" kind="variable"><name>defaultForeground</name></member>
@@ -2243,79 +2067,6 @@
     <member refid="classterminal_1_1_video_1a0e981e6f4c1d048a9b953fd890f5e6d9" kind="function"><name>eraseStyleId</name></member>
     <member refid="classterminal_1_1_video_1a73cdc160cd91c698d982ff0181348fa9" kind="function"><name>activeScrollBottom</name></member>
   </compound>
-  <compound refid="structlua_1_1_engine_1_1_whelmed" kind="struct"><name>lua::Engine::Whelmed</name>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1ac6d2757474490cf11b6b0e8b36c8c94b" kind="variable"><name>fontFamily</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1a98efcbf2c60c58e0ff273935e205bc62" kind="variable"><name>fontStyle</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1a47250cb0f381e1124c7e7b56ae9b0d47" kind="variable"><name>fontSize</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1a9608cc35f48dba9b72c235dc1923a8a5" kind="variable"><name>codeFamily</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1ab8f6ff3b647cecc7e577c264080631f9" kind="variable"><name>codeSize</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1aac47d5abcb23b2d7838f9649c258091c" kind="variable"><name>codeStyle</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1a0ce3e2358da5a18fbb2814f1bd8767de" kind="variable"><name>h1Size</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1af0ac0e5c25e945b0135ac51a57e587a5" kind="variable"><name>h2Size</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1aaa05edf8fb1f7620c59918b26d8f1b80" kind="variable"><name>h3Size</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1aec433098297cc95a085178091f496de4" kind="variable"><name>h4Size</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1a9bec494c99c377dc0d5e3f5d5b1ad7a7" kind="variable"><name>h5Size</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1a4713a4fa06b99d66b4a65b14b3206098" kind="variable"><name>h6Size</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1a21d946ac384c2eed128e943ba47d1889" kind="variable"><name>lineHeight</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1aedab3185e3a061a4c80f7b0412e1e479" kind="variable"><name>background</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1a4d1ca2c52e24c2024f24a9db139b41b8" kind="variable"><name>bodyColour</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1a954e20382bf4366ab40d3da7a529dfca" kind="variable"><name>codeColour</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1aeb8f9ece8570b7b82632ba24b9940edb" kind="variable"><name>linkColour</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1ab993e4e0d43a9a84b2d0ad4226cd3397" kind="variable"><name>h1Colour</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1afe602506974a84e103ddc7bd7bcdb36f" kind="variable"><name>h2Colour</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1a4c51841fcc6185ca024a980ee300f9da" kind="variable"><name>h3Colour</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1a06d9e32126fbe5fe74578ff3d01875f4" kind="variable"><name>h4Colour</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1af6ff31dd602b5a2663f66df31c561882" kind="variable"><name>h5Colour</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1a00a205d5be32cbab43b03756afec2dab" kind="variable"><name>h6Colour</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1a034dd727dca6de7b9d809fa1f6b9fe2a" kind="variable"><name>codeFenceBackground</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1a8b2da2a32f954d6a88518584eb55179a" kind="variable"><name>progressBackground</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1ae3ad84701d67e0803b790d2610c8e93d" kind="variable"><name>progressForeground</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1af78bbd00e1bdeee60557b476a2f47278" kind="variable"><name>progressTextColour</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1a76472fe645ea647d262734736743606d" kind="variable"><name>progressSpinnerColour</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1a08bb47b0140a0b68dd00c3e610ccb1b6" kind="variable"><name>paddingTop</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1aa4afde15ccfa87cb5330758b403d4c09" kind="variable"><name>paddingRight</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1a2cd0fbe4082e02e7439fc81a8ce5f234" kind="variable"><name>paddingBottom</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1aebcb4ffafc1fdfbbafe0fadf46560f09" kind="variable"><name>paddingLeft</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1a4b9c0648fc7cb5ecae1a442f2ee0aac3" kind="variable"><name>tokenError</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1a43a5f420d03f1f428d5a66a46b88dd59" kind="variable"><name>tokenComment</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1aca7a58000aa7cf7c6375ff95b45f7d90" kind="variable"><name>tokenKeyword</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1ab1dd5afe2ce34a7c9dd0f93bbfc4ad79" kind="variable"><name>tokenOperator</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1a4a3492c1e2d2f63f886447439ccd4a3f" kind="variable"><name>tokenIdentifier</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1ade6406da8f9d3f9df1341433cdf99969" kind="variable"><name>tokenInteger</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1a95c82d8a5418bf8ff2c705beb62e39a4" kind="variable"><name>tokenFloat</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1a8273bb1d49ee079aee2fcaeb4895b609" kind="variable"><name>tokenString</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1ad0341f79733e79eb940254b9e73d9750" kind="variable"><name>tokenBracket</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1a66ce34720e95fe09d4ce4f4368672b84" kind="variable"><name>tokenPunctuation</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1af8a9097584a0354c43d3abd2d781b3f0" kind="variable"><name>tokenPreprocessor</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1a52489e48b82b6b2998b9fdfa87d24b00" kind="variable"><name>tableBackground</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1a0dc6eebcd9160afd8897029ba43b3cf9" kind="variable"><name>tableHeaderBackground</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1a2c24f03c50a1f3bcde46877dad6b6dc4" kind="variable"><name>tableRowAlt</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1ac6cebf8d2c721df8097b975c658c91a0" kind="variable"><name>tableBorderColour</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1ad43fea370d29db107f30d6da1d435166" kind="variable"><name>tableHeaderText</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1a25f44fc9506361a5c032bfa3663c0eff" kind="variable"><name>tableCellText</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1a03e64e81909e4456676a9bb1749eee77" kind="variable"><name>scrollbarThumb</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1aaaede5efb3bc47809dc560ab3e2b3dae" kind="variable"><name>scrollbarTrack</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1ac7bfc8e7139d00f2550cde6e571a733f" kind="variable"><name>scrollbarBackground</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1aaafe9f4edae400ec37dac694a5918674" kind="variable"><name>scrollDown</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1aa73b5991a5561751fbb8fde798836da0" kind="variable"><name>scrollUp</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1a47a531a5473bb5ac1145368644ea548d" kind="variable"><name>scrollTop</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1a40961b942480388d22a30faeec037fe1" kind="variable"><name>scrollBottom</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1a186416b208bc76c09667b4874d2182fd" kind="variable"><name>scrollStep</name></member>
-    <member refid="structlua_1_1_engine_1_1_whelmed_1a27303dc14b1dd6f529ed53603b22423d" kind="variable"><name>selectionColour</name></member>
-  </compound>
-  <compound refid="structlua_1_1_engine_1_1_display_1_1_window" kind="struct"><name>lua::Engine::Display::Window</name>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_window_1a3808aa8a5350e91b1cf293df3b7ec197" kind="variable"><name>title</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_window_1a50b0063a549ebb718e214cdf1bc91159" kind="variable"><name>width</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_window_1a93c513106593da611a0fab5d91344a60" kind="variable"><name>height</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_window_1a4191919387d4ecd75f214165e0e8ec37" kind="variable"><name>colour</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_window_1a8baa410a65723b67f348119738a219c6" kind="variable"><name>opacity</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_window_1ab8f2c5cf810022ca77c5a9116ad23c38" kind="variable"><name>blurRadius</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_window_1a509befe65e44169402da0640af65740a" kind="variable"><name>alwaysOnTop</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_window_1ad12cd1d137457c62fa9b28029e6e43a7" kind="variable"><name>buttons</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_window_1aa4ffdc69e39522c4924905fdbb67f0bd" kind="variable"><name>forceDwm</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_window_1aa37e923087a23c15863c76060edc7573" kind="variable"><name>saveSize</name></member>
-    <member refid="structlua_1_1_engine_1_1_display_1_1_window_1aeec52eeb9c6769a754c67de63c23448b" kind="variable"><name>confirmationOnExit</name></member>
-  </compound>
   <compound refid="classterminal_1_1_window" kind="class"><name>terminal::Window</name>
     <member refid="classterminal_1_1_window_1a2e6bd97e1780418e11d8e10536f906dd" kind="variable"><name>userResizing</name></member>
     <member refid="classterminal_1_1_window_1a711beca87b418d467359a09574b8f8d2" kind="function"><name>isUserResizing</name></member>
@@ -2360,6 +2111,20 @@
     <member refid="namespaceapp_1_1id_1a77bea35c2a1535e966a095d72de7e3c5" kind="variable"><name>PANES</name></member>
     <member refid="namespaceapp_1_1id_1abcf86f0cdf896a33b56cd1dce582f219" kind="variable"><name>PANE</name></member>
     <member refid="namespaceapp_1_1id_1a9a9123c0d63aa046272530c9b72b475b" kind="variable"><name>DOCUMENT</name></member>
+    <member refid="namespaceapp_1_1id_1ad3e3ea56ded27ce86dfe97c646ceef06" kind="variable"><name>endLua</name></member>
+    <member refid="namespaceapp_1_1id_1a620b08cededa1db9993d5fbe8d8b5c4f" kind="variable"><name>nexusLua</name></member>
+    <member refid="namespaceapp_1_1id_1af0bfabfeeb804ef81ec237f75d50154d" kind="variable"><name>displayLua</name></member>
+    <member refid="namespaceapp_1_1id_1a079db63eedfafc4b1480dc0ba8c58827" kind="variable"><name>whelmedLua</name></member>
+    <member refid="namespaceapp_1_1id_1aa2276f79d790f614ff77afeb78852e54" kind="variable"><name>keysLua</name></member>
+    <member refid="namespaceapp_1_1id_1aa8dfb9401156e5732e6510ec5d3c2e63" kind="variable"><name>popupsLua</name></member>
+    <member refid="namespaceapp_1_1id_1afeaa2973cf7cf87d923dc2125386746a" kind="variable"><name>actionsLua</name></member>
+    <member refid="namespaceapp_1_1id_1ad0d59ab3453ad62947cd66f19a20e836" kind="variable"><name>CONFIG</name></member>
+    <member refid="namespaceapp_1_1id_1aebfb69e225077dbd1c419356ef5362f3" kind="variable"><name>NEXUS_LUA</name></member>
+    <member refid="namespaceapp_1_1id_1a24815b9015e0395936a1718769739fff" kind="variable"><name>DISPLAY_LUA</name></member>
+    <member refid="namespaceapp_1_1id_1af38a58466b0c9efb4717d0c6e9fef1d4" kind="variable"><name>WHELMED_LUA</name></member>
+    <member refid="namespaceapp_1_1id_1ae3ffd71106a7c549f8e930d5b58d9546" kind="variable"><name>KEYS_LUA</name></member>
+    <member refid="namespaceapp_1_1id_1a185751ff79ae0c1cd3a6f32899fb3667" kind="variable"><name>POPUPS_LUA</name></member>
+    <member refid="namespaceapp_1_1id_1af8abfa5f30a216c6ee27c2f433e8884a" kind="variable"><name>ACTIONS_LUA</name></member>
     <member refid="namespaceapp_1_1id_1af79af5c8c296799dd1db517fd2f8c1a9" kind="variable"><name>zoom</name></member>
     <member refid="namespaceapp_1_1id_1abb60faecd4f7e8bb53820028ccbb718c" kind="variable"><name>active</name></member>
     <member refid="namespaceapp_1_1id_1ab099eb8cb8bd51cb334a0a48a405eb48" kind="variable"><name>position</name></member>
@@ -2399,11 +2164,165 @@
     <member refid="namespaceapp_1_1id_1a53f4e3db60bb5963c1ba6f10958e1c96" kind="variable"><name>selCursorChar</name></member>
     <member refid="namespaceapp_1_1id_1ae541c86458bee0db98858cb134c69379" kind="variable"><name>selAnchorBlock</name></member>
     <member refid="namespaceapp_1_1id_1ab2b4791778841d9e46a8ea36c17e4266" kind="variable"><name>selAnchorChar</name></member>
+    <member refid="namespaceapp_1_1id_1ab715694ed87fdb8f729208c00c12f1d0" kind="variable"><name>gpu</name></member>
+    <member refid="namespaceapp_1_1id_1aeb4a0365c43ad17ee491dbd5d23b4e1d" kind="variable"><name>daemon</name></member>
+    <member refid="namespaceapp_1_1id_1a723d1ad7da5625f3564af47fd868b304" kind="variable"><name>autoReload</name></member>
+    <member refid="namespaceapp_1_1id_1a65d259fa0bbe51a8e356394bd958d925" kind="variable"><name>shellProgram</name></member>
+    <member refid="namespaceapp_1_1id_1ab986741fd9e941121ca6be45df95a6b7" kind="variable"><name>shellArgs</name></member>
+    <member refid="namespaceapp_1_1id_1a94a3c290e8c770bcb57a9638bcf48e2f" kind="variable"><name>shellIntegration</name></member>
+    <member refid="namespaceapp_1_1id_1a55c2ff42f88c49f150e13de30c974d9d" kind="variable"><name>scrollStep</name></member>
+    <member refid="namespaceapp_1_1id_1a8d78b5919d9c34813b53cccd40a11bbb" kind="variable"><name>dropMultifiles</name></member>
+    <member refid="namespaceapp_1_1id_1a9f066d09d639f92c2ca2f9b67d356464" kind="variable"><name>dropQuoted</name></member>
+    <member refid="namespaceapp_1_1id_1a056bca88c70edd6e60dd61971c13441a" kind="variable"><name>hyperlinkEditor</name></member>
+    <member refid="namespaceapp_1_1id_1a608275eac9582b771d6a0c918cd3fd66" kind="variable"><name>imageAtlasBudgetBytes</name></member>
+    <member refid="namespaceapp_1_1id_1aa3a50dd9759e98bcd106a6a5cb956be7" kind="variable"><name>imageCols</name></member>
+    <member refid="namespaceapp_1_1id_1a78bfc2ad550fa090e31bc30e3e350785" kind="variable"><name>imageRows</name></member>
+    <member refid="namespaceapp_1_1id_1a9c13ac99f84d3befaec128bed00fff03" kind="variable"><name>imagePadding</name></member>
+    <member refid="namespaceapp_1_1id_1a1a5adde1505851eb21a2e74bb3eefd32" kind="variable"><name>imageAtlasDimension</name></member>
+    <member refid="namespaceapp_1_1id_1ac11c0245312c71e8ae00fa828a4d83de" kind="variable"><name>imageBorder</name></member>
+    <member refid="namespaceapp_1_1id_1afe02a1f6363d87dc7852478a4d410992" kind="variable"><name>windowTitle</name></member>
+    <member refid="namespaceapp_1_1id_1a7f9dd393c98d00380acb25d333689d6d" kind="variable"><name>windowWidth</name></member>
+    <member refid="namespaceapp_1_1id_1af1cee5c8f7d2c0f5881fa65d5188f05b" kind="variable"><name>windowHeight</name></member>
+    <member refid="namespaceapp_1_1id_1aacf1d941ece69d43b705d3f1238fba52" kind="variable"><name>windowColour</name></member>
+    <member refid="namespaceapp_1_1id_1a69a24e62617ef3817d155464736d1a6d" kind="variable"><name>windowOpacity</name></member>
+    <member refid="namespaceapp_1_1id_1a448e5298092c1bea70e69c1a3eae5727" kind="variable"><name>windowBlurRadius</name></member>
+    <member refid="namespaceapp_1_1id_1ad35c494c788f76c44282cc4e43491c7c" kind="variable"><name>windowAlwaysOnTop</name></member>
+    <member refid="namespaceapp_1_1id_1a783ff7e539d7015b86f169312c6ca551" kind="variable"><name>windowButtons</name></member>
+    <member refid="namespaceapp_1_1id_1a00ce33ba95b038f20be5568d1596f498" kind="variable"><name>windowForceDwm</name></member>
+    <member refid="namespaceapp_1_1id_1aca1923f6370fc67197ce409736ae09d2" kind="variable"><name>windowSaveSize</name></member>
+    <member refid="namespaceapp_1_1id_1a18da028edfcc7e14d1b71edb726da92f" kind="variable"><name>windowConfirmationOnExit</name></member>
+    <member refid="namespaceapp_1_1id_1a3aa85000db36fd34f1fa9c3d5812e6c4" kind="variable"><name>fontLigatures</name></member>
+    <member refid="namespaceapp_1_1id_1a3fb7e4c0c0ec8729be34fbb77c60c915" kind="variable"><name>fontEmbolden</name></member>
+    <member refid="namespaceapp_1_1id_1a1caf6134953b6902a9b75124c1c5a9d1" kind="variable"><name>fontDesktopScale</name></member>
+    <member refid="namespaceapp_1_1id_1ae5ca2f5afffc259179903905a510bcca" kind="variable"><name>cursorBlink</name></member>
+    <member refid="namespaceapp_1_1id_1a7c835adb3ca111800e79f570d8951fb3" kind="variable"><name>cursorForce</name></member>
+    <member refid="namespaceapp_1_1id_1ae1cf6feb9724196f45603765d63a3337" kind="variable"><name>foreground</name></member>
+    <member refid="namespaceapp_1_1id_1aa85c6b3e2e596e138f02e1922bb52055" kind="variable"><name>background</name></member>
+    <member refid="namespaceapp_1_1id_1abbe92598c63a60ebb0da1fa5c9186803" kind="variable"><name>cursorColour</name></member>
+    <member refid="namespaceapp_1_1id_1a7a41e75f8fd5fb0b51e64aa75f4d0d37" kind="variable"><name>selectionColour</name></member>
+    <member refid="namespaceapp_1_1id_1ae63f7ad1cffe9acbcc97808dfc773aae" kind="variable"><name>selectionCursorColour</name></member>
+    <member refid="namespaceapp_1_1id_1a0821c46cb3f78c71dcdd9d48985d30ec" kind="variable"><name>ansi0</name></member>
+    <member refid="namespaceapp_1_1id_1aea4cf6a3ab6e25af838a229a2b83d7e3" kind="variable"><name>ansi1</name></member>
+    <member refid="namespaceapp_1_1id_1a7a3f006df3691ffa56716c85245b1b7a" kind="variable"><name>ansi2</name></member>
+    <member refid="namespaceapp_1_1id_1a9ff85b43926f15f32e525419bd07d6ae" kind="variable"><name>ansi3</name></member>
+    <member refid="namespaceapp_1_1id_1ab59c5a79f910830e8e541bc70ddedb1b" kind="variable"><name>ansi4</name></member>
+    <member refid="namespaceapp_1_1id_1a87718e7834db5bfec4e9bd443fd89a74" kind="variable"><name>ansi5</name></member>
+    <member refid="namespaceapp_1_1id_1a620e004f9a71170539f792faf0a75d1a" kind="variable"><name>ansi6</name></member>
+    <member refid="namespaceapp_1_1id_1aa9256846d7bf7b223e20b1bbe83ca479" kind="variable"><name>ansi7</name></member>
+    <member refid="namespaceapp_1_1id_1a095b2b617f85c71a01048ba3f9dd1097" kind="variable"><name>ansi8</name></member>
+    <member refid="namespaceapp_1_1id_1a8e157c6e93ed4473e90f2cd63cecb983" kind="variable"><name>ansi9</name></member>
+    <member refid="namespaceapp_1_1id_1aeb08addf4a80472866ebeef26b46d2f3" kind="variable"><name>ansi10</name></member>
+    <member refid="namespaceapp_1_1id_1aecad7f2dfe24df0c32e2552bcff6e18d" kind="variable"><name>ansi11</name></member>
+    <member refid="namespaceapp_1_1id_1afd2c14f09f4fb851943705c1d46ed71c" kind="variable"><name>ansi12</name></member>
+    <member refid="namespaceapp_1_1id_1a5a3922513e0b6e231975e8f048785da8" kind="variable"><name>ansi13</name></member>
+    <member refid="namespaceapp_1_1id_1aad91c2fdc1f9ad2e82d75bb61f998544" kind="variable"><name>ansi14</name></member>
+    <member refid="namespaceapp_1_1id_1ae8028469d764fa24564058d462c2384c" kind="variable"><name>ansi15</name></member>
+    <member refid="namespaceapp_1_1id_1a8422c310334d2352ab9fab57fcd7119a" kind="variable"><name>editorBackground</name></member>
+    <member refid="namespaceapp_1_1id_1a09568f871c0376dc19d681e584aff2ca" kind="variable"><name>editorOutline</name></member>
+    <member refid="namespaceapp_1_1id_1a784e0c2f687fb30a6ef87f58212c73e1" kind="variable"><name>statusBarColour</name></member>
+    <member refid="namespaceapp_1_1id_1a999c565c8db8719eccd82c14e39f0acb" kind="variable"><name>statusBarLabelBg</name></member>
+    <member refid="namespaceapp_1_1id_1a55d001546adb9a99a7abc7a02b0f3306" kind="variable"><name>statusBarLabelFg</name></member>
+    <member refid="namespaceapp_1_1id_1ab6ba69a43038813bd8abd965ab609ba1" kind="variable"><name>statusBarSpinner</name></member>
+    <member refid="namespaceapp_1_1id_1aebfa1cea3b513039f8315bdd77cb2bf5" kind="variable"><name>hintLabelBg</name></member>
+    <member refid="namespaceapp_1_1id_1a95ee97750bbdd1439631ffdc48ab2d0b" kind="variable"><name>hintLabelFg</name></member>
+    <member refid="namespaceapp_1_1id_1adc949e7d57587f132319d6b8289ab960" kind="variable"><name>scrollbarThumb</name></member>
+    <member refid="namespaceapp_1_1id_1a934fbd7a0afdcfff16ad04ea552cb22a" kind="variable"><name>scrollbarTrack</name></member>
+    <member refid="namespaceapp_1_1id_1aa19ad42e806a8ba1eab57e5b7576fbec" kind="variable"><name>tabFamily</name></member>
+    <member refid="namespaceapp_1_1id_1a7be2d28c7878ac93c697069b8157668b" kind="variable"><name>tabSize</name></member>
+    <member refid="namespaceapp_1_1id_1aaef53125ee528bc6448630e912049bc0" kind="variable"><name>tabForeground</name></member>
+    <member refid="namespaceapp_1_1id_1a480d86ad4abbcf6e97cc178062ff55a4" kind="variable"><name>tabInactive</name></member>
+    <member refid="namespaceapp_1_1id_1a48acab878605c9d99508d5c2e0c44afc" kind="variable"><name>tabPosition</name></member>
+    <member refid="namespaceapp_1_1id_1ac7f38615aa39a51422de23967359fc9b" kind="variable"><name>tabLine</name></member>
+    <member refid="namespaceapp_1_1id_1a1da955a542142ee76d4819c12652aaf2" kind="variable"><name>tabActive</name></member>
+    <member refid="namespaceapp_1_1id_1a0f3ecea39c40c90838b9fd2e01a7f9d3" kind="variable"><name>tabIndicator</name></member>
+    <member refid="namespaceapp_1_1id_1aa9657453416f38186ddc9bdf76d0e393" kind="variable"><name>tabButtonSvg</name></member>
+    <member refid="namespaceapp_1_1id_1a21b1b6f3dd9a00dd7f763627e91fd971" kind="variable"><name>paneBarColour</name></member>
+    <member refid="namespaceapp_1_1id_1ad0793da523a302f770375f899babe427" kind="variable"><name>paneBarHighlight</name></member>
+    <member refid="namespaceapp_1_1id_1a33aa122805fab67713a5bd4caea745cd" kind="variable"><name>overlayFamily</name></member>
+    <member refid="namespaceapp_1_1id_1a389dcd133162a346affb3d7858a01ce1" kind="variable"><name>overlaySize</name></member>
+    <member refid="namespaceapp_1_1id_1a66882a1899acc8c961154c2d383f9483" kind="variable"><name>overlayColour</name></member>
+    <member refid="namespaceapp_1_1id_1ab0d7c2cd5c7488722af18c2e5e83b074" kind="variable"><name>menuOpacity</name></member>
+    <member refid="namespaceapp_1_1id_1ad79fc770a41ef0bf9c7abe6215489944" kind="variable"><name>actionListCloseOnRun</name></member>
+    <member refid="namespaceapp_1_1id_1ad46fd96eede5520ac31f83c91592bdc9" kind="variable"><name>actionListPosition</name></member>
+    <member refid="namespaceapp_1_1id_1a2b9afdce726af5f5c28038ca226f6e64" kind="variable"><name>actionListNameFamily</name></member>
+    <member refid="namespaceapp_1_1id_1aa2cabe4a76fcc1d135fb8b0a3803824f" kind="variable"><name>actionListNameStyle</name></member>
+    <member refid="namespaceapp_1_1id_1a88b5555a5362c0e718c8d1e0db04beab" kind="variable"><name>actionListNameSize</name></member>
+    <member refid="namespaceapp_1_1id_1a976eb45ad9f048dcf7747b3d31870e1e" kind="variable"><name>actionListShortcutFamily</name></member>
+    <member refid="namespaceapp_1_1id_1a9b4ebc912079f79009bcbd09910f2c5c" kind="variable"><name>actionListShortcutStyle</name></member>
+    <member refid="namespaceapp_1_1id_1a73518a3d97535f86bb11fc91e422ddd4" kind="variable"><name>actionListShortcutSize</name></member>
+    <member refid="namespaceapp_1_1id_1aac2aa092d24a3de6ae6b49b269f4d887" kind="variable"><name>actionListPaddingTop</name></member>
+    <member refid="namespaceapp_1_1id_1a10c4004d2f1bdb33f4797b5da79b49d9" kind="variable"><name>actionListPaddingRight</name></member>
+    <member refid="namespaceapp_1_1id_1a933f830f0486128f43838da4ff8e038c" kind="variable"><name>actionListPaddingBottom</name></member>
+    <member refid="namespaceapp_1_1id_1a0444aeadd2b085b73cabe9b02665e906" kind="variable"><name>actionListPaddingLeft</name></member>
+    <member refid="namespaceapp_1_1id_1a6853f508224d7132862bbe86ba37bfd0" kind="variable"><name>actionListNameColour</name></member>
+    <member refid="namespaceapp_1_1id_1a27dbc7912b3a3d2fd0b4411f3a13861d" kind="variable"><name>actionListShortcutColour</name></member>
+    <member refid="namespaceapp_1_1id_1ac95773a33e9ba0ae3d7673f712f6128c" kind="variable"><name>actionListWidth</name></member>
+    <member refid="namespaceapp_1_1id_1a682fa9bf0988cf9d93fbcbb9c917247d" kind="variable"><name>actionListHeight</name></member>
+    <member refid="namespaceapp_1_1id_1a2cbaf122d9da348b193847c7a41f189d" kind="variable"><name>actionListHighlightColour</name></member>
+    <member refid="namespaceapp_1_1id_1a9489d7d8ae1186d9a0afae1b2086dcf3" kind="variable"><name>statusBarPosition</name></member>
+    <member refid="namespaceapp_1_1id_1a0acbbdb7581dc87265c6c30a1ce35023" kind="variable"><name>statusBarFontFamily</name></member>
+    <member refid="namespaceapp_1_1id_1aad1c3ec17d1db4cb60d3b465ee53c62e" kind="variable"><name>statusBarFontSize</name></member>
+    <member refid="namespaceapp_1_1id_1ad0bcda5999a67171487f552172258d91" kind="variable"><name>statusBarFontStyle</name></member>
+    <member refid="namespaceapp_1_1id_1ac9aacbb4cfb9378c6c433673aa6292f9" kind="variable"><name>popupBorderColour</name></member>
+    <member refid="namespaceapp_1_1id_1ad6a9840a545fa986ac88170f4861b80a" kind="variable"><name>popupBorderWidth</name></member>
+    <member refid="namespaceapp_1_1id_1aee26aa0ec8b10993d33be806d8a73780" kind="variable"><name>scrollbarWidth</name></member>
+    <member refid="namespaceapp_1_1id_1a6fe51178af03fba7a3b631863efef769" kind="variable"><name>fontStyle</name></member>
+    <member refid="namespaceapp_1_1id_1a951f6ab2b34bd9500bcc234ce536d95a" kind="variable"><name>codeFamily</name></member>
+    <member refid="namespaceapp_1_1id_1a15d2a53f07fddfe598923b0e9d93e13b" kind="variable"><name>codeSize</name></member>
+    <member refid="namespaceapp_1_1id_1af1dea9c35c05a981e7926b5a5fe5d787" kind="variable"><name>codeStyle</name></member>
+    <member refid="namespaceapp_1_1id_1ac98dbc6263419d63deee50a712d8542b" kind="variable"><name>h1Size</name></member>
+    <member refid="namespaceapp_1_1id_1a9e65d6d96ed5ae9d2adaef5b9180c9c7" kind="variable"><name>h2Size</name></member>
+    <member refid="namespaceapp_1_1id_1ae13f583ab8a59ae1f1cc9cf84c361e35" kind="variable"><name>h3Size</name></member>
+    <member refid="namespaceapp_1_1id_1a2486d733c843f90972f7d9fe5ded1089" kind="variable"><name>h4Size</name></member>
+    <member refid="namespaceapp_1_1id_1a5cc364c46a9fde4b3109ce56b7e3c08a" kind="variable"><name>h5Size</name></member>
+    <member refid="namespaceapp_1_1id_1abe73dbb6ccdde794ba183f63128f1c52" kind="variable"><name>h6Size</name></member>
+    <member refid="namespaceapp_1_1id_1a52ae58d30601371b81d01482e3309917" kind="variable"><name>bodyColour</name></member>
+    <member refid="namespaceapp_1_1id_1a4ef5f0b110037ae468c6f396feb5295f" kind="variable"><name>codeColour</name></member>
+    <member refid="namespaceapp_1_1id_1abc5c147bdc38eadc2cbda8a97f40a944" kind="variable"><name>linkColour</name></member>
+    <member refid="namespaceapp_1_1id_1a0d47ddc2796c1bff5cbab6603d22815c" kind="variable"><name>h1Colour</name></member>
+    <member refid="namespaceapp_1_1id_1a0ff18ee33f012e953a7876bc88ae7788" kind="variable"><name>h2Colour</name></member>
+    <member refid="namespaceapp_1_1id_1a8018f054bfa783bc78da6c978d625e74" kind="variable"><name>h3Colour</name></member>
+    <member refid="namespaceapp_1_1id_1a07078d19dd37b19ebd567197d6b9cc6b" kind="variable"><name>h4Colour</name></member>
+    <member refid="namespaceapp_1_1id_1a140cca350b9776148a3fccd8ba9f7e04" kind="variable"><name>h5Colour</name></member>
+    <member refid="namespaceapp_1_1id_1abbcfae93cf8d068934f685be08e73010" kind="variable"><name>h6Colour</name></member>
+    <member refid="namespaceapp_1_1id_1afdd1affaf7f66f8faf52a2935ef80fcf" kind="variable"><name>codeFenceBackground</name></member>
+    <member refid="namespaceapp_1_1id_1a9c3bba61ce0ee97233a1d1b898582840" kind="variable"><name>progressBackground</name></member>
+    <member refid="namespaceapp_1_1id_1ad925d58f6cacade4ae57ee99cecf5c23" kind="variable"><name>progressForeground</name></member>
+    <member refid="namespaceapp_1_1id_1a14bd015b20493c318ca82e325a72c1ec" kind="variable"><name>progressTextColour</name></member>
+    <member refid="namespaceapp_1_1id_1a7f078637a531d9b496188b66e2756ddd" kind="variable"><name>progressSpinnerColour</name></member>
+    <member refid="namespaceapp_1_1id_1a53311a5489b9b09268e5c3d363044509" kind="variable"><name>tokenError</name></member>
+    <member refid="namespaceapp_1_1id_1a940380d27c15520af3125a2aacdb2835" kind="variable"><name>tokenComment</name></member>
+    <member refid="namespaceapp_1_1id_1a2cc66ede328e309d1170ccce33dd69a7" kind="variable"><name>tokenKeyword</name></member>
+    <member refid="namespaceapp_1_1id_1a71957eee8ce2ac0e4172ee5cc751b7ea" kind="variable"><name>tokenOperator</name></member>
+    <member refid="namespaceapp_1_1id_1a62de102d67bf00941e1e02a6cf419392" kind="variable"><name>tokenIdentifier</name></member>
+    <member refid="namespaceapp_1_1id_1a13a8d93f17d1fb981c681e25131f00f8" kind="variable"><name>tokenInteger</name></member>
+    <member refid="namespaceapp_1_1id_1a7cb1edf4e1c2e5f206ea598cc48cf188" kind="variable"><name>tokenFloat</name></member>
+    <member refid="namespaceapp_1_1id_1a492d01dcb0fa394c718f0e46632807e8" kind="variable"><name>tokenString</name></member>
+    <member refid="namespaceapp_1_1id_1a23814bdd75081b39c639e51a5e52b2b3" kind="variable"><name>tokenBracket</name></member>
+    <member refid="namespaceapp_1_1id_1a0d02346bdd2d393b97d9634205664385" kind="variable"><name>tokenPunctuation</name></member>
+    <member refid="namespaceapp_1_1id_1aac5e0fa316ccb72120c6bc7c99c0e1b6" kind="variable"><name>tokenPreprocessor</name></member>
+    <member refid="namespaceapp_1_1id_1a75d698af282667d1876298a89d665686" kind="variable"><name>tableBackground</name></member>
+    <member refid="namespaceapp_1_1id_1a4b3da11dde502d98b854953b0367dbfc" kind="variable"><name>tableHeaderBackground</name></member>
+    <member refid="namespaceapp_1_1id_1a9761e1106ad19af67f725c57d9a171f1" kind="variable"><name>tableRowAlt</name></member>
+    <member refid="namespaceapp_1_1id_1a2998077a0db0710b1520a64148ed86ba" kind="variable"><name>tableBorderColour</name></member>
+    <member refid="namespaceapp_1_1id_1aa5e641723bf66ff3d0a509b1f43944c4" kind="variable"><name>tableHeaderText</name></member>
+    <member refid="namespaceapp_1_1id_1a7e5de7110c5e488d1501431c7a739fd8" kind="variable"><name>tableCellText</name></member>
+    <member refid="namespaceapp_1_1id_1a2ae7461b03651360e50418c15377d1da" kind="variable"><name>scrollbarBackground</name></member>
+    <member refid="namespaceapp_1_1id_1afd275faf67380d984e51ebdea341395c" kind="variable"><name>scrollDown</name></member>
+    <member refid="namespaceapp_1_1id_1ac0656642c438f1af1bf14e1aaa69399f" kind="variable"><name>scrollUp</name></member>
+    <member refid="namespaceapp_1_1id_1af607d92f2813b69d4bb003060d4edebe" kind="variable"><name>scrollTop</name></member>
+    <member refid="namespaceapp_1_1id_1ae8d866eeefab0444493f84a8ebd77849" kind="variable"><name>scrollBottom</name></member>
+    <member refid="namespaceapp_1_1id_1a46133449d4dab4e7944ed4ff0d1e3f46" kind="variable"><name>prefix</name></member>
+    <member refid="namespaceapp_1_1id_1a0d5230511735b9c481e1ccb17734e2eb" kind="variable"><name>prefixTimeout</name></member>
+    <member refid="namespaceapp_1_1id_1ac308defcf1b7632e18d5632e07414805" kind="variable"><name>defaultCols</name></member>
+    <member refid="namespaceapp_1_1id_1a7fa0145d52e1c99af0cd65ef34b47361" kind="variable"><name>defaultRows</name></member>
+    <member refid="namespaceapp_1_1id_1aa599a0c2aa8afa08ac5e2d4745b5c66d" kind="variable"><name>defaultPosition</name></member>
     <member refid="namespaceapp_1_1id_1ae576c239b4056906a6e377c6362ec71e" kind="variable"><name>type</name></member>
     <member refid="namespaceapp_1_1id_1aed856334ad2ab03ffca7c09fe2a9b2ce" kind="variable"><name>defaultValue</name></member>
     <member refid="namespaceapp_1_1id_1aa6a7447b396768bb1727f8be61732ea0" kind="variable"><name>boolType</name></member>
     <member refid="namespaceapp_1_1id_1afae8fe8f9d8780b8a20d5a793a9f4c51" kind="variable"><name>floatType</name></member>
     <member refid="namespaceapp_1_1id_1a928eb12cf0df28db87da4015df4bbfb0" kind="variable"><name>stringType</name></member>
+    <member refid="namespaceapp_1_1id_1a196fadd33553c8fa26d74617acf49b01" kind="variable"><name>colourType</name></member>
     <member refid="namespaceapp_1_1id_1a7af1375efbd68fbbd7695232e1c546ad" kind="variable"><name>appMetadata</name></member>
   </compound>
   <compound refid="namespacejuce_1_1_value_tree" kind="namespace"><name>juce::ValueTree</name>
@@ -2411,17 +2330,17 @@
   <compound refid="namespacelua" kind="namespace"><name>lua</name>
     <member refid="namespacelua_1ae78a0ad621a31e95cc455553946df4b1" kind="function"><name>colourToHex</name></member>
     <member refid="namespacelua_1adc3a2435f8a1030fb35031474c305bf0" kind="function"><name>colourToWhelmedHex</name></member>
-    <member refid="namespacelua_1a84688fe3676b1acb96938671ae61aca1" kind="function"><name>writeDisplayFontDefaults</name></member>
-    <member refid="namespacelua_1ae224faeb7592d43d2452dce47a6fbe9c" kind="function"><name>writeDisplayColoursDefaults</name></member>
-    <member refid="namespacelua_1a56676579556000e1e07f1ff4a7431912" kind="function"><name>writeDisplayWindowDefaults</name></member>
-    <member refid="namespacelua_1aeb90992aad67a29fa2080492a875f565" kind="function"><name>writeDisplayTabDefaults</name></member>
-    <member refid="namespacelua_1a74fca56bfc76dcd640f6f1803a8afc67" kind="function"><name>writeDisplayMiscDefaults</name></member>
-    <member refid="namespacelua_1a458e0fc1c9cf643521c62520025de868" kind="function"><name>parseDisplayWindow</name></member>
-    <member refid="namespacelua_1a06a39bc0e84ed14f91bebcd1355678c4" kind="function"><name>parseDisplayColours</name></member>
-    <member refid="namespacelua_1ae7636387e2db7b1d5cb53d5ee82a0ae9" kind="function"><name>parseDisplayCursor</name></member>
-    <member refid="namespacelua_1a406bd58f8e8ddba2341dfed224dbd900" kind="function"><name>parseDisplayFont</name></member>
-    <member refid="namespacelua_1a0286c8cb5de1bc7f0a7f756c8f4de238" kind="function"><name>parseDisplayTab</name></member>
-    <member refid="namespacelua_1ad0765e4a8d2a333c174036c8bc89bad0" kind="function"><name>parseDisplayMisc</name></member>
+    <member refid="namespacelua_1a18f3f51d648af4b40e2c33d1a9809335" kind="function"><name>writeDisplayFontDefaults</name></member>
+    <member refid="namespacelua_1a2b32be140ae7fb07860526e31f4b2890" kind="function"><name>writeDisplayColoursDefaults</name></member>
+    <member refid="namespacelua_1ad430767a63f28cf228c4d0bc16e4ad79" kind="function"><name>writeDisplayWindowDefaults</name></member>
+    <member refid="namespacelua_1adde2dd9c8b1eeb9a7af7de8167c77d88" kind="function"><name>writeDisplayTabDefaults</name></member>
+    <member refid="namespacelua_1a529ffb84adfdb858001747571af461d0" kind="function"><name>writeDisplayMiscDefaults</name></member>
+    <member refid="namespacelua_1a0603e240e7a0bdb567750f6f4745d977" kind="function"><name>parseDisplayWindow</name></member>
+    <member refid="namespacelua_1a67a15b5bd9e27be9499c2028eaaa3178" kind="function"><name>parseDisplayColours</name></member>
+    <member refid="namespacelua_1ab1f749ba59f32154943afd7e3139f999" kind="function"><name>parseDisplayCursor</name></member>
+    <member refid="namespacelua_1ad7938817879befc63ad3d9fac09d2837" kind="function"><name>parseDisplayFont</name></member>
+    <member refid="namespacelua_1a2bdf6af96321442c41815cbe9cdc9a5e" kind="function"><name>parseDisplayTab</name></member>
+    <member refid="namespacelua_1a56a32193c73ba7441f334e65b8939cad" kind="function"><name>parseDisplayMisc</name></member>
   </compound>
   <compound refid="namespacenexus" kind="namespace"><name>nexus</name>
     <member refid="namespacenexus_1ae3d92fd1aa6468b4cd37d73543473558" kind="enum"><name>Message</name></member>
@@ -2904,8 +2823,6 @@
   </compound>
   <compound refid="_palette_8h" kind="file"><name>Palette.h</name>
   </compound>
-  <compound refid="_parameter_8h" kind="file"><name>Parameter.h</name>
-  </compound>
   <compound refid="terminal_2_parser_8cpp" kind="file"><name>Parser.cpp</name>
   </compound>
   <compound refid="whelmed_2_parser_8cpp" kind="file"><name>Parser.cpp</name>
@@ -2935,8 +2852,6 @@
   <compound refid="_skit_8cpp" kind="file"><name>Skit.cpp</name>
   </compound>
   <compound refid="_skit_8h" kind="file"><name>Skit.h</name>
-  </compound>
-  <compound refid="_text_buffer_8h" kind="file"><name>TextBuffer.h</name>
   </compound>
   <compound refid="_t_t_y_8cpp" kind="file"><name>TTY.cpp</name>
   </compound>
