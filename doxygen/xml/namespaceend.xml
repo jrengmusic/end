@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="namespaceend" kind="namespace" language="C++">
+    <compoundname>end</compoundname>
+    <innerclass refid="classend_1_1_view" prot="public">end::View</innerclass>
+    <innerclass refid="classend_1_1_look_and_feel" prot="public">end::LookAndFeel</innerclass>
+    <innerclass refid="classend_1_1_application" prot="public">end::Application</innerclass>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="EndView.cpp" line="3" column="1"/>
+  </compounddef>
+</doxygen>

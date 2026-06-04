@@ -1,72 +1,229 @@
 <?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
 <tagfile doxygen_version="1.16.1">
   <compound kind="file">
+    <name>Config.cpp</name>
+    <path>config/</path>
+    <filename>_config_8cpp.html</filename>
+    <includes id="_config_8h" name="Config.h" local="yes" import="no" module="no" objc="no">Config.h</includes>
+    <namespace>config</namespace>
+  </compound>
+  <compound kind="file">
+    <name>Config.h</name>
+    <path>config/</path>
+    <filename>_config_8h.html</filename>
+    <class kind="class">config::Model</class>
+    <namespace>config</namespace>
+  </compound>
+  <compound kind="file">
+    <name>EndView.cpp</name>
+    <path></path>
+    <filename>_end_view_8cpp.html</filename>
+    <includes id="_end_view_8h" name="EndView.h" local="yes" import="no" module="no" objc="no">EndView.h</includes>
+    <namespace>end</namespace>
+  </compound>
+  <compound kind="file">
+    <name>EndView.h</name>
+    <path></path>
+    <filename>_end_view_8h.html</filename>
+    <includes id="_look_and_feel_8h" name="LookAndFeel.h" local="yes" import="no" module="no" objc="no">lookAndFeel/LookAndFeel.h</includes>
+    <class kind="class">end::View</class>
+    <namespace>end</namespace>
+  </compound>
+  <compound kind="file">
+    <name>LookAndFeel.cpp</name>
+    <path>lookAndFeel/</path>
+    <filename>_look_and_feel_8cpp.html</filename>
+    <includes id="_look_and_feel_8h" name="LookAndFeel.h" local="yes" import="no" module="no" objc="no">LookAndFeel.h</includes>
+  </compound>
+  <compound kind="file">
+    <name>LookAndFeel.h</name>
+    <path>lookAndFeel/</path>
+    <filename>_look_and_feel_8h.html</filename>
+    <class kind="class">end::LookAndFeel</class>
+    <namespace>end</namespace>
+  </compound>
+  <compound kind="file">
     <name>Main.cpp</name>
     <path></path>
     <filename>_main_8cpp.html</filename>
     <includes id="_main_8h" name="Main.h" local="yes" import="no" module="no" objc="no">Main.h</includes>
+    <namespace>end</namespace>
   </compound>
   <compound kind="file">
     <name>Main.h</name>
     <path></path>
     <filename>_main_8h.html</filename>
-    <class kind="class">ENDApplication</class>
+    <includes id="_config_8h" name="Config.h" local="yes" import="no" module="no" objc="no">config/Config.h</includes>
+    <includes id="_end_view_8h" name="EndView.h" local="yes" import="no" module="no" objc="no">EndView.h</includes>
+    <class kind="class">end::Application</class>
+    <namespace>end</namespace>
   </compound>
   <compound kind="class">
-    <name>ENDApplication</name>
-    <filename>class_e_n_d_application.html</filename>
+    <name>end::Application</name>
+    <filename>classend_1_1_application.html</filename>
+    <base>jam::File::Watcher::Listener</base>
     <member kind="function">
       <type></type>
-      <name>ENDApplication</name>
-      <anchorfile>class_e_n_d_application.html</anchorfile>
-      <anchor>a7739846859a545d64417d3db8b69ca2f</anchor>
+      <name>Application</name>
+      <anchorfile>classend_1_1_application.html</anchorfile>
+      <anchor>a127405d348ee02fc38b374812bf3c883</anchor>
       <arglist>()</arglist>
     </member>
     <member kind="function">
       <type>const juce::String</type>
       <name>getApplicationName</name>
-      <anchorfile>class_e_n_d_application.html</anchorfile>
-      <anchor>ad21a530035bfd44ca831bd15481cd841</anchor>
+      <anchorfile>classend_1_1_application.html</anchorfile>
+      <anchor>ab2d34713da4e6b4917cf53a08cda47eb</anchor>
       <arglist>() override</arglist>
     </member>
     <member kind="function">
       <type>const juce::String</type>
       <name>getApplicationVersion</name>
-      <anchorfile>class_e_n_d_application.html</anchorfile>
-      <anchor>a63f15e33736e7a54cf8799dec95caac3</anchor>
+      <anchorfile>classend_1_1_application.html</anchorfile>
+      <anchor>af5df574c86505182fdd01d567824d0b7</anchor>
       <arglist>() override</arglist>
     </member>
     <member kind="function">
       <type>bool</type>
       <name>moreThanOneInstanceAllowed</name>
-      <anchorfile>class_e_n_d_application.html</anchorfile>
-      <anchor>a7ddbfcfad092307acc1a6425941e695d</anchor>
+      <anchorfile>classend_1_1_application.html</anchorfile>
+      <anchor>acb2876376b8c61d2ee8795524e625d0f</anchor>
       <arglist>() override</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>initialise</name>
-      <anchorfile>class_e_n_d_application.html</anchorfile>
-      <anchor>a96fc235a4618e12e65fb65d24578a554</anchor>
+      <anchorfile>classend_1_1_application.html</anchorfile>
+      <anchor>a598aa5d15712e3107ade5df8f6c5e33d</anchor>
       <arglist>(const juce::String &amp;commandLine) override</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>shutdown</name>
-      <anchorfile>class_e_n_d_application.html</anchorfile>
-      <anchor>a5bb966fe05efc647b92919af6110b754</anchor>
+      <anchorfile>classend_1_1_application.html</anchorfile>
+      <anchor>a18d7fd1d8bbcca6a1c7af73e3bf503a8</anchor>
       <arglist>() override</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>systemRequestedQuit</name>
-      <anchorfile>class_e_n_d_application.html</anchorfile>
-      <anchor>a739cd12353aca8364cba81bb18a13750</anchor>
+      <anchorfile>classend_1_1_application.html</anchorfile>
+      <anchor>a636a8c0776059c65df3d0405229858f4</anchor>
       <arglist>() override</arglist>
     </member>
+    <member kind="function" protection="private">
+      <type>void</type>
+      <name>fileChanged</name>
+      <anchorfile>classend_1_1_application.html</anchorfile>
+      <anchor>af446ffd1fa995c2838d2d34713a7d83a</anchor>
+      <arglist>(const juce::File &amp;file, jam::File::Watcher::Event event) override</arglist>
+    </member>
+    <member kind="variable" protection="private">
+      <type>config::Model</type>
+      <name>config</name>
+      <anchorfile>classend_1_1_application.html</anchorfile>
+      <anchor>a765f410d9d4232de53d86311b3ad303f</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="private">
+      <type>std::unique_ptr&lt; jam::Window &gt;</type>
+      <name>window</name>
+      <anchorfile>classend_1_1_application.html</anchorfile>
+      <anchor>ad51d57d5d3319cf09216f8ed72671664</anchor>
+      <arglist></arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>end::LookAndFeel</name>
+    <filename>classend_1_1_look_and_feel.html</filename>
+  </compound>
+  <compound kind="class">
+    <name>config::Model</name>
+    <filename>classconfig_1_1_model.html</filename>
+    <base>jam::Model</base>
+    <base>jam::Context&lt; Model &gt;</base>
+    <member kind="function">
+      <type></type>
+      <name>Model</name>
+      <anchorfile>classconfig_1_1_model.html</anchorfile>
+      <anchor>a663ac662800dd1918dbab12d317fa4d5</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>~Model</name>
+      <anchorfile>classconfig_1_1_model.html</anchorfile>
+      <anchor>af95c0931a6f76206d56eb06a3c71a05a</anchor>
+      <arglist>()=default</arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>end::View</name>
+    <filename>classend_1_1_view.html</filename>
+    <member kind="function">
+      <type></type>
+      <name>View</name>
+      <anchorfile>classend_1_1_view.html</anchorfile>
+      <anchor>ac89c619ba6f3ef9688c0a61767be336e</anchor>
+      <arglist>() noexcept</arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>~View</name>
+      <anchorfile>classend_1_1_view.html</anchorfile>
+      <anchor>a232862a8f650fba02de78fd3b173351e</anchor>
+      <arglist>()=default</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>resized</name>
+      <anchorfile>classend_1_1_view.html</anchorfile>
+      <anchor>a14f07f6fc295c80b4ff0555798fa583c</anchor>
+      <arglist>() override</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>paint</name>
+      <anchorfile>classend_1_1_view.html</anchorfile>
+      <anchor>a2b7111f9b62f43d038bc092d269b5b1c</anchor>
+      <arglist>(juce::Graphics &amp;) override</arglist>
+    </member>
+    <member kind="variable" protection="private">
+      <type>LookAndFeel</type>
+      <name>defaultLookAndFeel</name>
+      <anchorfile>classend_1_1_view.html</anchorfile>
+      <anchor>ae28f91b96f0bb63117c56a004f2f3f88</anchor>
+      <arglist></arglist>
+    </member>
+  </compound>
+  <compound kind="namespace">
+    <name>config</name>
+    <filename>namespaceconfig.html</filename>
+    <class kind="class">config::Model</class>
+  </compound>
+  <compound kind="namespace">
+    <name>end</name>
+    <filename>namespaceend.html</filename>
+    <class kind="class">end::View</class>
+    <class kind="class">end::LookAndFeel</class>
+    <class kind="class">end::Application</class>
   </compound>
   <compound kind="namespace">
     <name>std</name>
     <filename>namespacestd.html</filename>
+  </compound>
+  <compound kind="dir">
+    <name>config</name>
+    <path>config/</path>
+    <filename>dir_9f351d46ce3cc29445a41dc3a31e6919.html</filename>
+    <file>Config.cpp</file>
+    <file>Config.h</file>
+  </compound>
+  <compound kind="dir">
+    <name>lookAndFeel</name>
+    <path>lookAndFeel/</path>
+    <filename>dir_c9cfca4ec86141f7bb4e60ba321d4655.html</filename>
+    <file>LookAndFeel.cpp</file>
+    <file>LookAndFeel.h</file>
   </compound>
 </tagfile>

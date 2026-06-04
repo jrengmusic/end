@@ -1,10 +1,18 @@
 #pragma once
 #include <JuceHeader.h>
+#include "config/Config.h"
+#include "EndView.h"
 
-class ENDApplication : public juce::JUCEApplication
+namespace end
+{
+/*____________________________________________________________________________*/
+
+class Application
+    : public juce::JUCEApplication
+    , public jam::File::Watcher::Listener
 {
 public:
-    ENDApplication();
+    Application();
     /** @return The human-readable application name from ProjectInfo. */
     const juce::String getApplicationName() override;
     /** @return The version string from ProjectInfo (e.g. "1.0.0"). */
@@ -65,12 +73,23 @@ public:
     void systemRequestedQuit() override;
 
 private:
+    void fileChanged (const juce::File& file, jam::File::Watcher::Event event) override;
+
+    //==============================================================================
+    config::Model config;
+    std::unique_ptr<jam::Window> window;
+
+    //==============================================================================
 #if JUCE_DEBUG
     /** @brief Diagnostic log scope — constructed first, destroyed last.
      *  @note TEMP diagnostic — re-introduced for assertion hunt; remove after fix (Track 1 Step 10 cleanup target). */
-    jam::debug::Log::Scope logScope { juce::File::getCurrentWorkingDirectory().getChildFile ("diag.log") };
+    jam::debug::Log::Scope logScope { juce::File::getCurrentWorkingDirectory().getChildFile (
+        jam::Text::toFileName (ProjectInfo::projectName, ".ode")) };
 #endif
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ENDApplication)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Application)
 };
+
+/**______________________________END OF NAMESPACE______________________________*/
+}// namespace end

@@ -4,6 +4,14 @@
     <compoundname>Main.cpp</compoundname>
     <includes refid="_main_8h" local="yes">Main.h</includes>
     <incdepgraph>
+      <node id="5">
+        <label>EndView.h</label>
+        <link refid="_end_view_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
       <node id="1">
         <label>Main.cpp</label>
         <link refid="_main_8cpp"/>
@@ -15,11 +23,28 @@
         <link refid="_main_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>config/Config.h</label>
+        <link refid="_config_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>lookAndFeel/LookAndFeel.h</label>
+        <link refid="_look_and_feel_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
       </node>
       <node id="3">
         <label>JuceHeader.h</label>
       </node>
     </incdepgraph>
+    <innernamespace refid="namespaceend">end</innernamespace>
     <briefdescription>
     </briefdescription>
     <detaileddescription>
@@ -27,16 +52,58 @@
     <programlisting>
 <codeline lineno="1"><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_main_8h" kindref="compound">Main.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="2"><highlight class="normal"></highlight></codeline>
-<codeline lineno="3" refid="class_e_n_d_application_1a7739846859a545d64417d3db8b69ca2f" refkind="member"><highlight class="normal"><ref refid="class_e_n_d_application_1a7739846859a545d64417d3db8b69ca2f" kindref="member">ENDApplication::ENDApplication</ref>()<sp/>{}</highlight></codeline>
-<codeline lineno="4" refid="class_e_n_d_application_1a96fc235a4618e12e65fb65d24578a554" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_e_n_d_application_1a96fc235a4618e12e65fb65d24578a554" kindref="member">ENDApplication::initialise</ref><sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::String&amp;<sp/>commandLine)<sp/>{}</highlight></codeline>
-<codeline lineno="5" refid="class_e_n_d_application_1a5bb966fe05efc647b92919af6110b754" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_e_n_d_application_1a5bb966fe05efc647b92919af6110b754" kindref="member">ENDApplication::shutdown</ref>()<sp/>{}</highlight></codeline>
-<codeline lineno="6" refid="class_e_n_d_application_1a739cd12353aca8364cba81bb18a13750" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_e_n_d_application_1a739cd12353aca8364cba81bb18a13750" kindref="member">ENDApplication::systemRequestedQuit</ref>()<sp/>{<sp/>quit();<sp/>}</highlight></codeline>
-<codeline lineno="7" refid="class_e_n_d_application_1ad21a530035bfd44ca831bd15481cd841" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::String<sp/><ref refid="class_e_n_d_application_1ad21a530035bfd44ca831bd15481cd841" kindref="member">ENDApplication::getApplicationName</ref>()<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ProjectInfo::projectName;<sp/>}</highlight></codeline>
-<codeline lineno="8" refid="class_e_n_d_application_1a63f15e33736e7a54cf8799dec95caac3" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::String<sp/><ref refid="class_e_n_d_application_1a63f15e33736e7a54cf8799dec95caac3" kindref="member">ENDApplication::getApplicationVersion</ref>()<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ProjectInfo::versionString;<sp/>}</highlight></codeline>
-<codeline lineno="9" refid="class_e_n_d_application_1a7ddbfcfad092307acc1a6425941e695d" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_e_n_d_application_1a7ddbfcfad092307acc1a6425941e695d" kindref="member">ENDApplication::moreThanOneInstanceAllowed</ref>()<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;<sp/>}</highlight></codeline>
-<codeline lineno="10"><highlight class="normal"></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="11"><highlight class="normal"></highlight><highlight class="comment">//<sp/>This<sp/>macro<sp/>generates<sp/>the<sp/>main()<sp/>routine<sp/>that<sp/>launches<sp/>the<sp/>app.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="12"><highlight class="normal"><ref refid="group__juce__events-messages_1ga10c79cf9cafd40244a741e5945878e79" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">START_JUCE_APPLICATION</ref><sp/>(<ref refid="class_e_n_d_application" kindref="compound">ENDApplication</ref>)</highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespaceend" kindref="compound">end</ref></highlight></codeline>
+<codeline lineno="4"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">/*____________________________________________________________________________*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="7" refid="classend_1_1_application_1a127405d348ee02fc38b374812bf3c883" refkind="member"><highlight class="normal"><ref refid="classend_1_1_application_1a127405d348ee02fc38b374812bf3c883" kindref="member">Application::Application</ref>()<sp/>{}</highlight></codeline>
+<codeline lineno="8" refid="classend_1_1_application_1a598aa5d15712e3107ade5df8f6c5e33d" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_application_1a598aa5d15712e3107ade5df8f6c5e33d" kindref="member">Application::initialise</ref><sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::String&amp;<sp/>commandLine)</highlight></codeline>
+<codeline lineno="9"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>JUCE_WINDOWS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Safety<sp/>net:<sp/>create<sp/>a<sp/>Job<sp/>Object<sp/>with<sp/>KILL_ON_JOB_CLOSE<sp/>so<sp/>that<sp/>all</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>child<sp/>processes<sp/>(shell,<sp/>OpenConsole.exe<sp/>from<sp/>ConPTY)<sp/>are<sp/>killed<sp/>when</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>this<sp/>process<sp/>exits<sp/>—<sp/>even<sp/>on<sp/>crash.<sp/><sp/>The<sp/>daemon<sp/>has<sp/>its<sp/>own<sp/>Job<sp/>Object</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>via<sp/>Daemon::installPlatformProcessCleanup();<sp/>this<sp/>covers<sp/>the<sp/>GUI</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>(standalone<sp/>and<sp/>client)<sp/>process.<sp/><sp/>Handle<sp/>intentionally<sp/>not<sp/>stored<sp/>—</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>the<sp/>OS<sp/>closes<sp/>it<sp/>on<sp/>process<sp/>exit,<sp/>which<sp/>triggers<sp/>the<sp/>kill.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>HANDLE<sp/>job<sp/>{<sp/>CreateJobObject<sp/>(</highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">)<sp/>};</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(job<sp/>!=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>JOBOBJECT_EXTENDED_LIMIT_INFORMATION<sp/>info<sp/>{};</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>info.BasicLimitInformation.LimitFlags<sp/>=<sp/>JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE<sp/>|<sp/>JOB_OBJECT_LIMIT_BREAKAWAY_OK;</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SetInformationJobObject<sp/>(job,<sp/>JobObjectExtendedLimitInformation,<sp/>&amp;info,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal"><sp/>(info));</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>AssignProcessToJobObject<sp/>(job,<sp/>GetCurrentProcess());</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal">*<sp/>view<sp/>{<sp/></highlight><highlight class="keyword">new</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_view" kindref="compound">View</ref>()<sp/>};</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classend_1_1_application_1ad51d57d5d3319cf09216f8ed72671664" kindref="member">window</ref>.reset<sp/>(</highlight><highlight class="keyword">new</highlight><highlight class="normal"><sp/><ref refid="classjam_1_1_window" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Window</ref><sp/>{<sp/>view,<sp/>ProjectInfo::projectName,<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal"><sp/>});</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classend_1_1_application_1ad51d57d5d3319cf09216f8ed72671664" kindref="member">window</ref>-&gt;setVisible<sp/>(</highlight><highlight class="keyword">true</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/>juce::MessageManager::callAsync<sp/>(</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>[</highlight><highlight class="keyword">this</highlight><highlight class="normal">]</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keyword">auto</highlight><highlight class="normal">*<sp/>view<sp/>{<sp/><ref refid="classend_1_1_application_1ad51d57d5d3319cf09216f8ed72671664" kindref="member">window</ref>-&gt;getContentComponent()<sp/>})</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>view-&gt;grabKeyboardFocus();</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>});</highlight></codeline>
+<codeline lineno="40"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="41" refid="classend_1_1_application_1a18d7fd1d8bbcca6a1c7af73e3bf503a8" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_application_1a18d7fd1d8bbcca6a1c7af73e3bf503a8" kindref="member">Application::shutdown</ref>()<sp/>{}</highlight></codeline>
+<codeline lineno="42" refid="classend_1_1_application_1a636a8c0776059c65df3d0405229858f4" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_application_1a636a8c0776059c65df3d0405229858f4" kindref="member">Application::systemRequestedQuit</ref>()<sp/>{<sp/>quit();<sp/>}</highlight></codeline>
+<codeline lineno="43" refid="classend_1_1_application_1ab2d34713da4e6b4917cf53a08cda47eb" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::String<sp/><ref refid="classend_1_1_application_1ab2d34713da4e6b4917cf53a08cda47eb" kindref="member">Application::getApplicationName</ref>()<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ProjectInfo::projectName;<sp/>}</highlight></codeline>
+<codeline lineno="44" refid="classend_1_1_application_1af5df574c86505182fdd01d567824d0b7" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::String<sp/><ref refid="classend_1_1_application_1af5df574c86505182fdd01d567824d0b7" kindref="member">Application::getApplicationVersion</ref>()<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ProjectInfo::versionString;<sp/>}</highlight></codeline>
+<codeline lineno="45" refid="classend_1_1_application_1acb2876376b8c61d2ee8795524e625d0f" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_application_1acb2876376b8c61d2ee8795524e625d0f" kindref="member">Application::moreThanOneInstanceAllowed</ref>()<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;<sp/>}</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48" refid="classend_1_1_application_1af446ffd1fa995c2838d2d34713a7d83a" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_application_1af446ffd1fa995c2838d2d34713a7d83a" kindref="member">Application::fileChanged</ref><sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::File&amp;<sp/>file,<sp/><ref refid="structjam_1_1_file_1_1_watcher_1a67463011ada054bc1dc66cdf49d446f2" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::File::Watcher::Event</ref><sp/>event)<sp/>{}</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal">}</highlight><highlight class="comment">//<sp/>namespace<sp/>end</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight><highlight class="comment">//<sp/>This<sp/>macro<sp/>generates<sp/>the<sp/>main()<sp/>routine<sp/>that<sp/>launches<sp/>the<sp/>app.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><ref refid="group__juce__events-messages_1ga10c79cf9cafd40244a741e5945878e79" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">START_JUCE_APPLICATION</ref><sp/>(<ref refid="classend_1_1_application" kindref="compound">end::Application</ref>)</highlight></codeline>
     </programlisting>
     <location file="Main.cpp"/>
   </compounddef>

@@ -1,0 +1,134 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="classend_1_1_view" kind="class" language="C++" prot="public">
+    <compoundname>end::View</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">juce::Component</basecompoundref>
+    <includes refid="_end_view_8h" local="no">EndView.h</includes>
+    <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classend_1_1_view_1ae28f91b96f0bb63117c56a004f2f3f88" prot="private" static="no" mutable="no">
+        <type><ref refid="classLookAndFeel" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">LookAndFeel</ref></type>
+        <definition>LookAndFeel end::View::defaultLookAndFeel</definition>
+        <argsstring></argsstring>
+        <name>defaultLookAndFeel</name>
+        <qualifiedname>end::View::defaultLookAndFeel</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="EndView.h" line="16" column="17" bodyfile="EndView.h" bodystart="16" bodyend="-1"/>
+        <referencedby refid="classend_1_1_view_1ac89c619ba6f3ef9688c0a61767be336e" compoundref="_end_view_8cpp" startline="6" endline="11">View</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="public-func">
+      <memberdef kind="function" id="classend_1_1_view_1ac89c619ba6f3ef9688c0a61767be336e" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type></type>
+        <definition>end::View::View</definition>
+        <argsstring>() noexcept</argsstring>
+        <name>View</name>
+        <qualifiedname>end::View::View</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="EndView.h" line="9" column="5" bodyfile="EndView.cpp" bodystart="6" bodyend="11"/>
+        <references refid="classend_1_1_view_1ae28f91b96f0bb63117c56a004f2f3f88" compoundref="_end_view_8h" startline="16">defaultLookAndFeel</references>
+      </memberdef>
+      <memberdef kind="function" id="classend_1_1_view_1a232862a8f650fba02de78fd3b173351e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>end::View::~View</definition>
+        <argsstring>()=default</argsstring>
+        <name>~View</name>
+        <qualifiedname>end::View::~View</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="EndView.h" line="10" column="5"/>
+      </memberdef>
+      <memberdef kind="function" id="classend_1_1_view_1a14f07f6fc295c80b4ff0555798fa583c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void end::View::resized</definition>
+        <argsstring>() override</argsstring>
+        <name>resized</name>
+        <qualifiedname>end::View::resized</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="EndView.h" line="12" column="10" bodyfile="EndView.cpp" bodystart="12" bodyend="12"/>
+      </memberdef>
+      <memberdef kind="function" id="classend_1_1_view_1a2b7111f9b62f43d038bc092d269b5b1c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void end::View::paint</definition>
+        <argsstring>(juce::Graphics &amp;) override</argsstring>
+        <name>paint</name>
+        <qualifiedname>end::View::paint</qualifiedname>
+        <param>
+          <type>juce::Graphics &amp;</type>
+          <defname>g</defname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="EndView.h" line="13" column="10" bodyfile="EndView.cpp" bodystart="14" bodyend="20"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>end::View</label>
+        <link refid="classend_1_1_view"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>juce::Component</label>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="3">
+        <label>end::LookAndFeel</label>
+        <link refid="classend_1_1_look_and_feel"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>end::View</label>
+        <link refid="classend_1_1_view"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>defaultLookAndFeel</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>juce::Component</label>
+      </node>
+      <node id="4">
+        <label>juce::LookAndFeel_V4</label>
+      </node>
+    </collaborationgraph>
+    <location file="EndView.h" line="6" column="1" bodyfile="EndView.h" bodystart="7" bodyend="20"/>
+    <listofallmembers>
+      <member refid="classend_1_1_view_1ae28f91b96f0bb63117c56a004f2f3f88" prot="private" virt="non-virtual"><scope>end::View</scope><name>defaultLookAndFeel</name></member>
+      <member refid="classend_1_1_view_1a2b7111f9b62f43d038bc092d269b5b1c" prot="public" virt="non-virtual"><scope>end::View</scope><name>paint</name></member>
+      <member refid="classend_1_1_view_1a14f07f6fc295c80b4ff0555798fa583c" prot="public" virt="non-virtual"><scope>end::View</scope><name>resized</name></member>
+      <member refid="classend_1_1_view_1ac89c619ba6f3ef9688c0a61767be336e" prot="public" virt="non-virtual"><scope>end::View</scope><name>View</name></member>
+      <member refid="classend_1_1_view_1a232862a8f650fba02de78fd3b173351e" prot="public" virt="non-virtual"><scope>end::View</scope><name>~View</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

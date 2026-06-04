@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="_config_8cpp" kind="file" language="C++">
+    <compoundname>Config.cpp</compoundname>
+    <includes refid="_config_8h" local="yes">Config.h</includes>
+    <incdepgraph>
+      <node id="1">
+        <label>config/Config.cpp</label>
+        <link refid="_config_8cpp"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>Config.h</label>
+        <link refid="_config_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>JuceHeader.h</label>
+      </node>
+    </incdepgraph>
+    <innernamespace refid="namespaceconfig">config</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_config_8h" kindref="compound">Config.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight></codeline>
+<codeline lineno="3" refid="namespaceconfig" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespaceconfig" kindref="compound">config</ref></highlight></codeline>
+<codeline lineno="4"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">/*____________________________________________________________________________*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="7" refid="classconfig_1_1_model_1a663ac662800dd1918dbab12d317fa4d5" refkind="member"><highlight class="normal"><ref refid="classconfig_1_1_model_1a663ac662800dd1918dbab12d317fa4d5" kindref="member">Model::Model</ref>()<sp/>{}</highlight></codeline>
+<codeline lineno="9"><highlight class="normal">}</highlight><highlight class="comment">//<sp/>namespace<sp/>config</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="config/Config.cpp"/>
+  </compounddef>
+</doxygen>

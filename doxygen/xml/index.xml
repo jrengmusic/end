@@ -1,18 +1,54 @@
 <?xml version='1.0' encoding='UTF-8' standalone='no'?>
 <doxygenindex xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="index.xsd" version="1.16.1" xml:lang="en-US">
-  <compound refid="class_e_n_d_application" kind="class"><name>ENDApplication</name>
-    <member refid="class_e_n_d_application_1a7739846859a545d64417d3db8b69ca2f" kind="function"><name>ENDApplication</name></member>
-    <member refid="class_e_n_d_application_1ad21a530035bfd44ca831bd15481cd841" kind="function"><name>getApplicationName</name></member>
-    <member refid="class_e_n_d_application_1a63f15e33736e7a54cf8799dec95caac3" kind="function"><name>getApplicationVersion</name></member>
-    <member refid="class_e_n_d_application_1a7ddbfcfad092307acc1a6425941e695d" kind="function"><name>moreThanOneInstanceAllowed</name></member>
-    <member refid="class_e_n_d_application_1a96fc235a4618e12e65fb65d24578a554" kind="function"><name>initialise</name></member>
-    <member refid="class_e_n_d_application_1a5bb966fe05efc647b92919af6110b754" kind="function"><name>shutdown</name></member>
-    <member refid="class_e_n_d_application_1a739cd12353aca8364cba81bb18a13750" kind="function"><name>systemRequestedQuit</name></member>
+  <compound refid="classend_1_1_application" kind="class"><name>end::Application</name>
+    <member refid="classend_1_1_application_1a765f410d9d4232de53d86311b3ad303f" kind="variable"><name>config</name></member>
+    <member refid="classend_1_1_application_1ad51d57d5d3319cf09216f8ed72671664" kind="variable"><name>window</name></member>
+    <member refid="classend_1_1_application_1a127405d348ee02fc38b374812bf3c883" kind="function"><name>Application</name></member>
+    <member refid="classend_1_1_application_1ab2d34713da4e6b4917cf53a08cda47eb" kind="function"><name>getApplicationName</name></member>
+    <member refid="classend_1_1_application_1af5df574c86505182fdd01d567824d0b7" kind="function"><name>getApplicationVersion</name></member>
+    <member refid="classend_1_1_application_1acb2876376b8c61d2ee8795524e625d0f" kind="function"><name>moreThanOneInstanceAllowed</name></member>
+    <member refid="classend_1_1_application_1a598aa5d15712e3107ade5df8f6c5e33d" kind="function"><name>initialise</name></member>
+    <member refid="classend_1_1_application_1a18d7fd1d8bbcca6a1c7af73e3bf503a8" kind="function"><name>shutdown</name></member>
+    <member refid="classend_1_1_application_1a636a8c0776059c65df3d0405229858f4" kind="function"><name>systemRequestedQuit</name></member>
+    <member refid="classend_1_1_application_1af446ffd1fa995c2838d2d34713a7d83a" kind="function"><name>fileChanged</name></member>
+  </compound>
+  <compound refid="classend_1_1_look_and_feel" kind="class"><name>end::LookAndFeel</name>
+  </compound>
+  <compound refid="classconfig_1_1_model" kind="class"><name>config::Model</name>
+    <member refid="classconfig_1_1_model_1a663ac662800dd1918dbab12d317fa4d5" kind="function"><name>Model</name></member>
+    <member refid="classconfig_1_1_model_1af95c0931a6f76206d56eb06a3c71a05a" kind="function"><name>~Model</name></member>
+  </compound>
+  <compound refid="classend_1_1_view" kind="class"><name>end::View</name>
+    <member refid="classend_1_1_view_1ae28f91b96f0bb63117c56a004f2f3f88" kind="variable"><name>defaultLookAndFeel</name></member>
+    <member refid="classend_1_1_view_1ac89c619ba6f3ef9688c0a61767be336e" kind="function"><name>View</name></member>
+    <member refid="classend_1_1_view_1a232862a8f650fba02de78fd3b173351e" kind="function"><name>~View</name></member>
+    <member refid="classend_1_1_view_1a14f07f6fc295c80b4ff0555798fa583c" kind="function"><name>resized</name></member>
+    <member refid="classend_1_1_view_1a2b7111f9b62f43d038bc092d269b5b1c" kind="function"><name>paint</name></member>
+  </compound>
+  <compound refid="namespaceconfig" kind="namespace"><name>config</name>
+  </compound>
+  <compound refid="namespaceend" kind="namespace"><name>end</name>
   </compound>
   <compound refid="namespacestd" kind="namespace"><name>std</name>
+  </compound>
+  <compound refid="_config_8cpp" kind="file"><name>Config.cpp</name>
+  </compound>
+  <compound refid="_config_8h" kind="file"><name>Config.h</name>
+  </compound>
+  <compound refid="_end_view_8cpp" kind="file"><name>EndView.cpp</name>
+  </compound>
+  <compound refid="_end_view_8h" kind="file"><name>EndView.h</name>
+  </compound>
+  <compound refid="_look_and_feel_8cpp" kind="file"><name>LookAndFeel.cpp</name>
+  </compound>
+  <compound refid="_look_and_feel_8h" kind="file"><name>LookAndFeel.h</name>
   </compound>
   <compound refid="_main_8cpp" kind="file"><name>Main.cpp</name>
   </compound>
   <compound refid="_main_8h" kind="file"><name>Main.h</name>
+  </compound>
+  <compound refid="dir_9f351d46ce3cc29445a41dc3a31e6919" kind="dir"><name>config</name>
+  </compound>
+  <compound refid="dir_c9cfca4ec86141f7bb4e60ba321d4655" kind="dir"><name>lookAndFeel</name>
   </compound>
 </doxygenindex>

@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 24">
+  <!-- Tab button shape (static, drawn on every tab) -->
+  <!-- All elements share the same row height (24px) for uniform scaleFactor computation -->
+
+  <!-- Left cap: 12px wide, rounded left edge -->
+  <g id="button-left">
+    <path d="M 4 0 L 12 0 L 12 24 L 4 24 C 0 24 0 24 0 20 L 0 4 C 0 0 0 0 4 0 Z"/>
+  </g>
+
+  <!-- Center: 1px wide reference (stretches to fill) -->
+  <g id="button-center">
+    <rect x="0" y="0" width="1" height="24"/>
+  </g>
+
+  <!-- Right cap: 12px wide, rounded right edge -->
+  <g id="button-right">
+    <path d="M 0 0 L 8 0 C 12 0 12 0 12 4 L 12 20 C 12 24 12 24 8 24 L 0 24 Z"/>
+  </g>
+
+  <!-- Indicator shape (animated, drawn behind active tab) -->
+
+  <!-- Left cap: 12px wide, rounded left edge with 2px inset -->
+  <g id="indicator-left">
+    <path d="M 4 2 L 12 2 L 12 22 L 4 22 C 2 22 2 22 2 20 L 2 4 C 2 2 2 2 4 2 Z"/>
+  </g>
+
+  <!-- Center: 1px wide reference (stretches to fill), 2px inset top/bottom -->
+  <g id="indicator-center">
+    <rect x="0" y="2" width="1" height="20"/>
+  </g>
+
+  <!-- Right cap: 12px wide, rounded right edge with 2px inset -->
+  <g id="indicator-right">
+    <path d="M 0 2 L 8 2 C 10 2 10 2 10 4 L 10 20 C 10 22 10 22 8 22 L 0 22 Z"/>
+  </g>
+</svg>

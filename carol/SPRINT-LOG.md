@@ -2,6 +2,70 @@
 
 ---
 
+## Sprint 2: Phase 2 — jam_gui Tab System Rewrite + PaneManager Fix
+
+**Date:** 2026-06-05
+**Duration:** Full session
+
+### Agents Participated
+- COUNSELOR: Sprint lead, plan writing, audit processing, direct fixes
+- Engineer: Steps 1-7 implementation, audit finding fixes (F1-F17)
+- Auditor: Final audit (24 findings)
+- Pathfinder: Codebase survey (jam_gui, kuassa button::Group)
+
+### Files Modified (16 total)
+
+**Deleted (6):**
+- `jam_gui/layout/jam_tab_bar_button.h` — old TabBarButton removed
+- `jam_gui/layout/jam_tab_bar_button.cpp` — old TabBarButton impl removed
+- `jam_gui/layout/jam_tabbed_button_bar.h` — old TabbedButtonBar removed
+- `jam_gui/layout/jam_tabbed_button_bar.cpp` — old TabbedButtonBar impl removed
+- `jam_gui/layout/jam_tabbed_component.h` — old TabbedComponent replaced
+- `jam_gui/layout/jam_tabbed_component.cpp` — old TabbedComponent replaced
+
+**Created (4):**
+- `jam_gui/button/jam_button_options.h` — popup menu button, forked from kuassa
+- `jam_gui/button/jam_button_tab.h` — TabButton with drag-reorder + inline rename
+- `jam_gui/layout/jam_tabbed_component.h` — new TabbedComponent backed by button::Group
+- `jam_gui/layout/jam_tabbed_component.cpp` — new TabbedComponent implementation
+
+**Modified (6):**
+- `jam_gui/jam_gui.h` — include order: button section before TabbedComponent, added Options + TabButton
+- `jam_gui/jam_gui.cpp` — added TabbedComponent .cpp TU include
+- `jam_gui/button/jam_button_group.h` — isFreeButton param, index API (getCurrentIndex/setCurrentIndex/removeButton/moveButton), right-click callback, buttons private with accessors (getButtonCount/getButtonAt/getButtonNames)
+- `jam_gui/layout/jam_pane_manager.h` — layout() non-static with resizer bar reconciliation (create/prune on layout, RAII-bound to split node), extracted storeBoundsProperties/findMatchingBar/layoutSplitNode helpers
+- `jam_look_and_feel/theme/jam_look_and_feel_theme.h` — drawTabButton virtual, drawThreeSlice, setTabSVG/setTabSVGElementIds, 6 SVG slice members, tab ColourIds, extracted drawConnectedButtonBackground/drawStandaloneButtonBackground helpers
+- `jam_look_and_feel/theme/jam_look_and_feel_theme.cpp` — 3-slice SVG infrastructure, drawTabButton fallback rendering, drawButtonGroupSlidingIndicator SVG path, alternative token cleanup (not/and/or), drawButtonBackground Lean decomposition
+
+**Also modified (pre-existing fix):**
+- `jam_data_structures/model/jam_model.cpp:333-349` — removed 4 redundant juce::String explicit instantiations (setValue x2, storeValue, loadValue)
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+- [x] JRENG-CODING-STANDARD.md enforced (alternative tokens, bail-out guards, Lean decomposition, encapsulation)
+
+### Problems Solved
+- Old tab system (TabbedButtonBar/TabBarButton) replaced with button::Group-backed TabbedComponent
+- PaneManager resizer bar lifecycle: bars now RAII-bound to split nodes via layout() reconciliation — orphan bars pruned, missing bars created automatically
+- tabColours SSOT divergence on addTab/moveTab — colours now reorder with buttons
+- getContentArea() bug — was returning tab strip instead of content area
+- drawButtonBackground Lean violation (66→31 lines) — extracted connected/standalone helpers
+- layoutNode Lean violation (103→~25 lines) — extracted storeBoundsProperties/findMatchingBar/layoutSplitNode
+- Alternative token violations throughout jam_look_and_feel_theme.cpp — all !/ &&/ || replaced with not/and/or
+- Group::buttons encapsulation — moved to private, added getButtonCount/getButtonAt/getButtonNames accessors
+- Bail-out guards in setTabSVG — restructured to positive nesting
+- Pre-existing jam_model.cpp warnings — removed redundant explicit instantiations after specializations
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 1: Phase 1 — jam_terminal Extraction + SharedResource Redesign
 
 **Date:** 2026-06-04

@@ -1,0 +1,160 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="classconfig_1_1_model" kind="class" language="C++" prot="public">
+    <compoundname>config::Model</compoundname>
+    <basecompoundref refid="classjam_1_1_model" prot="public" virt="non-virtual">jam::Model</basecompoundref>
+    <basecompoundref refid="structjam_1_1_context" prot="public" virt="non-virtual">jam::Context&lt; Model &gt;</basecompoundref>
+    <includes refid="_config_8h" local="no">Config.h</includes>
+    <sectiondef kind="public-func">
+      <memberdef kind="function" id="classconfig_1_1_model_1a663ac662800dd1918dbab12d317fa4d5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>config::Model::Model</definition>
+        <argsstring>()</argsstring>
+        <name>Model</name>
+        <qualifiedname>config::Model::Model</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="config/Config.h" line="12" column="5" bodyfile="config/Config.cpp" bodystart="7" bodyend="7"/>
+        <referencedby refid="classconfig_1_1_model_1af95c0931a6f76206d56eb06a3c71a05a">~Model</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classconfig_1_1_model_1af95c0931a6f76206d56eb06a3c71a05a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>config::Model::~Model</definition>
+        <argsstring>()=default</argsstring>
+        <name>~Model</name>
+        <qualifiedname>config::Model::~Model</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="config/Config.h" line="13" column="5"/>
+        <references refid="classconfig_1_1_model_1a663ac662800dd1918dbab12d317fa4d5" compoundref="_config_8cpp" startline="7" endline="7">Model</references>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>config::Model</label>
+        <link refid="classconfig_1_1_model"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>jam::Context&lt; Model &gt;</label>
+        <link refid="structjam_1_1_context" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+      <node id="2">
+        <label>jam::Model</label>
+        <link refid="classjam_1_1_model" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>config::Model</label>
+        <link refid="classconfig_1_1_model"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="8" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>jam::AnyMap</label>
+        <link refid="classjam_1_1_any_map" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>entries</edgelabel>
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>types</edgelabel>
+        </childnode>
+      </node>
+      <node id="8">
+        <label>jam::Context&lt; Model &gt;</label>
+        <link refid="structjam_1_1_context" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+      <node id="2">
+        <label>jam::Model</label>
+        <link refid="classjam_1_1_model" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>params</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>uniqueNodeMap</edgelabel>
+        </childnode>
+      </node>
+      <node id="5">
+        <label>std::unique_ptr&lt; void, Deleter &gt;</label>
+      </node>
+      <node id="6">
+        <label>std::unordered_map&lt; juce::Identifier, std::type_index &gt;</label>
+      </node>
+      <node id="4">
+        <label>std::unordered_map&lt; juce::Identifier, std::unique_ptr&lt; void, Deleter &gt; &gt;</label>
+        <childnode refid="5" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+      <node id="7">
+        <label>std::unordered_map&lt; juce::String, juce::ValueTree &gt;</label>
+      </node>
+    </collaborationgraph>
+    <location file="config/Config.h" line="7" column="1" bodyfile="config/Config.h" bodystart="10" bodyend="18"/>
+    <listofallmembers>
+      <member refid="classjam_1_1_model_1ae5d4d70e706dcc558cf21923125a9176" prot="public" virt="non-virtual"><scope>config::Model</scope><name>addListener</name></member>
+      <member refid="classjam_1_1_model_1aa75f9afb83415f989c962cf77022bcf3" prot="public" virt="non-virtual"><scope>config::Model</scope><name>addParameter</name></member>
+      <member refid="classjam_1_1_model_1ace59ef748b5915c5f53121b620c0f100" prot="public" virt="non-virtual"><scope>config::Model</scope><name>addTextParameter</name></member>
+      <member refid="classjam_1_1_model_1ae0cb2cc2b04acb47eb9760d92dcedc46" prot="public" virt="non-virtual"><scope>config::Model</scope><name>appendChild</name></member>
+      <member refid="classjam_1_1_model_1a453ba02a04d3f7afd493d83a35f2d42e" prot="public" virt="non-virtual"><scope>config::Model</scope><name>attach</name></member>
+      <member refid="structjam_1_1_context_1a6e3f38a234db8ff2a9acb5986e72a2de" prot="public" virt="non-virtual"><scope>config::Model</scope><name>Context</name></member>
+      <member refid="classjam_1_1_model_1a9eb2e927e025645e46609f37aa6f9304" prot="public" virt="non-virtual"><scope>config::Model</scope><name>flush</name></member>
+      <member refid="classjam_1_1_model_1aaa8b722daed8928b8d587ec30662ac34" prot="private" virt="non-virtual"><scope>config::Model</scope><name>flushHz</name></member>
+      <member refid="classjam_1_1_model_1aecef6b658fc1de8bd8642ce3c0011036" prot="public" virt="non-virtual"><scope>config::Model</scope><name>getChildWithName</name></member>
+      <member refid="structjam_1_1_context_1a259aac6b39aea0f3d3e2be9ab123cff3" prot="public" virt="non-virtual"><scope>config::Model</scope><name>getContext</name></member>
+      <member refid="classjam_1_1_model_1a322c866d6fc435eb6799562d6d6db8b1" prot="public" virt="non-virtual"><scope>config::Model</scope><name>getOrCreateChildWithName</name></member>
+      <member refid="classjam_1_1_model_1a657de384bbcda4bd183b0fddc3de205b" prot="public" virt="non-virtual"><scope>config::Model</scope><name>getRawParameterValue</name></member>
+      <member refid="classjam_1_1_model_1abf91bfe071259060be78f47c83e720e4" prot="public" virt="non-virtual"><scope>config::Model</scope><name>getRootTree</name></member>
+      <member refid="classjam_1_1_model_1abe937e02011833b8cf8f20bfb650ac9d" prot="public" virt="non-virtual"><scope>config::Model</scope><name>getTreeProperty</name></member>
+      <member refid="classjam_1_1_model_1a3466c9f9fcd9a4baa862bb400562e7b7" prot="public" virt="non-virtual"><scope>config::Model</scope><name>getTreePropertyAsValue</name></member>
+      <member refid="classjam_1_1_model_1ac922db931cd481a9cf483c90e4de2543" prot="public" virt="non-virtual"><scope>config::Model</scope><name>getType</name></member>
+      <member refid="classjam_1_1_model_1a39b0cc13737eca194351a246bd88b615" prot="public" virt="non-virtual"><scope>config::Model</scope><name>getUniqueNodeMap</name></member>
+      <member refid="classjam_1_1_model_1ad2013ef3302ca9b6c442f5307a9fa650" prot="public" virt="non-virtual"><scope>config::Model</scope><name>getValue</name></member>
+      <member refid="classjam_1_1_model_1a710fd55b83d2e5657e48d49ce5225ea2" prot="public" virt="non-virtual"><scope>config::Model</scope><name>getXml</name></member>
+      <member refid="structjam_1_1_context_1a5900ff66cdba02d6f6947cc6d5e8ec3d" prot="private" virt="non-virtual"><scope>config::Model</scope><name>head</name></member>
+      <member refid="classjam_1_1_model_1a1c976506dd5eb7d125a0e804c97c61e2" prot="private" virt="non-virtual"><scope>config::Model</scope><name>idleHz</name></member>
+      <member refid="classjam_1_1_model_1a4ed7495a3eb4e503f070e266b2f75cfe" prot="public" virt="non-virtual"><scope>config::Model</scope><name>loadValue</name></member>
+      <member refid="classconfig_1_1_model_1a663ac662800dd1918dbab12d317fa4d5" prot="public" virt="non-virtual"><scope>config::Model</scope><name>Model</name></member>
+      <member refid="classjam_1_1_model_1afbe837fa9d9c8086381333783bb1db3b" prot="public" virt="non-virtual" ambiguityscope="jam::Model::"><scope>config::Model</scope><name>Model</name></member>
+      <member refid="structjam_1_1_context_1a6716feb60b039083ca0c099a506a3474" prot="public" virt="non-virtual"><scope>config::Model</scope><name>operator=</name></member>
+      <member refid="classjam_1_1_model_1a6c1ba6e01db247659a686aeb09fba0d9" prot="public" virt="non-virtual"><scope>config::Model</scope><name>PARAM</name></member>
+      <member refid="classjam_1_1_model_1a9be603e3c0a76e1f0b6c263066993b63" prot="public" virt="non-virtual"><scope>config::Model</scope><name>params</name></member>
+      <member refid="structjam_1_1_context_1aa1862120f2983ab7ddef536ba03bb114" prot="private" virt="non-virtual"><scope>config::Model</scope><name>previous</name></member>
+      <member refid="classjam_1_1_model_1acbf5ef1a6e71240468f17fe707532bec" prot="public" virt="non-virtual"><scope>config::Model</scope><name>removeChild</name></member>
+      <member refid="classjam_1_1_model_1a688b7625ae8b2a4d4d1f1643a6b3aa41" prot="public" virt="non-virtual"><scope>config::Model</scope><name>removeListener</name></member>
+      <member refid="classjam_1_1_model_1a73bb2822ba0b1211ca9e290d57c5cd2d" prot="public" virt="non-virtual"><scope>config::Model</scope><name>replaceState</name></member>
+      <member refid="classjam_1_1_model_1a77ac5fd7f2a2caa0e892cd993d4df2d7" prot="public" virt="non-virtual"><scope>config::Model</scope><name>restoreValues</name></member>
+      <member refid="classjam_1_1_model_1a3263920ba9cd2e5633d714a49c0a5000" prot="public" virt="non-virtual"><scope>config::Model</scope><name>setTreeProperty</name></member>
+      <member refid="classjam_1_1_model_1ae0baca854ac0495b85b306aae1e97cfe" prot="public" virt="non-virtual"><scope>config::Model</scope><name>setValue</name></member>
+      <member refid="classjam_1_1_model_1a911810cc46e73ffd4f71b163888fcedd" prot="public" virt="non-virtual"><scope>config::Model</scope><name>setValue</name></member>
+      <member refid="classjam_1_1_model_1aef4cd7ff33d3393980f2d12217e49857" prot="protected" virt="non-virtual"><scope>config::Model</scope><name>state</name></member>
+      <member refid="classjam_1_1_model_1adfc7fc56035e71adea6442eeca2e4795" prot="public" virt="non-virtual"><scope>config::Model</scope><name>storeValue</name></member>
+      <member refid="classjam_1_1_model_1abb1a0d3535077011043e287faf0347c9" prot="public" virt="non-virtual"><scope>config::Model</scope><name>storeValue</name></member>
+      <member refid="classjam_1_1_model_1a5de5c362c126a9f4d8d21c592b678bdb" prot="private" virt="non-virtual"><scope>config::Model</scope><name>timerCallback</name></member>
+      <member refid="classjam_1_1_model_1a68d2ef67ec3d2a469741be46e499adbb" prot="public" virt="non-virtual"><scope>config::Model</scope><name>UniqueNodeMap</name></member>
+      <member refid="classjam_1_1_model_1a1e3b285d0fa32431d85e2c1a1ea8f02f" prot="private" virt="non-virtual"><scope>config::Model</scope><name>uniqueNodeMap</name></member>
+      <member refid="classjam_1_1_model_1a495677a2122cc1dbb67c416ddfd51e17" prot="private" virt="non-virtual"><scope>config::Model</scope><name>valueTreeChanging</name></member>
+      <member refid="classjam_1_1_model_1a5e0284f87a2a71c84edd644b75f4d07f" prot="public" virt="non-virtual"><scope>config::Model</scope><name>writeToXml</name></member>
+      <member refid="structjam_1_1_context_1a4169820e71837632922d3d17b377aeee" prot="public" virt="virtual"><scope>config::Model</scope><name>~Context</name></member>
+      <member refid="classconfig_1_1_model_1af95c0931a6f76206d56eb06a3c71a05a" prot="public" virt="non-virtual"><scope>config::Model</scope><name>~Model</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

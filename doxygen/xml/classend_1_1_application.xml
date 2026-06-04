@@ -1,0 +1,331 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="classend_1_1_application" kind="class" language="C++" prot="public">
+    <compoundname>end::Application</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">juce::JUCEApplication</basecompoundref>
+    <basecompoundref refid="classjam_1_1_file_1_1_watcher_1_1_listener" prot="public" virt="non-virtual">jam::File::Watcher::Listener</basecompoundref>
+    <includes refid="_main_8h" local="no">Main.h</includes>
+    <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classend_1_1_application_1a765f410d9d4232de53d86311b3ad303f" prot="private" static="no" mutable="no">
+        <type><ref refid="classconfig_1_1_model" kindref="compound">config::Model</ref></type>
+        <definition>config::Model end::Application::config</definition>
+        <argsstring></argsstring>
+        <name>config</name>
+        <qualifiedname>end::Application::config</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Main.h" line="79" column="19" bodyfile="Main.h" bodystart="79" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classend_1_1_application_1ad51d57d5d3319cf09216f8ed72671664" prot="private" static="no" mutable="no">
+        <type>std::unique_ptr&lt; <ref refid="classjam_1_1_window" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Window</ref> &gt;</type>
+        <definition>std::unique_ptr&lt;jam::Window&gt; end::Application::window</definition>
+        <argsstring></argsstring>
+        <name>window</name>
+        <qualifiedname>end::Application::window</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Main.h" line="80" column="21" bodyfile="Main.h" bodystart="80" bodyend="-1"/>
+        <referencedby refid="classend_1_1_application_1a598aa5d15712e3107ade5df8f6c5e33d" compoundref="_main_8cpp" startline="8" endline="40">initialise</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="public-func">
+      <memberdef kind="function" id="classend_1_1_application_1a127405d348ee02fc38b374812bf3c883" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>end::Application::Application</definition>
+        <argsstring>()</argsstring>
+        <name>Application</name>
+        <qualifiedname>end::Application::Application</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Main.h" line="15" column="5" bodyfile="Main.cpp" bodystart="7" bodyend="7"/>
+      </memberdef>
+      <memberdef kind="function" id="classend_1_1_application_1ab2d34713da4e6b4917cf53a08cda47eb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const juce::String</type>
+        <definition>const juce::String end::Application::getApplicationName</definition>
+        <argsstring>() override</argsstring>
+        <name>getApplicationName</name>
+        <qualifiedname>end::Application::getApplicationName</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>The human-readable application name from ProjectInfo. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Main.h" line="17" column="24" bodyfile="Main.cpp" bodystart="43" bodyend="43"/>
+      </memberdef>
+      <memberdef kind="function" id="classend_1_1_application_1af5df574c86505182fdd01d567824d0b7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const juce::String</type>
+        <definition>const juce::String end::Application::getApplicationVersion</definition>
+        <argsstring>() override</argsstring>
+        <name>getApplicationVersion</name>
+        <qualifiedname>end::Application::getApplicationVersion</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>The version string from ProjectInfo (e.g. &quot;1.0.0&quot;). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Main.h" line="19" column="24" bodyfile="Main.cpp" bodystart="44" bodyend="44"/>
+      </memberdef>
+      <memberdef kind="function" id="classend_1_1_application_1acb2876376b8c61d2ee8795524e625d0f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool end::Application::moreThanOneInstanceAllowed</definition>
+        <argsstring>() override</argsstring>
+        <name>moreThanOneInstanceAllowed</name>
+        <qualifiedname>end::Application::moreThanOneInstanceAllowed</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para><computeroutput>true</computeroutput> — END supports multiple simultaneous instances. </para>
+</simplesect>
+<simplesect kind="note"><para>Each instance owns its own pty session and window. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Main.h" line="25" column="10" bodyfile="Main.cpp" bodystart="45" bodyend="45"/>
+      </memberdef>
+      <memberdef kind="function" id="classend_1_1_application_1a598aa5d15712e3107ade5df8f6c5e33d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void end::Application::initialise</definition>
+        <argsstring>(const juce::String &amp;commandLine) override</argsstring>
+        <name>initialise</name>
+        <qualifiedname>end::Application::initialise</qualifiedname>
+        <param>
+          <type>const juce::String &amp;</type>
+          <declname>commandLine</declname>
+        </param>
+        <briefdescription>
+<para>Creates the main window and wires up all subsystems. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Called by JUCE after the message loop starts. Reads window geometry and appearance from Config, then constructs a <computeroutput><ref refid="classjam_1_1_window" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Window</ref></computeroutput> wrapping a freshly allocated <computeroutput>MainComponent</computeroutput>.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>commandLine</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The raw command-line string passed to the process. Currently unused; reserved for future shell override.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="note"><para>MESSAGE THREAD — called once at startup.</para>
+</simplesect>
+<simplesect kind="see"><para>lua::Engine::Display::Window </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Main.h" line="41" column="10" bodyfile="Main.cpp" bodystart="8" bodyend="40"/>
+        <references refid="classend_1_1_application_1ad51d57d5d3319cf09216f8ed72671664" compoundref="_main_8h" startline="80">window</references>
+      </memberdef>
+      <memberdef kind="function" id="classend_1_1_application_1a18d7fd1d8bbcca6a1c7af73e3bf503a8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void end::Application::shutdown</definition>
+        <argsstring>() override</argsstring>
+        <name>shutdown</name>
+        <qualifiedname>end::Application::shutdown</qualifiedname>
+        <briefdescription>
+<para>Destroys the main window and releases all resources. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Destruction order:<orderedlist>
+<listitem><para>link — disconnect IPC before sessions die.</para>
+</listitem><listitem><para>daemon — stop server.</para>
+</listitem><listitem><para>mainWindow — tears down component tree (Display → Processor refs).</para>
+</listitem><listitem><para>nexus — releases all terminal::Session objects.</para>
+</listitem></orderedlist>
+</para>
+<para><simplesect kind="note"><para>MESSAGE THREAD — called once at shutdown. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Main.h" line="54" column="10" bodyfile="Main.cpp" bodystart="41" bodyend="41"/>
+      </memberdef>
+      <memberdef kind="function" id="classend_1_1_application_1a636a8c0776059c65df3d0405229858f4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void end::Application::systemRequestedQuit</definition>
+        <argsstring>() override</argsstring>
+        <name>systemRequestedQuit</name>
+        <qualifiedname>end::Application::systemRequestedQuit</qualifiedname>
+        <briefdescription>
+<para>Handles OS quit requests (Cmd+Q, window close, SIGTERM). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Saves window size then quits. In nexus mode with live sessions, persists UI state so the next client can restore window and tab layout. In nexus mode with no sessions, deletes both <computeroutput>.display</computeroutput> and <computeroutput>.nexus</computeroutput>. In standalone mode, only window size persists (via <computeroutput>saveWindowState</computeroutput>). Sessions die with the window by design. Main owns all file I/O decisions. In the byte-forward architecture the GUI process and the daemon process are separate — quitting the GUI does not affect the daemon, which outlives the GUI until its own shell count hits zero.</para>
+<para><simplesect kind="note"><para>MESSAGE THREAD — called by the OS or by <computeroutput><ref refid="classJUCEApplicationBase_1a542e212605f0aa693f687d8798998615" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">JUCEApplication::quit()</ref></computeroutput>.</para>
+</simplesect>
+<simplesect kind="see"><para>AppModel::save </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Main.h" line="73" column="10" bodyfile="Main.cpp" bodystart="42" bodyend="42"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="private-func">
+      <memberdef kind="function" id="classend_1_1_application_1af446ffd1fa995c2838d2d34713a7d83a" prot="private" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void end::Application::fileChanged</definition>
+        <argsstring>(const juce::File &amp;file, jam::File::Watcher::Event event) override</argsstring>
+        <name>fileChanged</name>
+        <qualifiedname>end::Application::fileChanged</qualifiedname>
+        <reimplements refid="classjam_1_1_file_1_1_watcher_1_1_listener_1a138401762ba6d0915d2adb5b0a81486f">fileChanged</reimplements>
+        <param>
+          <type>const juce::File &amp;</type>
+          <declname>file</declname>
+        </param>
+        <param>
+          <type><ref refid="structjam_1_1_file_1_1_watcher_1a67463011ada054bc1dc66cdf49d446f2" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::File::Watcher::Event</ref></type>
+          <declname>event</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Main.h" line="76" column="10" bodyfile="Main.cpp" bodystart="48" bodyend="48"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>end::Application</label>
+        <link refid="classend_1_1_application"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>jam::File::Watcher::Listener</label>
+        <link refid="classjam_1_1_file_1_1_watcher_1_1_listener" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+      <node id="2">
+        <label>juce::JUCEApplication</label>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="4">
+        <label>config::Model</label>
+        <link refid="classconfig_1_1_model"/>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+        <childnode refid="11" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>end::Application</label>
+        <link refid="classend_1_1_application"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>config</edgelabel>
+        </childnode>
+        <childnode refid="12" relation="usage">
+          <edgelabel>window</edgelabel>
+        </childnode>
+      </node>
+      <node id="6">
+        <label>jam::AnyMap</label>
+        <link refid="classjam_1_1_any_map" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="7" relation="usage">
+          <edgelabel>entries</edgelabel>
+        </childnode>
+        <childnode refid="9" relation="usage">
+          <edgelabel>types</edgelabel>
+        </childnode>
+      </node>
+      <node id="11">
+        <label>jam::Context&lt; Model &gt;</label>
+        <link refid="structjam_1_1_context" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+      <node id="3">
+        <label>jam::File::Watcher::Listener</label>
+        <link refid="classjam_1_1_file_1_1_watcher_1_1_listener" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+      <node id="5">
+        <label>jam::Model</label>
+        <link refid="classjam_1_1_model" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <childnode refid="6" relation="usage">
+          <edgelabel>params</edgelabel>
+        </childnode>
+        <childnode refid="10" relation="usage">
+          <edgelabel>uniqueNodeMap</edgelabel>
+        </childnode>
+      </node>
+      <node id="13">
+        <label>jam::Window</label>
+        <link refid="classjam_1_1_window" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      </node>
+      <node id="2">
+        <label>juce::JUCEApplication</label>
+      </node>
+      <node id="12">
+        <label>std::unique_ptr&lt; jam::Window &gt;</label>
+        <childnode refid="13" relation="usage">
+          <edgelabel>ptr</edgelabel>
+        </childnode>
+      </node>
+      <node id="8">
+        <label>std::unique_ptr&lt; void, Deleter &gt;</label>
+      </node>
+      <node id="9">
+        <label>std::unordered_map&lt; juce::Identifier, std::type_index &gt;</label>
+      </node>
+      <node id="7">
+        <label>std::unordered_map&lt; juce::Identifier, std::unique_ptr&lt; void, Deleter &gt; &gt;</label>
+        <childnode refid="8" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+      <node id="10">
+        <label>std::unordered_map&lt; juce::String, juce::ValueTree &gt;</label>
+      </node>
+    </collaborationgraph>
+    <location file="Main.h" line="10" column="1" bodyfile="Main.h" bodystart="13" bodyend="92"/>
+    <listofallmembers>
+      <member refid="classend_1_1_application_1a127405d348ee02fc38b374812bf3c883" prot="public" virt="non-virtual"><scope>end::Application</scope><name>Application</name></member>
+      <member refid="classend_1_1_application_1a765f410d9d4232de53d86311b3ad303f" prot="private" virt="non-virtual"><scope>end::Application</scope><name>config</name></member>
+      <member refid="classend_1_1_application_1af446ffd1fa995c2838d2d34713a7d83a" prot="private" virt="virtual"><scope>end::Application</scope><name>fileChanged</name></member>
+      <member refid="classjam_1_1_file_1_1_watcher_1_1_listener_1a75221307eb1bf0ef2735e9ef80ebf4a4" prot="public" virt="virtual"><scope>end::Application</scope><name>folderChanged</name></member>
+      <member refid="classend_1_1_application_1ab2d34713da4e6b4917cf53a08cda47eb" prot="public" virt="non-virtual"><scope>end::Application</scope><name>getApplicationName</name></member>
+      <member refid="classend_1_1_application_1af5df574c86505182fdd01d567824d0b7" prot="public" virt="non-virtual"><scope>end::Application</scope><name>getApplicationVersion</name></member>
+      <member refid="classend_1_1_application_1a598aa5d15712e3107ade5df8f6c5e33d" prot="public" virt="non-virtual"><scope>end::Application</scope><name>initialise</name></member>
+      <member refid="classend_1_1_application_1acb2876376b8c61d2ee8795524e625d0f" prot="public" virt="non-virtual"><scope>end::Application</scope><name>moreThanOneInstanceAllowed</name></member>
+      <member refid="classend_1_1_application_1a18d7fd1d8bbcca6a1c7af73e3bf503a8" prot="public" virt="non-virtual"><scope>end::Application</scope><name>shutdown</name></member>
+      <member refid="classend_1_1_application_1a636a8c0776059c65df3d0405229858f4" prot="public" virt="non-virtual"><scope>end::Application</scope><name>systemRequestedQuit</name></member>
+      <member refid="classend_1_1_application_1ad51d57d5d3319cf09216f8ed72671664" prot="private" virt="non-virtual"><scope>end::Application</scope><name>window</name></member>
+      <member refid="classjam_1_1_file_1_1_watcher_1_1_listener_1a36c31b730e410628b516813e6e0679e7" prot="public" virt="virtual"><scope>end::Application</scope><name>~Listener</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>
