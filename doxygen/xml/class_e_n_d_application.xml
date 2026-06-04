@@ -1,0 +1,193 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="class_e_n_d_application" kind="class" language="C++" prot="public">
+    <compoundname>ENDApplication</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">juce::JUCEApplication</basecompoundref>
+    <includes refid="_main_8h" local="no">Main.h</includes>
+    <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_e_n_d_application_1a7739846859a545d64417d3db8b69ca2f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>ENDApplication::ENDApplication</definition>
+        <argsstring>()</argsstring>
+        <name>ENDApplication</name>
+        <qualifiedname>ENDApplication::ENDApplication</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Main.h" line="7" column="5" bodyfile="Main.cpp" bodystart="3" bodyend="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_e_n_d_application_1ad21a530035bfd44ca831bd15481cd841" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const juce::String</type>
+        <definition>const juce::String ENDApplication::getApplicationName</definition>
+        <argsstring>() override</argsstring>
+        <name>getApplicationName</name>
+        <qualifiedname>ENDApplication::getApplicationName</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>The human-readable application name from ProjectInfo. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Main.h" line="9" column="24" bodyfile="Main.cpp" bodystart="7" bodyend="7"/>
+      </memberdef>
+      <memberdef kind="function" id="class_e_n_d_application_1a63f15e33736e7a54cf8799dec95caac3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const juce::String</type>
+        <definition>const juce::String ENDApplication::getApplicationVersion</definition>
+        <argsstring>() override</argsstring>
+        <name>getApplicationVersion</name>
+        <qualifiedname>ENDApplication::getApplicationVersion</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>The version string from ProjectInfo (e.g. &quot;1.0.0&quot;). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Main.h" line="11" column="24" bodyfile="Main.cpp" bodystart="8" bodyend="8"/>
+      </memberdef>
+      <memberdef kind="function" id="class_e_n_d_application_1a7ddbfcfad092307acc1a6425941e695d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool ENDApplication::moreThanOneInstanceAllowed</definition>
+        <argsstring>() override</argsstring>
+        <name>moreThanOneInstanceAllowed</name>
+        <qualifiedname>ENDApplication::moreThanOneInstanceAllowed</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para><computeroutput>true</computeroutput> — END supports multiple simultaneous instances. </para>
+</simplesect>
+<simplesect kind="note"><para>Each instance owns its own pty session and window. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Main.h" line="17" column="10" bodyfile="Main.cpp" bodystart="9" bodyend="9"/>
+      </memberdef>
+      <memberdef kind="function" id="class_e_n_d_application_1a96fc235a4618e12e65fb65d24578a554" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ENDApplication::initialise</definition>
+        <argsstring>(const juce::String &amp;commandLine) override</argsstring>
+        <name>initialise</name>
+        <qualifiedname>ENDApplication::initialise</qualifiedname>
+        <param>
+          <type>const juce::String &amp;</type>
+          <declname>commandLine</declname>
+        </param>
+        <briefdescription>
+<para>Creates the main window and wires up all subsystems. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Called by JUCE after the message loop starts. Reads window geometry and appearance from Config, then constructs a <computeroutput><ref refid="classjam_1_1_window" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Window</ref></computeroutput> wrapping a freshly allocated <computeroutput>MainComponent</computeroutput>.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>commandLine</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The raw command-line string passed to the process. Currently unused; reserved for future shell override.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="note"><para>MESSAGE THREAD — called once at startup.</para>
+</simplesect>
+<simplesect kind="see"><para>lua::Engine::Display::Window </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Main.h" line="33" column="10" bodyfile="Main.cpp" bodystart="4" bodyend="4"/>
+      </memberdef>
+      <memberdef kind="function" id="class_e_n_d_application_1a5bb966fe05efc647b92919af6110b754" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ENDApplication::shutdown</definition>
+        <argsstring>() override</argsstring>
+        <name>shutdown</name>
+        <qualifiedname>ENDApplication::shutdown</qualifiedname>
+        <briefdescription>
+<para>Destroys the main window and releases all resources. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Destruction order:<orderedlist>
+<listitem><para>link — disconnect IPC before sessions die.</para>
+</listitem><listitem><para>daemon — stop server.</para>
+</listitem><listitem><para>mainWindow — tears down component tree (Display → Processor refs).</para>
+</listitem><listitem><para>nexus — releases all terminal::Session objects.</para>
+</listitem></orderedlist>
+</para>
+<para><simplesect kind="note"><para>MESSAGE THREAD — called once at shutdown. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Main.h" line="46" column="10" bodyfile="Main.cpp" bodystart="5" bodyend="5"/>
+      </memberdef>
+      <memberdef kind="function" id="class_e_n_d_application_1a739cd12353aca8364cba81bb18a13750" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ENDApplication::systemRequestedQuit</definition>
+        <argsstring>() override</argsstring>
+        <name>systemRequestedQuit</name>
+        <qualifiedname>ENDApplication::systemRequestedQuit</qualifiedname>
+        <briefdescription>
+<para>Handles OS quit requests (Cmd+Q, window close, SIGTERM). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Saves window size then quits. In nexus mode with live sessions, persists UI state so the next client can restore window and tab layout. In nexus mode with no sessions, deletes both <computeroutput>.display</computeroutput> and <computeroutput>.nexus</computeroutput>. In standalone mode, only window size persists (via <computeroutput>saveWindowState</computeroutput>). Sessions die with the window by design. Main owns all file I/O decisions. In the byte-forward architecture the GUI process and the daemon process are separate — quitting the GUI does not affect the daemon, which outlives the GUI until its own shell count hits zero.</para>
+<para><simplesect kind="note"><para>MESSAGE THREAD — called by the OS or by <computeroutput><ref refid="classJUCEApplicationBase_1a542e212605f0aa693f687d8798998615" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">JUCEApplication::quit()</ref></computeroutput>.</para>
+</simplesect>
+<simplesect kind="see"><para>AppModel::save </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Main.h" line="65" column="10" bodyfile="Main.cpp" bodystart="6" bodyend="6"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>ENDApplication</label>
+        <link refid="class_e_n_d_application"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>juce::JUCEApplication</label>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>ENDApplication</label>
+        <link refid="class_e_n_d_application"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>juce::JUCEApplication</label>
+      </node>
+    </collaborationgraph>
+    <location file="Main.h" line="4" column="1" bodyfile="Main.h" bodystart="5" bodyend="76"/>
+    <listofallmembers>
+      <member refid="class_e_n_d_application_1a7739846859a545d64417d3db8b69ca2f" prot="public" virt="non-virtual"><scope>ENDApplication</scope><name>ENDApplication</name></member>
+      <member refid="class_e_n_d_application_1ad21a530035bfd44ca831bd15481cd841" prot="public" virt="non-virtual"><scope>ENDApplication</scope><name>getApplicationName</name></member>
+      <member refid="class_e_n_d_application_1a63f15e33736e7a54cf8799dec95caac3" prot="public" virt="non-virtual"><scope>ENDApplication</scope><name>getApplicationVersion</name></member>
+      <member refid="class_e_n_d_application_1a96fc235a4618e12e65fb65d24578a554" prot="public" virt="non-virtual"><scope>ENDApplication</scope><name>initialise</name></member>
+      <member refid="class_e_n_d_application_1a7ddbfcfad092307acc1a6425941e695d" prot="public" virt="non-virtual"><scope>ENDApplication</scope><name>moreThanOneInstanceAllowed</name></member>
+      <member refid="class_e_n_d_application_1a5bb966fe05efc647b92919af6110b754" prot="public" virt="non-virtual"><scope>ENDApplication</scope><name>shutdown</name></member>
+      <member refid="class_e_n_d_application_1a739cd12353aca8364cba81bb18a13750" prot="public" virt="non-virtual"><scope>ENDApplication</scope><name>systemRequestedQuit</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

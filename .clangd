@@ -1,5 +1,5 @@
 CompileFlags:
-  CompilationDatabase: /Users/jreng/Documents/Poems/dev/end/Builds/Ninja
+  CompilationDatabase: /Users/jreng/Documents/Poems/dev/end/Builds/Ninja/Debug
   Add:
     - -DDEBUG=1
     - -DDONT_SET_USING_JUCE_NAMESPACE=1
@@ -23,7 +23,7 @@ CompileFlags:
     - -DJUCE_MODULE_AVAILABLE_jam_lua=1
     - -DJUCE_MODULE_AVAILABLE_jam_markdown=1
     - -DJUCE_MODULE_AVAILABLE_jam_style=1
-    - -DJUCE_MODULE_AVAILABLE_jam_tui=1
+    - -DJUCE_MODULE_AVAILABLE_jam_terminal=1
     - -DJUCE_MODULE_AVAILABLE_juce_audio_basics=1
     - -DJUCE_MODULE_AVAILABLE_juce_audio_processors=1
     - -DJUCE_MODULE_AVAILABLE_juce_audio_processors_headless=1
@@ -39,11 +39,11 @@ CompileFlags:
     - -DJUCE_USE_CURL=0
     - -DJUCE_WEB_BROWSER=1
     - -D_DEBUG=1
-    - -I/Users/jreng/Documents/Poems/dev/end/Builds/Ninja/END_App_artefacts/JuceLibraryCode
+    - -I/Users/jreng/Documents/Poems/dev/end/Builds/Ninja/Debug/END_App_artefacts/JuceLibraryCode
     - -I/Users/jreng/Documents/Poems/dev/end/Source
     - -I/Users/jreng/Documents/Poems/dev/end/../jam/jam_freetype/freetype/include
     - -I/Users/jreng/Documents/Poems/dev/end/../../JUCE/modules/juce_graphics/fonts/harfbuzz
-    - -I/Users/jreng/Documents/Poems/dev/end/Builds/Ninja/juce_binarydata_END_App_BinaryData/JuceLibraryCode
+    - -I/Users/jreng/Documents/Poems/dev/end/Builds/Ninja/Debug/juce_binarydata_END_App_BinaryData/JuceLibraryCode
     - -I/Users/jreng/Documents/Poems/JUCE/modules
     - -I/Users/jreng/Documents/Poems/dev/end/../jam
     - -I/Users/jreng/Documents/Poems/dev/end/../jam/jam_style/.
@@ -56,11 +56,9 @@ CompileFlags:
     - -I/Users/jreng/Documents/Poems/JUCE/modules/juce_audio_processors_headless/format_types/LV2_SDK/sratom
     - -I/Users/jreng/Documents/Poems/JUCE/modules/juce_audio_processors_headless/format_types/LV2_SDK/lilv
     - -I/Users/jreng/Documents/Poems/JUCE/modules/juce_audio_processors_headless/format_types/LV2_SDK/lilv/src
-    - -I/Users/jreng/Documents/Poems/dev/end/Builds/Ninja/juce_binarydata_jam_graphics_FontData/JuceLibraryCode
+    - -I/Users/jreng/Documents/Poems/dev/end/Builds/Ninja/Debug/juce_binarydata_jam_graphics_FontData/JuceLibraryCode
     - -g
     - -std=c++17
-    - -arch
-    - x86_64
     - -arch
     - arm64
     - -mmacosx-version-min=12.0

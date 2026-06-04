@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="_main_8cpp" kind="file" language="C++">
+    <compoundname>Main.cpp</compoundname>
+    <includes refid="_main_8h" local="yes">Main.h</includes>
+    <incdepgraph>
+      <node id="1">
+        <label>Main.cpp</label>
+        <link refid="_main_8cpp"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>Main.h</label>
+        <link refid="_main_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>JuceHeader.h</label>
+      </node>
+    </incdepgraph>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_main_8h" kindref="compound">Main.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight></codeline>
+<codeline lineno="3" refid="class_e_n_d_application_1a7739846859a545d64417d3db8b69ca2f" refkind="member"><highlight class="normal"><ref refid="class_e_n_d_application_1a7739846859a545d64417d3db8b69ca2f" kindref="member">ENDApplication::ENDApplication</ref>()<sp/>{}</highlight></codeline>
+<codeline lineno="4" refid="class_e_n_d_application_1a96fc235a4618e12e65fb65d24578a554" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_e_n_d_application_1a96fc235a4618e12e65fb65d24578a554" kindref="member">ENDApplication::initialise</ref><sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::String&amp;<sp/>commandLine)<sp/>{}</highlight></codeline>
+<codeline lineno="5" refid="class_e_n_d_application_1a5bb966fe05efc647b92919af6110b754" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_e_n_d_application_1a5bb966fe05efc647b92919af6110b754" kindref="member">ENDApplication::shutdown</ref>()<sp/>{}</highlight></codeline>
+<codeline lineno="6" refid="class_e_n_d_application_1a739cd12353aca8364cba81bb18a13750" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="class_e_n_d_application_1a739cd12353aca8364cba81bb18a13750" kindref="member">ENDApplication::systemRequestedQuit</ref>()<sp/>{<sp/>quit();<sp/>}</highlight></codeline>
+<codeline lineno="7" refid="class_e_n_d_application_1ad21a530035bfd44ca831bd15481cd841" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::String<sp/><ref refid="class_e_n_d_application_1ad21a530035bfd44ca831bd15481cd841" kindref="member">ENDApplication::getApplicationName</ref>()<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ProjectInfo::projectName;<sp/>}</highlight></codeline>
+<codeline lineno="8" refid="class_e_n_d_application_1a63f15e33736e7a54cf8799dec95caac3" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::String<sp/><ref refid="class_e_n_d_application_1a63f15e33736e7a54cf8799dec95caac3" kindref="member">ENDApplication::getApplicationVersion</ref>()<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ProjectInfo::versionString;<sp/>}</highlight></codeline>
+<codeline lineno="9" refid="class_e_n_d_application_1a7ddbfcfad092307acc1a6425941e695d" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="class_e_n_d_application_1a7ddbfcfad092307acc1a6425941e695d" kindref="member">ENDApplication::moreThanOneInstanceAllowed</ref>()<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;<sp/>}</highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="comment">//<sp/>This<sp/>macro<sp/>generates<sp/>the<sp/>main()<sp/>routine<sp/>that<sp/>launches<sp/>the<sp/>app.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"><ref refid="group__juce__events-messages_1ga10c79cf9cafd40244a741e5945878e79" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">START_JUCE_APPLICATION</ref><sp/>(<ref refid="class_e_n_d_application" kindref="compound">ENDApplication</ref>)</highlight></codeline>
+    </programlisting>
+    <location file="Main.cpp"/>
+  </compounddef>
+</doxygen>

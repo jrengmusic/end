@@ -1,0 +1,72 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<tagfile doxygen_version="1.16.1">
+  <compound kind="file">
+    <name>Main.cpp</name>
+    <path></path>
+    <filename>_main_8cpp.html</filename>
+    <includes id="_main_8h" name="Main.h" local="yes" import="no" module="no" objc="no">Main.h</includes>
+  </compound>
+  <compound kind="file">
+    <name>Main.h</name>
+    <path></path>
+    <filename>_main_8h.html</filename>
+    <class kind="class">ENDApplication</class>
+  </compound>
+  <compound kind="class">
+    <name>ENDApplication</name>
+    <filename>class_e_n_d_application.html</filename>
+    <member kind="function">
+      <type></type>
+      <name>ENDApplication</name>
+      <anchorfile>class_e_n_d_application.html</anchorfile>
+      <anchor>a7739846859a545d64417d3db8b69ca2f</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>const juce::String</type>
+      <name>getApplicationName</name>
+      <anchorfile>class_e_n_d_application.html</anchorfile>
+      <anchor>ad21a530035bfd44ca831bd15481cd841</anchor>
+      <arglist>() override</arglist>
+    </member>
+    <member kind="function">
+      <type>const juce::String</type>
+      <name>getApplicationVersion</name>
+      <anchorfile>class_e_n_d_application.html</anchorfile>
+      <anchor>a63f15e33736e7a54cf8799dec95caac3</anchor>
+      <arglist>() override</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>moreThanOneInstanceAllowed</name>
+      <anchorfile>class_e_n_d_application.html</anchorfile>
+      <anchor>a7ddbfcfad092307acc1a6425941e695d</anchor>
+      <arglist>() override</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>initialise</name>
+      <anchorfile>class_e_n_d_application.html</anchorfile>
+      <anchor>a96fc235a4618e12e65fb65d24578a554</anchor>
+      <arglist>(const juce::String &amp;commandLine) override</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>shutdown</name>
+      <anchorfile>class_e_n_d_application.html</anchorfile>
+      <anchor>a5bb966fe05efc647b92919af6110b754</anchor>
+      <arglist>() override</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>systemRequestedQuit</name>
+      <anchorfile>class_e_n_d_application.html</anchorfile>
+      <anchor>a739cd12353aca8364cba81bb18a13750</anchor>
+      <arglist>() override</arglist>
+    </member>
+  </compound>
+  <compound kind="namespace">
+    <name>std</name>
+    <filename>namespacestd.html</filename>
+  </compound>
+</tagfile>

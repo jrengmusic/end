@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygenindex xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="index.xsd" version="1.16.1" xml:lang="en-US">
+  <compound refid="class_e_n_d_application" kind="class"><name>ENDApplication</name>
+    <member refid="class_e_n_d_application_1a7739846859a545d64417d3db8b69ca2f" kind="function"><name>ENDApplication</name></member>
+    <member refid="class_e_n_d_application_1ad21a530035bfd44ca831bd15481cd841" kind="function"><name>getApplicationName</name></member>
+    <member refid="class_e_n_d_application_1a63f15e33736e7a54cf8799dec95caac3" kind="function"><name>getApplicationVersion</name></member>
+    <member refid="class_e_n_d_application_1a7ddbfcfad092307acc1a6425941e695d" kind="function"><name>moreThanOneInstanceAllowed</name></member>
+    <member refid="class_e_n_d_application_1a96fc235a4618e12e65fb65d24578a554" kind="function"><name>initialise</name></member>
+    <member refid="class_e_n_d_application_1a5bb966fe05efc647b92919af6110b754" kind="function"><name>shutdown</name></member>
+    <member refid="class_e_n_d_application_1a739cd12353aca8364cba81bb18a13750" kind="function"><name>systemRequestedQuit</name></member>
+  </compound>
+  <compound refid="namespacestd" kind="namespace"><name>std</name>
+  </compound>
+  <compound refid="_main_8cpp" kind="file"><name>Main.cpp</name>
+  </compound>
+  <compound refid="_main_8h" kind="file"><name>Main.h</name>
+  </compound>
+</doxygenindex>

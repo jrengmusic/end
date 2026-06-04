@@ -110,7 +110,7 @@ configure_app(
         jam_markdown
         jam_animation
         jam_debug
-        jam_tui
+        jam_terminal
     BINARY_FILES     ${END_BINARY_FILES}
     EXTRA_DEFINES
         JUCE_WEB_BROWSER=1
