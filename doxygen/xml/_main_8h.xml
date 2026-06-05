@@ -4,15 +4,15 @@
     <compoundname>Main.h</compoundname>
     <includes local="no">JuceHeader.h</includes>
     <includes refid="_config_8h" local="yes">config/Config.h</includes>
-    <includes refid="_end_view_8h" local="yes">EndView.h</includes>
+    <includes refid="_look_and_feel_8h" local="yes">lookAndFeel/LookAndFeel.h</includes>
+    <includes refid="end_view_8h" local="yes">endView.h</includes>
+    <includes refid="end_window_8h" local="yes">endWindow.h</includes>
     <includedby refid="_main_8cpp" local="yes">Main.cpp</includedby>
     <incdepgraph>
       <node id="4">
-        <label>EndView.h</label>
-        <link refid="_end_view_8h"/>
+        <label>Identifier.h</label>
+        <link refid="_identifier_8h"/>
         <childnode refid="2" relation="include">
-        </childnode>
-        <childnode refid="5" relation="include">
         </childnode>
       </node>
       <node id="1">
@@ -22,7 +22,11 @@
         </childnode>
         <childnode refid="3" relation="include">
         </childnode>
-        <childnode refid="4" relation="include">
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
         </childnode>
       </node>
       <node id="3">
@@ -30,11 +34,37 @@
         <link refid="_config_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>endView.h</label>
+        <link refid="end_view_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>endWindow.h</label>
+        <link refid="end_window_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
       </node>
       <node id="5">
         <label>lookAndFeel/LookAndFeel.h</label>
         <link refid="_look_and_feel_8h"/>
         <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
         </childnode>
       </node>
       <node id="2">
@@ -63,48 +93,50 @@
 <codeline lineno="1"><highlight class="preprocessor">#pragma<sp/>once</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;JuceHeader.h&gt;</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="3"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_config_8h" kindref="compound">config/Config.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="4"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_end_view_8h" kindref="compound">EndView.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="5"><highlight class="normal"></highlight></codeline>
-<codeline lineno="6"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespaceend" kindref="compound">end</ref></highlight></codeline>
-<codeline lineno="7"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="8"><highlight class="normal"></highlight><highlight class="comment">/*____________________________________________________________________________*/</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="9"><highlight class="normal"></highlight></codeline>
-<codeline lineno="10" refid="classend_1_1_application" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classend_1_1_application_1a127405d348ee02fc38b374812bf3c883" kindref="member">Application</ref></highlight></codeline>
-<codeline lineno="11"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>juce::JUCEApplication</highlight></codeline>
-<codeline lineno="12"><highlight class="normal"><sp/><sp/><sp/><sp/>,<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classjam_1_1_file_1_1_watcher_1_1_listener" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::File::Watcher::Listener</ref></highlight></codeline>
-<codeline lineno="13"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="14"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
-<codeline lineno="15"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classend_1_1_application_1a127405d348ee02fc38b374812bf3c883" kindref="member">Application</ref>();</highlight></codeline>
-<codeline lineno="17"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::String<sp/><ref refid="classend_1_1_application_1ab2d34713da4e6b4917cf53a08cda47eb" kindref="member">getApplicationName</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
-<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::String<sp/><ref refid="classend_1_1_application_1af5df574c86505182fdd01d567824d0b7" kindref="member">getApplicationVersion</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
-<codeline lineno="20"><highlight class="normal"></highlight></codeline>
-<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_application_1acb2876376b8c61d2ee8795524e625d0f" kindref="member">moreThanOneInstanceAllowed</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
-<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_application_1a598aa5d15712e3107ade5df8f6c5e33d" kindref="member">initialise</ref><sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::String&amp;<sp/>commandLine)<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_look_and_feel_8h" kindref="compound">lookAndFeel/LookAndFeel.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="end_view_8h" kindref="compound">endView.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="end_window_8h" kindref="compound">endWindow.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespaceend" kindref="compound">end</ref></highlight></codeline>
+<codeline lineno="9"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="comment">/*____________________________________________________________________________*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12" refid="classend_1_1_application" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classend_1_1_application_1a127405d348ee02fc38b374812bf3c883" kindref="member">Application</ref></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classjuce_1_1JUCEApplication" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::JUCEApplication</ref></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"><sp/><sp/><sp/><sp/>,<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classjam_1_1File_1_1Watcher_1_1Listener" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::File::Watcher::Listener</ref></highlight></codeline>
+<codeline lineno="15"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classend_1_1_application_1a127405d348ee02fc38b374812bf3c883" kindref="member">Application</ref>();</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref><sp/><ref refid="classend_1_1_application_1ab2d34713da4e6b4917cf53a08cda47eb" kindref="member">getApplicationName</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref><sp/><ref refid="classend_1_1_application_1af5df574c86505182fdd01d567824d0b7" kindref="member">getApplicationVersion</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_application_1acb2876376b8c61d2ee8795524e625d0f" kindref="member">moreThanOneInstanceAllowed</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_application_1a598aa5d15712e3107ade5df8f6c5e33d" kindref="member">initialise</ref><sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref>&amp;<sp/>commandLine)<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_application_1a18d7fd1d8bbcca6a1c7af73e3bf503a8" kindref="member">shutdown</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_application_1a636a8c0776059c65df3d0405229858f4" kindref="member">systemRequestedQuit</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_application_1af446ffd1fa995c2838d2d34713a7d83a" kindref="member">fileChanged</ref><sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classjuce_1_1File" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::File</ref>&amp;<sp/>file,<sp/><ref refid="structjam_1_1File_1_1Watcher_1a67463011ada054bc1dc66cdf49d446f2" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::File::Watcher::Event</ref><sp/>event)<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>CONTEXT</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30" refid="classend_1_1_application_1a765f410d9d4232de53d86311b3ad303f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classconfig_1_1_model" kindref="compound">config::Model</ref><sp/><ref refid="namespaceconfig" kindref="compound">config</ref>;</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33" refid="classend_1_1_application_1afe921d4972c796aa0612d3ce96adaca0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classend_1_1_look_and_feel" kindref="compound">LookAndFeel</ref><sp/><ref refid="classend_1_1_application_1afe921d4972c796aa0612d3ce96adaca0" kindref="member">lookAndFeel</ref>;</highlight></codeline>
+<codeline lineno="34" refid="classend_1_1_application_1a551f9e489ee4727369d6145ab26978ba" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structjam_1_1File_1_1Watcher" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::File::Watcher</ref><sp/><ref refid="classend_1_1_application_1a551f9e489ee4727369d6145ab26978ba" kindref="member">watcher</ref>;</highlight></codeline>
+<codeline lineno="35" refid="classend_1_1_application_1af5685bc1fb3a0e77fad81b639bcc92f7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::unique_ptr&lt;end::Window&gt;<sp/><ref refid="classend_1_1_application_1af5685bc1fb3a0e77fad81b639bcc92f7" kindref="member">window</ref>;</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>JUCE_DEBUG</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structjam_1_1debug_1_1Log_1_1Scope" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::debug::Log::Scope</ref><sp/>logScope<sp/>{<sp/><ref refid="classjuce_1_1File_1af57a7a6e83fbd4a6b048e7d0010d7279" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::File::getCurrentWorkingDirectory</ref>().<ref refid="classjuce_1_1File_1a57b992aacb19e09ee5905cd0f0e9bb31" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">getChildFile</ref><sp/>(</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structjam_1_1Text_1ac62b2b431e4c90fd66dc3244e46e9686" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Text::toFileName</ref><sp/>(ProjectInfo::projectName,<sp/></highlight><highlight class="stringliteral">&quot;.ode&quot;</highlight><highlight class="normal">))<sp/>};</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="42"><highlight class="normal"></highlight></codeline>
-<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_application_1a18d7fd1d8bbcca6a1c7af73e3bf503a8" kindref="member">shutdown</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
-<codeline lineno="55"><highlight class="normal"></highlight></codeline>
-<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_application_1a636a8c0776059c65df3d0405229858f4" kindref="member">systemRequestedQuit</ref>()<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
-<codeline lineno="74"><highlight class="normal"></highlight></codeline>
-<codeline lineno="75"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
-<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_application_1af446ffd1fa995c2838d2d34713a7d83a" kindref="member">fileChanged</ref><sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>juce::File&amp;<sp/>file,<sp/><ref refid="structjam_1_1_file_1_1_watcher_1a67463011ada054bc1dc66cdf49d446f2" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::File::Watcher::Event</ref><sp/>event)<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
-<codeline lineno="77"><highlight class="normal"></highlight></codeline>
-<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="79" refid="classend_1_1_application_1a765f410d9d4232de53d86311b3ad303f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classconfig_1_1_model" kindref="compound">config::Model</ref><sp/><ref refid="namespaceconfig" kindref="compound">config</ref>;</highlight></codeline>
-<codeline lineno="80" refid="classend_1_1_application_1ad51d57d5d3319cf09216f8ed72671664" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::unique_ptr&lt;jam::Window&gt;<sp/><ref refid="classend_1_1_application_1ad51d57d5d3319cf09216f8ed72671664" kindref="member">window</ref>;</highlight></codeline>
-<codeline lineno="81"><highlight class="normal"></highlight></codeline>
-<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="83"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>JUCE_DEBUG</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structjam_1_1debug_1_1_log_1_1_scope" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::debug::Log::Scope</ref><sp/>logScope<sp/>{<sp/>juce::File::getCurrentWorkingDirectory().getChildFile<sp/>(</highlight></codeline>
-<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structjam_1_1_text_1ac62b2b431e4c90fd66dc3244e46e9686" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Text::toFileName</ref><sp/>(ProjectInfo::projectName,<sp/></highlight><highlight class="stringliteral">&quot;.ode&quot;</highlight><highlight class="normal">))<sp/>};</highlight></codeline>
-<codeline lineno="88"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="89"><highlight class="normal"></highlight></codeline>
-<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="group__juce__core-system_1ga851b02724a8158a7f746c66b5758b3dd" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR</ref><sp/>(<ref refid="classend_1_1_application" kindref="compound">Application</ref>)</highlight></codeline>
-<codeline lineno="92"><highlight class="normal">};</highlight></codeline>
-<codeline lineno="93"><highlight class="normal"></highlight></codeline>
-<codeline lineno="95"><highlight class="normal">}</highlight><highlight class="comment">//<sp/>namespace<sp/>end</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="juce__PlatformDefs_8h_1a851b02724a8158a7f746c66b5758b3dd" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR</ref><sp/>(<ref refid="classend_1_1_application" kindref="compound">Application</ref>)</highlight></codeline>
+<codeline lineno="45"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal">}</highlight><highlight class="comment">//<sp/>namespace<sp/>end</highlight><highlight class="normal"></highlight></codeline>
     </programlisting>
     <location file="Main.h"/>
   </compounddef>

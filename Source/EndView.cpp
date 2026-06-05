@@ -1,22 +1,25 @@
-#include "EndView.h"
+#include "endView.h"
 
 namespace end
 {
 /*____________________________________________________________________________*/
+
 View::View() noexcept
 {
-    juce::LookAndFeel::setDefaultLookAndFeel (&defaultLookAndFeel);
+    setOpaque (false);
+    config.addListener (this);
 
-    setSize (300, 300);
+    auto window { jam::ValueTree::getChildWithName (config, IDtype::window) };
+    int width { window.getProperty (jam::ID::width) };
+    int height { window.getProperty (jam::ID::height) };
+    setSize (width, height);
 }
+
+View::~View() { config.removeListener (this); }
+void View::valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier&) {}
+
 void View::resized() {}
+void View::paint (juce::Graphics& g) {}
 
-void View::paint (juce::Graphics& g)
-{
-    if (isOpaque())
-    {
-        g.fillAll (findColour (juce::ResizableWindow::backgroundColourId));
-    }
-}
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace end

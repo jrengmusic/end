@@ -106,32 +106,32 @@ Bulk cell data:
 
 No thread pushes to another. All communication is pull-based. No mutex on any hot path. No wait, no stall, no yield.
 
-### 1.5 CONFIG Contract — Files on Disk Are SSOT
+### 1.5 CONFIG Contract — Binary Defaults Are Foundation, Disk Files Are Override
 
-Lua files on disk are the single source of truth for all configuration. The `config::Model` ValueTree is a **derived state** built from those files. No XML. No serialized ValueTree. No `referTo`.
+Default lua files are compiled into the binary as BinaryData. The `config::Model` ValueTree is **built from these compiled defaults first** — the tree is guaranteed valid before any disk I/O. Disk lua files are user overrides applied onto the already-valid tree. No XML. No serialized ValueTree. No `referTo`.
 
 **Init chain (app start):**
-1. Check `~/.config/end/` for each lua module file (end.lua, display.lua, keys.lua, nexus.lua, popups.lua, actions.lua, whelmed.lua).
-2. **Virgin machine?** Any missing file → write immediately from embedded `default_*.lua` templates. Default tables kept in memory as fallback.
-3. Read ALL lua files from disk → parse via sol2 into lua tables.
-4. Build `config::Model` ValueTree from parsed tables. Walk each table, `setProperty` per value.
-5. Any invalid/unreadable value → use default from the init tables. **Config state is guaranteed valid. config::Model never fails to build.**
+1. Build `config::Model` ValueTree from compiled binary default lua files (BinaryData). Parse via sol2, walk tables, `setProperty` per value. **Tree is valid and complete at this point.**
+2. Check `~/.config/end/` for each lua module file (display.lua, keys.lua, nexus.lua, popups.lua, actions.lua, whelmed.lua).
+3. **Virgin machine?** Any missing file → write the compiled default to disk immediately.
+4. Read lua files from disk → parse via sol2 → overlay onto the already-built tree: `setProperty` only for values that parse successfully.
+5. Any invalid/unreadable value → the compiled default stays (tree was built with it in step 1). **No value is ever missing or corrupt.**
+6. Parse failures are tracked with file path and line number. Errors are reported to the user (MessageOverlay) — the application never fails to start, but the user sees exactly what went wrong and where.
 
 **Hot-reload chain (file change):**
-6. ENDApplication (the `jam::File::Watcher::Listener`) fires on any `.lua` change.
-7. Main calls the **SAME code path as steps 3–5** — tells `config::Model` to re-read files, parse, build state, defaults for invalid values. Init and reload are not different flows — one function, two call sites.
-8. `config::Model` ValueTree (CONFIG subtree of end::Model) properties updated.
-9. end::Model `valueTreePropertyChanged` fires on all listeners.
+7. ENDApplication (the `jam::File::Watcher::Listener`) fires on any `.lua` change.
+8. Reset tree to compiled binary defaults (step 1), then overlay from disk (step 4). Init and reload are the same code path — one function, two call sites.
+9. config::Model `valueTreePropertyChanged` fires on all its listeners.
 10. Each listener reacts accordingly — LookAndFeel re-styles, terminal::View re-applies font/colours, etc.
 
-**Config delivery — end::Model listeners react:**
+**Config delivery — config::Model listeners react:**
 - **No `referTo`.** No manual distribution cascade from end::View.
-- CONFIG is a subtree of end::Model. end::Model's ValueTree listeners fire on property changes.
-- Each consumer that needs config values is already a `ValueTree::Listener` on the relevant end::Model subtree (or a parent that distributes to its children).
-- Main's only job is: own the watcher, trigger the reload on `config::Model`, let the listener chain propagate naturally through end::Model.
+- config::Model is an **independent tree** (`jam::Model` + `Context<config::Model>`), NOT grafted to end::Model. Two separate trees, two separate listener registrations.
+- Each consumer that needs config values registers as `ValueTree::Listener` on config::Model directly.
+- Main's only job is: own the watcher, trigger the reload on `config::Model`, let the listener chain propagate naturally through config::Model.
 - This is the standard JUCE ValueTree listener pattern. No magic. No manual push.
 
-**Design constraint:** The lua-files-to-state function must be clean and reentrant — it is the SSOT builder for both init and reload. It reads files, parses, walks tables, writes ValueTree properties. It never caches intermediate lua state between calls. Each invocation is a full rebuild from disk.
+**Design constraint:** The build-and-overlay function must be clean and reentrant. Each invocation resets to compiled defaults and re-applies disk overrides. It never caches intermediate lua state between calls. Disk corruption, parse failure, or partial write cannot produce an invalid tree — the compiled defaults are the floor.
 
 ### 1.6 jam::Model Contract
 
@@ -215,7 +215,7 @@ ENDApplication                                        ← THE ORCHESTRATOR (Main
 
 **ENDApplication is the orchestrator.** It owns `config::Model` and `end::Model` as two independent trees — config and runtime state never mixed. It IS the `jam::File::Watcher::Listener` — on lua file change, it tells `config::Model` to re-read files from disk (same code path as init). config::Model updates its CONFIG tree, ValueTree listeners fire, consumers react.
 
-**config::Model is the config Model — a dedicated independent tree, NOT grafted to end::Model.** It holds the sol2 VM privately (parser plus live custom-action Functions) and owns its own `juce::ValueTree`. It is NOT a `jam::Model` (no atomics, no timer flush — config is message-thread only, never crosses to the reader). Main owns it as a value member.
+**config::Model is the config Model — a dedicated independent tree, NOT grafted to end::Model.** `jam::Model` + `Context<config::Model>`. It holds the sol2 VM privately (parser plus live custom-action Functions) and owns its own `juce::ValueTree`. Config is message-thread only — the reader never reads config::Model directly. Config-derived values the reader needs cross through `terminal::Model` atomics (see §2.0 Config → reader thread bridge). Main owns it as a value member.
 
 **config::Model is composed from adjacent parsers** — `config::Display`, `config::Nexus`, `config::Keys`, `config::Popups`, `config::Actions`, `config::Whelmed`. Each parser handles one lua file/table and writes into config::Model's tree. **Consumers ONLY read config::Model** — they never access individual parsers. The parsers are internal to the config namespace.
 

@@ -340,8 +340,8 @@
   </option>
   <option  id='SKIP_FUNCTION_MACROS' default='yes' type='bool'><value>YES</value></option>
   <option  id='TAGFILES' default='no' type='stringlist'>
-    <value><![CDATA[../../jam/doxygen/tagfile.xml=../../jam/doxygen/html]]></value>
-    <value><![CDATA[../../../JUCE/docs/doxygen/doc/juce.tag=../../../JUCE/docs/doxygen/doc]]></value>
+    <value><![CDATA[../../jam/docs/tagfile.xml=../../jam/docs/html]]></value>
+    <value><![CDATA[../../../JUCE/docs/tagfile.xml=../../../JUCE/docs/html]]></value>
   </option>
   <option  id='GENERATE_TAGFILE' default='no' type='string'><value><![CDATA[tagfile.xml]]></value></option>
   <option  id='ALLEXTERNALS' default='yes' type='bool'><value>NO</value></option>

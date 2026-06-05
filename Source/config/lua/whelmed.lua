@@ -38,25 +38,25 @@ return {
     --
 
     -- Proportional body font family.
-    font_family = "%%font_family%%",
+    font_family = "Display",
 
     -- Body font style (e.g. "Regular", "Medium", "Bold").
-    font_style = "%%font_style%%",
+    font_style = "Medium",
 
     -- Base body size in points (8 - 72).
-    font_size = %%font_size%%,
+    font_size = 16,
 
     -- Monospace font family for code blocks.
-    code_family = "%%code_family%%",
+    code_family = "Display Mono",
 
     -- Code font style (e.g. "Regular", "Medium", "Bold").
-    code_style = "%%code_style%%",
+    code_style = "Medium",
 
     -- Code block font size in points (8 - 72).
-    code_size = %%code_size%%,
+    code_size = 12,
 
     -- Line height multiplier (0.8 - 3.0).
-    line_height = %%line_height%%,
+    line_height = 1.5,
 
     -- =========================================================================
     -- HEADING SIZES
@@ -66,12 +66,12 @@ return {
     -- Headings are rendered in bold using the body font family.
     --
 
-    h1_size = %%h1_size%%,
-    h2_size = %%h2_size%%,
-    h3_size = %%h3_size%%,
-    h4_size = %%h4_size%%,
-    h5_size = %%h5_size%%,
-    h6_size = %%h6_size%%,
+    h1_size = 28,
+    h2_size = 28,
+    h3_size = 24,
+    h4_size = 20,
+    h5_size = 18,
+    h6_size = 16,
 
     -- =========================================================================
     -- LAYOUT
@@ -81,7 +81,7 @@ return {
     -- Order: top, right, bottom, left (CSS convention).
     --
 
-    padding = { %%padding_top%%, %%padding_right%%, %%padding_bottom%%, %%padding_left%% },
+    padding = { 10, 10, 10, 10 },
 
     -- =========================================================================
     -- COLOURS
@@ -92,22 +92,22 @@ return {
     --
 
     -- Document background colour.
-    background = "%%background%%",
+    background = "0d141cff",
 
     -- Body text colour.
-    body_colour = "%%body_colour%%",
+    body_colour = "b3f9f5ff",
 
     -- Link text colour.
-    link_colour = "%%link_colour%%",
+    link_colour = "01c2d2ff",
 
     -- Heading colours. All headings share the same colour by default.
     -- Differentiation comes from size and weight, not colour.
-    h1_colour = "%%h1_colour%%",
-    h2_colour = "%%h2_colour%%",
-    h3_colour = "%%h3_colour%%",
-    h4_colour = "%%h4_colour%%",
-    h5_colour = "%%h5_colour%%",
-    h6_colour = "%%h6_colour%%",
+    h1_colour = "d4c8a0ff",
+    h2_colour = "d4c8a0ff",
+    h3_colour = "d4c8a0ff",
+    h4_colour = "d4c8a0ff",
+    h5_colour = "d4c8a0ff",
+    h6_colour = "d4c8a0ff",
 
     -- =========================================================================
     -- CODE BLOCKS
@@ -119,23 +119,23 @@ return {
     --
 
     -- Code block background colour.
-    code_fence_background = "%%code_fence_background%%",
+    code_fence_background = "090d12ff",
 
     -- Inline code colour (e.g. `code` in body text).
-    code_colour = "%%code_colour%%",
+    code_colour = "00d0ffff",
 
     -- Syntax token colours.
-    token_error        = "%%token_error%%",          -- error tokens
-    token_comment      = "%%token_comment%%",        -- comments
-    token_keyword      = "%%token_keyword%%",        -- language keywords
-    token_operator     = "%%token_operator%%",       -- operators (+, -, =, etc.)
-    token_identifier   = "%%token_identifier%%",     -- variable and function names
-    token_integer      = "%%token_integer%%",        -- integer literals
-    token_float        = "%%token_float%%",          -- float literals
-    token_string       = "%%token_string%%",         -- string literals
-    token_bracket      = "%%token_bracket%%",        -- brackets ({, }, [, ], (, ))
-    token_punctuation  = "%%token_punctuation%%",    -- punctuation (;, ,, .)
-    token_preprocessor = "%%token_preprocessor%%",   -- preprocessor directives (#include)
+    token_error        = "f74a4aff",          -- error tokens
+    token_comment      = "6080c0ff",        -- comments
+    token_keyword      = "1919ffff",        -- language keywords
+    token_operator     = "b0b0b0ff",       -- operators (+, -, =, etc.)
+    token_identifier   = "00c6ffff",     -- variable and function names
+    token_integer      = "00ff00ff",        -- integer literals
+    token_float        = "00ff00ff",          -- float literals
+    token_string       = "ffc0c0ff",         -- string literals
+    token_bracket      = "80ffffff",        -- brackets ({, }, [, ], (, ))
+    token_punctuation  = "ff9080ff",    -- punctuation (;, ,, .)
+    token_preprocessor = "9aff00ff",   -- preprocessor directives (#include)
 
     -- =========================================================================
     -- TABLE
@@ -145,12 +145,12 @@ return {
     -- configurable borders, and distinct header styling.
     --
 
-    table_background        = "%%table_background%%",         -- table background
-    table_header_background = "%%table_header_background%%",  -- header row background
-    table_row_alt           = "%%table_row_alt%%",            -- alternating row colour
-    table_border_colour     = "%%table_border_colour%%",      -- table border colour
-    table_header_text       = "%%table_header_text%%",        -- header text colour
-    table_cell_text         = "%%table_cell_text%%",          -- cell text colour
+    table_background        = "090d12ff",         -- table background
+    table_header_background = "112130ff",  -- header row background
+    table_row_alt           = "0d141cff",            -- alternating row colour
+    table_border_colour     = "2c4144ff",      -- table border colour
+    table_header_text       = "bafffdff",        -- header text colour
+    table_cell_text         = "b3f9f5ff",          -- cell text colour
 
     -- =========================================================================
     -- PROGRESS BAR
@@ -160,10 +160,10 @@ return {
     -- percentage label are overlaid on a translucent bar.
     --
 
-    progress_background     = "%%progress_background%%",     -- bar background
-    progress_foreground     = "%%progress_foreground%%",     -- bar fill colour
-    progress_text_colour    = "%%progress_text_colour%%",    -- percentage label colour
-    progress_spinner_colour = "%%progress_spinner_colour%%", -- braille spinner colour
+    progress_background     = "1a1a1aff",     -- bar background
+    progress_foreground     = "4488ccff",     -- bar fill colour
+    progress_text_colour    = "ccccccff",    -- percentage label colour
+    progress_spinner_colour = "4488ccff", -- braille spinner colour
 
     -- =========================================================================
     -- SCROLLBAR
@@ -172,12 +172,12 @@ return {
     -- Viewport scrollbar appearance.
     --
 
-    scrollbar_thumb      = "%%scrollbar_thumb%%",      -- scrollbar thumb (draggable)
-    scrollbar_track      = "%%scrollbar_track%%",      -- scrollbar track
-    scrollbar_background = "%%scrollbar_background%%", -- scrollbar background
+    scrollbar_thumb      = "2c4144ff",      -- scrollbar thumb (draggable)
+    scrollbar_track      = "0d141cff",      -- scrollbar track
+    scrollbar_background = "0d141cff", -- scrollbar background
 
     -- Selection highlight colour (RRGGBBAA).
-    selection_colour = "%%selection_colour%%",         -- Selection highlight (RRGGBBAA)
+    selection_colour = "00c8d880",         -- Selection highlight (RRGGBBAA)
 
     -- =========================================================================
     -- NAVIGATION
@@ -186,9 +186,9 @@ return {
     -- Vim-style keyboard navigation within the document.
     --
 
-    scroll_down   = "%%scroll_down%%",    -- scroll down one step
-    scroll_up     = "%%scroll_up%%",      -- scroll up one step
-    scroll_top    = "%%scroll_top%%",     -- jump to top (gg)
-    scroll_bottom = "%%scroll_bottom%%",  -- jump to bottom (G)
-    scroll_step   = %%scroll_step%%,      -- pixels per scroll step
+    scroll_down   = "j",    -- scroll down one step
+    scroll_up     = "k",      -- scroll up one step
+    scroll_top    = "gg",     -- jump to top (gg)
+    scroll_bottom = "G",  -- jump to bottom (G)
+    scroll_step   = 50,      -- pixels per scroll step
 }

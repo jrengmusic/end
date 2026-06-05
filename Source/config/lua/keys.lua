@@ -34,44 +34,44 @@ return {
     -- ---- Clipboard ----
 
     -- Copy selection to clipboard.
-    copy = "%%copy%%",
+    copy = "cmd+c",
 
     -- Paste from clipboard.
-    paste = "%%paste%%",
+    paste = "cmd+v",
 
     -- ---- Window ----
 
     -- Quit application.
-    quit = "%%quit%%",
+    quit = "cmd+q",
 
     -- Close active pane, then tab, then window.
-    close_tab = "%%close_tab%%",
+    close_tab = "cmd+w",
 
     -- Reload all configuration files (end.lua + action.lua).
-    reload = "%%reload%%",
+    reload = "cmd+r",
 
     -- Increase font size.
-    zoom_in = "%%zoom_in%%",
+    zoom_in = "cmd+=",
 
     -- Decrease font size.
-    zoom_out = "%%zoom_out%%",
+    zoom_out = "cmd+-",
 
     -- Reset font size to configured default.
-    zoom_reset = "%%zoom_reset%%",
+    zoom_reset = "cmd+0",
 
     -- Open a new window.
-    new_window = "%%new_window%%",
+    new_window = "cmd+n",
 
     -- ---- Tabs ----
 
     -- Open a new tab.
-    new_tab = "%%new_tab%%",
+    new_tab = "cmd+t",
 
     -- Switch to previous tab.
-    prev_tab = "%%prev_tab%%",
+    prev_tab = "cmd+[",
 
     -- Switch to next tab.
-    next_tab = "%%next_tab%%",
+    next_tab = "cmd+]",
 
     -- Rename the active tab. Press prefix first.
     rename_tab = "shift+t",

@@ -35,14 +35,14 @@ return {
     defaults = {
         -- Default popup width in columns.
         -- Individual popup entries can override this.
-        cols = %%popup_cols%%,
+        cols = 70,
 
         -- Default popup height in rows.
         -- Individual popup entries can override this.
-        rows = %%popup_rows%%,
+        rows = 20,
 
         -- Default popup position: "center".
-        position = "%%popup_position%%",
+        position = "center",
     },
 
     tit = {

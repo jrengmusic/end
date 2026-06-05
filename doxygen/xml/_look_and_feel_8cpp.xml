@@ -4,6 +4,20 @@
     <compoundname>LookAndFeel.cpp</compoundname>
     <includes refid="_look_and_feel_8h" local="yes">LookAndFeel.h</includes>
     <incdepgraph>
+      <node id="4">
+        <label>Identifier.h</label>
+        <link refid="_identifier_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>../config/Config.h</label>
+        <link refid="_config_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
       <node id="1">
         <label>lookAndFeel/LookAndFeel.cpp</label>
         <link refid="_look_and_feel_8cpp"/>
@@ -15,17 +29,68 @@
         <link refid="_look_and_feel_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
       </node>
       <node id="3">
         <label>JuceHeader.h</label>
       </node>
     </incdepgraph>
+    <innernamespace refid="namespaceend">end</innernamespace>
     <briefdescription>
     </briefdescription>
     <detaileddescription>
     </detaileddescription>
     <programlisting>
 <codeline lineno="1"><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_look_and_feel_8h" kindref="compound">LookAndFeel.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespaceend" kindref="compound">end</ref></highlight></codeline>
+<codeline lineno="4"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">/*____________________________________________________________________________*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6" refid="classend_1_1_look_and_feel_1aa7aba5b24af493c1253295ed0fa3af9a" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classjuce_1_1Colour" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Colour</ref><sp/><ref refid="classend_1_1_look_and_feel_1aa7aba5b24af493c1253295ed0fa3af9a" kindref="member">LookAndFeel::fromRGBA</ref><sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref>&amp;<sp/>hexRGBA)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="8"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Config<sp/>stores<sp/>#RRGGBBAA.<sp/>fromString<sp/>interprets<sp/>as<sp/>AARRGGBB<sp/>(wrong<sp/>order).</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>fromRGBA<sp/>rotates<sp/>the<sp/>channels<sp/>back<sp/>to<sp/>the<sp/>correct<sp/>RGBA<sp/>→<sp/>ARGB<sp/>layout.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>rgba<sp/>{<sp/><ref refid="classjuce_1_1Colour_1a1af18ef55f691efc003f5ae3be864069" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Colour::fromString</ref><sp/>(hexRGBA)<sp/>};</highlight></codeline>
+<codeline lineno="11"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>red<sp/>{<sp/>rgba.getRed()<sp/>};</highlight></codeline>
+<codeline lineno="12"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>green<sp/>{<sp/>rgba.getGreen()<sp/>};</highlight></codeline>
+<codeline lineno="13"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>blue<sp/>{<sp/>rgba.getBlue()<sp/>};</highlight></codeline>
+<codeline lineno="14"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>alpha<sp/>{<sp/>rgba.getAlpha()<sp/>};</highlight></codeline>
+<codeline lineno="15"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classjuce_1_1Colour_1af3a777e6e6562a15558e045a478b6f13" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Colour::fromRGBA</ref><sp/>(alpha,<sp/>red,<sp/>green,<sp/>blue);</highlight></codeline>
+<codeline lineno="16"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19" refid="classend_1_1_look_and_feel_1a9313c08eb0def3e3a423f8bfd362f435" refkind="member"><highlight class="normal"><ref refid="classend_1_1_look_and_feel_1a9313c08eb0def3e3a423f8bfd362f435" kindref="member">LookAndFeel::LookAndFeel</ref>()</highlight></codeline>
+<codeline lineno="20"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classend_1_1_look_and_feel_1a97d73310bc5d9b47794c0a0d71388bce" kindref="member">setColours</ref>();</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespaceconfig" kindref="compound">config</ref>.addListener<sp/>(</highlight><highlight class="keyword">this</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="23"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight></codeline>
+<codeline lineno="25" refid="classend_1_1_look_and_feel_1a4e4378865cd561e4bccbb346cf7a8114" refkind="member"><highlight class="normal"><ref refid="classend_1_1_look_and_feel_1a4e4378865cd561e4bccbb346cf7a8114" kindref="member">LookAndFeel::~LookAndFeel</ref>()<sp/>{<sp/><ref refid="namespaceconfig" kindref="compound">config</ref>.removeListener<sp/>(</highlight><highlight class="keyword">this</highlight><highlight class="normal">);<sp/>};</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27" refid="classend_1_1_look_and_feel_1aeb869a5b4e62d45764bbf42d4f1afa3a" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_look_and_feel_1aeb869a5b4e62d45764bbf42d4f1afa3a" kindref="member">LookAndFeel::valueTreePropertyChanged</ref><sp/>(<ref refid="classjuce_1_1ValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::ValueTree</ref>&amp;,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classjuce_1_1Identifier" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Identifier</ref>&amp;)</highlight></codeline>
+<codeline lineno="28"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classend_1_1_look_and_feel_1a97d73310bc5d9b47794c0a0d71388bce" kindref="member">setColours</ref>();</highlight></codeline>
+<codeline lineno="30"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="32" refid="classend_1_1_look_and_feel_1a97d73310bc5d9b47794c0a0d71388bce" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_look_and_feel_1a97d73310bc5d9b47794c0a0d71388bce" kindref="member">LookAndFeel::setColours</ref>()</highlight></codeline>
+<codeline lineno="33"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keyword">auto</highlight><highlight class="normal">&amp;<sp/>[</highlight><highlight class="keywordtype">id</highlight><highlight class="normal">,<sp/>colourId]<sp/>:<sp/><ref refid="classend_1_1_look_and_feel_1acbd5db06089b96099886d651913786b8" kindref="member">colourIds</ref>)</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keyword">auto</highlight><highlight class="normal">&amp;&amp;<sp/>c<sp/>:<sp/><ref refid="namespaceconfig" kindref="compound">config</ref>)</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(c.hasProperty<sp/>(</highlight><highlight class="keywordtype">id</highlight><highlight class="normal">))</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>colour<sp/>{<sp/><ref refid="classend_1_1_look_and_feel_1aa7aba5b24af493c1253295ed0fa3af9a" kindref="member">fromRGBA</ref><sp/>(c.getProperty<sp/>(</highlight><highlight class="keywordtype">id</highlight><highlight class="normal">).toString())<sp/>};</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classjuce_1_1LookAndFeel_1abdbcae63a1eca75ea44c8d3b87bc7444" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">setColour</ref><sp/>(colourId,<sp/>colour);</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="45"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal">}</highlight><highlight class="comment">//<sp/>namespace<sp/>end</highlight><highlight class="normal"></highlight></codeline>
     </programlisting>
     <location file="lookAndFeel/LookAndFeel.cpp"/>
   </compounddef>

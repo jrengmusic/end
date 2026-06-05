@@ -2,6 +2,106 @@
 
 ---
 
+## Sprint 3: Phase 3 — Config Infrastructure + Listener-Driven Window
+
+**Date:** 2026-06-05 — 2026-06-06
+**Duration:** Full session (2 days, context compaction mid-session)
+
+### Agents Participated
+- COUNSELOR: Sprint lead, design discussion (config overlay, styleParameters pattern, fromString refactor), fromRGBA bug diagnosis, direct verification of all engineer output
+- Engineer: BackgroundBlur Backend expansion (jam), jam::Model::setValuesFrom, jam::Window setGlass 3-arg, end::Window + styleParameters, config::Model redesign, LookAndFeel listener, Identifier.h IDENTIFIER_BACKEND, lua config renames, call site updates (ModalWindow, GlassComponent, Dialog, Theme)
+- Pathfinder: Codebase survey (kuassa glass machinery, ProcessorChain::parameters pattern, jam::Function::Map contract, config tree structure)
+
+### Files Modified — JAM (2 new, 1 deleted, 25 modified)
+
+**New (2):**
+- `jam_core/identifier/jam_identifier_window.h` — X-macro IDENTIFIER_WINDOW (11 keys: mac, win, blurStyle, 4 macOS backends, 4 Windows backends)
+- `jam_core/identifier/jam_identifier_terminal.h` — relocated from jam_terminal/identifier/
+
+**Deleted (1):**
+- `jam_terminal/identifier/jam_identifier_terminal.h` — moved to jam_core
+
+**Modified (25):**
+- `jam_style/background_blur/jam_background_blur.h` — 8-value Backend enum, shouldTintComponent, fromString (table-driven unordered_map + IDref), isGlassFXAvailable/isMicaAvailable/isAcrylic11Available, new Windows DWM constants
+- `jam_style/background_blur/jam_background_blur.mm` — macOS platform: 4-case switch in enable(), applyBackgroundBlur, applyVisualFX, applyGlassFX (NSGlassEffectView), disable() with NSGlassEffectView cleanup
+- `jam_style/background_blur/jam_background_blur.cpp` — Windows platform: 4-case switch in enable(), applyBlurBehind, applyAcrylic10, applyAcrylic11, applyMica, getWindowsBuildNumber delegation
+- `jam_core/utilities/jam_platform.h` — extracted getWindowsBuildNumber(DWORD, cached), isWindows10 uses it
+- `jam_core/identifier/jam_identifier.h` — includes jam_identifier_window.h, MAKE_VIEW includes IDENTIFIER_WINDOW
+- `jam_data_structures/model/jam_model.h` — new public setValuesFrom(ValueTree), private overlay(ValueTree&, const ValueTree&)
+- `jam_data_structures/model/jam_model.cpp` — setValuesFrom: isEquivalentTo early-out, per-property diff overlay. Removed debug log blocks
+- `jam_gui/window/jam_window.h` — setGlass(Colour, float, Backend) 3-arg, setShowWindowButtons(bool), members: tintColour, blurRadius, glassBackend
+- `jam_gui/window/jam_window.cpp` — setGlass shouldTintComponent branch, parentHierarchyChanged/visibilityChanged/handleAsyncUpdate pass stored Backend
+- `jam_gui/window/jam_modal_window.h` — Backend as 6th ctor param
+- `jam_gui/window/jam_modal_window.cpp` — setupWindow forwards Backend to setGlass
+- `jam_gui/button/jam_button_dialog.h` — Dialog::show passes platform-default Backend
+- `jam_gui/window/jam_glass_component.cpp` — handleAsyncUpdate passes platform-default Backend
+- `jam_look_and_feel/theme/jam_look_and_feel_theme.cpp` — preparePopupMenuWindow passes platform-default Backend
+- `jam_data_structures/value_tree/jam_parameter.h` — minor
+- `jam_data_structures/value_tree/jam_parameter_text.h` — minor
+- `jam_data_structures/value_tree/jam_value_tree.h` — minor
+- `jam_lua/jam_lua_function.h` — minor
+- `jam_lua/jam_lua_object.h` — minor
+- `jam_lua/jam_lua_stack.h` — minor
+- `jam_lua/jam_lua_state.h` — minor
+- `jam_lua/jam_lua_types.h` — minor
+- `jam_lua/jam_lua_xml.h` — minor
+- `jam_terminal/jam_terminal.h` — include path update for relocated identifier
+- `jam_terminal/tty/jam_tty.h` — minor
+- `jam_terminal/tty/jam_tty.cpp` — minor
+- `jam_terminal/video/jam_video.h` — minor
+
+### Files Modified — END (2 new, 7 deleted, 11 modified)
+
+**New (2):**
+- `Source/endWindow.h` — end::Window : jam::Window + ValueTree::Listener, styleParameters (jam::Function::Map), registerStyleParameters/setStyle/applyStyleFor
+- `Source/endWindow.cpp` — 8 styleParameter registrations (colour, blurRadius, alwaysOnTop, buttons, width, height, mac, win), ProcessorChain::parameters pattern verbatim
+
+**Deleted (7):**
+- `Source/config/lua/default_actions.lua` — renamed to actions.lua
+- `Source/config/lua/default_display.lua` — renamed to display.lua
+- `Source/config/lua/default_end.lua` — renamed to end.lua
+- `Source/config/lua/default_keys.lua` — renamed to keys.lua
+- `Source/config/lua/default_nexus.lua` — renamed to nexus.lua
+- `Source/config/lua/default_popups.lua` — renamed to popups.lua
+- `Source/config/lua/default_whelmed.lua` — renamed to whelmed.lua
+
+**Modified (11):**
+- `Source/Identifier.h` — IDENTIFIER_BACKEND X-macro (11 keys), integrated into END_MAKE_VIEW
+- `Source/config/Config.h` — load(File, String&) overlay signature, loadPath returns StringArray
+- `Source/config/Config.cpp` — build() seeds from BinaryData, load() uses setValuesFrom, loadPath() accumulates errors
+- `Source/Main.h` — includes endWindow.h, window member std::unique_ptr<end::Window>
+- `Source/Main.cpp` — initialise: Window reads own style, fileChanged loads single file only
+- `Source/lookAndFeel/LookAndFeel.h` — setColours private, fromRGBA public static, config member with addListener/removeListener
+- `Source/lookAndFeel/LookAndFeel.cpp` — fromRGBA channel rotation fix (RRGGBBAA → ARGB), setColours iterates colourIds map
+- `Source/EndView.h` — simplified (transparent content)
+- `Source/EndView.cpp` — paint() empty
+- `SPEC.md` — blur_style config documentation
+- `END.ode` — version bump
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+- [x] JRENG-CODING-STANDARD.md enforced (no bail-out guards, positive nesting, no captures in lambdas following ProcessorChain pattern)
+
+### Problems Solved
+- Config hot-reload was destructive (removeChild + appendChild) — redesigned to overlay-in-place via jam::Model::setValuesFrom with per-property diff
+- Listener disconnection on tree reassignment — solved by never reassigning state, only mutating properties
+- Duplicate children on reload — solved by property-only mutation (no appendChild in load path)
+- "Fire-once glass" — end::Window now a ValueTree::Listener, reacts to every config change
+- fromString if/else chain for BackgroundBlur::Backend — replaced with table-driven unordered_map + jam_identifier_window.h X-macro
+- fromRGBA channel rotation bug — was a no-op (identity function), fixed to correctly rotate RRGGBBAA → ARGB
+- Rvalue reference mismatch in Function::Map::get<ValueTree> — fixed with std::move on lvalue args
+- const qualifier loss with forwarding references — fixed by dropping const on lambda params and local vars
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 2: Phase 2 — jam_gui Tab System Rewrite + PaneManager Fix
 
 **Date:** 2026-06-05
@@ -13,7 +113,7 @@
 - Auditor: Final audit (24 findings)
 - Pathfinder: Codebase survey (jam_gui, kuassa button::Group)
 
-### Files Modified (16 total)
+### Files Modified (18 total)
 
 **Deleted (6):**
 - `jam_gui/layout/jam_tab_bar_button.h` — old TabBarButton removed
@@ -29,11 +129,13 @@
 - `jam_gui/layout/jam_tabbed_component.h` — new TabbedComponent backed by button::Group
 - `jam_gui/layout/jam_tabbed_component.cpp` — new TabbedComponent implementation
 
-**Modified (6):**
+**Modified (8):**
 - `jam_gui/jam_gui.h` — include order: button section before TabbedComponent, added Options + TabButton
 - `jam_gui/jam_gui.cpp` — added TabbedComponent .cpp TU include
 - `jam_gui/button/jam_button_group.h` — isFreeButton param, index API (getCurrentIndex/setCurrentIndex/removeButton/moveButton), right-click callback, buttons private with accessors (getButtonCount/getButtonAt/getButtonNames)
-- `jam_gui/layout/jam_pane_manager.h` — layout() non-static with resizer bar reconciliation (create/prune on layout, RAII-bound to split node), extracted storeBoundsProperties/findMatchingBar/layoutSplitNode helpers
+- `jam_gui/layout/jam_pane_resizer_bar.h` — Base class `juce::Component` → `mouse::Events<juce::Component>`. Removed forward declaration `class PaneManager;`, naked `PaneManager*` member, submodule include, mouseDown/mouseDrag overrides. `mouseDownPos` public (transient drag state for PaneManager callbacks)
+- `jam_gui/layout/jam_pane_resizer_bar.cpp` — Removed submodule includes, mouseDown/mouseDrag implementations. Constructor drops `PaneManager*` parameter
+- `jam_gui/layout/jam_pane_manager.h` — layout() non-static with resizer bar reconciliation (create/prune on layout, RAII-bound to split node), extracted storeBoundsProperties/findMatchingBar/layoutSplitNode helpers. Removed submodule include. Bar creation wires mouse::Events callbacks (onMouseDown/onMouseDrag), C++17 structured binding capture fix
 - `jam_look_and_feel/theme/jam_look_and_feel_theme.h` — drawTabButton virtual, drawThreeSlice, setTabSVG/setTabSVGElementIds, 6 SVG slice members, tab ColourIds, extracted drawConnectedButtonBackground/drawStandaloneButtonBackground helpers
 - `jam_look_and_feel/theme/jam_look_and_feel_theme.cpp` — 3-slice SVG infrastructure, drawTabButton fallback rendering, drawButtonGroupSlidingIndicator SVG path, alternative token cleanup (not/and/or), drawButtonBackground Lean decomposition
 
@@ -57,6 +159,10 @@
 - Group::buttons encapsulation — moved to private, added getButtonCount/getButtonAt/getButtonNames accessors
 - Bail-out guards in setTabSVG — restructured to positive nesting
 - Pre-existing jam_model.cpp warnings — removed redundant explicit instantiations after specializations
+- PaneResizerBar naked `PaneManager*` pointer (BLESSED Bound) — base class changed to `mouse::Events<juce::Component>`, PaneManager wires callbacks
+- PaneResizerBar circular dependency — broken by removing PaneManager dependency entirely
+- Forward declaration `class PaneManager;` (JRENG forbidden) — eliminated
+- Submodule include violations in resizer_bar.h/.cpp and pane_manager.h — all removed
 
 ### Debts Paid
 - None

@@ -2,8 +2,8 @@
 <doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
   <compounddef id="classend_1_1_application" kind="class" language="C++" prot="public">
     <compoundname>end::Application</compoundname>
-    <basecompoundref prot="public" virt="non-virtual">juce::JUCEApplication</basecompoundref>
-    <basecompoundref refid="classjam_1_1_file_1_1_watcher_1_1_listener" prot="public" virt="non-virtual">jam::File::Watcher::Listener</basecompoundref>
+    <basecompoundref refid="classjuce_1_1JUCEApplication" prot="public" virt="non-virtual">juce::JUCEApplication</basecompoundref>
+    <basecompoundref refid="classjam_1_1File_1_1Watcher_1_1Listener" prot="public" virt="non-virtual">jam::File::Watcher::Listener</basecompoundref>
     <includes refid="_main_8h" local="no">Main.h</includes>
     <sectiondef kind="private-attrib">
       <memberdef kind="variable" id="classend_1_1_application_1a765f410d9d4232de53d86311b3ad303f" prot="private" static="no" mutable="no">
@@ -18,11 +18,41 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Main.h" line="79" column="19" bodyfile="Main.h" bodystart="79" bodyend="-1"/>
+        <location file="Main.h" line="30" column="19" bodyfile="Main.h" bodystart="30" bodyend="-1"/>
       </memberdef>
-      <memberdef kind="variable" id="classend_1_1_application_1ad51d57d5d3319cf09216f8ed72671664" prot="private" static="no" mutable="no">
-        <type>std::unique_ptr&lt; <ref refid="classjam_1_1_window" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Window</ref> &gt;</type>
-        <definition>std::unique_ptr&lt;jam::Window&gt; end::Application::window</definition>
+      <memberdef kind="variable" id="classend_1_1_application_1afe921d4972c796aa0612d3ce96adaca0" prot="private" static="no" mutable="no">
+        <type><ref refid="classend_1_1_look_and_feel" kindref="compound">LookAndFeel</ref></type>
+        <definition>LookAndFeel end::Application::lookAndFeel</definition>
+        <argsstring></argsstring>
+        <name>lookAndFeel</name>
+        <qualifiedname>end::Application::lookAndFeel</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Main.h" line="33" column="17" bodyfile="Main.h" bodystart="33" bodyend="-1"/>
+        <referencedby refid="classend_1_1_application_1a598aa5d15712e3107ade5df8f6c5e33d" compoundref="_main_8cpp" startline="9" endline="53">initialise</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classend_1_1_application_1a551f9e489ee4727369d6145ab26978ba" prot="private" static="no" mutable="no">
+        <type><ref refid="structjam_1_1File_1_1Watcher" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::File::Watcher</ref></type>
+        <definition>jam::File::Watcher end::Application::watcher</definition>
+        <argsstring></argsstring>
+        <name>watcher</name>
+        <qualifiedname>end::Application::watcher</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Main.h" line="34" column="24" bodyfile="Main.h" bodystart="34" bodyend="-1"/>
+        <referencedby refid="classend_1_1_application_1a598aa5d15712e3107ade5df8f6c5e33d" compoundref="_main_8cpp" startline="9" endline="53">initialise</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classend_1_1_application_1af5685bc1fb3a0e77fad81b639bcc92f7" prot="private" static="no" mutable="no">
+        <type>std::unique_ptr&lt; <ref refid="classend_1_1_window" kindref="compound">end::Window</ref> &gt;</type>
+        <definition>std::unique_ptr&lt;end::Window&gt; end::Application::window</definition>
         <argsstring></argsstring>
         <name>window</name>
         <qualifiedname>end::Application::window</qualifiedname>
@@ -32,8 +62,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Main.h" line="80" column="21" bodyfile="Main.h" bodystart="80" bodyend="-1"/>
-        <referencedby refid="classend_1_1_application_1a598aa5d15712e3107ade5df8f6c5e33d" compoundref="_main_8cpp" startline="8" endline="40">initialise</referencedby>
+        <location file="Main.h" line="35" column="21" bodyfile="Main.h" bodystart="35" bodyend="-1"/>
+        <referencedby refid="classend_1_1_application_1a598aa5d15712e3107ade5df8f6c5e33d" compoundref="_main_8cpp" startline="9" endline="53">initialise</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">
@@ -49,141 +79,110 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Main.h" line="15" column="5" bodyfile="Main.cpp" bodystart="7" bodyend="7"/>
+        <location file="Main.h" line="17" column="5" bodyfile="Main.cpp" bodystart="7" bodyend="7"/>
       </memberdef>
-      <memberdef kind="function" id="classend_1_1_application_1ab2d34713da4e6b4917cf53a08cda47eb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type>const juce::String</type>
+      <memberdef kind="function" id="classend_1_1_application_1ab2d34713da4e6b4917cf53a08cda47eb" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref></type>
         <definition>const juce::String end::Application::getApplicationName</definition>
         <argsstring>() override</argsstring>
         <name>getApplicationName</name>
         <qualifiedname>end::Application::getApplicationName</qualifiedname>
+        <reimplements refid="classjuce_1_1JUCEApplication_1ac25d0f6b1e8290174216603e14441dcc">getApplicationName</reimplements>
         <briefdescription>
         </briefdescription>
         <detaileddescription>
-<para><simplesect kind="return"><para>The human-readable application name from ProjectInfo. </para>
-</simplesect>
-</para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Main.h" line="17" column="24" bodyfile="Main.cpp" bodystart="43" bodyend="43"/>
+        <location file="Main.h" line="18" column="24" bodyfile="Main.cpp" bodystart="59" bodyend="59"/>
       </memberdef>
-      <memberdef kind="function" id="classend_1_1_application_1af5df574c86505182fdd01d567824d0b7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type>const juce::String</type>
+      <memberdef kind="function" id="classend_1_1_application_1af5df574c86505182fdd01d567824d0b7" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref></type>
         <definition>const juce::String end::Application::getApplicationVersion</definition>
         <argsstring>() override</argsstring>
         <name>getApplicationVersion</name>
         <qualifiedname>end::Application::getApplicationVersion</qualifiedname>
+        <reimplements refid="classjuce_1_1JUCEApplication_1a2f643765d68a5d36c08419201b1abb08">getApplicationVersion</reimplements>
         <briefdescription>
         </briefdescription>
         <detaileddescription>
-<para><simplesect kind="return"><para>The version string from ProjectInfo (e.g. &quot;1.0.0&quot;). </para>
-</simplesect>
-</para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Main.h" line="19" column="24" bodyfile="Main.cpp" bodystart="44" bodyend="44"/>
+        <location file="Main.h" line="19" column="24" bodyfile="Main.cpp" bodystart="61" bodyend="61"/>
       </memberdef>
-      <memberdef kind="function" id="classend_1_1_application_1acb2876376b8c61d2ee8795524e625d0f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+      <memberdef kind="function" id="classend_1_1_application_1acb2876376b8c61d2ee8795524e625d0f" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
         <type>bool</type>
         <definition>bool end::Application::moreThanOneInstanceAllowed</definition>
         <argsstring>() override</argsstring>
         <name>moreThanOneInstanceAllowed</name>
         <qualifiedname>end::Application::moreThanOneInstanceAllowed</qualifiedname>
+        <reimplements refid="classjuce_1_1JUCEApplicationBase_1ae0c6c491b621bd548cebb36047dd1828">moreThanOneInstanceAllowed</reimplements>
         <briefdescription>
         </briefdescription>
         <detaileddescription>
-<para><simplesect kind="return"><para><computeroutput>true</computeroutput> — END supports multiple simultaneous instances. </para>
-</simplesect>
-<simplesect kind="note"><para>Each instance owns its own pty session and window. </para>
-</simplesect>
-</para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Main.h" line="25" column="10" bodyfile="Main.cpp" bodystart="45" bodyend="45"/>
+        <location file="Main.h" line="20" column="10" bodyfile="Main.cpp" bodystart="63" bodyend="63"/>
       </memberdef>
-      <memberdef kind="function" id="classend_1_1_application_1a598aa5d15712e3107ade5df8f6c5e33d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+      <memberdef kind="function" id="classend_1_1_application_1a598aa5d15712e3107ade5df8f6c5e33d" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
         <type>void</type>
         <definition>void end::Application::initialise</definition>
         <argsstring>(const juce::String &amp;commandLine) override</argsstring>
         <name>initialise</name>
         <qualifiedname>end::Application::initialise</qualifiedname>
+        <reimplements refid="classjuce_1_1JUCEApplicationBase_1a2fb0e7fd4ab86c32c8e0ff663428ae1f">initialise</reimplements>
         <param>
-          <type>const juce::String &amp;</type>
+          <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref> &amp;</type>
           <declname>commandLine</declname>
         </param>
         <briefdescription>
-<para>Creates the main window and wires up all subsystems. </para>
         </briefdescription>
         <detaileddescription>
-<para>Called by JUCE after the message loop starts. Reads window geometry and appearance from Config, then constructs a <computeroutput><ref refid="classjam_1_1_window" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::Window</ref></computeroutput> wrapping a freshly allocated <computeroutput>MainComponent</computeroutput>.</para>
-<para><parameterlist kind="param"><parameteritem>
-<parameternamelist>
-<parametername>commandLine</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>The raw command-line string passed to the process. Currently unused; reserved for future shell override.</para>
-</parameterdescription>
-</parameteritem>
-</parameterlist>
-<simplesect kind="note"><para>MESSAGE THREAD — called once at startup.</para>
-</simplesect>
-<simplesect kind="see"><para>lua::Engine::Display::Window </para>
-</simplesect>
-</para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Main.h" line="41" column="10" bodyfile="Main.cpp" bodystart="8" bodyend="40"/>
-        <references refid="classend_1_1_application_1ad51d57d5d3319cf09216f8ed72671664" compoundref="_main_8h" startline="80">window</references>
+        <location file="Main.h" line="21" column="10" bodyfile="Main.cpp" bodystart="9" bodyend="53"/>
+        <references refid="classjuce_1_1MessageManager_1aa34494bcb54b9d4155934c8f53ed1070">juce::MessageManager::callAsync</references>
+        <references refid="classend_1_1_application_1afe921d4972c796aa0612d3ce96adaca0" compoundref="_main_8h" startline="33">lookAndFeel</references>
+        <references refid="structconfig_1_1_file_1a256dc6f23b2efea619c33a43ae3d795c" compoundref="_config_8h" startline="28">config::File::path</references>
+        <references refid="structjam_1_1GpuProbe_1a2bf035e6d19c4f0bfb79bc5282d7fe00">jam::GpuProbe::probe</references>
+        <references refid="classjuce_1_1LookAndFeel_1ac300b777c3cdda99b8e84cd2e39511bc">juce::LookAndFeel::setDefaultLookAndFeel</references>
+        <references refid="structjam_1_1BackgroundBlur_1a4edcb5cb1191dea104717737c8956ed8">jam::BackgroundBlur::setEnabled</references>
+        <references refid="classend_1_1_application_1a551f9e489ee4727369d6145ab26978ba" compoundref="_main_8h" startline="34">watcher</references>
+        <references refid="classend_1_1_application_1af5685bc1fb3a0e77fad81b639bcc92f7" compoundref="_main_8h" startline="35">window</references>
       </memberdef>
-      <memberdef kind="function" id="classend_1_1_application_1a18d7fd1d8bbcca6a1c7af73e3bf503a8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+      <memberdef kind="function" id="classend_1_1_application_1a18d7fd1d8bbcca6a1c7af73e3bf503a8" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
         <type>void</type>
         <definition>void end::Application::shutdown</definition>
         <argsstring>() override</argsstring>
         <name>shutdown</name>
         <qualifiedname>end::Application::shutdown</qualifiedname>
+        <reimplements refid="classjuce_1_1JUCEApplicationBase_1a506cf94ff70285f6c6f76e5e45eaafed">shutdown</reimplements>
         <briefdescription>
-<para>Destroys the main window and releases all resources. </para>
         </briefdescription>
         <detaileddescription>
-<para>Destruction order:<orderedlist>
-<listitem><para>link — disconnect IPC before sessions die.</para>
-</listitem><listitem><para>daemon — stop server.</para>
-</listitem><listitem><para>mainWindow — tears down component tree (Display → Processor refs).</para>
-</listitem><listitem><para>nexus — releases all terminal::Session objects.</para>
-</listitem></orderedlist>
-</para>
-<para><simplesect kind="note"><para>MESSAGE THREAD — called once at shutdown. </para>
-</simplesect>
-</para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Main.h" line="54" column="10" bodyfile="Main.cpp" bodystart="41" bodyend="41"/>
+        <location file="Main.h" line="22" column="10" bodyfile="Main.cpp" bodystart="55" bodyend="55"/>
       </memberdef>
-      <memberdef kind="function" id="classend_1_1_application_1a636a8c0776059c65df3d0405229858f4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+      <memberdef kind="function" id="classend_1_1_application_1a636a8c0776059c65df3d0405229858f4" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
         <type>void</type>
         <definition>void end::Application::systemRequestedQuit</definition>
         <argsstring>() override</argsstring>
         <name>systemRequestedQuit</name>
         <qualifiedname>end::Application::systemRequestedQuit</qualifiedname>
+        <reimplements refid="classjuce_1_1JUCEApplicationBase_1a07fe1f21a6f6226a85da12b979a8d53a">systemRequestedQuit</reimplements>
         <briefdescription>
-<para>Handles OS quit requests (Cmd+Q, window close, SIGTERM). </para>
         </briefdescription>
         <detaileddescription>
-<para>Saves window size then quits. In nexus mode with live sessions, persists UI state so the next client can restore window and tab layout. In nexus mode with no sessions, deletes both <computeroutput>.display</computeroutput> and <computeroutput>.nexus</computeroutput>. In standalone mode, only window size persists (via <computeroutput>saveWindowState</computeroutput>). Sessions die with the window by design. Main owns all file I/O decisions. In the byte-forward architecture the GUI process and the daemon process are separate — quitting the GUI does not affect the daemon, which outlives the GUI until its own shell count hits zero.</para>
-<para><simplesect kind="note"><para>MESSAGE THREAD — called by the OS or by <computeroutput><ref refid="classJUCEApplicationBase_1a542e212605f0aa693f687d8798998615" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/doxygen/doc/juce.tag">JUCEApplication::quit()</ref></computeroutput>.</para>
-</simplesect>
-<simplesect kind="see"><para>AppModel::save </para>
-</simplesect>
-</para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Main.h" line="73" column="10" bodyfile="Main.cpp" bodystart="42" bodyend="42"/>
+        <location file="Main.h" line="23" column="10" bodyfile="Main.cpp" bodystart="57" bodyend="57"/>
+        <references refid="classjuce_1_1JUCEApplicationBase_1ae2ba9b90c02361717d997aa26861f2c4">juce::JUCEApplicationBase::quit</references>
       </memberdef>
     </sectiondef>
     <sectiondef kind="private-func">
@@ -193,13 +192,13 @@
         <argsstring>(const juce::File &amp;file, jam::File::Watcher::Event event) override</argsstring>
         <name>fileChanged</name>
         <qualifiedname>end::Application::fileChanged</qualifiedname>
-        <reimplements refid="classjam_1_1_file_1_1_watcher_1_1_listener_1a138401762ba6d0915d2adb5b0a81486f">fileChanged</reimplements>
+        <reimplements refid="classjam_1_1File_1_1Watcher_1_1Listener_1a138401762ba6d0915d2adb5b0a81486f">fileChanged</reimplements>
         <param>
-          <type>const juce::File &amp;</type>
+          <type>const <ref refid="classjuce_1_1File" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::File</ref> &amp;</type>
           <declname>file</declname>
         </param>
         <param>
-          <type><ref refid="structjam_1_1_file_1_1_watcher_1a67463011ada054bc1dc66cdf49d446f2" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml">jam::File::Watcher::Event</ref></type>
+          <type><ref refid="structjam_1_1File_1_1Watcher_1a67463011ada054bc1dc66cdf49d446f2" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::File::Watcher::Event</ref></type>
           <declname>event</declname>
         </param>
         <briefdescription>
@@ -208,7 +207,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Main.h" line="76" column="10" bodyfile="Main.cpp" bodystart="48" bodyend="48"/>
+        <location file="Main.h" line="26" column="10" bodyfile="Main.cpp" bodystart="66" bodyend="77"/>
+        <references refid="structconfig_1_1_file_1a6ab20528e69a64a7091bd8d1269eac55" compoundref="_config_8h" startline="29">config::File::extension</references>
+        <references refid="classjuce_1_1File_1aeb95d4b90429613bca223acc6dc0d0bf">juce::File::hasFileExtension</references>
       </memberdef>
     </sectiondef>
     <briefdescription>
@@ -221,24 +222,37 @@
         <link refid="classend_1_1_application"/>
         <childnode refid="2" relation="public-inheritance">
         </childnode>
-        <childnode refid="3" relation="public-inheritance">
+        <childnode refid="5" relation="public-inheritance">
         </childnode>
       </node>
-      <node id="3">
+      <node id="5">
         <label>jam::File::Watcher::Listener</label>
-        <link refid="classjam_1_1_file_1_1_watcher_1_1_listener" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <link refid="classjam_1_1File_1_1Watcher_1_1Listener" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
+      <node id="4">
+        <label>juce::ApplicationCommandTarget</label>
+        <link refid="classjuce_1_1ApplicationCommandTarget" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
       <node id="2">
         <label>juce::JUCEApplication</label>
+        <link refid="classjuce_1_1JUCEApplication" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>juce::JUCEApplicationBase</label>
+        <link refid="classjuce_1_1JUCEApplicationBase" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
     </inheritancegraph>
     <collaborationgraph>
-      <node id="4">
+      <node id="6">
         <label>config::Model</label>
         <link refid="classconfig_1_1_model"/>
-        <childnode refid="5" relation="public-inheritance">
+        <childnode refid="7" relation="public-inheritance">
         </childnode>
-        <childnode refid="11" relation="public-inheritance">
+        <childnode refid="17" relation="public-inheritance">
         </childnode>
       </node>
       <node id="1">
@@ -246,86 +260,544 @@
         <link refid="classend_1_1_application"/>
         <childnode refid="2" relation="public-inheritance">
         </childnode>
-        <childnode refid="3" relation="public-inheritance">
+        <childnode refid="5" relation="public-inheritance">
         </childnode>
-        <childnode refid="4" relation="usage">
+        <childnode refid="6" relation="usage">
           <edgelabel>config</edgelabel>
         </childnode>
-        <childnode refid="12" relation="usage">
+        <childnode refid="18" relation="usage">
+          <edgelabel>lookAndFeel</edgelabel>
+        </childnode>
+        <childnode refid="54" relation="usage">
+          <edgelabel>watcher</edgelabel>
+        </childnode>
+        <childnode refid="61" relation="usage">
           <edgelabel>window</edgelabel>
         </childnode>
       </node>
-      <node id="6">
+      <node id="18">
+        <label>end::LookAndFeel</label>
+        <link refid="classend_1_1_look_and_feel"/>
+        <childnode refid="19" relation="public-inheritance">
+        </childnode>
+        <childnode refid="52" relation="public-inheritance">
+        </childnode>
+        <childnode refid="53" relation="usage">
+          <edgelabel>colourIds</edgelabel>
+        </childnode>
+        <childnode refid="14" relation="usage">
+          <edgelabel>config</edgelabel>
+        </childnode>
+      </node>
+      <node id="62">
+        <label>end::Window</label>
+        <link refid="classend_1_1_window"/>
+        <childnode refid="63" relation="public-inheritance">
+        </childnode>
+        <childnode refid="52" relation="public-inheritance">
+        </childnode>
+        <childnode refid="14" relation="usage">
+          <edgelabel>config</edgelabel>
+        </childnode>
+        <childnode refid="76" relation="usage">
+          <edgelabel>styleParameters</edgelabel>
+        </childnode>
+        <childnode refid="75" relation="usage">
+          <edgelabel>tintColour</edgelabel>
+        </childnode>
+      </node>
+      <node id="9">
         <label>jam::AnyMap</label>
-        <link refid="classjam_1_1_any_map" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="7" relation="usage">
+        <link refid="classjam_1_1AnyMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="10" relation="usage">
           <edgelabel>entries</edgelabel>
         </childnode>
-        <childnode refid="9" relation="usage">
+        <childnode refid="13" relation="usage">
           <edgelabel>types</edgelabel>
         </childnode>
       </node>
-      <node id="11">
+      <node id="17">
         <label>jam::Context&lt; Model &gt;</label>
-        <link refid="structjam_1_1_context" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <link refid="structjam_1_1Context" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
-      <node id="3">
-        <label>jam::File::Watcher::Listener</label>
-        <link refid="classjam_1_1_file_1_1_watcher_1_1_listener" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+      <node id="54">
+        <label>jam::File::Watcher</label>
+        <link refid="structjam_1_1File_1_1Watcher" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="55" relation="usage">
+          <edgelabel>timers</edgelabel>
+        </childnode>
+        <childnode refid="59" relation="usage">
+          <edgelabel>listeners</edgelabel>
+        </childnode>
+        <childnode refid="60" relation="usage">
+          <edgelabel>watched</edgelabel>
+        </childnode>
+      </node>
+      <node id="58">
+        <label>jam::File::Watcher::CoalesceTimer</label>
+        <link refid="structjam_1_1File_1_1Watcher_1_1CoalesceTimer" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="8" relation="public-inheritance">
+        </childnode>
+        <childnode refid="54" relation="usage">
+          <edgelabel>owner</edgelabel>
+        </childnode>
+        <childnode refid="56" relation="usage">
+          <edgelabel>f</edgelabel>
+        </childnode>
       </node>
       <node id="5">
+        <label>jam::File::Watcher::Listener</label>
+        <link refid="classjam_1_1File_1_1Watcher_1_1Listener" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
+      <node id="76">
+        <label>jam::Function::Map&lt; juce::Identifier, void &gt;</label>
+        <link refid="structjam_1_1Function_1_1Map" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
+      <node id="7">
         <label>jam::Model</label>
-        <link refid="classjam_1_1_model" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
-        <childnode refid="6" relation="usage">
+        <link refid="classjam_1_1Model" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="8" relation="public-inheritance">
+        </childnode>
+        <childnode refid="9" relation="usage">
           <edgelabel>params</edgelabel>
         </childnode>
-        <childnode refid="10" relation="usage">
+        <childnode refid="11" relation="usage">
+          <edgelabel>PARAM</edgelabel>
+        </childnode>
+        <childnode refid="14" relation="usage">
+          <edgelabel>state</edgelabel>
+        </childnode>
+        <childnode refid="15" relation="usage">
+          <edgelabel>valueTreeChanging</edgelabel>
+        </childnode>
+        <childnode refid="16" relation="usage">
           <edgelabel>uniqueNodeMap</edgelabel>
         </childnode>
       </node>
-      <node id="13">
+      <node id="63">
         <label>jam::Window</label>
-        <link refid="classjam_1_1_window" external="/Users/jreng/Documents/Poems/dev/jam/doxygen/tagfile.xml"/>
+        <link refid="classjam_1_1Window" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="64" relation="public-inheritance">
+        </childnode>
+        <childnode refid="73" relation="public-inheritance">
+        </childnode>
+        <childnode refid="74" relation="private-inheritance">
+        </childnode>
+        <childnode refid="75" relation="usage">
+          <edgelabel>tintColour</edgelabel>
+        </childnode>
+      </node>
+      <node id="30">
+        <label>juce::AlertWindow::LookAndFeelMethods</label>
+        <link refid="structjuce_1_1AlertWindow_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="4">
+        <label>juce::ApplicationCommandTarget</label>
+        <link refid="classjuce_1_1ApplicationCommandTarget" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="74">
+        <label>juce::AsyncUpdater</label>
+        <link refid="classjuce_1_1AsyncUpdater" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="29">
+        <label>juce::BubbleComponent::LookAndFeelMethods</label>
+        <link refid="structjuce_1_1BubbleComponent_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="24">
+        <label>juce::Button::LookAndFeelMethods</label>
+        <link refid="structjuce_1_1Button_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="43">
+        <label>juce::CallOutBox::LookAndFeelMethods</label>
+        <link refid="structjuce_1_1CallOutBox_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="75">
+        <label>juce::Colour</label>
+        <link refid="classjuce_1_1Colour" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="32">
+        <label>juce::ComboBox::LookAndFeelMethods</label>
+        <link refid="structjuce_1_1ComboBox_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="67">
+        <label>juce::Component</label>
+        <link refid="classjuce_1_1Component" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+        <childnode refid="68" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="73">
+        <label>juce::ComponentBoundsConstrainer</label>
+        <link refid="classjuce_1_1ComponentBoundsConstrainer" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="45">
+        <label>juce::ConcertinaPanel::LookAndFeelMethods</label>
+        <link refid="structjuce_1_1ConcertinaPanel_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="15">
+        <label>juce::CriticalSection</label>
+        <link refid="classjuce_1_1CriticalSection" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="64">
+        <label>juce::DocumentWindow</label>
+        <link refid="classjuce_1_1DocumentWindow" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+        <childnode refid="65" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="36">
+        <label>juce::DocumentWindow::LookAndFeelMethods</label>
+        <link refid="structjuce_1_1DocumentWindow_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="49">
+        <label>juce::ExtraLookAndFeelBaseClasses::AudioDeviceSelectorComponentMethods</label>
+        <link refid="structjuce_1_1ExtraLookAndFeelBaseClasses_1_1AudioDeviceSelectorComponentMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="48">
+        <label>juce::ExtraLookAndFeelBaseClasses::KeyMappingEditorComponentMethods</label>
+        <link refid="structjuce_1_1ExtraLookAndFeelBaseClasses_1_1KeyMappingEditorComponentMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="50">
+        <label>juce::ExtraLookAndFeelBaseClasses::LassoComponentMethods</label>
+        <link refid="structjuce_1_1ExtraLookAndFeelBaseClasses_1_1LassoComponentMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="56">
+        <label>juce::File</label>
+        <link refid="classjuce_1_1File" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="27">
+        <label>juce::FileBrowserComponent::LookAndFeelMethods</label>
+        <link refid="structjuce_1_1FileBrowserComponent_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="40">
+        <label>juce::FilenameComponent::LookAndFeelMethods</label>
+        <link refid="structjuce_1_1FilenameComponent_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="41">
+        <label>juce::GroupComponent::LookAndFeelMethods</label>
+        <link refid="structjuce_1_1GroupComponent_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="11">
+        <label>juce::Identifier</label>
+        <link refid="classjuce_1_1Identifier" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+        <childnode refid="11" relation="usage">
+          <edgelabel>null</edgelabel>
+        </childnode>
+      </node>
+      <node id="25">
+        <label>juce::ImageButton::LookAndFeelMethods</label>
+        <link refid="structjuce_1_1ImageButton_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
       <node id="2">
         <label>juce::JUCEApplication</label>
-      </node>
-      <node id="12">
-        <label>std::unique_ptr&lt; jam::Window &gt;</label>
-        <childnode refid="13" relation="usage">
-          <edgelabel>ptr</edgelabel>
+        <link refid="classjuce_1_1JUCEApplication" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+        <childnode refid="4" relation="public-inheritance">
         </childnode>
       </node>
+      <node id="3">
+        <label>juce::JUCEApplicationBase</label>
+        <link refid="classjuce_1_1JUCEApplicationBase" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="33">
+        <label>juce::Label::LookAndFeelMethods</label>
+        <link refid="structjuce_1_1Label_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="59">
+        <label>juce::ListenerList&lt; jam::File::Watcher::Listener &gt;</label>
+        <link refid="classjuce_1_1ListenerList" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="22">
+        <label>juce::LookAndFeel</label>
+        <link refid="classjuce_1_1LookAndFeel" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+        <childnode refid="23" relation="public-inheritance">
+        </childnode>
+        <childnode refid="24" relation="public-inheritance">
+        </childnode>
+        <childnode refid="25" relation="public-inheritance">
+        </childnode>
+        <childnode refid="26" relation="public-inheritance">
+        </childnode>
+        <childnode refid="27" relation="public-inheritance">
+        </childnode>
+        <childnode refid="28" relation="public-inheritance">
+        </childnode>
+        <childnode refid="29" relation="public-inheritance">
+        </childnode>
+        <childnode refid="30" relation="public-inheritance">
+        </childnode>
+        <childnode refid="31" relation="public-inheritance">
+        </childnode>
+        <childnode refid="32" relation="public-inheritance">
+        </childnode>
+        <childnode refid="33" relation="public-inheritance">
+        </childnode>
+        <childnode refid="34" relation="public-inheritance">
+        </childnode>
+        <childnode refid="35" relation="public-inheritance">
+        </childnode>
+        <childnode refid="36" relation="public-inheritance">
+        </childnode>
+        <childnode refid="37" relation="public-inheritance">
+        </childnode>
+        <childnode refid="38" relation="public-inheritance">
+        </childnode>
+        <childnode refid="39" relation="public-inheritance">
+        </childnode>
+        <childnode refid="40" relation="public-inheritance">
+        </childnode>
+        <childnode refid="41" relation="public-inheritance">
+        </childnode>
+        <childnode refid="42" relation="public-inheritance">
+        </childnode>
+        <childnode refid="43" relation="public-inheritance">
+        </childnode>
+        <childnode refid="44" relation="public-inheritance">
+        </childnode>
+        <childnode refid="45" relation="public-inheritance">
+        </childnode>
+        <childnode refid="46" relation="public-inheritance">
+        </childnode>
+        <childnode refid="47" relation="public-inheritance">
+        </childnode>
+        <childnode refid="48" relation="public-inheritance">
+        </childnode>
+        <childnode refid="49" relation="public-inheritance">
+        </childnode>
+        <childnode refid="50" relation="public-inheritance">
+        </childnode>
+        <childnode refid="51" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>juce::LookAndFeel_V2</label>
+        <link refid="classjuce_1_1LookAndFeel__V2" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+        <childnode refid="22" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="20">
+        <label>juce::LookAndFeel_V3</label>
+        <link refid="classjuce_1_1LookAndFeel__V3" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+        <childnode refid="21" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="19">
+        <label>juce::LookAndFeel_V4</label>
+        <link refid="classjuce_1_1LookAndFeel__V4" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+        <childnode refid="20" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="68">
+        <label>juce::MouseListener</label>
+        <link refid="classjuce_1_1MouseListener" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="60">
+        <label>juce::OwnedArray&lt; Impl &gt;</label>
+        <link refid="classjuce_1_1OwnedArray" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="31">
+        <label>juce::PopupMenu::LookAndFeelMethods</label>
+        <link refid="structjuce_1_1PopupMenu_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="46">
+        <label>juce::ProgressBar::LookAndFeelMethods</label>
+        <link refid="structjuce_1_1ProgressBar_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="39">
+        <label>juce::PropertyComponent::LookAndFeelMethods</label>
+        <link refid="structjuce_1_1PropertyComponent_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="72">
+        <label>juce::ResizableBorderComponent</label>
+        <link refid="classjuce_1_1ResizableBorderComponent" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+        <childnode refid="67" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="70">
+        <label>juce::ResizableCornerComponent</label>
+        <link refid="classjuce_1_1ResizableCornerComponent" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+        <childnode refid="67" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="65">
+        <label>juce::ResizableWindow</label>
+        <link refid="classjuce_1_1ResizableWindow" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+        <childnode refid="66" relation="public-inheritance">
+        </childnode>
+        <childnode refid="69" relation="usage">
+          <edgelabel>resizableCorner</edgelabel>
+        </childnode>
+        <childnode refid="71" relation="usage">
+          <edgelabel>resizableBorder</edgelabel>
+        </childnode>
+      </node>
+      <node id="35">
+        <label>juce::ResizableWindow::LookAndFeelMethods</label>
+        <link refid="structjuce_1_1ResizableWindow_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="23">
+        <label>juce::ScrollBar::LookAndFeelMethods</label>
+        <link refid="structjuce_1_1ScrollBar_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="51">
+        <label>juce::SidePanel::LookAndFeelMethods</label>
+        <link refid="structjuce_1_1SidePanel_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="34">
+        <label>juce::Slider::LookAndFeelMethods</label>
+        <link refid="structjuce_1_1Slider_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="47">
+        <label>juce::StretchableLayoutResizerBar::LookAndFeelMethods</label>
+        <link refid="structjuce_1_1StretchableLayoutResizerBar_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="38">
+        <label>juce::TabbedButtonBar::LookAndFeelMethods</label>
+        <link refid="structjuce_1_1TabbedButtonBar_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="42">
+        <label>juce::TableHeaderComponent::LookAndFeelMethods</label>
+        <link refid="structjuce_1_1TableHeaderComponent_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="26">
+        <label>juce::TextEditor::LookAndFeelMethods</label>
+        <link refid="structjuce_1_1TextEditor_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
       <node id="8">
-        <label>std::unique_ptr&lt; void, Deleter &gt;</label>
+        <label>juce::Timer</label>
+        <link refid="classjuce_1_1Timer" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="9">
-        <label>std::unordered_map&lt; juce::Identifier, std::type_index &gt;</label>
+      <node id="44">
+        <label>juce::Toolbar::LookAndFeelMethods</label>
+        <link refid="structjuce_1_1Toolbar_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="7">
-        <label>std::unordered_map&lt; juce::Identifier, std::unique_ptr&lt; void, Deleter &gt; &gt;</label>
-        <childnode refid="8" relation="usage">
+      <node id="37">
+        <label>juce::TooltipWindow::LookAndFeelMethods</label>
+        <link refid="structjuce_1_1TooltipWindow_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="66">
+        <label>juce::TopLevelWindow</label>
+        <link refid="classjuce_1_1TopLevelWindow" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+        <childnode refid="67" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="28">
+        <label>juce::TreeView::LookAndFeelMethods</label>
+        <link refid="structjuce_1_1TreeView_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="14">
+        <label>juce::ValueTree</label>
+        <link refid="classjuce_1_1ValueTree" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="52">
+        <label>juce::ValueTree::Listener</label>
+        <link refid="classjuce_1_1ValueTree_1_1Listener" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="55">
+        <label>std::map&lt; juce::File, std::unique_ptr&lt; jam::File::Watcher::CoalesceTimer &gt; &gt;</label>
+        <childnode refid="56" relation="usage">
+          <edgelabel>keys</edgelabel>
+        </childnode>
+        <childnode refid="57" relation="usage">
           <edgelabel>elements</edgelabel>
         </childnode>
       </node>
+      <node id="61">
+        <label>std::unique_ptr&lt; end::Window &gt;</label>
+        <childnode refid="62" relation="usage">
+          <edgelabel>ptr</edgelabel>
+        </childnode>
+      </node>
+      <node id="57">
+        <label>std::unique_ptr&lt; jam::File::Watcher::CoalesceTimer &gt;</label>
+        <childnode refid="58" relation="usage">
+          <edgelabel>ptr</edgelabel>
+        </childnode>
+      </node>
+      <node id="71">
+        <label>std::unique_ptr&lt; juce::ResizableBorderComponent &gt;</label>
+        <childnode refid="72" relation="usage">
+          <edgelabel>ptr</edgelabel>
+        </childnode>
+      </node>
+      <node id="69">
+        <label>std::unique_ptr&lt; juce::ResizableCornerComponent &gt;</label>
+        <childnode refid="70" relation="usage">
+          <edgelabel>ptr</edgelabel>
+        </childnode>
+      </node>
+      <node id="12">
+        <label>std::unique_ptr&lt; void, Deleter &gt;</label>
+      </node>
+      <node id="53">
+        <label>std::unordered_map&lt; juce::Identifier, int &gt;</label>
+        <childnode refid="11" relation="usage">
+          <edgelabel>keys</edgelabel>
+        </childnode>
+      </node>
+      <node id="13">
+        <label>std::unordered_map&lt; juce::Identifier, std::type_index &gt;</label>
+        <childnode refid="11" relation="usage">
+          <edgelabel>keys</edgelabel>
+        </childnode>
+      </node>
       <node id="10">
+        <label>std::unordered_map&lt; juce::Identifier, std::unique_ptr&lt; void, Deleter &gt; &gt;</label>
+        <childnode refid="11" relation="usage">
+          <edgelabel>keys</edgelabel>
+        </childnode>
+        <childnode refid="12" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+      <node id="16">
         <label>std::unordered_map&lt; juce::String, juce::ValueTree &gt;</label>
       </node>
     </collaborationgraph>
-    <location file="Main.h" line="10" column="1" bodyfile="Main.h" bodystart="13" bodyend="92"/>
+    <location file="Main.h" line="12" column="1" bodyfile="Main.h" bodystart="15" bodyend="45"/>
     <listofallmembers>
+      <member refid="classjuce_1_1JUCEApplication_1a370facd8fdca62a38767ecb843059bc6" prot="public" virt="virtual"><scope>end::Application</scope><name>anotherInstanceStarted</name></member>
       <member refid="classend_1_1_application_1a127405d348ee02fc38b374812bf3c883" prot="public" virt="non-virtual"><scope>end::Application</scope><name>Application</name></member>
+      <member refid="classjuce_1_1ApplicationCommandTarget_1a5a443f4581a70d662ec4c76fead2d3de" prot="public" virt="non-virtual"><scope>end::Application</scope><name>ApplicationCommandTarget</name></member>
+      <member refid="classjuce_1_1JUCEApplicationBase_1ac535f3e5c5a6c783efed6e8e86b341f8" prot="public" virt="virtual"><scope>end::Application</scope><name>backButtonPressed</name></member>
       <member refid="classend_1_1_application_1a765f410d9d4232de53d86311b3ad303f" prot="private" virt="non-virtual"><scope>end::Application</scope><name>config</name></member>
       <member refid="classend_1_1_application_1af446ffd1fa995c2838d2d34713a7d83a" prot="private" virt="virtual"><scope>end::Application</scope><name>fileChanged</name></member>
-      <member refid="classjam_1_1_file_1_1_watcher_1_1_listener_1a75221307eb1bf0ef2735e9ef80ebf4a4" prot="public" virt="virtual"><scope>end::Application</scope><name>folderChanged</name></member>
-      <member refid="classend_1_1_application_1ab2d34713da4e6b4917cf53a08cda47eb" prot="public" virt="non-virtual"><scope>end::Application</scope><name>getApplicationName</name></member>
-      <member refid="classend_1_1_application_1af5df574c86505182fdd01d567824d0b7" prot="public" virt="non-virtual"><scope>end::Application</scope><name>getApplicationVersion</name></member>
-      <member refid="classend_1_1_application_1a598aa5d15712e3107ade5df8f6c5e33d" prot="public" virt="non-virtual"><scope>end::Application</scope><name>initialise</name></member>
-      <member refid="classend_1_1_application_1acb2876376b8c61d2ee8795524e625d0f" prot="public" virt="non-virtual"><scope>end::Application</scope><name>moreThanOneInstanceAllowed</name></member>
-      <member refid="classend_1_1_application_1a18d7fd1d8bbcca6a1c7af73e3bf503a8" prot="public" virt="non-virtual"><scope>end::Application</scope><name>shutdown</name></member>
-      <member refid="classend_1_1_application_1a636a8c0776059c65df3d0405229858f4" prot="public" virt="non-virtual"><scope>end::Application</scope><name>systemRequestedQuit</name></member>
-      <member refid="classend_1_1_application_1ad51d57d5d3319cf09216f8ed72671664" prot="private" virt="non-virtual"><scope>end::Application</scope><name>window</name></member>
-      <member refid="classjam_1_1_file_1_1_watcher_1_1_listener_1a36c31b730e410628b516813e6e0679e7" prot="public" virt="virtual"><scope>end::Application</scope><name>~Listener</name></member>
+      <member refid="classjuce_1_1ApplicationCommandTarget_1ae24d13c8c8ed73bdb1870463d5d08a32" prot="public" virt="non-virtual"><scope>end::Application</scope><name>findFirstTargetParentComponent</name></member>
+      <member refid="classjam_1_1File_1_1Watcher_1_1Listener_1a75221307eb1bf0ef2735e9ef80ebf4a4" prot="public" virt="virtual"><scope>end::Application</scope><name>folderChanged</name></member>
+      <member refid="classjuce_1_1JUCEApplication_1a6eb94d2c28ce59bd6b0f4387a302a477" prot="public" virt="virtual"><scope>end::Application</scope><name>getAllCommands</name></member>
+      <member refid="classend_1_1_application_1ab2d34713da4e6b4917cf53a08cda47eb" prot="public" virt="virtual"><scope>end::Application</scope><name>getApplicationName</name></member>
+      <member refid="classjuce_1_1JUCEApplicationBase_1af331db63560821279c1e44baebe9a5e6" prot="public" virt="non-virtual"><scope>end::Application</scope><name>getApplicationReturnValue</name></member>
+      <member refid="classend_1_1_application_1af5df574c86505182fdd01d567824d0b7" prot="public" virt="virtual"><scope>end::Application</scope><name>getApplicationVersion</name></member>
+      <member refid="classjuce_1_1JUCEApplication_1a8233dc33b518e85453a974077622c712" prot="public" virt="virtual"><scope>end::Application</scope><name>getCommandInfo</name></member>
+      <member refid="classjuce_1_1JUCEApplicationBase_1a8a2607a3fbc79cc10e9d0feda93c4856" prot="public" virt="non-virtual"><scope>end::Application</scope><name>getCommandLineParameterArray</name></member>
+      <member refid="classjuce_1_1JUCEApplicationBase_1ad41006a0138c86f51f10e0391494dfbf" prot="public" virt="non-virtual"><scope>end::Application</scope><name>getCommandLineParameters</name></member>
+      <member refid="classjuce_1_1JUCEApplication_1a692d98883525936314ee3554c219c42b" prot="public" virt="non-virtual"><scope>end::Application</scope><name>getInstance</name></member>
+      <member refid="classjuce_1_1JUCEApplication_1a56c6e74bf9882d11a5b6cc0193905db9" prot="public" virt="virtual"><scope>end::Application</scope><name>getNextCommandTarget</name></member>
+      <member refid="classjuce_1_1ApplicationCommandTarget_1a3106dff749edb744b485afcd0d762887" prot="public" virt="non-virtual"><scope>end::Application</scope><name>getTargetForCommand</name></member>
+      <member refid="classend_1_1_application_1a598aa5d15712e3107ade5df8f6c5e33d" prot="public" virt="virtual"><scope>end::Application</scope><name>initialise</name></member>
+      <member refid="classjuce_1_1ApplicationCommandTarget_1af7e67bec47d0817e1806a4bb51aa480f" prot="public" virt="non-virtual"><scope>end::Application</scope><name>invoke</name></member>
+      <member refid="classjuce_1_1ApplicationCommandTarget_1ab78d89b7cf280fe92bc03babb157e228" prot="public" virt="non-virtual"><scope>end::Application</scope><name>invokeDirectly</name></member>
+      <member refid="classjuce_1_1ApplicationCommandTarget_1a5e230aa6b8045b24cb567e2c7f1ffb66" prot="public" virt="non-virtual"><scope>end::Application</scope><name>isCommandActive</name></member>
+      <member refid="classjuce_1_1JUCEApplicationBase_1a025180bd29ffeee88c2acf03bd48b4d8" prot="public" virt="non-virtual"><scope>end::Application</scope><name>isInitialising</name></member>
+      <member refid="classjuce_1_1JUCEApplicationBase_1ad75e84c848382d012ecc7ba0c5192960" prot="public" virt="non-virtual"><scope>end::Application</scope><name>isStandaloneApp</name></member>
+      <member refid="classjuce_1_1JUCEApplication_1afc2a6d22dc6cce3828a7a6a15cdf39d5" prot="public" virt="non-virtual"><scope>end::Application</scope><name>JUCEApplication</name></member>
+      <member refid="classjuce_1_1JUCEApplicationBase_1aa042f23227e80c180013501a027ab941" prot="protected" virt="non-virtual"><scope>end::Application</scope><name>JUCEApplicationBase</name></member>
+      <member refid="classend_1_1_application_1afe921d4972c796aa0612d3ce96adaca0" prot="private" virt="non-virtual"><scope>end::Application</scope><name>lookAndFeel</name></member>
+      <member refid="classjuce_1_1JUCEApplicationBase_1a605565242eccd51d45d6bc3e6097dc9c" prot="public" virt="virtual"><scope>end::Application</scope><name>memoryWarningReceived</name></member>
+      <member refid="classend_1_1_application_1acb2876376b8c61d2ee8795524e625d0f" prot="public" virt="virtual"><scope>end::Application</scope><name>moreThanOneInstanceAllowed</name></member>
+      <member refid="classjuce_1_1JUCEApplication_1af2b9fb88772fb14b207257e70e3be163" prot="public" virt="virtual"><scope>end::Application</scope><name>perform</name></member>
+      <member refid="classjuce_1_1JUCEApplicationBase_1ae2ba9b90c02361717d997aa26861f2c4" prot="public" virt="non-virtual"><scope>end::Application</scope><name>quit</name></member>
+      <member refid="classjuce_1_1JUCEApplication_1afef18c6f8796eec57f37d2659eff3f46" prot="public" virt="virtual"><scope>end::Application</scope><name>resumed</name></member>
+      <member refid="classjuce_1_1JUCEApplicationBase_1aa718d56bbc1c7d7271aedbc378eeaffe" prot="public" virt="non-virtual"><scope>end::Application</scope><name>setApplicationReturnValue</name></member>
+      <member refid="classend_1_1_application_1a18d7fd1d8bbcca6a1c7af73e3bf503a8" prot="public" virt="virtual"><scope>end::Application</scope><name>shutdown</name></member>
+      <member refid="classjuce_1_1JUCEApplication_1a60d2d08c658e525ca5d1641e4e38fd42" prot="public" virt="virtual"><scope>end::Application</scope><name>suspended</name></member>
+      <member refid="classend_1_1_application_1a636a8c0776059c65df3d0405229858f4" prot="public" virt="virtual"><scope>end::Application</scope><name>systemRequestedQuit</name></member>
+      <member refid="classjuce_1_1JUCEApplication_1aa1aeb9c570352be72d9f5771076fdb10" prot="public" virt="virtual"><scope>end::Application</scope><name>unhandledException</name></member>
+      <member refid="classend_1_1_application_1a551f9e489ee4727369d6145ab26978ba" prot="private" virt="non-virtual"><scope>end::Application</scope><name>watcher</name></member>
+      <member refid="classend_1_1_application_1af5685bc1fb3a0e77fad81b639bcc92f7" prot="private" virt="non-virtual"><scope>end::Application</scope><name>window</name></member>
+      <member refid="classjuce_1_1ApplicationCommandTarget_1a63f4993b755ec2dbabfe9a064841322b" prot="public" virt="virtual"><scope>end::Application</scope><name>~ApplicationCommandTarget</name></member>
+      <member refid="classjuce_1_1JUCEApplication_1aad0118c42f439e04234c6d54a4cd9602" prot="public" virt="non-virtual"><scope>end::Application</scope><name>~JUCEApplication</name></member>
+      <member refid="classjuce_1_1JUCEApplicationBase_1a37106bc3cb38f2385f0c2dc0bffcd674" prot="public" virt="virtual"><scope>end::Application</scope><name>~JUCEApplicationBase</name></member>
+      <member refid="classjam_1_1File_1_1Watcher_1_1Listener_1a36c31b730e410628b516813e6e0679e7" prot="public" virt="virtual"><scope>end::Application</scope><name>~Listener</name></member>
     </listofallmembers>
   </compounddef>
 </doxygen>

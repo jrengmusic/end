@@ -23,7 +23,7 @@ return {
     -- "false" — Force CPU rendering. No GPU used.
     --
 
-    gpu = "%%gpu%%",
+    gpu = "auto",
 
     -- ========================================================================
     -- NEXUS
@@ -34,7 +34,7 @@ return {
     -- When "false", sessions die with the window (no daemon).
     --
 
-    daemon = "%%daemon%%",
+    daemon = "false",
 
     -- ========================================================================
     -- AUTO RELOAD
@@ -46,7 +46,7 @@ return {
     -- When "false", manual reload only (Cmd+R).
     --
 
-    auto_reload = "%%auto_reload%%",
+    auto_reload = "true",
 
     -- ========================================================================
     -- SHELL
@@ -54,10 +54,10 @@ return {
 
     shell = {
         -- Shell program name or absolute path.
-        program = "%%shell_program%%",
+        program = "zsh",
 
         -- Arguments passed to the shell program.
-        args = "%%shell_args%%",
+        args = "",
 
         -- Enable automatic shell integration.
         -- When "true", END creates shell hook scripts in ~/.config/end/
@@ -66,7 +66,7 @@ return {
         --   - Output block detection for the Open File feature
         -- Supported shells: zsh, bash, fish.
         -- Set to "false" to disable and remove integration scripts.
-        integration = "%%shell_integration%%",
+        integration = "true",
     },
 
     -- ========================================================================
@@ -75,27 +75,27 @@ return {
 
     terminal = {
         -- Maximum number of lines you can scroll back through (100 - 1000000).
-        scrollback_lines = %%terminal_scrollback_lines%%,
+        scrollback_lines = 10000,
 
         -- Lines scrolled per mouse wheel tick and per Shift+PgUp/PgDn step (1 - 100).
-        scroll_step = %%terminal_scroll_step%%,
+        scroll_step = 5,
 
         -- Space between the window edge and the terminal text, in pixels. Four values:
         --   { top, right, bottom, left }
         -- All four values must be present.  Valid range: 0 - 200.
         -- Example: { 10, 10, 10, 10 } gives equal padding on all sides.
         --          { 4, 10, 10, 10 } gives a tighter top edge.
-        padding = { %%terminal_padding_top%%, %%terminal_padding_right%%, %%terminal_padding_bottom%%, %%terminal_padding_left%% },
+        padding = { 10, 10, 10, 10 },
 
         -- Separator for multiple dropped file paths.
         -- "space" joins paths with spaces (shell convention).
         -- "newline" joins paths with newlines.
-        drop_multifiles = "%%terminal_drop_multifiles%%",
+        drop_multifiles = "space",
 
         -- Wrap dropped file paths in quotes so spaces and special characters work correctly.
         -- "true": paths with special characters are quoted for the active shell.
         -- "false": paths are pasted raw (for TUI apps that handle paths directly).
-        drop_quoted = "%%terminal_drop_quoted%%",
+        drop_quoted = "true",
     },
 
     -- ========================================================================
@@ -106,7 +106,7 @@ return {
         -- Editor command for opening files from hyperlinks and Open File mode.
         -- The command receives the file path as its first argument.
         -- Example: "nvim", "vim", "nano", "/usr/local/bin/hx"
-        editor = "%%hyperlinks_editor%%",
+        editor = "nvim",
 
         -- Per-extension handler commands (override the editor for specific file types).
         -- Keys are file extensions (with leading dot), values are shell commands.
@@ -132,21 +132,21 @@ return {
 
         -- Maximum image atlas dimension in pixels. Images exceeding this
         -- in either dimension are downscaled to fit. Range: 1024 - 8192.
-        atlas_dimension = %%image_atlas_dimension%%,
+        atlas_dimension = 4096,
 
         -- Native preview panel width in cell columns. Range: 10 - 200.
         -- These settings apply to END's own preview surface (hyperlink click,
         -- file open). CLI/TUI tools (fzf, yazi) manage their own layout.
-        cols = %%image_cols%%,
+        cols = 40,
 
         -- Native preview panel height in cell rows. Range: 5 - 100.
-        rows = %%image_rows%%,
+        rows = 20,
 
         -- Padding inside the preview panel, in pixels. Range: 0 - 64.
-        padding = %%image_padding%%,
+        padding = 10,
 
         -- Draw a native border around the preview region.
-        border = "%%image_border%%",
+        border = "true",
     },
 
 }

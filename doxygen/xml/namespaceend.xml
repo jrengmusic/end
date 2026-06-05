@@ -3,12 +3,13 @@
   <compounddef id="namespaceend" kind="namespace" language="C++">
     <compoundname>end</compoundname>
     <innerclass refid="classend_1_1_view" prot="public">end::View</innerclass>
+    <innerclass refid="classend_1_1_window" prot="public">end::Window</innerclass>
     <innerclass refid="classend_1_1_look_and_feel" prot="public">end::LookAndFeel</innerclass>
     <innerclass refid="classend_1_1_application" prot="public">end::Application</innerclass>
     <briefdescription>
     </briefdescription>
     <detaileddescription>
     </detaileddescription>
-    <location file="EndView.cpp" line="3" column="1"/>
+    <location file="endView.cpp" line="3" column="1"/>
   </compounddef>
 </doxygen>
