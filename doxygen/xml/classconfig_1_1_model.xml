@@ -18,8 +18,19 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="51" column="5" bodyfile="config/Config.cpp" bodystart="29" bodyend="29"/>
-        <references refid="classconfig_1_1_model_1accf96357acfe7a0b5c9e440a7a1d3e86" compoundref="_config_8cpp" startline="33" endline="62">build</references>
+        <location file="config/Config.h" line="51" column="5" bodyfile="config/Config.cpp" bodystart="29" bodyend="57"/>
+        <references refid="classjam_1_1Model_1ac269ce12c07b28467b3a425267f2145e">jam::Model::addParametersFromProperties</references>
+        <references refid="structjam_1_1ValueTree_1a2e4c59ee1337e8aa27d1ee16dbef7681">jam::ValueTree::applyFunctionRecursively</references>
+        <references refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112ba0fc85df7daa8f0d98a096582ced3738f" compoundref="_config_8h" startline="12">config::File::config</references>
+        <references refid="structjam_1_1lua_1_1Xml_1a5d229ba2c191f29cb41efea21adbc94d">jam::lua::Xml::from</references>
+        <references refid="classjuce_1_1ValueTree_1a0ca58d6059e23760c44557ac3f952cc8">juce::ValueTree::fromXml</references>
+        <references refid="structconfig_1_1_file_1af7e5a59b7450673c2677f4dcf3817279" compoundref="_config_8cpp" startline="23" endline="26">config::File::getName</references>
+        <references refid="namespaceBinaryData_1ac7695032563aaf6d03ebfc469298bb1a">BinaryData::getString</references>
+        <references refid="structconfig_1_1_file_1a1d5413f8cf2eb67f26dd717fb948c596" compoundref="_config_8h" startline="30">config::File::map</references>
+        <references refid="classconfig_1_1_model_1a663ac662800dd1918dbab12d317fa4d5" compoundref="_config_8cpp" startline="29" endline="57">Model</references>
+        <references refid="classjam_1_1Model_1a9be603e3c0a76e1f0b6c263066993b63">jam::Model::params</references>
+        <references refid="classjam_1_1Model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+        <referencedby refid="classconfig_1_1_model_1a663ac662800dd1918dbab12d317fa4d5" compoundref="_config_8cpp" startline="29" endline="57">Model</referencedby>
         <referencedby refid="classconfig_1_1_model_1af95c0931a6f76206d56eb06a3c71a05a">~Model</referencedby>
       </memberdef>
       <memberdef kind="function" id="classconfig_1_1_model_1af95c0931a6f76206d56eb06a3c71a05a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -35,39 +46,9 @@
         <inbodydescription>
         </inbodydescription>
         <location file="config/Config.h" line="52" column="5"/>
-        <references refid="classconfig_1_1_model_1accf96357acfe7a0b5c9e440a7a1d3e86" compoundref="_config_8cpp" startline="33" endline="62">build</references>
-        <references refid="classconfig_1_1_model_1a88f26a19f5b816bdad76c460d9d18389" compoundref="_config_8cpp" startline="65" endline="86">load</references>
-        <references refid="classconfig_1_1_model_1a49a8775067e4dbff5ba1d4c7c77d19eb" compoundref="_config_8cpp" startline="89" endline="119">loadPath</references>
-        <references refid="classconfig_1_1_model_1a663ac662800dd1918dbab12d317fa4d5" compoundref="_config_8cpp" startline="29" endline="29">Model</references>
-      </memberdef>
-      <memberdef kind="function" id="classconfig_1_1_model_1accf96357acfe7a0b5c9e440a7a1d3e86" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type>void</type>
-        <definition>void config::Model::build</definition>
-        <argsstring>()</argsstring>
-        <name>build</name>
-        <qualifiedname>config::Model::build</qualifiedname>
-        <briefdescription>
-<para>Seeds the tree with compiled binary defaults. </para>
-        </briefdescription>
-        <detaileddescription>
-<para>No I/O.</para>
-<para>Looks up each section via <ref refid="structBinaryData_1_1Raw" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">BinaryData::Raw(filename)</ref>, parses, applies to tree. Tree is valid after this call. Called from ctor. </para>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="config/Config.h" line="61" column="10" bodyfile="config/Config.cpp" bodystart="33" bodyend="62"/>
-        <references refid="classjam_1_1Model_1ac269ce12c07b28467b3a425267f2145e">jam::Model::addParametersFromProperties</references>
-        <references refid="structjam_1_1ValueTree_1a2e4c59ee1337e8aa27d1ee16dbef7681">jam::ValueTree::applyFunctionRecursively</references>
-        <references refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112ba0fc85df7daa8f0d98a096582ced3738f" compoundref="_config_8h" startline="12">config::File::config</references>
-        <references refid="structjam_1_1lua_1_1Xml_1a5d229ba2c191f29cb41efea21adbc94d">jam::lua::Xml::from</references>
-        <references refid="classjuce_1_1ValueTree_1a0ca58d6059e23760c44557ac3f952cc8">juce::ValueTree::fromXml</references>
-        <references refid="structconfig_1_1_file_1af7e5a59b7450673c2677f4dcf3817279" compoundref="_config_8cpp" startline="23" endline="26">config::File::getName</references>
-        <references refid="namespaceBinaryData_1ac7695032563aaf6d03ebfc469298bb1a">BinaryData::getString</references>
-        <references refid="structconfig_1_1_file_1a1d5413f8cf2eb67f26dd717fb948c596" compoundref="_config_8h" startline="30">config::File::map</references>
-        <references refid="classjam_1_1Model_1a9be603e3c0a76e1f0b6c263066993b63">jam::Model::params</references>
-        <references refid="classjam_1_1Model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
-        <referencedby refid="classconfig_1_1_model_1a663ac662800dd1918dbab12d317fa4d5" compoundref="_config_8cpp" startline="29" endline="29">Model</referencedby>
-        <referencedby refid="classconfig_1_1_model_1af95c0931a6f76206d56eb06a3c71a05a">~Model</referencedby>
+        <references refid="classconfig_1_1_model_1a88f26a19f5b816bdad76c460d9d18389" compoundref="_config_8cpp" startline="62" endline="83">load</references>
+        <references refid="classconfig_1_1_model_1a49a8775067e4dbff5ba1d4c7c77d19eb" compoundref="_config_8cpp" startline="86" endline="116">loadPath</references>
+        <references refid="classconfig_1_1_model_1a663ac662800dd1918dbab12d317fa4d5" compoundref="_config_8cpp" startline="29" endline="57">Model</references>
       </memberdef>
       <memberdef kind="function" id="classconfig_1_1_model_1a88f26a19f5b816bdad76c460d9d18389" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -88,7 +69,7 @@
         </briefdescription>
         <detaileddescription>
 <para>Parses the lua file, walks the resulting ValueTree in lockstep with the live state, and mutates properties that differ (see <ref refid="classjam_1_1Model_1a60302bd42d072320d9a918051250b6a6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Model::setValuesFrom</ref>). No child add/remove. Listeners stay bound; parameters pick up new values on next flush.</para>
-<para>Filename stem (e.g. &quot;display&quot; from &quot;display.lua&quot;) maps to tree section. Parse failures reported via errorOut (<ulink url="file:line">file:line</ulink>) — tree keeps existing values. Caller must have called <ref refid="classconfig_1_1_model_1accf96357acfe7a0b5c9e440a7a1d3e86" kindref="member">build()</ref> first.</para>
+<para>Filename stem (e.g. &quot;display&quot; from &quot;display.lua&quot;) maps to tree section. Parse failures reported via errorOut (<ulink url="file:line">file:line</ulink>) — tree keeps existing values. Caller must have called build() first.</para>
 <para><parameterlist kind="param"><parameteritem>
 <parameternamelist>
 <parametername>file</parametername>
@@ -110,7 +91,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="78" column="10" bodyfile="config/Config.cpp" bodystart="65" bodyend="86"/>
+        <location file="config/Config.h" line="71" column="10" bodyfile="config/Config.cpp" bodystart="62" bodyend="83"/>
         <references refid="classjuce_1_1String_1a685452c89fee2e453297a901e16080b6">juce::String::clear</references>
         <references refid="structjam_1_1lua_1_1Xml_1a5d229ba2c191f29cb41efea21adbc94d">jam::lua::Xml::from</references>
         <references refid="classjuce_1_1ValueTree_1a0ca58d6059e23760c44557ac3f952cc8">juce::ValueTree::fromXml</references>
@@ -119,7 +100,7 @@
         <references refid="classjuce_1_1File_1aa65d2fa50370357bf93658d6447c296d">juce::File::loadFileAsString</references>
         <references refid="classjam_1_1Model_1a60302bd42d072320d9a918051250b6a6">jam::Model::setValuesFrom</references>
         <references refid="classjuce_1_1String_1a1e7124c97cfb142b269080422fcba540">juce::String::toUpperCase</references>
-        <referencedby refid="classconfig_1_1_model_1a49a8775067e4dbff5ba1d4c7c77d19eb" compoundref="_config_8cpp" startline="89" endline="119">loadPath</referencedby>
+        <referencedby refid="classconfig_1_1_model_1a49a8775067e4dbff5ba1d4c7c77d19eb" compoundref="_config_8cpp" startline="86" endline="116">loadPath</referencedby>
         <referencedby refid="classconfig_1_1_model_1af95c0931a6f76206d56eb06a3c71a05a">~Model</referencedby>
       </memberdef>
       <memberdef kind="function" id="classconfig_1_1_model_1a49a8775067e4dbff5ba1d4c7c77d19eb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -152,7 +133,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="91" column="23" bodyfile="config/Config.cpp" bodystart="89" bodyend="119"/>
+        <location file="config/Config.h" line="84" column="23" bodyfile="config/Config.cpp" bodystart="86" bodyend="116"/>
         <references refid="classjuce_1_1StringArray_1aa73d26821acfb994327d27619703c8fc">juce::StringArray::add</references>
         <references refid="classjuce_1_1String_1a685452c89fee2e453297a901e16080b6">juce::String::clear</references>
         <references refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112ba0fc85df7daa8f0d98a096582ced3738f" compoundref="_config_8h" startline="12">config::File::config</references>
@@ -162,7 +143,7 @@
         <references refid="structconfig_1_1_file_1af7e5a59b7450673c2677f4dcf3817279" compoundref="_config_8cpp" startline="23" endline="26">config::File::getName</references>
         <references refid="namespaceBinaryData_1ac7695032563aaf6d03ebfc469298bb1a">BinaryData::getString</references>
         <references refid="classjuce_1_1String_1af5084463343819f82187154ccb62ea3a">juce::String::isNotEmpty</references>
-        <references refid="classconfig_1_1_model_1a88f26a19f5b816bdad76c460d9d18389" compoundref="_config_8cpp" startline="65" endline="86">load</references>
+        <references refid="classconfig_1_1_model_1a88f26a19f5b816bdad76c460d9d18389" compoundref="_config_8cpp" startline="62" endline="83">load</references>
         <references refid="structconfig_1_1_file_1a1d5413f8cf2eb67f26dd717fb948c596" compoundref="_config_8h" startline="30">config::File::map</references>
         <references refid="classjuce_1_1File_1a01aa22f7ebb9b06840c2118a5e99964a">juce::File::replaceWithText</references>
         <referencedby refid="classconfig_1_1_model_1af95c0931a6f76206d56eb06a3c71a05a">~Model</referencedby>
@@ -181,7 +162,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="54" column="34" bodyfile="config/Config.cpp" bodystart="31" bodyend="31"/>
+        <location file="config/Config.h" line="54" column="34" bodyfile="config/Config.cpp" bodystart="59" bodyend="59"/>
         <references refid="structjam_1_1Context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Model &gt;::getContext</references>
       </memberdef>
     </sectiondef>
@@ -190,12 +171,12 @@
     </briefdescription>
     <detaileddescription>
 <para>Two-phase init/reload:<itemizedlist>
-<listitem><para><ref refid="classconfig_1_1_model_1accf96357acfe7a0b5c9e440a7a1d3e86" kindref="member">build()</ref> seeds the tree with compiled binary defaults (no I/O).</para>
+<listitem><para>build() seeds the tree with compiled binary defaults (no I/O).</para>
 </listitem><listitem><para>load(file) overlays one disk lua file on top (does NOT call build).</para>
 </listitem></itemizedlist>
 </para>
 <para>Section list (7 names, single SSOT) — used by build, load, loadPath, and the virgin-disk default write.</para>
-<para>Callers must call <ref refid="classconfig_1_1_model_1accf96357acfe7a0b5c9e440a7a1d3e86" kindref="member">build()</ref> before any <ref refid="classconfig_1_1_model_1a88f26a19f5b816bdad76c460d9d18389" kindref="member">load()</ref> to ensure the tree is valid. </para>
+<para>Callers must call build() before any <ref refid="classconfig_1_1_model_1a88f26a19f5b816bdad76c460d9d18389" kindref="member">load()</ref> to ensure the tree is valid. </para>
     </detaileddescription>
     <inheritancegraph>
       <node id="1">
@@ -306,7 +287,7 @@
         <label>std::unordered_map&lt; juce::String, juce::ValueTree &gt;</label>
       </node>
     </collaborationgraph>
-    <location file="config/Config.h" line="45" column="1" bodyfile="config/Config.h" bodystart="48" bodyend="96"/>
+    <location file="config/Config.h" line="45" column="1" bodyfile="config/Config.h" bodystart="48" bodyend="89"/>
     <listofallmembers>
       <member refid="classjam_1_1Model_1ae5d4d70e706dcc558cf21923125a9176" prot="public" virt="non-virtual"><scope>config::Model</scope><name>addListener</name></member>
       <member refid="classjam_1_1Model_1aa75f9afb83415f989c962cf77022bcf3" prot="public" virt="non-virtual"><scope>config::Model</scope><name>addParameter</name></member>
@@ -314,7 +295,6 @@
       <member refid="classjam_1_1Model_1a0d96564f1d4c66c3295f3d31658f4351" prot="public" virt="non-virtual"><scope>config::Model</scope><name>addTextParameter</name></member>
       <member refid="classjam_1_1Model_1ae0cb2cc2b04acb47eb9760d92dcedc46" prot="public" virt="non-virtual"><scope>config::Model</scope><name>appendChild</name></member>
       <member refid="classjam_1_1Model_1a453ba02a04d3f7afd493d83a35f2d42e" prot="public" virt="non-virtual"><scope>config::Model</scope><name>attach</name></member>
-      <member refid="classconfig_1_1_model_1accf96357acfe7a0b5c9e440a7a1d3e86" prot="public" virt="non-virtual"><scope>config::Model</scope><name>build</name></member>
       <member refid="classjuce_1_1Timer_1a5eb2dfa3e6810c268704c159ddcb37bc" prot="public" virt="non-virtual"><scope>config::Model</scope><name>callAfterDelay</name></member>
       <member refid="classjuce_1_1Timer_1a6c366b7f5a5d70c270a1e85b8aa45888" prot="public" virt="non-virtual"><scope>config::Model</scope><name>callPendingTimersSynchronously</name></member>
       <member refid="structjam_1_1Context_1a6e3f38a234db8ff2a9acb5986e72a2de" prot="public" virt="non-virtual"><scope>config::Model</scope><name>Context</name></member>

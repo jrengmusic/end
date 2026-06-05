@@ -4,7 +4,7 @@
     <compoundname>end::View</compoundname>
     <basecompoundref refid="classjuce_1_1Component" prot="public" virt="non-virtual">juce::Component</basecompoundref>
     <basecompoundref refid="classjuce_1_1ValueTree_1_1Listener" prot="public" virt="non-virtual">juce::ValueTree::Listener</basecompoundref>
-    <includes refid="end_view_8h" local="no">endView.h</includes>
+    <includes refid="_view_8h" local="no">View.h</includes>
     <sectiondef kind="private-attrib">
       <memberdef kind="variable" id="classend_1_1_view_1ad207d70397b5a0ae3d0e722742d2940e" prot="private" static="no" mutable="no">
         <type><ref refid="classjuce_1_1ValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::ValueTree</ref></type>
@@ -19,7 +19,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="endView.h" line="25" column="21" bodyfile="endView.h" bodystart="25" bodyend="25"/>
+        <location file="end/View.h" line="25" column="21" bodyfile="end/View.h" bodystart="25" bodyend="25"/>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">
@@ -35,7 +35,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="endView.h" line="12" column="5" bodyfile="endView.cpp" bodystart="7" bodyend="16"/>
+        <location file="end/View.h" line="12" column="5" bodyfile="end/View.cpp" bodystart="7" bodyend="16"/>
         <references refid="structjam_1_1ValueTree_1a152686188cfc06dd25e019a763a197f9">jam::ValueTree::getChildWithName</references>
         <references refid="structjam_1_1ID_1ab6389fe91d4bb010418fc3d930e869b6">jam::ID::height</references>
         <references refid="classjuce_1_1Component_1a862fe9788d2f2a16f9ad2bb7d8f2e0ec">juce::Component::setOpaque</references>
@@ -54,7 +54,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="endView.h" line="13" column="5" bodyfile="endView.cpp" bodystart="18" bodyend="18"/>
+        <location file="end/View.h" line="13" column="5" bodyfile="end/View.cpp" bodystart="18" bodyend="18"/>
       </memberdef>
       <memberdef kind="function" id="classend_1_1_view_1a14f07f6fc295c80b4ff0555798fa583c" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
         <type>void</type>
@@ -69,7 +69,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="endView.h" line="15" column="10" bodyfile="endView.cpp" bodystart="21" bodyend="21"/>
+        <location file="end/View.h" line="15" column="10" bodyfile="end/View.cpp" bodystart="21" bodyend="21"/>
       </memberdef>
       <memberdef kind="function" id="classend_1_1_view_1a2b7111f9b62f43d038bc092d269b5b1c" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
         <type>void</type>
@@ -90,7 +90,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="endView.h" line="20" column="10" bodyfile="endView.cpp" bodystart="22" bodyend="22"/>
+        <location file="end/View.h" line="20" column="10" bodyfile="end/View.cpp" bodystart="22" bodyend="22"/>
       </memberdef>
       <memberdef kind="function" id="classend_1_1_view_1af52de711464f4dba65c969a4ffbbafc6" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
         <type>void</type>
@@ -111,7 +111,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="endView.h" line="22" column="10" bodyfile="endView.cpp" bodystart="19" bodyend="19"/>
+        <location file="end/View.h" line="22" column="10" bodyfile="end/View.cpp" bodystart="19" bodyend="19"/>
       </memberdef>
     </sectiondef>
     <briefdescription>
@@ -173,7 +173,7 @@
         <link refid="classjuce_1_1ValueTree_1_1Listener" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
     </collaborationgraph>
-    <location file="endView.h" line="7" column="1" bodyfile="endView.h" bodystart="10" bodyend="28"/>
+    <location file="end/View.h" line="7" column="1" bodyfile="end/View.h" bodystart="10" bodyend="28"/>
     <listofallmembers>
       <member refid="classjuce_1_1Component_1a7cc925a367e95b3807255f8b4a94dddd" prot="public" virt="non-virtual"><scope>end::View</scope><name>addAndMakeVisible</name></member>
       <member refid="classjuce_1_1Component_1ac79decdfaf538a2bdef2f818a280bb8e" prot="public" virt="non-virtual"><scope>end::View</scope><name>addAndMakeVisible</name></member>

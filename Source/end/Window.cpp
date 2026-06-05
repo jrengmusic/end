@@ -1,21 +1,22 @@
-#include "endWindow.h"
+#include "end/Window.h"
 
 namespace end
 {
 /*____________________________________________________________________________*/
 
-Window::Window (juce::Component* mainComponent, const juce::String& name, bool alwaysOnTop, bool showWindowButtons)
+Window::Window (juce::Component* mainComponent,
+                const juce::String& name,
+                bool alwaysOnTop,
+                bool showWindowButtons)
     : jam::Window { mainComponent, name, alwaysOnTop, showWindowButtons }
+    , jam::ValueTree::Component { IDtype::window }
 {
     config.addListener (this);
     registerStyleParameters();
     setStyle();
 }
 
-Window::~Window()
-{
-    config.removeListener (this);
-}
+Window::~Window() { config.removeListener (this); }
 
 void Window::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
 {
@@ -25,45 +26,52 @@ void Window::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identi
 
 void Window::registerStyleParameters()
 {
-    styleParameters.add<juce::ValueTree> (jam::ID::colour,
+    styleParameters.add<juce::ValueTree> (
+        jam::ID::colour,
         [this] (juce::ValueTree node)
         {
             tintColour = LookAndFeel::fromRGBA (node.getProperty (jam::ID::colour).toString());
             setGlass (tintColour, blurRadius, glassBackend);
         });
 
-    styleParameters.add<juce::ValueTree> (ID::blurRadius,
+    styleParameters.add<juce::ValueTree> (
+        ID::blurRadius,
         [this] (juce::ValueTree node)
         {
-            blurRadius = static_cast<float> (node.getProperty (ID::blurRadius, 0.0));
+            blurRadius = static_cast<float> (node.getProperty (ID::blurRadius));
             setGlass (tintColour, blurRadius, glassBackend);
         });
 
-    styleParameters.add<juce::ValueTree> (ID::alwaysOnTop,
+    styleParameters.add<juce::ValueTree> (
+        ID::alwaysOnTop,
         [this] (juce::ValueTree node)
         {
-            setAlwaysOnTop (static_cast<int> (node.getProperty (ID::alwaysOnTop, 0)) != 0);
+            setAlwaysOnTop (Boolean::get (node.getProperty (ID::alwaysOnTop).toString()));
         });
 
-    styleParameters.add<juce::ValueTree> (ID::buttons,
+    styleParameters.add<juce::ValueTree> (
+        ID::buttons,
         [this] (juce::ValueTree node)
         {
-            setShowWindowButtons (static_cast<int> (node.getProperty (ID::buttons, 0)) != 0);
+            setShowWindowButtons (Boolean::get (node.getProperty (ID::buttons).toString()));
         });
 
-    styleParameters.add<juce::ValueTree> (jam::ID::width,
+    styleParameters.add<juce::ValueTree> (
+        jam::ID::width,
         [this] (juce::ValueTree node)
         {
-            setSize (static_cast<int> (node.getProperty (jam::ID::width, 640)), getHeight());
+            setSize (static_cast<int> (node.getProperty (jam::ID::width)), getHeight());
         });
 
-    styleParameters.add<juce::ValueTree> (jam::ID::height,
+    styleParameters.add<juce::ValueTree> (
+        jam::ID::height,
         [this] (juce::ValueTree node)
         {
-            setSize (getWidth(), static_cast<int> (node.getProperty (jam::ID::height, 480)));
+            setSize (getWidth(), static_cast<int> (node.getProperty (jam::ID::height)));
         });
 
-    styleParameters.add<juce::ValueTree> (ID::mac,
+    styleParameters.add<juce::ValueTree> (
+        ID::mac,
         [this] (juce::ValueTree node)
         {
             glassBackend = jam::BackgroundBlur::fromString (
@@ -71,7 +79,8 @@ void Window::registerStyleParameters()
             setGlass (tintColour, blurRadius, glassBackend);
         });
 
-    styleParameters.add<juce::ValueTree> (ID::win,
+    styleParameters.add<juce::ValueTree> (
+        ID::win,
         [this] (juce::ValueTree node)
         {
             glassBackend = jam::BackgroundBlur::fromString (
@@ -84,10 +93,13 @@ void Window::applyStyleFor (const juce::Identifier& property)
 {
     if (styleParameters.contains (property))
     {
-        auto windowNode { config.getChildWithName (IDtype::display).getChildWithName (IDtype::window) };
+        auto windowNode {
+            config.getChildWithName (IDtype::display).getChildWithName (IDtype::window)
+        };
 
         if (property == ID::mac or property == ID::win)
-            styleParameters.get<juce::ValueTree> (property, std::move (windowNode.getChildWithName (IDtype::blurStyle)));
+            styleParameters.get<juce::ValueTree> (
+                property, std::move (windowNode.getChildWithName (IDtype::blurStyle)));
         else
             styleParameters.get<juce::ValueTree> (property, std::move (windowNode));
     }

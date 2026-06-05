@@ -42,28 +42,7 @@ public:
     /** @brief Property → colourId map. One entry per lua key. The WINDOW
         tint (jam::ID::colour) is in this same map — its opacity modifier
         is applied inline in valueTreePropertyChanged. */
-    inline static const std::unordered_map<juce::Identifier, int> colourIds {
-        { ID::editorBackground, juce::TextEditor::backgroundColourId      },
-        { ID::editorOutline,    juce::TextEditor::outlineColourId         },
-        { jam::ID::cursor,      juce::CaretComponent::caretColourId       },
-        { ID::selection,        juce::TextEditor::highlightColourId       },
-        { ID::scrollbarThumb,   juce::ScrollBar::thumbColourId            },
-        { ID::scrollbarTrack,   juce::ScrollBar::trackColourId            },
-        { ID::selectionCursor,  selectionCursorColourId                   },
-        { ID::statusBar,        statusBarBackgroundColourId               },
-        { ID::statusBarLabelBg, statusBarLabelBackgroundColourId          },
-        { ID::statusBarLabelFg, statusBarLabelTextColourId                },
-        { ID::statusBarSpinner, statusBarSpinnerColourId                  },
-        { ID::hintLabelBg,      hintLabelBgColourId                       },
-        { ID::hintLabelFg,      hintLabelFgColourId                       },
-        { jam::ID::line,        tabLineColourId                           },
-        { ID::active,           tabActiveColourId                         },
-        { ID::indicator,        tabIndicatorColourId                      },
-        { ID::barColour,        paneBarColourId                           },
-        { ID::barHighlight,     paneBarHighlightColourId                  },
-        { jam::ID::colour,      juce::ResizableWindow::backgroundColourId },
-    };
-
+    static const std::unordered_map<juce::Identifier, int> colourIds;
     //==============================================================================
     LookAndFeel();
     ~LookAndFeel();

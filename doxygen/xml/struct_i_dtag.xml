@@ -22,9 +22,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="13"/>
+        <location file="Identifier.h" line="274" column="13"/>
         <references refid="struct_i_dtag_1a3e7c1d2932d996b3894e727d495aa6a5">AS_UPPER</references>
-        <references refid="_identifier_8h_1aa678230a5f71071f7d9e20dd31ad5547" compoundref="_identifier_8h" startline="250" endline="262">END_MAKE_VIEW</references>
+        <references refid="_identifier_8h_1aa678230a5f71071f7d9e20dd31ad5547" compoundref="_identifier_8h" startline="257" endline="270">END_MAKE_VIEW</references>
         <referencedby refid="struct_i_dtag_1a3e7c1d2932d996b3894e727d495aa6a5">AS_UPPER</referencedby>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1afa434a06de97806ad1239da74ce66ec2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -45,7 +45,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="34"/>
+        <location file="Identifier.h" line="274" column="34"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a2208b14bad58eec03eebfc500d71b5dc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display</type>
@@ -65,7 +65,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="59"/>
+        <location file="Identifier.h" line="274" column="59"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1aaf1bd3bf7761ed65ff495d2354038e36" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys</type>
@@ -85,7 +85,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="81"/>
+        <location file="Identifier.h" line="274" column="81"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1ad7a9950db65a9df789bfd40035c1d6ce" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed</type>
@@ -105,7 +105,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="104"/>
+        <location file="Identifier.h" line="274" column="104"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a286e35c7e158608387af1ef4522cabf8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground</type>
@@ -125,7 +125,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="132"/>
+        <location file="Identifier.h" line="274" column="132"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a7c1f788489b8f2524e8a0806b1e366b6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive</type>
@@ -145,7 +145,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="158"/>
+        <location file="Identifier.h" line="274" column="158"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a54b1088a1f3abcfdc5fcf77a1bba6cef" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator</type>
@@ -165,7 +165,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="185"/>
+        <location file="Identifier.h" line="274" column="185"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a7d05dbab93f89b1912d7caab4e7304f6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour</type>
@@ -185,7 +185,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="213"/>
+        <location file="Identifier.h" line="274" column="213"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1ac2db919f33b0a92c4229d8592dd22e3a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour</type>
@@ -205,7 +205,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="244"/>
+        <location file="Identifier.h" line="274" column="244"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a2d4f64dc6349630004aa0eca8b02c78c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines</type>
@@ -225,7 +225,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="278"/>
+        <location file="Identifier.h" line="274" column="278"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1ac91120c374c6d1328d9117d9ee956ef6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols</type>
@@ -245,7 +245,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="300"/>
+        <location file="Identifier.h" line="274" column="300"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1af8a26afc2239877b6a4e0d20ebaf9dfc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb</type>
@@ -265,7 +265,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="333"/>
+        <location file="Identifier.h" line="274" column="333"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1ac03006f7ea10245c799a183299771018" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab</type>
@@ -285,7 +285,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="352"/>
+        <location file="Identifier.h" line="274" column="352"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a24d0531c4c8d10f23feda8639ec43116" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window</type>
@@ -305,7 +305,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="376"/>
+        <location file="Identifier.h" line="274" column="376"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1ae768284501d63cda32abc82368171876" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures</type>
@@ -325,7 +325,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="403"/>
+        <location file="Identifier.h" line="274" column="403"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1aec8a94f3468f886cc42330c9baf707b1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height</type>
@@ -345,7 +345,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="432"/>
+        <location file="Identifier.h" line="274" column="432"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a2d7a27f9b4710d7c54aba8c1dbaf7a35" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale</type>
@@ -365,7 +365,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="463"/>
+        <location file="Identifier.h" line="274" column="463"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1acbe224a94dee9fc0092f9e513c800919" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval</type>
@@ -385,7 +385,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="495"/>
+        <location file="Identifier.h" line="274" column="495"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1abcffa1b224b032c5c39204d445b46125" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background</type>
@@ -405,7 +405,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="530"/>
+        <location file="Identifier.h" line="274" column="530"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a8017bfd0f198fa123c68b52bf4efe196" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection</type>
@@ -425,7 +425,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="557"/>
+        <location file="Identifier.h" line="274" column="557"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a6f079b50ea70cd82464dd1a259bf4713" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black</type>
@@ -445,7 +445,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="580"/>
+        <location file="Identifier.h" line="274" column="580"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1ac8658dafe2c7696b4a093da73a73ab60" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green</type>
@@ -465,7 +465,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="603"/>
+        <location file="Identifier.h" line="274" column="603"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1ad6166fe6ecd66d24843b39a4aa148ceb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue</type>
@@ -485,7 +485,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="625"/>
+        <location file="Identifier.h" line="274" column="625"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1ae8c00e77d0e97f3ecf17142f895ec338" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan</type>
@@ -505,7 +505,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="647"/>
+        <location file="Identifier.h" line="274" column="647"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a6e52f226113b396a3d1b45accde3d09e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black</type>
@@ -525,7 +525,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="677"/>
+        <location file="Identifier.h" line="274" column="677"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a8712daa2f27b84c7090f6ed32abf7e03" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green</type>
@@ -545,7 +545,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="707"/>
+        <location file="Identifier.h" line="274" column="707"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a077cf6b323f1a1d67c6a25c4bf8d624e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue</type>
@@ -565,7 +565,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="736"/>
+        <location file="Identifier.h" line="274" column="736"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1ab4b177ee45a8d5420c8eb4c6a1748494" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan</type>
@@ -585,7 +585,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="765"/>
+        <location file="Identifier.h" line="274" column="765"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1abaef7e4e82e851fc28fed8a9739de921" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar</type>
@@ -605,7 +605,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="793"/>
+        <location file="Identifier.h" line="274" column="793"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1ac47135506d55717120868d1f04e879ed" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg</type>
@@ -625,7 +625,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="830"/>
+        <location file="Identifier.h" line="274" column="830"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a522cea78d889fec3af49cc53c8c9fea9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg</type>
@@ -645,7 +645,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="861"/>
+        <location file="Identifier.h" line="274" column="861"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a7fc14a6677b9373326033150a8a9a170" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius</type>
@@ -665,7 +665,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="890"/>
+        <location file="Identifier.h" line="274" column="890"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1aab51aa631b44d1de7b0cd123ce701c81" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size</type>
@@ -685,7 +685,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="917"/>
+        <location file="Identifier.h" line="274" column="917"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a8c88761c18db6a85160ff0d1e3c57b2d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm</type>
@@ -705,7 +705,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="944"/>
+        <location file="Identifier.h" line="274" column="944"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1ac4c612aebe1f5b8bbf54005f428f4f00" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run</type>
@@ -725,7 +725,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="974"/>
+        <location file="Identifier.h" line="274" column="974"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a1cd449a994944f173ded731ac7afbfb6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style</type>
@@ -745,7 +745,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="1007"/>
+        <location file="Identifier.h" line="274" column="1007"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a79e22e3c62968919397deb63cc68bd2f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family</type>
@@ -765,7 +765,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="1045"/>
+        <location file="Identifier.h" line="274" column="1045"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a38f0f7e2f60e531a65a1fbf4602c3b77" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size</type>
@@ -785,7 +785,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="1081"/>
+        <location file="Identifier.h" line="274" column="1081"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a7e3eebf2fc472bd264eeba7a88d3ef18" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour</type>
@@ -805,7 +805,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="1114"/>
+        <location file="Identifier.h" line="274" column="1114"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a3251977344967c02b21bf01fbfaa4f29" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family</type>
@@ -825,7 +825,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="1143"/>
+        <location file="Identifier.h" line="274" column="1143"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1ad3eb745197cf0a6172e1d19d00699c94" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style</type>
@@ -845,7 +845,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="1169"/>
+        <location file="Identifier.h" line="274" column="1169"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1afe36f7cb57b1bef2744b4694c15c1c3c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout</type>
@@ -865,7 +865,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="1201"/>
+        <location file="Identifier.h" line="274" column="1201"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a8f1e9f43d006436345890760bbc3939a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste</type>
@@ -885,7 +885,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="1224"/>
+        <location file="Identifier.h" line="274" column="1224"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a103d9de409fe3ff92b9509a0d8abc387" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab</type>
@@ -905,7 +905,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="1251"/>
+        <location file="Identifier.h" line="274" column="1251"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a03bc501e7abd44c7faa7c1bceae2e202" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in</type>
@@ -925,7 +925,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="1276"/>
+        <location file="Identifier.h" line="274" column="1276"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1af4836672adf959fbaaa2aa931c4d2e27" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset</type>
@@ -945,7 +945,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="1304"/>
+        <location file="Identifier.h" line="274" column="1304"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a150222229ec1070595f1bc918984a856" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab</type>
@@ -965,7 +965,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="1329"/>
+        <location file="Identifier.h" line="274" column="1329"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a30ee07d4eaf3aacb3c2b2d361ead26af" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab</type>
@@ -985,7 +985,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="1355"/>
+        <location file="Identifier.h" line="274" column="1355"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1abe6abe820d021114b307594ae156491f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal</type>
@@ -1005,7 +1005,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="1389"/>
+        <location file="Identifier.h" line="274" column="1389"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a51169b7fe0f107a31dabc0b2e8ab7331" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left</type>
@@ -1025,7 +1025,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="1416"/>
+        <location file="Identifier.h" line="274" column="1416"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1aa7bbec2c439bcc943554b3ed7ed6531e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up</type>
@@ -1045,7 +1045,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="1441"/>
+        <location file="Identifier.h" line="274" column="1441"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1afedce89e26949ec0960526fc2e9b78c2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline</type>
@@ -1065,7 +1065,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="1466"/>
+        <location file="Identifier.h" line="274" column="1466"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1abfecad4539a96319ba08b0f64f76c16e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection</type>
@@ -1085,7 +1085,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="1499"/>
+        <location file="Identifier.h" line="274" column="1499"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a0fefa2ed79101eaa14dfc4b9fed49bb4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page</type>
@@ -1105,7 +1105,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="1536"/>
+        <location file="Identifier.h" line="274" column="1536"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a2defb1241f4bdc3818a5b99196a48023" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down</type>
@@ -1125,7 +1125,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="1568"/>
+        <location file="Identifier.h" line="274" column="1568"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a1534690c0fbb3283c857553d7f2a2b0f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right</type>
@@ -1145,7 +1145,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="1601"/>
+        <location file="Identifier.h" line="274" column="1601"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a72ff80e200932deff105b4078997129b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line</type>
@@ -1165,7 +1165,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="1640"/>
+        <location file="Identifier.h" line="274" column="1640"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1afa3fd83474efab70a0b47f9ac5ad6df1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy</type>
@@ -1185,7 +1185,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="1672"/>
+        <location file="Identifier.h" line="274" column="1672"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1ab9f123264b875c0671f9595e44e75f78" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom</type>
@@ -1205,7 +1205,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="1706"/>
+        <location file="Identifier.h" line="274" column="1706"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1ad091cf6e5a30b093976b1d25977c4521" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end</type>
@@ -1225,7 +1225,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="1742"/>
+        <location file="Identifier.h" line="274" column="1742"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a0dd7fd637157412e2b1b8fbf565901e5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end gpu</type>
@@ -1245,7 +1245,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="1761"/>
+        <location file="Identifier.h" line="274" column="1761"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1adb09d5ab28bb540fed7136a472c21973" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end gpu auto_reload</type>
@@ -1265,7 +1265,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="1790"/>
+        <location file="Identifier.h" line="274" column="1790"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a7a4d30fd5af7aba388dc18d1d3b81c72" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end gpu auto_reload program</type>
@@ -1285,7 +1285,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="1815"/>
+        <location file="Identifier.h" line="274" column="1815"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a90f604575a9ba24002f34da06838b9b8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end gpu auto_reload program integration</type>
@@ -1305,7 +1305,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="1844"/>
+        <location file="Identifier.h" line="274" column="1844"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1ae7744a18658998fea941549375cc327d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end gpu auto_reload program integration drop_multifiles</type>
@@ -1325,7 +1325,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="1877"/>
+        <location file="Identifier.h" line="274" column="1877"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a6239609a4a50fcb40559685f7ee1a41f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end gpu auto_reload program integration drop_multifiles hyperlinks</type>
@@ -1345,7 +1345,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="1905"/>
+        <location file="Identifier.h" line="274" column="1905"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a8468dcea62d423b0a1caff2f9f291212" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end gpu auto_reload program integration drop_multifiles hyperlinks border</type>
@@ -1365,7 +1365,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="1927"/>
+        <location file="Identifier.h" line="274" column="1927"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a99c2b658898e2b7840a9841484601609" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end gpu auto_reload program integration drop_multifiles hyperlinks border modal</type>
@@ -1385,7 +1385,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="1948"/>
+        <location file="Identifier.h" line="274" column="1948"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a5aa090cc079906d467378d8bdfc16fb5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end gpu auto_reload program integration drop_multifiles hyperlinks border modal execute</type>
@@ -1405,7 +1405,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="1971"/>
+        <location file="Identifier.h" line="274" column="1971"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a81afb47cb4d418fafacd0948e297494a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end gpu auto_reload program integration drop_multifiles hyperlinks border modal execute code_style</type>
@@ -1425,7 +1425,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="1999"/>
+        <location file="Identifier.h" line="274" column="1999"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1ab88c24137f394805b3598c4f8ae4bd4f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end gpu auto_reload program integration drop_multifiles hyperlinks border modal execute code_style body_colour</type>
@@ -1445,7 +1445,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="2028"/>
+        <location file="Identifier.h" line="274" column="2028"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1aed1f80e8f51de374f2daa5b2b0224683" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end gpu auto_reload program integration drop_multifiles hyperlinks border modal execute code_style body_colour h1_size</type>
@@ -1465,7 +1465,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="2053"/>
+        <location file="Identifier.h" line="274" column="2053"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a9d6f0b485d094ec5a1bb5366a2dd47bf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end gpu auto_reload program integration drop_multifiles hyperlinks border modal execute code_style body_colour h1_size h3_size</type>
@@ -1485,7 +1485,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="2078"/>
+        <location file="Identifier.h" line="274" column="2078"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a8c46aa4deeca08d46ba6cac9b1959ee5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end gpu auto_reload program integration drop_multifiles hyperlinks border modal execute code_style body_colour h1_size h3_size h5_size</type>
@@ -1505,7 +1505,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="2103"/>
+        <location file="Identifier.h" line="274" column="2103"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a44f7880a2bd21a8a540c4b425565c8b4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end gpu auto_reload program integration drop_multifiles hyperlinks border modal execute code_style body_colour h1_size h3_size h5_size h1_colour</type>
@@ -1525,7 +1525,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="2130"/>
+        <location file="Identifier.h" line="274" column="2130"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a0bfaa4a1c29572765a639aab536a4028" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end gpu auto_reload program integration drop_multifiles hyperlinks border modal execute code_style body_colour h1_size h3_size h5_size h1_colour h3_colour</type>
@@ -1545,7 +1545,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="2157"/>
+        <location file="Identifier.h" line="274" column="2157"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a4cf14b7940ef7bc7fdc04da8ab19f073" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end gpu auto_reload program integration drop_multifiles hyperlinks border modal execute code_style body_colour h1_size h3_size h5_size h1_colour h3_colour h5_colour</type>
@@ -1565,7 +1565,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="2184"/>
+        <location file="Identifier.h" line="274" column="2184"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a17d1811425f4205db6f789dd2bff4d74" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end gpu auto_reload program integration drop_multifiles hyperlinks border modal execute code_style body_colour h1_size h3_size h5_size h1_colour h3_colour h5_colour code_fence_background</type>
@@ -1585,7 +1585,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="2223"/>
+        <location file="Identifier.h" line="274" column="2223"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a764f1f4d5aed18f3e970abe8ec82ebcc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end gpu auto_reload program integration drop_multifiles hyperlinks border modal execute code_style body_colour h1_size h3_size h5_size h1_colour h3_colour h5_colour code_fence_background token_error</type>
@@ -1605,7 +1605,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="2252"/>
+        <location file="Identifier.h" line="274" column="2252"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1ad6d78e66539012731e1f105bba7a4878" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end gpu auto_reload program integration drop_multifiles hyperlinks border modal execute code_style body_colour h1_size h3_size h5_size h1_colour h3_colour h5_colour code_fence_background token_error token_keyword</type>
@@ -1625,7 +1625,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="2283"/>
+        <location file="Identifier.h" line="274" column="2283"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a79ee1ef1add342098cada3952a0f9d2d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end gpu auto_reload program integration drop_multifiles hyperlinks border modal execute code_style body_colour h1_size h3_size h5_size h1_colour h3_colour h5_colour code_fence_background token_error token_keyword token_identifier</type>
@@ -1645,7 +1645,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="2317"/>
+        <location file="Identifier.h" line="274" column="2317"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a01c11901db72d0ad724c01e5c2ce5e4a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end gpu auto_reload program integration drop_multifiles hyperlinks border modal execute code_style body_colour h1_size h3_size h5_size h1_colour h3_colour h5_colour code_fence_background token_error token_keyword token_identifier token_float</type>
@@ -1665,7 +1665,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="2346"/>
+        <location file="Identifier.h" line="274" column="2346"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a37e73e894656a55267fcaf401f4c6f25" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end gpu auto_reload program integration drop_multifiles hyperlinks border modal execute code_style body_colour h1_size h3_size h5_size h1_colour h3_colour h5_colour code_fence_background token_error token_keyword token_identifier token_float token_bracket</type>
@@ -1685,7 +1685,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="2377"/>
+        <location file="Identifier.h" line="274" column="2377"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a5a62f2f1351ee30be087b13288af7691" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end gpu auto_reload program integration drop_multifiles hyperlinks border modal execute code_style body_colour h1_size h3_size h5_size h1_colour h3_colour h5_colour code_fence_background token_error token_keyword token_identifier token_float token_bracket token_preprocessor</type>
@@ -1705,7 +1705,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="2413"/>
+        <location file="Identifier.h" line="274" column="2413"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1ad30b022f3f466799d88488eed06df91d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end gpu auto_reload program integration drop_multifiles hyperlinks border modal execute code_style body_colour h1_size h3_size h5_size h1_colour h3_colour h5_colour code_fence_background token_error token_keyword token_identifier token_float token_bracket token_preprocessor table_header_background</type>
@@ -1725,7 +1725,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="2454"/>
+        <location file="Identifier.h" line="274" column="2454"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a6ee36342acc8609f4987b5523b5c541b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end gpu auto_reload program integration drop_multifiles hyperlinks border modal execute code_style body_colour h1_size h3_size h5_size h1_colour h3_colour h5_colour code_fence_background token_error token_keyword token_identifier token_float token_bracket token_preprocessor table_header_background table_border_colour</type>
@@ -1745,7 +1745,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="2491"/>
+        <location file="Identifier.h" line="274" column="2491"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a0e7faa8eba1dfe99c21c487abe9751b4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end gpu auto_reload program integration drop_multifiles hyperlinks border modal execute code_style body_colour h1_size h3_size h5_size h1_colour h3_colour h5_colour code_fence_background token_error token_keyword token_identifier token_float token_bracket token_preprocessor table_header_background table_border_colour table_cell_text</type>
@@ -1765,7 +1765,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="2524"/>
+        <location file="Identifier.h" line="274" column="2524"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a2140e83935bf3f166b51a07223a9f0f1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end gpu auto_reload program integration drop_multifiles hyperlinks border modal execute code_style body_colour h1_size h3_size h5_size h1_colour h3_colour h5_colour code_fence_background token_error token_keyword token_identifier token_float token_bracket token_preprocessor table_header_background table_border_colour table_cell_text progress_foreground</type>
@@ -1785,7 +1785,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="2561"/>
+        <location file="Identifier.h" line="274" column="2561"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a0d1823e873e335fd31bf5d1b84720745" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end gpu auto_reload program integration drop_multifiles hyperlinks border modal execute code_style body_colour h1_size h3_size h5_size h1_colour h3_colour h5_colour code_fence_background token_error token_keyword token_identifier token_float token_bracket token_preprocessor table_header_background table_border_colour table_cell_text progress_foreground progress_spinner_colour</type>
@@ -1805,7 +1805,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="2602"/>
+        <location file="Identifier.h" line="274" column="2602"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a4bee2af68038117161fa60f57085de5b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end gpu auto_reload program integration drop_multifiles hyperlinks border modal execute code_style body_colour h1_size h3_size h5_size h1_colour h3_colour h5_colour code_fence_background token_error token_keyword token_identifier token_float token_bracket token_preprocessor table_header_background table_border_colour table_cell_text progress_foreground progress_spinner_colour selection_colour</type>
@@ -1825,7 +1825,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="2636"/>
+        <location file="Identifier.h" line="274" column="2636"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a5d8959eec7fd72489b46a9e80df72630" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end gpu auto_reload program integration drop_multifiles hyperlinks border modal execute code_style body_colour h1_size h3_size h5_size h1_colour h3_colour h5_colour code_fence_background token_error token_keyword token_identifier token_float token_bracket token_preprocessor table_header_background table_border_colour table_cell_text progress_foreground progress_spinner_colour selection_colour scroll_up</type>
@@ -1845,7 +1845,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="2663"/>
+        <location file="Identifier.h" line="274" column="2663"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a0bd503d9c7592b087bcd8f0072554d12" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end gpu auto_reload program integration drop_multifiles hyperlinks border modal execute code_style body_colour h1_size h3_size h5_size h1_colour h3_colour h5_colour code_fence_background token_error token_keyword token_identifier token_float token_bracket token_preprocessor table_header_background table_border_colour table_cell_text progress_foreground progress_spinner_colour selection_colour scroll_up scroll_bottom</type>
@@ -1865,7 +1865,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="2692"/>
+        <location file="Identifier.h" line="274" column="2692"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1aec0875687dc48eb91fb3c4245923443c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end gpu auto_reload program integration drop_multifiles hyperlinks border modal execute code_style body_colour h1_size h3_size h5_size h1_colour h3_colour h5_colour code_fence_background token_error token_keyword token_identifier token_float token_bracket token_preprocessor table_header_background table_border_colour table_cell_text progress_foreground progress_spinner_colour selection_colour scroll_up scroll_bottom win</type>
@@ -1885,7 +1885,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="2713"/>
+        <location file="Identifier.h" line="274" column="2713"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1ad81cb2047e81ae0bb1bcd1b6a9c42641" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end gpu auto_reload program integration drop_multifiles hyperlinks border modal execute code_style body_colour h1_size h3_size h5_size h1_colour h3_colour h5_colour code_fence_background token_error token_keyword token_identifier token_float token_bracket token_preprocessor table_header_background table_border_colour table_cell_text progress_foreground progress_spinner_colour selection_colour scroll_up scroll_bottom win backgroundBlur</type>
@@ -1905,7 +1905,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="2745"/>
+        <location file="Identifier.h" line="274" column="2745"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1ad4e4b3855fd3debd556c9305746e845d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end gpu auto_reload program integration drop_multifiles hyperlinks border modal execute code_style body_colour h1_size h3_size h5_size h1_colour h3_colour h5_colour code_fence_background token_error token_keyword token_identifier token_float token_bracket token_preprocessor table_header_background table_border_colour table_cell_text progress_foreground progress_spinner_colour selection_colour scroll_up scroll_bottom win backgroundBlur glassFXRegular</type>
@@ -1925,7 +1925,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="2777"/>
+        <location file="Identifier.h" line="274" column="2777"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dtag_1a7c81dc1306d35c11cc7dddf03dd3b398" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end gpu auto_reload program integration drop_multifiles hyperlinks border modal execute code_style body_colour h1_size h3_size h5_size h1_colour h3_colour h5_colour code_fence_background token_error token_keyword token_identifier token_float token_bracket token_preprocessor table_header_background table_border_colour table_cell_text progress_foreground progress_spinner_colour selection_colour scroll_up scroll_bottom win backgroundBlur glassFXRegular blurBehind</type>
@@ -1945,14 +1945,54 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="266" column="2805"/>
+        <location file="Identifier.h" line="274" column="2805"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_i_dtag_1a156766875b971ea4327c2a39c01c72ab" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end gpu auto_reload program integration drop_multifiles hyperlinks border modal execute code_style body_colour h1_size h3_size h5_size h1_colour h3_colour h5_colour code_fence_background token_error token_keyword token_identifier token_float token_bracket token_preprocessor table_header_background table_border_colour table_cell_text progress_foreground progress_spinner_colour selection_colour scroll_up scroll_bottom win backgroundBlur glassFXRegular blurBehind acrylic11</type>
+        <definition>end display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end gpu auto_reload program integration drop_multifiles hyperlinks border modal execute code_style body_colour h1_size h3_size h5_size h1_colour h3_colour h5_colour code_fence_background token_error token_keyword token_identifier token_float token_bracket token_preprocessor table_header_background table_border_colour table_cell_text progress_foreground progress_spinner_colour selection_colour scroll_up scroll_bottom win backgroundBlur glassFXRegular blurBehind acrylic11 IDtag::AS_UPPER</definition>
+        <argsstring>(mica, &quot;mica&quot;) AS_UPPER(activeTab</argsstring>
+        <name>AS_UPPER</name>
+        <qualifiedname>IDtag::AS_UPPER</qualifiedname>
+        <param>
+          <type>mica</type>
+        </param>
+        <param>
+          <type>&quot;mica&quot;</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Identifier.h" line="274" column="2832"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_i_dtag_1aeda22a082b07201c8b9b6a24c9a1542a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceend" kindref="compound">end</ref> display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end gpu auto_reload program integration drop_multifiles hyperlinks border modal execute code_style body_colour h1_size h3_size h5_size h1_colour h3_colour h5_colour code_fence_background token_error token_keyword token_identifier token_float token_bracket token_preprocessor table_header_background table_border_colour table_cell_text progress_foreground progress_spinner_colour selection_colour scroll_up scroll_bottom win backgroundBlur glassFXRegular blurBehind acrylic11 active_tab</type>
+        <definition>end display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end gpu auto_reload program integration drop_multifiles hyperlinks border modal execute code_style body_colour h1_size h3_size h5_size h1_colour h3_colour h5_colour code_fence_background token_error token_keyword token_identifier token_float token_bracket token_preprocessor table_header_background table_border_colour table_cell_text progress_foreground progress_spinner_colour selection_colour scroll_up scroll_bottom win backgroundBlur glassFXRegular blurBehind acrylic11 active_tab IDtag::AS_UPPER</definition>
+        <argsstring>(activePaneID, &quot;active_pane_id&quot;) AS_UPPER(zoom</argsstring>
+        <name>AS_UPPER</name>
+        <qualifiedname>IDtag::AS_UPPER</qualifiedname>
+        <param>
+          <type>activePaneID</type>
+        </param>
+        <param>
+          <type>&quot;active_pane_id&quot;</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Identifier.h" line="274" column="2858"/>
       </memberdef>
     </sectiondef>
     <briefdescription>
     </briefdescription>
     <detaileddescription>
     </detaileddescription>
-    <location file="Identifier.h" line="266" column="2" bodyfile="Identifier.h" bodystart="266" bodyend="266"/>
+    <location file="Identifier.h" line="274" column="2" bodyfile="Identifier.h" bodystart="274" bodyend="274"/>
     <listofallmembers>
       <member refid="struct_i_dtag_1a3e7c1d2932d996b3894e727d495aa6a5" prot="public" virt="non-virtual"><scope>IDtag</scope><name>AS_UPPER</name></member>
       <member refid="struct_i_dtag_1afa434a06de97806ad1239da74ce66ec2" prot="public" virt="non-virtual"><scope>IDtag</scope><name>AS_UPPER</name></member>
@@ -2051,6 +2091,8 @@
       <member refid="struct_i_dtag_1ad81cb2047e81ae0bb1bcd1b6a9c42641" prot="public" virt="non-virtual"><scope>IDtag</scope><name>AS_UPPER</name></member>
       <member refid="struct_i_dtag_1ad4e4b3855fd3debd556c9305746e845d" prot="public" virt="non-virtual"><scope>IDtag</scope><name>AS_UPPER</name></member>
       <member refid="struct_i_dtag_1a7c81dc1306d35c11cc7dddf03dd3b398" prot="public" virt="non-virtual"><scope>IDtag</scope><name>AS_UPPER</name></member>
+      <member refid="struct_i_dtag_1a156766875b971ea4327c2a39c01c72ab" prot="public" virt="non-virtual"><scope>IDtag</scope><name>AS_UPPER</name></member>
+      <member refid="struct_i_dtag_1aeda22a082b07201c8b9b6a24c9a1542a" prot="public" virt="non-virtual"><scope>IDtag</scope><name>AS_UPPER</name></member>
     </listofallmembers>
   </compounddef>
 </doxygen>

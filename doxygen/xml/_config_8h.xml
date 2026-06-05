@@ -6,8 +6,8 @@
     <includes refid="_identifier_8h" local="yes">Identifier.h</includes>
     <includedby refid="_main_8h" local="yes">Main.h</includedby>
     <includedby refid="_config_8cpp" local="yes">config/Config.cpp</includedby>
-    <includedby refid="end_view_8h" local="yes">endView.h</includedby>
-    <includedby refid="end_window_8h" local="yes">endWindow.h</includedby>
+    <includedby refid="_view_8h" local="yes">end/View.h</includedby>
+    <includedby refid="_window_8h" local="yes">end/Window.h</includedby>
     <includedby refid="_look_and_feel_8h" local="yes">lookAndFeel/LookAndFeel.h</includedby>
     <incdepgraph>
       <node id="3">
@@ -58,24 +58,24 @@
         </childnode>
       </node>
       <node id="6">
-        <label>endView.cpp</label>
-        <link refid="end_view_8cpp"/>
+        <label>end/View.cpp</label>
+        <link refid="_view_8cpp"/>
       </node>
       <node id="5">
-        <label>endView.h</label>
-        <link refid="end_view_8h"/>
+        <label>end/View.h</label>
+        <link refid="_view_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
         <childnode refid="6" relation="include">
         </childnode>
       </node>
       <node id="8">
-        <label>endWindow.cpp</label>
-        <link refid="end_window_8cpp"/>
+        <label>end/Window.cpp</label>
+        <link refid="_window_8cpp"/>
       </node>
       <node id="7">
-        <label>endWindow.h</label>
-        <link refid="end_window_8h"/>
+        <label>end/Window.h</label>
+        <link refid="_window_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
         <childnode refid="8" relation="include">
@@ -145,17 +145,15 @@
 <codeline lineno="53"><highlight class="normal"></highlight></codeline>
 <codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classjuce_1_1ValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::ValueTree</ref><sp/><ref refid="classconfig_1_1_model_1ae9157061354f29018dc4a7d8c7397f83" kindref="member">get</ref>()<sp/>noexcept;</highlight></codeline>
 <codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==========================================================================</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classconfig_1_1_model_1accf96357acfe7a0b5c9e440a7a1d3e86" kindref="member">build</ref>();</highlight></codeline>
-<codeline lineno="62"><highlight class="normal"></highlight></codeline>
-<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classconfig_1_1_model_1a88f26a19f5b816bdad76c460d9d18389" kindref="member">load</ref><sp/>(const<sp/><ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce</ref>::<ref refid="structconfig_1_1_file" kindref="compound">File</ref>&amp;<sp/>file,<sp/><ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce</ref>::String&amp;<sp/>errorOut);</highlight></codeline>
-<codeline lineno="79"><highlight class="normal"></highlight></codeline>
-<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce</ref>::StringArray<sp/><ref refid="classconfig_1_1_model_1a49a8775067e4dbff5ba1d4c7c77d19eb" kindref="member">loadPath</ref><sp/>(const<sp/><ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce</ref>::<ref refid="structconfig_1_1_file" kindref="compound">File</ref>&amp;<sp/>dir);</highlight></codeline>
-<codeline lineno="92"><highlight class="normal"></highlight></codeline>
-<codeline lineno="93"><highlight class="normal">private:</highlight></codeline>
-<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==========================================================================</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="juce__PlatformDefs_8h_1a851b02724a8158a7f746c66b5758b3dd" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR</ref><sp/>(<ref refid="classconfig_1_1_model_1a663ac662800dd1918dbab12d317fa4d5" kindref="member">Model</ref>)</highlight></codeline>
-<codeline lineno="96"><highlight class="normal">};</highlight></codeline>
-<codeline lineno="98"><highlight class="normal">}</highlight><highlight class="comment">//<sp/>namespace<sp/>config</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classconfig_1_1_model_1a88f26a19f5b816bdad76c460d9d18389" kindref="member">load</ref><sp/>(const<sp/><ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce</ref>::<ref refid="structconfig_1_1_file" kindref="compound">File</ref>&amp;<sp/>file,<sp/><ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce</ref>::String&amp;<sp/>errorOut);</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce</ref>::StringArray<sp/><ref refid="classconfig_1_1_model_1a49a8775067e4dbff5ba1d4c7c77d19eb" kindref="member">loadPath</ref><sp/>(const<sp/><ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce</ref>::<ref refid="structconfig_1_1_file" kindref="compound">File</ref>&amp;<sp/>dir);</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal">private:</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==========================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="juce__PlatformDefs_8h_1a851b02724a8158a7f746c66b5758b3dd" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR</ref><sp/>(<ref refid="classconfig_1_1_model_1a663ac662800dd1918dbab12d317fa4d5" kindref="member">Model</ref>)</highlight></codeline>
+<codeline lineno="89"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="91"><highlight class="normal">}</highlight><highlight class="comment">//<sp/>namespace<sp/>config</highlight><highlight class="normal"></highlight></codeline>
     </programlisting>
     <location file="config/Config.h"/>
   </compounddef>

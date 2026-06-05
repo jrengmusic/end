@@ -1,0 +1,183 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="structend_1_1_boolean" kind="struct" language="C++" prot="public">
+    <compoundname>end::Boolean</compoundname>
+    <basecompoundref refid="classjam_1_1Map_1_1Instance" prot="public" virt="non-virtual">jam::Map::Instance&lt; Boolean &gt;</basecompoundref>
+    <includes refid="_map_8h" local="no">Map.h</includes>
+    <sectiondef kind="public-func">
+      <memberdef kind="function" id="structend_1_1_boolean_1aee152d13cb0daadb827c739b3493a439" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>end::Boolean::Boolean</definition>
+        <argsstring>()</argsstring>
+        <name>Boolean</name>
+        <qualifiedname>end::Boolean::Boolean</qualifiedname>
+        <briefdescription>
+<para>Populates the bimap with all known display mode entries. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="end/Map.h" line="13" column="5" bodyfile="end/Map.h" bodystart="13" bodyend="19"/>
+        <references refid="classjam_1_1Map_1_1Instance_1af839c922a9f9a6c1a8ef2b7102af4d77">jam::Map::Instance&lt; Boolean &gt;::map</references>
+      </memberdef>
+      <memberdef kind="function" id="structend_1_1_boolean_1a9ae901bdca7e81172663a7aacd423399" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="virtual">
+        <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref> &amp;</type>
+        <definition>const juce::String &amp; end::Boolean::getDefault</definition>
+        <argsstring>() const noexcept override</argsstring>
+        <name>getDefault</name>
+        <qualifiedname>end::Boolean::getDefault</qualifiedname>
+        <reimplements refid="classjam_1_1Map_1_1Instance_1acf3bf9980fc2a26ba7a0c79c65908550">getDefault</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="end/Map.h" line="21" column="24" bodyfile="end/Map.h" bodystart="21" bodyend="21"/>
+        <references refid="classjam_1_1Map_1_1Instance_1af839c922a9f9a6c1a8ef2b7102af4d77">jam::Map::Instance&lt; Boolean &gt;::map</references>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="structend_1_1_boolean_1a4c8cfcd41ccfd2261fb8d3e08ee6143a" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>const auto &amp;</type>
+        <definition>static const auto &amp; end::Boolean::get</definition>
+        <argsstring>() noexcept</argsstring>
+        <name>get</name>
+        <qualifiedname>end::Boolean::get</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="end/Map.h" line="23" column="23" bodyfile="end/Map.h" bodystart="23" bodyend="23"/>
+        <references refid="structjam_1_1Context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Derived &gt;::getContext</references>
+        <referencedby refid="structend_1_1_boolean_1ac2389507d11893392d5122a3d2914793" compoundref="_map_8h" startline="25" endline="28">get</referencedby>
+        <referencedby refid="classend_1_1_window_1ac277dcb496977e31338298a1c2f8e2d5" compoundref="_window_8cpp" startline="27" endline="90">end::Window::registerStyleParameters</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="structend_1_1_boolean_1ac2389507d11893392d5122a3d2914793" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>const bool</type>
+        <definition>static const bool end::Boolean::get</definition>
+        <argsstring>(const juce::String &amp;value) noexcept</argsstring>
+        <name>get</name>
+        <qualifiedname>end::Boolean::get</qualifiedname>
+        <param>
+          <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref> &amp;</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="end/Map.h" line="25" column="23" bodyfile="end/Map.h" bodystart="25" bodyend="28"/>
+        <references refid="structend_1_1_boolean_1a4c8cfcd41ccfd2261fb8d3e08ee6143a" compoundref="_map_8h" startline="23" endline="23">get</references>
+        <references refid="structjam_1_1Map_1ae8fbbc14cd030a156f6e3aaabba5778c">jam::Map::getKey</references>
+      </memberdef>
+      <memberdef kind="function" id="structend_1_1_boolean_1ac8d7746091f73463b1bc97a4168924d9" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref></type>
+        <definition>static const juce::String end::Boolean::get</definition>
+        <argsstring>(int key) noexcept</argsstring>
+        <name>get</name>
+        <qualifiedname>end::Boolean::get</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>key</declname>
+        </param>
+        <briefdescription>
+<para>Looks up the string for a given integer key. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>key</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The integer key (e.g. Boolean::false). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>The corresponding mode string. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="end/Map.h" line="36" column="31" bodyfile="end/Map.h" bodystart="36" bodyend="36"/>
+        <references refid="structend_1_1_boolean_1ac8d7746091f73463b1bc97a4168924d9" compoundref="_map_8h" startline="36" endline="36">get</references>
+        <referencedby refid="structend_1_1_boolean_1ac8d7746091f73463b1bc97a4168924d9" compoundref="_map_8h" startline="36" endline="36">get</referencedby>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>end::Boolean</label>
+        <link refid="structend_1_1_boolean"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>jam::Context&lt; Derived &gt;</label>
+        <link refid="structjam_1_1Context" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
+      <node id="2">
+        <label>jam::Map::Instance&lt; Boolean &gt;</label>
+        <link refid="classjam_1_1Map_1_1Instance" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>end::Boolean</label>
+        <link refid="structend_1_1_boolean"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>jam::Context&lt; Derived &gt;</label>
+        <link refid="structjam_1_1Context" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
+      <node id="2">
+        <label>jam::Map::Instance&lt; Boolean &gt;</label>
+        <link refid="classjam_1_1Map_1_1Instance" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>map</edgelabel>
+        </childnode>
+      </node>
+      <node id="5">
+        <label>juce::String</label>
+        <link refid="classjuce_1_1String" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="4">
+        <label>std::map&lt; int, juce::String &gt;</label>
+        <childnode refid="5" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="end/Map.h" line="8" column="1" bodyfile="end/Map.h" bodystart="9" bodyend="37"/>
+    <listofallmembers>
+      <member refid="structend_1_1_boolean_1aee152d13cb0daadb827c739b3493a439" prot="public" virt="non-virtual"><scope>end::Boolean</scope><name>Boolean</name></member>
+      <member refid="structjam_1_1Context_1a6e3f38a234db8ff2a9acb5986e72a2de" prot="public" virt="non-virtual"><scope>end::Boolean</scope><name>Context</name></member>
+      <member refid="structend_1_1_boolean_1a4c8cfcd41ccfd2261fb8d3e08ee6143a" prot="public" virt="non-virtual"><scope>end::Boolean</scope><name>get</name></member>
+      <member refid="structend_1_1_boolean_1ac2389507d11893392d5122a3d2914793" prot="public" virt="non-virtual"><scope>end::Boolean</scope><name>get</name></member>
+      <member refid="structend_1_1_boolean_1ac8d7746091f73463b1bc97a4168924d9" prot="public" virt="non-virtual"><scope>end::Boolean</scope><name>get</name></member>
+      <member refid="classjam_1_1Map_1_1Instance_1a098abe8fd166d7d61763bf0d215799cd" prot="public" virt="non-virtual" ambiguityscope="jam::Map::Instance&lt; Boolean &gt;::"><scope>end::Boolean</scope><name>get</name></member>
+      <member refid="structjam_1_1Context_1a259aac6b39aea0f3d3e2be9ab123cff3" prot="public" virt="non-virtual"><scope>end::Boolean</scope><name>getContext</name></member>
+      <member refid="structend_1_1_boolean_1a9ae901bdca7e81172663a7aacd423399" prot="public" virt="virtual"><scope>end::Boolean</scope><name>getDefault</name></member>
+      <member refid="structjam_1_1Context_1a5900ff66cdba02d6f6947cc6d5e8ec3d" prot="private" virt="non-virtual"><scope>end::Boolean</scope><name>head</name></member>
+      <member refid="classjam_1_1Map_1_1Instance_1af839c922a9f9a6c1a8ef2b7102af4d77" prot="protected" virt="non-virtual"><scope>end::Boolean</scope><name>map</name></member>
+      <member refid="structjam_1_1Context_1a6716feb60b039083ca0c099a506a3474" prot="public" virt="non-virtual"><scope>end::Boolean</scope><name>operator=</name></member>
+      <member refid="structjam_1_1Context_1aa1862120f2983ab7ddef536ba03bb114" prot="private" virt="non-virtual"><scope>end::Boolean</scope><name>previous</name></member>
+      <member refid="structjam_1_1Context_1a4169820e71837632922d3d17b377aeee" prot="public" virt="virtual"><scope>end::Boolean</scope><name>~Context</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

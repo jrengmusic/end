@@ -53,13 +53,6 @@ public:
 
     static const juce::ValueTree get() noexcept;
     //==========================================================================
-    /** @brief Seeds the tree with compiled binary defaults. No I/O.
-
-        Looks up each section via BinaryData::Raw(filename), parses, applies
-        to tree. Tree is valid after this call. Called from ctor.
-    */
-    void build();
-
     /** @brief Overlays one disk lua file onto the existing tree in place.
 
         Parses the lua file, walks the resulting ValueTree in lockstep with

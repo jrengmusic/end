@@ -2,6 +2,8 @@
 <doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
   <compounddef id="namespaceend" kind="namespace" language="C++">
     <compoundname>end</compoundname>
+    <innerclass refid="structend_1_1_boolean" prot="public">end::Boolean</innerclass>
+    <innerclass refid="classend_1_1_model" prot="public">end::Model</innerclass>
     <innerclass refid="classend_1_1_view" prot="public">end::View</innerclass>
     <innerclass refid="classend_1_1_window" prot="public">end::Window</innerclass>
     <innerclass refid="classend_1_1_look_and_feel" prot="public">end::LookAndFeel</innerclass>
@@ -10,6 +12,6 @@
     </briefdescription>
     <detaileddescription>
     </detaileddescription>
-    <location file="endView.cpp" line="3" column="1"/>
+    <location file="end/Map.h" line="4" column="1"/>
   </compounddef>
 </doxygen>

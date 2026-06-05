@@ -1,9 +1,10 @@
 #pragma once
 #include <JuceHeader.h>
 #include "config/Config.h"
+#include "end/Model.h"
+#include "end/View.h"
+#include "end/Window.h"
 #include "lookAndFeel/LookAndFeel.h"
-#include "endView.h"
-#include "endWindow.h"
 
 namespace end
 {
@@ -27,12 +28,15 @@ private:
 
     //==============================================================================
     // CONTEXT
+    Boolean boolMap;
     config::Model config;
 
     //==============================================================================
+    Model model;
     LookAndFeel lookAndFeel;
     jam::File::Watcher watcher;
     std::unique_ptr<end::Window> window;
+    std::unique_ptr<jam::ValueTree::Attachment> windowAttachment;
 
     //==============================================================================
 #if JUCE_DEBUG

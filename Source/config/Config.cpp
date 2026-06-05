@@ -26,14 +26,9 @@ const juce::String File::getName (int key) noexcept
 }
 
 //==============================================================================
-Model::Model() { build(); }
-
-const juce::ValueTree Model::get() noexcept { return getContext()->state; }
-//==============================================================================
-void Model::build()
+Model::Model()
+    : jam::Model (IDtype::config)
 {
-    state = juce::ValueTree { IDtype::config };
-
     for (auto& [key, value] : File::map)
     {
         if (key != File::config)
@@ -60,6 +55,8 @@ void Model::build()
                                                   return false;
                                               });
 }
+
+const juce::ValueTree Model::get() noexcept { return getContext()->state; }
 
 //==============================================================================
 void Model::load (const juce::File& file, juce::String& errorOut)

@@ -17,34 +17,57 @@
     <namespace>config</namespace>
   </compound>
   <compound kind="file">
-    <name>endView.cpp</name>
-    <path></path>
-    <filename>end_view_8cpp.html</filename>
-    <includes id="end_view_8h" name="endView.h" local="yes" import="no" module="no" objc="no">endView.h</includes>
+    <name>Map.h</name>
+    <path>end/</path>
+    <filename>_map_8h.html</filename>
+    <class kind="struct">end::Boolean</class>
     <namespace>end</namespace>
   </compound>
   <compound kind="file">
-    <name>endView.h</name>
-    <path></path>
-    <filename>end_view_8h.html</filename>
+    <name>Model.cpp</name>
+    <path>end/</path>
+    <filename>_model_8cpp.html</filename>
+    <includes id="_model_8h" name="Model.h" local="yes" import="no" module="no" objc="no">end/Model.h</includes>
+    <namespace>end</namespace>
+  </compound>
+  <compound kind="file">
+    <name>Model.h</name>
+    <path>end/</path>
+    <filename>_model_8h.html</filename>
+    <includes id="_identifier_8h" name="Identifier.h" local="yes" import="no" module="no" objc="no">Identifier.h</includes>
+    <class kind="class">end::Model</class>
+    <namespace>end</namespace>
+  </compound>
+  <compound kind="file">
+    <name>View.cpp</name>
+    <path>end/</path>
+    <filename>_view_8cpp.html</filename>
+    <includes id="_view_8h" name="View.h" local="yes" import="no" module="no" objc="no">end/View.h</includes>
+    <namespace>end</namespace>
+  </compound>
+  <compound kind="file">
+    <name>View.h</name>
+    <path>end/</path>
+    <filename>_view_8h.html</filename>
     <includes id="_config_8h" name="Config.h" local="yes" import="no" module="no" objc="no">config/Config.h</includes>
     <class kind="class">end::View</class>
     <namespace>end</namespace>
   </compound>
   <compound kind="file">
-    <name>endWindow.cpp</name>
-    <path></path>
-    <filename>end_window_8cpp.html</filename>
-    <includes id="end_window_8h" name="endWindow.h" local="yes" import="no" module="no" objc="no">endWindow.h</includes>
+    <name>Window.cpp</name>
+    <path>end/</path>
+    <filename>_window_8cpp.html</filename>
+    <includes id="_window_8h" name="Window.h" local="yes" import="no" module="no" objc="no">end/Window.h</includes>
     <namespace>end</namespace>
   </compound>
   <compound kind="file">
-    <name>endWindow.h</name>
-    <path></path>
-    <filename>end_window_8h.html</filename>
+    <name>Window.h</name>
+    <path>end/</path>
+    <filename>_window_8h.html</filename>
     <includes id="_config_8h" name="Config.h" local="yes" import="no" module="no" objc="no">config/Config.h</includes>
     <includes id="_look_and_feel_8h" name="LookAndFeel.h" local="yes" import="no" module="no" objc="no">lookAndFeel/LookAndFeel.h</includes>
     <includes id="_identifier_8h" name="Identifier.h" local="yes" import="no" module="no" objc="no">Identifier.h</includes>
+    <includes id="_map_8h" name="Map.h" local="yes" import="no" module="no" objc="no">Map.h</includes>
     <class kind="class">end::Window</class>
     <namespace>end</namespace>
   </compound>
@@ -121,6 +144,13 @@
     </member>
     <member kind="define">
       <type>#define</type>
+      <name>IDENTIFIER_MODEL</name>
+      <anchorfile>_identifier_8h.html</anchorfile>
+      <anchor>a3f1d190c83b5d7a37ef5c213fcb2bfaf</anchor>
+      <arglist>(X)</arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
       <name>END_MAKE_VIEW</name>
       <anchorfile>_identifier_8h.html</anchorfile>
       <anchor>aa678230a5f71071f7d9e20dd31ad5547</anchor>
@@ -155,9 +185,10 @@
     <path></path>
     <filename>_main_8h.html</filename>
     <includes id="_config_8h" name="Config.h" local="yes" import="no" module="no" objc="no">config/Config.h</includes>
+    <includes id="_model_8h" name="Model.h" local="yes" import="no" module="no" objc="no">end/Model.h</includes>
+    <includes id="_view_8h" name="View.h" local="yes" import="no" module="no" objc="no">end/View.h</includes>
+    <includes id="_window_8h" name="Window.h" local="yes" import="no" module="no" objc="no">end/Window.h</includes>
     <includes id="_look_and_feel_8h" name="LookAndFeel.h" local="yes" import="no" module="no" objc="no">lookAndFeel/LookAndFeel.h</includes>
-    <includes id="end_view_8h" name="endView.h" local="yes" import="no" module="no" objc="no">endView.h</includes>
-    <includes id="end_window_8h" name="endWindow.h" local="yes" import="no" module="no" objc="no">endWindow.h</includes>
     <class kind="class">end::Application</class>
     <namespace>end</namespace>
   </compound>
@@ -223,10 +254,24 @@
       <arglist>(const juce::File &amp;file, jam::File::Watcher::Event event) override</arglist>
     </member>
     <member kind="variable" protection="private">
+      <type>Boolean</type>
+      <name>boolMap</name>
+      <anchorfile>classend_1_1_application.html</anchorfile>
+      <anchor>aa1961e4f6d86729d7dfa22a68e8fff41</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="private">
       <type>config::Model</type>
       <name>config</name>
       <anchorfile>classend_1_1_application.html</anchorfile>
       <anchor>a765f410d9d4232de53d86311b3ad303f</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="private">
+      <type>Model</type>
+      <name>model</name>
+      <anchorfile>classend_1_1_application.html</anchorfile>
+      <anchor>ad5d031f4ee343e64f205b9e158447140</anchor>
       <arglist></arglist>
     </member>
     <member kind="variable" protection="private">
@@ -249,6 +294,53 @@
       <anchorfile>classend_1_1_application.html</anchorfile>
       <anchor>af5685bc1fb3a0e77fad81b639bcc92f7</anchor>
       <arglist></arglist>
+    </member>
+    <member kind="variable" protection="private">
+      <type>std::unique_ptr&lt; jam::ValueTree::Attachment &gt;</type>
+      <name>windowAttachment</name>
+      <anchorfile>classend_1_1_application.html</anchorfile>
+      <anchor>a2a73528c5a37ba3d2345f29fb2f550a4</anchor>
+      <arglist></arglist>
+    </member>
+  </compound>
+  <compound kind="struct">
+    <name>end::Boolean</name>
+    <filename>structend_1_1_boolean.html</filename>
+    <base>jam::Map::Instance&lt; Boolean &gt;</base>
+    <member kind="function">
+      <type></type>
+      <name>Boolean</name>
+      <anchorfile>structend_1_1_boolean.html</anchorfile>
+      <anchor>aee152d13cb0daadb827c739b3493a439</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>const juce::String &amp;</type>
+      <name>getDefault</name>
+      <anchorfile>structend_1_1_boolean.html</anchorfile>
+      <anchor>a9ae901bdca7e81172663a7aacd423399</anchor>
+      <arglist>() const noexcept override</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static const auto &amp;</type>
+      <name>get</name>
+      <anchorfile>structend_1_1_boolean.html</anchorfile>
+      <anchor>a4c8cfcd41ccfd2261fb8d3e08ee6143a</anchor>
+      <arglist>() noexcept</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static const bool</type>
+      <name>get</name>
+      <anchorfile>structend_1_1_boolean.html</anchorfile>
+      <anchor>ac2389507d11893392d5122a3d2914793</anchor>
+      <arglist>(const juce::String &amp;value) noexcept</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static const juce::String</type>
+      <name>get</name>
+      <anchorfile>structend_1_1_boolean.html</anchorfile>
+      <anchor>ac8d7746091f73463b1bc97a4168924d9</anchor>
+      <arglist>(int key) noexcept</arglist>
     </member>
   </compound>
   <compound kind="struct">
@@ -1049,6 +1141,20 @@
       <anchor>acd1923020a82886f9b0ac16f3e4c64bc</anchor>
       <arglist>(acrylic10, &quot;acrylic10&quot;) AS_IDENTIFIER(acrylic11</arglist>
     </member>
+    <member kind="function">
+      <type>end display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end gpu auto_reload program integration drop_multifiles hyperlinks border modal execute code_style body_colour h1_size h3_size h5_size h1_colour h3_colour h5_colour code_fence_background token_error token_keyword token_identifier token_float token_bracket token_preprocessor table_header_background table_border_colour table_cell_text progress_foreground progress_spinner_colour selection_colour scroll_up scroll_bottom win backgroundBlur glassFXRegular blurBehind acrylic11</type>
+      <name>AS_IDENTIFIER</name>
+      <anchorfile>struct_i_d.html</anchorfile>
+      <anchor>a115132b60af226ed5ebeba541e95c847</anchor>
+      <arglist>(mica, &quot;mica&quot;) AS_IDENTIFIER(activeTab</arglist>
+    </member>
+    <member kind="function">
+      <type>end display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end gpu auto_reload program integration drop_multifiles hyperlinks border modal execute code_style body_colour h1_size h3_size h5_size h1_colour h3_colour h5_colour code_fence_background token_error token_keyword token_identifier token_float token_bracket token_preprocessor table_header_background table_border_colour table_cell_text progress_foreground progress_spinner_colour selection_colour scroll_up scroll_bottom win backgroundBlur glassFXRegular blurBehind acrylic11 active_tab</type>
+      <name>AS_IDENTIFIER</name>
+      <anchorfile>struct_i_d.html</anchorfile>
+      <anchor>af748e021879b0aba21bd16dd5e8b74ae</anchor>
+      <arglist>(activePaneID, &quot;active_pane_id&quot;) AS_IDENTIFIER(zoom</arglist>
+    </member>
   </compound>
   <compound kind="struct">
     <name>IDref</name>
@@ -1731,6 +1837,20 @@
       <anchorfile>struct_i_dref.html</anchorfile>
       <anchor>aa5cfa812e10eea178756639dc74bfb1b</anchor>
       <arglist>(acrylic10, &quot;acrylic10&quot;) AS_STRINGREF(acrylic11</arglist>
+    </member>
+    <member kind="function">
+      <type>end display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end gpu auto_reload program integration drop_multifiles hyperlinks border modal execute code_style body_colour h1_size h3_size h5_size h1_colour h3_colour h5_colour code_fence_background token_error token_keyword token_identifier token_float token_bracket token_preprocessor table_header_background table_border_colour table_cell_text progress_foreground progress_spinner_colour selection_colour scroll_up scroll_bottom win backgroundBlur glassFXRegular blurBehind acrylic11</type>
+      <name>AS_STRINGREF</name>
+      <anchorfile>struct_i_dref.html</anchorfile>
+      <anchor>aea91a3a99ccfee5ff1c0bf513063e8b4</anchor>
+      <arglist>(mica, &quot;mica&quot;) AS_STRINGREF(activeTab</arglist>
+    </member>
+    <member kind="function">
+      <type>end display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end gpu auto_reload program integration drop_multifiles hyperlinks border modal execute code_style body_colour h1_size h3_size h5_size h1_colour h3_colour h5_colour code_fence_background token_error token_keyword token_identifier token_float token_bracket token_preprocessor table_header_background table_border_colour table_cell_text progress_foreground progress_spinner_colour selection_colour scroll_up scroll_bottom win backgroundBlur glassFXRegular blurBehind acrylic11 active_tab</type>
+      <name>AS_STRINGREF</name>
+      <anchorfile>struct_i_dref.html</anchorfile>
+      <anchor>a020732849c9f72547c60f3d85483321b</anchor>
+      <arglist>(activePaneID, &quot;active_pane_id&quot;) AS_STRINGREF(zoom</arglist>
     </member>
   </compound>
   <compound kind="struct">
@@ -2415,6 +2535,20 @@
       <anchor>a7c81dc1306d35c11cc7dddf03dd3b398</anchor>
       <arglist>(acrylic10, &quot;acrylic10&quot;) AS_UPPER(acrylic11</arglist>
     </member>
+    <member kind="function">
+      <type>end display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end gpu auto_reload program integration drop_multifiles hyperlinks border modal execute code_style body_colour h1_size h3_size h5_size h1_colour h3_colour h5_colour code_fence_background token_error token_keyword token_identifier token_float token_bracket token_preprocessor table_header_background table_border_colour table_cell_text progress_foreground progress_spinner_colour selection_colour scroll_up scroll_bottom win backgroundBlur glassFXRegular blurBehind acrylic11</type>
+      <name>AS_UPPER</name>
+      <anchorfile>struct_i_dtag.html</anchorfile>
+      <anchor>a156766875b971ea4327c2a39c01c72ab</anchor>
+      <arglist>(mica, &quot;mica&quot;) AS_UPPER(activeTab</arglist>
+    </member>
+    <member kind="function">
+      <type>end display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end gpu auto_reload program integration drop_multifiles hyperlinks border modal execute code_style body_colour h1_size h3_size h5_size h1_colour h3_colour h5_colour code_fence_background token_error token_keyword token_identifier token_float token_bracket token_preprocessor table_header_background table_border_colour table_cell_text progress_foreground progress_spinner_colour selection_colour scroll_up scroll_bottom win backgroundBlur glassFXRegular blurBehind acrylic11 active_tab</type>
+      <name>AS_UPPER</name>
+      <anchorfile>struct_i_dtag.html</anchorfile>
+      <anchor>aeda22a082b07201c8b9b6a24c9a1542a</anchor>
+      <arglist>(activePaneID, &quot;active_pane_id&quot;) AS_UPPER(zoom</arglist>
+    </member>
   </compound>
   <compound kind="struct">
     <name>IDtype</name>
@@ -3098,6 +3232,20 @@
       <anchor>ac361f9d2a889c67f15cc9f65c4549208</anchor>
       <arglist>(acrylic10, &quot;acrylic10&quot;) AS_TYPE(acrylic11</arglist>
     </member>
+    <member kind="function">
+      <type>end display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end gpu auto_reload program integration drop_multifiles hyperlinks border modal execute code_style body_colour h1_size h3_size h5_size h1_colour h3_colour h5_colour code_fence_background token_error token_keyword token_identifier token_float token_bracket token_preprocessor table_header_background table_border_colour table_cell_text progress_foreground progress_spinner_colour selection_colour scroll_up scroll_bottom win backgroundBlur glassFXRegular blurBehind acrylic11</type>
+      <name>AS_TYPE</name>
+      <anchorfile>struct_i_dtype.html</anchorfile>
+      <anchor>a32716a21d351719126291dc3edfe3edf</anchor>
+      <arglist>(mica, &quot;mica&quot;) AS_TYPE(activeTab</arglist>
+    </member>
+    <member kind="function">
+      <type>end display keys whelmed foreground inactive indicator bar_colour border_colour scrollback_lines cols scrollbar_thumb tab window ligatures line_height desktop_scale blink_interval editor_background selection black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg blur_radius save_size force_dwm close_on_run name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style prefix_timeout paste close_tab zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end gpu auto_reload program integration drop_multifiles hyperlinks border modal execute code_style body_colour h1_size h3_size h5_size h1_colour h3_colour h5_colour code_fence_background token_error token_keyword token_identifier token_float token_bracket token_preprocessor table_header_background table_border_colour table_cell_text progress_foreground progress_spinner_colour selection_colour scroll_up scroll_bottom win backgroundBlur glassFXRegular blurBehind acrylic11 active_tab</type>
+      <name>AS_TYPE</name>
+      <anchorfile>struct_i_dtype.html</anchorfile>
+      <anchor>a06c65948a7bff707412cae4d0d10f701</anchor>
+      <arglist>(activePaneID, &quot;active_pane_id&quot;) AS_TYPE(zoom</arglist>
+    </member>
   </compound>
   <compound kind="class">
     <name>end::LookAndFeel</name>
@@ -3323,7 +3471,7 @@
       <type>static const std::unordered_map&lt; juce::Identifier, int &gt;</type>
       <name>colourIds</name>
       <anchorfile>classend_1_1_look_and_feel.html</anchorfile>
-      <anchor>acbd5db06089b96099886d651913786b8</anchor>
+      <anchor>aa2c110e0b98645d6e4ead121e479baba</anchor>
       <arglist></arglist>
     </member>
     <member kind="function" protection="private">
@@ -3362,13 +3510,6 @@
     </member>
     <member kind="function">
       <type>void</type>
-      <name>build</name>
-      <anchorfile>classconfig_1_1_model.html</anchorfile>
-      <anchor>accf96357acfe7a0b5c9e440a7a1d3e86</anchor>
-      <arglist>()</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
       <name>load</name>
       <anchorfile>classconfig_1_1_model.html</anchorfile>
       <anchor>a88f26a19f5b816bdad76c460d9d18389</anchor>
@@ -3387,6 +3528,25 @@
       <anchorfile>classconfig_1_1_model.html</anchorfile>
       <anchor>ae9157061354f29018dc4a7d8c7397f83</anchor>
       <arglist>() noexcept</arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>end::Model</name>
+    <filename>classend_1_1_model.html</filename>
+    <base>jam::Model</base>
+    <member kind="function">
+      <type></type>
+      <name>Model</name>
+      <anchorfile>classend_1_1_model.html</anchorfile>
+      <anchor>a001a60fde895e5f54ad2672682909e69</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>~Model</name>
+      <anchorfile>classend_1_1_model.html</anchorfile>
+      <anchor>ad6cbf73ea05928511bcb64cececef692</anchor>
+      <arglist>()</arglist>
     </member>
   </compound>
   <compound kind="class">
@@ -3441,6 +3601,7 @@
     <name>end::Window</name>
     <filename>classend_1_1_window.html</filename>
     <base>jam::Window</base>
+    <base>jam::ValueTree::Component</base>
     <base>juce::ValueTree::Listener</base>
     <member kind="function">
       <type></type>
@@ -3529,6 +3690,8 @@
   <compound kind="namespace">
     <name>end</name>
     <filename>namespaceend.html</filename>
+    <class kind="struct">end::Boolean</class>
+    <class kind="class">end::Model</class>
     <class kind="class">end::View</class>
     <class kind="class">end::Window</class>
     <class kind="class">end::LookAndFeel</class>
@@ -3544,6 +3707,18 @@
     <filename>dir_9f351d46ce3cc29445a41dc3a31e6919.html</filename>
     <file>Config.cpp</file>
     <file>Config.h</file>
+  </compound>
+  <compound kind="dir">
+    <name>end</name>
+    <path>end/</path>
+    <filename>dir_df2986c7b29a3b9e8768851adf6ae18d.html</filename>
+    <file>Map.h</file>
+    <file>Model.cpp</file>
+    <file>Model.h</file>
+    <file>View.cpp</file>
+    <file>View.h</file>
+    <file>Window.cpp</file>
+    <file>Window.h</file>
   </compound>
   <compound kind="dir">
     <name>lookAndFeel</name>

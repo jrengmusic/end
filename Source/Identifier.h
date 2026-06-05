@@ -246,6 +246,13 @@
     X (acrylic11, "acrylic11")                             \
     X (mica, "mica")
 
+// Runtime state keys (end::Model)
+#define IDENTIFIER_MODEL(X)              \
+    X (activeTab, "active_tab")          \
+    X (activePaneID, "active_pane_id")   \
+    X (zoom, "zoom")                     \
+    X (renderer, "renderer")
+
 // ============================================================================
 #define END_MAKE_VIEW(ViewName, EXPANDER) \
     struct ViewName                       \
@@ -259,6 +266,7 @@
         IDENTIFIER_ACTIONS (EXPANDER)     \
         IDENTIFIER_WHELMED (EXPANDER)     \
         IDENTIFIER_BACKEND (EXPANDER)     \
+        IDENTIFIER_MODEL (EXPANDER)       \
     };
 
 END_MAKE_VIEW (ID, AS_IDENTIFIER)

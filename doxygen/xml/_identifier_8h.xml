@@ -4,7 +4,8 @@
     <compoundname>Identifier.h</compoundname>
     <includes local="no">JuceHeader.h</includes>
     <includedby refid="_config_8h" local="yes">config/Config.h</includedby>
-    <includedby refid="end_window_8h" local="yes">endWindow.h</includedby>
+    <includedby refid="_model_8h" local="yes">end/Model.h</includedby>
+    <includedby refid="_window_8h" local="yes">end/Window.h</includedby>
     <includedby refid="_look_and_feel_8h" local="yes">lookAndFeel/LookAndFeel.h</includedby>
     <incdepgraph>
       <node id="1">
@@ -22,6 +23,8 @@
         <label>Identifier.h</label>
         <link refid="_identifier_8h"/>
         <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
         </childnode>
         <childnode refid="8" relation="include">
         </childnode>
@@ -56,25 +59,37 @@
         <childnode refid="10" relation="include">
         </childnode>
       </node>
+      <node id="13">
+        <label>end/Model.cpp</label>
+        <link refid="_model_8cpp"/>
+      </node>
+      <node id="12">
+        <label>end/Model.h</label>
+        <link refid="_model_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
       <node id="7">
-        <label>endView.cpp</label>
-        <link refid="end_view_8cpp"/>
+        <label>end/View.cpp</label>
+        <link refid="_view_8cpp"/>
       </node>
       <node id="6">
-        <label>endView.h</label>
-        <link refid="end_view_8h"/>
+        <label>end/View.h</label>
+        <link refid="_view_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
         <childnode refid="7" relation="include">
         </childnode>
       </node>
       <node id="9">
-        <label>endWindow.cpp</label>
-        <link refid="end_window_8cpp"/>
+        <label>end/Window.cpp</label>
+        <link refid="_window_8cpp"/>
       </node>
       <node id="8">
-        <label>endWindow.h</label>
-        <link refid="end_window_8h"/>
+        <label>end/Window.h</label>
+        <link refid="_window_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
         <childnode refid="9" relation="include">
@@ -252,6 +267,21 @@
         </inbodydescription>
         <location file="Identifier.h" line="236" column="9" bodyfile="Identifier.h" bodystart="236" bodyend="247"/>
       </memberdef>
+      <memberdef kind="define" id="_identifier_8h_1a3f1d190c83b5d7a37ef5c213fcb2bfaf" prot="public" static="no">
+        <name>IDENTIFIER_MODEL</name>
+        <param><defname>X</defname></param>
+        <initializer><ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (activeTab, &quot;active_tab&quot;)          \
+<ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (activePaneID, &quot;active_pane_id&quot;)   \
+<ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (zoom, &quot;zoom&quot;)                     \
+<ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (renderer, &quot;renderer&quot;)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Identifier.h" line="250" column="9" bodyfile="Identifier.h" bodystart="250" bodyend="254"/>
+      </memberdef>
       <memberdef kind="define" id="_identifier_8h_1aa678230a5f71071f7d9e20dd31ad5547" prot="public" static="no">
         <name>END_MAKE_VIEW</name>
         <param><defname>ViewName</defname></param>
@@ -267,6 +297,7 @@
     <ref refid="_identifier_8h_1adeca505ca9b5e31c464aa09976652cdd" kindref="member">IDENTIFIER_ACTIONS</ref> (EXPANDER)     \
     <ref refid="_identifier_8h_1a4485766306c975b32e043f2a9eb45a8a" kindref="member">IDENTIFIER_WHELMED</ref> (EXPANDER)     \
     <ref refid="_identifier_8h_1a089ca9bdcc5559d95557c6c6ddf9db0c" kindref="member">IDENTIFIER_BACKEND</ref> (EXPANDER)     \
+    <ref refid="_identifier_8h_1a3f1d190c83b5d7a37ef5c213fcb2bfaf" kindref="member">IDENTIFIER_MODEL</ref> (EXPANDER)       \
 };</initializer>
         <briefdescription>
         </briefdescription>
@@ -274,7 +305,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="250" column="9" bodyfile="Identifier.h" bodystart="250" bodyend="262"/>
+        <location file="Identifier.h" line="257" column="9" bodyfile="Identifier.h" bodystart="257" bodyend="270"/>
         <referencedby refid="struct_i_dref_1a15336e61beceb953f8c3ff39521b7c22">IDref::AS_STRINGREF</referencedby>
         <referencedby refid="struct_i_dtype_1a6407ccc02f46025e81c8c4bb9598845a">IDtype::AS_TYPE</referencedby>
         <referencedby refid="struct_i_dtag_1a3e7c1d2932d996b3894e727d495aa6a5">IDtag::AS_UPPER</referencedby>
@@ -526,25 +557,33 @@
 <codeline lineno="246"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(acrylic11,<sp/>&quot;acrylic11&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
 <codeline lineno="247"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(mica,<sp/>&quot;mica&quot;)</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="248"><highlight class="normal"></highlight></codeline>
-<codeline lineno="249"><highlight class="normal"></highlight><highlight class="comment">//<sp/>============================================================================</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="250" refid="_identifier_8h_1aa678230a5f71071f7d9e20dd31ad5547" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>END_MAKE_VIEW(ViewName,<sp/>EXPANDER)<sp/>\</highlight></codeline>
-<codeline lineno="251"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>struct<sp/>ViewName<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="252"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="253"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_CONFIG<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="254"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_COMMON<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="255"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_DISPLAY<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="256"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_KEYS<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="257"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_NEXUS<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="258"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_POPUPS<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="259"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_ACTIONS<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="260"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_WHELMED<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="261"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_BACKEND<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="262"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>};</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="263"><highlight class="normal"></highlight></codeline>
-<codeline lineno="264" refid="struct_i_d_1ade3efe103f202bf24e5c45db41614f8d" refkind="member"><highlight class="normal"><ref refid="_identifier_8h_1aa678230a5f71071f7d9e20dd31ad5547" kindref="member">END_MAKE_VIEW</ref><sp/>(<ref refid="struct_i_d" kindref="compound">ID</ref>,<sp/><ref refid="struct_i_d_1ade3efe103f202bf24e5c45db41614f8d" kindref="member">AS_IDENTIFIER</ref>)</highlight></codeline>
-<codeline lineno="265" refid="struct_i_dref_1a15336e61beceb953f8c3ff39521b7c22" refkind="member"><highlight class="normal"><ref refid="_identifier_8h_1aa678230a5f71071f7d9e20dd31ad5547" kindref="member">END_MAKE_VIEW</ref><sp/>(<ref refid="struct_i_dref" kindref="compound">IDref</ref>,<sp/><ref refid="struct_i_dref_1a15336e61beceb953f8c3ff39521b7c22" kindref="member">AS_STRINGREF</ref>)</highlight></codeline>
-<codeline lineno="266" refid="struct_i_dtag_1a3e7c1d2932d996b3894e727d495aa6a5" refkind="member"><highlight class="normal"><ref refid="_identifier_8h_1aa678230a5f71071f7d9e20dd31ad5547" kindref="member">END_MAKE_VIEW</ref><sp/>(<ref refid="struct_i_dtag" kindref="compound">IDtag</ref>,<sp/><ref refid="struct_i_dtag_1a3e7c1d2932d996b3894e727d495aa6a5" kindref="member">AS_UPPER</ref>)</highlight></codeline>
-<codeline lineno="267" refid="struct_i_dtype_1a6407ccc02f46025e81c8c4bb9598845a" refkind="member"><highlight class="normal"><ref refid="_identifier_8h_1aa678230a5f71071f7d9e20dd31ad5547" kindref="member">END_MAKE_VIEW</ref><sp/>(<ref refid="struct_i_dtype" kindref="compound">IDtype</ref>,<sp/><ref refid="struct_i_dtype_1a6407ccc02f46025e81c8c4bb9598845a" kindref="member">AS_TYPE</ref>)</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Runtime<sp/>state<sp/>keys<sp/>(end::Model)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="250" refid="_identifier_8h_1a3f1d190c83b5d7a37ef5c213fcb2bfaf" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>IDENTIFIER_MODEL(X)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="251"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(activeTab,<sp/>&quot;active_tab&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="252"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(activePaneID,<sp/>&quot;active_pane_id&quot;)<sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="253"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(zoom,<sp/>&quot;zoom&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="254"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(renderer,<sp/>&quot;renderer&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="255"><highlight class="normal"></highlight></codeline>
+<codeline lineno="256"><highlight class="normal"></highlight><highlight class="comment">//<sp/>============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="257" refid="_identifier_8h_1aa678230a5f71071f7d9e20dd31ad5547" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>END_MAKE_VIEW(ViewName,<sp/>EXPANDER)<sp/>\</highlight></codeline>
+<codeline lineno="258"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>struct<sp/>ViewName<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="259"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="260"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_CONFIG<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="261"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_COMMON<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="262"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_DISPLAY<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="263"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_KEYS<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="264"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_NEXUS<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="265"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_POPUPS<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="266"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_ACTIONS<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="267"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_WHELMED<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="268"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_BACKEND<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="269"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_MODEL<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="270"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>};</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="271"><highlight class="normal"></highlight></codeline>
+<codeline lineno="272" refid="struct_i_d_1ade3efe103f202bf24e5c45db41614f8d" refkind="member"><highlight class="normal"><ref refid="_identifier_8h_1aa678230a5f71071f7d9e20dd31ad5547" kindref="member">END_MAKE_VIEW</ref><sp/>(<ref refid="struct_i_d" kindref="compound">ID</ref>,<sp/><ref refid="struct_i_d_1ade3efe103f202bf24e5c45db41614f8d" kindref="member">AS_IDENTIFIER</ref>)</highlight></codeline>
+<codeline lineno="273" refid="struct_i_dref_1a15336e61beceb953f8c3ff39521b7c22" refkind="member"><highlight class="normal"><ref refid="_identifier_8h_1aa678230a5f71071f7d9e20dd31ad5547" kindref="member">END_MAKE_VIEW</ref><sp/>(<ref refid="struct_i_dref" kindref="compound">IDref</ref>,<sp/><ref refid="struct_i_dref_1a15336e61beceb953f8c3ff39521b7c22" kindref="member">AS_STRINGREF</ref>)</highlight></codeline>
+<codeline lineno="274" refid="struct_i_dtag_1a3e7c1d2932d996b3894e727d495aa6a5" refkind="member"><highlight class="normal"><ref refid="_identifier_8h_1aa678230a5f71071f7d9e20dd31ad5547" kindref="member">END_MAKE_VIEW</ref><sp/>(<ref refid="struct_i_dtag" kindref="compound">IDtag</ref>,<sp/><ref refid="struct_i_dtag_1a3e7c1d2932d996b3894e727d495aa6a5" kindref="member">AS_UPPER</ref>)</highlight></codeline>
+<codeline lineno="275" refid="struct_i_dtype_1a6407ccc02f46025e81c8c4bb9598845a" refkind="member"><highlight class="normal"><ref refid="_identifier_8h_1aa678230a5f71071f7d9e20dd31ad5547" kindref="member">END_MAKE_VIEW</ref><sp/>(<ref refid="struct_i_dtype" kindref="compound">IDtype</ref>,<sp/><ref refid="struct_i_dtype_1a6407ccc02f46025e81c8c4bb9598845a" kindref="member">AS_TYPE</ref>)</highlight></codeline>
     </programlisting>
     <location file="Identifier.h"/>
   </compounddef>

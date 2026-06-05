@@ -1,10 +1,13 @@
 <?xml version='1.0' encoding='UTF-8' standalone='no'?>
 <doxygenindex xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="index.xsd" version="1.16.1" xml:lang="en-US">
   <compound refid="classend_1_1_application" kind="class"><name>end::Application</name>
+    <member refid="classend_1_1_application_1aa1961e4f6d86729d7dfa22a68e8fff41" kind="variable"><name>boolMap</name></member>
     <member refid="classend_1_1_application_1a765f410d9d4232de53d86311b3ad303f" kind="variable"><name>config</name></member>
+    <member refid="classend_1_1_application_1ad5d031f4ee343e64f205b9e158447140" kind="variable"><name>model</name></member>
     <member refid="classend_1_1_application_1afe921d4972c796aa0612d3ce96adaca0" kind="variable"><name>lookAndFeel</name></member>
     <member refid="classend_1_1_application_1a551f9e489ee4727369d6145ab26978ba" kind="variable"><name>watcher</name></member>
     <member refid="classend_1_1_application_1af5685bc1fb3a0e77fad81b639bcc92f7" kind="variable"><name>window</name></member>
+    <member refid="classend_1_1_application_1a2a73528c5a37ba3d2345f29fb2f550a4" kind="variable"><name>windowAttachment</name></member>
     <member refid="classend_1_1_application_1a127405d348ee02fc38b374812bf3c883" kind="function"><name>Application</name></member>
     <member refid="classend_1_1_application_1ab2d34713da4e6b4917cf53a08cda47eb" kind="function"><name>getApplicationName</name></member>
     <member refid="classend_1_1_application_1af5df574c86505182fdd01d567824d0b7" kind="function"><name>getApplicationVersion</name></member>
@@ -13,6 +16,13 @@
     <member refid="classend_1_1_application_1a18d7fd1d8bbcca6a1c7af73e3bf503a8" kind="function"><name>shutdown</name></member>
     <member refid="classend_1_1_application_1a636a8c0776059c65df3d0405229858f4" kind="function"><name>systemRequestedQuit</name></member>
     <member refid="classend_1_1_application_1af446ffd1fa995c2838d2d34713a7d83a" kind="function"><name>fileChanged</name></member>
+  </compound>
+  <compound refid="structend_1_1_boolean" kind="struct"><name>end::Boolean</name>
+    <member refid="structend_1_1_boolean_1aee152d13cb0daadb827c739b3493a439" kind="function"><name>Boolean</name></member>
+    <member refid="structend_1_1_boolean_1a9ae901bdca7e81172663a7aacd423399" kind="function"><name>getDefault</name></member>
+    <member refid="structend_1_1_boolean_1a4c8cfcd41ccfd2261fb8d3e08ee6143a" kind="function"><name>get</name></member>
+    <member refid="structend_1_1_boolean_1ac2389507d11893392d5122a3d2914793" kind="function"><name>get</name></member>
+    <member refid="structend_1_1_boolean_1ac8d7746091f73463b1bc97a4168924d9" kind="function"><name>get</name></member>
   </compound>
   <compound refid="structconfig_1_1_file" kind="struct"><name>config::File</name>
     <member refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112b" kind="enum"><name>@235203252005062224071053352361331120251033132350</name></member>
@@ -126,6 +136,8 @@
     <member refid="struct_i_d_1a0bdd52108c53aa793e5cbdf7c881d877" kind="function"><name>AS_IDENTIFIER</name></member>
     <member refid="struct_i_d_1a3b4ff0ca25c786e1eeda94c3f7db94a0" kind="function"><name>AS_IDENTIFIER</name></member>
     <member refid="struct_i_d_1acd1923020a82886f9b0ac16f3e4c64bc" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1a115132b60af226ed5ebeba541e95c847" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1af748e021879b0aba21bd16dd5e8b74ae" kind="function"><name>AS_IDENTIFIER</name></member>
   </compound>
   <compound refid="struct_i_dref" kind="struct"><name>IDref</name>
     <member refid="struct_i_dref_1a15336e61beceb953f8c3ff39521b7c22" kind="function"><name>AS_STRINGREF</name></member>
@@ -225,6 +237,8 @@
     <member refid="struct_i_dref_1a6116609e41984ab6ca61c4d20bd43a14" kind="function"><name>AS_STRINGREF</name></member>
     <member refid="struct_i_dref_1a724abdfa26ea3d228ad806dc4a63086e" kind="function"><name>AS_STRINGREF</name></member>
     <member refid="struct_i_dref_1aa5cfa812e10eea178756639dc74bfb1b" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1aea91a3a99ccfee5ff1c0bf513063e8b4" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1a020732849c9f72547c60f3d85483321b" kind="function"><name>AS_STRINGREF</name></member>
   </compound>
   <compound refid="struct_i_dtag" kind="struct"><name>IDtag</name>
     <member refid="struct_i_dtag_1a3e7c1d2932d996b3894e727d495aa6a5" kind="function"><name>AS_UPPER</name></member>
@@ -324,6 +338,8 @@
     <member refid="struct_i_dtag_1ad81cb2047e81ae0bb1bcd1b6a9c42641" kind="function"><name>AS_UPPER</name></member>
     <member refid="struct_i_dtag_1ad4e4b3855fd3debd556c9305746e845d" kind="function"><name>AS_UPPER</name></member>
     <member refid="struct_i_dtag_1a7c81dc1306d35c11cc7dddf03dd3b398" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a156766875b971ea4327c2a39c01c72ab" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1aeda22a082b07201c8b9b6a24c9a1542a" kind="function"><name>AS_UPPER</name></member>
   </compound>
   <compound refid="struct_i_dtype" kind="struct"><name>IDtype</name>
     <member refid="struct_i_dtype_1a6407ccc02f46025e81c8c4bb9598845a" kind="function"><name>AS_TYPE</name></member>
@@ -423,6 +439,8 @@
     <member refid="struct_i_dtype_1a6c51997b73c691136b84d265bed8747a" kind="function"><name>AS_TYPE</name></member>
     <member refid="struct_i_dtype_1aa70f395ed64337cd39cf8801287492c8" kind="function"><name>AS_TYPE</name></member>
     <member refid="struct_i_dtype_1ac361f9d2a889c67f15cc9f65c4549208" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a32716a21d351719126291dc3edfe3edf" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a06c65948a7bff707412cae4d0d10f701" kind="function"><name>AS_TYPE</name></member>
   </compound>
   <compound refid="classend_1_1_look_and_feel" kind="class"><name>end::LookAndFeel</name>
     <member refid="classend_1_1_look_and_feel_1a96444644e5b541f2a7a2235c0dc91cf8" kind="enum"><name>ColourIds</name></member>
@@ -441,7 +459,7 @@
     <member refid="classend_1_1_look_and_feel_1a96444644e5b541f2a7a2235c0dc91cf8abefbf6c1366bd689905ebed8e1805c47" kind="enumvalue"><name>hintLabelFgColourId</name></member>
     <member refid="classend_1_1_look_and_feel_1a96444644e5b541f2a7a2235c0dc91cf8a04ffe0119c54a9a048974ea565060fa5" kind="enumvalue"><name>selectionColourId</name></member>
     <member refid="classend_1_1_look_and_feel_1a96444644e5b541f2a7a2235c0dc91cf8a29bcd8deec252b03c2577f82f8f481c6" kind="enumvalue"><name>selectionCursorColourId</name></member>
-    <member refid="classend_1_1_look_and_feel_1acbd5db06089b96099886d651913786b8" kind="variable"><name>colourIds</name></member>
+    <member refid="classend_1_1_look_and_feel_1aa2c110e0b98645d6e4ead121e479baba" kind="variable"><name>colourIds</name></member>
     <member refid="classend_1_1_look_and_feel_1ae086844e629bd114836bde7a3b58abcb" kind="variable"><name>config</name></member>
     <member refid="classend_1_1_look_and_feel_1a9313c08eb0def3e3a423f8bfd362f435" kind="function"><name>LookAndFeel</name></member>
     <member refid="classend_1_1_look_and_feel_1a4e4378865cd561e4bccbb346cf7a8114" kind="function"><name>~LookAndFeel</name></member>
@@ -452,10 +470,13 @@
   <compound refid="classconfig_1_1_model" kind="class"><name>config::Model</name>
     <member refid="classconfig_1_1_model_1a663ac662800dd1918dbab12d317fa4d5" kind="function"><name>Model</name></member>
     <member refid="classconfig_1_1_model_1af95c0931a6f76206d56eb06a3c71a05a" kind="function"><name>~Model</name></member>
-    <member refid="classconfig_1_1_model_1accf96357acfe7a0b5c9e440a7a1d3e86" kind="function"><name>build</name></member>
     <member refid="classconfig_1_1_model_1a88f26a19f5b816bdad76c460d9d18389" kind="function"><name>load</name></member>
     <member refid="classconfig_1_1_model_1a49a8775067e4dbff5ba1d4c7c77d19eb" kind="function"><name>loadPath</name></member>
     <member refid="classconfig_1_1_model_1ae9157061354f29018dc4a7d8c7397f83" kind="function"><name>get</name></member>
+  </compound>
+  <compound refid="classend_1_1_model" kind="class"><name>end::Model</name>
+    <member refid="classend_1_1_model_1a001a60fde895e5f54ad2672682909e69" kind="function"><name>Model</name></member>
+    <member refid="classend_1_1_model_1ad6cbf73ea05928511bcb64cececef692" kind="function"><name>~Model</name></member>
   </compound>
   <compound refid="classend_1_1_view" kind="class"><name>end::View</name>
     <member refid="classend_1_1_view_1ad207d70397b5a0ae3d0e722742d2940e" kind="variable"><name>config</name></member>
@@ -488,13 +509,19 @@
   </compound>
   <compound refid="_config_8h" kind="file"><name>Config.h</name>
   </compound>
-  <compound refid="end_view_8cpp" kind="file"><name>endView.cpp</name>
+  <compound refid="_map_8h" kind="file"><name>Map.h</name>
   </compound>
-  <compound refid="end_view_8h" kind="file"><name>endView.h</name>
+  <compound refid="_model_8cpp" kind="file"><name>Model.cpp</name>
   </compound>
-  <compound refid="end_window_8cpp" kind="file"><name>endWindow.cpp</name>
+  <compound refid="_model_8h" kind="file"><name>Model.h</name>
   </compound>
-  <compound refid="end_window_8h" kind="file"><name>endWindow.h</name>
+  <compound refid="_view_8cpp" kind="file"><name>View.cpp</name>
+  </compound>
+  <compound refid="_view_8h" kind="file"><name>View.h</name>
+  </compound>
+  <compound refid="_window_8cpp" kind="file"><name>Window.cpp</name>
+  </compound>
+  <compound refid="_window_8h" kind="file"><name>Window.h</name>
   </compound>
   <compound refid="_identifier_8h" kind="file"><name>Identifier.h</name>
     <member refid="_identifier_8h_1a40d51e0ccfbbdea334e323d8e091af54" kind="define"><name>IDENTIFIER_CONFIG</name></member>
@@ -506,6 +533,7 @@
     <member refid="_identifier_8h_1adeca505ca9b5e31c464aa09976652cdd" kind="define"><name>IDENTIFIER_ACTIONS</name></member>
     <member refid="_identifier_8h_1a4485766306c975b32e043f2a9eb45a8a" kind="define"><name>IDENTIFIER_WHELMED</name></member>
     <member refid="_identifier_8h_1a089ca9bdcc5559d95557c6c6ddf9db0c" kind="define"><name>IDENTIFIER_BACKEND</name></member>
+    <member refid="_identifier_8h_1a3f1d190c83b5d7a37ef5c213fcb2bfaf" kind="define"><name>IDENTIFIER_MODEL</name></member>
     <member refid="_identifier_8h_1aa678230a5f71071f7d9e20dd31ad5547" kind="define"><name>END_MAKE_VIEW</name></member>
   </compound>
   <compound refid="_look_and_feel_8cpp" kind="file"><name>LookAndFeel.cpp</name>
@@ -517,6 +545,8 @@
   <compound refid="_main_8h" kind="file"><name>Main.h</name>
   </compound>
   <compound refid="dir_9f351d46ce3cc29445a41dc3a31e6919" kind="dir"><name>config</name>
+  </compound>
+  <compound refid="dir_df2986c7b29a3b9e8768851adf6ae18d" kind="dir"><name>end</name>
   </compound>
   <compound refid="dir_c9cfca4ec86141f7bb4e60ba321d4655" kind="dir"><name>lookAndFeel</name>
   </compound>

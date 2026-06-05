@@ -1,4 +1,4 @@
-#include "endView.h"
+#include "end/View.h"
 
 namespace end
 {

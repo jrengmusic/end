@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='UTF-8' standalone='no'?>
 <doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
-  <compounddef id="end_window_8cpp" kind="file" language="C++">
-    <compoundname>endWindow.cpp</compoundname>
-    <includes refid="end_window_8h" local="yes">endWindow.h</includes>
+  <compounddef id="_window_8cpp" kind="file" language="C++">
+    <compoundname>Window.cpp</compoundname>
+    <includes refid="_window_8h" local="yes">end/Window.h</includes>
     <incdepgraph>
       <node id="5">
         <label>Identifier.h</label>
@@ -18,15 +18,21 @@
         <childnode refid="5" relation="include">
         </childnode>
       </node>
+      <node id="7">
+        <label>Map.h</label>
+        <link refid="_map_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
       <node id="1">
-        <label>endWindow.cpp</label>
-        <link refid="end_window_8cpp"/>
+        <label>end/Window.cpp</label>
+        <link refid="_window_8cpp"/>
         <childnode refid="2" relation="include">
         </childnode>
       </node>
       <node id="2">
-        <label>endWindow.h</label>
-        <link refid="end_window_8h"/>
+        <label>end/Window.h</label>
+        <link refid="_window_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
         <childnode refid="4" relation="include">
@@ -34,6 +40,8 @@
         <childnode refid="6" relation="include">
         </childnode>
         <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
         </childnode>
       </node>
       <node id="6">
@@ -56,7 +64,7 @@
     <detaileddescription>
     </detaileddescription>
     <programlisting>
-<codeline lineno="1"><highlight class="preprocessor">#include<sp/>&quot;<ref refid="end_window_8h" kindref="compound">endWindow.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="1"><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_window_8h" kindref="compound">end/Window.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="2"><highlight class="normal"></highlight></codeline>
 <codeline lineno="3"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespaceend" kindref="compound">end</ref></highlight></codeline>
 <codeline lineno="4"><highlight class="normal">{</highlight></codeline>
@@ -104,14 +112,14 @@
 <codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ID::alwaysOnTop,</highlight></codeline>
 <codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>[</highlight><highlight class="keyword">this</highlight><highlight class="normal">]<sp/>(<ref refid="classjuce_1_1ValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::ValueTree</ref><sp/><ref refid="structjam_1_1ValueTree_1_1Component_1ab587799358050ce53720ef28f33e01eb" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">node</ref>)</highlight></codeline>
 <codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
-<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classjuce_1_1Component_1a7f2af71c2c981fb7c43d7262563d185f" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">setAlwaysOnTop</ref><sp/>(</highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">int</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(<ref refid="structjam_1_1ValueTree_1_1Component_1ab587799358050ce53720ef28f33e01eb" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">node</ref>.getProperty<sp/>(ID::alwaysOnTop))<sp/>!=<sp/>0);</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classjuce_1_1Component_1a7f2af71c2c981fb7c43d7262563d185f" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">setAlwaysOnTop</ref><sp/>(<ref refid="structend_1_1_boolean_1a4c8cfcd41ccfd2261fb8d3e08ee6143a" kindref="member">Boolean::get</ref><sp/>(<ref refid="structjam_1_1ValueTree_1_1Component_1ab587799358050ce53720ef28f33e01eb" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">node</ref>.getProperty<sp/>(ID::alwaysOnTop).toString()));</highlight></codeline>
 <codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>});</highlight></codeline>
 <codeline lineno="51"><highlight class="normal"></highlight></codeline>
 <codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classend_1_1_window_1a56bf0a4cec2844d980843a4bd0ca35b8" kindref="member">styleParameters</ref>.add&lt;<ref refid="classjuce_1_1ValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::ValueTree</ref>&gt;<sp/>(</highlight></codeline>
 <codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ID::buttons,</highlight></codeline>
 <codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>[</highlight><highlight class="keyword">this</highlight><highlight class="normal">]<sp/>(<ref refid="classjuce_1_1ValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::ValueTree</ref><sp/><ref refid="structjam_1_1ValueTree_1_1Component_1ab587799358050ce53720ef28f33e01eb" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">node</ref>)</highlight></codeline>
 <codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
-<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classjam_1_1Window_1a72baeb690a2a47a8866afe0bbc6d44e0" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">setShowWindowButtons</ref><sp/>(</highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">int</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(<ref refid="structjam_1_1ValueTree_1_1Component_1ab587799358050ce53720ef28f33e01eb" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">node</ref>.getProperty<sp/>(ID::buttons))<sp/>!=<sp/>0);</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classjam_1_1Window_1a72baeb690a2a47a8866afe0bbc6d44e0" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">setShowWindowButtons</ref><sp/>(<ref refid="structend_1_1_boolean_1a4c8cfcd41ccfd2261fb8d3e08ee6143a" kindref="member">Boolean::get</ref><sp/>(<ref refid="structjam_1_1ValueTree_1_1Component_1ab587799358050ce53720ef28f33e01eb" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">node</ref>.getProperty<sp/>(ID::buttons).toString()));</highlight></codeline>
 <codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>});</highlight></codeline>
 <codeline lineno="58"><highlight class="normal"></highlight></codeline>
 <codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classend_1_1_window_1a56bf0a4cec2844d980843a4bd0ca35b8" kindref="member">styleParameters</ref>.add&lt;<ref refid="classjuce_1_1ValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::ValueTree</ref>&gt;<sp/>(</highlight></codeline>
@@ -177,6 +185,6 @@
 <codeline lineno="119"><highlight class="normal"></highlight></codeline>
 <codeline lineno="121"><highlight class="normal">}</highlight><highlight class="comment">//<sp/>namespace<sp/>end</highlight><highlight class="normal"></highlight></codeline>
     </programlisting>
-    <location file="endWindow.cpp"/>
+    <location file="end/Window.cpp"/>
   </compounddef>
 </doxygen>

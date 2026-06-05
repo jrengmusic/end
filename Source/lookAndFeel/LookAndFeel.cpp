@@ -3,6 +3,30 @@
 namespace end
 {
 /*____________________________________________________________________________*/
+
+const std::unordered_map<juce::Identifier, int> LookAndFeel::colourIds {
+    { ID::editorBackground, juce::TextEditor::backgroundColourId      },
+    { ID::editorOutline,    juce::TextEditor::outlineColourId         },
+    { jam::ID::cursor,      juce::CaretComponent::caretColourId       },
+    { ID::selection,        juce::TextEditor::highlightColourId       },
+    { ID::scrollbarThumb,   juce::ScrollBar::thumbColourId            },
+    { ID::scrollbarTrack,   juce::ScrollBar::trackColourId            },
+    { ID::selectionCursor,  selectionCursorColourId                   },
+    { ID::statusBar,        statusBarBackgroundColourId               },
+    { ID::statusBarLabelBg, statusBarLabelBackgroundColourId          },
+    { ID::statusBarLabelFg, statusBarLabelTextColourId                },
+    { ID::statusBarSpinner, statusBarSpinnerColourId                  },
+    { ID::hintLabelBg,      hintLabelBgColourId                       },
+    { ID::hintLabelFg,      hintLabelFgColourId                       },
+    { jam::ID::line,        tabLineColourId                           },
+    { ID::active,           tabActiveColourId                         },
+    { ID::indicator,        tabIndicatorColourId                      },
+    { ID::barColour,        paneBarColourId                           },
+    { ID::barHighlight,     paneBarHighlightColourId                  },
+    { jam::ID::colour,      juce::ResizableWindow::backgroundColourId },
+};
+
+/*____________________________________________________________________________*/
 const juce::Colour LookAndFeel::fromRGBA (const juce::String& hexRGBA) noexcept
 {
     // Config stores #RRGGBBAA. fromString interprets as AARRGGBB (wrong order).
