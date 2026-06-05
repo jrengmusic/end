@@ -1,6 +1,23 @@
 <?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
 <tagfile doxygen_version="1.16.1">
   <compound kind="file">
+    <name>Registry.cpp</name>
+    <path>action/</path>
+    <filename>_registry_8cpp.html</filename>
+    <includes id="_registry_8h" name="Registry.h" local="yes" import="no" module="no" objc="no">action/Registry.h</includes>
+    <namespace>action</namespace>
+  </compound>
+  <compound kind="file">
+    <name>Registry.h</name>
+    <path>action/</path>
+    <filename>_registry_8h.html</filename>
+    <includes id="_config_8h" name="Config.h" local="yes" import="no" module="no" objc="no">config/Config.h</includes>
+    <class kind="struct">std::hash&lt; juce::KeyPress &gt;</class>
+    <class kind="class">action::Registry</class>
+    <namespace>std</namespace>
+    <namespace>action</namespace>
+  </compound>
+  <compound kind="file">
     <name>Config.cpp</name>
     <path>config/</path>
     <filename>_config_8cpp.html</filename>
@@ -39,6 +56,45 @@
     <namespace>end</namespace>
   </compound>
   <compound kind="file">
+    <name>Panes.cpp</name>
+    <path>end/</path>
+    <filename>_panes_8cpp.html</filename>
+    <includes id="_panes_8h" name="Panes.h" local="yes" import="no" module="no" objc="no">end/Panes.h</includes>
+    <namespace>end</namespace>
+  </compound>
+  <compound kind="file">
+    <name>Panes.h</name>
+    <path>end/</path>
+    <filename>_panes_8h.html</filename>
+    <includes id="_pane_view_8h" name="PaneView.h" local="yes" import="no" module="no" objc="no">end/PaneView.h</includes>
+    <class kind="class">end::Panes</class>
+    <namespace>end</namespace>
+  </compound>
+  <compound kind="file">
+    <name>PaneView.h</name>
+    <path>end/</path>
+    <filename>_pane_view_8h.html</filename>
+    <includes id="_identifier_8h" name="Identifier.h" local="yes" import="no" module="no" objc="no">Identifier.h</includes>
+    <class kind="class">end::PaneView</class>
+    <namespace>end</namespace>
+  </compound>
+  <compound kind="file">
+    <name>Tabs.cpp</name>
+    <path>end/</path>
+    <filename>_tabs_8cpp.html</filename>
+    <includes id="_tabs_8h" name="Tabs.h" local="yes" import="no" module="no" objc="no">end/Tabs.h</includes>
+    <namespace>end</namespace>
+  </compound>
+  <compound kind="file">
+    <name>Tabs.h</name>
+    <path>end/</path>
+    <filename>_tabs_8h.html</filename>
+    <includes id="_panes_8h" name="Panes.h" local="yes" import="no" module="no" objc="no">end/Panes.h</includes>
+    <includes id="_identifier_8h" name="Identifier.h" local="yes" import="no" module="no" objc="no">Identifier.h</includes>
+    <class kind="class">end::Tabs</class>
+    <namespace>end</namespace>
+  </compound>
+  <compound kind="file">
     <name>View.cpp</name>
     <path>end/</path>
     <filename>_view_8cpp.html</filename>
@@ -49,6 +105,8 @@
     <name>View.h</name>
     <path>end/</path>
     <filename>_view_8h.html</filename>
+    <includes id="_tabs_8h" name="Tabs.h" local="yes" import="no" module="no" objc="no">end/Tabs.h</includes>
+    <includes id="_registry_8h" name="Registry.h" local="yes" import="no" module="no" objc="no">action/Registry.h</includes>
     <includes id="_config_8h" name="Config.h" local="yes" import="no" module="no" objc="no">config/Config.h</includes>
     <class kind="class">end::View</class>
     <namespace>end</namespace>
@@ -302,6 +360,13 @@
       <anchor>a2a73528c5a37ba3d2345f29fb2f550a4</anchor>
       <arglist></arglist>
     </member>
+    <member kind="variable" protection="private">
+      <type>std::unique_ptr&lt; jam::ValueTree::Attachment &gt;</type>
+      <name>tabsAttachment</name>
+      <anchorfile>classend_1_1_application.html</anchorfile>
+      <anchor>a8ff1372814384aefd1ebc7ca447f2e18</anchor>
+      <arglist></arglist>
+    </member>
   </compound>
   <compound kind="struct">
     <name>end::Boolean</name>
@@ -457,6 +522,17 @@
       <anchorfile>structconfig_1_1_file.html</anchorfile>
       <anchor>a1d5413f8cf2eb67f26dd717fb948c596</anchor>
       <arglist></arglist>
+    </member>
+  </compound>
+  <compound kind="struct">
+    <name>std::hash&lt; juce::KeyPress &gt;</name>
+    <filename>structstd_1_1hash_3_01juce_1_1_key_press_01_4.html</filename>
+    <member kind="function">
+      <type>size_t</type>
+      <name>operator()</name>
+      <anchorfile>structstd_1_1hash_3_01juce_1_1_key_press_01_4.html</anchorfile>
+      <anchor>a9e14d70b21d044461108e0413f112ccd</anchor>
+      <arglist>(const juce::KeyPress &amp;k) const noexcept</arglist>
     </member>
   </compound>
   <compound kind="struct">
@@ -3250,7 +3326,7 @@
   <compound kind="class">
     <name>end::LookAndFeel</name>
     <filename>classend_1_1_look_and_feel.html</filename>
-    <base>juce::LookAndFeel_V4</base>
+    <base>jam::LookAndFeel::Methods&lt; LookAndFeel &gt;</base>
     <base>juce::ValueTree::Listener</base>
     <member kind="enumeration">
       <type></type>
@@ -3460,6 +3536,13 @@
       <anchor>aeb869a5b4e62d45764bbf42d4f1afa3a</anchor>
       <arglist>(juce::ValueTree &amp;, const juce::Identifier &amp;) override</arglist>
     </member>
+    <member kind="function">
+      <type>void</type>
+      <name>drawTabButton</name>
+      <anchorfile>classend_1_1_look_and_feel.html</anchorfile>
+      <anchor>ae7f91b27351c05980a580052f6a14518</anchor>
+      <arglist>(juce::Graphics &amp;, juce::Button &amp;, bool isMouseOver, bool isMouseDown) override</arglist>
+    </member>
     <member kind="function" static="yes">
       <type>static const juce::Colour</type>
       <name>fromRGBA</name>
@@ -3550,23 +3633,264 @@
     </member>
   </compound>
   <compound kind="class">
+    <name>end::Panes</name>
+    <filename>classend_1_1_panes.html</filename>
+    <base>juce::Component</base>
+    <member kind="function">
+      <type></type>
+      <name>Panes</name>
+      <anchorfile>classend_1_1_panes.html</anchorfile>
+      <anchor>a1a16e6288722f1b30ea634788f171415</anchor>
+      <arglist>(const juce::String &amp;firstPaneUUID)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>resized</name>
+      <anchorfile>classend_1_1_panes.html</anchorfile>
+      <anchor>aee6dbb361505cfd4545ebaa92b12b038</anchor>
+      <arglist>() override</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>split</name>
+      <anchorfile>classend_1_1_panes.html</anchorfile>
+      <anchor>ae45ffd42c51f4994057bae33078c52db</anchor>
+      <arglist>(const juce::String &amp;uuid, const juce::String &amp;direction)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>removePane</name>
+      <anchorfile>classend_1_1_panes.html</anchorfile>
+      <anchor>a4389564f6bfca705382677f1bc6edca5</anchor>
+      <arglist>(const juce::String &amp;uuid)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>getPaneCount</name>
+      <anchorfile>classend_1_1_panes.html</anchorfile>
+      <anchor>a5e594f3028c62994936214af08eb7ec0</anchor>
+      <arglist>() const noexcept</arglist>
+    </member>
+    <member kind="variable" protection="private">
+      <type>jam::PaneManager</type>
+      <name>paneManager</name>
+      <anchorfile>classend_1_1_panes.html</anchorfile>
+      <anchor>ac5e63314ccd3b2561cb9da6eeadcb707</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="private">
+      <type>jam::Owner&lt; PaneView &gt;</type>
+      <name>paneViews</name>
+      <anchorfile>classend_1_1_panes.html</anchorfile>
+      <anchor>a43e5f3b81dccb44fcf8535cfb8344ab4</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="private">
+      <type>jam::Owner&lt; jam::PaneResizerBar &gt;</type>
+      <name>resizerBars</name>
+      <anchorfile>classend_1_1_panes.html</anchorfile>
+      <anchor>a4bc8a63497c77b81ff9f1fdaf580d3e8</anchor>
+      <arglist></arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>end::PaneView</name>
+    <filename>classend_1_1_pane_view.html</filename>
+    <base>juce::Component</base>
+    <base>jam::ValueTree::ComponentWithID&lt; PaneView &gt;</base>
+    <member kind="function">
+      <type></type>
+      <name>PaneView</name>
+      <anchorfile>classend_1_1_pane_view.html</anchorfile>
+      <anchor>a6784a755a0395bad57b73d0a0d0cffcb</anchor>
+      <arglist>(const juce::String &amp;uuid)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>resized</name>
+      <anchorfile>classend_1_1_pane_view.html</anchorfile>
+      <anchor>aa2da65834c6cb8bef6db3513ab38ae6e</anchor>
+      <arglist>() override</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>paint</name>
+      <anchorfile>classend_1_1_pane_view.html</anchorfile>
+      <anchor>a8965d85601f8eb0c3671b1f3e44c13a4</anchor>
+      <arglist>(juce::Graphics &amp;) override</arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>action::Registry</name>
+    <filename>classaction_1_1_registry.html</filename>
+    <base protection="private">juce::Timer</base>
+    <base>juce::ValueTree::Listener</base>
+    <member kind="function">
+      <type></type>
+      <name>Registry</name>
+      <anchorfile>classaction_1_1_registry.html</anchorfile>
+      <anchor>ab459c431a149a647f9ed43f58e370198</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>~Registry</name>
+      <anchorfile>classaction_1_1_registry.html</anchorfile>
+      <anchor>afae203d09c01463a0eb81d9aaedd638a</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>buildKeyMap</name>
+      <anchorfile>classaction_1_1_registry.html</anchorfile>
+      <anchor>ad386721909b7f7d3ae0ed7c07f3d9ca0</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>valueTreePropertyChanged</name>
+      <anchorfile>classaction_1_1_registry.html</anchorfile>
+      <anchor>ac4489681da0cc97dd84b0e4fcd06cf8e</anchor>
+      <arglist>(juce::ValueTree &amp;tree, const juce::Identifier &amp;property) override</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>keyPressed</name>
+      <anchorfile>classaction_1_1_registry.html</anchorfile>
+      <anchor>a7d16fe8f4045f209faaf099a46d3b704</anchor>
+      <arglist>(const juce::KeyPress &amp;key)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>run</name>
+      <anchorfile>classaction_1_1_registry.html</anchorfile>
+      <anchor>a03afbec3b059b2ecfcbf117121f31b8d</anchor>
+      <arglist>(const juce::Identifier &amp;action)</arglist>
+    </member>
+    <member kind="variable">
+      <type>jam::Function::Map&lt; juce::Identifier, void &gt;</type>
+      <name>actions</name>
+      <anchorfile>classaction_1_1_registry.html</anchorfile>
+      <anchor>a477895f1825ec38c7362295d41093187</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="function" protection="private">
+      <type>void</type>
+      <name>timerCallback</name>
+      <anchorfile>classaction_1_1_registry.html</anchorfile>
+      <anchor>adfb52cb08bb171416025fe0487476ebb</anchor>
+      <arglist>() override</arglist>
+    </member>
+    <member kind="variable" protection="private">
+      <type>std::unordered_map&lt; juce::KeyPress, juce::Identifier &gt;</type>
+      <name>keys</name>
+      <anchorfile>classaction_1_1_registry.html</anchorfile>
+      <anchor>ac0357c647b1955560d45b17b86d375ab</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="private">
+      <type>std::unordered_map&lt; juce::KeyPress, juce::Identifier &gt;</type>
+      <name>modalKeys</name>
+      <anchorfile>classaction_1_1_registry.html</anchorfile>
+      <anchor>aaa1676c4bd9b45d9cfe40a9416c478ab</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="private">
+      <type>juce::ValueTree</type>
+      <name>config</name>
+      <anchorfile>classaction_1_1_registry.html</anchorfile>
+      <anchor>a7e2fce5f4c913c486e3744d8f804ae00</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="private">
+      <type>juce::KeyPress</type>
+      <name>prefixKey</name>
+      <anchorfile>classaction_1_1_registry.html</anchorfile>
+      <anchor>ad6d4755e2636d32124eeca007dbe7f91</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="private">
+      <type>int</type>
+      <name>prefixTimeout</name>
+      <anchorfile>classaction_1_1_registry.html</anchorfile>
+      <anchor>a2e4b86c63bdfe4d0d0f1d116a2bfef75</anchor>
+      <arglist></arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>end::Tabs</name>
+    <filename>classend_1_1_tabs.html</filename>
+    <base>jam::TabbedComponent</base>
+    <base>jam::ValueTree::Component</base>
+    <member kind="function">
+      <type></type>
+      <name>Tabs</name>
+      <anchorfile>classend_1_1_tabs.html</anchorfile>
+      <anchor>ae74fe3d456ccb9887c804ded09698f6b</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>addNewTab</name>
+      <anchorfile>classend_1_1_tabs.html</anchorfile>
+      <anchor>a5d92721be181f26d6425b39bfa3724f4</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>removeCurrentTab</name>
+      <anchorfile>classend_1_1_tabs.html</anchorfile>
+      <anchor>a629895e04058463b40f27526739b65fe</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>Panes *</type>
+      <name>getActivePanes</name>
+      <anchorfile>classend_1_1_tabs.html</anchorfile>
+      <anchor>a202281e6b55f4974b00b7cf030cf3f12</anchor>
+      <arglist>() noexcept</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>resized</name>
+      <anchorfile>classend_1_1_tabs.html</anchorfile>
+      <anchor>ac43cde00bd83d52188c259741d053398</anchor>
+      <arglist>() override</arglist>
+    </member>
+    <member kind="function" protection="protected">
+      <type>void</type>
+      <name>currentTabChanged</name>
+      <anchorfile>classend_1_1_tabs.html</anchorfile>
+      <anchor>a42964332bbe9734aef710f26f0111536</anchor>
+      <arglist>(int newCurrentTabIndex, const juce::String &amp;newCurrentTabName) override</arglist>
+    </member>
+    <member kind="variable" protection="private">
+      <type>jam::Owner&lt; Panes &gt;</type>
+      <name>tabPanes</name>
+      <anchorfile>classend_1_1_tabs.html</anchorfile>
+      <anchor>a987fa18d3d715b9da7f02fe7d0d4f1b3</anchor>
+      <arglist></arglist>
+    </member>
+  </compound>
+  <compound kind="class">
     <name>end::View</name>
     <filename>classend_1_1_view.html</filename>
     <base>juce::Component</base>
     <base>juce::ValueTree::Listener</base>
+    <base>juce::KeyListener</base>
     <member kind="function">
       <type></type>
       <name>View</name>
       <anchorfile>classend_1_1_view.html</anchorfile>
-      <anchor>ac89c619ba6f3ef9688c0a61767be336e</anchor>
-      <arglist>() noexcept</arglist>
+      <anchor>a2f1f21e6cb1d1c5467187d126cf04c68</anchor>
+      <arglist>()</arglist>
     </member>
     <member kind="function">
       <type></type>
       <name>~View</name>
       <anchorfile>classend_1_1_view.html</anchorfile>
-      <anchor>a5188bc526dfe6b47604ee7ebb35241f0</anchor>
-      <arglist>()</arglist>
+      <anchor>aac73d85c15164ea7a9ae443b9673996c</anchor>
+      <arglist>() override</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -3583,17 +3907,45 @@
       <arglist>(juce::Graphics &amp;) override</arglist>
     </member>
     <member kind="function">
+      <type>bool</type>
+      <name>keyPressed</name>
+      <anchorfile>classend_1_1_view.html</anchorfile>
+      <anchor>a41cd1e902149d1b7eff5b13e08d9bd27</anchor>
+      <arglist>(const juce::KeyPress &amp;key, juce::Component *originatingComponent) override</arglist>
+    </member>
+    <member kind="function">
       <type>void</type>
       <name>valueTreePropertyChanged</name>
       <anchorfile>classend_1_1_view.html</anchorfile>
       <anchor>af52de711464f4dba65c969a4ffbbafc6</anchor>
       <arglist>(juce::ValueTree &amp;, const juce::Identifier &amp;) override</arglist>
     </member>
+    <member kind="function">
+      <type>Tabs &amp;</type>
+      <name>getTabs</name>
+      <anchorfile>classend_1_1_view.html</anchorfile>
+      <anchor>aad335fb5a8817e1efe1a08368c2521b4</anchor>
+      <arglist>() noexcept</arglist>
+    </member>
     <member kind="variable" protection="private">
       <type>juce::ValueTree</type>
       <name>config</name>
       <anchorfile>classend_1_1_view.html</anchorfile>
       <anchor>ad207d70397b5a0ae3d0e722742d2940e</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="private">
+      <type>Tabs</type>
+      <name>tabs</name>
+      <anchorfile>classend_1_1_view.html</anchorfile>
+      <anchor>a7e6ee211dd7d9e06224826283296fa65</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="private">
+      <type>action::Registry</type>
+      <name>registry</name>
+      <anchorfile>classend_1_1_view.html</anchorfile>
+      <anchor>ace453a44b620ac0ccd2d799ec99e2bbd</anchor>
       <arglist></arglist>
     </member>
   </compound>
@@ -3682,6 +4034,11 @@
     </member>
   </compound>
   <compound kind="namespace">
+    <name>action</name>
+    <filename>namespaceaction.html</filename>
+    <class kind="class">action::Registry</class>
+  </compound>
+  <compound kind="namespace">
     <name>config</name>
     <filename>namespaceconfig.html</filename>
     <class kind="struct">config::File</class>
@@ -3692,6 +4049,9 @@
     <filename>namespaceend.html</filename>
     <class kind="struct">end::Boolean</class>
     <class kind="class">end::Model</class>
+    <class kind="class">end::Panes</class>
+    <class kind="class">end::PaneView</class>
+    <class kind="class">end::Tabs</class>
     <class kind="class">end::View</class>
     <class kind="class">end::Window</class>
     <class kind="class">end::LookAndFeel</class>
@@ -3700,6 +4060,14 @@
   <compound kind="namespace">
     <name>std</name>
     <filename>namespacestd.html</filename>
+    <class kind="struct">std::hash&lt; juce::KeyPress &gt;</class>
+  </compound>
+  <compound kind="dir">
+    <name>action</name>
+    <path>action/</path>
+    <filename>dir_2e361893faae7e8ceea4950fc659485a.html</filename>
+    <file>Registry.cpp</file>
+    <file>Registry.h</file>
   </compound>
   <compound kind="dir">
     <name>config</name>
@@ -3715,6 +4083,11 @@
     <file>Map.h</file>
     <file>Model.cpp</file>
     <file>Model.h</file>
+    <file>Panes.cpp</file>
+    <file>Panes.h</file>
+    <file>PaneView.h</file>
+    <file>Tabs.cpp</file>
+    <file>Tabs.h</file>
     <file>View.cpp</file>
     <file>View.h</file>
     <file>Window.cpp</file>

@@ -2,7 +2,7 @@
 <doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
   <compounddef id="classend_1_1_look_and_feel" kind="class" language="C++" prot="public">
     <compoundname>end::LookAndFeel</compoundname>
-    <basecompoundref refid="classjuce_1_1LookAndFeel__V4" prot="public" virt="non-virtual">juce::LookAndFeel_V4</basecompoundref>
+    <basecompoundref refid="classjam_1_1LookAndFeel_1_1Methods" prot="public" virt="non-virtual">jam::LookAndFeel::Methods&lt; LookAndFeel &gt;</basecompoundref>
     <basecompoundref refid="classjuce_1_1ValueTree_1_1Listener" prot="public" virt="non-virtual">juce::ValueTree::Listener</basecompoundref>
     <includes refid="_look_and_feel_8h" local="no">LookAndFeel.h</includes>
     <sectiondef kind="public-type">
@@ -177,7 +177,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="lookAndFeel/LookAndFeel.h" line="45" column="37" bodyfile="lookAndFeel/LookAndFeel.h" bodystart="45" bodyend="-1"/>
-        <referencedby refid="classend_1_1_look_and_feel_1a97d73310bc5d9b47794c0a0d71388bce" compoundref="_look_and_feel_8cpp" startline="56" endline="69">setColours</referencedby>
+        <referencedby refid="classend_1_1_look_and_feel_1a97d73310bc5d9b47794c0a0d71388bce" compoundref="_look_and_feel_8cpp" startline="76" endline="89">setColours</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="private-attrib">
@@ -194,7 +194,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lookAndFeel/LookAndFeel.h" line="63" column="21" bodyfile="lookAndFeel/LookAndFeel.h" bodystart="63" bodyend="63"/>
+        <location file="lookAndFeel/LookAndFeel.h" line="66" column="21" bodyfile="lookAndFeel/LookAndFeel.h" bodystart="66" bodyend="66"/>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">
@@ -211,7 +211,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="lookAndFeel/LookAndFeel.h" line="47" column="5" bodyfile="lookAndFeel/LookAndFeel.cpp" bodystart="43" bodyend="47"/>
-        <references refid="classend_1_1_look_and_feel_1a97d73310bc5d9b47794c0a0d71388bce" compoundref="_look_and_feel_8cpp" startline="56" endline="69">setColours</references>
+        <references refid="classend_1_1_look_and_feel_1a97d73310bc5d9b47794c0a0d71388bce" compoundref="_look_and_feel_8cpp" startline="76" endline="89">setColours</references>
       </memberdef>
       <memberdef kind="function" id="classend_1_1_look_and_feel_1a4e4378865cd561e4bccbb346cf7a8114" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type></type>
@@ -248,7 +248,46 @@
         <inbodydescription>
         </inbodydescription>
         <location file="lookAndFeel/LookAndFeel.h" line="52" column="10" bodyfile="lookAndFeel/LookAndFeel.cpp" bodystart="51" bodyend="54"/>
-        <references refid="classend_1_1_look_and_feel_1a97d73310bc5d9b47794c0a0d71388bce" compoundref="_look_and_feel_8cpp" startline="56" endline="69">setColours</references>
+        <references refid="classend_1_1_look_and_feel_1a97d73310bc5d9b47794c0a0d71388bce" compoundref="_look_and_feel_8cpp" startline="76" endline="89">setColours</references>
+      </memberdef>
+      <memberdef kind="function" id="classend_1_1_look_and_feel_1ae7f91b27351c05980a580052f6a14518" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void end::LookAndFeel::drawTabButton</definition>
+        <argsstring>(juce::Graphics &amp;, juce::Button &amp;, bool isMouseOver, bool isMouseDown) override</argsstring>
+        <name>drawTabButton</name>
+        <qualifiedname>end::LookAndFeel::drawTabButton</qualifiedname>
+        <reimplements refid="classjam_1_1LookAndFeel_1_1Custom_1aa5a55c84ad8a512c797b618c10074b1e">drawTabButton</reimplements>
+        <param>
+          <type><ref refid="classjuce_1_1Graphics" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Graphics</ref> &amp;</type>
+          <defname>g</defname>
+        </param>
+        <param>
+          <type><ref refid="classjuce_1_1Button" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Button</ref> &amp;</type>
+          <defname>button</defname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>isMouseOver</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>isMouseDown</declname>
+        </param>
+        <briefdescription>
+<para>Draws a tab button — simple rounded rect with text. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lookAndFeel/LookAndFeel.h" line="55" column="10" bodyfile="lookAndFeel/LookAndFeel.cpp" bodystart="56" bodyend="74"/>
+        <references refid="classjuce_1_1Justification_1a02e14cfe87bf4e39860535ae248ca9bea144d23079b5e08552389424e86d62099">juce::Justification::centred</references>
+        <references refid="classjuce_1_1Graphics_1a10b8a57e5b6c61a6b333e75d45e43915">juce::Graphics::drawText</references>
+        <references refid="classjuce_1_1Graphics_1a650134bf36506515a4ce580b7131e264">juce::Graphics::fillRoundedRectangle</references>
+        <references refid="classjuce_1_1LookAndFeel_1af70e8ffcc9049226ddc6e9b798c32dd5">juce::LookAndFeel::findColour</references>
+        <references refid="classjuce_1_1Graphics_1aea91552df5f289de769876a78a561bfd">juce::Graphics::setColour</references>
+        <references refid="classend_1_1_look_and_feel_1a96444644e5b541f2a7a2235c0dc91cf8a8dcff127674d56fc9f9094bab89b60c8" compoundref="_look_and_feel_8h" startline="28">tabActiveColourId</references>
+        <references refid="classjuce_1_1Label_1a3514f3dd83f249e6e7f786c910b89657aaf2694fbfd052996da35e7c31910e6d5">juce::Label::textColourId</references>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-static-func">
@@ -268,11 +307,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lookAndFeel/LookAndFeel.h" line="54" column="31" bodyfile="lookAndFeel/LookAndFeel.cpp" bodystart="30" bodyend="40"/>
+        <location file="lookAndFeel/LookAndFeel.h" line="57" column="31" bodyfile="lookAndFeel/LookAndFeel.cpp" bodystart="30" bodyend="40"/>
         <references refid="classjuce_1_1Colour_1af3a777e6e6562a15558e045a478b6f13">juce::Colour::fromRGBA</references>
         <references refid="classjuce_1_1Colour_1a1af18ef55f691efc003f5ae3be864069">juce::Colour::fromString</references>
         <referencedby refid="classend_1_1_window_1ac277dcb496977e31338298a1c2f8e2d5" compoundref="_window_8cpp" startline="27" endline="90">end::Window::registerStyleParameters</referencedby>
-        <referencedby refid="classend_1_1_look_and_feel_1a97d73310bc5d9b47794c0a0d71388bce" compoundref="_look_and_feel_8cpp" startline="56" endline="69">setColours</referencedby>
+        <referencedby refid="classend_1_1_look_and_feel_1a97d73310bc5d9b47794c0a0d71388bce" compoundref="_look_and_feel_8cpp" startline="76" endline="89">setColours</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="private-func">
@@ -290,10 +329,14 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lookAndFeel/LookAndFeel.h" line="60" column="10" bodyfile="lookAndFeel/LookAndFeel.cpp" bodystart="56" bodyend="69"/>
+        <location file="lookAndFeel/LookAndFeel.h" line="63" column="10" bodyfile="lookAndFeel/LookAndFeel.cpp" bodystart="76" bodyend="89"/>
+        <references refid="structjam_1_1ValueTree_1a2e4c59ee1337e8aa27d1ee16dbef7681">jam::ValueTree::applyFunctionRecursively</references>
         <references refid="classend_1_1_look_and_feel_1aa2c110e0b98645d6e4ead121e479baba" compoundref="_look_and_feel_8h" startline="45">colourIds</references>
         <references refid="classend_1_1_look_and_feel_1aa7aba5b24af493c1253295ed0fa3af9a" compoundref="_look_and_feel_8cpp" startline="30" endline="40">fromRGBA</references>
+        <references refid="classjuce_1_1ValueTree_1ab584e972c5f8e597f545e6321a895d06">juce::ValueTree::getProperty</references>
+        <references refid="classjuce_1_1ValueTree_1afa89ceabad600c371dc13c96b6167d91">juce::ValueTree::hasProperty</references>
         <references refid="classjuce_1_1LookAndFeel_1abdbcae63a1eca75ea44c8d3b87bc7444">juce::LookAndFeel::setColour</references>
+        <references refid="classjuce_1_1var_1a9124185792334ed563f6026a93b5cdd8">juce::var::toString</references>
         <referencedby refid="classend_1_1_look_and_feel_1a9313c08eb0def3e3a423f8bfd362f435" compoundref="_look_and_feel_8cpp" startline="43" endline="47">LookAndFeel</referencedby>
         <referencedby refid="classend_1_1_look_and_feel_1aeb869a5b4e62d45764bbf42d4f1afa3a" compoundref="_look_and_feel_8cpp" startline="51" endline="54">valueTreePropertyChanged</referencedby>
       </memberdef>
@@ -310,76 +353,84 @@
         <link refid="classend_1_1_look_and_feel"/>
         <childnode refid="2" relation="public-inheritance">
         </childnode>
-        <childnode refid="35" relation="public-inheritance">
+        <childnode refid="37" relation="public-inheritance">
         </childnode>
       </node>
-      <node id="13">
+      <node id="3">
+        <label>jam::LookAndFeel::Custom</label>
+        <link refid="classjam_1_1LookAndFeel_1_1Custom" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>jam::LookAndFeel::Methods&lt; LookAndFeel &gt;</label>
+        <link refid="classjam_1_1LookAndFeel_1_1Methods" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="15">
         <label>juce::AlertWindow::LookAndFeelMethods</label>
         <link refid="structjuce_1_1AlertWindow_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="12">
+      <node id="14">
         <label>juce::BubbleComponent::LookAndFeelMethods</label>
         <link refid="structjuce_1_1BubbleComponent_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="7">
+      <node id="9">
         <label>juce::Button::LookAndFeelMethods</label>
         <link refid="structjuce_1_1Button_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="26">
+      <node id="28">
         <label>juce::CallOutBox::LookAndFeelMethods</label>
         <link refid="structjuce_1_1CallOutBox_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="15">
+      <node id="17">
         <label>juce::ComboBox::LookAndFeelMethods</label>
         <link refid="structjuce_1_1ComboBox_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="28">
+      <node id="30">
         <label>juce::ConcertinaPanel::LookAndFeelMethods</label>
         <link refid="structjuce_1_1ConcertinaPanel_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="19">
+      <node id="21">
         <label>juce::DocumentWindow::LookAndFeelMethods</label>
         <link refid="structjuce_1_1DocumentWindow_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="32">
+      <node id="34">
         <label>juce::ExtraLookAndFeelBaseClasses::AudioDeviceSelectorComponentMethods</label>
         <link refid="structjuce_1_1ExtraLookAndFeelBaseClasses_1_1AudioDeviceSelectorComponentMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="31">
+      <node id="33">
         <label>juce::ExtraLookAndFeelBaseClasses::KeyMappingEditorComponentMethods</label>
         <link refid="structjuce_1_1ExtraLookAndFeelBaseClasses_1_1KeyMappingEditorComponentMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="33">
+      <node id="35">
         <label>juce::ExtraLookAndFeelBaseClasses::LassoComponentMethods</label>
         <link refid="structjuce_1_1ExtraLookAndFeelBaseClasses_1_1LassoComponentMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="10">
+      <node id="12">
         <label>juce::FileBrowserComponent::LookAndFeelMethods</label>
         <link refid="structjuce_1_1FileBrowserComponent_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="23">
+      <node id="25">
         <label>juce::FilenameComponent::LookAndFeelMethods</label>
         <link refid="structjuce_1_1FilenameComponent_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="24">
+      <node id="26">
         <label>juce::GroupComponent::LookAndFeelMethods</label>
         <link refid="structjuce_1_1GroupComponent_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="8">
+      <node id="10">
         <label>juce::ImageButton::LookAndFeelMethods</label>
         <link refid="structjuce_1_1ImageButton_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="16">
+      <node id="18">
         <label>juce::Label::LookAndFeelMethods</label>
         <link refid="structjuce_1_1Label_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="5">
+      <node id="7">
         <label>juce::LookAndFeel</label>
         <link refid="classjuce_1_1LookAndFeel" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-        <childnode refid="6" relation="public-inheritance">
-        </childnode>
-        <childnode refid="7" relation="public-inheritance">
-        </childnode>
         <childnode refid="8" relation="public-inheritance">
         </childnode>
         <childnode refid="9" relation="public-inheritance">
@@ -434,82 +485,86 @@
         </childnode>
         <childnode refid="34" relation="public-inheritance">
         </childnode>
+        <childnode refid="35" relation="public-inheritance">
+        </childnode>
+        <childnode refid="36" relation="public-inheritance">
+        </childnode>
       </node>
-      <node id="4">
+      <node id="6">
         <label>juce::LookAndFeel_V2</label>
         <link refid="classjuce_1_1LookAndFeel__V2" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+        <childnode refid="7" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>juce::LookAndFeel_V3</label>
+        <link refid="classjuce_1_1LookAndFeel__V3" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+        <childnode refid="6" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>juce::LookAndFeel_V4</label>
+        <link refid="classjuce_1_1LookAndFeel__V4" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
         <childnode refid="5" relation="public-inheritance">
         </childnode>
       </node>
-      <node id="3">
-        <label>juce::LookAndFeel_V3</label>
-        <link refid="classjuce_1_1LookAndFeel__V3" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-        <childnode refid="4" relation="public-inheritance">
-        </childnode>
-      </node>
-      <node id="2">
-        <label>juce::LookAndFeel_V4</label>
-        <link refid="classjuce_1_1LookAndFeel__V4" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-        <childnode refid="3" relation="public-inheritance">
-        </childnode>
-      </node>
-      <node id="14">
+      <node id="16">
         <label>juce::PopupMenu::LookAndFeelMethods</label>
         <link refid="structjuce_1_1PopupMenu_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="29">
+      <node id="31">
         <label>juce::ProgressBar::LookAndFeelMethods</label>
         <link refid="structjuce_1_1ProgressBar_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="22">
+      <node id="24">
         <label>juce::PropertyComponent::LookAndFeelMethods</label>
         <link refid="structjuce_1_1PropertyComponent_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="18">
+      <node id="20">
         <label>juce::ResizableWindow::LookAndFeelMethods</label>
         <link refid="structjuce_1_1ResizableWindow_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="6">
+      <node id="8">
         <label>juce::ScrollBar::LookAndFeelMethods</label>
         <link refid="structjuce_1_1ScrollBar_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="34">
+      <node id="36">
         <label>juce::SidePanel::LookAndFeelMethods</label>
         <link refid="structjuce_1_1SidePanel_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="17">
+      <node id="19">
         <label>juce::Slider::LookAndFeelMethods</label>
         <link refid="structjuce_1_1Slider_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="30">
+      <node id="32">
         <label>juce::StretchableLayoutResizerBar::LookAndFeelMethods</label>
         <link refid="structjuce_1_1StretchableLayoutResizerBar_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="21">
+      <node id="23">
         <label>juce::TabbedButtonBar::LookAndFeelMethods</label>
         <link refid="structjuce_1_1TabbedButtonBar_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="25">
+      <node id="27">
         <label>juce::TableHeaderComponent::LookAndFeelMethods</label>
         <link refid="structjuce_1_1TableHeaderComponent_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="9">
+      <node id="11">
         <label>juce::TextEditor::LookAndFeelMethods</label>
         <link refid="structjuce_1_1TextEditor_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="27">
+      <node id="29">
         <label>juce::Toolbar::LookAndFeelMethods</label>
         <link refid="structjuce_1_1Toolbar_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="20">
+      <node id="22">
         <label>juce::TooltipWindow::LookAndFeelMethods</label>
         <link refid="structjuce_1_1TooltipWindow_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="11">
+      <node id="13">
         <label>juce::TreeView::LookAndFeelMethods</label>
         <link refid="structjuce_1_1TreeView_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="35">
+      <node id="37">
         <label>juce::ValueTree::Listener</label>
         <link refid="classjuce_1_1ValueTree_1_1Listener" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
@@ -520,89 +575,97 @@
         <link refid="classend_1_1_look_and_feel"/>
         <childnode refid="2" relation="public-inheritance">
         </childnode>
-        <childnode refid="35" relation="public-inheritance">
-        </childnode>
-        <childnode refid="36" relation="usage">
-          <edgelabel>colourIds</edgelabel>
+        <childnode refid="37" relation="public-inheritance">
         </childnode>
         <childnode refid="38" relation="usage">
+          <edgelabel>colourIds</edgelabel>
+        </childnode>
+        <childnode refid="40" relation="usage">
           <edgelabel>config</edgelabel>
         </childnode>
       </node>
-      <node id="13">
+      <node id="3">
+        <label>jam::LookAndFeel::Custom</label>
+        <link refid="classjam_1_1LookAndFeel_1_1Custom" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>jam::LookAndFeel::Methods&lt; LookAndFeel &gt;</label>
+        <link refid="classjam_1_1LookAndFeel_1_1Methods" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="15">
         <label>juce::AlertWindow::LookAndFeelMethods</label>
         <link refid="structjuce_1_1AlertWindow_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="12">
+      <node id="14">
         <label>juce::BubbleComponent::LookAndFeelMethods</label>
         <link refid="structjuce_1_1BubbleComponent_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="7">
+      <node id="9">
         <label>juce::Button::LookAndFeelMethods</label>
         <link refid="structjuce_1_1Button_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="26">
+      <node id="28">
         <label>juce::CallOutBox::LookAndFeelMethods</label>
         <link refid="structjuce_1_1CallOutBox_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="15">
+      <node id="17">
         <label>juce::ComboBox::LookAndFeelMethods</label>
         <link refid="structjuce_1_1ComboBox_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="28">
+      <node id="30">
         <label>juce::ConcertinaPanel::LookAndFeelMethods</label>
         <link refid="structjuce_1_1ConcertinaPanel_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="19">
+      <node id="21">
         <label>juce::DocumentWindow::LookAndFeelMethods</label>
         <link refid="structjuce_1_1DocumentWindow_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="32">
+      <node id="34">
         <label>juce::ExtraLookAndFeelBaseClasses::AudioDeviceSelectorComponentMethods</label>
         <link refid="structjuce_1_1ExtraLookAndFeelBaseClasses_1_1AudioDeviceSelectorComponentMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="31">
+      <node id="33">
         <label>juce::ExtraLookAndFeelBaseClasses::KeyMappingEditorComponentMethods</label>
         <link refid="structjuce_1_1ExtraLookAndFeelBaseClasses_1_1KeyMappingEditorComponentMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="33">
+      <node id="35">
         <label>juce::ExtraLookAndFeelBaseClasses::LassoComponentMethods</label>
         <link refid="structjuce_1_1ExtraLookAndFeelBaseClasses_1_1LassoComponentMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="10">
+      <node id="12">
         <label>juce::FileBrowserComponent::LookAndFeelMethods</label>
         <link refid="structjuce_1_1FileBrowserComponent_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="23">
+      <node id="25">
         <label>juce::FilenameComponent::LookAndFeelMethods</label>
         <link refid="structjuce_1_1FilenameComponent_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="24">
+      <node id="26">
         <label>juce::GroupComponent::LookAndFeelMethods</label>
         <link refid="structjuce_1_1GroupComponent_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="37">
+      <node id="39">
         <label>juce::Identifier</label>
         <link refid="classjuce_1_1Identifier" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-        <childnode refid="37" relation="usage">
+        <childnode refid="39" relation="usage">
           <edgelabel>null</edgelabel>
         </childnode>
       </node>
-      <node id="8">
+      <node id="10">
         <label>juce::ImageButton::LookAndFeelMethods</label>
         <link refid="structjuce_1_1ImageButton_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="16">
+      <node id="18">
         <label>juce::Label::LookAndFeelMethods</label>
         <link refid="structjuce_1_1Label_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="5">
+      <node id="7">
         <label>juce::LookAndFeel</label>
         <link refid="classjuce_1_1LookAndFeel" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-        <childnode refid="6" relation="public-inheritance">
-        </childnode>
-        <childnode refid="7" relation="public-inheritance">
-        </childnode>
         <childnode refid="8" relation="public-inheritance">
         </childnode>
         <childnode refid="9" relation="public-inheritance">
@@ -657,97 +720,101 @@
         </childnode>
         <childnode refid="34" relation="public-inheritance">
         </childnode>
+        <childnode refid="35" relation="public-inheritance">
+        </childnode>
+        <childnode refid="36" relation="public-inheritance">
+        </childnode>
       </node>
-      <node id="4">
+      <node id="6">
         <label>juce::LookAndFeel_V2</label>
         <link refid="classjuce_1_1LookAndFeel__V2" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+        <childnode refid="7" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>juce::LookAndFeel_V3</label>
+        <link refid="classjuce_1_1LookAndFeel__V3" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+        <childnode refid="6" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>juce::LookAndFeel_V4</label>
+        <link refid="classjuce_1_1LookAndFeel__V4" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
         <childnode refid="5" relation="public-inheritance">
         </childnode>
       </node>
-      <node id="3">
-        <label>juce::LookAndFeel_V3</label>
-        <link refid="classjuce_1_1LookAndFeel__V3" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-        <childnode refid="4" relation="public-inheritance">
-        </childnode>
-      </node>
-      <node id="2">
-        <label>juce::LookAndFeel_V4</label>
-        <link refid="classjuce_1_1LookAndFeel__V4" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-        <childnode refid="3" relation="public-inheritance">
-        </childnode>
-      </node>
-      <node id="14">
+      <node id="16">
         <label>juce::PopupMenu::LookAndFeelMethods</label>
         <link refid="structjuce_1_1PopupMenu_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="29">
+      <node id="31">
         <label>juce::ProgressBar::LookAndFeelMethods</label>
         <link refid="structjuce_1_1ProgressBar_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="22">
+      <node id="24">
         <label>juce::PropertyComponent::LookAndFeelMethods</label>
         <link refid="structjuce_1_1PropertyComponent_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="18">
+      <node id="20">
         <label>juce::ResizableWindow::LookAndFeelMethods</label>
         <link refid="structjuce_1_1ResizableWindow_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="6">
+      <node id="8">
         <label>juce::ScrollBar::LookAndFeelMethods</label>
         <link refid="structjuce_1_1ScrollBar_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="34">
+      <node id="36">
         <label>juce::SidePanel::LookAndFeelMethods</label>
         <link refid="structjuce_1_1SidePanel_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="17">
+      <node id="19">
         <label>juce::Slider::LookAndFeelMethods</label>
         <link refid="structjuce_1_1Slider_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="30">
+      <node id="32">
         <label>juce::StretchableLayoutResizerBar::LookAndFeelMethods</label>
         <link refid="structjuce_1_1StretchableLayoutResizerBar_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="21">
+      <node id="23">
         <label>juce::TabbedButtonBar::LookAndFeelMethods</label>
         <link refid="structjuce_1_1TabbedButtonBar_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="25">
+      <node id="27">
         <label>juce::TableHeaderComponent::LookAndFeelMethods</label>
         <link refid="structjuce_1_1TableHeaderComponent_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="9">
+      <node id="11">
         <label>juce::TextEditor::LookAndFeelMethods</label>
         <link refid="structjuce_1_1TextEditor_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="27">
+      <node id="29">
         <label>juce::Toolbar::LookAndFeelMethods</label>
         <link refid="structjuce_1_1Toolbar_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="20">
+      <node id="22">
         <label>juce::TooltipWindow::LookAndFeelMethods</label>
         <link refid="structjuce_1_1TooltipWindow_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="11">
+      <node id="13">
         <label>juce::TreeView::LookAndFeelMethods</label>
         <link refid="structjuce_1_1TreeView_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="38">
+      <node id="40">
         <label>juce::ValueTree</label>
         <link refid="classjuce_1_1ValueTree" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="35">
+      <node id="37">
         <label>juce::ValueTree::Listener</label>
         <link refid="classjuce_1_1ValueTree_1_1Listener" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="36">
+      <node id="38">
         <label>std::unordered_map&lt; juce::Identifier, int &gt;</label>
-        <childnode refid="37" relation="usage">
+        <childnode refid="39" relation="usage">
           <edgelabel>keys</edgelabel>
         </childnode>
       </node>
     </collaborationgraph>
-    <location file="lookAndFeel/LookAndFeel.h" line="16" column="1" bodyfile="lookAndFeel/LookAndFeel.h" bodystart="19" bodyend="64"/>
+    <location file="lookAndFeel/LookAndFeel.h" line="16" column="1" bodyfile="lookAndFeel/LookAndFeel.h" bodystart="19" bodyend="67"/>
     <listofallmembers>
       <member refid="classjuce_1_1LookAndFeel__V3_1a1aa6ddb7209c8df59e45e195cd7564e9" prot="public" virt="virtual"><scope>end::LookAndFeel</scope><name>areLinesDrawnForTreeView</name></member>
       <member refid="classjuce_1_1LookAndFeel__V3_1a293d6942d58f33cd48163e2f4ed53c0a" prot="public" virt="virtual"><scope>end::LookAndFeel</scope><name>areScrollbarButtonsVisible</name></member>
@@ -823,7 +890,8 @@
       <member refid="classjuce_1_1LookAndFeel__V4_1acc15e98d9968cfc0e37735352b97a126" prot="public" virt="virtual"><scope>end::LookAndFeel</scope><name>drawStretchableLayoutResizerBar</name></member>
       <member refid="classjuce_1_1LookAndFeel__V3_1a20c9057ab2de1ffcd6f60bf81740d7f0" prot="public" virt="virtual"><scope>end::LookAndFeel</scope><name>drawTabAreaBehindFrontButton</name></member>
       <member refid="classjuce_1_1LookAndFeel__V2_1a0b1b867c15cee5653a6f284a65610751" prot="public" virt="virtual"><scope>end::LookAndFeel</scope><name>drawTabbedButtonBarBackground</name></member>
-      <member refid="classjuce_1_1LookAndFeel__V3_1a31f408e2abb9e779660a8f7001f5c0ad" prot="public" virt="virtual"><scope>end::LookAndFeel</scope><name>drawTabButton</name></member>
+      <member refid="classend_1_1_look_and_feel_1ae7f91b27351c05980a580052f6a14518" prot="public" virt="virtual"><scope>end::LookAndFeel</scope><name>drawTabButton</name></member>
+      <member refid="classjuce_1_1LookAndFeel__V3_1a31f408e2abb9e779660a8f7001f5c0ad" prot="public" virt="virtual" ambiguityscope="juce::LookAndFeel_V4::"><scope>end::LookAndFeel</scope><name>drawTabButton</name></member>
       <member refid="classjuce_1_1LookAndFeel__V2_1a6cdbb04f09b89fa9dfd9d949a6979ed5" prot="public" virt="virtual"><scope>end::LookAndFeel</scope><name>drawTabButtonText</name></member>
       <member refid="classjuce_1_1LookAndFeel__V3_1af9300cf60bfcb3f2e35bd443b1cc8c47" prot="public" virt="virtual"><scope>end::LookAndFeel</scope><name>drawTableHeaderBackground</name></member>
       <member refid="classjuce_1_1LookAndFeel__V2_1a53ab11805f5a06b25355effbb106cb4f" prot="public" virt="virtual"><scope>end::LookAndFeel</scope><name>drawTableHeaderColumn</name></member>
@@ -837,6 +905,7 @@
       <member refid="classjuce_1_1LookAndFeel__V4_1a0e5d53bb73cd5ba6730e88f596fcad0e" prot="public" virt="virtual"><scope>end::LookAndFeel</scope><name>fillTextEditorBackground</name></member>
       <member refid="classjuce_1_1LookAndFeel_1af70e8ffcc9049226ddc6e9b798c32dd5" prot="public" virt="non-virtual"><scope>end::LookAndFeel</scope><name>findColour</name></member>
       <member refid="classend_1_1_look_and_feel_1aa7aba5b24af493c1253295ed0fa3af9a" prot="public" virt="non-virtual"><scope>end::LookAndFeel</scope><name>fromRGBA</name></member>
+      <member refid="classjam_1_1LookAndFeel_1_1Methods_1ae2100120a657a869cf10dd1c6e8317f2" prot="public" virt="non-virtual"><scope>end::LookAndFeel</scope><name>get</name></member>
       <member refid="classjuce_1_1LookAndFeel__V2_1afe50988d56d0a6817be8b243d1426fc0" prot="public" virt="virtual"><scope>end::LookAndFeel</scope><name>getAlertBoxWindowFlags</name></member>
       <member refid="classjuce_1_1LookAndFeel__V4_1a668283714da23c39fb1caf844435ddb8" prot="public" virt="virtual"><scope>end::LookAndFeel</scope><name>getAlertWindowButtonHeight</name></member>
       <member refid="classjuce_1_1LookAndFeel__V4_1afa49ed3cdf4d0d3cc230ec4efd1c405b" prot="public" virt="virtual"><scope>end::LookAndFeel</scope><name>getAlertWindowFont</name></member>
@@ -953,31 +1022,31 @@
       <member refid="classjuce_1_1LookAndFeel__V2_1aea3eeee9de50ece5aea302bd5ed77cbb" prot="public" virt="non-virtual"><scope>end::LookAndFeel</scope><name>~LookAndFeel_V2</name></member>
       <member refid="classjuce_1_1LookAndFeel__V3_1a544baf5d0d7cfbc7ba52a8cbc9eed277" prot="public" virt="non-virtual"><scope>end::LookAndFeel</scope><name>~LookAndFeel_V3</name></member>
       <member refid="classjuce_1_1LookAndFeel__V4_1a902f7a775fcc0aefeb6ee66a2949efe7" prot="public" virt="non-virtual"><scope>end::LookAndFeel</scope><name>~LookAndFeel_V4</name></member>
-      <member refid="structjuce_1_1ScrollBar_1_1LookAndFeelMethods_1abc6c07b9b12aa6b8cd07829d0f3d5509" prot="public" virt="virtual" ambiguityscope="juce::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
-      <member refid="structjuce_1_1Button_1_1LookAndFeelMethods_1ae7b72e2650af923bfc7896fe58b5c2dd" prot="public" virt="virtual" ambiguityscope="juce::Button::LookAndFeelMethods::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
-      <member refid="structjuce_1_1ImageButton_1_1LookAndFeelMethods_1af75bb494bf6cbbb362ace754d8f59bac" prot="public" virt="virtual" ambiguityscope="juce::ImageButton::LookAndFeelMethods::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
-      <member refid="structjuce_1_1TextEditor_1_1LookAndFeelMethods_1a53502eea289dcddb7e590dde695bb73d" prot="public" virt="virtual" ambiguityscope="juce::TextEditor::LookAndFeelMethods::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
-      <member refid="structjuce_1_1FileBrowserComponent_1_1LookAndFeelMethods_1ac37adfddcb0225c12c03e055a6a5b762" prot="public" virt="virtual" ambiguityscope="juce::FileBrowserComponent::LookAndFeelMethods::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
-      <member refid="structjuce_1_1TreeView_1_1LookAndFeelMethods_1a57756f11d3efb27a417602072e536a5b" prot="public" virt="virtual" ambiguityscope="juce::TreeView::LookAndFeelMethods::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
-      <member refid="structjuce_1_1BubbleComponent_1_1LookAndFeelMethods_1afbdacd86a8100c6e653f163c04ed90bb" prot="public" virt="virtual" ambiguityscope="juce::BubbleComponent::LookAndFeelMethods::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
-      <member refid="structjuce_1_1AlertWindow_1_1LookAndFeelMethods_1a1a8fc20f284fa89544c3ecff56e374b4" prot="public" virt="virtual" ambiguityscope="juce::AlertWindow::LookAndFeelMethods::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
-      <member refid="structjuce_1_1PopupMenu_1_1LookAndFeelMethods_1a3761d02a2bf7730d12faaf499bd55152" prot="public" virt="virtual" ambiguityscope="juce::PopupMenu::LookAndFeelMethods::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
-      <member refid="structjuce_1_1ComboBox_1_1LookAndFeelMethods_1af88b57472d37ff167a37e9f374e3504c" prot="public" virt="virtual" ambiguityscope="juce::ComboBox::LookAndFeelMethods::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
-      <member refid="structjuce_1_1Label_1_1LookAndFeelMethods_1a07195db9a8934cdb6a13322e8139febd" prot="public" virt="virtual" ambiguityscope="juce::Label::LookAndFeelMethods::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
-      <member refid="structjuce_1_1Slider_1_1LookAndFeelMethods_1acd3e325bb4bcd8ddcc69220a610a631b" prot="public" virt="virtual" ambiguityscope="juce::Slider::LookAndFeelMethods::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
-      <member refid="structjuce_1_1ResizableWindow_1_1LookAndFeelMethods_1a19f7075c237ede887959acbbbb1186b8" prot="public" virt="virtual" ambiguityscope="juce::ResizableWindow::LookAndFeelMethods::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
-      <member refid="structjuce_1_1DocumentWindow_1_1LookAndFeelMethods_1ad0d13a4dabfb7e915d0a4dd8d306fd2a" prot="public" virt="virtual" ambiguityscope="juce::DocumentWindow::LookAndFeelMethods::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
-      <member refid="structjuce_1_1TooltipWindow_1_1LookAndFeelMethods_1ad0d7cc56b8c630e82fd484e7e0f6e812" prot="public" virt="virtual" ambiguityscope="juce::TooltipWindow::LookAndFeelMethods::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
-      <member refid="structjuce_1_1TabbedButtonBar_1_1LookAndFeelMethods_1a4c7aa43f5458ed03317593007264b2e9" prot="public" virt="virtual" ambiguityscope="juce::TabbedButtonBar::LookAndFeelMethods::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
-      <member refid="structjuce_1_1PropertyComponent_1_1LookAndFeelMethods_1ae51304b46dd3f83132f4d52eb73a946d" prot="public" virt="virtual" ambiguityscope="juce::PropertyComponent::LookAndFeelMethods::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
-      <member refid="structjuce_1_1FilenameComponent_1_1LookAndFeelMethods_1a4b32ad4bebd0bcfdaf07fc44902a3ad2" prot="public" virt="virtual" ambiguityscope="juce::FilenameComponent::LookAndFeelMethods::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
-      <member refid="structjuce_1_1GroupComponent_1_1LookAndFeelMethods_1ab750d25cc20dee1fed867842dc3b1636" prot="public" virt="virtual" ambiguityscope="juce::GroupComponent::LookAndFeelMethods::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
-      <member refid="structjuce_1_1TableHeaderComponent_1_1LookAndFeelMethods_1a604c5fe7a6471cd294cd60e62b37c080" prot="public" virt="virtual" ambiguityscope="juce::TableHeaderComponent::LookAndFeelMethods::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
-      <member refid="structjuce_1_1CallOutBox_1_1LookAndFeelMethods_1a86017add3e39112ca479d581201b6aea" prot="public" virt="virtual" ambiguityscope="juce::CallOutBox::LookAndFeelMethods::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
-      <member refid="structjuce_1_1Toolbar_1_1LookAndFeelMethods_1a03521857d219e876f33f2659280debf7" prot="public" virt="virtual" ambiguityscope="juce::Toolbar::LookAndFeelMethods::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
-      <member refid="structjuce_1_1ConcertinaPanel_1_1LookAndFeelMethods_1a8e0cae999e8dff4d44998ae386d299d3" prot="public" virt="virtual" ambiguityscope="juce::ConcertinaPanel::LookAndFeelMethods::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
-      <member refid="structjuce_1_1ProgressBar_1_1LookAndFeelMethods_1a02c1fb60cd3aa9d153c923f64b4bf3c5" prot="public" virt="virtual" ambiguityscope="juce::ProgressBar::LookAndFeelMethods::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
-      <member refid="structjuce_1_1StretchableLayoutResizerBar_1_1LookAndFeelMethods_1a5712d53139d5d131f2322644c361dbe9" prot="public" virt="virtual" ambiguityscope="juce::StretchableLayoutResizerBar::LookAndFeelMethods::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
+      <member refid="structjuce_1_1ScrollBar_1_1LookAndFeelMethods_1abc6c07b9b12aa6b8cd07829d0f3d5509" prot="public" virt="virtual" ambiguityscope="jam::juce::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
+      <member refid="structjuce_1_1Button_1_1LookAndFeelMethods_1ae7b72e2650af923bfc7896fe58b5c2dd" prot="public" virt="virtual" ambiguityscope="jam::juce::Button::LookAndFeelMethods::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
+      <member refid="structjuce_1_1ImageButton_1_1LookAndFeelMethods_1af75bb494bf6cbbb362ace754d8f59bac" prot="public" virt="virtual" ambiguityscope="jam::juce::ImageButton::LookAndFeelMethods::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
+      <member refid="structjuce_1_1TextEditor_1_1LookAndFeelMethods_1a53502eea289dcddb7e590dde695bb73d" prot="public" virt="virtual" ambiguityscope="jam::juce::TextEditor::LookAndFeelMethods::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
+      <member refid="structjuce_1_1FileBrowserComponent_1_1LookAndFeelMethods_1ac37adfddcb0225c12c03e055a6a5b762" prot="public" virt="virtual" ambiguityscope="jam::juce::FileBrowserComponent::LookAndFeelMethods::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
+      <member refid="structjuce_1_1TreeView_1_1LookAndFeelMethods_1a57756f11d3efb27a417602072e536a5b" prot="public" virt="virtual" ambiguityscope="jam::juce::TreeView::LookAndFeelMethods::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
+      <member refid="structjuce_1_1BubbleComponent_1_1LookAndFeelMethods_1afbdacd86a8100c6e653f163c04ed90bb" prot="public" virt="virtual" ambiguityscope="jam::juce::BubbleComponent::LookAndFeelMethods::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
+      <member refid="structjuce_1_1AlertWindow_1_1LookAndFeelMethods_1a1a8fc20f284fa89544c3ecff56e374b4" prot="public" virt="virtual" ambiguityscope="jam::juce::AlertWindow::LookAndFeelMethods::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
+      <member refid="structjuce_1_1PopupMenu_1_1LookAndFeelMethods_1a3761d02a2bf7730d12faaf499bd55152" prot="public" virt="virtual" ambiguityscope="jam::juce::PopupMenu::LookAndFeelMethods::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
+      <member refid="structjuce_1_1ComboBox_1_1LookAndFeelMethods_1af88b57472d37ff167a37e9f374e3504c" prot="public" virt="virtual" ambiguityscope="jam::juce::ComboBox::LookAndFeelMethods::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
+      <member refid="structjuce_1_1Label_1_1LookAndFeelMethods_1a07195db9a8934cdb6a13322e8139febd" prot="public" virt="virtual" ambiguityscope="jam::juce::Label::LookAndFeelMethods::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
+      <member refid="structjuce_1_1Slider_1_1LookAndFeelMethods_1acd3e325bb4bcd8ddcc69220a610a631b" prot="public" virt="virtual" ambiguityscope="jam::juce::Slider::LookAndFeelMethods::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
+      <member refid="structjuce_1_1ResizableWindow_1_1LookAndFeelMethods_1a19f7075c237ede887959acbbbb1186b8" prot="public" virt="virtual" ambiguityscope="jam::juce::ResizableWindow::LookAndFeelMethods::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
+      <member refid="structjuce_1_1DocumentWindow_1_1LookAndFeelMethods_1ad0d13a4dabfb7e915d0a4dd8d306fd2a" prot="public" virt="virtual" ambiguityscope="jam::juce::DocumentWindow::LookAndFeelMethods::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
+      <member refid="structjuce_1_1TooltipWindow_1_1LookAndFeelMethods_1ad0d7cc56b8c630e82fd484e7e0f6e812" prot="public" virt="virtual" ambiguityscope="jam::juce::TooltipWindow::LookAndFeelMethods::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
+      <member refid="structjuce_1_1TabbedButtonBar_1_1LookAndFeelMethods_1a4c7aa43f5458ed03317593007264b2e9" prot="public" virt="virtual" ambiguityscope="jam::juce::TabbedButtonBar::LookAndFeelMethods::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
+      <member refid="structjuce_1_1PropertyComponent_1_1LookAndFeelMethods_1ae51304b46dd3f83132f4d52eb73a946d" prot="public" virt="virtual" ambiguityscope="jam::juce::PropertyComponent::LookAndFeelMethods::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
+      <member refid="structjuce_1_1FilenameComponent_1_1LookAndFeelMethods_1a4b32ad4bebd0bcfdaf07fc44902a3ad2" prot="public" virt="virtual" ambiguityscope="jam::juce::FilenameComponent::LookAndFeelMethods::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
+      <member refid="structjuce_1_1GroupComponent_1_1LookAndFeelMethods_1ab750d25cc20dee1fed867842dc3b1636" prot="public" virt="virtual" ambiguityscope="jam::juce::GroupComponent::LookAndFeelMethods::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
+      <member refid="structjuce_1_1TableHeaderComponent_1_1LookAndFeelMethods_1a604c5fe7a6471cd294cd60e62b37c080" prot="public" virt="virtual" ambiguityscope="jam::juce::TableHeaderComponent::LookAndFeelMethods::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
+      <member refid="structjuce_1_1CallOutBox_1_1LookAndFeelMethods_1a86017add3e39112ca479d581201b6aea" prot="public" virt="virtual" ambiguityscope="jam::juce::CallOutBox::LookAndFeelMethods::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
+      <member refid="structjuce_1_1Toolbar_1_1LookAndFeelMethods_1a03521857d219e876f33f2659280debf7" prot="public" virt="virtual" ambiguityscope="jam::juce::Toolbar::LookAndFeelMethods::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
+      <member refid="structjuce_1_1ConcertinaPanel_1_1LookAndFeelMethods_1a8e0cae999e8dff4d44998ae386d299d3" prot="public" virt="virtual" ambiguityscope="jam::juce::ConcertinaPanel::LookAndFeelMethods::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
+      <member refid="structjuce_1_1ProgressBar_1_1LookAndFeelMethods_1a02c1fb60cd3aa9d153c923f64b4bf3c5" prot="public" virt="virtual" ambiguityscope="jam::juce::ProgressBar::LookAndFeelMethods::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
+      <member refid="structjuce_1_1StretchableLayoutResizerBar_1_1LookAndFeelMethods_1a5712d53139d5d131f2322644c361dbe9" prot="public" virt="virtual" ambiguityscope="jam::juce::StretchableLayoutResizerBar::LookAndFeelMethods::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
       <member refid="structjuce_1_1SidePanel_1_1LookAndFeelMethods_1a2fe80bf0473e88d25d908ead14a8a3c8" prot="public" virt="virtual" ambiguityscope="juce::SidePanel::LookAndFeelMethods::"><scope>end::LookAndFeel</scope><name>~LookAndFeelMethods</name></member>
     </listofallmembers>
   </compounddef>

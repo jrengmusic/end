@@ -53,19 +53,39 @@ void LookAndFeel::valueTreePropertyChanged (juce::ValueTree&, const juce::Identi
     setColours();
 }
 
+void LookAndFeel::drawTabButton (juce::Graphics& g, juce::Button& button, bool isMouseOver, bool isMouseDown)
+{
+    auto bounds { button.getLocalBounds().toFloat().reduced (2.0f) };
+    auto colour { findColour (tabActiveColourId) };
+
+    if (isMouseDown)
+        colour = colour.brighter (0.2f);
+    else if (isMouseOver)
+        colour = colour.brighter (0.1f);
+
+    if (button.getToggleState())
+    {
+        g.setColour (colour);
+        g.fillRoundedRectangle (bounds, 4.0f);
+    }
+
+    g.setColour (button.findColour (juce::Label::textColourId));
+    g.drawText (button.getButtonText(), bounds, juce::Justification::centred);
+}
+
 void LookAndFeel::setColours()
 {
-    for (auto& [id, colourId] : colourIds)
-    {
-        for (auto&& c : config)
+    jam::ValueTree::applyFunctionRecursively (config,
+        [this] (const juce::ValueTree& tree)
         {
-            if (c.hasProperty (id))
+            for (auto& [id, colourId] : colourIds)
             {
-                auto colour { fromRGBA (c.getProperty (id).toString()) };
-                setColour (colourId, colour);
+                if (tree.hasProperty (id))
+                    setColour (colourId, fromRGBA (tree.getProperty (id).toString()));
             }
-        }
-    }
+
+            return false;
+        });
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

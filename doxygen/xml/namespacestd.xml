@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8' standalone='no'?>
 <doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
-  <compounddef id="namespacestd" kind="namespace" language="Unknown">
+  <compounddef id="namespacestd" kind="namespace" language="C++">
     <compoundname>std</compoundname>
     <innerclass refid="structstd_1_1hash_3_01juce_1_1Identifier_01_4" prot="public">std::hash&lt; juce::Identifier &gt;</innerclass>
     <innerclass refid="structstd_1_1hash_3_01jam_1_1glyph_1_1Atlas_1_1Key_01_4" prot="public">std::hash&lt; jam::glyph::Atlas::Key &gt;</innerclass>
@@ -103,11 +103,12 @@
     <innerclass refid="classstd_1_1range__error" prot="public">std::range_error</innerclass>
     <innerclass refid="classstd_1_1overflow__error" prot="public">std::overflow_error</innerclass>
     <innerclass refid="classstd_1_1underflow__error" prot="public">std::underflow_error</innerclass>
+    <innerclass refid="structstd_1_1hash_3_01juce_1_1_key_press_01_4" prot="public">std::hash&lt; juce::KeyPress &gt;</innerclass>
     <briefdescription>
 <para>STL namespace. </para>
     </briefdescription>
     <detaileddescription>
     </detaileddescription>
-    <location file="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml" line="61970" column="1"/>
+    <location file="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml" line="62027" column="1"/>
   </compounddef>
 </doxygen>

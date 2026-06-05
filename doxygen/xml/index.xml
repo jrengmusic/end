@@ -8,6 +8,7 @@
     <member refid="classend_1_1_application_1a551f9e489ee4727369d6145ab26978ba" kind="variable"><name>watcher</name></member>
     <member refid="classend_1_1_application_1af5685bc1fb3a0e77fad81b639bcc92f7" kind="variable"><name>window</name></member>
     <member refid="classend_1_1_application_1a2a73528c5a37ba3d2345f29fb2f550a4" kind="variable"><name>windowAttachment</name></member>
+    <member refid="classend_1_1_application_1a8ff1372814384aefd1ebc7ca447f2e18" kind="variable"><name>tabsAttachment</name></member>
     <member refid="classend_1_1_application_1a127405d348ee02fc38b374812bf3c883" kind="function"><name>Application</name></member>
     <member refid="classend_1_1_application_1ab2d34713da4e6b4917cf53a08cda47eb" kind="function"><name>getApplicationName</name></member>
     <member refid="classend_1_1_application_1af5df574c86505182fdd01d567824d0b7" kind="function"><name>getApplicationVersion</name></member>
@@ -37,6 +38,9 @@
     <member refid="structconfig_1_1_file_1a6ab20528e69a64a7091bd8d1269eac55" kind="variable"><name>extension</name></member>
     <member refid="structconfig_1_1_file_1a1d5413f8cf2eb67f26dd717fb948c596" kind="variable"><name>map</name></member>
     <member refid="structconfig_1_1_file_1af7e5a59b7450673c2677f4dcf3817279" kind="function"><name>getName</name></member>
+  </compound>
+  <compound refid="structstd_1_1hash_3_01juce_1_1_key_press_01_4" kind="struct"><name>std::hash&lt; juce::KeyPress &gt;</name>
+    <member refid="structstd_1_1hash_3_01juce_1_1_key_press_01_4_1a9e14d70b21d044461108e0413f112ccd" kind="function"><name>operator()</name></member>
   </compound>
   <compound refid="struct_i_d" kind="struct"><name>ID</name>
     <member refid="struct_i_d_1ade3efe103f202bf24e5c45db41614f8d" kind="function"><name>AS_IDENTIFIER</name></member>
@@ -464,6 +468,7 @@
     <member refid="classend_1_1_look_and_feel_1a9313c08eb0def3e3a423f8bfd362f435" kind="function"><name>LookAndFeel</name></member>
     <member refid="classend_1_1_look_and_feel_1a4e4378865cd561e4bccbb346cf7a8114" kind="function"><name>~LookAndFeel</name></member>
     <member refid="classend_1_1_look_and_feel_1aeb869a5b4e62d45764bbf42d4f1afa3a" kind="function"><name>valueTreePropertyChanged</name></member>
+    <member refid="classend_1_1_look_and_feel_1ae7f91b27351c05980a580052f6a14518" kind="function"><name>drawTabButton</name></member>
     <member refid="classend_1_1_look_and_feel_1aa7aba5b24af493c1253295ed0fa3af9a" kind="function"><name>fromRGBA</name></member>
     <member refid="classend_1_1_look_and_feel_1a97d73310bc5d9b47794c0a0d71388bce" kind="function"><name>setColours</name></member>
   </compound>
@@ -478,13 +483,56 @@
     <member refid="classend_1_1_model_1a001a60fde895e5f54ad2672682909e69" kind="function"><name>Model</name></member>
     <member refid="classend_1_1_model_1ad6cbf73ea05928511bcb64cececef692" kind="function"><name>~Model</name></member>
   </compound>
+  <compound refid="classend_1_1_panes" kind="class"><name>end::Panes</name>
+    <member refid="classend_1_1_panes_1ac5e63314ccd3b2561cb9da6eeadcb707" kind="variable"><name>paneManager</name></member>
+    <member refid="classend_1_1_panes_1a43e5f3b81dccb44fcf8535cfb8344ab4" kind="variable"><name>paneViews</name></member>
+    <member refid="classend_1_1_panes_1a4bc8a63497c77b81ff9f1fdaf580d3e8" kind="variable"><name>resizerBars</name></member>
+    <member refid="classend_1_1_panes_1a1a16e6288722f1b30ea634788f171415" kind="function"><name>Panes</name></member>
+    <member refid="classend_1_1_panes_1aee6dbb361505cfd4545ebaa92b12b038" kind="function"><name>resized</name></member>
+    <member refid="classend_1_1_panes_1ae45ffd42c51f4994057bae33078c52db" kind="function"><name>split</name></member>
+    <member refid="classend_1_1_panes_1a4389564f6bfca705382677f1bc6edca5" kind="function"><name>removePane</name></member>
+    <member refid="classend_1_1_panes_1a5e594f3028c62994936214af08eb7ec0" kind="function"><name>getPaneCount</name></member>
+  </compound>
+  <compound refid="classend_1_1_pane_view" kind="class"><name>end::PaneView</name>
+    <member refid="classend_1_1_pane_view_1a6784a755a0395bad57b73d0a0d0cffcb" kind="function"><name>PaneView</name></member>
+    <member refid="classend_1_1_pane_view_1aa2da65834c6cb8bef6db3513ab38ae6e" kind="function"><name>resized</name></member>
+    <member refid="classend_1_1_pane_view_1a8965d85601f8eb0c3671b1f3e44c13a4" kind="function"><name>paint</name></member>
+  </compound>
+  <compound refid="classaction_1_1_registry" kind="class"><name>action::Registry</name>
+    <member refid="classaction_1_1_registry_1a477895f1825ec38c7362295d41093187" kind="variable"><name>actions</name></member>
+    <member refid="classaction_1_1_registry_1ac0357c647b1955560d45b17b86d375ab" kind="variable"><name>keys</name></member>
+    <member refid="classaction_1_1_registry_1aaa1676c4bd9b45d9cfe40a9416c478ab" kind="variable"><name>modalKeys</name></member>
+    <member refid="classaction_1_1_registry_1a7e2fce5f4c913c486e3744d8f804ae00" kind="variable"><name>config</name></member>
+    <member refid="classaction_1_1_registry_1ad6d4755e2636d32124eeca007dbe7f91" kind="variable"><name>prefixKey</name></member>
+    <member refid="classaction_1_1_registry_1a2e4b86c63bdfe4d0d0f1d116a2bfef75" kind="variable"><name>prefixTimeout</name></member>
+    <member refid="classaction_1_1_registry_1ab459c431a149a647f9ed43f58e370198" kind="function"><name>Registry</name></member>
+    <member refid="classaction_1_1_registry_1afae203d09c01463a0eb81d9aaedd638a" kind="function"><name>~Registry</name></member>
+    <member refid="classaction_1_1_registry_1ad386721909b7f7d3ae0ed7c07f3d9ca0" kind="function"><name>buildKeyMap</name></member>
+    <member refid="classaction_1_1_registry_1ac4489681da0cc97dd84b0e4fcd06cf8e" kind="function"><name>valueTreePropertyChanged</name></member>
+    <member refid="classaction_1_1_registry_1a7d16fe8f4045f209faaf099a46d3b704" kind="function"><name>keyPressed</name></member>
+    <member refid="classaction_1_1_registry_1a03afbec3b059b2ecfcbf117121f31b8d" kind="function"><name>run</name></member>
+    <member refid="classaction_1_1_registry_1adfb52cb08bb171416025fe0487476ebb" kind="function"><name>timerCallback</name></member>
+  </compound>
+  <compound refid="classend_1_1_tabs" kind="class"><name>end::Tabs</name>
+    <member refid="classend_1_1_tabs_1a987fa18d3d715b9da7f02fe7d0d4f1b3" kind="variable"><name>tabPanes</name></member>
+    <member refid="classend_1_1_tabs_1ae74fe3d456ccb9887c804ded09698f6b" kind="function"><name>Tabs</name></member>
+    <member refid="classend_1_1_tabs_1a5d92721be181f26d6425b39bfa3724f4" kind="function"><name>addNewTab</name></member>
+    <member refid="classend_1_1_tabs_1a629895e04058463b40f27526739b65fe" kind="function"><name>removeCurrentTab</name></member>
+    <member refid="classend_1_1_tabs_1a202281e6b55f4974b00b7cf030cf3f12" kind="function"><name>getActivePanes</name></member>
+    <member refid="classend_1_1_tabs_1ac43cde00bd83d52188c259741d053398" kind="function"><name>resized</name></member>
+    <member refid="classend_1_1_tabs_1a42964332bbe9734aef710f26f0111536" kind="function"><name>currentTabChanged</name></member>
+  </compound>
   <compound refid="classend_1_1_view" kind="class"><name>end::View</name>
     <member refid="classend_1_1_view_1ad207d70397b5a0ae3d0e722742d2940e" kind="variable"><name>config</name></member>
-    <member refid="classend_1_1_view_1ac89c619ba6f3ef9688c0a61767be336e" kind="function"><name>View</name></member>
-    <member refid="classend_1_1_view_1a5188bc526dfe6b47604ee7ebb35241f0" kind="function"><name>~View</name></member>
+    <member refid="classend_1_1_view_1a7e6ee211dd7d9e06224826283296fa65" kind="variable"><name>tabs</name></member>
+    <member refid="classend_1_1_view_1ace453a44b620ac0ccd2d799ec99e2bbd" kind="variable"><name>registry</name></member>
+    <member refid="classend_1_1_view_1a2f1f21e6cb1d1c5467187d126cf04c68" kind="function"><name>View</name></member>
+    <member refid="classend_1_1_view_1aac73d85c15164ea7a9ae443b9673996c" kind="function"><name>~View</name></member>
     <member refid="classend_1_1_view_1a14f07f6fc295c80b4ff0555798fa583c" kind="function"><name>resized</name></member>
     <member refid="classend_1_1_view_1a2b7111f9b62f43d038bc092d269b5b1c" kind="function"><name>paint</name></member>
+    <member refid="classend_1_1_view_1a41cd1e902149d1b7eff5b13e08d9bd27" kind="function"><name>keyPressed</name></member>
     <member refid="classend_1_1_view_1af52de711464f4dba65c969a4ffbbafc6" kind="function"><name>valueTreePropertyChanged</name></member>
+    <member refid="classend_1_1_view_1aad335fb5a8817e1efe1a08368c2521b4" kind="function"><name>getTabs</name></member>
   </compound>
   <compound refid="classend_1_1_window" kind="class"><name>end::Window</name>
     <member refid="classend_1_1_window_1abe8a4afa5c3a4fa81c6b332cf41b6eb4" kind="variable"><name>config</name></member>
@@ -499,11 +547,17 @@
     <member refid="classend_1_1_window_1a74a3643e267cf5eb748697a2f38aea4f" kind="function"><name>setStyle</name></member>
     <member refid="classend_1_1_window_1ae499949d629442defbc160fb5302ffc5" kind="function"><name>applyStyleFor</name></member>
   </compound>
+  <compound refid="namespaceaction" kind="namespace"><name>action</name>
+  </compound>
   <compound refid="namespaceconfig" kind="namespace"><name>config</name>
   </compound>
   <compound refid="namespaceend" kind="namespace"><name>end</name>
   </compound>
   <compound refid="namespacestd" kind="namespace"><name>std</name>
+  </compound>
+  <compound refid="_registry_8cpp" kind="file"><name>Registry.cpp</name>
+  </compound>
+  <compound refid="_registry_8h" kind="file"><name>Registry.h</name>
   </compound>
   <compound refid="_config_8cpp" kind="file"><name>Config.cpp</name>
   </compound>
@@ -514,6 +568,16 @@
   <compound refid="_model_8cpp" kind="file"><name>Model.cpp</name>
   </compound>
   <compound refid="_model_8h" kind="file"><name>Model.h</name>
+  </compound>
+  <compound refid="_panes_8cpp" kind="file"><name>Panes.cpp</name>
+  </compound>
+  <compound refid="_panes_8h" kind="file"><name>Panes.h</name>
+  </compound>
+  <compound refid="_pane_view_8h" kind="file"><name>PaneView.h</name>
+  </compound>
+  <compound refid="_tabs_8cpp" kind="file"><name>Tabs.cpp</name>
+  </compound>
+  <compound refid="_tabs_8h" kind="file"><name>Tabs.h</name>
   </compound>
   <compound refid="_view_8cpp" kind="file"><name>View.cpp</name>
   </compound>
@@ -543,6 +607,8 @@
   <compound refid="_main_8cpp" kind="file"><name>Main.cpp</name>
   </compound>
   <compound refid="_main_8h" kind="file"><name>Main.h</name>
+  </compound>
+  <compound refid="dir_2e361893faae7e8ceea4950fc659485a" kind="dir"><name>action</name>
   </compound>
   <compound refid="dir_9f351d46ce3cc29445a41dc3a31e6919" kind="dir"><name>config</name>
   </compound>

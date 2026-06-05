@@ -14,7 +14,7 @@ namespace end
     hot-reload) triggers one setColour for the matching colourId.
 */
 class LookAndFeel
-    : public juce::LookAndFeel_V4
+    : public jam::LookAndFeel::Methods<LookAndFeel>
     , public juce::ValueTree::Listener
 {
 public:
@@ -50,6 +50,9 @@ public:
     //==============================================================================
     /** @brief ValueTree::L looks up property in map, sets colour. */
     void valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier&) override;
+
+    /** @brief Draws a tab button — simple rounded rect with text. */
+    void drawTabButton (juce::Graphics&, juce::Button&, bool isMouseOver, bool isMouseDown) override;
     //==============================================================================
     static const juce::Colour fromRGBA (const juce::String& hexRGBA) noexcept;
 

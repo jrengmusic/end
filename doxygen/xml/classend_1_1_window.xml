@@ -257,7 +257,6 @@
         <references refid="classjuce_1_1Component_1ac109beb72e9dafdc724da22b8cb883c0">juce::Component::getWidth</references>
         <references refid="classend_1_1_window_1a5496b743dc7c10f5dc2f657e732edf53" compoundref="_window_8h" startline="151" endline="157">glassBackend</references>
         <references refid="structjam_1_1ID_1ab6389fe91d4bb010418fc3d930e869b6">jam::ID::height</references>
-        <references refid="structjam_1_1ValueTree_1_1Component_1ab587799358050ce53720ef28f33e01eb">jam::ValueTree::Component::node</references>
         <references refid="classjuce_1_1Component_1a7f2af71c2c981fb7c43d7262563d185f">juce::Component::setAlwaysOnTop</references>
         <references refid="classjam_1_1Window_1a6b6e141bfe84856299b09e493c350f1e">jam::Window::setGlass</references>
         <references refid="classjam_1_1Window_1a72baeb690a2a47a8866afe0bbc6d44e0">jam::Window::setShowWindowButtons</references>
@@ -328,7 +327,7 @@
     </briefdescription>
     <detaileddescription>
 <para>Inherits <ref refid="classjam_1_1Window" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Window</ref> for glassmorphism, <ref refid="structjam_1_1ValueTree_1_1Component" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::ValueTree::Component</ref> for its owned WINDOW node (TYPE = IDtype::window), and <ref refid="classjuce_1_1ValueTree_1_1Listener" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::ValueTree::Listener</ref> to react to config tree mutations. Each WINDOW-section config property is mapped to a typed callable in styleParameters (the analog of ProcessorChain::parameters). <ref refid="classend_1_1_window_1a74a3643e267cf5eb748697a2f38aea4f" kindref="member">setStyle()</ref> calls <ref refid="classend_1_1_window_1ae499949d629442defbc160fb5302ffc5" kindref="member">applyStyleFor()</ref> for each registered property to apply the initial state; <ref refid="classend_1_1_window_1a83a14c6067ee4a40da3db59f9e1b8764" kindref="member">valueTreePropertyChanged()</ref> forwards to <ref refid="classend_1_1_window_1ae499949d629442defbc160fb5302ffc5" kindref="member">applyStyleFor()</ref> on each subsequent change.</para>
-<para>The owned WINDOW node (inherited from <ref refid="structjam_1_1ValueTree_1_1Component" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::ValueTree::Component</ref> as <computeroutput><ref refid="structjam_1_1ValueTree_1_1Component_1ab587799358050ce53720ef28f33e01eb" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">node</ref></computeroutput>) starts empty. It is grafted into <ref refid="classend_1_1_model" kindref="compound">end::Model</ref>&apos;s root tree by a <ref refid="classjam_1_1ValueTree_1_1Attachment" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::ValueTree::Attachment</ref> owned by <ref refid="classend_1_1_application" kindref="compound">end::Application</ref>.</para>
+<para>The owned WINDOW node (inherited from <ref refid="structjam_1_1ValueTree_1_1Component" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::ValueTree::Component</ref> as <computeroutput>node</computeroutput>) starts empty. It is grafted into <ref refid="classend_1_1_model" kindref="compound">end::Model</ref>&apos;s root tree by a <ref refid="classjam_1_1ValueTree_1_1Attachment" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::ValueTree::Attachment</ref> owned by <ref refid="classend_1_1_application" kindref="compound">end::Application</ref>.</para>
 <para>Ownership: constructed and owned by <ref refid="classend_1_1_application" kindref="compound">end::Application</ref>. Lifecycle: config listener is added in the ctor and removed in the dtor. </para>
     </detaileddescription>
     <inheritancegraph>
@@ -425,7 +424,7 @@
         <label>jam::ValueTree::Component</label>
         <link refid="structjam_1_1ValueTree_1_1Component" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
         <childnode refid="16" relation="usage">
-          <edgelabel>node</edgelabel>
+          <edgelabel>state</edgelabel>
         </childnode>
       </node>
       <node id="2">
@@ -740,7 +739,6 @@
       <member refid="classjuce_1_1Component_1ac4e550aa5f0067f2673a74a2f78bec4e" prot="public" virt="virtual"><scope>end::Window</scope><name>mouseWheelMove</name></member>
       <member refid="classjuce_1_1ResizableWindow_1aa66f05c4f35cbfd7c4b0288f3831c0d1" prot="protected" virt="virtual"><scope>end::Window</scope><name>moved</name></member>
       <member refid="classjuce_1_1Component_1a0158694e8f42b7cbe83071d319f472d5" prot="public" virt="non-virtual"><scope>end::Window</scope><name>moveKeyboardFocusToSibling</name></member>
-      <member refid="structjam_1_1ValueTree_1_1Component_1ab587799358050ce53720ef28f33e01eb" prot="protected" virt="non-virtual"><scope>end::Window</scope><name>node</name></member>
       <member refid="structjam_1_1ValueTree_1_1Component_1ae5c294c6f2e32f37ca3fea0030062da4" prot="public" virt="non-virtual"><scope>end::Window</scope><name>onAttachment</name></member>
       <member refid="classjuce_1_1ResizableWindow_1a7def9c886191a092e5c04f7de64c24cd" prot="protected" virt="virtual"><scope>end::Window</scope><name>paint</name></member>
       <member refid="classjuce_1_1Component_1a04cb5e9c37e2c043d5ebad5d7708aac9" prot="public" virt="non-virtual"><scope>end::Window</scope><name>paintEntireComponent</name></member>
@@ -851,6 +849,7 @@
       <member refid="classjuce_1_1Component_1ac85c5bf98ad6ffc1a252cad38f1aca40" prot="public" virt="virtual"><scope>end::Window</scope><name>setVisible</name></member>
       <member refid="classjuce_1_1Component_1ab7ddcb4bf8a7c6534f6e1d9a22e6330b" prot="public" virt="non-virtual"><scope>end::Window</scope><name>setWantsKeyboardFocus</name></member>
       <member refid="classjam_1_1Window_1a6f7bfbfaf7d786d449060f6f1e950e53" prot="private" virt="non-virtual"><scope>end::Window</scope><name>shouldShowWindowButtons</name></member>
+      <member refid="structjam_1_1ValueTree_1_1Component_1a7f1a1f6303881257237240eb4a1a31e2" prot="protected" virt="non-virtual"><scope>end::Window</scope><name>state</name></member>
       <member refid="classend_1_1_window_1a56bf0a4cec2844d980843a4bd0ca35b8" prot="private" virt="non-virtual"><scope>end::Window</scope><name>styleParameters</name></member>
       <member refid="classjuce_1_1DocumentWindow_1a58c0207c94f8993f895e08cba8b310d5a77e90939237a05737171099d49eacafc" prot="public" virt="non-virtual"><scope>end::Window</scope><name>textColourId</name></member>
       <member refid="classend_1_1_window_1af4e0636b21d5630786dc5dd890bf29df" prot="private" virt="non-virtual"><scope>end::Window</scope><name>tintColour</name></member>

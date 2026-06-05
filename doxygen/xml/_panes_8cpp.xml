@@ -1,0 +1,101 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="_panes_8cpp" kind="file" language="C++">
+    <compoundname>Panes.cpp</compoundname>
+    <includes refid="_panes_8h" local="yes">end/Panes.h</includes>
+    <incdepgraph>
+      <node id="5">
+        <label>Identifier.h</label>
+        <link refid="_identifier_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>end/PaneView.h</label>
+        <link refid="_pane_view_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>end/Panes.cpp</label>
+        <link refid="_panes_8cpp"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>end/Panes.h</label>
+        <link refid="_panes_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>JuceHeader.h</label>
+      </node>
+    </incdepgraph>
+    <innernamespace refid="namespaceend">end</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_panes_8h" kindref="compound">end/Panes.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespaceend" kindref="compound">end</ref></highlight></codeline>
+<codeline lineno="4"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">/*____________________________________________________________________________*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="7" refid="classend_1_1_panes_1a1a16e6288722f1b30ea634788f171415" refkind="member"><highlight class="normal"><ref refid="classend_1_1_panes_1a1a16e6288722f1b30ea634788f171415" kindref="member">Panes::Panes</ref><sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref>&amp;<sp/>firstPaneUUID)</highlight></codeline>
+<codeline lineno="8"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="9"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>pane<sp/>{<sp/>std::make_unique&lt;PaneView&gt;<sp/>(firstPaneUUID)<sp/>};</highlight></codeline>
+<codeline lineno="10"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classjuce_1_1Component_1a7cc925a367e95b3807255f8b4a94dddd" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">addAndMakeVisible</ref><sp/>(*pane);</highlight></codeline>
+<codeline lineno="11"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classend_1_1_panes_1a43e5f3b81dccb44fcf8535cfb8344ab4" kindref="member">paneViews</ref>.add<sp/>(std::move<sp/>(pane));</highlight></codeline>
+<codeline lineno="12"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classend_1_1_panes_1ac5e63314ccd3b2561cb9da6eeadcb707" kindref="member">paneManager</ref>.addLeaf<sp/>(firstPaneUUID);</highlight></codeline>
+<codeline lineno="13"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15" refid="classend_1_1_panes_1aee6dbb361505cfd4545ebaa92b12b038" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_panes_1aee6dbb361505cfd4545ebaa92b12b038" kindref="member">Panes::resized</ref>()</highlight></codeline>
+<codeline lineno="16"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classend_1_1_panes_1ac5e63314ccd3b2561cb9da6eeadcb707" kindref="member">paneManager</ref>.layout<sp/>(<ref refid="classjuce_1_1Component_1ad886e26b7514369fe38fdc03074b7c80" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">getLocalBounds</ref>(),<sp/><ref refid="classend_1_1_panes_1a43e5f3b81dccb44fcf8535cfb8344ab4" kindref="member">paneViews</ref>,<sp/><ref refid="classend_1_1_panes_1a4bc8a63497c77b81ff9f1fdaf580d3e8" kindref="member">resizerBars</ref>);</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keyword">auto</highlight><highlight class="normal">&amp;<sp/>bar<sp/>:<sp/><ref refid="classend_1_1_panes_1a4bc8a63497c77b81ff9f1fdaf580d3e8" kindref="member">resizerBars</ref>)</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classjuce_1_1Component_1a7cc925a367e95b3807255f8b4a94dddd" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">addAndMakeVisible</ref><sp/>(*bar);</highlight></codeline>
+<codeline lineno="21"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23" refid="classend_1_1_panes_1ae45ffd42c51f4994057bae33078c52db" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_panes_1ae45ffd42c51f4994057bae33078c52db" kindref="member">Panes::split</ref><sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref>&amp;<sp/>uuid,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref>&amp;<sp/>direction)</highlight></codeline>
+<codeline lineno="24"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>newUUID<sp/>{<sp/><ref refid="classjuce_1_1Uuid" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Uuid</ref>().<ref refid="classjuce_1_1Uuid_1a2b985e44ac179cd534338725bcc51628" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">toString</ref>()<sp/>};</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>pane<sp/>{<sp/>std::make_unique&lt;PaneView&gt;<sp/>(newUUID)<sp/>};</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classjuce_1_1Component_1a7cc925a367e95b3807255f8b4a94dddd" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">addAndMakeVisible</ref><sp/>(*pane);</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classend_1_1_panes_1a43e5f3b81dccb44fcf8535cfb8344ab4" kindref="member">paneViews</ref>.add<sp/>(std::move<sp/>(pane));</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classend_1_1_panes_1ac5e63314ccd3b2561cb9da6eeadcb707" kindref="member">paneManager</ref>.split<sp/>(uuid,<sp/>newUUID,<sp/>direction);</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classend_1_1_panes_1aee6dbb361505cfd4545ebaa92b12b038" kindref="member">resized</ref>();</highlight></codeline>
+<codeline lineno="31"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33" refid="classend_1_1_panes_1a4389564f6bfca705382677f1bc6edca5" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_panes_1a4389564f6bfca705382677f1bc6edca5" kindref="member">Panes::removePane</ref><sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref>&amp;<sp/>uuid)</highlight></codeline>
+<codeline lineno="34"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>{<sp/>0<sp/>};<sp/>i<sp/>&lt;<sp/>static_cast&lt;int&gt;<sp/>(<ref refid="classend_1_1_panes_1a43e5f3b81dccb44fcf8535cfb8344ab4" kindref="member">paneViews</ref>.size());<sp/>++i)</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classend_1_1_panes_1a43e5f3b81dccb44fcf8535cfb8344ab4" kindref="member">paneViews</ref>.at<sp/>(</highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">size_t</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(i))-&gt;getComponentID()<sp/>==<sp/>uuid)</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classend_1_1_panes_1a43e5f3b81dccb44fcf8535cfb8344ab4" kindref="member">paneViews</ref>.remove<sp/>(i);</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classend_1_1_panes_1ac5e63314ccd3b2561cb9da6eeadcb707" kindref="member">paneManager</ref>.remove<sp/>(uuid);</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classend_1_1_panes_1aee6dbb361505cfd4545ebaa92b12b038" kindref="member">resized</ref>();</highlight></codeline>
+<codeline lineno="46"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48" refid="classend_1_1_panes_1a5e594f3028c62994936214af08eb7ec0" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_panes_1a5e594f3028c62994936214af08eb7ec0" kindref="member">Panes::getPaneCount</ref>()<sp/>const<sp/>noexcept</highlight></codeline>
+<codeline lineno="49"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">int</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(<ref refid="classend_1_1_panes_1a43e5f3b81dccb44fcf8535cfb8344ab4" kindref="member">paneViews</ref>.size());</highlight></codeline>
+<codeline lineno="51"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal">}</highlight><highlight class="comment">//<sp/>namespace<sp/>end</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="end/Panes.cpp"/>
+  </compounddef>
+</doxygen>

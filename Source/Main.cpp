@@ -38,6 +38,7 @@ void Application::initialise (const juce::String& commandLine)
     auto* view { new View() };
     window.reset (new end::Window { view, ProjectInfo::projectName, false, false });
     windowAttachment = std::make_unique<jam::ValueTree::Attachment> (model.getRootTree(), *window);
+    tabsAttachment = std::make_unique<jam::ValueTree::Attachment> (model.getRootTree(), view->getTabs());
     window->setVisible (true);
 
     // File watcher: watch config directory for hot-reload

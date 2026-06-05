@@ -4,6 +4,7 @@
     <compoundname>end::View</compoundname>
     <basecompoundref refid="classjuce_1_1Component" prot="public" virt="non-virtual">juce::Component</basecompoundref>
     <basecompoundref refid="classjuce_1_1ValueTree_1_1Listener" prot="public" virt="non-virtual">juce::ValueTree::Listener</basecompoundref>
+    <basecompoundref refid="classjuce_1_1KeyListener" prot="public" virt="non-virtual">juce::KeyListener</basecompoundref>
     <includes refid="_view_8h" local="no">View.h</includes>
     <sectiondef kind="private-attrib">
       <memberdef kind="variable" id="classend_1_1_view_1ad207d70397b5a0ae3d0e722742d2940e" prot="private" static="no" mutable="no">
@@ -19,14 +20,47 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/View.h" line="25" column="21" bodyfile="end/View.h" bodystart="25" bodyend="25"/>
+        <location file="end/View.h" line="45" column="21" bodyfile="end/View.h" bodystart="45" bodyend="45"/>
+      </memberdef>
+      <memberdef kind="variable" id="classend_1_1_view_1a7e6ee211dd7d9e06224826283296fa65" prot="private" static="no" mutable="no">
+        <type><ref refid="classend_1_1_tabs" kindref="compound">Tabs</ref></type>
+        <definition>Tabs end::View::tabs</definition>
+        <argsstring></argsstring>
+        <name>tabs</name>
+        <qualifiedname>end::View::tabs</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="end/View.h" line="46" column="10" bodyfile="end/View.h" bodystart="46" bodyend="-1"/>
+        <referencedby refid="classend_1_1_view_1aad335fb5a8817e1efe1a08368c2521b4" compoundref="_view_8cpp" startline="71" endline="71">getTabs</referencedby>
+        <referencedby refid="classend_1_1_view_1a14f07f6fc295c80b4ff0555798fa583c" compoundref="_view_8cpp" startline="59" endline="59">resized</referencedby>
+        <referencedby refid="classend_1_1_view_1a2f1f21e6cb1d1c5467187d126cf04c68" compoundref="_view_8cpp" startline="7" endline="51">View</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classend_1_1_view_1ace453a44b620ac0ccd2d799ec99e2bbd" prot="private" static="no" mutable="no">
+        <type><ref refid="classaction_1_1_registry" kindref="compound">action::Registry</ref></type>
+        <definition>action::Registry end::View::registry</definition>
+        <argsstring></argsstring>
+        <name>registry</name>
+        <qualifiedname>end::View::registry</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="end/View.h" line="47" column="22" bodyfile="end/View.h" bodystart="47" bodyend="-1"/>
+        <referencedby refid="classend_1_1_view_1a41cd1e902149d1b7eff5b13e08d9bd27" compoundref="_view_8cpp" startline="63" endline="67">keyPressed</referencedby>
+        <referencedby refid="classend_1_1_view_1a2f1f21e6cb1d1c5467187d126cf04c68" compoundref="_view_8cpp" startline="7" endline="51">View</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">
-      <memberdef kind="function" id="classend_1_1_view_1ac89c619ba6f3ef9688c0a61767be336e" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+      <memberdef kind="function" id="classend_1_1_view_1a2f1f21e6cb1d1c5467187d126cf04c68" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type></type>
         <definition>end::View::View</definition>
-        <argsstring>() noexcept</argsstring>
+        <argsstring>()</argsstring>
         <name>View</name>
         <qualifiedname>end::View::View</qualifiedname>
         <briefdescription>
@@ -35,17 +69,23 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/View.h" line="12" column="5" bodyfile="end/View.cpp" bodystart="7" bodyend="16"/>
+        <location file="end/View.h" line="28" column="5" bodyfile="end/View.cpp" bodystart="7" bodyend="51"/>
+        <references refid="classjuce_1_1Component_1a7cc925a367e95b3807255f8b4a94dddd">juce::Component::addAndMakeVisible</references>
+        <references refid="classjuce_1_1Component_1a8d7bd030d40b26625000318c5198189a">juce::Component::addKeyListener</references>
         <references refid="structjam_1_1ValueTree_1a152686188cfc06dd25e019a763a197f9">jam::ValueTree::getChildWithName</references>
         <references refid="structjam_1_1ID_1ab6389fe91d4bb010418fc3d930e869b6">jam::ID::height</references>
+        <references refid="classend_1_1_view_1ace453a44b620ac0ccd2d799ec99e2bbd" compoundref="_view_8h" startline="47">registry</references>
         <references refid="classjuce_1_1Component_1a862fe9788d2f2a16f9ad2bb7d8f2e0ec">juce::Component::setOpaque</references>
         <references refid="classjuce_1_1Component_1ab11f2db9935bf7a7c1e2661007ffdeb7">juce::Component::setSize</references>
+        <references refid="classjuce_1_1Component_1ab7ddcb4bf8a7c6534f6e1d9a22e6330b">juce::Component::setWantsKeyboardFocus</references>
+        <references refid="classend_1_1_view_1a7e6ee211dd7d9e06224826283296fa65" compoundref="_view_8h" startline="46">tabs</references>
+        <references refid="classjuce_1_1Component_1a68b9958705577cf5ed361210b29f3a4e">juce::Component::toFront</references>
         <references refid="structjam_1_1ID_1a3d0d8290681c62b75160843928ff3689">jam::ID::width</references>
       </memberdef>
-      <memberdef kind="function" id="classend_1_1_view_1a5188bc526dfe6b47604ee7ebb35241f0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+      <memberdef kind="function" id="classend_1_1_view_1aac73d85c15164ea7a9ae443b9673996c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type></type>
         <definition>end::View::~View</definition>
-        <argsstring>()</argsstring>
+        <argsstring>() override</argsstring>
         <name>~View</name>
         <qualifiedname>end::View::~View</qualifiedname>
         <briefdescription>
@@ -54,7 +94,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/View.h" line="13" column="5" bodyfile="end/View.cpp" bodystart="18" bodyend="18"/>
+        <location file="end/View.h" line="29" column="5" bodyfile="end/View.cpp" bodystart="53" bodyend="57"/>
+        <references refid="classjuce_1_1Component_1af3f592f985fd53ebe13bdd1d29019749">juce::Component::removeKeyListener</references>
       </memberdef>
       <memberdef kind="function" id="classend_1_1_view_1a14f07f6fc295c80b4ff0555798fa583c" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
         <type>void</type>
@@ -69,7 +110,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/View.h" line="15" column="10" bodyfile="end/View.cpp" bodystart="21" bodyend="21"/>
+        <location file="end/View.h" line="31" column="10" bodyfile="end/View.cpp" bodystart="59" bodyend="59"/>
+        <references refid="classjuce_1_1Component_1ad886e26b7514369fe38fdc03074b7c80">juce::Component::getLocalBounds</references>
+        <references refid="classend_1_1_view_1a7e6ee211dd7d9e06224826283296fa65" compoundref="_view_8h" startline="46">tabs</references>
       </memberdef>
       <memberdef kind="function" id="classend_1_1_view_1a2b7111f9b62f43d038bc092d269b5b1c" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
         <type>void</type>
@@ -80,17 +123,43 @@
         <reimplements refid="classjuce_1_1Component_1aee2f4baa8b5e05a1a8ff099ef33e23ba">paint</reimplements>
         <param>
           <type><ref refid="classjuce_1_1Graphics" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Graphics</ref> &amp;</type>
-          <defname>g</defname>
         </param>
         <briefdescription>
-<para>Intentionally empty — the <ref refid="classend_1_1_view" kindref="compound">View</ref> surface is transparent so the <ref refid="classjam_1_1Window" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Window</ref> glass tint shows through. </para>
         </briefdescription>
         <detaileddescription>
-<para>No ResizableWindow background colour is applied at this layer; the window owns the visual floor. </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/View.h" line="20" column="10" bodyfile="end/View.cpp" bodystart="22" bodyend="22"/>
+        <location file="end/View.h" line="32" column="10" bodyfile="end/View.cpp" bodystart="61" bodyend="61"/>
+      </memberdef>
+      <memberdef kind="function" id="classend_1_1_view_1a41cd1e902149d1b7eff5b13e08d9bd27" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>bool</type>
+        <definition>bool end::View::keyPressed</definition>
+        <argsstring>(const juce::KeyPress &amp;key, juce::Component *originatingComponent) override</argsstring>
+        <name>keyPressed</name>
+        <qualifiedname>end::View::keyPressed</qualifiedname>
+        <reimplements refid="classjuce_1_1KeyListener_1a9ce4adeb0b6119790b5e75a9786abda7">keyPressed</reimplements>
+        <param>
+          <type>const <ref refid="classjuce_1_1KeyPress" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::KeyPress</ref> &amp;</type>
+          <declname>key</declname>
+        </param>
+        <param>
+          <type><ref refid="classjuce_1_1Component" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Component</ref> *</type>
+          <declname>originatingComponent</declname>
+        </param>
+        <briefdescription>
+<para>Routes key presses to the action registry. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>true if consumed by an action binding. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="end/View.h" line="37" column="10" bodyfile="end/View.cpp" bodystart="63" bodyend="67"/>
+        <references refid="namespacejuce_1a86deae84ff8b95d7e40214a493b3dfe0">juce::ignoreUnused</references>
+        <references refid="classend_1_1_view_1ace453a44b620ac0ccd2d799ec99e2bbd" compoundref="_view_8h" startline="47">registry</references>
       </memberdef>
       <memberdef kind="function" id="classend_1_1_view_1af52de711464f4dba65c969a4ffbbafc6" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
         <type>void</type>
@@ -111,12 +180,30 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/View.h" line="22" column="10" bodyfile="end/View.cpp" bodystart="19" bodyend="19"/>
+        <location file="end/View.h" line="39" column="10" bodyfile="end/View.cpp" bodystart="69" bodyend="69"/>
+      </memberdef>
+      <memberdef kind="function" id="classend_1_1_view_1aad335fb5a8817e1efe1a08368c2521b4" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type><ref refid="classend_1_1_tabs" kindref="compound">Tabs</ref> &amp;</type>
+        <definition>Tabs &amp; end::View::getTabs</definition>
+        <argsstring>() noexcept</argsstring>
+        <name>getTabs</name>
+        <qualifiedname>end::View::getTabs</qualifiedname>
+        <briefdescription>
+<para>Returns the <ref refid="classend_1_1_tabs" kindref="compound">Tabs</ref> component for Attachment wiring. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="end/View.h" line="42" column="10" bodyfile="end/View.cpp" bodystart="71" bodyend="71"/>
+        <references refid="classend_1_1_view_1a7e6ee211dd7d9e06224826283296fa65" compoundref="_view_8h" startline="46">tabs</references>
       </memberdef>
     </sectiondef>
     <briefdescription>
+<para>Root content component inside <ref refid="classend_1_1_window" kindref="compound">end::Window</ref>. </para>
     </briefdescription>
     <detaileddescription>
+<para>Owns the tab system and action registry. Implements KeyListener to intercept key presses and route them through the Registry&apos;s prefix key state machine. Transparent — glass shows through from <ref refid="classend_1_1_window" kindref="compound">Window</ref>. </para>
     </detaileddescription>
     <inheritancegraph>
       <node id="1">
@@ -126,12 +213,18 @@
         </childnode>
         <childnode refid="4" relation="public-inheritance">
         </childnode>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
       </node>
       <node id="2">
         <label>juce::Component</label>
         <link refid="classjuce_1_1Component" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
         <childnode refid="3" relation="public-inheritance">
         </childnode>
+      </node>
+      <node id="5">
+        <label>juce::KeyListener</label>
+        <link refid="classjuce_1_1KeyListener" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
       <node id="3">
         <label>juce::MouseListener</label>
@@ -143,6 +236,38 @@
       </node>
     </inheritancegraph>
     <collaborationgraph>
+      <node id="23">
+        <label>action::Registry</label>
+        <link refid="classaction_1_1_registry"/>
+        <childnode refid="18" relation="private-inheritance">
+        </childnode>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+        <childnode refid="24" relation="usage">
+          <edgelabel>actions</edgelabel>
+        </childnode>
+        <childnode refid="25" relation="usage">
+          <edgelabel>keys</edgelabel>
+          <edgelabel>modalKeys</edgelabel>
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>config</edgelabel>
+        </childnode>
+        <childnode refid="26" relation="usage">
+          <edgelabel>prefixKey</edgelabel>
+        </childnode>
+      </node>
+      <node id="7">
+        <label>end::Tabs</label>
+        <link refid="classend_1_1_tabs"/>
+        <childnode refid="8" relation="public-inheritance">
+        </childnode>
+        <childnode refid="21" relation="public-inheritance">
+        </childnode>
+        <childnode refid="22" relation="usage">
+          <edgelabel>tabPanes</edgelabel>
+        </childnode>
+      </node>
       <node id="1">
         <label>end::View</label>
         <link refid="classend_1_1_view"/>
@@ -150,9 +275,98 @@
         </childnode>
         <childnode refid="4" relation="public-inheritance">
         </childnode>
-        <childnode refid="5" relation="usage">
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+        <childnode refid="6" relation="usage">
           <edgelabel>config</edgelabel>
         </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>tabs</edgelabel>
+        </childnode>
+        <childnode refid="23" relation="usage">
+          <edgelabel>registry</edgelabel>
+        </childnode>
+      </node>
+      <node id="24">
+        <label>jam::Function::Map&lt; juce::Identifier, void &gt;</label>
+        <link refid="structjam_1_1Function_1_1Map" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
+      <node id="22">
+        <label>jam::Owner&lt; end::Panes &gt;</label>
+        <link refid="classjam_1_1Owner" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
+      <node id="14">
+        <label>jam::Owner&lt; juce::Button &gt;</label>
+        <link refid="classjam_1_1Owner" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
+      <node id="8">
+        <label>jam::TabbedComponent</label>
+        <link refid="classjam_1_1TabbedComponent" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="9" relation="usage">
+          <edgelabel>tabs</edgelabel>
+        </childnode>
+        <childnode refid="19" relation="usage">
+          <edgelabel>tabColours</edgelabel>
+        </childnode>
+      </node>
+      <node id="13">
+        <label>jam::Value</label>
+        <link refid="structjam_1_1Value" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
+      <node id="11">
+        <label>jam::Value::Component</label>
+        <link refid="structjam_1_1Value_1_1Component" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
+      <node id="10">
+        <label>jam::Value::ComponentWithID&lt; Group &gt;</label>
+        <link refid="structjam_1_1Value_1_1ComponentWithID" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="11" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>jam::ValueTree::Component</label>
+        <link refid="structjam_1_1ValueTree_1_1Component" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="6" relation="usage">
+          <edgelabel>state</edgelabel>
+        </childnode>
+      </node>
+      <node id="9">
+        <label>jam::button::Group</label>
+        <link refid="classjam_1_1button_1_1Group" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="10" relation="public-inheritance">
+        </childnode>
+        <childnode refid="12" relation="public-inheritance">
+        </childnode>
+        <childnode refid="13" relation="usage">
+          <edgelabel>value</edgelabel>
+        </childnode>
+        <childnode refid="14" relation="usage">
+          <edgelabel>buttons</edgelabel>
+        </childnode>
+        <childnode refid="15" relation="usage">
+          <edgelabel>indicator</edgelabel>
+        </childnode>
+        <childnode refid="16" relation="usage">
+          <edgelabel>animator</edgelabel>
+        </childnode>
+      </node>
+      <node id="15">
+        <label>jam::button::Group::SlidingIndicator</label>
+        <link refid="classjam_1_1button_1_1Group_1_1SlidingIndicator" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>juce::ChangeBroadcaster</label>
+        <link refid="classjuce_1_1ChangeBroadcaster" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="20">
+        <label>juce::Colour</label>
+        <link refid="classjuce_1_1Colour" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
       <node id="2">
         <label>juce::Component</label>
@@ -160,11 +374,42 @@
         <childnode refid="3" relation="public-inheritance">
         </childnode>
       </node>
+      <node id="16">
+        <label>juce::ComponentAnimator</label>
+        <link refid="classjuce_1_1ComponentAnimator" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+        <childnode refid="17" relation="public-inheritance">
+        </childnode>
+        <childnode refid="18" relation="private-inheritance">
+        </childnode>
+      </node>
+      <node id="27">
+        <label>juce::Identifier</label>
+        <link refid="classjuce_1_1Identifier" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+        <childnode refid="27" relation="usage">
+          <edgelabel>null</edgelabel>
+        </childnode>
+      </node>
+      <node id="5">
+        <label>juce::KeyListener</label>
+        <link refid="classjuce_1_1KeyListener" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="26">
+        <label>juce::KeyPress</label>
+        <link refid="classjuce_1_1KeyPress" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
       <node id="3">
         <label>juce::MouseListener</label>
         <link refid="classjuce_1_1MouseListener" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="5">
+      <node id="18">
+        <label>juce::Timer</label>
+        <link refid="classjuce_1_1Timer" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="12">
+        <label>juce::Value::Listener</label>
+        <link refid="classjuce_1_1Value_1_1Listener" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="6">
         <label>juce::ValueTree</label>
         <link refid="classjuce_1_1ValueTree" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
@@ -172,8 +417,23 @@
         <label>juce::ValueTree::Listener</label>
         <link refid="classjuce_1_1ValueTree_1_1Listener" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
+      <node id="25">
+        <label>std::unordered_map&lt; juce::KeyPress, juce::Identifier &gt;</label>
+        <childnode refid="26" relation="usage">
+          <edgelabel>keys</edgelabel>
+        </childnode>
+        <childnode refid="27" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+      <node id="19">
+        <label>std::vector&lt; juce::Colour &gt;</label>
+        <childnode refid="20" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
     </collaborationgraph>
-    <location file="end/View.h" line="7" column="1" bodyfile="end/View.h" bodystart="10" bodyend="28"/>
+    <location file="end/View.h" line="22" column="1" bodyfile="end/View.h" bodystart="26" bodyend="51"/>
     <listofallmembers>
       <member refid="classjuce_1_1Component_1a7cc925a367e95b3807255f8b4a94dddd" prot="public" virt="non-virtual"><scope>end::View</scope><name>addAndMakeVisible</name></member>
       <member refid="classjuce_1_1Component_1ac79decdfaf538a2bdef2f818a280bb8e" prot="public" virt="non-virtual"><scope>end::View</scope><name>addAndMakeVisible</name></member>
@@ -271,6 +531,7 @@
       <member refid="classjuce_1_1Component_1adb0eb5140270debae6b5677da07208fc" prot="public" virt="non-virtual"><scope>end::View</scope><name>getScreenPosition</name></member>
       <member refid="classjuce_1_1Component_1a498f66e1c0713a97a110ef9b26c97a06" prot="public" virt="non-virtual"><scope>end::View</scope><name>getScreenX</name></member>
       <member refid="classjuce_1_1Component_1a3ba2d8019db6a8e1af2085120f52a605" prot="public" virt="non-virtual"><scope>end::View</scope><name>getScreenY</name></member>
+      <member refid="classend_1_1_view_1aad335fb5a8817e1efe1a08368c2521b4" prot="public" virt="non-virtual"><scope>end::View</scope><name>getTabs</name></member>
       <member refid="classjuce_1_1Component_1a3608be9beaa50ab2631662e4ed27eda7" prot="public" virt="non-virtual"><scope>end::View</scope><name>getTitle</name></member>
       <member refid="classjuce_1_1Component_1a1ae53e428bcf27364f85c17290b7dcef" prot="public" virt="non-virtual"><scope>end::View</scope><name>getTopLevelComponent</name></member>
       <member refid="classjuce_1_1Component_1a0af216b2700b73bd72692cc1d9865862" prot="public" virt="non-virtual"><scope>end::View</scope><name>getTransform</name></member>
@@ -309,8 +570,10 @@
       <member refid="classjuce_1_1Component_1a6be8f086c546deff3b8865df2c00d16b" prot="public" virt="non-virtual"><scope>end::View</scope><name>isShowing</name></member>
       <member refid="classjuce_1_1Component_1a5f594d0c2538fe6b839c906bbb4d262d" prot="public" virt="non-virtual"><scope>end::View</scope><name>isTransformed</name></member>
       <member refid="classjuce_1_1Component_1a38e3667e21d7f9ac222699597e8930e7" prot="public" virt="non-virtual"><scope>end::View</scope><name>isVisible</name></member>
-      <member refid="classjuce_1_1Component_1a8e5d67f475076b225e157dcab0895f4d" prot="public" virt="virtual"><scope>end::View</scope><name>keyPressed</name></member>
-      <member refid="classjuce_1_1Component_1a87b407d67bd47cb238114cc55f74474b" prot="public" virt="virtual"><scope>end::View</scope><name>keyStateChanged</name></member>
+      <member refid="classend_1_1_view_1a41cd1e902149d1b7eff5b13e08d9bd27" prot="public" virt="virtual"><scope>end::View</scope><name>keyPressed</name></member>
+      <member refid="classjuce_1_1Component_1a8e5d67f475076b225e157dcab0895f4d" prot="public" virt="virtual" ambiguityscope="juce::Component::"><scope>end::View</scope><name>keyPressed</name></member>
+      <member refid="classjuce_1_1Component_1a87b407d67bd47cb238114cc55f74474b" prot="public" virt="virtual" ambiguityscope="juce::"><scope>end::View</scope><name>keyStateChanged</name></member>
+      <member refid="classjuce_1_1KeyListener_1af5e0f5ea6a70868fa4d93dd7e09ade42" prot="public" virt="virtual" ambiguityscope="juce::KeyListener::"><scope>end::View</scope><name>keyStateChanged</name></member>
       <member refid="classjuce_1_1Component_1a9f02070fbc6984642898d657a37f0dd3" prot="public" virt="non-virtual"><scope>end::View</scope><name>localAreaToGlobal</name></member>
       <member refid="classjuce_1_1Component_1ab5a932015f46a85bb803282d97e0d5a0" prot="public" virt="non-virtual"><scope>end::View</scope><name>localAreaToGlobal</name></member>
       <member refid="classjuce_1_1Component_1acd96b47d21fb902a8155dbf75b112acf" prot="public" virt="non-virtual"><scope>end::View</scope><name>localPointToGlobal</name></member>
@@ -339,6 +602,7 @@
       <member refid="classjuce_1_1Component_1a06269c7e4691852353960e510265374f" prot="public" virt="non-virtual"><scope>end::View</scope><name>proportionOfWidth</name></member>
       <member refid="classjuce_1_1Component_1a5256dfe10e8d0fe855955f84da070f4d" prot="public" virt="non-virtual"><scope>end::View</scope><name>reallyContains</name></member>
       <member refid="classjuce_1_1Component_1afaa7c01bd839da26e1c8ed6276511929" prot="public" virt="non-virtual"><scope>end::View</scope><name>reallyContains</name></member>
+      <member refid="classend_1_1_view_1ace453a44b620ac0ccd2d799ec99e2bbd" prot="private" virt="non-virtual"><scope>end::View</scope><name>registry</name></member>
       <member refid="classjuce_1_1Component_1aab256cd1d4ebc06d15bd4e46c720cc2c" prot="public" virt="non-virtual"><scope>end::View</scope><name>removeAllChildren</name></member>
       <member refid="classjuce_1_1Component_1aa5c55b1b36db653dfd5a8d2b6555f98b" prot="public" virt="non-virtual"><scope>end::View</scope><name>removeChildComponent</name></member>
       <member refid="classjuce_1_1Component_1ac17f54978ca3b11ca258c91a1682b078" prot="public" virt="non-virtual"><scope>end::View</scope><name>removeChildComponent</name></member>
@@ -396,6 +660,7 @@
       <member refid="classjuce_1_1Component_1ad661b379b482222e0d59da5c7b6b07a1" prot="public" virt="non-virtual"><scope>end::View</scope><name>setViewportIgnoreDragFlag</name></member>
       <member refid="classjuce_1_1Component_1ac85c5bf98ad6ffc1a252cad38f1aca40" prot="public" virt="virtual"><scope>end::View</scope><name>setVisible</name></member>
       <member refid="classjuce_1_1Component_1ab7ddcb4bf8a7c6534f6e1d9a22e6330b" prot="public" virt="non-virtual"><scope>end::View</scope><name>setWantsKeyboardFocus</name></member>
+      <member refid="classend_1_1_view_1a7e6ee211dd7d9e06224826283296fa65" prot="private" virt="non-virtual"><scope>end::View</scope><name>tabs</name></member>
       <member refid="classjuce_1_1Component_1a66265db6f483d493d0f3ccdddad65b25" prot="public" virt="non-virtual"><scope>end::View</scope><name>toBack</name></member>
       <member refid="classjuce_1_1Component_1a253c1e1027791f67f7aa6e4261ca604f" prot="public" virt="non-virtual"><scope>end::View</scope><name>toBehind</name></member>
       <member refid="classjuce_1_1Component_1a68b9958705577cf5ed361210b29f3a4e" prot="public" virt="non-virtual"><scope>end::View</scope><name>toFront</name></member>
@@ -408,7 +673,7 @@
       <member refid="classjuce_1_1ValueTree_1_1Listener_1a2e39febd013de0ff7da23a5b574055db" prot="public" virt="virtual"><scope>end::View</scope><name>valueTreeParentChanged</name></member>
       <member refid="classend_1_1_view_1af52de711464f4dba65c969a4ffbbafc6" prot="public" virt="virtual"><scope>end::View</scope><name>valueTreePropertyChanged</name></member>
       <member refid="classjuce_1_1ValueTree_1_1Listener_1aa46de90c3746a395792a632219e404f2" prot="public" virt="virtual"><scope>end::View</scope><name>valueTreeRedirected</name></member>
-      <member refid="classend_1_1_view_1ac89c619ba6f3ef9688c0a61767be336e" prot="public" virt="non-virtual"><scope>end::View</scope><name>View</name></member>
+      <member refid="classend_1_1_view_1a2f1f21e6cb1d1c5467187d126cf04c68" prot="public" virt="non-virtual"><scope>end::View</scope><name>View</name></member>
       <member refid="classjuce_1_1Component_1a7affbdd36141b5e8dfbfc13fc5c4d128" prot="public" virt="virtual"><scope>end::View</scope><name>visibilityChanged</name></member>
       <member refid="classjuce_1_1Component_1af05a47b1a669b0af6d0ad39f71a8de75" prot="public" virt="virtual"><scope>end::View</scope><name>windowControlClickedClose</name></member>
       <member refid="classjuce_1_1Component_1ac3252468bfe619eabc2b58bce21f44c2" prot="public" virt="virtual"><scope>end::View</scope><name>windowControlClickedMaximise</name></member>
@@ -416,9 +681,10 @@
       <member refid="classjuce_1_1Component_1a02e7a20532c82a435105e26d9ffd8657" prot="public" virt="non-virtual"><scope>end::View</scope><name>WindowControlKind</name></member>
       <member refid="classjuce_1_1Component_1a8f874a0cbd6600cd6d2ce5584b8e95e3" prot="public" virt="non-virtual"><scope>end::View</scope><name>withDefaultMetrics</name></member>
       <member refid="classjuce_1_1Component_1ac12a29e18888b4666c8c85b14887c62e" prot="public" virt="non-virtual"><scope>end::View</scope><name>~Component</name></member>
+      <member refid="classjuce_1_1KeyListener_1adfa80f8fb2546ab292fffc897aa548b3" prot="public" virt="virtual"><scope>end::View</scope><name>~KeyListener</name></member>
       <member refid="classjuce_1_1ValueTree_1_1Listener_1ab78745617b47f3b12726c0de220e8d9b" prot="public" virt="virtual"><scope>end::View</scope><name>~Listener</name></member>
       <member refid="classjuce_1_1MouseListener_1a49d55c29b4537826f1d2d1edb3231630" prot="public" virt="virtual"><scope>end::View</scope><name>~MouseListener</name></member>
-      <member refid="classend_1_1_view_1a5188bc526dfe6b47604ee7ebb35241f0" prot="public" virt="non-virtual"><scope>end::View</scope><name>~View</name></member>
+      <member refid="classend_1_1_view_1aac73d85c15164ea7a9ae443b9673996c" prot="public" virt="non-virtual"><scope>end::View</scope><name>~View</name></member>
     </listofallmembers>
   </compounddef>
 </doxygen>

@@ -35,7 +35,5 @@ struct Boolean : public jam::Map::Instance<Boolean>
      */
     static const juce::String get (int key) noexcept { return get().at (key); }
 };
-//==============================================================================
-
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace end

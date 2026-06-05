@@ -2,6 +2,71 @@
 
 ---
 
+## Sprint 4: Phase 3 — Tabs + Panes + action::Registry
+
+**Date:** 2026-06-06
+**Duration:** Full session
+
+### Agents Participated
+- COUNSELOR: Sprint lead, design discussion (Registry architecture, LookAndFeel CRTP pattern, Owner API usage, tab lifecycle), direct edits on Registry/View/Tabs/LookAndFeel
+- Engineer: PaneView stub, Panes container, Tabs component, Registry initial impl, View rewrite, LookAndFeel base change + drawTabButton, jam::LookAndFeel::Custom + Methods
+- Pathfinder: Codebase survey (TabbedComponent, PaneManager, Owner, Function::Map APIs)
+- Librarian: juce::KeyPress::createFromDescription API, juce::Component::getLookAndFeel() internals, JUCE LookAndFeelMethods pattern
+- Researcher: LookAndFeelMethods patterns (CRTP, static registration, intermediate base, component-side virtual)
+
+### Files Modified — JAM (1 new, 3 modified)
+
+**New (1):**
+- `jam_look_and_feel/jam_look_and_feel_custom.h` — Custom base (LookAndFeel_V4 + custom virtuals), Methods<Derived> CRTP with static_cast get()
+
+**Modified (3):**
+- `jam_look_and_feel/jam_look_and_feel.h` — include jam_look_and_feel_custom.h before Theme
+- `jam_gui/button/jam_button_tab.h` — paintButton: static_cast<Custom&> replaces dynamic_cast<Theme*>
+- `jam_data_structures/value_tree/jam_value_tree.h` — member renamed node→state
+
+### Files Modified — END (7 new, 7 modified)
+
+**New (7):**
+- `Source/end/PaneView.h` — stub: juce::Component + ValueTree::ComponentWithID<PaneView>, UUID ctor
+- `Source/end/Panes.h` — per-tab pane container: PaneManager + Owner<PaneView> + Owner<PaneResizerBar>
+- `Source/end/Panes.cpp` — split, removePane, layout delegation
+- `Source/end/Tabs.h` — TabbedComponent + ValueTree::Component, owns Owner<Panes>
+- `Source/end/Tabs.cpp` — addNewTab (counter-named), removeCurrentTab (quit on last), currentTabChanged (state + visibility)
+- `Source/action/Registry.h` — std::hash<KeyPress> injection, prefix key state machine, config listener
+- `Source/action/Registry.cpp` — buildKeyMap from config KEYS (createFromDescription), run via Function::Map
+
+**Modified (7):**
+- `Source/end/View.h` — KeyListener + ValueTree::Listener, owns Tabs + Registry
+- `Source/end/View.cpp` — registers actions via registry.actions.add([this]...), setSize from config, first tab
+- `Source/end/Map.h` — removed Modifier/KeyName bimaps (replaced by juce::KeyPress::createFromDescription)
+- `Source/Main.h` — tabsAttachment member, removed Modifier/KeyName contexts
+- `Source/Main.cpp` — tabsAttachment wiring
+- `Source/lookAndFeel/LookAndFeel.h` — inherits jam::LookAndFeel::Methods<LookAndFeel>, drawTabButton override
+- `Source/lookAndFeel/LookAndFeel.cpp` — drawTabButton (rounded rect + text), setColours fixed: applyFunctionRecursively recursive walk
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+- [ ] JRENG-CODING-STANDARD.md — multiple violations corrected mid-sprint (bail-out guards, hand-rolled parsers, manual booleans, forward declarations, stored pointer shadow state)
+
+### Problems Solved
+- LookAndFeel custom virtuals without dynamic_cast: jam::LookAndFeel::Custom + Methods<Derived> CRTP pattern — static_cast, zero runtime cost
+- setColours broken (searched one level deep): replaced with applyFunctionRecursively recursive walk
+- fromRGBA channel rotation was no-op: ARCHITECT fixed rotation order
+- Boolean config parsing: end::Boolean::get() bimap replaces broken static_cast<int> on string vars
+- Key binding parsing: juce::KeyPress::createFromDescription replaces hand-rolled parseKeyBinding
+- Registry prefix key state machine: Timer IS the state, no manual isPrefixActive boolean
+- Tab removal crash: reordered removeTab before tabPanes.remove (currentTabChanged fires while tabPanes intact)
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 3: Phase 3 — Config Infrastructure + Listener-Driven Window
 
 **Date:** 2026-06-05 — 2026-06-06

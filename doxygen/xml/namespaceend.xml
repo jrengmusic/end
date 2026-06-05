@@ -4,6 +4,9 @@
     <compoundname>end</compoundname>
     <innerclass refid="structend_1_1_boolean" prot="public">end::Boolean</innerclass>
     <innerclass refid="classend_1_1_model" prot="public">end::Model</innerclass>
+    <innerclass refid="classend_1_1_panes" prot="public">end::Panes</innerclass>
+    <innerclass refid="classend_1_1_pane_view" prot="public">end::PaneView</innerclass>
+    <innerclass refid="classend_1_1_tabs" prot="public">end::Tabs</innerclass>
     <innerclass refid="classend_1_1_view" prot="public">end::View</innerclass>
     <innerclass refid="classend_1_1_window" prot="public">end::Window</innerclass>
     <innerclass refid="classend_1_1_look_and_feel" prot="public">end::LookAndFeel</innerclass>

@@ -5,6 +5,11 @@
     <innerfile refid="_map_8h">Map.h</innerfile>
     <innerfile refid="_model_8cpp">Model.cpp</innerfile>
     <innerfile refid="_model_8h">Model.h</innerfile>
+    <innerfile refid="_panes_8cpp">Panes.cpp</innerfile>
+    <innerfile refid="_panes_8h">Panes.h</innerfile>
+    <innerfile refid="_pane_view_8h">PaneView.h</innerfile>
+    <innerfile refid="_tabs_8cpp">Tabs.cpp</innerfile>
+    <innerfile refid="_tabs_8h">Tabs.h</innerfile>
     <innerfile refid="_view_8cpp">View.cpp</innerfile>
     <innerfile refid="_view_8h">View.h</innerfile>
     <innerfile refid="_window_8cpp">Window.cpp</innerfile>

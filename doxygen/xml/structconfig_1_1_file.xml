@@ -87,7 +87,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="config/Config.h" line="28" column="29" bodyfile="config/Config.h" bodystart="28" bodyend="-1"/>
-        <referencedby refid="classend_1_1_application_1a598aa5d15712e3107ade5df8f6c5e33d" compoundref="_main_8cpp" startline="9" endline="54">end::Application::initialise</referencedby>
+        <referencedby refid="classend_1_1_application_1a598aa5d15712e3107ade5df8f6c5e33d" compoundref="_main_8cpp" startline="9" endline="55">end::Application::initialise</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structconfig_1_1_file_1a6ab20528e69a64a7091bd8d1269eac55" prot="public" static="yes" mutable="no">
         <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref></type>
@@ -103,7 +103,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="config/Config.h" line="29" column="31" bodyfile="config/Config.h" bodystart="29" bodyend="-1"/>
-        <referencedby refid="classend_1_1_application_1af446ffd1fa995c2838d2d34713a7d83a" compoundref="_main_8cpp" startline="67" endline="78">end::Application::fileChanged</referencedby>
+        <referencedby refid="classend_1_1_application_1af446ffd1fa995c2838d2d34713a7d83a" compoundref="_main_8cpp" startline="68" endline="79">end::Application::fileChanged</referencedby>
         <referencedby refid="structconfig_1_1_file_1af7e5a59b7450673c2677f4dcf3817279" compoundref="_config_8cpp" startline="23" endline="26">getName</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structconfig_1_1_file_1a1d5413f8cf2eb67f26dd717fb948c596" prot="public" static="yes" mutable="no">

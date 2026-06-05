@@ -37,6 +37,7 @@ private:
     jam::File::Watcher watcher;
     std::unique_ptr<end::Window> window;
     std::unique_ptr<jam::ValueTree::Attachment> windowAttachment;
+    std::unique_ptr<jam::ValueTree::Attachment> tabsAttachment;
 
     //==============================================================================
 #if JUCE_DEBUG
