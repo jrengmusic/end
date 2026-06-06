@@ -109,6 +109,22 @@ juce::StringArray Model::loadPath (const juce::File& dir)
     return errors;
 }
 
+const juce::Rectangle<int> Model::getInitWindowSize()
+{
+    auto window { get().getChildWithName (IDtype::display).getChildWithName (IDtype::window) };
+    auto csv { window.getProperty (ID::size).toString() };
+    auto size { juce::StringArray::fromTokens (csv, ",", "") };
+    enum
+    {
+        width,
+        height
+    };
+
+    juce::Rectangle<int> init;
+
+    return init.withSize (size[width].getIntValue(), size[height].getIntValue());
+}
+
 //==============================================================================
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace config

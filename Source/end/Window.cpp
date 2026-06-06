@@ -77,22 +77,6 @@ void Window::registerStyleParameters()
         });
 
     styleParameters.add<juce::ValueTree> (
-        ID::size,
-        [this] (juce::ValueTree n)
-        {
-            auto csv { n.getProperty (ID::size).toString() };
-            auto size { juce::StringArray::fromTokens (csv, ",", "") };
-
-            enum
-            {
-                width,
-                height
-            };
-
-            setSize (size[width].trim().getIntValue(), size[height].trim().getIntValue());
-        });
-
-    styleParameters.add<juce::ValueTree> (
         ID::mac,
         [this] (juce::ValueTree n)
         {

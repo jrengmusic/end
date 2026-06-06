@@ -42,11 +42,8 @@ void View::initialise()
     setWantsKeyboardFocus (true);
     toFront (true);
 
-    auto window { jam::ValueTree::getChildWithName (config, IDtype::window) };
-    auto csv { window.getProperty (ID::size).toString() };
-    auto parts { juce::StringArray::fromTokens (csv, ",", "") };
-    assert (parts.size() == 2);
-    setSize (parts[0].trim().getIntValue(), parts[1].trim().getIntValue());
+    auto init { config::Model::getInitWindowSize() };
+    setSize (init.getWidth(), init.getHeight());
 }
 
 //==============================================================================

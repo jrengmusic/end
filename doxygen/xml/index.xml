@@ -482,6 +482,7 @@
     <member refid="classconfig_1_1_model_1a88f26a19f5b816bdad76c460d9d18389" kind="function"><name>load</name></member>
     <member refid="classconfig_1_1_model_1a49a8775067e4dbff5ba1d4c7c77d19eb" kind="function"><name>loadPath</name></member>
     <member refid="classconfig_1_1_model_1ae9157061354f29018dc4a7d8c7397f83" kind="function"><name>get</name></member>
+    <member refid="classconfig_1_1_model_1a8508c00d93b45281e3d07753b6d987b8" kind="function"><name>getInitWindowSize</name></member>
   </compound>
   <compound refid="classend_1_1_model" kind="class"><name>end::Model</name>
     <member refid="classend_1_1_model_1a001a60fde895e5f54ad2672682909e69" kind="function"><name>Model</name></member>

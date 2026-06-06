@@ -45,6 +45,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="config/Config.h" line="52" column="5"/>
+        <references refid="classconfig_1_1_model_1a8508c00d93b45281e3d07753b6d987b8" compoundref="_config_8cpp" startline="112" endline="126">getInitWindowSize</references>
         <references refid="classconfig_1_1_model_1a88f26a19f5b816bdad76c460d9d18389" compoundref="_config_8cpp" startline="59" endline="77">load</references>
         <references refid="classconfig_1_1_model_1a49a8775067e4dbff5ba1d4c7c77d19eb" compoundref="_config_8cpp" startline="80" endline="110">loadPath</references>
         <references refid="classconfig_1_1_model_1a663ac662800dd1918dbab12d317fa4d5" compoundref="_config_8cpp" startline="29" endline="54">Model</references>
@@ -90,7 +91,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="71" column="10" bodyfile="config/Config.cpp" bodystart="59" bodyend="77"/>
+        <location file="config/Config.h" line="72" column="10" bodyfile="config/Config.cpp" bodystart="59" bodyend="77"/>
         <references refid="classjuce_1_1String_1a685452c89fee2e453297a901e16080b6">juce::String::clear</references>
         <references refid="structjam_1_1ValueTree_1aff397899737029fdab56614f2cef996b">jam::ValueTree::fromLua</references>
         <references refid="classjuce_1_1File_1a6c9a32c828be9af8bd084d8bcfa5e717">juce::File::getFileNameWithoutExtension</references>
@@ -131,7 +132,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="84" column="23" bodyfile="config/Config.cpp" bodystart="80" bodyend="110"/>
+        <location file="config/Config.h" line="85" column="23" bodyfile="config/Config.cpp" bodystart="80" bodyend="110"/>
         <references refid="classjuce_1_1StringArray_1aa73d26821acfb994327d27619703c8fc">juce::StringArray::add</references>
         <references refid="classjuce_1_1String_1a685452c89fee2e453297a901e16080b6">juce::String::clear</references>
         <references refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112ba0fc85df7daa8f0d98a096582ced3738f" compoundref="_config_8h" startline="12">config::File::config</references>
@@ -162,6 +163,27 @@
         </inbodydescription>
         <location file="config/Config.h" line="54" column="34" bodyfile="config/Config.cpp" bodystart="56" bodyend="56"/>
         <references refid="structjam_1_1Context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Model &gt;::getContext</references>
+        <referencedby refid="classconfig_1_1_model_1a8508c00d93b45281e3d07753b6d987b8" compoundref="_config_8cpp" startline="112" endline="126">getInitWindowSize</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classconfig_1_1_model_1a8508c00d93b45281e3d07753b6d987b8" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="classjuce_1_1Rectangle" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Rectangle</ref>&lt; int &gt;</type>
+        <definition>const juce::Rectangle&lt; int &gt; config::Model::getInitWindowSize</definition>
+        <argsstring>()</argsstring>
+        <name>getInitWindowSize</name>
+        <qualifiedname>config::Model::getInitWindowSize</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="config/Config.h" line="55" column="34" bodyfile="config/Config.cpp" bodystart="112" bodyend="126"/>
+        <references refid="classjuce_1_1StringArray_1a9f1df0af6ebd58043c8995e9cb3e3ac5">juce::StringArray::fromTokens</references>
+        <references refid="classconfig_1_1_model_1ae9157061354f29018dc4a7d8c7397f83" compoundref="_config_8cpp" startline="56" endline="56">get</references>
+        <references refid="classjuce_1_1ValueTree_1ac9bbcb6db4464f77b512b9bd8bbb8c3f">juce::ValueTree::getChildWithName</references>
+        <references refid="classjuce_1_1Rectangle_1abbc34b8c284edb153d0b150f350d292e">juce::Rectangle&lt; typename ValueType &gt;::withSize</references>
+        <referencedby refid="classend_1_1_view_1a49cf2baa40c3a89a803e75cf62cefd26" compoundref="_view_8cpp" startline="38" endline="47">end::View::initialise</referencedby>
+        <referencedby refid="classconfig_1_1_model_1af95c0931a6f76206d56eb06a3c71a05a">~Model</referencedby>
       </memberdef>
     </sectiondef>
     <briefdescription>
@@ -285,7 +307,7 @@
         <label>std::unordered_map&lt; juce::String, juce::ValueTree &gt;</label>
       </node>
     </collaborationgraph>
-    <location file="config/Config.h" line="45" column="1" bodyfile="config/Config.h" bodystart="48" bodyend="89"/>
+    <location file="config/Config.h" line="45" column="1" bodyfile="config/Config.h" bodystart="48" bodyend="90"/>
     <listofallmembers>
       <member refid="classjam_1_1Model_1ae5d4d70e706dcc558cf21923125a9176" prot="public" virt="non-virtual"><scope>config::Model</scope><name>addListener</name></member>
       <member refid="classjam_1_1Model_1aa75f9afb83415f989c962cf77022bcf3" prot="public" virt="non-virtual"><scope>config::Model</scope><name>addParameter</name></member>
@@ -301,6 +323,7 @@
       <member refid="classconfig_1_1_model_1ae9157061354f29018dc4a7d8c7397f83" prot="public" virt="non-virtual"><scope>config::Model</scope><name>get</name></member>
       <member refid="classjam_1_1Model_1aecef6b658fc1de8bd8642ce3c0011036" prot="public" virt="non-virtual"><scope>config::Model</scope><name>getChildWithName</name></member>
       <member refid="structjam_1_1Context_1a259aac6b39aea0f3d3e2be9ab123cff3" prot="public" virt="non-virtual"><scope>config::Model</scope><name>getContext</name></member>
+      <member refid="classconfig_1_1_model_1a8508c00d93b45281e3d07753b6d987b8" prot="public" virt="non-virtual"><scope>config::Model</scope><name>getInitWindowSize</name></member>
       <member refid="classjam_1_1Model_1a322c866d6fc435eb6799562d6d6db8b1" prot="public" virt="non-virtual"><scope>config::Model</scope><name>getOrCreateChildWithName</name></member>
       <member refid="classjam_1_1Model_1a657de384bbcda4bd183b0fddc3de205b" prot="public" virt="non-virtual"><scope>config::Model</scope><name>getRawParameterValue</name></member>
       <member refid="classjam_1_1Model_1abf91bfe071259060be78f47c83e720e4" prot="public" virt="non-virtual"><scope>config::Model</scope><name>getRootTree</name></member>

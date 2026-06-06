@@ -36,7 +36,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="end/View.h" line="50" column="10" bodyfile="end/View.h" bodystart="50" bodyend="-1"/>
-        <referencedby refid="classend_1_1_view_1aa33112ca0bcd3004779201b4c966b96c" compoundref="_view_8cpp" startline="53" endline="82">registerActions</referencedby>
+        <referencedby refid="classend_1_1_view_1aa33112ca0bcd3004779201b4c966b96c" compoundref="_view_8cpp" startline="50" endline="79">registerActions</referencedby>
         <referencedby refid="classend_1_1_view_1a14f07f6fc295c80b4ff0555798fa583c" compoundref="_view_8cpp" startline="25" endline="25">resized</referencedby>
         <referencedby refid="classend_1_1_view_1a2f1f21e6cb1d1c5467187d126cf04c68" compoundref="_view_8cpp" startline="7" endline="17">View</referencedby>
       </memberdef>
@@ -69,7 +69,7 @@
         </inbodydescription>
         <location file="end/View.h" line="52" column="22" bodyfile="end/View.h" bodystart="52" bodyend="-1"/>
         <referencedby refid="classend_1_1_view_1a41cd1e902149d1b7eff5b13e08d9bd27" compoundref="_view_8cpp" startline="29" endline="33">keyPressed</referencedby>
-        <referencedby refid="classend_1_1_view_1aa33112ca0bcd3004779201b4c966b96c" compoundref="_view_8cpp" startline="53" endline="82">registerActions</referencedby>
+        <referencedby refid="classend_1_1_view_1aa33112ca0bcd3004779201b4c966b96c" compoundref="_view_8cpp" startline="50" endline="79">registerActions</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">
@@ -88,8 +88,8 @@
         <location file="end/View.h" line="31" column="5" bodyfile="end/View.cpp" bodystart="7" bodyend="17"/>
         <references refid="classjuce_1_1Component_1a7cc925a367e95b3807255f8b4a94dddd">juce::Component::addAndMakeVisible</references>
         <references refid="structjam_1_1ValueTree_1_1Component_1a7f12afb19c9e03ae2797eadeb90917be">jam::ValueTree::Component::Component</references>
-        <references refid="classend_1_1_view_1a49cf2baa40c3a89a803e75cf62cefd26" compoundref="_view_8cpp" startline="38" endline="50">initialise</references>
-        <references refid="classend_1_1_view_1aa33112ca0bcd3004779201b4c966b96c" compoundref="_view_8cpp" startline="53" endline="82">registerActions</references>
+        <references refid="classend_1_1_view_1a49cf2baa40c3a89a803e75cf62cefd26" compoundref="_view_8cpp" startline="38" endline="47">initialise</references>
+        <references refid="classend_1_1_view_1aa33112ca0bcd3004779201b4c966b96c" compoundref="_view_8cpp" startline="50" endline="79">registerActions</references>
         <references refid="structjam_1_1ValueTree_1_1Component_1a7f1a1f6303881257237240eb4a1a31e2">jam::ValueTree::Component::state</references>
         <references refid="classend_1_1_view_1a7e6ee211dd7d9e06224826283296fa65" compoundref="_view_8h" startline="50">tabs</references>
         <references refid="classend_1_1_view_1adf84b1822a6aa79b642742679015d6fd" compoundref="_view_8h" startline="51">tabsAttachment</references>
@@ -208,10 +208,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/View.h" line="45" column="10" bodyfile="end/View.cpp" bodystart="38" bodyend="50"/>
+        <location file="end/View.h" line="45" column="10" bodyfile="end/View.cpp" bodystart="38" bodyend="47"/>
         <references refid="classjuce_1_1Component_1a8d7bd030d40b26625000318c5198189a">juce::Component::addKeyListener</references>
-        <references refid="classjuce_1_1StringArray_1a9f1df0af6ebd58043c8995e9cb3e3ac5">juce::StringArray::fromTokens</references>
-        <references refid="structjam_1_1ValueTree_1a152686188cfc06dd25e019a763a197f9">jam::ValueTree::getChildWithName</references>
+        <references refid="classconfig_1_1_model_1a8508c00d93b45281e3d07753b6d987b8" compoundref="_config_8cpp" startline="112" endline="126">config::Model::getInitWindowSize</references>
         <references refid="classjuce_1_1Component_1a862fe9788d2f2a16f9ad2bb7d8f2e0ec">juce::Component::setOpaque</references>
         <references refid="classjuce_1_1Component_1ab11f2db9935bf7a7c1e2661007ffdeb7">juce::Component::setSize</references>
         <references refid="classjuce_1_1Component_1ab7ddcb4bf8a7c6534f6e1d9a22e6330b">juce::Component::setWantsKeyboardFocus</references>
@@ -230,7 +229,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/View.h" line="46" column="10" bodyfile="end/View.cpp" bodystart="53" bodyend="82"/>
+        <location file="end/View.h" line="46" column="10" bodyfile="end/View.cpp" bodystart="50" bodyend="79"/>
         <references refid="classend_1_1_view_1ace453a44b620ac0ccd2d799ec99e2bbd" compoundref="_view_8h" startline="52">registry</references>
         <references refid="classend_1_1_view_1a7e6ee211dd7d9e06224826283296fa65" compoundref="_view_8h" startline="50">tabs</references>
         <referencedby refid="classend_1_1_view_1a2f1f21e6cb1d1c5467187d126cf04c68" compoundref="_view_8cpp" startline="7" endline="17">View</referencedby>

@@ -145,8 +145,24 @@
 <codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>errors;</highlight></codeline>
 <codeline lineno="110"><highlight class="normal">}</highlight></codeline>
 <codeline lineno="111"><highlight class="normal"></highlight></codeline>
-<codeline lineno="112"><highlight class="normal"></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="114"><highlight class="normal">}</highlight><highlight class="comment">//<sp/>namespace<sp/>config</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="112" refid="classconfig_1_1_model_1a8508c00d93b45281e3d07753b6d987b8" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classjuce_1_1Rectangle" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Rectangle&lt;int&gt;</ref><sp/><ref refid="classconfig_1_1_model_1a8508c00d93b45281e3d07753b6d987b8" kindref="member">Model::getInitWindowSize</ref>()</highlight></codeline>
+<codeline lineno="113"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>window<sp/>{<sp/><ref refid="classconfig_1_1_model_1ae9157061354f29018dc4a7d8c7397f83" kindref="member">get</ref>().<ref refid="classjuce_1_1ValueTree_1ac9bbcb6db4464f77b512b9bd8bbb8c3f" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">getChildWithName</ref><sp/>(IDtype::display).<ref refid="classjuce_1_1ValueTree_1ac9bbcb6db4464f77b512b9bd8bbb8c3f" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">getChildWithName</ref><sp/>(IDtype::window)<sp/>};</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>csv<sp/>{<sp/>window.getProperty<sp/>(ID::size).toString()<sp/>};</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>size<sp/>{<sp/><ref refid="classjuce_1_1StringArray_1a9f1df0af6ebd58043c8995e9cb3e3ac5" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::StringArray::fromTokens</ref><sp/>(csv,<sp/></highlight><highlight class="stringliteral">&quot;,&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="stringliteral">&quot;&quot;</highlight><highlight class="normal">)<sp/>};</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>width,</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>height</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classjuce_1_1Rectangle" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Rectangle&lt;int&gt;</ref><sp/>init;</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>init.<ref refid="classjuce_1_1Rectangle_1abbc34b8c284edb153d0b150f350d292e" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">withSize</ref><sp/>(size[width].getIntValue(),<sp/>size[height].getIntValue());</highlight></codeline>
+<codeline lineno="126"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal">}</highlight><highlight class="comment">//<sp/>namespace<sp/>config</highlight><highlight class="normal"></highlight></codeline>
     </programlisting>
     <location file="config/Config.cpp"/>
   </compounddef>

@@ -3640,6 +3640,13 @@
       <anchor>ae9157061354f29018dc4a7d8c7397f83</anchor>
       <arglist>() noexcept</arglist>
     </member>
+    <member kind="function" static="yes">
+      <type>static const juce::Rectangle&lt; int &gt;</type>
+      <name>getInitWindowSize</name>
+      <anchorfile>classconfig_1_1_model.html</anchorfile>
+      <anchor>a8508c00d93b45281e3d07753b6d987b8</anchor>
+      <arglist>()</arglist>
+    </member>
   </compound>
   <compound kind="class">
     <name>end::Model</name>

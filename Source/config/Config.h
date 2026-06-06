@@ -52,6 +52,7 @@ public:
     ~Model() = default;
 
     static const juce::ValueTree get() noexcept;
+    static const juce::Rectangle<int> getInitWindowSize();
     //==========================================================================
     /** @brief Overlays one disk lua file onto the existing tree in place.
 

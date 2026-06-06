@@ -1,45 +1,45 @@
 
 **********************************************************
 
-Log started: 6 Jun 2026 11:05:33pm
+Log started: 7 Jun 2026 12:02:56am
 
-  bind: rename_tab -> shift+t
-  bind: pane_right -> l
-  bind: selection_bottom -> shift+g
-  bind: pane_up -> k
-  bind: zoom_reset -> cmd+0
-  bind: split_vertical -> -
-  bind: copy -> cmd+c
-  bind: new_tab -> cmd+t
-  bind: pane_down -> j
-  bind: selection_up -> k
+  bind: selection_copy -> y
   bind: reload -> cmd+r
-  bind: paste -> cmd+v
-  bind: zoom_out -> cmd+-
+  bind: selection_top -> g
+  bind: open_file_next_page -> space
+  bind: pane_down -> j
+  bind: pane_right -> l
+  bind: selection_up -> k
   bind: newline -> shift+return
-  bind: selection_visual -> v
-  bind: close_tab -> cmd+w
+  bind: selection_left -> h
+  bind: copy -> cmd+c
+  bind: next_tab -> cmd+]
   bind: enter_open_file -> o
   bind: selection_right -> l
-  bind: quit -> cmd+q
-  bind: new_window -> cmd+n
-  bind: selection_top -> g
-  bind: next_tab -> cmd+]
-  bind: action_list -> ?
-  bind: selection_exit -> escape
+  bind: zoom_reset -> cmd+0
+  bind: selection_bottom -> shift+g
   bind: selection_line_end -> $
+  bind: close_tab -> cmd+w
   bind: selection_line_start -> 0
-  bind: selection_copy -> y
-  bind: pane_left -> h
-  bind: split_horizontal -> \
-  bind: selection_visual_line -> shift+v
-  bind: selection_left -> h
-  bind: selection_down -> j
-  bind: open_file_next_page -> space
-  bind: enter_selection -> [
-  bind: selection_visual_block -> ctrl+v
+  bind: new_window -> cmd+n
   bind: prev_tab -> cmd+[
+  bind: new_tab -> cmd+t
+  bind: rename_tab -> shift+t
+  bind: split_horizontal -> \
   bind: zoom_in -> cmd+=
+  bind: selection_exit -> escape
+  bind: selection_visual_line -> shift+v
+  bind: quit -> cmd+q
+  bind: selection_visual_block -> ctrl+v
+  bind: selection_visual -> v
+  bind: selection_down -> j
+  bind: enter_selection -> [
+  bind: action_list -> ?
+  bind: pane_up -> k
+  bind: pane_left -> h
+  bind: zoom_out -> cmd+-
+  bind: paste -> cmd+v
+  bind: split_vertical -> -
 buildKeyMap: keys=13 modalKeys=20
 keyPressed: command + T
   direct match: new_tab
@@ -65,15 +65,6 @@ run: new_tab found=1
 keyPressed: command + T
   direct match: new_tab
 run: new_tab found=1
-keyPressed: command + T
-  direct match: new_tab
-run: new_tab found=1
-keyPressed: command + T
-  direct match: new_tab
-run: new_tab found=1
-keyPressed: command + T
-  direct match: new_tab
-run: new_tab found=1
 keyPressed: command + W
   direct match: close_tab
 run: close_tab found=1
@@ -98,15 +89,9 @@ run: close_tab found=1
 keyPressed: command + W
   direct match: close_tab
 run: close_tab found=1
-keyPressed: command + W
-  direct match: close_tab
-run: close_tab found=1
-keyPressed: command + W
-  direct match: close_tab
-run: close_tab found=1
-keyPressed: command + W
-  direct match: close_tab
-run: close_tab found=1
+keyPressed: command + Q
+  direct match: quit
+run: quit found=0
 keyPressed: command + W
   direct match: close_tab
 run: close_tab found=1

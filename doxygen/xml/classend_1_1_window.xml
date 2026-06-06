@@ -34,7 +34,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="end/Window.h" line="107" column="24" bodyfile="end/Window.h" bodystart="107" bodyend="-1"/>
-        <referencedby refid="classend_1_1_window_1ac277dcb496977e31338298a1c2f8e2d5" compoundref="_window_8cpp" startline="45" endline="112">registerStyleParameters</referencedby>
+        <referencedby refid="classend_1_1_window_1ac277dcb496977e31338298a1c2f8e2d5" compoundref="_window_8cpp" startline="45" endline="96">registerStyleParameters</referencedby>
         <referencedby refid="classend_1_1_window_1a016aba9d48d96c5bf6ba212a540841fe" compoundref="_window_8cpp" startline="29" endline="43">setStyle</referencedby>
         <referencedby refid="classend_1_1_window_1a7725512f1abd3448ce816b735ce55c4f" compoundref="_window_8cpp" startline="7" endline="19">Window</referencedby>
       </memberdef>
@@ -54,7 +54,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="end/Window.h" line="113" column="18" bodyfile="end/Window.h" bodystart="113" bodyend="113"/>
-        <referencedby refid="classend_1_1_window_1ac277dcb496977e31338298a1c2f8e2d5" compoundref="_window_8cpp" startline="45" endline="112">registerStyleParameters</referencedby>
+        <referencedby refid="classend_1_1_window_1ac277dcb496977e31338298a1c2f8e2d5" compoundref="_window_8cpp" startline="45" endline="96">registerStyleParameters</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classend_1_1_window_1afd19744d8dca66b30dfbe7d1222f3ffe" prot="private" static="no" mutable="no">
         <type>float</type>
@@ -72,7 +72,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="end/Window.h" line="119" column="11" bodyfile="end/Window.h" bodystart="119" bodyend="119"/>
-        <referencedby refid="classend_1_1_window_1ac277dcb496977e31338298a1c2f8e2d5" compoundref="_window_8cpp" startline="45" endline="112">registerStyleParameters</referencedby>
+        <referencedby refid="classend_1_1_window_1ac277dcb496977e31338298a1c2f8e2d5" compoundref="_window_8cpp" startline="45" endline="96">registerStyleParameters</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classend_1_1_window_1a5496b743dc7c10f5dc2f657e732edf53" prot="private" static="no" mutable="no">
         <type><ref refid="structjam_1_1BackgroundBlur_1a333a1c51f6aea241e291ba1f82662f32" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::BackgroundBlur::Backend</ref></type>
@@ -96,7 +96,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="end/Window.h" line="127" column="34" bodyfile="end/Window.h" bodystart="127" bodyend="133"/>
-        <referencedby refid="classend_1_1_window_1ac277dcb496977e31338298a1c2f8e2d5" compoundref="_window_8cpp" startline="45" endline="112">registerStyleParameters</referencedby>
+        <referencedby refid="classend_1_1_window_1ac277dcb496977e31338298a1c2f8e2d5" compoundref="_window_8cpp" startline="45" endline="96">registerStyleParameters</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">
@@ -165,7 +165,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="end/Window.h" line="66" column="5" bodyfile="end/Window.cpp" bodystart="7" bodyend="19"/>
-        <references refid="classend_1_1_window_1ac277dcb496977e31338298a1c2f8e2d5" compoundref="_window_8cpp" startline="45" endline="112">registerStyleParameters</references>
+        <references refid="classend_1_1_window_1ac277dcb496977e31338298a1c2f8e2d5" compoundref="_window_8cpp" startline="45" endline="96">registerStyleParameters</references>
         <references refid="classend_1_1_window_1a016aba9d48d96c5bf6ba212a540841fe" compoundref="_window_8cpp" startline="29" endline="43">setStyle</references>
         <references refid="classend_1_1_window_1a56bf0a4cec2844d980843a4bd0ca35b8" compoundref="_window_8h" startline="107">styleParameters</references>
         <references refid="classend_1_1_window_1a7725512f1abd3448ce816b735ce55c4f" compoundref="_window_8cpp" startline="7" endline="19">Window</references>
@@ -245,17 +245,15 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Window.h" line="89" column="10" bodyfile="end/Window.cpp" bodystart="45" bodyend="112"/>
+        <location file="end/Window.h" line="89" column="10" bodyfile="end/Window.cpp" bodystart="45" bodyend="96"/>
         <references refid="classend_1_1_window_1afd19744d8dca66b30dfbe7d1222f3ffe" compoundref="_window_8h" startline="119" endline="119">blurRadius</references>
         <references refid="structjam_1_1ID_1a11f26375142a6a445f092b6d6e853f5b">jam::ID::colour</references>
         <references refid="structjam_1_1BackgroundBlur_1a19cc127c6ee13b3b43d9e11cb4429dec">jam::BackgroundBlur::fromString</references>
-        <references refid="classjuce_1_1StringArray_1a9f1df0af6ebd58043c8995e9cb3e3ac5">juce::StringArray::fromTokens</references>
         <references refid="structend_1_1_boolean_1a4c8cfcd41ccfd2261fb8d3e08ee6143a" compoundref="_map_8h" startline="23" endline="23">end::Boolean::get</references>
         <references refid="classend_1_1_window_1a5496b743dc7c10f5dc2f657e732edf53" compoundref="_window_8h" startline="127" endline="133">glassBackend</references>
         <references refid="classjuce_1_1Component_1a7f2af71c2c981fb7c43d7262563d185f">juce::Component::setAlwaysOnTop</references>
         <references refid="classjam_1_1Window_1a6b6e141bfe84856299b09e493c350f1e">jam::Window::setGlass</references>
         <references refid="classjam_1_1Window_1a72baeb690a2a47a8866afe0bbc6d44e0">jam::Window::setShowWindowButtons</references>
-        <references refid="classjuce_1_1Component_1ab11f2db9935bf7a7c1e2661007ffdeb7">juce::Component::setSize</references>
         <references refid="classend_1_1_window_1a56bf0a4cec2844d980843a4bd0ca35b8" compoundref="_window_8h" startline="107">styleParameters</references>
         <references refid="classend_1_1_window_1af4e0636b21d5630786dc5dd890bf29df" compoundref="_window_8h" startline="113" endline="113">tintColour</references>
         <references refid="structjam_1_1ValueTree_1aa0b88547fe7b3fdcc4df2025920dd02c">jam::ValueTree::toColour</references>
