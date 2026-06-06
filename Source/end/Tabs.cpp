@@ -12,11 +12,13 @@ Tabs::Tabs()
 void Tabs::addNewTab()
 {
     auto uuid { juce::Uuid().toString() };
-    auto panes { std::make_unique<Panes> (uuid) };
-    addAndMakeVisible (*panes);
-    tabPanes.add (std::move (panes));
+    auto* panes { new Panes (uuid) };
 
-    addTab (juce::String (getNumTabs() + 1), juce::Colours::transparentBlack);
+    addTab (juce::String (getNumTabs() + 1),
+            juce::Colours::transparentBlack,
+            panes,
+            true);
+
     setCurrentTabIndex (getNumTabs() - 1);
 }
 
@@ -26,7 +28,7 @@ void Tabs::removeCurrentTab()
     {
         auto index { getCurrentTabIndex() };
         removeTab (index);
-        tabPanes.remove (index);
+        setCurrentTabIndex (juce::jmin (index, getNumTabs() - 1));
     }
     else
     {
@@ -34,30 +36,15 @@ void Tabs::removeCurrentTab()
     }
 }
 
-Panes* Tabs::getActivePanes() noexcept { return tabPanes.at (getCurrentTabIndex()).get(); }
-
-void Tabs::resized()
+Panes* Tabs::getActivePanes() noexcept
 {
-    jam::TabbedComponent::resized();
-
-    auto contentArea { getContentArea() };
-
-    for (auto& panes : tabPanes)
-    {
-        if (panes->isVisible())
-            panes->setBounds (contentArea);
-    }
+    return static_cast<Panes*> (getCurrentContentComponent());
 }
 
 void Tabs::currentTabChanged (int newCurrentTabIndex, const juce::String& newCurrentTabName)
 {
     juce::ignoreUnused (newCurrentTabName);
     state.setProperty (ID::activeTab, newCurrentTabIndex, nullptr);
-
-    for (auto& panes : tabPanes)
-        panes->setVisible (tabPanes.is (panes, newCurrentTabIndex));
-
-    tabPanes.at (newCurrentTabIndex)->setBounds (getContentArea());
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

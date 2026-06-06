@@ -26,19 +26,6 @@ const std::unordered_map<juce::Identifier, int> LookAndFeel::colourIds {
     { jam::ID::colour,      juce::ResizableWindow::backgroundColourId },
 };
 
-/*____________________________________________________________________________*/
-const juce::Colour LookAndFeel::fromRGBA (const juce::String& hexRGBA) noexcept
-{
-    // Config stores #RRGGBBAA. fromString interprets as AARRGGBB (wrong order).
-    // fromRGBA rotates the channels back to the correct RGBA → ARGB layout.
-    const auto rgba { juce::Colour::fromString (hexRGBA) };
-    const auto red { rgba.getRed() };
-    const auto green { rgba.getGreen() };
-    const auto blue { rgba.getBlue() };
-    const auto alpha { rgba.getAlpha() };
-    return juce::Colour::fromRGBA (alpha, red, green, blue);
-}
-
 //==============================================================================
 LookAndFeel::LookAndFeel()
 {
@@ -58,19 +45,43 @@ void LookAndFeel::drawTabButton (juce::Graphics& g, juce::Button& button, bool i
     auto bounds { button.getLocalBounds().toFloat().reduced (2.0f) };
     auto colour { findColour (tabActiveColourId) };
 
-    if (isMouseDown)
-        colour = colour.brighter (0.2f);
-    else if (isMouseOver)
-        colour = colour.brighter (0.1f);
-
     if (button.getToggleState())
     {
+        if (isMouseDown)
+            colour = colour.brighter (0.2f);
+        else if (isMouseOver)
+            colour = colour.brighter (0.1f);
+
         g.setColour (colour);
+        g.fillRoundedRectangle (bounds, 4.0f);
+    }
+    else if (isMouseDown)
+    {
+        g.setColour (colour.withAlpha (0.3f));
+        g.fillRoundedRectangle (bounds, 4.0f);
+    }
+    else if (isMouseOver)
+    {
+        g.setColour (colour.withAlpha (0.15f));
         g.fillRoundedRectangle (bounds, 4.0f);
     }
 
     g.setColour (button.findColour (juce::Label::textColourId));
     g.drawText (button.getButtonText(), bounds, juce::Justification::centred);
+}
+
+void LookAndFeel::drawButtonGroupTrack (juce::Graphics& g, juce::Component& group)
+{
+    auto bounds { group.getLocalBounds().toFloat() };
+    g.setColour (findColour (tabLineColourId));
+    g.fillRoundedRectangle (bounds, 4.0f);
+}
+
+void LookAndFeel::drawButtonGroupSlidingIndicator (juce::Graphics& g, juce::Component& indicator)
+{
+    auto bounds { indicator.getLocalBounds().toFloat().reduced (2.0f) };
+    g.setColour (findColour (tabIndicatorColourId));
+    g.fillRoundedRectangle (bounds, 3.0f);
 }
 
 void LookAndFeel::setColours()
@@ -81,7 +92,9 @@ void LookAndFeel::setColours()
             for (auto& [id, colourId] : colourIds)
             {
                 if (tree.hasProperty (id))
-                    setColour (colourId, fromRGBA (tree.getProperty (id).toString()));
+                {
+                    setColour (colourId, jam::ValueTree::toColour (tree.getProperty (id)));
+                }
             }
 
             return false;

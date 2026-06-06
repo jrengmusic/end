@@ -56,6 +56,8 @@
     X (tab, "tab")                                 \
     X (pane, "pane")                               \
     X (window, "window")                           \
+    X (size, "size")                               \
+    X (view, "view")                               \
     X (popup, "popup")                             \
     X (ligatures, "ligatures")                     \
     X (embolden, "embolden")                       \

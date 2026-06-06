@@ -38,11 +38,8 @@ Model::Model()
             if (auto result { lua.getType (BinaryData::getString (File::getName (key))) };
                 result.wasOk())
             {
-                if (auto xml { jam::lua::Xml::from (result.value(), value.toUpperCase()) })
-                {
-                    auto child { juce::ValueTree::fromXml (*xml) };
-                    state.appendChild (child, nullptr);
-                }
+                auto child { jam::ValueTree::fromLua (result.value(), value.toUpperCase()) };
+                state.appendChild (child, nullptr);
             }
         }
     }
@@ -69,12 +66,9 @@ void Model::load (const juce::File& file, juce::String& errorOut)
 
     if (auto result { lua.getType (text) }; result.wasOk())
     {
-        if (auto xml { jam::lua::Xml::from (
-                result.value(), file.getFileNameWithoutExtension().toUpperCase()) })
-        {
-            auto child { juce::ValueTree::fromXml (*xml) };
-            setValuesFrom (child);
-        }
+        auto child { jam::ValueTree::fromLua (
+            result.value(), file.getFileNameWithoutExtension().toUpperCase()) };
+        setValuesFrom (child);
     }
     else
     {

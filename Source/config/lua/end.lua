@@ -21,9 +21,9 @@
 -- Invalid or missing values fall back to defaults silently.
 -- Reload with Cmd+R (no restart needed).
 --
--- Colour format: "#RRGGBB" (fully opaque) or "#RRGGBBAA" (with alpha).
---   - "#RGB" and "#RGBA" shorthand supported (e.g. "#F00" becomes "#FF0000").
---   - "rgba(r, g, b, a)" functional notation (a is 0.0 - 1.0).
+-- Colour format: 0xAARRGGBB hex integer (JUCE native ARGB format).
+--   - Alpha 0xFF = fully opaque, 0x00 = fully transparent.
+--   - Example: 0xffa1d6e5 = frostbite teal, fully opaque.
 --
 -- Key binding format: "modifier+key" (e.g. "cmd+c", "ctrl+shift+t").
 --   - Modifiers: cmd, ctrl, alt, shift

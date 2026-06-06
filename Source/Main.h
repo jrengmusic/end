@@ -36,8 +36,7 @@ private:
     LookAndFeel lookAndFeel;
     jam::File::Watcher watcher;
     std::unique_ptr<end::Window> window;
-    std::unique_ptr<jam::ValueTree::Attachment> windowAttachment;
-    std::unique_ptr<jam::ValueTree::Attachment> tabsAttachment;
+    std::unique_ptr<jam::ValueTree::Attachment> viewAttachment;
 
     //==============================================================================
 #if JUCE_DEBUG

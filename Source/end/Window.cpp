@@ -9,11 +9,13 @@ Window::Window (juce::Component* mainComponent,
                 bool alwaysOnTop,
                 bool showWindowButtons)
     : jam::Window { mainComponent, name, alwaysOnTop, showWindowButtons }
-    , jam::ValueTree::Component { IDtype::window }
 {
-    config.addListener (this);
     registerStyleParameters();
-    setStyle();
+
+    for (const auto& [key, value] : styleParameters)
+        setStyle (key);
+
+    config.addListener (this);
 }
 
 Window::~Window() { config.removeListener (this); }
@@ -21,75 +23,10 @@ Window::~Window() { config.removeListener (this); }
 void Window::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
 {
     juce::ignoreUnused (tree);
-    applyStyleFor (property);
+    setStyle (property);
 }
 
-void Window::registerStyleParameters()
-{
-    styleParameters.add<juce::ValueTree> (
-        jam::ID::colour,
-        [this] (juce::ValueTree node)
-        {
-            tintColour = LookAndFeel::fromRGBA (node.getProperty (jam::ID::colour).toString());
-            setGlass (tintColour, blurRadius, glassBackend);
-        });
-
-    styleParameters.add<juce::ValueTree> (
-        ID::blurRadius,
-        [this] (juce::ValueTree node)
-        {
-            blurRadius = static_cast<float> (node.getProperty (ID::blurRadius));
-            setGlass (tintColour, blurRadius, glassBackend);
-        });
-
-    styleParameters.add<juce::ValueTree> (
-        ID::alwaysOnTop,
-        [this] (juce::ValueTree node)
-        {
-            setAlwaysOnTop (Boolean::get (node.getProperty (ID::alwaysOnTop).toString()));
-        });
-
-    styleParameters.add<juce::ValueTree> (
-        ID::buttons,
-        [this] (juce::ValueTree node)
-        {
-            setShowWindowButtons (Boolean::get (node.getProperty (ID::buttons).toString()));
-        });
-
-    styleParameters.add<juce::ValueTree> (
-        jam::ID::width,
-        [this] (juce::ValueTree node)
-        {
-            setSize (static_cast<int> (node.getProperty (jam::ID::width)), getHeight());
-        });
-
-    styleParameters.add<juce::ValueTree> (
-        jam::ID::height,
-        [this] (juce::ValueTree node)
-        {
-            setSize (getWidth(), static_cast<int> (node.getProperty (jam::ID::height)));
-        });
-
-    styleParameters.add<juce::ValueTree> (
-        ID::mac,
-        [this] (juce::ValueTree node)
-        {
-            glassBackend = jam::BackgroundBlur::fromString (
-                node.getProperty (ID::mac, juce::String { IDref::backgroundBlur }).toString());
-            setGlass (tintColour, blurRadius, glassBackend);
-        });
-
-    styleParameters.add<juce::ValueTree> (
-        ID::win,
-        [this] (juce::ValueTree node)
-        {
-            glassBackend = jam::BackgroundBlur::fromString (
-                node.getProperty (ID::win, juce::String { IDref::blurBehind }).toString());
-            setGlass (tintColour, blurRadius, glassBackend);
-        });
-}
-
-void Window::applyStyleFor (const juce::Identifier& property)
+void Window::setStyle (const juce::Identifier& property)
 {
     if (styleParameters.contains (property))
     {
@@ -105,16 +42,73 @@ void Window::applyStyleFor (const juce::Identifier& property)
     }
 }
 
-void Window::setStyle()
+void Window::registerStyleParameters()
 {
-    applyStyleFor (jam::ID::colour);
-    applyStyleFor (ID::blurRadius);
-    applyStyleFor (ID::alwaysOnTop);
-    applyStyleFor (ID::buttons);
-    applyStyleFor (jam::ID::width);
-    applyStyleFor (jam::ID::height);
-    applyStyleFor (ID::mac);
-    applyStyleFor (ID::win);
+    styleParameters.add<juce::ValueTree> (
+        jam::ID::colour,
+        [this] (juce::ValueTree n)
+        {
+            tintColour = jam::ValueTree::toColour (n.getProperty (jam::ID::colour));
+            blurRadius = static_cast<float> (n.getProperty (ID::blurRadius));
+            setGlass (tintColour, blurRadius, glassBackend);
+        });
+
+    styleParameters.add<juce::ValueTree> (
+        ID::blurRadius,
+        [this] (juce::ValueTree n)
+        {
+            tintColour = jam::ValueTree::toColour (n.getProperty (jam::ID::colour));
+            blurRadius = static_cast<float> (n.getProperty (ID::blurRadius));
+            setGlass (tintColour, blurRadius, glassBackend);
+        });
+
+    styleParameters.add<juce::ValueTree> (
+        ID::alwaysOnTop,
+        [this] (juce::ValueTree n)
+        {
+            setAlwaysOnTop (Boolean::get (n.getProperty (ID::alwaysOnTop).toString()));
+        });
+
+    styleParameters.add<juce::ValueTree> (
+        ID::buttons,
+        [this] (juce::ValueTree n)
+        {
+            setShowWindowButtons (Boolean::get (n.getProperty (ID::buttons).toString()));
+        });
+
+    styleParameters.add<juce::ValueTree> (
+        ID::size,
+        [this] (juce::ValueTree n)
+        {
+            auto csv { n.getProperty (ID::size).toString() };
+            auto size { juce::StringArray::fromTokens (csv, ",", "") };
+
+            enum
+            {
+                width,
+                height
+            };
+
+            setSize (size[width].trim().getIntValue(), size[height].trim().getIntValue());
+        });
+
+    styleParameters.add<juce::ValueTree> (
+        ID::mac,
+        [this] (juce::ValueTree n)
+        {
+            glassBackend = jam::BackgroundBlur::fromString (
+                n.getProperty (ID::mac, juce::String { IDref::backgroundBlur }).toString());
+            setGlass (tintColour, blurRadius, glassBackend);
+        });
+
+    styleParameters.add<juce::ValueTree> (
+        ID::win,
+        [this] (juce::ValueTree n)
+        {
+            glassBackend = jam::BackgroundBlur::fromString (
+                n.getProperty (ID::win, juce::String { IDref::blurBehind }).toString());
+            setGlass (tintColour, blurRadius, glassBackend);
+        });
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

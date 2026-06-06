@@ -20,9 +20,9 @@
 -- Invalid or missing values fall back to defaults silently.
 -- Reload with Cmd+R (no restart needed).
 --
--- Colour format: "RRGGBBAA" hex strings (red, green, blue, alpha).
---   - Alpha FF = fully opaque, 00 = fully transparent.
---   - Example: "B3F9F5FF" = frostbite teal, fully opaque.
+-- Colour format: 0xAARRGGBB hex integer (JUCE native ARGB format).
+--   - Alpha 0xFF = fully opaque, 0x00 = fully transparent.
+--   - Example: 0xffb3f9f5 = frostbite teal, fully opaque.
 --
 -- =============================================================================
 
@@ -87,27 +87,27 @@ return {
     -- COLOURS
     -- =========================================================================
     --
-    -- All colours are RRGGBBAA hex strings.
+    -- All colours are 0xAARRGGBB hex integers.
     -- Document background, text colours, and heading colours.
     --
 
     -- Document background colour.
-    background = "0d141cff",
+    background = 0xff0d141c,
 
     -- Body text colour.
-    body_colour = "b3f9f5ff",
+    body_colour = 0xffb3f9f5,
 
     -- Link text colour.
-    link_colour = "01c2d2ff",
+    link_colour = 0xff01c2d2,
 
     -- Heading colours. All headings share the same colour by default.
     -- Differentiation comes from size and weight, not colour.
-    h1_colour = "d4c8a0ff",
-    h2_colour = "d4c8a0ff",
-    h3_colour = "d4c8a0ff",
-    h4_colour = "d4c8a0ff",
-    h5_colour = "d4c8a0ff",
-    h6_colour = "d4c8a0ff",
+    h1_colour = 0xffd4c8a0,
+    h2_colour = 0xffd4c8a0,
+    h3_colour = 0xffd4c8a0,
+    h4_colour = 0xffd4c8a0,
+    h5_colour = 0xffd4c8a0,
+    h6_colour = 0xffd4c8a0,
 
     -- =========================================================================
     -- CODE BLOCKS
@@ -119,23 +119,23 @@ return {
     --
 
     -- Code block background colour.
-    code_fence_background = "090d12ff",
+    code_fence_background = 0xff090d12,
 
     -- Inline code colour (e.g. `code` in body text).
-    code_colour = "00d0ffff",
+    code_colour = 0xff00d0ff,
 
     -- Syntax token colours.
-    token_error        = "f74a4aff",          -- error tokens
-    token_comment      = "6080c0ff",        -- comments
-    token_keyword      = "1919ffff",        -- language keywords
-    token_operator     = "b0b0b0ff",       -- operators (+, -, =, etc.)
-    token_identifier   = "00c6ffff",     -- variable and function names
-    token_integer      = "00ff00ff",        -- integer literals
-    token_float        = "00ff00ff",          -- float literals
-    token_string       = "ffc0c0ff",         -- string literals
-    token_bracket      = "80ffffff",        -- brackets ({, }, [, ], (, ))
-    token_punctuation  = "ff9080ff",    -- punctuation (;, ,, .)
-    token_preprocessor = "9aff00ff",   -- preprocessor directives (#include)
+    token_error        = 0xfff74a4a,          -- error tokens
+    token_comment      = 0xff6080c0,        -- comments
+    token_keyword      = 0xff1919ff,        -- language keywords
+    token_operator     = 0xffb0b0b0,       -- operators (+, -, =, etc.)
+    token_identifier   = 0xff00c6ff,     -- variable and function names
+    token_integer      = 0xff00ff00,        -- integer literals
+    token_float        = 0xff00ff00,          -- float literals
+    token_string       = 0xffffc0c0,         -- string literals
+    token_bracket      = 0xff80ffff,        -- brackets ({, }, [, ], (, ))
+    token_punctuation  = 0xffff9080,    -- punctuation (;, ,, .)
+    token_preprocessor = 0xff9aff00,   -- preprocessor directives (#include)
 
     -- =========================================================================
     -- TABLE
@@ -145,12 +145,12 @@ return {
     -- configurable borders, and distinct header styling.
     --
 
-    table_background        = "090d12ff",         -- table background
-    table_header_background = "112130ff",  -- header row background
-    table_row_alt           = "0d141cff",            -- alternating row colour
-    table_border_colour     = "2c4144ff",      -- table border colour
-    table_header_text       = "bafffdff",        -- header text colour
-    table_cell_text         = "b3f9f5ff",          -- cell text colour
+    table_background        = 0xff090d12,         -- table background
+    table_header_background = 0xff112130,  -- header row background
+    table_row_alt           = 0xff0d141c,            -- alternating row colour
+    table_border_colour     = 0xff2c4144,      -- table border colour
+    table_header_text       = 0xffbafffd,        -- header text colour
+    table_cell_text         = 0xffb3f9f5,          -- cell text colour
 
     -- =========================================================================
     -- PROGRESS BAR
@@ -160,10 +160,10 @@ return {
     -- percentage label are overlaid on a translucent bar.
     --
 
-    progress_background     = "1a1a1aff",     -- bar background
-    progress_foreground     = "4488ccff",     -- bar fill colour
-    progress_text_colour    = "ccccccff",    -- percentage label colour
-    progress_spinner_colour = "4488ccff", -- braille spinner colour
+    progress_background     = 0xff1a1a1a,     -- bar background
+    progress_foreground     = 0xff4488cc,     -- bar fill colour
+    progress_text_colour    = 0xffcccccc,    -- percentage label colour
+    progress_spinner_colour = 0xff4488cc, -- braille spinner colour
 
     -- =========================================================================
     -- SCROLLBAR
@@ -172,12 +172,12 @@ return {
     -- Viewport scrollbar appearance.
     --
 
-    scrollbar_thumb      = "2c4144ff",      -- scrollbar thumb (draggable)
-    scrollbar_track      = "0d141cff",      -- scrollbar track
-    scrollbar_background = "0d141cff", -- scrollbar background
+    scrollbar_thumb      = 0xff2c4144,      -- scrollbar thumb (draggable)
+    scrollbar_track      = 0xff0d141c,      -- scrollbar track
+    scrollbar_background = 0xff0d141c, -- scrollbar background
 
-    -- Selection highlight colour (RRGGBBAA).
-    selection_colour = "00c8d880",         -- Selection highlight (RRGGBBAA)
+    -- Selection highlight colour (0xAARRGGBB).
+    selection_colour = 0x8000c8d8,         -- Selection highlight (0xAARRGGBB)
 
     -- =========================================================================
     -- NAVIGATION

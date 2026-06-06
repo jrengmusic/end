@@ -2,6 +2,80 @@
 
 ---
 
+## Sprint 5: TabbedButtonBar fork + bit_cast + Union + config pipeline ✅
+
+**Date:** 2026-06-06
+**Duration:** Full session
+
+### Agents Participated
+- COUNSELOR: Sprint lead — TabbedButtonBar analysis, bit_cast/Union design, config pipeline redesign, Window style collapse, colour format migration
+- Engineer: TabbedButtonBar+TabBarButton fork, TabbedComponent fork, bit_cast, Union, CellFifo replacement, toInt replacement, lua::ValueTree, Window rewrites, LookAndFeel rewrites, Tabs simplification, View ValueTree::Component, colour conversion
+- Pathfinder: button::Group internals, TabbedComponent wiring, VTPC flow
+- Librarian: JUCE TabbedButtonBar/TabBarButton/TabbedComponent deep dive, juce::var internals, juce::Colour(uint32)
+- Researcher: C++17 bit_cast implementation, packed value type patterns, existing library survey
+
+### Files Modified — JAM (8 new, 7 modified)
+
+**New (8):**
+- `jam_core/utilities/jam_bit_cast.h` — constexpr __builtin_bit_cast polyfill
+- `jam_core/utilities/jam_union.h` — variadic packed transport (uint32/uint64 backing, pack/unpack, structured bindings)
+- `jam_gui/layout/jam_tabbed_button_bar.h` — TabBarButton + TabbedButtonBar fork from JUCE
+- `jam_gui/layout/jam_tabbed_button_bar.cpp` — layout algorithm verbatim, Custom LAF paint
+- `jam_data_structures/lua/jam_lua_xml.h` — moved from jam_lua, getBody rename, Text::numeric, quoted()
+- `jam_data_structures/lua/jam_lua_value_tree.h` — moved from jam_lua, typed vars (int64/double), fromValueTree alias
+
+**Modified (7):**
+- `jam_core/utilities/jam_toInt.h` — bit_cast replaces C-style union type-pun, removes UB
+- `jam_core/jam_core.h` — registered bit_cast, union includes
+- `jam_gui/layout/jam_tabbed_component.h` — verbatim JUCE fork (content management, ButtonBar subclass)
+- `jam_gui/layout/jam_tabbed_component.cpp` — changeCallback, clearTabs, addTab with content component
+- `jam_gui/jam_gui.h` — registered jam_tabbed_button_bar.h
+- `jam_gui/button/jam_button_group.h` — static_cast<Custom&> replaces dynamic_cast<Theme*>
+- `jam_look_and_feel/jam_look_and_feel_custom.h` — drawButtonGroupTrack, drawButtonGroupSlidingIndicator virtuals
+- `jam_terminal/transport/jam_cell_fifo.h` — packHeader/unpackHeader → Union<int32_t, uint8_t>
+- `jam_data_structures/value_tree/jam_value_tree.h` — fromLua, toInt, toColour utilities
+- `jam_data_structures/jam_data_structures.h` — jam_lua dependency, lua/ includes
+- `jam_lua/jam_lua.h` — removed xml/value_tree includes (moved to jam_data_structures)
+
+### Files Modified — END (4 new/rewritten, 8 modified)
+
+**Modified (8):**
+- `Source/end/Tabs.h` + `.cpp` — simplified: TabbedComponent manages content, no Owner<Panes>, removal selects next tab
+- `Source/end/View.h` + `.cpp` — inherits ValueTree::Component (IDtype::view), owns tabsAttachment
+- `Source/end/Window.h` + `.cpp` — removed ValueTree::Component, collapsed to setStyle(property) + registerStyleParameters, inline lambdas
+- `Source/lookAndFeel/LookAndFeel.h` + `.cpp` — drawTabButton toggle visual, drawButtonGroupTrack, drawButtonGroupSlidingIndicator, fromRGBA removed, toColour
+- `Source/Main.h` + `.cpp` — windowAttachment removed, viewAttachment added
+- `Source/Identifier.h` — added size, view identifiers
+- `Source/config/Config.cpp` — lua::ValueTree::from replaces Xml::from + fromXml
+- `Source/config/lua/display.lua` — size={w,h} packed, all colours 0xAARRGGBB
+- `Source/config/lua/whelmed.lua` — all colours 0xAARRGGBB
+- `Source/config/lua/end.lua` — format comment updated
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered (node→state, getBody, blacklisted words)
+- [x] MANIFESTO.md principles applied (SSOT for pack/unpack, Encapsulation for ValueTree ownership)
+
+### Problems Solved
+- Tab layout: FlexBox equal-width replaced with JUCE per-button variable width + proportional scaling
+- Tab removal: proper index tracking via JUCE's removeTab + setCurrentTabIndex post-removal
+- Tab painting: button::Group dynamic_cast<Theme*> → static_cast<Custom&>
+- Colour pipeline: eliminated string→hex roundtrip (lua stores 0xAARRGGBB int, var(int64), direct Colour construction)
+- Window size atomicity: single CSV property, single VTPC
+- toInt UB: C-style union type-pun replaced with bit_cast
+- CellFifo ad-hoc memcpy replaced with Union<int32_t, uint8_t>
+- Config typed vars: jam::lua::ValueTree::from stores int64/double instead of strings
+- Window style dispatch: three layers collapsed to two (registerStyleParameters + setStyle)
+- Attachment ownership: View owns tabsAttachment, Window no longer ValueTree::Component
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 4: Phase 3 — Tabs + Panes + action::Registry
 
 **Date:** 2026-06-06

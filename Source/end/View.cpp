@@ -5,18 +5,53 @@ namespace end
 /*____________________________________________________________________________*/
 
 View::View()
+    : jam::ValueTree::Component { IDtype::view }
+    , tabsAttachment { state, tabs }
+{
+    initialise();
+    registerActions();
+    config.addListener (this);
+
+    tabs.addNewTab();
+    addAndMakeVisible (tabs);
+}
+
+View::~View()
+{
+    config.removeListener (this);
+    removeKeyListener (this);
+}
+
+void View::resized() { tabs.setBounds (getLocalBounds()); }
+
+void View::paint (juce::Graphics&) {}
+
+bool View::keyPressed (const juce::KeyPress& key, juce::Component* originatingComponent)
+{
+    juce::ignoreUnused (originatingComponent);
+    return registry.keyPressed (key);
+}
+
+void View::valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier&) {}
+
+//==============================================================================
+void View::initialise()
 {
     setOpaque (false);
-    addAndMakeVisible (tabs);
     addKeyListener (this);
     setWantsKeyboardFocus (true);
     toFront (true);
 
     auto window { jam::ValueTree::getChildWithName (config, IDtype::window) };
-    int width { window.getProperty (jam::ID::width) };
-    int height { window.getProperty (jam::ID::height) };
-    setSize (width, height);
+    auto csv { window.getProperty (ID::size).toString() };
+    auto parts { juce::StringArray::fromTokens (csv, ",", "") };
+    assert (parts.size() == 2);
+    setSize (parts[0].trim().getIntValue(), parts[1].trim().getIntValue());
+}
 
+//==============================================================================
+void View::registerActions()
+{
     registry.actions.add (ID::newTab,
                           [this]
                           {
@@ -44,31 +79,7 @@ View::View()
                               if (prev >= 0)
                                   tabs.setCurrentTabIndex (prev);
                           });
-
-    tabs.addNewTab();
-
-    config.addListener (this);
 }
-
-View::~View()
-{
-    config.removeListener (this);
-    removeKeyListener (this);
-}
-
-void View::resized() { tabs.setBounds (getLocalBounds()); }
-
-void View::paint (juce::Graphics&) {}
-
-bool View::keyPressed (const juce::KeyPress& key, juce::Component* originatingComponent)
-{
-    juce::ignoreUnused (originatingComponent);
-    return registry.keyPressed (key);
-}
-
-void View::valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier&) {}
-
-Tabs& View::getTabs() noexcept { return tabs; }
 
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace end

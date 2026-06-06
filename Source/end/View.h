@@ -15,12 +15,15 @@ namespace end
 /** @class View
  *  @brief Root content component inside end::Window.
  *
- *  Owns the tab system and action registry. Implements KeyListener to
- *  intercept key presses and route them through the Registry's prefix
- *  key state machine. Transparent — glass shows through from Window.
+ *  Owns the tab system, action registry, and tabsAttachment. Inherits
+ *  jam::ValueTree::Component so Main can graft it into the model tree via
+ *  viewAttachment. Implements KeyListener to intercept key presses and route
+ *  them through the Registry's prefix key state machine. Transparent — glass
+ *  shows through from Window.
  */
 class View
     : public juce::Component
+    , public jam::ValueTree::Component
     , public juce::ValueTree::Listener
     , public juce::KeyListener
 {
@@ -38,12 +41,14 @@ public:
 
     void valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier&) override;
 
-    /** @brief Returns the Tabs component for Attachment wiring. */
-    Tabs& getTabs() noexcept;
-
 private:
+    void initialise();
+    void registerActions();
+    //==============================================================================
     juce::ValueTree config { config::Model::get() };
+
     Tabs tabs;
+    jam::ValueTree::Attachment tabsAttachment;
     action::Registry registry;
 
     //==============================================================================

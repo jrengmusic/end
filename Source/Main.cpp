@@ -37,8 +37,7 @@ void Application::initialise (const juce::String& commandLine)
     // always_on_top, buttons) from config inside its own setStyle() call.
     auto* view { new View() };
     window.reset (new end::Window { view, ProjectInfo::projectName, false, false });
-    windowAttachment = std::make_unique<jam::ValueTree::Attachment> (model.getRootTree(), *window);
-    tabsAttachment = std::make_unique<jam::ValueTree::Attachment> (model.getRootTree(), view->getTabs());
+    viewAttachment = std::make_unique<jam::ValueTree::Attachment> (model.getRootTree(), *view);
     window->setVisible (true);
 
     // File watcher: watch config directory for hot-reload

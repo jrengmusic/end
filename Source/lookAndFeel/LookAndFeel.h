@@ -53,9 +53,8 @@ public:
 
     /** @brief Draws a tab button — simple rounded rect with text. */
     void drawTabButton (juce::Graphics&, juce::Button&, bool isMouseOver, bool isMouseDown) override;
-    //==============================================================================
-    static const juce::Colour fromRGBA (const juce::String& hexRGBA) noexcept;
-
+    void drawButtonGroupTrack (juce::Graphics&, juce::Component&) override;
+    void drawButtonGroupSlidingIndicator (juce::Graphics&, juce::Component&) override;
 private:
     /** @brief Applies the full colour set from config. Called by the ctor and
         by the ValueTree::Listener path on every property change.  Not part

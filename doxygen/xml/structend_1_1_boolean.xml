@@ -54,7 +54,7 @@
         <location file="end/Map.h" line="23" column="23" bodyfile="end/Map.h" bodystart="23" bodyend="23"/>
         <references refid="structjam_1_1Context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Derived &gt;::getContext</references>
         <referencedby refid="structend_1_1_boolean_1ac2389507d11893392d5122a3d2914793" compoundref="_map_8h" startline="25" endline="28">get</referencedby>
-        <referencedby refid="classend_1_1_window_1ac277dcb496977e31338298a1c2f8e2d5" compoundref="_window_8cpp" startline="27" endline="90">end::Window::registerStyleParameters</referencedby>
+        <referencedby refid="classend_1_1_window_1ac277dcb496977e31338298a1c2f8e2d5" compoundref="_window_8cpp" startline="45" endline="112">end::Window::registerStyleParameters</referencedby>
       </memberdef>
       <memberdef kind="function" id="structend_1_1_boolean_1ac2389507d11893392d5122a3d2914793" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
         <type>const bool</type>

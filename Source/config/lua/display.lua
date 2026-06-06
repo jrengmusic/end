@@ -8,9 +8,9 @@
 -- Invalid or missing values fall back to defaults silently.
 -- Reload with Cmd+R (no restart needed).
 --
--- Colour format: "#RRGGBB" (fully opaque) or "#RRGGBBAA" (with alpha).
---   - "#RGB" and "#RGBA" shorthand supported (e.g. "#F00" becomes "#FF0000").
---   - "rgba(r, g, b, a)" functional notation (a is 0.0 - 1.0).
+-- Colour format: 0xAARRGGBB hex integer (JUCE native ARGB format).
+--   - Alpha 0xFF = fully opaque, 0x00 = fully transparent.
+--   - Example: 0xffa1d6e5 = frostbite teal, fully opaque.
 --
 -- ============================================================================
 
@@ -87,112 +87,112 @@ return {
 	--
 	-- The 16 standard terminal colours. Programs like ls, git, and vim use these.
 	-- The first 8 are normal, the next 8 are brighter versions.
-	-- Format: "#RRGGBB" (opaque) or "#RRGGBBAA" (with alpha).
+	-- Format: 0xAARRGGBB hex integer.
 	--
 
 	colours = {
 		-- Default text foreground colour.
-		foreground = "#a1d6e5ff",
+		foreground = 0xffa1d6e5,
 
 		-- Default background colour.
 		-- The last two hex digits control background transparency (GPU only).
 		-- CPU rendering always uses a fully opaque background.
-		background = "#00000000",
+		background = 0x00000000,
 
 		-- Editor widget background fill (behind the cell grid).
 		-- Transparent lets the window glass effect show through.
-		editor_background = "#00000000",
+		editor_background = 0x00000000,
 
 		-- Editor widget outline colour.
 		-- Transparent for no visible outline.
-		editor_outline = "#00000000",
+		editor_outline = 0x00000000,
 
 		-- Cursor colour.
 		-- Programs may change this colour while running.
-		cursor = "#4e8c93ff",
+		cursor = 0xff4e8c93,
 
 		-- Selection highlight colour.
 		-- Semi-transparent recommended so text remains readable.
-		selection = "#00ddee20",
+		selection = 0x2000ddee,
 
 		-- Selection-mode cursor colour.
 		-- Shown instead of the normal cursor when selection mode is active.
-		selection_cursor = "#00ddeeff",
+		selection_cursor = 0xff00ddee,
 
 		-- Black
-		black = "#090d12ff",
+		black = 0xff090d12,
 
 		-- Red
-		red = "#fc704cff",
+		red = 0xfffc704c,
 
 		-- Green
-		green = "#c5f0e9ff",
+		green = 0xffc5f0e9,
 
 		-- Yellow
-		yellow = "#f3f5c5ff",
+		yellow = 0xfff3f5c5,
 
 		-- Blue
-		blue = "#8cc9d9ff",
+		blue = 0xff8cc9d9,
 
 		-- Magenta
-		magenta = "#519299ff",
+		magenta = 0xff519299,
 
 		-- Cyan
-		cyan = "#699daaff",
+		cyan = 0xff699daa,
 
 		-- White
-		white = "#ddddddff",
+		white = 0xffdddddd,
 
 		-- Bright black
-		bright_black = "#33535bff",
+		bright_black = 0xff33535b,
 
 		-- Bright red
-		bright_red = "#fc704cff",
+		bright_red = 0xfffc704c,
 
 		-- Bright green
-		bright_green = "#bafffdff",
+		bright_green = 0xffbafffd,
 
 		-- Bright yellow
-		bright_yellow = "#feffd2ff",
+		bright_yellow = 0xfffeffd2,
 
 		-- Bright blue
-		bright_blue = "#67dfefff",
+		bright_blue = 0xff67dfef,
 
 		-- Bright magenta
-		bright_magenta = "#01c2d2ff",
+		bright_magenta = 0xff01c2d2,
 
 		-- Bright cyan
-		bright_cyan = "#00c8d8ff",
+		bright_cyan = 0xff00c8d8,
 
 		-- Bright white
-		bright_white = "#bafffdff",
+		bright_white = 0xffbafffd,
 
 		-- Status bar full background colour.
 		-- Default matches the active tab background (tab.active).
-		status_bar = "#090d12ff",
+		status_bar = 0xff090d12,
 
 		-- Status bar mode label background colour.
 		-- Default matches the active tab indicator colour (tab.indicator).
-		status_bar_label_bg = "#112130ff",
+		status_bar_label_bg = 0xff112130,
 
 		-- Status bar mode label text colour.
-		status_bar_label_fg = "#4e8c93ff",
+		status_bar_label_fg = 0xff4e8c93,
 
 		-- Status bar spinner colour.
-		status_bar_spinner = "#00c8d8ff",
+		status_bar_spinner = 0xff00c8d8,
 
 		-- Open File mode hint label background colour.
 		-- Shown as the badge background behind single- or double-letter hint keys.
-		hint_label_bg = "#00ffffff",
+		hint_label_bg = 0xff00ffff,
 
 		-- Open File mode hint label foreground (text) colour.
-		hint_label_fg = "#111111ff",
+		hint_label_fg = 0xff111111,
 
 		-- Terminal scrollbar thumb colour. Semi-transparent recommended.
-		scrollbar_thumb = "#2c414480",
+		scrollbar_thumb = 0x802c4144,
 
 		-- Terminal scrollbar track colour. Transparent for no visible track.
-		scrollbar_track = "#00000000",
+		scrollbar_track = 0x00000000,
 	},
 
 	-- ========================================================================
@@ -203,15 +203,12 @@ return {
 		-- Window title shown in the title bar and mission control.
 		title = "END",
 
-		-- Initial window width in pixels.
-		width = 640,
-
-		-- Initial window height in pixels.
-		height = 480,
+		-- Initial window size in pixels {width, height}.
+		size = {640, 480},
 
 		-- Tint colour for the window background. The last two hex digits
 		-- control window transparency (glass mode). Most visible with blur enabled.
-		colour = "#090d12bf",
+		colour = 0xbf090d12,
 
 		-- Background blur radius in pixels (0 = no blur).
 		-- GPU only. Has no effect with CPU rendering.
@@ -275,22 +272,22 @@ return {
 		size = 12,
 
 		-- Active tab text colour.
-		foreground = "#00c8d8ff",
+		foreground = 0xff00c8d8,
 
 		-- Inactive tab text colour.
-		inactive = "#33535bff",
+		inactive = 0xff33535b,
 
 		-- Tab bar position: "top", "bottom", "left", "right".
 		position = "left",
 
 		-- Tab separator line colour.
-		line = "#2c4144ff",
+		line = 0xff2c4144,
 
 		-- Active tab background colour.
-		active = "#002b35ff",
+		active = 0xff002b35,
 
 		-- Active tab indicator colour.
-		indicator = "#01c2d2ff",
+		indicator = 0xff01c2d2,
 	},
 
 	-- ========================================================================
@@ -314,7 +311,7 @@ return {
 		size = 14,
 
 		-- Overlay text colour.
-		colour = "#4e8c93ff",
+		colour = 0xff4e8c93,
 	},
 
 	-- ========================================================================
@@ -323,10 +320,10 @@ return {
 
 	pane = {
 		-- Pane divider bar colour.
-		bar_colour = "#33535bff",
+		bar_colour = 0xff33535b,
 
 		-- Pane divider bar colour when dragging or hovering.
-		bar_highlight = "#4e8c93ff",
+		bar_highlight = 0xff4e8c93,
 	},
 
 	-- ========================================================================
@@ -382,10 +379,10 @@ return {
 		padding = { 10, 10, 10, 10 },
 
 		-- Text colour for action name labels.
-		name_colour = "#a1d6e5ff",
+		name_colour = 0xffa1d6e5,
 
 		-- Text colour for keyboard shortcut labels.
-		shortcut_colour = "#00c8d8ff",
+		shortcut_colour = 0xff00c8d8,
 
 		-- Proportional width of the action list relative to the terminal window (0.1 - 1.0).
 		width = 0.3,
@@ -396,7 +393,7 @@ return {
 
 		-- Background colour for the highlighted/selected row.
 		-- Leave empty to use the terminal selection colour (colours.selection).
-		highlight_colour = "#00ddee20",
+		highlight_colour = 0x2000ddee,
 	},
 
 	-- ========================================================================
@@ -405,7 +402,7 @@ return {
 
 	popup = {
 		-- Popup border colour.
-		border_colour = "#4e8c93ff",
+		border_colour = 0xff4e8c93,
 
 		-- Popup border stroke width in pixels (0 = no border).
 		border_width = 1,
