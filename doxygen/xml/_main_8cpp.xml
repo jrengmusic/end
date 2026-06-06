@@ -27,9 +27,11 @@
         </childnode>
         <childnode refid="7" relation="include">
         </childnode>
-        <childnode refid="12" relation="include">
-        </childnode>
         <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
         </childnode>
       </node>
       <node id="11">
@@ -48,7 +50,7 @@
         <childnode refid="5" relation="include">
         </childnode>
       </node>
-      <node id="14">
+      <node id="12">
         <label>Map.h</label>
         <link refid="_map_8h"/>
         <childnode refid="3" relation="include">
@@ -99,22 +101,24 @@
         </childnode>
         <childnode refid="4" relation="include">
         </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
       </node>
-      <node id="12">
+      <node id="13">
         <label>end/Window.h</label>
         <link refid="_window_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
         <childnode refid="4" relation="include">
         </childnode>
-        <childnode refid="13" relation="include">
+        <childnode refid="14" relation="include">
         </childnode>
         <childnode refid="5" relation="include">
         </childnode>
-        <childnode refid="14" relation="include">
+        <childnode refid="12" relation="include">
         </childnode>
       </node>
-      <node id="13">
+      <node id="14">
         <label>lookAndFeel/LookAndFeel.h</label>
         <link refid="_look_and_feel_8h"/>
         <childnode refid="3" relation="include">
@@ -171,53 +175,52 @@
 <codeline lineno="35"><highlight class="normal"></highlight></codeline>
 <codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>end::Window<sp/>reads<sp/>all<sp/>remaining<sp/>WINDOW<sp/>properties<sp/>(colour,<sp/>blur,<sp/>backend,</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>always_on_top,<sp/>buttons)<sp/>from<sp/>config<sp/>inside<sp/>its<sp/>own<sp/>setStyle()<sp/>call.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal">*<sp/>view<sp/>{<sp/></highlight><highlight class="keyword">new</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_view" kindref="compound">View</ref>()<sp/>};</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal">*<sp/>view<sp/>{<sp/></highlight><highlight class="keyword">new</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_view" kindref="compound">View</ref><sp/>(<ref refid="classend_1_1_application_1ad5d031f4ee343e64f205b9e158447140" kindref="member">model</ref>)<sp/>};</highlight></codeline>
 <codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classend_1_1_application_1af5685bc1fb3a0e77fad81b639bcc92f7" kindref="member">window</ref>.reset<sp/>(</highlight><highlight class="keyword">new</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_window" kindref="compound">end::Window</ref><sp/>{<sp/>view,<sp/>ProjectInfo::projectName,<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal"><sp/>});</highlight></codeline>
-<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classend_1_1_application_1a3f33c259430bf759398c744375b2fc20" kindref="member">viewAttachment</ref><sp/>=<sp/>std::make_unique&lt;jam::ValueTree::Attachment&gt;<sp/>(<ref refid="classend_1_1_application_1ad5d031f4ee343e64f205b9e158447140" kindref="member">model</ref>.getRootTree(),<sp/>*view);</highlight></codeline>
-<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classend_1_1_application_1af5685bc1fb3a0e77fad81b639bcc92f7" kindref="member">window</ref>-&gt;setVisible<sp/>(</highlight><highlight class="keyword">true</highlight><highlight class="normal">);</highlight></codeline>
-<codeline lineno="42"><highlight class="normal"></highlight></codeline>
-<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>File<sp/>watcher:<sp/>watch<sp/>config<sp/>directory<sp/>for<sp/>hot-reload</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classend_1_1_application_1a551f9e489ee4727369d6145ab26978ba" kindref="member">watcher</ref>.addFolder<sp/>(<ref refid="structconfig_1_1_file_1a256dc6f23b2efea619c33a43ae3d795c" kindref="member">config::File::path</ref>);</highlight></codeline>
-<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classend_1_1_application_1a551f9e489ee4727369d6145ab26978ba" kindref="member">watcher</ref>.coalesceEvents<sp/>(300);</highlight></codeline>
-<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classend_1_1_application_1a551f9e489ee4727369d6145ab26978ba" kindref="member">watcher</ref>.addListener<sp/>(</highlight><highlight class="keyword">this</highlight><highlight class="normal">);</highlight></codeline>
-<codeline lineno="47"><highlight class="normal"></highlight></codeline>
-<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classjuce_1_1MessageManager_1aa34494bcb54b9d4155934c8f53ed1070" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::MessageManager::callAsync</ref><sp/>(</highlight></codeline>
-<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>[</highlight><highlight class="keyword">this</highlight><highlight class="normal">]</highlight></codeline>
-<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
-<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keyword">auto</highlight><highlight class="normal">*<sp/>view<sp/>{<sp/><ref refid="classend_1_1_application_1af5685bc1fb3a0e77fad81b639bcc92f7" kindref="member">window</ref>-&gt;getContentComponent()<sp/>})</highlight></codeline>
-<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>view-&gt;grabKeyboardFocus();</highlight></codeline>
-<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>});</highlight></codeline>
-<codeline lineno="54"><highlight class="normal">}</highlight></codeline>
-<codeline lineno="55"><highlight class="normal"></highlight></codeline>
-<codeline lineno="56" refid="classend_1_1_application_1a18d7fd1d8bbcca6a1c7af73e3bf503a8" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_application_1a18d7fd1d8bbcca6a1c7af73e3bf503a8" kindref="member">Application::shutdown</ref>()<sp/>{}</highlight></codeline>
-<codeline lineno="57"><highlight class="normal"></highlight></codeline>
-<codeline lineno="58" refid="classend_1_1_application_1a636a8c0776059c65df3d0405229858f4" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_application_1a636a8c0776059c65df3d0405229858f4" kindref="member">Application::systemRequestedQuit</ref>()<sp/>{<sp/><ref refid="classjuce_1_1JUCEApplicationBase_1ae2ba9b90c02361717d997aa26861f2c4" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">quit</ref>();<sp/>}</highlight></codeline>
-<codeline lineno="59"><highlight class="normal"></highlight></codeline>
-<codeline lineno="60" refid="classend_1_1_application_1ab2d34713da4e6b4917cf53a08cda47eb" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref><sp/><ref refid="classend_1_1_application_1ab2d34713da4e6b4917cf53a08cda47eb" kindref="member">Application::getApplicationName</ref>()<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ProjectInfo::projectName;<sp/>}</highlight></codeline>
-<codeline lineno="61"><highlight class="normal"></highlight></codeline>
-<codeline lineno="62" refid="classend_1_1_application_1af5df574c86505182fdd01d567824d0b7" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref><sp/><ref refid="classend_1_1_application_1af5df574c86505182fdd01d567824d0b7" kindref="member">Application::getApplicationVersion</ref>()<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ProjectInfo::versionString;<sp/>}</highlight></codeline>
-<codeline lineno="63"><highlight class="normal"></highlight></codeline>
-<codeline lineno="64" refid="classend_1_1_application_1acb2876376b8c61d2ee8795524e625d0f" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_application_1acb2876376b8c61d2ee8795524e625d0f" kindref="member">Application::moreThanOneInstanceAllowed</ref>()<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;<sp/>}</highlight></codeline>
-<codeline lineno="65"><highlight class="normal"></highlight></codeline>
-<codeline lineno="66"><highlight class="normal"></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="67" refid="classend_1_1_application_1af446ffd1fa995c2838d2d34713a7d83a" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_application_1af446ffd1fa995c2838d2d34713a7d83a" kindref="member">Application::fileChanged</ref><sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classjuce_1_1File" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::File</ref>&amp;<sp/>file,<sp/><ref refid="structjam_1_1File_1_1Watcher_1a67463011ada054bc1dc66cdf49d446f2" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::File::Watcher::Event</ref><sp/>event)</highlight></codeline>
-<codeline lineno="68"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(event<sp/>==<sp/>jam::File::Watcher::Event::fileUpdated</highlight></codeline>
-<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>and<sp/>file.<ref refid="classjuce_1_1File_1aeb95d4b90429613bca223acc6dc0d0bf" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">hasFileExtension</ref><sp/>(<ref refid="structconfig_1_1_file_1a6ab20528e69a64a7091bd8d1269eac55" kindref="member">config::File::extension</ref>))</highlight></codeline>
-<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
-<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref><sp/>errorOut;</highlight></codeline>
-<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="namespaceconfig" kindref="compound">config</ref>.load<sp/>(file,<sp/>errorOut);</highlight></codeline>
-<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>load()<sp/>overlays<sp/>the<sp/>changed<sp/>file<sp/>onto<sp/>the<sp/>live<sp/>tree,<sp/>firing</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>valueTreePropertyChanged<sp/>on<sp/>all<sp/>mutated<sp/>properties.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>LookAndFeel<sp/>and<sp/>end::Window<sp/>react<sp/>as<sp/>registered<sp/>listeners.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
-<codeline lineno="78"><highlight class="normal">}</highlight></codeline>
-<codeline lineno="79"><highlight class="normal"></highlight></codeline>
-<codeline lineno="81"><highlight class="normal">}</highlight><highlight class="comment">//<sp/>namespace<sp/>end</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="82"><highlight class="normal"></highlight></codeline>
-<codeline lineno="83"><highlight class="normal"></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="84"><highlight class="normal"></highlight><highlight class="comment">//<sp/>This<sp/>macro<sp/>generates<sp/>the<sp/>main()<sp/>routine<sp/>that<sp/>launches<sp/>the<sp/>app.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="85"><highlight class="normal"><ref refid="juce__Initialisation_8h_1a10c79cf9cafd40244a741e5945878e79" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">START_JUCE_APPLICATION</ref><sp/>(<ref refid="classend_1_1_application" kindref="compound">end::Application</ref>)</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classend_1_1_application_1af5685bc1fb3a0e77fad81b639bcc92f7" kindref="member">window</ref>-&gt;setVisible<sp/>(</highlight><highlight class="keyword">true</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>File<sp/>watcher:<sp/>watch<sp/>config<sp/>directory<sp/>for<sp/>hot-reload</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classend_1_1_application_1a551f9e489ee4727369d6145ab26978ba" kindref="member">watcher</ref>.addFolder<sp/>(<ref refid="structconfig_1_1_file_1a256dc6f23b2efea619c33a43ae3d795c" kindref="member">config::File::path</ref>);</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classend_1_1_application_1a551f9e489ee4727369d6145ab26978ba" kindref="member">watcher</ref>.coalesceEvents<sp/>(300);</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classend_1_1_application_1a551f9e489ee4727369d6145ab26978ba" kindref="member">watcher</ref>.addListener<sp/>(</highlight><highlight class="keyword">this</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classjuce_1_1MessageManager_1aa34494bcb54b9d4155934c8f53ed1070" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::MessageManager::callAsync</ref><sp/>(</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>[</highlight><highlight class="keyword">this</highlight><highlight class="normal">]</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keyword">auto</highlight><highlight class="normal">*<sp/>view<sp/>{<sp/><ref refid="classend_1_1_application_1af5685bc1fb3a0e77fad81b639bcc92f7" kindref="member">window</ref>-&gt;getContentComponent()<sp/>})</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>view-&gt;grabKeyboardFocus();</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>});</highlight></codeline>
+<codeline lineno="53"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55" refid="classend_1_1_application_1a18d7fd1d8bbcca6a1c7af73e3bf503a8" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_application_1a18d7fd1d8bbcca6a1c7af73e3bf503a8" kindref="member">Application::shutdown</ref>()<sp/>{}</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57" refid="classend_1_1_application_1a636a8c0776059c65df3d0405229858f4" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_application_1a636a8c0776059c65df3d0405229858f4" kindref="member">Application::systemRequestedQuit</ref>()<sp/>{<sp/><ref refid="classjuce_1_1JUCEApplicationBase_1ae2ba9b90c02361717d997aa26861f2c4" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">quit</ref>();<sp/>}</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59" refid="classend_1_1_application_1ab2d34713da4e6b4917cf53a08cda47eb" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref><sp/><ref refid="classend_1_1_application_1ab2d34713da4e6b4917cf53a08cda47eb" kindref="member">Application::getApplicationName</ref>()<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ProjectInfo::projectName;<sp/>}</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61" refid="classend_1_1_application_1af5df574c86505182fdd01d567824d0b7" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref><sp/><ref refid="classend_1_1_application_1af5df574c86505182fdd01d567824d0b7" kindref="member">Application::getApplicationVersion</ref>()<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ProjectInfo::versionString;<sp/>}</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63" refid="classend_1_1_application_1acb2876376b8c61d2ee8795524e625d0f" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_application_1acb2876376b8c61d2ee8795524e625d0f" kindref="member">Application::moreThanOneInstanceAllowed</ref>()<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;<sp/>}</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="66" refid="classend_1_1_application_1af446ffd1fa995c2838d2d34713a7d83a" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_application_1af446ffd1fa995c2838d2d34713a7d83a" kindref="member">Application::fileChanged</ref><sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classjuce_1_1File" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::File</ref>&amp;<sp/>file,<sp/><ref refid="structjam_1_1File_1_1Watcher_1a67463011ada054bc1dc66cdf49d446f2" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::File::Watcher::Event</ref><sp/>event)</highlight></codeline>
+<codeline lineno="67"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(event<sp/>==<sp/>jam::File::Watcher::Event::fileUpdated</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>and<sp/>file.<ref refid="classjuce_1_1File_1aeb95d4b90429613bca223acc6dc0d0bf" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">hasFileExtension</ref><sp/>(<ref refid="structconfig_1_1_file_1a6ab20528e69a64a7091bd8d1269eac55" kindref="member">config::File::extension</ref>))</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref><sp/>errorOut;</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="namespaceconfig" kindref="compound">config</ref>.load<sp/>(file,<sp/>errorOut);</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>load()<sp/>overlays<sp/>the<sp/>changed<sp/>file<sp/>onto<sp/>the<sp/>live<sp/>tree,<sp/>firing</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>valueTreePropertyChanged<sp/>on<sp/>all<sp/>mutated<sp/>properties.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>LookAndFeel<sp/>and<sp/>end::Window<sp/>react<sp/>as<sp/>registered<sp/>listeners.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="77"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal">}</highlight><highlight class="comment">//<sp/>namespace<sp/>end</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight><highlight class="comment">//<sp/>This<sp/>macro<sp/>generates<sp/>the<sp/>main()<sp/>routine<sp/>that<sp/>launches<sp/>the<sp/>app.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><ref refid="juce__Initialisation_8h_1a10c79cf9cafd40244a741e5945878e79" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">START_JUCE_APPLICATION</ref><sp/>(<ref refid="classend_1_1_application" kindref="compound">end::Application</ref>)</highlight></codeline>
     </programlisting>
     <location file="Main.cpp"/>
   </compounddef>

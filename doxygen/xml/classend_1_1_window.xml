@@ -256,7 +256,7 @@
         <references refid="classjam_1_1Window_1a72baeb690a2a47a8866afe0bbc6d44e0">jam::Window::setShowWindowButtons</references>
         <references refid="classend_1_1_window_1a56bf0a4cec2844d980843a4bd0ca35b8" compoundref="_window_8h" startline="107">styleParameters</references>
         <references refid="classend_1_1_window_1af4e0636b21d5630786dc5dd890bf29df" compoundref="_window_8h" startline="113" endline="113">tintColour</references>
-        <references refid="structjam_1_1ValueTree_1aa0b88547fe7b3fdcc4df2025920dd02c">jam::ValueTree::toColour</references>
+        <references refid="classjam_1_1Model_1a996fa3b0c8889e5c5280ca29dcd281e4">jam::Model::toColour</references>
         <referencedby refid="classend_1_1_window_1a7725512f1abd3448ce816b735ce55c4f" compoundref="_window_8cpp" startline="7" endline="19">Window</referencedby>
       </memberdef>
       <memberdef kind="function" id="classend_1_1_window_1a016aba9d48d96c5bf6ba212a540841fe" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">

@@ -3,7 +3,7 @@
   <compounddef id="classend_1_1_tabs" kind="class" language="C++" prot="public">
     <compoundname>end::Tabs</compoundname>
     <basecompoundref refid="classjam_1_1TabbedComponent" prot="public" virt="non-virtual">jam::TabbedComponent</basecompoundref>
-    <basecompoundref refid="structjam_1_1ValueTree_1_1Component" prot="public" virt="non-virtual">jam::ValueTree::Component</basecompoundref>
+    <basecompoundref refid="structjam_1_1Model_1_1Component" prot="public" virt="non-virtual">jam::Model::Component</basecompoundref>
     <includes refid="_tabs_8h" local="no">Tabs.h</includes>
     <sectiondef kind="public-func">
       <memberdef kind="function" id="classend_1_1_tabs_1ae74fe3d456ccb9887c804ded09698f6b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -19,7 +19,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="end/Tabs.h" line="26" column="5" bodyfile="end/Tabs.cpp" bodystart="7" bodyend="10"/>
-        <references refid="structjam_1_1ValueTree_1_1Component_1a7f12afb19c9e03ae2797eadeb90917be">jam::ValueTree::Component::Component</references>
+        <references refid="structjam_1_1Model_1_1Component_1acb82f44a726d37d8bb86dce10865f90a">jam::Model::Component::Component</references>
       </memberdef>
       <memberdef kind="function" id="classend_1_1_tabs_1a5d92721be181f26d6425b39bfa3724f4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -104,7 +104,7 @@
         </inbodydescription>
         <location file="end/Tabs.h" line="38" column="10" bodyfile="end/Tabs.cpp" bodystart="44" bodyend="48"/>
         <references refid="namespacejuce_1a86deae84ff8b95d7e40214a493b3dfe0">juce::ignoreUnused</references>
-        <references refid="structjam_1_1ValueTree_1_1Component_1a7f1a1f6303881257237240eb4a1a31e2">jam::ValueTree::Component::state</references>
+        <references refid="structjam_1_1Model_1_1Component_1a708164c4ae3e826d1c3ee90dbcf1afa3">jam::Model::Component::state</references>
       </memberdef>
     </sectiondef>
     <briefdescription>
@@ -122,15 +122,15 @@
         <childnode refid="5" relation="public-inheritance">
         </childnode>
       </node>
+      <node id="5">
+        <label>jam::Model::Component</label>
+        <link refid="structjam_1_1Model_1_1Component" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
       <node id="2">
         <label>jam::TabbedComponent</label>
         <link refid="classjam_1_1TabbedComponent" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
         <childnode refid="3" relation="public-inheritance">
         </childnode>
-      </node>
-      <node id="5">
-        <label>jam::ValueTree::Component</label>
-        <link refid="structjam_1_1ValueTree_1_1Component" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
       <node id="3">
         <label>juce::Component</label>
@@ -152,20 +152,16 @@
         <childnode refid="15" relation="public-inheritance">
         </childnode>
       </node>
-      <node id="6">
-        <label>jam::TabbedButtonBar</label>
-        <link refid="classjam_1_1TabbedButtonBar" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-        <childnode refid="3" relation="public-inheritance">
+      <node id="15">
+        <label>jam::Model::Component</label>
+        <link refid="structjam_1_1Model_1_1Component" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="16" relation="usage">
+          <edgelabel>state</edgelabel>
         </childnode>
-        <childnode refid="7" relation="usage">
-          <edgelabel>tabs</edgelabel>
-        </childnode>
-        <childnode refid="8" relation="usage">
-          <edgelabel>behindFrontTab</edgelabel>
-        </childnode>
-        <childnode refid="9" relation="usage">
-          <edgelabel>extraTabsButton</edgelabel>
-        </childnode>
+      </node>
+      <node id="7">
+        <label>jam::Owner&lt; jam::button::Bar::TabInfo &gt;</label>
+        <link refid="classjam_1_1Owner" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
       <node id="2">
         <label>jam::TabbedComponent</label>
@@ -182,11 +178,19 @@
           <edgelabel>panelComponent</edgelabel>
         </childnode>
       </node>
-      <node id="15">
-        <label>jam::ValueTree::Component</label>
-        <link refid="structjam_1_1ValueTree_1_1Component" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-        <childnode refid="16" relation="usage">
-          <edgelabel>state</edgelabel>
+      <node id="6">
+        <label>jam::button::Bar</label>
+        <link refid="classjam_1_1button_1_1Bar" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>tabs</edgelabel>
+        </childnode>
+        <childnode refid="8" relation="usage">
+          <edgelabel>behindFrontTab</edgelabel>
+        </childnode>
+        <childnode refid="9" relation="usage">
+          <edgelabel>extraTabsButton</edgelabel>
         </childnode>
       </node>
       <node id="13">
@@ -211,10 +215,6 @@
         <label>juce::MouseListener</label>
         <link refid="classjuce_1_1MouseListener" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="7">
-        <label>juce::OwnedArray&lt; jam::TabbedButtonBar::TabInfo &gt;</label>
-        <link refid="classjuce_1_1OwnedArray" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-      </node>
       <node id="11">
         <label>juce::SettableTooltipClient</label>
         <link refid="classjuce_1_1SettableTooltipClient" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
@@ -237,7 +237,7 @@
         <label>std::unique_ptr&lt; BehindFrontTabComp &gt;</label>
       </node>
       <node id="5">
-        <label>std::unique_ptr&lt; jam::TabbedButtonBar &gt;</label>
+        <label>std::unique_ptr&lt; jam::button::Bar &gt;</label>
         <childnode refid="6" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
@@ -274,8 +274,8 @@
       <member refid="classjuce_1_1Component_1a75ec7a43ed773d35c3309ce028559de8" prot="public" virt="virtual"><scope>end::Tabs</scope><name>colourChanged</name></member>
       <member refid="classjuce_1_1Component_1a8eca44b2145f084bd354edc8db696ad7" prot="public" virt="non-virtual" ambiguityscope="jam::"><scope>end::Tabs</scope><name>Component</name></member>
       <member refid="classjuce_1_1Component_1af5adb3418df9abb2bf8a5b5376ac3a01" prot="public" virt="non-virtual" ambiguityscope="jam::"><scope>end::Tabs</scope><name>Component</name></member>
-      <member refid="structjam_1_1ValueTree_1_1Component_1a7f12afb19c9e03ae2797eadeb90917be" prot="public" virt="non-virtual" ambiguityscope="jam::ValueTree::Component::"><scope>end::Tabs</scope><name>Component</name></member>
-      <member refid="structjam_1_1ValueTree_1_1Component_1aaa3f3062a1c039af8f0ee1673fc06775" prot="public" virt="non-virtual" ambiguityscope="jam::ValueTree::Component::"><scope>end::Tabs</scope><name>Component</name></member>
+      <member refid="structjam_1_1Model_1_1Component_1acb82f44a726d37d8bb86dce10865f90a" prot="public" virt="non-virtual" ambiguityscope="jam::Model::Component::"><scope>end::Tabs</scope><name>Component</name></member>
+      <member refid="structjam_1_1Model_1_1Component_1a76cc72c3a297729d0a88875d1ba892fd" prot="public" virt="non-virtual" ambiguityscope="jam::Model::Component::"><scope>end::Tabs</scope><name>Component</name></member>
       <member refid="classjuce_1_1Component_1a0063f788f01484e821535209c6938537" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>contains</name></member>
       <member refid="classjuce_1_1Component_1ad135c1cba96deed34a67c1d78c3ddc5a" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>contains</name></member>
       <member refid="classjam_1_1TabbedComponent_1a83a398a66022740ea17986535755631e" prot="private" virt="non-virtual"><scope>end::Tabs</scope><name>contentComponents</name></member>
@@ -284,7 +284,7 @@
       <member refid="classjuce_1_1Component_1a95af812072b7cb6ba878fab766b51efc" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>createComponentSnapshot</name></member>
       <member refid="classjuce_1_1Component_1a89ae12304d481943462a2b22436287d5" prot="public" virt="virtual"><scope>end::Tabs</scope><name>createFocusTraverser</name></member>
       <member refid="classjuce_1_1Component_1a91bf4b1d9837aca8688f5c7266d0aa7a" prot="public" virt="virtual"><scope>end::Tabs</scope><name>createKeyboardFocusTraverser</name></member>
-      <member refid="classjam_1_1TabbedComponent_1abb22f0e9bf63d89fb0ee4abba9d6d54f" prot="protected" virt="virtual"><scope>end::Tabs</scope><name>createTabButton</name></member>
+      <member refid="classjam_1_1TabbedComponent_1ab5ae71307c81110471c708039b700943" prot="protected" virt="virtual"><scope>end::Tabs</scope><name>createTabButton</name></member>
       <member refid="classend_1_1_tabs_1a42964332bbe9734aef710f26f0111536" prot="protected" virt="virtual"><scope>end::Tabs</scope><name>currentTabChanged</name></member>
       <member refid="classjuce_1_1Component_1a0be5d779a36fd22ee741e969f0a16bd6" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>deleteAllChildren</name></member>
       <member refid="classjam_1_1TabbedComponent_1a6e19f83f4c27946146dac053eea701bf" prot="private" virt="non-virtual"><scope>end::Tabs</scope><name>edgeIndent</name></member>
@@ -311,6 +311,7 @@
       <member refid="classend_1_1_tabs_1a202281e6b55f4974b00b7cf030cf3f12" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>getActivePanes</name></member>
       <member refid="classjuce_1_1Component_1a81bf838a2c85a59f2240988d18df937b" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>getAlpha</name></member>
       <member refid="classjuce_1_1Component_1a5ebab47d46f8d67881c4189bbb0e7ea9" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>getApproximateScaleFactorForComponent</name></member>
+      <member refid="classjam_1_1TabbedComponent_1a7ab0d785a051e0ff35ea9ea69f13fd15" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>getBar</name></member>
       <member refid="classjuce_1_1Component_1a47d3c5649acb07be6e7cb9e8a609c66e" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>getBottom</name></member>
       <member refid="classjuce_1_1Component_1a8a69adc111c2e30a48f0f01004bc5754" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>getBounds</name></member>
       <member refid="classjuce_1_1Component_1a0828613016832c82866bb28e1221cfa9" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>getBoundsInParent</name></member>
@@ -347,6 +348,7 @@
       <member refid="classjuce_1_1Component_1a3d625890b17bbb95be95b357388702f5" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>getNumChildComponents</name></member>
       <member refid="classjuce_1_1Component_1a2c9aba5566991dd0ae4f8a08af144693" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>getNumCurrentlyModalComponents</name></member>
       <member refid="classjam_1_1TabbedComponent_1ab52aa701daae6c2f6dd778e4fc1b9352" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>getNumTabs</name></member>
+      <member refid="classjam_1_1TabbedComponent_1aa25f39207f48d6b80633e22f4e44140f" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>getOrientation</name></member>
       <member refid="classjuce_1_1Component_1a3c12bd5015ba92302218485f30410326" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>getParentComponent</name></member>
       <member refid="classjuce_1_1Component_1af98643759ffd0041e9d9a141ff624da4" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>getParentHeight</name></member>
       <member refid="classjuce_1_1Component_1abf129e6ea5d7d7c500d1e576d69a4b87" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>getParentMonitorArea</name></member>
@@ -363,13 +365,12 @@
       <member refid="classjuce_1_1Component_1a3ba2d8019db6a8e1af2085120f52a605" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>getScreenY</name></member>
       <member refid="classjam_1_1TabbedComponent_1ace5d4c09c421f31d6565539b00d0fa2d" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>getTabBackgroundColour</name></member>
       <member refid="classjam_1_1TabbedComponent_1a85727e623dde72905aff6ca18efaaff8" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>getTabBarDepth</name></member>
-      <member refid="classjam_1_1TabbedComponent_1a0ea29cd974f8a7e6a3e52a947ecc61d9" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>getTabbedButtonBar</name></member>
       <member refid="classjam_1_1TabbedComponent_1a457a75f37c593d0e37a59effa98e8ee1" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>getTabContentComponent</name></member>
       <member refid="classjam_1_1TabbedComponent_1ac0b7130aa7608f177350631c0784c21c" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>getTabNames</name></member>
       <member refid="classjuce_1_1Component_1a3608be9beaa50ab2631662e4ed27eda7" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>getTitle</name></member>
       <member refid="classjuce_1_1Component_1a1ae53e428bcf27364f85c17290b7dcef" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>getTopLevelComponent</name></member>
       <member refid="classjuce_1_1Component_1a0af216b2700b73bd72692cc1d9865862" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>getTransform</name></member>
-      <member refid="structjam_1_1ValueTree_1_1Component_1af113c64ae0452249b0ebf97fbdb8c0a8" prot="public" virt="virtual"><scope>end::Tabs</scope><name>getValueTree</name></member>
+      <member refid="structjam_1_1Model_1_1Component_1a3836be96745d719b098a5df0d6cd03f9" prot="public" virt="virtual"><scope>end::Tabs</scope><name>getValueTree</name></member>
       <member refid="classjuce_1_1Component_1ad0ae1847969cde001545ec02a1d5b360" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>getViewportIgnoreDragFlag</name></member>
       <member refid="classjuce_1_1Component_1acee8ceae1aba30f259f1f5df5aed049d" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>getWantsKeyboardFocus</name></member>
       <member refid="classjuce_1_1Component_1ac109beb72e9dafdc724da22b8cb883c0" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>getWidth</name></member>
@@ -426,7 +427,7 @@
       <member refid="classjuce_1_1Component_1a06c8aa291c5209b045b0a2955291da47" prot="public" virt="virtual"><scope>end::Tabs</scope><name>moved</name></member>
       <member refid="classjuce_1_1Component_1a0158694e8f42b7cbe83071d319f472d5" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>moveKeyboardFocusToSibling</name></member>
       <member refid="classjam_1_1TabbedComponent_1a56c4b47fef74736e3bbe2b26c7b30252" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>moveTab</name></member>
-      <member refid="structjam_1_1ValueTree_1_1Component_1ae5c294c6f2e32f37ca3fea0030062da4" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>onAttachment</name></member>
+      <member refid="structjam_1_1Model_1_1Component_1a1f586c2b654a1a83fa5bea46cccb7343" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>onAttachment</name></member>
       <member refid="classjam_1_1TabbedComponent_1acbc025ebf7c4b743012773745180edc1" prot="private" virt="non-virtual"><scope>end::Tabs</scope><name>outlineThickness</name></member>
       <member refid="classjam_1_1TabbedComponent_1a0470ce6171f2e0e9e97d0cbcb8ffa003" prot="public" virt="virtual"><scope>end::Tabs</scope><name>paint</name></member>
       <member refid="classjuce_1_1Component_1a04cb5e9c37e2c043d5ebad5d7708aac9" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>paintEntireComponent</name></member>
@@ -488,6 +489,7 @@
       <member refid="classjuce_1_1Component_1a86eae51f335c478f4638746b15f9d1ec" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>setMouseCursor</name></member>
       <member refid="classjuce_1_1Component_1a8a7af7334f6136ed745b82a1b55d93d1" prot="public" virt="virtual"><scope>end::Tabs</scope><name>setName</name></member>
       <member refid="classjuce_1_1Component_1a862fe9788d2f2a16f9ad2bb7d8f2e0ec" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>setOpaque</name></member>
+      <member refid="classjam_1_1TabbedComponent_1aefedcc55229a09c0b18dc561033f08bf" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>setOrientation</name></member>
       <member refid="classjam_1_1TabbedComponent_1a581ab25f18df8d6bc314413601dcf490" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>setOutline</name></member>
       <member refid="classjuce_1_1Component_1a7e94e31b62cbc8fb6b45b2a6343bdd18" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>setPaintingIsUnclipped</name></member>
       <member refid="classjuce_1_1Component_1a4add225c19023c515716f92d019393ae" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>setPositioner</name></member>
@@ -505,11 +507,11 @@
       <member refid="classjuce_1_1Component_1ad661b379b482222e0d59da5c7b6b07a1" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>setViewportIgnoreDragFlag</name></member>
       <member refid="classjuce_1_1Component_1ac85c5bf98ad6ffc1a252cad38f1aca40" prot="public" virt="virtual"><scope>end::Tabs</scope><name>setVisible</name></member>
       <member refid="classjuce_1_1Component_1ab7ddcb4bf8a7c6534f6e1d9a22e6330b" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>setWantsKeyboardFocus</name></member>
-      <member refid="structjam_1_1ValueTree_1_1Component_1a7f1a1f6303881257237240eb4a1a31e2" prot="protected" virt="non-virtual"><scope>end::Tabs</scope><name>state</name></member>
+      <member refid="structjam_1_1Model_1_1Component_1a708164c4ae3e826d1c3ee90dbcf1afa3" prot="protected" virt="non-virtual"><scope>end::Tabs</scope><name>state</name></member>
       <member refid="classjam_1_1TabbedComponent_1aa667b54c8e765e4c1dfbcdb7fcdd2ccd" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>TabbedComponent</name></member>
       <member refid="classjam_1_1TabbedComponent_1a102a0ae96483db7a88e46d690ff40da9" prot="private" virt="non-virtual"><scope>end::Tabs</scope><name>tabDepth</name></member>
       <member refid="classend_1_1_tabs_1ae74fe3d456ccb9887c804ded09698f6b" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>Tabs</name></member>
-      <member refid="classjam_1_1TabbedComponent_1ade852855a48c2cd2764ff3cb5d324c62" prot="protected" virt="non-virtual"><scope>end::Tabs</scope><name>tabs</name></member>
+      <member refid="classjam_1_1TabbedComponent_1a512a2e00be50411ea6837fac7f5f8ed7" prot="protected" virt="non-virtual"><scope>end::Tabs</scope><name>tabs</name></member>
       <member refid="classjuce_1_1Component_1a66265db6f483d493d0f3ccdddad65b25" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>toBack</name></member>
       <member refid="classjuce_1_1Component_1a253c1e1027791f67f7aa6e4261ca604f" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>toBehind</name></member>
       <member refid="classjuce_1_1Component_1a68b9958705577cf5ed361210b29f3a4e" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>toFront</name></member>
@@ -523,7 +525,7 @@
       <member refid="classjuce_1_1Component_1a02e7a20532c82a435105e26d9ffd8657" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>WindowControlKind</name></member>
       <member refid="classjuce_1_1Component_1a8f874a0cbd6600cd6d2ce5584b8e95e3" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>withDefaultMetrics</name></member>
       <member refid="classjuce_1_1Component_1ac12a29e18888b4666c8c85b14887c62e" prot="public" virt="non-virtual" ambiguityscope="jam::"><scope>end::Tabs</scope><name>~Component</name></member>
-      <member refid="structjam_1_1ValueTree_1_1Component_1a48477791e420a062998e98410e699180" prot="public" virt="virtual" ambiguityscope="jam::ValueTree::Component::"><scope>end::Tabs</scope><name>~Component</name></member>
+      <member refid="structjam_1_1Model_1_1Component_1ac41f466c713631df337b7e3697b6f662" prot="public" virt="virtual" ambiguityscope="jam::Model::Component::"><scope>end::Tabs</scope><name>~Component</name></member>
       <member refid="classjuce_1_1MouseListener_1a49d55c29b4537826f1d2d1edb3231630" prot="public" virt="virtual"><scope>end::Tabs</scope><name>~MouseListener</name></member>
       <member refid="classjam_1_1TabbedComponent_1a856dec9a9bec5a07e8f80ba1a8fa3509" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>~TabbedComponent</name></member>
     </listofallmembers>

@@ -5,7 +5,7 @@ namespace end
 /*____________________________________________________________________________*/
 
 Tabs::Tabs()
-    : jam::ValueTree::Component { IDtype::tab }
+    : jam::Model::Component { IDtype::tab }
 {
 }
 

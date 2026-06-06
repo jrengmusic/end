@@ -2,6 +2,78 @@
 
 ---
 
+## Sprint 6: Tab UX + Model architecture ✅
+
+**Date:** 2026-06-07
+**Duration:** Full session
+
+### Agents Participated
+- COUNSELOR: Sprint lead — tab system rename design, Model/Attachment architecture, PARAM removal, ValueTree absorption, orientation wiring
+- Engineer: button::Bar/Tab rename, Owner<TabInfo> migration, drag-reorder, orientation support, Model cleanup (getRootTree/UniqueNodeMap/attach deletion), Attachment recursive graft, PARAM scrapping, accessor rework, CodeView cleanup, dangling declaration removal
+- Pathfinder: Tab system survey (END, JAM, kuassa, JUCE), consumer analysis
+- Librarian: JUCE ComponentAnimator API, TabBarButton drag patterns, PopupMenu right-click
+
+### Files Modified — JAM (4 new, 10 modified, 4 deleted)
+
+**New (4):**
+- `jam_gui/button/jam_button_bar.h` — button::Bar + button::Tab (renamed from TabbedButtonBar/TabBarButton), Owner<TabInfo>, drag-reorder, orientation
+- `jam_gui/button/jam_button_bar.cpp` — implementations: drag threshold 5px, moveTab with onTabMoved, axis-aware layout
+
+**Deleted (4):**
+- `jam_gui/layout/jam_tabbed_button_bar.h` — replaced by button/jam_button_bar.h
+- `jam_gui/layout/jam_tabbed_button_bar.cpp` — replaced by button/jam_button_bar.cpp
+- `jam_gui/button/jam_button_group.h` — dead code, replaced by button::Bar
+- `jam_gui/button/jam_button_tab.h` — dead code, replaced by button::Tab
+
+**Modified (10):**
+- `jam_gui/layout/jam_tabbed_component.h` — uses button::Bar/Tab, setOrientation(int), getOrientation()
+- `jam_gui/layout/jam_tabbed_component.cpp` — orientation switch in paint/resized, button::Tab references
+- `jam_gui/jam_gui.h` — updated includes: button_bar.h replaces tabbed_button_bar.h, group.h, tab.h
+- `jam_gui/jam_gui.cpp` — updated TU includes
+- `jam_gui/code_editor/jam_code_view.h` — removed ValueTree::Component/Listener inheritance, stateAttachment, state, properties array, VTPC per SPEC §2.1
+- `jam_gui/code_editor/jam_code_view.cpp` — simplified ctor (no VT), deleted VTPC impl, deleted properties array
+- `jam_data_structures/model/jam_model.h` — absorbed ValueTree (Component, ComponentWithID, Attachment, all statics); deleted PARAM/addParameter/getValue/setValue/storeValue/loadValue/getRawParameterValue/attach/getRootTree/UniqueNodeMap; added addProperties (isInt64), recursive Attachment, nested AnyMap accessors
+- `jam_data_structures/model/jam_model.cpp` — deleted PARAM definition, all old accessors, attach implementations; simplified addTextParameter; dual-tree applyFunctionRecursively in setValuesFrom
+- `jam_data_structures/value_tree/jam_value_tree_utils.cpp` — recursive graft/ungraft implementations, registerAtomics delegates to addProperties, dual-tree overload
+- `jam_data_structures/value_tree/jam_value_tree_json.cpp` — removed stale includes
+
+### Files Modified — END (7 modified)
+
+- `Source/end/View.h` — takes Model&, owns unique_ptr<Attachment>, applyTabOrientation renamed setTabOrientation
+- `Source/end/View.cpp` — recursive attachment in ctor body after addAndMakeVisible, TabOrientation bimap, orientation from config
+- `Source/end/Map.h` — TabOrientation bimap (Tab::Orientation enum values), typed get() returning Orientation
+- `Source/end/Tabs.h` — jam::Model::Component (was ValueTree::Component)
+- `Source/end/PaneView.h` — jam::Model::ComponentWithID (was ValueTree::ComponentWithID)
+- `Source/Main.h` — deleted viewAttachment member
+- `Source/Main.cpp` — View(model), no viewAttachment
+- `Source/end/Window.cpp` — jam::Model::toColour (was ValueTree::toColour)
+- `Source/lookAndFeel/LookAndFeel.cpp` — jam::Model::applyFunctionRecursively, jam::Model::toColour
+- `Source/config/Config.cpp` — addProperties (was addParametersFromProperties), jam::Model::fromLua
+- `Source/config/lua/display.lua` — tab.position renamed to tab.orientation
+- `Source/Identifier.h` — added orientation identifier
+
+### Alignment Check
+- [x] BLESSED principles followed (SSOT: PARAM shadow eliminated, Bound: recursive Attachment RAII, Encapsulation: Model stops exposing state)
+- [x] NAMES.md adhered (addProperties, setTabOrientation, button::Bar/Tab)
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- Tab system naming: TabbedButtonBar/TabBarButton renamed to button::Bar/Tab, button::Group deleted
+- PARAM shadow state: active_tab existed as both node property AND PARAM child — PARAM pattern scrapped entirely
+- Model::attach exposed raw state tree — deleted, Attachment is the only graft path
+- CodeView had ValueTree infrastructure violating SPEC §2.1 — removed, pure juce::Component
+- registerAtomics created PARAM children — now delegates to addProperties (direct property binding)
+- ValueTree struct absorbed into Model — single namespace for all state infrastructure
+- Recursive Attachment: one construction grafts entire Component hierarchy + registers atomics at every level
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 5: TabbedButtonBar fork + bit_cast + Union + config pipeline ✅
 
 **Date:** 2026-06-06

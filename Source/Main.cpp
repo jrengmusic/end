@@ -35,9 +35,8 @@ void Application::initialise (const juce::String& commandLine)
 
     // end::Window reads all remaining WINDOW properties (colour, blur, backend,
     // always_on_top, buttons) from config inside its own setStyle() call.
-    auto* view { new View() };
+    auto* view { new View (model) };
     window.reset (new end::Window { view, ProjectInfo::projectName, false, false });
-    viewAttachment = std::make_unique<jam::ValueTree::Attachment> (model.getRootTree(), *view);
     window->setVisible (true);
 
     // File watcher: watch config directory for hot-reload

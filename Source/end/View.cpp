@@ -4,16 +4,30 @@ namespace end
 {
 /*____________________________________________________________________________*/
 
-View::View()
-    : jam::ValueTree::Component { IDtype::view }
-    , tabsAttachment { state, tabs }
+View::View (jam::Model& m)
+    : jam::Model::Component { IDtype::view }
+    , model (m)
 {
-    initialise();
+    setOpaque (false);
+    addKeyListener (this);
+    setWantsKeyboardFocus (true);
+    toFront (true);
+
+    addAndMakeVisible (tabs);
+    setTabOrientation();
+    tabs.addNewTab();
+
+    auto init { config::Model::getInitWindowSize() };
+    setSize (init.getWidth(), init.getHeight());
+
+    //==============================================================================
+    attachment = std::make_unique<jam::Model::Attachment> (model, *this);
+
     registerActions();
+
     config.addListener (this);
 
-    tabs.addNewTab();
-    addAndMakeVisible (tabs);
+    cout (model.getXml()->toString());
 }
 
 View::~View()
@@ -22,9 +36,13 @@ View::~View()
     removeKeyListener (this);
 }
 
-void View::resized() { tabs.setBounds (getLocalBounds()); }
+void View::resized()
+{
+    setViewState (getWidth(), getHeight());
 
-void View::paint (juce::Graphics&) {}
+    //==============================================================================
+    tabs.setBounds (getLocalBounds());
+}
 
 bool View::keyPressed (const juce::KeyPress& key, juce::Component* originatingComponent)
 {
@@ -32,18 +50,26 @@ bool View::keyPressed (const juce::KeyPress& key, juce::Component* originatingCo
     return registry.keyPressed (key);
 }
 
-void View::valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier&) {}
+void View::valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier& property)
+{
+    if (property == ID::orientation)
+        setTabOrientation();
+}
 
 //==============================================================================
-void View::initialise()
+void View::setViewState (int width, int height)
 {
-    setOpaque (false);
-    addKeyListener (this);
-    setWantsKeyboardFocus (true);
-    toFront (true);
+    state.setProperty (jam::ID::width, width, nullptr);
+    state.setProperty (jam::ID::height, height, nullptr);
+}
 
-    auto init { config::Model::getInitWindowSize() };
-    setSize (init.getWidth(), init.getHeight());
+void View::setTabOrientation()
+{
+    auto display { config.getChildWithName (IDtype::display) };
+    auto tabNode { display.getChildWithName (IDtype::tab) };
+    auto pos { tabNode.getProperty (ID::orientation).toString() };
+
+    tabs.setOrientation (TabOrientation::get (pos));
 }
 
 //==============================================================================
@@ -54,11 +80,13 @@ void View::registerActions()
                           {
                               tabs.addNewTab();
                           });
+
     registry.actions.add (ID::closeTab,
                           [this]
                           {
                               tabs.removeCurrentTab();
                           });
+
     registry.actions.add (ID::nextTab,
                           [this]
                           {

@@ -5,6 +5,7 @@
 #include "end/View.h"
 #include "end/Window.h"
 #include "lookAndFeel/LookAndFeel.h"
+#include "end/Map.h"
 
 namespace end
 {
@@ -29,6 +30,7 @@ private:
     //==============================================================================
     // CONTEXT
     Boolean boolMap;
+    TabOrientation tabOrientationMap;
     config::Model config;
 
     //==============================================================================
@@ -36,12 +38,11 @@ private:
     LookAndFeel lookAndFeel;
     jam::File::Watcher watcher;
     std::unique_ptr<end::Window> window;
-    std::unique_ptr<jam::ValueTree::Attachment> viewAttachment;
 
     //==============================================================================
 #if JUCE_DEBUG
     jam::debug::Log::Scope logScope { juce::File::getCurrentWorkingDirectory().getChildFile (
-        jam::Text::toFileName (ProjectInfo::projectName, ".ode")) };
+        jam::Format::toFileName (ProjectInfo::projectName, ".ode")) };
 #endif
 
     //==============================================================================

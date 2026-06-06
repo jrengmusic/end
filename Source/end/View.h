@@ -7,6 +7,7 @@
 #include "end/Tabs.h"
 #include "action/Registry.h"
 #include "config/Config.h"
+#include "Map.h"
 
 namespace end
 {
@@ -15,40 +16,42 @@ namespace end
 /** @class View
  *  @brief Root content component inside end::Window.
  *
- *  Owns the tab system, action registry, and tabsAttachment. Inherits
- *  jam::ValueTree::Component so Main can graft it into the model tree via
- *  viewAttachment. Implements KeyListener to intercept key presses and route
+ *  Owns the tab system, action registry, and attachments. Receives the jam::Model
+ *  reference and creates its own Attachments — grafting its own state and Tabs'
+ *  state into the model tree. Implements KeyListener to intercept key presses and route
  *  them through the Registry's prefix key state machine. Transparent — glass
  *  shows through from Window.
  */
 class View
     : public juce::Component
-    , public jam::ValueTree::Component
+    , public jam::Model::Component
     , public juce::ValueTree::Listener
     , public juce::KeyListener
 {
 public:
-    View();
+    explicit View (jam::Model& model);
     ~View() override;
 
     void resized() override;
-    void paint (juce::Graphics&) override;
+    void paint (juce::Graphics&) override {}
 
     /** @brief Routes key presses to the action registry.
      *  @return true if consumed by an action binding.
      */
     bool keyPressed (const juce::KeyPress& key, juce::Component* originatingComponent) override;
-
     void valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier&) override;
 
 private:
-    void initialise();
-    void registerActions();
-    //==============================================================================
+    jam::Model& model;
     juce::ValueTree config { config::Model::get() };
 
+    //==============================================================================
+    void registerActions();
+    void setTabOrientation();
+    void setViewState (int width, int height);
+    //==============================================================================
     Tabs tabs;
-    jam::ValueTree::Attachment tabsAttachment;
+    std::unique_ptr<jam::Model::Attachment> attachment;
     action::Registry registry;
 
     //==============================================================================

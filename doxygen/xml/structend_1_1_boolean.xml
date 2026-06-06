@@ -87,27 +87,14 @@
           <declname>key</declname>
         </param>
         <briefdescription>
-<para>Looks up the string for a given integer key. </para>
         </briefdescription>
         <detaileddescription>
-<para><parameterlist kind="param"><parameteritem>
-<parameternamelist>
-<parametername>key</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>The integer key (e.g. Boolean::false). </para>
-</parameterdescription>
-</parameteritem>
-</parameterlist>
-<simplesect kind="return"><para>The corresponding mode string. </para>
-</simplesect>
-</para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="36" column="31" bodyfile="end/Map.h" bodystart="36" bodyend="36"/>
-        <references refid="structend_1_1_boolean_1ac8d7746091f73463b1bc97a4168924d9" compoundref="_map_8h" startline="36" endline="36">get</references>
-        <referencedby refid="structend_1_1_boolean_1ac8d7746091f73463b1bc97a4168924d9" compoundref="_map_8h" startline="36" endline="36">get</referencedby>
+        <location file="end/Map.h" line="30" column="31" bodyfile="end/Map.h" bodystart="30" bodyend="30"/>
+        <references refid="structend_1_1_boolean_1ac8d7746091f73463b1bc97a4168924d9" compoundref="_map_8h" startline="30" endline="30">get</references>
+        <referencedby refid="structend_1_1_boolean_1ac8d7746091f73463b1bc97a4168924d9" compoundref="_map_8h" startline="30" endline="30">get</referencedby>
       </memberdef>
     </sectiondef>
     <briefdescription>
@@ -163,7 +150,7 @@
         </childnode>
       </node>
     </collaborationgraph>
-    <location file="end/Map.h" line="8" column="1" bodyfile="end/Map.h" bodystart="9" bodyend="37"/>
+    <location file="end/Map.h" line="8" column="1" bodyfile="end/Map.h" bodystart="9" bodyend="31"/>
     <listofallmembers>
       <member refid="structend_1_1_boolean_1aee152d13cb0daadb827c739b3493a439" prot="public" virt="non-virtual"><scope>end::Boolean</scope><name>Boolean</name></member>
       <member refid="structjam_1_1Context_1a6e3f38a234db8ff2a9acb5986e72a2de" prot="public" virt="non-virtual"><scope>end::Boolean</scope><name>Context</name></member>

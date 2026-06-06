@@ -36,6 +36,7 @@
     X (family, "family")                    \
     X (foreground, "foreground")            \
     X (position, "position")                \
+    X (orientation, "orientation")          \
     X (inactive, "inactive")                \
     X (active, "active")                    \
     X (indicator, "indicator")              \

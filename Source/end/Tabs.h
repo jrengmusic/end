@@ -20,7 +20,7 @@ namespace end
  */
 class Tabs
     : public jam::TabbedComponent
-    , public jam::ValueTree::Component
+    , public jam::Model::Component
 {
 public:
     Tabs();

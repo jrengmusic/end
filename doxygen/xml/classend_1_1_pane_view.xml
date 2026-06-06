@@ -3,7 +3,7 @@
   <compounddef id="classend_1_1_pane_view" kind="class" language="C++" prot="public">
     <compoundname>end::PaneView</compoundname>
     <basecompoundref refid="classjuce_1_1Component" prot="public" virt="non-virtual">juce::Component</basecompoundref>
-    <basecompoundref refid="structjam_1_1ValueTree_1_1ComponentWithID" prot="public" virt="non-virtual">jam::ValueTree::ComponentWithID&lt; PaneView &gt;</basecompoundref>
+    <basecompoundref refid="structjam_1_1Model_1_1ComponentWithID" prot="public" virt="non-virtual">jam::Model::ComponentWithID&lt; PaneView &gt;</basecompoundref>
     <includes refid="_pane_view_8h" local="no">PaneView.h</includes>
     <sectiondef kind="public-func">
       <memberdef kind="function" id="classend_1_1_pane_view_1a6784a755a0395bad57b73d0a0d0cffcb" prot="public" static="no" const="no" explicit="yes" inline="yes" virt="non-virtual">
@@ -34,7 +34,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="end/PaneView.h" line="28" column="14" bodyfile="end/PaneView.h" bodystart="28" bodyend="32"/>
-        <references refid="structjam_1_1ValueTree_1_1ComponentWithID_1a1b1614733807b69868cd6a6f417af0ae">jam::ValueTree::ComponentWithID&lt; PaneView &gt;::ComponentWithID</references>
+        <references refid="structjam_1_1Model_1_1ComponentWithID_1aeb294efd73e291cf73b1c0c6fb1f2e8f">jam::Model::ComponentWithID&lt; PaneView &gt;::ComponentWithID</references>
         <references refid="classend_1_1_pane_view_1a6784a755a0395bad57b73d0a0d0cffcb" compoundref="_pane_view_8h" startline="28" endline="32">PaneView</references>
         <references refid="classjuce_1_1Component_1a862fe9788d2f2a16f9ad2bb7d8f2e0ec">juce::Component::setOpaque</references>
         <referencedby refid="classend_1_1_pane_view_1a6784a755a0395bad57b73d0a0d0cffcb" compoundref="_pane_view_8h" startline="28" endline="32">PaneView</referencedby>
@@ -89,12 +89,12 @@
         </childnode>
       </node>
       <node id="5">
-        <label>jam::ValueTree::Component</label>
-        <link refid="structjam_1_1ValueTree_1_1Component" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <label>jam::Model::Component</label>
+        <link refid="structjam_1_1Model_1_1Component" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
       <node id="4">
-        <label>jam::ValueTree::ComponentWithID&lt; PaneView &gt;</label>
-        <link refid="structjam_1_1ValueTree_1_1ComponentWithID" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <label>jam::Model::ComponentWithID&lt; PaneView &gt;</label>
+        <link refid="structjam_1_1Model_1_1ComponentWithID" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
         <childnode refid="5" relation="public-inheritance">
         </childnode>
       </node>
@@ -119,15 +119,15 @@
         </childnode>
       </node>
       <node id="5">
-        <label>jam::ValueTree::Component</label>
-        <link refid="structjam_1_1ValueTree_1_1Component" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <label>jam::Model::Component</label>
+        <link refid="structjam_1_1Model_1_1Component" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
         <childnode refid="6" relation="usage">
           <edgelabel>state</edgelabel>
         </childnode>
       </node>
       <node id="4">
-        <label>jam::ValueTree::ComponentWithID&lt; PaneView &gt;</label>
-        <link refid="structjam_1_1ValueTree_1_1ComponentWithID" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <label>jam::Model::ComponentWithID&lt; PaneView &gt;</label>
+        <link refid="structjam_1_1Model_1_1ComponentWithID" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
         <childnode refid="5" relation="public-inheritance">
         </childnode>
       </node>
@@ -167,9 +167,9 @@
       <member refid="classjuce_1_1Component_1a75ec7a43ed773d35c3309ce028559de8" prot="public" virt="virtual"><scope>end::PaneView</scope><name>colourChanged</name></member>
       <member refid="classjuce_1_1Component_1a8eca44b2145f084bd354edc8db696ad7" prot="public" virt="non-virtual" ambiguityscope="juce::"><scope>end::PaneView</scope><name>Component</name></member>
       <member refid="classjuce_1_1Component_1af5adb3418df9abb2bf8a5b5376ac3a01" prot="public" virt="non-virtual" ambiguityscope="juce::"><scope>end::PaneView</scope><name>Component</name></member>
-      <member refid="structjam_1_1ValueTree_1_1Component_1a7f12afb19c9e03ae2797eadeb90917be" prot="public" virt="non-virtual" ambiguityscope="jam::ValueTree::ComponentWithID&lt; PaneView &gt;::"><scope>end::PaneView</scope><name>Component</name></member>
-      <member refid="structjam_1_1ValueTree_1_1Component_1aaa3f3062a1c039af8f0ee1673fc06775" prot="public" virt="non-virtual" ambiguityscope="jam::ValueTree::ComponentWithID&lt; PaneView &gt;::"><scope>end::PaneView</scope><name>Component</name></member>
-      <member refid="structjam_1_1ValueTree_1_1ComponentWithID_1a1b1614733807b69868cd6a6f417af0ae" prot="public" virt="non-virtual"><scope>end::PaneView</scope><name>ComponentWithID</name></member>
+      <member refid="structjam_1_1Model_1_1Component_1acb82f44a726d37d8bb86dce10865f90a" prot="public" virt="non-virtual" ambiguityscope="jam::Model::ComponentWithID&lt; PaneView &gt;::"><scope>end::PaneView</scope><name>Component</name></member>
+      <member refid="structjam_1_1Model_1_1Component_1a76cc72c3a297729d0a88875d1ba892fd" prot="public" virt="non-virtual" ambiguityscope="jam::Model::ComponentWithID&lt; PaneView &gt;::"><scope>end::PaneView</scope><name>Component</name></member>
+      <member refid="structjam_1_1Model_1_1ComponentWithID_1aeb294efd73e291cf73b1c0c6fb1f2e8f" prot="public" virt="non-virtual"><scope>end::PaneView</scope><name>ComponentWithID</name></member>
       <member refid="classjuce_1_1Component_1a0063f788f01484e821535209c6938537" prot="public" virt="non-virtual"><scope>end::PaneView</scope><name>contains</name></member>
       <member refid="classjuce_1_1Component_1ad135c1cba96deed34a67c1d78c3ddc5a" prot="public" virt="non-virtual"><scope>end::PaneView</scope><name>contains</name></member>
       <member refid="classjuce_1_1Component_1a188277f08097547aeed9abcfb0057d02" prot="public" virt="non-virtual"><scope>end::PaneView</scope><name>copyAllExplicitColoursTo</name></member>
@@ -249,7 +249,7 @@
       <member refid="classjuce_1_1Component_1a3608be9beaa50ab2631662e4ed27eda7" prot="public" virt="non-virtual"><scope>end::PaneView</scope><name>getTitle</name></member>
       <member refid="classjuce_1_1Component_1a1ae53e428bcf27364f85c17290b7dcef" prot="public" virt="non-virtual"><scope>end::PaneView</scope><name>getTopLevelComponent</name></member>
       <member refid="classjuce_1_1Component_1a0af216b2700b73bd72692cc1d9865862" prot="public" virt="non-virtual"><scope>end::PaneView</scope><name>getTransform</name></member>
-      <member refid="structjam_1_1ValueTree_1_1Component_1af113c64ae0452249b0ebf97fbdb8c0a8" prot="public" virt="virtual"><scope>end::PaneView</scope><name>getValueTree</name></member>
+      <member refid="structjam_1_1Model_1_1Component_1a3836be96745d719b098a5df0d6cd03f9" prot="public" virt="virtual"><scope>end::PaneView</scope><name>getValueTree</name></member>
       <member refid="classjuce_1_1Component_1ad0ae1847969cde001545ec02a1d5b360" prot="public" virt="non-virtual"><scope>end::PaneView</scope><name>getViewportIgnoreDragFlag</name></member>
       <member refid="classjuce_1_1Component_1acee8ceae1aba30f259f1f5df5aed049d" prot="public" virt="non-virtual"><scope>end::PaneView</scope><name>getWantsKeyboardFocus</name></member>
       <member refid="classjuce_1_1Component_1ac109beb72e9dafdc724da22b8cb883c0" prot="public" virt="non-virtual"><scope>end::PaneView</scope><name>getWidth</name></member>
@@ -305,7 +305,7 @@
       <member refid="classjuce_1_1Component_1ac4e550aa5f0067f2673a74a2f78bec4e" prot="public" virt="virtual"><scope>end::PaneView</scope><name>mouseWheelMove</name></member>
       <member refid="classjuce_1_1Component_1a06c8aa291c5209b045b0a2955291da47" prot="public" virt="virtual"><scope>end::PaneView</scope><name>moved</name></member>
       <member refid="classjuce_1_1Component_1a0158694e8f42b7cbe83071d319f472d5" prot="public" virt="non-virtual"><scope>end::PaneView</scope><name>moveKeyboardFocusToSibling</name></member>
-      <member refid="structjam_1_1ValueTree_1_1Component_1ae5c294c6f2e32f37ca3fea0030062da4" prot="public" virt="non-virtual"><scope>end::PaneView</scope><name>onAttachment</name></member>
+      <member refid="structjam_1_1Model_1_1Component_1a1f586c2b654a1a83fa5bea46cccb7343" prot="public" virt="non-virtual"><scope>end::PaneView</scope><name>onAttachment</name></member>
       <member refid="classend_1_1_pane_view_1a8965d85601f8eb0c3671b1f3e44c13a4" prot="public" virt="virtual"><scope>end::PaneView</scope><name>paint</name></member>
       <member refid="classjuce_1_1Component_1a04cb5e9c37e2c043d5ebad5d7708aac9" prot="public" virt="non-virtual"><scope>end::PaneView</scope><name>paintEntireComponent</name></member>
       <member refid="classjuce_1_1Component_1a41c4182ac0b65c685145e270cf70b287" prot="public" virt="virtual"><scope>end::PaneView</scope><name>paintOverChildren</name></member>
@@ -374,7 +374,7 @@
       <member refid="classjuce_1_1Component_1ad661b379b482222e0d59da5c7b6b07a1" prot="public" virt="non-virtual"><scope>end::PaneView</scope><name>setViewportIgnoreDragFlag</name></member>
       <member refid="classjuce_1_1Component_1ac85c5bf98ad6ffc1a252cad38f1aca40" prot="public" virt="virtual"><scope>end::PaneView</scope><name>setVisible</name></member>
       <member refid="classjuce_1_1Component_1ab7ddcb4bf8a7c6534f6e1d9a22e6330b" prot="public" virt="non-virtual"><scope>end::PaneView</scope><name>setWantsKeyboardFocus</name></member>
-      <member refid="structjam_1_1ValueTree_1_1Component_1a7f1a1f6303881257237240eb4a1a31e2" prot="protected" virt="non-virtual"><scope>end::PaneView</scope><name>state</name></member>
+      <member refid="structjam_1_1Model_1_1Component_1a708164c4ae3e826d1c3ee90dbcf1afa3" prot="protected" virt="non-virtual"><scope>end::PaneView</scope><name>state</name></member>
       <member refid="classjuce_1_1Component_1a66265db6f483d493d0f3ccdddad65b25" prot="public" virt="non-virtual"><scope>end::PaneView</scope><name>toBack</name></member>
       <member refid="classjuce_1_1Component_1a253c1e1027791f67f7aa6e4261ca604f" prot="public" virt="non-virtual"><scope>end::PaneView</scope><name>toBehind</name></member>
       <member refid="classjuce_1_1Component_1a68b9958705577cf5ed361210b29f3a4e" prot="public" virt="non-virtual"><scope>end::PaneView</scope><name>toFront</name></member>
@@ -388,7 +388,7 @@
       <member refid="classjuce_1_1Component_1a02e7a20532c82a435105e26d9ffd8657" prot="public" virt="non-virtual"><scope>end::PaneView</scope><name>WindowControlKind</name></member>
       <member refid="classjuce_1_1Component_1a8f874a0cbd6600cd6d2ce5584b8e95e3" prot="public" virt="non-virtual"><scope>end::PaneView</scope><name>withDefaultMetrics</name></member>
       <member refid="classjuce_1_1Component_1ac12a29e18888b4666c8c85b14887c62e" prot="public" virt="non-virtual" ambiguityscope="juce::"><scope>end::PaneView</scope><name>~Component</name></member>
-      <member refid="structjam_1_1ValueTree_1_1Component_1a48477791e420a062998e98410e699180" prot="public" virt="virtual" ambiguityscope="jam::ValueTree::ComponentWithID&lt; PaneView &gt;::"><scope>end::PaneView</scope><name>~Component</name></member>
+      <member refid="structjam_1_1Model_1_1Component_1ac41f466c713631df337b7e3697b6f662" prot="public" virt="virtual" ambiguityscope="jam::Model::ComponentWithID&lt; PaneView &gt;::"><scope>end::PaneView</scope><name>~Component</name></member>
       <member refid="classjuce_1_1MouseListener_1a49d55c29b4537826f1d2d1edb3231630" prot="public" virt="virtual"><scope>end::PaneView</scope><name>~MouseListener</name></member>
     </listofallmembers>
   </compounddef>

@@ -277,8 +277,8 @@ return {
 		-- Inactive tab text colour.
 		inactive = 0xff33535b,
 
-		-- Tab bar position: "top", "bottom", "left", "right".
-		position = "left",
+		-- Tab bar orientation: "top", "bottom", "left", "right".
+		orientation = "left",
 
 		-- Tab separator line colour.
 		line = 0xff2c4144,

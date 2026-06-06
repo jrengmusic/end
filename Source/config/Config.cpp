@@ -22,7 +22,7 @@ const std::unordered_map<int, juce::String> File::map {
 
 const juce::String File::getName (int key) noexcept
 {
-    return jam::Text::toFileName (map.at (key), extension);
+    return jam::Format::toFileName (map.at (key), extension);
 }
 
 //==============================================================================
@@ -38,19 +38,19 @@ Model::Model()
             if (auto result { lua.getType (BinaryData::getString (File::getName (key))) };
                 result.wasOk())
             {
-                auto child { jam::ValueTree::fromLua (result.value(), value.toUpperCase()) };
+                auto child { jam::Model::fromLua (result.value(), value.toUpperCase()) };
                 state.appendChild (child, nullptr);
             }
         }
     }
 
-    jam::ValueTree::applyFunctionRecursively (state,
-                                              [this] (const juce::ValueTree& node)
-                                              {
-                                                  auto mutableNode { node };
-                                                  addParametersFromProperties (mutableNode, params);
-                                                  return false;
-                                              });
+    jam::Model::applyFunctionRecursively (state,
+                                          [this] (const juce::ValueTree& node)
+                                          {
+                                              auto mutableNode { node };
+                                              addProperties (mutableNode, params);
+                                              return false;
+                                          });
 }
 
 const juce::ValueTree Model::get() noexcept { return getContext()->state; }
@@ -66,7 +66,7 @@ void Model::load (const juce::File& file, juce::String& errorOut)
 
     if (auto result { lua.getType (text) }; result.wasOk())
     {
-        auto child { jam::ValueTree::fromLua (
+        auto child { jam::Model::fromLua (
             result.value(), file.getFileNameWithoutExtension().toUpperCase()) };
         setValuesFrom (child);
     }

@@ -86,14 +86,14 @@ void LookAndFeel::drawButtonGroupSlidingIndicator (juce::Graphics& g, juce::Comp
 
 void LookAndFeel::setColours()
 {
-    jam::ValueTree::applyFunctionRecursively (config,
+    jam::Model::applyFunctionRecursively (config,
         [this] (const juce::ValueTree& tree)
         {
             for (auto& [id, colourId] : colourIds)
             {
                 if (tree.hasProperty (id))
                 {
-                    setColour (colourId, jam::ValueTree::toColour (tree.getProperty (id)));
+                    setColour (colourId, jam::Model::toColour (tree.getProperty (id)));
                 }
             }
 

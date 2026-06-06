@@ -365,12 +365,12 @@
         <inbodydescription>
         </inbodydescription>
         <location file="lookAndFeel/LookAndFeel.h" line="62" column="10" bodyfile="lookAndFeel/LookAndFeel.cpp" bodystart="87" bodyend="102"/>
-        <references refid="structjam_1_1ValueTree_1a2e4c59ee1337e8aa27d1ee16dbef7681">jam::ValueTree::applyFunctionRecursively</references>
+        <references refid="classjam_1_1Model_1a59b57627d856a11d756eabe1690a7213">jam::Model::applyFunctionRecursively</references>
         <references refid="classend_1_1_look_and_feel_1aa2c110e0b98645d6e4ead121e479baba" compoundref="_look_and_feel_8h" startline="45">colourIds</references>
         <references refid="classjuce_1_1ValueTree_1ab584e972c5f8e597f545e6321a895d06">juce::ValueTree::getProperty</references>
         <references refid="classjuce_1_1ValueTree_1afa89ceabad600c371dc13c96b6167d91">juce::ValueTree::hasProperty</references>
         <references refid="classjuce_1_1LookAndFeel_1abdbcae63a1eca75ea44c8d3b87bc7444">juce::LookAndFeel::setColour</references>
-        <references refid="structjam_1_1ValueTree_1aa0b88547fe7b3fdcc4df2025920dd02c">jam::ValueTree::toColour</references>
+        <references refid="classjam_1_1Model_1a996fa3b0c8889e5c5280ca29dcd281e4">jam::Model::toColour</references>
         <referencedby refid="classend_1_1_look_and_feel_1a9313c08eb0def3e3a423f8bfd362f435" compoundref="_look_and_feel_8cpp" startline="30" endline="34">LookAndFeel</referencedby>
         <referencedby refid="classend_1_1_look_and_feel_1aeb869a5b4e62d45764bbf42d4f1afa3a" compoundref="_look_and_feel_8cpp" startline="38" endline="41">valueTreePropertyChanged</referencedby>
       </memberdef>

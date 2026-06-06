@@ -19,14 +19,14 @@ namespace end
  */
 class PaneView
     : public juce::Component
-    , public jam::ValueTree::ComponentWithID<PaneView>
+    , public jam::Model::ComponentWithID<PaneView>
 {
 public:
     /** @brief Constructs a pane with the given UUID identity.
      *  @param uuid  Unique identifier — stored as componentID for PaneManager matching.
      */
     explicit PaneView (const juce::String& uuid)
-        : jam::ValueTree::ComponentWithID<PaneView> (IDtype::pane, uuid)
+        : jam::Model::ComponentWithID<PaneView> (IDtype::pane, uuid)
     {
         setOpaque (false);
     }

@@ -19,10 +19,10 @@
         <inbodydescription>
         </inbodydescription>
         <location file="config/Config.h" line="51" column="5" bodyfile="config/Config.cpp" bodystart="29" bodyend="54"/>
-        <references refid="classjam_1_1Model_1ac269ce12c07b28467b3a425267f2145e">jam::Model::addParametersFromProperties</references>
-        <references refid="structjam_1_1ValueTree_1a2e4c59ee1337e8aa27d1ee16dbef7681">jam::ValueTree::applyFunctionRecursively</references>
+        <references refid="classjam_1_1Model_1ac78b7437a06da378bf49cbd4f27bfc63">jam::Model::addProperties</references>
+        <references refid="classjam_1_1Model_1a59b57627d856a11d756eabe1690a7213">jam::Model::applyFunctionRecursively</references>
         <references refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112ba0fc85df7daa8f0d98a096582ced3738f" compoundref="_config_8h" startline="12">config::File::config</references>
-        <references refid="structjam_1_1ValueTree_1aff397899737029fdab56614f2cef996b">jam::ValueTree::fromLua</references>
+        <references refid="classjam_1_1Model_1a9169286f8a37b8c7a83e6855840c923e">jam::Model::fromLua</references>
         <references refid="structconfig_1_1_file_1af7e5a59b7450673c2677f4dcf3817279" compoundref="_config_8cpp" startline="23" endline="26">config::File::getName</references>
         <references refid="namespaceBinaryData_1ac7695032563aaf6d03ebfc469298bb1a">BinaryData::getString</references>
         <references refid="structconfig_1_1_file_1a1d5413f8cf2eb67f26dd717fb948c596" compoundref="_config_8h" startline="30">config::File::map</references>
@@ -68,7 +68,7 @@
 <para>Overlays one disk lua file onto the existing tree in place. </para>
         </briefdescription>
         <detaileddescription>
-<para>Parses the lua file, walks the resulting ValueTree in lockstep with the live state, and mutates properties that differ (see <ref refid="classjam_1_1Model_1a60302bd42d072320d9a918051250b6a6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Model::setValuesFrom</ref>). No child add/remove. Listeners stay bound; parameters pick up new values on next flush.</para>
+<para>Parses the lua file, walks the resulting ValueTree in lockstep with the live state, and mutates properties that differ (see <ref refid="classjam_1_1Model_1afd1a5ee11f1e480cb14c0027d6b617b7" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Model::setValuesFrom</ref>). No child add/remove. Listeners stay bound; parameters pick up new values on next flush.</para>
 <para>Filename stem (e.g. &quot;display&quot; from &quot;display.lua&quot;) maps to tree section. Parse failures reported via errorOut (<ulink url="file:line">file:line</ulink>) — tree keeps existing values. Caller must have called build() first.</para>
 <para><parameterlist kind="param"><parameteritem>
 <parameternamelist>
@@ -93,11 +93,11 @@
         </inbodydescription>
         <location file="config/Config.h" line="72" column="10" bodyfile="config/Config.cpp" bodystart="59" bodyend="77"/>
         <references refid="classjuce_1_1String_1a685452c89fee2e453297a901e16080b6">juce::String::clear</references>
-        <references refid="structjam_1_1ValueTree_1aff397899737029fdab56614f2cef996b">jam::ValueTree::fromLua</references>
+        <references refid="classjam_1_1Model_1a9169286f8a37b8c7a83e6855840c923e">jam::Model::fromLua</references>
         <references refid="classjuce_1_1File_1a6c9a32c828be9af8bd084d8bcfa5e717">juce::File::getFileNameWithoutExtension</references>
         <references refid="classjuce_1_1File_1a515fa016b189068f365cc875e241e2a1">juce::File::getFullPathName</references>
         <references refid="classjuce_1_1File_1aa65d2fa50370357bf93658d6447c296d">juce::File::loadFileAsString</references>
-        <references refid="classjam_1_1Model_1a60302bd42d072320d9a918051250b6a6">jam::Model::setValuesFrom</references>
+        <references refid="classjam_1_1Model_1afd1a5ee11f1e480cb14c0027d6b617b7">jam::Model::setValuesFrom</references>
         <references refid="classjuce_1_1String_1a1e7124c97cfb142b269080422fcba540">juce::String::toUpperCase</references>
         <referencedby refid="classconfig_1_1_model_1a49a8775067e4dbff5ba1d4c7c77d19eb" compoundref="_config_8cpp" startline="80" endline="110">loadPath</referencedby>
         <referencedby refid="classconfig_1_1_model_1af95c0931a6f76206d56eb06a3c71a05a">~Model</referencedby>
@@ -182,7 +182,7 @@
         <references refid="classconfig_1_1_model_1ae9157061354f29018dc4a7d8c7397f83" compoundref="_config_8cpp" startline="56" endline="56">get</references>
         <references refid="classjuce_1_1ValueTree_1ac9bbcb6db4464f77b512b9bd8bbb8c3f">juce::ValueTree::getChildWithName</references>
         <references refid="classjuce_1_1Rectangle_1abbc34b8c284edb153d0b150f350d292e">juce::Rectangle&lt; typename ValueType &gt;::withSize</references>
-        <referencedby refid="classend_1_1_view_1a49cf2baa40c3a89a803e75cf62cefd26" compoundref="_view_8cpp" startline="38" endline="47">end::View::initialise</referencedby>
+        <referencedby refid="classend_1_1_view_1aa671fbbd37b6cdcd68c39782687523b7" compoundref="_view_8cpp" startline="7" endline="31">end::View::View</referencedby>
         <referencedby refid="classconfig_1_1_model_1af95c0931a6f76206d56eb06a3c71a05a">~Model</referencedby>
       </memberdef>
     </sectiondef>
@@ -228,7 +228,7 @@
         <link refid="classconfig_1_1_model"/>
         <childnode refid="2" relation="public-inheritance">
         </childnode>
-        <childnode refid="12" relation="public-inheritance">
+        <childnode refid="11" relation="public-inheritance">
         </childnode>
       </node>
       <node id="4">
@@ -241,7 +241,7 @@
           <edgelabel>types</edgelabel>
         </childnode>
       </node>
-      <node id="12">
+      <node id="11">
         <label>jam::Context&lt; Model &gt;</label>
         <link refid="structjam_1_1Context" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
@@ -253,17 +253,11 @@
         <childnode refid="4" relation="usage">
           <edgelabel>params</edgelabel>
         </childnode>
-        <childnode refid="6" relation="usage">
-          <edgelabel>PARAM</edgelabel>
-        </childnode>
         <childnode refid="9" relation="usage">
           <edgelabel>state</edgelabel>
         </childnode>
         <childnode refid="10" relation="usage">
           <edgelabel>valueTreeChanging</edgelabel>
-        </childnode>
-        <childnode refid="11" relation="usage">
-          <edgelabel>uniqueNodeMap</edgelabel>
         </childnode>
       </node>
       <node id="10">
@@ -303,48 +297,51 @@
           <edgelabel>elements</edgelabel>
         </childnode>
       </node>
-      <node id="11">
-        <label>std::unordered_map&lt; juce::String, juce::ValueTree &gt;</label>
-      </node>
     </collaborationgraph>
     <location file="config/Config.h" line="45" column="1" bodyfile="config/Config.h" bodystart="48" bodyend="90"/>
     <listofallmembers>
       <member refid="classjam_1_1Model_1ae5d4d70e706dcc558cf21923125a9176" prot="public" virt="non-virtual"><scope>config::Model</scope><name>addListener</name></member>
-      <member refid="classjam_1_1Model_1aa75f9afb83415f989c962cf77022bcf3" prot="public" virt="non-virtual"><scope>config::Model</scope><name>addParameter</name></member>
-      <member refid="classjam_1_1Model_1ac269ce12c07b28467b3a425267f2145e" prot="public" virt="non-virtual"><scope>config::Model</scope><name>addParametersFromProperties</name></member>
-      <member refid="classjam_1_1Model_1a0d96564f1d4c66c3295f3d31658f4351" prot="public" virt="non-virtual"><scope>config::Model</scope><name>addTextParameter</name></member>
+      <member refid="classjam_1_1Model_1ac78b7437a06da378bf49cbd4f27bfc63" prot="public" virt="non-virtual"><scope>config::Model</scope><name>addProperties</name></member>
+      <member refid="classjam_1_1Model_1ac6bae44384dc4abd9070eddfceaef845" prot="public" virt="non-virtual"><scope>config::Model</scope><name>addTextParameter</name></member>
       <member refid="classjam_1_1Model_1ae0cb2cc2b04acb47eb9760d92dcedc46" prot="public" virt="non-virtual"><scope>config::Model</scope><name>appendChild</name></member>
-      <member refid="classjam_1_1Model_1a453ba02a04d3f7afd493d83a35f2d42e" prot="public" virt="non-virtual"><scope>config::Model</scope><name>attach</name></member>
+      <member refid="classjam_1_1Model_1a59b57627d856a11d756eabe1690a7213" prot="public" virt="non-virtual"><scope>config::Model</scope><name>applyFunctionRecursively</name></member>
+      <member refid="classjam_1_1Model_1a60083575b158241a4921488754e168a9" prot="public" virt="non-virtual"><scope>config::Model</scope><name>applyFunctionRecursively</name></member>
+      <member refid="classjam_1_1Model_1a16dac6b0bd63f3fd05a7bce45217ec99" prot="public" virt="non-virtual"><scope>config::Model</scope><name>attach</name></member>
       <member refid="classjuce_1_1Timer_1a5eb2dfa3e6810c268704c159ddcb37bc" prot="public" virt="non-virtual"><scope>config::Model</scope><name>callAfterDelay</name></member>
       <member refid="classjuce_1_1Timer_1a6c366b7f5a5d70c270a1e85b8aa45888" prot="public" virt="non-virtual"><scope>config::Model</scope><name>callPendingTimersSynchronously</name></member>
       <member refid="structjam_1_1Context_1a6e3f38a234db8ff2a9acb5986e72a2de" prot="public" virt="non-virtual"><scope>config::Model</scope><name>Context</name></member>
+      <member refid="classjam_1_1Model_1a0c6c6dcf22bdf37d65dced08a8dcdefc" prot="public" virt="non-virtual"><scope>config::Model</scope><name>findAndRemoveChild</name></member>
       <member refid="classjam_1_1Model_1a9eb2e927e025645e46609f37aa6f9304" prot="public" virt="non-virtual"><scope>config::Model</scope><name>flush</name></member>
       <member refid="classjam_1_1Model_1aaa8b722daed8928b8d587ec30662ac34" prot="private" virt="non-virtual"><scope>config::Model</scope><name>flushHz</name></member>
+      <member refid="classjam_1_1Model_1a9169286f8a37b8c7a83e6855840c923e" prot="public" virt="non-virtual"><scope>config::Model</scope><name>fromLua</name></member>
       <member refid="classconfig_1_1_model_1ae9157061354f29018dc4a7d8c7397f83" prot="public" virt="non-virtual"><scope>config::Model</scope><name>get</name></member>
+      <member refid="classjam_1_1Model_1ac0204402c1739f45230319069868ab23" prot="public" virt="non-virtual"><scope>config::Model</scope><name>getChildWithID</name></member>
       <member refid="classjam_1_1Model_1aecef6b658fc1de8bd8642ce3c0011036" prot="public" virt="non-virtual"><scope>config::Model</scope><name>getChildWithName</name></member>
+      <member refid="classjam_1_1Model_1a7c77bf75e42b16586ae50b355668f2e0" prot="public" virt="non-virtual"><scope>config::Model</scope><name>getChildWithName</name></member>
       <member refid="structjam_1_1Context_1a259aac6b39aea0f3d3e2be9ab123cff3" prot="public" virt="non-virtual"><scope>config::Model</scope><name>getContext</name></member>
       <member refid="classconfig_1_1_model_1a8508c00d93b45281e3d07753b6d987b8" prot="public" virt="non-virtual"><scope>config::Model</scope><name>getInitWindowSize</name></member>
       <member refid="classjam_1_1Model_1a322c866d6fc435eb6799562d6d6db8b1" prot="public" virt="non-virtual"><scope>config::Model</scope><name>getOrCreateChildWithName</name></member>
-      <member refid="classjam_1_1Model_1a657de384bbcda4bd183b0fddc3de205b" prot="public" virt="non-virtual"><scope>config::Model</scope><name>getRawParameterValue</name></member>
-      <member refid="classjam_1_1Model_1abf91bfe071259060be78f47c83e720e4" prot="public" virt="non-virtual"><scope>config::Model</scope><name>getRootTree</name></member>
+      <member refid="classjam_1_1Model_1a4d93df7249f679710c1ac1c5f288147c" prot="public" virt="non-virtual"><scope>config::Model</scope><name>getOrCreateChildWithName</name></member>
+      <member refid="classjam_1_1Model_1ad37ac05ef036ebe52d46f3909de8fa99" prot="public" virt="non-virtual"><scope>config::Model</scope><name>getRawParameterValue</name></member>
       <member refid="classjuce_1_1Timer_1a3dd602cadcc8e2a3be6aeb6538b8d2c1" prot="public" virt="non-virtual"><scope>config::Model</scope><name>getTimerInterval</name></member>
       <member refid="classjam_1_1Model_1abe937e02011833b8cf8f20bfb650ac9d" prot="public" virt="non-virtual"><scope>config::Model</scope><name>getTreeProperty</name></member>
       <member refid="classjam_1_1Model_1a3466c9f9fcd9a4baa862bb400562e7b7" prot="public" virt="non-virtual"><scope>config::Model</scope><name>getTreePropertyAsValue</name></member>
       <member refid="classjam_1_1Model_1ac922db931cd481a9cf483c90e4de2543" prot="public" virt="non-virtual"><scope>config::Model</scope><name>getType</name></member>
-      <member refid="classjam_1_1Model_1a39b0cc13737eca194351a246bd88b615" prot="public" virt="non-virtual"><scope>config::Model</scope><name>getUniqueNodeMap</name></member>
-      <member refid="classjam_1_1Model_1ad2013ef3302ca9b6c442f5307a9fa650" prot="public" virt="non-virtual"><scope>config::Model</scope><name>getValue</name></member>
+      <member refid="classjam_1_1Model_1a2f037e88407eb8b95b9ab7daf7c0b15c" prot="public" virt="non-virtual"><scope>config::Model</scope><name>getValueFromChildWithID</name></member>
+      <member refid="classjam_1_1Model_1a4d4ed473066b67b001ced0f5296f577f" prot="public" virt="non-virtual"><scope>config::Model</scope><name>getValueFromChildWithName</name></member>
       <member refid="classjam_1_1Model_1a710fd55b83d2e5657e48d49ce5225ea2" prot="public" virt="non-virtual"><scope>config::Model</scope><name>getXml</name></member>
       <member refid="structjam_1_1Context_1a5900ff66cdba02d6f6947cc6d5e8ec3d" prot="private" virt="non-virtual"><scope>config::Model</scope><name>head</name></member>
       <member refid="classjam_1_1Model_1a1c976506dd5eb7d125a0e804c97c61e2" prot="private" virt="non-virtual"><scope>config::Model</scope><name>idleHz</name></member>
       <member refid="classjuce_1_1Timer_1a525f38cc7afdc0696b467bd4ed3f17da" prot="public" virt="non-virtual"><scope>config::Model</scope><name>isTimerRunning</name></member>
       <member refid="classconfig_1_1_model_1a88f26a19f5b816bdad76c460d9d18389" prot="public" virt="non-virtual"><scope>config::Model</scope><name>load</name></member>
       <member refid="classconfig_1_1_model_1a49a8775067e4dbff5ba1d4c7c77d19eb" prot="public" virt="non-virtual"><scope>config::Model</scope><name>loadPath</name></member>
+      <member refid="classjam_1_1Model_1afb401fb24025fa7fddf2740e374df4aa" prot="public" virt="non-virtual"><scope>config::Model</scope><name>loadState</name></member>
+      <member refid="classjam_1_1Model_1a6662822c6b2f2539b5839a41daa668c9" prot="public" virt="non-virtual"><scope>config::Model</scope><name>loadState</name></member>
+      <member refid="classjam_1_1Model_1ab3774dd3acd1ae1c9389c444432e58aa" prot="public" virt="non-virtual"><scope>config::Model</scope><name>loadText</name></member>
       <member refid="classjam_1_1Model_1a4ed7495a3eb4e503f070e266b2f75cfe" prot="public" virt="non-virtual"><scope>config::Model</scope><name>loadValue</name></member>
       <member refid="classconfig_1_1_model_1a663ac662800dd1918dbab12d317fa4d5" prot="public" virt="non-virtual"><scope>config::Model</scope><name>Model</name></member>
       <member refid="classjam_1_1Model_1afbe837fa9d9c8086381333783bb1db3b" prot="public" virt="non-virtual" ambiguityscope="jam::Model::"><scope>config::Model</scope><name>Model</name></member>
       <member refid="structjam_1_1Context_1a6716feb60b039083ca0c099a506a3474" prot="public" virt="non-virtual"><scope>config::Model</scope><name>operator=</name></member>
-      <member refid="classjam_1_1Model_1ab04fdf2c6447bc3c73644f4eed303207" prot="private" virt="non-virtual"><scope>config::Model</scope><name>overlay</name></member>
-      <member refid="classjam_1_1Model_1a6c1ba6e01db247659a686aeb09fba0d9" prot="public" virt="non-virtual"><scope>config::Model</scope><name>PARAM</name></member>
       <member refid="classjam_1_1Model_1a9be603e3c0a76e1f0b6c263066993b63" prot="public" virt="non-virtual"><scope>config::Model</scope><name>params</name></member>
       <member refid="structjam_1_1Context_1aa1862120f2983ab7ddef536ba03bb114" prot="private" virt="non-virtual"><scope>config::Model</scope><name>previous</name></member>
       <member refid="classjam_1_1Model_1acbf5ef1a6e71240468f17fe707532bec" prot="public" virt="non-virtual"><scope>config::Model</scope><name>removeChild</name></member>
@@ -352,20 +349,19 @@
       <member refid="classjam_1_1Model_1a73bb2822ba0b1211ca9e290d57c5cd2d" prot="public" virt="non-virtual"><scope>config::Model</scope><name>replaceState</name></member>
       <member refid="classjam_1_1Model_1a77ac5fd7f2a2caa0e892cd993d4df2d7" prot="public" virt="non-virtual"><scope>config::Model</scope><name>restoreValues</name></member>
       <member refid="classjam_1_1Model_1a3263920ba9cd2e5633d714a49c0a5000" prot="public" virt="non-virtual"><scope>config::Model</scope><name>setTreeProperty</name></member>
-      <member refid="classjam_1_1Model_1ae0baca854ac0495b85b306aae1e97cfe" prot="public" virt="non-virtual"><scope>config::Model</scope><name>setValue</name></member>
-      <member refid="classjam_1_1Model_1a911810cc46e73ffd4f71b163888fcedd" prot="public" virt="non-virtual"><scope>config::Model</scope><name>setValue</name></member>
-      <member refid="classjam_1_1Model_1a60302bd42d072320d9a918051250b6a6" prot="public" virt="non-virtual"><scope>config::Model</scope><name>setValuesFrom</name></member>
+      <member refid="classjam_1_1Model_1afd1a5ee11f1e480cb14c0027d6b617b7" prot="public" virt="non-virtual"><scope>config::Model</scope><name>setValuesFrom</name></member>
       <member refid="classjuce_1_1Timer_1acb43e06d5742106830080af3d50b422d" prot="public" virt="non-virtual"><scope>config::Model</scope><name>startTimer</name></member>
       <member refid="classjuce_1_1Timer_1a49a4cf0bb438ca956bfae44c1010b0f9" prot="public" virt="non-virtual"><scope>config::Model</scope><name>startTimerHz</name></member>
       <member refid="classjam_1_1Model_1aef4cd7ff33d3393980f2d12217e49857" prot="protected" virt="non-virtual"><scope>config::Model</scope><name>state</name></member>
       <member refid="classjuce_1_1Timer_1a2ff70b860a8c875658b4baa91c8bcef0" prot="public" virt="non-virtual"><scope>config::Model</scope><name>stopTimer</name></member>
-      <member refid="classjam_1_1Model_1adfc7fc56035e71adea6442eeca2e4795" prot="public" virt="non-virtual"><scope>config::Model</scope><name>storeValue</name></member>
       <member refid="classjam_1_1Model_1abb1a0d3535077011043e287faf0347c9" prot="public" virt="non-virtual"><scope>config::Model</scope><name>storeValue</name></member>
+      <member refid="classjam_1_1Model_1a48a47a42d9b91aeeddf268acc1288806" prot="public" virt="non-virtual"><scope>config::Model</scope><name>storeValue</name></member>
+      <member refid="classjam_1_1Model_1adfc7fc56035e71adea6442eeca2e4795" prot="public" virt="non-virtual"><scope>config::Model</scope><name>storeValue</name></member>
       <member refid="classjuce_1_1Timer_1a4517f6b34af45ee3edc05c468959146e" prot="protected" virt="non-virtual"><scope>config::Model</scope><name>Timer</name></member>
       <member refid="classjuce_1_1Timer_1a2ef75896b7a44dfc641ce2faea04682c" prot="protected" virt="non-virtual"><scope>config::Model</scope><name>Timer</name></member>
       <member refid="classjam_1_1Model_1a5de5c362c126a9f4d8d21c592b678bdb" prot="private" virt="virtual"><scope>config::Model</scope><name>timerCallback</name></member>
-      <member refid="classjam_1_1Model_1a68d2ef67ec3d2a469741be46e499adbb" prot="public" virt="non-virtual"><scope>config::Model</scope><name>UniqueNodeMap</name></member>
-      <member refid="classjam_1_1Model_1a1e3b285d0fa32431d85e2c1a1ea8f02f" prot="private" virt="non-virtual"><scope>config::Model</scope><name>uniqueNodeMap</name></member>
+      <member refid="classjam_1_1Model_1a996fa3b0c8889e5c5280ca29dcd281e4" prot="public" virt="non-virtual"><scope>config::Model</scope><name>toColour</name></member>
+      <member refid="classjam_1_1Model_1a2a242b840bd054d5c80158b34f83f05f" prot="public" virt="non-virtual"><scope>config::Model</scope><name>toInt</name></member>
       <member refid="classjam_1_1Model_1a495677a2122cc1dbb67c416ddfd51e17" prot="private" virt="non-virtual"><scope>config::Model</scope><name>valueTreeChanging</name></member>
       <member refid="classjam_1_1Model_1a5e0284f87a2a71c84edd644b75f4d07f" prot="public" virt="non-virtual"><scope>config::Model</scope><name>writeToXml</name></member>
       <member refid="structjam_1_1Context_1a4169820e71837632922d3d17b377aeee" prot="public" virt="virtual"><scope>config::Model</scope><name>~Context</name></member>
