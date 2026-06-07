@@ -18,11 +18,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Panes.h" line="50" column="22" bodyfile="end/Panes.h" bodystart="50" bodyend="-1"/>
+        <location file="end/Panes.h" line="56" column="22" bodyfile="end/Panes.h" bodystart="56" bodyend="-1"/>
         <referencedby refid="classend_1_1_panes_1a770d8e4834eb28076b817edd5c107db2" compoundref="_panes_8cpp" startline="7" endline="18">Panes</referencedby>
-        <referencedby refid="classend_1_1_panes_1a4389564f6bfca705382677f1bc6edca5" compoundref="_panes_8cpp" startline="39" endline="53">removePane</referencedby>
+        <referencedby refid="classend_1_1_panes_1a8d5ab61d43e84829e7d4d3336a5415a3" compoundref="_panes_8cpp" startline="41" endline="57">removePane</referencedby>
         <referencedby refid="classend_1_1_panes_1aee6dbb361505cfd4545ebaa92b12b038" compoundref="_panes_8cpp" startline="20" endline="26">resized</referencedby>
-        <referencedby refid="classend_1_1_panes_1ae45ffd42c51f4994057bae33078c52db" compoundref="_panes_8cpp" startline="28" endline="37">split</referencedby>
+        <referencedby refid="classend_1_1_panes_1a9afd50713ba4664765d772ce6b8feaf1" compoundref="_panes_8cpp" startline="28" endline="39">split</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classend_1_1_panes_1a43e5f3b81dccb44fcf8535cfb8344ab4" prot="private" static="no" mutable="no">
         <type><ref refid="classjam_1_1Owner" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Owner</ref>&lt; <ref refid="classend_1_1_pane_view" kindref="compound">PaneView</ref> &gt;</type>
@@ -36,12 +36,13 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Panes.h" line="51" column="16" bodyfile="end/Panes.h" bodystart="51" bodyend="-1"/>
-        <referencedby refid="classend_1_1_panes_1a5e594f3028c62994936214af08eb7ec0" compoundref="_panes_8cpp" startline="55" endline="55">getPaneCount</referencedby>
+        <location file="end/Panes.h" line="57" column="16" bodyfile="end/Panes.h" bodystart="57" bodyend="-1"/>
+        <referencedby refid="classend_1_1_panes_1a2c6d0cbbc97036a30c0a353f77fb6855" compoundref="_panes_8cpp" startline="59" endline="118">focusPane</referencedby>
+        <referencedby refid="classend_1_1_panes_1a5e594f3028c62994936214af08eb7ec0" compoundref="_panes_8cpp" startline="120" endline="120">getPaneCount</referencedby>
         <referencedby refid="classend_1_1_panes_1a770d8e4834eb28076b817edd5c107db2" compoundref="_panes_8cpp" startline="7" endline="18">Panes</referencedby>
-        <referencedby refid="classend_1_1_panes_1a4389564f6bfca705382677f1bc6edca5" compoundref="_panes_8cpp" startline="39" endline="53">removePane</referencedby>
+        <referencedby refid="classend_1_1_panes_1a8d5ab61d43e84829e7d4d3336a5415a3" compoundref="_panes_8cpp" startline="41" endline="57">removePane</referencedby>
         <referencedby refid="classend_1_1_panes_1aee6dbb361505cfd4545ebaa92b12b038" compoundref="_panes_8cpp" startline="20" endline="26">resized</referencedby>
-        <referencedby refid="classend_1_1_panes_1ae45ffd42c51f4994057bae33078c52db" compoundref="_panes_8cpp" startline="28" endline="37">split</referencedby>
+        <referencedby refid="classend_1_1_panes_1a9afd50713ba4664765d772ce6b8feaf1" compoundref="_panes_8cpp" startline="28" endline="39">split</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classend_1_1_panes_1a4bc8a63497c77b81ff9f1fdaf580d3e8" prot="private" static="no" mutable="no">
         <type><ref refid="classjam_1_1Owner" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Owner</ref>&lt; <ref refid="classjam_1_1PaneResizerBar" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::PaneResizerBar</ref> &gt;</type>
@@ -55,7 +56,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Panes.h" line="52" column="16" bodyfile="end/Panes.h" bodystart="52" bodyend="-1"/>
+        <location file="end/Panes.h" line="58" column="16" bodyfile="end/Panes.h" bodystart="58" bodyend="-1"/>
         <referencedby refid="classend_1_1_panes_1aee6dbb361505cfd4545ebaa92b12b038" compoundref="_panes_8cpp" startline="20" endline="26">resized</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classend_1_1_panes_1ae911d35716d5df30df13a88afb66ef40" prot="private" static="no" mutable="no">
@@ -70,10 +71,10 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Panes.h" line="53" column="16" bodyfile="end/Panes.h" bodystart="53" bodyend="-1"/>
+        <location file="end/Panes.h" line="59" column="16" bodyfile="end/Panes.h" bodystart="59" bodyend="-1"/>
         <referencedby refid="classend_1_1_panes_1a770d8e4834eb28076b817edd5c107db2" compoundref="_panes_8cpp" startline="7" endline="18">Panes</referencedby>
-        <referencedby refid="classend_1_1_panes_1a4389564f6bfca705382677f1bc6edca5" compoundref="_panes_8cpp" startline="39" endline="53">removePane</referencedby>
-        <referencedby refid="classend_1_1_panes_1ae45ffd42c51f4994057bae33078c52db" compoundref="_panes_8cpp" startline="28" endline="37">split</referencedby>
+        <referencedby refid="classend_1_1_panes_1a8d5ab61d43e84829e7d4d3336a5415a3" compoundref="_panes_8cpp" startline="41" endline="57">removePane</referencedby>
+        <referencedby refid="classend_1_1_panes_1a9afd50713ba4664765d772ce6b8feaf1" compoundref="_panes_8cpp" startline="28" endline="39">split</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">
@@ -118,11 +119,11 @@
         </inbodydescription>
         <location file="end/Panes.h" line="31" column="5" bodyfile="end/Panes.cpp" bodystart="7" bodyend="18"/>
         <references refid="classjuce_1_1Component_1a7cc925a367e95b3807255f8b4a94dddd">juce::Component::addAndMakeVisible</references>
-        <references refid="classend_1_1_panes_1ae911d35716d5df30df13a88afb66ef40" compoundref="_panes_8h" startline="53">attachments</references>
+        <references refid="classend_1_1_panes_1ae911d35716d5df30df13a88afb66ef40" compoundref="_panes_8h" startline="59">attachments</references>
         <references refid="structjam_1_1Model_1_1Component_1a15efb3e60173aa525b19b914f5fb99eb">jam::Model::Component::Component</references>
         <references refid="structjam_1_1Model_1_1Component_1aa5a0c333addf975536c95bca7a9685be">jam::Model::Component::model</references>
-        <references refid="classend_1_1_panes_1ac5e63314ccd3b2561cb9da6eeadcb707" compoundref="_panes_8h" startline="50">paneManager</references>
-        <references refid="classend_1_1_panes_1a43e5f3b81dccb44fcf8535cfb8344ab4" compoundref="_panes_8h" startline="51">paneViews</references>
+        <references refid="classend_1_1_panes_1ac5e63314ccd3b2561cb9da6eeadcb707" compoundref="_panes_8h" startline="56">paneManager</references>
+        <references refid="classend_1_1_panes_1a43e5f3b81dccb44fcf8535cfb8344ab4" compoundref="_panes_8h" startline="57">paneViews</references>
         <references refid="classjuce_1_1Component_1a190b586046ade66445e0ed23c2e9587f">juce::Component::setComponentID</references>
         <references refid="classjuce_1_1Component_1a8a7af7334f6136ed745b82a1b55d93d1">juce::Component::setName</references>
         <references refid="structjam_1_1UUID_1aba00ad53671cb51fff70db9f742f43b0">jam::UUID::toString</references>
@@ -143,24 +144,24 @@
         <location file="end/Panes.h" line="33" column="10" bodyfile="end/Panes.cpp" bodystart="20" bodyend="26"/>
         <references refid="classjuce_1_1Component_1a7cc925a367e95b3807255f8b4a94dddd">juce::Component::addAndMakeVisible</references>
         <references refid="classjuce_1_1Component_1ad886e26b7514369fe38fdc03074b7c80">juce::Component::getLocalBounds</references>
-        <references refid="classend_1_1_panes_1ac5e63314ccd3b2561cb9da6eeadcb707" compoundref="_panes_8h" startline="50">paneManager</references>
-        <references refid="classend_1_1_panes_1a43e5f3b81dccb44fcf8535cfb8344ab4" compoundref="_panes_8h" startline="51">paneViews</references>
-        <references refid="classend_1_1_panes_1a4bc8a63497c77b81ff9f1fdaf580d3e8" compoundref="_panes_8h" startline="52">resizerBars</references>
-        <referencedby refid="classend_1_1_panes_1a4389564f6bfca705382677f1bc6edca5" compoundref="_panes_8cpp" startline="39" endline="53">removePane</referencedby>
-        <referencedby refid="classend_1_1_panes_1ae45ffd42c51f4994057bae33078c52db" compoundref="_panes_8cpp" startline="28" endline="37">split</referencedby>
+        <references refid="classend_1_1_panes_1ac5e63314ccd3b2561cb9da6eeadcb707" compoundref="_panes_8h" startline="56">paneManager</references>
+        <references refid="classend_1_1_panes_1a43e5f3b81dccb44fcf8535cfb8344ab4" compoundref="_panes_8h" startline="57">paneViews</references>
+        <references refid="classend_1_1_panes_1a4bc8a63497c77b81ff9f1fdaf580d3e8" compoundref="_panes_8h" startline="58">resizerBars</references>
+        <referencedby refid="classend_1_1_panes_1a8d5ab61d43e84829e7d4d3336a5415a3" compoundref="_panes_8cpp" startline="41" endline="57">removePane</referencedby>
+        <referencedby refid="classend_1_1_panes_1a9afd50713ba4664765d772ce6b8feaf1" compoundref="_panes_8cpp" startline="28" endline="39">split</referencedby>
       </memberdef>
-      <memberdef kind="function" id="classend_1_1_panes_1ae45ffd42c51f4994057bae33078c52db" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+      <memberdef kind="function" id="classend_1_1_panes_1a9afd50713ba4664765d772ce6b8feaf1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
         <definition>void end::Panes::split</definition>
-        <argsstring>(const juce::String &amp;uuid, const juce::String &amp;direction)</argsstring>
+        <argsstring>(jam::UUID uuid, const juce::Identifier &amp;direction)</argsstring>
         <name>split</name>
         <qualifiedname>end::Panes::split</qualifiedname>
         <param>
-          <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref> &amp;</type>
+          <type><ref refid="structjam_1_1UUID" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::UUID</ref></type>
           <declname>uuid</declname>
         </param>
         <param>
-          <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref> &amp;</type>
+          <type>const <ref refid="classjuce_1_1Identifier" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Identifier</ref> &amp;</type>
           <declname>direction</declname>
         </param>
         <briefdescription>
@@ -180,7 +181,7 @@
 <parametername>direction</parametername>
 </parameternamelist>
 <parameterdescription>
-<para>&quot;vertical&quot; (side-by-side) or &quot;horizontal&quot; (stacked). </para>
+<para>ID::vertical or ID::horizontal. </para>
 </parameterdescription>
 </parameteritem>
 </parameterlist>
@@ -188,23 +189,22 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Panes.h" line="39" column="10" bodyfile="end/Panes.cpp" bodystart="28" bodyend="37"/>
+        <location file="end/Panes.h" line="39" column="10" bodyfile="end/Panes.cpp" bodystart="28" bodyend="39"/>
         <references refid="classjuce_1_1Component_1a7cc925a367e95b3807255f8b4a94dddd">juce::Component::addAndMakeVisible</references>
-        <references refid="classend_1_1_panes_1ae911d35716d5df30df13a88afb66ef40" compoundref="_panes_8h" startline="53">attachments</references>
+        <references refid="classend_1_1_panes_1ae911d35716d5df30df13a88afb66ef40" compoundref="_panes_8h" startline="59">attachments</references>
         <references refid="structjam_1_1Model_1_1Component_1aa5a0c333addf975536c95bca7a9685be">jam::Model::Component::model</references>
-        <references refid="classend_1_1_panes_1ac5e63314ccd3b2561cb9da6eeadcb707" compoundref="_panes_8h" startline="50">paneManager</references>
-        <references refid="classend_1_1_panes_1a43e5f3b81dccb44fcf8535cfb8344ab4" compoundref="_panes_8h" startline="51">paneViews</references>
+        <references refid="classend_1_1_panes_1ac5e63314ccd3b2561cb9da6eeadcb707" compoundref="_panes_8h" startline="56">paneManager</references>
+        <references refid="classend_1_1_panes_1a43e5f3b81dccb44fcf8535cfb8344ab4" compoundref="_panes_8h" startline="57">paneViews</references>
         <references refid="classend_1_1_panes_1aee6dbb361505cfd4545ebaa92b12b038" compoundref="_panes_8cpp" startline="20" endline="26">resized</references>
-        <references refid="structjam_1_1UUID_1aba00ad53671cb51fff70db9f742f43b0">jam::UUID::toString</references>
       </memberdef>
-      <memberdef kind="function" id="classend_1_1_panes_1a4389564f6bfca705382677f1bc6edca5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+      <memberdef kind="function" id="classend_1_1_panes_1a8d5ab61d43e84829e7d4d3336a5415a3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
         <definition>void end::Panes::removePane</definition>
-        <argsstring>(const juce::String &amp;uuid)</argsstring>
+        <argsstring>(jam::UUID uuid)</argsstring>
         <name>removePane</name>
         <qualifiedname>end::Panes::removePane</qualifiedname>
         <param>
-          <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref> &amp;</type>
+          <type><ref refid="structjam_1_1UUID" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::UUID</ref></type>
           <declname>uuid</declname>
         </param>
         <briefdescription>
@@ -224,11 +224,44 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Panes.h" line="44" column="10" bodyfile="end/Panes.cpp" bodystart="39" bodyend="53"/>
-        <references refid="classend_1_1_panes_1ae911d35716d5df30df13a88afb66ef40" compoundref="_panes_8h" startline="53">attachments</references>
-        <references refid="classend_1_1_panes_1ac5e63314ccd3b2561cb9da6eeadcb707" compoundref="_panes_8h" startline="50">paneManager</references>
-        <references refid="classend_1_1_panes_1a43e5f3b81dccb44fcf8535cfb8344ab4" compoundref="_panes_8h" startline="51">paneViews</references>
+        <location file="end/Panes.h" line="44" column="10" bodyfile="end/Panes.cpp" bodystart="41" bodyend="57"/>
+        <references refid="classend_1_1_panes_1ae911d35716d5df30df13a88afb66ef40" compoundref="_panes_8h" startline="59">attachments</references>
+        <references refid="classend_1_1_panes_1ac5e63314ccd3b2561cb9da6eeadcb707" compoundref="_panes_8h" startline="56">paneManager</references>
+        <references refid="classend_1_1_panes_1a43e5f3b81dccb44fcf8535cfb8344ab4" compoundref="_panes_8h" startline="57">paneViews</references>
         <references refid="classend_1_1_panes_1aee6dbb361505cfd4545ebaa92b12b038" compoundref="_panes_8cpp" startline="20" endline="26">resized</references>
+        <references refid="structjam_1_1UUID_1aba00ad53671cb51fff70db9f742f43b0">jam::UUID::toString</references>
+      </memberdef>
+      <memberdef kind="function" id="classend_1_1_panes_1a2c6d0cbbc97036a30c0a353f77fb6855" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void end::Panes::focusPane</definition>
+        <argsstring>(const juce::Identifier &amp;direction)</argsstring>
+        <name>focusPane</name>
+        <qualifiedname>end::Panes::focusPane</qualifiedname>
+        <param>
+          <type>const <ref refid="classjuce_1_1Identifier" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Identifier</ref> &amp;</type>
+          <declname>direction</declname>
+        </param>
+        <briefdescription>
+<para>Moves keyboard focus to the adjacent pane in the given direction. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>direction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>One of ID::paneLeft, ID::paneRight, ID::paneUp, ID::paneDown. Does nothing if no adjacent pane exists in that direction. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="end/Panes.h" line="50" column="10" bodyfile="end/Panes.cpp" bodystart="59" bodyend="118"/>
+        <references refid="classjuce_1_1Component_1a8a69adc111c2e30a48f0f01004bc5754">juce::Component::getBounds</references>
+        <references refid="classend_1_1_panes_1a43e5f3b81dccb44fcf8535cfb8344ab4" compoundref="_panes_8h" startline="57">paneViews</references>
+        <references refid="classjuce_1_1Component_1a68b9958705577cf5ed361210b29f3a4e">juce::Component::toFront</references>
       </memberdef>
       <memberdef kind="function" id="classend_1_1_panes_1a5e594f3028c62994936214af08eb7ec0" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
         <type>int</type>
@@ -243,8 +276,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Panes.h" line="47" column="9" bodyfile="end/Panes.cpp" bodystart="55" bodyend="55"/>
-        <references refid="classend_1_1_panes_1a43e5f3b81dccb44fcf8535cfb8344ab4" compoundref="_panes_8h" startline="51">paneViews</references>
+        <location file="end/Panes.h" line="53" column="9" bodyfile="end/Panes.cpp" bodystart="120" bodyend="120"/>
+        <references refid="classend_1_1_panes_1a43e5f3b81dccb44fcf8535cfb8344ab4" compoundref="_panes_8h" startline="57">paneViews</references>
       </memberdef>
     </sectiondef>
     <briefdescription>
@@ -348,13 +381,6 @@
       <node id="14">
         <label>jam::PaneManager</label>
         <link refid="classjam_1_1PaneManager" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-        <childnode refid="9" relation="usage">
-          <edgelabel>id</edgelabel>
-          <edgelabel>idDirection</edgelabel>
-          <edgelabel>idPane</edgelabel>
-          <edgelabel>idPanes</edgelabel>
-          <edgelabel>idRatio</edgelabel>
-        </childnode>
         <childnode refid="12" relation="usage">
           <edgelabel>state</edgelabel>
         </childnode>
@@ -407,7 +433,7 @@
         </childnode>
       </node>
     </collaborationgraph>
-    <location file="end/Panes.h" line="22" column="1" bodyfile="end/Panes.h" bodystart="25" bodyend="57"/>
+    <location file="end/Panes.h" line="22" column="1" bodyfile="end/Panes.h" bodystart="25" bodyend="63"/>
     <listofallmembers>
       <member refid="classjuce_1_1Component_1a7cc925a367e95b3807255f8b4a94dddd" prot="public" virt="non-virtual"><scope>end::Panes</scope><name>addAndMakeVisible</name></member>
       <member refid="classjuce_1_1Component_1ac79decdfaf538a2bdef2f818a280bb8e" prot="public" virt="non-virtual"><scope>end::Panes</scope><name>addAndMakeVisible</name></member>
@@ -458,6 +484,7 @@
       <member refid="classjuce_1_1Component_1aeb4900a31b1e512d4b6dd4531c0e883f" prot="public" virt="virtual"><scope>end::Panes</scope><name>focusGainedWithDirection</name></member>
       <member refid="classjuce_1_1Component_1a61e988d57f0b52edd3f8320d67bf9ce2" prot="public" virt="virtual"><scope>end::Panes</scope><name>focusLost</name></member>
       <member refid="classjuce_1_1Component_1a635edd8a9ef190099f3aa1023f342163" prot="public" virt="virtual"><scope>end::Panes</scope><name>focusOfChildComponentChanged</name></member>
+      <member refid="classend_1_1_panes_1a2c6d0cbbc97036a30c0a353f77fb6855" prot="public" virt="non-virtual"><scope>end::Panes</scope><name>focusPane</name></member>
       <member refid="classjuce_1_1Component_1a861fb2ec2cd56732e46f818c28029151" prot="public" virt="non-virtual"><scope>end::Panes</scope><name>getAccessibilityHandler</name></member>
       <member refid="classjuce_1_1Component_1a81bf838a2c85a59f2240988d18df937b" prot="public" virt="non-virtual"><scope>end::Panes</scope><name>getAlpha</name></member>
       <member refid="classjuce_1_1Component_1a5ebab47d46f8d67881c4189bbb0e7ea9" prot="public" virt="non-virtual"><scope>end::Panes</scope><name>getApproximateScaleFactorForComponent</name></member>
@@ -589,7 +616,7 @@
       <member refid="classjuce_1_1Component_1a39181675b0bda44aa2a32a2b5773e759" prot="public" virt="non-virtual"><scope>end::Panes</scope><name>removeFromDesktop</name></member>
       <member refid="classjuce_1_1Component_1af3f592f985fd53ebe13bdd1d29019749" prot="public" virt="non-virtual"><scope>end::Panes</scope><name>removeKeyListener</name></member>
       <member refid="classjuce_1_1Component_1a92ac247aa6af5c14971143789ef12a7e" prot="public" virt="non-virtual"><scope>end::Panes</scope><name>removeMouseListener</name></member>
-      <member refid="classend_1_1_panes_1a4389564f6bfca705382677f1bc6edca5" prot="public" virt="non-virtual"><scope>end::Panes</scope><name>removePane</name></member>
+      <member refid="classend_1_1_panes_1a8d5ab61d43e84829e7d4d3336a5415a3" prot="public" virt="non-virtual"><scope>end::Panes</scope><name>removePane</name></member>
       <member refid="classjuce_1_1Component_1a8a7b37be680ae337c88ea0d4c244d308" prot="public" virt="non-virtual"><scope>end::Panes</scope><name>repaint</name></member>
       <member refid="classjuce_1_1Component_1a3cc6d9cdf49c4aa3cd96e04c184026ed" prot="public" virt="non-virtual"><scope>end::Panes</scope><name>repaint</name></member>
       <member refid="classjuce_1_1Component_1a2941de5459d6e640ac1e7657517c0553" prot="public" virt="non-virtual"><scope>end::Panes</scope><name>repaint</name></member>
@@ -640,7 +667,7 @@
       <member refid="classjuce_1_1Component_1ad661b379b482222e0d59da5c7b6b07a1" prot="public" virt="non-virtual"><scope>end::Panes</scope><name>setViewportIgnoreDragFlag</name></member>
       <member refid="classjuce_1_1Component_1ac85c5bf98ad6ffc1a252cad38f1aca40" prot="public" virt="virtual"><scope>end::Panes</scope><name>setVisible</name></member>
       <member refid="classjuce_1_1Component_1ab7ddcb4bf8a7c6534f6e1d9a22e6330b" prot="public" virt="non-virtual"><scope>end::Panes</scope><name>setWantsKeyboardFocus</name></member>
-      <member refid="classend_1_1_panes_1ae45ffd42c51f4994057bae33078c52db" prot="public" virt="non-virtual"><scope>end::Panes</scope><name>split</name></member>
+      <member refid="classend_1_1_panes_1a9afd50713ba4664765d772ce6b8feaf1" prot="public" virt="non-virtual"><scope>end::Panes</scope><name>split</name></member>
       <member refid="structjam_1_1Model_1_1Component_1a708164c4ae3e826d1c3ee90dbcf1afa3" prot="public" virt="non-virtual"><scope>end::Panes</scope><name>state</name></member>
       <member refid="classjuce_1_1Component_1a66265db6f483d493d0f3ccdddad65b25" prot="public" virt="non-virtual"><scope>end::Panes</scope><name>toBack</name></member>
       <member refid="classjuce_1_1Component_1a253c1e1027791f67f7aa6e4261ca604f" prot="public" virt="non-virtual"><scope>end::Panes</scope><name>toBehind</name></member>

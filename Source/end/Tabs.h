@@ -5,6 +5,7 @@
 #pragma once
 #include <JuceHeader.h>
 #include "end/Panes.h"
+#include "config/Config.h"
 #include "Identifier.h"
 
 namespace end
@@ -40,6 +41,10 @@ protected:
     void currentTabChanged (int newCurrentTabIndex, const juce::String& newCurrentTabName) override;
 
 private:
+    static constexpr float tabFontRatio { 0.5f };
+
+    void updateTabBarVisibility();
+
     jam::Owner<jam::Model::Attachment> attachments;
 
     //==============================================================================

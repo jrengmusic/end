@@ -10,9 +10,6 @@ View::View (jam::Model& m)
     , model (m.state)
     , tabs (m)
 {
-    state.setProperty (ID::focusedPane, juce::String(), nullptr);
-
-    //==============================================================================
     setOpaque (false);
     addKeyListener (this);
     setWantsKeyboardFocus (true);
@@ -20,7 +17,6 @@ View::View (jam::Model& m)
     registerActions();
 
     addAndMakeVisible (tabs);
-    setTabOrientation();
 
     //==============================================================================
     attachments.add (std::make_unique<jam::Model::Attachment> (*this));
@@ -29,6 +25,7 @@ View::View (jam::Model& m)
     config.addListener (this);
     model.addListener (this);
 
+    setTabOrientation();
     tabs.addNewTab();
 
     //==============================================================================
@@ -122,6 +119,67 @@ void View::registerActions()
 
                               if (prev >= 0)
                                   tabs.setCurrentTabIndex (prev);
+                          });
+
+    registry.actions.add (ID::splitHorizontal,
+                          [this]
+                          {
+                              auto id { state.getProperty (ID::focusedPane) };
+                              if (auto* panes { tabs.getActivePanes() })
+                                  panes->split (jam::UUID (static_cast<int64_t> (id)), jam::ID::horizontal);
+                          });
+
+    registry.actions.add (ID::splitVertical,
+                          [this]
+                          {
+                              auto id { state.getProperty (ID::focusedPane) };
+                              if (auto* panes { tabs.getActivePanes() })
+                                  panes->split (jam::UUID (static_cast<int64_t> (id)), jam::ID::vertical);
+                          });
+
+    registry.actions.add (ID::closePane,
+                          [this]
+                          {
+                              if (auto* panes { tabs.getActivePanes() })
+                              {
+                                  if (panes->getPaneCount() == 1)
+                                  {
+                                      tabs.removeCurrentTab();
+                                  }
+                                  else
+                                  {
+                                      auto id { state.getProperty (ID::focusedPane) };
+                                      panes->removePane (jam::UUID (static_cast<int64_t> (id)));
+                                  }
+                              }
+                          });
+
+    registry.actions.add (ID::paneLeft,
+                          [this]
+                          {
+                              if (auto* p { tabs.getActivePanes() })
+                                  p->focusPane (ID::paneLeft);
+                          });
+
+    registry.actions.add (ID::paneRight,
+                          [this]
+                          {
+                              if (auto* p { tabs.getActivePanes() })
+                                  p->focusPane (ID::paneRight);
+                          });
+
+    registry.actions.add (ID::paneUp,
+                          [this]
+                          {
+                              if (auto* p { tabs.getActivePanes() })
+                                  p->focusPane (ID::paneUp);
+                          });
+
+    registry.actions.add (ID::paneDown,
+                          [this]
+                          {
+                              if (auto* p { tabs.getActivePanes() })
+                                  p->focusPane (ID::paneDown);
                           });
 }
 

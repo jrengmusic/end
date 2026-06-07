@@ -45,7 +45,7 @@ return {
     quit = "cmd+q",
 
     -- Close active pane, then tab, then window.
-    close_tab = "cmd+w",
+    close_pane = "cmd+w",
 
     -- Reload all configuration files (end.lua + action.lua).
     reload = "cmd+r",
@@ -78,11 +78,11 @@ return {
 
     -- ---- Panes (modal) ----
 
-    -- Split pane horizontally (side-by-side columns). Press prefix first.
-    split_horizontal = "\\",
+    -- Split pane vertically (side-by-side columns). Press prefix first.
+    split_vertical = "\\",
 
-    -- Split pane vertically (stacked rows). Press prefix first.
-    split_vertical = "-",
+    -- Split pane horizontally (stacked rows). Press prefix first.
+    split_horizontal = "-",
 
     -- Focus pane to the left. Press prefix first.
     pane_left = "h",

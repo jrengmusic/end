@@ -84,6 +84,17 @@ void LookAndFeel::drawButtonGroupSlidingIndicator (juce::Graphics& g, juce::Comp
     g.fillRoundedRectangle (bounds, 3.0f);
 }
 
+void LookAndFeel::drawStretchableLayoutResizerBar (juce::Graphics& g, int w, int h,
+                                                    bool /*isVertical*/, bool isMouseOver, bool isMouseDown)
+{
+    if (isMouseOver or isMouseDown)
+        g.setColour (findColour (paneBarHighlightColourId));
+    else
+        g.setColour (findColour (paneBarColourId));
+
+    g.fillRect (0, 0, w, h);
+}
+
 void LookAndFeel::setColours()
 {
     jam::Model::applyFunctionRecursively (config,

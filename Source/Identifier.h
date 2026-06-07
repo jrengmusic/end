@@ -123,6 +123,7 @@
     X (paste, "paste")                                 \
     X (quit, "quit")                                   \
     X (closeTab, "close_tab")                          \
+    X (closePane, "close_pane")                        \
     X (reload, "reload")                               \
     X (zoomIn, "zoom_in")                              \
     X (zoomOut, "zoom_out")                            \

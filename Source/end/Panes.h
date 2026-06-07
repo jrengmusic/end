@@ -34,14 +34,20 @@ public:
 
     /** @brief Splits the pane identified by uuid.
      *  @param uuid       Existing pane to split.
-     *  @param direction  "vertical" (side-by-side) or "horizontal" (stacked).
+     *  @param direction  ID::vertical or ID::horizontal.
      */
-    void split (const juce::String& uuid, const juce::String& direction);
+    void split (jam::UUID uuid, const juce::Identifier& direction);
 
     /** @brief Removes a pane and promotes its sibling.
      *  @param uuid  Pane to remove.
      */
-    void removePane (const juce::String& uuid);
+    void removePane (jam::UUID uuid);
+
+    /** @brief Moves keyboard focus to the adjacent pane in the given direction.
+     *  @param direction One of ID::paneLeft, ID::paneRight, ID::paneUp, ID::paneDown.
+     *  Does nothing if no adjacent pane exists in that direction.
+     */
+    void focusPane (const juce::Identifier& direction);
 
     /** @brief Returns the number of pane views. */
     int getPaneCount() const noexcept;

@@ -14,7 +14,7 @@ Panes::Panes (jam::UUID uuid, jam::Model& m)
     addAndMakeVisible (*pane);
     attachments.add (std::make_unique<jam::Model::Attachment> (*pane));
     paneViews.add (std::move (pane));
-    paneManager.addLeaf (uuid.toString());
+    paneManager.addLeaf (uuid);
 }
 
 void Panes::resized()
@@ -25,22 +25,26 @@ void Panes::resized()
         addAndMakeVisible (*bar);
 }
 
-void Panes::split (const juce::String& uuid, const juce::String& direction)
+void Panes::split (jam::UUID uuid, const juce::Identifier& direction)
 {
     jam::UUID newUUID;
     auto pane { std::make_unique<PaneView> (newUUID, model) };
-    addAndMakeVisible (*pane);
-    attachments.add (std::make_unique<jam::Model::Attachment> (*pane));
+    auto* panePtr { pane.get() };
+    addAndMakeVisible (*panePtr);
     paneViews.add (std::move (pane));
-    paneManager.split (uuid, newUUID.toString(), direction);
+    paneManager.split (uuid, newUUID, direction);
     resized();
+    attachments.add (std::make_unique<jam::Model::Attachment> (*panePtr));
+    panePtr->toFront (true);
 }
 
-void Panes::removePane (const juce::String& uuid)
+void Panes::removePane (jam::UUID uuid)
 {
+    const auto uuidString { uuid.toString() };
+
     for (int i { 0 }; i < static_cast<int> (paneViews.size()); ++i)
     {
-        if (paneViews.at (static_cast<size_t> (i))->getComponentID() == uuid)
+        if (paneViews.at (static_cast<size_t> (i))->getComponentID() == uuidString)
         {
             attachments.remove (i);
             paneViews.remove (i);
@@ -50,6 +54,67 @@ void Panes::removePane (const juce::String& uuid)
 
     paneManager.remove (uuid);
     resized();
+}
+
+void Panes::focusPane (const juce::Identifier& direction)
+{
+    juce::Component* focused { nullptr };
+
+    for (auto& pane : paneViews)
+    {
+        if (pane->hasKeyboardFocus (true))
+        {
+            focused = pane.get();
+            break;
+        }
+    }
+
+    if (focused != nullptr)
+    {
+        const auto current { focused->getBounds() };
+        juce::Component* nearest { nullptr };
+        int bestDistance { std::numeric_limits<int>::max() };
+
+        for (auto& pane : paneViews)
+        {
+            if (pane.get() == focused)
+                continue;
+
+            const auto candidate { pane->getBounds() };
+            bool isCandidate { false };
+            int distance { 0 };
+
+            if (direction == ID::paneLeft)
+            {
+                isCandidate = candidate.getRight() <= current.getX();
+                distance = current.getX() - candidate.getRight();
+            }
+            else if (direction == ID::paneRight)
+            {
+                isCandidate = candidate.getX() >= current.getRight();
+                distance = candidate.getX() - current.getRight();
+            }
+            else if (direction == ID::paneUp)
+            {
+                isCandidate = candidate.getBottom() <= current.getY();
+                distance = current.getY() - candidate.getBottom();
+            }
+            else if (direction == ID::paneDown)
+            {
+                isCandidate = candidate.getY() >= current.getBottom();
+                distance = candidate.getY() - current.getBottom();
+            }
+
+            if (isCandidate and distance < bestDistance)
+            {
+                bestDistance = distance;
+                nearest = pane.get();
+            }
+        }
+
+        if (nearest != nullptr)
+            nearest->toFront (true);
+    }
 }
 
 int Panes::getPaneCount() const noexcept { return static_cast<int> (paneViews.size()); }

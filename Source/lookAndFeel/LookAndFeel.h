@@ -55,6 +55,11 @@ public:
     void drawTabButton (juce::Graphics&, juce::Button&, bool isMouseOver, bool isMouseDown) override;
     void drawButtonGroupTrack (juce::Graphics&, juce::Component&) override;
     void drawButtonGroupSlidingIndicator (juce::Graphics&, juce::Component&) override;
+
+    /** @brief Draws the resizer bar between panes. Uses paneBarColourId for
+        normal state and paneBarHighlightColourId on hover/drag. */
+    void drawStretchableLayoutResizerBar (juce::Graphics&, int w, int h,
+                                          bool isVertical, bool isMouseOver, bool isMouseDown) override;
 private:
     /** @brief Applies the full colour set from config. Called by the ctor and
         by the ValueTree::Listener path on every property change.  Not part

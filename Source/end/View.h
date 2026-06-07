@@ -51,9 +51,9 @@ private:
     void setTabOrientation();
     void setViewState (int width, int height);
     //==============================================================================
+    action::Registry registry;
     Tabs tabs;
     jam::Owner<jam::Model::Attachment> attachments;
-    action::Registry registry;
 
     //==============================================================================
 #if JUCE_DEBUG

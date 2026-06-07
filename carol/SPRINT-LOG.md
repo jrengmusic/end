@@ -2,6 +2,61 @@
 
 ---
 
+## Sprint 8: Phase 3 Pane Splits + Navigation + PaneManager Cleanup ✅
+
+**Date:** 2026-06-07
+**Duration:** 04:00
+
+### Agents Participated
+- COUNSELOR: plan, orchestration, bug diagnosis (focusedPane sync, resizer bar bounds, orphan scan)
+- Engineer: identifier additions, SplitDirection map, PaneManager refactor, Panes/View/Tabs implementation, LookAndFeel override
+- Pathfinder: codebase discovery (pane/split patterns, PaneManager API, endless tab bar height pattern)
+- Auditor: (inline validation during Engineer delegation)
+
+### Files Modified (16 total)
+
+**JAM Framework:**
+- `jam_core/identifier/jam_identifier_layout.h:92-98` — added panes, pane, direction, ratio, vertical, horizontal to IDENTIFIER_LAYOUT
+- `jam_data_structures/map_instance/jam_map_split_direction.h` — NEW: SplitDirection Map::Instance (vertical/horizontal enum)
+- `jam_data_structures/jam_data_structures.h:46` — registered jam_map_split_direction include
+- `jam_gui/layout/jam_pane_manager.h:167-172` — NeededBar struct (node + isVertical + bounds), neededBars always tracks all required bars (fixes orphan scan), new bars get setBounds on creation
+- `jam_gui/layout/jam_pane_manager.cpp:6-10,23-68,121-165` — removed 5 file-local statics, API takes jam::UUID + Identifier direction, direction comparison via ID::vertical.toString()
+
+**END Project:**
+- `Source/Identifier.h:126` — added closePane to IDENTIFIER_KEYS
+- `Source/end/Panes.h:39-50` — split/removePane take jam::UUID, added focusPane
+- `Source/end/Panes.cpp:17,28-39,57-117` — addLeaf(uuid) direct, split Attachment after layout + toFront, removePane UUID, focusPane bounds-based navigation
+- `Source/end/Tabs.h:7,43-44` — config/Config.h include, tabFontRatio constant, updateTabBarVisibility declaration
+- `Source/end/Tabs.cpp:10,22-24,37,55-69` — tab bar depth 0 at init, updateTabBarVisibility from config font family+size
+- `Source/end/View.cpp:124-183` — 7 action handlers: splitHorizontal, splitVertical, closePane, paneLeft/Right/Up/Down
+- `Source/end/PaneView.h` — unchanged (focus mechanism preserved)
+- `Source/lookAndFeel/LookAndFeel.h:59-62` — drawStretchableLayoutResizerBar declaration
+- `Source/lookAndFeel/LookAndFeel.cpp:87-95` — drawStretchableLayoutResizerBar implementation (paneBarColourId/paneBarHighlightColourId)
+- `Source/config/lua/keys.lua:48,82,85` — cmd+w -> close_pane, split shortcuts corrected
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- PaneManager file-local statics promoted to jam identifier system (SSOT)
+- PaneManager String-based UUID/direction replaced with typed jam::UUID + Identifier
+- Attachment ordering bug: Attachment created before layout caused premature valueTreeChildAdded, overwrote focusedPane to void. Fix: Attachment after layout, toFront after Attachment
+- PaneManager orphan scan bug: neededBars only tracked NEW bars, causing orphan scan to remove valid existing bars on each layout pass (odd/even bar visibility). Fix: neededBars tracks all required bars
+- PaneManager new bar bounds: bars created during layout had zero bounds until next layout pass. Fix: NeededBar carries bounds, setBounds on creation
+- Close hierarchy: cmd+w went straight to close_tab. Now close_pane (pane>tab>quit)
+- Split shortcuts inverted: \ was horizontal, - was vertical. Corrected
+- Tab bar visible with 1 tab. Now hidden when <=1, shown from config font metrics (endless pattern)
+
+### Debts Paid
+None
+
+### Debts Deferred
+None
+
+---
+
 ## Sprint 7: Hierarchical Attachment + Focus Sync + Model Lean ✅
 
 **Date:** 2026-06-07

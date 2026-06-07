@@ -164,6 +164,7 @@
         <location file="config/Config.h" line="54" column="34" bodyfile="config/Config.cpp" bodystart="56" bodyend="56"/>
         <references refid="structjam_1_1Context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Model &gt;::getContext</references>
         <referencedby refid="classconfig_1_1_model_1a8508c00d93b45281e3d07753b6d987b8" compoundref="_config_8cpp" startline="112" endline="126">getInitWindowSize</referencedby>
+        <referencedby refid="classend_1_1_tabs_1a530f82b0d136b1c3385be168d79d5b66" compoundref="_tabs_8cpp" startline="54" endline="71">end::Tabs::updateTabBarVisibility</referencedby>
       </memberdef>
       <memberdef kind="function" id="classconfig_1_1_model_1a8508c00d93b45281e3d07753b6d987b8" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>const <ref refid="classjuce_1_1Rectangle" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Rectangle</ref>&lt; int &gt;</type>
@@ -182,7 +183,7 @@
         <references refid="classconfig_1_1_model_1ae9157061354f29018dc4a7d8c7397f83" compoundref="_config_8cpp" startline="56" endline="56">get</references>
         <references refid="classjuce_1_1ValueTree_1ac9bbcb6db4464f77b512b9bd8bbb8c3f">juce::ValueTree::getChildWithName</references>
         <references refid="classjuce_1_1Rectangle_1abbc34b8c284edb153d0b150f350d292e">juce::Rectangle&lt; typename ValueType &gt;::withSize</references>
-        <referencedby refid="classend_1_1_view_1af1202f1cb8659e8eb6ae04b9703c4be4" compoundref="_view_8cpp" startline="7" endline="37">end::View::View</referencedby>
+        <referencedby refid="classend_1_1_view_1af1202f1cb8659e8eb6ae04b9703c4be4" compoundref="_view_8cpp" startline="7" endline="34">end::View::View</referencedby>
         <referencedby refid="classconfig_1_1_model_1af95c0931a6f76206d56eb06a3c71a05a">~Model</referencedby>
       </memberdef>
     </sectiondef>

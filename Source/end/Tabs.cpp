@@ -7,6 +7,7 @@ namespace end
 Tabs::Tabs (jam::Model& m)
     : jam::Model::Component { m, IDtype::tabs }
 {
+    setTabBarDepth (0);
 }
 
 void Tabs::addNewTab()
@@ -19,6 +20,8 @@ void Tabs::addNewTab()
     setCurrentTabIndex (getNumTabs() - 1);
 
     attachments.add (std::make_unique<jam::Model::Attachment> (*panes));
+
+    updateTabBarVisibility();
 }
 
 void Tabs::removeCurrentTab()
@@ -30,6 +33,8 @@ void Tabs::removeCurrentTab()
         attachments.remove (index);
         removeTab (index);
         setCurrentTabIndex (juce::jmin (index, getNumTabs() - 1));
+
+        updateTabBarVisibility();
     }
     else
     {
@@ -44,6 +49,25 @@ Panes* Tabs::getActivePanes() noexcept
 
 void Tabs::currentTabChanged (int newCurrentTabIndex, const juce::String& newCurrentTabName)
 {
+}
+
+void Tabs::updateTabBarVisibility()
+{
+    if (getNumTabs() <= 1)
+    {
+        setTabBarDepth (0);
+    }
+    else
+    {
+        auto config { config::Model::get() };
+        auto display { config.getChildWithName (IDtype::display) };
+        auto tabNode { display.getChildWithName (IDtype::tab) };
+        auto family { tabNode.getProperty (ID::family, "Display Mono").toString() };
+        auto points { static_cast<float> (tabNode.getProperty (ID::size, 12)) };
+        juce::Font font { juce::FontOptions().withName (family).withPointHeight (points) };
+
+        setTabBarDepth (juce::roundToInt (font.getHeight() / tabFontRatio));
+    }
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
