@@ -28,8 +28,6 @@ void Registry::buildKeyMap()
 
         if (propName != ID::prefix and propName != ID::prefixTimeout)
         {
-            jam::debug::Log::write ("  bind: " + propName.toString() + " -> " + keysSection.getProperty (propName).toString());
-
             auto key { juce::KeyPress::createFromDescription (keysSection.getProperty (propName).toString()) };
 
             if (key.getModifiers().isCommandDown() or key.getModifiers().isCtrlDown())
@@ -38,18 +36,12 @@ void Registry::buildKeyMap()
                 modalKeys.emplace (key, propName);
         }
     }
-
-    jam::debug::Log::write ("buildKeyMap: keys=" + juce::String (static_cast<int> (keys.size()))
-                            + " modalKeys=" + juce::String (static_cast<int> (modalKeys.size())));
 }
 
 bool Registry::keyPressed (const juce::KeyPress& key)
 {
-    jam::debug::Log::write ("keyPressed: " + key.getTextDescription());
-
     if (jam::Map::contains (keys, key))
     {
-        jam::debug::Log::write ("  direct match: " + keys.at (key).toString());
         run (keys.at (key));
         return true;
     }
@@ -76,8 +68,6 @@ bool Registry::keyPressed (const juce::KeyPress& key)
 
 void Registry::run (const juce::Identifier& action)
 {
-    jam::debug::Log::write ("run: " + action.toString() + " found=" + juce::String (static_cast<int> (actions.contains (action))));
-
     if (actions.contains (action))
         actions.get (action);
 }

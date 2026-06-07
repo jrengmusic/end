@@ -53,7 +53,7 @@
         <location file="end/Map.h" line="48" column="23" bodyfile="end/Map.h" bodystart="48" bodyend="48"/>
         <references refid="structjam_1_1Context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Derived &gt;::getContext</references>
         <referencedby refid="structend_1_1_tab_orientation_1a2044ae64e160534789ba744c39436906" compoundref="_map_8h" startline="50" endline="53">get</referencedby>
-        <referencedby refid="classend_1_1_view_1a91ed8ef126c0a1b3feb458079c3a7849" compoundref="_view_8cpp" startline="66" endline="73">end::View::setTabOrientation</referencedby>
+        <referencedby refid="classend_1_1_view_1a91ed8ef126c0a1b3feb458079c3a7849" compoundref="_view_8cpp" startline="85" endline="92">end::View::setTabOrientation</referencedby>
       </memberdef>
       <memberdef kind="function" id="structend_1_1_tab_orientation_1a2044ae64e160534789ba744c39436906" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
         <type>int</type>

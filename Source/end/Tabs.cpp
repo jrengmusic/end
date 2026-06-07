@@ -4,22 +4,21 @@ namespace end
 {
 /*____________________________________________________________________________*/
 
-Tabs::Tabs()
-    : jam::Model::Component { IDtype::tab }
+Tabs::Tabs (jam::Model& m)
+    : jam::Model::Component { m, IDtype::tabs }
 {
 }
 
 void Tabs::addNewTab()
 {
-    auto uuid { juce::Uuid().toString() };
-    auto* panes { new Panes (uuid) };
+    jam::UUID uuid;
+    auto* panes { new Panes (uuid, model) };
 
-    addTab (juce::String (getNumTabs() + 1),
-            juce::Colours::transparentBlack,
-            panes,
-            true);
+    addTab (juce::String (getNumTabs() + 1), juce::Colours::transparentBlack, panes, true);
 
     setCurrentTabIndex (getNumTabs() - 1);
+
+    attachments.add (std::make_unique<jam::Model::Attachment> (*panes));
 }
 
 void Tabs::removeCurrentTab()
@@ -27,6 +26,8 @@ void Tabs::removeCurrentTab()
     if (getNumTabs() > 1)
     {
         auto index { getCurrentTabIndex() };
+
+        attachments.remove (index);
         removeTab (index);
         setCurrentTabIndex (juce::jmin (index, getNumTabs() - 1));
     }
@@ -43,8 +44,6 @@ Panes* Tabs::getActivePanes() noexcept
 
 void Tabs::currentTabChanged (int newCurrentTabIndex, const juce::String& newCurrentTabName)
 {
-    juce::ignoreUnused (newCurrentTabName);
-    state.setProperty (ID::activeTab, newCurrentTabIndex, nullptr);
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

@@ -2,6 +2,62 @@
 
 ---
 
+## Sprint 7: Hierarchical Attachment + Focus Sync + Model Lean ✅
+
+**Date:** 2026-06-07
+**Duration:** Full session
+
+### Agents Participated
+- COUNSELOR: Sprint lead — hierarchical attachment design, Component/Attachment API, focus chain architecture, UUID design, AudioModel static attach migration
+- Engineer: AnyMap::remove, Attachment refactors (3-arg→2-arg→template 1-arg), Component Model& storage, ComponentWithID removal, Tabs/Panes/PaneView rework, jam::UUID creation, Registry diagnostics removal, static attach migration to AudioModel, Identifier cleanup
+- Pathfinder: Static attach consumer mapping, Tabs tree management survey
+- Librarian: UUID cross-thread usage analysis in endless
+
+### Files Modified — JAM
+
+- `jam_core/utilities/jam_any_map.h` — added `remove(key)` + String overload for atomics cleanup on detach
+- `jam_core/misc/jam_uuid.h` — NEW: 64-bit trivially copyable UUID, std::abs positive, atomic-compatible
+- `jam_core/jam_core.h` — registered jam_uuid.h include
+- `jam_data_structures/model/jam_model.h` — Component: Model& member (public), Property::defaultValue int→juce::var, removed onAttachment, removed virtual on getValueTree. Attachment: template ctor (1-arg, parent auto-discovery), stores Component& only, no Model&/VT members, no getState/registerAtomics/attachRecursively/detachRecursively. Removed ComponentWithID template entirely.
+- `jam_data_structures/value_tree/jam_value_tree_utils.cpp` — Component ctor definitions, Attachment destructor (uses component.getValueTree()), removed old Attachment ctors/methods
+- `jam_data_structures/model/jam_audio_model.h` — received static attach methods (getRoot, getParent, attach×3, attachChild)
+- `jam_data_structures/model/jam_audio_model.cpp` — received static attach implementations
+- `jam_gui/view/jam_view_panel.h:43` — Model::attach → AudioModel::attach
+
+### Files Modified — END
+
+- `Source/end/View.h` — removed private Model& (inherited), added valueTreeChildAdded override, model/config as VT members, Tabs init via ctor list
+- `Source/end/View.cpp` — ARCHITECT's focus implementation: listens model tree, valueTreePropertyChanged syncs focused_pane on PANE focus change, valueTreeChildAdded syncs on new tab creation
+- `Source/end/Tabs.h` — Model::Component type=IDtype::tabs, jam::Owner<Attachment>, removed model member
+- `Source/end/Tabs.cpp` — addNewTab creates jam::UUID, Attachment 1-arg, Owner::add/remove, empty currentTabChanged
+- `Source/end/Panes.h` — Model::Component (was ComponentWithID), jam::Owner<Attachment>, removed model member
+- `Source/end/Panes.cpp` — jam::UUID, Model::Component base (no seeds), setName/setComponentID in body, Attachment 1-arg
+- `Source/end/PaneView.h` — Model::Component (was ComponentWithID), jam::UUID param, focusGained/focusLost set PANE focus property, visibilityChanged toFront
+- `Source/Identifier.h` — added IDtype::tabs, ID::focusedPane, ID::focus; removed ID::activeTab, ID::activePaneID (dead)
+- `Source/action/Registry.cpp` — removed all jam::debug::Log::write diagnostics
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- Hierarchical parent→child attachment: each parent owns Attachments for its children (View→Tabs→Panes→PaneView), RAII lifecycle
+- Parent auto-discovery: Attachment walks getParentComponent() chain, finds nearest Model::Component, no explicit parent parameter
+- Focus chain: PaneView::focusGained sets PANE.focus=1, View listens model tree and syncs VIEW.focused_pane; valueTreeChildAdded handles new tab creation
+- Model& plumbing eliminated: Component stores Model& directly, derived classes inherit it
+- ComponentWithID CRTP removed: derived classes call setName/setComponentID directly
+- Static attach methods moved to AudioModel (audio plugin path only, not END)
+- jam::UUID replaces juce::Uuid: 64-bit int64_t, trivially copyable, atomic-compatible, no string allocation for identity
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 6: Tab UX + Model architecture ✅
 
 **Date:** 2026-06-07

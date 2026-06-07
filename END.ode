@@ -1,46 +1,5 @@
 
 **********************************************************
 
-Log started: 7 Jun 2026 4:14:23am
+Log started: 7 Jun 2026 3:17:34pm
 
-  bind: quit -> cmd+q
-  bind: open_file_next_page -> space
-  bind: selection_up -> k
-  bind: split_vertical -> -
-  bind: pane_right -> l
-  bind: close_tab -> cmd+w
-  bind: next_tab -> cmd+]
-  bind: copy -> cmd+c
-  bind: pane_down -> j
-  bind: selection_copy -> y
-  bind: selection_line_end -> $
-  bind: selection_visual_line -> shift+v
-  bind: selection_line_start -> 0
-  bind: reload -> cmd+r
-  bind: pane_left -> h
-  bind: rename_tab -> shift+t
-  bind: selection_exit -> escape
-  bind: zoom_out -> cmd+-
-  bind: new_tab -> cmd+t
-  bind: enter_open_file -> o
-  bind: split_horizontal -> \
-  bind: new_window -> cmd+n
-  bind: selection_visual_block -> ctrl+v
-  bind: selection_bottom -> shift+g
-  bind: selection_top -> g
-  bind: zoom_in -> cmd+=
-  bind: selection_visual -> v
-  bind: enter_selection -> [
-  bind: selection_right -> l
-  bind: paste -> cmd+v
-  bind: prev_tab -> cmd+[
-  bind: selection_left -> h
-  bind: selection_down -> j
-  bind: pane_up -> k
-  bind: action_list -> ?
-  bind: newline -> shift+return
-  bind: zoom_reset -> cmd+0
-buildKeyMap: keys=13 modalKeys=20
-keyPressed: command + W
-  direct match: close_tab
-run: close_tab found=1

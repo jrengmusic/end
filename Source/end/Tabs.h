@@ -1,6 +1,6 @@
 /**
  * @file end/Tabs.h
- * @brief Tabbed container — owns per-tab Panes, grafts TABS node into end::Model.
+ * @brief Tabbed container — owns per-tab Panes and their Model Attachments.
  */
 #pragma once
 #include <JuceHeader.h>
@@ -12,18 +12,20 @@ namespace end
 /*____________________________________________________________________________*/
 
 /** @class Tabs
- *  @brief TabbedComponent with ValueTree state and per-tab Panes.
+ *  @brief TabbedComponent with ValueTree state, owns Attachments for child Panes.
  *
  *  Inherits jam::TabbedComponent for tab strip and content management.
  *  Each tab's content component is an end::Panes instance, owned by
  *  TabbedComponent (deleteComponentWhenNotNeeded = true).
+ *  Each Panes child has a corresponding jam::Model::Attachment held in
+ *  tabAttachments — RAII ensures detach on removal.
  */
 class Tabs
     : public jam::TabbedComponent
     , public jam::Model::Component
 {
 public:
-    Tabs();
+    explicit Tabs (jam::Model& model);
 
     /** @brief Adds a new tab with a fresh Panes container. */
     void addNewTab();
@@ -38,6 +40,8 @@ protected:
     void currentTabChanged (int newCurrentTabIndex, const juce::String& newCurrentTabName) override;
 
 private:
+    jam::Owner<jam::Model::Attachment> attachments;
+
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Tabs)
 };

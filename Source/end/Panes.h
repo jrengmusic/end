@@ -11,19 +11,24 @@ namespace end
 /*____________________________________________________________________________*/
 
 /** @class Panes
- *  @brief Per-tab split-pane container.
+ *  @brief Per-tab split-pane container — IS the TAB node in the model tree.
  *
- *  Each tab owns one Panes instance. Panes owns the PaneManager (binary tree),
- *  the PaneView pool, and the resizer bar pool. PaneManager::layout() positions
- *  PaneViews and reconciles resizer bars on every resized().
+ *  Inherits jam::Model::Component (IDtype::tab) so it owns a TAB ValueTree node.
+ *  Sets Name and componentID directly in the constructor body. Owns PaneManager
+ *  (binary tree), PaneView pool, resizer
+ *  bar pool, and Attachments for each PaneView child.
+ *  PaneManager::layout() positions PaneViews and reconciles resizer bars on resized().
  */
-class Panes : public juce::Component
+class Panes
+    : public juce::Component
+    , public jam::Model::Component
 {
 public:
     /** @brief Constructs the container with one initial pane.
-     *  @param firstPaneUUID  UUID for the first PaneView leaf.
+     *  @param uuid   UUID for both this TAB node and the first PaneView leaf.
+     *  @param model  Model reference — forwarded to Component and child Attachments.
      */
-    explicit Panes (const juce::String& firstPaneUUID);
+    Panes (jam::UUID uuid, jam::Model& model);
 
     void resized() override;
 
@@ -45,7 +50,9 @@ private:
     jam::PaneManager paneManager;
     jam::Owner<PaneView> paneViews;
     jam::Owner<jam::PaneResizerBar> resizerBars;
+    jam::Owner<jam::Model::Attachment> attachments;
 
+    //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Panes)
 };
 

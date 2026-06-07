@@ -55,6 +55,7 @@
 // Display-specific keys (not in jam::ID or COMMON)
 #define IDENTIFIER_DISPLAY(X)                      \
     X (tab, "tab")                                 \
+    X (tabs, "tabs")                               \
     X (pane, "pane")                               \
     X (window, "window")                           \
     X (size, "size")                               \
@@ -251,8 +252,8 @@
 
 // Runtime state keys (end::Model)
 #define IDENTIFIER_MODEL(X)              \
-    X (activeTab, "active_tab")          \
-    X (activePaneID, "active_pane_id")   \
+    X (focusedPane, "focused_pane")      \
+    X (focus, "focus")                   \
     X (zoom, "zoom")                     \
     X (renderer, "renderer")
 

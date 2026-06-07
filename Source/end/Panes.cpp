@@ -4,12 +4,17 @@ namespace end
 {
 /*____________________________________________________________________________*/
 
-Panes::Panes (const juce::String& firstPaneUUID)
+Panes::Panes (jam::UUID uuid, jam::Model& m)
+    : jam::Model::Component (m, IDtype::tab)
 {
-    auto pane { std::make_unique<PaneView> (firstPaneUUID) };
+    setName (IDtype::tab.toString());
+    setComponentID (uuid.toString());
+
+    auto pane { std::make_unique<PaneView> (uuid, model) };
     addAndMakeVisible (*pane);
+    attachments.add (std::make_unique<jam::Model::Attachment> (*pane));
     paneViews.add (std::move (pane));
-    paneManager.addLeaf (firstPaneUUID);
+    paneManager.addLeaf (uuid.toString());
 }
 
 void Panes::resized()
@@ -22,11 +27,12 @@ void Panes::resized()
 
 void Panes::split (const juce::String& uuid, const juce::String& direction)
 {
-    auto newUUID { juce::Uuid().toString() };
-    auto pane { std::make_unique<PaneView> (newUUID) };
+    jam::UUID newUUID;
+    auto pane { std::make_unique<PaneView> (newUUID, model) };
     addAndMakeVisible (*pane);
+    attachments.add (std::make_unique<jam::Model::Attachment> (*pane));
     paneViews.add (std::move (pane));
-    paneManager.split (uuid, newUUID, direction);
+    paneManager.split (uuid, newUUID.toString(), direction);
     resized();
 }
 
@@ -36,6 +42,7 @@ void Panes::removePane (const juce::String& uuid)
     {
         if (paneViews.at (static_cast<size_t> (i))->getComponentID() == uuid)
         {
+            attachments.remove (i);
             paneViews.remove (i);
             break;
         }
@@ -45,10 +52,7 @@ void Panes::removePane (const juce::String& uuid)
     resized();
 }
 
-int Panes::getPaneCount() const noexcept
-{
-    return static_cast<int> (paneViews.size());
-}
+int Panes::getPaneCount() const noexcept { return static_cast<int> (paneViews.size()); }
 
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace end

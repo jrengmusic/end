@@ -5,29 +5,35 @@ namespace end
 /*____________________________________________________________________________*/
 
 View::View (jam::Model& m)
-    : jam::Model::Component { IDtype::view }
-    , model (m)
+    : jam::Model::Component { m, IDtype::view }
+    , config (config::Model::get())
+    , model (m.state)
+    , tabs (m)
 {
+    state.setProperty (ID::focusedPane, juce::String(), nullptr);
+
+    //==============================================================================
     setOpaque (false);
     addKeyListener (this);
     setWantsKeyboardFocus (true);
     toFront (true);
+    registerActions();
 
     addAndMakeVisible (tabs);
     setTabOrientation();
-    tabs.addNewTab();
-
-    auto init { config::Model::getInitWindowSize() };
-    setSize (init.getWidth(), init.getHeight());
 
     //==============================================================================
-    attachment = std::make_unique<jam::Model::Attachment> (model, *this);
-
-    registerActions();
+    attachments.add (std::make_unique<jam::Model::Attachment> (*this));
+    attachments.add (std::make_unique<jam::Model::Attachment> (tabs));
 
     config.addListener (this);
+    model.addListener (this);
 
-    cout (model.getXml()->toString());
+    tabs.addNewTab();
+
+    //==============================================================================
+    auto init { config::Model::getInitWindowSize() };
+    setSize (init.getWidth(), init.getHeight());
 }
 
 View::~View()
@@ -50,10 +56,23 @@ bool View::keyPressed (const juce::KeyPress& key, juce::Component* originatingCo
     return registry.keyPressed (key);
 }
 
-void View::valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier& property)
+void View::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
 {
     if (property == ID::orientation)
         setTabOrientation();
+
+    if (jam::toBool (tree.getProperty (ID::focus)))
+    {
+        auto id { tree.getProperty (jam::ID::id) };
+        state.setProperty (ID::focusedPane, id, nullptr);
+    }
+}
+
+void View::valueTreeChildAdded (juce::ValueTree& parentTree,
+                                juce::ValueTree& childWhichHasBeenAdded)
+{
+    auto id { childWhichHasBeenAdded.getChildWithName (IDtype::pane).getProperty (jam::ID::id) };
+    state.setProperty (ID::focusedPane, id, nullptr);
 }
 
 //==============================================================================

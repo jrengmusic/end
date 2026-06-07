@@ -29,7 +29,7 @@ class View
     , public juce::KeyListener
 {
 public:
-    explicit View (jam::Model& model);
+    explicit View (jam::Model& m);
     ~View() override;
 
     void resized() override;
@@ -40,20 +40,25 @@ public:
      */
     bool keyPressed (const juce::KeyPress& key, juce::Component* originatingComponent) override;
     void valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier&) override;
+    void valueTreeChildAdded (juce::ValueTree& parentTree,
+                              juce::ValueTree& childWhichHasBeenAdded) override;
 
 private:
-    jam::Model& model;
-    juce::ValueTree config { config::Model::get() };
-
+    juce::ValueTree config;
+    juce::ValueTree model;
     //==============================================================================
     void registerActions();
     void setTabOrientation();
     void setViewState (int width, int height);
     //==============================================================================
     Tabs tabs;
-    std::unique_ptr<jam::Model::Attachment> attachment;
+    jam::Owner<jam::Model::Attachment> attachments;
     action::Registry registry;
 
+    //==============================================================================
+#if JUCE_DEBUG
+    jam::debug::Widget widget { this, model, false };
+#endif
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (View)
 };

@@ -136,7 +136,6 @@
       <member refid="classjam_1_1Model_1ae0cb2cc2b04acb47eb9760d92dcedc46" prot="public" virt="non-virtual"><scope>end::Model</scope><name>appendChild</name></member>
       <member refid="classjam_1_1Model_1a59b57627d856a11d756eabe1690a7213" prot="public" virt="non-virtual"><scope>end::Model</scope><name>applyFunctionRecursively</name></member>
       <member refid="classjam_1_1Model_1a60083575b158241a4921488754e168a9" prot="public" virt="non-virtual"><scope>end::Model</scope><name>applyFunctionRecursively</name></member>
-      <member refid="classjam_1_1Model_1a16dac6b0bd63f3fd05a7bce45217ec99" prot="public" virt="non-virtual"><scope>end::Model</scope><name>attach</name></member>
       <member refid="classjuce_1_1Timer_1a5eb2dfa3e6810c268704c159ddcb37bc" prot="public" virt="non-virtual"><scope>end::Model</scope><name>callAfterDelay</name></member>
       <member refid="classjuce_1_1Timer_1a6c366b7f5a5d70c270a1e85b8aa45888" prot="public" virt="non-virtual"><scope>end::Model</scope><name>callPendingTimersSynchronously</name></member>
       <member refid="classjam_1_1Model_1a0c6c6dcf22bdf37d65dced08a8dcdefc" prot="public" virt="non-virtual"><scope>end::Model</scope><name>findAndRemoveChild</name></member>
@@ -173,7 +172,7 @@
       <member refid="classjam_1_1Model_1afd1a5ee11f1e480cb14c0027d6b617b7" prot="public" virt="non-virtual"><scope>end::Model</scope><name>setValuesFrom</name></member>
       <member refid="classjuce_1_1Timer_1acb43e06d5742106830080af3d50b422d" prot="public" virt="non-virtual"><scope>end::Model</scope><name>startTimer</name></member>
       <member refid="classjuce_1_1Timer_1a49a4cf0bb438ca956bfae44c1010b0f9" prot="public" virt="non-virtual"><scope>end::Model</scope><name>startTimerHz</name></member>
-      <member refid="classjam_1_1Model_1aef4cd7ff33d3393980f2d12217e49857" prot="protected" virt="non-virtual"><scope>end::Model</scope><name>state</name></member>
+      <member refid="classjam_1_1Model_1aef4cd7ff33d3393980f2d12217e49857" prot="public" virt="non-virtual"><scope>end::Model</scope><name>state</name></member>
       <member refid="classjuce_1_1Timer_1a2ff70b860a8c875658b4baa91c8bcef0" prot="public" virt="non-virtual"><scope>end::Model</scope><name>stopTimer</name></member>
       <member refid="classjam_1_1Model_1abb1a0d3535077011043e287faf0347c9" prot="public" virt="non-virtual"><scope>end::Model</scope><name>storeValue</name></member>
       <member refid="classjam_1_1Model_1a48a47a42d9b91aeeddf268acc1288806" prot="public" virt="non-virtual"><scope>end::Model</scope><name>storeValue</name></member>
