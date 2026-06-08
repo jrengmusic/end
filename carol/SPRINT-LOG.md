@@ -2,6 +2,59 @@
 
 ---
 
+## Sprint 9: Tab Bar LookAndFeel Refactor + SVG Pipeline + Config Watcher ✅
+
+**Date:** 2026-06-08
+**Duration:** ~06:00
+
+### Agents Participated
+- COUNSELOR: orchestration, design discussion, plan, delegation
+- Engineer: code implementation (multiple delegations)
+- Pathfinder: codebase discovery (button::Bar, LookAndFeel, kuassa patterns, JUCE tab internals)
+- Researcher: web research on 9-slice/3-slice rendering models (CSS border-image, Android NinePatch, macOS NSDrawThreePartImage/NinePartImage, Qt QSS, GTK CSS, JUCE capabilities)
+- Auditor: mid-sprint validation
+
+### Files Modified (24 total)
+
+**JAM:**
+- `jam_look_and_feel/jam_look_and_feel_custom.h` — renamed virtuals: drawButtonGroupTrack → drawBarBackground, drawButtonGroupSlidingIndicator → drawBarIndicator, drawTabButton signature unchanged. Added @brief doxygen per virtual.
+- `jam_gui/button/jam_button_bar.h` — added Background nested class (LAF-aware, delegates to drawBarBackground), SlidingIndicator nested class (delegates to drawBarIndicator), background + animator members, snapIndicator/animateIndicator methods. Removed BehindFrontTabComp forward decl + unique_ptr member.
+- `jam_gui/button/jam_button_bar.cpp` — removed BehindFrontTabComp class definition. Bar ctor: addAndMakeVisible(background + indicator), mouse-pass-through. addTab: indicator.toBehind(&background). setCurrentTabIndex: animateIndicator() after currentTabChanged. updateTabPositions: background.setBounds + snapIndicator at end. Renamed local `animator` → `desktopAnimator` (shadow fix). Removed behindFrontTab usage. Bar::paint now empty (background component paints itself).
+
+**END:**
+- `Source/Identifier.h` — IDENTIFIER_CONFIG: added graphics. IDENTIFIER_COMMON: added inactiveText, frontBackground, inactiveBackground, background (removed foreground — moved to DISPLAY). IDENTIFIER_DISPLAY: added tabBar, tabInactive, tabActive, tabBarSvg removed, outline + foreground added.
+- `Source/config/Config.h` — File enum: added graphics. Model: added Watcher::Listener inheritance, fileChanged override, watcher member. Updated doxygen (8 sections, watcher ownership).
+- `Source/config/Config.cpp` — File::map: added graphics entry. loadPath: creates graphics/ dir (replaced button/), starts watcher at end. Added fileChanged: .lua → load(), .svg → sendPropertyChangeMessage on matching graphics property.
+- `Source/Main.h` — removed Watcher::Listener inheritance, fileChanged declaration, watcher member.
+- `Source/Main.cpp` — removed watcher setup (addFolder/coalesceEvents/addListener), removed fileChanged method entirely. Application now config-only.
+- `Source/lookAndFeel/LookAndFeel.h` — ColourIds: semantic names (barBackgroundColourId, frontBackgroundColourId, inactiveBackgroundColourId, frontTextColourId, inactiveTextColourId, tabOutlineColourId, indicatorColourId). Removed old IDs (tabBarBackgroundColourId, tabLineColourId, tabActiveColourId, tabIndicatorColourId). Added Segment struct, barSegments, parseTabBarSvg private. Removed loadTabBarSvg, draw3Slice, SlicePaths, buttonSlice/indicatorSlice. drawBarBackground + drawStretchableLayoutResizerBar overrides.
+- `Source/lookAndFeel/LookAndFeel.cpp` — colourIds map: all semantic keys (ID::background, frontBackground, inactiveBackground, foreground, inactiveText, outline, indicator). drawBarBackground: empty skeleton (ARCHITECT fills). drawStretchableLayoutResizerBar: unchanged. setColours: unchanged. parseTabBarSvg: empty skeleton. Removed loadTabBarSvg, draw3Slice, SVG path cache, all 3-slice rendering code.
+- `Source/config/lua/display.lua` — tab section: semantic keys (background, front_background, inactive_background, inactive_text, outline, indicator). Removed line, active, inactive (replaced), tab_bar_svg (moved to graphics.lua).
+- `Source/config/lua/graphics.lua` — NEW: path = "gfx", tab_bar = "tab_bar.svg", tab_inactive = "", tab_active = "".
+- `Source/config/lua/end.lua` — added graphics = require("graphics") after display.
+- `Source/config/svg/tab_bar.svg` — tab bar SVG with 4 corner groups (top-left, top-right, bottom-left, bottom-right) + 1 flex group, each with outline/foreground role groups + bounds rect. Replaces old 3-slice tab.svg.
+
+### Alignment Check
+- [x] BLESSED principles followed (B: RAII ownership of Background/SlidingIndicator/Watcher. L: single-responsibility virtuals. E: semantic colour IDs, jam identifiers for all SVG parsing. S: config::Model SSOT for file watching. S: no shadow state. E: LAF decides how, Component decides what. D: same config → same render.)
+- [x] NAMES.md adhered (Segment, Background, SlidingIndicator — semantic nouns. drawBarBackground/drawBarIndicator — verbs. No type suffixes.)
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- Tab bar background was using tabLineColourId (a "line" colour) for full background fill — wrong semantics. Replaced with dedicated barBackgroundColourId from tab.background config.
+- drawButtonGroupTrack/drawButtonGroupSlidingIndicator names were opaque — renamed to drawBarBackground/drawBarIndicator (role-based).
+- BehindFrontTabComp (old JUCE V2 pattern) removed — replaced by Background component that delegates to LAF.
+- Application::fileChanged coupled Application to LookAndFeel — moved watcher to config::Model, SVG changes routed through sendPropertyChangeMessage on ValueTree.
+- button/ subfolder replaced by graphics/ (config contract: config::Model::loadPath creates it).
+- 3-slice SVG approach abandoned (wrong model for tab bar that needs both horizontal + vertical orientation). Replaced with 9-slice corner+flex model.
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 8: Phase 3 Pane Splits + Navigation + PaneManager Cleanup ✅
 
 **Date:** 2026-06-07

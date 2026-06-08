@@ -1,0 +1,121 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="structend_1_1_look_and_feel_1_1_segment" kind="struct" language="C++" prot="private">
+    <compoundname>end::LookAndFeel::Segment</compoundname>
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structend_1_1_look_and_feel_1_1_segment_1a2a43065aa629b8749a06eb8e9f62e553" prot="public" static="no" mutable="no">
+        <type><ref refid="classjuce_1_1Rectangle" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Rectangle</ref>&lt; float &gt;</type>
+        <definition>juce::Rectangle&lt;float&gt; end::LookAndFeel::Segment::sourceBounds</definition>
+        <argsstring></argsstring>
+        <name>sourceBounds</name>
+        <qualifiedname>end::LookAndFeel::Segment::sourceBounds</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lookAndFeel/LookAndFeel.h" line="85" column="25" bodyfile="lookAndFeel/LookAndFeel.h" bodystart="85" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structend_1_1_look_and_feel_1_1_segment_1ad6dbec094df6dcc2110d40c101ff8557" prot="public" static="no" mutable="no">
+        <type><ref refid="classjuce_1_1Rectangle" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Rectangle</ref>&lt; float &gt;</type>
+        <definition>juce::Rectangle&lt;float&gt; end::LookAndFeel::Segment::dest</definition>
+        <argsstring></argsstring>
+        <name>dest</name>
+        <qualifiedname>end::LookAndFeel::Segment::dest</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lookAndFeel/LookAndFeel.h" line="86" column="25" bodyfile="lookAndFeel/LookAndFeel.h" bodystart="86" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structend_1_1_look_and_feel_1_1_segment_1a1978fffd5359967e0c8e47714d0c8e3d" prot="public" static="no" mutable="no">
+        <type><ref refid="classjuce_1_1Colour" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Colour</ref></type>
+        <definition>juce::Colour end::LookAndFeel::Segment::colour</definition>
+        <argsstring></argsstring>
+        <name>colour</name>
+        <qualifiedname>end::LookAndFeel::Segment::colour</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lookAndFeel/LookAndFeel.h" line="87" column="22" bodyfile="lookAndFeel/LookAndFeel.h" bodystart="87" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structend_1_1_look_and_feel_1_1_segment_1a0506678bf122b39db817aadb237f9c82" prot="public" static="no" mutable="no">
+        <type><ref refid="classjuce_1_1Path" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Path</ref></type>
+        <definition>juce::Path end::LookAndFeel::Segment::path</definition>
+        <argsstring></argsstring>
+        <name>path</name>
+        <qualifiedname>end::LookAndFeel::Segment::path</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lookAndFeel/LookAndFeel.h" line="88" column="20" bodyfile="lookAndFeel/LookAndFeel.h" bodystart="88" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structend_1_1_look_and_feel_1_1_segment_1a67c4e0d2b858c410426a4658685cf616" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool end::LookAndFeel::Segment::stroke</definition>
+        <argsstring></argsstring>
+        <name>stroke</name>
+        <qualifiedname>end::LookAndFeel::Segment::stroke</qualifiedname>
+        <initializer>{ false }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lookAndFeel/LookAndFeel.h" line="89" column="14" bodyfile="lookAndFeel/LookAndFeel.h" bodystart="89" bodyend="89"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>One paint step: a dest rect, a colour, a path, and a stroke flag. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>An empty path means &quot;fill/stroke the dest rect only&quot; (no geometry). Built by the SVG parser, consumed by drawBarBackground. </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>end::LookAndFeel::Segment</label>
+        <link refid="structend_1_1_look_and_feel_1_1_segment"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>dest</edgelabel>
+          <edgelabel>sourceBounds</edgelabel>
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>colour</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>path</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>juce::Colour</label>
+        <link refid="classjuce_1_1Colour" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="4">
+        <label>juce::Path</label>
+        <link refid="classjuce_1_1Path" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="2">
+        <label>juce::Rectangle&lt; float &gt;</label>
+        <link refid="classjuce_1_1Rectangle" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+    </collaborationgraph>
+    <location file="lookAndFeel/LookAndFeel.h" line="83" column="5" bodyfile="lookAndFeel/LookAndFeel.h" bodystart="84" bodyend="90"/>
+    <listofallmembers>
+      <member refid="structend_1_1_look_and_feel_1_1_segment_1a1978fffd5359967e0c8e47714d0c8e3d" prot="public" virt="non-virtual"><scope>end::LookAndFeel::Segment</scope><name>colour</name></member>
+      <member refid="structend_1_1_look_and_feel_1_1_segment_1ad6dbec094df6dcc2110d40c101ff8557" prot="public" virt="non-virtual"><scope>end::LookAndFeel::Segment</scope><name>dest</name></member>
+      <member refid="structend_1_1_look_and_feel_1_1_segment_1a0506678bf122b39db817aadb237f9c82" prot="public" virt="non-virtual"><scope>end::LookAndFeel::Segment</scope><name>path</name></member>
+      <member refid="structend_1_1_look_and_feel_1_1_segment_1a2a43065aa629b8749a06eb8e9f62e553" prot="public" virt="non-virtual"><scope>end::LookAndFeel::Segment</scope><name>sourceBounds</name></member>
+      <member refid="structend_1_1_look_and_feel_1_1_segment_1a67c4e0d2b858c410426a4658685cf616" prot="public" virt="non-virtual"><scope>end::LookAndFeel::Segment</scope><name>stroke</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

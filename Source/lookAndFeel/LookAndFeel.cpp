@@ -5,25 +5,29 @@ namespace end
 /*____________________________________________________________________________*/
 
 const std::unordered_map<juce::Identifier, int> LookAndFeel::colourIds {
-    { ID::editorBackground, juce::TextEditor::backgroundColourId      },
-    { ID::editorOutline,    juce::TextEditor::outlineColourId         },
-    { jam::ID::cursor,      juce::CaretComponent::caretColourId       },
-    { ID::selection,        juce::TextEditor::highlightColourId       },
-    { ID::scrollbarThumb,   juce::ScrollBar::thumbColourId            },
-    { ID::scrollbarTrack,   juce::ScrollBar::trackColourId            },
-    { ID::selectionCursor,  selectionCursorColourId                   },
-    { ID::statusBar,        statusBarBackgroundColourId               },
-    { ID::statusBarLabelBg, statusBarLabelBackgroundColourId          },
-    { ID::statusBarLabelFg, statusBarLabelTextColourId                },
-    { ID::statusBarSpinner, statusBarSpinnerColourId                  },
-    { ID::hintLabelBg,      hintLabelBgColourId                       },
-    { ID::hintLabelFg,      hintLabelFgColourId                       },
-    { jam::ID::line,        tabLineColourId                           },
-    { ID::active,           tabActiveColourId                         },
-    { ID::indicator,        tabIndicatorColourId                      },
-    { ID::barColour,        paneBarColourId                           },
-    { ID::barHighlight,     paneBarHighlightColourId                  },
-    { jam::ID::colour,      juce::ResizableWindow::backgroundColourId },
+    { jam::ID::cursor,        juce::CaretComponent::caretColourId       },
+    { ID::editorBackground,   juce::TextEditor::backgroundColourId      },
+    { ID::editorOutline,      juce::TextEditor::outlineColourId         },
+    { ID::selection,          juce::TextEditor::highlightColourId       },
+    { ID::scrollbarThumb,     juce::ScrollBar::thumbColourId            },
+    { ID::scrollbarTrack,     juce::ScrollBar::trackColourId            },
+    { ID::selectionCursor,    selectionCursorColourId                   },
+    { ID::statusBar,          statusBarBackgroundColourId               },
+    { ID::statusBarLabelBg,   statusBarLabelBackgroundColourId          },
+    { ID::statusBarLabelFg,   statusBarLabelTextColourId                },
+    { ID::statusBarSpinner,   statusBarSpinnerColourId                  },
+    { ID::hintLabelBg,        hintLabelBgColourId                       },
+    { ID::hintLabelFg,        hintLabelFgColourId                       },
+    { ID::background,         barBackgroundColourId                     },
+    { ID::frontBackground,    frontBackgroundColourId                   },
+    { ID::inactiveBackground, inactiveBackgroundColourId                },
+    { ID::foreground,         frontTextColourId                         },
+    { ID::inactiveText,       inactiveTextColourId                      },
+    { ID::outline,            tabOutlineColourId                        },
+    { ID::indicator,          indicatorColourId                         },
+    { ID::barColour,          paneBarColourId                           },
+    { ID::barHighlight,       paneBarHighlightColourId                  },
+    { jam::ID::colour,        juce::ResizableWindow::backgroundColourId },
 };
 
 //==============================================================================
@@ -35,57 +39,31 @@ LookAndFeel::LookAndFeel()
 
 LookAndFeel::~LookAndFeel() { config.removeListener (this); };
 
-void LookAndFeel::valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier&)
+void LookAndFeel::valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier& property)
 {
     setColours();
-}
 
-void LookAndFeel::drawTabButton (juce::Graphics& g, juce::Button& button, bool isMouseOver, bool isMouseDown)
-{
-    auto bounds { button.getLocalBounds().toFloat().reduced (2.0f) };
-    auto colour { findColour (tabActiveColourId) };
-
-    if (button.getToggleState())
+    if (property == ID::tabBar)
     {
-        if (isMouseDown)
-            colour = colour.brighter (0.2f);
-        else if (isMouseOver)
-            colour = colour.brighter (0.1f);
-
-        g.setColour (colour);
-        g.fillRoundedRectangle (bounds, 4.0f);
+        // SVG reload will go here when the parser is implemented.
+        // For now, just repaint to pick up any colour changes.
     }
-    else if (isMouseDown)
-    {
-        g.setColour (colour.withAlpha (0.3f));
-        g.fillRoundedRectangle (bounds, 4.0f);
-    }
-    else if (isMouseOver)
-    {
-        g.setColour (colour.withAlpha (0.15f));
-        g.fillRoundedRectangle (bounds, 4.0f);
-    }
-
-    g.setColour (button.findColour (juce::Label::textColourId));
-    g.drawText (button.getButtonText(), bounds, juce::Justification::centred);
 }
 
-void LookAndFeel::drawButtonGroupTrack (juce::Graphics& g, juce::Component& group)
+//==============================================================================
+// Bar LAF virtuals.
+
+void LookAndFeel::drawBarBackground (juce::Graphics& g, juce::Component& bar)
 {
-    auto bounds { group.getLocalBounds().toFloat() };
-    g.setColour (findColour (tabLineColourId));
-    g.fillRoundedRectangle (bounds, 4.0f);
 }
 
-void LookAndFeel::drawButtonGroupSlidingIndicator (juce::Graphics& g, juce::Component& indicator)
-{
-    auto bounds { indicator.getLocalBounds().toFloat().reduced (2.0f) };
-    g.setColour (findColour (tabIndicatorColourId));
-    g.fillRoundedRectangle (bounds, 3.0f);
-}
-
-void LookAndFeel::drawStretchableLayoutResizerBar (juce::Graphics& g, int w, int h,
-                                                    bool /*isVertical*/, bool isMouseOver, bool isMouseDown)
+//==============================================================================
+void LookAndFeel::drawStretchableLayoutResizerBar (juce::Graphics& g,
+                                                   int w,
+                                                   int h,
+                                                   bool /*isVertical*/,
+                                                   bool isMouseOver,
+                                                   bool isMouseDown)
 {
     if (isMouseOver or isMouseDown)
         g.setColour (findColour (paneBarHighlightColourId));
@@ -95,9 +73,11 @@ void LookAndFeel::drawStretchableLayoutResizerBar (juce::Graphics& g, int w, int
     g.fillRect (0, 0, w, h);
 }
 
+//==============================================================================
 void LookAndFeel::setColours()
 {
-    jam::Model::applyFunctionRecursively (config,
+    jam::Model::applyFunctionRecursively (
+        config,
         [this] (const juce::ValueTree& tree)
         {
             for (auto& [id, colourId] : colourIds)
@@ -110,6 +90,11 @@ void LookAndFeel::setColours()
 
             return false;
         });
+}
+
+//==============================================================================
+void LookAndFeel::parseTabBarSvg (const juce::XmlElement& svg, std::vector<Segment>& segments)
+{
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

@@ -36,6 +36,13 @@
           <detaileddescription>
           </detaileddescription>
         </enumvalue>
+        <enumvalue id="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112baf3232b14a906fb91ecda7443235ce6ef" prot="public">
+          <name>graphics</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
         <enumvalue id="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112ba4c13453f0623e489137493b9305ec0ea" prot="public">
           <name>actions</name>
           <briefdescription>
@@ -63,7 +70,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="10" column="5" bodyfile="config/Config.h" bodystart="11" bodyend="19"/>
+        <location file="config/Config.h" line="10" column="5" bodyfile="config/Config.h" bodystart="11" bodyend="20"/>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-static-attrib">
@@ -86,8 +93,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="28" column="29" bodyfile="config/Config.h" bodystart="28" bodyend="-1"/>
-        <referencedby refid="classend_1_1_application_1a598aa5d15712e3107ade5df8f6c5e33d" compoundref="_main_8cpp" startline="9" endline="53">end::Application::initialise</referencedby>
+        <location file="config/Config.h" line="29" column="29" bodyfile="config/Config.h" bodystart="29" bodyend="-1"/>
+        <referencedby refid="classend_1_1_application_1a598aa5d15712e3107ade5df8f6c5e33d" compoundref="_main_8cpp" startline="9" endline="48">end::Application::initialise</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structconfig_1_1_file_1a6ab20528e69a64a7091bd8d1269eac55" prot="public" static="yes" mutable="no">
         <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref></type>
@@ -102,9 +109,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="29" column="31" bodyfile="config/Config.h" bodystart="29" bodyend="-1"/>
-        <referencedby refid="classend_1_1_application_1af446ffd1fa995c2838d2d34713a7d83a" compoundref="_main_8cpp" startline="66" endline="77">end::Application::fileChanged</referencedby>
-        <referencedby refid="structconfig_1_1_file_1af7e5a59b7450673c2677f4dcf3817279" compoundref="_config_8cpp" startline="23" endline="26">getName</referencedby>
+        <location file="config/Config.h" line="30" column="31" bodyfile="config/Config.h" bodystart="30" bodyend="-1"/>
+        <referencedby refid="classconfig_1_1_model_1aaf6b40ca395ac5c6325cb189f13fec0f" compoundref="_config_8cpp" startline="119" endline="145">config::Model::fileChanged</referencedby>
+        <referencedby refid="structconfig_1_1_file_1af7e5a59b7450673c2677f4dcf3817279" compoundref="_config_8cpp" startline="24" endline="27">getName</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structconfig_1_1_file_1a1d5413f8cf2eb67f26dd717fb948c596" prot="public" static="yes" mutable="no">
         <type>const std::unordered_map&lt; int, <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref> &gt;</type>
@@ -113,13 +120,14 @@
         <name>map</name>
         <qualifiedname>config::File::map</qualifiedname>
         <initializer>{
-    { <ref refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112ba0fc85df7daa8f0d98a096582ced3738f" kindref="member">File::config</ref>,  IDref::config  },
-    { <ref refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112ba8445a8e632640713c5459f4255889087" kindref="member">File::whelmed</ref>, IDref::whelmed },
-    { <ref refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112ba223730b185e3ae2640f6f0b87a067d01" kindref="member">File::nexus</ref>,   IDref::nexus   },
-    { <ref refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112ba81cd47b1607025b96034d93f45523319" kindref="member">File::display</ref>, IDref::display },
-    { <ref refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112ba4c13453f0623e489137493b9305ec0ea" kindref="member">File::actions</ref>, IDref::actions },
-    { <ref refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112bafcbf6aafaecace693615939e7179e737" kindref="member">File::popups</ref>,  IDref::popups  },
-    { <ref refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112ba61592c1bf865f03bcbd13f0c6fa4340e" kindref="member">File::keys</ref>,    IDref::keys    },
+    { <ref refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112ba0fc85df7daa8f0d98a096582ced3738f" kindref="member">File::config</ref>,   IDref::config   },
+    { <ref refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112ba8445a8e632640713c5459f4255889087" kindref="member">File::whelmed</ref>,  IDref::whelmed  },
+    { <ref refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112ba223730b185e3ae2640f6f0b87a067d01" kindref="member">File::nexus</ref>,    IDref::nexus    },
+    { <ref refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112ba81cd47b1607025b96034d93f45523319" kindref="member">File::display</ref>,  IDref::display  },
+    { <ref refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112baf3232b14a906fb91ecda7443235ce6ef" kindref="member">File::graphics</ref>, IDref::graphics },
+    { <ref refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112ba4c13453f0623e489137493b9305ec0ea" kindref="member">File::actions</ref>,  IDref::actions  },
+    { <ref refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112bafcbf6aafaecace693615939e7179e737" kindref="member">File::popups</ref>,   IDref::popups   },
+    { <ref refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112ba61592c1bf865f03bcbd13f0c6fa4340e" kindref="member">File::keys</ref>,     IDref::keys     },
 }</initializer>
         <briefdescription>
         </briefdescription>
@@ -127,10 +135,10 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="30" column="37" bodyfile="config/Config.h" bodystart="30" bodyend="-1"/>
-        <referencedby refid="structconfig_1_1_file_1af7e5a59b7450673c2677f4dcf3817279" compoundref="_config_8cpp" startline="23" endline="26">getName</referencedby>
-        <referencedby refid="classconfig_1_1_model_1a49a8775067e4dbff5ba1d4c7c77d19eb" compoundref="_config_8cpp" startline="80" endline="110">config::Model::loadPath</referencedby>
-        <referencedby refid="classconfig_1_1_model_1a663ac662800dd1918dbab12d317fa4d5" compoundref="_config_8cpp" startline="29" endline="54">config::Model::Model</referencedby>
+        <location file="config/Config.h" line="31" column="37" bodyfile="config/Config.h" bodystart="31" bodyend="-1"/>
+        <referencedby refid="structconfig_1_1_file_1af7e5a59b7450673c2677f4dcf3817279" compoundref="_config_8cpp" startline="24" endline="27">getName</referencedby>
+        <referencedby refid="classconfig_1_1_model_1a49a8775067e4dbff5ba1d4c7c77d19eb" compoundref="_config_8cpp" startline="81" endline="116">config::Model::loadPath</referencedby>
+        <referencedby refid="classconfig_1_1_model_1a663ac662800dd1918dbab12d317fa4d5" compoundref="_config_8cpp" startline="30" endline="55">config::Model::Model</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-static-func">
@@ -150,12 +158,12 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="23" column="31" bodyfile="config/Config.cpp" bodystart="23" bodyend="26"/>
-        <references refid="structconfig_1_1_file_1a6ab20528e69a64a7091bd8d1269eac55" compoundref="_config_8h" startline="29">extension</references>
-        <references refid="structconfig_1_1_file_1a1d5413f8cf2eb67f26dd717fb948c596" compoundref="_config_8h" startline="30">map</references>
+        <location file="config/Config.h" line="24" column="31" bodyfile="config/Config.cpp" bodystart="24" bodyend="27"/>
+        <references refid="structconfig_1_1_file_1a6ab20528e69a64a7091bd8d1269eac55" compoundref="_config_8h" startline="30">extension</references>
+        <references refid="structconfig_1_1_file_1a1d5413f8cf2eb67f26dd717fb948c596" compoundref="_config_8h" startline="31">map</references>
         <references refid="structjam_1_1Format_1a838b7c56ce7913ab2b4471148a1019cd">jam::Format::toFileName</references>
-        <referencedby refid="classconfig_1_1_model_1a49a8775067e4dbff5ba1d4c7c77d19eb" compoundref="_config_8cpp" startline="80" endline="110">config::Model::loadPath</referencedby>
-        <referencedby refid="classconfig_1_1_model_1a663ac662800dd1918dbab12d317fa4d5" compoundref="_config_8cpp" startline="29" endline="54">config::Model::Model</referencedby>
+        <referencedby refid="classconfig_1_1_model_1a49a8775067e4dbff5ba1d4c7c77d19eb" compoundref="_config_8cpp" startline="81" endline="116">config::Model::loadPath</referencedby>
+        <referencedby refid="classconfig_1_1_model_1a663ac662800dd1918dbab12d317fa4d5" compoundref="_config_8cpp" startline="30" endline="55">config::Model::Model</referencedby>
       </memberdef>
     </sectiondef>
     <briefdescription>
@@ -191,13 +199,14 @@
         </childnode>
       </node>
     </collaborationgraph>
-    <location file="config/Config.h" line="8" column="1" bodyfile="config/Config.h" bodystart="9" bodyend="31"/>
+    <location file="config/Config.h" line="8" column="1" bodyfile="config/Config.h" bodystart="9" bodyend="32"/>
     <listofallmembers>
       <member refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112ba4c13453f0623e489137493b9305ec0ea" prot="public" virt="non-virtual"><scope>config::File</scope><name>actions</name></member>
       <member refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112ba0fc85df7daa8f0d98a096582ced3738f" prot="public" virt="non-virtual"><scope>config::File</scope><name>config</name></member>
       <member refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112ba81cd47b1607025b96034d93f45523319" prot="public" virt="non-virtual"><scope>config::File</scope><name>display</name></member>
       <member refid="structconfig_1_1_file_1a6ab20528e69a64a7091bd8d1269eac55" prot="public" virt="non-virtual"><scope>config::File</scope><name>extension</name></member>
       <member refid="structconfig_1_1_file_1af7e5a59b7450673c2677f4dcf3817279" prot="public" virt="non-virtual"><scope>config::File</scope><name>getName</name></member>
+      <member refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112baf3232b14a906fb91ecda7443235ce6ef" prot="public" virt="non-virtual"><scope>config::File</scope><name>graphics</name></member>
       <member refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112ba61592c1bf865f03bcbd13f0c6fa4340e" prot="public" virt="non-virtual"><scope>config::File</scope><name>keys</name></member>
       <member refid="structconfig_1_1_file_1a1d5413f8cf2eb67f26dd717fb948c596" prot="public" virt="non-virtual"><scope>config::File</scope><name>map</name></member>
       <member refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112ba223730b185e3ae2640f6f0b87a067d01" prot="public" virt="non-virtual"><scope>config::File</scope><name>nexus</name></member>

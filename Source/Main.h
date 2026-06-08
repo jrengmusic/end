@@ -13,7 +13,6 @@ namespace end
 
 class Application
     : public juce::JUCEApplication
-    , public jam::File::Watcher::Listener
 {
 public:
     Application();
@@ -25,8 +24,6 @@ public:
     void systemRequestedQuit() override;
 
 private:
-    void fileChanged (const juce::File& file, jam::File::Watcher::Event event) override;
-
     //==============================================================================
     // CONTEXT
     Boolean boolMap;
@@ -36,7 +33,6 @@ private:
     //==============================================================================
     Model model;
     LookAndFeel lookAndFeel;
-    jam::File::Watcher watcher;
     std::unique_ptr<end::Window> window;
 
     //==============================================================================

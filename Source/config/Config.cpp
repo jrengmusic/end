@@ -11,13 +11,14 @@ const juce::File File::path {
 const juce::String File::extension { "*.lua" };
 
 const std::unordered_map<int, juce::String> File::map {
-    { File::config,  IDref::config  },
-    { File::whelmed, IDref::whelmed },
-    { File::nexus,   IDref::nexus   },
-    { File::display, IDref::display },
-    { File::actions, IDref::actions },
-    { File::popups,  IDref::popups  },
-    { File::keys,    IDref::keys    },
+    { File::config,   IDref::config   },
+    { File::whelmed,  IDref::whelmed  },
+    { File::nexus,    IDref::nexus    },
+    { File::display,  IDref::display  },
+    { File::graphics, IDref::graphics },
+    { File::actions,  IDref::actions  },
+    { File::popups,   IDref::popups   },
+    { File::keys,     IDref::keys     },
 };
 
 const juce::String File::getName (int key) noexcept
@@ -81,6 +82,7 @@ juce::StringArray Model::loadPath (const juce::File& dir)
 {
     juce::StringArray errors;
     dir.createDirectory();
+    dir.getChildFile (jam::IDref::graphics).createDirectory();
 
     for (auto& [key, value] : File::map)
     {
@@ -106,7 +108,40 @@ juce::StringArray Model::loadPath (const juce::File& dir)
         }
     }
 
+    watcher.addFolder (dir);
+    watcher.coalesceEvents (300);
+    watcher.addListener (this);
+
     return errors;
+}
+
+//==============================================================================
+void Model::fileChanged (const juce::File& file, jam::File::Watcher::Event event)
+{
+    if (event == jam::File::Watcher::Event::fileUpdated)
+    {
+        if (file.hasFileExtension (File::extension))
+        {
+            juce::String errorOut;
+            load (file, errorOut);
+        }
+        else if (file.hasFileExtension ("svg"))
+        {
+            auto graphics { state.getChildWithName (IDtype::graphics) };
+
+            if (graphics.isValid())
+            {
+                auto fileName { file.getFileName() };
+
+                if (fileName == graphics.getProperty (ID::tabBar).toString())
+                    graphics.sendPropertyChangeMessage (ID::tabBar);
+                else if (fileName == graphics.getProperty (ID::tabInactive).toString())
+                    graphics.sendPropertyChangeMessage (ID::tabInactive);
+                else if (fileName == graphics.getProperty (ID::tabActive).toString())
+                    graphics.sendPropertyChangeMessage (ID::tabActive);
+            }
+        }
+    }
 }
 
 const juce::Rectangle<int> Model::getInitWindowSize()

@@ -87,7 +87,7 @@ return {
 	--
 	-- The 16 standard terminal colours. Programs like ls, git, and vim use these.
 	-- The first 8 are normal, the next 8 are brighter versions.
-	-- Format: 0xAARRGGBB hex integer.
+	-- Format: 0xAARRGGBB (Alpha | Red | Green | Blue) hex integer.
 	--
 
 	colours = {
@@ -204,7 +204,7 @@ return {
 		title = "END",
 
 		-- Initial window size in pixels {width, height}.
-		size = {640, 480},
+		size = { 640, 480 },
 
 		-- Tint colour for the window background. The last two hex digits
 		-- control window transparency (glass mode). Most visible with blur enabled.
@@ -265,29 +265,36 @@ return {
 	-- ========================================================================
 
 	tab = {
+		-- Bar background colour (the strip behind all tab buttons).
+		background = 0xff2c4144,
+
 		-- Tab bar font family.
 		family = "Display Mono",
 
 		-- Tab bar font size in points.
 		size = 12,
 
-		-- Active tab text colour.
+		-- Active (front) tab text colour.
 		foreground = 0xff00c8d8,
 
 		-- Inactive tab text colour.
-		inactive = 0xff33535b,
+		inactive_text = 0xff33535b,
 
 		-- Tab bar orientation: "top", "bottom", "left", "right".
-		orientation = "left",
+		orientation = "top",
 
-		-- Tab separator line colour.
-		line = 0xff2c4144,
+		-- Tab outline / border colour (3-side border + content-edge separator).
+		outline = 0xff2c4144,
 
-		-- Active tab background colour.
-		active = 0xff002b35,
+		-- Active (front) tab background fill.
+		front_background = 0xff002b35,
 
-		-- Active tab indicator colour.
+		-- Inactive tab background fill.
+		inactive_background = 0xff001a20,
+
+		-- Sliding indicator colour (the highlight that moves to the active tab).
 		indicator = 0xff01c2d2,
+
 	},
 
 	-- ========================================================================

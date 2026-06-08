@@ -39,11 +39,6 @@ void Application::initialise (const juce::String& commandLine)
     window.reset (new end::Window { view, ProjectInfo::projectName, false, false });
     window->setVisible (true);
 
-    // File watcher: watch config directory for hot-reload
-    watcher.addFolder (config::File::path);
-    watcher.coalesceEvents (300);
-    watcher.addListener (this);
-
     juce::MessageManager::callAsync (
         [this]
         {
@@ -61,20 +56,6 @@ const juce::String Application::getApplicationName() { return ProjectInfo::proje
 const juce::String Application::getApplicationVersion() { return ProjectInfo::versionString; }
 
 bool Application::moreThanOneInstanceAllowed() { return true; }
-
-//==============================================================================
-void Application::fileChanged (const juce::File& file, jam::File::Watcher::Event event)
-{
-    if (event == jam::File::Watcher::Event::fileUpdated
-        and file.hasFileExtension (config::File::extension))
-    {
-        juce::String errorOut;
-        config.load (file, errorOut);
-        // load() overlays the changed file onto the live tree, firing
-        // valueTreePropertyChanged on all mutated properties.
-        // LookAndFeel and end::Window react as registered listeners.
-    }
-}
 
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace end

@@ -29,17 +29,21 @@
     X (actions, "actions")   \
     X (keys, "keys")         \
     X (popups, "popups")     \
-    X (whelmed, "whelmed")
+    X (whelmed, "whelmed")   \
+    X (graphics, "graphics")
 
 // Keys shared across multiple config sections (not in jam::ID)
 #define IDENTIFIER_COMMON(X)                \
     X (family, "family")                    \
-    X (foreground, "foreground")            \
     X (position, "position")                \
     X (orientation, "orientation")          \
     X (inactive, "inactive")                \
     X (active, "active")                    \
     X (indicator, "indicator")              \
+    X (inactiveText, "inactive_text")       \
+    X (frontBackground, "front_background") \
+    X (inactiveBackground, "inactive_background") \
+    X (background, "background")            \
     X (scrollbarWidth, "scrollbar_width")   \
     X (barColour, "bar_colour")             \
     X (barHighlight, "bar_highlight")       \
@@ -55,6 +59,9 @@
 // Display-specific keys (not in jam::ID or COMMON)
 #define IDENTIFIER_DISPLAY(X)                      \
     X (tab, "tab")                                 \
+    X (tabBar, "tab_bar")                          \
+    X (tabInactive, "tab_inactive")                \
+    X (tabActive, "tab_active")                    \
     X (tabs, "tabs")                               \
     X (pane, "pane")                               \
     X (window, "window")                           \
@@ -113,7 +120,9 @@
     X (highlightColour, "highlight_colour")        \
     X (fontFamily, "font_family")                  \
     X (fontSize, "font_size")                      \
-    X (fontStyle, "font_style")
+    X (fontStyle, "font_style")                    \
+    X (outline, "outline")                         \
+    X (foreground, "foreground")
 
 // Key binding names (keys.lua)
 #define IDENTIFIER_KEYS(X)                             \

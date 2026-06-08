@@ -13,6 +13,7 @@ struct File
         whelmed,
         nexus,
         display,
+        graphics,
         actions,
         popups,
         keys,
@@ -37,14 +38,18 @@ struct File
     - build() seeds the tree with compiled binary defaults (no I/O).
     - load(file) overlays one disk lua file on top (does NOT call build).
 
-    Section list (7 names, single SSOT) — used by build, load, loadPath,
+    Section list (8 names, single SSOT) — used by build, load, loadPath,
     and the virgin-disk default write.
 
     Callers must call build() before any load() to ensure the tree is valid.
+
+    Owns the file watcher. Watches the config directory and reacts to .lua
+    and .svg changes directly — no relay through Application.
 */
 class Model
     : public jam::Model
     , public jam::Context<Model>
+    , public jam::File::Watcher::Listener
 {
 public:
     //==========================================================================
@@ -76,6 +81,8 @@ public:
         Virgin machine: missing file → write BinaryData content to disk first,
         then continue (no need to overlay what was just written).
 
+        Starts the file watcher on dir after the initial load.
+
         @param dir  Directory containing lua section files.
         @return     Per-file error strings collected across the directory walk.
                     Empty = every file loaded successfully.  Caller surfaces
@@ -85,6 +92,20 @@ public:
     juce::StringArray loadPath (const juce::File& dir);
 
 private:
+    //==========================================================================
+    /** @brief Reacts to .lua and .svg changes in the watched config directory.
+
+        .lua files: overlays the changed file onto the live tree.
+        .svg files: fires a property change message on the matching graphics
+        property so listeners (LookAndFeel) can reload the asset.
+
+        @param file   The file that changed.
+        @param event  The type of change.
+    */
+    void fileChanged (const juce::File& file, jam::File::Watcher::Event event) override;
+
+    jam::File::Watcher watcher;
+
     //==========================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Model)
 };

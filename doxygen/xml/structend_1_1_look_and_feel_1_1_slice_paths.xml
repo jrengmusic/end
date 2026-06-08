@@ -1,0 +1,145 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="structend_1_1_look_and_feel_1_1_slice_paths" kind="struct" language="C++" prot="private">
+    <compoundname>end::LookAndFeel::SlicePaths</compoundname>
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structend_1_1_look_and_feel_1_1_slice_paths_1ad59db68f02248e0db4fb24c1292eccab" prot="public" static="no" mutable="no">
+        <type><ref refid="classjuce_1_1Path" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Path</ref></type>
+        <definition>juce::Path end::LookAndFeel::SlicePaths::left</definition>
+        <argsstring></argsstring>
+        <name>left</name>
+        <qualifiedname>end::LookAndFeel::SlicePaths::left</qualifiedname>
+        <briefdescription>
+<para>Left-cap path and its source bounds. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lookAndFeel/LookAndFeel.h" line="81" column="20" bodyfile="lookAndFeel/LookAndFeel.h" bodystart="81" bodyend="-1"/>
+        <referencedby refid="classend_1_1_look_and_feel_1a09e2aafdc17e638d02972ba9d9b41656" compoundref="_look_and_feel_8cpp" startline="161" endline="219">end::LookAndFeel::draw3Slice</referencedby>
+        <referencedby refid="classend_1_1_look_and_feel_1a5b4cdda7f65d1f5c1bb3ac758f438e65" compoundref="_look_and_feel_8cpp" startline="103" endline="159">end::LookAndFeel::loadTabSVG</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structend_1_1_look_and_feel_1_1_slice_paths_1a8d2a4c8bccc004b9538c7466a7bfb445" prot="public" static="no" mutable="no">
+        <type><ref refid="classjuce_1_1Path" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Path</ref></type>
+        <definition>juce::Path end::LookAndFeel::SlicePaths::center</definition>
+        <argsstring></argsstring>
+        <name>center</name>
+        <qualifiedname>end::LookAndFeel::SlicePaths::center</qualifiedname>
+        <briefdescription>
+<para>Center (stretching) path and its source bounds. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lookAndFeel/LookAndFeel.h" line="83" column="20" bodyfile="lookAndFeel/LookAndFeel.h" bodystart="83" bodyend="-1"/>
+        <referencedby refid="classend_1_1_look_and_feel_1a09e2aafdc17e638d02972ba9d9b41656" compoundref="_look_and_feel_8cpp" startline="161" endline="219">end::LookAndFeel::draw3Slice</referencedby>
+        <referencedby refid="classend_1_1_look_and_feel_1a5b4cdda7f65d1f5c1bb3ac758f438e65" compoundref="_look_and_feel_8cpp" startline="103" endline="159">end::LookAndFeel::loadTabSVG</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structend_1_1_look_and_feel_1_1_slice_paths_1a836c072c2208da197509837fa337cf3c" prot="public" static="no" mutable="no">
+        <type><ref refid="classjuce_1_1Path" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Path</ref></type>
+        <definition>juce::Path end::LookAndFeel::SlicePaths::right</definition>
+        <argsstring></argsstring>
+        <name>right</name>
+        <qualifiedname>end::LookAndFeel::SlicePaths::right</qualifiedname>
+        <briefdescription>
+<para>Right-cap path and its source bounds. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lookAndFeel/LookAndFeel.h" line="85" column="20" bodyfile="lookAndFeel/LookAndFeel.h" bodystart="85" bodyend="-1"/>
+        <referencedby refid="classend_1_1_look_and_feel_1a09e2aafdc17e638d02972ba9d9b41656" compoundref="_look_and_feel_8cpp" startline="161" endline="219">end::LookAndFeel::draw3Slice</referencedby>
+        <referencedby refid="classend_1_1_look_and_feel_1a5b4cdda7f65d1f5c1bb3ac758f438e65" compoundref="_look_and_feel_8cpp" startline="103" endline="159">end::LookAndFeel::loadTabSVG</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structend_1_1_look_and_feel_1_1_slice_paths_1ae8462998d89e23c1f26065ff759792ce" prot="public" static="no" mutable="no">
+        <type><ref refid="classjuce_1_1Rectangle" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Rectangle</ref>&lt; float &gt;</type>
+        <definition>juce::Rectangle&lt;float&gt; end::LookAndFeel::SlicePaths::leftBounds</definition>
+        <argsstring></argsstring>
+        <name>leftBounds</name>
+        <qualifiedname>end::LookAndFeel::SlicePaths::leftBounds</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lookAndFeel/LookAndFeel.h" line="86" column="25" bodyfile="lookAndFeel/LookAndFeel.h" bodystart="86" bodyend="-1"/>
+        <referencedby refid="classend_1_1_look_and_feel_1a09e2aafdc17e638d02972ba9d9b41656" compoundref="_look_and_feel_8cpp" startline="161" endline="219">end::LookAndFeel::draw3Slice</referencedby>
+        <referencedby refid="classend_1_1_look_and_feel_1a5b4cdda7f65d1f5c1bb3ac758f438e65" compoundref="_look_and_feel_8cpp" startline="103" endline="159">end::LookAndFeel::loadTabSVG</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structend_1_1_look_and_feel_1_1_slice_paths_1a86c19f970122437e8bee7be1a1c8edf7" prot="public" static="no" mutable="no">
+        <type><ref refid="classjuce_1_1Rectangle" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Rectangle</ref>&lt; float &gt;</type>
+        <definition>juce::Rectangle&lt;float&gt; end::LookAndFeel::SlicePaths::centerBounds</definition>
+        <argsstring></argsstring>
+        <name>centerBounds</name>
+        <qualifiedname>end::LookAndFeel::SlicePaths::centerBounds</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lookAndFeel/LookAndFeel.h" line="86" column="36" bodyfile="lookAndFeel/LookAndFeel.h" bodystart="86" bodyend="-1"/>
+        <referencedby refid="classend_1_1_look_and_feel_1a09e2aafdc17e638d02972ba9d9b41656" compoundref="_look_and_feel_8cpp" startline="161" endline="219">end::LookAndFeel::draw3Slice</referencedby>
+        <referencedby refid="classend_1_1_look_and_feel_1a5b4cdda7f65d1f5c1bb3ac758f438e65" compoundref="_look_and_feel_8cpp" startline="103" endline="159">end::LookAndFeel::loadTabSVG</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structend_1_1_look_and_feel_1_1_slice_paths_1abad1a7112d2255dd68b2d9cfdd89129f" prot="public" static="no" mutable="no">
+        <type><ref refid="classjuce_1_1Rectangle" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Rectangle</ref>&lt; float &gt;</type>
+        <definition>juce::Rectangle&lt;float&gt; end::LookAndFeel::SlicePaths::rightBounds</definition>
+        <argsstring></argsstring>
+        <name>rightBounds</name>
+        <qualifiedname>end::LookAndFeel::SlicePaths::rightBounds</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lookAndFeel/LookAndFeel.h" line="86" column="49" bodyfile="lookAndFeel/LookAndFeel.h" bodystart="86" bodyend="-1"/>
+        <referencedby refid="classend_1_1_look_and_feel_1a09e2aafdc17e638d02972ba9d9b41656" compoundref="_look_and_feel_8cpp" startline="161" endline="219">end::LookAndFeel::draw3Slice</referencedby>
+        <referencedby refid="classend_1_1_look_and_feel_1a5b4cdda7f65d1f5c1bb3ac758f438e65" compoundref="_look_and_feel_8cpp" startline="103" endline="159">end::LookAndFeel::loadTabSVG</referencedby>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Cached geometry for a 3-slice stretchable shape. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>end::LookAndFeel::SlicePaths</label>
+        <link refid="structend_1_1_look_and_feel_1_1_slice_paths"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>center</edgelabel>
+          <edgelabel>left</edgelabel>
+          <edgelabel>right</edgelabel>
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>centerBounds</edgelabel>
+          <edgelabel>leftBounds</edgelabel>
+          <edgelabel>rightBounds</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>juce::Path</label>
+        <link refid="classjuce_1_1Path" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="3">
+        <label>juce::Rectangle&lt; float &gt;</label>
+        <link refid="classjuce_1_1Rectangle" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+    </collaborationgraph>
+    <location file="lookAndFeel/LookAndFeel.h" line="78" column="5" bodyfile="lookAndFeel/LookAndFeel.h" bodystart="79" bodyend="87"/>
+    <listofallmembers>
+      <member refid="structend_1_1_look_and_feel_1_1_slice_paths_1a8d2a4c8bccc004b9538c7466a7bfb445" prot="public" virt="non-virtual"><scope>end::LookAndFeel::SlicePaths</scope><name>center</name></member>
+      <member refid="structend_1_1_look_and_feel_1_1_slice_paths_1a86c19f970122437e8bee7be1a1c8edf7" prot="public" virt="non-virtual"><scope>end::LookAndFeel::SlicePaths</scope><name>centerBounds</name></member>
+      <member refid="structend_1_1_look_and_feel_1_1_slice_paths_1ad59db68f02248e0db4fb24c1292eccab" prot="public" virt="non-virtual"><scope>end::LookAndFeel::SlicePaths</scope><name>left</name></member>
+      <member refid="structend_1_1_look_and_feel_1_1_slice_paths_1ae8462998d89e23c1f26065ff759792ce" prot="public" virt="non-virtual"><scope>end::LookAndFeel::SlicePaths</scope><name>leftBounds</name></member>
+      <member refid="structend_1_1_look_and_feel_1_1_slice_paths_1a836c072c2208da197509837fa337cf3c" prot="public" virt="non-virtual"><scope>end::LookAndFeel::SlicePaths</scope><name>right</name></member>
+      <member refid="structend_1_1_look_and_feel_1_1_slice_paths_1abad1a7112d2255dd68b2d9cfdd89129f" prot="public" virt="non-virtual"><scope>end::LookAndFeel::SlicePaths</scope><name>rightBounds</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

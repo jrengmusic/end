@@ -33,10 +33,11 @@
 -- ============================================================================
 
 END = {
-    nexus   = require("nexus"),
-    display = require("display"),
-    whelmed = require("whelmed"),
-    keys    = require("keys"),
-    popups  = require("popups"),
-    actions = require("actions"),
+    nexus    = require("nexus"),
+    display  = require("display"),
+    graphics = require("graphics"),
+    whelmed  = require("whelmed"),
+    keys     = require("keys"),
+    popups   = require("popups"),
+    actions  = require("actions"),
 }

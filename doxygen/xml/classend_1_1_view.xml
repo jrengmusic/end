@@ -109,7 +109,7 @@
         <references refid="classjuce_1_1Component_1a8d7bd030d40b26625000318c5198189a">juce::Component::addKeyListener</references>
         <references refid="classend_1_1_view_1a2abdc967e6ba24310abe2ef0d1fcf0b8" compoundref="_view_8h" startline="56">attachments</references>
         <references refid="structjam_1_1Model_1_1Component_1a15efb3e60173aa525b19b914f5fb99eb">jam::Model::Component::Component</references>
-        <references refid="classconfig_1_1_model_1a8508c00d93b45281e3d07753b6d987b8" compoundref="_config_8cpp" startline="112" endline="126">config::Model::getInitWindowSize</references>
+        <references refid="classconfig_1_1_model_1a8508c00d93b45281e3d07753b6d987b8" compoundref="_config_8cpp" startline="147" endline="161">config::Model::getInitWindowSize</references>
         <references refid="classend_1_1_view_1a2e0940bb5ff2eb6afb763f39094f005e" compoundref="_view_8h" startline="48">model</references>
         <references refid="classend_1_1_view_1aa33112ca0bcd3004779201b4c966b96c" compoundref="_view_8cpp" startline="92" endline="184">registerActions</references>
         <references refid="classjuce_1_1Component_1a862fe9788d2f2a16f9ad2bb7d8f2e0ec">juce::Component::setOpaque</references>
@@ -395,7 +395,7 @@
         </childnode>
         <childnode refid="4" relation="public-inheritance">
         </childnode>
-        <childnode refid="32" relation="usage">
+        <childnode refid="35" relation="usage">
           <edgelabel>attachments</edgelabel>
         </childnode>
       </node>
@@ -420,7 +420,7 @@
         <childnode refid="20" relation="usage">
           <edgelabel>tabs</edgelabel>
         </childnode>
-        <childnode refid="32" relation="usage">
+        <childnode refid="35" relation="usage">
           <edgelabel>attachments</edgelabel>
         </childnode>
       </node>
@@ -463,7 +463,7 @@
           <edgelabel>state</edgelabel>
         </childnode>
       </node>
-      <node id="32">
+      <node id="35">
         <label>jam::Owner&lt; jam::Model::Attachment &gt;</label>
         <link refid="classjam_1_1Owner" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
@@ -479,10 +479,10 @@
         <childnode refid="22" relation="usage">
           <edgelabel>tabs</edgelabel>
         </childnode>
-        <childnode refid="30" relation="usage">
+        <childnode refid="33" relation="usage">
           <edgelabel>contentComponents</edgelabel>
         </childnode>
-        <childnode refid="31" relation="usage">
+        <childnode refid="34" relation="usage">
           <edgelabel>panelComponent</edgelabel>
         </childnode>
       </node>
@@ -495,28 +495,58 @@
           <edgelabel>tabs</edgelabel>
         </childnode>
         <childnode refid="25" relation="usage">
-          <edgelabel>behindFrontTab</edgelabel>
-        </childnode>
-        <childnode refid="26" relation="usage">
           <edgelabel>extraTabsButton</edgelabel>
+        </childnode>
+        <childnode refid="29" relation="usage">
+          <edgelabel>indicator</edgelabel>
+        </childnode>
+        <childnode refid="30" relation="usage">
+          <edgelabel>background</edgelabel>
+        </childnode>
+        <childnode refid="31" relation="usage">
+          <edgelabel>animator</edgelabel>
         </childnode>
       </node>
       <node id="30">
+        <label>jam::button::Bar::Background</label>
+        <link refid="classjam_1_1button_1_1Bar_1_1Background" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="29">
+        <label>jam::button::Bar::SlidingIndicator</label>
+        <link refid="classjam_1_1button_1_1Bar_1_1SlidingIndicator" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="33">
         <label>juce::Array&lt; juce::WeakReference&lt; juce::Component &gt; &gt;</label>
         <link refid="classjuce_1_1Array" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="27">
+      <node id="26">
         <label>juce::Button</label>
         <link refid="classjuce_1_1Button" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
         <childnode refid="2" relation="public-inheritance">
         </childnode>
-        <childnode refid="28" relation="public-inheritance">
+        <childnode refid="27" relation="public-inheritance">
         </childnode>
+      </node>
+      <node id="32">
+        <label>juce::ChangeBroadcaster</label>
+        <link refid="classjuce_1_1ChangeBroadcaster" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
       <node id="2">
         <label>juce::Component</label>
         <link refid="classjuce_1_1Component" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
         <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="31">
+        <label>juce::ComponentAnimator</label>
+        <link refid="classjuce_1_1ComponentAnimator" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+        <childnode refid="32" relation="public-inheritance">
+        </childnode>
+        <childnode refid="6" relation="private-inheritance">
         </childnode>
       </node>
       <node id="13">
@@ -542,17 +572,17 @@
         <label>juce::MouseListener</label>
         <link refid="classjuce_1_1MouseListener" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="28">
+      <node id="27">
         <label>juce::SettableTooltipClient</label>
         <link refid="classjuce_1_1SettableTooltipClient" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-        <childnode refid="29" relation="public-inheritance">
+        <childnode refid="28" relation="public-inheritance">
         </childnode>
       </node>
       <node id="6">
         <label>juce::Timer</label>
         <link refid="classjuce_1_1Timer" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="29">
+      <node id="28">
         <label>juce::TooltipClient</label>
         <link refid="classjuce_1_1TooltipClient" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
@@ -564,12 +594,9 @@
         <label>juce::ValueTree::Listener</label>
         <link refid="classjuce_1_1ValueTree_1_1Listener" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="31">
+      <node id="34">
         <label>juce::WeakReference&lt; juce::Component &gt;</label>
         <link refid="classjuce_1_1WeakReference" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-      </node>
-      <node id="25">
-        <label>std::unique_ptr&lt; BehindFrontTabComp &gt;</label>
       </node>
       <node id="22">
         <label>std::unique_ptr&lt; jam::button::Bar &gt;</label>
@@ -577,9 +604,9 @@
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
-      <node id="26">
+      <node id="25">
         <label>std::unique_ptr&lt; juce::Button &gt;</label>
-        <childnode refid="27" relation="usage">
+        <childnode refid="26" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
