@@ -18,8 +18,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="13" column="5" bodyfile="end/Map.h" bodystart="13" bodyend="19"/>
-        <references refid="classjam_1_1Map_1_1Instance_1af839c922a9f9a6c1a8ef2b7102af4d77">jam::Map::Instance&lt; Boolean &gt;::map</references>
+        <location file="end/Map.h" line="14" column="5" bodyfile="end/Map.h" bodystart="14" bodyend="20"/>
+        <references refid="classjam_1_1Map_1_1Instance_1afe0acf25bab1f104aea20f20174129d1">jam::Map::Instance&lt; Boolean &gt;::map</references>
       </memberdef>
       <memberdef kind="function" id="structend_1_1_boolean_1a9ae901bdca7e81172663a7aacd423399" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="virtual">
         <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref> &amp;</type>
@@ -34,8 +34,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="21" column="24" bodyfile="end/Map.h" bodystart="21" bodyend="21"/>
-        <references refid="classjam_1_1Map_1_1Instance_1af839c922a9f9a6c1a8ef2b7102af4d77">jam::Map::Instance&lt; Boolean &gt;::map</references>
+        <location file="end/Map.h" line="22" column="24" bodyfile="end/Map.h" bodystart="22" bodyend="22"/>
+        <references refid="classjam_1_1Map_1_1Instance_1afe0acf25bab1f104aea20f20174129d1">jam::Map::Instance&lt; Boolean &gt;::map</references>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-static-func">
@@ -51,9 +51,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="23" column="23" bodyfile="end/Map.h" bodystart="23" bodyend="23"/>
+        <location file="end/Map.h" line="24" column="23" bodyfile="end/Map.h" bodystart="24" bodyend="24"/>
         <references refid="structjam_1_1Context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Derived &gt;::getContext</references>
-        <referencedby refid="structend_1_1_boolean_1ac2389507d11893392d5122a3d2914793" compoundref="_map_8h" startline="25" endline="28">get</referencedby>
+        <referencedby refid="structend_1_1_boolean_1ac2389507d11893392d5122a3d2914793" compoundref="_map_8h" startline="26" endline="29">get</referencedby>
         <referencedby refid="classend_1_1_window_1ac277dcb496977e31338298a1c2f8e2d5" compoundref="_window_8cpp" startline="45" endline="96">end::Window::registerStyleParameters</referencedby>
       </memberdef>
       <memberdef kind="function" id="structend_1_1_boolean_1ac2389507d11893392d5122a3d2914793" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
@@ -72,8 +72,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="25" column="23" bodyfile="end/Map.h" bodystart="25" bodyend="28"/>
-        <references refid="structend_1_1_boolean_1a4c8cfcd41ccfd2261fb8d3e08ee6143a" compoundref="_map_8h" startline="23" endline="23">get</references>
+        <location file="end/Map.h" line="26" column="23" bodyfile="end/Map.h" bodystart="26" bodyend="29"/>
+        <references refid="structend_1_1_boolean_1a4c8cfcd41ccfd2261fb8d3e08ee6143a" compoundref="_map_8h" startline="24" endline="24">get</references>
         <references refid="structjam_1_1Map_1ae8fbbc14cd030a156f6e3aaabba5778c">jam::Map::getKey</references>
       </memberdef>
       <memberdef kind="function" id="structend_1_1_boolean_1ac8d7746091f73463b1bc97a4168924d9" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
@@ -92,9 +92,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="30" column="31" bodyfile="end/Map.h" bodystart="30" bodyend="30"/>
-        <references refid="structend_1_1_boolean_1ac8d7746091f73463b1bc97a4168924d9" compoundref="_map_8h" startline="30" endline="30">get</references>
-        <referencedby refid="structend_1_1_boolean_1ac8d7746091f73463b1bc97a4168924d9" compoundref="_map_8h" startline="30" endline="30">get</referencedby>
+        <location file="end/Map.h" line="31" column="31" bodyfile="end/Map.h" bodystart="31" bodyend="31"/>
+        <references refid="structend_1_1_boolean_1ac8d7746091f73463b1bc97a4168924d9" compoundref="_map_8h" startline="31" endline="31">get</references>
+        <referencedby refid="structend_1_1_boolean_1ac8d7746091f73463b1bc97a4168924d9" compoundref="_map_8h" startline="31" endline="31">get</referencedby>
       </memberdef>
     </sectiondef>
     <briefdescription>
@@ -130,6 +130,10 @@
         <label>jam::Context&lt; Derived &gt;</label>
         <link refid="structjam_1_1Context" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
+      <node id="4">
+        <label>jam::HashMap&lt; int, juce::String &gt;</label>
+        <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
       <node id="2">
         <label>jam::Map::Instance&lt; Boolean &gt;</label>
         <link refid="classjam_1_1Map_1_1Instance" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
@@ -139,18 +143,8 @@
           <edgelabel>map</edgelabel>
         </childnode>
       </node>
-      <node id="5">
-        <label>juce::String</label>
-        <link refid="classjuce_1_1String" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-      </node>
-      <node id="4">
-        <label>std::map&lt; int, juce::String &gt;</label>
-        <childnode refid="5" relation="usage">
-          <edgelabel>elements</edgelabel>
-        </childnode>
-      </node>
     </collaborationgraph>
-    <location file="end/Map.h" line="8" column="1" bodyfile="end/Map.h" bodystart="9" bodyend="31"/>
+    <location file="end/Map.h" line="9" column="1" bodyfile="end/Map.h" bodystart="10" bodyend="32"/>
     <listofallmembers>
       <member refid="structend_1_1_boolean_1aee152d13cb0daadb827c739b3493a439" prot="public" virt="non-virtual"><scope>end::Boolean</scope><name>Boolean</name></member>
       <member refid="structjam_1_1Context_1a6e3f38a234db8ff2a9acb5986e72a2de" prot="public" virt="non-virtual"><scope>end::Boolean</scope><name>Context</name></member>
@@ -161,7 +155,7 @@
       <member refid="structjam_1_1Context_1a259aac6b39aea0f3d3e2be9ab123cff3" prot="public" virt="non-virtual"><scope>end::Boolean</scope><name>getContext</name></member>
       <member refid="structend_1_1_boolean_1a9ae901bdca7e81172663a7aacd423399" prot="public" virt="virtual"><scope>end::Boolean</scope><name>getDefault</name></member>
       <member refid="structjam_1_1Context_1a5900ff66cdba02d6f6947cc6d5e8ec3d" prot="private" virt="non-virtual"><scope>end::Boolean</scope><name>head</name></member>
-      <member refid="classjam_1_1Map_1_1Instance_1af839c922a9f9a6c1a8ef2b7102af4d77" prot="protected" virt="non-virtual"><scope>end::Boolean</scope><name>map</name></member>
+      <member refid="classjam_1_1Map_1_1Instance_1afe0acf25bab1f104aea20f20174129d1" prot="protected" virt="non-virtual"><scope>end::Boolean</scope><name>map</name></member>
       <member refid="structjam_1_1Context_1a6716feb60b039083ca0c099a506a3474" prot="public" virt="non-virtual"><scope>end::Boolean</scope><name>operator=</name></member>
       <member refid="structjam_1_1Context_1aa1862120f2983ab7ddef536ba03bb114" prot="private" virt="non-virtual"><scope>end::Boolean</scope><name>previous</name></member>
       <member refid="structjam_1_1Context_1a4169820e71837632922d3d17b377aeee" prot="public" virt="virtual"><scope>end::Boolean</scope><name>~Context</name></member>

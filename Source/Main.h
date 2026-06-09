@@ -25,21 +25,29 @@ public:
 
 private:
     //==============================================================================
-    // CONTEXT
+#if JUCE_DEBUG
+    jam::debug::Log::Scope logScope { juce::File::getCurrentWorkingDirectory().getChildFile (
+        jam::Format::toFileName (ProjectInfo::projectName, ".ode")) };
+#endif
+
+    //==============================================================================
+    // CONTEXT — all jam::Map::Instance<T> owners live here, lifetime bound
+    // to the JUCEApplication instance. Declared before any consumer so the
+    // single-global-pointer Context<T> slot is populated before first use.
     Boolean boolMap;
     TabOrientation tabOrientationMap;
+    config::File file;
+    config::Graphics graphics;
+
+    /** @brief Shared typeface interning table — available via TypefaceResources::getContext(). */
+    jam::TypefaceResources typefaceResources;
+
     config::Model config;
 
     //==============================================================================
     Model model;
     LookAndFeel lookAndFeel;
     std::unique_ptr<end::Window> window;
-
-    //==============================================================================
-#if JUCE_DEBUG
-    jam::debug::Log::Scope logScope { juce::File::getCurrentWorkingDirectory().getChildFile (
-        jam::Format::toFileName (ProjectInfo::projectName, ".ode")) };
-#endif
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Application)

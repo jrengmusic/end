@@ -17,7 +17,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Main.h" line="29" column="13" bodyfile="Main.h" bodystart="29" bodyend="-1"/>
+        <location file="Main.h" line="37" column="13" bodyfile="Main.h" bodystart="37" bodyend="-1"/>
       </memberdef>
       <memberdef kind="variable" id="classend_1_1_application_1a7ce6e2b8220f6d98cf2140c9c365154f" prot="private" static="no" mutable="no">
         <type><ref refid="structend_1_1_tab_orientation" kindref="compound">TabOrientation</ref></type>
@@ -31,7 +31,50 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Main.h" line="30" column="20" bodyfile="Main.h" bodystart="30" bodyend="-1"/>
+        <location file="Main.h" line="38" column="20" bodyfile="Main.h" bodystart="38" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classend_1_1_application_1a421a76776179e2906a27e4689a7a1252" prot="private" static="no" mutable="no">
+        <type><ref refid="structconfig_1_1_file" kindref="compound">config::File</ref></type>
+        <definition>config::File end::Application::file</definition>
+        <argsstring></argsstring>
+        <name>file</name>
+        <qualifiedname>end::Application::file</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Main.h" line="39" column="18" bodyfile="Main.h" bodystart="39" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classend_1_1_application_1acc1f4a177ce2ade6da9d8011b22fc11f" prot="private" static="no" mutable="no">
+        <type><ref refid="structconfig_1_1_graphics" kindref="compound">config::Graphics</ref></type>
+        <definition>config::Graphics end::Application::graphics</definition>
+        <argsstring></argsstring>
+        <name>graphics</name>
+        <qualifiedname>end::Application::graphics</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Main.h" line="40" column="22" bodyfile="Main.h" bodystart="40" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classend_1_1_application_1a3bc9f4a932d0847752639fded0fd53dd" prot="private" static="no" mutable="no">
+        <type><ref refid="structjam_1_1TypefaceResources" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::TypefaceResources</ref></type>
+        <definition>jam::TypefaceResources end::Application::typefaceResources</definition>
+        <argsstring></argsstring>
+        <name>typefaceResources</name>
+        <qualifiedname>end::Application::typefaceResources</qualifiedname>
+        <briefdescription>
+<para>Shared typeface interning table — available via TypefaceResources::getContext(). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Main.h" line="43" column="28" bodyfile="Main.h" bodystart="43" bodyend="-1"/>
       </memberdef>
       <memberdef kind="variable" id="classend_1_1_application_1a765f410d9d4232de53d86311b3ad303f" prot="private" static="no" mutable="no">
         <type><ref refid="classconfig_1_1_model" kindref="compound">config::Model</ref></type>
@@ -45,7 +88,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Main.h" line="31" column="19" bodyfile="Main.h" bodystart="31" bodyend="-1"/>
+        <location file="Main.h" line="45" column="19" bodyfile="Main.h" bodystart="45" bodyend="-1"/>
       </memberdef>
       <memberdef kind="variable" id="classend_1_1_application_1ad5d031f4ee343e64f205b9e158447140" prot="private" static="no" mutable="no">
         <type><ref refid="classend_1_1_model" kindref="compound">Model</ref></type>
@@ -59,8 +102,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Main.h" line="34" column="11" bodyfile="Main.h" bodystart="34" bodyend="-1"/>
-        <referencedby refid="classend_1_1_application_1a598aa5d15712e3107ade5df8f6c5e33d" compoundref="_main_8cpp" startline="9" endline="48">initialise</referencedby>
+        <location file="Main.h" line="48" column="11" bodyfile="Main.h" bodystart="48" bodyend="-1"/>
+        <referencedby refid="classend_1_1_application_1a598aa5d15712e3107ade5df8f6c5e33d" compoundref="_main_8cpp" startline="9" endline="44">initialise</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classend_1_1_application_1afe921d4972c796aa0612d3ce96adaca0" prot="private" static="no" mutable="no">
         <type><ref refid="classend_1_1_look_and_feel" kindref="compound">LookAndFeel</ref></type>
@@ -74,8 +117,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Main.h" line="35" column="17" bodyfile="Main.h" bodystart="35" bodyend="-1"/>
-        <referencedby refid="classend_1_1_application_1a598aa5d15712e3107ade5df8f6c5e33d" compoundref="_main_8cpp" startline="9" endline="48">initialise</referencedby>
+        <location file="Main.h" line="49" column="17" bodyfile="Main.h" bodystart="49" bodyend="-1"/>
+        <referencedby refid="classend_1_1_application_1a598aa5d15712e3107ade5df8f6c5e33d" compoundref="_main_8cpp" startline="9" endline="44">initialise</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classend_1_1_application_1af5685bc1fb3a0e77fad81b639bcc92f7" prot="private" static="no" mutable="no">
         <type>std::unique_ptr&lt; <ref refid="classend_1_1_window" kindref="compound">end::Window</ref> &gt;</type>
@@ -89,8 +132,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Main.h" line="36" column="21" bodyfile="Main.h" bodystart="36" bodyend="-1"/>
-        <referencedby refid="classend_1_1_application_1a598aa5d15712e3107ade5df8f6c5e33d" compoundref="_main_8cpp" startline="9" endline="48">initialise</referencedby>
+        <location file="Main.h" line="50" column="21" bodyfile="Main.h" bodystart="50" bodyend="-1"/>
+        <referencedby refid="classend_1_1_application_1a598aa5d15712e3107ade5df8f6c5e33d" compoundref="_main_8cpp" startline="9" endline="44">initialise</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">
@@ -121,7 +164,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Main.h" line="19" column="24" bodyfile="Main.cpp" bodystart="54" bodyend="54"/>
+        <location file="Main.h" line="19" column="24" bodyfile="Main.cpp" bodystart="50" bodyend="50"/>
       </memberdef>
       <memberdef kind="function" id="classend_1_1_application_1af5df574c86505182fdd01d567824d0b7" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
         <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref></type>
@@ -136,7 +179,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Main.h" line="20" column="24" bodyfile="Main.cpp" bodystart="56" bodyend="56"/>
+        <location file="Main.h" line="20" column="24" bodyfile="Main.cpp" bodystart="52" bodyend="52"/>
       </memberdef>
       <memberdef kind="function" id="classend_1_1_application_1acb2876376b8c61d2ee8795524e625d0f" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
         <type>bool</type>
@@ -151,7 +194,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Main.h" line="21" column="10" bodyfile="Main.cpp" bodystart="58" bodyend="58"/>
+        <location file="Main.h" line="21" column="10" bodyfile="Main.cpp" bodystart="54" bodyend="54"/>
       </memberdef>
       <memberdef kind="function" id="classend_1_1_application_1a598aa5d15712e3107ade5df8f6c5e33d" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
         <type>void</type>
@@ -170,15 +213,14 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Main.h" line="22" column="10" bodyfile="Main.cpp" bodystart="9" bodyend="48"/>
+        <location file="Main.h" line="22" column="10" bodyfile="Main.cpp" bodystart="9" bodyend="44"/>
         <references refid="classjuce_1_1MessageManager_1aa34494bcb54b9d4155934c8f53ed1070">juce::MessageManager::callAsync</references>
-        <references refid="classend_1_1_application_1afe921d4972c796aa0612d3ce96adaca0" compoundref="_main_8h" startline="35">lookAndFeel</references>
-        <references refid="classend_1_1_application_1ad5d031f4ee343e64f205b9e158447140" compoundref="_main_8h" startline="34">model</references>
-        <references refid="structconfig_1_1_file_1a256dc6f23b2efea619c33a43ae3d795c" compoundref="_config_8h" startline="29">config::File::path</references>
+        <references refid="classend_1_1_application_1afe921d4972c796aa0612d3ce96adaca0" compoundref="_main_8h" startline="49">lookAndFeel</references>
+        <references refid="classend_1_1_application_1ad5d031f4ee343e64f205b9e158447140" compoundref="_main_8h" startline="48">model</references>
         <references refid="structjam_1_1GpuProbe_1a2bf035e6d19c4f0bfb79bc5282d7fe00">jam::GpuProbe::probe</references>
         <references refid="classjuce_1_1LookAndFeel_1ac300b777c3cdda99b8e84cd2e39511bc">juce::LookAndFeel::setDefaultLookAndFeel</references>
         <references refid="structjam_1_1BackgroundBlur_1a4edcb5cb1191dea104717737c8956ed8">jam::BackgroundBlur::setEnabled</references>
-        <references refid="classend_1_1_application_1af5685bc1fb3a0e77fad81b639bcc92f7" compoundref="_main_8h" startline="36">window</references>
+        <references refid="classend_1_1_application_1af5685bc1fb3a0e77fad81b639bcc92f7" compoundref="_main_8h" startline="50">window</references>
       </memberdef>
       <memberdef kind="function" id="classend_1_1_application_1a18d7fd1d8bbcca6a1c7af73e3bf503a8" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
         <type>void</type>
@@ -193,7 +235,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Main.h" line="23" column="10" bodyfile="Main.cpp" bodystart="50" bodyend="50"/>
+        <location file="Main.h" line="23" column="10" bodyfile="Main.cpp" bodystart="46" bodyend="46"/>
       </memberdef>
       <memberdef kind="function" id="classend_1_1_application_1a636a8c0776059c65df3d0405229858f4" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
         <type>void</type>
@@ -208,7 +250,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Main.h" line="24" column="10" bodyfile="Main.cpp" bodystart="52" bodyend="52"/>
+        <location file="Main.h" line="24" column="10" bodyfile="Main.cpp" bodystart="48" bodyend="48"/>
         <references refid="classjuce_1_1JUCEApplicationBase_1ae2ba9b90c02361717d997aa26861f2c4">juce::JUCEApplicationBase::quit</references>
       </memberdef>
     </sectiondef>
@@ -241,17 +283,36 @@
       </node>
     </inheritancegraph>
     <collaborationgraph>
-      <node id="12">
+      <node id="11">
+        <label>config::File</label>
+        <link refid="structconfig_1_1_file"/>
+        <childnode refid="12" relation="public-inheritance">
+        </childnode>
+        <childnode refid="13" relation="usage">
+          <edgelabel>path</edgelabel>
+        </childnode>
+        <childnode refid="14" relation="usage">
+          <edgelabel>extension</edgelabel>
+        </childnode>
+      </node>
+      <node id="15">
+        <label>config::Graphics</label>
+        <link refid="structconfig_1_1_graphics"/>
+        <childnode refid="16" relation="public-inheritance">
+        </childnode>
+        <childnode refid="13" relation="usage">
+          <edgelabel>path</edgelabel>
+        </childnode>
+        <childnode refid="14" relation="usage">
+          <edgelabel>extension</edgelabel>
+        </childnode>
+      </node>
+      <node id="29">
         <label>config::Model</label>
         <link refid="classconfig_1_1_model"/>
-        <childnode refid="13" relation="public-inheritance">
+        <childnode refid="30" relation="public-inheritance">
         </childnode>
-        <childnode refid="22" relation="public-inheritance">
-        </childnode>
-        <childnode refid="23" relation="public-inheritance">
-        </childnode>
-        <childnode refid="24" relation="usage">
-          <edgelabel>watcher</edgelabel>
+        <childnode refid="37" relation="public-inheritance">
         </childnode>
       </node>
       <node id="1">
@@ -262,19 +323,28 @@
         <childnode refid="5" relation="usage">
           <edgelabel>boolMap</edgelabel>
         </childnode>
-        <childnode refid="10" relation="usage">
+        <childnode refid="9" relation="usage">
           <edgelabel>tabOrientationMap</edgelabel>
         </childnode>
-        <childnode refid="12" relation="usage">
+        <childnode refid="11" relation="usage">
+          <edgelabel>file</edgelabel>
+        </childnode>
+        <childnode refid="15" relation="usage">
+          <edgelabel>graphics</edgelabel>
+        </childnode>
+        <childnode refid="17" relation="usage">
+          <edgelabel>typefaceResources</edgelabel>
+        </childnode>
+        <childnode refid="29" relation="usage">
           <edgelabel>config</edgelabel>
         </childnode>
-        <childnode refid="31" relation="usage">
+        <childnode refid="38" relation="usage">
           <edgelabel>model</edgelabel>
         </childnode>
-        <childnode refid="32" relation="usage">
+        <childnode refid="39" relation="usage">
           <edgelabel>lookAndFeel</edgelabel>
         </childnode>
-        <childnode refid="75" relation="usage">
+        <childnode refid="77" relation="usage">
           <edgelabel>window</edgelabel>
         </childnode>
       </node>
@@ -284,73 +354,61 @@
         <childnode refid="6" relation="public-inheritance">
         </childnode>
       </node>
-      <node id="32">
+      <node id="39">
         <label>end::LookAndFeel</label>
         <link refid="classend_1_1_look_and_feel"/>
-        <childnode refid="33" relation="public-inheritance">
+        <childnode refid="40" relation="public-inheritance">
         </childnode>
-        <childnode refid="68" relation="public-inheritance">
+        <childnode refid="75" relation="public-inheritance">
         </childnode>
-        <childnode refid="69" relation="usage">
+        <childnode refid="76" relation="usage">
           <edgelabel>colourIds</edgelabel>
         </childnode>
-        <childnode refid="20" relation="usage">
+        <childnode refid="29" relation="usage">
           <edgelabel>config</edgelabel>
         </childnode>
-        <childnode refid="70" relation="usage">
-          <edgelabel>barSegments</edgelabel>
+        <childnode refid="14" relation="usage">
+          <edgelabel>barSvg</edgelabel>
+          <edgelabel>buttonSvg</edgelabel>
+          <edgelabel>indicatorSvg</edgelabel>
         </childnode>
       </node>
-      <node id="71">
-        <label>end::LookAndFeel::Segment</label>
-        <link refid="structend_1_1_look_and_feel_1_1_segment"/>
-        <childnode refid="72" relation="usage">
-          <edgelabel>dest</edgelabel>
-          <edgelabel>sourceBounds</edgelabel>
-        </childnode>
-        <childnode refid="73" relation="usage">
-          <edgelabel>colour</edgelabel>
-        </childnode>
-        <childnode refid="74" relation="usage">
-          <edgelabel>path</edgelabel>
-        </childnode>
-      </node>
-      <node id="31">
+      <node id="38">
         <label>end::Model</label>
         <link refid="classend_1_1_model"/>
-        <childnode refid="13" relation="public-inheritance">
+        <childnode refid="30" relation="public-inheritance">
         </childnode>
       </node>
-      <node id="10">
+      <node id="9">
         <label>end::TabOrientation</label>
         <link refid="structend_1_1_tab_orientation"/>
-        <childnode refid="11" relation="public-inheritance">
+        <childnode refid="10" relation="public-inheritance">
         </childnode>
       </node>
-      <node id="76">
+      <node id="78">
         <label>end::Window</label>
         <link refid="classend_1_1_window"/>
-        <childnode refid="77" relation="public-inheritance">
+        <childnode refid="79" relation="public-inheritance">
         </childnode>
-        <childnode refid="68" relation="public-inheritance">
+        <childnode refid="75" relation="public-inheritance">
         </childnode>
-        <childnode refid="20" relation="usage">
+        <childnode refid="29" relation="usage">
           <edgelabel>config</edgelabel>
         </childnode>
-        <childnode refid="89" relation="usage">
+        <childnode refid="92" relation="usage">
           <edgelabel>styleParameters</edgelabel>
         </childnode>
-        <childnode refid="73" relation="usage">
+        <childnode refid="91" relation="usage">
           <edgelabel>tintColour</edgelabel>
         </childnode>
       </node>
-      <node id="15">
+      <node id="32">
         <label>jam::AnyMap</label>
         <link refid="classjam_1_1AnyMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-        <childnode refid="16" relation="usage">
+        <childnode refid="33" relation="usage">
           <edgelabel>entries</edgelabel>
         </childnode>
-        <childnode refid="19" relation="usage">
+        <childnode refid="34" relation="usage">
           <edgelabel>types</edgelabel>
         </childnode>
       </node>
@@ -358,53 +416,50 @@
         <label>jam::Context&lt; Derived &gt;</label>
         <link refid="structjam_1_1Context" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
-      <node id="22">
+      <node id="37">
         <label>jam::Context&lt; Model &gt;</label>
         <link refid="structjam_1_1Context" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
-      <node id="24">
-        <label>jam::File::Watcher</label>
-        <link refid="structjam_1_1File_1_1Watcher" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-        <childnode refid="25" relation="usage">
-          <edgelabel>timers</edgelabel>
-        </childnode>
-        <childnode refid="29" relation="usage">
-          <edgelabel>listeners</edgelabel>
-        </childnode>
-        <childnode refid="30" relation="usage">
-          <edgelabel>watched</edgelabel>
-        </childnode>
-      </node>
-      <node id="28">
-        <label>jam::File::Watcher::CoalesceTimer</label>
-        <link refid="structjam_1_1File_1_1Watcher_1_1CoalesceTimer" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-        <childnode refid="14" relation="public-inheritance">
-        </childnode>
-        <childnode refid="24" relation="usage">
-          <edgelabel>owner</edgelabel>
-        </childnode>
-        <childnode refid="26" relation="usage">
-          <edgelabel>f</edgelabel>
-        </childnode>
-      </node>
-      <node id="23">
-        <label>jam::File::Watcher::Listener</label>
-        <link refid="classjam_1_1File_1_1Watcher_1_1Listener" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-      </node>
-      <node id="89">
+      <node id="92">
         <label>jam::Function::Map&lt; juce::Identifier, void &gt;</label>
         <link refid="structjam_1_1Function_1_1Map" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-      </node>
-      <node id="34">
-        <label>jam::LookAndFeel::Custom</label>
-        <link refid="classjam_1_1LookAndFeel_1_1Custom" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-        <childnode refid="35" relation="public-inheritance">
+        <childnode refid="93" relation="public-inheritance">
         </childnode>
       </node>
+      <node id="93">
+        <label>jam::HashMap&lt; KeyType, std::unique_ptr&lt; Function::Common &gt; &gt;</label>
+        <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
+      <node id="8">
+        <label>jam::HashMap&lt; int, juce::String &gt;</label>
+        <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
+      <node id="26">
+        <label>jam::HashMap&lt; jam::glyph::Atlas::Key, jam::glyph::LRUCache::CacheEntry &gt;</label>
+        <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
+      <node id="76">
+        <label>jam::HashMap&lt; juce::Identifier, int &gt;</label>
+        <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
+      <node id="34">
+        <label>jam::HashMap&lt; juce::Identifier, std::type_index &gt;</label>
+        <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
       <node id="33">
+        <label>jam::HashMap&lt; juce::Identifier, std::unique_ptr&lt; void, Deleter &gt; &gt;</label>
+        <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
+      <node id="41">
+        <label>jam::LookAndFeel::Custom</label>
+        <link refid="classjam_1_1LookAndFeel_1_1Custom" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="42" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="40">
         <label>jam::LookAndFeel::Methods&lt; LookAndFeel &gt;</label>
         <link refid="classjam_1_1LookAndFeel_1_1Methods" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-        <childnode refid="34" relation="public-inheritance">
+        <childnode refid="41" relation="public-inheritance">
         </childnode>
       </node>
       <node id="6">
@@ -416,7 +471,25 @@
           <edgelabel>map</edgelabel>
         </childnode>
       </node>
-      <node id="11">
+      <node id="12">
+        <label>jam::Map::Instance&lt; File &gt;</label>
+        <link refid="classjam_1_1Map_1_1Instance" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="7" relation="public-inheritance">
+        </childnode>
+        <childnode refid="8" relation="usage">
+          <edgelabel>map</edgelabel>
+        </childnode>
+      </node>
+      <node id="16">
+        <label>jam::Map::Instance&lt; Graphics &gt;</label>
+        <link refid="classjam_1_1Map_1_1Instance" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="7" relation="public-inheritance">
+        </childnode>
+        <childnode refid="8" relation="usage">
+          <edgelabel>map</edgelabel>
+        </childnode>
+      </node>
+      <node id="10">
         <label>jam::Map::Instance&lt; TabOrientation &gt;</label>
         <link refid="classjam_1_1Map_1_1Instance" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
         <childnode refid="7" relation="public-inheritance">
@@ -425,35 +498,101 @@
           <edgelabel>map</edgelabel>
         </childnode>
       </node>
-      <node id="13">
+      <node id="30">
         <label>jam::Model</label>
         <link refid="classjam_1_1Model" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-        <childnode refid="14" relation="public-inheritance">
+        <childnode refid="31" relation="public-inheritance">
         </childnode>
-        <childnode refid="15" relation="usage">
+        <childnode refid="32" relation="usage">
           <edgelabel>params</edgelabel>
         </childnode>
-        <childnode refid="20" relation="usage">
+        <childnode refid="35" relation="usage">
           <edgelabel>state</edgelabel>
         </childnode>
-        <childnode refid="21" relation="usage">
+        <childnode refid="36" relation="usage">
           <edgelabel>valueTreeChanging</edgelabel>
         </childnode>
       </node>
-      <node id="77">
+      <node id="19">
+        <label>jam::Owner&lt; jam::SharedResource &gt;</label>
+        <link refid="classjam_1_1Owner" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
+      <node id="18">
+        <label>jam::SharedResources&lt; TypefaceResources &gt;</label>
+        <link refid="structjam_1_1SharedResources" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="7" relation="public-inheritance">
+        </childnode>
+        <childnode refid="19" relation="usage">
+          <edgelabel>entries</edgelabel>
+        </childnode>
+      </node>
+      <node id="17">
+        <label>jam::TypefaceResources</label>
+        <link refid="structjam_1_1TypefaceResources" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="18" relation="public-inheritance">
+        </childnode>
+        <childnode refid="20" relation="usage">
+          <edgelabel>atlas</edgelabel>
+        </childnode>
+      </node>
+      <node id="79">
         <label>jam::Window</label>
         <link refid="classjam_1_1Window" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-        <childnode refid="78" relation="public-inheritance">
+        <childnode refid="80" relation="public-inheritance">
         </childnode>
-        <childnode refid="87" relation="public-inheritance">
+        <childnode refid="89" relation="public-inheritance">
         </childnode>
-        <childnode refid="88" relation="private-inheritance">
+        <childnode refid="90" relation="private-inheritance">
         </childnode>
-        <childnode refid="73" relation="usage">
+        <childnode refid="91" relation="usage">
           <edgelabel>tintColour</edgelabel>
         </childnode>
       </node>
-      <node id="46">
+      <node id="20">
+        <label>jam::glyph::Atlas</label>
+        <link refid="classjam_1_1glyph_1_1Atlas" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="21" relation="usage">
+          <edgelabel>packer</edgelabel>
+        </childnode>
+        <childnode refid="28" relation="usage">
+          <edgelabel>emoji</edgelabel>
+          <edgelabel>mono</edgelabel>
+        </childnode>
+      </node>
+      <node id="22">
+        <label>jam::glyph::Atlas::Packer</label>
+        <link refid="classjam_1_1glyph_1_1Atlas_1_1Packer" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="23" relation="usage">
+          <edgelabel>emojiPacker</edgelabel>
+          <edgelabel>monoPacker</edgelabel>
+        </childnode>
+        <childnode refid="25" relation="usage">
+          <edgelabel>emojiLRU</edgelabel>
+          <edgelabel>monoLRU</edgelabel>
+        </childnode>
+        <childnode refid="20" relation="usage">
+          <edgelabel>atlas</edgelabel>
+        </childnode>
+        <childnode refid="27" relation="usage">
+          <edgelabel>emojiPoolBuffer</edgelabel>
+          <edgelabel>monoPoolBuffer</edgelabel>
+        </childnode>
+      </node>
+      <node id="23">
+        <label>jam::glyph::AtlasPacker</label>
+        <link refid="structjam_1_1glyph_1_1AtlasPacker" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="24" relation="usage">
+          <edgelabel>shelves</edgelabel>
+        </childnode>
+      </node>
+      <node id="25">
+        <label>jam::glyph::LRUCache</label>
+        <link refid="classjam_1_1glyph_1_1LRUCache" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="26" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="53">
         <label>juce::AlertWindow::LookAndFeelMethods</label>
         <link refid="structjuce_1_1AlertWindow_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
@@ -461,94 +600,99 @@
         <label>juce::ApplicationCommandTarget</label>
         <link refid="classjuce_1_1ApplicationCommandTarget" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="88">
+      <node id="90">
         <label>juce::AsyncUpdater</label>
         <link refid="classjuce_1_1AsyncUpdater" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="45">
+      <node id="52">
         <label>juce::BubbleComponent::LookAndFeelMethods</label>
         <link refid="structjuce_1_1BubbleComponent_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="40">
+      <node id="47">
         <label>juce::Button::LookAndFeelMethods</label>
         <link refid="structjuce_1_1Button_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="59">
+      <node id="66">
         <label>juce::CallOutBox::LookAndFeelMethods</label>
         <link refid="structjuce_1_1CallOutBox_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="73">
+      <node id="91">
         <label>juce::Colour</label>
         <link refid="classjuce_1_1Colour" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="48">
+      <node id="55">
         <label>juce::ComboBox::LookAndFeelMethods</label>
         <link refid="structjuce_1_1ComboBox_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="81">
+      <node id="83">
         <label>juce::Component</label>
         <link refid="classjuce_1_1Component" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-        <childnode refid="82" relation="public-inheritance">
+        <childnode refid="84" relation="public-inheritance">
         </childnode>
       </node>
-      <node id="87">
+      <node id="89">
         <label>juce::ComponentBoundsConstrainer</label>
         <link refid="classjuce_1_1ComponentBoundsConstrainer" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="61">
+      <node id="68">
         <label>juce::ConcertinaPanel::LookAndFeelMethods</label>
         <link refid="structjuce_1_1ConcertinaPanel_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="21">
+      <node id="36">
         <label>juce::CriticalSection</label>
         <link refid="classjuce_1_1CriticalSection" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="78">
+      <node id="80">
         <label>juce::DocumentWindow</label>
         <link refid="classjuce_1_1DocumentWindow" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-        <childnode refid="79" relation="public-inheritance">
+        <childnode refid="81" relation="public-inheritance">
         </childnode>
       </node>
-      <node id="52">
+      <node id="59">
         <label>juce::DocumentWindow::LookAndFeelMethods</label>
         <link refid="structjuce_1_1DocumentWindow_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="65">
+      <node id="72">
         <label>juce::ExtraLookAndFeelBaseClasses::AudioDeviceSelectorComponentMethods</label>
         <link refid="structjuce_1_1ExtraLookAndFeelBaseClasses_1_1AudioDeviceSelectorComponentMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="64">
+      <node id="71">
         <label>juce::ExtraLookAndFeelBaseClasses::KeyMappingEditorComponentMethods</label>
         <link refid="structjuce_1_1ExtraLookAndFeelBaseClasses_1_1KeyMappingEditorComponentMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="66">
+      <node id="73">
         <label>juce::ExtraLookAndFeelBaseClasses::LassoComponentMethods</label>
         <link refid="structjuce_1_1ExtraLookAndFeelBaseClasses_1_1LassoComponentMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="26">
+      <node id="13">
         <label>juce::File</label>
         <link refid="classjuce_1_1File" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="43">
+      <node id="50">
         <label>juce::FileBrowserComponent::LookAndFeelMethods</label>
         <link refid="structjuce_1_1FileBrowserComponent_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="56">
+      <node id="63">
         <label>juce::FilenameComponent::LookAndFeelMethods</label>
         <link refid="structjuce_1_1FilenameComponent_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="57">
+      <node id="64">
         <label>juce::GroupComponent::LookAndFeelMethods</label>
         <link refid="structjuce_1_1GroupComponent_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="17">
-        <label>juce::Identifier</label>
-        <link refid="classjuce_1_1Identifier" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-        <childnode refid="17" relation="usage">
-          <edgelabel>null</edgelabel>
-        </childnode>
+      <node id="24">
+        <label>juce::HeapBlock&lt; jam::glyph::AtlasPacker::Shelf &gt;</label>
+        <link refid="classjuce_1_1HeapBlock" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="41">
+      <node id="27">
+        <label>juce::HeapBlock&lt; uint8_t &gt;</label>
+        <link refid="classjuce_1_1HeapBlock" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="28">
+        <label>juce::Image</label>
+        <link refid="classjuce_1_1Image" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="48">
         <label>juce::ImageButton::LookAndFeelMethods</label>
         <link refid="structjuce_1_1ImageButton_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
@@ -564,31 +708,13 @@
         <label>juce::JUCEApplicationBase</label>
         <link refid="classjuce_1_1JUCEApplicationBase" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="49">
+      <node id="56">
         <label>juce::Label::LookAndFeelMethods</label>
         <link refid="structjuce_1_1Label_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="29">
-        <label>juce::ListenerList&lt; jam::File::Watcher::Listener &gt;</label>
-        <link refid="classjuce_1_1ListenerList" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-      </node>
-      <node id="38">
+      <node id="45">
         <label>juce::LookAndFeel</label>
         <link refid="classjuce_1_1LookAndFeel" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-        <childnode refid="39" relation="public-inheritance">
-        </childnode>
-        <childnode refid="40" relation="public-inheritance">
-        </childnode>
-        <childnode refid="41" relation="public-inheritance">
-        </childnode>
-        <childnode refid="42" relation="public-inheritance">
-        </childnode>
-        <childnode refid="43" relation="public-inheritance">
-        </childnode>
-        <childnode refid="44" relation="public-inheritance">
-        </childnode>
-        <childnode refid="45" relation="public-inheritance">
-        </childnode>
         <childnode refid="46" relation="public-inheritance">
         </childnode>
         <childnode refid="47" relation="public-inheritance">
@@ -633,214 +759,171 @@
         </childnode>
         <childnode refid="67" relation="public-inheritance">
         </childnode>
-      </node>
-      <node id="37">
-        <label>juce::LookAndFeel_V2</label>
-        <link refid="classjuce_1_1LookAndFeel__V2" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-        <childnode refid="38" relation="public-inheritance">
+        <childnode refid="68" relation="public-inheritance">
         </childnode>
-      </node>
-      <node id="36">
-        <label>juce::LookAndFeel_V3</label>
-        <link refid="classjuce_1_1LookAndFeel__V3" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-        <childnode refid="37" relation="public-inheritance">
+        <childnode refid="69" relation="public-inheritance">
         </childnode>
-      </node>
-      <node id="35">
-        <label>juce::LookAndFeel_V4</label>
-        <link refid="classjuce_1_1LookAndFeel__V4" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-        <childnode refid="36" relation="public-inheritance">
+        <childnode refid="70" relation="public-inheritance">
         </childnode>
-      </node>
-      <node id="82">
-        <label>juce::MouseListener</label>
-        <link refid="classjuce_1_1MouseListener" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-      </node>
-      <node id="30">
-        <label>juce::OwnedArray&lt; Impl &gt;</label>
-        <link refid="classjuce_1_1OwnedArray" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-      </node>
-      <node id="74">
-        <label>juce::Path</label>
-        <link refid="classjuce_1_1Path" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-      </node>
-      <node id="47">
-        <label>juce::PopupMenu::LookAndFeelMethods</label>
-        <link refid="structjuce_1_1PopupMenu_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-      </node>
-      <node id="62">
-        <label>juce::ProgressBar::LookAndFeelMethods</label>
-        <link refid="structjuce_1_1ProgressBar_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-      </node>
-      <node id="55">
-        <label>juce::PropertyComponent::LookAndFeelMethods</label>
-        <link refid="structjuce_1_1PropertyComponent_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-      </node>
-      <node id="72">
-        <label>juce::Rectangle&lt; float &gt;</label>
-        <link refid="classjuce_1_1Rectangle" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-      </node>
-      <node id="86">
-        <label>juce::ResizableBorderComponent</label>
-        <link refid="classjuce_1_1ResizableBorderComponent" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-        <childnode refid="81" relation="public-inheritance">
+        <childnode refid="71" relation="public-inheritance">
         </childnode>
-      </node>
-      <node id="84">
-        <label>juce::ResizableCornerComponent</label>
-        <link refid="classjuce_1_1ResizableCornerComponent" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-        <childnode refid="81" relation="public-inheritance">
+        <childnode refid="72" relation="public-inheritance">
         </childnode>
-      </node>
-      <node id="79">
-        <label>juce::ResizableWindow</label>
-        <link refid="classjuce_1_1ResizableWindow" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-        <childnode refid="80" relation="public-inheritance">
+        <childnode refid="73" relation="public-inheritance">
         </childnode>
-        <childnode refid="83" relation="usage">
-          <edgelabel>resizableCorner</edgelabel>
-        </childnode>
-        <childnode refid="85" relation="usage">
-          <edgelabel>resizableBorder</edgelabel>
-        </childnode>
-      </node>
-      <node id="51">
-        <label>juce::ResizableWindow::LookAndFeelMethods</label>
-        <link refid="structjuce_1_1ResizableWindow_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-      </node>
-      <node id="39">
-        <label>juce::ScrollBar::LookAndFeelMethods</label>
-        <link refid="structjuce_1_1ScrollBar_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-      </node>
-      <node id="67">
-        <label>juce::SidePanel::LookAndFeelMethods</label>
-        <link refid="structjuce_1_1SidePanel_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-      </node>
-      <node id="50">
-        <label>juce::Slider::LookAndFeelMethods</label>
-        <link refid="structjuce_1_1Slider_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-      </node>
-      <node id="63">
-        <label>juce::StretchableLayoutResizerBar::LookAndFeelMethods</label>
-        <link refid="structjuce_1_1StretchableLayoutResizerBar_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-      </node>
-      <node id="9">
-        <label>juce::String</label>
-        <link refid="classjuce_1_1String" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-      </node>
-      <node id="54">
-        <label>juce::TabbedButtonBar::LookAndFeelMethods</label>
-        <link refid="structjuce_1_1TabbedButtonBar_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-      </node>
-      <node id="58">
-        <label>juce::TableHeaderComponent::LookAndFeelMethods</label>
-        <link refid="structjuce_1_1TableHeaderComponent_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-      </node>
-      <node id="42">
-        <label>juce::TextEditor::LookAndFeelMethods</label>
-        <link refid="structjuce_1_1TextEditor_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-      </node>
-      <node id="14">
-        <label>juce::Timer</label>
-        <link refid="classjuce_1_1Timer" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-      </node>
-      <node id="60">
-        <label>juce::Toolbar::LookAndFeelMethods</label>
-        <link refid="structjuce_1_1Toolbar_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-      </node>
-      <node id="53">
-        <label>juce::TooltipWindow::LookAndFeelMethods</label>
-        <link refid="structjuce_1_1TooltipWindow_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-      </node>
-      <node id="80">
-        <label>juce::TopLevelWindow</label>
-        <link refid="classjuce_1_1TopLevelWindow" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-        <childnode refid="81" relation="public-inheritance">
+        <childnode refid="74" relation="public-inheritance">
         </childnode>
       </node>
       <node id="44">
+        <label>juce::LookAndFeel_V2</label>
+        <link refid="classjuce_1_1LookAndFeel__V2" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+        <childnode refid="45" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="43">
+        <label>juce::LookAndFeel_V3</label>
+        <link refid="classjuce_1_1LookAndFeel__V3" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+        <childnode refid="44" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="42">
+        <label>juce::LookAndFeel_V4</label>
+        <link refid="classjuce_1_1LookAndFeel__V4" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+        <childnode refid="43" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="84">
+        <label>juce::MouseListener</label>
+        <link refid="classjuce_1_1MouseListener" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="54">
+        <label>juce::PopupMenu::LookAndFeelMethods</label>
+        <link refid="structjuce_1_1PopupMenu_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="69">
+        <label>juce::ProgressBar::LookAndFeelMethods</label>
+        <link refid="structjuce_1_1ProgressBar_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="62">
+        <label>juce::PropertyComponent::LookAndFeelMethods</label>
+        <link refid="structjuce_1_1PropertyComponent_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="88">
+        <label>juce::ResizableBorderComponent</label>
+        <link refid="classjuce_1_1ResizableBorderComponent" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+        <childnode refid="83" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="86">
+        <label>juce::ResizableCornerComponent</label>
+        <link refid="classjuce_1_1ResizableCornerComponent" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+        <childnode refid="83" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="81">
+        <label>juce::ResizableWindow</label>
+        <link refid="classjuce_1_1ResizableWindow" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+        <childnode refid="82" relation="public-inheritance">
+        </childnode>
+        <childnode refid="85" relation="usage">
+          <edgelabel>resizableCorner</edgelabel>
+        </childnode>
+        <childnode refid="87" relation="usage">
+          <edgelabel>resizableBorder</edgelabel>
+        </childnode>
+      </node>
+      <node id="58">
+        <label>juce::ResizableWindow::LookAndFeelMethods</label>
+        <link refid="structjuce_1_1ResizableWindow_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="46">
+        <label>juce::ScrollBar::LookAndFeelMethods</label>
+        <link refid="structjuce_1_1ScrollBar_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="74">
+        <label>juce::SidePanel::LookAndFeelMethods</label>
+        <link refid="structjuce_1_1SidePanel_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="57">
+        <label>juce::Slider::LookAndFeelMethods</label>
+        <link refid="structjuce_1_1Slider_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="70">
+        <label>juce::StretchableLayoutResizerBar::LookAndFeelMethods</label>
+        <link refid="structjuce_1_1StretchableLayoutResizerBar_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="14">
+        <label>juce::String</label>
+        <link refid="classjuce_1_1String" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="61">
+        <label>juce::TabbedButtonBar::LookAndFeelMethods</label>
+        <link refid="structjuce_1_1TabbedButtonBar_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="65">
+        <label>juce::TableHeaderComponent::LookAndFeelMethods</label>
+        <link refid="structjuce_1_1TableHeaderComponent_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="49">
+        <label>juce::TextEditor::LookAndFeelMethods</label>
+        <link refid="structjuce_1_1TextEditor_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="31">
+        <label>juce::Timer</label>
+        <link refid="classjuce_1_1Timer" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="67">
+        <label>juce::Toolbar::LookAndFeelMethods</label>
+        <link refid="structjuce_1_1Toolbar_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="60">
+        <label>juce::TooltipWindow::LookAndFeelMethods</label>
+        <link refid="structjuce_1_1TooltipWindow_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="82">
+        <label>juce::TopLevelWindow</label>
+        <link refid="classjuce_1_1TopLevelWindow" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+        <childnode refid="83" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="51">
         <label>juce::TreeView::LookAndFeelMethods</label>
         <link refid="structjuce_1_1TreeView_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="20">
+      <node id="35">
         <label>juce::ValueTree</label>
         <link refid="classjuce_1_1ValueTree" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="68">
+      <node id="75">
         <label>juce::ValueTree::Listener</label>
         <link refid="classjuce_1_1ValueTree_1_1Listener" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="8">
-        <label>std::map&lt; int, juce::String &gt;</label>
-        <childnode refid="9" relation="usage">
-          <edgelabel>elements</edgelabel>
-        </childnode>
-      </node>
-      <node id="25">
-        <label>std::map&lt; juce::File, std::unique_ptr&lt; jam::File::Watcher::CoalesceTimer &gt; &gt;</label>
-        <childnode refid="26" relation="usage">
-          <edgelabel>keys</edgelabel>
-        </childnode>
-        <childnode refid="27" relation="usage">
-          <edgelabel>elements</edgelabel>
-        </childnode>
-      </node>
-      <node id="75">
+      <node id="77">
         <label>std::unique_ptr&lt; end::Window &gt;</label>
-        <childnode refid="76" relation="usage">
+        <childnode refid="78" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
-      <node id="27">
-        <label>std::unique_ptr&lt; jam::File::Watcher::CoalesceTimer &gt;</label>
-        <childnode refid="28" relation="usage">
+      <node id="21">
+        <label>std::unique_ptr&lt; jam::glyph::Atlas::Packer &gt;</label>
+        <childnode refid="22" relation="usage">
+          <edgelabel>ptr</edgelabel>
+        </childnode>
+      </node>
+      <node id="87">
+        <label>std::unique_ptr&lt; juce::ResizableBorderComponent &gt;</label>
+        <childnode refid="88" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
       <node id="85">
-        <label>std::unique_ptr&lt; juce::ResizableBorderComponent &gt;</label>
+        <label>std::unique_ptr&lt; juce::ResizableCornerComponent &gt;</label>
         <childnode refid="86" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
-      <node id="83">
-        <label>std::unique_ptr&lt; juce::ResizableCornerComponent &gt;</label>
-        <childnode refid="84" relation="usage">
-          <edgelabel>ptr</edgelabel>
-        </childnode>
-      </node>
-      <node id="18">
-        <label>std::unique_ptr&lt; void, Deleter &gt;</label>
-      </node>
-      <node id="69">
-        <label>std::unordered_map&lt; juce::Identifier, int &gt;</label>
-        <childnode refid="17" relation="usage">
-          <edgelabel>keys</edgelabel>
-        </childnode>
-      </node>
-      <node id="19">
-        <label>std::unordered_map&lt; juce::Identifier, std::type_index &gt;</label>
-        <childnode refid="17" relation="usage">
-          <edgelabel>keys</edgelabel>
-        </childnode>
-      </node>
-      <node id="16">
-        <label>std::unordered_map&lt; juce::Identifier, std::unique_ptr&lt; void, Deleter &gt; &gt;</label>
-        <childnode refid="17" relation="usage">
-          <edgelabel>keys</edgelabel>
-        </childnode>
-        <childnode refid="18" relation="usage">
-          <edgelabel>elements</edgelabel>
-        </childnode>
-      </node>
-      <node id="70">
-        <label>std::vector&lt; end::LookAndFeel::Segment &gt;</label>
-        <childnode refid="71" relation="usage">
-          <edgelabel>elements</edgelabel>
-        </childnode>
-      </node>
     </collaborationgraph>
-    <location file="Main.h" line="14" column="1" bodyfile="Main.h" bodystart="16" bodyend="46"/>
+    <location file="Main.h" line="14" column="1" bodyfile="Main.h" bodystart="16" bodyend="54"/>
     <listofallmembers>
       <member refid="classjuce_1_1JUCEApplication_1a370facd8fdca62a38767ecb843059bc6" prot="public" virt="virtual"><scope>end::Application</scope><name>anotherInstanceStarted</name></member>
       <member refid="classend_1_1_application_1a127405d348ee02fc38b374812bf3c883" prot="public" virt="non-virtual"><scope>end::Application</scope><name>Application</name></member>
@@ -848,6 +931,7 @@
       <member refid="classjuce_1_1JUCEApplicationBase_1ac535f3e5c5a6c783efed6e8e86b341f8" prot="public" virt="virtual"><scope>end::Application</scope><name>backButtonPressed</name></member>
       <member refid="classend_1_1_application_1aa1961e4f6d86729d7dfa22a68e8fff41" prot="private" virt="non-virtual"><scope>end::Application</scope><name>boolMap</name></member>
       <member refid="classend_1_1_application_1a765f410d9d4232de53d86311b3ad303f" prot="private" virt="non-virtual"><scope>end::Application</scope><name>config</name></member>
+      <member refid="classend_1_1_application_1a421a76776179e2906a27e4689a7a1252" prot="private" virt="non-virtual"><scope>end::Application</scope><name>file</name></member>
       <member refid="classjuce_1_1ApplicationCommandTarget_1ae24d13c8c8ed73bdb1870463d5d08a32" prot="public" virt="non-virtual"><scope>end::Application</scope><name>findFirstTargetParentComponent</name></member>
       <member refid="classjuce_1_1JUCEApplication_1a6eb94d2c28ce59bd6b0f4387a302a477" prot="public" virt="virtual"><scope>end::Application</scope><name>getAllCommands</name></member>
       <member refid="classend_1_1_application_1ab2d34713da4e6b4917cf53a08cda47eb" prot="public" virt="virtual"><scope>end::Application</scope><name>getApplicationName</name></member>
@@ -859,6 +943,7 @@
       <member refid="classjuce_1_1JUCEApplication_1a692d98883525936314ee3554c219c42b" prot="public" virt="non-virtual"><scope>end::Application</scope><name>getInstance</name></member>
       <member refid="classjuce_1_1JUCEApplication_1a56c6e74bf9882d11a5b6cc0193905db9" prot="public" virt="virtual"><scope>end::Application</scope><name>getNextCommandTarget</name></member>
       <member refid="classjuce_1_1ApplicationCommandTarget_1a3106dff749edb744b485afcd0d762887" prot="public" virt="non-virtual"><scope>end::Application</scope><name>getTargetForCommand</name></member>
+      <member refid="classend_1_1_application_1acc1f4a177ce2ade6da9d8011b22fc11f" prot="private" virt="non-virtual"><scope>end::Application</scope><name>graphics</name></member>
       <member refid="classend_1_1_application_1a598aa5d15712e3107ade5df8f6c5e33d" prot="public" virt="virtual"><scope>end::Application</scope><name>initialise</name></member>
       <member refid="classjuce_1_1ApplicationCommandTarget_1af7e67bec47d0817e1806a4bb51aa480f" prot="public" virt="non-virtual"><scope>end::Application</scope><name>invoke</name></member>
       <member refid="classjuce_1_1ApplicationCommandTarget_1ab78d89b7cf280fe92bc03babb157e228" prot="public" virt="non-virtual"><scope>end::Application</scope><name>invokeDirectly</name></member>
@@ -879,6 +964,7 @@
       <member refid="classjuce_1_1JUCEApplication_1a60d2d08c658e525ca5d1641e4e38fd42" prot="public" virt="virtual"><scope>end::Application</scope><name>suspended</name></member>
       <member refid="classend_1_1_application_1a636a8c0776059c65df3d0405229858f4" prot="public" virt="virtual"><scope>end::Application</scope><name>systemRequestedQuit</name></member>
       <member refid="classend_1_1_application_1a7ce6e2b8220f6d98cf2140c9c365154f" prot="private" virt="non-virtual"><scope>end::Application</scope><name>tabOrientationMap</name></member>
+      <member refid="classend_1_1_application_1a3bc9f4a932d0847752639fded0fd53dd" prot="private" virt="non-virtual"><scope>end::Application</scope><name>typefaceResources</name></member>
       <member refid="classjuce_1_1JUCEApplication_1aa1aeb9c570352be72d9f5771076fdb10" prot="public" virt="virtual"><scope>end::Application</scope><name>unhandledException</name></member>
       <member refid="classend_1_1_application_1af5685bc1fb3a0e77fad81b639bcc92f7" prot="private" virt="non-virtual"><scope>end::Application</scope><name>window</name></member>
       <member refid="classjuce_1_1ApplicationCommandTarget_1a63f4993b755ec2dbabfe9a064841322b" prot="public" virt="virtual"><scope>end::Application</scope><name>~ApplicationCommandTarget</name></member>

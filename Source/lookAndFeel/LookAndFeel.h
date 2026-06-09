@@ -50,7 +50,7 @@ public:
     /** @brief Config property → colourId map. One entry per lua key.
         Walks the ValueTree recursively; every node with a matching property
         key gets the corresponding colour set. */
-    static const std::unordered_map<juce::Identifier, int> colourIds;
+    static const jam::HashMap<juce::Identifier, int> colourIds;
 
     LookAndFeel();
     ~LookAndFeel();
@@ -65,6 +65,13 @@ public:
     /** @brief Paints the bar's full background area. */
     void drawBarBackground (juce::Graphics&, juce::Component& bar) override;
 
+    /** @brief Paints the sliding indicator behind the active tab. */
+    void drawBarIndicator (juce::Graphics&, juce::Component& indicator) override;
+
+    /** @brief Paints an individual tab button shape. */
+    void drawTabButton (juce::Graphics&, juce::Button& button,
+                        bool isMouseOver, bool isMouseDown) override;
+
     /** @brief Draws the resizer bar between panes. */
     void drawStretchableLayoutResizerBar (juce::Graphics&,
                                           int w,
@@ -74,33 +81,25 @@ public:
                                           bool isMouseDown) override;
 
 private:
-    juce::ValueTree config { config::Model::get() };
-
-    //==============================================================================
-    /** @brief One paint step: a dest rect, a colour, a path, and a stroke flag.
-     *  An empty path means "fill/stroke the dest rect only" (no geometry).
-     *  Built by the SVG parser, consumed by drawBarBackground. */
-    struct Segment
-    {
-        juce::Rectangle<float> sourceBounds;
-        juce::Rectangle<float> dest;
-        juce::Colour colour;
-        juce::Path path;
-        bool stroke { false };
-    };
-
-    std::vector<Segment> barSegments;
+    config::Model& config { *config::Model::getContext() };
 
     //==============================================================================
     /** @brief Applies the full colour set from config. Called by the ctor
         and by the ValueTree::Listener path. */
     void setColours();
 
-    /** @brief Single-walk SVG → segments. Walks root-level \<g\> regions,
-     *  finds role groups, resolves colour, extracts geometry. Corners (no
-     *  bounds rect) sorted last; flex (has bounds rect) sorted first. */
-    void parseTabBarSvg (const juce::XmlElement& svg, std::vector<Segment>& segments);
+    /** @brief Reads SVG file content from disk into string members.
+        Called from ctor and from valueTreePropertyChanged on SVG property changes.
+        No parsing — content is stored as raw strings for future use. */
+    void loadGraphics();
 
+    //==============================================================================
+    /** @brief Raw SVG content for the tab bar background. Loaded from disk by loadGraphics(). */
+    juce::String barSvg;
+    /** @brief Raw SVG content for the active tab indicator. Loaded from disk by loadGraphics(). */
+    juce::String indicatorSvg;
+    /** @brief Raw SVG content for inactive tab buttons. Loaded from disk by loadGraphics(). */
+    juce::String buttonSvg;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LookAndFeel)
 };

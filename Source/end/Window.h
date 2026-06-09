@@ -85,7 +85,8 @@ public:
     valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
 
 private:
-    juce::ValueTree config { config::Model::get() };
+    config::Model& config { *config::Model::getContext() };
+
     void registerStyleParameters();
 
     /** @brief Resolves the config node and dispatches it to the registered

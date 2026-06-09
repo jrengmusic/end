@@ -47,9 +47,7 @@ Panes* Tabs::getActivePanes() noexcept
     return static_cast<Panes*> (getCurrentContentComponent());
 }
 
-void Tabs::currentTabChanged (int newCurrentTabIndex, const juce::String& newCurrentTabName)
-{
-}
+void Tabs::currentTabChanged (int newCurrentTabIndex, const juce::String& newCurrentTabName) {}
 
 void Tabs::updateTabBarVisibility()
 {
@@ -59,7 +57,7 @@ void Tabs::updateTabBarVisibility()
     }
     else
     {
-        auto config { config::Model::get() };
+        config::Model& config { *config::Model::getContext() };
         auto display { config.getChildWithName (IDtype::display) };
         auto tabNode { display.getChildWithName (IDtype::tab) };
         auto family { tabNode.getProperty (ID::family, "Display Mono").toString() };

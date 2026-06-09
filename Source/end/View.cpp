@@ -6,8 +6,6 @@ namespace end
 
 View::View (jam::Model& m)
     : jam::Model::Component { m, IDtype::view }
-    , config (config::Model::get())
-    , model (m.state)
     , tabs (m)
 {
     setOpaque (false);
@@ -17,19 +15,19 @@ View::View (jam::Model& m)
     registerActions();
 
     addAndMakeVisible (tabs);
+    // addChildComponent (messageOverlay); // DISABLED — isolating virgin crash
 
     //==============================================================================
     attachments.add (std::make_unique<jam::Model::Attachment> (*this));
     attachments.add (std::make_unique<jam::Model::Attachment> (tabs));
 
     config.addListener (this);
-    model.addListener (this);
 
     setTabOrientation();
     tabs.addNewTab();
 
     //==============================================================================
-    auto init { config::Model::getInitWindowSize() };
+    auto init { config.getInitWindowSize() };
     setSize (init.getWidth(), init.getHeight());
 }
 
@@ -45,6 +43,7 @@ void View::resized()
 
     //==============================================================================
     tabs.setBounds (getLocalBounds());
+    messageOverlay.setBounds (getLocalBounds());
 }
 
 bool View::keyPressed (const juce::KeyPress& key, juce::Component* originatingComponent)
@@ -126,7 +125,8 @@ void View::registerActions()
                           {
                               auto id { state.getProperty (ID::focusedPane) };
                               if (auto* panes { tabs.getActivePanes() })
-                                  panes->split (jam::UUID (static_cast<int64_t> (id)), jam::ID::horizontal);
+                                  panes->split (
+                                      jam::UUID (static_cast<int64_t> (id)), jam::ID::horizontal);
                           });
 
     registry.actions.add (ID::splitVertical,
@@ -134,7 +134,8 @@ void View::registerActions()
                           {
                               auto id { state.getProperty (ID::focusedPane) };
                               if (auto* panes { tabs.getActivePanes() })
-                                  panes->split (jam::UUID (static_cast<int64_t> (id)), jam::ID::vertical);
+                                  panes->split (
+                                      jam::UUID (static_cast<int64_t> (id)), jam::ID::vertical);
                           });
 
     registry.actions.add (ID::closePane,

@@ -28,8 +28,7 @@
     <name>Config.h</name>
     <path>config/</path>
     <filename>_config_8h.html</filename>
-    <includes id="_identifier_8h" name="Identifier.h" local="yes" import="no" module="no" objc="no">Identifier.h</includes>
-    <class kind="struct">config::File</class>
+    <includes id="_map_8h" name="Map.h" local="yes" import="no" module="no" objc="no">../end/Map.h</includes>
     <class kind="class">config::Model</class>
     <namespace>config</namespace>
   </compound>
@@ -37,8 +36,22 @@
     <name>Map.h</name>
     <path>end/</path>
     <filename>_map_8h.html</filename>
+    <includes id="_identifier_8h" name="Identifier.h" local="yes" import="no" module="no" objc="no">Identifier.h</includes>
     <class kind="struct">end::Boolean</class>
     <class kind="struct">end::TabOrientation</class>
+    <class kind="struct">config::File</class>
+    <class kind="struct">config::Graphics</class>
+    <namespace>end</namespace>
+    <namespace>config</namespace>
+  </compound>
+  <compound kind="file">
+    <name>MessageOverlay.h</name>
+    <path>end/</path>
+    <filename>_message_overlay_8h.html</filename>
+    <includes id="_identifier_8h" name="Identifier.h" local="yes" import="no" module="no" objc="no">Identifier.h</includes>
+    <includes id="_config_8h" name="Config.h" local="yes" import="no" module="no" objc="no">../config/Config.h</includes>
+    <includes id="_look_and_feel_8h" name="LookAndFeel.h" local="yes" import="no" module="no" objc="no">../lookAndFeel/LookAndFeel.h</includes>
+    <class kind="class">end::MessageOverlay</class>
     <namespace>end</namespace>
   </compound>
   <compound kind="file">
@@ -108,6 +121,7 @@
     <path>end/</path>
     <filename>_view_8h.html</filename>
     <includes id="_tabs_8h" name="Tabs.h" local="yes" import="no" module="no" objc="no">end/Tabs.h</includes>
+    <includes id="_message_overlay_8h" name="MessageOverlay.h" local="yes" import="no" module="no" objc="no">end/MessageOverlay.h</includes>
     <includes id="_registry_8h" name="Registry.h" local="yes" import="no" module="no" objc="no">action/Registry.h</includes>
     <includes id="_config_8h" name="Config.h" local="yes" import="no" module="no" objc="no">config/Config.h</includes>
     <includes id="_map_8h" name="Map.h" local="yes" import="no" module="no" objc="no">Map.h</includes>
@@ -232,7 +246,6 @@
     <includes id="_identifier_8h" name="Identifier.h" local="yes" import="no" module="no" objc="no">Identifier.h</includes>
     <includes id="_config_8h" name="Config.h" local="yes" import="no" module="no" objc="no">../config/Config.h</includes>
     <class kind="class">end::LookAndFeel</class>
-    <class kind="struct">end::LookAndFeel::Segment</class>
     <namespace>end</namespace>
   </compound>
   <compound kind="file">
@@ -323,6 +336,27 @@
       <arglist></arglist>
     </member>
     <member kind="variable" protection="private">
+      <type>config::File</type>
+      <name>file</name>
+      <anchorfile>classend_1_1_application.html</anchorfile>
+      <anchor>a421a76776179e2906a27e4689a7a1252</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="private">
+      <type>config::Graphics</type>
+      <name>graphics</name>
+      <anchorfile>classend_1_1_application.html</anchorfile>
+      <anchor>acc1f4a177ce2ade6da9d8011b22fc11f</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="private">
+      <type>jam::TypefaceResources</type>
+      <name>typefaceResources</name>
+      <anchorfile>classend_1_1_application.html</anchorfile>
+      <anchor>a3bc9f4a932d0847752639fded0fd53dd</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="private">
       <type>config::Model</type>
       <name>config</name>
       <anchorfile>classend_1_1_application.html</anchorfile>
@@ -394,108 +428,130 @@
   <compound kind="struct">
     <name>config::File</name>
     <filename>structconfig_1_1_file.html</filename>
+    <base>jam::Map::Instance&lt; File &gt;</base>
     <member kind="enumvalue">
       <name>config</name>
       <anchorfile>structconfig_1_1_file.html</anchorfile>
-      <anchor>a7d41bb4d187a9b8ecee1ea72245e112ba0fc85df7daa8f0d98a096582ced3738f</anchor>
+      <anchor>aea80c82cba5cd966cb1dfe18c0b8c6ada0fc85df7daa8f0d98a096582ced3738f</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
       <name>whelmed</name>
       <anchorfile>structconfig_1_1_file.html</anchorfile>
-      <anchor>a7d41bb4d187a9b8ecee1ea72245e112ba8445a8e632640713c5459f4255889087</anchor>
+      <anchor>aea80c82cba5cd966cb1dfe18c0b8c6ada8445a8e632640713c5459f4255889087</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
       <name>nexus</name>
       <anchorfile>structconfig_1_1_file.html</anchorfile>
-      <anchor>a7d41bb4d187a9b8ecee1ea72245e112ba223730b185e3ae2640f6f0b87a067d01</anchor>
+      <anchor>aea80c82cba5cd966cb1dfe18c0b8c6ada223730b185e3ae2640f6f0b87a067d01</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
       <name>display</name>
       <anchorfile>structconfig_1_1_file.html</anchorfile>
-      <anchor>a7d41bb4d187a9b8ecee1ea72245e112ba81cd47b1607025b96034d93f45523319</anchor>
+      <anchor>aea80c82cba5cd966cb1dfe18c0b8c6ada81cd47b1607025b96034d93f45523319</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
       <name>graphics</name>
       <anchorfile>structconfig_1_1_file.html</anchorfile>
-      <anchor>a7d41bb4d187a9b8ecee1ea72245e112baf3232b14a906fb91ecda7443235ce6ef</anchor>
+      <anchor>aea80c82cba5cd966cb1dfe18c0b8c6adaf3232b14a906fb91ecda7443235ce6ef</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
       <name>actions</name>
       <anchorfile>structconfig_1_1_file.html</anchorfile>
-      <anchor>a7d41bb4d187a9b8ecee1ea72245e112ba4c13453f0623e489137493b9305ec0ea</anchor>
+      <anchor>aea80c82cba5cd966cb1dfe18c0b8c6ada4c13453f0623e489137493b9305ec0ea</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
       <name>popups</name>
       <anchorfile>structconfig_1_1_file.html</anchorfile>
-      <anchor>a7d41bb4d187a9b8ecee1ea72245e112bafcbf6aafaecace693615939e7179e737</anchor>
+      <anchor>aea80c82cba5cd966cb1dfe18c0b8c6adafcbf6aafaecace693615939e7179e737</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
       <name>keys</name>
       <anchorfile>structconfig_1_1_file.html</anchorfile>
-      <anchor>a7d41bb4d187a9b8ecee1ea72245e112ba61592c1bf865f03bcbd13f0c6fa4340e</anchor>
+      <anchor>aea80c82cba5cd966cb1dfe18c0b8c6ada61592c1bf865f03bcbd13f0c6fa4340e</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
       <name>config</name>
       <anchorfile>structconfig_1_1_file.html</anchorfile>
-      <anchor>a7d41bb4d187a9b8ecee1ea72245e112ba0fc85df7daa8f0d98a096582ced3738f</anchor>
+      <anchor>aea80c82cba5cd966cb1dfe18c0b8c6ada0fc85df7daa8f0d98a096582ced3738f</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
       <name>whelmed</name>
       <anchorfile>structconfig_1_1_file.html</anchorfile>
-      <anchor>a7d41bb4d187a9b8ecee1ea72245e112ba8445a8e632640713c5459f4255889087</anchor>
+      <anchor>aea80c82cba5cd966cb1dfe18c0b8c6ada8445a8e632640713c5459f4255889087</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
       <name>nexus</name>
       <anchorfile>structconfig_1_1_file.html</anchorfile>
-      <anchor>a7d41bb4d187a9b8ecee1ea72245e112ba223730b185e3ae2640f6f0b87a067d01</anchor>
+      <anchor>aea80c82cba5cd966cb1dfe18c0b8c6ada223730b185e3ae2640f6f0b87a067d01</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
       <name>display</name>
       <anchorfile>structconfig_1_1_file.html</anchorfile>
-      <anchor>a7d41bb4d187a9b8ecee1ea72245e112ba81cd47b1607025b96034d93f45523319</anchor>
+      <anchor>aea80c82cba5cd966cb1dfe18c0b8c6ada81cd47b1607025b96034d93f45523319</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
       <name>graphics</name>
       <anchorfile>structconfig_1_1_file.html</anchorfile>
-      <anchor>a7d41bb4d187a9b8ecee1ea72245e112baf3232b14a906fb91ecda7443235ce6ef</anchor>
+      <anchor>aea80c82cba5cd966cb1dfe18c0b8c6adaf3232b14a906fb91ecda7443235ce6ef</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
       <name>actions</name>
       <anchorfile>structconfig_1_1_file.html</anchorfile>
-      <anchor>a7d41bb4d187a9b8ecee1ea72245e112ba4c13453f0623e489137493b9305ec0ea</anchor>
+      <anchor>aea80c82cba5cd966cb1dfe18c0b8c6ada4c13453f0623e489137493b9305ec0ea</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
       <name>popups</name>
       <anchorfile>structconfig_1_1_file.html</anchorfile>
-      <anchor>a7d41bb4d187a9b8ecee1ea72245e112bafcbf6aafaecace693615939e7179e737</anchor>
+      <anchor>aea80c82cba5cd966cb1dfe18c0b8c6adafcbf6aafaecace693615939e7179e737</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
       <name>keys</name>
       <anchorfile>structconfig_1_1_file.html</anchorfile>
-      <anchor>a7d41bb4d187a9b8ecee1ea72245e112ba61592c1bf865f03bcbd13f0c6fa4340e</anchor>
+      <anchor>aea80c82cba5cd966cb1dfe18c0b8c6ada61592c1bf865f03bcbd13f0c6fa4340e</anchor>
       <arglist></arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>File</name>
+      <anchorfile>structconfig_1_1_file.html</anchorfile>
+      <anchor>ae65e95e7d00b4fcaad4a0ab2265d903d</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static const auto &amp;</type>
+      <name>get</name>
+      <anchorfile>structconfig_1_1_file.html</anchorfile>
+      <anchor>a1fe87258f092c2141e6d0171085f1468</anchor>
+      <arglist>() noexcept</arglist>
     </member>
     <member kind="function" static="yes">
       <type>static const juce::String</type>
       <name>getName</name>
       <anchorfile>structconfig_1_1_file.html</anchorfile>
-      <anchor>af7e5a59b7450673c2677f4dcf3817279</anchor>
+      <anchor>ae101919bc1214478f5086e2e859742de</anchor>
       <arglist>(int key) noexcept</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static const juce::File</type>
+      <name>getPath</name>
+      <anchorfile>structconfig_1_1_file.html</anchorfile>
+      <anchor>a8fb7a80701aaed8671256aa65afaf19d</anchor>
+      <arglist>(juce::StringRef child) noexcept</arglist>
     </member>
     <member kind="variable" static="yes">
       <type>static const juce::File</type>
@@ -511,12 +567,102 @@
       <anchor>a6ab20528e69a64a7091bd8d1269eac55</anchor>
       <arglist></arglist>
     </member>
-    <member kind="variable" static="yes">
-      <type>static const std::unordered_map&lt; int, juce::String &gt;</type>
-      <name>map</name>
+    <member kind="function" protection="private">
+      <type>const juce::String &amp;</type>
+      <name>getDefault</name>
       <anchorfile>structconfig_1_1_file.html</anchorfile>
-      <anchor>a1d5413f8cf2eb67f26dd717fb948c596</anchor>
+      <anchor>ad20cf8ce87a81af789c0437715378777</anchor>
+      <arglist>() const noexcept override</arglist>
+    </member>
+  </compound>
+  <compound kind="struct">
+    <name>config::Graphics</name>
+    <filename>structconfig_1_1_graphics.html</filename>
+    <base>jam::Map::Instance&lt; Graphics &gt;</base>
+    <member kind="enumvalue">
+      <name>tabBar</name>
+      <anchorfile>structconfig_1_1_graphics.html</anchorfile>
+      <anchor>a5e1a20a420c0a33ddab4ec6797c30ceea569fa475ce9202aadea617aff4696e47</anchor>
       <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>tabInactive</name>
+      <anchorfile>structconfig_1_1_graphics.html</anchorfile>
+      <anchor>a5e1a20a420c0a33ddab4ec6797c30ceeacc5a98dd83283f0635b88862a97b576b</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>tabActive</name>
+      <anchorfile>structconfig_1_1_graphics.html</anchorfile>
+      <anchor>a5e1a20a420c0a33ddab4ec6797c30ceeae40e6b1b9ba2ebf9940a145a2e52a06a</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>tabBar</name>
+      <anchorfile>structconfig_1_1_graphics.html</anchorfile>
+      <anchor>a5e1a20a420c0a33ddab4ec6797c30ceea569fa475ce9202aadea617aff4696e47</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>tabInactive</name>
+      <anchorfile>structconfig_1_1_graphics.html</anchorfile>
+      <anchor>a5e1a20a420c0a33ddab4ec6797c30ceeacc5a98dd83283f0635b88862a97b576b</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>tabActive</name>
+      <anchorfile>structconfig_1_1_graphics.html</anchorfile>
+      <anchor>a5e1a20a420c0a33ddab4ec6797c30ceeae40e6b1b9ba2ebf9940a145a2e52a06a</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>Graphics</name>
+      <anchorfile>structconfig_1_1_graphics.html</anchorfile>
+      <anchor>a665d2fcba7612a71f5d94fe7a8830a24</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static const auto &amp;</type>
+      <name>get</name>
+      <anchorfile>structconfig_1_1_graphics.html</anchorfile>
+      <anchor>a0b0f33c0070c5f80941536467ec4e416</anchor>
+      <arglist>() noexcept</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static const juce::String</type>
+      <name>getName</name>
+      <anchorfile>structconfig_1_1_graphics.html</anchorfile>
+      <anchor>a1c32b9f67fec052dcd7ccc1636ea85d6</anchor>
+      <arglist>(int key) noexcept</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static const juce::File</type>
+      <name>getPath</name>
+      <anchorfile>structconfig_1_1_graphics.html</anchorfile>
+      <anchor>abdfab926c44948460dfaf240c60572e3</anchor>
+      <arglist>(juce::StringRef child) noexcept</arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::File</type>
+      <name>path</name>
+      <anchorfile>structconfig_1_1_graphics.html</anchorfile>
+      <anchor>a680b9dba6753acd9eb16c43c840bba0c</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::String</type>
+      <name>extension</name>
+      <anchorfile>structconfig_1_1_graphics.html</anchorfile>
+      <anchor>a65b788f58d84dab0d495b814638c89f9</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="function" protection="private">
+      <type>const juce::String &amp;</type>
+      <name>getDefault</name>
+      <anchorfile>structconfig_1_1_graphics.html</anchorfile>
+      <anchor>af70f25cb52043c6932df53dfc8dc8c29</anchor>
+      <arglist>() const noexcept override</arglist>
     </member>
   </compound>
   <compound kind="struct">
@@ -3519,7 +3665,6 @@
     <filename>classend_1_1_look_and_feel.html</filename>
     <base>jam::LookAndFeel::Methods&lt; LookAndFeel &gt;</base>
     <base>juce::ValueTree::Listener</base>
-    <class kind="struct">end::LookAndFeel::Segment</class>
     <member kind="enumeration">
       <type></type>
       <name>ColourIds</name>
@@ -3773,16 +3918,30 @@
     </member>
     <member kind="function">
       <type>void</type>
+      <name>drawBarIndicator</name>
+      <anchorfile>classend_1_1_look_and_feel.html</anchorfile>
+      <anchor>ab688b5fb3e771c8f7f7197855e523ddb</anchor>
+      <arglist>(juce::Graphics &amp;, juce::Component &amp;indicator) override</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>drawTabButton</name>
+      <anchorfile>classend_1_1_look_and_feel.html</anchorfile>
+      <anchor>a2d99c5eec680d18f5f5136bb1f374b25</anchor>
+      <arglist>(juce::Graphics &amp;, juce::Button &amp;button, bool isMouseOver, bool isMouseDown) override</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
       <name>drawStretchableLayoutResizerBar</name>
       <anchorfile>classend_1_1_look_and_feel.html</anchorfile>
       <anchor>a2d895cfa802013b3734d533380e71252</anchor>
       <arglist>(juce::Graphics &amp;, int w, int h, bool isVertical, bool isMouseOver, bool isMouseDown) override</arglist>
     </member>
     <member kind="variable" static="yes">
-      <type>static const std::unordered_map&lt; juce::Identifier, int &gt;</type>
+      <type>static const jam::HashMap&lt; juce::Identifier, int &gt;</type>
       <name>colourIds</name>
       <anchorfile>classend_1_1_look_and_feel.html</anchorfile>
-      <anchor>aa2c110e0b98645d6e4ead121e479baba</anchor>
+      <anchor>a5ba25a9d67e1b0ab2f0b1c0e35c8cd0d</anchor>
       <arglist></arglist>
     </member>
     <member kind="function" protection="private">
@@ -3794,23 +3953,120 @@
     </member>
     <member kind="function" protection="private">
       <type>void</type>
-      <name>parseTabBarSvg</name>
+      <name>loadGraphics</name>
       <anchorfile>classend_1_1_look_and_feel.html</anchorfile>
-      <anchor>a2e9211b965870cf72406d7eb779930cd</anchor>
-      <arglist>(const juce::XmlElement &amp;svg, std::vector&lt; Segment &gt; &amp;segments)</arglist>
+      <anchor>a6bac0b983ceeffd331beb5262030dbe8</anchor>
+      <arglist>()</arglist>
     </member>
     <member kind="variable" protection="private">
-      <type>juce::ValueTree</type>
+      <type>config::Model &amp;</type>
       <name>config</name>
       <anchorfile>classend_1_1_look_and_feel.html</anchorfile>
-      <anchor>ae086844e629bd114836bde7a3b58abcb</anchor>
+      <anchor>a9f5a36b2e39117101eef6cc2210af64a</anchor>
       <arglist></arglist>
     </member>
     <member kind="variable" protection="private">
-      <type>std::vector&lt; Segment &gt;</type>
-      <name>barSegments</name>
+      <type>juce::String</type>
+      <name>barSvg</name>
       <anchorfile>classend_1_1_look_and_feel.html</anchorfile>
-      <anchor>a6465d383667ee6a21a5122b0efc20021</anchor>
+      <anchor>a2c84cd45c7834394e990edd68d5063ec</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="private">
+      <type>juce::String</type>
+      <name>indicatorSvg</name>
+      <anchorfile>classend_1_1_look_and_feel.html</anchorfile>
+      <anchor>a34a486d35cd565d7178879b4214240d2</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="private">
+      <type>juce::String</type>
+      <name>buttonSvg</name>
+      <anchorfile>classend_1_1_look_and_feel.html</anchorfile>
+      <anchor>a16d5600ad412c1c98fad350544aff064</anchor>
+      <arglist></arglist>
+    </member>
+  </compound>
+  <compound kind="class">
+    <name>end::MessageOverlay</name>
+    <filename>classend_1_1_message_overlay.html</filename>
+    <base>juce::Component</base>
+    <base protection="private">juce::Timer</base>
+    <member kind="function">
+      <type></type>
+      <name>MessageOverlay</name>
+      <anchorfile>classend_1_1_message_overlay.html</anchorfile>
+      <anchor>a06ab25178b46ffac6661b373560cdbdb</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>~MessageOverlay</name>
+      <anchorfile>classend_1_1_message_overlay.html</anchorfile>
+      <anchor>a042f2f2139bcdd01d29af1c1c2459f72</anchor>
+      <arglist>() override=default</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>showMessage</name>
+      <anchorfile>classend_1_1_message_overlay.html</anchorfile>
+      <anchor>ab59a8435254ade467d9b836ca6928e43</anchor>
+      <arglist>(const juce::String &amp;text, int durationMs=messageDelayMs)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>paint</name>
+      <anchorfile>classend_1_1_message_overlay.html</anchorfile>
+      <anchor>a178252fe1ea066417585555298aff52f</anchor>
+      <arglist>(juce::Graphics &amp;g) override</arglist>
+    </member>
+    <member kind="function" protection="private">
+      <type>void</type>
+      <name>timerCallback</name>
+      <anchorfile>classend_1_1_message_overlay.html</anchorfile>
+      <anchor>a9eb94e447d45b8ce1158c2e4f402311a</anchor>
+      <arglist>() override</arglist>
+    </member>
+    <member kind="variable" protection="private">
+      <type>juce::String</type>
+      <name>message</name>
+      <anchorfile>classend_1_1_message_overlay.html</anchorfile>
+      <anchor>ae476f43ba1eba337a9d61750f50432f1</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="private" static="yes">
+      <type>static constexpr float</type>
+      <name>backgroundAlpha</name>
+      <anchorfile>classend_1_1_message_overlay.html</anchorfile>
+      <anchor>a5046070f3d47a338069c60bd519b85a9</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="private" static="yes">
+      <type>static constexpr int</type>
+      <name>textPadding</name>
+      <anchorfile>classend_1_1_message_overlay.html</anchorfile>
+      <anchor>aad6edef73528cf6e5be769ba740546ad</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="private" static="yes">
+      <type>static constexpr int</type>
+      <name>maxLines</name>
+      <anchorfile>classend_1_1_message_overlay.html</anchorfile>
+      <anchor>af3d0d9997543692ff68e8010401503ff</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="private" static="yes">
+      <type>static constexpr int</type>
+      <name>fadeInMs</name>
+      <anchorfile>classend_1_1_message_overlay.html</anchorfile>
+      <anchor>aa92466861a384d30960e3f652da9de4a</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="private" static="yes">
+      <type>static constexpr int</type>
+      <name>messageDelayMs</name>
+      <anchorfile>classend_1_1_message_overlay.html</anchorfile>
+      <anchor>a5c20ff0208ca39317e9d1439d72cc1d2</anchor>
       <arglist></arglist>
     </member>
   </compound>
@@ -3819,7 +4075,6 @@
     <filename>classconfig_1_1_model.html</filename>
     <base>jam::Model</base>
     <base>jam::Context&lt; Model &gt;</base>
-    <base>jam::File::Watcher::Listener</base>
     <member kind="function">
       <type></type>
       <name>Model</name>
@@ -3835,46 +4090,25 @@
       <arglist>()=default</arglist>
     </member>
     <member kind="function">
-      <type>void</type>
-      <name>load</name>
-      <anchorfile>classconfig_1_1_model.html</anchorfile>
-      <anchor>a88f26a19f5b816bdad76c460d9d18389</anchor>
-      <arglist>(const juce::File &amp;file, juce::String &amp;errorOut)</arglist>
-    </member>
-    <member kind="function">
-      <type>juce::StringArray</type>
-      <name>loadPath</name>
-      <anchorfile>classconfig_1_1_model.html</anchorfile>
-      <anchor>a49a8775067e4dbff5ba1d4c7c77d19eb</anchor>
-      <arglist>(const juce::File &amp;dir)</arglist>
-    </member>
-    <member kind="function" static="yes">
-      <type>static const juce::ValueTree</type>
-      <name>get</name>
-      <anchorfile>classconfig_1_1_model.html</anchorfile>
-      <anchor>ae9157061354f29018dc4a7d8c7397f83</anchor>
-      <arglist>() noexcept</arglist>
-    </member>
-    <member kind="function" static="yes">
-      <type>static const juce::Rectangle&lt; int &gt;</type>
+      <type>juce::Rectangle&lt; int &gt;</type>
       <name>getInitWindowSize</name>
       <anchorfile>classconfig_1_1_model.html</anchorfile>
-      <anchor>a8508c00d93b45281e3d07753b6d987b8</anchor>
+      <anchor>ab192f674b56bb1c270a2f2361b8c4b91</anchor>
+      <arglist>() const noexcept</arglist>
+    </member>
+    <member kind="function" protection="private">
+      <type>void</type>
+      <name>initialise</name>
+      <anchorfile>classconfig_1_1_model.html</anchorfile>
+      <anchor>acc87be7141289aff086792b5597ba839</anchor>
       <arglist>()</arglist>
     </member>
     <member kind="function" protection="private">
       <type>void</type>
-      <name>fileChanged</name>
+      <name>writeToPath</name>
       <anchorfile>classconfig_1_1_model.html</anchorfile>
-      <anchor>aaf6b40ca395ac5c6325cb189f13fec0f</anchor>
-      <arglist>(const juce::File &amp;file, jam::File::Watcher::Event event) override</arglist>
-    </member>
-    <member kind="variable" protection="private">
-      <type>jam::File::Watcher</type>
-      <name>watcher</name>
-      <anchorfile>classconfig_1_1_model.html</anchorfile>
-      <anchor>a6a55abd98823bb3b8bcb92905cbdd377</anchor>
-      <arglist></arglist>
+      <anchor>ac22840d8be9ff0867722ea811a99f5e1</anchor>
+      <arglist>()</arglist>
     </member>
   </compound>
   <compound kind="class">
@@ -4082,24 +4316,24 @@
       <arglist>() override</arglist>
     </member>
     <member kind="variable" protection="private">
-      <type>std::unordered_map&lt; juce::KeyPress, juce::Identifier &gt;</type>
-      <name>keys</name>
-      <anchorfile>classaction_1_1_registry.html</anchorfile>
-      <anchor>ac0357c647b1955560d45b17b86d375ab</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable" protection="private">
-      <type>std::unordered_map&lt; juce::KeyPress, juce::Identifier &gt;</type>
-      <name>modalKeys</name>
-      <anchorfile>classaction_1_1_registry.html</anchorfile>
-      <anchor>aaa1676c4bd9b45d9cfe40a9416c478ab</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable" protection="private">
-      <type>juce::ValueTree</type>
+      <type>config::Model &amp;</type>
       <name>config</name>
       <anchorfile>classaction_1_1_registry.html</anchorfile>
-      <anchor>a7e2fce5f4c913c486e3744d8f804ae00</anchor>
+      <anchor>a736e575dc57a08e1524ad12b5d59af3d</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="private">
+      <type>jam::HashMap&lt; juce::KeyPress, juce::Identifier &gt;</type>
+      <name>keys</name>
+      <anchorfile>classaction_1_1_registry.html</anchorfile>
+      <anchor>ace3962490a973f566ef67f57fb29fb70</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="private">
+      <type>jam::HashMap&lt; juce::KeyPress, juce::Identifier &gt;</type>
+      <name>modalKeys</name>
+      <anchorfile>classaction_1_1_registry.html</anchorfile>
+      <anchor>a371b6212bf694af9382daeb4485a6495</anchor>
       <arglist></arglist>
     </member>
     <member kind="variable" protection="private">
@@ -4114,45 +4348,6 @@
       <name>prefixTimeout</name>
       <anchorfile>classaction_1_1_registry.html</anchorfile>
       <anchor>a2e4b86c63bdfe4d0d0f1d116a2bfef75</anchor>
-      <arglist></arglist>
-    </member>
-  </compound>
-  <compound kind="struct">
-    <name>end::LookAndFeel::Segment</name>
-    <filename>structend_1_1_look_and_feel_1_1_segment.html</filename>
-    <member kind="variable">
-      <type>juce::Rectangle&lt; float &gt;</type>
-      <name>sourceBounds</name>
-      <anchorfile>structend_1_1_look_and_feel_1_1_segment.html</anchorfile>
-      <anchor>a2a43065aa629b8749a06eb8e9f62e553</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Rectangle&lt; float &gt;</type>
-      <name>dest</name>
-      <anchorfile>structend_1_1_look_and_feel_1_1_segment.html</anchorfile>
-      <anchor>ad6dbec094df6dcc2110d40c101ff8557</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Colour</type>
-      <name>colour</name>
-      <anchorfile>structend_1_1_look_and_feel_1_1_segment.html</anchorfile>
-      <anchor>a1978fffd5359967e0c8e47714d0c8e3d</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>juce::Path</type>
-      <name>path</name>
-      <anchorfile>structend_1_1_look_and_feel_1_1_segment.html</anchorfile>
-      <anchor>a0506678bf122b39db817aadb237f9c82</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>bool</type>
-      <name>stroke</name>
-      <anchorfile>structend_1_1_look_and_feel_1_1_segment.html</anchorfile>
-      <anchor>a67c4e0d2b858c410426a4658685cf616</anchor>
       <arglist></arglist>
     </member>
   </compound>
@@ -4336,17 +4531,10 @@
       <arglist>(int width, int height)</arglist>
     </member>
     <member kind="variable" protection="private">
-      <type>juce::ValueTree</type>
+      <type>config::Model &amp;</type>
       <name>config</name>
       <anchorfile>classend_1_1_view.html</anchorfile>
-      <anchor>ad207d70397b5a0ae3d0e722742d2940e</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable" protection="private">
-      <type>juce::ValueTree</type>
-      <name>model</name>
-      <anchorfile>classend_1_1_view.html</anchorfile>
-      <anchor>a2e0940bb5ff2eb6afb763f39094f005e</anchor>
+      <anchor>a01b4668216a6472984c51f29bdc13466</anchor>
       <arglist></arglist>
     </member>
     <member kind="variable" protection="private">
@@ -4361,6 +4549,13 @@
       <name>tabs</name>
       <anchorfile>classend_1_1_view.html</anchorfile>
       <anchor>a7e6ee211dd7d9e06224826283296fa65</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="private">
+      <type>MessageOverlay</type>
+      <name>messageOverlay</name>
+      <anchorfile>classend_1_1_view.html</anchorfile>
+      <anchor>a97bd88a9912af6789293637a52e8da3f</anchor>
       <arglist></arglist>
     </member>
     <member kind="variable" protection="private">
@@ -4412,10 +4607,10 @@
       <arglist>(const juce::Identifier &amp;property)</arglist>
     </member>
     <member kind="variable" protection="private">
-      <type>juce::ValueTree</type>
+      <type>config::Model &amp;</type>
       <name>config</name>
       <anchorfile>classend_1_1_window.html</anchorfile>
-      <anchor>abe8a4afa5c3a4fa81c6b332cf41b6eb4</anchor>
+      <anchor>afe08d593b7bd98356a715f735eb39ad4</anchor>
       <arglist></arglist>
     </member>
     <member kind="variable" protection="private">
@@ -4455,14 +4650,16 @@
   <compound kind="namespace">
     <name>config</name>
     <filename>namespaceconfig.html</filename>
-    <class kind="struct">config::File</class>
     <class kind="class">config::Model</class>
+    <class kind="struct">config::File</class>
+    <class kind="struct">config::Graphics</class>
   </compound>
   <compound kind="namespace">
     <name>end</name>
     <filename>namespaceend.html</filename>
     <class kind="struct">end::Boolean</class>
     <class kind="struct">end::TabOrientation</class>
+    <class kind="class">end::MessageOverlay</class>
     <class kind="class">end::Model</class>
     <class kind="class">end::Panes</class>
     <class kind="class">end::PaneView</class>
@@ -4496,6 +4693,7 @@
     <path>end/</path>
     <filename>dir_df2986c7b29a3b9e8768851adf6ae18d.html</filename>
     <file>Map.h</file>
+    <file>MessageOverlay.h</file>
     <file>Model.cpp</file>
     <file>Model.h</file>
     <file>Panes.cpp</file>

@@ -1,0 +1,285 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="structconfig_1_1_graphics" kind="struct" language="C++" prot="public">
+    <compoundname>config::Graphics</compoundname>
+    <basecompoundref refid="classjam_1_1Map_1_1Instance" prot="public" virt="non-virtual">jam::Map::Instance&lt; Graphics &gt;</basecompoundref>
+    <includes refid="_map_8h" local="no">Map.h</includes>
+    <sectiondef kind="public-type">
+      <memberdef kind="enum" id="structconfig_1_1_graphics_1a5e1a20a420c0a33ddab4ec6797c30cee" prot="public" static="no" strong="no">
+        <type></type>
+        <name>@277214137317010015316303354216265052334255124010</name>
+        <qualifiedname>config::Graphics::@277214137317010015316303354216265052334255124010</qualifiedname>
+        <enumvalue id="structconfig_1_1_graphics_1a5e1a20a420c0a33ddab4ec6797c30ceea569fa475ce9202aadea617aff4696e47" prot="public">
+          <name>tabBar</name>
+          <briefdescription>
+<para>Tab bar background SVG asset. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="structconfig_1_1_graphics_1a5e1a20a420c0a33ddab4ec6797c30ceeacc5a98dd83283f0635b88862a97b576b" prot="public">
+          <name>tabInactive</name>
+          <briefdescription>
+<para>Inactive tab button SVG asset. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="structconfig_1_1_graphics_1a5e1a20a420c0a33ddab4ec6797c30ceeae40e6b1b9ba2ebf9940a145a2e52a06a" prot="public">
+          <name>tabActive</name>
+          <briefdescription>
+<para>Active tab indicator SVG asset. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Integer keys for all SVG graphics assets. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="end/Map.h" line="155" column="5" bodyfile="end/Map.h" bodystart="156" bodyend="160"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="public-static-attrib">
+      <memberdef kind="variable" id="structconfig_1_1_graphics_1a680b9dba6753acd9eb16c43c840bba0c" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="classjuce_1_1File" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::File</ref></type>
+        <definition>const juce::File config::Graphics::path</definition>
+        <argsstring></argsstring>
+        <name>path</name>
+        <qualifiedname>config::Graphics::path</qualifiedname>
+        <initializer>{ <ref refid="structconfig_1_1_file_1a8fb7a80701aaed8671256aa65afaf19d" kindref="member">File::getPath</ref> (<ref refid="structjam_1_1IDref_1aa73fb0ae4fb0b8c627f2e2f9e34c79a1" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::IDref::graphics</ref>) }</initializer>
+        <briefdescription>
+<para>SVG asset subdirectory: ~/.config/end/graphics/. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="end/Map.h" line="197" column="36" bodyfile="end/Map.h" bodystart="197" bodyend="197"/>
+        <referencedby refid="structconfig_1_1_graphics_1abdfab926c44948460dfaf240c60572e3" compoundref="_map_8h" startline="191" endline="194">getPath</referencedby>
+        <referencedby refid="classend_1_1_look_and_feel_1a6bac0b983ceeffd331beb5262030dbe8" compoundref="_look_and_feel_8cpp" startline="114" endline="141">end::LookAndFeel::loadGraphics</referencedby>
+        <referencedby refid="classconfig_1_1_model_1ac22840d8be9ff0867722ea811a99f5e1" compoundref="_config_8cpp" startline="56" endline="81">config::Model::writeToPath</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structconfig_1_1_graphics_1a65b788f58d84dab0d495b814638c89f9" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref></type>
+        <definition>const juce::String config::Graphics::extension</definition>
+        <argsstring></argsstring>
+        <name>extension</name>
+        <qualifiedname>config::Graphics::extension</qualifiedname>
+        <initializer>{ &quot;svg&quot; }</initializer>
+        <briefdescription>
+<para>Bare svg extension (no wildcard) for file watcher checks. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="end/Map.h" line="199" column="38" bodyfile="end/Map.h" bodystart="199" bodyend="199"/>
+        <referencedby refid="structconfig_1_1_graphics_1a1c32b9f67fec052dcd7ccc1636ea85d6" compoundref="_map_8h" startline="185" endline="188">getName</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="public-func">
+      <memberdef kind="function" id="structconfig_1_1_graphics_1a665d2fcba7612a71f5d94fe7a8830a24" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>config::Graphics::Graphics</definition>
+        <argsstring>()</argsstring>
+        <name>Graphics</name>
+        <qualifiedname>config::Graphics::Graphics</qualifiedname>
+        <briefdescription>
+<para>Populates the bimap with all 3 entries. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="end/Map.h" line="163" column="5" bodyfile="end/Map.h" bodystart="163" bodyend="170"/>
+        <references refid="classjam_1_1Map_1_1Instance_1afe0acf25bab1f104aea20f20174129d1">jam::Map::Instance&lt; Graphics &gt;::map</references>
+        <references refid="structconfig_1_1_graphics_1a5e1a20a420c0a33ddab4ec6797c30ceeae40e6b1b9ba2ebf9940a145a2e52a06a" compoundref="_map_8h" startline="159">tabActive</references>
+        <references refid="structconfig_1_1_graphics_1a5e1a20a420c0a33ddab4ec6797c30ceea569fa475ce9202aadea617aff4696e47" compoundref="_map_8h" startline="157">tabBar</references>
+        <references refid="structconfig_1_1_graphics_1a5e1a20a420c0a33ddab4ec6797c30ceeacc5a98dd83283f0635b88862a97b576b" compoundref="_map_8h" startline="158">tabInactive</references>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="structconfig_1_1_graphics_1a0b0f33c0070c5f80941536467ec4e416" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>const auto &amp;</type>
+        <definition>static const auto &amp; config::Graphics::get</definition>
+        <argsstring>() noexcept</argsstring>
+        <name>get</name>
+        <qualifiedname>config::Graphics::get</qualifiedname>
+        <briefdescription>
+<para>Returns the int→Identifier-stem map from the live context instance. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Caller must ensure a <ref refid="structconfig_1_1_graphics" kindref="compound">config::Graphics</ref> owner is live (<ref refid="classend_1_1_application" kindref="compound">end::Application</ref> is). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="end/Map.h" line="177" column="23" bodyfile="end/Map.h" bodystart="177" bodyend="177"/>
+        <references refid="structjam_1_1Context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Derived &gt;::getContext</references>
+        <referencedby refid="structconfig_1_1_graphics_1a1c32b9f67fec052dcd7ccc1636ea85d6" compoundref="_map_8h" startline="185" endline="188">getName</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="structconfig_1_1_graphics_1a1c32b9f67fec052dcd7ccc1636ea85d6" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref></type>
+        <definition>static const juce::String config::Graphics::getName</definition>
+        <argsstring>(int key) noexcept</argsstring>
+        <name>getName</name>
+        <qualifiedname>config::Graphics::getName</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>key</declname>
+        </param>
+        <briefdescription>
+<para>Returns the filename for the given enum key (always &quot;stem.svg&quot;). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>key</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>One of the <ref refid="structconfig_1_1_graphics" kindref="compound">Graphics</ref> enum values. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Filename string including extension (e.g. &quot;tab_bar.svg&quot;). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="end/Map.h" line="185" column="31" bodyfile="end/Map.h" bodystart="185" bodyend="188"/>
+        <references refid="structconfig_1_1_graphics_1a65b788f58d84dab0d495b814638c89f9" compoundref="_map_8h" startline="199" endline="199">extension</references>
+        <references refid="structconfig_1_1_graphics_1a0b0f33c0070c5f80941536467ec4e416" compoundref="_map_8h" startline="177" endline="177">get</references>
+        <references refid="structjam_1_1Format_1a838b7c56ce7913ab2b4471148a1019cd">jam::Format::toFileName</references>
+      </memberdef>
+      <memberdef kind="function" id="structconfig_1_1_graphics_1abdfab926c44948460dfaf240c60572e3" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>const <ref refid="classjuce_1_1File" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::File</ref></type>
+        <definition>static const juce::File config::Graphics::getPath</definition>
+        <argsstring>(juce::StringRef child) noexcept</argsstring>
+        <name>getPath</name>
+        <qualifiedname>config::Graphics::getPath</qualifiedname>
+        <param>
+          <type><ref refid="classjuce_1_1StringRef" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::StringRef</ref></type>
+          <declname>child</declname>
+        </param>
+        <briefdescription>
+<para>Returns the graphics directory child path. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="end/Map.h" line="191" column="29" bodyfile="end/Map.h" bodystart="191" bodyend="194"/>
+        <references refid="structconfig_1_1_graphics_1a680b9dba6753acd9eb16c43c840bba0c" compoundref="_map_8h" startline="197" endline="197">path</references>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="private-func">
+      <memberdef kind="function" id="structconfig_1_1_graphics_1af70f25cb52043c6932df53dfc8dc8c29" prot="private" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="virtual">
+        <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref> &amp;</type>
+        <definition>const juce::String &amp; config::Graphics::getDefault</definition>
+        <argsstring>() const noexcept override</argsstring>
+        <name>getDefault</name>
+        <qualifiedname>config::Graphics::getDefault</qualifiedname>
+        <reimplements refid="classjam_1_1Map_1_1Instance_1acf3bf9980fc2a26ba7a0c79c65908550">getDefault</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="end/Map.h" line="202" column="24" bodyfile="end/Map.h" bodystart="202" bodyend="202"/>
+        <references refid="classjam_1_1Map_1_1Instance_1afe0acf25bab1f104aea20f20174129d1">jam::Map::Instance&lt; Graphics &gt;::map</references>
+        <references refid="structconfig_1_1_graphics_1a5e1a20a420c0a33ddab4ec6797c30ceea569fa475ce9202aadea617aff4696e47" compoundref="_map_8h" startline="157">tabBar</references>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Registry of SVG graphics assets — 3 keys. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>CRTP-derived from <ref refid="classjam_1_1Map_1_1Instance" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Map::Instance&lt;Graphics&gt;</ref>.</para>
+<para>Maps each enum key to its Identifier stem (e.g. tabBar → &quot;tab_bar&quot;) and resolves the on-disk filename via <ref refid="structconfig_1_1_graphics_1a1c32b9f67fec052dcd7ccc1636ea85d6" kindref="member">getName()</ref>. All keys produce &quot;stem.svg&quot;.</para>
+<para>Owns the graphics subdirectory and the svg extension. The live instance is owned by <ref refid="classend_1_1_application" kindref="compound">end::Application</ref> — static <ref refid="structconfig_1_1_graphics_1a0b0f33c0070c5f80941536467ec4e416" kindref="member">get()</ref> resolves through Context&lt;Graphics&gt;. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>config::Graphics</label>
+        <link refid="structconfig_1_1_graphics"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>jam::Context&lt; Derived &gt;</label>
+        <link refid="structjam_1_1Context" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
+      <node id="2">
+        <label>jam::Map::Instance&lt; Graphics &gt;</label>
+        <link refid="classjam_1_1Map_1_1Instance" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>config::Graphics</label>
+        <link refid="structconfig_1_1_graphics"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>path</edgelabel>
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>extension</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>jam::Context&lt; Derived &gt;</label>
+        <link refid="structjam_1_1Context" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
+      <node id="4">
+        <label>jam::HashMap&lt; int, juce::String &gt;</label>
+        <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
+      <node id="2">
+        <label>jam::Map::Instance&lt; Graphics &gt;</label>
+        <link refid="classjam_1_1Map_1_1Instance" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>map</edgelabel>
+        </childnode>
+      </node>
+      <node id="5">
+        <label>juce::File</label>
+        <link refid="classjuce_1_1File" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="6">
+        <label>juce::String</label>
+        <link refid="classjuce_1_1String" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+    </collaborationgraph>
+    <location file="end/Map.h" line="152" column="1" bodyfile="end/Map.h" bodystart="153" bodyend="203"/>
+    <listofallmembers>
+      <member refid="structjam_1_1Context_1a6e3f38a234db8ff2a9acb5986e72a2de" prot="public" virt="non-virtual"><scope>config::Graphics</scope><name>Context</name></member>
+      <member refid="structconfig_1_1_graphics_1a65b788f58d84dab0d495b814638c89f9" prot="public" virt="non-virtual"><scope>config::Graphics</scope><name>extension</name></member>
+      <member refid="structconfig_1_1_graphics_1a0b0f33c0070c5f80941536467ec4e416" prot="public" virt="non-virtual"><scope>config::Graphics</scope><name>get</name></member>
+      <member refid="classjam_1_1Map_1_1Instance_1a098abe8fd166d7d61763bf0d215799cd" prot="public" virt="non-virtual" ambiguityscope="jam::Map::Instance&lt; Graphics &gt;::"><scope>config::Graphics</scope><name>get</name></member>
+      <member refid="structjam_1_1Context_1a259aac6b39aea0f3d3e2be9ab123cff3" prot="public" virt="non-virtual"><scope>config::Graphics</scope><name>getContext</name></member>
+      <member refid="structconfig_1_1_graphics_1af70f25cb52043c6932df53dfc8dc8c29" prot="private" virt="virtual"><scope>config::Graphics</scope><name>getDefault</name></member>
+      <member refid="structconfig_1_1_graphics_1a1c32b9f67fec052dcd7ccc1636ea85d6" prot="public" virt="non-virtual"><scope>config::Graphics</scope><name>getName</name></member>
+      <member refid="structconfig_1_1_graphics_1abdfab926c44948460dfaf240c60572e3" prot="public" virt="non-virtual"><scope>config::Graphics</scope><name>getPath</name></member>
+      <member refid="structconfig_1_1_graphics_1a665d2fcba7612a71f5d94fe7a8830a24" prot="public" virt="non-virtual"><scope>config::Graphics</scope><name>Graphics</name></member>
+      <member refid="structjam_1_1Context_1a5900ff66cdba02d6f6947cc6d5e8ec3d" prot="private" virt="non-virtual"><scope>config::Graphics</scope><name>head</name></member>
+      <member refid="classjam_1_1Map_1_1Instance_1afe0acf25bab1f104aea20f20174129d1" prot="protected" virt="non-virtual"><scope>config::Graphics</scope><name>map</name></member>
+      <member refid="structjam_1_1Context_1a6716feb60b039083ca0c099a506a3474" prot="public" virt="non-virtual"><scope>config::Graphics</scope><name>operator=</name></member>
+      <member refid="structconfig_1_1_graphics_1a680b9dba6753acd9eb16c43c840bba0c" prot="public" virt="non-virtual"><scope>config::Graphics</scope><name>path</name></member>
+      <member refid="structjam_1_1Context_1aa1862120f2983ab7ddef536ba03bb114" prot="private" virt="non-virtual"><scope>config::Graphics</scope><name>previous</name></member>
+      <member refid="structconfig_1_1_graphics_1a5e1a20a420c0a33ddab4ec6797c30ceeae40e6b1b9ba2ebf9940a145a2e52a06a" prot="public" virt="non-virtual"><scope>config::Graphics</scope><name>tabActive</name></member>
+      <member refid="structconfig_1_1_graphics_1a5e1a20a420c0a33ddab4ec6797c30ceea569fa475ce9202aadea617aff4696e47" prot="public" virt="non-virtual"><scope>config::Graphics</scope><name>tabBar</name></member>
+      <member refid="structconfig_1_1_graphics_1a5e1a20a420c0a33ddab4ec6797c30ceeacc5a98dd83283f0635b88862a97b576b" prot="public" virt="non-virtual"><scope>config::Graphics</scope><name>tabInactive</name></member>
+      <member refid="structjam_1_1Context_1a4169820e71837632922d3d17b377aeee" prot="public" virt="virtual"><scope>config::Graphics</scope><name>~Context</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

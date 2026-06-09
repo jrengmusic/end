@@ -185,9 +185,17 @@
         <childnode refid="8" relation="usage">
           <edgelabel>entries</edgelabel>
         </childnode>
-        <childnode refid="11" relation="usage">
+        <childnode refid="9" relation="usage">
           <edgelabel>types</edgelabel>
         </childnode>
+      </node>
+      <node id="9">
+        <label>jam::HashMap&lt; juce::Identifier, std::type_index &gt;</label>
+        <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
+      <node id="8">
+        <label>jam::HashMap&lt; juce::Identifier, std::unique_ptr&lt; void, Deleter &gt; &gt;</label>
+        <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
       <node id="5">
         <label>jam::Model</label>
@@ -197,10 +205,10 @@
         <childnode refid="7" relation="usage">
           <edgelabel>params</edgelabel>
         </childnode>
-        <childnode refid="12" relation="usage">
+        <childnode refid="10" relation="usage">
           <edgelabel>state</edgelabel>
         </childnode>
-        <childnode refid="13" relation="usage">
+        <childnode refid="11" relation="usage">
           <edgelabel>valueTreeChanging</edgelabel>
         </childnode>
       </node>
@@ -210,7 +218,7 @@
         <childnode refid="5" relation="usage">
           <edgelabel>model</edgelabel>
         </childnode>
-        <childnode refid="12" relation="usage">
+        <childnode refid="10" relation="usage">
           <edgelabel>state</edgelabel>
         </childnode>
       </node>
@@ -220,16 +228,9 @@
         <childnode refid="3" relation="public-inheritance">
         </childnode>
       </node>
-      <node id="13">
+      <node id="11">
         <label>juce::CriticalSection</label>
         <link refid="classjuce_1_1CriticalSection" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-      </node>
-      <node id="9">
-        <label>juce::Identifier</label>
-        <link refid="classjuce_1_1Identifier" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-        <childnode refid="9" relation="usage">
-          <edgelabel>null</edgelabel>
-        </childnode>
       </node>
       <node id="3">
         <label>juce::MouseListener</label>
@@ -239,27 +240,9 @@
         <label>juce::Timer</label>
         <link refid="classjuce_1_1Timer" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="12">
+      <node id="10">
         <label>juce::ValueTree</label>
         <link refid="classjuce_1_1ValueTree" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-      </node>
-      <node id="10">
-        <label>std::unique_ptr&lt; void, Deleter &gt;</label>
-      </node>
-      <node id="11">
-        <label>std::unordered_map&lt; juce::Identifier, std::type_index &gt;</label>
-        <childnode refid="9" relation="usage">
-          <edgelabel>keys</edgelabel>
-        </childnode>
-      </node>
-      <node id="8">
-        <label>std::unordered_map&lt; juce::Identifier, std::unique_ptr&lt; void, Deleter &gt; &gt;</label>
-        <childnode refid="9" relation="usage">
-          <edgelabel>keys</edgelabel>
-        </childnode>
-        <childnode refid="10" relation="usage">
-          <edgelabel>elements</edgelabel>
-        </childnode>
       </node>
     </collaborationgraph>
     <location file="end/PaneView.h" line="21" column="1" bodyfile="end/PaneView.h" bodystart="24" bodyend="63"/>

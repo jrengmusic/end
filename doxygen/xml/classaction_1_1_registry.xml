@@ -24,9 +24,24 @@
       </memberdef>
     </sectiondef>
     <sectiondef kind="private-attrib">
-      <memberdef kind="variable" id="classaction_1_1_registry_1ac0357c647b1955560d45b17b86d375ab" prot="private" static="no" mutable="no">
-        <type>std::unordered_map&lt; <ref refid="classjuce_1_1KeyPress" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::KeyPress</ref>, <ref refid="classjuce_1_1Identifier" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Identifier</ref> &gt;</type>
-        <definition>std::unordered_map&lt;juce::KeyPress, juce::Identifier&gt; action::Registry::keys</definition>
+      <memberdef kind="variable" id="classaction_1_1_registry_1a736e575dc57a08e1524ad12b5d59af3d" prot="private" static="no" mutable="no">
+        <type><ref refid="classconfig_1_1_model" kindref="compound">config::Model</ref> &amp;</type>
+        <definition>config::Model&amp; action::Registry::config</definition>
+        <argsstring></argsstring>
+        <name>config</name>
+        <qualifiedname>action::Registry::config</qualifiedname>
+        <initializer>{ *<ref refid="structjam_1_1Context_1a259aac6b39aea0f3d3e2be9ab123cff3" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">config::Model::getContext</ref>() }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="action/Registry.h" line="61" column="19" bodyfile="action/Registry.h" bodystart="61" bodyend="61"/>
+      </memberdef>
+      <memberdef kind="variable" id="classaction_1_1_registry_1ace3962490a973f566ef67f57fb29fb70" prot="private" static="no" mutable="no">
+        <type><ref refid="classjam_1_1HashMap" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::HashMap</ref>&lt; <ref refid="classjuce_1_1KeyPress" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::KeyPress</ref>, <ref refid="classjuce_1_1Identifier" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Identifier</ref> &gt;</type>
+        <definition>jam::HashMap&lt;juce::KeyPress, juce::Identifier&gt; action::Registry::keys</definition>
         <argsstring></argsstring>
         <name>keys</name>
         <qualifiedname>action::Registry::keys</qualifiedname>
@@ -36,13 +51,13 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="action/Registry.h" line="63" column="24" bodyfile="action/Registry.h" bodystart="63" bodyend="-1"/>
+        <location file="action/Registry.h" line="65" column="18" bodyfile="action/Registry.h" bodystart="65" bodyend="-1"/>
         <referencedby refid="classaction_1_1_registry_1ad386721909b7f7d3ae0ed7c07f3d9ca0" compoundref="_registry_8cpp" startline="15" endline="39">buildKeyMap</referencedby>
         <referencedby refid="classaction_1_1_registry_1a7d16fe8f4045f209faaf099a46d3b704" compoundref="_registry_8cpp" startline="41" endline="67">keyPressed</referencedby>
       </memberdef>
-      <memberdef kind="variable" id="classaction_1_1_registry_1aaa1676c4bd9b45d9cfe40a9416c478ab" prot="private" static="no" mutable="no">
-        <type>std::unordered_map&lt; <ref refid="classjuce_1_1KeyPress" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::KeyPress</ref>, <ref refid="classjuce_1_1Identifier" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Identifier</ref> &gt;</type>
-        <definition>std::unordered_map&lt;juce::KeyPress, juce::Identifier&gt; action::Registry::modalKeys</definition>
+      <memberdef kind="variable" id="classaction_1_1_registry_1a371b6212bf694af9382daeb4485a6495" prot="private" static="no" mutable="no">
+        <type><ref refid="classjam_1_1HashMap" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::HashMap</ref>&lt; <ref refid="classjuce_1_1KeyPress" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::KeyPress</ref>, <ref refid="classjuce_1_1Identifier" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Identifier</ref> &gt;</type>
+        <definition>jam::HashMap&lt;juce::KeyPress, juce::Identifier&gt; action::Registry::modalKeys</definition>
         <argsstring></argsstring>
         <name>modalKeys</name>
         <qualifiedname>action::Registry::modalKeys</qualifiedname>
@@ -52,24 +67,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="action/Registry.h" line="64" column="24" bodyfile="action/Registry.h" bodystart="64" bodyend="-1"/>
+        <location file="action/Registry.h" line="66" column="18" bodyfile="action/Registry.h" bodystart="66" bodyend="-1"/>
         <referencedby refid="classaction_1_1_registry_1ad386721909b7f7d3ae0ed7c07f3d9ca0" compoundref="_registry_8cpp" startline="15" endline="39">buildKeyMap</referencedby>
         <referencedby refid="classaction_1_1_registry_1a7d16fe8f4045f209faaf099a46d3b704" compoundref="_registry_8cpp" startline="41" endline="67">keyPressed</referencedby>
-      </memberdef>
-      <memberdef kind="variable" id="classaction_1_1_registry_1a7e2fce5f4c913c486e3744d8f804ae00" prot="private" static="no" mutable="no">
-        <type><ref refid="classjuce_1_1ValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::ValueTree</ref></type>
-        <definition>juce::ValueTree action::Registry::config</definition>
-        <argsstring></argsstring>
-        <name>config</name>
-        <qualifiedname>action::Registry::config</qualifiedname>
-        <initializer>{ <ref refid="classconfig_1_1_model_1ae9157061354f29018dc4a7d8c7397f83" kindref="member">config::Model::get</ref>() }</initializer>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="action/Registry.h" line="66" column="21" bodyfile="action/Registry.h" bodystart="66" bodyend="66"/>
       </memberdef>
       <memberdef kind="variable" id="classaction_1_1_registry_1ad6d4755e2636d32124eeca007dbe7f91" prot="private" static="no" mutable="no">
         <type><ref refid="classjuce_1_1KeyPress" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::KeyPress</ref></type>
@@ -83,7 +83,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="action/Registry.h" line="67" column="20" bodyfile="action/Registry.h" bodystart="67" bodyend="-1"/>
+        <location file="action/Registry.h" line="68" column="20" bodyfile="action/Registry.h" bodystart="68" bodyend="-1"/>
         <referencedby refid="classaction_1_1_registry_1ad386721909b7f7d3ae0ed7c07f3d9ca0" compoundref="_registry_8cpp" startline="15" endline="39">buildKeyMap</referencedby>
         <referencedby refid="classaction_1_1_registry_1a7d16fe8f4045f209faaf099a46d3b704" compoundref="_registry_8cpp" startline="41" endline="67">keyPressed</referencedby>
       </memberdef>
@@ -100,7 +100,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="action/Registry.h" line="68" column="9" bodyfile="action/Registry.h" bodystart="68" bodyend="68"/>
+        <location file="action/Registry.h" line="69" column="9" bodyfile="action/Registry.h" bodystart="69" bodyend="69"/>
         <referencedby refid="classaction_1_1_registry_1ad386721909b7f7d3ae0ed7c07f3d9ca0" compoundref="_registry_8cpp" startline="15" endline="39">buildKeyMap</referencedby>
         <referencedby refid="classaction_1_1_registry_1a7d16fe8f4045f209faaf099a46d3b704" compoundref="_registry_8cpp" startline="41" endline="67">keyPressed</referencedby>
       </memberdef>
@@ -150,10 +150,10 @@
         </inbodydescription>
         <location file="action/Registry.h" line="45" column="10" bodyfile="action/Registry.cpp" bodystart="15" bodyend="39"/>
         <references refid="classjuce_1_1KeyPress_1abf369b23627f55f63b69ac7710ae469b">juce::KeyPress::createFromDescription</references>
-        <references refid="classaction_1_1_registry_1ac0357c647b1955560d45b17b86d375ab" compoundref="_registry_8h" startline="63">keys</references>
-        <references refid="classaction_1_1_registry_1aaa1676c4bd9b45d9cfe40a9416c478ab" compoundref="_registry_8h" startline="64">modalKeys</references>
-        <references refid="classaction_1_1_registry_1ad6d4755e2636d32124eeca007dbe7f91" compoundref="_registry_8h" startline="67">prefixKey</references>
-        <references refid="classaction_1_1_registry_1a2e4b86c63bdfe4d0d0f1d116a2bfef75" compoundref="_registry_8h" startline="68" endline="68">prefixTimeout</references>
+        <references refid="classaction_1_1_registry_1ace3962490a973f566ef67f57fb29fb70" compoundref="_registry_8h" startline="65">keys</references>
+        <references refid="classaction_1_1_registry_1a371b6212bf694af9382daeb4485a6495" compoundref="_registry_8h" startline="66">modalKeys</references>
+        <references refid="classaction_1_1_registry_1ad6d4755e2636d32124eeca007dbe7f91" compoundref="_registry_8h" startline="68">prefixKey</references>
+        <references refid="classaction_1_1_registry_1a2e4b86c63bdfe4d0d0f1d116a2bfef75" compoundref="_registry_8h" startline="69" endline="69">prefixTimeout</references>
         <referencedby refid="classaction_1_1_registry_1ab459c431a149a647f9ed43f58e370198" compoundref="_registry_8cpp" startline="7" endline="11">Registry</referencedby>
         <referencedby refid="classaction_1_1_registry_1ac4489681da0cc97dd84b0e4fcd06cf8e" compoundref="_registry_8cpp" startline="75" endline="78">valueTreePropertyChanged</referencedby>
       </memberdef>
@@ -201,10 +201,10 @@
         <location file="action/Registry.h" line="54" column="10" bodyfile="action/Registry.cpp" bodystart="41" bodyend="67"/>
         <references refid="structjam_1_1Map_1a3e839004ed5fea430cbb0a7739caea37">jam::Map::contains</references>
         <references refid="classjuce_1_1Timer_1a525f38cc7afdc0696b467bd4ed3f17da">juce::Timer::isTimerRunning</references>
-        <references refid="classaction_1_1_registry_1ac0357c647b1955560d45b17b86d375ab" compoundref="_registry_8h" startline="63">keys</references>
-        <references refid="classaction_1_1_registry_1aaa1676c4bd9b45d9cfe40a9416c478ab" compoundref="_registry_8h" startline="64">modalKeys</references>
-        <references refid="classaction_1_1_registry_1ad6d4755e2636d32124eeca007dbe7f91" compoundref="_registry_8h" startline="67">prefixKey</references>
-        <references refid="classaction_1_1_registry_1a2e4b86c63bdfe4d0d0f1d116a2bfef75" compoundref="_registry_8h" startline="68" endline="68">prefixTimeout</references>
+        <references refid="classaction_1_1_registry_1ace3962490a973f566ef67f57fb29fb70" compoundref="_registry_8h" startline="65">keys</references>
+        <references refid="classaction_1_1_registry_1a371b6212bf694af9382daeb4485a6495" compoundref="_registry_8h" startline="66">modalKeys</references>
+        <references refid="classaction_1_1_registry_1ad6d4755e2636d32124eeca007dbe7f91" compoundref="_registry_8h" startline="68">prefixKey</references>
+        <references refid="classaction_1_1_registry_1a2e4b86c63bdfe4d0d0f1d116a2bfef75" compoundref="_registry_8h" startline="69" endline="69">prefixTimeout</references>
         <references refid="classaction_1_1_registry_1a03afbec3b059b2ecfcbf117121f31b8d" compoundref="_registry_8cpp" startline="69" endline="73">run</references>
         <references refid="classjuce_1_1Timer_1acb43e06d5742106830080af3d50b422d">juce::Timer::startTimer</references>
         <references refid="classjuce_1_1Timer_1a2ff70b860a8c875658b4baa91c8bcef0">juce::Timer::stopTimer</references>
@@ -245,7 +245,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="action/Registry.h" line="61" column="10" bodyfile="action/Registry.cpp" bodystart="80" bodyend="80"/>
+        <location file="action/Registry.h" line="63" column="10" bodyfile="action/Registry.cpp" bodystart="80" bodyend="80"/>
         <references refid="classjuce_1_1Timer_1a2ff70b860a8c875658b4baa91c8bcef0">juce::Timer::stopTimer</references>
       </memberdef>
     </sectiondef>
@@ -284,29 +284,81 @@
         <childnode refid="4" relation="usage">
           <edgelabel>actions</edgelabel>
         </childnode>
-        <childnode refid="5" relation="usage">
+        <childnode refid="6" relation="usage">
+          <edgelabel>config</edgelabel>
+        </childnode>
+        <childnode refid="14" relation="usage">
           <edgelabel>keys</edgelabel>
           <edgelabel>modalKeys</edgelabel>
         </childnode>
-        <childnode refid="8" relation="usage">
-          <edgelabel>config</edgelabel>
-        </childnode>
-        <childnode refid="6" relation="usage">
+        <childnode refid="15" relation="usage">
           <edgelabel>prefixKey</edgelabel>
         </childnode>
+      </node>
+      <node id="6">
+        <label>config::Model</label>
+        <link refid="classconfig_1_1_model"/>
+        <childnode refid="7" relation="public-inheritance">
+        </childnode>
+        <childnode refid="13" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>jam::AnyMap</label>
+        <link refid="classjam_1_1AnyMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="9" relation="usage">
+          <edgelabel>entries</edgelabel>
+        </childnode>
+        <childnode refid="10" relation="usage">
+          <edgelabel>types</edgelabel>
+        </childnode>
+      </node>
+      <node id="13">
+        <label>jam::Context&lt; Model &gt;</label>
+        <link refid="structjam_1_1Context" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
       <node id="4">
         <label>jam::Function::Map&lt; juce::Identifier, void &gt;</label>
         <link refid="structjam_1_1Function_1_1Map" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-      </node>
-      <node id="7">
-        <label>juce::Identifier</label>
-        <link refid="classjuce_1_1Identifier" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-        <childnode refid="7" relation="usage">
-          <edgelabel>null</edgelabel>
+        <childnode refid="5" relation="public-inheritance">
         </childnode>
       </node>
-      <node id="6">
+      <node id="5">
+        <label>jam::HashMap&lt; KeyType, std::unique_ptr&lt; Function::Common &gt; &gt;</label>
+        <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
+      <node id="10">
+        <label>jam::HashMap&lt; juce::Identifier, std::type_index &gt;</label>
+        <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
+      <node id="9">
+        <label>jam::HashMap&lt; juce::Identifier, std::unique_ptr&lt; void, Deleter &gt; &gt;</label>
+        <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
+      <node id="14">
+        <label>jam::HashMap&lt; juce::KeyPress, juce::Identifier &gt;</label>
+        <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
+      <node id="7">
+        <label>jam::Model</label>
+        <link refid="classjam_1_1Model" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="8" relation="usage">
+          <edgelabel>params</edgelabel>
+        </childnode>
+        <childnode refid="11" relation="usage">
+          <edgelabel>state</edgelabel>
+        </childnode>
+        <childnode refid="12" relation="usage">
+          <edgelabel>valueTreeChanging</edgelabel>
+        </childnode>
+      </node>
+      <node id="12">
+        <label>juce::CriticalSection</label>
+        <link refid="classjuce_1_1CriticalSection" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="15">
         <label>juce::KeyPress</label>
         <link refid="classjuce_1_1KeyPress" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
@@ -314,7 +366,7 @@
         <label>juce::Timer</label>
         <link refid="classjuce_1_1Timer" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="8">
+      <node id="11">
         <label>juce::ValueTree</label>
         <link refid="classjuce_1_1ValueTree" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
@@ -322,28 +374,19 @@
         <label>juce::ValueTree::Listener</label>
         <link refid="classjuce_1_1ValueTree_1_1Listener" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="5">
-        <label>std::unordered_map&lt; juce::KeyPress, juce::Identifier &gt;</label>
-        <childnode refid="6" relation="usage">
-          <edgelabel>keys</edgelabel>
-        </childnode>
-        <childnode refid="7" relation="usage">
-          <edgelabel>elements</edgelabel>
-        </childnode>
-      </node>
     </collaborationgraph>
-    <location file="action/Registry.h" line="36" column="1" bodyfile="action/Registry.h" bodystart="39" bodyend="72"/>
+    <location file="action/Registry.h" line="36" column="1" bodyfile="action/Registry.h" bodystart="39" bodyend="73"/>
     <listofallmembers>
       <member refid="classaction_1_1_registry_1a477895f1825ec38c7362295d41093187" prot="public" virt="non-virtual"><scope>action::Registry</scope><name>actions</name></member>
       <member refid="classaction_1_1_registry_1ad386721909b7f7d3ae0ed7c07f3d9ca0" prot="public" virt="non-virtual"><scope>action::Registry</scope><name>buildKeyMap</name></member>
       <member refid="classjuce_1_1Timer_1a5eb2dfa3e6810c268704c159ddcb37bc" prot="private" virt="non-virtual"><scope>action::Registry</scope><name>callAfterDelay</name></member>
       <member refid="classjuce_1_1Timer_1a6c366b7f5a5d70c270a1e85b8aa45888" prot="private" virt="non-virtual"><scope>action::Registry</scope><name>callPendingTimersSynchronously</name></member>
-      <member refid="classaction_1_1_registry_1a7e2fce5f4c913c486e3744d8f804ae00" prot="private" virt="non-virtual"><scope>action::Registry</scope><name>config</name></member>
+      <member refid="classaction_1_1_registry_1a736e575dc57a08e1524ad12b5d59af3d" prot="private" virt="non-virtual"><scope>action::Registry</scope><name>config</name></member>
       <member refid="classjuce_1_1Timer_1a3dd602cadcc8e2a3be6aeb6538b8d2c1" prot="private" virt="non-virtual"><scope>action::Registry</scope><name>getTimerInterval</name></member>
       <member refid="classjuce_1_1Timer_1a525f38cc7afdc0696b467bd4ed3f17da" prot="private" virt="non-virtual"><scope>action::Registry</scope><name>isTimerRunning</name></member>
       <member refid="classaction_1_1_registry_1a7d16fe8f4045f209faaf099a46d3b704" prot="public" virt="non-virtual"><scope>action::Registry</scope><name>keyPressed</name></member>
-      <member refid="classaction_1_1_registry_1ac0357c647b1955560d45b17b86d375ab" prot="private" virt="non-virtual"><scope>action::Registry</scope><name>keys</name></member>
-      <member refid="classaction_1_1_registry_1aaa1676c4bd9b45d9cfe40a9416c478ab" prot="private" virt="non-virtual"><scope>action::Registry</scope><name>modalKeys</name></member>
+      <member refid="classaction_1_1_registry_1ace3962490a973f566ef67f57fb29fb70" prot="private" virt="non-virtual"><scope>action::Registry</scope><name>keys</name></member>
+      <member refid="classaction_1_1_registry_1a371b6212bf694af9382daeb4485a6495" prot="private" virt="non-virtual"><scope>action::Registry</scope><name>modalKeys</name></member>
       <member refid="classaction_1_1_registry_1ad6d4755e2636d32124eeca007dbe7f91" prot="private" virt="non-virtual"><scope>action::Registry</scope><name>prefixKey</name></member>
       <member refid="classaction_1_1_registry_1a2e4b86c63bdfe4d0d0f1d116a2bfef75" prot="private" virt="non-virtual"><scope>action::Registry</scope><name>prefixTimeout</name></member>
       <member refid="classaction_1_1_registry_1ab459c431a149a647f9ed43f58e370198" prot="public" virt="non-virtual"><scope>action::Registry</scope><name>Registry</name></member>

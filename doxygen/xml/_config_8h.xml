@@ -3,16 +3,17 @@
   <compounddef id="_config_8h" kind="file" language="C++">
     <compoundname>Config.h</compoundname>
     <includes local="no">JuceHeader.h</includes>
-    <includes refid="_identifier_8h" local="yes">Identifier.h</includes>
+    <includes refid="_map_8h" local="yes">../end/Map.h</includes>
     <includedby refid="_main_8h" local="yes">Main.h</includedby>
     <includedby refid="_registry_8h" local="yes">action/Registry.h</includedby>
     <includedby refid="_config_8cpp" local="yes">config/Config.cpp</includedby>
+    <includedby refid="_message_overlay_8h" local="yes">end/MessageOverlay.h</includedby>
     <includedby refid="_tabs_8h" local="yes">end/Tabs.h</includedby>
     <includedby refid="_view_8h" local="yes">end/View.h</includedby>
     <includedby refid="_window_8h" local="yes">end/Window.h</includedby>
     <includedby refid="_look_and_feel_8h" local="yes">lookAndFeel/LookAndFeel.h</includedby>
     <incdepgraph>
-      <node id="3">
+      <node id="4">
         <label>Identifier.h</label>
         <link refid="_identifier_8h"/>
         <childnode refid="2" relation="include">
@@ -24,6 +25,14 @@
         <childnode refid="2" relation="include">
         </childnode>
         <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>../end/Map.h</label>
+        <link refid="_map_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
         </childnode>
       </node>
       <node id="2">
@@ -68,21 +77,29 @@
         </childnode>
         <childnode refid="9" relation="include">
         </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
         <childnode refid="6" relation="include">
         </childnode>
-        <childnode refid="11" relation="include">
+        <childnode refid="12" relation="include">
         </childnode>
-        <childnode refid="13" relation="include">
+        <childnode refid="14" relation="include">
         </childnode>
       </node>
-      <node id="10">
+      <node id="9">
+        <label>end/MessageOverlay.h</label>
+        <link refid="_message_overlay_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
         <label>end/Tabs.cpp</label>
         <link refid="_tabs_8cpp"/>
       </node>
-      <node id="9">
+      <node id="10">
         <label>end/Tabs.h</label>
         <link refid="_tabs_8h"/>
-        <childnode refid="10" relation="include">
+        <childnode refid="11" relation="include">
         </childnode>
         <childnode refid="6" relation="include">
         </childnode>
@@ -99,34 +116,35 @@
         <childnode refid="7" relation="include">
         </childnode>
       </node>
-      <node id="12">
+      <node id="13">
         <label>end/Window.cpp</label>
         <link refid="_window_8cpp"/>
       </node>
-      <node id="11">
+      <node id="12">
         <label>end/Window.h</label>
         <link refid="_window_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
-        <childnode refid="12" relation="include">
+        <childnode refid="13" relation="include">
         </childnode>
       </node>
-      <node id="14">
+      <node id="15">
         <label>lookAndFeel/LookAndFeel.cpp</label>
         <link refid="_look_and_feel_8cpp"/>
       </node>
-      <node id="13">
+      <node id="14">
         <label>lookAndFeel/LookAndFeel.h</label>
         <link refid="_look_and_feel_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
-        <childnode refid="11" relation="include">
+        <childnode refid="9" relation="include">
         </childnode>
-        <childnode refid="14" relation="include">
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
         </childnode>
       </node>
     </invincdepgraph>
-    <innerclass refid="structconfig_1_1_file" prot="public">config::File</innerclass>
     <innerclass refid="classconfig_1_1_model" prot="public">config::Model</innerclass>
     <innernamespace refid="namespaceconfig">config</innernamespace>
     <briefdescription>
@@ -136,62 +154,31 @@
     <programlisting>
 <codeline lineno="1"><highlight class="preprocessor">#pragma<sp/>once</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;JuceHeader.h&gt;</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="3"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_identifier_8h" kindref="compound">Identifier.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_map_8h" kindref="compound">../end/Map.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="4"><highlight class="normal"></highlight></codeline>
 <codeline lineno="5"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespaceconfig" kindref="compound">config</ref></highlight></codeline>
 <codeline lineno="6"><highlight class="normal">{</highlight></codeline>
 <codeline lineno="7"><highlight class="normal"></highlight><highlight class="comment">/*____________________________________________________________________________*/</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="8" refid="structconfig_1_1_file" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structconfig_1_1_file" kindref="compound">File</ref></highlight></codeline>
-<codeline lineno="9"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="10"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="11"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
-<codeline lineno="12" refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112ba0fc85df7daa8f0d98a096582ced3738f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="namespaceconfig" kindref="compound">config</ref>,</highlight></codeline>
-<codeline lineno="13" refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112ba8445a8e632640713c5459f4255889087" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112ba8445a8e632640713c5459f4255889087" kindref="member">whelmed</ref>,</highlight></codeline>
-<codeline lineno="14" refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112ba223730b185e3ae2640f6f0b87a067d01" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112ba223730b185e3ae2640f6f0b87a067d01" kindref="member">nexus</ref>,</highlight></codeline>
-<codeline lineno="15" refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112ba81cd47b1607025b96034d93f45523319" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112ba81cd47b1607025b96034d93f45523319" kindref="member">display</ref>,</highlight></codeline>
-<codeline lineno="16" refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112baf3232b14a906fb91ecda7443235ce6ef" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112baf3232b14a906fb91ecda7443235ce6ef" kindref="member">graphics</ref>,</highlight></codeline>
-<codeline lineno="17" refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112ba4c13453f0623e489137493b9305ec0ea" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112ba4c13453f0623e489137493b9305ec0ea" kindref="member">actions</ref>,</highlight></codeline>
-<codeline lineno="18" refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112bafcbf6aafaecace693615939e7179e737" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112bafcbf6aafaecace693615939e7179e737" kindref="member">popups</ref>,</highlight></codeline>
-<codeline lineno="19" refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112ba61592c1bf865f03bcbd13f0c6fa4340e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112ba61592c1bf865f03bcbd13f0c6fa4340e" kindref="member">keys</ref>,</highlight></codeline>
-<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/>};</highlight></codeline>
-<codeline lineno="21"><highlight class="normal"></highlight></codeline>
-<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="23"><highlight class="normal"></highlight></codeline>
-<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref><sp/><ref refid="structconfig_1_1_file_1af7e5a59b7450673c2677f4dcf3817279" kindref="member">getName</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>key)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal">;</highlight></codeline>
-<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="29" refid="structconfig_1_1_file_1a256dc6f23b2efea619c33a43ae3d795c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classjuce_1_1File" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::File</ref><sp/><ref refid="structconfig_1_1_file_1a256dc6f23b2efea619c33a43ae3d795c" kindref="member">path</ref>;</highlight></codeline>
-<codeline lineno="30" refid="structconfig_1_1_file_1a6ab20528e69a64a7091bd8d1269eac55" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref><sp/><ref refid="structconfig_1_1_file_1a6ab20528e69a64a7091bd8d1269eac55" kindref="member">extension</ref>;</highlight></codeline>
-<codeline lineno="31" refid="structconfig_1_1_file_1a1d5413f8cf2eb67f26dd717fb948c596" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::unordered_map&lt;int,<sp/>juce::String&gt;<sp/><ref refid="structconfig_1_1_file_1a1d5413f8cf2eb67f26dd717fb948c596" kindref="member">map</ref>;</highlight></codeline>
-<codeline lineno="32"><highlight class="normal">};</highlight></codeline>
-<codeline lineno="33"><highlight class="normal"></highlight></codeline>
-<codeline lineno="34"><highlight class="normal"></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="49" refid="classconfig_1_1_model" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classconfig_1_1_model_1a663ac662800dd1918dbab12d317fa4d5" kindref="member">Model</ref></highlight></codeline>
-<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classjam_1_1Model" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Model</ref></highlight></codeline>
-<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/>,<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="structjam_1_1Context" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Context</ref>&lt;Model&gt;</highlight></codeline>
-<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/>,<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classjam_1_1File_1_1Watcher_1_1Listener" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::File::Watcher::Listener</ref></highlight></codeline>
-<codeline lineno="53"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="54"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
-<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==========================================================================</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classconfig_1_1_model_1a663ac662800dd1918dbab12d317fa4d5" kindref="member">Model</ref>();</highlight></codeline>
-<codeline lineno="57" refid="classconfig_1_1_model_1af95c0931a6f76206d56eb06a3c71a05a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classconfig_1_1_model_1af95c0931a6f76206d56eb06a3c71a05a" kindref="member">~Model</ref>()<sp/>=<sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">;</highlight></codeline>
-<codeline lineno="58"><highlight class="normal"></highlight></codeline>
-<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classjuce_1_1ValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::ValueTree</ref><sp/><ref refid="classconfig_1_1_model_1ae9157061354f29018dc4a7d8c7397f83" kindref="member">get</ref>()<sp/>noexcept;</highlight></codeline>
-<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/>static<sp/>const<sp/><ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce</ref>::Rectangle&lt;</highlight><highlight class="keywordtype">int</highlight><highlight class="normal">&gt;<sp/><ref refid="classconfig_1_1_model_1a8508c00d93b45281e3d07753b6d987b8" kindref="member">getInitWindowSize</ref>();</highlight></codeline>
-<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==========================================================================</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classconfig_1_1_model_1a88f26a19f5b816bdad76c460d9d18389" kindref="member">load</ref><sp/>(const<sp/><ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce</ref>::<ref refid="structconfig_1_1_file" kindref="compound">File</ref>&amp;<sp/>file,<sp/><ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce</ref>::String&amp;<sp/>errorOut);</highlight></codeline>
-<codeline lineno="78"><highlight class="normal"></highlight></codeline>
-<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce</ref>::StringArray<sp/><ref refid="classconfig_1_1_model_1a49a8775067e4dbff5ba1d4c7c77d19eb" kindref="member">loadPath</ref><sp/>(const<sp/><ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce</ref>::<ref refid="structconfig_1_1_file" kindref="compound">File</ref>&amp;<sp/>dir);</highlight></codeline>
-<codeline lineno="93"><highlight class="normal"></highlight></codeline>
-<codeline lineno="94"><highlight class="normal">private:</highlight></codeline>
-<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==========================================================================</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classconfig_1_1_model_1aaf6b40ca395ac5c6325cb189f13fec0f" kindref="member">fileChanged</ref><sp/>(const<sp/><ref refid="namespacejuce" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce</ref>::<ref refid="structconfig_1_1_file" kindref="compound">File</ref>&amp;<sp/>file,<sp/><ref refid="namespacejam" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam</ref>::<ref refid="structconfig_1_1_file" kindref="compound">File</ref>::Watcher::Event<sp/>event)<sp/>override;</highlight></codeline>
-<codeline lineno="106"><highlight class="normal"></highlight></codeline>
-<codeline lineno="107" refid="classconfig_1_1_model_1a6a55abd98823bb3b8bcb92905cbdd377" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespacejam" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam</ref>::<ref refid="structconfig_1_1_file" kindref="compound">File</ref>::Watcher<sp/><ref refid="classconfig_1_1_model_1a6a55abd98823bb3b8bcb92905cbdd377" kindref="member">watcher</ref>;</highlight></codeline>
-<codeline lineno="108"><highlight class="normal"></highlight></codeline>
-<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==========================================================================</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="juce__PlatformDefs_8h_1a851b02724a8158a7f746c66b5758b3dd" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR</ref><sp/>(<ref refid="classconfig_1_1_model_1a663ac662800dd1918dbab12d317fa4d5" kindref="member">Model</ref>)</highlight></codeline>
-<codeline lineno="111"><highlight class="normal">};</highlight></codeline>
-<codeline lineno="113"><highlight class="normal">}</highlight><highlight class="comment">//<sp/>namespace<sp/>config</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight></codeline>
+<codeline lineno="9" refid="classconfig_1_1_model" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classconfig_1_1_model_1a663ac662800dd1918dbab12d317fa4d5" kindref="member">Model</ref></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"><sp/><sp/><sp/><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classjam_1_1Model" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Model</ref></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"><sp/><sp/><sp/><sp/>,<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="structjam_1_1Context" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Context</ref>&lt;Model&gt;</highlight></codeline>
+<codeline lineno="12"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="14"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==========================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classconfig_1_1_model_1a663ac662800dd1918dbab12d317fa4d5" kindref="member">Model</ref>();</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17" refid="classconfig_1_1_model_1af95c0931a6f76206d56eb06a3c71a05a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classconfig_1_1_model_1af95c0931a6f76206d56eb06a3c71a05a" kindref="member">~Model</ref>()<sp/>=<sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classjuce_1_1Rectangle" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Rectangle&lt;int&gt;</ref><sp/><ref refid="classconfig_1_1_model_1ab192f674b56bb1c270a2f2361b8c4b91" kindref="member">getInitWindowSize</ref>()<sp/>const<sp/>noexcept;</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal">private:</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" kindref="member">initialise</ref>();</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classconfig_1_1_model_1ac22840d8be9ff0867722ea811a99f5e1" kindref="member">writeToPath</ref>();</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==========================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="juce__PlatformDefs_8h_1a851b02724a8158a7f746c66b5758b3dd" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR</ref><sp/>(<ref refid="classconfig_1_1_model_1a663ac662800dd1918dbab12d317fa4d5" kindref="member">Model</ref>)</highlight></codeline>
+<codeline lineno="26"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="28"><highlight class="normal">}</highlight><highlight class="comment">//<sp/>namespace<sp/>config</highlight><highlight class="normal"></highlight></codeline>
     </programlisting>
     <location file="config/Config.h"/>
   </compounddef>

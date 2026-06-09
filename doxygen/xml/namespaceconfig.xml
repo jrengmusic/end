@@ -2,8 +2,9 @@
 <doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
   <compounddef id="namespaceconfig" kind="namespace" language="C++">
     <compoundname>config</compoundname>
-    <innerclass refid="structconfig_1_1_file" prot="public">config::File</innerclass>
     <innerclass refid="classconfig_1_1_model" prot="public">config::Model</innerclass>
+    <innerclass refid="structconfig_1_1_file" prot="public">config::File</innerclass>
+    <innerclass refid="structconfig_1_1_graphics" prot="public">config::Graphics</innerclass>
     <briefdescription>
     </briefdescription>
     <detaileddescription>

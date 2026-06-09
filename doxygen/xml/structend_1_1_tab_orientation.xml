@@ -17,8 +17,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="36" column="5" bodyfile="end/Map.h" bodystart="36" bodyend="44"/>
-        <references refid="classjam_1_1Map_1_1Instance_1af839c922a9f9a6c1a8ef2b7102af4d77">jam::Map::Instance&lt; TabOrientation &gt;::map</references>
+        <location file="end/Map.h" line="37" column="5" bodyfile="end/Map.h" bodystart="37" bodyend="45"/>
+        <references refid="classjam_1_1Map_1_1Instance_1afe0acf25bab1f104aea20f20174129d1">jam::Map::Instance&lt; TabOrientation &gt;::map</references>
       </memberdef>
       <memberdef kind="function" id="structend_1_1_tab_orientation_1a7177078aa79a6d3bdbb80a84301be5ce" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="virtual">
         <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref> &amp;</type>
@@ -33,8 +33,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="46" column="24" bodyfile="end/Map.h" bodystart="46" bodyend="46"/>
-        <references refid="classjam_1_1Map_1_1Instance_1af839c922a9f9a6c1a8ef2b7102af4d77">jam::Map::Instance&lt; TabOrientation &gt;::map</references>
+        <location file="end/Map.h" line="47" column="24" bodyfile="end/Map.h" bodystart="47" bodyend="47"/>
+        <references refid="classjam_1_1Map_1_1Instance_1afe0acf25bab1f104aea20f20174129d1">jam::Map::Instance&lt; TabOrientation &gt;::map</references>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-static-func">
@@ -50,10 +50,10 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="48" column="23" bodyfile="end/Map.h" bodystart="48" bodyend="48"/>
+        <location file="end/Map.h" line="49" column="23" bodyfile="end/Map.h" bodystart="49" bodyend="49"/>
         <references refid="structjam_1_1Context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Derived &gt;::getContext</references>
-        <referencedby refid="structend_1_1_tab_orientation_1a2044ae64e160534789ba744c39436906" compoundref="_map_8h" startline="50" endline="53">get</referencedby>
-        <referencedby refid="classend_1_1_view_1a91ed8ef126c0a1b3feb458079c3a7849" compoundref="_view_8cpp" startline="82" endline="89">end::View::setTabOrientation</referencedby>
+        <referencedby refid="structend_1_1_tab_orientation_1a2044ae64e160534789ba744c39436906" compoundref="_map_8h" startline="51" endline="54">get</referencedby>
+        <referencedby refid="classend_1_1_view_1a91ed8ef126c0a1b3feb458079c3a7849" compoundref="_view_8cpp" startline="81" endline="88">end::View::setTabOrientation</referencedby>
       </memberdef>
       <memberdef kind="function" id="structend_1_1_tab_orientation_1a2044ae64e160534789ba744c39436906" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
         <type>int</type>
@@ -71,8 +71,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="50" column="16" bodyfile="end/Map.h" bodystart="50" bodyend="53"/>
-        <references refid="structend_1_1_tab_orientation_1a4d1e67c97f84f83eadd49ca32c44adc4" compoundref="_map_8h" startline="48" endline="48">get</references>
+        <location file="end/Map.h" line="51" column="16" bodyfile="end/Map.h" bodystart="51" bodyend="54"/>
+        <references refid="structend_1_1_tab_orientation_1a4d1e67c97f84f83eadd49ca32c44adc4" compoundref="_map_8h" startline="49" endline="49">get</references>
         <references refid="structjam_1_1Map_1ae8fbbc14cd030a156f6e3aaabba5778c">jam::Map::getKey</references>
       </memberdef>
       <memberdef kind="function" id="structend_1_1_tab_orientation_1a18c694be405ff0d10e5750e6392d2a41" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
@@ -91,7 +91,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="55" column="31" bodyfile="end/Map.h" bodystart="55" bodyend="55"/>
+        <location file="end/Map.h" line="56" column="31" bodyfile="end/Map.h" bodystart="56" bodyend="56"/>
         <references refid="structjam_1_1Context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Derived &gt;::getContext</references>
       </memberdef>
     </sectiondef>
@@ -128,6 +128,10 @@
         <label>jam::Context&lt; Derived &gt;</label>
         <link refid="structjam_1_1Context" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
+      <node id="4">
+        <label>jam::HashMap&lt; int, juce::String &gt;</label>
+        <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
       <node id="2">
         <label>jam::Map::Instance&lt; TabOrientation &gt;</label>
         <link refid="classjam_1_1Map_1_1Instance" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
@@ -137,18 +141,8 @@
           <edgelabel>map</edgelabel>
         </childnode>
       </node>
-      <node id="5">
-        <label>juce::String</label>
-        <link refid="classjuce_1_1String" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-      </node>
-      <node id="4">
-        <label>std::map&lt; int, juce::String &gt;</label>
-        <childnode refid="5" relation="usage">
-          <edgelabel>elements</edgelabel>
-        </childnode>
-      </node>
     </collaborationgraph>
-    <location file="end/Map.h" line="34" column="1" bodyfile="end/Map.h" bodystart="35" bodyend="56"/>
+    <location file="end/Map.h" line="35" column="1" bodyfile="end/Map.h" bodystart="36" bodyend="57"/>
     <listofallmembers>
       <member refid="structjam_1_1Context_1a6e3f38a234db8ff2a9acb5986e72a2de" prot="public" virt="non-virtual"><scope>end::TabOrientation</scope><name>Context</name></member>
       <member refid="structend_1_1_tab_orientation_1a4d1e67c97f84f83eadd49ca32c44adc4" prot="public" virt="non-virtual"><scope>end::TabOrientation</scope><name>get</name></member>
@@ -158,7 +152,7 @@
       <member refid="structjam_1_1Context_1a259aac6b39aea0f3d3e2be9ab123cff3" prot="public" virt="non-virtual"><scope>end::TabOrientation</scope><name>getContext</name></member>
       <member refid="structend_1_1_tab_orientation_1a7177078aa79a6d3bdbb80a84301be5ce" prot="public" virt="virtual"><scope>end::TabOrientation</scope><name>getDefault</name></member>
       <member refid="structjam_1_1Context_1a5900ff66cdba02d6f6947cc6d5e8ec3d" prot="private" virt="non-virtual"><scope>end::TabOrientation</scope><name>head</name></member>
-      <member refid="classjam_1_1Map_1_1Instance_1af839c922a9f9a6c1a8ef2b7102af4d77" prot="protected" virt="non-virtual"><scope>end::TabOrientation</scope><name>map</name></member>
+      <member refid="classjam_1_1Map_1_1Instance_1afe0acf25bab1f104aea20f20174129d1" prot="protected" virt="non-virtual"><scope>end::TabOrientation</scope><name>map</name></member>
       <member refid="structjam_1_1Context_1a6716feb60b039083ca0c099a506a3474" prot="public" virt="non-virtual"><scope>end::TabOrientation</scope><name>operator=</name></member>
       <member refid="structjam_1_1Context_1aa1862120f2983ab7ddef536ba03bb114" prot="private" virt="non-virtual"><scope>end::TabOrientation</scope><name>previous</name></member>
       <member refid="structend_1_1_tab_orientation_1afe38e70f0219da9717e331a9773b6fd8" prot="public" virt="non-virtual"><scope>end::TabOrientation</scope><name>TabOrientation</name></member>

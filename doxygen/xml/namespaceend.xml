@@ -4,6 +4,7 @@
     <compoundname>end</compoundname>
     <innerclass refid="structend_1_1_boolean" prot="public">end::Boolean</innerclass>
     <innerclass refid="structend_1_1_tab_orientation" prot="public">end::TabOrientation</innerclass>
+    <innerclass refid="classend_1_1_message_overlay" prot="public">end::MessageOverlay</innerclass>
     <innerclass refid="classend_1_1_model" prot="public">end::Model</innerclass>
     <innerclass refid="classend_1_1_panes" prot="public">end::Panes</innerclass>
     <innerclass refid="classend_1_1_pane_view" prot="public">end::PaneView</innerclass>
@@ -16,6 +17,6 @@
     </briefdescription>
     <detaileddescription>
     </detaileddescription>
-    <location file="end/Map.h" line="4" column="1"/>
+    <location file="end/Map.h" line="5" column="1"/>
   </compounddef>
 </doxygen>

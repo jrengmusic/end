@@ -5,6 +5,7 @@
 #pragma once
 #include <JuceHeader.h>
 #include "end/Tabs.h"
+#include "end/MessageOverlay.h"
 #include "action/Registry.h"
 #include "config/Config.h"
 #include "Map.h"
@@ -44,8 +45,8 @@ public:
                               juce::ValueTree& childWhichHasBeenAdded) override;
 
 private:
-    juce::ValueTree config;
-    juce::ValueTree model;
+    config::Model& config { *config::Model::getContext() };
+
     //==============================================================================
     void registerActions();
     void setTabOrientation();
@@ -53,11 +54,12 @@ private:
     //==============================================================================
     action::Registry registry;
     Tabs tabs;
+    MessageOverlay messageOverlay;
     jam::Owner<jam::Model::Attachment> attachments;
 
     //==============================================================================
 #if JUCE_DEBUG
-    jam::debug::Widget widget { this, model, false };
+    jam::debug::Widget widget { this, model.state, false };
 #endif
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (View)

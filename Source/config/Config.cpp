@@ -4,33 +4,31 @@ namespace config
 {
 /*____________________________________________________________________________*/
 
-const juce::File File::path {
-    juce::File::getSpecialLocation (juce::File::userHomeDirectory).getChildFile (".config/end")
-};
-
-const juce::String File::extension { "*.lua" };
-
-const std::unordered_map<int, juce::String> File::map {
-    { File::config,   IDref::config   },
-    { File::whelmed,  IDref::whelmed  },
-    { File::nexus,    IDref::nexus    },
-    { File::display,  IDref::display  },
-    { File::graphics, IDref::graphics },
-    { File::actions,  IDref::actions  },
-    { File::popups,   IDref::popups   },
-    { File::keys,     IDref::keys     },
-};
-
-const juce::String File::getName (int key) noexcept
-{
-    return jam::Format::toFileName (map.at (key), extension);
-}
-
-//==============================================================================
 Model::Model()
     : jam::Model (IDtype::config)
 {
-    for (auto& [key, value] : File::map)
+    initialise();
+    writeToPath();
+}
+
+//==============================================================================
+juce::Rectangle<int> Model::getInitWindowSize() const noexcept
+{
+    auto window { jam::Model::getChildWithName (state, IDtype::window) };
+    auto size { juce::StringArray::fromTokens (window.getProperty (ID::size).toString(), ',') };
+    enum
+    {
+        width,
+        height
+    };
+
+    return { size[width].getIntValue(), size[height].getIntValue() };
+}
+
+//==============================================================================
+void Model::initialise()
+{
+    for (auto& [key, value] : File::get())
     {
         if (key != File::config)
         {
@@ -54,112 +52,33 @@ Model::Model()
                                           });
 }
 
-const juce::ValueTree Model::get() noexcept { return getContext()->state; }
-
 //==============================================================================
-void Model::load (const juce::File& file, juce::String& errorOut)
+void Model::writeToPath()
 {
-    errorOut.clear();
-    auto text { file.loadFileAsString() };
-    jassert (text.isNotEmpty());
-
-    auto lua { jam::lua::State() };
-
-    if (auto result { lua.getType (text) }; result.wasOk())
+    auto writeWhenNeeded = [] (const juce::File& path, const auto& map) -> bool
     {
-        auto child { jam::Model::fromLua (
-            result.value(), file.getFileNameWithoutExtension().toUpperCase()) };
-        setValuesFrom (child);
-    }
-    else
-    {
-        errorOut = file.getFullPathName() + ": " + result.getErrorMessage();
-    }
-}
+        if (not path.exists())
+            path.createDirectory();
 
-//==============================================================================
-juce::StringArray Model::loadPath (const juce::File& dir)
-{
-    juce::StringArray errors;
-    dir.createDirectory();
-    dir.getChildFile (jam::IDref::graphics).createDirectory();
-
-    for (auto& [key, value] : File::map)
-    {
-        if (key != File::config)
+        for (auto& [key, value] : map.get())
         {
-            const juce::File file { dir.getChildFile (File::getName (key)) };
+            const auto name { map.getName (key) };
+            const juce::File file { path.getChildFile (name) };
 
-            if (file.existsAsFile())
+            if (not file.existsAsFile())
             {
-                juce::String errorOut;
-                load (file, errorOut);
-
-                if (errorOut.isNotEmpty())
-                {
-                    errors.add (errorOut);
-                    errorOut.clear();
-                }
-            }
-            else
-            {
-                file.replaceWithText (BinaryData::getString (File::getName (key)));
+                BinaryData::Raw raw (name);
+                file.replaceWithData (raw.data, static_cast<size_t> (raw.size));
             }
         }
-    }
-
-    watcher.addFolder (dir);
-    watcher.coalesceEvents (300);
-    watcher.addListener (this);
-
-    return errors;
-}
-
-//==============================================================================
-void Model::fileChanged (const juce::File& file, jam::File::Watcher::Event event)
-{
-    if (event == jam::File::Watcher::Event::fileUpdated)
-    {
-        if (file.hasFileExtension (File::extension))
-        {
-            juce::String errorOut;
-            load (file, errorOut);
-        }
-        else if (file.hasFileExtension ("svg"))
-        {
-            auto graphics { state.getChildWithName (IDtype::graphics) };
-
-            if (graphics.isValid())
-            {
-                auto fileName { file.getFileName() };
-
-                if (fileName == graphics.getProperty (ID::tabBar).toString())
-                    graphics.sendPropertyChangeMessage (ID::tabBar);
-                else if (fileName == graphics.getProperty (ID::tabInactive).toString())
-                    graphics.sendPropertyChangeMessage (ID::tabInactive);
-                else if (fileName == graphics.getProperty (ID::tabActive).toString())
-                    graphics.sendPropertyChangeMessage (ID::tabActive);
-            }
-        }
-    }
-}
-
-const juce::Rectangle<int> Model::getInitWindowSize()
-{
-    auto window { get().getChildWithName (IDtype::display).getChildWithName (IDtype::window) };
-    auto csv { window.getProperty (ID::size).toString() };
-    auto size { juce::StringArray::fromTokens (csv, ",", "") };
-    enum
-    {
-        width,
-        height
     };
 
-    juce::Rectangle<int> init;
+    writeWhenNeeded (File::path, *File::getContext());
 
-    return init.withSize (size[width].getIntValue(), size[height].getIntValue());
+    auto graphics { jam::Model::getChildWithName (state, IDtype::graphics) };
+    auto path { Graphics::path.getChildFile (graphics.getProperty (jam::ID::path).toString()) };
+    writeWhenNeeded (path, *Graphics::getContext());
 }
 
-//==============================================================================
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace config

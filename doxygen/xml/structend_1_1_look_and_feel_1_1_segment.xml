@@ -15,7 +15,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lookAndFeel/LookAndFeel.h" line="85" column="25" bodyfile="lookAndFeel/LookAndFeel.h" bodystart="85" bodyend="-1"/>
+        <location file="lookAndFeel/LookAndFeel.h" line="92" column="25" bodyfile="lookAndFeel/LookAndFeel.h" bodystart="92" bodyend="-1"/>
+        <referencedby refid="classend_1_1_look_and_feel_1a6dbdc5e2cb4ab02bb034744b98930c76" compoundref="_look_and_feel_8cpp" startline="167" endline="294">end::LookAndFeel::parseSvg</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structend_1_1_look_and_feel_1_1_segment_1ad6dbec094df6dcc2110d40c101ff8557" prot="public" static="no" mutable="no">
         <type><ref refid="classjuce_1_1Rectangle" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Rectangle</ref>&lt; float &gt;</type>
@@ -29,7 +30,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lookAndFeel/LookAndFeel.h" line="86" column="25" bodyfile="lookAndFeel/LookAndFeel.h" bodystart="86" bodyend="-1"/>
+        <location file="lookAndFeel/LookAndFeel.h" line="93" column="25" bodyfile="lookAndFeel/LookAndFeel.h" bodystart="93" bodyend="-1"/>
       </memberdef>
       <memberdef kind="variable" id="structend_1_1_look_and_feel_1_1_segment_1a1978fffd5359967e0c8e47714d0c8e3d" prot="public" static="no" mutable="no">
         <type><ref refid="classjuce_1_1Colour" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Colour</ref></type>
@@ -43,7 +44,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lookAndFeel/LookAndFeel.h" line="87" column="22" bodyfile="lookAndFeel/LookAndFeel.h" bodystart="87" bodyend="-1"/>
+        <location file="lookAndFeel/LookAndFeel.h" line="94" column="22" bodyfile="lookAndFeel/LookAndFeel.h" bodystart="94" bodyend="-1"/>
+        <referencedby refid="classend_1_1_look_and_feel_1a6dbdc5e2cb4ab02bb034744b98930c76" compoundref="_look_and_feel_8cpp" startline="167" endline="294">end::LookAndFeel::parseSvg</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structend_1_1_look_and_feel_1_1_segment_1a0506678bf122b39db817aadb237f9c82" prot="public" static="no" mutable="no">
         <type><ref refid="classjuce_1_1Path" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Path</ref></type>
@@ -57,7 +59,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lookAndFeel/LookAndFeel.h" line="88" column="20" bodyfile="lookAndFeel/LookAndFeel.h" bodystart="88" bodyend="-1"/>
+        <location file="lookAndFeel/LookAndFeel.h" line="95" column="20" bodyfile="lookAndFeel/LookAndFeel.h" bodystart="95" bodyend="-1"/>
+        <referencedby refid="classend_1_1_look_and_feel_1a6dbdc5e2cb4ab02bb034744b98930c76" compoundref="_look_and_feel_8cpp" startline="167" endline="294">end::LookAndFeel::parseSvg</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structend_1_1_look_and_feel_1_1_segment_1a67c4e0d2b858c410426a4658685cf616" prot="public" static="no" mutable="no">
         <type>bool</type>
@@ -72,7 +75,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lookAndFeel/LookAndFeel.h" line="89" column="14" bodyfile="lookAndFeel/LookAndFeel.h" bodystart="89" bodyend="89"/>
+        <location file="lookAndFeel/LookAndFeel.h" line="96" column="14" bodyfile="lookAndFeel/LookAndFeel.h" bodystart="96" bodyend="96"/>
+        <referencedby refid="classend_1_1_look_and_feel_1a6dbdc5e2cb4ab02bb034744b98930c76" compoundref="_look_and_feel_8cpp" startline="167" endline="294">end::LookAndFeel::parseSvg</referencedby>
       </memberdef>
     </sectiondef>
     <briefdescription>
@@ -109,7 +113,7 @@
         <link refid="classjuce_1_1Rectangle" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
     </collaborationgraph>
-    <location file="lookAndFeel/LookAndFeel.h" line="83" column="5" bodyfile="lookAndFeel/LookAndFeel.h" bodystart="84" bodyend="90"/>
+    <location file="lookAndFeel/LookAndFeel.h" line="90" column="5" bodyfile="lookAndFeel/LookAndFeel.h" bodystart="91" bodyend="97"/>
     <listofallmembers>
       <member refid="structend_1_1_look_and_feel_1_1_segment_1a1978fffd5359967e0c8e47714d0c8e3d" prot="public" virt="non-virtual"><scope>end::LookAndFeel::Segment</scope><name>colour</name></member>
       <member refid="structend_1_1_look_and_feel_1_1_segment_1ad6dbec094df6dcc2110d40c101ff8557" prot="public" virt="non-virtual"><scope>end::LookAndFeel::Segment</scope><name>dest</name></member>

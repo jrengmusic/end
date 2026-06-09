@@ -24,8 +24,8 @@ return {
 	tab_bar = "tab_bar.svg",
 
 	-- Inactive tab button shape.
-	tab_inactive = "",
+	tab_inactive = "tab_inactive.svg",
 
 	-- Active tab indicator shape (slides to the active tab).
-	tab_active = "",
+	tab_active = "tab_active.svg",
 }

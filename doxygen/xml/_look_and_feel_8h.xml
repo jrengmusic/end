@@ -6,6 +6,7 @@
     <includes refid="_identifier_8h" local="yes">Identifier.h</includes>
     <includes refid="_config_8h" local="yes">../config/Config.h</includes>
     <includedby refid="_main_8h" local="yes">Main.h</includedby>
+    <includedby refid="_message_overlay_8h" local="yes">end/MessageOverlay.h</includedby>
     <includedby refid="_window_8h" local="yes">end/Window.h</includedby>
     <includedby refid="_look_and_feel_8cpp" local="yes">lookAndFeel/LookAndFeel.cpp</includedby>
     <incdepgraph>
@@ -18,6 +19,14 @@
       <node id="4">
         <label>../config/Config.h</label>
         <link refid="_config_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>../end/Map.h</label>
+        <link refid="_map_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
         <childnode refid="3" relation="include">
@@ -48,19 +57,37 @@
         <childnode refid="3" relation="include">
         </childnode>
       </node>
-      <node id="5">
-        <label>end/Window.cpp</label>
-        <link refid="_window_8cpp"/>
-      </node>
       <node id="4">
-        <label>end/Window.h</label>
-        <link refid="_window_8h"/>
-        <childnode refid="2" relation="include">
-        </childnode>
+        <label>end/MessageOverlay.h</label>
+        <link refid="_message_overlay_8h"/>
         <childnode refid="5" relation="include">
         </childnode>
       </node>
       <node id="6">
+        <label>end/View.cpp</label>
+        <link refid="_view_8cpp"/>
+      </node>
+      <node id="5">
+        <label>end/View.h</label>
+        <link refid="_view_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>end/Window.cpp</label>
+        <link refid="_window_8cpp"/>
+      </node>
+      <node id="7">
+        <label>end/Window.h</label>
+        <link refid="_window_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
         <label>lookAndFeel/LookAndFeel.cpp</label>
         <link refid="_look_and_feel_8cpp"/>
       </node>
@@ -71,12 +98,13 @@
         </childnode>
         <childnode refid="4" relation="include">
         </childnode>
-        <childnode refid="6" relation="include">
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
         </childnode>
       </node>
     </invincdepgraph>
     <innerclass refid="classend_1_1_look_and_feel" prot="public">end::LookAndFeel</innerclass>
-    <innerclass refid="structend_1_1_look_and_feel_1_1_segment" prot="private">end::LookAndFeel::Segment</innerclass>
     <innernamespace refid="namespaceend">end</innernamespace>
     <briefdescription>
     </briefdescription>
@@ -119,7 +147,7 @@
 <codeline lineno="47" refid="classend_1_1_look_and_feel_1a96444644e5b541f2a7a2235c0dc91cf8a29bcd8deec252b03c2577f82f8f481c6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classend_1_1_look_and_feel_1a96444644e5b541f2a7a2235c0dc91cf8a29bcd8deec252b03c2577f82f8f481c6" kindref="member">selectionCursorColourId</ref><sp/>=<sp/>0x2000301,</highlight></codeline>
 <codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/>};</highlight></codeline>
 <codeline lineno="49"><highlight class="normal"></highlight></codeline>
-<codeline lineno="53" refid="classend_1_1_look_and_feel_1aa2c110e0b98645d6e4ead121e479baba" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::unordered_map&lt;juce::Identifier,<sp/>int&gt;<sp/><ref refid="classend_1_1_look_and_feel_1aa2c110e0b98645d6e4ead121e479baba" kindref="member">colourIds</ref>;</highlight></codeline>
+<codeline lineno="53" refid="classend_1_1_look_and_feel_1a5ba25a9d67e1b0ab2f0b1c0e35c8cd0d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classjam_1_1HashMap" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::HashMap&lt;juce::Identifier, int&gt;</ref><sp/><ref refid="classend_1_1_look_and_feel_1a5ba25a9d67e1b0ab2f0b1c0e35c8cd0d" kindref="member">colourIds</ref>;</highlight></codeline>
 <codeline lineno="54"><highlight class="normal"></highlight></codeline>
 <codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classend_1_1_look_and_feel_1a9313c08eb0def3e3a423f8bfd362f435" kindref="member">LookAndFeel</ref>();</highlight></codeline>
 <codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classend_1_1_look_and_feel_1a4e4378865cd561e4bccbb346cf7a8114" kindref="member">~LookAndFeel</ref>();</highlight></codeline>
@@ -131,38 +159,35 @@
 <codeline lineno="64"><highlight class="normal"></highlight></codeline>
 <codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_look_and_feel_1ade27fb3312b73e1a30fc6e147cf32d0d" kindref="member">drawBarBackground</ref><sp/>(<ref refid="classjuce_1_1Graphics" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Graphics</ref>&amp;,<sp/><ref refid="classjuce_1_1Component" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Component</ref>&amp;<sp/>bar)<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
 <codeline lineno="67"><highlight class="normal"></highlight></codeline>
-<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_look_and_feel_1a2d895cfa802013b3734d533380e71252" kindref="member">drawStretchableLayoutResizerBar</ref><sp/>(<ref refid="classjuce_1_1Graphics" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Graphics</ref>&amp;,</highlight></codeline>
-<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="juce__UnityPluginInterface_8h_1a9c08bc30636cc52269cf06d61cf5d4e8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">w</ref>,</highlight></codeline>
-<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="juce__UnityPluginInterface_8h_1a2ee4d4f298ba1bf1bc2f45c681c40ca3" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">h</ref>,</highlight></codeline>
-<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>isVertical,</highlight></codeline>
-<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>isMouseOver,</highlight></codeline>
-<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>isMouseDown)<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
-<codeline lineno="75"><highlight class="normal"></highlight></codeline>
-<codeline lineno="76"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
-<codeline lineno="77" refid="classend_1_1_look_and_feel_1ae086844e629bd114836bde7a3b58abcb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classjuce_1_1ValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::ValueTree</ref><sp/><ref refid="namespaceconfig" kindref="compound">config</ref><sp/>{<sp/><ref refid="classconfig_1_1_model_1ae9157061354f29018dc4a7d8c7397f83" kindref="member">config::Model::get</ref>()<sp/>};</highlight></codeline>
-<codeline lineno="78"><highlight class="normal"></highlight></codeline>
-<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="83" refid="structend_1_1_look_and_feel_1_1_segment" refkind="compound"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structend_1_1_look_and_feel_1_1_segment" kindref="compound">Segment</ref></highlight></codeline>
-<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
-<codeline lineno="85" refid="structend_1_1_look_and_feel_1_1_segment_1a2a43065aa629b8749a06eb8e9f62e553" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classjuce_1_1Rectangle" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Rectangle&lt;float&gt;</ref><sp/><ref refid="structend_1_1_look_and_feel_1_1_segment_1a2a43065aa629b8749a06eb8e9f62e553" kindref="member">sourceBounds</ref>;</highlight></codeline>
-<codeline lineno="86" refid="structend_1_1_look_and_feel_1_1_segment_1ad6dbec094df6dcc2110d40c101ff8557" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classjuce_1_1Rectangle" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Rectangle&lt;float&gt;</ref><sp/><ref refid="structend_1_1_look_and_feel_1_1_segment_1ad6dbec094df6dcc2110d40c101ff8557" kindref="member">dest</ref>;</highlight></codeline>
-<codeline lineno="87" refid="structend_1_1_look_and_feel_1_1_segment_1a1978fffd5359967e0c8e47714d0c8e3d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classjuce_1_1Colour" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Colour</ref><sp/><ref refid="structend_1_1_look_and_feel_1_1_segment_1a1978fffd5359967e0c8e47714d0c8e3d" kindref="member">colour</ref>;</highlight></codeline>
-<codeline lineno="88" refid="structend_1_1_look_and_feel_1_1_segment_1a0506678bf122b39db817aadb237f9c82" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classjuce_1_1Path" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Path</ref><sp/><ref refid="structend_1_1_look_and_feel_1_1_segment_1a0506678bf122b39db817aadb237f9c82" kindref="member">path</ref>;</highlight></codeline>
-<codeline lineno="89" refid="structend_1_1_look_and_feel_1_1_segment_1a67c4e0d2b858c410426a4658685cf616" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structend_1_1_look_and_feel_1_1_segment_1a67c4e0d2b858c410426a4658685cf616" kindref="member">stroke</ref><sp/>{<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal"><sp/>};</highlight></codeline>
-<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/>};</highlight></codeline>
-<codeline lineno="91"><highlight class="normal"></highlight></codeline>
-<codeline lineno="92" refid="classend_1_1_look_and_feel_1a6465d383667ee6a21a5122b0efc20021" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;Segment&gt;<sp/><ref refid="classend_1_1_look_and_feel_1a6465d383667ee6a21a5122b0efc20021" kindref="member">barSegments</ref>;</highlight></codeline>
-<codeline lineno="93"><highlight class="normal"></highlight></codeline>
-<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_look_and_feel_1a97d73310bc5d9b47794c0a0d71388bce" kindref="member">setColours</ref>();</highlight></codeline>
-<codeline lineno="98"><highlight class="normal"></highlight></codeline>
-<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_look_and_feel_1a2e9211b965870cf72406d7eb779930cd" kindref="member">parseTabBarSvg</ref><sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classjuce_1_1XmlElement" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::XmlElement</ref>&amp;<sp/>svg,<sp/>std::vector&lt;Segment&gt;&amp;<sp/>segments);</highlight></codeline>
-<codeline lineno="103"><highlight class="normal"></highlight></codeline>
-<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="juce__PlatformDefs_8h_1a851b02724a8158a7f746c66b5758b3dd" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR</ref><sp/>(<ref refid="classend_1_1_look_and_feel_1a9313c08eb0def3e3a423f8bfd362f435" kindref="member">LookAndFeel</ref>)</highlight></codeline>
-<codeline lineno="106"><highlight class="normal">};</highlight></codeline>
-<codeline lineno="107"><highlight class="normal"></highlight></codeline>
-<codeline lineno="109"><highlight class="normal">}</highlight><highlight class="comment">//<sp/>namespace<sp/>end</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_look_and_feel_1ab688b5fb3e771c8f7f7197855e523ddb" kindref="member">drawBarIndicator</ref><sp/>(<ref refid="classjuce_1_1Graphics" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Graphics</ref>&amp;,<sp/><ref refid="classjuce_1_1Component" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Component</ref>&amp;<sp/>indicator)<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_look_and_feel_1a2d99c5eec680d18f5f5136bb1f374b25" kindref="member">drawTabButton</ref><sp/>(<ref refid="classjuce_1_1Graphics" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Graphics</ref>&amp;,<sp/><ref refid="classjuce_1_1Button" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Button</ref>&amp;<sp/><ref refid="juce__UnityPluginInterface_8h_1ac9a690ac771d86f797f87594f6dfa694" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">button</ref>,</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>isMouseOver,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>isMouseDown)<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_look_and_feel_1a2d895cfa802013b3734d533380e71252" kindref="member">drawStretchableLayoutResizerBar</ref><sp/>(<ref refid="classjuce_1_1Graphics" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Graphics</ref>&amp;,</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="juce__UnityPluginInterface_8h_1a9c08bc30636cc52269cf06d61cf5d4e8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">w</ref>,</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="juce__UnityPluginInterface_8h_1a2ee4d4f298ba1bf1bc2f45c681c40ca3" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">h</ref>,</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>isVertical,</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>isMouseOver,</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>isMouseDown)<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="84" refid="classend_1_1_look_and_feel_1a9f5a36b2e39117101eef6cc2210af64a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classconfig_1_1_model" kindref="compound">config::Model</ref>&amp;<sp/><ref refid="namespaceconfig" kindref="compound">config</ref><sp/>{<sp/>*<ref refid="structjam_1_1Context_1a259aac6b39aea0f3d3e2be9ab123cff3" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">config::Model::getContext</ref>()<sp/>};</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_look_and_feel_1a97d73310bc5d9b47794c0a0d71388bce" kindref="member">setColours</ref>();</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_look_and_feel_1a6bac0b983ceeffd331beb5262030dbe8" kindref="member">loadGraphics</ref>();</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="98" refid="classend_1_1_look_and_feel_1a2c84cd45c7834394e990edd68d5063ec" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref><sp/><ref refid="classend_1_1_look_and_feel_1a2c84cd45c7834394e990edd68d5063ec" kindref="member">barSvg</ref>;</highlight></codeline>
+<codeline lineno="100" refid="classend_1_1_look_and_feel_1a34a486d35cd565d7178879b4214240d2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref><sp/><ref refid="classend_1_1_look_and_feel_1a34a486d35cd565d7178879b4214240d2" kindref="member">indicatorSvg</ref>;</highlight></codeline>
+<codeline lineno="102" refid="classend_1_1_look_and_feel_1a16d5600ad412c1c98fad350544aff064" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref><sp/><ref refid="classend_1_1_look_and_feel_1a16d5600ad412c1c98fad350544aff064" kindref="member">buttonSvg</ref>;</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="juce__PlatformDefs_8h_1a851b02724a8158a7f746c66b5758b3dd" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR</ref><sp/>(<ref refid="classend_1_1_look_and_feel_1a9313c08eb0def3e3a423f8bfd362f435" kindref="member">LookAndFeel</ref>)</highlight></codeline>
+<codeline lineno="105"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal">}</highlight><highlight class="comment">//<sp/>namespace<sp/>end</highlight><highlight class="normal"></highlight></codeline>
     </programlisting>
     <location file="lookAndFeel/LookAndFeel.h"/>
   </compounddef>

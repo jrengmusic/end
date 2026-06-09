@@ -4,7 +4,7 @@
     <compoundname>Main.cpp</compoundname>
     <includes refid="_main_8h" local="yes">Main.h</includes>
     <incdepgraph>
-      <node id="5">
+      <node id="6">
         <label>Identifier.h</label>
         <link refid="_identifier_8h"/>
         <childnode refid="3" relation="include">
@@ -23,18 +23,18 @@
         </childnode>
         <childnode refid="4" relation="include">
         </childnode>
-        <childnode refid="6" relation="include">
-        </childnode>
         <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
         </childnode>
         <childnode refid="13" relation="include">
         </childnode>
-        <childnode refid="14" relation="include">
-        </childnode>
-        <childnode refid="12" relation="include">
+        <childnode refid="5" relation="include">
         </childnode>
       </node>
-      <node id="11">
+      <node id="14">
         <label>action/Registry.h</label>
         <link refid="_registry_8h"/>
         <childnode refid="3" relation="include">
@@ -50,82 +50,98 @@
         <childnode refid="5" relation="include">
         </childnode>
       </node>
-      <node id="12">
-        <label>Map.h</label>
+      <node id="5">
+        <label>../end/Map.h</label>
         <link refid="_map_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
       </node>
-      <node id="6">
+      <node id="12">
+        <label>end/MessageOverlay.h</label>
+        <link refid="_message_overlay_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
         <label>end/Model.h</label>
         <link refid="_model_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
-        <childnode refid="5" relation="include">
+        <childnode refid="6" relation="include">
         </childnode>
       </node>
-      <node id="10">
+      <node id="11">
         <label>end/PaneView.h</label>
         <link refid="_pane_view_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
-        <childnode refid="5" relation="include">
+        <childnode refid="6" relation="include">
         </childnode>
       </node>
-      <node id="9">
+      <node id="10">
         <label>end/Panes.h</label>
         <link refid="_panes_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
-        <childnode refid="10" relation="include">
+        <childnode refid="11" relation="include">
         </childnode>
       </node>
-      <node id="8">
+      <node id="9">
         <label>end/Tabs.h</label>
         <link refid="_tabs_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>end/View.h</label>
+        <link refid="_view_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
         <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
         </childnode>
         <childnode refid="4" relation="include">
         </childnode>
         <childnode refid="5" relation="include">
         </childnode>
       </node>
-      <node id="7">
-        <label>end/View.h</label>
-        <link refid="_view_8h"/>
-        <childnode refid="3" relation="include">
-        </childnode>
-        <childnode refid="8" relation="include">
-        </childnode>
-        <childnode refid="11" relation="include">
-        </childnode>
-        <childnode refid="4" relation="include">
-        </childnode>
-        <childnode refid="12" relation="include">
-        </childnode>
-      </node>
-      <node id="13">
+      <node id="15">
         <label>end/Window.h</label>
         <link refid="_window_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
         <childnode refid="4" relation="include">
         </childnode>
-        <childnode refid="14" relation="include">
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
         </childnode>
         <childnode refid="5" relation="include">
         </childnode>
-        <childnode refid="12" relation="include">
-        </childnode>
       </node>
-      <node id="14">
-        <label>lookAndFeel/LookAndFeel.h</label>
+      <node id="13">
+        <label>../lookAndFeel/LookAndFeel.h</label>
         <link refid="_look_and_feel_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
-        <childnode refid="5" relation="include">
+        <childnode refid="6" relation="include">
         </childnode>
         <childnode refid="4" relation="include">
         </childnode>
@@ -164,46 +180,42 @@
 <codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
 <codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
 <codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="25"><highlight class="normal"></highlight></codeline>
-<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Config:<sp/>build<sp/>from<sp/>binary<sp/>defaults,<sp/>overlay<sp/>from<sp/>disk</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespaceconfig" kindref="compound">config</ref>.loadPath<sp/>(<ref refid="structconfig_1_1_file_1a256dc6f23b2efea619c33a43ae3d795c" kindref="member">config::File::path</ref>);</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>GPU<sp/>probe:<sp/>resolve<sp/>renderer,<sp/>gate<sp/>glass</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>probe<sp/>{<sp/><ref refid="structjam_1_1GpuProbe_1a2bf035e6d19c4f0bfb79bc5282d7fe00" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::GpuProbe::probe</ref>()<sp/>};</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structjam_1_1BackgroundBlur_1a4edcb5cb1191dea104717737c8956ed8" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::BackgroundBlur::setEnabled</ref><sp/>(probe.isAvailable);</highlight></codeline>
 <codeline lineno="28"><highlight class="normal"></highlight></codeline>
-<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>GPU<sp/>probe:<sp/>resolve<sp/>renderer,<sp/>gate<sp/>glass</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>probe<sp/>{<sp/><ref refid="structjam_1_1GpuProbe_1a2bf035e6d19c4f0bfb79bc5282d7fe00" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::GpuProbe::probe</ref>()<sp/>};</highlight></codeline>
-<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structjam_1_1BackgroundBlur_1a4edcb5cb1191dea104717737c8956ed8" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::BackgroundBlur::setEnabled</ref><sp/>(probe.isAvailable);</highlight></codeline>
-<codeline lineno="32"><highlight class="normal"></highlight></codeline>
-<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>LookAndFeel:<sp/>set<sp/>as<sp/>default,<sp/>register<sp/>as<sp/>ValueTree<sp/>listener</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classjuce_1_1LookAndFeel_1ac300b777c3cdda99b8e84cd2e39511bc" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::LookAndFeel::setDefaultLookAndFeel</ref><sp/>(&amp;<ref refid="classend_1_1_application_1afe921d4972c796aa0612d3ce96adaca0" kindref="member">lookAndFeel</ref>);</highlight></codeline>
-<codeline lineno="35"><highlight class="normal"></highlight></codeline>
-<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>end::Window<sp/>reads<sp/>all<sp/>remaining<sp/>WINDOW<sp/>properties<sp/>(colour,<sp/>blur,<sp/>backend,</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>always_on_top,<sp/>buttons)<sp/>from<sp/>config<sp/>inside<sp/>its<sp/>own<sp/>setStyle()<sp/>call.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal">*<sp/>view<sp/>{<sp/></highlight><highlight class="keyword">new</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_view" kindref="compound">View</ref><sp/>(<ref refid="classend_1_1_application_1ad5d031f4ee343e64f205b9e158447140" kindref="member">model</ref>)<sp/>};</highlight></codeline>
-<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classend_1_1_application_1af5685bc1fb3a0e77fad81b639bcc92f7" kindref="member">window</ref>.reset<sp/>(</highlight><highlight class="keyword">new</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_window" kindref="compound">end::Window</ref><sp/>{<sp/>view,<sp/>ProjectInfo::projectName,<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal"><sp/>});</highlight></codeline>
-<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classend_1_1_application_1af5685bc1fb3a0e77fad81b639bcc92f7" kindref="member">window</ref>-&gt;setVisible<sp/>(</highlight><highlight class="keyword">true</highlight><highlight class="normal">);</highlight></codeline>
-<codeline lineno="41"><highlight class="normal"></highlight></codeline>
-<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classjuce_1_1MessageManager_1aa34494bcb54b9d4155934c8f53ed1070" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::MessageManager::callAsync</ref><sp/>(</highlight></codeline>
-<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>[</highlight><highlight class="keyword">this</highlight><highlight class="normal">]</highlight></codeline>
-<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
-<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keyword">auto</highlight><highlight class="normal">*<sp/>view<sp/>{<sp/><ref refid="classend_1_1_application_1af5685bc1fb3a0e77fad81b639bcc92f7" kindref="member">window</ref>-&gt;getContentComponent()<sp/>})</highlight></codeline>
-<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>view-&gt;grabKeyboardFocus();</highlight></codeline>
-<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>});</highlight></codeline>
-<codeline lineno="48"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>LookAndFeel:<sp/>set<sp/>as<sp/>default,<sp/>register<sp/>as<sp/>ValueTree<sp/>listener</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classjuce_1_1LookAndFeel_1ac300b777c3cdda99b8e84cd2e39511bc" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::LookAndFeel::setDefaultLookAndFeel</ref><sp/>(&amp;<ref refid="classend_1_1_application_1afe921d4972c796aa0612d3ce96adaca0" kindref="member">lookAndFeel</ref>);</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>end::Window<sp/>reads<sp/>all<sp/>remaining<sp/>WINDOW<sp/>properties<sp/>(colour,<sp/>blur,<sp/>backend,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>always_on_top,<sp/>buttons)<sp/>from<sp/>config<sp/>inside<sp/>its<sp/>own<sp/>setStyle()<sp/>call.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal">*<sp/>view<sp/>{<sp/></highlight><highlight class="keyword">new</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_view" kindref="compound">View</ref><sp/>(<ref refid="classend_1_1_application_1ad5d031f4ee343e64f205b9e158447140" kindref="member">model</ref>)<sp/>};</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classend_1_1_application_1af5685bc1fb3a0e77fad81b639bcc92f7" kindref="member">window</ref>.reset<sp/>(</highlight><highlight class="keyword">new</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_window" kindref="compound">end::Window</ref><sp/>{<sp/>view,<sp/>ProjectInfo::projectName,<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal"><sp/>});</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classend_1_1_application_1af5685bc1fb3a0e77fad81b639bcc92f7" kindref="member">window</ref>-&gt;setVisible<sp/>(</highlight><highlight class="keyword">true</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classjuce_1_1MessageManager_1aa34494bcb54b9d4155934c8f53ed1070" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::MessageManager::callAsync</ref><sp/>(</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>[</highlight><highlight class="keyword">this</highlight><highlight class="normal">]</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keyword">auto</highlight><highlight class="normal">*<sp/>v<sp/>{<sp/></highlight><highlight class="keyword">dynamic_cast&lt;</highlight><highlight class="normal"><ref refid="classend_1_1_view" kindref="compound">View</ref>*</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(<ref refid="classend_1_1_application_1af5685bc1fb3a0e77fad81b639bcc92f7" kindref="member">window</ref>-&gt;getContentComponent())<sp/>})</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>v-&gt;grabKeyboardFocus();</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>});</highlight></codeline>
+<codeline lineno="44"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46" refid="classend_1_1_application_1a18d7fd1d8bbcca6a1c7af73e3bf503a8" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_application_1a18d7fd1d8bbcca6a1c7af73e3bf503a8" kindref="member">Application::shutdown</ref>()<sp/>{}</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48" refid="classend_1_1_application_1a636a8c0776059c65df3d0405229858f4" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_application_1a636a8c0776059c65df3d0405229858f4" kindref="member">Application::systemRequestedQuit</ref>()<sp/>{<sp/><ref refid="classjuce_1_1JUCEApplicationBase_1ae2ba9b90c02361717d997aa26861f2c4" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">quit</ref>();<sp/>}</highlight></codeline>
 <codeline lineno="49"><highlight class="normal"></highlight></codeline>
-<codeline lineno="50" refid="classend_1_1_application_1a18d7fd1d8bbcca6a1c7af73e3bf503a8" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_application_1a18d7fd1d8bbcca6a1c7af73e3bf503a8" kindref="member">Application::shutdown</ref>()<sp/>{}</highlight></codeline>
+<codeline lineno="50" refid="classend_1_1_application_1ab2d34713da4e6b4917cf53a08cda47eb" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref><sp/><ref refid="classend_1_1_application_1ab2d34713da4e6b4917cf53a08cda47eb" kindref="member">Application::getApplicationName</ref>()<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ProjectInfo::projectName;<sp/>}</highlight></codeline>
 <codeline lineno="51"><highlight class="normal"></highlight></codeline>
-<codeline lineno="52" refid="classend_1_1_application_1a636a8c0776059c65df3d0405229858f4" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_application_1a636a8c0776059c65df3d0405229858f4" kindref="member">Application::systemRequestedQuit</ref>()<sp/>{<sp/><ref refid="classjuce_1_1JUCEApplicationBase_1ae2ba9b90c02361717d997aa26861f2c4" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">quit</ref>();<sp/>}</highlight></codeline>
+<codeline lineno="52" refid="classend_1_1_application_1af5df574c86505182fdd01d567824d0b7" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref><sp/><ref refid="classend_1_1_application_1af5df574c86505182fdd01d567824d0b7" kindref="member">Application::getApplicationVersion</ref>()<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ProjectInfo::versionString;<sp/>}</highlight></codeline>
 <codeline lineno="53"><highlight class="normal"></highlight></codeline>
-<codeline lineno="54" refid="classend_1_1_application_1ab2d34713da4e6b4917cf53a08cda47eb" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref><sp/><ref refid="classend_1_1_application_1ab2d34713da4e6b4917cf53a08cda47eb" kindref="member">Application::getApplicationName</ref>()<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ProjectInfo::projectName;<sp/>}</highlight></codeline>
+<codeline lineno="54" refid="classend_1_1_application_1acb2876376b8c61d2ee8795524e625d0f" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_application_1acb2876376b8c61d2ee8795524e625d0f" kindref="member">Application::moreThanOneInstanceAllowed</ref>()<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;<sp/>}</highlight></codeline>
 <codeline lineno="55"><highlight class="normal"></highlight></codeline>
-<codeline lineno="56" refid="classend_1_1_application_1af5df574c86505182fdd01d567824d0b7" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref><sp/><ref refid="classend_1_1_application_1af5df574c86505182fdd01d567824d0b7" kindref="member">Application::getApplicationVersion</ref>()<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ProjectInfo::versionString;<sp/>}</highlight></codeline>
-<codeline lineno="57"><highlight class="normal"></highlight></codeline>
-<codeline lineno="58" refid="classend_1_1_application_1acb2876376b8c61d2ee8795524e625d0f" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_application_1acb2876376b8c61d2ee8795524e625d0f" kindref="member">Application::moreThanOneInstanceAllowed</ref>()<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;<sp/>}</highlight></codeline>
-<codeline lineno="59"><highlight class="normal"></highlight></codeline>
-<codeline lineno="61"><highlight class="normal">}</highlight><highlight class="comment">//<sp/>namespace<sp/>end</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="62"><highlight class="normal"></highlight></codeline>
-<codeline lineno="63"><highlight class="normal"></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="64"><highlight class="normal"></highlight><highlight class="comment">//<sp/>This<sp/>macro<sp/>generates<sp/>the<sp/>main()<sp/>routine<sp/>that<sp/>launches<sp/>the<sp/>app.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="65"><highlight class="normal"><ref refid="juce__Initialisation_8h_1a10c79cf9cafd40244a741e5945878e79" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">START_JUCE_APPLICATION</ref><sp/>(<ref refid="classend_1_1_application" kindref="compound">end::Application</ref>)</highlight></codeline>
+<codeline lineno="57"><highlight class="normal">}</highlight><highlight class="comment">//<sp/>namespace<sp/>end</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight><highlight class="comment">//<sp/>This<sp/>macro<sp/>generates<sp/>the<sp/>main()<sp/>routine<sp/>that<sp/>launches<sp/>the<sp/>app.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><ref refid="juce__Initialisation_8h_1a10c79cf9cafd40244a741e5945878e79" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">START_JUCE_APPLICATION</ref><sp/>(<ref refid="classend_1_1_application" kindref="compound">end::Application</ref>)</highlight></codeline>
     </programlisting>
     <location file="Main.cpp"/>
   </compounddef>

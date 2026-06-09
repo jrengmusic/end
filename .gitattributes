@@ -12,3 +12,8 @@
 *.dll binary
 *.exe binary
 *.pdb binary
+
+# Linguist — exclude generated/documentation from language stats
+doxygen/** linguist-generated=true
+docs/** linguist-documentation=true
+design/** linguist-vendored=true

@@ -4,7 +4,7 @@ namespace end
 {
 /*____________________________________________________________________________*/
 
-const std::unordered_map<juce::Identifier, int> LookAndFeel::colourIds {
+const jam::HashMap<juce::Identifier, int> LookAndFeel::colourIds {
     { jam::ID::cursor,        juce::CaretComponent::caretColourId       },
     { ID::editorBackground,   juce::TextEditor::backgroundColourId      },
     { ID::editorOutline,      juce::TextEditor::outlineColourId         },
@@ -34,28 +34,47 @@ const std::unordered_map<juce::Identifier, int> LookAndFeel::colourIds {
 LookAndFeel::LookAndFeel()
 {
     setColours();
+    loadGraphics();
     config.addListener (this);
 }
 
 LookAndFeel::~LookAndFeel() { config.removeListener (this); };
 
-void LookAndFeel::valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier& property)
+void LookAndFeel::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
 {
     setColours();
 
-    if (property == ID::tabBar)
+    if (property == ID::tabBar or property == ID::tabInactive or property == ID::tabActive)
     {
-        // SVG reload will go here when the parser is implemented.
-        // For now, just repaint to pick up any colour changes.
+        if (auto* arr { tree.getProperty (property).getArray() })
+        {
+            if (arr->size() >= 2
+                and static_cast<int> (arr->getReference (1))
+                        == static_cast<int> (jam::File::Watcher::Event::fileUpdated))
+            {
+                loadGraphics();
+
+                // Reset event to undefined — prevents re-entry past this guard.
+                // The reset fires valueTreePropertyChanged again, but the event
+                // is undefined on re-entry so the inner if is not entered (bounded).
+                juce::Array<juce::var> reset;
+                reset.add (arr->getReference (0));
+                reset.add (static_cast<int> (jam::File::Watcher::Event::undefined));
+                tree.setProperty (property, reset, nullptr);
+            }
+        }
     }
 }
 
 //==============================================================================
 // Bar LAF virtuals.
 
-void LookAndFeel::drawBarBackground (juce::Graphics& g, juce::Component& bar)
-{
-}
+void LookAndFeel::drawBarBackground (juce::Graphics&, juce::Component&) {}
+
+void LookAndFeel::drawBarIndicator (juce::Graphics&, juce::Component&) {}
+
+void LookAndFeel::drawTabButton (juce::Graphics&, juce::Button&,
+                                  bool /*isMouseOver*/, bool /*isMouseDown*/) {}
 
 //==============================================================================
 void LookAndFeel::drawStretchableLayoutResizerBar (juce::Graphics& g,
@@ -77,7 +96,7 @@ void LookAndFeel::drawStretchableLayoutResizerBar (juce::Graphics& g,
 void LookAndFeel::setColours()
 {
     jam::Model::applyFunctionRecursively (
-        config,
+        config.state,
         [this] (const juce::ValueTree& tree)
         {
             for (auto& [id, colourId] : colourIds)
@@ -92,9 +111,33 @@ void LookAndFeel::setColours()
         });
 }
 
-//==============================================================================
-void LookAndFeel::parseTabBarSvg (const juce::XmlElement& svg, std::vector<Segment>& segments)
+void LookAndFeel::loadGraphics()
 {
+    auto graphicsNode { config.state.getChildWithName (IDtype::graphics) };
+    auto svgPath { config::Graphics::path.getChildFile (
+        graphicsNode.getProperty (jam::ID::path).toString()) };
+
+    auto readSvg = [&] (const juce::Identifier& id) -> juce::String
+    {
+        auto prop { graphicsNode.getProperty (id) };
+        juce::String fileName;
+
+        if (auto* arr { prop.getArray() })
+            fileName = arr->getReference (0).toString();
+        else
+            fileName = prop.toString();
+
+        juce::String result;
+
+        if (fileName.isNotEmpty())
+            result = svgPath.getChildFile (fileName).loadFileAsString();
+
+        return result;
+    };
+
+    barSvg       = readSvg (ID::tabBar);
+    indicatorSvg = readSvg (ID::tabActive);
+    buttonSvg    = readSvg (ID::tabInactive);
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

@@ -58,12 +58,13 @@ public:
 
     //==============================================================================
 private:
+    config::Model& config { *config::Model::getContext() };
+
     void timerCallback() override;
 
-    std::unordered_map<juce::KeyPress, juce::Identifier> keys;
-    std::unordered_map<juce::KeyPress, juce::Identifier> modalKeys;
+    jam::HashMap<juce::KeyPress, juce::Identifier> keys;
+    jam::HashMap<juce::KeyPress, juce::Identifier> modalKeys;
 
-    juce::ValueTree config { config::Model::get() };
     juce::KeyPress prefixKey;
     int prefixTimeout { 1000 };
 

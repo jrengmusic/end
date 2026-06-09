@@ -3,6 +3,9 @@
   <compound refid="classend_1_1_application" kind="class"><name>end::Application</name>
     <member refid="classend_1_1_application_1aa1961e4f6d86729d7dfa22a68e8fff41" kind="variable"><name>boolMap</name></member>
     <member refid="classend_1_1_application_1a7ce6e2b8220f6d98cf2140c9c365154f" kind="variable"><name>tabOrientationMap</name></member>
+    <member refid="classend_1_1_application_1a421a76776179e2906a27e4689a7a1252" kind="variable"><name>file</name></member>
+    <member refid="classend_1_1_application_1acc1f4a177ce2ade6da9d8011b22fc11f" kind="variable"><name>graphics</name></member>
+    <member refid="classend_1_1_application_1a3bc9f4a932d0847752639fded0fd53dd" kind="variable"><name>typefaceResources</name></member>
     <member refid="classend_1_1_application_1a765f410d9d4232de53d86311b3ad303f" kind="variable"><name>config</name></member>
     <member refid="classend_1_1_application_1ad5d031f4ee343e64f205b9e158447140" kind="variable"><name>model</name></member>
     <member refid="classend_1_1_application_1afe921d4972c796aa0612d3ce96adaca0" kind="variable"><name>lookAndFeel</name></member>
@@ -23,19 +26,35 @@
     <member refid="structend_1_1_boolean_1ac8d7746091f73463b1bc97a4168924d9" kind="function"><name>get</name></member>
   </compound>
   <compound refid="structconfig_1_1_file" kind="struct"><name>config::File</name>
-    <member refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112b" kind="enum"><name>@235203252005062224071053352361331120251033132350</name></member>
-    <member refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112ba0fc85df7daa8f0d98a096582ced3738f" kind="enumvalue"><name>config</name></member>
-    <member refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112ba8445a8e632640713c5459f4255889087" kind="enumvalue"><name>whelmed</name></member>
-    <member refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112ba223730b185e3ae2640f6f0b87a067d01" kind="enumvalue"><name>nexus</name></member>
-    <member refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112ba81cd47b1607025b96034d93f45523319" kind="enumvalue"><name>display</name></member>
-    <member refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112baf3232b14a906fb91ecda7443235ce6ef" kind="enumvalue"><name>graphics</name></member>
-    <member refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112ba4c13453f0623e489137493b9305ec0ea" kind="enumvalue"><name>actions</name></member>
-    <member refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112bafcbf6aafaecace693615939e7179e737" kind="enumvalue"><name>popups</name></member>
-    <member refid="structconfig_1_1_file_1a7d41bb4d187a9b8ecee1ea72245e112ba61592c1bf865f03bcbd13f0c6fa4340e" kind="enumvalue"><name>keys</name></member>
+    <member refid="structconfig_1_1_file_1aea80c82cba5cd966cb1dfe18c0b8c6ad" kind="enum"><name>@250111151202034007030276371203050156100271335300</name></member>
+    <member refid="structconfig_1_1_file_1aea80c82cba5cd966cb1dfe18c0b8c6ada0fc85df7daa8f0d98a096582ced3738f" kind="enumvalue"><name>config</name></member>
+    <member refid="structconfig_1_1_file_1aea80c82cba5cd966cb1dfe18c0b8c6ada8445a8e632640713c5459f4255889087" kind="enumvalue"><name>whelmed</name></member>
+    <member refid="structconfig_1_1_file_1aea80c82cba5cd966cb1dfe18c0b8c6ada223730b185e3ae2640f6f0b87a067d01" kind="enumvalue"><name>nexus</name></member>
+    <member refid="structconfig_1_1_file_1aea80c82cba5cd966cb1dfe18c0b8c6ada81cd47b1607025b96034d93f45523319" kind="enumvalue"><name>display</name></member>
+    <member refid="structconfig_1_1_file_1aea80c82cba5cd966cb1dfe18c0b8c6adaf3232b14a906fb91ecda7443235ce6ef" kind="enumvalue"><name>graphics</name></member>
+    <member refid="structconfig_1_1_file_1aea80c82cba5cd966cb1dfe18c0b8c6ada4c13453f0623e489137493b9305ec0ea" kind="enumvalue"><name>actions</name></member>
+    <member refid="structconfig_1_1_file_1aea80c82cba5cd966cb1dfe18c0b8c6adafcbf6aafaecace693615939e7179e737" kind="enumvalue"><name>popups</name></member>
+    <member refid="structconfig_1_1_file_1aea80c82cba5cd966cb1dfe18c0b8c6ada61592c1bf865f03bcbd13f0c6fa4340e" kind="enumvalue"><name>keys</name></member>
     <member refid="structconfig_1_1_file_1a256dc6f23b2efea619c33a43ae3d795c" kind="variable"><name>path</name></member>
     <member refid="structconfig_1_1_file_1a6ab20528e69a64a7091bd8d1269eac55" kind="variable"><name>extension</name></member>
-    <member refid="structconfig_1_1_file_1a1d5413f8cf2eb67f26dd717fb948c596" kind="variable"><name>map</name></member>
-    <member refid="structconfig_1_1_file_1af7e5a59b7450673c2677f4dcf3817279" kind="function"><name>getName</name></member>
+    <member refid="structconfig_1_1_file_1ae65e95e7d00b4fcaad4a0ab2265d903d" kind="function"><name>File</name></member>
+    <member refid="structconfig_1_1_file_1a1fe87258f092c2141e6d0171085f1468" kind="function"><name>get</name></member>
+    <member refid="structconfig_1_1_file_1ae101919bc1214478f5086e2e859742de" kind="function"><name>getName</name></member>
+    <member refid="structconfig_1_1_file_1a8fb7a80701aaed8671256aa65afaf19d" kind="function"><name>getPath</name></member>
+    <member refid="structconfig_1_1_file_1ad20cf8ce87a81af789c0437715378777" kind="function"><name>getDefault</name></member>
+  </compound>
+  <compound refid="structconfig_1_1_graphics" kind="struct"><name>config::Graphics</name>
+    <member refid="structconfig_1_1_graphics_1a5e1a20a420c0a33ddab4ec6797c30cee" kind="enum"><name>@277214137317010015316303354216265052334255124010</name></member>
+    <member refid="structconfig_1_1_graphics_1a5e1a20a420c0a33ddab4ec6797c30ceea569fa475ce9202aadea617aff4696e47" kind="enumvalue"><name>tabBar</name></member>
+    <member refid="structconfig_1_1_graphics_1a5e1a20a420c0a33ddab4ec6797c30ceeacc5a98dd83283f0635b88862a97b576b" kind="enumvalue"><name>tabInactive</name></member>
+    <member refid="structconfig_1_1_graphics_1a5e1a20a420c0a33ddab4ec6797c30ceeae40e6b1b9ba2ebf9940a145a2e52a06a" kind="enumvalue"><name>tabActive</name></member>
+    <member refid="structconfig_1_1_graphics_1a680b9dba6753acd9eb16c43c840bba0c" kind="variable"><name>path</name></member>
+    <member refid="structconfig_1_1_graphics_1a65b788f58d84dab0d495b814638c89f9" kind="variable"><name>extension</name></member>
+    <member refid="structconfig_1_1_graphics_1a665d2fcba7612a71f5d94fe7a8830a24" kind="function"><name>Graphics</name></member>
+    <member refid="structconfig_1_1_graphics_1a0b0f33c0070c5f80941536467ec4e416" kind="function"><name>get</name></member>
+    <member refid="structconfig_1_1_graphics_1a1c32b9f67fec052dcd7ccc1636ea85d6" kind="function"><name>getName</name></member>
+    <member refid="structconfig_1_1_graphics_1abdfab926c44948460dfaf240c60572e3" kind="function"><name>getPath</name></member>
+    <member refid="structconfig_1_1_graphics_1af70f25cb52043c6932df53dfc8dc8c29" kind="function"><name>getDefault</name></member>
   </compound>
   <compound refid="structstd_1_1hash_3_01juce_1_1_key_press_01_4" kind="struct"><name>std::hash&lt; juce::KeyPress &gt;</name>
     <member refid="structstd_1_1hash_3_01juce_1_1_key_press_01_4_1a9e14d70b21d044461108e0413f112ccd" kind="function"><name>operator()</name></member>
@@ -492,26 +511,40 @@
     <member refid="classend_1_1_look_and_feel_1a96444644e5b541f2a7a2235c0dc91cf8abefbf6c1366bd689905ebed8e1805c47" kind="enumvalue"><name>hintLabelFgColourId</name></member>
     <member refid="classend_1_1_look_and_feel_1a96444644e5b541f2a7a2235c0dc91cf8a04ffe0119c54a9a048974ea565060fa5" kind="enumvalue"><name>selectionColourId</name></member>
     <member refid="classend_1_1_look_and_feel_1a96444644e5b541f2a7a2235c0dc91cf8a29bcd8deec252b03c2577f82f8f481c6" kind="enumvalue"><name>selectionCursorColourId</name></member>
-    <member refid="classend_1_1_look_and_feel_1aa2c110e0b98645d6e4ead121e479baba" kind="variable"><name>colourIds</name></member>
-    <member refid="classend_1_1_look_and_feel_1ae086844e629bd114836bde7a3b58abcb" kind="variable"><name>config</name></member>
-    <member refid="classend_1_1_look_and_feel_1a6465d383667ee6a21a5122b0efc20021" kind="variable"><name>barSegments</name></member>
+    <member refid="classend_1_1_look_and_feel_1a5ba25a9d67e1b0ab2f0b1c0e35c8cd0d" kind="variable"><name>colourIds</name></member>
+    <member refid="classend_1_1_look_and_feel_1a9f5a36b2e39117101eef6cc2210af64a" kind="variable"><name>config</name></member>
+    <member refid="classend_1_1_look_and_feel_1a2c84cd45c7834394e990edd68d5063ec" kind="variable"><name>barSvg</name></member>
+    <member refid="classend_1_1_look_and_feel_1a34a486d35cd565d7178879b4214240d2" kind="variable"><name>indicatorSvg</name></member>
+    <member refid="classend_1_1_look_and_feel_1a16d5600ad412c1c98fad350544aff064" kind="variable"><name>buttonSvg</name></member>
     <member refid="classend_1_1_look_and_feel_1a9313c08eb0def3e3a423f8bfd362f435" kind="function"><name>LookAndFeel</name></member>
     <member refid="classend_1_1_look_and_feel_1a4e4378865cd561e4bccbb346cf7a8114" kind="function"><name>~LookAndFeel</name></member>
     <member refid="classend_1_1_look_and_feel_1aeb869a5b4e62d45764bbf42d4f1afa3a" kind="function"><name>valueTreePropertyChanged</name></member>
     <member refid="classend_1_1_look_and_feel_1ade27fb3312b73e1a30fc6e147cf32d0d" kind="function"><name>drawBarBackground</name></member>
+    <member refid="classend_1_1_look_and_feel_1ab688b5fb3e771c8f7f7197855e523ddb" kind="function"><name>drawBarIndicator</name></member>
+    <member refid="classend_1_1_look_and_feel_1a2d99c5eec680d18f5f5136bb1f374b25" kind="function"><name>drawTabButton</name></member>
     <member refid="classend_1_1_look_and_feel_1a2d895cfa802013b3734d533380e71252" kind="function"><name>drawStretchableLayoutResizerBar</name></member>
     <member refid="classend_1_1_look_and_feel_1a97d73310bc5d9b47794c0a0d71388bce" kind="function"><name>setColours</name></member>
-    <member refid="classend_1_1_look_and_feel_1a2e9211b965870cf72406d7eb779930cd" kind="function"><name>parseTabBarSvg</name></member>
+    <member refid="classend_1_1_look_and_feel_1a6bac0b983ceeffd331beb5262030dbe8" kind="function"><name>loadGraphics</name></member>
+  </compound>
+  <compound refid="classend_1_1_message_overlay" kind="class"><name>end::MessageOverlay</name>
+    <member refid="classend_1_1_message_overlay_1ae476f43ba1eba337a9d61750f50432f1" kind="variable"><name>message</name></member>
+    <member refid="classend_1_1_message_overlay_1a5046070f3d47a338069c60bd519b85a9" kind="variable"><name>backgroundAlpha</name></member>
+    <member refid="classend_1_1_message_overlay_1aad6edef73528cf6e5be769ba740546ad" kind="variable"><name>textPadding</name></member>
+    <member refid="classend_1_1_message_overlay_1af3d0d9997543692ff68e8010401503ff" kind="variable"><name>maxLines</name></member>
+    <member refid="classend_1_1_message_overlay_1aa92466861a384d30960e3f652da9de4a" kind="variable"><name>fadeInMs</name></member>
+    <member refid="classend_1_1_message_overlay_1a5c20ff0208ca39317e9d1439d72cc1d2" kind="variable"><name>messageDelayMs</name></member>
+    <member refid="classend_1_1_message_overlay_1a06ab25178b46ffac6661b373560cdbdb" kind="function"><name>MessageOverlay</name></member>
+    <member refid="classend_1_1_message_overlay_1a042f2f2139bcdd01d29af1c1c2459f72" kind="function"><name>~MessageOverlay</name></member>
+    <member refid="classend_1_1_message_overlay_1ab59a8435254ade467d9b836ca6928e43" kind="function"><name>showMessage</name></member>
+    <member refid="classend_1_1_message_overlay_1a178252fe1ea066417585555298aff52f" kind="function"><name>paint</name></member>
+    <member refid="classend_1_1_message_overlay_1a9eb94e447d45b8ce1158c2e4f402311a" kind="function"><name>timerCallback</name></member>
   </compound>
   <compound refid="classconfig_1_1_model" kind="class"><name>config::Model</name>
-    <member refid="classconfig_1_1_model_1a6a55abd98823bb3b8bcb92905cbdd377" kind="variable"><name>watcher</name></member>
     <member refid="classconfig_1_1_model_1a663ac662800dd1918dbab12d317fa4d5" kind="function"><name>Model</name></member>
     <member refid="classconfig_1_1_model_1af95c0931a6f76206d56eb06a3c71a05a" kind="function"><name>~Model</name></member>
-    <member refid="classconfig_1_1_model_1a88f26a19f5b816bdad76c460d9d18389" kind="function"><name>load</name></member>
-    <member refid="classconfig_1_1_model_1a49a8775067e4dbff5ba1d4c7c77d19eb" kind="function"><name>loadPath</name></member>
-    <member refid="classconfig_1_1_model_1ae9157061354f29018dc4a7d8c7397f83" kind="function"><name>get</name></member>
-    <member refid="classconfig_1_1_model_1a8508c00d93b45281e3d07753b6d987b8" kind="function"><name>getInitWindowSize</name></member>
-    <member refid="classconfig_1_1_model_1aaf6b40ca395ac5c6325cb189f13fec0f" kind="function"><name>fileChanged</name></member>
+    <member refid="classconfig_1_1_model_1ab192f674b56bb1c270a2f2361b8c4b91" kind="function"><name>getInitWindowSize</name></member>
+    <member refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" kind="function"><name>initialise</name></member>
+    <member refid="classconfig_1_1_model_1ac22840d8be9ff0867722ea811a99f5e1" kind="function"><name>writeToPath</name></member>
   </compound>
   <compound refid="classend_1_1_model" kind="class"><name>end::Model</name>
     <member refid="classend_1_1_model_1a001a60fde895e5f54ad2672682909e69" kind="function"><name>Model</name></member>
@@ -539,9 +572,9 @@
   </compound>
   <compound refid="classaction_1_1_registry" kind="class"><name>action::Registry</name>
     <member refid="classaction_1_1_registry_1a477895f1825ec38c7362295d41093187" kind="variable"><name>actions</name></member>
-    <member refid="classaction_1_1_registry_1ac0357c647b1955560d45b17b86d375ab" kind="variable"><name>keys</name></member>
-    <member refid="classaction_1_1_registry_1aaa1676c4bd9b45d9cfe40a9416c478ab" kind="variable"><name>modalKeys</name></member>
-    <member refid="classaction_1_1_registry_1a7e2fce5f4c913c486e3744d8f804ae00" kind="variable"><name>config</name></member>
+    <member refid="classaction_1_1_registry_1a736e575dc57a08e1524ad12b5d59af3d" kind="variable"><name>config</name></member>
+    <member refid="classaction_1_1_registry_1ace3962490a973f566ef67f57fb29fb70" kind="variable"><name>keys</name></member>
+    <member refid="classaction_1_1_registry_1a371b6212bf694af9382daeb4485a6495" kind="variable"><name>modalKeys</name></member>
     <member refid="classaction_1_1_registry_1ad6d4755e2636d32124eeca007dbe7f91" kind="variable"><name>prefixKey</name></member>
     <member refid="classaction_1_1_registry_1a2e4b86c63bdfe4d0d0f1d116a2bfef75" kind="variable"><name>prefixTimeout</name></member>
     <member refid="classaction_1_1_registry_1ab459c431a149a647f9ed43f58e370198" kind="function"><name>Registry</name></member>
@@ -551,13 +584,6 @@
     <member refid="classaction_1_1_registry_1a7d16fe8f4045f209faaf099a46d3b704" kind="function"><name>keyPressed</name></member>
     <member refid="classaction_1_1_registry_1a03afbec3b059b2ecfcbf117121f31b8d" kind="function"><name>run</name></member>
     <member refid="classaction_1_1_registry_1adfb52cb08bb171416025fe0487476ebb" kind="function"><name>timerCallback</name></member>
-  </compound>
-  <compound refid="structend_1_1_look_and_feel_1_1_segment" kind="struct"><name>end::LookAndFeel::Segment</name>
-    <member refid="structend_1_1_look_and_feel_1_1_segment_1a2a43065aa629b8749a06eb8e9f62e553" kind="variable"><name>sourceBounds</name></member>
-    <member refid="structend_1_1_look_and_feel_1_1_segment_1ad6dbec094df6dcc2110d40c101ff8557" kind="variable"><name>dest</name></member>
-    <member refid="structend_1_1_look_and_feel_1_1_segment_1a1978fffd5359967e0c8e47714d0c8e3d" kind="variable"><name>colour</name></member>
-    <member refid="structend_1_1_look_and_feel_1_1_segment_1a0506678bf122b39db817aadb237f9c82" kind="variable"><name>path</name></member>
-    <member refid="structend_1_1_look_and_feel_1_1_segment_1a67c4e0d2b858c410426a4658685cf616" kind="variable"><name>stroke</name></member>
   </compound>
   <compound refid="structend_1_1_tab_orientation" kind="struct"><name>end::TabOrientation</name>
     <member refid="structend_1_1_tab_orientation_1afe38e70f0219da9717e331a9773b6fd8" kind="function"><name>TabOrientation</name></member>
@@ -577,10 +603,10 @@
     <member refid="classend_1_1_tabs_1a530f82b0d136b1c3385be168d79d5b66" kind="function"><name>updateTabBarVisibility</name></member>
   </compound>
   <compound refid="classend_1_1_view" kind="class"><name>end::View</name>
-    <member refid="classend_1_1_view_1ad207d70397b5a0ae3d0e722742d2940e" kind="variable"><name>config</name></member>
-    <member refid="classend_1_1_view_1a2e0940bb5ff2eb6afb763f39094f005e" kind="variable"><name>model</name></member>
+    <member refid="classend_1_1_view_1a01b4668216a6472984c51f29bdc13466" kind="variable"><name>config</name></member>
     <member refid="classend_1_1_view_1ace453a44b620ac0ccd2d799ec99e2bbd" kind="variable"><name>registry</name></member>
     <member refid="classend_1_1_view_1a7e6ee211dd7d9e06224826283296fa65" kind="variable"><name>tabs</name></member>
+    <member refid="classend_1_1_view_1a97bd88a9912af6789293637a52e8da3f" kind="variable"><name>messageOverlay</name></member>
     <member refid="classend_1_1_view_1a2abdc967e6ba24310abe2ef0d1fcf0b8" kind="variable"><name>attachments</name></member>
     <member refid="classend_1_1_view_1af1202f1cb8659e8eb6ae04b9703c4be4" kind="function"><name>View</name></member>
     <member refid="classend_1_1_view_1aac73d85c15164ea7a9ae443b9673996c" kind="function"><name>~View</name></member>
@@ -594,7 +620,7 @@
     <member refid="classend_1_1_view_1a7917a0f9fd49d8944b5c1f69025678ec" kind="function"><name>setViewState</name></member>
   </compound>
   <compound refid="classend_1_1_window" kind="class"><name>end::Window</name>
-    <member refid="classend_1_1_window_1abe8a4afa5c3a4fa81c6b332cf41b6eb4" kind="variable"><name>config</name></member>
+    <member refid="classend_1_1_window_1afe08d593b7bd98356a715f735eb39ad4" kind="variable"><name>config</name></member>
     <member refid="classend_1_1_window_1a56bf0a4cec2844d980843a4bd0ca35b8" kind="variable"><name>styleParameters</name></member>
     <member refid="classend_1_1_window_1af4e0636b21d5630786dc5dd890bf29df" kind="variable"><name>tintColour</name></member>
     <member refid="classend_1_1_window_1afd19744d8dca66b30dfbe7d1222f3ffe" kind="variable"><name>blurRadius</name></member>
@@ -622,6 +648,8 @@
   <compound refid="_config_8h" kind="file"><name>Config.h</name>
   </compound>
   <compound refid="_map_8h" kind="file"><name>Map.h</name>
+  </compound>
+  <compound refid="_message_overlay_8h" kind="file"><name>MessageOverlay.h</name>
   </compound>
   <compound refid="_model_8cpp" kind="file"><name>Model.cpp</name>
   </compound>

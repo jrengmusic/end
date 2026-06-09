@@ -22,10 +22,6 @@ void Application::initialise (const juce::String& commandLine)
         }
     }
 #endif
-
-    // Config: build from binary defaults, overlay from disk
-    config.loadPath (config::File::path);
-
     // GPU probe: resolve renderer, gate glass
     const auto probe { jam::GpuProbe::probe() };
     jam::BackgroundBlur::setEnabled (probe.isAvailable);
@@ -42,8 +38,8 @@ void Application::initialise (const juce::String& commandLine)
     juce::MessageManager::callAsync (
         [this]
         {
-            if (auto* view { window->getContentComponent() })
-                view->grabKeyboardFocus();
+            if (auto* v { dynamic_cast<View*> (window->getContentComponent()) })
+                v->grabKeyboardFocus();
         });
 }
 

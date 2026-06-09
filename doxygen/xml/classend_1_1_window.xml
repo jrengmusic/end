@@ -6,20 +6,20 @@
     <basecompoundref refid="classjuce_1_1ValueTree_1_1Listener" prot="public" virt="non-virtual">juce::ValueTree::Listener</basecompoundref>
     <includes refid="_window_8h" local="no">Window.h</includes>
     <sectiondef kind="private-attrib">
-      <memberdef kind="variable" id="classend_1_1_window_1abe8a4afa5c3a4fa81c6b332cf41b6eb4" prot="private" static="no" mutable="no">
-        <type><ref refid="classjuce_1_1ValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::ValueTree</ref></type>
-        <definition>juce::ValueTree end::Window::config</definition>
+      <memberdef kind="variable" id="classend_1_1_window_1afe08d593b7bd98356a715f735eb39ad4" prot="private" static="no" mutable="no">
+        <type><ref refid="classconfig_1_1_model" kindref="compound">config::Model</ref> &amp;</type>
+        <definition>config::Model&amp; end::Window::config</definition>
         <argsstring></argsstring>
         <name>config</name>
         <qualifiedname>end::Window::config</qualifiedname>
-        <initializer>{ <ref refid="classconfig_1_1_model_1ae9157061354f29018dc4a7d8c7397f83" kindref="member">config::Model::get</ref>() }</initializer>
+        <initializer>{ *<ref refid="structjam_1_1Context_1a259aac6b39aea0f3d3e2be9ab123cff3" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">config::Model::getContext</ref>() }</initializer>
         <briefdescription>
         </briefdescription>
         <detaileddescription>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Window.h" line="88" column="21" bodyfile="end/Window.h" bodystart="88" bodyend="88"/>
+        <location file="end/Window.h" line="88" column="19" bodyfile="end/Window.h" bodystart="88" bodyend="88"/>
       </memberdef>
       <memberdef kind="variable" id="classend_1_1_window_1a56bf0a4cec2844d980843a4bd0ca35b8" prot="private" static="no" mutable="no">
         <type><ref refid="structjam_1_1Function_1_1Map" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Function::Map</ref>&lt; <ref refid="classjuce_1_1Identifier" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Identifier</ref>, void &gt;</type>
@@ -33,7 +33,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Window.h" line="107" column="24" bodyfile="end/Window.h" bodystart="107" bodyend="-1"/>
+        <location file="end/Window.h" line="108" column="24" bodyfile="end/Window.h" bodystart="108" bodyend="-1"/>
         <referencedby refid="classend_1_1_window_1ac277dcb496977e31338298a1c2f8e2d5" compoundref="_window_8cpp" startline="45" endline="96">registerStyleParameters</referencedby>
         <referencedby refid="classend_1_1_window_1a016aba9d48d96c5bf6ba212a540841fe" compoundref="_window_8cpp" startline="29" endline="43">setStyle</referencedby>
         <referencedby refid="classend_1_1_window_1a7725512f1abd3448ce816b735ce55c4f" compoundref="_window_8cpp" startline="7" endline="19">Window</referencedby>
@@ -53,7 +53,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Window.h" line="113" column="18" bodyfile="end/Window.h" bodystart="113" bodyend="113"/>
+        <location file="end/Window.h" line="114" column="18" bodyfile="end/Window.h" bodystart="114" bodyend="114"/>
         <referencedby refid="classend_1_1_window_1ac277dcb496977e31338298a1c2f8e2d5" compoundref="_window_8cpp" startline="45" endline="96">registerStyleParameters</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classend_1_1_window_1afd19744d8dca66b30dfbe7d1222f3ffe" prot="private" static="no" mutable="no">
@@ -71,7 +71,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Window.h" line="119" column="11" bodyfile="end/Window.h" bodystart="119" bodyend="119"/>
+        <location file="end/Window.h" line="120" column="11" bodyfile="end/Window.h" bodystart="120" bodyend="120"/>
         <referencedby refid="classend_1_1_window_1ac277dcb496977e31338298a1c2f8e2d5" compoundref="_window_8cpp" startline="45" endline="96">registerStyleParameters</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classend_1_1_window_1a5496b743dc7c10f5dc2f657e732edf53" prot="private" static="no" mutable="no">
@@ -95,7 +95,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Window.h" line="127" column="34" bodyfile="end/Window.h" bodystart="127" bodyend="133"/>
+        <location file="end/Window.h" line="128" column="34" bodyfile="end/Window.h" bodystart="128" bodyend="134"/>
         <referencedby refid="classend_1_1_window_1ac277dcb496977e31338298a1c2f8e2d5" compoundref="_window_8cpp" startline="45" endline="96">registerStyleParameters</referencedby>
       </memberdef>
     </sectiondef>
@@ -167,7 +167,7 @@
         <location file="end/Window.h" line="66" column="5" bodyfile="end/Window.cpp" bodystart="7" bodyend="19"/>
         <references refid="classend_1_1_window_1ac277dcb496977e31338298a1c2f8e2d5" compoundref="_window_8cpp" startline="45" endline="96">registerStyleParameters</references>
         <references refid="classend_1_1_window_1a016aba9d48d96c5bf6ba212a540841fe" compoundref="_window_8cpp" startline="29" endline="43">setStyle</references>
-        <references refid="classend_1_1_window_1a56bf0a4cec2844d980843a4bd0ca35b8" compoundref="_window_8h" startline="107">styleParameters</references>
+        <references refid="classend_1_1_window_1a56bf0a4cec2844d980843a4bd0ca35b8" compoundref="_window_8h" startline="108">styleParameters</references>
         <references refid="classend_1_1_window_1a7725512f1abd3448ce816b735ce55c4f" compoundref="_window_8cpp" startline="7" endline="19">Window</references>
         <referencedby refid="classend_1_1_window_1a7725512f1abd3448ce816b735ce55c4f" compoundref="_window_8cpp" startline="7" endline="19">Window</referencedby>
       </memberdef>
@@ -245,17 +245,17 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Window.h" line="89" column="10" bodyfile="end/Window.cpp" bodystart="45" bodyend="96"/>
-        <references refid="classend_1_1_window_1afd19744d8dca66b30dfbe7d1222f3ffe" compoundref="_window_8h" startline="119" endline="119">blurRadius</references>
+        <location file="end/Window.h" line="90" column="10" bodyfile="end/Window.cpp" bodystart="45" bodyend="96"/>
+        <references refid="classend_1_1_window_1afd19744d8dca66b30dfbe7d1222f3ffe" compoundref="_window_8h" startline="120" endline="120">blurRadius</references>
         <references refid="structjam_1_1ID_1a11f26375142a6a445f092b6d6e853f5b">jam::ID::colour</references>
         <references refid="structjam_1_1BackgroundBlur_1a19cc127c6ee13b3b43d9e11cb4429dec">jam::BackgroundBlur::fromString</references>
-        <references refid="structend_1_1_boolean_1a4c8cfcd41ccfd2261fb8d3e08ee6143a" compoundref="_map_8h" startline="23" endline="23">end::Boolean::get</references>
-        <references refid="classend_1_1_window_1a5496b743dc7c10f5dc2f657e732edf53" compoundref="_window_8h" startline="127" endline="133">glassBackend</references>
+        <references refid="structend_1_1_boolean_1a4c8cfcd41ccfd2261fb8d3e08ee6143a" compoundref="_map_8h" startline="24" endline="24">end::Boolean::get</references>
+        <references refid="classend_1_1_window_1a5496b743dc7c10f5dc2f657e732edf53" compoundref="_window_8h" startline="128" endline="134">glassBackend</references>
         <references refid="classjuce_1_1Component_1a7f2af71c2c981fb7c43d7262563d185f">juce::Component::setAlwaysOnTop</references>
         <references refid="classjam_1_1Window_1a6b6e141bfe84856299b09e493c350f1e">jam::Window::setGlass</references>
         <references refid="classjam_1_1Window_1a72baeb690a2a47a8866afe0bbc6d44e0">jam::Window::setShowWindowButtons</references>
-        <references refid="classend_1_1_window_1a56bf0a4cec2844d980843a4bd0ca35b8" compoundref="_window_8h" startline="107">styleParameters</references>
-        <references refid="classend_1_1_window_1af4e0636b21d5630786dc5dd890bf29df" compoundref="_window_8h" startline="113" endline="113">tintColour</references>
+        <references refid="classend_1_1_window_1a56bf0a4cec2844d980843a4bd0ca35b8" compoundref="_window_8h" startline="108">styleParameters</references>
+        <references refid="classend_1_1_window_1af4e0636b21d5630786dc5dd890bf29df" compoundref="_window_8h" startline="114" endline="114">tintColour</references>
         <references refid="classjam_1_1Model_1a996fa3b0c8889e5c5280ca29dcd281e4">jam::Model::toColour</references>
         <referencedby refid="classend_1_1_window_1a7725512f1abd3448ce816b735ce55c4f" compoundref="_window_8cpp" startline="7" endline="19">Window</referencedby>
       </memberdef>
@@ -288,8 +288,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Window.h" line="105" column="10" bodyfile="end/Window.cpp" bodystart="29" bodyend="43"/>
-        <references refid="classend_1_1_window_1a56bf0a4cec2844d980843a4bd0ca35b8" compoundref="_window_8h" startline="107">styleParameters</references>
+        <location file="end/Window.h" line="106" column="10" bodyfile="end/Window.cpp" bodystart="29" bodyend="43"/>
+        <references refid="classend_1_1_window_1a56bf0a4cec2844d980843a4bd0ca35b8" compoundref="_window_8h" startline="108">styleParameters</references>
         <referencedby refid="classend_1_1_window_1a83a14c6067ee4a40da3db59f9e1b8764" compoundref="_window_8cpp" startline="23" endline="27">valueTreePropertyChanged</referencedby>
         <referencedby refid="classend_1_1_window_1a7725512f1abd3448ce816b735ce55c4f" compoundref="_window_8cpp" startline="7" endline="19">Window</referencedby>
       </memberdef>
@@ -362,6 +362,14 @@
       </node>
     </inheritancegraph>
     <collaborationgraph>
+      <node id="16">
+        <label>config::Model</label>
+        <link refid="classconfig_1_1_model"/>
+        <childnode refid="17" relation="public-inheritance">
+        </childnode>
+        <childnode refid="24" relation="public-inheritance">
+        </childnode>
+      </node>
       <node id="1">
         <label>end::Window</label>
         <link refid="classend_1_1_window"/>
@@ -372,16 +380,59 @@
         <childnode refid="16" relation="usage">
           <edgelabel>config</edgelabel>
         </childnode>
-        <childnode refid="17" relation="usage">
+        <childnode refid="25" relation="usage">
           <edgelabel>styleParameters</edgelabel>
         </childnode>
         <childnode refid="14" relation="usage">
           <edgelabel>tintColour</edgelabel>
         </childnode>
       </node>
-      <node id="17">
+      <node id="19">
+        <label>jam::AnyMap</label>
+        <link refid="classjam_1_1AnyMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="20" relation="usage">
+          <edgelabel>entries</edgelabel>
+        </childnode>
+        <childnode refid="21" relation="usage">
+          <edgelabel>types</edgelabel>
+        </childnode>
+      </node>
+      <node id="24">
+        <label>jam::Context&lt; Model &gt;</label>
+        <link refid="structjam_1_1Context" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
+      <node id="25">
         <label>jam::Function::Map&lt; juce::Identifier, void &gt;</label>
         <link refid="structjam_1_1Function_1_1Map" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="26" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="26">
+        <label>jam::HashMap&lt; KeyType, std::unique_ptr&lt; Function::Common &gt; &gt;</label>
+        <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
+      <node id="21">
+        <label>jam::HashMap&lt; juce::Identifier, std::type_index &gt;</label>
+        <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
+      <node id="20">
+        <label>jam::HashMap&lt; juce::Identifier, std::unique_ptr&lt; void, Deleter &gt; &gt;</label>
+        <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
+      <node id="17">
+        <label>jam::Model</label>
+        <link refid="classjam_1_1Model" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="18" relation="public-inheritance">
+        </childnode>
+        <childnode refid="19" relation="usage">
+          <edgelabel>params</edgelabel>
+        </childnode>
+        <childnode refid="22" relation="usage">
+          <edgelabel>state</edgelabel>
+        </childnode>
+        <childnode refid="23" relation="usage">
+          <edgelabel>valueTreeChanging</edgelabel>
+        </childnode>
       </node>
       <node id="2">
         <label>jam::Window</label>
@@ -413,6 +464,10 @@
       <node id="12">
         <label>juce::ComponentBoundsConstrainer</label>
         <link refid="classjuce_1_1ComponentBoundsConstrainer" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="23">
+        <label>juce::CriticalSection</label>
+        <link refid="classjuce_1_1CriticalSection" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
       <node id="3">
         <label>juce::DocumentWindow</label>
@@ -448,13 +503,17 @@
           <edgelabel>resizableBorder</edgelabel>
         </childnode>
       </node>
+      <node id="18">
+        <label>juce::Timer</label>
+        <link refid="classjuce_1_1Timer" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
       <node id="5">
         <label>juce::TopLevelWindow</label>
         <link refid="classjuce_1_1TopLevelWindow" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
         <childnode refid="6" relation="public-inheritance">
         </childnode>
       </node>
-      <node id="16">
+      <node id="22">
         <label>juce::ValueTree</label>
         <link refid="classjuce_1_1ValueTree" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
@@ -475,7 +534,7 @@
         </childnode>
       </node>
     </collaborationgraph>
-    <location file="end/Window.h" line="50" column="1" bodyfile="end/Window.h" bodystart="53" bodyend="137"/>
+    <location file="end/Window.h" line="50" column="1" bodyfile="end/Window.h" bodystart="53" bodyend="138"/>
     <listofallmembers>
       <member refid="classjuce_1_1ResizableWindow_1a961de147d2c1eab5a305b3d1ff661158" prot="protected" virt="virtual"><scope>end::Window</scope><name>activeWindowStatusChanged</name></member>
       <member refid="classjuce_1_1Component_1a7cc925a367e95b3807255f8b4a94dddd" prot="public" virt="non-virtual"><scope>end::Window</scope><name>addAndMakeVisible</name></member>
@@ -512,7 +571,7 @@
       <member refid="classjuce_1_1Component_1a8eca44b2145f084bd354edc8db696ad7" prot="public" virt="non-virtual"><scope>end::Window</scope><name>Component</name></member>
       <member refid="classjuce_1_1Component_1af5adb3418df9abb2bf8a5b5376ac3a01" prot="public" virt="non-virtual"><scope>end::Window</scope><name>Component</name></member>
       <member refid="classjuce_1_1ComponentBoundsConstrainer_1ac74eaac5e05f91f2b122556bb29c4630" prot="public" virt="non-virtual"><scope>end::Window</scope><name>ComponentBoundsConstrainer</name></member>
-      <member refid="classend_1_1_window_1abe8a4afa5c3a4fa81c6b332cf41b6eb4" prot="private" virt="non-virtual"><scope>end::Window</scope><name>config</name></member>
+      <member refid="classend_1_1_window_1afe08d593b7bd98356a715f735eb39ad4" prot="private" virt="non-virtual"><scope>end::Window</scope><name>config</name></member>
       <member refid="classjuce_1_1Component_1a0063f788f01484e821535209c6938537" prot="public" virt="non-virtual"><scope>end::Window</scope><name>contains</name></member>
       <member refid="classjuce_1_1Component_1ad135c1cba96deed34a67c1d78c3ddc5a" prot="public" virt="non-virtual"><scope>end::Window</scope><name>contains</name></member>
       <member refid="classjuce_1_1Component_1a188277f08097547aeed9abcfb0057d02" prot="public" virt="non-virtual"><scope>end::Window</scope><name>copyAllExplicitColoursTo</name></member>
