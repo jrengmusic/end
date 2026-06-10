@@ -35,7 +35,9 @@ private:
     // to the JUCEApplication instance. Declared before any consumer so the
     // single-global-pointer Context<T> slot is populated before first use.
     Boolean boolMap;
-    TabOrientation tabOrientationMap;
+    GpuMode gpuModeMap;
+    Position positionMap;
+    DropMode dropModeMap;
     config::File file;
     config::Graphics graphics;
 

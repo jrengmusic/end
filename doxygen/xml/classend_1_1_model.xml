@@ -124,7 +124,8 @@
       <member refid="classjam_1_1Model_1a0c6c6dcf22bdf37d65dced08a8dcdefc" prot="public" virt="non-virtual"><scope>end::Model</scope><name>findAndRemoveChild</name></member>
       <member refid="classjam_1_1Model_1a9eb2e927e025645e46609f37aa6f9304" prot="public" virt="non-virtual"><scope>end::Model</scope><name>flush</name></member>
       <member refid="classjam_1_1Model_1aaa8b722daed8928b8d587ec30662ac34" prot="private" virt="non-virtual"><scope>end::Model</scope><name>flushHz</name></member>
-      <member refid="classjam_1_1Model_1a9169286f8a37b8c7a83e6855840c923e" prot="public" virt="non-virtual"><scope>end::Model</scope><name>fromLua</name></member>
+      <member refid="classjam_1_1Model_1af9ab05d8b04c75750fc69f8ad1225caa" prot="public" virt="non-virtual"><scope>end::Model</scope><name>fromLua</name></member>
+      <member refid="classjam_1_1Model_1ac3b30b07ae87b264b7bd2962d81da57c" prot="public" virt="non-virtual"><scope>end::Model</scope><name>fromLua</name></member>
       <member refid="classjam_1_1Model_1ac0204402c1739f45230319069868ab23" prot="public" virt="non-virtual"><scope>end::Model</scope><name>getChildWithID</name></member>
       <member refid="classjam_1_1Model_1aecef6b658fc1de8bd8642ce3c0011036" prot="public" virt="non-virtual"><scope>end::Model</scope><name>getChildWithName</name></member>
       <member refid="classjam_1_1Model_1a7c77bf75e42b16586ae50b355668f2e0" prot="public" virt="non-virtual"><scope>end::Model</scope><name>getChildWithName</name></member>

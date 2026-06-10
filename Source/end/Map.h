@@ -32,19 +32,87 @@ struct Boolean : public jam::Map::Instance<Boolean>
 };
 
 //==============================================================================
-struct TabOrientation : public jam::Map::Instance<TabOrientation>
+/**
+ * @brief Bimap for the GPU rendering backend selection.
+ *
+ * Maps integer keys to the three valid gpu config values:
+ *   0 → "auto"   — GPU if available, CPU fallback (default)
+ *   1 → "true"   — Force GPU rendering
+ *   2 → "false"  — Force CPU rendering
+ *
+ * Registered in Application CONTEXT before config::Model construction.
+ */
+struct GpuMode : public jam::Map::Instance<GpuMode>
 {
-    TabOrientation()
+    /** @brief Integer keys for all GPU mode entries. */
+    enum
+    {
+        automatic,///< Use GPU if available, CPU fallback.
+        enabled,  ///< Force GPU rendering.
+        disabled, ///< Force CPU rendering.
+    };
+
+    /** @brief Populates the bimap with all three entries. */
+    GpuMode()
     {
         map = {
-            { jam::button::Tab::Orientation::left,   "left"   },
-            { jam::button::Tab::Orientation::bottom, "bottom" },
-            { jam::button::Tab::Orientation::top,    "top"    },
-            { jam::button::Tab::Orientation::right,  "right"  },
+            { GpuMode::automatic, "auto"  },
+            { GpuMode::enabled,   "true"  },
+            { GpuMode::disabled,  "false" },
         };
     }
 
-    const juce::String& getDefault() const noexcept override { return map.at (false); }
+    const juce::String& getDefault() const noexcept override { return map.at (GpuMode::automatic); }
+
+    static const auto& get() noexcept { return getContext()->map; }
+};
+
+//==============================================================================
+/**
+ * @brief Bimap for component position — "top", "bottom", "left", "right", or "center".
+ *
+ * Used by display.tab.orientation, display.status_bar.position,
+ * display.action_list.position, and any future positional config fields.
+ *
+ * Integer keys deliberately mirror jam::button::Tab::Orientation so that
+ * orientation values can be forwarded directly to Bar::setOrientation():
+ *   0 → "top"
+ *   1 → "bottom" (default)
+ *   2 → "left"
+ *   3 → "right"
+ *   4 → "center"
+ *
+ * Registered in Application CONTEXT before config::Model construction.
+ */
+struct Position : public jam::Map::Instance<Position>
+{
+    /** @brief Integer keys for all position entries.
+     *  Keys 0–3 are intentionally aligned with jam::button::Tab::Orientation
+     *  so that Position::get(string) can be forwarded to Bar::setOrientation()
+     *  without a secondary mapping.
+     */
+    enum
+    {
+        top,   ///< Position at top.
+        bottom,///< Position at bottom (default).
+        left,  ///< Position at left.
+        right, ///< Position at right.
+        center,///< Centered position.
+    };
+
+    /** @brief Populates the bimap with all five entries. */
+    Position()
+    {
+        map = {
+            { Position::top,    "top"    },
+            { Position::bottom, "bottom" },
+            { Position::left,   "left"   },
+            { Position::right,  "right"  },
+            { Position::center, "center" },
+        };
+    }
+
+    const juce::String& getDefault() const noexcept override { return map.at (Position::bottom); }
 
     static const auto& get() noexcept { return getContext()->map; }
 
@@ -55,6 +123,40 @@ struct TabOrientation : public jam::Map::Instance<TabOrientation>
 
     static const juce::String& get (int key) noexcept { return getContext()->map.at (key); }
 };
+
+//==============================================================================
+/**
+ * @brief Bimap for multi-file drop separator mode — "space" or "newline".
+ *
+ * Used by nexus.terminal.drop_multifiles.
+ *   0 → "space"   — join paths with spaces (default)
+ *   1 → "newline" — join paths with newlines
+ *
+ * Registered in Application CONTEXT before config::Model construction.
+ */
+struct DropMode : public jam::Map::Instance<DropMode>
+{
+    /** @brief Integer keys for all drop mode entries. */
+    enum
+    {
+        space,  ///< Join dropped paths with spaces (default).
+        newline,///< Join dropped paths with newlines.
+    };
+
+    /** @brief Populates the bimap with both entries. */
+    DropMode()
+    {
+        map = {
+            { DropMode::space,   "space"   },
+            { DropMode::newline, "newline" },
+        };
+    }
+
+    const juce::String& getDefault() const noexcept override { return map.at (DropMode::space); }
+
+    static const auto& get() noexcept { return getContext()->map; }
+};
+
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace end
 

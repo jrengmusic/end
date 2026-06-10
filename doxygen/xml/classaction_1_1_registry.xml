@@ -287,11 +287,11 @@
         <childnode refid="6" relation="usage">
           <edgelabel>config</edgelabel>
         </childnode>
-        <childnode refid="14" relation="usage">
+        <childnode refid="24" relation="usage">
           <edgelabel>keys</edgelabel>
           <edgelabel>modalKeys</edgelabel>
         </childnode>
-        <childnode refid="15" relation="usage">
+        <childnode refid="25" relation="usage">
           <edgelabel>prefixKey</edgelabel>
         </childnode>
       </node>
@@ -301,6 +301,17 @@
         <childnode refid="7" relation="public-inheritance">
         </childnode>
         <childnode refid="13" relation="public-inheritance">
+        </childnode>
+        <childnode refid="14" relation="public-inheritance">
+        </childnode>
+        <childnode refid="15" relation="usage">
+          <edgelabel>watcher</edgelabel>
+        </childnode>
+        <childnode refid="22" relation="usage">
+          <edgelabel>validators</edgelabel>
+        </childnode>
+        <childnode refid="23" relation="usage">
+          <edgelabel>graphicsCallbacks</edgelabel>
         </childnode>
       </node>
       <node id="8">
@@ -317,14 +328,53 @@
         <label>jam::Context&lt; Model &gt;</label>
         <link refid="structjam_1_1Context" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
+      <node id="15">
+        <label>jam::File::Watcher</label>
+        <link refid="structjam_1_1File_1_1Watcher" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="16" relation="usage">
+          <edgelabel>timers</edgelabel>
+        </childnode>
+        <childnode refid="20" relation="usage">
+          <edgelabel>listeners</edgelabel>
+        </childnode>
+        <childnode refid="21" relation="usage">
+          <edgelabel>watched</edgelabel>
+        </childnode>
+      </node>
+      <node id="19">
+        <label>jam::File::Watcher::CoalesceTimer</label>
+        <link refid="structjam_1_1File_1_1Watcher_1_1CoalesceTimer" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="15" relation="usage">
+          <edgelabel>owner</edgelabel>
+        </childnode>
+        <childnode refid="17" relation="usage">
+          <edgelabel>f</edgelabel>
+        </childnode>
+      </node>
+      <node id="14">
+        <label>jam::File::Watcher::Listener</label>
+        <link refid="classjam_1_1File_1_1Watcher_1_1Listener" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
       <node id="4">
         <label>jam::Function::Map&lt; juce::Identifier, void &gt;</label>
         <link refid="structjam_1_1Function_1_1Map" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
         <childnode refid="5" relation="public-inheritance">
         </childnode>
       </node>
+      <node id="23">
+        <label>jam::Function::Map&lt; juce::String, void &gt;</label>
+        <link refid="structjam_1_1Function_1_1Map" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+      </node>
       <node id="5">
         <label>jam::HashMap&lt; KeyType, std::unique_ptr&lt; Function::Common &gt; &gt;</label>
+        <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
+      <node id="22">
+        <label>jam::HashMap&lt; juce::Identifier, jam::HashMap&lt; juce::Identifier, std::function&lt; bool(const juce::var &amp;)&gt; &gt; &gt;</label>
         <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
       <node id="10">
@@ -335,7 +385,7 @@
         <label>jam::HashMap&lt; juce::Identifier, std::unique_ptr&lt; void, Deleter &gt; &gt;</label>
         <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
-      <node id="14">
+      <node id="24">
         <label>jam::HashMap&lt; juce::KeyPress, juce::Identifier &gt;</label>
         <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
@@ -358,9 +408,21 @@
         <label>juce::CriticalSection</label>
         <link refid="classjuce_1_1CriticalSection" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="15">
+      <node id="17">
+        <label>juce::File</label>
+        <link refid="classjuce_1_1File" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="25">
         <label>juce::KeyPress</label>
         <link refid="classjuce_1_1KeyPress" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="20">
+        <label>juce::ListenerList&lt; jam::File::Watcher::Listener &gt;</label>
+        <link refid="classjuce_1_1ListenerList" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="21">
+        <label>juce::OwnedArray&lt; Impl &gt;</label>
+        <link refid="classjuce_1_1OwnedArray" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
       <node id="2">
         <label>juce::Timer</label>
@@ -373,6 +435,21 @@
       <node id="3">
         <label>juce::ValueTree::Listener</label>
         <link refid="classjuce_1_1ValueTree_1_1Listener" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="16">
+        <label>std::map&lt; juce::File, std::unique_ptr&lt; jam::File::Watcher::CoalesceTimer &gt; &gt;</label>
+        <childnode refid="17" relation="usage">
+          <edgelabel>keys</edgelabel>
+        </childnode>
+        <childnode refid="18" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+      <node id="18">
+        <label>std::unique_ptr&lt; jam::File::Watcher::CoalesceTimer &gt;</label>
+        <childnode refid="19" relation="usage">
+          <edgelabel>ptr</edgelabel>
+        </childnode>
       </node>
     </collaborationgraph>
     <location file="action/Registry.h" line="36" column="1" bodyfile="action/Registry.h" bodystart="39" bodyend="73"/>

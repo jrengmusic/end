@@ -15,7 +15,7 @@ View::View (jam::Model& m)
     registerActions();
 
     addAndMakeVisible (tabs);
-    // addChildComponent (messageOverlay); // DISABLED — isolating virgin crash
+    addChildComponent (messageOverlay);
 
     //==============================================================================
     attachments.add (std::make_unique<jam::Model::Attachment> (*this));
@@ -54,6 +54,16 @@ bool View::keyPressed (const juce::KeyPress& key, juce::Component* originatingCo
 
 void View::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
 {
+    if (property == ID::loadMessage)
+    {
+#if JUCE_DEBUG
+        jam::debug::Log::write ("View: loadMessage received: "
+                                + tree.getProperty (ID::loadMessage).toString());
+#endif
+        messageOverlay.showMessage (tree.getProperty (ID::loadMessage).toString());
+        tree.setPropertyExcludingListener (this, ID::loadMessage, "", nullptr);
+    }
+
     if (property == ID::orientation)
         setTabOrientation();
 
@@ -84,7 +94,7 @@ void View::setTabOrientation()
     auto tabNode { display.getChildWithName (IDtype::tab) };
     auto pos { tabNode.getProperty (ID::orientation).toString() };
 
-    tabs.setOrientation (TabOrientation::get (pos));
+    tabs.setOrientation (Position::get (pos));
 }
 
 //==============================================================================

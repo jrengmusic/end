@@ -53,7 +53,7 @@
         <location file="end/Map.h" line="49" column="23" bodyfile="end/Map.h" bodystart="49" bodyend="49"/>
         <references refid="structjam_1_1Context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Derived &gt;::getContext</references>
         <referencedby refid="structend_1_1_tab_orientation_1a2044ae64e160534789ba744c39436906" compoundref="_map_8h" startline="51" endline="54">get</referencedby>
-        <referencedby refid="classend_1_1_view_1a91ed8ef126c0a1b3feb458079c3a7849" compoundref="_view_8cpp" startline="81" endline="88">end::View::setTabOrientation</referencedby>
+        <referencedby refid="classend_1_1_view_1a91ed8ef126c0a1b3feb458079c3a7849" compoundref="_view_8cpp" startline="87" endline="94">end::View::setTabOrientation</referencedby>
       </memberdef>
       <memberdef kind="function" id="structend_1_1_tab_orientation_1a2044ae64e160534789ba744c39436906" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
         <type>int</type>
@@ -144,6 +144,7 @@
     </collaborationgraph>
     <location file="end/Map.h" line="35" column="1" bodyfile="end/Map.h" bodystart="36" bodyend="57"/>
     <listofallmembers>
+      <member refid="classjam_1_1Map_1_1Instance_1a39231f6d1e13c6f64e72a07851a130c4" prot="public" virt="non-virtual"><scope>end::TabOrientation</scope><name>contains</name></member>
       <member refid="structjam_1_1Context_1a6e3f38a234db8ff2a9acb5986e72a2de" prot="public" virt="non-virtual"><scope>end::TabOrientation</scope><name>Context</name></member>
       <member refid="structend_1_1_tab_orientation_1a4d1e67c97f84f83eadd49ca32c44adc4" prot="public" virt="non-virtual"><scope>end::TabOrientation</scope><name>get</name></member>
       <member refid="structend_1_1_tab_orientation_1a2044ae64e160534789ba744c39436906" prot="public" virt="non-virtual"><scope>end::TabOrientation</scope><name>get</name></member>

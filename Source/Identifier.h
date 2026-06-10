@@ -30,7 +30,8 @@
     X (keys, "keys")         \
     X (popups, "popups")     \
     X (whelmed, "whelmed")   \
-    X (graphics, "graphics")
+    X (graphics, "graphics")    \
+    X (loadMessage, "load_message")
 
 // Keys shared across multiple config sections (not in jam::ID)
 #define IDENTIFIER_COMMON(X)                \

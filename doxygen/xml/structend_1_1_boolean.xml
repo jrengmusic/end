@@ -147,6 +147,7 @@
     <location file="end/Map.h" line="9" column="1" bodyfile="end/Map.h" bodystart="10" bodyend="32"/>
     <listofallmembers>
       <member refid="structend_1_1_boolean_1aee152d13cb0daadb827c739b3493a439" prot="public" virt="non-virtual"><scope>end::Boolean</scope><name>Boolean</name></member>
+      <member refid="classjam_1_1Map_1_1Instance_1a39231f6d1e13c6f64e72a07851a130c4" prot="public" virt="non-virtual"><scope>end::Boolean</scope><name>contains</name></member>
       <member refid="structjam_1_1Context_1a6e3f38a234db8ff2a9acb5986e72a2de" prot="public" virt="non-virtual"><scope>end::Boolean</scope><name>Context</name></member>
       <member refid="structend_1_1_boolean_1a4c8cfcd41ccfd2261fb8d3e08ee6143a" prot="public" virt="non-virtual"><scope>end::Boolean</scope><name>get</name></member>
       <member refid="structend_1_1_boolean_1ac2389507d11893392d5122a3d2914793" prot="public" virt="non-virtual"><scope>end::Boolean</scope><name>get</name></member>

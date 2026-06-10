@@ -369,6 +369,17 @@
         </childnode>
         <childnode refid="24" relation="public-inheritance">
         </childnode>
+        <childnode refid="25" relation="public-inheritance">
+        </childnode>
+        <childnode refid="26" relation="usage">
+          <edgelabel>watcher</edgelabel>
+        </childnode>
+        <childnode refid="33" relation="usage">
+          <edgelabel>validators</edgelabel>
+        </childnode>
+        <childnode refid="34" relation="usage">
+          <edgelabel>graphicsCallbacks</edgelabel>
+        </childnode>
       </node>
       <node id="1">
         <label>end::Window</label>
@@ -380,7 +391,7 @@
         <childnode refid="16" relation="usage">
           <edgelabel>config</edgelabel>
         </childnode>
-        <childnode refid="25" relation="usage">
+        <childnode refid="36" relation="usage">
           <edgelabel>styleParameters</edgelabel>
         </childnode>
         <childnode refid="14" relation="usage">
@@ -401,14 +412,53 @@
         <label>jam::Context&lt; Model &gt;</label>
         <link refid="structjam_1_1Context" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
-      <node id="25">
-        <label>jam::Function::Map&lt; juce::Identifier, void &gt;</label>
-        <link refid="structjam_1_1Function_1_1Map" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-        <childnode refid="26" relation="public-inheritance">
+      <node id="26">
+        <label>jam::File::Watcher</label>
+        <link refid="structjam_1_1File_1_1Watcher" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="27" relation="usage">
+          <edgelabel>timers</edgelabel>
+        </childnode>
+        <childnode refid="31" relation="usage">
+          <edgelabel>listeners</edgelabel>
+        </childnode>
+        <childnode refid="32" relation="usage">
+          <edgelabel>watched</edgelabel>
         </childnode>
       </node>
-      <node id="26">
+      <node id="30">
+        <label>jam::File::Watcher::CoalesceTimer</label>
+        <link refid="structjam_1_1File_1_1Watcher_1_1CoalesceTimer" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="18" relation="public-inheritance">
+        </childnode>
+        <childnode refid="26" relation="usage">
+          <edgelabel>owner</edgelabel>
+        </childnode>
+        <childnode refid="28" relation="usage">
+          <edgelabel>f</edgelabel>
+        </childnode>
+      </node>
+      <node id="25">
+        <label>jam::File::Watcher::Listener</label>
+        <link refid="classjam_1_1File_1_1Watcher_1_1Listener" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
+      <node id="36">
+        <label>jam::Function::Map&lt; juce::Identifier, void &gt;</label>
+        <link refid="structjam_1_1Function_1_1Map" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="35" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="34">
+        <label>jam::Function::Map&lt; juce::String, void &gt;</label>
+        <link refid="structjam_1_1Function_1_1Map" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="35" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="35">
         <label>jam::HashMap&lt; KeyType, std::unique_ptr&lt; Function::Common &gt; &gt;</label>
+        <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
+      <node id="33">
+        <label>jam::HashMap&lt; juce::Identifier, jam::HashMap&lt; juce::Identifier, std::function&lt; bool(const juce::var &amp;)&gt; &gt; &gt;</label>
         <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
       <node id="21">
@@ -475,9 +525,21 @@
         <childnode refid="4" relation="public-inheritance">
         </childnode>
       </node>
+      <node id="28">
+        <label>juce::File</label>
+        <link refid="classjuce_1_1File" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="31">
+        <label>juce::ListenerList&lt; jam::File::Watcher::Listener &gt;</label>
+        <link refid="classjuce_1_1ListenerList" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
       <node id="7">
         <label>juce::MouseListener</label>
         <link refid="classjuce_1_1MouseListener" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="32">
+        <label>juce::OwnedArray&lt; Impl &gt;</label>
+        <link refid="classjuce_1_1OwnedArray" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
       <node id="11">
         <label>juce::ResizableBorderComponent</label>
@@ -520,6 +582,21 @@
       <node id="15">
         <label>juce::ValueTree::Listener</label>
         <link refid="classjuce_1_1ValueTree_1_1Listener" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="27">
+        <label>std::map&lt; juce::File, std::unique_ptr&lt; jam::File::Watcher::CoalesceTimer &gt; &gt;</label>
+        <childnode refid="28" relation="usage">
+          <edgelabel>keys</edgelabel>
+        </childnode>
+        <childnode refid="29" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+      <node id="29">
+        <label>std::unique_ptr&lt; jam::File::Watcher::CoalesceTimer &gt;</label>
+        <childnode refid="30" relation="usage">
+          <edgelabel>ptr</edgelabel>
+        </childnode>
       </node>
       <node id="10">
         <label>std::unique_ptr&lt; juce::ResizableBorderComponent &gt;</label>
