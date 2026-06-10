@@ -1,0 +1,134 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="structend_1_1_look_and_feel_1_1_graphic" kind="struct" language="C++" prot="private">
+    <compoundname>end::LookAndFeel::Graphic</compoundname>
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structend_1_1_look_and_feel_1_1_graphic_1a612f28295384e2dffbd505f5af19e022" prot="public" static="no" mutable="no">
+        <type><ref refid="structend_1_1_look_and_feel_1_1_segment" kindref="compound">Segment</ref></type>
+        <definition>Segment end::LookAndFeel::Graphic::topLeft</definition>
+        <argsstring></argsstring>
+        <name>topLeft</name>
+        <qualifiedname>end::LookAndFeel::Graphic::topLeft</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lookAndFeel/LookAndFeel.h" line="119" column="17" bodyfile="lookAndFeel/LookAndFeel.h" bodystart="119" bodyend="-1"/>
+        <referencedby refid="classend_1_1_look_and_feel_1ace01b71278ac3489443ef917de2c6893" compoundref="_look_and_feel_8cpp" startline="195" endline="252">end::LookAndFeel::paintGraphic</referencedby>
+        <referencedby refid="classend_1_1_look_and_feel_1a764a6c201ac84e50494e724711c97953" compoundref="_look_and_feel_8cpp" startline="62" endline="113">end::LookAndFeel::parseSvg</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structend_1_1_look_and_feel_1_1_graphic_1aee48c929783ae39e381ac891c61e04c9" prot="public" static="no" mutable="no">
+        <type><ref refid="structend_1_1_look_and_feel_1_1_segment" kindref="compound">Segment</ref></type>
+        <definition>Segment end::LookAndFeel::Graphic::topRight</definition>
+        <argsstring></argsstring>
+        <name>topRight</name>
+        <qualifiedname>end::LookAndFeel::Graphic::topRight</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lookAndFeel/LookAndFeel.h" line="119" column="25" bodyfile="lookAndFeel/LookAndFeel.h" bodystart="119" bodyend="-1"/>
+        <referencedby refid="classend_1_1_look_and_feel_1ace01b71278ac3489443ef917de2c6893" compoundref="_look_and_feel_8cpp" startline="195" endline="252">end::LookAndFeel::paintGraphic</referencedby>
+        <referencedby refid="classend_1_1_look_and_feel_1a764a6c201ac84e50494e724711c97953" compoundref="_look_and_feel_8cpp" startline="62" endline="113">end::LookAndFeel::parseSvg</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structend_1_1_look_and_feel_1_1_graphic_1af676d886a5881bbc671a3f8be752a773" prot="public" static="no" mutable="no">
+        <type><ref refid="structend_1_1_look_and_feel_1_1_segment" kindref="compound">Segment</ref></type>
+        <definition>Segment end::LookAndFeel::Graphic::bottomLeft</definition>
+        <argsstring></argsstring>
+        <name>bottomLeft</name>
+        <qualifiedname>end::LookAndFeel::Graphic::bottomLeft</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lookAndFeel/LookAndFeel.h" line="119" column="34" bodyfile="lookAndFeel/LookAndFeel.h" bodystart="119" bodyend="-1"/>
+        <referencedby refid="classend_1_1_look_and_feel_1ace01b71278ac3489443ef917de2c6893" compoundref="_look_and_feel_8cpp" startline="195" endline="252">end::LookAndFeel::paintGraphic</referencedby>
+        <referencedby refid="classend_1_1_look_and_feel_1a764a6c201ac84e50494e724711c97953" compoundref="_look_and_feel_8cpp" startline="62" endline="113">end::LookAndFeel::parseSvg</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structend_1_1_look_and_feel_1_1_graphic_1a3603c43c18bb57a54492892239eb4f9d" prot="public" static="no" mutable="no">
+        <type><ref refid="structend_1_1_look_and_feel_1_1_segment" kindref="compound">Segment</ref></type>
+        <definition>Segment end::LookAndFeel::Graphic::bottomRight</definition>
+        <argsstring></argsstring>
+        <name>bottomRight</name>
+        <qualifiedname>end::LookAndFeel::Graphic::bottomRight</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lookAndFeel/LookAndFeel.h" line="119" column="45" bodyfile="lookAndFeel/LookAndFeel.h" bodystart="119" bodyend="-1"/>
+        <referencedby refid="classend_1_1_look_and_feel_1ace01b71278ac3489443ef917de2c6893" compoundref="_look_and_feel_8cpp" startline="195" endline="252">end::LookAndFeel::paintGraphic</referencedby>
+        <referencedby refid="classend_1_1_look_and_feel_1a764a6c201ac84e50494e724711c97953" compoundref="_look_and_feel_8cpp" startline="62" endline="113">end::LookAndFeel::parseSvg</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structend_1_1_look_and_feel_1_1_graphic_1aabef16d3b54b11dfaec7bad082120952" prot="public" static="no" mutable="no">
+        <type><ref refid="structend_1_1_look_and_feel_1_1_segment" kindref="compound">Segment</ref></type>
+        <definition>Segment end::LookAndFeel::Graphic::flex</definition>
+        <argsstring></argsstring>
+        <name>flex</name>
+        <qualifiedname>end::LookAndFeel::Graphic::flex</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lookAndFeel/LookAndFeel.h" line="119" column="57" bodyfile="lookAndFeel/LookAndFeel.h" bodystart="119" bodyend="-1"/>
+        <referencedby refid="classend_1_1_look_and_feel_1ace01b71278ac3489443ef917de2c6893" compoundref="_look_and_feel_8cpp" startline="195" endline="252">end::LookAndFeel::paintGraphic</referencedby>
+        <referencedby refid="classend_1_1_look_and_feel_1a764a6c201ac84e50494e724711c97953" compoundref="_look_and_feel_8cpp" startline="62" endline="113">end::LookAndFeel::parseSvg</referencedby>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Parsed representation of one SVG file. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Five <ref refid="structend_1_1_look_and_feel_1_1_segment" kindref="compound">Segment</ref> members correspond to the five named groups: top-left, top-right, bottom-left, bottom-right, and flex. </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>end::LookAndFeel::Graphic</label>
+        <link refid="structend_1_1_look_and_feel_1_1_graphic"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>bottomLeft</edgelabel>
+          <edgelabel>bottomRight</edgelabel>
+          <edgelabel>flex</edgelabel>
+          <edgelabel>topLeft</edgelabel>
+          <edgelabel>topRight</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>end::LookAndFeel::Segment</label>
+        <link refid="structend_1_1_look_and_feel_1_1_segment"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>foreground</edgelabel>
+          <edgelabel>outline</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>bounds</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>juce::Path</label>
+        <link refid="classjuce_1_1Path" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="4">
+        <label>juce::Rectangle&lt; float &gt;</label>
+        <link refid="classjuce_1_1Rectangle" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+    </collaborationgraph>
+    <location file="lookAndFeel/LookAndFeel.h" line="117" column="5" bodyfile="lookAndFeel/LookAndFeel.h" bodystart="118" bodyend="120"/>
+    <listofallmembers>
+      <member refid="structend_1_1_look_and_feel_1_1_graphic_1af676d886a5881bbc671a3f8be752a773" prot="public" virt="non-virtual"><scope>end::LookAndFeel::Graphic</scope><name>bottomLeft</name></member>
+      <member refid="structend_1_1_look_and_feel_1_1_graphic_1a3603c43c18bb57a54492892239eb4f9d" prot="public" virt="non-virtual"><scope>end::LookAndFeel::Graphic</scope><name>bottomRight</name></member>
+      <member refid="structend_1_1_look_and_feel_1_1_graphic_1aabef16d3b54b11dfaec7bad082120952" prot="public" virt="non-virtual"><scope>end::LookAndFeel::Graphic</scope><name>flex</name></member>
+      <member refid="structend_1_1_look_and_feel_1_1_graphic_1a612f28295384e2dffbd505f5af19e022" prot="public" virt="non-virtual"><scope>end::LookAndFeel::Graphic</scope><name>topLeft</name></member>
+      <member refid="structend_1_1_look_and_feel_1_1_graphic_1aee48c929783ae39e381ac891c61e04c9" prot="public" virt="non-virtual"><scope>end::LookAndFeel::Graphic</scope><name>topRight</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

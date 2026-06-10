@@ -5,8 +5,9 @@
  * MessageOverlay is a non-interactive, semi-transparent overlay that appears
  * briefly over the application to communicate transient text status:
  *
- * - **Config reload** — "RELOADED" shown for 1 second after reload.
- * - **Arbitrary messages** — multi-line text shown for 5 seconds.
+ * - **Config reload** — `config.getLoadMessage()` shown for the default
+ *   duration (5000 ms) via View::valueTreePropertyChanged.
+ * - **Arbitrary messages** — multi-line text shown via showMessage().
  *
  * ### Fade animation
  * Visibility transitions use `jam::Animator::toggleFade()` for smooth
@@ -19,8 +20,9 @@
  *
  * ### Font and colour
  * Font is read from the config tree (display > tab: family + size) on every
- * paint pass — hot-reload is free.  Colours come from `end::LookAndFeel`
- * ColourIds — `barBackgroundColourId` for the fill, `frontTextColourId` for text.
+ * paint pass — hot-reload is free.  Background uses
+ * `juce::TabbedComponent::backgroundColourId`; text uses
+ * `juce::TabbedButtonBar::frontTextColourId`.
  *
  * @note All methods are called on the **MESSAGE THREAD**.
  *
@@ -70,6 +72,7 @@ public:
         setInterceptsMouseClicks (false, false);
     }
 
+    /** @brief Default destructor. */
     ~MessageOverlay() override = default;
 
     /**
@@ -97,8 +100,8 @@ public:
      * @brief Paints the semi-transparent background and centred message text.
      *
      * Font is read from the config tree on every paint pass (hot-reload safe).
-     * Background colour comes from `end::LookAndFeel::barBackgroundColourId`,
-     * text colour from `end::LookAndFeel::frontTextColourId`.
+     * Background colour from `juce::TabbedComponent::backgroundColourId`,
+     * text colour from `juce::TabbedButtonBar::frontTextColourId`.
      *
      * @param g  JUCE graphics context for this paint pass.
      * @note MESSAGE THREAD.
@@ -112,8 +115,8 @@ public:
         auto size { static_cast<float> (tab.getProperty (ID::size, 12)) };
         juce::Font font { juce::FontOptions().withName (family).withPointHeight (size) };
 
-        auto bgColour { findColour (end::LookAndFeel::barBackgroundColourId) };
-        auto fgColour { findColour (end::LookAndFeel::frontTextColourId) };
+        auto bgColour { findColour (juce::TabbedComponent::backgroundColourId) };
+        auto fgColour { findColour (juce::TabbedButtonBar::frontTextColourId) };
 
         g.fillAll (bgColour.withAlpha (backgroundAlpha));
         g.setFont (font);

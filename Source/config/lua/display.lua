@@ -266,7 +266,7 @@ return {
 
 	tab = {
 		-- Bar background colour (the strip behind all tab buttons).
-		background = 0xff2c4144,
+		background = 0xFF699DAA,
 
 		-- Tab bar font family.
 		family = "Display Mono",
@@ -283,13 +283,14 @@ return {
 		-- Tab bar orientation: "top", "bottom", "left", "right".
 		orientation = "top",
 
-		-- Tab outline / border colour (3-side border + content-edge separator).
+		-- Tab SVG group colours. Each key matches an SVG group name (1:1) —
+		-- groups tagged with these names are painted using the LAF colour
+		-- resolved at draw time. No SVG colour values are used.
+
+		-- Colour for SVG groups tagged "outline" in the tab SVGs.
 		outline = 0xff2c4144,
 
-		-- Active (front) tab background fill.
-		front_background = 0xff002b35,
-
-		-- Inactive tab background fill.
+		-- Inactive tab background fill (SVG groups tagged "inactive_background").
 		inactive_background = 0xff001a20,
 
 		-- Sliding indicator colour (the highlight that moves to the active tab).

@@ -30,31 +30,30 @@
     X (keys, "keys")         \
     X (popups, "popups")     \
     X (whelmed, "whelmed")   \
-    X (graphics, "graphics")    \
+    X (graphics, "graphics") \
     X (loadMessage, "load_message")
 
 // Keys shared across multiple config sections (not in jam::ID)
-#define IDENTIFIER_COMMON(X)                \
-    X (family, "family")                    \
-    X (position, "position")                \
-    X (orientation, "orientation")          \
-    X (inactive, "inactive")                \
-    X (active, "active")                    \
-    X (indicator, "indicator")              \
-    X (inactiveText, "inactive_text")       \
-    X (frontBackground, "front_background") \
+#define IDENTIFIER_COMMON(X)                      \
+    X (family, "family")                          \
+    X (position, "position")                      \
+    X (orientation, "orientation")                \
+    X (inactive, "inactive")                      \
+    X (active, "active")                          \
+    X (indicator, "indicator")                    \
+    X (inactiveText, "inactive_text")             \
     X (inactiveBackground, "inactive_background") \
-    X (background, "background")            \
-    X (scrollbarWidth, "scrollbar_width")   \
-    X (barColour, "bar_colour")             \
-    X (barHighlight, "bar_highlight")       \
-    X (borderColour, "border_colour")       \
-    X (borderWidth, "border_width")         \
-    X (scrollbackLines, "scrollback_lines") \
-    X (scrollStep, "scroll_step")           \
-    X (cols, "cols")                        \
-    X (rows, "rows")                        \
-    X (scrollbarThumb, "scrollbar_thumb")   \
+    X (background, "background")                  \
+    X (scrollbarWidth, "scrollbar_width")         \
+    X (barColour, "bar_colour")                   \
+    X (barHighlight, "bar_highlight")             \
+    X (borderColour, "border_colour")             \
+    X (borderWidth, "border_width")               \
+    X (scrollbackLines, "scrollback_lines")       \
+    X (scrollStep, "scroll_step")                 \
+    X (cols, "cols")                              \
+    X (rows, "rows")                              \
+    X (scrollbarThumb, "scrollbar_thumb")         \
     X (scrollbarTrack, "scrollbar_track")
 
 // Display-specific keys (not in jam::ID or COMMON)
@@ -248,24 +247,24 @@
 // Platform + BackgroundBlur Backend keys (display.lua / window.blur_style)
 // "mac"/"win" identify the platform in the blur_style table;
 // the remaining values map to jam::BackgroundBlur::Backend per platform.
-#define IDENTIFIER_BACKEND(X)                              \
-    X (mac, "mac")                                         \
-    X (win, "win")                                         \
-    X (blurStyle, "blur_style")                            \
-    X (backgroundBlur, "backgroundBlur")                   \
+#define IDENTIFIER_BACKEND(X)                                \
+    X (mac, "mac")                                           \
+    X (win, "win")                                           \
+    X (blurStyle, "blur_style")                              \
+    X (backgroundBlur, "backgroundBlur")                     \
     X (visualFXWindowBackground, "visualFXWindowBackground") \
-    X (glassFXRegular, "glassFXRegular")                   \
-    X (glassFXClear, "glassFXClear")                       \
-    X (blurBehind, "blurBehind")                           \
-    X (acrylic10, "acrylic10")                             \
-    X (acrylic11, "acrylic11")                             \
+    X (glassFXRegular, "glassFXRegular")                     \
+    X (glassFXClear, "glassFXClear")                         \
+    X (blurBehind, "blurBehind")                             \
+    X (acrylic10, "acrylic10")                               \
+    X (acrylic11, "acrylic11")                               \
     X (mica, "mica")
 
 // Runtime state keys (end::Model)
-#define IDENTIFIER_MODEL(X)              \
-    X (focusedPane, "focused_pane")      \
-    X (focus, "focus")                   \
-    X (zoom, "zoom")                     \
+#define IDENTIFIER_MODEL(X)         \
+    X (focusedPane, "focused_pane") \
+    X (focus, "focus")              \
+    X (zoom, "zoom")                \
     X (renderer, "renderer")
 
 // ============================================================================

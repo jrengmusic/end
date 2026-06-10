@@ -1,4 +1,5 @@
 #include "end/Tabs.h"
+#include "lookAndFeel/LookAndFeel.h"
 
 namespace end
 {
@@ -57,14 +58,8 @@ void Tabs::updateTabBarVisibility()
     }
     else
     {
-        config::Model& config { *config::Model::getContext() };
-        auto display { config.getChildWithName (IDtype::display) };
-        auto tabNode { display.getChildWithName (IDtype::tab) };
-        auto family { tabNode.getProperty (ID::family, "Display Mono").toString() };
-        auto points { static_cast<float> (tabNode.getProperty (ID::size, 12)) };
-        juce::Font font { juce::FontOptions().withName (family).withPointHeight (points) };
-
-        setTabBarDepth (juce::roundToInt (font.getHeight() / tabFontRatio));
+        auto& laf { static_cast<end::LookAndFeel&> (getLookAndFeel()) };
+        setTabBarDepth (juce::roundToInt (laf.getTabFont().getHeight() / tabFontRatio));
     }
 }
 

@@ -19,9 +19,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/MessageOverlay.h" line="134" column="18" bodyfile="end/MessageOverlay.h" bodystart="134" bodyend="-1"/>
-        <referencedby refid="classend_1_1_message_overlay_1a178252fe1ea066417585555298aff52f" compoundref="_message_overlay_8h" startline="106" endline="122">paint</referencedby>
-        <referencedby refid="classend_1_1_message_overlay_1ab59a8435254ade467d9b836ca6928e43" compoundref="_message_overlay_8h" startline="87" endline="94">showMessage</referencedby>
+        <location file="end/MessageOverlay.h" line="137" column="18" bodyfile="end/MessageOverlay.h" bodystart="137" bodyend="-1"/>
+        <referencedby refid="classend_1_1_message_overlay_1a178252fe1ea066417585555298aff52f" compoundref="_message_overlay_8h" startline="109" endline="125">paint</referencedby>
+        <referencedby refid="classend_1_1_message_overlay_1ab59a8435254ade467d9b836ca6928e43" compoundref="_message_overlay_8h" startline="90" endline="97">showMessage</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="private-static-attrib">
@@ -39,8 +39,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/MessageOverlay.h" line="138" column="28" bodyfile="end/MessageOverlay.h" bodystart="138" bodyend="138"/>
-        <referencedby refid="classend_1_1_message_overlay_1a178252fe1ea066417585555298aff52f" compoundref="_message_overlay_8h" startline="106" endline="122">paint</referencedby>
+        <location file="end/MessageOverlay.h" line="141" column="28" bodyfile="end/MessageOverlay.h" bodystart="141" bodyend="141"/>
+        <referencedby refid="classend_1_1_message_overlay_1a178252fe1ea066417585555298aff52f" compoundref="_message_overlay_8h" startline="109" endline="125">paint</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classend_1_1_message_overlay_1aad6edef73528cf6e5be769ba740546ad" prot="private" static="yes" constexpr="yes" mutable="no">
         <type>int</type>
@@ -56,8 +56,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/MessageOverlay.h" line="141" column="26" bodyfile="end/MessageOverlay.h" bodystart="141" bodyend="141"/>
-        <referencedby refid="classend_1_1_message_overlay_1a178252fe1ea066417585555298aff52f" compoundref="_message_overlay_8h" startline="106" endline="122">paint</referencedby>
+        <location file="end/MessageOverlay.h" line="144" column="26" bodyfile="end/MessageOverlay.h" bodystart="144" bodyend="144"/>
+        <referencedby refid="classend_1_1_message_overlay_1a178252fe1ea066417585555298aff52f" compoundref="_message_overlay_8h" startline="109" endline="125">paint</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classend_1_1_message_overlay_1af3d0d9997543692ff68e8010401503ff" prot="private" static="yes" constexpr="yes" mutable="no">
         <type>int</type>
@@ -73,8 +73,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/MessageOverlay.h" line="144" column="26" bodyfile="end/MessageOverlay.h" bodystart="144" bodyend="144"/>
-        <referencedby refid="classend_1_1_message_overlay_1a178252fe1ea066417585555298aff52f" compoundref="_message_overlay_8h" startline="106" endline="122">paint</referencedby>
+        <location file="end/MessageOverlay.h" line="147" column="26" bodyfile="end/MessageOverlay.h" bodystart="147" bodyend="147"/>
+        <referencedby refid="classend_1_1_message_overlay_1a178252fe1ea066417585555298aff52f" compoundref="_message_overlay_8h" startline="109" endline="125">paint</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classend_1_1_message_overlay_1aa92466861a384d30960e3f652da9de4a" prot="private" static="yes" constexpr="yes" mutable="no">
         <type>int</type>
@@ -90,8 +90,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/MessageOverlay.h" line="147" column="26" bodyfile="end/MessageOverlay.h" bodystart="147" bodyend="147"/>
-        <referencedby refid="classend_1_1_message_overlay_1ab59a8435254ade467d9b836ca6928e43" compoundref="_message_overlay_8h" startline="87" endline="94">showMessage</referencedby>
+        <location file="end/MessageOverlay.h" line="150" column="26" bodyfile="end/MessageOverlay.h" bodystart="150" bodyend="150"/>
+        <referencedby refid="classend_1_1_message_overlay_1ab59a8435254ade467d9b836ca6928e43" compoundref="_message_overlay_8h" startline="90" endline="97">showMessage</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classend_1_1_message_overlay_1a5c20ff0208ca39317e9d1439d72cc1d2" prot="private" static="yes" constexpr="yes" mutable="no">
         <type>int</type>
@@ -107,8 +107,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/MessageOverlay.h" line="150" column="26" bodyfile="end/MessageOverlay.h" bodystart="150" bodyend="150"/>
-        <referencedby refid="classend_1_1_message_overlay_1ab59a8435254ade467d9b836ca6928e43" compoundref="_message_overlay_8h" startline="87" endline="94">showMessage</referencedby>
+        <location file="end/MessageOverlay.h" line="153" column="26" bodyfile="end/MessageOverlay.h" bodystart="153" bodyend="153"/>
+        <referencedby refid="classend_1_1_message_overlay_1ab59a8435254ade467d9b836ca6928e43" compoundref="_message_overlay_8h" startline="90" endline="97">showMessage</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">
@@ -129,7 +129,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/MessageOverlay.h" line="67" column="5" bodyfile="end/MessageOverlay.h" bodystart="67" bodyend="71"/>
+        <location file="end/MessageOverlay.h" line="69" column="5" bodyfile="end/MessageOverlay.h" bodystart="69" bodyend="73"/>
         <references refid="classjuce_1_1Component_1a2b0bfe259bcbc2e4f87d972aba0d0f1c">juce::Component::setInterceptsMouseClicks</references>
         <references refid="classjuce_1_1Component_1a862fe9788d2f2a16f9ad2bb7d8f2e0ec">juce::Component::setOpaque</references>
       </memberdef>
@@ -140,12 +140,13 @@
         <name>~MessageOverlay</name>
         <qualifiedname>end::MessageOverlay::~MessageOverlay</qualifiedname>
         <briefdescription>
+<para>Default destructor. </para>
         </briefdescription>
         <detaileddescription>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/MessageOverlay.h" line="73" column="5"/>
+        <location file="end/MessageOverlay.h" line="76" column="5"/>
       </memberdef>
       <memberdef kind="function" id="classend_1_1_message_overlay_1ab59a8435254ade467d9b836ca6928e43" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
         <type>void</type>
@@ -192,10 +193,10 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/MessageOverlay.h" line="87" column="10" bodyfile="end/MessageOverlay.h" bodystart="87" bodyend="94"/>
-        <references refid="classend_1_1_message_overlay_1aa92466861a384d30960e3f652da9de4a" compoundref="_message_overlay_8h" startline="147" endline="147">fadeInMs</references>
-        <references refid="classend_1_1_message_overlay_1ae476f43ba1eba337a9d61750f50432f1" compoundref="_message_overlay_8h" startline="134">message</references>
-        <references refid="classend_1_1_message_overlay_1a5c20ff0208ca39317e9d1439d72cc1d2" compoundref="_message_overlay_8h" startline="150" endline="150">messageDelayMs</references>
+        <location file="end/MessageOverlay.h" line="90" column="10" bodyfile="end/MessageOverlay.h" bodystart="90" bodyend="97"/>
+        <references refid="classend_1_1_message_overlay_1aa92466861a384d30960e3f652da9de4a" compoundref="_message_overlay_8h" startline="150" endline="150">fadeInMs</references>
+        <references refid="classend_1_1_message_overlay_1ae476f43ba1eba337a9d61750f50432f1" compoundref="_message_overlay_8h" startline="137">message</references>
+        <references refid="classend_1_1_message_overlay_1a5c20ff0208ca39317e9d1439d72cc1d2" compoundref="_message_overlay_8h" startline="153" endline="153">messageDelayMs</references>
         <references refid="classjuce_1_1Component_1a8a7b37be680ae337c88ea0d4c244d308">juce::Component::repaint</references>
         <references refid="classjuce_1_1Timer_1acb43e06d5742106830080af3d50b422d">juce::Timer::startTimer</references>
         <references refid="classjuce_1_1Component_1a68b9958705577cf5ed361210b29f3a4e">juce::Component::toFront</references>
@@ -216,7 +217,7 @@
 <para>Paints the semi-transparent background and centred message text. </para>
         </briefdescription>
         <detaileddescription>
-<para>Font is read from the config tree on every paint pass (hot-reload safe). Background colour comes from <computeroutput><ref refid="classend_1_1_look_and_feel_1a96444644e5b541f2a7a2235c0dc91cf8a47add6744f775a7e61ed34a23876f5e8" kindref="member">end::LookAndFeel::barBackgroundColourId</ref></computeroutput>, text colour from <computeroutput><ref refid="classend_1_1_look_and_feel_1a96444644e5b541f2a7a2235c0dc91cf8a21934730dc5d872751dd6b936fa44de3" kindref="member">end::LookAndFeel::frontTextColourId</ref></computeroutput>.</para>
+<para>Font is read from the config tree on every paint pass (hot-reload safe). Background colour from <computeroutput><ref refid="classjuce_1_1TabbedComponent_1a64e86d4956c947dcca2aa3fbe85b213bae14cc3fadef20945802c16fc438869fb" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::TabbedComponent::backgroundColourId</ref></computeroutput>, text colour from <computeroutput><ref refid="classjuce_1_1TabbedButtonBar_1a861f1979b1f050f54f7e707cfb3ec208a478898fdb723517854d01f9cbf3d5e1e" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::TabbedButtonBar::frontTextColourId</ref></computeroutput>.</para>
 <para><parameterlist kind="param"><parameteritem>
 <parameternamelist>
 <parametername>g</parametername>
@@ -232,21 +233,21 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/MessageOverlay.h" line="106" column="10" bodyfile="end/MessageOverlay.h" bodystart="106" bodyend="122"/>
-        <references refid="classend_1_1_message_overlay_1a5046070f3d47a338069c60bd519b85a9" compoundref="_message_overlay_8h" startline="138" endline="138">backgroundAlpha</references>
-        <references refid="classend_1_1_look_and_feel_1a96444644e5b541f2a7a2235c0dc91cf8a47add6744f775a7e61ed34a23876f5e8" compoundref="_look_and_feel_8h" startline="31">end::LookAndFeel::barBackgroundColourId</references>
+        <location file="end/MessageOverlay.h" line="109" column="10" bodyfile="end/MessageOverlay.h" bodystart="109" bodyend="125"/>
+        <references refid="classend_1_1_message_overlay_1a5046070f3d47a338069c60bd519b85a9" compoundref="_message_overlay_8h" startline="141" endline="141">backgroundAlpha</references>
+        <references refid="classjuce_1_1TabbedComponent_1a64e86d4956c947dcca2aa3fbe85b213bae14cc3fadef20945802c16fc438869fb">juce::TabbedComponent::backgroundColourId</references>
         <references refid="classjuce_1_1Justification_1a02e14cfe87bf4e39860535ae248ca9bea144d23079b5e08552389424e86d62099">juce::Justification::centred</references>
         <references refid="classjuce_1_1Graphics_1aa5be67c3a5cdd8694d921d40d0cf2d94">juce::Graphics::drawFittedText</references>
         <references refid="classjuce_1_1Graphics_1af28f0dff675b147194e188c6ac115f8e">juce::Graphics::fillAll</references>
         <references refid="classjuce_1_1Component_1ab858d73201f7fed14b04f1f79e5c9b58">juce::Component::findColour</references>
-        <references refid="classend_1_1_look_and_feel_1a96444644e5b541f2a7a2235c0dc91cf8a21934730dc5d872751dd6b936fa44de3" compoundref="_look_and_feel_8h" startline="34">end::LookAndFeel::frontTextColourId</references>
+        <references refid="classjuce_1_1TabbedButtonBar_1a861f1979b1f050f54f7e707cfb3ec208a478898fdb723517854d01f9cbf3d5e1e">juce::TabbedButtonBar::frontTextColourId</references>
         <references refid="structjam_1_1Context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Model &gt;::getContext</references>
         <references refid="classjuce_1_1Component_1ad886e26b7514369fe38fdc03074b7c80">juce::Component::getLocalBounds</references>
-        <references refid="classend_1_1_message_overlay_1af3d0d9997543692ff68e8010401503ff" compoundref="_message_overlay_8h" startline="144" endline="144">maxLines</references>
-        <references refid="classend_1_1_message_overlay_1ae476f43ba1eba337a9d61750f50432f1" compoundref="_message_overlay_8h" startline="134">message</references>
+        <references refid="classend_1_1_message_overlay_1af3d0d9997543692ff68e8010401503ff" compoundref="_message_overlay_8h" startline="147" endline="147">maxLines</references>
+        <references refid="classend_1_1_message_overlay_1ae476f43ba1eba337a9d61750f50432f1" compoundref="_message_overlay_8h" startline="137">message</references>
         <references refid="classjuce_1_1Graphics_1aea91552df5f289de769876a78a561bfd">juce::Graphics::setColour</references>
         <references refid="classjuce_1_1Graphics_1a1e6b2ea03c5ed3c0189eab72c9d6d9f9">juce::Graphics::setFont</references>
-        <references refid="classend_1_1_message_overlay_1aad6edef73528cf6e5be769ba740546ad" compoundref="_message_overlay_8h" startline="141" endline="141">textPadding</references>
+        <references refid="classend_1_1_message_overlay_1aad6edef73528cf6e5be769ba740546ad" compoundref="_message_overlay_8h" startline="144" endline="144">textPadding</references>
         <references refid="classjuce_1_1FontOptions_1a010c459b44aa36216d06d60cd3b90ea7">juce::FontOptions::withName</references>
         <references refid="classjuce_1_1FontOptions_1abf9b08acb0b49a695f8fa169d2ba0cdb">juce::FontOptions::withPointHeight</references>
       </memberdef>
@@ -266,7 +267,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/MessageOverlay.h" line="126" column="10" bodyfile="end/MessageOverlay.h" bodystart="126" bodyend="130"/>
+        <location file="end/MessageOverlay.h" line="129" column="10" bodyfile="end/MessageOverlay.h" bodystart="129" bodyend="133"/>
         <references refid="classjuce_1_1Timer_1a2ff70b860a8c875658b4baa91c8bcef0">juce::Timer::stopTimer</references>
         <references refid="structjam_1_1Animator_1a9b25beac56ffed8693b54cf2e594fa6a">jam::Animator::toggleFade</references>
       </memberdef>
@@ -337,7 +338,7 @@
         <link refid="classjuce_1_1Timer" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
     </collaborationgraph>
-    <location file="end/MessageOverlay.h" line="54" column="1" bodyfile="end/MessageOverlay.h" bodystart="57" bodyend="154"/>
+    <location file="end/MessageOverlay.h" line="56" column="1" bodyfile="end/MessageOverlay.h" bodystart="59" bodyend="157"/>
     <listofallmembers>
       <member refid="classjuce_1_1Component_1a7cc925a367e95b3807255f8b4a94dddd" prot="public" virt="non-virtual"><scope>end::MessageOverlay</scope><name>addAndMakeVisible</name></member>
       <member refid="classjuce_1_1Component_1ac79decdfaf538a2bdef2f818a280bb8e" prot="public" virt="non-virtual"><scope>end::MessageOverlay</scope><name>addAndMakeVisible</name></member>

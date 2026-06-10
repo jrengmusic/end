@@ -2,7 +2,59 @@
 
 ---
 
-## Sprint 10: Config Validation + Line-Mapped Errors + SVG Paint Pipeline ✅
+## Sprint 11: SVG Flex Layout System + LAF 1:1 Colour Chain ✅
+
+**Date:** 2026-06-10
+**Duration:** ~06:00
+
+### Agents Participated
+- COUNSELOR: orchestration, design discussion (Segment/Shape/Flex vocabulary, 1:1 chain, open vs fixed roles, String→Identifier keys, HashMap consolidation), fact-checking (jam SVG API, JUCE ColourIds, XmlElement iteration API)
+- Engineer: code implementation (many delegations — jam SVG module, Flex, END LookAndFeel)
+- Pathfinder: Phase 3 completion survey, jam SVG module API discovery
+
+### Files Modified (14 total)
+
+**JAM:**
+- `jam_core/identifier/jam_identifier_svg.h` — stroke_width, stroke, topLeft, topRight, bottomLeft, bottomRight, outline, foreground entries added to IDENTIFIER_SVG X-macro.
+- `jam_core/xml/jam_svg.h` — getElementPath (per-element path reader), parseStyle (generic CSS key-value from style attr), parseColour (hex decoder), Flex forward declaration. getEllipsePath/getCirclePath/getRectPath/getAllFoundPath doxygen updated to reflect delegation to getElementPath.
+- `jam_core/xml/jam_svg.cpp` — parseStyle + parseColour implementations. getElementPath (path/rect/ellipse/circle dispatch). getRectPath/getEllipsePath/getCirclePath refactored to delegate to getElementPath. getStrokeWidth refactored onto parseStyle.
+- `jam_core/xml/jam_svg_flex.h` — new file: SVG::Flex struct — Shape (path, PathStyle, colourId, colour, strokeWidth), Segment (vector\<Shape\>, bounds), Segments = HashMap\<Identifier, Segment\>, getName, getSegments, paint. Comprehensive doxygen.
+- `jam_core/xml/jam_svg_flex.cpp` — new file: getName (serif:id/digit-strip), getSegments (collectShapes lambda walker — LAF groups via colourIds, self-styled via parseStyle+parseColour, bounds rect exclusion via getChildByName), paint (cornerTransform lambda, HashMap\<Identifier, AffineTransform\>, range-for over segments, findColour at paint time).
+- `jam_core/jam_core.h` — jam_svg_flex.h include wired.
+- `jam_core/jam_core.cpp` — jam_svg_flex.cpp unity include wired.
+- `jam_gui/button/jam_button_bar.h` — Tab::ColourIds { backgroundColourId = 0x4200001 }, Bar::ColourIds { indicatorColourId = 0x4200100 }.
+
+**END:**
+- `Source/lookAndFeel/LookAndFeel.h` — barBackgroundColourId, frontBackgroundColourId, inactiveBackgroundColourId, frontTextColourId, inactiveTextColourId, tabOutlineColourId, indicatorColourId removed from ColourIds enum. Three Segments members → one flexGraphics HashMap\<Identifier, Segments\>. getTabFont() public accessor. Class + method doxygen rewritten (1:1 chain SSOT).
+- `Source/lookAndFeel/LookAndFeel.cpp` — colourIds registry retargeted: background→TabbedComponent::backgroundColourId, outline→tabOutlineColourId, indicator→Bar::indicatorColourId, inactiveBackground→Tab::backgroundColourId, foreground→frontTextColourId, inactiveText→tabTextColourId. frontBackground entry deleted. loadGraphics populates flexGraphics via insert_or_assign. Draw virtuals lookup flexGraphics.at(key). drawTabButton text via TabbedButtonBar ids. vtpc narrowed (Array\<var\> relic deleted). getTabFont() SSOT extracted.
+- `Source/end/Tabs.cpp` — updateTabBarVisibility: inline font construction replaced with LAF getTabFont() call.
+- `Source/Identifier.h` — ID::frontBackground X-macro entry deleted.
+- `Source/config/lua/display.lua` — front_background key + comment deleted from tab section. Outline comment rewritten. 1:1 chain note added.
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- SVG string members + cout diagnostic → parsed Segment/Shape cache (then → module-level jam::SVG::Flex)
+- Array\<var\> event encoding relic in vtpc → plain property message dispatch
+- Full recursive setColours on every vtpc → narrowed: colour key → setColours, SVG key → loadGraphics
+- Hand-rolled SVG parsing (resolveGroupName, parseStrokeWidth, buildRolePath) → jam::SVG module APIs (getElementPath, parseStyle, parseColour)
+- Inline Graphic struct + pointer-to-member dispatch → HashMap\<Identifier, Segment\> keyed by SVG group name
+- Fixed outline/foreground/background role paths → dynamic Shape ops in document order, LAF-aware via colourIds registry
+- Six duplicated END ColourIds → retargeted to JUCE TabbedComponent/TabbedButtonBar + jam::button component ids
+- Font construction duplicated (Tabs.cpp + LookAndFeel.cpp) → getTabFont() SSOT
+- Three separate Segments members → one flexGraphics HashMap
+- String-keyed Segments → Identifier-keyed (hashed, interned)
+- getRectPath bounds pollution (unions all child rects) → getChildByName single direct-child rect
+- SegmentTransform struct + 5-entry array → cornerTransform lambda + HashMap\<Identifier, AffineTransform\>
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
 
 **Date:** 2026-06-10
 **Duration:** ~08:00

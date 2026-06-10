@@ -18,13 +18,12 @@ const jam::HashMap<juce::Identifier, int> LookAndFeel::colourIds {
     { ID::statusBarSpinner,   statusBarSpinnerColourId                  },
     { ID::hintLabelBg,        hintLabelBgColourId                       },
     { ID::hintLabelFg,        hintLabelFgColourId                       },
-    { ID::background,         barBackgroundColourId                     },
-    { ID::frontBackground,    frontBackgroundColourId                   },
-    { ID::inactiveBackground, inactiveBackgroundColourId                },
-    { ID::foreground,         frontTextColourId                         },
-    { ID::inactiveText,       inactiveTextColourId                      },
-    { ID::outline,            tabOutlineColourId                        },
-    { ID::indicator,          indicatorColourId                         },
+    { ID::background,         juce::TabbedComponent::backgroundColourId },
+    { ID::inactiveBackground, jam::button::Tab::backgroundColourId      },
+    { ID::foreground,         juce::TabbedButtonBar::frontTextColourId  },
+    { ID::inactiveText,       juce::TabbedButtonBar::tabTextColourId    },
+    { ID::outline,            juce::TabbedButtonBar::tabOutlineColourId },
+    { ID::indicator,          jam::button::Bar::indicatorColourId       },
     { ID::barColour,          paneBarColourId                           },
     { ID::barHighlight,       paneBarHighlightColourId                  },
     { jam::ID::colour,        juce::ResizableWindow::backgroundColourId },
@@ -40,44 +39,64 @@ LookAndFeel::LookAndFeel()
 
 LookAndFeel::~LookAndFeel() { config.removeListener (this); };
 
-void LookAndFeel::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
+void LookAndFeel::valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier& property)
 {
-    setColours();
-
     if (property == ID::tabBar or property == ID::tabInactive or property == ID::tabActive)
     {
-        if (auto* arr { tree.getProperty (property).getArray() })
-        {
-            if (arr->size() >= 2
-                and static_cast<int> (arr->getReference (1))
-                        == static_cast<int> (jam::File::Watcher::Event::fileUpdated))
-            {
-                loadGraphics();
+        loadGraphics();
 
-                // Reset event to undefined — prevents re-entry past this guard.
-                // The reset fires valueTreePropertyChanged again, but the event
-                // is undefined on re-entry so the inner if is not entered (bounded).
-                juce::Array<juce::var> reset;
-                reset.add (arr->getReference (0));
-                reset.add (static_cast<int> (jam::File::Watcher::Event::undefined));
-                tree.setProperty (property, reset, nullptr);
-            }
+        auto& desktop { juce::Desktop::getInstance() };
+
+        for (int i { 0 }; i < desktop.getNumComponents(); ++i)
+        {
+            if (auto* comp { desktop.getComponent (i) })
+                comp->repaint();
         }
+    }
+    else if (colourIds.find (property) != colourIds.end())
+    {
+        setColours();
     }
 }
 
 //==============================================================================
 // Bar LAF virtuals.
 
-void LookAndFeel::drawBarBackground (juce::Graphics&, juce::Component&) {}
+void LookAndFeel::drawBarBackground (juce::Graphics& g, juce::Component& barComp)
+{
+    jam::SVG::Flex::paint (
+        g, flexGraphics.at (ID::tabBar), barComp.getLocalBounds().toFloat(), *this);
+}
 
-void LookAndFeel::drawBarIndicator (juce::Graphics&, juce::Component&) {}
+void LookAndFeel::drawBarIndicator (juce::Graphics& g, juce::Component& indicatorComp)
+{
+    jam::SVG::Flex::paint (
+        g, flexGraphics.at (ID::tabActive), indicatorComp.getLocalBounds().toFloat(), *this);
+}
 
-void LookAndFeel::drawTabButton (juce::Graphics&,
-                                 juce::Button&,
+void LookAndFeel::drawTabButton (juce::Graphics& g,
+                                 juce::Button& btn,
                                  bool /*isMouseOver*/,
                                  bool /*isMouseDown*/)
 {
+    jam::SVG::Flex::paint (
+        g, flexGraphics.at (ID::tabInactive), btn.getLocalBounds().toFloat(), *this);
+
+    auto textColour { btn.getToggleState() ? findColour (juce::TabbedButtonBar::frontTextColourId)
+                                           : findColour (juce::TabbedButtonBar::tabTextColourId) };
+
+    g.setFont (getTabFont());
+    g.setColour (textColour);
+    g.drawText (btn.getButtonText(), btn.getLocalBounds(), juce::Justification::centred, true);
+}
+
+juce::Font LookAndFeel::getTabFont() const
+{
+    auto display { config.getChildWithName (IDtype::display) };
+    auto tabNode { display.getChildWithName (IDtype::tab) };
+    auto family { tabNode.getProperty (ID::family).toString() };
+    auto points { static_cast<float> (tabNode.getProperty (ID::size)) };
+    return juce::Font { juce::FontOptions().withName (family).withPointHeight (points) };
 }
 
 //==============================================================================
@@ -121,15 +140,9 @@ void LookAndFeel::loadGraphics()
     auto svgPath { config::Graphics::path.getChildFile (
         graphicsNode.getProperty (jam::ID::path).toString()) };
 
-    auto readSvg = [&] (const juce::Identifier& id) -> juce::String
+    auto readSvg = [&graphicsNode, &svgPath] (const juce::Identifier& id) -> juce::String
     {
-        auto prop { graphicsNode.getProperty (id) };
-        juce::String fileName;
-
-        if (auto* arr { prop.getArray() })
-            fileName = arr->getReference (0).toString();
-        else
-            fileName = prop.toString();
+        auto fileName { graphicsNode.getProperty (id).toString() };
 
         juce::String result;
 
@@ -139,11 +152,12 @@ void LookAndFeel::loadGraphics()
         return result;
     };
 
-    barSvg = readSvg (ID::tabBar);
-    indicatorSvg = readSvg (ID::tabActive);
-    buttonSvg = readSvg (ID::tabInactive);
-
-    cout (barSvg);
+    flexGraphics.insert_or_assign (
+        ID::tabBar, jam::SVG::Flex::getSegments (readSvg (ID::tabBar), colourIds));
+    flexGraphics.insert_or_assign (
+        ID::tabActive, jam::SVG::Flex::getSegments (readSvg (ID::tabActive), colourIds));
+    flexGraphics.insert_or_assign (
+        ID::tabInactive, jam::SVG::Flex::getSegments (readSvg (ID::tabInactive), colourIds));
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
