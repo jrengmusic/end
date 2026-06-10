@@ -116,7 +116,7 @@
         <location file="end/Map.h" line="117" column="23" bodyfile="end/Map.h" bodystart="117" bodyend="117"/>
         <references refid="structjam_1_1Context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Derived &gt;::getContext</references>
         <referencedby refid="structend_1_1_position_1a2f477149e1e15d0eb91f7ab652b1e7d6" compoundref="_map_8h" startline="119" endline="122">get</referencedby>
-        <referencedby refid="classend_1_1_view_1a91ed8ef126c0a1b3feb458079c3a7849" compoundref="_view_8cpp" startline="91" endline="98">end::View::setTabOrientation</referencedby>
+        <referencedby refid="classend_1_1_view_1a91ed8ef126c0a1b3feb458079c3a7849" compoundref="_view_8cpp" startline="84" endline="91">end::View::setTabOrientation</referencedby>
       </memberdef>
       <memberdef kind="function" id="structend_1_1_position_1a2f477149e1e15d0eb91f7ab652b1e7d6" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
         <type>int</type>

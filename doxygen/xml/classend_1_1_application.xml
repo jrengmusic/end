@@ -347,6 +347,9 @@
         <childnode refid="43" relation="usage">
           <edgelabel>watcher</edgelabel>
         </childnode>
+        <childnode refid="18" relation="usage">
+          <edgelabel>loadMessage</edgelabel>
+        </childnode>
         <childnode refid="49" relation="usage">
           <edgelabel>validators</edgelabel>
         </childnode>

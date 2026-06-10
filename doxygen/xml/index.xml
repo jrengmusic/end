@@ -564,17 +564,20 @@
   </compound>
   <compound refid="classconfig_1_1_model" kind="class"><name>config::Model</name>
     <member refid="classconfig_1_1_model_1a6a55abd98823bb3b8bcb92905cbdd377" kind="variable"><name>watcher</name></member>
+    <member refid="classconfig_1_1_model_1af8a17f5a0e0588d27e68953995b925ac" kind="variable"><name>loadMessage</name></member>
     <member refid="classconfig_1_1_model_1af427d6e053fd4508c7179979330e5ab9" kind="variable"><name>validators</name></member>
     <member refid="classconfig_1_1_model_1aab53f2dffa259bc65116d9b97ce44a49" kind="variable"><name>graphicsCallbacks</name></member>
     <member refid="classconfig_1_1_model_1a663ac662800dd1918dbab12d317fa4d5" kind="function"><name>Model</name></member>
     <member refid="classconfig_1_1_model_1af95c0931a6f76206d56eb06a3c71a05a" kind="function"><name>~Model</name></member>
     <member refid="classconfig_1_1_model_1ab192f674b56bb1c270a2f2361b8c4b91" kind="function"><name>getInitWindowSize</name></member>
     <member refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" kind="function"><name>loadFromPath</name></member>
+    <member refid="classconfig_1_1_model_1a8a75866892ea2fd6887d390ebb2c8c0a" kind="function"><name>getLoadMessage</name></member>
     <member refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" kind="function"><name>initialise</name></member>
     <member refid="classconfig_1_1_model_1acad607c8136bcc115ffeae9d47869e26" kind="function"><name>saveToPath</name></member>
     <member refid="classconfig_1_1_model_1ac1c3fee2d640c514677e7cb4229041c1" kind="function"><name>startWatching</name></member>
     <member refid="classconfig_1_1_model_1aaf6b40ca395ac5c6325cb189f13fec0f" kind="function"><name>fileChanged</name></member>
     <member refid="classconfig_1_1_model_1a04468ffcc63d66896bb34f4c0b4c37b2" kind="function"><name>buildGraphicsCallbacks</name></member>
+    <member refid="classconfig_1_1_model_1a73b49c4ce0784638aa7230f683755a09" kind="function"><name>findLineNumber</name></member>
   </compound>
   <compound refid="classend_1_1_model" kind="class"><name>end::Model</name>
     <member refid="classend_1_1_model_1a001a60fde895e5f54ad2672682909e69" kind="function"><name>Model</name></member>

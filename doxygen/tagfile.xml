@@ -4260,6 +4260,13 @@
       <anchor>ab4a1705f34cbc49af0a3a26bcd3d4df9</anchor>
       <arglist>()</arglist>
     </member>
+    <member kind="function">
+      <type>const juce::String &amp;</type>
+      <name>getLoadMessage</name>
+      <anchorfile>classconfig_1_1_model.html</anchorfile>
+      <anchor>a8a75866892ea2fd6887d390ebb2c8c0a</anchor>
+      <arglist>() const noexcept</arglist>
+    </member>
     <member kind="function" protection="private">
       <type>void</type>
       <name>initialise</name>
@@ -4295,11 +4302,25 @@
       <anchor>a04468ffcc63d66896bb34f4c0b4c37b2</anchor>
       <arglist>()</arglist>
     </member>
+    <member kind="function" protection="private" static="yes">
+      <type>static int</type>
+      <name>findLineNumber</name>
+      <anchorfile>classconfig_1_1_model.html</anchorfile>
+      <anchor>a73b49c4ce0784638aa7230f683755a09</anchor>
+      <arglist>(const juce::String &amp;sourceText, const juce::String &amp;propertyName)</arglist>
+    </member>
     <member kind="variable" protection="private">
       <type>jam::File::Watcher</type>
       <name>watcher</name>
       <anchorfile>classconfig_1_1_model.html</anchorfile>
       <anchor>a6a55abd98823bb3b8bcb92905cbdd377</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="private">
+      <type>juce::String</type>
+      <name>loadMessage</name>
+      <anchorfile>classconfig_1_1_model.html</anchorfile>
+      <anchor>af8a17f5a0e0588d27e68953995b925ac</anchor>
       <arglist></arglist>
     </member>
     <member kind="variable" protection="private">

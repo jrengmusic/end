@@ -55,14 +55,7 @@ bool View::keyPressed (const juce::KeyPress& key, juce::Component* originatingCo
 void View::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
 {
     if (property == ID::loadMessage)
-    {
-#if JUCE_DEBUG
-        jam::debug::Log::write ("View: loadMessage received: "
-                                + tree.getProperty (ID::loadMessage).toString());
-#endif
-        messageOverlay.showMessage (tree.getProperty (ID::loadMessage).toString());
-        tree.setPropertyExcludingListener (this, ID::loadMessage, "", nullptr);
-    }
+        messageOverlay.showMessage (config.getLoadMessage());
 
     if (property == ID::orientation)
         setTabOrientation();

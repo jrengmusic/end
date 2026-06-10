@@ -154,8 +154,12 @@ void Model::loadFromPath()
                 result.wasOk())
             {
                 juce::String fileErrors;
-                auto child { jam::Model::fromLua (
-                    result.value(), value.toUpperCase(), &validators, &fileErrors) };
+                lua.getLineMapBuilder().flushRoot (value.toUpperCase());
+                auto child { jam::Model::fromLua (result.value(),
+                                                  value.toUpperCase(),
+                                                  &validators,
+                                                  &fileErrors,
+                                                  &lua.getLineMap()) };
 
 #if JUCE_DEBUG
                 jam::debug::Log::write ("load: fromLua returned tree type="
@@ -182,36 +186,35 @@ void Model::loadFromPath()
 #endif
 
     if (errors.isEmpty())
-        state.setProperty (ID::loadMessage, "RELOAD", nullptr);
+        loadMessage = "RELOAD";
     else
-        state.setProperty (ID::loadMessage, errors, nullptr);
+        loadMessage = errors;
+
+    state.sendPropertyChangeMessage (ID::loadMessage);
 
 #if JUCE_DEBUG
-    jam::debug::Log::write ("load: loadMessage set to: "
-                            + state.getProperty (ID::loadMessage).toString());
+    jam::debug::Log::write ("load: loadMessage: " + loadMessage);
 #endif
 }
 
 void Model::buildGraphicsCallbacks()
 {
-    graphicsCallbacks = {};
+    graphicsCallbacks.clear();
 
-    auto graphicsNode { state.getChildWithName (IDtype::graphics) };
-
-    if (graphicsNode.isValid())
+    if (auto graphics { state.getChildWithName (IDtype::graphics) }; graphics.isValid())
     {
         for (auto& [key, value] : Graphics::get())
         {
             auto id { juce::Identifier (value) };
-            auto fileName { graphicsNode.getProperty (id).toString() };
+            auto fileName { graphics.getProperty (id).toString() };
 
             if (fileName.isNotEmpty())
             {
-                graphicsCallbacks.add<> (fileName,
-                    [graphicsNode, id] () mutable
-                    {
-                        graphicsNode.sendPropertyChangeMessage (id);
-                    });
+                graphicsCallbacks.add<juce::ValueTree> (fileName,
+                                                        [id] (juce::ValueTree t)
+                                                        {
+                                                            t.sendPropertyChangeMessage (id);
+                                                        });
             }
         }
     }

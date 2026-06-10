@@ -751,9 +751,12 @@
           <edgelabel>watcher</edgelabel>
         </childnode>
         <childnode refid="56" relation="usage">
-          <edgelabel>validators</edgelabel>
+          <edgelabel>loadMessage</edgelabel>
         </childnode>
         <childnode refid="57" relation="usage">
+          <edgelabel>validators</edgelabel>
+        </childnode>
+        <childnode refid="58" relation="usage">
           <edgelabel>graphicsCallbacks</edgelabel>
         </childnode>
       </node>
@@ -770,7 +773,7 @@
         <childnode refid="39" relation="usage">
           <edgelabel>config</edgelabel>
         </childnode>
-        <childnode refid="59" relation="usage">
+        <childnode refid="56" relation="usage">
           <edgelabel>barSvg</edgelabel>
           <edgelabel>buttonSvg</edgelabel>
           <edgelabel>indicatorSvg</edgelabel>
@@ -819,13 +822,13 @@
         <label>jam::File::Watcher::Listener</label>
         <link refid="classjam_1_1File_1_1Watcher_1_1Listener" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
-      <node id="57">
+      <node id="58">
         <label>jam::Function::Map&lt; juce::String, void &gt;</label>
         <link refid="structjam_1_1Function_1_1Map" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-        <childnode refid="58" relation="public-inheritance">
+        <childnode refid="59" relation="public-inheritance">
         </childnode>
       </node>
-      <node id="58">
+      <node id="59">
         <label>jam::HashMap&lt; KeyType, std::unique_ptr&lt; Function::Common &gt; &gt;</label>
         <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
@@ -833,7 +836,7 @@
         <label>jam::HashMap&lt; juce::Identifier, int &gt;</label>
         <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
-      <node id="56">
+      <node id="57">
         <label>jam::HashMap&lt; juce::Identifier, jam::HashMap&lt; juce::Identifier, std::function&lt; bool(const juce::var &amp;)&gt; &gt; &gt;</label>
         <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
@@ -1060,7 +1063,7 @@
         <label>juce::StretchableLayoutResizerBar::LookAndFeelMethods</label>
         <link refid="structjuce_1_1StretchableLayoutResizerBar_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="59">
+      <node id="56">
         <label>juce::String</label>
         <link refid="classjuce_1_1String" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
