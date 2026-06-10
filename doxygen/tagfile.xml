@@ -4283,9 +4283,9 @@
     </member>
     <member kind="function" protection="private">
       <type>void</type>
-      <name>startWatching</name>
+      <name>startWatcher</name>
       <anchorfile>classconfig_1_1_model.html</anchorfile>
-      <anchor>ac1c3fee2d640c514677e7cb4229041c1</anchor>
+      <anchor>abd7d146ee9fede8da7f5f0678faed50e</anchor>
       <arglist>()</arglist>
     </member>
     <member kind="function" protection="private">
@@ -4301,6 +4301,13 @@
       <anchorfile>classconfig_1_1_model.html</anchorfile>
       <anchor>a04468ffcc63d66896bb34f4c0b4c37b2</anchor>
       <arglist>()</arglist>
+    </member>
+    <member kind="function" protection="private">
+      <type>void</type>
+      <name>registerValidator</name>
+      <anchorfile>classconfig_1_1_model.html</anchorfile>
+      <anchor>a37ce70da66e8164f746a16925295c343</anchor>
+      <arglist>(juce::Identifier treeType, juce::Identifier propertyName, std::function&lt; bool(const juce::var &amp;)&gt; validator)</arglist>
     </member>
     <member kind="function" protection="private" static="yes">
       <type>static int</type>
@@ -4940,6 +4947,20 @@
     <class kind="class">config::Model</class>
     <class kind="struct">config::File</class>
     <class kind="struct">config::Graphics</class>
+    <member kind="function" static="yes">
+      <type>static std::function&lt; bool(const juce::var &amp;)&gt;</type>
+      <name>enumCheck</name>
+      <anchorfile>namespaceconfig.html</anchorfile>
+      <anchor>add672f45a783ef9f13d810962fe6042c</anchor>
+      <arglist>(MapType *map)</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static std::function&lt; bool(const juce::var &amp;)&gt;</type>
+      <name>getEnumValidator</name>
+      <anchorfile>namespaceconfig.html</anchorfile>
+      <anchor>a061dd1953d794d0026d94b95435059c9</anchor>
+      <arglist>(const juce::String &amp;value)</arglist>
+    </member>
   </compound>
   <compound kind="namespace">
     <name>end</name>

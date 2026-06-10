@@ -14,14 +14,14 @@
         <name>watcher</name>
         <qualifiedname>config::Model::watcher</qualifiedname>
         <briefdescription>
-<para>Watches ~/.config/end/ (lua) and the SVG asset subdirectory. </para>
+<para>Watches <computeroutput><ref refid="structconfig_1_1_file_1a256dc6f23b2efea619c33a43ae3d795c" kindref="member">File::path</ref></computeroutput> (lua) and the SVG asset subdir derived from the live <computeroutput>IDtype::graphics</computeroutput> subtree. </para>
         </briefdescription>
         <detaileddescription>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="51" column="24" bodyfile="config/Config.h" bodystart="51" bodyend="-1"/>
-        <referencedby refid="classconfig_1_1_model_1ac1c3fee2d640c514677e7cb4229041c1" compoundref="_config_8cpp" startline="223" endline="228">startWatching</referencedby>
+        <location file="config/Config.h" line="209" column="24" bodyfile="config/Config.h" bodystart="209" bodyend="-1"/>
+        <referencedby refid="classconfig_1_1_model_1abd7d146ee9fede8da7f5f0678faed50e" compoundref="_config_8cpp" startline="193" endline="198">startWatcher</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classconfig_1_1_model_1af8a17f5a0e0588d27e68953995b925ac" prot="private" static="no" mutable="no">
         <type><ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref></type>
@@ -30,16 +30,16 @@
         <name>loadMessage</name>
         <qualifiedname>config::Model::loadMessage</qualifiedname>
         <briefdescription>
-<para>Most recent load result — &quot;RELOAD&quot; on success, error text on failure. </para>
+<para>Most recent load result — "RELOAD" on success, error text on failure. </para>
         </briefdescription>
         <detaileddescription>
-<para>Written by <ref refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" kindref="member">loadFromPath()</ref>; read via <ref refid="classconfig_1_1_model_1a8a75866892ea2fd6887d390ebb2c8c0a" kindref="member">getLoadMessage()</ref>. Never stored on the value tree. </para>
+<para>Written by <computeroutput><ref refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" kindref="member">loadFromPath()</ref></computeroutput>; read via <computeroutput><ref refid="classconfig_1_1_model_1a8a75866892ea2fd6887d390ebb2c8c0a" kindref="member">getLoadMessage()</ref></computeroutput>. Never stored on the value tree. </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="55" column="18" bodyfile="config/Config.h" bodystart="55" bodyend="-1"/>
-        <referencedby refid="classconfig_1_1_model_1a8a75866892ea2fd6887d390ebb2c8c0a" compoundref="_config_8h" startline="27" endline="27">getLoadMessage</referencedby>
-        <referencedby refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="142" endline="198">loadFromPath</referencedby>
+        <location file="config/Config.h" line="216" column="18" bodyfile="config/Config.h" bodystart="216" bodyend="-1"/>
+        <referencedby refid="classconfig_1_1_model_1a8a75866892ea2fd6887d390ebb2c8c0a" compoundref="_config_8h" startline="115" endline="115">getLoadMessage</referencedby>
+        <referencedby refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="126" endline="168">loadFromPath</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classconfig_1_1_model_1af427d6e053fd4508c7179979330e5ab9" prot="private" static="no" mutable="no">
         <type><ref refid="namespacejam_1_1lua_1aae45181cfa50569933457727bbcee734" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::lua::Validators</ref></type>
@@ -48,16 +48,17 @@
         <name>validators</name>
         <qualifiedname>config::Model::validators</qualifiedname>
         <briefdescription>
-<para>Type-based and Map-aware validators built during <ref refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" kindref="member">initialise()</ref> in a single walk. </para>
+<para>Type-based and Map-aware validators built during <computeroutput><ref refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" kindref="member">initialise()</ref></computeroutput> in a single walk. </para>
         </briefdescription>
         <detaileddescription>
-<para>Outer key = tree type. Inner key = property name. String properties whose defaults match a known Map (Boolean, Position, GpuMode, DropMode) receive domain-constrained predicates; all others receive plain type predicates. </para>
+<para>Outer key = tree type. Inner key = property name. String properties whose defaults match a known Map (Boolean, Position, GpuMode, DropMode) receive domain-constrained predicates; all others receive plain type predicates registered by <computeroutput><ref refid="structjam_1_1lua_1_1ValueTree_1af1496f8c466f7f9b697d2df5614ea732" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::lua::ValueTree::from</ref></computeroutput> during the <ref refid="namespaceBinaryData" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">BinaryData</ref> walk. </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="61" column="26" bodyfile="config/Config.h" bodystart="61" bodyend="-1"/>
-        <referencedby refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" compoundref="_config_8cpp" startline="31" endline="112">initialise</referencedby>
-        <referencedby refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="142" endline="198">loadFromPath</referencedby>
+        <location file="config/Config.h" line="228" column="26" bodyfile="config/Config.h" bodystart="228" bodyend="-1"/>
+        <referencedby refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" compoundref="_config_8cpp" startline="57" endline="96">initialise</referencedby>
+        <referencedby refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="126" endline="168">loadFromPath</referencedby>
+        <referencedby refid="classconfig_1_1_model_1a37ce70da66e8164f746a16925295c343" compoundref="_config_8cpp" startline="219" endline="225">registerValidator</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classconfig_1_1_model_1aab53f2dffa259bc65116d9b97ce44a49" prot="private" static="no" mutable="no">
         <type><ref refid="structjam_1_1Function_1_1Map" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Function::Map</ref>&lt; <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref>, void &gt;</type>
@@ -66,16 +67,16 @@
         <name>graphicsCallbacks</name>
         <qualifiedname>config::Model::graphicsCallbacks</qualifiedname>
         <briefdescription>
-<para>SVG filename → sendPropertyChangeMessage callbacks, keyed by filename. </para>
+<para>SVG filename → <computeroutput>sendPropertyChangeMessage</computeroutput> callbacks, keyed by filename. </para>
         </briefdescription>
         <detaileddescription>
-<para>Rebuilt by <ref refid="classconfig_1_1_model_1a04468ffcc63d66896bb34f4c0b4c37b2" kindref="member">buildGraphicsCallbacks()</ref> on every <ref refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" kindref="member">loadFromPath()</ref>. </para>
+<para>Rebuilt by <computeroutput><ref refid="classconfig_1_1_model_1a04468ffcc63d66896bb34f4c0b4c37b2" kindref="member">buildGraphicsCallbacks()</ref></computeroutput> on every <computeroutput><ref refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" kindref="member">loadFromPath()</ref></computeroutput> so the watcher can dispatch property changes for the current on-disk filename of each graphics asset. </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="65" column="24" bodyfile="config/Config.h" bodystart="65" bodyend="-1"/>
-        <referencedby refid="classconfig_1_1_model_1a04468ffcc63d66896bb34f4c0b4c37b2" compoundref="_config_8cpp" startline="200" endline="221">buildGraphicsCallbacks</referencedby>
-        <referencedby refid="classconfig_1_1_model_1aaf6b40ca395ac5c6325cb189f13fec0f" compoundref="_config_8cpp" startline="230" endline="251">fileChanged</referencedby>
+        <location file="config/Config.h" line="237" column="24" bodyfile="config/Config.h" bodystart="237" bodyend="-1"/>
+        <referencedby refid="classconfig_1_1_model_1a04468ffcc63d66896bb34f4c0b4c37b2" compoundref="_config_8cpp" startline="170" endline="191">buildGraphicsCallbacks</referencedby>
+        <referencedby refid="classconfig_1_1_model_1aaf6b40ca395ac5c6325cb189f13fec0f" compoundref="_config_8cpp" startline="200" endline="216">fileChanged</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">
@@ -86,17 +87,18 @@
         <name>Model</name>
         <qualifiedname>config::Model::Model</qualifiedname>
         <briefdescription>
+<para>Construct the model — runs initialise, saveToPath, loadFromPath, startWatching in that fixed order. </para>
         </briefdescription>
         <detaileddescription>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="16" column="5" bodyfile="config/Config.cpp" bodystart="7" bodyend="14"/>
-        <references refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" compoundref="_config_8cpp" startline="31" endline="112">initialise</references>
-        <references refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="142" endline="198">loadFromPath</references>
+        <location file="config/Config.h" line="80" column="5" bodyfile="config/Config.cpp" bodystart="7" bodyend="14"/>
+        <references refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" compoundref="_config_8cpp" startline="57" endline="96">initialise</references>
+        <references refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="126" endline="168">loadFromPath</references>
         <references refid="classconfig_1_1_model_1a663ac662800dd1918dbab12d317fa4d5" compoundref="_config_8cpp" startline="7" endline="14">Model</references>
-        <references refid="classconfig_1_1_model_1acad607c8136bcc115ffeae9d47869e26" compoundref="_config_8cpp" startline="115" endline="140">saveToPath</references>
-        <references refid="classconfig_1_1_model_1ac1c3fee2d640c514677e7cb4229041c1" compoundref="_config_8cpp" startline="223" endline="228">startWatching</references>
+        <references refid="classconfig_1_1_model_1acad607c8136bcc115ffeae9d47869e26" compoundref="_config_8cpp" startline="99" endline="124">saveToPath</references>
+        <references refid="classconfig_1_1_model_1abd7d146ee9fede8da7f5f0678faed50e" compoundref="_config_8cpp" startline="193" endline="198">startWatcher</references>
         <referencedby refid="classconfig_1_1_model_1a663ac662800dd1918dbab12d317fa4d5" compoundref="_config_8cpp" startline="7" endline="14">Model</referencedby>
       </memberdef>
       <memberdef kind="function" id="classconfig_1_1_model_1af95c0931a6f76206d56eb06a3c71a05a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -106,13 +108,14 @@
         <name>~Model</name>
         <qualifiedname>config::Model::~Model</qualifiedname>
         <briefdescription>
+<para>Defaulted — <ref refid="classconfig_1_1_model" kindref="compound">Model</ref> is owned by <ref refid="classend_1_1_application" kindref="compound">end::Application</ref> for the process lifetime. </para>
         </briefdescription>
         <detaileddescription>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="18" column="5"/>
-        <references refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="142" endline="198">loadFromPath</references>
+        <location file="config/Config.h" line="84" column="5"/>
+        <references refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="126" endline="168">loadFromPath</references>
       </memberdef>
       <memberdef kind="function" id="classconfig_1_1_model_1ab192f674b56bb1c270a2f2361b8c4b91" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
         <type><ref refid="classjuce_1_1Rectangle" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Rectangle</ref>&lt; int &gt;</type>
@@ -121,12 +124,16 @@
         <name>getInitWindowSize</name>
         <qualifiedname>config::Model::getInitWindowSize</qualifiedname>
         <briefdescription>
+<para>Parses <computeroutput>display.window.size</computeroutput> from the live tree and returns it as a width × height rectangle for the initial window bounds. </para>
         </briefdescription>
         <detaileddescription>
+<para><simplesect kind="return"><para>The initial window size, in pixels. </para>
+</simplesect>
+</para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="20" column="21" bodyfile="config/Config.cpp" bodystart="17" bodyend="28"/>
+        <location file="config/Config.h" line="91" column="21" bodyfile="config/Config.cpp" bodystart="17" bodyend="28"/>
         <references refid="classjuce_1_1StringArray_1a9f1df0af6ebd58043c8995e9cb3e3ac5">juce::StringArray::fromTokens</references>
         <references refid="classjam_1_1Model_1aecef6b658fc1de8bd8642ce3c0011036">jam::Model::getChildWithName</references>
         <references refid="classjam_1_1Model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
@@ -141,12 +148,13 @@
 <para>Reads each lua config file from disk and updates state. </para>
         </briefdescription>
         <detaileddescription>
-<para>Stores the result in loadMessage and fires sendPropertyChangeMessage (ID::loadMessage). </para>
+<para>For every lua section (except <computeroutput><ref refid="structconfig_1_1_file_1aa24a5faabf6b9a8f30497de675ca198ca0fc85df7daa8f0d98a096582ced3738f" kindref="member">File::config</ref></computeroutput>) loads the file from <computeroutput><ref refid="structconfig_1_1_file_1a256dc6f23b2efea619c33a43ae3d795c" kindref="member">File::path</ref></computeroutput>, builds a temporary ValueTree via <computeroutput><ref refid="structjam_1_1lua_1_1ValueTree_1af1496f8c466f7f9b697d2df5614ea732" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::lua::ValueTree::from</ref></computeroutput> with the populated validator map and line map, collects any per-file errors, and (if the tree is valid) overlays the result onto the live tree via <computeroutput>setValuesFrom</computeroutput>.</para>
+<para>After the walk, rebuilds <computeroutput>graphicsCallbacks</computeroutput> from the live <computeroutput>IDtype::graphics</computeroutput> subtree&apos;s current filenames, sets <computeroutput>loadMessage</computeroutput> to "RELOAD" on success or the accumulated error text on failure, and fires <computeroutput>sendPropertyChangeMessage</computeroutput> on <computeroutput>ID::loadMessage</computeroutput>. </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="24" column="10" bodyfile="config/Config.cpp" bodystart="142" bodyend="198"/>
-        <references refid="classconfig_1_1_model_1a04468ffcc63d66896bb34f4c0b4c37b2" compoundref="_config_8cpp" startline="200" endline="221">buildGraphicsCallbacks</references>
+        <location file="config/Config.h" line="108" column="10" bodyfile="config/Config.cpp" bodystart="126" bodyend="168"/>
+        <references refid="classconfig_1_1_model_1a04468ffcc63d66896bb34f4c0b4c37b2" compoundref="_config_8cpp" startline="170" endline="191">buildGraphicsCallbacks</references>
         <references refid="structconfig_1_1_file_1aa24a5faabf6b9a8f30497de675ca198ca0fc85df7daa8f0d98a096582ced3738f" compoundref="_map_8h" startline="183">config::File::config</references>
         <references refid="classjam_1_1Model_1af9ab05d8b04c75750fc69f8ad1225caa">jam::Model::fromLua</references>
         <references refid="structconfig_1_1_file_1a1fe87258f092c2141e6d0171085f1468" compoundref="_map_8h" startline="213" endline="213">config::File::get</references>
@@ -155,13 +163,12 @@
         <references refid="classjuce_1_1String_1a1f0c785b3834720c20a115ff82f138de">juce::String::isEmpty</references>
         <references refid="classjuce_1_1String_1af5084463343819f82187154ccb62ea3a">juce::String::isNotEmpty</references>
         <references refid="classjuce_1_1File_1aa65d2fa50370357bf93658d6447c296d">juce::File::loadFileAsString</references>
-        <references refid="classconfig_1_1_model_1af8a17f5a0e0588d27e68953995b925ac" compoundref="_config_8h" startline="55">loadMessage</references>
+        <references refid="classconfig_1_1_model_1af8a17f5a0e0588d27e68953995b925ac" compoundref="_config_8h" startline="216">loadMessage</references>
         <references refid="structconfig_1_1_file_1a256dc6f23b2efea619c33a43ae3d795c" compoundref="_map_8h" startline="233" endline="235">config::File::path</references>
         <references refid="classjam_1_1Model_1afd1a5ee11f1e480cb14c0027d6b617b7">jam::Model::setValuesFrom</references>
         <references refid="classjam_1_1Model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
-        <references refid="classconfig_1_1_model_1af427d6e053fd4508c7179979330e5ab9" compoundref="_config_8h" startline="61">validators</references>
-        <references refid="structjam_1_1debug_1_1Log_1a0695022085622484070ccf3065022dbd">jam::debug::Log::write</references>
-        <referencedby refid="classconfig_1_1_model_1aaf6b40ca395ac5c6325cb189f13fec0f" compoundref="_config_8cpp" startline="230" endline="251">fileChanged</referencedby>
+        <references refid="classconfig_1_1_model_1af427d6e053fd4508c7179979330e5ab9" compoundref="_config_8h" startline="228">validators</references>
+        <referencedby refid="classconfig_1_1_model_1aaf6b40ca395ac5c6325cb189f13fec0f" compoundref="_config_8cpp" startline="200" endline="216">fileChanged</referencedby>
         <referencedby refid="classconfig_1_1_model_1a663ac662800dd1918dbab12d317fa4d5" compoundref="_config_8cpp" startline="7" endline="14">Model</referencedby>
         <referencedby refid="classconfig_1_1_model_1af95c0931a6f76206d56eb06a3c71a05a">~Model</referencedby>
       </memberdef>
@@ -175,14 +182,16 @@
 <para>Returns the most recent load result. </para>
         </briefdescription>
         <detaileddescription>
-<para>&quot;RELOAD&quot; on success, error text on failure. </para>
+<para><simplesect kind="return"><para>"RELOAD" on success; the accumulated per-file error text on failure. Never stored on the value tree. </para>
+</simplesect>
+</para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="27" column="24" bodyfile="config/Config.h" bodystart="27" bodyend="27"/>
-        <references refid="classconfig_1_1_model_1a8a75866892ea2fd6887d390ebb2c8c0a" compoundref="_config_8h" startline="27" endline="27">getLoadMessage</references>
-        <references refid="classconfig_1_1_model_1af8a17f5a0e0588d27e68953995b925ac" compoundref="_config_8h" startline="55">loadMessage</references>
-        <referencedby refid="classconfig_1_1_model_1a8a75866892ea2fd6887d390ebb2c8c0a" compoundref="_config_8h" startline="27" endline="27">getLoadMessage</referencedby>
+        <location file="config/Config.h" line="115" column="24" bodyfile="config/Config.h" bodystart="115" bodyend="115"/>
+        <references refid="classconfig_1_1_model_1a8a75866892ea2fd6887d390ebb2c8c0a" compoundref="_config_8h" startline="115" endline="115">getLoadMessage</references>
+        <references refid="classconfig_1_1_model_1af8a17f5a0e0588d27e68953995b925ac" compoundref="_config_8h" startline="216">loadMessage</references>
+        <referencedby refid="classconfig_1_1_model_1a8a75866892ea2fd6887d390ebb2c8c0a" compoundref="_config_8h" startline="115" endline="115">getLoadMessage</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="private-func">
@@ -193,25 +202,26 @@
         <name>initialise</name>
         <qualifiedname>config::Model::initialise</qualifiedname>
         <briefdescription>
+<para>Populates the live tree from <ref refid="namespaceBinaryData" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">BinaryData</ref> and builds the validator map in a single recursive walk. </para>
         </briefdescription>
         <detaileddescription>
+<para>For every key in <computeroutput><ref refid="structconfig_1_1_file_1a1fe87258f092c2141e6d0171085f1468" kindref="member">File::get()</ref></computeroutput> except <computeroutput><ref refid="structconfig_1_1_file_1aa24a5faabf6b9a8f30497de675ca198ca0fc85df7daa8f0d98a096582ced3738f" kindref="member">File::config</ref></computeroutput>, runs the corresponding lua source string from <computeroutput><ref refid="namespaceBinaryData" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">BinaryData</ref></computeroutput> through <computeroutput><ref refid="structjam_1_1lua_1_1ValueTree_1af1496f8c466f7f9b697d2df5614ea732" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::lua::ValueTree::from</ref></computeroutput> with <computeroutput>&amp;validators</computeroutput>, appending the child to the live <computeroutput>state</computeroutput>. Then walks every subtree and registers a type-based predicate per property; for string properties whose default value matches a known end::Map (Boolean, Position, GpuMode, DropMode) the type-based predicate is replaced with a Map-aware predicate via <computeroutput>registerValidator</computeroutput>. </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="30" column="10" bodyfile="config/Config.cpp" bodystart="31" bodyend="112"/>
+        <location file="config/Config.h" line="131" column="10" bodyfile="config/Config.cpp" bodystart="57" bodyend="96"/>
         <references refid="classjam_1_1Model_1ac78b7437a06da378bf49cbd4f27bfc63">jam::Model::addProperties</references>
         <references refid="classjam_1_1Model_1a59b57627d856a11d756eabe1690a7213">jam::Model::applyFunctionRecursively</references>
         <references refid="structconfig_1_1_file_1aa24a5faabf6b9a8f30497de675ca198ca0fc85df7daa8f0d98a096582ced3738f" compoundref="_map_8h" startline="183">config::File::config</references>
         <references refid="classjam_1_1Model_1af9ab05d8b04c75750fc69f8ad1225caa">jam::Model::fromLua</references>
         <references refid="structconfig_1_1_file_1a1fe87258f092c2141e6d0171085f1468" compoundref="_map_8h" startline="213" endline="213">config::File::get</references>
-        <references refid="structjam_1_1Context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Derived &gt;::getContext</references>
+        <references refid="namespaceconfig_1a061dd1953d794d0026d94b95435059c9" compoundref="_config_8cpp" startline="43" endline="54">config::getEnumValidator</references>
         <references refid="structconfig_1_1_file_1ae101919bc1214478f5086e2e859742de" compoundref="_map_8h" startline="221" endline="224">config::File::getName</references>
         <references refid="namespaceBinaryData_1ac7695032563aaf6d03ebfc469298bb1a">BinaryData::getString</references>
-        <references refid="classjuce_1_1var_1a24ee6777303e1e699add7f2f224fcb6b">juce::var::isString</references>
         <references refid="classjam_1_1Model_1a9be603e3c0a76e1f0b6c263066993b63">jam::Model::params</references>
+        <references refid="classconfig_1_1_model_1a37ce70da66e8164f746a16925295c343" compoundref="_config_8cpp" startline="219" endline="225">registerValidator</references>
         <references refid="classjam_1_1Model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
-        <references refid="classjuce_1_1var_1a9124185792334ed563f6026a93b5cdd8">juce::var::toString</references>
-        <references refid="classconfig_1_1_model_1af427d6e053fd4508c7179979330e5ab9" compoundref="_config_8h" startline="61">validators</references>
+        <references refid="classconfig_1_1_model_1af427d6e053fd4508c7179979330e5ab9" compoundref="_config_8h" startline="228">validators</references>
         <referencedby refid="classconfig_1_1_model_1a663ac662800dd1918dbab12d317fa4d5" compoundref="_config_8cpp" startline="7" endline="14">Model</referencedby>
       </memberdef>
       <memberdef kind="function" id="classconfig_1_1_model_1acad607c8136bcc115ffeae9d47869e26" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -221,12 +231,16 @@
         <name>saveToPath</name>
         <qualifiedname>config::Model::saveToPath</qualifiedname>
         <briefdescription>
+<para>Creates <computeroutput>~/</computeroutput>.config/end/ and writes any missing lua + svg seed files from <ref refid="namespaceBinaryData" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">BinaryData</ref>. </para>
         </briefdescription>
         <detaileddescription>
+<para>For every key in <computeroutput><ref refid="structconfig_1_1_file_1a1fe87258f092c2141e6d0171085f1468" kindref="member">File::get()</ref></computeroutput> writes "stem.lua&quot; to
+@c File::path if not already present on disk. Then writes every
+@c Graphics stem (e.g. @&quot;tab_bar.svg") to the SVG subdirectory pointed at by the <computeroutput>ID::path</computeroutput> property of the live <computeroutput>IDtype::graphics</computeroutput> subtree, if not already present. Files already on disk are left untouched — this is a seed-once walk, not a forced overwrite. </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="31" column="10" bodyfile="config/Config.cpp" bodystart="115" bodyend="140"/>
+        <location file="config/Config.h" line="145" column="10" bodyfile="config/Config.cpp" bodystart="99" bodyend="124"/>
         <references refid="classjuce_1_1File_1af540d2875c87e47836e7deef02537ea4">juce::File::createDirectory</references>
         <references refid="structBinaryData_1_1Raw_1a50f1331dd30f0df2d6614a9c67be4a66">BinaryData::Raw::data</references>
         <references refid="classjuce_1_1File_1aec22e75cf76048360e1dda14d724d06d">juce::File::exists</references>
@@ -242,21 +256,22 @@
         <references refid="classjam_1_1Model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
         <referencedby refid="classconfig_1_1_model_1a663ac662800dd1918dbab12d317fa4d5" compoundref="_config_8cpp" startline="7" endline="14">Model</referencedby>
       </memberdef>
-      <memberdef kind="function" id="classconfig_1_1_model_1ac1c3fee2d640c514677e7cb4229041c1" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+      <memberdef kind="function" id="classconfig_1_1_model_1abd7d146ee9fede8da7f5f0678faed50e" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
-        <definition>void config::Model::startWatching</definition>
+        <definition>void config::Model::startWatcher</definition>
         <argsstring>()</argsstring>
-        <name>startWatching</name>
-        <qualifiedname>config::Model::startWatching</qualifiedname>
+        <name>startWatcher</name>
+        <qualifiedname>config::Model::startWatcher</qualifiedname>
         <briefdescription>
+<para>Installs the file watcher on <computeroutput><ref refid="structconfig_1_1_file_1a256dc6f23b2efea619c33a43ae3d795c" kindref="member">File::path</ref></computeroutput> with 300 ms event coalescing and registers this <ref refid="classconfig_1_1_model" kindref="compound">Model</ref> as a listener. </para>
         </briefdescription>
         <detaileddescription>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="32" column="10" bodyfile="config/Config.cpp" bodystart="223" bodyend="228"/>
+        <location file="config/Config.h" line="152" column="10" bodyfile="config/Config.cpp" bodystart="193" bodyend="198"/>
         <references refid="structconfig_1_1_file_1a256dc6f23b2efea619c33a43ae3d795c" compoundref="_map_8h" startline="233" endline="235">config::File::path</references>
-        <references refid="classconfig_1_1_model_1a6a55abd98823bb3b8bcb92905cbdd377" compoundref="_config_8h" startline="51">watcher</references>
+        <references refid="classconfig_1_1_model_1a6a55abd98823bb3b8bcb92905cbdd377" compoundref="_config_8h" startline="209">watcher</references>
         <referencedby refid="classconfig_1_1_model_1a663ac662800dd1918dbab12d317fa4d5" compoundref="_config_8cpp" startline="7" endline="14">Model</referencedby>
       </memberdef>
       <memberdef kind="function" id="classconfig_1_1_model_1aaf6b40ca395ac5c6325cb189f13fec0f" prot="private" static="no" const="no" explicit="no" inline="no" virt="virtual">
@@ -275,7 +290,7 @@
           <declname>event</declname>
         </param>
         <briefdescription>
-<para>Reloads lua config on file update; dispatches property-change messages for SVG assets. </para>
+<para>Reloads lua config on <computeroutput></computeroutput>.lua update; dispatches a property-change message for matching <computeroutput></computeroutput>.svg asset updates. </para>
         </briefdescription>
         <detaileddescription>
 <para><parameterlist kind="param"><parameteritem>
@@ -291,7 +306,7 @@
 <parametername>event</parametername>
 </parameternamelist>
 <parameterdescription>
-<para>The change event type. </para>
+<para>The change event type. Only <computeroutput>fileUpdated</computeroutput> triggers any work; create/remove are ignored. </para>
 </parameterdescription>
 </parameteritem>
 </parameterlist>
@@ -299,15 +314,13 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="36" column="10" bodyfile="config/Config.cpp" bodystart="230" bodyend="251"/>
+        <location file="config/Config.h" line="161" column="10" bodyfile="config/Config.cpp" bodystart="200" bodyend="216"/>
         <references refid="structconfig_1_1_file_1a6ab20528e69a64a7091bd8d1269eac55" compoundref="_map_8h" startline="237" endline="237">config::File::extension</references>
         <references refid="structconfig_1_1_graphics_1a65b788f58d84dab0d495b814638c89f9" compoundref="_map_8h" startline="301" endline="301">config::Graphics::extension</references>
         <references refid="classjuce_1_1File_1a5309789281ea7721eb832d21da99708f">juce::File::getFileName</references>
-        <references refid="classjuce_1_1File_1a515fa016b189068f365cc875e241e2a1">juce::File::getFullPathName</references>
-        <references refid="classconfig_1_1_model_1aab53f2dffa259bc65116d9b97ce44a49" compoundref="_config_8h" startline="65">graphicsCallbacks</references>
+        <references refid="classconfig_1_1_model_1aab53f2dffa259bc65116d9b97ce44a49" compoundref="_config_8h" startline="237">graphicsCallbacks</references>
         <references refid="classjuce_1_1File_1aeb95d4b90429613bca223acc6dc0d0bf">juce::File::hasFileExtension</references>
-        <references refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="142" endline="198">loadFromPath</references>
-        <references refid="structjam_1_1debug_1_1Log_1a0695022085622484070ccf3065022dbd">jam::debug::Log::write</references>
+        <references refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="126" endline="168">loadFromPath</references>
       </memberdef>
       <memberdef kind="function" id="classconfig_1_1_model_1a04468ffcc63d66896bb34f4c0b4c37b2" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -316,18 +329,73 @@
         <name>buildGraphicsCallbacks</name>
         <qualifiedname>config::Model::buildGraphicsCallbacks</qualifiedname>
         <briefdescription>
-<para>Populates graphicsCallbacks from the live graphics node filenames. </para>
+<para>Populates <computeroutput>graphicsCallbacks</computeroutput> from the live <computeroutput>IDtype::graphics</computeroutput> subtree&apos;s current filenames. </para>
         </briefdescription>
         <detaileddescription>
-<para>Must be called after <ref refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" kindref="member">loadFromPath()</ref> so runtime filenames are available. </para>
+<para>Must be called after <computeroutput><ref refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" kindref="member">loadFromPath()</ref></computeroutput> so the runtime filenames (which may differ from <ref refid="namespaceBinaryData" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">BinaryData</ref> seeds) are present on the tree. Clears the existing map first, then for every <computeroutput><ref refid="structconfig_1_1_graphics_1a0b0f33c0070c5f80941536467ec4e416" kindref="member">Graphics::get()</ref></computeroutput> entry builds a callback that fires <computeroutput>sendPropertyChangeMessage</computeroutput> on the matching identifier when invoked. </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="40" column="10" bodyfile="config/Config.cpp" bodystart="200" bodyend="221"/>
+        <location file="config/Config.h" line="174" column="10" bodyfile="config/Config.cpp" bodystart="170" bodyend="191"/>
         <references refid="structconfig_1_1_graphics_1a0b0f33c0070c5f80941536467ec4e416" compoundref="_map_8h" startline="279" endline="279">config::Graphics::get</references>
-        <references refid="classconfig_1_1_model_1aab53f2dffa259bc65116d9b97ce44a49" compoundref="_config_8h" startline="65">graphicsCallbacks</references>
+        <references refid="classconfig_1_1_model_1aab53f2dffa259bc65116d9b97ce44a49" compoundref="_config_8h" startline="237">graphicsCallbacks</references>
         <references refid="classjam_1_1Model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
-        <referencedby refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="142" endline="198">loadFromPath</referencedby>
+        <referencedby refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="126" endline="168">loadFromPath</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classconfig_1_1_model_1a37ce70da66e8164f746a16925295c343" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void config::Model::registerValidator</definition>
+        <argsstring>(juce::Identifier treeType, juce::Identifier propertyName, std::function&lt; bool(const juce::var &amp;)&gt; validator)</argsstring>
+        <name>registerValidator</name>
+        <qualifiedname>config::Model::registerValidator</qualifiedname>
+        <param>
+          <type><ref refid="classjuce_1_1Identifier" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Identifier</ref></type>
+          <declname>treeType</declname>
+        </param>
+        <param>
+          <type><ref refid="classjuce_1_1Identifier" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Identifier</ref></type>
+          <declname>propertyName</declname>
+        </param>
+        <param>
+          <type>std::function&lt; bool(const <ref refid="classjuce_1_1var" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::var</ref> &amp;)&gt;</type>
+          <declname>validator</declname>
+        </param>
+        <briefdescription>
+<para>Registers a domain-constrained validator for the (treeType, propertyName) pair. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Wraps the underlying <computeroutput>Validators</computeroutput> map&apos;s two-level insertion with <computeroutput>try_emplace</computeroutput> on the outer key and <computeroutput>insert_or_assign</computeroutput> on the inner key. This is the only insertion path used by <computeroutput><ref refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" kindref="member">initialise()</ref></computeroutput> for Map-aware string predicates. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>treeType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The tree type identifier (outer key). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>propertyName</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The property identifier (inner key). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>validator</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Predicate returning <computeroutput>true</computeroutput> when the candidate <computeroutput><ref refid="classjuce_1_1var" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::var</ref></computeroutput> is acceptable. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="config/Config.h" line="189" column="10" bodyfile="config/Config.cpp" bodystart="219" bodyend="225"/>
+        <references refid="classconfig_1_1_model_1af427d6e053fd4508c7179979330e5ab9" compoundref="_config_8h" startline="228">validators</references>
+        <referencedby refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" compoundref="_config_8cpp" startline="57" endline="96">initialise</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="private-static-func">
@@ -346,10 +414,10 @@
           <declname>propertyName</declname>
         </param>
         <briefdescription>
-<para>Returns the 1-based line number of the first line in <computeroutput>sourceText</computeroutput> that contains <computeroutput>propertyName</computeroutput> as a whole word followed by optional whitespace and &apos;=&apos;. </para>
+<para>Returns the 1-based line number of the first line in <computeroutput>sourceText</computeroutput> that contains <computeroutput>propertyName</computeroutput> as a whole word followed by optional whitespace and <computeroutput>&apos;=&apos;</computeroutput>. </para>
         </briefdescription>
         <detaileddescription>
-<para>Returns 0 when no matching line is found (e.g. for a missing/nil property). <parameterlist kind="param"><parameteritem>
+<para><parameterlist kind="param"><parameteritem>
 <parameternamelist>
 <parametername>sourceText</parametername>
 </parameternamelist>
@@ -362,22 +430,50 @@
 <parametername>propertyName</parametername>
 </parameternamelist>
 <parameterdescription>
-<para>The bare lua key to search for (e.g. &quot;size&quot;, not &quot;FONT.size&quot;). </para>
+<para>The bare lua key to search for (e.g. "size&quot;, not @&quot;FONT.size"). </para>
 </parameterdescription>
 </parameteritem>
 </parameterlist>
-<simplesect kind="return"><para>1-based line number, or 0 if not found. </para>
+<simplesect kind="return"><para>1-based line number, or <computeroutput>0</computeroutput> if not found (e.g. for a missing or nil property). </para>
 </simplesect>
 </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="48" column="16"/>
+        <location file="config/Config.h" line="203" column="16"/>
       </memberdef>
     </sectiondef>
     <briefdescription>
+<para>END&apos;s configuration model — owns the live ValueTree of all lua-driven config. </para>
     </briefdescription>
     <detaileddescription>
+<para>End is a terminal emulator. Every knob the user can twist lives in lua files under <computeroutput>~/</computeroutput>.config/end/ — <computeroutput>config.lua</computeroutput>, <computeroutput>display.lua</computeroutput>, <computeroutput>graphics.lua</computeroutput> (SVG asset registry), <computeroutput>actions.lua</computeroutput>, <computeroutput>keys.lua</computeroutput>, <computeroutput>popups.lua</computeroutput>, <computeroutput>nexus.lua</computeroutput>, <computeroutput>whelmed.lua</computeroutput>. <ref refid="classconfig_1_1_model" kindref="compound">config::Model</ref> is the single object that loads, validates, and exposes them as a live <ref refid="classjuce_1_1ValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::ValueTree</ref> to the rest of the app.</para>
+<para><simplesect kind="par"><title>Inherited roles</title><para>Inherits from <ref refid="classjam_1_1Model" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Model</ref> (ValueTree wrapper exposing CONTEXT and tree children), <ref refid="structjam_1_1Context" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Context&lt;Model&gt;</ref> (so the live instance is reachable from any code that includes this header), and <ref refid="classjam_1_1File_1_1Watcher_1_1Listener" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::File::Watcher::Listener</ref> (receives filesystem change notifications).</para>
+</simplesect>
+<simplesect kind="par"><title>Two-phase init</title><para>The constructor runs two phases in fixed order — see HARD RULES in CAROL.md, the constructor sequence is contract:</para>
+</simplesect>
+<orderedlist>
+<listitem><para><computeroutput><ref refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" kindref="member">initialise()</ref></computeroutput> — builds the live tree from <ref refid="namespaceBinaryData" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">BinaryData</ref> snapshots baked into the binary at compile time, and walks every subtree once to register type-based + Map-aware validators.</para>
+</listitem><listitem><para><computeroutput><ref refid="classconfig_1_1_model_1acad607c8136bcc115ffeae9d47869e26" kindref="member">saveToPath()</ref></computeroutput> — creates <computeroutput>~/</computeroutput>.config/end/ on disk if absent and writes any BinaryData-backed lua/svg file that is not already present (seed-once).</para>
+</listitem><listitem><para><computeroutput><ref refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" kindref="member">loadFromPath()</ref></computeroutput> — reads each lua file from disk, walks the table, applies validators, and (if validation passes) overlays the result on the live tree via <computeroutput>setValuesFrom</computeroutput>.</para>
+</listitem><listitem><para><computeroutput>startWatching()</computeroutput> — installs the file watcher for hot reload.</para>
+</listitem></orderedlist>
+</para>
+<para><simplesect kind="par"><title>Validator map</title><para><computeroutput>validators</computeroutput> is a nested <ref refid="classjuce_1_1Identifier" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Identifier</ref> → Identifier → predicate map. Outer key = tree type. Inner key = property name. <ref refid="unionValue" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">Value</ref> = predicate accepting the candidate <computeroutput><ref refid="classjuce_1_1var" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::var</ref></computeroutput>. The map is populated during <computeroutput><ref refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" kindref="member">initialise()</ref></computeroutput> and consumed during <computeroutput><ref refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" kindref="member">loadFromPath()</ref></computeroutput> — when a property is found in the live tree and the predicate returns false for the on-disk value, the property is dropped and an error is appended to the load report.</para>
+</simplesect>
+<simplesect kind="par"><title>Line map</title><para>Populated during <computeroutput><ref refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" kindref="member">loadFromPath()</ref></computeroutput> by <ref refid="classjam_1_1lua_1_1State" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::lua::State</ref>&apos;s parser hook: captures source-line numbers for every (tag, key) so the validator walk can produce &quot;&lt;line&gt; &apos;&lt;key&gt;: invalid value &quot;..."&apos; style errors.</para>
+</simplesect>
+<simplesect kind="par"><title>File watcher</title><para>Watches <computeroutput>~/</computeroutput>.config/end/ for <computeroutput></computeroutput>.lua edits and the configured SVG subdir for <computeroutput></computeroutput>.svg edits. Lua edits trigger a full <computeroutput><ref refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" kindref="member">loadFromPath()</ref></computeroutput> cycle. SVG edits look up the filename in <computeroutput>graphicsCallbacks</computeroutput> and fire a property-change message on the matching identifier so the affected look-and-feel element repaints.</para>
+</simplesect>
+<simplesect kind="par"><title>Lifetime</title><para>One instance per process, owned by <computeroutput><ref refid="classend_1_1_application" kindref="compound">end::Application</ref></computeroutput>. Survives until Application shutdown.</para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classjam_1_1Model" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Model</ref> </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="namespacejam_1_1lua_1aae45181cfa50569933457727bbcee734" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::lua::Validators</ref> </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classend_1_1_application" kindref="compound">end::Application</ref> </para>
+</simplesect>
+</para>
     </detaileddescription>
     <inheritancegraph>
       <node id="1">
@@ -556,7 +652,7 @@
         </childnode>
       </node>
     </collaborationgraph>
-    <location file="config/Config.h" line="9" column="1" bodyfile="config/Config.h" bodystart="13" bodyend="69"/>
+    <location file="config/Config.h" line="69" column="1" bodyfile="config/Config.h" bodystart="73" bodyend="241"/>
     <listofallmembers>
       <member refid="classjam_1_1Model_1ae5d4d70e706dcc558cf21923125a9176" prot="public" virt="non-virtual"><scope>config::Model</scope><name>addListener</name></member>
       <member refid="classjam_1_1Model_1ac78b7437a06da378bf49cbd4f27bfc63" prot="public" virt="non-virtual"><scope>config::Model</scope><name>addProperties</name></member>
@@ -608,6 +704,7 @@
       <member refid="structjam_1_1Context_1a6716feb60b039083ca0c099a506a3474" prot="public" virt="non-virtual"><scope>config::Model</scope><name>operator=</name></member>
       <member refid="classjam_1_1Model_1a9be603e3c0a76e1f0b6c263066993b63" prot="public" virt="non-virtual"><scope>config::Model</scope><name>params</name></member>
       <member refid="structjam_1_1Context_1aa1862120f2983ab7ddef536ba03bb114" prot="private" virt="non-virtual"><scope>config::Model</scope><name>previous</name></member>
+      <member refid="classconfig_1_1_model_1a37ce70da66e8164f746a16925295c343" prot="private" virt="non-virtual"><scope>config::Model</scope><name>registerValidator</name></member>
       <member refid="classjam_1_1Model_1acbf5ef1a6e71240468f17fe707532bec" prot="public" virt="non-virtual"><scope>config::Model</scope><name>removeChild</name></member>
       <member refid="classjam_1_1Model_1a688b7625ae8b2a4d4d1f1643a6b3aa41" prot="public" virt="non-virtual"><scope>config::Model</scope><name>removeListener</name></member>
       <member refid="classjam_1_1Model_1a73bb2822ba0b1211ca9e290d57c5cd2d" prot="public" virt="non-virtual"><scope>config::Model</scope><name>replaceState</name></member>
@@ -617,7 +714,7 @@
       <member refid="classjam_1_1Model_1afd1a5ee11f1e480cb14c0027d6b617b7" prot="public" virt="non-virtual"><scope>config::Model</scope><name>setValuesFrom</name></member>
       <member refid="classjuce_1_1Timer_1acb43e06d5742106830080af3d50b422d" prot="public" virt="non-virtual"><scope>config::Model</scope><name>startTimer</name></member>
       <member refid="classjuce_1_1Timer_1a49a4cf0bb438ca956bfae44c1010b0f9" prot="public" virt="non-virtual"><scope>config::Model</scope><name>startTimerHz</name></member>
-      <member refid="classconfig_1_1_model_1ac1c3fee2d640c514677e7cb4229041c1" prot="private" virt="non-virtual"><scope>config::Model</scope><name>startWatching</name></member>
+      <member refid="classconfig_1_1_model_1abd7d146ee9fede8da7f5f0678faed50e" prot="private" virt="non-virtual"><scope>config::Model</scope><name>startWatcher</name></member>
       <member refid="classjam_1_1Model_1aef4cd7ff33d3393980f2d12217e49857" prot="public" virt="non-virtual"><scope>config::Model</scope><name>state</name></member>
       <member refid="classjuce_1_1Timer_1a2ff70b860a8c875658b4baa91c8bcef0" prot="public" virt="non-virtual"><scope>config::Model</scope><name>stopTimer</name></member>
       <member refid="classjam_1_1Model_1abb1a0d3535077011043e287faf0347c9" prot="public" virt="non-virtual"><scope>config::Model</scope><name>storeValue</name></member>

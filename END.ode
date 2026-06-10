@@ -1,50 +1,5 @@
 
 **********************************************************
 
-Log started: 10 Jun 2026 1:30:40pm
+Log started: 10 Jun 2026 2:08:08pm
 
-load: fromLua returned tree type=WHELMED props=55
-load: fromLua returned tree type=NEXUS props=3
-load: fromLua returned tree type=DISPLAY props=1
-load: fromLua returned tree type=GRAPHICS props=4
-load: fromLua returned tree type=ACTIONS props=0
-load: fromLua returned tree type=POPUPS props=0
-load: fromLua returned tree type=KEYS props=39
-load: errors=display.lua:
-29 'size: missing'
-
-load: loadMessage: display.lua:
-29 'size: missing'
-
-fileChanged: /Users/jreng/.config/end/zsh/..zshenv_tempe171fb5a.zshenv event=3
-fileChanged: /Users/jreng/.config/end/zsh/.zshenv event=5
-fileChanged: /Users/jreng/.config/end/zsh/.end-integration_tempcd353f4d event=3
-fileChanged: /Users/jreng/.config/end/zsh/end-integration event=5
-fileChanged: /Users/jreng/.config/end/4913 event=2
-fileChanged: /Users/jreng/.config/end/display.lua event=3
-load: fromLua returned tree type=WHELMED props=55
-load: fromLua returned tree type=NEXUS props=3
-load: fromLua returned tree type=DISPLAY props=1
-load: fromLua returned tree type=GRAPHICS props=4
-load: fromLua returned tree type=ACTIONS props=0
-load: fromLua returned tree type=POPUPS props=0
-load: fromLua returned tree type=KEYS props=39
-load: errors=display.lua:
-29 'size: missing'
-
-load: loadMessage: display.lua:
-29 'size: missing'
-
-fileChanged: /Users/jreng/.config/end/display.lua~ event=2
-fileChanged: /Users/jreng/.config/end/4913 event=2
-fileChanged: /Users/jreng/.config/end/display.lua event=3
-load: fromLua returned tree type=WHELMED props=55
-load: fromLua returned tree type=NEXUS props=3
-load: fromLua returned tree type=DISPLAY props=1
-load: fromLua returned tree type=GRAPHICS props=4
-load: fromLua returned tree type=ACTIONS props=0
-load: fromLua returned tree type=POPUPS props=0
-load: fromLua returned tree type=KEYS props=39
-load: errors=NONE
-load: loadMessage: RELOAD
-fileChanged: /Users/jreng/.config/end/display.lua~ event=2

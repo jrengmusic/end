@@ -2,6 +2,62 @@
 
 ---
 
+## Sprint 10: Config Validation + Line-Mapped Errors + SVG Paint Pipeline ✅
+
+**Date:** 2026-06-10
+**Duration:** ~08:00
+
+### Agents Participated
+- COUNSELOR: orchestration, design discussion, fact-finding, delegation
+- Engineer: code implementation (many delegations)
+- Pathfinder: codebase discovery (endless validation/message chain, jam::Map, Function::Map, config tree structure)
+- Librarian: embedded Lua API research (lua_sethook, OP_SETFIELD decoding, chunk names, nil semantics, parseSVGPath, jam::SVG/XML)
+- Auditor: mid-sprint validation (Map::Instance refactor)
+
+### Files Modified (18 total)
+
+**JAM:**
+- `jam_core/map/jam_map.h` — Instance<T>::contains(value) added — O(1) key lookup via Map::getKey inversion.
+- `jam_lua/jam_lua_types.h` — LineMap nested type (tag → property → line), LineMapBuilder (result + tableRegisters + pendingRegisters + flushRoot).
+- `jam_lua/jam_lua_state.h` — getType(code, chunkName) overload (luaL_loadbufferx "@name" → real filenames in Lua errors). lineHook: LUA_MASKLINE hook decoding OP_NEWTABLE/OP_SETFIELD from savedpc[-1] via vendored internals, register-tracked key→line capture, LineMap* via lua_getextraspace. getLineMap/getLineMapBuilder.
+- `jam_data_structures/lua/jam_lua_value_tree.h` — jam::lua::Validators (nested HashMap, tag → property → predicate). from() optional Validators* — registers type validators (int/double/string) during the same build walk. from() validation overload (validators + errors + lineMap) — rejects invalid values during parse, reports missing (nil/undefined) properties, line-numbered error lines via appendError tag+key lookup.
+- `jam_data_structures/model/jam_model.h` — fromLua forwarding overloads for both validator modes.
+
+**END:**
+- `Source/end/Map.h` — config::File + config::Graphics relocated here as Map::Instance<T> CRTP (canonical location next to Boolean). New maps: GpuMode (auto/true/false), DropMode (space/newline), Position expanded to 5 values (top/bottom/left/right/center). TabOrientation removed — Position enum mirrors jam::button::Tab::Orientation 0–3.
+- `Source/Main.h` — Context owners: config::File, config::Graphics, GpuMode, Position, DropMode. tabOrientationMap removed.
+- `Source/Identifier.h` — loadMessage added to IDENTIFIER_CONFIG.
+- `Source/config/Config.h` — Model API: load → loadFromPath, validators member, registerValidator (try_emplace/insert_or_assign — no bracket), graphicsCallbacks (Function::Map), loadMessage member + getLoadMessage(). Comprehensive doxygen rewrite.
+- `Source/config/Config.cpp` — ctor CONTRACT: initialise → saveToPath → loadFromPath → startWatching. enumCheck<MapType> + getEnumValidator static resolvers (result returns, no if/else chain, no second map). loadFromPath: per-file getType with chunk name, flushRoot, validated fromLua, error accumulation, single atomic loadMessage + unconditional sendPropertyChangeMessage. buildGraphicsCallbacks: filename → sendPropertyChangeMessage dispatch built from config values per reload. fileChanged: lua → loadFromPath, svg → graphicsCallbacks direct lookup. All diagnostics removed.
+- `Source/end/View.cpp` — messageOverlay enabled, ID::loadMessage → showMessage(config.getLoadMessage()) — message is event not state, no clearing.
+- `Source/lookAndFeel/LookAndFeel.h` — drawBarIndicator + drawTabButton overrides, indicatorSegments + buttonSegments, parseTabBarSvg → parseSvg (generic).
+- `Source/lookAndFeel/LookAndFeel.cpp` — parseSvg full implementation (role groups via serif:id/suffix-strip, bounds rects, parseSVGPath + addRectangle, style colour extraction). loadGraphics: all three SVGs → segment vectors. Three draw methods: scale-to-fit fill/stroke per segment.
+- `Source/config/lua/graphics.lua` — tab_inactive/tab_active filenames set.
+- `Source/config/svg/tab_inactive.svg`, `tab_active.svg` — wired through pipeline (BinaryData GLOB → seed → watch → parse → paint).
+
+### Alignment Check
+- [x] BLESSED principles followed (B: validators/lineMap/watcher owned by Model, hook lifetime scoped to getType. L: one walk builds tree + validators, one resolver. E: explicit CONTRACT ctor sequence, named registerValidator. S: BinaryData defaults are the single schema — validators derived from it. S: loadMessage is an event, no shadow state cycle. E: JAM knows var types only, END enriches with its Maps. D: same lua → same tree, same errors.)
+- [x] NAMES.md adhered (loadFromPath/saveToPath verbs, getEnumValidator result-return resolver, Position/GpuMode/DropMode semantic nouns, no "node" anywhere)
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- Lua values invalid but silently accepted — validators now built from BinaryData walk (type + enum), invalid values rejected before setValuesFrom, defaults survive.
+- Nil/undefined lua values vanish silently (Lua spec: nil removes table key) — missing-property detection against registered validators.
+- Same-value setProperty suppressed loadMessage notification — message moved to member + unconditional sendPropertyChangeMessage; message is an event, fires once per loadFromPath, always.
+- Validation errors had no source location — LUA_MASKLINE hook decodes OP_SETFIELD from vendored Lua internals, nested LineMap (tag → key → line) eliminates same-key collisions across sections.
+- Lua syntax errors showed `[string "..."]` — chunk name overload gives `display.lua:42:` format.
+- `position = "center"` rejected by 2-value Position map — Position expanded to 5 values, single map for all positional values, TabOrientation eliminated.
+- SVG hot-reload if/else chain — graphicsCallbacks Function::Map direct lookup, rebuilt per reload from live config values.
+- idMap parallel-map garbage, flat validator collisions, isLuaValid post-build walk, enrichStringValidators second walk, registerStringEnumValidator template + 4-branch chain — all eliminated through ARCHITECT-led redesign: one walk, one validators map, one resolver.
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 9: Tab Bar LookAndFeel Refactor + SVG Pipeline + Config Watcher ✅
 
 **Date:** 2026-06-08

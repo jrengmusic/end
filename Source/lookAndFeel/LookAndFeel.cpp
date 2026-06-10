@@ -73,8 +73,12 @@ void LookAndFeel::drawBarBackground (juce::Graphics&, juce::Component&) {}
 
 void LookAndFeel::drawBarIndicator (juce::Graphics&, juce::Component&) {}
 
-void LookAndFeel::drawTabButton (juce::Graphics&, juce::Button&,
-                                  bool /*isMouseOver*/, bool /*isMouseDown*/) {}
+void LookAndFeel::drawTabButton (juce::Graphics&,
+                                 juce::Button&,
+                                 bool /*isMouseOver*/,
+                                 bool /*isMouseDown*/)
+{
+}
 
 //==============================================================================
 void LookAndFeel::drawStretchableLayoutResizerBar (juce::Graphics& g,
@@ -135,9 +139,11 @@ void LookAndFeel::loadGraphics()
         return result;
     };
 
-    barSvg       = readSvg (ID::tabBar);
+    barSvg = readSvg (ID::tabBar);
     indicatorSvg = readSvg (ID::tabActive);
-    buttonSvg    = readSvg (ID::tabInactive);
+    buttonSvg = readSvg (ID::tabInactive);
+
+    cout (barSvg);
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

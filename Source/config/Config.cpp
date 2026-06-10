@@ -10,7 +10,7 @@ Model::Model()
     initialise();
     saveToPath();
     loadFromPath();
-    startWatching();
+    startWatcher();
 }
 
 //==============================================================================
@@ -25,6 +25,32 @@ juce::Rectangle<int> Model::getInitWindowSize() const noexcept
     };
 
     return { size[width].getIntValue(), size[height].getIntValue() };
+}
+
+//==============================================================================
+/* Wraps a Map::Instance contains() check as a string-enum validator. */
+template<typename MapType>
+static std::function<bool (const juce::var&)> enumCheck (MapType* map)
+{
+    return [map] (const juce::var& v)
+    {
+        return v.isString() and map->contains (v.toString());
+    };
+}
+
+/* Resolves a BinaryData default string to its owning Map's validator.
+   Returns an empty function when the value belongs to no known Map. */
+static std::function<bool (const juce::var&)> getEnumValidator (const juce::String& value)
+{
+    if (end::Boolean::getContext()->contains (value))
+        return enumCheck (end::Boolean::getContext());
+    if (end::Position::getContext()->contains (value))
+        return enumCheck (end::Position::getContext());
+    if (end::GpuMode::getContext()->contains (value))
+        return enumCheck (end::GpuMode::getContext());
+    if (end::DropMode::getContext()->contains (value))
+        return enumCheck (end::DropMode::getContext());
+    return {};
 }
 
 //==============================================================================
@@ -61,50 +87,8 @@ void Model::initialise()
                 auto value { tree.getProperty (name) };
 
                 if (value.isString())
-                {
-                    auto str { value.toString() };
-
-                    if (end::Boolean::getContext()->contains (str))
-                    {
-                        validators.try_emplace (treeType).first->second.insert_or_assign (
-                            name,
-                            [] (const juce::var& v)
-                            {
-                                return v.isString()
-                                       and end::Boolean::getContext()->contains (v.toString());
-                            });
-                    }
-                    else if (end::Position::getContext()->contains (str))
-                    {
-                        validators.try_emplace (treeType).first->second.insert_or_assign (
-                            name,
-                            [] (const juce::var& v)
-                            {
-                                return v.isString()
-                                       and end::Position::getContext()->contains (v.toString());
-                            });
-                    }
-                    else if (end::GpuMode::getContext()->contains (str))
-                    {
-                        validators.try_emplace (treeType).first->second.insert_or_assign (
-                            name,
-                            [] (const juce::var& v)
-                            {
-                                return v.isString()
-                                       and end::GpuMode::getContext()->contains (v.toString());
-                            });
-                    }
-                    else if (end::DropMode::getContext()->contains (str))
-                    {
-                        validators.try_emplace (treeType).first->second.insert_or_assign (
-                            name,
-                            [] (const juce::var& v)
-                            {
-                                return v.isString()
-                                       and end::DropMode::getContext()->contains (v.toString());
-                            });
-                    }
-                }
+                    if (auto validator { getEnumValidator (value.toString()) })
+                        registerValidator (treeType, name, std::move (validator));
             }
 
             return false;
@@ -161,12 +145,6 @@ void Model::loadFromPath()
                                                   &fileErrors,
                                                   &lua.getLineMap()) };
 
-#if JUCE_DEBUG
-                jam::debug::Log::write ("load: fromLua returned tree type="
-                                        + child.getType().toString()
-                                        + " props=" + juce::String (child.getNumProperties()));
-#endif
-
                 if (fileErrors.isNotEmpty())
                     errors << file.getFileName() << ":\n" << fileErrors;
 
@@ -181,20 +159,12 @@ void Model::loadFromPath()
 
     buildGraphicsCallbacks();
 
-#if JUCE_DEBUG
-    jam::debug::Log::write ("load: errors=" + (errors.isEmpty() ? "NONE" : errors));
-#endif
-
     if (errors.isEmpty())
         loadMessage = "RELOAD";
     else
         loadMessage = errors;
 
     state.sendPropertyChangeMessage (ID::loadMessage);
-
-#if JUCE_DEBUG
-    jam::debug::Log::write ("load: loadMessage: " + loadMessage);
-#endif
 }
 
 void Model::buildGraphicsCallbacks()
@@ -220,7 +190,7 @@ void Model::buildGraphicsCallbacks()
     }
 }
 
-void Model::startWatching()
+void Model::startWatcher()
 {
     watcher.addFolder (File::path);
     watcher.coalesceEvents (300);
@@ -229,11 +199,6 @@ void Model::startWatching()
 //==============================================================================
 void Model::fileChanged (const juce::File& file, jam::File::Watcher::Event event)
 {
-#if JUCE_DEBUG
-    jam::debug::Log::write ("fileChanged: " + file.getFullPathName()
-                            + " event=" + juce::String (static_cast<int> (event)));
-#endif
-
     if (event == jam::File::Watcher::Event::fileUpdated)
     {
         if (file.hasFileExtension (File::extension))
@@ -248,6 +213,15 @@ void Model::fileChanged (const juce::File& file, jam::File::Watcher::Event event
                 graphicsCallbacks.get (fileName);
         }
     }
+}
+
+//==============================================================================
+void Model::registerValidator (juce::Identifier treeType,
+                               juce::Identifier propertyName,
+                               std::function<bool (const juce::var&)> validator)
+{
+    validators.try_emplace (treeType).first->second.insert_or_assign (
+        propertyName, std::move (validator));
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

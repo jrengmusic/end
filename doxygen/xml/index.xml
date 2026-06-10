@@ -574,9 +574,10 @@
     <member refid="classconfig_1_1_model_1a8a75866892ea2fd6887d390ebb2c8c0a" kind="function"><name>getLoadMessage</name></member>
     <member refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" kind="function"><name>initialise</name></member>
     <member refid="classconfig_1_1_model_1acad607c8136bcc115ffeae9d47869e26" kind="function"><name>saveToPath</name></member>
-    <member refid="classconfig_1_1_model_1ac1c3fee2d640c514677e7cb4229041c1" kind="function"><name>startWatching</name></member>
+    <member refid="classconfig_1_1_model_1abd7d146ee9fede8da7f5f0678faed50e" kind="function"><name>startWatcher</name></member>
     <member refid="classconfig_1_1_model_1aaf6b40ca395ac5c6325cb189f13fec0f" kind="function"><name>fileChanged</name></member>
     <member refid="classconfig_1_1_model_1a04468ffcc63d66896bb34f4c0b4c37b2" kind="function"><name>buildGraphicsCallbacks</name></member>
+    <member refid="classconfig_1_1_model_1a37ce70da66e8164f746a16925295c343" kind="function"><name>registerValidator</name></member>
     <member refid="classconfig_1_1_model_1a73b49c4ce0784638aa7230f683755a09" kind="function"><name>findLineNumber</name></member>
   </compound>
   <compound refid="classend_1_1_model" kind="class"><name>end::Model</name>
@@ -673,6 +674,8 @@
   <compound refid="namespaceaction" kind="namespace"><name>action</name>
   </compound>
   <compound refid="namespaceconfig" kind="namespace"><name>config</name>
+    <member refid="namespaceconfig_1add672f45a783ef9f13d810962fe6042c" kind="function"><name>enumCheck</name></member>
+    <member refid="namespaceconfig_1a061dd1953d794d0026d94b95435059c9" kind="function"><name>getEnumValidator</name></member>
   </compound>
   <compound refid="namespaceend" kind="namespace"><name>end</name>
   </compound>

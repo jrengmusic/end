@@ -239,7 +239,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="lookAndFeel/LookAndFeel.h" line="98" column="18" bodyfile="lookAndFeel/LookAndFeel.h" bodystart="98" bodyend="-1"/>
-        <referencedby refid="classend_1_1_look_and_feel_1a6bac0b983ceeffd331beb5262030dbe8" compoundref="_look_and_feel_8cpp" startline="114" endline="141">loadGraphics</referencedby>
+        <referencedby refid="classend_1_1_look_and_feel_1a6bac0b983ceeffd331beb5262030dbe8" compoundref="_look_and_feel_8cpp" startline="118" endline="147">loadGraphics</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classend_1_1_look_and_feel_1a34a486d35cd565d7178879b4214240d2" prot="private" static="no" mutable="no">
         <type><ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref></type>
@@ -256,7 +256,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="lookAndFeel/LookAndFeel.h" line="100" column="18" bodyfile="lookAndFeel/LookAndFeel.h" bodystart="100" bodyend="-1"/>
-        <referencedby refid="classend_1_1_look_and_feel_1a6bac0b983ceeffd331beb5262030dbe8" compoundref="_look_and_feel_8cpp" startline="114" endline="141">loadGraphics</referencedby>
+        <referencedby refid="classend_1_1_look_and_feel_1a6bac0b983ceeffd331beb5262030dbe8" compoundref="_look_and_feel_8cpp" startline="118" endline="147">loadGraphics</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classend_1_1_look_and_feel_1a16d5600ad412c1c98fad350544aff064" prot="private" static="no" mutable="no">
         <type><ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref></type>
@@ -273,7 +273,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="lookAndFeel/LookAndFeel.h" line="102" column="18" bodyfile="lookAndFeel/LookAndFeel.h" bodystart="102" bodyend="-1"/>
-        <referencedby refid="classend_1_1_look_and_feel_1a6bac0b983ceeffd331beb5262030dbe8" compoundref="_look_and_feel_8cpp" startline="114" endline="141">loadGraphics</referencedby>
+        <referencedby refid="classend_1_1_look_and_feel_1a6bac0b983ceeffd331beb5262030dbe8" compoundref="_look_and_feel_8cpp" startline="118" endline="147">loadGraphics</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">
@@ -290,8 +290,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="lookAndFeel/LookAndFeel.h" line="55" column="5" bodyfile="lookAndFeel/LookAndFeel.cpp" bodystart="34" bodyend="39"/>
-        <references refid="classend_1_1_look_and_feel_1a6bac0b983ceeffd331beb5262030dbe8" compoundref="_look_and_feel_8cpp" startline="114" endline="141">loadGraphics</references>
-        <references refid="classend_1_1_look_and_feel_1a97d73310bc5d9b47794c0a0d71388bce" compoundref="_look_and_feel_8cpp" startline="96" endline="112">setColours</references>
+        <references refid="classend_1_1_look_and_feel_1a6bac0b983ceeffd331beb5262030dbe8" compoundref="_look_and_feel_8cpp" startline="118" endline="147">loadGraphics</references>
+        <references refid="classend_1_1_look_and_feel_1a97d73310bc5d9b47794c0a0d71388bce" compoundref="_look_and_feel_8cpp" startline="100" endline="116">setColours</references>
       </memberdef>
       <memberdef kind="function" id="classend_1_1_look_and_feel_1a4e4378865cd561e4bccbb346cf7a8114" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type></type>
@@ -334,8 +334,8 @@
         <references refid="classjuce_1_1Array_1a76b59834b9d3d5b654f27dbaf2d6c09f">juce::Array&lt; typename ElementType, typename TypeOfCriticalSectionToUse, int minimumAllocatedSize &gt;::add</references>
         <references refid="classjuce_1_1var_1a4e19664ff13681974e4666ea0887963a">juce::var::getArray</references>
         <references refid="classjuce_1_1ValueTree_1ab584e972c5f8e597f545e6321a895d06">juce::ValueTree::getProperty</references>
-        <references refid="classend_1_1_look_and_feel_1a6bac0b983ceeffd331beb5262030dbe8" compoundref="_look_and_feel_8cpp" startline="114" endline="141">loadGraphics</references>
-        <references refid="classend_1_1_look_and_feel_1a97d73310bc5d9b47794c0a0d71388bce" compoundref="_look_and_feel_8cpp" startline="96" endline="112">setColours</references>
+        <references refid="classend_1_1_look_and_feel_1a6bac0b983ceeffd331beb5262030dbe8" compoundref="_look_and_feel_8cpp" startline="118" endline="147">loadGraphics</references>
+        <references refid="classend_1_1_look_and_feel_1a97d73310bc5d9b47794c0a0d71388bce" compoundref="_look_and_feel_8cpp" startline="100" endline="116">setColours</references>
         <references refid="classjuce_1_1ValueTree_1a86de4a6662eb049c21c30c627616fb0e">juce::ValueTree::setProperty</references>
       </memberdef>
       <memberdef kind="function" id="classend_1_1_look_and_feel_1ade27fb3312b73e1a30fc6e147cf32d0d" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
@@ -413,7 +413,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lookAndFeel/LookAndFeel.h" line="72" column="10" bodyfile="lookAndFeel/LookAndFeel.cpp" bodystart="76" bodyend="77"/>
+        <location file="lookAndFeel/LookAndFeel.h" line="72" column="10" bodyfile="lookAndFeel/LookAndFeel.cpp" bodystart="76" bodyend="81"/>
       </memberdef>
       <memberdef kind="function" id="classend_1_1_look_and_feel_1a2d895cfa802013b3734d533380e71252" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
         <type>void</type>
@@ -453,7 +453,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lookAndFeel/LookAndFeel.h" line="76" column="10" bodyfile="lookAndFeel/LookAndFeel.cpp" bodystart="80" bodyend="93"/>
+        <location file="lookAndFeel/LookAndFeel.h" line="76" column="10" bodyfile="lookAndFeel/LookAndFeel.cpp" bodystart="84" bodyend="97"/>
         <references refid="classjuce_1_1Graphics_1a8ec4ee2940467eeac346453851ecea42">juce::Graphics::fillRect</references>
         <references refid="classjuce_1_1LookAndFeel_1af70e8ffcc9049226ddc6e9b798c32dd5">juce::LookAndFeel::findColour</references>
         <references refid="classend_1_1_look_and_feel_1a96444644e5b541f2a7a2235c0dc91cf8aa147286280ece5e187cca4860fe4cfb6" compoundref="_look_and_feel_8h" startline="38">paneBarColourId</references>
@@ -476,7 +476,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lookAndFeel/LookAndFeel.h" line="89" column="10" bodyfile="lookAndFeel/LookAndFeel.cpp" bodystart="96" bodyend="112"/>
+        <location file="lookAndFeel/LookAndFeel.h" line="89" column="10" bodyfile="lookAndFeel/LookAndFeel.cpp" bodystart="100" bodyend="116"/>
         <references refid="classjam_1_1Model_1a59b57627d856a11d756eabe1690a7213">jam::Model::applyFunctionRecursively</references>
         <referencedby refid="classend_1_1_look_and_feel_1a9313c08eb0def3e3a423f8bfd362f435" compoundref="_look_and_feel_8cpp" startline="34" endline="39">LookAndFeel</referencedby>
         <referencedby refid="classend_1_1_look_and_feel_1aeb869a5b4e62d45764bbf42d4f1afa3a" compoundref="_look_and_feel_8cpp" startline="43" endline="67">valueTreePropertyChanged</referencedby>
@@ -495,15 +495,15 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lookAndFeel/LookAndFeel.h" line="94" column="10" bodyfile="lookAndFeel/LookAndFeel.cpp" bodystart="114" bodyend="141"/>
+        <location file="lookAndFeel/LookAndFeel.h" line="94" column="10" bodyfile="lookAndFeel/LookAndFeel.cpp" bodystart="118" bodyend="147"/>
         <references refid="classend_1_1_look_and_feel_1a2c84cd45c7834394e990edd68d5063ec" compoundref="_look_and_feel_8h" startline="98">barSvg</references>
         <references refid="classend_1_1_look_and_feel_1a16d5600ad412c1c98fad350544aff064" compoundref="_look_and_feel_8h" startline="102">buttonSvg</references>
         <references refid="classend_1_1_look_and_feel_1a34a486d35cd565d7178879b4214240d2" compoundref="_look_and_feel_8h" startline="100">indicatorSvg</references>
         <references refid="classjuce_1_1String_1af5084463343819f82187154ccb62ea3a">juce::String::isNotEmpty</references>
-        <references refid="classend_1_1_look_and_feel_1a6bac0b983ceeffd331beb5262030dbe8" compoundref="_look_and_feel_8cpp" startline="114" endline="141">loadGraphics</references>
+        <references refid="classend_1_1_look_and_feel_1a6bac0b983ceeffd331beb5262030dbe8" compoundref="_look_and_feel_8cpp" startline="118" endline="147">loadGraphics</references>
         <references refid="structconfig_1_1_graphics_1a680b9dba6753acd9eb16c43c840bba0c" compoundref="_map_8h" startline="299" endline="299">config::Graphics::path</references>
         <references refid="structjam_1_1ID_1ae1f37278ca197165e236d90e8b1aa795">jam::ID::path</references>
-        <referencedby refid="classend_1_1_look_and_feel_1a6bac0b983ceeffd331beb5262030dbe8" compoundref="_look_and_feel_8cpp" startline="114" endline="141">loadGraphics</referencedby>
+        <referencedby refid="classend_1_1_look_and_feel_1a6bac0b983ceeffd331beb5262030dbe8" compoundref="_look_and_feel_8cpp" startline="118" endline="147">loadGraphics</referencedby>
         <referencedby refid="classend_1_1_look_and_feel_1a9313c08eb0def3e3a423f8bfd362f435" compoundref="_look_and_feel_8cpp" startline="34" endline="39">LookAndFeel</referencedby>
         <referencedby refid="classend_1_1_look_and_feel_1aeb869a5b4e62d45764bbf42d4f1afa3a" compoundref="_look_and_feel_8cpp" startline="43" endline="67">valueTreePropertyChanged</referencedby>
       </memberdef>

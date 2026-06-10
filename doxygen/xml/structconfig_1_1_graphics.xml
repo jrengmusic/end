@@ -60,8 +60,8 @@
         </inbodydescription>
         <location file="end/Map.h" line="299" column="36" bodyfile="end/Map.h" bodystart="299" bodyend="299"/>
         <referencedby refid="structconfig_1_1_graphics_1abdfab926c44948460dfaf240c60572e3" compoundref="_map_8h" startline="293" endline="296">getPath</referencedby>
-        <referencedby refid="classend_1_1_look_and_feel_1a6bac0b983ceeffd331beb5262030dbe8" compoundref="_look_and_feel_8cpp" startline="114" endline="141">end::LookAndFeel::loadGraphics</referencedby>
-        <referencedby refid="classconfig_1_1_model_1acad607c8136bcc115ffeae9d47869e26" compoundref="_config_8cpp" startline="115" endline="140">config::Model::saveToPath</referencedby>
+        <referencedby refid="classend_1_1_look_and_feel_1a6bac0b983ceeffd331beb5262030dbe8" compoundref="_look_and_feel_8cpp" startline="118" endline="147">end::LookAndFeel::loadGraphics</referencedby>
+        <referencedby refid="classconfig_1_1_model_1acad607c8136bcc115ffeae9d47869e26" compoundref="_config_8cpp" startline="99" endline="124">config::Model::saveToPath</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structconfig_1_1_graphics_1a65b788f58d84dab0d495b814638c89f9" prot="public" static="yes" mutable="no">
         <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref></type>
@@ -78,7 +78,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="end/Map.h" line="301" column="38" bodyfile="end/Map.h" bodystart="301" bodyend="301"/>
-        <referencedby refid="classconfig_1_1_model_1aaf6b40ca395ac5c6325cb189f13fec0f" compoundref="_config_8cpp" startline="230" endline="251">config::Model::fileChanged</referencedby>
+        <referencedby refid="classconfig_1_1_model_1aaf6b40ca395ac5c6325cb189f13fec0f" compoundref="_config_8cpp" startline="200" endline="216">config::Model::fileChanged</referencedby>
         <referencedby refid="structconfig_1_1_graphics_1a1c32b9f67fec052dcd7ccc1636ea85d6" compoundref="_map_8h" startline="287" endline="290">getName</referencedby>
       </memberdef>
     </sectiondef>
@@ -120,7 +120,7 @@
         </inbodydescription>
         <location file="end/Map.h" line="279" column="23" bodyfile="end/Map.h" bodystart="279" bodyend="279"/>
         <references refid="structjam_1_1Context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Derived &gt;::getContext</references>
-        <referencedby refid="classconfig_1_1_model_1a04468ffcc63d66896bb34f4c0b4c37b2" compoundref="_config_8cpp" startline="200" endline="221">config::Model::buildGraphicsCallbacks</referencedby>
+        <referencedby refid="classconfig_1_1_model_1a04468ffcc63d66896bb34f4c0b4c37b2" compoundref="_config_8cpp" startline="170" endline="191">config::Model::buildGraphicsCallbacks</referencedby>
         <referencedby refid="structconfig_1_1_graphics_1a1c32b9f67fec052dcd7ccc1636ea85d6" compoundref="_map_8h" startline="287" endline="290">getName</referencedby>
       </memberdef>
       <memberdef kind="function" id="structconfig_1_1_graphics_1a1c32b9f67fec052dcd7ccc1636ea85d6" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
