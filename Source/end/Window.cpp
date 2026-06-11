@@ -45,10 +45,10 @@ void Window::setStyle (const juce::Identifier& property)
 void Window::registerStyleParameters()
 {
     styleParameters.add<juce::ValueTree> (
-        jam::ID::colour,
+        jam::ID::background,
         [this] (juce::ValueTree n)
         {
-            tintColour = jam::Model::toColour (n.getProperty (jam::ID::colour));
+            tintColour = jam::Model::toColour (n.getProperty (jam::ID::background));
             blurRadius = static_cast<float> (n.getProperty (ID::blurRadius));
             setGlass (tintColour, blurRadius, glassBackend);
         });
@@ -57,7 +57,7 @@ void Window::registerStyleParameters()
         ID::blurRadius,
         [this] (juce::ValueTree n)
         {
-            tintColour = jam::Model::toColour (n.getProperty (jam::ID::colour));
+            tintColour = jam::Model::toColour (n.getProperty (jam::ID::background));
             blurRadius = static_cast<float> (n.getProperty (ID::blurRadius));
             setGlass (tintColour, blurRadius, glassBackend);
         });

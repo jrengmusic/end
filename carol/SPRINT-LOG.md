@@ -2,6 +2,67 @@
 
 ---
 
+## Sprint 12: button::SVG + StyledGraphics Foundation, Scoped Colour Distributor ✅
+
+**Date:** 2026-06-12
+**Duration:** ~08:00
+
+### Agents Participated
+- COUNSELOR: orchestration, design discussion (StyledGraphics/Shape semantics, static Flex, kuassa button model, JUCE-native colourId rule, nested registry distributor), fact-checking (juce::Drawable capability matrix, TextButton/TabbedButtonBar ColourIds, jam::ID coverage), trivial fixes (jam::IDtype shadowing, Window background key, duplicate identifier)
+- Engineer: font-key renames, SVG module move, Flex rewrite→stubs, jam::button::SVG, Bar rework, colour registry restructure
+- Pathfinder: jam button/LAF/colour-consumer surveys
+- Librarian: juce::Drawable vs custom StyledGraphics capability research (juce_SVGParser.cpp evidence)
+
+### Files Modified (~30 total)
+
+**JAM:**
+- `jam_core/identifier/jam_identifier_svg.h` — font/font_size/font_family entries removed
+- `jam_core/identifier/jam_identifier_appearance.h` — fontFamily ("font-family"), fontSize ("font-size") added
+- `jam_core/jam_core.h` / `jam_core.cpp` — SVG includes removed (moved to jam_graphics)
+- `jam_graphics/svg/jam_svg.h` / `.cpp` — moved from jam_core/xml (byte-verbatim)
+- `jam_graphics/svg/jam_svg_button.h` / `.cpp` — moved from jam_core/xml
+- `jam_graphics/svg/jam_svg_flex.h` / `.cpp` — REWRITE: instance class deleted; static-only struct — getStyledGraphics (parser STUB), paint (9-slice STUB), getName (implemented)
+- `jam_graphics/styled_graphics/jam_styled_graphics.h` — new: StyledGraphics { Shape { path, stroke, colour, colourId, bounds }, shapes, width, height }; attributed_path/ deleted
+- `jam_graphics/jam_graphics.h` / `.cpp` — SVG section before graphics utilities (declaration order), styled_graphics include
+- `jam_gui/button/jam_button_svg.h` — new: jam::button::SVG : juce::Button — array<StyledGraphics, 8>, setGraphics, getStyledGraphics, getStateCount, paintButton → Custom::drawTabButton
+- `jam_gui/button/jam_button_bar.h` / `.cpp` — Tab class DELETED; Orientation + ColourIds (backgroundColourId/outlineColourId/highlightColourId) on Bar; TabInfo holds mouse::Events<SVG>; lambda-wired click/drag-reorder/right-click; getBestTabLength(name, depth) on Bar
+- `jam_gui/layout/jam_tabbed_component.h` / `.cpp` — createTabButton type + Orientation references updated
+- `jam_gui/jam_gui.h` — jam_button_svg.h include
+- `jam_gui/view/jam_view_content.h`, `jam_data_structures/view/jam_view_manager.cpp`, `jam_view_manager_panel.cpp`, `jam_markdown/mermaid/jam_mermaid_svg_parser.cpp` — IDref::font_size/font_family → fontSize/fontFamily
+- `jam_markdown/jam_markdown.h` — jam_graphics dependency + include added
+
+**END:**
+- `Source/Identifier.h` — IDtype::code added; codeFamily/codeStyle/codeSize, family, indicator, inactiveText, inactiveBackground, selection, foreground, outline, background duplicates removed; caret, highlight, textOn, textOff, buttonOn added
+- `Source/Main.cpp` — registerTypefaces reads ID::fontFamily/fontSize from IDtype::code node
+- `Source/config/Config.cpp` — getFont→getDisplay(IDtype::code); ID::fontSize (Windows scale)
+- `Source/config/lua/display.lua` — key renames: colours.{caret,text,highlight}, tab.{button,button_on,text_off,text_on,highlight}, window.background, overlay.{background,text}
+- `Source/config/lua/whelmed.lua` — code_family/code_style/code_size block deleted
+- `Source/lookAndFeel/LookAndFeel.h` / `.cpp` — colourIds → nested HashMap<node, HashMap<property, vector<int>>> distributor; scoped setColours; vtpc nested lookup; tab paint stubbed (loadGraphics/drawBarBackground/drawBarIndicator TODO); drawTabButton test fill via TextButton button/buttonOn ids; selectionColourId removed
+- `Source/end/MessageOverlay.h` — Label::backgroundColourId/textColourId; font from overlay node (jam::IDtype::overlay)
+- `Source/end/Window.cpp` — style dispatcher keyed/reads jam::ID::background (was jam::ID::colour)
+- `Source/end/Tabs.cpp` — variable-length tab names retained; no Tab:: references
+
+### Alignment Check
+- [x] BLESSED principles followed (registry = SSOT distributor; Flex stateless; button owns its bank)
+- [x] NAMES.md adhered (all new names ARCHITECT-gated: StyledGraphics, Shape, setGraphics, highlightColourId)
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- Flex instance class was unreliable garbage (clone-filter XML at paint, Bucket dedup, bail-outs) → deleted; static parser/painter stubs await ARCHITECT handcode
+- Tab button was a LAF-painted lookalike with 3× duplicated 8-state plumbing → jam::button::SVG IS a button (kuassa model); state plumbing collapsed to getState + getStateCount
+- Colour collision: flat registry applied bare property names from every node (whelmed.background overwrote TabbedComponent background → transparent tab fill) → nested node-scoped distributor, collision impossible by construction
+- juce::Drawable evaluated and rejected on evidence: no paint-time findColour, no collapse, no 9-slice, serif:id ignored
+- Invisible window: Window style dispatcher read renamed lua key → jam::ID::background fix
+- jam::IDtype shadowing (END IDtype hides jam's) → explicit jam::IDtype:: qualification
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None (side finding flagged in-session: registerTypefaces() defined but never called — awaiting ARCHITECT direction)
+
+---
+
 ## Sprint 11: SVG Flex Layout System + LAF 1:1 Colour Chain ✅
 
 **Date:** 2026-06-10

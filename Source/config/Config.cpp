@@ -16,7 +16,8 @@ Model::Model()
 //==============================================================================
 juce::Rectangle<int> Model::getInitWindowSize() const noexcept
 {
-    auto window { jam::Model::getChildWithName (state, IDtype::window) };
+    auto display { state.getChildWithName (IDtype::display) };
+    auto window { display.getChildWithName (IDtype::window) };
     auto size { juce::StringArray::fromTokens (window.getProperty (ID::size).toString(), ',') };
     enum
     {
@@ -27,6 +28,10 @@ juce::Rectangle<int> Model::getInitWindowSize() const noexcept
     return { size[width].getIntValue(), size[height].getIntValue() };
 }
 
+juce::ValueTree Model::getDisplay (const juce::Identifier& childType) const noexcept
+{
+    return { state.getChildWithName (IDtype::display).getChildWithName (childType) };
+}
 //==============================================================================
 /* Wraps a Map::Instance contains() check as a string-enum validator. */
 template<typename MapType>
@@ -42,14 +47,14 @@ static std::function<bool (const juce::var&)> enumCheck (MapType* map)
    Returns an empty function when the value belongs to no known Map. */
 static std::function<bool (const juce::var&)> getEnumValidator (const juce::String& value)
 {
-    if (end::Boolean::getContext()->contains (value))
-        return enumCheck (end::Boolean::getContext());
-    if (end::Position::getContext()->contains (value))
-        return enumCheck (end::Position::getContext());
-    if (end::GpuMode::getContext()->contains (value))
-        return enumCheck (end::GpuMode::getContext());
-    if (end::DropMode::getContext()->contains (value))
-        return enumCheck (end::DropMode::getContext());
+    if (end::Boolean::getInstance()->contains (value))
+        return enumCheck (end::Boolean::getInstance());
+    if (end::Position::getInstance()->contains (value))
+        return enumCheck (end::Position::getInstance());
+    if (end::GpuMode::getInstance()->contains (value))
+        return enumCheck (end::GpuMode::getInstance());
+    if (end::DropMode::getInstance()->contains (value))
+        return enumCheck (end::DropMode::getInstance());
     return {};
 }
 
@@ -62,8 +67,9 @@ void Model::initialise()
         {
             auto lua { jam::lua::State() };
 
-            if (auto result { lua.getType (BinaryData::getString (File::getName (key))) };
-                result.wasOk())
+            auto result { lua.getType (BinaryData::getString (File::getName (key))) };
+
+            if (result.wasOk())
             {
                 auto child { jam::Model::fromLua (
                     result.value(), value.toUpperCase(), &validators) };
@@ -107,8 +113,9 @@ void Model::saveToPath()
         {
             const auto name { map.getName (key) };
             const juce::File file { path.getChildFile (name) };
+            const bool existed { file.existsAsFile() };
 
-            if (not file.existsAsFile())
+            if (not existed)
             {
                 BinaryData::Raw raw (name);
                 file.replaceWithData (raw.data, static_cast<size_t> (raw.size));
@@ -116,11 +123,11 @@ void Model::saveToPath()
         }
     };
 
-    writeWhenNeeded (File::path, *File::getContext());
+    writeWhenNeeded (File::path, *File::getInstance());
 
     auto graphics { jam::Model::getChildWithName (state, IDtype::graphics) };
     auto path { Graphics::path.getChildFile (graphics.getProperty (jam::ID::path).toString()) };
-    writeWhenNeeded (path, *Graphics::getContext());
+    writeWhenNeeded (path, *Graphics::getInstance());
 }
 
 void Model::loadFromPath()
@@ -134,8 +141,9 @@ void Model::loadFromPath()
             const juce::File file { File::path.getChildFile (File::getName (key)) };
             auto lua { jam::lua::State() };
 
-            if (auto result { lua.getType (file.loadFileAsString(), file.getFileName()) };
-                result.wasOk())
+            auto result { lua.getType (file.loadFileAsString(), file.getFileName()) };
+
+            if (result.wasOk())
             {
                 juce::String fileErrors;
                 lua.getLineMapBuilder().flushRoot (value.toUpperCase());
@@ -157,6 +165,21 @@ void Model::loadFromPath()
         }
     }
 
+    //==============================================================================
+#if JUCE_WINDOWS
+    const float scale { jam::Typeface::getDisplayScale() };
+
+    auto font { getCode() };
+    float fontSize { font.getProperty (ID::fontSize) };
+
+    if (scale > 0.0f)
+    {
+        fontSize /= scale;
+        font.setProperty (fontSize);
+    }
+#endif
+
+    //==============================================================================
     buildGraphicsCallbacks();
 
     if (errors.isEmpty())
@@ -185,6 +208,33 @@ void Model::buildGraphicsCallbacks()
                                                         {
                                                             t.sendPropertyChangeMessage (id);
                                                         });
+            }
+        }
+
+        // Walk the nested tab_button child: register one callback per state slot
+        // present in the config, in jam::SVG::Button::State enum order.
+        // Each callback fires sendPropertyChangeMessage on the tab_button child
+        // (not the graphics root) keyed by the state identifier.
+        if (auto tabButton { graphics.getChildWithName (IDtype::tabButton) }; tabButton.isValid())
+        {
+            const juce::Identifier stateIds[] {
+                jam::ID::normal,   jam::ID::over,   jam::ID::down,   jam::ID::disabled,
+                jam::ID::normalOn, jam::ID::overOn, jam::ID::downOn, jam::ID::disabledOn,
+            };
+
+            for (auto& stateId : stateIds)
+            {
+                auto fileName { tabButton.getProperty (stateId).toString() };
+
+                if (fileName.isNotEmpty())
+                {
+                    graphicsCallbacks.add<juce::ValueTree> (
+                        fileName,
+                        [stateId] (juce::ValueTree t)
+                        {
+                            t.sendPropertyChangeMessage (stateId);
+                        });
+                }
             }
         }
     }

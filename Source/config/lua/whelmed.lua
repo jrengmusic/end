@@ -46,15 +46,6 @@ return {
     -- Base body size in points (8 - 72).
     font_size = 16,
 
-    -- Monospace font family for code blocks.
-    code_family = "Display Mono",
-
-    -- Code font style (e.g. "Regular", "Medium", "Bold").
-    code_style = "Medium",
-
-    -- Code block font size in points (8 - 72).
-    code_size = 12,
-
     -- Line height multiplier (0.8 - 3.0).
     line_height = 1.5,
 

@@ -23,9 +23,13 @@ return {
 	-- Tab bar background shape.
 	tab_bar = "tab_bar.svg",
 
-	-- Inactive tab button shape.
-	tab_inactive = "tab_inactive.svg",
+	-- Sliding tab indicator shape (moves to the active tab).
+	tab_indicator = "tab_indicator.svg",
 
-	-- Active tab indicator shape (slides to the active tab).
-	tab_active = "tab_active.svg",
+	-- Tab button state slots. Present keys must be the first N states in order:
+	-- normal, over, down, disabled, normalOn, overOn, downOn, disabledOn.
+	-- Valid counts: 1, 3, 4, 6, 8. Default ships only normal.
+	tab_button = {
+		normal = "tab_button_normal.svg",
+	},
 }

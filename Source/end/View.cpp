@@ -87,7 +87,8 @@ void View::setTabOrientation()
     auto tabNode { display.getChildWithName (IDtype::tab) };
     auto pos { tabNode.getProperty (ID::orientation).toString() };
 
-    tabs.setOrientation (Position::get (pos));
+    if (Position::getInstance()->contains (pos))
+        tabs.setOrientation (Position::get (pos));
 }
 
 //==============================================================================

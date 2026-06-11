@@ -19,10 +19,10 @@
  * mouse events, so selection and scrolling work normally while it is visible.
  *
  * ### Font and colour
- * Font is read from the config tree (display > tab: family + size) on every
+ * Font is read from the config tree (display > overlay: family + size) on every
  * paint pass — hot-reload is free.  Background uses
- * `juce::TabbedComponent::backgroundColourId`; text uses
- * `juce::TabbedButtonBar::frontTextColourId`.
+ * `juce::ResizableWindow::backgroundColourId`; text uses
+ * `juce::Label::textColourId`.
  *
  * @note All methods are called on the **MESSAGE THREAD**.
  *
@@ -100,23 +100,22 @@ public:
      * @brief Paints the semi-transparent background and centred message text.
      *
      * Font is read from the config tree on every paint pass (hot-reload safe).
-     * Background colour from `juce::TabbedComponent::backgroundColourId`,
-     * text colour from `juce::TabbedButtonBar::frontTextColourId`.
+     * Background colour from `juce::ResizableWindow::backgroundColourId`,
+     * text colour from `juce::Label::textColourId`.
      *
      * @param g  JUCE graphics context for this paint pass.
      * @note MESSAGE THREAD.
      */
     void paint (juce::Graphics& g) override
     {
-        config::Model& config { *config::Model::getContext() };
-        auto display { config.getChildWithName (IDtype::display) };
-        auto tab { display.getChildWithName (IDtype::tab) };
-        auto family { tab.getProperty (ID::family, "Display Mono").toString() };
-        auto size { static_cast<float> (tab.getProperty (ID::size, 12)) };
+        config::Model& config { *config::Model::getInstance() };
+        auto overlay { config.getDisplay (jam::IDtype::overlay) };
+        auto family { overlay.getProperty (ID::fontFamily, "Display Mono").toString() };
+        auto size { static_cast<float> (overlay.getProperty (ID::fontSize, 12)) };
         juce::Font font { juce::FontOptions().withName (family).withPointHeight (size) };
 
-        auto bgColour { findColour (juce::TabbedComponent::backgroundColourId) };
-        auto fgColour { findColour (juce::TabbedButtonBar::frontTextColourId) };
+        auto bgColour { findColour (juce::Label::backgroundColourId) };
+        auto fgColour { findColour (juce::Label::textColourId) };
 
         g.fillAll (bgColour.withAlpha (backgroundAlpha));
         g.setFont (font);

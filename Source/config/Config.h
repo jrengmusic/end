@@ -114,6 +114,8 @@ public:
     */
     const juce::String& getLoadMessage() const noexcept { return loadMessage; }
 
+    juce::ValueTree getDisplay (const juce::Identifier& childType) const noexcept;
+
 private:
     /**
         @brief Populates the live tree from BinaryData and builds the

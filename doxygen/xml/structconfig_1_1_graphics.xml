@@ -17,18 +17,18 @@
           <detaileddescription>
           </detaileddescription>
         </enumvalue>
-        <enumvalue id="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3eacc5a98dd83283f0635b88862a97b576b" prot="public">
-          <name>tabInactive</name>
+        <enumvalue id="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea582f299301f3a3df535a40efb0f7c181" prot="public">
+          <name>tabIndicator</name>
           <briefdescription>
-<para>Inactive tab button SVG asset. </para>
+<para>Sliding tab indicator SVG asset. </para>
           </briefdescription>
           <detaileddescription>
           </detaileddescription>
         </enumvalue>
-        <enumvalue id="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3eae40e6b1b9ba2ebf9940a145a2e52a06a" prot="public">
-          <name>tabActive</name>
+        <enumvalue id="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea715efdd89e879fa3f2becdc3d9da8f3b" prot="public">
+          <name>tabButtonNormal</name>
           <briefdescription>
-<para>Active tab indicator SVG asset. </para>
+<para>Default (normal-state) tab button SVG asset stem. </para>
           </briefdescription>
           <detaileddescription>
           </detaileddescription>
@@ -40,7 +40,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="257" column="5" bodyfile="end/Map.h" bodystart="258" bodyend="262"/>
+        <location file="end/Map.h" line="260" column="5" bodyfile="end/Map.h" bodystart="261" bodyend="265"/>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-static-attrib">
@@ -58,10 +58,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="299" column="36" bodyfile="end/Map.h" bodystart="299" bodyend="299"/>
-        <referencedby refid="structconfig_1_1_graphics_1abdfab926c44948460dfaf240c60572e3" compoundref="_map_8h" startline="293" endline="296">getPath</referencedby>
-        <referencedby refid="classend_1_1_look_and_feel_1a6bac0b983ceeffd331beb5262030dbe8" compoundref="_look_and_feel_8cpp" startline="137" endline="161">end::LookAndFeel::loadGraphics</referencedby>
-        <referencedby refid="classconfig_1_1_model_1acad607c8136bcc115ffeae9d47869e26" compoundref="_config_8cpp" startline="99" endline="124">config::Model::saveToPath</referencedby>
+        <location file="end/Map.h" line="302" column="36" bodyfile="end/Map.h" bodystart="302" bodyend="302"/>
+        <referencedby refid="structconfig_1_1_graphics_1abdfab926c44948460dfaf240c60572e3" compoundref="_map_8h" startline="296" endline="299">getPath</referencedby>
+        <referencedby refid="classconfig_1_1_model_1acad607c8136bcc115ffeae9d47869e26" compoundref="_config_8cpp" startline="105" endline="131">config::Model::saveToPath</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structconfig_1_1_graphics_1a65b788f58d84dab0d495b814638c89f9" prot="public" static="yes" mutable="no">
         <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref></type>
@@ -77,9 +76,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="301" column="38" bodyfile="end/Map.h" bodystart="301" bodyend="301"/>
-        <referencedby refid="classconfig_1_1_model_1aaf6b40ca395ac5c6325cb189f13fec0f" compoundref="_config_8cpp" startline="200" endline="216">config::Model::fileChanged</referencedby>
-        <referencedby refid="structconfig_1_1_graphics_1a1c32b9f67fec052dcd7ccc1636ea85d6" compoundref="_map_8h" startline="287" endline="290">getName</referencedby>
+        <location file="end/Map.h" line="304" column="38" bodyfile="end/Map.h" bodystart="304" bodyend="304"/>
+        <referencedby refid="classconfig_1_1_model_1aaf6b40ca395ac5c6325cb189f13fec0f" compoundref="_config_8cpp" startline="250" endline="266">config::Model::fileChanged</referencedby>
+        <referencedby refid="structconfig_1_1_graphics_1a1c32b9f67fec052dcd7ccc1636ea85d6" compoundref="_map_8h" startline="290" endline="293">getName</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">
@@ -96,11 +95,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="265" column="5" bodyfile="end/Map.h" bodystart="265" bodyend="272"/>
+        <location file="end/Map.h" line="268" column="5" bodyfile="end/Map.h" bodystart="268" bodyend="275"/>
         <references refid="classjam_1_1Map_1_1Instance_1afe0acf25bab1f104aea20f20174129d1">jam::Map::Instance&lt; Graphics &gt;::map</references>
-        <references refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3eae40e6b1b9ba2ebf9940a145a2e52a06a" compoundref="_map_8h" startline="261">tabActive</references>
-        <references refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea569fa475ce9202aadea617aff4696e47" compoundref="_map_8h" startline="259">tabBar</references>
-        <references refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3eacc5a98dd83283f0635b88862a97b576b" compoundref="_map_8h" startline="260">tabInactive</references>
+        <references refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea569fa475ce9202aadea617aff4696e47" compoundref="_map_8h" startline="262">tabBar</references>
+        <references refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea715efdd89e879fa3f2becdc3d9da8f3b" compoundref="_map_8h" startline="264">tabButtonNormal</references>
+        <references refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea582f299301f3a3df535a40efb0f7c181" compoundref="_map_8h" startline="263">tabIndicator</references>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-static-func">
@@ -118,10 +117,10 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="279" column="23" bodyfile="end/Map.h" bodystart="279" bodyend="279"/>
-        <references refid="structjam_1_1Context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Derived &gt;::getContext</references>
-        <referencedby refid="classconfig_1_1_model_1a04468ffcc63d66896bb34f4c0b4c37b2" compoundref="_config_8cpp" startline="170" endline="191">config::Model::buildGraphicsCallbacks</referencedby>
-        <referencedby refid="structconfig_1_1_graphics_1a1c32b9f67fec052dcd7ccc1636ea85d6" compoundref="_map_8h" startline="287" endline="290">getName</referencedby>
+        <location file="end/Map.h" line="282" column="23" bodyfile="end/Map.h" bodystart="282" bodyend="282"/>
+        <references refid="structjam_1_1Context_1a3ff553f70ef61043352c54cfed475b4c">jam::Context&lt; Derived &gt;::getInstance</references>
+        <referencedby refid="classconfig_1_1_model_1a04468ffcc63d66896bb34f4c0b4c37b2" compoundref="_config_8cpp" startline="193" endline="241">config::Model::buildGraphicsCallbacks</referencedby>
+        <referencedby refid="structconfig_1_1_graphics_1a1c32b9f67fec052dcd7ccc1636ea85d6" compoundref="_map_8h" startline="290" endline="293">getName</referencedby>
       </memberdef>
       <memberdef kind="function" id="structconfig_1_1_graphics_1a1c32b9f67fec052dcd7ccc1636ea85d6" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
         <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref></type>
@@ -152,9 +151,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="287" column="31" bodyfile="end/Map.h" bodystart="287" bodyend="290"/>
-        <references refid="structconfig_1_1_graphics_1a65b788f58d84dab0d495b814638c89f9" compoundref="_map_8h" startline="301" endline="301">extension</references>
-        <references refid="structconfig_1_1_graphics_1a0b0f33c0070c5f80941536467ec4e416" compoundref="_map_8h" startline="279" endline="279">get</references>
+        <location file="end/Map.h" line="290" column="31" bodyfile="end/Map.h" bodystart="290" bodyend="293"/>
+        <references refid="structconfig_1_1_graphics_1a65b788f58d84dab0d495b814638c89f9" compoundref="_map_8h" startline="304" endline="304">extension</references>
+        <references refid="structconfig_1_1_graphics_1a0b0f33c0070c5f80941536467ec4e416" compoundref="_map_8h" startline="282" endline="282">get</references>
         <references refid="structjam_1_1Format_1a838b7c56ce7913ab2b4471148a1019cd">jam::Format::toFileName</references>
       </memberdef>
       <memberdef kind="function" id="structconfig_1_1_graphics_1abdfab926c44948460dfaf240c60572e3" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
@@ -174,8 +173,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="293" column="29" bodyfile="end/Map.h" bodystart="293" bodyend="296"/>
-        <references refid="structconfig_1_1_graphics_1a680b9dba6753acd9eb16c43c840bba0c" compoundref="_map_8h" startline="299" endline="299">path</references>
+        <location file="end/Map.h" line="296" column="29" bodyfile="end/Map.h" bodystart="296" bodyend="299"/>
+        <references refid="structconfig_1_1_graphics_1a680b9dba6753acd9eb16c43c840bba0c" compoundref="_map_8h" startline="302" endline="302">path</references>
       </memberdef>
     </sectiondef>
     <sectiondef kind="private-func">
@@ -192,9 +191,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="304" column="24" bodyfile="end/Map.h" bodystart="304" bodyend="304"/>
+        <location file="end/Map.h" line="307" column="24" bodyfile="end/Map.h" bodystart="307" bodyend="307"/>
         <references refid="classjam_1_1Map_1_1Instance_1afe0acf25bab1f104aea20f20174129d1">jam::Map::Instance&lt; Graphics &gt;::map</references>
-        <references refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea569fa475ce9202aadea617aff4696e47" compoundref="_map_8h" startline="259">tabBar</references>
+        <references refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea569fa475ce9202aadea617aff4696e47" compoundref="_map_8h" startline="262">tabBar</references>
       </memberdef>
     </sectiondef>
     <briefdescription>
@@ -202,7 +201,7 @@
     </briefdescription>
     <detaileddescription>
 <para>CRTP-derived from <ref refid="classjam_1_1Map_1_1Instance" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Map::Instance&lt;Graphics&gt;</ref>.</para>
-<para>Maps each enum key to its Identifier stem (e.g. tabBar → &quot;tab_bar&quot;) and resolves the on-disk filename via <ref refid="structconfig_1_1_graphics_1a1c32b9f67fec052dcd7ccc1636ea85d6" kindref="member">getName()</ref>. All keys produce &quot;stem.svg&quot;.</para>
+<para>Maps each enum key to its Identifier stem and resolves the on-disk filename via <ref refid="structconfig_1_1_graphics_1a1c32b9f67fec052dcd7ccc1636ea85d6" kindref="member">getName()</ref>. All keys produce &quot;stem.svg&quot;: tabBar → tab_bar.svg tabIndicator → tab_indicator.svg tabButtonNormal → tab_button_normal.svg (default slot for the tab button)</para>
 <para>Owns the graphics subdirectory and the svg extension. The live instance is owned by <ref refid="classend_1_1_application" kindref="compound">end::Application</ref> — static <ref refid="structconfig_1_1_graphics_1a0b0f33c0070c5f80941536467ec4e416" kindref="member">get()</ref> resolves through Context&lt;Graphics&gt;. </para>
     </detaileddescription>
     <inheritancegraph>
@@ -262,15 +261,15 @@
         <link refid="classjuce_1_1String" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
     </collaborationgraph>
-    <location file="end/Map.h" line="254" column="1" bodyfile="end/Map.h" bodystart="255" bodyend="305"/>
+    <location file="end/Map.h" line="257" column="1" bodyfile="end/Map.h" bodystart="258" bodyend="308"/>
     <listofallmembers>
       <member refid="classjam_1_1Map_1_1Instance_1a39231f6d1e13c6f64e72a07851a130c4" prot="public" virt="non-virtual"><scope>config::Graphics</scope><name>contains</name></member>
       <member refid="structjam_1_1Context_1a6e3f38a234db8ff2a9acb5986e72a2de" prot="public" virt="non-virtual"><scope>config::Graphics</scope><name>Context</name></member>
       <member refid="structconfig_1_1_graphics_1a65b788f58d84dab0d495b814638c89f9" prot="public" virt="non-virtual"><scope>config::Graphics</scope><name>extension</name></member>
       <member refid="structconfig_1_1_graphics_1a0b0f33c0070c5f80941536467ec4e416" prot="public" virt="non-virtual"><scope>config::Graphics</scope><name>get</name></member>
       <member refid="classjam_1_1Map_1_1Instance_1a098abe8fd166d7d61763bf0d215799cd" prot="public" virt="non-virtual" ambiguityscope="jam::Map::Instance&lt; Graphics &gt;::"><scope>config::Graphics</scope><name>get</name></member>
-      <member refid="structjam_1_1Context_1a259aac6b39aea0f3d3e2be9ab123cff3" prot="public" virt="non-virtual"><scope>config::Graphics</scope><name>getContext</name></member>
       <member refid="structconfig_1_1_graphics_1af70f25cb52043c6932df53dfc8dc8c29" prot="private" virt="virtual"><scope>config::Graphics</scope><name>getDefault</name></member>
+      <member refid="structjam_1_1Context_1a3ff553f70ef61043352c54cfed475b4c" prot="public" virt="non-virtual"><scope>config::Graphics</scope><name>getInstance</name></member>
       <member refid="structconfig_1_1_graphics_1a1c32b9f67fec052dcd7ccc1636ea85d6" prot="public" virt="non-virtual"><scope>config::Graphics</scope><name>getName</name></member>
       <member refid="structconfig_1_1_graphics_1abdfab926c44948460dfaf240c60572e3" prot="public" virt="non-virtual"><scope>config::Graphics</scope><name>getPath</name></member>
       <member refid="structconfig_1_1_graphics_1a665d2fcba7612a71f5d94fe7a8830a24" prot="public" virt="non-virtual"><scope>config::Graphics</scope><name>Graphics</name></member>
@@ -279,9 +278,9 @@
       <member refid="structjam_1_1Context_1a6716feb60b039083ca0c099a506a3474" prot="public" virt="non-virtual"><scope>config::Graphics</scope><name>operator=</name></member>
       <member refid="structconfig_1_1_graphics_1a680b9dba6753acd9eb16c43c840bba0c" prot="public" virt="non-virtual"><scope>config::Graphics</scope><name>path</name></member>
       <member refid="structjam_1_1Context_1aa1862120f2983ab7ddef536ba03bb114" prot="private" virt="non-virtual"><scope>config::Graphics</scope><name>previous</name></member>
-      <member refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3eae40e6b1b9ba2ebf9940a145a2e52a06a" prot="public" virt="non-virtual"><scope>config::Graphics</scope><name>tabActive</name></member>
       <member refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea569fa475ce9202aadea617aff4696e47" prot="public" virt="non-virtual"><scope>config::Graphics</scope><name>tabBar</name></member>
-      <member refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3eacc5a98dd83283f0635b88862a97b576b" prot="public" virt="non-virtual"><scope>config::Graphics</scope><name>tabInactive</name></member>
+      <member refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea715efdd89e879fa3f2becdc3d9da8f3b" prot="public" virt="non-virtual"><scope>config::Graphics</scope><name>tabButtonNormal</name></member>
+      <member refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea582f299301f3a3df535a40efb0f7c181" prot="public" virt="non-virtual"><scope>config::Graphics</scope><name>tabIndicator</name></member>
       <member refid="structjam_1_1Context_1a4169820e71837632922d3d17b377aeee" prot="public" virt="virtual"><scope>config::Graphics</scope><name>~Context</name></member>
     </listofallmembers>
   </compounddef>

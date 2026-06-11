@@ -102,9 +102,9 @@
         </inbodydescription>
         <location file="end/Map.h" line="233" column="36" bodyfile="end/Map.h" bodystart="233" bodyend="235"/>
         <referencedby refid="structconfig_1_1_file_1a8fb7a80701aaed8671256aa65afaf19d" compoundref="_map_8h" startline="227" endline="230">getPath</referencedby>
-        <referencedby refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="126" endline="168">config::Model::loadFromPath</referencedby>
-        <referencedby refid="classconfig_1_1_model_1acad607c8136bcc115ffeae9d47869e26" compoundref="_config_8cpp" startline="99" endline="124">config::Model::saveToPath</referencedby>
-        <referencedby refid="classconfig_1_1_model_1abd7d146ee9fede8da7f5f0678faed50e" compoundref="_config_8cpp" startline="193" endline="198">config::Model::startWatcher</referencedby>
+        <referencedby refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="133" endline="191">config::Model::loadFromPath</referencedby>
+        <referencedby refid="classconfig_1_1_model_1acad607c8136bcc115ffeae9d47869e26" compoundref="_config_8cpp" startline="105" endline="131">config::Model::saveToPath</referencedby>
+        <referencedby refid="classconfig_1_1_model_1abd7d146ee9fede8da7f5f0678faed50e" compoundref="_config_8cpp" startline="243" endline="248">config::Model::startWatcher</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structconfig_1_1_file_1a6ab20528e69a64a7091bd8d1269eac55" prot="public" static="yes" mutable="no">
         <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref></type>
@@ -121,7 +121,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="end/Map.h" line="237" column="38" bodyfile="end/Map.h" bodystart="237" bodyend="237"/>
-        <referencedby refid="classconfig_1_1_model_1aaf6b40ca395ac5c6325cb189f13fec0f" compoundref="_config_8cpp" startline="200" endline="216">config::Model::fileChanged</referencedby>
+        <referencedby refid="classconfig_1_1_model_1aaf6b40ca395ac5c6325cb189f13fec0f" compoundref="_config_8cpp" startline="250" endline="266">config::Model::fileChanged</referencedby>
         <referencedby refid="structconfig_1_1_file_1ae101919bc1214478f5086e2e859742de" compoundref="_map_8h" startline="221" endline="224">getName</referencedby>
       </memberdef>
     </sectiondef>
@@ -167,10 +167,10 @@
         <inbodydescription>
         </inbodydescription>
         <location file="end/Map.h" line="213" column="23" bodyfile="end/Map.h" bodystart="213" bodyend="213"/>
-        <references refid="structjam_1_1Context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Derived &gt;::getContext</references>
+        <references refid="structjam_1_1Context_1a3ff553f70ef61043352c54cfed475b4c">jam::Context&lt; Derived &gt;::getInstance</references>
         <referencedby refid="structconfig_1_1_file_1ae101919bc1214478f5086e2e859742de" compoundref="_map_8h" startline="221" endline="224">getName</referencedby>
-        <referencedby refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" compoundref="_config_8cpp" startline="57" endline="96">config::Model::initialise</referencedby>
-        <referencedby refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="126" endline="168">config::Model::loadFromPath</referencedby>
+        <referencedby refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" compoundref="_config_8cpp" startline="62" endline="102">config::Model::initialise</referencedby>
+        <referencedby refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="133" endline="191">config::Model::loadFromPath</referencedby>
       </memberdef>
       <memberdef kind="function" id="structconfig_1_1_file_1ae101919bc1214478f5086e2e859742de" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
         <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref></type>
@@ -205,8 +205,8 @@
         <references refid="structconfig_1_1_file_1a6ab20528e69a64a7091bd8d1269eac55" compoundref="_map_8h" startline="237" endline="237">extension</references>
         <references refid="structconfig_1_1_file_1a1fe87258f092c2141e6d0171085f1468" compoundref="_map_8h" startline="213" endline="213">get</references>
         <references refid="structjam_1_1Format_1a838b7c56ce7913ab2b4471148a1019cd">jam::Format::toFileName</references>
-        <referencedby refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" compoundref="_config_8cpp" startline="57" endline="96">config::Model::initialise</referencedby>
-        <referencedby refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="126" endline="168">config::Model::loadFromPath</referencedby>
+        <referencedby refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" compoundref="_config_8cpp" startline="62" endline="102">config::Model::initialise</referencedby>
+        <referencedby refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="133" endline="191">config::Model::loadFromPath</referencedby>
       </memberdef>
       <memberdef kind="function" id="structconfig_1_1_file_1a8fb7a80701aaed8671256aa65afaf19d" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
         <type>const <ref refid="classjuce_1_1File" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::File</ref></type>
@@ -324,8 +324,8 @@
       <member refid="structconfig_1_1_file_1ae65e95e7d00b4fcaad4a0ab2265d903d" prot="public" virt="non-virtual"><scope>config::File</scope><name>File</name></member>
       <member refid="structconfig_1_1_file_1a1fe87258f092c2141e6d0171085f1468" prot="public" virt="non-virtual"><scope>config::File</scope><name>get</name></member>
       <member refid="classjam_1_1Map_1_1Instance_1a098abe8fd166d7d61763bf0d215799cd" prot="public" virt="non-virtual" ambiguityscope="jam::Map::Instance&lt; File &gt;::"><scope>config::File</scope><name>get</name></member>
-      <member refid="structjam_1_1Context_1a259aac6b39aea0f3d3e2be9ab123cff3" prot="public" virt="non-virtual"><scope>config::File</scope><name>getContext</name></member>
       <member refid="structconfig_1_1_file_1ad20cf8ce87a81af789c0437715378777" prot="private" virt="virtual"><scope>config::File</scope><name>getDefault</name></member>
+      <member refid="structjam_1_1Context_1a3ff553f70ef61043352c54cfed475b4c" prot="public" virt="non-virtual"><scope>config::File</scope><name>getInstance</name></member>
       <member refid="structconfig_1_1_file_1ae101919bc1214478f5086e2e859742de" prot="public" virt="non-virtual"><scope>config::File</scope><name>getName</name></member>
       <member refid="structconfig_1_1_file_1a8fb7a80701aaed8671256aa65afaf19d" prot="public" virt="non-virtual"><scope>config::File</scope><name>getPath</name></member>
       <member refid="structconfig_1_1_file_1aa24a5faabf6b9a8f30497de675ca198caf3232b14a906fb91ecda7443235ce6ef" prot="public" virt="non-virtual"><scope>config::File</scope><name>graphics</name></member>

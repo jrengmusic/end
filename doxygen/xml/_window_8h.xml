@@ -51,10 +51,15 @@
         <link refid="_look_and_feel_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
         <childnode refid="5" relation="include">
         </childnode>
         <childnode refid="3" relation="include">
         </childnode>
+      </node>
+      <node id="7">
+        <label>JamFontsBinaryData.h</label>
       </node>
       <node id="2">
         <label>JuceHeader.h</label>
@@ -128,7 +133,7 @@
 <codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classend_1_1_window_1a83a14c6067ee4a40da3db59f9e1b8764" kindref="member">valueTreePropertyChanged</ref><sp/>(<ref refid="classjuce_1_1ValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::ValueTree</ref>&amp;<sp/>tree,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classjuce_1_1Identifier" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Identifier</ref>&amp;<sp/>property)<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
 <codeline lineno="86"><highlight class="normal"></highlight></codeline>
 <codeline lineno="87"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
-<codeline lineno="88" refid="classend_1_1_window_1afe08d593b7bd98356a715f735eb39ad4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classconfig_1_1_model" kindref="compound">config::Model</ref>&amp;<sp/><ref refid="namespaceconfig" kindref="compound">config</ref><sp/>{<sp/>*<ref refid="structjam_1_1Context_1a259aac6b39aea0f3d3e2be9ab123cff3" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">config::Model::getContext</ref>()<sp/>};</highlight></codeline>
+<codeline lineno="88" refid="classend_1_1_window_1afe08d593b7bd98356a715f735eb39ad4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classconfig_1_1_model" kindref="compound">config::Model</ref>&amp;<sp/><ref refid="namespaceconfig" kindref="compound">config</ref><sp/>{<sp/>*<ref refid="structjam_1_1Context_1a3ff553f70ef61043352c54cfed475b4c" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">config::Model::getInstance</ref>()<sp/>};</highlight></codeline>
 <codeline lineno="89"><highlight class="normal"></highlight></codeline>
 <codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_window_1ac277dcb496977e31338298a1c2f8e2d5" kindref="member">registerStyleParameters</ref>();</highlight></codeline>
 <codeline lineno="91"><highlight class="normal"></highlight></codeline>

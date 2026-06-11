@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="60px" height="60px" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:1.5;">
+    <rect id="tab-button-normal" x="0" y="0" width="60" height="60" style="fill:none;"/>
+    <g id="bottom-right">
+        <rect id="bounds" x="40" y="40" width="20" height="20" style="fill:none;stroke:#ff00cd;stroke-width:0.1px;"/>
+        <path id="background" d="M58.003,40L58.003,42.49C58.003,43.865 56.887,44.98 55.513,44.98L40,44.98L40,40L58.003,40Z" style="fill:#ff0;"/>
+    </g>
+    <g id="bottom">
+        <g id="bounds1" serif:id="bounds">
+            <rect x="20" y="40" width="20" height="20" style="fill:none;stroke:#f0f;stroke-width:0.1px;"/>
+        </g>
+        <rect id="background1" serif:id="background" x="20" y="40" width="20" height="5" style="fill:#ff0;"/>
+    </g>
+    <g id="bottom-left">
+        <rect id="bounds2" serif:id="bounds" x="0" y="40" width="20" height="20" style="fill:none;stroke:#ff00cd;stroke-width:0.1px;"/>
+        <path id="background2" serif:id="background" d="M20,40L20,44.98L4.487,44.98C3.113,44.98 1.997,43.865 1.997,42.49L1.997,40L20,40Z" style="fill:#ff0;"/>
+    </g>
+    <g id="right">
+        <g id="bounds3" serif:id="bounds">
+            <rect x="40" y="20" width="20" height="20" style="fill:none;stroke:#f0f;stroke-width:0.1px;"/>
+        </g>
+        <rect id="background3" serif:id="background" x="40" y="20.001" width="18.003" height="20.001" style="fill:#ff0;"/>
+    </g>
+    <g id="centre">
+        <g id="bounds4" serif:id="bounds">
+            <rect x="20" y="20" width="20" height="20" style="fill:none;stroke:#f0f;stroke-width:0.1px;"/>
+        </g>
+        <rect id="background4" serif:id="background" x="20.001" y="20" width="20" height="19.999" style="fill:#ff0;"/>
+    </g>
+    <g id="left">
+        <g id="bounds5" serif:id="bounds">
+            <rect x="0" y="20" width="20" height="20" style="fill:none;stroke:#f0f;stroke-width:0.1px;"/>
+        </g>
+        <rect id="background5" serif:id="background" x="1.997" y="20" width="18.003" height="20" style="fill:#ff0;"/>
+    </g>
+    <g id="top-right">
+        <rect id="bounds6" serif:id="bounds" x="40" y="0" width="20" height="20" style="fill:none;stroke:#ff00cd;stroke-width:0.1px;"/>
+        <path id="background6" serif:id="background" d="M58.003,17.5L58.003,20L40,20L40,15L55.503,15C56.883,15 58.003,16.12 58.003,17.5Z" style="fill:#ff0;"/>
+    </g>
+    <g id="top">
+        <g id="bounds7" serif:id="bounds">
+            <rect x="20" y="0" width="20" height="20" style="fill:none;stroke:#f0f;stroke-width:0.1px;"/>
+        </g>
+        <rect id="background7" serif:id="background" x="20" y="15" width="20" height="5" style="fill:#ff0;"/>
+    </g>
+    <g id="top-left">
+        <rect id="bounds8" serif:id="bounds" x="0" y="0" width="20" height="20" style="fill:none;stroke:#ff00cd;stroke-width:0.1px;"/>
+        <path id="background8" serif:id="background" d="M19.999,15L19.999,20L1.996,20L1.996,17.986C1.996,16.339 3.335,15 4.983,15L19.999,15Z" style="fill:#ff0;"/>
+    </g>
+</svg>

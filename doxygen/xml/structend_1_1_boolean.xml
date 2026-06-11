@@ -52,7 +52,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="end/Map.h" line="24" column="23" bodyfile="end/Map.h" bodystart="24" bodyend="24"/>
-        <references refid="structjam_1_1Context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Derived &gt;::getContext</references>
+        <references refid="structjam_1_1Context_1a3ff553f70ef61043352c54cfed475b4c">jam::Context&lt; Derived &gt;::getInstance</references>
         <referencedby refid="structend_1_1_boolean_1ac2389507d11893392d5122a3d2914793" compoundref="_map_8h" startline="26" endline="29">get</referencedby>
         <referencedby refid="classend_1_1_window_1ac277dcb496977e31338298a1c2f8e2d5" compoundref="_window_8cpp" startline="45" endline="96">end::Window::registerStyleParameters</referencedby>
       </memberdef>
@@ -153,8 +153,8 @@
       <member refid="structend_1_1_boolean_1ac2389507d11893392d5122a3d2914793" prot="public" virt="non-virtual"><scope>end::Boolean</scope><name>get</name></member>
       <member refid="structend_1_1_boolean_1ac8d7746091f73463b1bc97a4168924d9" prot="public" virt="non-virtual"><scope>end::Boolean</scope><name>get</name></member>
       <member refid="classjam_1_1Map_1_1Instance_1a098abe8fd166d7d61763bf0d215799cd" prot="public" virt="non-virtual" ambiguityscope="jam::Map::Instance&lt; Boolean &gt;::"><scope>end::Boolean</scope><name>get</name></member>
-      <member refid="structjam_1_1Context_1a259aac6b39aea0f3d3e2be9ab123cff3" prot="public" virt="non-virtual"><scope>end::Boolean</scope><name>getContext</name></member>
       <member refid="structend_1_1_boolean_1a9ae901bdca7e81172663a7aacd423399" prot="public" virt="virtual"><scope>end::Boolean</scope><name>getDefault</name></member>
+      <member refid="structjam_1_1Context_1a3ff553f70ef61043352c54cfed475b4c" prot="public" virt="non-virtual"><scope>end::Boolean</scope><name>getInstance</name></member>
       <member refid="structjam_1_1Context_1a5900ff66cdba02d6f6947cc6d5e8ec3d" prot="private" virt="non-virtual"><scope>end::Boolean</scope><name>head</name></member>
       <member refid="classjam_1_1Map_1_1Instance_1afe0acf25bab1f104aea20f20174129d1" prot="protected" virt="non-virtual"><scope>end::Boolean</scope><name>map</name></member>
       <member refid="structjam_1_1Context_1a6716feb60b039083ca0c099a506a3474" prot="public" virt="non-virtual"><scope>end::Boolean</scope><name>operator=</name></member>

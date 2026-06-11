@@ -86,7 +86,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="end/Map.h" line="157" column="23" bodyfile="end/Map.h" bodystart="157" bodyend="157"/>
-        <references refid="structjam_1_1Context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Derived &gt;::getContext</references>
+        <references refid="structjam_1_1Context_1a3ff553f70ef61043352c54cfed475b4c">jam::Context&lt; Derived &gt;::getInstance</references>
       </memberdef>
     </sectiondef>
     <briefdescription>
@@ -146,8 +146,8 @@
       <member refid="structend_1_1_drop_mode_1a5794f9c63d057c7d73e72da65c672af0" prot="public" virt="non-virtual"><scope>end::DropMode</scope><name>DropMode</name></member>
       <member refid="structend_1_1_drop_mode_1aa81eaf35a646b6395bd1169dabd1a927" prot="public" virt="non-virtual"><scope>end::DropMode</scope><name>get</name></member>
       <member refid="classjam_1_1Map_1_1Instance_1a098abe8fd166d7d61763bf0d215799cd" prot="public" virt="non-virtual" ambiguityscope="jam::Map::Instance&lt; DropMode &gt;::"><scope>end::DropMode</scope><name>get</name></member>
-      <member refid="structjam_1_1Context_1a259aac6b39aea0f3d3e2be9ab123cff3" prot="public" virt="non-virtual"><scope>end::DropMode</scope><name>getContext</name></member>
       <member refid="structend_1_1_drop_mode_1a7f5937c51beb5ec66953420bcfab919a" prot="public" virt="virtual"><scope>end::DropMode</scope><name>getDefault</name></member>
+      <member refid="structjam_1_1Context_1a3ff553f70ef61043352c54cfed475b4c" prot="public" virt="non-virtual"><scope>end::DropMode</scope><name>getInstance</name></member>
       <member refid="structjam_1_1Context_1a5900ff66cdba02d6f6947cc6d5e8ec3d" prot="private" virt="non-virtual"><scope>end::DropMode</scope><name>head</name></member>
       <member refid="classjam_1_1Map_1_1Instance_1afe0acf25bab1f104aea20f20174129d1" prot="protected" virt="non-virtual"><scope>end::DropMode</scope><name>map</name></member>
       <member refid="structend_1_1_drop_mode_1a2fea339e3fb033666ecd30029f7cf105af3939225d96f70a8f811ddf6e5401ca1" prot="public" virt="non-virtual"><scope>end::DropMode</scope><name>newline</name></member>

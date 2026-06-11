@@ -20,7 +20,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="end/Tabs.h" line="44" column="28" bodyfile="end/Tabs.h" bodystart="44" bodyend="44"/>
-        <referencedby refid="classend_1_1_tabs_1a530f82b0d136b1c3385be168d79d5b66" compoundref="_tabs_8cpp" startline="53" endline="64">updateTabBarVisibility</referencedby>
+        <referencedby refid="classend_1_1_tabs_1a530f82b0d136b1c3385be168d79d5b66" compoundref="_tabs_8cpp" startline="56" endline="67">updateTabBarVisibility</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="private-attrib">
@@ -37,8 +37,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="end/Tabs.h" line="48" column="16" bodyfile="end/Tabs.h" bodystart="48" bodyend="-1"/>
-        <referencedby refid="classend_1_1_tabs_1a5d92721be181f26d6425b39bfa3724f4" compoundref="_tabs_8cpp" startline="14" endline="26">addNewTab</referencedby>
-        <referencedby refid="classend_1_1_tabs_1a629895e04058463b40f27526739b65fe" compoundref="_tabs_8cpp" startline="28" endline="44">removeCurrentTab</referencedby>
+        <referencedby refid="classend_1_1_tabs_1a5d92721be181f26d6425b39bfa3724f4" compoundref="_tabs_8cpp" startline="14" endline="29">addNewTab</referencedby>
+        <referencedby refid="classend_1_1_tabs_1a629895e04058463b40f27526739b65fe" compoundref="_tabs_8cpp" startline="31" endline="47">removeCurrentTab</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">
@@ -76,14 +76,14 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Tabs.h" line="32" column="10" bodyfile="end/Tabs.cpp" bodystart="14" bodyend="26"/>
+        <location file="end/Tabs.h" line="32" column="10" bodyfile="end/Tabs.cpp" bodystart="14" bodyend="29"/>
         <references refid="classjam_1_1TabbedComponent_1a52e2d240fb8fdab778223797995be95c">jam::TabbedComponent::addTab</references>
         <references refid="classend_1_1_tabs_1a0a04c1c18eb83b30d0c23901ea3fdc45" compoundref="_tabs_8h" startline="48">attachments</references>
         <references refid="classjam_1_1TabbedComponent_1ab52aa701daae6c2f6dd778e4fc1b9352">jam::TabbedComponent::getNumTabs</references>
         <references refid="structjam_1_1Model_1_1Component_1aa5a0c333addf975536c95bca7a9685be">jam::Model::Component::model</references>
         <references refid="classjam_1_1TabbedComponent_1a02fe2df3f471fb0a291b69a12b61b683">jam::TabbedComponent::setCurrentTabIndex</references>
         <references refid="namespacejuce_1_1Colours_1a2d59beef8fef5d9b43c030dc5968a2bb">juce::Colours::transparentBlack</references>
-        <references refid="classend_1_1_tabs_1a530f82b0d136b1c3385be168d79d5b66" compoundref="_tabs_8cpp" startline="53" endline="64">updateTabBarVisibility</references>
+        <references refid="classend_1_1_tabs_1a530f82b0d136b1c3385be168d79d5b66" compoundref="_tabs_8cpp" startline="56" endline="67">updateTabBarVisibility</references>
       </memberdef>
       <memberdef kind="function" id="classend_1_1_tabs_1a629895e04058463b40f27526739b65fe" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -98,7 +98,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Tabs.h" line="35" column="10" bodyfile="end/Tabs.cpp" bodystart="28" bodyend="44"/>
+        <location file="end/Tabs.h" line="35" column="10" bodyfile="end/Tabs.cpp" bodystart="31" bodyend="47"/>
         <references refid="classend_1_1_tabs_1a0a04c1c18eb83b30d0c23901ea3fdc45" compoundref="_tabs_8h" startline="48">attachments</references>
         <references refid="classjam_1_1TabbedComponent_1abf9b16f6ff7eca56996fb95c99deaaa2">jam::TabbedComponent::getCurrentTabIndex</references>
         <references refid="classjuce_1_1JUCEApplication_1a692d98883525936314ee3554c219c42b">juce::JUCEApplication::getInstance</references>
@@ -107,7 +107,7 @@
         <references refid="classjam_1_1TabbedComponent_1ad62770b4cbf4b8e3fa19f262d80af1a0">jam::TabbedComponent::removeTab</references>
         <references refid="classjam_1_1TabbedComponent_1a02fe2df3f471fb0a291b69a12b61b683">jam::TabbedComponent::setCurrentTabIndex</references>
         <references refid="classjuce_1_1JUCEApplication_1a8c2f7ab5ab49f2d3b80074cbc8fdeef9">juce::JUCEApplication::systemRequestedQuit</references>
-        <references refid="classend_1_1_tabs_1a530f82b0d136b1c3385be168d79d5b66" compoundref="_tabs_8cpp" startline="53" endline="64">updateTabBarVisibility</references>
+        <references refid="classend_1_1_tabs_1a530f82b0d136b1c3385be168d79d5b66" compoundref="_tabs_8cpp" startline="56" endline="67">updateTabBarVisibility</references>
       </memberdef>
       <memberdef kind="function" id="classend_1_1_tabs_1a202281e6b55f4974b00b7cf030cf3f12" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
         <type><ref refid="classend_1_1_panes" kindref="compound">Panes</ref> *</type>
@@ -122,7 +122,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Tabs.h" line="38" column="11" bodyfile="end/Tabs.cpp" bodystart="46" bodyend="49"/>
+        <location file="end/Tabs.h" line="38" column="11" bodyfile="end/Tabs.cpp" bodystart="49" bodyend="52"/>
         <references refid="classjam_1_1TabbedComponent_1ac4eabdabb00d256d4464b78bbd79da63">jam::TabbedComponent::getCurrentContentComponent</references>
       </memberdef>
     </sectiondef>
@@ -148,7 +148,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Tabs.h" line="41" column="10" bodyfile="end/Tabs.cpp" bodystart="51" bodyend="51"/>
+        <location file="end/Tabs.h" line="41" column="10" bodyfile="end/Tabs.cpp" bodystart="54" bodyend="54"/>
       </memberdef>
     </sectiondef>
     <sectiondef kind="private-func">
@@ -164,14 +164,14 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Tabs.h" line="46" column="10" bodyfile="end/Tabs.cpp" bodystart="53" bodyend="64"/>
+        <location file="end/Tabs.h" line="46" column="10" bodyfile="end/Tabs.cpp" bodystart="56" bodyend="67"/>
         <references refid="classjuce_1_1Component_1ad55f2def99fd7d05f6a71ef505e1a43b">juce::Component::getLookAndFeel</references>
         <references refid="classjam_1_1TabbedComponent_1ab52aa701daae6c2f6dd778e4fc1b9352">jam::TabbedComponent::getNumTabs</references>
         <references refid="namespacejuce_1af0e7f88f33180df5f8f74d53290e11fc">juce::roundToInt</references>
         <references refid="classjam_1_1TabbedComponent_1ae43e06c068bf37737a3a73331e2e8dbc">jam::TabbedComponent::setTabBarDepth</references>
         <references refid="classend_1_1_tabs_1a0f53358720342d03379c1e59ea422512" compoundref="_tabs_8h" startline="44" endline="44">tabFontRatio</references>
-        <referencedby refid="classend_1_1_tabs_1a5d92721be181f26d6425b39bfa3724f4" compoundref="_tabs_8cpp" startline="14" endline="26">addNewTab</referencedby>
-        <referencedby refid="classend_1_1_tabs_1a629895e04058463b40f27526739b65fe" compoundref="_tabs_8cpp" startline="28" endline="44">removeCurrentTab</referencedby>
+        <referencedby refid="classend_1_1_tabs_1a5d92721be181f26d6425b39bfa3724f4" compoundref="_tabs_8cpp" startline="14" endline="29">addNewTab</referencedby>
+        <referencedby refid="classend_1_1_tabs_1a629895e04058463b40f27526739b65fe" compoundref="_tabs_8cpp" startline="31" endline="47">removeCurrentTab</referencedby>
       </memberdef>
     </sectiondef>
     <briefdescription>
@@ -216,60 +216,60 @@
         <link refid="classend_1_1_tabs"/>
         <childnode refid="2" relation="public-inheritance">
         </childnode>
-        <childnode refid="19" relation="public-inheritance">
+        <childnode refid="21" relation="public-inheritance">
         </childnode>
-        <childnode refid="26" relation="usage">
+        <childnode refid="28" relation="usage">
           <edgelabel>attachments</edgelabel>
         </childnode>
       </node>
-      <node id="21">
+      <node id="23">
         <label>jam::AnyMap</label>
         <link refid="classjam_1_1AnyMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-        <childnode refid="22" relation="usage">
+        <childnode refid="24" relation="usage">
           <edgelabel>entries</edgelabel>
         </childnode>
-        <childnode refid="23" relation="usage">
+        <childnode refid="25" relation="usage">
           <edgelabel>types</edgelabel>
         </childnode>
       </node>
-      <node id="23">
+      <node id="25">
         <label>jam::HashMap&lt; juce::Identifier, std::type_index &gt;</label>
         <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
-      <node id="22">
+      <node id="24">
         <label>jam::HashMap&lt; juce::Identifier, std::unique_ptr&lt; void, Deleter &gt; &gt;</label>
         <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
-      <node id="20">
+      <node id="22">
         <label>jam::Model</label>
         <link refid="classjam_1_1Model" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-        <childnode refid="16" relation="public-inheritance">
+        <childnode refid="18" relation="public-inheritance">
         </childnode>
-        <childnode refid="21" relation="usage">
+        <childnode refid="23" relation="usage">
           <edgelabel>params</edgelabel>
         </childnode>
-        <childnode refid="24" relation="usage">
+        <childnode refid="26" relation="usage">
           <edgelabel>state</edgelabel>
         </childnode>
-        <childnode refid="25" relation="usage">
+        <childnode refid="27" relation="usage">
           <edgelabel>valueTreeChanging</edgelabel>
         </childnode>
       </node>
-      <node id="19">
+      <node id="21">
         <label>jam::Model::Component</label>
         <link refid="structjam_1_1Model_1_1Component" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-        <childnode refid="20" relation="usage">
+        <childnode refid="22" relation="usage">
           <edgelabel>model</edgelabel>
         </childnode>
-        <childnode refid="24" relation="usage">
+        <childnode refid="26" relation="usage">
           <edgelabel>state</edgelabel>
         </childnode>
       </node>
-      <node id="26">
+      <node id="28">
         <label>jam::Owner&lt; jam::Model::Attachment &gt;</label>
         <link refid="classjam_1_1Owner" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
-      <node id="7">
+      <node id="8">
         <label>jam::Owner&lt; jam::button::Bar::TabInfo &gt;</label>
         <link refid="classjam_1_1Owner" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
@@ -281,10 +281,10 @@
         <childnode refid="5" relation="usage">
           <edgelabel>tabs</edgelabel>
         </childnode>
-        <childnode refid="17" relation="usage">
+        <childnode refid="19" relation="usage">
           <edgelabel>contentComponents</edgelabel>
         </childnode>
-        <childnode refid="18" relation="usage">
+        <childnode refid="20" relation="usage">
           <edgelabel>panelComponent</edgelabel>
         </childnode>
       </node>
@@ -293,49 +293,58 @@
         <link refid="classjam_1_1button_1_1Bar" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
         <childnode refid="3" relation="public-inheritance">
         </childnode>
-        <childnode refid="7" relation="usage">
-          <edgelabel>tabs</edgelabel>
+        <childnode refid="7" relation="public-inheritance">
         </childnode>
         <childnode refid="8" relation="usage">
+          <edgelabel>tabs</edgelabel>
+        </childnode>
+        <childnode refid="9" relation="usage">
+          <edgelabel>dragStartPos</edgelabel>
+        </childnode>
+        <childnode refid="10" relation="usage">
           <edgelabel>extraTabsButton</edgelabel>
         </childnode>
-        <childnode refid="12" relation="usage">
+        <childnode refid="14" relation="usage">
           <edgelabel>indicator</edgelabel>
         </childnode>
-        <childnode refid="13" relation="usage">
+        <childnode refid="15" relation="usage">
           <edgelabel>background</edgelabel>
         </childnode>
-        <childnode refid="14" relation="usage">
+        <childnode refid="16" relation="usage">
           <edgelabel>animator</edgelabel>
         </childnode>
       </node>
-      <node id="13">
+      <node id="15">
         <label>jam::button::Bar::Background</label>
         <link refid="classjam_1_1button_1_1Bar_1_1Background" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
         <childnode refid="3" relation="public-inheritance">
         </childnode>
       </node>
-      <node id="12">
+      <node id="14">
         <label>jam::button::Bar::SlidingIndicator</label>
         <link refid="classjam_1_1button_1_1Bar_1_1SlidingIndicator" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
         <childnode refid="3" relation="public-inheritance">
         </childnode>
       </node>
-      <node id="17">
+      <node id="19">
         <label>juce::Array&lt; juce::WeakReference&lt; juce::Component &gt; &gt;</label>
         <link refid="classjuce_1_1Array" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="9">
+      <node id="11">
         <label>juce::Button</label>
         <link refid="classjuce_1_1Button" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
         <childnode refid="3" relation="public-inheritance">
         </childnode>
-        <childnode refid="10" relation="public-inheritance">
+        <childnode refid="12" relation="public-inheritance">
         </childnode>
       </node>
-      <node id="15">
+      <node id="17">
         <label>juce::ChangeBroadcaster</label>
         <link refid="classjuce_1_1ChangeBroadcaster" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="7">
+        <label>juce::ChangeListener</label>
+        <link refid="classjuce_1_1ChangeListener" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
       <node id="3">
         <label>juce::Component</label>
@@ -343,15 +352,15 @@
         <childnode refid="4" relation="public-inheritance">
         </childnode>
       </node>
-      <node id="14">
+      <node id="16">
         <label>juce::ComponentAnimator</label>
         <link refid="classjuce_1_1ComponentAnimator" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-        <childnode refid="15" relation="public-inheritance">
+        <childnode refid="17" relation="public-inheritance">
         </childnode>
-        <childnode refid="16" relation="private-inheritance">
+        <childnode refid="18" relation="private-inheritance">
         </childnode>
       </node>
-      <node id="25">
+      <node id="27">
         <label>juce::CriticalSection</label>
         <link refid="classjuce_1_1CriticalSection" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
@@ -359,25 +368,29 @@
         <label>juce::MouseListener</label>
         <link refid="classjuce_1_1MouseListener" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="10">
+      <node id="9">
+        <label>juce::Point&lt; int &gt;</label>
+        <link refid="classjuce_1_1Point" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="12">
         <label>juce::SettableTooltipClient</label>
         <link refid="classjuce_1_1SettableTooltipClient" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-        <childnode refid="11" relation="public-inheritance">
+        <childnode refid="13" relation="public-inheritance">
         </childnode>
       </node>
-      <node id="16">
+      <node id="18">
         <label>juce::Timer</label>
         <link refid="classjuce_1_1Timer" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="11">
+      <node id="13">
         <label>juce::TooltipClient</label>
         <link refid="classjuce_1_1TooltipClient" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="24">
+      <node id="26">
         <label>juce::ValueTree</label>
         <link refid="classjuce_1_1ValueTree" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="18">
+      <node id="20">
         <label>juce::WeakReference&lt; juce::Component &gt;</label>
         <link refid="classjuce_1_1WeakReference" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
@@ -387,9 +400,9 @@
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
-      <node id="8">
+      <node id="10">
         <label>std::unique_ptr&lt; juce::Button &gt;</label>
-        <childnode refid="9" relation="usage">
+        <childnode refid="11" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
@@ -427,10 +440,10 @@
       <member refid="classjam_1_1TabbedComponent_1a83a398a66022740ea17986535755631e" prot="private" virt="non-virtual"><scope>end::Tabs</scope><name>contentComponents</name></member>
       <member refid="classjuce_1_1Component_1a188277f08097547aeed9abcfb0057d02" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>copyAllExplicitColoursTo</name></member>
       <member refid="classjuce_1_1Component_1a95bb57df0447483de6127661178b69a2" prot="public" virt="virtual"><scope>end::Tabs</scope><name>createAccessibilityHandler</name></member>
-      <member refid="classjuce_1_1Component_1a95af812072b7cb6ba878fab766b51efc" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>createComponentSnapshot</name></member>
+      <member refid="classjuce_1_1Component_1a1fc9aaf708e5349095e17ff746348457" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>createComponentSnapshot</name></member>
       <member refid="classjuce_1_1Component_1a89ae12304d481943462a2b22436287d5" prot="public" virt="virtual"><scope>end::Tabs</scope><name>createFocusTraverser</name></member>
       <member refid="classjuce_1_1Component_1a91bf4b1d9837aca8688f5c7266d0aa7a" prot="public" virt="virtual"><scope>end::Tabs</scope><name>createKeyboardFocusTraverser</name></member>
-      <member refid="classjam_1_1TabbedComponent_1ab5ae71307c81110471c708039b700943" prot="protected" virt="virtual"><scope>end::Tabs</scope><name>createTabButton</name></member>
+      <member refid="classjam_1_1TabbedComponent_1a3a3dfe4ee524c74e457be0f0c1823678" prot="protected" virt="virtual"><scope>end::Tabs</scope><name>createTabButton</name></member>
       <member refid="classend_1_1_tabs_1a42964332bbe9734aef710f26f0111536" prot="protected" virt="virtual"><scope>end::Tabs</scope><name>currentTabChanged</name></member>
       <member refid="classjuce_1_1Component_1a0be5d779a36fd22ee741e969f0a16bd6" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>deleteAllChildren</name></member>
       <member refid="classjam_1_1TabbedComponent_1a6e19f83f4c27946146dac053eea701bf" prot="private" virt="non-virtual"><scope>end::Tabs</scope><name>edgeIndent</name></member>

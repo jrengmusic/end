@@ -15,18 +15,17 @@
 -- ============================================================================
 
 return {
-
 	-- ========================================================================
 	-- FONT
 	-- ========================================================================
 
-	font = {
+	code = {
 		-- Font used for terminal text.
 		-- Must be a monospace font installed on the system.
-		family = "Display Mono",
+		font_family = "Display Mono",
 
 		-- Font size in points before zoom is applied (1 - 200).
-		size = 12,
+		font_size = 12,
 
 		-- Combine certain character sequences into symbols (e.g. -> becomes an arrow).
 		ligatures = "true",
@@ -92,7 +91,7 @@ return {
 
 	colours = {
 		-- Default text foreground colour.
-		foreground = 0xffa1d6e5,
+		text = 0xffa1d6e5,
 
 		-- Default background colour.
 		-- The last two hex digits control background transparency (GPU only).
@@ -107,13 +106,13 @@ return {
 		-- Transparent for no visible outline.
 		editor_outline = 0x00000000,
 
-		-- Cursor colour.
+		-- Caret colour.
 		-- Programs may change this colour while running.
-		cursor = 0xff4e8c93,
+		caret = 0xff4e8c93,
 
 		-- Selection highlight colour.
 		-- Semi-transparent recommended so text remains readable.
-		selection = 0x2000ddee,
+		highlight = 0x2000ddee,
 
 		-- Selection-mode cursor colour.
 		-- Shown instead of the normal cursor when selection mode is active.
@@ -172,7 +171,7 @@ return {
 		status_bar = 0xff090d12,
 
 		-- Status bar mode label background colour.
-		-- Default matches the active tab indicator colour (tab.indicator).
+		-- Default matches the active tab highlight colour (tab.highlight).
 		status_bar_label_bg = 0xff112130,
 
 		-- Status bar mode label text colour.
@@ -208,7 +207,7 @@ return {
 
 		-- Tint colour for the window background. The last two hex digits
 		-- control window transparency (glass mode). Most visible with blur enabled.
-		colour = 0xbf090d12,
+		background = 0xbf090d12,
 
 		-- Background blur radius in pixels (0 = no blur).
 		-- GPU only. Has no effect with CPU rendering.
@@ -265,20 +264,20 @@ return {
 	-- ========================================================================
 
 	tab = {
-		-- Bar background colour (the strip behind all tab buttons).
-		background = 0xFF699DAA,
+		-- Bar strip background colour (behind all tab buttons).
+		background = 0xFF2C4144,
 
 		-- Tab bar font family.
-		family = "Display Mono",
+		font_family = "Display Bold",
 
 		-- Tab bar font size in points.
-		size = 12,
+		font_size = 12,
 
-		-- Active (front) tab text colour.
-		foreground = 0xff00c8d8,
+		-- Active tab text colour (juce::TextButton::textColourOnId).
+		text_on = 0xff00c8d8,
 
-		-- Inactive tab text colour.
-		inactive_text = 0xff33535b,
+		-- Inactive tab text colour (juce::TextButton::textColourOffId).
+		text_off = 0xff33535b,
 
 		-- Tab bar orientation: "top", "bottom", "left", "right".
 		orientation = "top",
@@ -290,12 +289,17 @@ return {
 		-- Colour for SVG groups tagged "outline" in the tab SVGs.
 		outline = 0xff2c4144,
 
-		-- Inactive tab background fill (SVG groups tagged "inactive_background").
-		inactive_background = 0xff001a20,
+		-- Inactive tab background fill (juce::TextButton::buttonColourId).
+		button = 0xff001a20,
 
-		-- Sliding indicator colour (the highlight that moves to the active tab).
-		indicator = 0xff01c2d2,
+		-- Active tab fill (juce::TextButton::buttonOnColourId).
+		button_on = 0xff01c2d2,
 
+		-- Sliding selection highlight colour (jam::button::Bar::highlightColourId).
+		highlight = 0xff01c2d2,
+
+		-- Always convert tab label to upper-case.
+		uppercase = "true",
 	},
 
 	-- ========================================================================
@@ -313,13 +317,16 @@ return {
 
 	overlay = {
 		-- Overlay font family (used for status messages).
-		family = "Display Mono",
+		font_family = "Display Mono",
 
 		-- Overlay font size in points.
-		size = 14,
+		font_size = 14,
 
-		-- Overlay text colour.
-		colour = 0xff4e8c93,
+		-- Overlay background colour (juce::Label::backgroundColourId).
+		background = 0xbf090d12,
+
+		-- Overlay text colour (juce::Label::textColourId).
+		text = 0xff4e8c93,
 	},
 
 	-- ========================================================================
@@ -400,7 +407,7 @@ return {
 		height = 0.3,
 
 		-- Background colour for the highlighted/selected row.
-		-- Leave empty to use the terminal selection colour (colours.selection).
+		-- Leave empty to use the terminal selection highlight colour (colours.highlight).
 		highlight_colour = 0x2000ddee,
 	},
 

@@ -12,7 +12,7 @@
         <argsstring></argsstring>
         <name>config</name>
         <qualifiedname>end::Window::config</qualifiedname>
-        <initializer>{ *<ref refid="structjam_1_1Context_1a259aac6b39aea0f3d3e2be9ab123cff3" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">config::Model::getContext</ref>() }</initializer>
+        <initializer>{ *<ref refid="structjam_1_1Context_1a3ff553f70ef61043352c54cfed475b4c" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">config::Model::getInstance</ref>() }</initializer>
         <briefdescription>
         </briefdescription>
         <detaileddescription>
@@ -246,8 +246,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="end/Window.h" line="90" column="10" bodyfile="end/Window.cpp" bodystart="45" bodyend="96"/>
+        <references refid="structjam_1_1ID_1ad0061fc64dd7485a0e5d200e51f8a42d">jam::ID::background</references>
         <references refid="classend_1_1_window_1afd19744d8dca66b30dfbe7d1222f3ffe" compoundref="_window_8h" startline="120" endline="120">blurRadius</references>
-        <references refid="structjam_1_1ID_1a11f26375142a6a445f092b6d6e853f5b">jam::ID::colour</references>
         <references refid="structjam_1_1BackgroundBlur_1a19cc127c6ee13b3b43d9e11cb4429dec">jam::BackgroundBlur::fromString</references>
         <references refid="structend_1_1_boolean_1a4c8cfcd41ccfd2261fb8d3e08ee6143a" compoundref="_map_8h" startline="24" endline="24">end::Boolean::get</references>
         <references refid="classend_1_1_window_1a5496b743dc7c10f5dc2f657e732edf53" compoundref="_window_8h" startline="128" endline="134">glassBackend</references>
@@ -660,7 +660,7 @@
       <member refid="classjuce_1_1Component_1ad135c1cba96deed34a67c1d78c3ddc5a" prot="public" virt="non-virtual"><scope>end::Window</scope><name>contains</name></member>
       <member refid="classjuce_1_1Component_1a188277f08097547aeed9abcfb0057d02" prot="public" virt="non-virtual"><scope>end::Window</scope><name>copyAllExplicitColoursTo</name></member>
       <member refid="classjuce_1_1TopLevelWindow_1a6104f665863ffa1874527e1e77ded8a7" prot="public" virt="virtual"><scope>end::Window</scope><name>createAccessibilityHandler</name></member>
-      <member refid="classjuce_1_1Component_1a95af812072b7cb6ba878fab766b51efc" prot="public" virt="non-virtual"><scope>end::Window</scope><name>createComponentSnapshot</name></member>
+      <member refid="classjuce_1_1Component_1a1fc9aaf708e5349095e17ff746348457" prot="public" virt="non-virtual"><scope>end::Window</scope><name>createComponentSnapshot</name></member>
       <member refid="classjuce_1_1Component_1a89ae12304d481943462a2b22436287d5" prot="public" virt="virtual"><scope>end::Window</scope><name>createFocusTraverser</name></member>
       <member refid="classjuce_1_1Component_1a91bf4b1d9837aca8688f5c7266d0aa7a" prot="public" virt="virtual"><scope>end::Window</scope><name>createKeyboardFocusTraverser</name></member>
       <member refid="classjuce_1_1Component_1a0be5d779a36fd22ee741e969f0a16bd6" prot="public" virt="non-virtual"><scope>end::Window</scope><name>deleteAllChildren</name></member>

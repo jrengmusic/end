@@ -21,7 +21,7 @@ struct Boolean : public jam::Map::Instance<Boolean>
 
     const juce::String& getDefault() const noexcept override { return map.at (false); }
 
-    static const auto& get() noexcept { return getContext()->map; }
+    static const auto& get() noexcept { return getInstance()->map; }
 
     static const bool get (const juce::String& value) noexcept
     {
@@ -48,8 +48,8 @@ struct GpuMode : public jam::Map::Instance<GpuMode>
     enum
     {
         automatic,///< Use GPU if available, CPU fallback.
-        enabled,  ///< Force GPU rendering.
-        disabled, ///< Force CPU rendering.
+        enabled,///< Force GPU rendering.
+        disabled,///< Force CPU rendering.
     };
 
     /** @brief Populates the bimap with all three entries. */
@@ -64,7 +64,7 @@ struct GpuMode : public jam::Map::Instance<GpuMode>
 
     const juce::String& getDefault() const noexcept override { return map.at (GpuMode::automatic); }
 
-    static const auto& get() noexcept { return getContext()->map; }
+    static const auto& get() noexcept { return getInstance()->map; }
 };
 
 //==============================================================================
@@ -74,7 +74,7 @@ struct GpuMode : public jam::Map::Instance<GpuMode>
  * Used by display.tab.orientation, display.status_bar.position,
  * display.action_list.position, and any future positional config fields.
  *
- * Integer keys deliberately mirror jam::button::Tab::Orientation so that
+ * Integer keys deliberately mirror jam::button::Bar::Orientation so that
  * orientation values can be forwarded directly to Bar::setOrientation():
  *   0 → "top"
  *   1 → "bottom" (default)
@@ -87,16 +87,16 @@ struct GpuMode : public jam::Map::Instance<GpuMode>
 struct Position : public jam::Map::Instance<Position>
 {
     /** @brief Integer keys for all position entries.
-     *  Keys 0–3 are intentionally aligned with jam::button::Tab::Orientation
+     *  Keys 0–3 are intentionally aligned with jam::button::Bar::Orientation
      *  so that Position::get(string) can be forwarded to Bar::setOrientation()
      *  without a secondary mapping.
      */
     enum
     {
-        top,   ///< Position at top.
+        top,///< Position at top.
         bottom,///< Position at bottom (default).
-        left,  ///< Position at left.
-        right, ///< Position at right.
+        left,///< Position at left.
+        right,///< Position at right.
         center,///< Centered position.
     };
 
@@ -114,14 +114,14 @@ struct Position : public jam::Map::Instance<Position>
 
     const juce::String& getDefault() const noexcept override { return map.at (Position::bottom); }
 
-    static const auto& get() noexcept { return getContext()->map; }
+    static const auto& get() noexcept { return getInstance()->map; }
 
     static int get (const juce::String& value) noexcept
     {
         return jam::Map::getKey (get()).at (value);
     }
 
-    static const juce::String& get (int key) noexcept { return getContext()->map.at (key); }
+    static const juce::String& get (int key) noexcept { return getInstance()->map.at (key); }
 };
 
 //==============================================================================
@@ -139,7 +139,7 @@ struct DropMode : public jam::Map::Instance<DropMode>
     /** @brief Integer keys for all drop mode entries. */
     enum
     {
-        space,  ///< Join dropped paths with spaces (default).
+        space,///< Join dropped paths with spaces (default).
         newline,///< Join dropped paths with newlines.
     };
 
@@ -154,7 +154,7 @@ struct DropMode : public jam::Map::Instance<DropMode>
 
     const juce::String& getDefault() const noexcept override { return map.at (DropMode::space); }
 
-    static const auto& get() noexcept { return getContext()->map; }
+    static const auto& get() noexcept { return getInstance()->map; }
 };
 
 /**______________________________END OF NAMESPACE______________________________*/
@@ -210,7 +210,7 @@ struct File : public jam::Map::Instance<File>
      *
      * Caller must ensure a config::File owner is live (end::Application is).
      */
-    static const auto& get() noexcept { return getContext()->map; }
+    static const auto& get() noexcept { return getInstance()->map; }
 
     /**
      * @brief Returns the filename for the given enum key (always "stem.lua").
@@ -245,8 +245,11 @@ private:
  * @brief Registry of SVG graphics assets — 3 keys.
  *        CRTP-derived from jam::Map::Instance<Graphics>.
  *
- * Maps each enum key to its Identifier stem (e.g. tabBar → "tab_bar") and
- * resolves the on-disk filename via getName(). All keys produce "stem.svg".
+ * Maps each enum key to its Identifier stem and resolves the on-disk
+ * filename via getName(). All keys produce "stem.svg":
+ *   tabBar          → tab_bar.svg
+ *   tabIndicator    → tab_indicator.svg
+ *   tabButtonNormal → tab_button_normal.svg  (default slot for the tab button)
  *
  * Owns the graphics subdirectory and the svg extension. The live instance
  * is owned by end::Application — static get() resolves through Context<Graphics>.
@@ -257,17 +260,17 @@ struct Graphics : public jam::Map::Instance<Graphics>
     enum
     {
         tabBar,///< Tab bar background SVG asset.
-        tabInactive,///< Inactive tab button SVG asset.
-        tabActive,///< Active tab indicator SVG asset.
+        tabIndicator,///< Sliding tab indicator SVG asset.
+        tabButtonNormal,///< Default (normal-state) tab button SVG asset stem.
     };
 
     /** @brief Populates the bimap with all 3 entries. */
     Graphics()
     {
         map = {
-            { Graphics::tabBar,      IDref::tabBar      },
-            { Graphics::tabInactive, IDref::tabInactive },
-            { Graphics::tabActive,   IDref::tabActive   },
+            { Graphics::tabBar,          IDref::tabBar          },
+            { Graphics::tabIndicator,    IDref::tabIndicator    },
+            { Graphics::tabButtonNormal, IDref::tabButtonNormal },
         };
     }
 
@@ -276,7 +279,7 @@ struct Graphics : public jam::Map::Instance<Graphics>
      *
      * Caller must ensure a config::Graphics owner is live (end::Application is).
      */
-    static const auto& get() noexcept { return getContext()->map; }
+    static const auto& get() noexcept { return getInstance()->map; }
 
     /**
      * @brief Returns the filename for the given enum key (always "stem.svg").
@@ -305,3 +308,19 @@ private:
 };
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace config
+
+//==============================================================================
+namespace end
+{
+/*____________________________________________________________________________*/
+struct Map
+{
+    end::Boolean boolMap;
+    end::GpuMode gpuModeMap;
+    end::Position positionMap;
+    end::DropMode dropModeMap;
+    config::File file;
+    config::Graphics graphics;
+};
+/**______________________________END OF NAMESPACE______________________________*/
+}// namespace end

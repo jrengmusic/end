@@ -45,7 +45,7 @@ public:
                               juce::ValueTree& childWhichHasBeenAdded) override;
 
 private:
-    config::Model& config { *config::Model::getContext() };
+    config::Model& config { *config::Model::getInstance() };
 
     //==============================================================================
     void registerActions();

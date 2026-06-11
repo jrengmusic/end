@@ -16,7 +16,10 @@ void Tabs::addNewTab()
     jam::UUID uuid;
     auto* panes { new Panes (uuid, model) };
 
-    addTab (juce::String (getNumTabs() + 1), juce::Colours::transparentBlack, panes, true);
+    static constexpr const char* tabNames[] { "Home", "Settings", "Terminal", "Dev", "Logs & Output", "DB", "Configuration Panel" };
+    static constexpr int numNames { 7 };
+
+    addTab (tabNames[getNumTabs() % numNames], juce::Colours::transparentBlack, panes, true);
 
     setCurrentTabIndex (getNumTabs() - 1);
 

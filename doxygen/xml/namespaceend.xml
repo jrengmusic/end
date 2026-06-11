@@ -6,6 +6,7 @@
     <innerclass refid="structend_1_1_gpu_mode" prot="public">end::GpuMode</innerclass>
     <innerclass refid="structend_1_1_position" prot="public">end::Position</innerclass>
     <innerclass refid="structend_1_1_drop_mode" prot="public">end::DropMode</innerclass>
+    <innerclass refid="structend_1_1_map" prot="public">end::Map</innerclass>
     <innerclass refid="classend_1_1_message_overlay" prot="public">end::MessageOverlay</innerclass>
     <innerclass refid="classend_1_1_model" prot="public">end::Model</innerclass>
     <innerclass refid="classend_1_1_panes" prot="public">end::Panes</innerclass>

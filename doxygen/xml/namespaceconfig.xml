@@ -27,8 +27,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.cpp" line="33" column="22" bodyfile="config/Config.cpp" bodystart="33" bodyend="39"/>
-        <referencedby refid="namespaceconfig_1a061dd1953d794d0026d94b95435059c9" compoundref="_config_8cpp" startline="43" endline="54">getEnumValidator</referencedby>
+        <location file="config/Config.cpp" line="38" column="22" bodyfile="config/Config.cpp" bodystart="38" bodyend="44"/>
+        <referencedby refid="namespaceconfig_1a061dd1953d794d0026d94b95435059c9" compoundref="_config_8cpp" startline="48" endline="59">getEnumValidator</referencedby>
       </memberdef>
       <memberdef kind="function" id="namespaceconfig_1a061dd1953d794d0026d94b95435059c9" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>std::function&lt; bool(const <ref refid="classjuce_1_1var" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::var</ref> &amp;)&gt;</type>
@@ -46,10 +46,10 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.cpp" line="43" column="22" bodyfile="config/Config.cpp" bodystart="43" bodyend="54"/>
-        <references refid="namespaceconfig_1add672f45a783ef9f13d810962fe6042c" compoundref="_config_8cpp" startline="33" endline="39">enumCheck</references>
-        <references refid="structjam_1_1Context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Derived &gt;::getContext</references>
-        <referencedby refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" compoundref="_config_8cpp" startline="57" endline="96">config::Model::initialise</referencedby>
+        <location file="config/Config.cpp" line="48" column="22" bodyfile="config/Config.cpp" bodystart="48" bodyend="59"/>
+        <references refid="namespaceconfig_1add672f45a783ef9f13d810962fe6042c" compoundref="_config_8cpp" startline="38" endline="44">enumCheck</references>
+        <references refid="structjam_1_1Context_1a3ff553f70ef61043352c54cfed475b4c">jam::Context&lt; Derived &gt;::getInstance</references>
+        <referencedby refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" compoundref="_config_8cpp" startline="62" endline="102">config::Model::initialise</referencedby>
       </memberdef>
     </sectiondef>
     <briefdescription>

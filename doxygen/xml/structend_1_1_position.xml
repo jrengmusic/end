@@ -53,7 +53,7 @@
 <para>Integer keys for all position entries. </para>
         </briefdescription>
         <detaileddescription>
-<para>Keys 0–3 are intentionally aligned with <ref refid="classjam_1_1button_1_1Tab_1a0d53774cb7ed22fe963514a103e0c1b7" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::button::Tab::Orientation</ref> so that Position::get(string) can be forwarded to Bar::setOrientation() without a secondary mapping. </para>
+<para>Keys 0–3 are intentionally aligned with <ref refid="classjam_1_1button_1_1Bar_1ac6f9e6002553676e21da8628cc3273bf" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::button::Bar::Orientation</ref> so that Position::get(string) can be forwarded to Bar::setOrientation() without a secondary mapping. </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
@@ -114,9 +114,9 @@
         <inbodydescription>
         </inbodydescription>
         <location file="end/Map.h" line="117" column="23" bodyfile="end/Map.h" bodystart="117" bodyend="117"/>
-        <references refid="structjam_1_1Context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Derived &gt;::getContext</references>
+        <references refid="structjam_1_1Context_1a3ff553f70ef61043352c54cfed475b4c">jam::Context&lt; Derived &gt;::getInstance</references>
         <referencedby refid="structend_1_1_position_1a2f477149e1e15d0eb91f7ab652b1e7d6" compoundref="_map_8h" startline="119" endline="122">get</referencedby>
-        <referencedby refid="classend_1_1_view_1a91ed8ef126c0a1b3feb458079c3a7849" compoundref="_view_8cpp" startline="84" endline="91">end::View::setTabOrientation</referencedby>
+        <referencedby refid="classend_1_1_view_1a91ed8ef126c0a1b3feb458079c3a7849" compoundref="_view_8cpp" startline="84" endline="92">end::View::setTabOrientation</referencedby>
       </memberdef>
       <memberdef kind="function" id="structend_1_1_position_1a2f477149e1e15d0eb91f7ab652b1e7d6" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
         <type>int</type>
@@ -155,7 +155,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="end/Map.h" line="124" column="31" bodyfile="end/Map.h" bodystart="124" bodyend="124"/>
-        <references refid="structjam_1_1Context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Derived &gt;::getContext</references>
+        <references refid="structjam_1_1Context_1a3ff553f70ef61043352c54cfed475b4c">jam::Context&lt; Derived &gt;::getInstance</references>
       </memberdef>
     </sectiondef>
     <briefdescription>
@@ -163,7 +163,7 @@
     </briefdescription>
     <detaileddescription>
 <para>Used by display.tab.orientation, display.status_bar.position, display.action_list.position, and any future positional config fields.</para>
-<para>Integer keys deliberately mirror <ref refid="classjam_1_1button_1_1Tab_1a0d53774cb7ed22fe963514a103e0c1b7" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::button::Tab::Orientation</ref> so that orientation values can be forwarded directly to Bar::setOrientation(): 0 → &quot;top&quot; 1 → &quot;bottom&quot; (default) 2 → &quot;left&quot; 3 → &quot;right&quot; 4 → &quot;center&quot;</para>
+<para>Integer keys deliberately mirror <ref refid="classjam_1_1button_1_1Bar_1ac6f9e6002553676e21da8628cc3273bf" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::button::Bar::Orientation</ref> so that orientation values can be forwarded directly to Bar::setOrientation(): 0 → &quot;top&quot; 1 → &quot;bottom&quot; (default) 2 → &quot;left&quot; 3 → &quot;right&quot; 4 → &quot;center&quot;</para>
 <para>Registered in <ref refid="classend_1_1_application" kindref="compound">Application</ref> CONTEXT before <ref refid="classconfig_1_1_model" kindref="compound">config::Model</ref> construction. </para>
     </detaileddescription>
     <inheritancegraph>
@@ -219,8 +219,8 @@
       <member refid="structend_1_1_position_1a2f477149e1e15d0eb91f7ab652b1e7d6" prot="public" virt="non-virtual"><scope>end::Position</scope><name>get</name></member>
       <member refid="structend_1_1_position_1a8870ba1c7d71c5c2c0ed07727d3a17ae" prot="public" virt="non-virtual"><scope>end::Position</scope><name>get</name></member>
       <member refid="classjam_1_1Map_1_1Instance_1a098abe8fd166d7d61763bf0d215799cd" prot="public" virt="non-virtual" ambiguityscope="jam::Map::Instance&lt; Position &gt;::"><scope>end::Position</scope><name>get</name></member>
-      <member refid="structjam_1_1Context_1a259aac6b39aea0f3d3e2be9ab123cff3" prot="public" virt="non-virtual"><scope>end::Position</scope><name>getContext</name></member>
       <member refid="structend_1_1_position_1af5f03f30b13680f5dd13496ac3cc6f39" prot="public" virt="virtual"><scope>end::Position</scope><name>getDefault</name></member>
+      <member refid="structjam_1_1Context_1a3ff553f70ef61043352c54cfed475b4c" prot="public" virt="non-virtual"><scope>end::Position</scope><name>getInstance</name></member>
       <member refid="structjam_1_1Context_1a5900ff66cdba02d6f6947cc6d5e8ec3d" prot="private" virt="non-virtual"><scope>end::Position</scope><name>head</name></member>
       <member refid="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05baff86c7b45e58c6678fc26bff2a0a821a" prot="public" virt="non-virtual"><scope>end::Position</scope><name>left</name></member>
       <member refid="classjam_1_1Map_1_1Instance_1afe0acf25bab1f104aea20f20174129d1" prot="protected" virt="non-virtual"><scope>end::Position</scope><name>map</name></member>

@@ -95,7 +95,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="end/Map.h" line="67" column="23" bodyfile="end/Map.h" bodystart="67" bodyend="67"/>
-        <references refid="structjam_1_1Context_1a259aac6b39aea0f3d3e2be9ab123cff3">jam::Context&lt; Derived &gt;::getContext</references>
+        <references refid="structjam_1_1Context_1a3ff553f70ef61043352c54cfed475b4c">jam::Context&lt; Derived &gt;::getInstance</references>
       </memberdef>
     </sectiondef>
     <briefdescription>
@@ -157,8 +157,8 @@
       <member refid="structend_1_1_gpu_mode_1a02adbb6f3e99e18d06d8cd27cf8760c9affa2e3ab8d3d740e506cfe5bfa4c22cf" prot="public" virt="non-virtual"><scope>end::GpuMode</scope><name>enabled</name></member>
       <member refid="structend_1_1_gpu_mode_1a56eb83765c5159fddea4d11991f9760c" prot="public" virt="non-virtual"><scope>end::GpuMode</scope><name>get</name></member>
       <member refid="classjam_1_1Map_1_1Instance_1a098abe8fd166d7d61763bf0d215799cd" prot="public" virt="non-virtual" ambiguityscope="jam::Map::Instance&lt; GpuMode &gt;::"><scope>end::GpuMode</scope><name>get</name></member>
-      <member refid="structjam_1_1Context_1a259aac6b39aea0f3d3e2be9ab123cff3" prot="public" virt="non-virtual"><scope>end::GpuMode</scope><name>getContext</name></member>
       <member refid="structend_1_1_gpu_mode_1a84209ce2c1a8484dd62dc29e47ec9550" prot="public" virt="virtual"><scope>end::GpuMode</scope><name>getDefault</name></member>
+      <member refid="structjam_1_1Context_1a3ff553f70ef61043352c54cfed475b4c" prot="public" virt="non-virtual"><scope>end::GpuMode</scope><name>getInstance</name></member>
       <member refid="structend_1_1_gpu_mode_1aadca4c7d709c6b1be652ed3d5380b475" prot="public" virt="non-virtual"><scope>end::GpuMode</scope><name>GpuMode</name></member>
       <member refid="structjam_1_1Context_1a5900ff66cdba02d6f6947cc6d5e8ec3d" prot="private" virt="non-virtual"><scope>end::GpuMode</scope><name>head</name></member>
       <member refid="classjam_1_1Map_1_1Instance_1afe0acf25bab1f104aea20f20174129d1" prot="protected" virt="non-virtual"><scope>end::GpuMode</scope><name>map</name></member>

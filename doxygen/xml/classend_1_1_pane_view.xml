@@ -272,7 +272,7 @@
       <member refid="classjuce_1_1Component_1ad135c1cba96deed34a67c1d78c3ddc5a" prot="public" virt="non-virtual"><scope>end::PaneView</scope><name>contains</name></member>
       <member refid="classjuce_1_1Component_1a188277f08097547aeed9abcfb0057d02" prot="public" virt="non-virtual"><scope>end::PaneView</scope><name>copyAllExplicitColoursTo</name></member>
       <member refid="classjuce_1_1Component_1a95bb57df0447483de6127661178b69a2" prot="public" virt="virtual"><scope>end::PaneView</scope><name>createAccessibilityHandler</name></member>
-      <member refid="classjuce_1_1Component_1a95af812072b7cb6ba878fab766b51efc" prot="public" virt="non-virtual"><scope>end::PaneView</scope><name>createComponentSnapshot</name></member>
+      <member refid="classjuce_1_1Component_1a1fc9aaf708e5349095e17ff746348457" prot="public" virt="non-virtual"><scope>end::PaneView</scope><name>createComponentSnapshot</name></member>
       <member refid="classjuce_1_1Component_1a89ae12304d481943462a2b22436287d5" prot="public" virt="virtual"><scope>end::PaneView</scope><name>createFocusTraverser</name></member>
       <member refid="classjuce_1_1Component_1a91bf4b1d9837aca8688f5c7266d0aa7a" prot="public" virt="virtual"><scope>end::PaneView</scope><name>createKeyboardFocusTraverser</name></member>
       <member refid="classjuce_1_1Component_1a0be5d779a36fd22ee741e969f0a16bd6" prot="public" virt="non-virtual"><scope>end::PaneView</scope><name>deleteAllChildren</name></member>

@@ -34,34 +34,30 @@
     X (loadMessage, "load_message")
 
 // Keys shared across multiple config sections (not in jam::ID)
-#define IDENTIFIER_COMMON(X)                      \
-    X (family, "family")                          \
-    X (position, "position")                      \
-    X (orientation, "orientation")                \
-    X (inactive, "inactive")                      \
-    X (active, "active")                          \
-    X (indicator, "indicator")                    \
-    X (inactiveText, "inactive_text")             \
-    X (inactiveBackground, "inactive_background") \
-    X (background, "background")                  \
-    X (scrollbarWidth, "scrollbar_width")         \
-    X (barColour, "bar_colour")                   \
-    X (barHighlight, "bar_highlight")             \
-    X (borderColour, "border_colour")             \
-    X (borderWidth, "border_width")               \
-    X (scrollbackLines, "scrollback_lines")       \
-    X (scrollStep, "scroll_step")                 \
-    X (cols, "cols")                              \
-    X (rows, "rows")                              \
-    X (scrollbarThumb, "scrollbar_thumb")         \
+#define IDENTIFIER_COMMON(X)                \
+    X (position, "position")               \
+    X (orientation, "orientation")         \
+    X (inactive, "inactive")               \
+    X (active, "active")                   \
+    X (scrollbarWidth, "scrollbar_width")  \
+    X (barColour, "bar_colour")            \
+    X (barHighlight, "bar_highlight")      \
+    X (borderColour, "border_colour")      \
+    X (borderWidth, "border_width")        \
+    X (scrollbackLines, "scrollback_lines")\
+    X (scrollStep, "scroll_step")          \
+    X (cols, "cols")                       \
+    X (rows, "rows")                       \
+    X (scrollbarThumb, "scrollbar_thumb")  \
     X (scrollbarTrack, "scrollbar_track")
 
 // Display-specific keys (not in jam::ID or COMMON)
 #define IDENTIFIER_DISPLAY(X)                      \
     X (tab, "tab")                                 \
     X (tabBar, "tab_bar")                          \
-    X (tabInactive, "tab_inactive")                \
-    X (tabActive, "tab_active")                    \
+    X (tabButton, "tab_button")                    \
+    X (tabIndicator, "tab_indicator")              \
+    X (tabButtonNormal, "tab_button_normal")       \
     X (tabs, "tabs")                               \
     X (pane, "pane")                               \
     X (window, "window")                           \
@@ -78,7 +74,8 @@
     X (force, "force")                             \
     X (editorBackground, "editor_background")      \
     X (editorOutline, "editor_outline")            \
-    X (selection, "selection")                     \
+    X (caret, "caret")                             \
+    X (highlight, "highlight")                     \
     X (selectionCursor, "selection_cursor")        \
     X (black, "black")                             \
     X (red, "red")                                 \
@@ -109,6 +106,7 @@
     X (forceDwm, "force_dwm")                      \
     X (buttons, "buttons")                         \
     X (closeOnRun, "close_on_run")                 \
+    X (code, "code")                               \
     X (nameFontFamily, "name_font_family")         \
     X (nameFontStyle, "name_font_style")           \
     X (nameFontSize, "name_font_size")             \
@@ -121,8 +119,10 @@
     X (fontFamily, "font_family")                  \
     X (fontSize, "font_size")                      \
     X (fontStyle, "font_style")                    \
-    X (outline, "outline")                         \
-    X (foreground, "foreground")
+    X (textOn, "text_on")                          \
+    X (textOff, "text_off")                        \
+    X (buttonOn, "button_on")                      \
+    X (uppercase, "uppercase")
 
 // Key binding names (keys.lua)
 #define IDENTIFIER_KEYS(X)                             \
@@ -197,9 +197,6 @@
 
 // Whelmed-specific keys (whelmed.lua)
 #define IDENTIFIER_WHELMED(X)                            \
-    X (codeFamily, "code_family")                        \
-    X (codeStyle, "code_style")                          \
-    X (codeSize, "code_size")                            \
     X (bodyColour, "body_colour")                        \
     X (linkColour, "link_colour")                        \
     X (h1Size, "h1_size")                                \

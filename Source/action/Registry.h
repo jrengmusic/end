@@ -58,7 +58,7 @@ public:
 
     //==============================================================================
 private:
-    config::Model& config { *config::Model::getContext() };
+    config::Model& config { *config::Model::getInstance() };
 
     void timerCallback() override;
 
