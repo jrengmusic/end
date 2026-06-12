@@ -60,6 +60,7 @@
         </inbodydescription>
         <location file="end/Map.h" line="302" column="36" bodyfile="end/Map.h" bodystart="302" bodyend="302"/>
         <referencedby refid="structconfig_1_1_graphics_1abdfab926c44948460dfaf240c60572e3" compoundref="_map_8h" startline="296" endline="299">getPath</referencedby>
+        <referencedby refid="classend_1_1_look_and_feel_1a6bac0b983ceeffd331beb5262030dbe8" compoundref="_look_and_feel_8cpp" startline="117" endline="129">end::LookAndFeel::loadGraphics</referencedby>
         <referencedby refid="classconfig_1_1_model_1acad607c8136bcc115ffeae9d47869e26" compoundref="_config_8cpp" startline="105" endline="131">config::Model::saveToPath</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structconfig_1_1_graphics_1a65b788f58d84dab0d495b814638c89f9" prot="public" static="yes" mutable="no">

@@ -1,30 +1,42 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg width="60px" height="60px" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;">
-    <rect id="tab-bar" x="0" y="0" width="60" height="60" style="fill:none;"/>
+<svg width="60px" height="60px" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:1.5;">
+    <rect id="tab-button-normal" x="0" y="0" width="60" height="60" style="fill:none;"/>
     <g id="bottom-right">
-        <rect id="bounds" x="40" y="40" width="20" height="20" style="fill:none;stroke:#ff00cd;stroke-width:1px;"/>
-        <rect id="background" x="47.5" y="55" width="5" height="5" style="fill:#ff0018;"/>
-        <path id="outline" d="M40,57.5L47.5,57.5" style="fill:none;stroke:#000;stroke-width:1px;"/>
+        <rect id="bounds" x="40" y="40" width="20" height="20" style="fill:none;stroke:#ff00cd;stroke-width:0.1px;"/>
+        <path id="outline" d="M40,55.545L47.5,55.545" style="fill:none;stroke:#2c4144;stroke-width:1px;stroke-linecap:round;"/>
+        <rect id="background" x="45" y="50" width="10" height="10" style="fill:#699daa;"/>
+    </g>
+    <g id="bottom">
+        <rect id="bounds1" serif:id="bounds" x="20" y="40" width="20" height="20" style="fill:none;stroke:#f0f;stroke-width:0.1px;"/>
+        <path id="outline1" serif:id="outline" d="M20,55.545L40,55.545" style="fill:none;stroke:#2c4144;stroke-width:1px;stroke-linecap:round;"/>
     </g>
     <g id="bottom-left">
-        <rect id="bounds1" serif:id="bounds" x="0" y="40" width="20" height="20" style="fill:none;stroke:#ff00cd;stroke-width:1px;"/>
-        <rect id="background1" serif:id="background" x="7.5" y="55" width="5" height="5" style="fill:#ff0018;"/>
-        <path id="outline1" serif:id="outline" d="M12.5,57.5L20,57.5" style="fill:none;stroke:#000;stroke-width:1px;"/>
+        <rect id="bounds2" serif:id="bounds" x="0" y="40" width="20" height="20" style="fill:none;stroke:#ff00cd;stroke-width:0.1px;"/>
+        <path id="outline2" serif:id="outline" d="M12.5,55.545L20,55.545" style="fill:none;stroke:#2c4144;stroke-width:1px;stroke-linecap:round;"/>
+        <rect id="background1" serif:id="background" x="5" y="50" width="10" height="10" style="fill:#699daa;"/>
     </g>
-    <g id="top-right">
-        <rect id="bounds2" serif:id="bounds" x="40" y="0" width="20" height="20" style="fill:none;stroke:#ff00cd;stroke-width:1px;"/>
-        <rect id="background2" serif:id="background" x="47.5" y="0" width="5" height="5" style="fill:#ff0018;"/>
-        <path id="outline2" serif:id="outline" d="M40,2.5L47.5,2.5" style="fill:none;stroke:#000;stroke-width:1px;"/>
-    </g>
-    <g id="top-left">
-        <rect id="bounds3" serif:id="bounds" x="0" y="0" width="20" height="20" style="fill:none;stroke:#ff00cd;stroke-width:1px;"/>
-        <rect id="background3" serif:id="background" x="7.5" y="0" width="5" height="5" style="fill:#ff0018;"/>
-        <path id="outline3" serif:id="outline" d="M20,2.5L40,2.5" style="fill:none;stroke:#000;stroke-width:1px;"/>
+    <g id="right">
+        <rect id="bounds3" serif:id="bounds" x="40" y="20" width="20" height="20" style="fill:none;stroke:#f0f;stroke-width:0.1px;"/>
     </g>
     <g id="centre">
-        <rect id="bounds4" serif:id="bounds" x="0" y="0" width="60" height="60" style="fill:none;stroke:#f0f;stroke-width:1px;"/>
-        <path id="outline4" serif:id="outline" d="M12.5,2.5L20,2.5" style="fill:none;stroke:#000;stroke-width:1px;"/>
-        <path id="outline5" serif:id="outline" d="M20,57.5L40,57.5" style="fill:none;stroke:#000;stroke-width:1px;"/>
+        <rect id="bounds4" serif:id="bounds" x="20" y="20" width="20" height="20" style="fill:none;stroke:#f0f;stroke-width:0.1px;"/>
+    </g>
+    <g id="left">
+        <rect id="bounds5" serif:id="bounds" x="0" y="20" width="20" height="20" style="fill:none;stroke:#f0f;stroke-width:0.1px;"/>
+    </g>
+    <g id="top-right">
+        <rect id="bounds6" serif:id="bounds" x="40" y="0" width="20" height="20" style="fill:none;stroke:#ff00cd;stroke-width:0.1px;"/>
+        <path id="outline3" serif:id="outline" d="M40,4.5L47.5,4.5" style="fill:none;stroke:#2c4144;stroke-width:1px;stroke-linecap:round;"/>
+        <rect id="background2" serif:id="background" x="45" y="0" width="10" height="10" style="fill:#699daa;"/>
+    </g>
+    <g id="top">
+        <rect id="bounds7" serif:id="bounds" x="20" y="0" width="20" height="20" style="fill:none;stroke:#f0f;stroke-width:0.1px;"/>
+        <path id="outline4" serif:id="outline" d="M20,4.5L40,4.5" style="fill:none;stroke:#2c4144;stroke-width:1px;stroke-linecap:round;"/>
+    </g>
+    <g id="top-left">
+        <rect id="bounds8" serif:id="bounds" x="0" y="0" width="20" height="20" style="fill:none;stroke:#ff00cd;stroke-width:0.1px;"/>
+        <path id="outline5" serif:id="outline" d="M12.5,4.5L20,4.5" style="fill:none;stroke:#2c4144;stroke-width:1px;stroke-linecap:round;"/>
+        <rect id="background3" serif:id="background" x="5" y="0" width="10" height="10" style="fill:#699daa;"/>
     </g>
 </svg>

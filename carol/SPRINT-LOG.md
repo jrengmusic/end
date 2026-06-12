@@ -2,6 +2,57 @@
 
 ---
 
+## Sprint 13: ColourMap Distributor From Tree, Flex Segment 9-Slice Complete ✅
+
+**Date:** 2026-06-12
+**Duration:** ~06:00
+
+### Agents Participated
+- COUNSELOR: orchestration, design discussion (registry shape iterations: vector fan-out → map-to-map → recursive mirror → AnyMap-derived ColourMap built from tree; Segment unit encapsulation; getLayout/StyledGraphics::paint split), fact-checking (caret colourId readers, jam::map::Segment registry, getPath family children-iteration semantics, mapToTarget area-mutation asymmetry), paint draft defect analysis (colourId ignored, source-pixel corners, transformed stroke)
+- Engineer: ColourMap + Methods rework (3 iterations), END registry migration, Shape purge + getElementPath restore, Flex Segment/getSegments/getLayout/paint, consumers migration
+- ARCHITECT (handcode): SVG parse walk + flatten foundation, paint draft, jam::map::Segment registry, Layout alias, tab_bar.svg authoring
+
+### Files Modified (~14 total)
+
+**JAM:**
+- `jam_core/utilities/jam_any_map.h` — storage section private → protected (derived containers)
+- `jam_core/identifier/jam_identifier_svg.h` — round/bevel/square IDref entries added
+- `jam_graphics/colour_map/jam_colour_map.h` — NEW: jam::ColourMap : AnyMap; fromValueTree (1:1 tree mirror skeleton), recursive getChildWithName (const + non-const)
+- `jam_graphics/jam_graphics.h` — colour_map include before SVG section
+- `jam_look_and_feel/jam_look_and_feel_custom.h` — Methods: default ctor, protected colourMap, setColourId (recursive find + fill), tree-driven setColours lockstep walk, one-line contains; hand-rolled ColourMap struct + path-reconstruction contains deleted
+- `jam_graphics/svg/jam_svg.h` / `.cpp` — Shape purified (bounds/segment dropped; operator== = colourId+colour+stroke); getElementPath single-element geometry SSOT; getRectPath/getEllipsePath/getCirclePath/getAllFoundPath delegate; getStyledGraphics walk simplified (bounds skip, no stamping loops, magic strings → IDref)
+- `jam_graphics/svg/jam_svg_flex.h` / `.cpp` — Flex::Segment { id, bounds, graphics }; Segments = array<Segment, 9> (jam::map::Segment indexed); Layout alias; getSegments (registry slotting, bounds via getElementPath); getLayout (pure carving, Value::map depth scaling); StyledGraphics::paint (paint-time findColour, geometry-then-stroke); Flex::paint orchestration ~13 lines
+- `jam_gui/button/jam_button_svg.h` — bank → array<Flex::Segments, 8>; getStyledGraphics(int) → getSegments(int)
+- `jam_data_structures/map_instance/jam_map_segment.h` — 9-slot bidirectional registry (ARCHITECT)
+
+**END:**
+- `Source/lookAndFeel/LookAndFeel.h` — static colourIds registry deleted; graphics member → HashMap<Identifier, SVG::Flex::Segments>
+- `Source/lookAndFeel/LookAndFeel.cpp` — ctor: colourMap = fromValueTree(config.state) + 28 flat setColourId lines; caret → jam::CaretComponent::caretColourId (single target, dead pair removed); vtpc contains/setColours + graphics branch (loadGraphics + Desktop repaint); loadGraphics → Flex::getSegments with tab node; drawBarBackground → Flex::paint
+- `Source/config/svg/tab_bar.svg` — 9 segment groups, bounds metadata rects, LAF-coloured outline/background groups (ARCHITECT)
+- `Source/end/Map.h` — jam::map::Segment instantiation (ARCHITECT)
+
+### Alignment Check
+- [x] BLESSED principles followed (tree = hierarchy SSOT, map derived not hand-rolled; Shape = pure draw call; Segment owns layout; getLayout pure/deterministic; paint split per single responsibility)
+- [x] NAMES.md adhered (all names ARCHITECT-gated: ColourMap, fromValueTree, setColourId, getChildWithName, Segment, Segments, getSegments, getLayout, Layout)
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- Nested registry literal was hand-rolled garbage → hierarchy derived from config.state (fromValueTree), values filled by flat setColourId lines
+- contains() path-reconstruction walk was garbage → recursive getChildWithName (jam_value_tree_utils semantics), one-line contains
+- vector<int> fan-out leaf was insurance for a broken case (both caret targets had zero readers; actual painter jam::CaretComponent reads 0x4100001) → single-int leaves, real target wired
+- Flex unit encapsulation wrong: Shape carried bounds (N duplicated copies) + segment (in equality only to block cross-cell merge) → Segment owns id/bounds/flattened graphics; Shape = geometry + draw attributes
+- Geometry extraction duplicated verbatim across walk and getPath helpers → getElementPath SSOT restored
+- ARCHITECT paint draft defects: LAF shapes painted transparent (colourId ignored), corners carved in source pixels (asset ate the bar), stroke outline transformed (smeared width) → findColour at paint time, Value::map depth scaling, geometry-then-stroke
+- Tab bar renders end-to-end: lua → svg → Segments → LAF paint, hot reload via graphics vtpc branch
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 12: button::SVG + StyledGraphics Foundation, Scoped Colour Distributor ✅
 
 **Date:** 2026-06-12

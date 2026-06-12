@@ -88,6 +88,34 @@
         </inbodydescription>
         <location file="end/Map.h" line="323" column="22" bodyfile="end/Map.h" bodystart="323" bodyend="-1"/>
       </memberdef>
+      <memberdef kind="variable" id="structend_1_1_map_1a780abe7d84b9a789212176fc2c9e6dcf" prot="public" static="no" mutable="no">
+        <type><ref refid="structjam_1_1map_1_1Segment" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::map::Segment</ref></type>
+        <definition>jam::map::Segment end::Map::segment</definition>
+        <argsstring></argsstring>
+        <name>segment</name>
+        <qualifiedname>end::Map::segment</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="end/Map.h" line="324" column="23" bodyfile="end/Map.h" bodystart="324" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structend_1_1_map_1a01c80dbdabc4176ed5b6bea5be5651d7" prot="public" static="no" mutable="no">
+        <type><ref refid="structjam_1_1map_1_1ButtonState" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::map::ButtonState</ref></type>
+        <definition>jam::map::ButtonState end::Map::buttonState</definition>
+        <argsstring></argsstring>
+        <name>buttonState</name>
+        <qualifiedname>end::Map::buttonState</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="end/Map.h" line="325" column="27" bodyfile="end/Map.h" bodystart="325" bodyend="-1"/>
+      </memberdef>
     </sectiondef>
     <briefdescription>
     </briefdescription>
@@ -157,6 +185,12 @@
         <childnode refid="16" relation="usage">
           <edgelabel>graphics</edgelabel>
         </childnode>
+        <childnode refid="18" relation="usage">
+          <edgelabel>segment</edgelabel>
+        </childnode>
+        <childnode refid="20" relation="usage">
+          <edgelabel>buttonState</edgelabel>
+        </childnode>
       </node>
       <node id="8">
         <label>end::Position</label>
@@ -174,6 +208,15 @@
       </node>
       <node id="3">
         <label>jam::Map::Instance&lt; Boolean &gt;</label>
+        <link refid="classjam_1_1Map_1_1Instance" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>map</edgelabel>
+        </childnode>
+      </node>
+      <node id="21">
+        <label>jam::Map::Instance&lt; ButtonState &gt;</label>
         <link refid="classjam_1_1Map_1_1Instance" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
         <childnode refid="4" relation="public-inheritance">
         </childnode>
@@ -226,6 +269,27 @@
           <edgelabel>map</edgelabel>
         </childnode>
       </node>
+      <node id="19">
+        <label>jam::Map::Instance&lt; Segment &gt;</label>
+        <link refid="classjam_1_1Map_1_1Instance" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>map</edgelabel>
+        </childnode>
+      </node>
+      <node id="20">
+        <label>jam::map::ButtonState</label>
+        <link refid="structjam_1_1map_1_1ButtonState" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="21" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="18">
+        <label>jam::map::Segment</label>
+        <link refid="structjam_1_1map_1_1Segment" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="19" relation="public-inheritance">
+        </childnode>
+      </node>
       <node id="14">
         <label>juce::File</label>
         <link refid="classjuce_1_1File" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
@@ -235,14 +299,16 @@
         <link refid="classjuce_1_1String" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
     </collaborationgraph>
-    <location file="end/Map.h" line="316" column="1" bodyfile="end/Map.h" bodystart="317" bodyend="324"/>
+    <location file="end/Map.h" line="316" column="1" bodyfile="end/Map.h" bodystart="317" bodyend="326"/>
     <listofallmembers>
       <member refid="structend_1_1_map_1a9ed0f9cafe65b1c31d6ff26bf04dcfc5" prot="public" virt="non-virtual"><scope>end::Map</scope><name>boolMap</name></member>
+      <member refid="structend_1_1_map_1a01c80dbdabc4176ed5b6bea5be5651d7" prot="public" virt="non-virtual"><scope>end::Map</scope><name>buttonState</name></member>
       <member refid="structend_1_1_map_1a4649535ff19c4ddf877f0ebddde1d906" prot="public" virt="non-virtual"><scope>end::Map</scope><name>dropModeMap</name></member>
       <member refid="structend_1_1_map_1a9d23d8ab019848af5ca72120d391e217" prot="public" virt="non-virtual"><scope>end::Map</scope><name>file</name></member>
       <member refid="structend_1_1_map_1acf559dc819e8496d1b63872a888580a8" prot="public" virt="non-virtual"><scope>end::Map</scope><name>gpuModeMap</name></member>
       <member refid="structend_1_1_map_1a89388974198bca2f7a151533ca29fb2f" prot="public" virt="non-virtual"><scope>end::Map</scope><name>graphics</name></member>
       <member refid="structend_1_1_map_1a5bbcff386cc1b3242e24acd022500a28" prot="public" virt="non-virtual"><scope>end::Map</scope><name>positionMap</name></member>
+      <member refid="structend_1_1_map_1a780abe7d84b9a789212176fc2c9e6dcf" prot="public" virt="non-virtual"><scope>end::Map</scope><name>segment</name></member>
     </listofallmembers>
   </compounddef>
 </doxygen>

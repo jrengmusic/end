@@ -4,77 +4,69 @@ namespace end
 {
 /*____________________________________________________________________________*/
 
-const jam::HashMap<juce::Identifier, jam::HashMap<juce::Identifier, std::vector<int>>>
-    LookAndFeel::colourIds {
-        { IDtype::tab,
-          {
-              { jam::ID::background,    { jam::button::Bar::backgroundColourId             } },
-              { ID::highlight,          { jam::button::Bar::highlightColourId              } },
-              { jam::ID::outline,       { jam::button::Bar::outlineColourId                } },
-              { jam::ID::button,        { juce::TextButton::buttonColourId                 } },
-              { ID::buttonOn,           { juce::TextButton::buttonOnColourId               } },
-              { ID::textOff,            { juce::TextButton::textColourOffId                } },
-              { ID::textOn,             { juce::TextButton::textColourOnId                 } },
-          } },
-        { jam::IDtype::colours,
-          {
-              { ID::caret,              { juce::CaretComponent::caretColourId,
-                                          jam::CodeView::caretColourId                     } },
-              { jam::ID::text,          { jam::CodeView::textColourId                      } },
-              { jam::ID::background,    { jam::CodeView::backgroundColourId                } },
-              { ID::highlight,          { juce::TextEditor::highlightColourId              } },
-              { ID::editorBackground,   { juce::TextEditor::backgroundColourId             } },
-              { ID::editorOutline,      { juce::TextEditor::outlineColourId                } },
-              { ID::scrollbarThumb,     { juce::ScrollBar::thumbColourId                   } },
-              { ID::scrollbarTrack,     { juce::ScrollBar::trackColourId                   } },
-              { ID::selectionCursor,    { selectionCursorColourId                          } },
-              { ID::statusBar,          { statusBarBackgroundColourId                      } },
-              { ID::statusBarLabelBg,   { statusBarLabelBackgroundColourId                 } },
-              { ID::statusBarLabelFg,   { statusBarLabelTextColourId                       } },
-              { ID::statusBarSpinner,   { statusBarSpinnerColourId                         } },
-              { ID::hintLabelBg,        { hintLabelBgColourId                              } },
-              { ID::hintLabelFg,        { hintLabelFgColourId                              } },
-          } },
-        { IDtype::window,
-          {
-              { jam::ID::background,    { juce::ResizableWindow::backgroundColourId        } },
-          } },
-        { IDtype::pane,
-          {
-              { ID::barColour,          { paneBarColourId                                  } },
-              { ID::barHighlight,       { paneBarHighlightColourId                         } },
-          } },
-        { jam::IDtype::overlay,
-          {
-              { jam::ID::background,    { juce::Label::backgroundColourId                  } },
-              { jam::ID::text,          { juce::Label::textColourId                        } },
-          } },
-    };
-
 //==============================================================================
 LookAndFeel::LookAndFeel()
 {
-    setColours();
+    initialiseColours();
     loadGraphics();
     config.addListener (this);
+}
+
+void LookAndFeel::initialiseColours()
+{
+    colourMap = jam::ColourMap::fromValueTree (config.state);
+
+    setColourId (IDtype::tab, jam::ID::background, jam::button::Bar::backgroundColourId);
+    setColourId (IDtype::tab, ID::highlight, jam::button::Bar::highlightColourId);
+    setColourId (IDtype::tab, jam::ID::outline, jam::button::Bar::outlineColourId);
+    setColourId (IDtype::tab, jam::ID::button, juce::TextButton::buttonColourId);
+    setColourId (IDtype::tab, ID::buttonOn, juce::TextButton::buttonOnColourId);
+    setColourId (IDtype::tab, ID::textOff, juce::TextButton::textColourOffId);
+    setColourId (IDtype::tab, ID::textOn, juce::TextButton::textColourOnId);
+    setColourId (jam::IDtype::colours, ID::caret, jam::CaretComponent::caretColourId);
+    setColourId (jam::IDtype::colours, jam::ID::text, jam::CodeView::textColourId);
+    setColourId (jam::IDtype::colours, jam::ID::background, jam::CodeView::backgroundColourId);
+    setColourId (jam::IDtype::colours, ID::highlight, juce::TextEditor::highlightColourId);
+    setColourId (jam::IDtype::colours, ID::editorBackground, juce::TextEditor::backgroundColourId);
+    setColourId (jam::IDtype::colours, ID::editorOutline, juce::TextEditor::outlineColourId);
+    setColourId (jam::IDtype::colours, ID::scrollbarThumb, juce::ScrollBar::thumbColourId);
+    setColourId (jam::IDtype::colours, ID::scrollbarTrack, juce::ScrollBar::trackColourId);
+    setColourId (jam::IDtype::colours, ID::selectionCursor, selectionCursorColourId);
+    setColourId (jam::IDtype::colours, ID::statusBar, statusBarBackgroundColourId);
+    setColourId (jam::IDtype::colours, ID::statusBarLabelBg, statusBarLabelBackgroundColourId);
+    setColourId (jam::IDtype::colours, ID::statusBarLabelFg, statusBarLabelTextColourId);
+    setColourId (jam::IDtype::colours, ID::statusBarSpinner, statusBarSpinnerColourId);
+    setColourId (jam::IDtype::colours, ID::hintLabelBg, hintLabelBgColourId);
+    setColourId (jam::IDtype::colours, ID::hintLabelFg, hintLabelFgColourId);
+    setColourId (IDtype::window, jam::ID::background, juce::ResizableWindow::backgroundColourId);
+    setColourId (IDtype::pane, ID::barColour, paneBarColourId);
+    setColourId (IDtype::pane, ID::barHighlight, paneBarHighlightColourId);
+    setColourId (jam::IDtype::overlay, jam::ID::background, juce::Label::backgroundColourId);
+    setColourId (jam::IDtype::overlay, jam::ID::text, juce::Label::textColourId);
+
+    setColours (config.state);
 }
 
 LookAndFeel::~LookAndFeel() { config.removeListener (this); };
 
 void LookAndFeel::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
 {
-    if (colourIds.contains (tree.getType())
-        and colourIds.at (tree.getType()).contains (property))
+    if (contains (tree, property))
+        setColours (config.state);
+
+    if (tree.getType() == IDtype::graphics)
     {
-        setColours();
+        loadGraphics();
+
+        for (int i { 0 }; i < juce::Desktop::getInstance().getNumComponents(); ++i)
+            juce::Desktop::getInstance().getComponent (i)->repaint();
     }
 }
 
 //==============================================================================
-void LookAndFeel::drawBarBackground (juce::Graphics& g, juce::Component& barComp)
+void LookAndFeel::drawBarBackground (juce::Graphics& g, juce::Component& bar)
 {
-    juce::ignoreUnused (g, barComp);
-    // TODO: Flex paint
+    jam::SVG::Flex::paint (g, bar, graphics.at (ID::tabBar));
 }
 
 void LookAndFeel::drawBarIndicator (juce::Graphics& g, juce::Component& indicatorComp)
@@ -89,9 +81,6 @@ void LookAndFeel::drawTabButton (juce::Graphics& g,
                                  bool isMouseDown)
 {
     juce::ignoreUnused (isMouseOver, isMouseDown);
-    auto colourId { button.getToggleState() ? juce::TextButton::buttonOnColourId
-                                            : juce::TextButton::buttonColourId };
-    g.fillAll (findColour (colourId));
 }
 
 juce::Font LookAndFeel::getTabFont() const
@@ -125,32 +114,18 @@ void LookAndFeel::drawStretchableLayoutResizerBar (juce::Graphics& g,
     g.fillRect (0, 0, w, h);
 }
 
-//==============================================================================
-void LookAndFeel::setColours()
-{
-    jam::Model::applyFunctionRecursively (
-        config.state,
-        [this] (const juce::ValueTree& tree)
-        {
-            if (colourIds.contains (tree.getType()))
-            {
-                for (auto& [property, ids] : colourIds.at (tree.getType()))
-                {
-                    if (tree.hasProperty (property))
-                    {
-                        for (int colourId : ids)
-                            setColour (colourId, jam::Model::toColour (tree.getProperty (property)));
-                    }
-                }
-            }
-
-            return false;
-        });
-}
-
 void LookAndFeel::loadGraphics()
 {
-    // TODO: rebuild Flex instances from config SVG files
+    auto node { config.state.getChildWithName (IDtype::graphics) };
+    auto directory { config::Graphics::path.getChildFile (
+        node.getProperty (jam::ID::path).toString()) };
+    auto svg {
+        directory.getChildFile (node.getProperty (ID::tabBar).toString()).loadFileAsString()
+    };
+    const auto* tab { colourMap.getChildWithName (IDtype::tab) };
+    assert (tab != nullptr and "loadGraphics: tab node missing from colourMap");
+
+    graphics.insert_or_assign (ID::tabBar, jam::SVG::Flex::getSegments (svg, *tab));
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

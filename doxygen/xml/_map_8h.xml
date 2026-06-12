@@ -379,8 +379,10 @@
 <codeline lineno="321" refid="structend_1_1_map_1a4649535ff19c4ddf877f0ebddde1d906" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structend_1_1_drop_mode" kindref="compound">end::DropMode</ref><sp/><ref refid="structend_1_1_map_1a4649535ff19c4ddf877f0ebddde1d906" kindref="member">dropModeMap</ref>;</highlight></codeline>
 <codeline lineno="322" refid="structend_1_1_map_1a9d23d8ab019848af5ca72120d391e217" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structconfig_1_1_file" kindref="compound">config::File</ref><sp/><ref refid="structend_1_1_map_1a9d23d8ab019848af5ca72120d391e217" kindref="member">file</ref>;</highlight></codeline>
 <codeline lineno="323" refid="structend_1_1_map_1a89388974198bca2f7a151533ca29fb2f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structconfig_1_1_graphics" kindref="compound">config::Graphics</ref><sp/><ref refid="structend_1_1_map_1a89388974198bca2f7a151533ca29fb2f" kindref="member">graphics</ref>;</highlight></codeline>
-<codeline lineno="324"><highlight class="normal">};</highlight></codeline>
-<codeline lineno="326"><highlight class="normal">}</highlight><highlight class="comment">//<sp/>namespace<sp/>end</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="324" refid="structend_1_1_map_1a780abe7d84b9a789212176fc2c9e6dcf" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structjam_1_1map_1_1Segment" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::map::Segment</ref><sp/><ref refid="structend_1_1_map_1a780abe7d84b9a789212176fc2c9e6dcf" kindref="member">segment</ref>;</highlight></codeline>
+<codeline lineno="325" refid="structend_1_1_map_1a01c80dbdabc4176ed5b6bea5be5651d7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structjam_1_1map_1_1ButtonState" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::map::ButtonState</ref><sp/><ref refid="structend_1_1_map_1a01c80dbdabc4176ed5b6bea5be5651d7" kindref="member">buttonState</ref>;</highlight></codeline>
+<codeline lineno="326"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="328"><highlight class="normal">}</highlight><highlight class="comment">//<sp/>namespace<sp/>end</highlight><highlight class="normal"></highlight></codeline>
     </programlisting>
     <location file="end/Map.h"/>
   </compounddef>

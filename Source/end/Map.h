@@ -321,6 +321,8 @@ struct Map
     end::DropMode dropModeMap;
     config::File file;
     config::Graphics graphics;
+    jam::map::Segment segment;
+    jam::map::ButtonState buttonState;
 };
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace end

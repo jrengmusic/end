@@ -101,26 +101,6 @@
         <location file="lookAndFeel/LookAndFeel.h" line="24" column="5" bodyfile="lookAndFeel/LookAndFeel.h" bodystart="25" bodyend="36"/>
       </memberdef>
     </sectiondef>
-    <sectiondef kind="public-static-attrib">
-      <memberdef kind="variable" id="classend_1_1_look_and_feel_1a44fe3fcf8c8ae508d6178e96eb83b472" prot="public" static="yes" mutable="no">
-        <type>const <ref refid="classjam_1_1HashMap" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::HashMap</ref>&lt; <ref refid="classjuce_1_1Identifier" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Identifier</ref>, <ref refid="classjam_1_1HashMap" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::HashMap</ref>&lt; <ref refid="classjuce_1_1Identifier" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Identifier</ref>, std::vector&lt; int &gt; &gt; &gt;</type>
-        <definition>const jam::HashMap&lt; juce::Identifier, jam::HashMap&lt; juce::Identifier, std::vector&lt; int &gt; &gt; &gt; end::LookAndFeel::colourIds</definition>
-        <argsstring></argsstring>
-        <name>colourIds</name>
-        <qualifiedname>end::LookAndFeel::colourIds</qualifiedname>
-        <briefdescription>
-<para>Scoped colour registry: node type → property → list of target colourIds. </para>
-        </briefdescription>
-        <detaileddescription>
-<para>Outer key matches the ValueTree type (IDtype::tab, IDtype::colours, etc.). Inner key matches the lua property name (an END or jam Identifier). <ref refid="unionValue" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">Value</ref> is the list of JUCE-native or END-private colourIds to set from that property — one lua value can feed several colourId targets.</para>
-<para>Rule: components follow JUCE-native colourId semantics. Tab buttons are <ref refid="classjuce_1_1TextButton" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::TextButton</ref> instances — their text/fill use TextButton ids. Bar uses only bar-level ids (background, outline, highlight). Lua keys are named to match the colourId they drive, 1:1. </para>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="lookAndFeel/LookAndFeel.h" line="51" column="31" bodyfile="lookAndFeel/LookAndFeel.h" bodystart="51" bodyend="-1"/>
-        <referencedby refid="classend_1_1_look_and_feel_1a7c2fe0979150705dd5b0a67886857d30" compoundref="_look_and_feel_8cpp" startline="64" endline="71">valueTreePropertyChanged</referencedby>
-      </memberdef>
-    </sectiondef>
     <sectiondef kind="private-attrib">
       <memberdef kind="variable" id="classend_1_1_look_and_feel_1a9f5a36b2e39117101eef6cc2210af64a" prot="private" static="no" mutable="no">
         <type><ref refid="classconfig_1_1_model" kindref="compound">config::Model</ref> &amp;</type>
@@ -135,7 +115,25 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lookAndFeel/LookAndFeel.h" line="76" column="19" bodyfile="lookAndFeel/LookAndFeel.h" bodystart="76" bodyend="76"/>
+        <location file="lookAndFeel/LookAndFeel.h" line="62" column="19" bodyfile="lookAndFeel/LookAndFeel.h" bodystart="62" bodyend="62"/>
+      </memberdef>
+      <memberdef kind="variable" id="classend_1_1_look_and_feel_1afecd477f3e694f5abd9b809e06125d2d" prot="private" static="no" mutable="no">
+        <type><ref refid="classjam_1_1HashMap" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::HashMap</ref>&lt; <ref refid="classjuce_1_1Identifier" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Identifier</ref>, <ref refid="structjam_1_1SVG_1_1Flex_1a69c2ab52465648a54ce4e9d24e32aee2" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::SVG::Flex::Segments</ref> &gt;</type>
+        <definition>jam::HashMap&lt;juce::Identifier, jam::SVG::Flex::Segments&gt; end::LookAndFeel::graphics</definition>
+        <argsstring></argsstring>
+        <name>graphics</name>
+        <qualifiedname>end::LookAndFeel::graphics</qualifiedname>
+        <briefdescription>
+<para>Parsed SVG assets keyed by their GRAPHICS property id. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Each entry is a SVG::Flex::Segments set (9-slice layout, paint-ready) produced by SVG::Flex::getSegments from the SVG file named by the matching property in the IDtype::graphics ValueTree node. Rebuilt by <ref refid="classend_1_1_look_and_feel_1a6bac0b983ceeffd331beb5262030dbe8" kindref="member">loadGraphics()</ref> on construction and on every SVG file-change event. Key is the GRAPHICS property identifier (e.g. ID::tabBar for the tab bar background asset). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lookAndFeel/LookAndFeel.h" line="73" column="18" bodyfile="lookAndFeel/LookAndFeel.h" bodystart="73" bodyend="-1"/>
+        <referencedby refid="classend_1_1_look_and_feel_1ade27fb3312b73e1a30fc6e147cf32d0d" compoundref="_look_and_feel_8cpp" startline="67" endline="70">drawBarBackground</referencedby>
+        <referencedby refid="classend_1_1_look_and_feel_1a6bac0b983ceeffd331beb5262030dbe8" compoundref="_look_and_feel_8cpp" startline="117" endline="129">loadGraphics</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">
@@ -151,9 +149,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lookAndFeel/LookAndFeel.h" line="53" column="5" bodyfile="lookAndFeel/LookAndFeel.cpp" bodystart="55" bodyend="60"/>
-        <references refid="classend_1_1_look_and_feel_1a6bac0b983ceeffd331beb5262030dbe8" compoundref="_look_and_feel_8cpp" startline="151" endline="154">loadGraphics</references>
-        <references refid="classend_1_1_look_and_feel_1a97d73310bc5d9b47794c0a0d71388bce" compoundref="_look_and_feel_8cpp" startline="129" endline="149">setColours</references>
+        <location file="lookAndFeel/LookAndFeel.h" line="38" column="5" bodyfile="lookAndFeel/LookAndFeel.cpp" bodystart="8" bodyend="13"/>
+        <references refid="classend_1_1_look_and_feel_1a1b336d849e97d92bb98a1dc743f918e8" compoundref="_look_and_feel_8cpp" startline="15" endline="48">initialiseColours</references>
+        <references refid="classend_1_1_look_and_feel_1a6bac0b983ceeffd331beb5262030dbe8" compoundref="_look_and_feel_8cpp" startline="117" endline="129">loadGraphics</references>
       </memberdef>
       <memberdef kind="function" id="classend_1_1_look_and_feel_1a4e4378865cd561e4bccbb346cf7a8114" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type></type>
@@ -167,7 +165,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lookAndFeel/LookAndFeel.h" line="54" column="5" bodyfile="lookAndFeel/LookAndFeel.cpp" bodystart="62" bodyend="62"/>
+        <location file="lookAndFeel/LookAndFeel.h" line="39" column="5" bodyfile="lookAndFeel/LookAndFeel.cpp" bodystart="50" bodyend="50"/>
       </memberdef>
       <memberdef kind="function" id="classend_1_1_look_and_feel_1a7c2fe0979150705dd5b0a67886857d30" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
         <type>void</type>
@@ -190,10 +188,13 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lookAndFeel/LookAndFeel.h" line="56" column="10" bodyfile="lookAndFeel/LookAndFeel.cpp" bodystart="64" bodyend="71"/>
-        <references refid="classend_1_1_look_and_feel_1a44fe3fcf8c8ae508d6178e96eb83b472" compoundref="_look_and_feel_8h" startline="51">colourIds</references>
+        <location file="lookAndFeel/LookAndFeel.h" line="42" column="5" bodyfile="lookAndFeel/LookAndFeel.cpp" bodystart="52" bodyend="64"/>
+        <references refid="classjam_1_1LookAndFeel_1_1Methods_1a35099ab751a0c7ad31bf460715ccaad3">jam::LookAndFeel::Methods&lt; LookAndFeel &gt;::contains</references>
+        <references refid="classjuce_1_1Desktop_1a4dd4befd88d0e5104dbf17bf824b0c84">juce::Desktop::getInstance</references>
+        <references refid="classjuce_1_1Desktop_1a2104b6d8b53cc5b057b9d0034dbcad19">juce::Desktop::getNumComponents</references>
         <references refid="classjuce_1_1ValueTree_1ac7027d954636d660784dcf930caa89ca">juce::ValueTree::getType</references>
-        <references refid="classend_1_1_look_and_feel_1a97d73310bc5d9b47794c0a0d71388bce" compoundref="_look_and_feel_8cpp" startline="129" endline="149">setColours</references>
+        <references refid="classend_1_1_look_and_feel_1a6bac0b983ceeffd331beb5262030dbe8" compoundref="_look_and_feel_8cpp" startline="117" endline="129">loadGraphics</references>
+        <references refid="classjam_1_1LookAndFeel_1_1Methods_1a72da5b0c7889d5577d0f982135e669ba">jam::LookAndFeel::Methods&lt; LookAndFeel &gt;::setColours</references>
       </memberdef>
       <memberdef kind="function" id="classend_1_1_look_and_feel_1ade27fb3312b73e1a30fc6e147cf32d0d" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
         <type>void</type>
@@ -216,8 +217,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lookAndFeel/LookAndFeel.h" line="58" column="10" bodyfile="lookAndFeel/LookAndFeel.cpp" bodystart="74" bodyend="78"/>
-        <references refid="namespacejuce_1a86deae84ff8b95d7e40214a493b3dfe0">juce::ignoreUnused</references>
+        <location file="lookAndFeel/LookAndFeel.h" line="44" column="10" bodyfile="lookAndFeel/LookAndFeel.cpp" bodystart="67" bodyend="70"/>
+        <references refid="classend_1_1_look_and_feel_1afecd477f3e694f5abd9b809e06125d2d" compoundref="_look_and_feel_8h" startline="73">graphics</references>
+        <references refid="structjam_1_1SVG_1_1Flex_1adf5f66c2a03113c9ffc25a1e9e35a984">jam::SVG::Flex::paint</references>
       </memberdef>
       <memberdef kind="function" id="classend_1_1_look_and_feel_1ab688b5fb3e771c8f7f7197855e523ddb" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
         <type>void</type>
@@ -240,7 +242,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lookAndFeel/LookAndFeel.h" line="59" column="10" bodyfile="lookAndFeel/LookAndFeel.cpp" bodystart="80" bodyend="84"/>
+        <location file="lookAndFeel/LookAndFeel.h" line="45" column="10" bodyfile="lookAndFeel/LookAndFeel.cpp" bodystart="72" bodyend="76"/>
         <references refid="namespacejuce_1a86deae84ff8b95d7e40214a493b3dfe0">juce::ignoreUnused</references>
       </memberdef>
       <memberdef kind="function" id="classend_1_1_look_and_feel_1a2d99c5eec680d18f5f5136bb1f374b25" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
@@ -272,11 +274,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lookAndFeel/LookAndFeel.h" line="60" column="10" bodyfile="lookAndFeel/LookAndFeel.cpp" bodystart="86" bodyend="95"/>
-        <references refid="classjuce_1_1TextButton_1adef32bdc7fb9d0cff38fff3761a4213aa2590308aa6dad9cbad963e5febc3f171">juce::TextButton::buttonColourId</references>
-        <references refid="classjuce_1_1TextButton_1adef32bdc7fb9d0cff38fff3761a4213aa84af9b3c38501ddd08330e76bba77f87">juce::TextButton::buttonOnColourId</references>
-        <references refid="classjuce_1_1Graphics_1af28f0dff675b147194e188c6ac115f8e">juce::Graphics::fillAll</references>
-        <references refid="classjuce_1_1LookAndFeel_1af70e8ffcc9049226ddc6e9b798c32dd5">juce::LookAndFeel::findColour</references>
+        <location file="lookAndFeel/LookAndFeel.h" line="46" column="10" bodyfile="lookAndFeel/LookAndFeel.cpp" bodystart="78" bodyend="84"/>
         <references refid="namespacejuce_1a86deae84ff8b95d7e40214a493b3dfe0">juce::ignoreUnused</references>
       </memberdef>
       <memberdef kind="function" id="classend_1_1_look_and_feel_1ac0e0378dd9ed6c35906b17ebc7e66e57" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
@@ -291,10 +289,10 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lookAndFeel/LookAndFeel.h" line="65" column="16" bodyfile="lookAndFeel/LookAndFeel.cpp" bodystart="97" bodyend="104"/>
+        <location file="lookAndFeel/LookAndFeel.h" line="51" column="16" bodyfile="lookAndFeel/LookAndFeel.cpp" bodystart="86" bodyend="93"/>
         <references refid="classjuce_1_1FontOptions_1a010c459b44aa36216d06d60cd3b90ea7">juce::FontOptions::withName</references>
         <references refid="classjuce_1_1FontOptions_1abf9b08acb0b49a695f8fa169d2ba0cdb">juce::FontOptions::withPointHeight</references>
-        <referencedby refid="classend_1_1_look_and_feel_1a075a03f4d3fe6e467e3c2d5a4ecb0a2c" compoundref="_look_and_feel_8cpp" startline="106" endline="110">getTabFont</referencedby>
+        <referencedby refid="classend_1_1_look_and_feel_1a075a03f4d3fe6e467e3c2d5a4ecb0a2c" compoundref="_look_and_feel_8cpp" startline="95" endline="99">getTabFont</referencedby>
       </memberdef>
       <memberdef kind="function" id="classend_1_1_look_and_feel_1a075a03f4d3fe6e467e3c2d5a4ecb0a2c" prot="public" static="no" const="yes" explicit="no" inline="no" virt="virtual">
         <type><ref refid="classjuce_1_1Font" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Font</ref></type>
@@ -313,8 +311,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lookAndFeel/LookAndFeel.h" line="66" column="16" bodyfile="lookAndFeel/LookAndFeel.cpp" bodystart="106" bodyend="110"/>
-        <references refid="classend_1_1_look_and_feel_1ac0e0378dd9ed6c35906b17ebc7e66e57" compoundref="_look_and_feel_8cpp" startline="97" endline="104">getTabFont</references>
+        <location file="lookAndFeel/LookAndFeel.h" line="52" column="16" bodyfile="lookAndFeel/LookAndFeel.cpp" bodystart="95" bodyend="99"/>
+        <references refid="classend_1_1_look_and_feel_1ac0e0378dd9ed6c35906b17ebc7e66e57" compoundref="_look_and_feel_8cpp" startline="86" endline="93">getTabFont</references>
         <references refid="namespacejuce_1a86deae84ff8b95d7e40214a493b3dfe0">juce::ignoreUnused</references>
       </memberdef>
       <memberdef kind="function" id="classend_1_1_look_and_feel_1a2d895cfa802013b3734d533380e71252" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
@@ -354,7 +352,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lookAndFeel/LookAndFeel.h" line="68" column="10" bodyfile="lookAndFeel/LookAndFeel.cpp" bodystart="113" bodyend="126"/>
+        <location file="lookAndFeel/LookAndFeel.h" line="54" column="10" bodyfile="lookAndFeel/LookAndFeel.cpp" bodystart="102" bodyend="115"/>
         <references refid="classjuce_1_1Graphics_1a8ec4ee2940467eeac346453851ecea42">juce::Graphics::fillRect</references>
         <references refid="classjuce_1_1LookAndFeel_1af70e8ffcc9049226ddc6e9b798c32dd5">juce::LookAndFeel::findColour</references>
         <references refid="classend_1_1_look_and_feel_1a96444644e5b541f2a7a2235c0dc91cf8aa147286280ece5e187cca4860fe4cfb6" compoundref="_look_and_feel_8h" startline="27">paneBarColourId</references>
@@ -363,23 +361,6 @@
       </memberdef>
     </sectiondef>
     <sectiondef kind="private-func">
-      <memberdef kind="function" id="classend_1_1_look_and_feel_1a97d73310bc5d9b47794c0a0d71388bce" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type>void</type>
-        <definition>void end::LookAndFeel::setColours</definition>
-        <argsstring>()</argsstring>
-        <name>setColours</name>
-        <qualifiedname>end::LookAndFeel::setColours</qualifiedname>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="lookAndFeel/LookAndFeel.h" line="78" column="10" bodyfile="lookAndFeel/LookAndFeel.cpp" bodystart="129" bodyend="149"/>
-        <references refid="classjam_1_1Model_1a59b57627d856a11d756eabe1690a7213">jam::Model::applyFunctionRecursively</references>
-        <referencedby refid="classend_1_1_look_and_feel_1a9313c08eb0def3e3a423f8bfd362f435" compoundref="_look_and_feel_8cpp" startline="55" endline="60">LookAndFeel</referencedby>
-        <referencedby refid="classend_1_1_look_and_feel_1a7c2fe0979150705dd5b0a67886857d30" compoundref="_look_and_feel_8cpp" startline="64" endline="71">valueTreePropertyChanged</referencedby>
-      </memberdef>
       <memberdef kind="function" id="classend_1_1_look_and_feel_1a6bac0b983ceeffd331beb5262030dbe8" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
         <definition>void end::LookAndFeel::loadGraphics</definition>
@@ -392,10 +373,66 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="lookAndFeel/LookAndFeel.h" line="79" column="10" bodyfile="lookAndFeel/LookAndFeel.cpp" bodystart="151" bodyend="154"/>
-        <references refid="classend_1_1_look_and_feel_1a6bac0b983ceeffd331beb5262030dbe8" compoundref="_look_and_feel_8cpp" startline="151" endline="154">loadGraphics</references>
-        <referencedby refid="classend_1_1_look_and_feel_1a6bac0b983ceeffd331beb5262030dbe8" compoundref="_look_and_feel_8cpp" startline="151" endline="154">loadGraphics</referencedby>
-        <referencedby refid="classend_1_1_look_and_feel_1a9313c08eb0def3e3a423f8bfd362f435" compoundref="_look_and_feel_8cpp" startline="55" endline="60">LookAndFeel</referencedby>
+        <location file="lookAndFeel/LookAndFeel.h" line="75" column="10" bodyfile="lookAndFeel/LookAndFeel.cpp" bodystart="117" bodyend="129"/>
+        <references refid="classjam_1_1LookAndFeel_1_1Methods_1a63619a9724f5b272deeb330155a8b0b1">jam::LookAndFeel::Methods&lt; LookAndFeel &gt;::colourMap</references>
+        <references refid="structjam_1_1SVG_1_1Flex_1a6003db70f3df7bef11c0b7bacdd92bb2">jam::SVG::Flex::getSegments</references>
+        <references refid="classend_1_1_look_and_feel_1afecd477f3e694f5abd9b809e06125d2d" compoundref="_look_and_feel_8h" startline="73">graphics</references>
+        <references refid="structconfig_1_1_graphics_1a680b9dba6753acd9eb16c43c840bba0c" compoundref="_map_8h" startline="302" endline="302">config::Graphics::path</references>
+        <references refid="structjam_1_1ID_1ae1f37278ca197165e236d90e8b1aa795">jam::ID::path</references>
+        <referencedby refid="classend_1_1_look_and_feel_1a9313c08eb0def3e3a423f8bfd362f435" compoundref="_look_and_feel_8cpp" startline="8" endline="13">LookAndFeel</referencedby>
+        <referencedby refid="classend_1_1_look_and_feel_1a7c2fe0979150705dd5b0a67886857d30" compoundref="_look_and_feel_8cpp" startline="52" endline="64">valueTreePropertyChanged</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classend_1_1_look_and_feel_1a1b336d849e97d92bb98a1dc743f918e8" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void end::LookAndFeel::initialiseColours</definition>
+        <argsstring>()</argsstring>
+        <name>initialiseColours</name>
+        <qualifiedname>end::LookAndFeel::initialiseColours</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="lookAndFeel/LookAndFeel.h" line="76" column="10" bodyfile="lookAndFeel/LookAndFeel.cpp" bodystart="15" bodyend="48"/>
+        <references refid="structjam_1_1ID_1ad0061fc64dd7485a0e5d200e51f8a42d">jam::ID::background</references>
+        <references refid="classjam_1_1button_1_1Bar_1ad0f6652ec57947b1d1698d9526292aaaae85344f698824512894fad53475c3226">jam::button::Bar::backgroundColourId</references>
+        <references refid="classjam_1_1CodeView_1a93a5ced4b1717717dac8f5d07a4a4f9ca91da197c78b9d7429d512c5ddb51dc0f">jam::CodeView::backgroundColourId</references>
+        <references refid="classjuce_1_1Label_1a3514f3dd83f249e6e7f786c910b89657a6f527cb4173167f0464b311a2dbcac5c">juce::Label::backgroundColourId</references>
+        <references refid="classjuce_1_1ResizableWindow_1a6953f9d7f63e732cc3b57a5e67a9e0efa8077296aa4d879dbbbde03231262257a">juce::ResizableWindow::backgroundColourId</references>
+        <references refid="classjuce_1_1TextEditor_1a1c631814ceec16afbec2c28fd188ba87a283d9623973b8c23f37675517b9f32d6">juce::TextEditor::backgroundColourId</references>
+        <references refid="structjam_1_1ID_1a201381d8843488820832eea4d9ecfeaa">jam::ID::button</references>
+        <references refid="classjuce_1_1TextButton_1adef32bdc7fb9d0cff38fff3761a4213aa2590308aa6dad9cbad963e5febc3f171">juce::TextButton::buttonColourId</references>
+        <references refid="classjuce_1_1TextButton_1adef32bdc7fb9d0cff38fff3761a4213aa84af9b3c38501ddd08330e76bba77f87">juce::TextButton::buttonOnColourId</references>
+        <references refid="classjam_1_1CaretComponent_1a8ef8abf9a27d732776d623ba1bb9695da00c1d92d6fcf0598b3a3281f7e6f75d2">jam::CaretComponent::caretColourId</references>
+        <references refid="classjam_1_1LookAndFeel_1_1Methods_1a63619a9724f5b272deeb330155a8b0b1">jam::LookAndFeel::Methods&lt; LookAndFeel &gt;::colourMap</references>
+        <references refid="structjam_1_1IDtype_1a8cd6e60ff54ece163256a6c6c0f60b06">jam::IDtype::colours</references>
+        <references refid="structjam_1_1ColourMap_1af7be8ec076dbebfe38b4f3668793ea4c">jam::ColourMap::fromValueTree</references>
+        <references refid="classjam_1_1button_1_1Bar_1ad0f6652ec57947b1d1698d9526292aaaa181aaae31f45d278e218baea9c65c8a9">jam::button::Bar::highlightColourId</references>
+        <references refid="classjuce_1_1TextEditor_1a1c631814ceec16afbec2c28fd188ba87a46167e3172006a3687ab5b9ecb4e5af5">juce::TextEditor::highlightColourId</references>
+        <references refid="classend_1_1_look_and_feel_1a96444644e5b541f2a7a2235c0dc91cf8a02b6d1024860431f9162852be60a805a" compoundref="_look_and_feel_8h" startline="33">hintLabelBgColourId</references>
+        <references refid="classend_1_1_look_and_feel_1a96444644e5b541f2a7a2235c0dc91cf8abefbf6c1366bd689905ebed8e1805c47" compoundref="_look_and_feel_8h" startline="34">hintLabelFgColourId</references>
+        <references refid="structjam_1_1ID_1a5b740b82cc1a12dc790ec94908eb76de">jam::ID::outline</references>
+        <references refid="classjam_1_1button_1_1Bar_1ad0f6652ec57947b1d1698d9526292aaaa803a1d5072edc6b1aa4ea1f6efb6dc9f">jam::button::Bar::outlineColourId</references>
+        <references refid="classjuce_1_1TextEditor_1a1c631814ceec16afbec2c28fd188ba87a93ffeb5dc4a88020e5967b37016f527d">juce::TextEditor::outlineColourId</references>
+        <references refid="structjam_1_1IDtype_1a16a5b2d906750f9595316edf2df071f7">jam::IDtype::overlay</references>
+        <references refid="classend_1_1_look_and_feel_1a96444644e5b541f2a7a2235c0dc91cf8aa147286280ece5e187cca4860fe4cfb6" compoundref="_look_and_feel_8h" startline="27">paneBarColourId</references>
+        <references refid="classend_1_1_look_and_feel_1a96444644e5b541f2a7a2235c0dc91cf8a22a41fc4e923578afe3d88e8691a5694" compoundref="_look_and_feel_8h" startline="28">paneBarHighlightColourId</references>
+        <references refid="classend_1_1_look_and_feel_1a96444644e5b541f2a7a2235c0dc91cf8a29bcd8deec252b03c2577f82f8f481c6" compoundref="_look_and_feel_8h" startline="35">selectionCursorColourId</references>
+        <references refid="classjam_1_1LookAndFeel_1_1Methods_1ad549abc783292ee1f9fb7a43d3d5eb4e">jam::LookAndFeel::Methods&lt; LookAndFeel &gt;::setColourId</references>
+        <references refid="classjam_1_1LookAndFeel_1_1Methods_1a72da5b0c7889d5577d0f982135e669ba">jam::LookAndFeel::Methods&lt; LookAndFeel &gt;::setColours</references>
+        <references refid="classend_1_1_look_and_feel_1a96444644e5b541f2a7a2235c0dc91cf8a174721783674845874655fb76d4c328e" compoundref="_look_and_feel_8h" startline="29">statusBarBackgroundColourId</references>
+        <references refid="classend_1_1_look_and_feel_1a96444644e5b541f2a7a2235c0dc91cf8a4893dc15d2004670de2212dc51457a57" compoundref="_look_and_feel_8h" startline="30">statusBarLabelBackgroundColourId</references>
+        <references refid="classend_1_1_look_and_feel_1a96444644e5b541f2a7a2235c0dc91cf8a12e57155e652eb7f88c4e16c5b645e7e" compoundref="_look_and_feel_8h" startline="31">statusBarLabelTextColourId</references>
+        <references refid="classend_1_1_look_and_feel_1a96444644e5b541f2a7a2235c0dc91cf8a91a1d0c6b367e349ab957d67b6b63497" compoundref="_look_and_feel_8h" startline="32">statusBarSpinnerColourId</references>
+        <references refid="structjam_1_1ID_1ac9bf28b58a05d1d0de1b4add6ba40e19">jam::ID::text</references>
+        <references refid="classjam_1_1CodeView_1a93a5ced4b1717717dac8f5d07a4a4f9ca40a8c41b703079631dad8845f96fa8f3">jam::CodeView::textColourId</references>
+        <references refid="classjuce_1_1Label_1a3514f3dd83f249e6e7f786c910b89657aaf2694fbfd052996da35e7c31910e6d5">juce::Label::textColourId</references>
+        <references refid="classjuce_1_1TextButton_1adef32bdc7fb9d0cff38fff3761a4213aab41931f6a0d27d1f48219b708fa66d9b">juce::TextButton::textColourOffId</references>
+        <references refid="classjuce_1_1TextButton_1adef32bdc7fb9d0cff38fff3761a4213aa187c663c7e35de031022cae422eace06">juce::TextButton::textColourOnId</references>
+        <references refid="classjuce_1_1ScrollBar_1a8be9ec27ec709cfec2d79d34e678be83a30cb00cead615c57eed36845499fed7a">juce::ScrollBar::thumbColourId</references>
+        <references refid="classjuce_1_1ScrollBar_1a8be9ec27ec709cfec2d79d34e678be83a61bed1040079a18d8e4646d21314694a">juce::ScrollBar::trackColourId</references>
+        <referencedby refid="classend_1_1_look_and_feel_1a9313c08eb0def3e3a423f8bfd362f435" compoundref="_look_and_feel_8cpp" startline="8" endline="13">LookAndFeel</referencedby>
       </memberdef>
     </sectiondef>
     <briefdescription>
@@ -625,10 +662,10 @@
       </node>
     </inheritancegraph>
     <collaborationgraph>
-      <node id="39">
+      <node id="42">
         <label>config::Model</label>
         <link refid="classconfig_1_1_model"/>
-        <childnode refid="40" relation="public-inheritance">
+        <childnode refid="43" relation="public-inheritance">
         </childnode>
         <childnode refid="47" relation="public-inheritance">
         </childnode>
@@ -652,23 +689,29 @@
         <link refid="classend_1_1_look_and_feel"/>
         <childnode refid="2" relation="public-inheritance">
         </childnode>
-        <childnode refid="37" relation="public-inheritance">
+        <childnode refid="41" relation="public-inheritance">
         </childnode>
-        <childnode refid="38" relation="usage">
-          <edgelabel>colourIds</edgelabel>
-        </childnode>
-        <childnode refid="39" relation="usage">
+        <childnode refid="42" relation="usage">
           <edgelabel>config</edgelabel>
         </childnode>
+        <childnode refid="60" relation="usage">
+          <edgelabel>graphics</edgelabel>
+        </childnode>
       </node>
-      <node id="42">
+      <node id="38">
         <label>jam::AnyMap</label>
         <link refid="classjam_1_1AnyMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-        <childnode refid="43" relation="usage">
+        <childnode refid="39" relation="usage">
           <edgelabel>entries</edgelabel>
         </childnode>
-        <childnode refid="44" relation="usage">
+        <childnode refid="40" relation="usage">
           <edgelabel>types</edgelabel>
+        </childnode>
+      </node>
+      <node id="37">
+        <label>jam::ColourMap</label>
+        <link refid="structjam_1_1ColourMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="38" relation="public-inheritance">
         </childnode>
       </node>
       <node id="47">
@@ -691,7 +734,7 @@
       <node id="53">
         <label>jam::File::Watcher::CoalesceTimer</label>
         <link refid="structjam_1_1File_1_1Watcher_1_1CoalesceTimer" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-        <childnode refid="41" relation="public-inheritance">
+        <childnode refid="44" relation="public-inheritance">
         </childnode>
         <childnode refid="49" relation="usage">
           <edgelabel>owner</edgelabel>
@@ -718,15 +761,15 @@
         <label>jam::HashMap&lt; juce::Identifier, jam::HashMap&lt; juce::Identifier, std::function&lt; bool(const juce::var &amp;)&gt; &gt; &gt;</label>
         <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
-      <node id="38">
-        <label>jam::HashMap&lt; juce::Identifier, jam::HashMap&lt; juce::Identifier, std::vector&lt; int &gt; &gt; &gt;</label>
+      <node id="60">
+        <label>jam::HashMap&lt; juce::Identifier, jam::SVG::Flex::Segments &gt;</label>
         <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
-      <node id="44">
+      <node id="40">
         <label>jam::HashMap&lt; juce::Identifier, std::type_index &gt;</label>
         <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
-      <node id="43">
+      <node id="39">
         <label>jam::HashMap&lt; juce::Identifier, std::unique_ptr&lt; void, Deleter &gt; &gt;</label>
         <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
@@ -741,13 +784,16 @@
         <link refid="classjam_1_1LookAndFeel_1_1Methods" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
         <childnode refid="3" relation="public-inheritance">
         </childnode>
+        <childnode refid="37" relation="usage">
+          <edgelabel>colourMap</edgelabel>
+        </childnode>
       </node>
-      <node id="40">
+      <node id="43">
         <label>jam::Model</label>
         <link refid="classjam_1_1Model" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-        <childnode refid="41" relation="public-inheritance">
+        <childnode refid="44" relation="public-inheritance">
         </childnode>
-        <childnode refid="42" relation="usage">
+        <childnode refid="38" relation="usage">
           <edgelabel>params</edgelabel>
         </childnode>
         <childnode refid="45" relation="usage">
@@ -961,7 +1007,7 @@
         <label>juce::TextEditor::LookAndFeelMethods</label>
         <link refid="structjuce_1_1TextEditor_1_1LookAndFeelMethods" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="41">
+      <node id="44">
         <label>juce::Timer</label>
         <link refid="classjuce_1_1Timer" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
@@ -981,7 +1027,7 @@
         <label>juce::ValueTree</label>
         <link refid="classjuce_1_1ValueTree" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="37">
+      <node id="41">
         <label>juce::ValueTree::Listener</label>
         <link refid="classjuce_1_1ValueTree_1_1Listener" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
@@ -1001,14 +1047,15 @@
         </childnode>
       </node>
     </collaborationgraph>
-    <location file="lookAndFeel/LookAndFeel.h" line="11" column="1" bodyfile="lookAndFeel/LookAndFeel.h" bodystart="14" bodyend="83"/>
+    <location file="lookAndFeel/LookAndFeel.h" line="11" column="1" bodyfile="lookAndFeel/LookAndFeel.h" bodystart="14" bodyend="79"/>
     <listofallmembers>
       <member refid="classjuce_1_1LookAndFeel__V3_1a1aa6ddb7209c8df59e45e195cd7564e9" prot="public" virt="virtual"><scope>end::LookAndFeel</scope><name>areLinesDrawnForTreeView</name></member>
       <member refid="classjuce_1_1LookAndFeel__V3_1a293d6942d58f33cd48163e2f4ed53c0a" prot="public" virt="virtual"><scope>end::LookAndFeel</scope><name>areScrollbarButtonsVisible</name></member>
       <member refid="classjuce_1_1LookAndFeel__V4_1ae661ca43df43fcb79fd863b2b28af502" prot="public" virt="virtual"><scope>end::LookAndFeel</scope><name>changeToggleButtonWidthToFitText</name></member>
       <member refid="classend_1_1_look_and_feel_1a96444644e5b541f2a7a2235c0dc91cf8" prot="public" virt="non-virtual"><scope>end::LookAndFeel</scope><name>ColourIds</name></member>
-      <member refid="classend_1_1_look_and_feel_1a44fe3fcf8c8ae508d6178e96eb83b472" prot="public" virt="non-virtual"><scope>end::LookAndFeel</scope><name>colourIds</name></member>
+      <member refid="classjam_1_1LookAndFeel_1_1Methods_1a63619a9724f5b272deeb330155a8b0b1" prot="protected" virt="non-virtual"><scope>end::LookAndFeel</scope><name>colourMap</name></member>
       <member refid="classend_1_1_look_and_feel_1a9f5a36b2e39117101eef6cc2210af64a" prot="private" virt="non-virtual"><scope>end::LookAndFeel</scope><name>config</name></member>
+      <member refid="classjam_1_1LookAndFeel_1_1Methods_1a35099ab751a0c7ad31bf460715ccaad3" prot="public" virt="non-virtual"><scope>end::LookAndFeel</scope><name>contains</name></member>
       <member refid="classjuce_1_1LookAndFeel__V4_1ad957a460b64b7b66ad09a1ad3975d999" prot="public" virt="virtual"><scope>end::LookAndFeel</scope><name>createAlertWindow</name></member>
       <member refid="classjuce_1_1LookAndFeel__V2_1afb9ed461af3e7a1f85ced6ae343fdf5f" prot="public" virt="virtual"><scope>end::LookAndFeel</scope><name>createCaretComponent</name></member>
       <member refid="classjuce_1_1LookAndFeel__V2_1a76ead7857768621e03e1078f9161648e" prot="public" virt="virtual"><scope>end::LookAndFeel</scope><name>createComboBoxTextBox</name></member>
@@ -1157,8 +1204,10 @@
       <member refid="classjuce_1_1LookAndFeel__V3_1a5db6c0e167ab1b9a579e35c93260de09" prot="public" virt="virtual"><scope>end::LookAndFeel</scope><name>getTreeViewIndentSize</name></member>
       <member refid="classjuce_1_1LookAndFeel_1adf675bc31966dcc19b17a8dad35fb4ce" prot="public" virt="virtual"><scope>end::LookAndFeel</scope><name>getTypefaceForFont</name></member>
       <member refid="classjuce_1_1LookAndFeel__V2_1a9a9f54335b1e92388c0f24a9bfbbb576" prot="public" virt="virtual"><scope>end::LookAndFeel</scope><name>getWidthsForTextButtons</name></member>
+      <member refid="classend_1_1_look_and_feel_1afecd477f3e694f5abd9b809e06125d2d" prot="private" virt="non-virtual"><scope>end::LookAndFeel</scope><name>graphics</name></member>
       <member refid="classend_1_1_look_and_feel_1a96444644e5b541f2a7a2235c0dc91cf8a02b6d1024860431f9162852be60a805a" prot="public" virt="non-virtual"><scope>end::LookAndFeel</scope><name>hintLabelBgColourId</name></member>
       <member refid="classend_1_1_look_and_feel_1a96444644e5b541f2a7a2235c0dc91cf8abefbf6c1366bd689905ebed8e1805c47" prot="public" virt="non-virtual"><scope>end::LookAndFeel</scope><name>hintLabelFgColourId</name></member>
+      <member refid="classend_1_1_look_and_feel_1a1b336d849e97d92bb98a1dc743f918e8" prot="private" virt="non-virtual"><scope>end::LookAndFeel</scope><name>initialiseColours</name></member>
       <member refid="classjuce_1_1LookAndFeel_1a9b3a9f0ec9da5dc4023ca0e34090a201" prot="public" virt="non-virtual"><scope>end::LookAndFeel</scope><name>isColourSpecified</name></member>
       <member refid="classjuce_1_1LookAndFeel__V4_1a400b487893dd212f3259e4c7e69f8909" prot="public" virt="virtual"><scope>end::LookAndFeel</scope><name>isProgressBarOpaque</name></member>
       <member refid="classjuce_1_1LookAndFeel_1a230629d5764fd73944649cd5777a2b81" prot="public" virt="non-virtual"><scope>end::LookAndFeel</scope><name>isUsingNativeAlertWindows</name></member>
@@ -1181,7 +1230,8 @@
       <member refid="classjuce_1_1LookAndFeel__V2_1a108be964f016d7c0afcba884f0076f7a" prot="public" virt="virtual"><scope>end::LookAndFeel</scope><name>preparePopupMenuWindow</name></member>
       <member refid="classend_1_1_look_and_feel_1a96444644e5b541f2a7a2235c0dc91cf8a29bcd8deec252b03c2577f82f8f481c6" prot="public" virt="non-virtual"><scope>end::LookAndFeel</scope><name>selectionCursorColourId</name></member>
       <member refid="classjuce_1_1LookAndFeel_1abdbcae63a1eca75ea44c8d3b87bc7444" prot="public" virt="non-virtual"><scope>end::LookAndFeel</scope><name>setColour</name></member>
-      <member refid="classend_1_1_look_and_feel_1a97d73310bc5d9b47794c0a0d71388bce" prot="private" virt="non-virtual"><scope>end::LookAndFeel</scope><name>setColours</name></member>
+      <member refid="classjam_1_1LookAndFeel_1_1Methods_1ad549abc783292ee1f9fb7a43d3d5eb4e" prot="public" virt="non-virtual"><scope>end::LookAndFeel</scope><name>setColourId</name></member>
+      <member refid="classjam_1_1LookAndFeel_1_1Methods_1a72da5b0c7889d5577d0f982135e669ba" prot="public" virt="non-virtual"><scope>end::LookAndFeel</scope><name>setColours</name></member>
       <member refid="classjuce_1_1LookAndFeel__V4_1a9c27631ad29f01d5049405f9912692df" prot="public" virt="non-virtual"><scope>end::LookAndFeel</scope><name>setColourScheme</name></member>
       <member refid="classjuce_1_1LookAndFeel__V2_1a118141f5b25e642f533385ba9f5b9623" prot="public" virt="virtual"><scope>end::LookAndFeel</scope><name>setComponentEffectForBubbleComponent</name></member>
       <member refid="classjuce_1_1LookAndFeel_1ac300b777c3cdda99b8e84cd2e39511bc" prot="public" virt="non-virtual"><scope>end::LookAndFeel</scope><name>setDefaultLookAndFeel</name></member>

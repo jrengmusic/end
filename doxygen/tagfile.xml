@@ -3943,20 +3943,6 @@
       <anchor>a2d895cfa802013b3734d533380e71252</anchor>
       <arglist>(juce::Graphics &amp;, int w, int h, bool isVertical, bool isMouseOver, bool isMouseDown) override</arglist>
     </member>
-    <member kind="variable" static="yes">
-      <type>static const jam::HashMap&lt; juce::Identifier, jam::HashMap&lt; juce::Identifier, std::vector&lt; int &gt; &gt; &gt;</type>
-      <name>colourIds</name>
-      <anchorfile>classend_1_1_look_and_feel.html</anchorfile>
-      <anchor>a44fe3fcf8c8ae508d6178e96eb83b472</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="function" protection="private">
-      <type>void</type>
-      <name>setColours</name>
-      <anchorfile>classend_1_1_look_and_feel.html</anchorfile>
-      <anchor>a97d73310bc5d9b47794c0a0d71388bce</anchor>
-      <arglist>()</arglist>
-    </member>
     <member kind="function" protection="private">
       <type>void</type>
       <name>loadGraphics</name>
@@ -3964,11 +3950,25 @@
       <anchor>a6bac0b983ceeffd331beb5262030dbe8</anchor>
       <arglist>()</arglist>
     </member>
+    <member kind="function" protection="private">
+      <type>void</type>
+      <name>initialiseColours</name>
+      <anchorfile>classend_1_1_look_and_feel.html</anchorfile>
+      <anchor>a1b336d849e97d92bb98a1dc743f918e8</anchor>
+      <arglist>()</arglist>
+    </member>
     <member kind="variable" protection="private">
       <type>config::Model &amp;</type>
       <name>config</name>
       <anchorfile>classend_1_1_look_and_feel.html</anchorfile>
       <anchor>a9f5a36b2e39117101eef6cc2210af64a</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="private">
+      <type>jam::HashMap&lt; juce::Identifier, jam::SVG::Flex::Segments &gt;</type>
+      <name>graphics</name>
+      <anchorfile>classend_1_1_look_and_feel.html</anchorfile>
+      <anchor>afecd477f3e694f5abd9b809e06125d2d</anchor>
       <arglist></arglist>
     </member>
   </compound>
@@ -4015,6 +4015,20 @@
       <name>graphics</name>
       <anchorfile>structend_1_1_map.html</anchorfile>
       <anchor>a89388974198bca2f7a151533ca29fb2f</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable">
+      <type>jam::map::Segment</type>
+      <name>segment</name>
+      <anchorfile>structend_1_1_map.html</anchorfile>
+      <anchor>a780abe7d84b9a789212176fc2c9e6dcf</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable">
+      <type>jam::map::ButtonState</type>
+      <name>buttonState</name>
+      <anchorfile>structend_1_1_map.html</anchorfile>
+      <anchor>a01c80dbdabc4176ed5b6bea5be5651d7</anchor>
       <arglist></arglist>
     </member>
   </compound>

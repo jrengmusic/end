@@ -265,7 +265,7 @@ return {
 
 	tab = {
 		-- Bar strip background colour (behind all tab buttons).
-		background = 0xFF2C4144,
+		background = 0xFF699DAA,
 
 		-- Tab bar font family.
 		font_family = "Display Bold",
