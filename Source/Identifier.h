@@ -56,8 +56,15 @@
     X (tab, "tab")                                 \
     X (tabBar, "tab_bar")                          \
     X (tabButton, "tab_button")                    \
-    X (tabIndicator, "tab_indicator")              \
-    X (tabButtonNormal, "tab_button_normal")       \
+    X (tabHighlight, "tab_highlight")              \
+    X (tabButtonNormal,     "tab_button_normal")     \
+    X (tabButtonOver,       "tab_button_over")       \
+    X (tabButtonDown,       "tab_button_down")       \
+    X (tabButtonDisabled,   "tab_button_disabled")   \
+    X (tabButtonNormalOn,   "tab_button_normalOn")   \
+    X (tabButtonOverOn,     "tab_button_overOn")     \
+    X (tabButtonDownOn,     "tab_button_downOn")     \
+    X (tabButtonDisabledOn, "tab_button_disabledOn") \
     X (tabs, "tabs")                               \
     X (pane, "pane")                               \
     X (window, "window")                           \
@@ -122,7 +129,9 @@
     X (textOn, "text_on")                          \
     X (textOff, "text_off")                        \
     X (buttonOn, "button_on")                      \
-    X (uppercase, "uppercase")
+    X (uppercase, "uppercase")        \
+    X (depth, "depth")                \
+    X (kerningFactor, "kerning_factor")
 
 // Key binding names (keys.lua)
 #define IDENTIFIER_KEYS(X)                             \

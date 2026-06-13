@@ -20,13 +20,18 @@ namespace end
  *  TabbedComponent (deleteComponentWhenNotNeeded = true).
  *  Each Panes child has a corresponding jam::Model::Attachment held in
  *  tabAttachments — RAII ensures detach on removal.
+ *
+ *  Listens to the config ValueTree so that bar depth re-computes whenever
+ *  the display tab node changes (depth, font_size, font_family).
  */
 class Tabs
     : public jam::TabbedComponent
     , public jam::Model::Component
+    , public juce::ValueTree::Listener
 {
 public:
     explicit Tabs (jam::Model& model);
+    ~Tabs() override;
 
     /** @brief Adds a new tab with a fresh Panes container. */
     void addNewTab();
@@ -41,9 +46,15 @@ protected:
     void currentTabChanged (int newCurrentTabIndex, const juce::String& newCurrentTabName) override;
 
 private:
-    static constexpr float tabFontRatio { 0.5f };
+    /** @brief Re-computes bar depth and relays tab positions when the display tab node changes.
+     *  Calls updateTabBarVisibility() then resized() so that padding and depth
+     *  changes both take effect without requiring a second event.
+     */
+    void valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier&) override;
 
     void updateTabBarVisibility();
+
+    config::Model& config { *config::Model::getInstance() };
 
     jam::Owner<jam::Model::Attachment> attachments;
 

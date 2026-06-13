@@ -32,6 +32,11 @@ juce::ValueTree Model::getDisplay (const juce::Identifier& childType) const noex
 {
     return { state.getChildWithName (IDtype::display).getChildWithName (childType) };
 }
+
+juce::ValueTree Model::getGraphics() const noexcept
+{
+    return { state.getChildWithName (IDtype::graphics) };
+}
 //==============================================================================
 /* Wraps a Map::Instance contains() check as a string-enum validator. */
 template<typename MapType>
@@ -118,14 +123,16 @@ void Model::saveToPath()
             if (not existed)
             {
                 BinaryData::Raw raw (name);
-                file.replaceWithData (raw.data, static_cast<size_t> (raw.size));
+
+                if (raw.exists())
+                    file.replaceWithData (raw.data, static_cast<size_t> (raw.size));
             }
         }
     };
 
     writeWhenNeeded (File::path, *File::getInstance());
 
-    auto graphics { jam::Model::getChildWithName (state, IDtype::graphics) };
+    auto graphics { getGraphics() };
     auto path { Graphics::path.getChildFile (graphics.getProperty (jam::ID::path).toString()) };
     writeWhenNeeded (path, *Graphics::getInstance());
 }
@@ -212,7 +219,7 @@ void Model::buildGraphicsCallbacks()
         }
 
         // Walk the nested tab_button child: register one callback per state slot
-        // present in the config, in jam::SVG::Button::State enum order.
+        // present in the config, in jam::map::ButtonState order.
         // Each callback fires sendPropertyChangeMessage on the tab_button child
         // (not the graphics root) keyed by the state identifier.
         if (auto tabButton { graphics.getChildWithName (IDtype::tabButton) }; tabButton.isValid())

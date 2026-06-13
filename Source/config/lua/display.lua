@@ -265,13 +265,23 @@ return {
 
 	tab = {
 		-- Bar strip background colour (behind all tab buttons).
-		background = 0xFF699DAA,
+		background = 0xFF8FC6D0,
 
 		-- Tab bar font family.
-		font_family = "Display Bold",
+		font_family = "Display",
 
 		-- Tab bar font size in points.
 		font_size = 12,
+
+		-- Extra spacing between tab label characters, as a fraction of the
+		-- font size (0.0 = font default).
+		kerning_factor = 0.075,
+
+		-- Tab bar height as a multiple of the tab font height.
+		depth = 3.0,
+
+		-- Horizontal space between tab text and tab edge, in pixels (per side).
+		padding = 8,
 
 		-- Active tab text colour (juce::TextButton::textColourOnId).
 		text_on = 0xff00c8d8,
@@ -287,16 +297,16 @@ return {
 		-- resolved at draw time. No SVG colour values are used.
 
 		-- Colour for SVG groups tagged "outline" in the tab SVGs.
-		outline = 0xff2c4144,
+		outline = 0xff273233,
 
 		-- Inactive tab background fill (juce::TextButton::buttonColourId).
 		button = 0xff001a20,
 
 		-- Active tab fill (juce::TextButton::buttonOnColourId).
-		button_on = 0xff01c2d2,
+		button_on = 0xff2d3b40,
 
 		-- Sliding selection highlight colour (jam::button::Bar::highlightColourId).
-		highlight = 0xff01c2d2,
+		highlight = 0xff6b9099,
 
 		-- Always convert tab label to upper-case.
 		uppercase = "true",

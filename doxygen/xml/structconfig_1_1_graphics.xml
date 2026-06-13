@@ -17,10 +17,10 @@
           <detaileddescription>
           </detaileddescription>
         </enumvalue>
-        <enumvalue id="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea582f299301f3a3df535a40efb0f7c181" prot="public">
-          <name>tabIndicator</name>
+        <enumvalue id="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea34bd580725e15fc46636dd411c6dcf15" prot="public">
+          <name>tabHighlight</name>
           <briefdescription>
-<para>Sliding tab indicator SVG asset. </para>
+<para>Sliding tab highlight SVG asset. </para>
           </briefdescription>
           <detaileddescription>
           </detaileddescription>
@@ -28,7 +28,63 @@
         <enumvalue id="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea715efdd89e879fa3f2becdc3d9da8f3b" prot="public">
           <name>tabButtonNormal</name>
           <briefdescription>
-<para>Default (normal-state) tab button SVG asset stem. </para>
+<para>Tab button normal-state SVG asset stem. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea2acc2e462992d20cfdcc2a243de6ef15" prot="public">
+          <name>tabButtonOver</name>
+          <briefdescription>
+<para>Tab button over-state SVG asset stem. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3eaa69af12343f02479fd6e45627e741433" prot="public">
+          <name>tabButtonDown</name>
+          <briefdescription>
+<para>Tab button down-state SVG asset stem. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea9a9c09a14dc512fdec5fce6a8081169e" prot="public">
+          <name>tabButtonDisabled</name>
+          <briefdescription>
+<para>Tab button disabled-state SVG asset stem. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea22b6133a7afc06d908c6433d6491b9f1" prot="public">
+          <name>tabButtonNormalOn</name>
+          <briefdescription>
+<para>Tab button normalOn-state SVG asset stem. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3eaac33f2e47d0ffe912b41f87c55fecbf7" prot="public">
+          <name>tabButtonOverOn</name>
+          <briefdescription>
+<para>Tab button overOn-state SVG asset stem. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3eaf66c9e682427d6c2947f7b5be8f490a0" prot="public">
+          <name>tabButtonDownOn</name>
+          <briefdescription>
+<para>Tab button downOn-state SVG asset stem. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea52fac2613f896ebe4c9d535b550de4af" prot="public">
+          <name>tabButtonDisabledOn</name>
+          <briefdescription>
+<para>Tab button disabledOn-state SVG asset stem. </para>
           </briefdescription>
           <detaileddescription>
           </detaileddescription>
@@ -40,7 +96,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="260" column="5" bodyfile="end/Map.h" bodystart="261" bodyend="265"/>
+        <location file="end/Map.h" line="271" column="5" bodyfile="end/Map.h" bodystart="272" bodyend="283"/>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-static-attrib">
@@ -58,10 +114,10 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="302" column="36" bodyfile="end/Map.h" bodystart="302" bodyend="302"/>
-        <referencedby refid="structconfig_1_1_graphics_1abdfab926c44948460dfaf240c60572e3" compoundref="_map_8h" startline="296" endline="299">getPath</referencedby>
-        <referencedby refid="classend_1_1_look_and_feel_1a6bac0b983ceeffd331beb5262030dbe8" compoundref="_look_and_feel_8cpp" startline="117" endline="129">end::LookAndFeel::loadGraphics</referencedby>
-        <referencedby refid="classconfig_1_1_model_1acad607c8136bcc115ffeae9d47869e26" compoundref="_config_8cpp" startline="105" endline="131">config::Model::saveToPath</referencedby>
+        <location file="end/Map.h" line="327" column="36" bodyfile="end/Map.h" bodystart="327" bodyend="327"/>
+        <referencedby refid="structconfig_1_1_graphics_1abdfab926c44948460dfaf240c60572e3" compoundref="_map_8h" startline="321" endline="324">getPath</referencedby>
+        <referencedby refid="classend_1_1_look_and_feel_1a6bac0b983ceeffd331beb5262030dbe8" compoundref="_look_and_feel_8cpp" startline="142" endline="181">end::LookAndFeel::loadGraphics</referencedby>
+        <referencedby refid="classconfig_1_1_model_1acad607c8136bcc115ffeae9d47869e26" compoundref="_config_8cpp" startline="110" endline="138">config::Model::saveToPath</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structconfig_1_1_graphics_1a65b788f58d84dab0d495b814638c89f9" prot="public" static="yes" mutable="no">
         <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref></type>
@@ -77,9 +133,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="304" column="38" bodyfile="end/Map.h" bodystart="304" bodyend="304"/>
-        <referencedby refid="classconfig_1_1_model_1aaf6b40ca395ac5c6325cb189f13fec0f" compoundref="_config_8cpp" startline="250" endline="266">config::Model::fileChanged</referencedby>
-        <referencedby refid="structconfig_1_1_graphics_1a1c32b9f67fec052dcd7ccc1636ea85d6" compoundref="_map_8h" startline="290" endline="293">getName</referencedby>
+        <location file="end/Map.h" line="329" column="38" bodyfile="end/Map.h" bodystart="329" bodyend="329"/>
+        <referencedby refid="classconfig_1_1_model_1aaf6b40ca395ac5c6325cb189f13fec0f" compoundref="_config_8cpp" startline="257" endline="273">config::Model::fileChanged</referencedby>
+        <referencedby refid="structconfig_1_1_graphics_1a1c32b9f67fec052dcd7ccc1636ea85d6" compoundref="_map_8h" startline="315" endline="318">getName</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">
@@ -90,17 +146,24 @@
         <name>Graphics</name>
         <qualifiedname>config::Graphics::Graphics</qualifiedname>
         <briefdescription>
-<para>Populates the bimap with all 3 entries. </para>
+<para>Populates the bimap with all 10 entries. </para>
         </briefdescription>
         <detaileddescription>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="268" column="5" bodyfile="end/Map.h" bodystart="268" bodyend="275"/>
+        <location file="end/Map.h" line="286" column="5" bodyfile="end/Map.h" bodystart="286" bodyend="300"/>
         <references refid="classjam_1_1Map_1_1Instance_1afe0acf25bab1f104aea20f20174129d1">jam::Map::Instance&lt; Graphics &gt;::map</references>
-        <references refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea569fa475ce9202aadea617aff4696e47" compoundref="_map_8h" startline="262">tabBar</references>
-        <references refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea715efdd89e879fa3f2becdc3d9da8f3b" compoundref="_map_8h" startline="264">tabButtonNormal</references>
-        <references refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea582f299301f3a3df535a40efb0f7c181" compoundref="_map_8h" startline="263">tabIndicator</references>
+        <references refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea569fa475ce9202aadea617aff4696e47" compoundref="_map_8h" startline="273">tabBar</references>
+        <references refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea9a9c09a14dc512fdec5fce6a8081169e" compoundref="_map_8h" startline="278">tabButtonDisabled</references>
+        <references refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea52fac2613f896ebe4c9d535b550de4af" compoundref="_map_8h" startline="282">tabButtonDisabledOn</references>
+        <references refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3eaa69af12343f02479fd6e45627e741433" compoundref="_map_8h" startline="277">tabButtonDown</references>
+        <references refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3eaf66c9e682427d6c2947f7b5be8f490a0" compoundref="_map_8h" startline="281">tabButtonDownOn</references>
+        <references refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea715efdd89e879fa3f2becdc3d9da8f3b" compoundref="_map_8h" startline="275">tabButtonNormal</references>
+        <references refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea22b6133a7afc06d908c6433d6491b9f1" compoundref="_map_8h" startline="279">tabButtonNormalOn</references>
+        <references refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea2acc2e462992d20cfdcc2a243de6ef15" compoundref="_map_8h" startline="276">tabButtonOver</references>
+        <references refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3eaac33f2e47d0ffe912b41f87c55fecbf7" compoundref="_map_8h" startline="280">tabButtonOverOn</references>
+        <references refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea34bd580725e15fc46636dd411c6dcf15" compoundref="_map_8h" startline="274">tabHighlight</references>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-static-func">
@@ -118,10 +181,10 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="282" column="23" bodyfile="end/Map.h" bodystart="282" bodyend="282"/>
+        <location file="end/Map.h" line="307" column="23" bodyfile="end/Map.h" bodystart="307" bodyend="307"/>
         <references refid="structjam_1_1Context_1a3ff553f70ef61043352c54cfed475b4c">jam::Context&lt; Derived &gt;::getInstance</references>
-        <referencedby refid="classconfig_1_1_model_1a04468ffcc63d66896bb34f4c0b4c37b2" compoundref="_config_8cpp" startline="193" endline="241">config::Model::buildGraphicsCallbacks</referencedby>
-        <referencedby refid="structconfig_1_1_graphics_1a1c32b9f67fec052dcd7ccc1636ea85d6" compoundref="_map_8h" startline="290" endline="293">getName</referencedby>
+        <referencedby refid="classconfig_1_1_model_1a04468ffcc63d66896bb34f4c0b4c37b2" compoundref="_config_8cpp" startline="200" endline="248">config::Model::buildGraphicsCallbacks</referencedby>
+        <referencedby refid="structconfig_1_1_graphics_1a1c32b9f67fec052dcd7ccc1636ea85d6" compoundref="_map_8h" startline="315" endline="318">getName</referencedby>
       </memberdef>
       <memberdef kind="function" id="structconfig_1_1_graphics_1a1c32b9f67fec052dcd7ccc1636ea85d6" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
         <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref></type>
@@ -152,9 +215,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="290" column="31" bodyfile="end/Map.h" bodystart="290" bodyend="293"/>
-        <references refid="structconfig_1_1_graphics_1a65b788f58d84dab0d495b814638c89f9" compoundref="_map_8h" startline="304" endline="304">extension</references>
-        <references refid="structconfig_1_1_graphics_1a0b0f33c0070c5f80941536467ec4e416" compoundref="_map_8h" startline="282" endline="282">get</references>
+        <location file="end/Map.h" line="315" column="31" bodyfile="end/Map.h" bodystart="315" bodyend="318"/>
+        <references refid="structconfig_1_1_graphics_1a65b788f58d84dab0d495b814638c89f9" compoundref="_map_8h" startline="329" endline="329">extension</references>
+        <references refid="structconfig_1_1_graphics_1a0b0f33c0070c5f80941536467ec4e416" compoundref="_map_8h" startline="307" endline="307">get</references>
         <references refid="structjam_1_1Format_1a838b7c56ce7913ab2b4471148a1019cd">jam::Format::toFileName</references>
       </memberdef>
       <memberdef kind="function" id="structconfig_1_1_graphics_1abdfab926c44948460dfaf240c60572e3" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
@@ -174,8 +237,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="296" column="29" bodyfile="end/Map.h" bodystart="296" bodyend="299"/>
-        <references refid="structconfig_1_1_graphics_1a680b9dba6753acd9eb16c43c840bba0c" compoundref="_map_8h" startline="302" endline="302">path</references>
+        <location file="end/Map.h" line="321" column="29" bodyfile="end/Map.h" bodystart="321" bodyend="324"/>
+        <references refid="structconfig_1_1_graphics_1a680b9dba6753acd9eb16c43c840bba0c" compoundref="_map_8h" startline="327" endline="327">path</references>
       </memberdef>
     </sectiondef>
     <sectiondef kind="private-func">
@@ -192,17 +255,18 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="307" column="24" bodyfile="end/Map.h" bodystart="307" bodyend="307"/>
+        <location file="end/Map.h" line="332" column="24" bodyfile="end/Map.h" bodystart="332" bodyend="332"/>
         <references refid="classjam_1_1Map_1_1Instance_1afe0acf25bab1f104aea20f20174129d1">jam::Map::Instance&lt; Graphics &gt;::map</references>
-        <references refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea569fa475ce9202aadea617aff4696e47" compoundref="_map_8h" startline="262">tabBar</references>
+        <references refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea569fa475ce9202aadea617aff4696e47" compoundref="_map_8h" startline="273">tabBar</references>
       </memberdef>
     </sectiondef>
     <briefdescription>
-<para>Registry of SVG graphics assets — 3 keys. </para>
+<para>Registry of SVG graphics assets — 10 keys. </para>
     </briefdescription>
     <detaileddescription>
 <para>CRTP-derived from <ref refid="classjam_1_1Map_1_1Instance" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Map::Instance&lt;Graphics&gt;</ref>.</para>
-<para>Maps each enum key to its Identifier stem and resolves the on-disk filename via <ref refid="structconfig_1_1_graphics_1a1c32b9f67fec052dcd7ccc1636ea85d6" kindref="member">getName()</ref>. All keys produce &quot;stem.svg&quot;: tabBar → tab_bar.svg tabIndicator → tab_indicator.svg tabButtonNormal → tab_button_normal.svg (default slot for the tab button)</para>
+<para>Maps each enum key to its Identifier stem and resolves the on-disk filename via <ref refid="structconfig_1_1_graphics_1a1c32b9f67fec052dcd7ccc1636ea85d6" kindref="member">getName()</ref>. All keys produce &quot;stem.svg&quot;: tabBar → tab_bar.svg tabHighlight → tab_highlight.svg tabButtonNormal → tab_button_normal.svg tabButtonOver → tab_button_over.svg tabButtonDown → tab_button_down.svg tabButtonDisabled → tab_button_disabled.svg tabButtonNormalOn → tab_button_normalOn.svg tabButtonOverOn → tab_button_overOn.svg tabButtonDownOn → tab_button_downOn.svg tabButtonDisabledOn → tab_button_disabledOn.svg</para>
+<para>Only stems embedded in <ref refid="namespaceBinaryData" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">BinaryData</ref> are deployed — absent states are a design choice and are silently skipped by the raw.exists() guard in <ref refid="_config_8cpp" kindref="compound">Config.cpp</ref> saveToPath.</para>
 <para>Owns the graphics subdirectory and the svg extension. The live instance is owned by <ref refid="classend_1_1_application" kindref="compound">end::Application</ref> — static <ref refid="structconfig_1_1_graphics_1a0b0f33c0070c5f80941536467ec4e416" kindref="member">get()</ref> resolves through Context&lt;Graphics&gt;. </para>
     </detaileddescription>
     <inheritancegraph>
@@ -262,7 +326,7 @@
         <link refid="classjuce_1_1String" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
     </collaborationgraph>
-    <location file="end/Map.h" line="257" column="1" bodyfile="end/Map.h" bodystart="258" bodyend="308"/>
+    <location file="end/Map.h" line="268" column="1" bodyfile="end/Map.h" bodystart="269" bodyend="333"/>
     <listofallmembers>
       <member refid="classjam_1_1Map_1_1Instance_1a39231f6d1e13c6f64e72a07851a130c4" prot="public" virt="non-virtual"><scope>config::Graphics</scope><name>contains</name></member>
       <member refid="structjam_1_1Context_1a6e3f38a234db8ff2a9acb5986e72a2de" prot="public" virt="non-virtual"><scope>config::Graphics</scope><name>Context</name></member>
@@ -280,8 +344,15 @@
       <member refid="structconfig_1_1_graphics_1a680b9dba6753acd9eb16c43c840bba0c" prot="public" virt="non-virtual"><scope>config::Graphics</scope><name>path</name></member>
       <member refid="structjam_1_1Context_1aa1862120f2983ab7ddef536ba03bb114" prot="private" virt="non-virtual"><scope>config::Graphics</scope><name>previous</name></member>
       <member refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea569fa475ce9202aadea617aff4696e47" prot="public" virt="non-virtual"><scope>config::Graphics</scope><name>tabBar</name></member>
+      <member refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea9a9c09a14dc512fdec5fce6a8081169e" prot="public" virt="non-virtual"><scope>config::Graphics</scope><name>tabButtonDisabled</name></member>
+      <member refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea52fac2613f896ebe4c9d535b550de4af" prot="public" virt="non-virtual"><scope>config::Graphics</scope><name>tabButtonDisabledOn</name></member>
+      <member refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3eaa69af12343f02479fd6e45627e741433" prot="public" virt="non-virtual"><scope>config::Graphics</scope><name>tabButtonDown</name></member>
+      <member refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3eaf66c9e682427d6c2947f7b5be8f490a0" prot="public" virt="non-virtual"><scope>config::Graphics</scope><name>tabButtonDownOn</name></member>
       <member refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea715efdd89e879fa3f2becdc3d9da8f3b" prot="public" virt="non-virtual"><scope>config::Graphics</scope><name>tabButtonNormal</name></member>
-      <member refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea582f299301f3a3df535a40efb0f7c181" prot="public" virt="non-virtual"><scope>config::Graphics</scope><name>tabIndicator</name></member>
+      <member refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea22b6133a7afc06d908c6433d6491b9f1" prot="public" virt="non-virtual"><scope>config::Graphics</scope><name>tabButtonNormalOn</name></member>
+      <member refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea2acc2e462992d20cfdcc2a243de6ef15" prot="public" virt="non-virtual"><scope>config::Graphics</scope><name>tabButtonOver</name></member>
+      <member refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3eaac33f2e47d0ffe912b41f87c55fecbf7" prot="public" virt="non-virtual"><scope>config::Graphics</scope><name>tabButtonOverOn</name></member>
+      <member refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea34bd580725e15fc46636dd411c6dcf15" prot="public" virt="non-virtual"><scope>config::Graphics</scope><name>tabHighlight</name></member>
       <member refid="structjam_1_1Context_1a4169820e71837632922d3d17b377aeee" prot="public" virt="virtual"><scope>config::Graphics</scope><name>~Context</name></member>
     </listofallmembers>
   </compounddef>

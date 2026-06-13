@@ -2,6 +2,57 @@
 
 ---
 
+## Sprint 14: Tab Button + Highlight Wired, Deterministic Tab Metrics ✅
+
+**Date:** 2026-06-13
+**Duration:** ~05:00
+
+### Agents Participated
+- COUNSELOR: orchestration; bank-home design (LAF graphics map as single store, Bar/buttons stateless); sparse 8-slot contract; Graphics-map/ButtonState decoupling; root-cause chase on tab padding inflation (uppercase divergence → overflow stretch → depth-derived measurement font); failure-protocol stop + evidence demand; JUCE API verification (var::operator float, FontOptions::withKerningFactor, TextLayout::getStringWidth, File::hasFileExtension not on String)
+- Engineer: JAM state-enum/bank deletion, END loadGraphics/draw wiring, indicator→highlight rename, deploy exists() guard + 10-stem catalog, tab.depth/padding/kerning_factor config keys, getTabText/getTabPadding virtuals, scale-machinery deletion, TextLayout measurement, getTabFont heuristic deletion, Flex proportional getLayout
+- ARCHITECT (handcode/design): jam::map::ButtonState registry, tab_highlight.svg + tab_button SVGs, drawTabButton uppercase draft, getTabFont(int) override removal that exposed the jam default heuristic, layout contract definitions (3 iterations), graphics.lua/runtime config
+
+### Files Modified (~16 total)
+
+**JAM:**
+- `jam_graphics/svg/jam_svg_button.h` / `.cpp` — SVG::Button::State enum deleted; getState/paint indices via jam::map::ButtonState (project declares instance); `or`/brace-init on touched lines
+- `jam_gui/button/jam_button_svg.h` — graphics bank/setGraphics/getSegments deleted; button::SVG = dumb paint delegate (LAF owns graphics)
+- `jam_graphics/svg/jam_svg.h` / `.cpp` — getStyledGraphics: unnamed/unmatched elements self-styled; Identifier constructed only for named elements (empty-id juce assert fixed)
+- `jam_graphics/svg/jam_svg_flex.h` / `.cpp` — getLayout: uniform scale = targetH/sourceH computed once pre-carve; corners keep aspect ratio, edges stretch adjacent axis at scaled thickness, centre both; area-mutation asymmetry dead
+- `jam_gui/button/jam_button_bar.h` / `.cpp` — indicator→highlight rename (SlidingHighlight, highlight member, snapHighlight, animateHighlight); scale machinery + minimumScale + setMinimumTabScaleFactor deleted (natural widths always); getBestTabLength: TextLayout::getStringWidth of getTabText-transformed name + getTabPadding×2, jmax depth clamp + depth param deleted
+- `jam_look_and_feel/jam_look_and_feel_custom.h` — drawBarIndicator→drawBarHighlight; getTabFont(int barDepth) depth heuristic + tabFontDepthRatio DELETED → getTabFont() no-arg; new virtuals getTabPadding(font), getTabText(name)
+
+**END:**
+- `Source/lookAndFeel/LookAndFeel.h` / `.cpp` — loadGraphics: tab_highlight + sparse 8-slot tab_button bank into graphics map (state-id keys, ButtonState-driven loop); drawBarHighlight + drawTabButton (getState count=8, paint only authored slots, label via getTabText/getTabFont); vtpc reload on IDtype::tabButton; getTabPadding/getTabText overrides; getTabFont + kerning_factor; tabButtonStateCount born and died (sparse contract)
+- `Source/Identifier.h` — tabHighlight; 8 tabButton state stems; depth, kerningFactor
+- `Source/end/Map.h` — Graphics = 10-stem file catalog (bar, highlight, 8 button states), no privileged state, alignment fixed (COUNSELOR)
+- `Source/end/Tabs.h` / `.cpp` — tabFontRatio deleted; bar depth = fontHeight × tab.depth; ValueTree::Listener on config (tab-node edits relayout live)
+- `Source/config/Config.cpp` / `.h` — saveToPath raw.exists() guard (no 0-byte deploys; binary-driven rework reverted on ARCHITECT command); stale State-enum comment
+- `Source/config/lua/display.lua` — tab.depth, tab.padding, tab.kerning_factor
+- `Source/config/lua/graphics.lua` — tab_highlight key; sparse tab_button contract comment (any subset, unset not painted)
+- `Source/config/svg/*` — tab_highlight.svg, tab_button SVGs (ARCHITECT)
+
+### Alignment Check
+- [x] BLESSED principles followed (graphics SSOT in LAF map; ButtonState/Graphics registries decoupled by purpose; measure==render via shared getTabFont/getTabText; no privileged button state; absence = design choice end-to-end)
+- [x] NAMES.md adhered (highlight rename ARCHITECT-directed; depth/padding/kerning_factor keys ARCHITECT-chosen)
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- Parser asserted on unnamed SVG elements (empty id → juce::Identifier) → self-styled contract covers unnamed/unmatched
+- First-N button state contract treated absence as invalid → sparse 8-slot: any subset authored, unauthored skipped, never enforced by logic
+- Deploy wrote 0-byte files for non-embedded stems and privileged tab_button_normal → exists() guard + full 10-stem catalog
+- Tab padding inflation (longer text more padding) — three real defects peeled: uppercase paint-side only (measure≠render string), overflow branch stretched visible tabs >1×, and the killer: measurement font fell back to jam depth-derived default after ARCHITECT removed END's getTabFont(int) override → heuristic deleted at the root, single getTabFont() SSOT
+- 9-slice corners distorted: stretch-to-fit → as-is (wrong) → uniform proportional scale keeping corner aspect
+- Bar depth hardcoded ratio → tab.depth config; text pad hardcoded font-height → tab.padding config; kerning → tab.kerning_factor
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 13: ColourMap Distributor From Tree, Flex Segment 9-Slice Complete ✅
 
 **Date:** 2026-06-12

@@ -115,6 +115,7 @@ public:
     const juce::String& getLoadMessage() const noexcept { return loadMessage; }
 
     juce::ValueTree getDisplay (const juce::Identifier& childType) const noexcept;
+    juce::ValueTree getGraphics() const noexcept;
 
 private:
     /**

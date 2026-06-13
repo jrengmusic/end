@@ -434,6 +434,11 @@
         </childnode>
         <childnode refid="4" relation="public-inheritance">
         </childnode>
+        <childnode refid="12" relation="public-inheritance">
+        </childnode>
+        <childnode refid="14" relation="usage">
+          <edgelabel>config</edgelabel>
+        </childnode>
         <childnode refid="49" relation="usage">
           <edgelabel>attachments</edgelabel>
         </childnode>
@@ -605,7 +610,7 @@
           <edgelabel>extraTabsButton</edgelabel>
         </childnode>
         <childnode refid="43" relation="usage">
-          <edgelabel>indicator</edgelabel>
+          <edgelabel>highlight</edgelabel>
         </childnode>
         <childnode refid="44" relation="usage">
           <edgelabel>background</edgelabel>
@@ -621,8 +626,8 @@
         </childnode>
       </node>
       <node id="43">
-        <label>jam::button::Bar::SlidingIndicator</label>
-        <link refid="classjam_1_1button_1_1Bar_1_1SlidingIndicator" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <label>jam::button::Bar::SlidingHighlight</label>
+        <link refid="classjam_1_1button_1_1Bar_1_1SlidingHighlight" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
         <childnode refid="2" relation="public-inheritance">
         </childnode>
       </node>

@@ -54,7 +54,7 @@ void LookAndFeel::valueTreePropertyChanged (juce::ValueTree& tree, const juce::I
     if (contains (tree, property))
         setColours (config.state);
 
-    if (tree.getType() == IDtype::graphics)
+    if (tree.getType() == IDtype::graphics or tree.getType() == IDtype::tabButton)
     {
         loadGraphics();
 
@@ -69,10 +69,9 @@ void LookAndFeel::drawBarBackground (juce::Graphics& g, juce::Component& bar)
     jam::SVG::Flex::paint (g, bar, graphics.at (ID::tabBar));
 }
 
-void LookAndFeel::drawBarIndicator (juce::Graphics& g, juce::Component& indicatorComp)
+void LookAndFeel::drawBarHighlight (juce::Graphics& g, juce::Component& highlight)
 {
-    juce::ignoreUnused (g, indicatorComp);
-    // TODO: Flex paint
+    jam::SVG::Flex::paint (g, highlight, graphics.at (ID::tabHighlight));
 }
 
 void LookAndFeel::drawTabButton (juce::Graphics& g,
@@ -80,7 +79,19 @@ void LookAndFeel::drawTabButton (juce::Graphics& g,
                                  bool isMouseOver,
                                  bool isMouseDown)
 {
-    juce::ignoreUnused (isMouseOver, isMouseDown);
+    const auto state { jam::SVG::Button::getState (
+        button, isMouseOver, isMouseDown, jam::map::ButtonState::get().size()) };
+    const juce::Identifier stateId { jam::map::ButtonState::get (state) };
+
+    // Sparse bank — paint only when the state slot was authored in graphics.lua.
+    if (graphics.contains (stateId))
+        jam::SVG::Flex::paint (g, button, graphics.at (stateId));
+
+    g.setFont (getTabFont());
+    g.setColour (button.findColour (button.getToggleState() ? juce::TextButton::textColourOnId
+                                                            : juce::TextButton::textColourOffId));
+    g.drawText (
+        getTabText (button.getButtonText()), button.getLocalBounds(), juce::Justification::centred);
 }
 
 juce::Font LookAndFeel::getTabFont() const
@@ -88,14 +99,28 @@ juce::Font LookAndFeel::getTabFont() const
     auto tab { config.getDisplay (IDtype::tab) };
     auto fontFamily { tab.getProperty (ID::fontFamily) };
     auto fontSize { tab.getProperty (ID::fontSize) };
+    const float kerning { tab.getProperty (ID::kerningFactor) };
 
-    return juce::Font { juce::FontOptions().withName (fontFamily).withPointHeight (fontSize) };
+    return juce::Font { juce::FontOptions()
+                            .withName (fontFamily)
+                            .withPointHeight (fontSize)
+                            .withKerningFactor (kerning) };
 }
 
-juce::Font LookAndFeel::getTabFont (int barDepth) const
+int LookAndFeel::getTabPadding (const juce::Font& font) const
 {
-    juce::ignoreUnused (barDepth);
-    return getTabFont();
+    juce::ignoreUnused (font);
+    return config.getDisplay (IDtype::tab).getProperty (jam::ID::padding);
+}
+
+juce::String LookAndFeel::getTabText (const juce::String& tabName) const
+{
+    auto tab { config.getDisplay (IDtype::tab) };
+
+    if (bool uppercase { tab.getProperty (ID::uppercase) })
+        return tabName.toUpperCase();
+
+    return tabName;
 }
 
 //==============================================================================
@@ -116,16 +141,43 @@ void LookAndFeel::drawStretchableLayoutResizerBar (juce::Graphics& g,
 
 void LookAndFeel::loadGraphics()
 {
-    auto node { config.state.getChildWithName (IDtype::graphics) };
+    auto configGraphics { config.state.getChildWithName (IDtype::graphics) };
     auto directory { config::Graphics::path.getChildFile (
-        node.getProperty (jam::ID::path).toString()) };
-    auto svg {
-        directory.getChildFile (node.getProperty (ID::tabBar).toString()).loadFileAsString()
-    };
+        configGraphics.getProperty (jam::ID::path).toString()) };
     const auto* tab { colourMap.getChildWithName (IDtype::tab) };
-    assert (tab != nullptr and "loadGraphics: tab node missing from colourMap");
+    assert (tab != nullptr and "loadGraphics: tab configGraphics missing from colourMap");
 
-    graphics.insert_or_assign (ID::tabBar, jam::SVG::Flex::getSegments (svg, *tab));
+    // Tab bar background
+    {
+        auto svg { directory.getChildFile (configGraphics.getProperty (ID::tabBar).toString())
+                       .loadFileAsString() };
+        graphics.insert_or_assign (ID::tabBar, jam::SVG::Flex::getSegments (svg, *tab));
+    }
+
+    // Tab highlight
+    {
+        auto svg { directory.getChildFile (configGraphics.getProperty (ID::tabHighlight).toString())
+                       .loadFileAsString() };
+        graphics.insert_or_assign (ID::tabHighlight, jam::SVG::Flex::getSegments (svg, *tab));
+    }
+
+    // Tab button state bank — sparse 8-slot: all ButtonState slots iterated,
+    // unauthored states (empty filename) simply absent from the map.
+    {
+        auto tabButtonNode { configGraphics.getChildWithName (IDtype::tabButton) };
+
+        for (size_t slot { 0 }; slot < jam::map::ButtonState::get().size(); ++slot)
+        {
+            const juce::Identifier stateId { jam::map::ButtonState::get (static_cast<int> (slot)) };
+            const auto fileName { tabButtonNode.getProperty (stateId).toString() };
+
+            if (fileName.isNotEmpty())
+            {
+                auto svg { directory.getChildFile (fileName).loadFileAsString() };
+                graphics.insert_or_assign (stateId, jam::SVG::Flex::getSegments (svg, *tab));
+            }
+        }
+    }
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

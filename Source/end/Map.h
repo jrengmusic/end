@@ -242,14 +242,25 @@ private:
 
 //==============================================================================
 /**
- * @brief Registry of SVG graphics assets — 3 keys.
+ * @brief Registry of SVG graphics assets — 10 keys.
  *        CRTP-derived from jam::Map::Instance<Graphics>.
  *
  * Maps each enum key to its Identifier stem and resolves the on-disk
  * filename via getName(). All keys produce "stem.svg":
- *   tabBar          → tab_bar.svg
- *   tabIndicator    → tab_indicator.svg
- *   tabButtonNormal → tab_button_normal.svg  (default slot for the tab button)
+ *   tabBar              → tab_bar.svg
+ *   tabHighlight        → tab_highlight.svg
+ *   tabButtonNormal     → tab_button_normal.svg
+ *   tabButtonOver       → tab_button_over.svg
+ *   tabButtonDown       → tab_button_down.svg
+ *   tabButtonDisabled   → tab_button_disabled.svg
+ *   tabButtonNormalOn   → tab_button_normalOn.svg
+ *   tabButtonOverOn     → tab_button_overOn.svg
+ *   tabButtonDownOn     → tab_button_downOn.svg
+ *   tabButtonDisabledOn → tab_button_disabledOn.svg
+ *
+ * Only stems embedded in BinaryData are deployed — absent states are a
+ * design choice and are silently skipped by the raw.exists() guard in
+ * Config.cpp saveToPath.
  *
  * Owns the graphics subdirectory and the svg extension. The live instance
  * is owned by end::Application — static get() resolves through Context<Graphics>.
@@ -259,18 +270,32 @@ struct Graphics : public jam::Map::Instance<Graphics>
     /** @brief Integer keys for all SVG graphics assets. */
     enum
     {
-        tabBar,///< Tab bar background SVG asset.
-        tabIndicator,///< Sliding tab indicator SVG asset.
-        tabButtonNormal,///< Default (normal-state) tab button SVG asset stem.
+        tabBar,              ///< Tab bar background SVG asset.
+        tabHighlight,        ///< Sliding tab highlight SVG asset.
+        tabButtonNormal,     ///< Tab button normal-state SVG asset stem.
+        tabButtonOver,       ///< Tab button over-state SVG asset stem.
+        tabButtonDown,       ///< Tab button down-state SVG asset stem.
+        tabButtonDisabled,   ///< Tab button disabled-state SVG asset stem.
+        tabButtonNormalOn,   ///< Tab button normalOn-state SVG asset stem.
+        tabButtonOverOn,     ///< Tab button overOn-state SVG asset stem.
+        tabButtonDownOn,     ///< Tab button downOn-state SVG asset stem.
+        tabButtonDisabledOn, ///< Tab button disabledOn-state SVG asset stem.
     };
 
-    /** @brief Populates the bimap with all 3 entries. */
+    /** @brief Populates the bimap with all 10 entries. */
     Graphics()
     {
         map = {
-            { Graphics::tabBar,          IDref::tabBar          },
-            { Graphics::tabIndicator,    IDref::tabIndicator    },
-            { Graphics::tabButtonNormal, IDref::tabButtonNormal },
+            { Graphics::tabBar,              IDref::tabBar              },
+            { Graphics::tabHighlight,        IDref::tabHighlight        },
+            { Graphics::tabButtonNormal,     IDref::tabButtonNormal     },
+            { Graphics::tabButtonOver,       IDref::tabButtonOver       },
+            { Graphics::tabButtonDown,       IDref::tabButtonDown       },
+            { Graphics::tabButtonDisabled,   IDref::tabButtonDisabled   },
+            { Graphics::tabButtonNormalOn,   IDref::tabButtonNormalOn   },
+            { Graphics::tabButtonOverOn,     IDref::tabButtonOverOn     },
+            { Graphics::tabButtonDownOn,     IDref::tabButtonDownOn     },
+            { Graphics::tabButtonDisabledOn, IDref::tabButtonDisabledOn },
         };
     }
 

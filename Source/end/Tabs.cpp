@@ -9,7 +9,10 @@ Tabs::Tabs (jam::Model& m)
     : jam::Model::Component { m, IDtype::tabs }
 {
     setTabBarDepth (0);
+    config.addListener (this);
 }
+
+Tabs::~Tabs() { config.removeListener (this); }
 
 void Tabs::addNewTab()
 {
@@ -53,6 +56,17 @@ Panes* Tabs::getActivePanes() noexcept
 
 void Tabs::currentTabChanged (int newCurrentTabIndex, const juce::String& newCurrentTabName) {}
 
+void Tabs::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
+{
+    juce::ignoreUnused (property);
+
+    if (tree.getType() == IDtype::tab)
+    {
+        updateTabBarVisibility();
+        resized();
+    }
+}
+
 void Tabs::updateTabBarVisibility()
 {
     if (getNumTabs() <= 1)
@@ -62,7 +76,10 @@ void Tabs::updateTabBarVisibility()
     else
     {
         auto& laf { static_cast<end::LookAndFeel&> (getLookAndFeel()) };
-        setTabBarDepth (juce::roundToInt (laf.getTabFont().getHeight() / tabFontRatio));
+        const auto tab { config.getDisplay (IDtype::tab) };
+        const float depth { tab.getProperty (ID::depth) };
+
+        setTabBarDepth (juce::roundToInt (laf.getTabFont().getHeight() * depth));
     }
 }
 
