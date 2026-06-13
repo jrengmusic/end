@@ -16,9 +16,20 @@ Window::Window (juce::Component* mainComponent,
         setStyle (key);
 
     config.addListener (this);
+    lookAndFeelChanged();
 }
 
 Window::~Window() { config.removeListener (this); }
+
+void Window::lookAndFeelChanged()
+{
+    auto& laf { static_cast<end::LookAndFeel&> (getLookAndFeel()) };
+    auto [argb, blur, fx] = laf.getWindowGlass();
+
+    setGlass (juce::Colour (argb),
+              static_cast<float> (blur),
+              static_cast<jam::BackgroundBlur::WindowFX> (fx));
+}
 
 void Window::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
 {
@@ -34,34 +45,12 @@ void Window::setStyle (const juce::Identifier& property)
             config.getChildWithName (IDtype::display).getChildWithName (IDtype::window)
         };
 
-        if (property == ID::mac or property == ID::win)
-            styleParameters.get<juce::ValueTree> (
-                property, std::move (windowNode.getChildWithName (IDtype::blurStyle)));
-        else
-            styleParameters.get<juce::ValueTree> (property, std::move (windowNode));
+        styleParameters.get<juce::ValueTree> (property, std::move (windowNode));
     }
 }
 
 void Window::registerStyleParameters()
 {
-    styleParameters.add<juce::ValueTree> (
-        jam::ID::background,
-        [this] (juce::ValueTree n)
-        {
-            tintColour = jam::Model::toColour (n.getProperty (jam::ID::background));
-            blurRadius = static_cast<float> (n.getProperty (ID::blurRadius));
-            setGlass (tintColour, blurRadius, glassBackend);
-        });
-
-    styleParameters.add<juce::ValueTree> (
-        ID::blurRadius,
-        [this] (juce::ValueTree n)
-        {
-            tintColour = jam::Model::toColour (n.getProperty (jam::ID::background));
-            blurRadius = static_cast<float> (n.getProperty (ID::blurRadius));
-            setGlass (tintColour, blurRadius, glassBackend);
-        });
-
     styleParameters.add<juce::ValueTree> (
         ID::alwaysOnTop,
         [this] (juce::ValueTree n)
@@ -74,24 +63,6 @@ void Window::registerStyleParameters()
         [this] (juce::ValueTree n)
         {
             setShowWindowButtons (Boolean::get (n.getProperty (ID::buttons).toString()));
-        });
-
-    styleParameters.add<juce::ValueTree> (
-        ID::mac,
-        [this] (juce::ValueTree n)
-        {
-            glassBackend = jam::BackgroundBlur::fromString (
-                n.getProperty (ID::mac, juce::String { IDref::backgroundBlur }).toString());
-            setGlass (tintColour, blurRadius, glassBackend);
-        });
-
-    styleParameters.add<juce::ValueTree> (
-        ID::win,
-        [this] (juce::ValueTree n)
-        {
-            glassBackend = jam::BackgroundBlur::fromString (
-                n.getProperty (ID::win, juce::String { IDref::blurBehind }).toString());
-            setGlass (tintColour, blurRadius, glassBackend);
         });
 }
 

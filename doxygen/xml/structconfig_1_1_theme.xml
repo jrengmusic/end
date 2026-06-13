@@ -1,0 +1,104 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="structconfig_1_1_theme" kind="struct" language="C++" prot="public">
+    <compoundname>config::Theme</compoundname>
+    <includes refid="_map_8h" local="no">Map.h</includes>
+    <sectiondef kind="public-static-attrib">
+      <memberdef kind="variable" id="structconfig_1_1_theme_1a7542ea7e87709155d2d19a755aba07f6" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="classjuce_1_1File" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::File</ref></type>
+        <definition>const juce::File config::Theme::path</definition>
+        <argsstring></argsstring>
+        <name>path</name>
+        <qualifiedname>config::Theme::path</qualifiedname>
+        <initializer>{ <ref refid="structconfig_1_1_file_1a8fb7a80701aaed8671256aa65afaf19d" kindref="member">File::getPath</ref> (IDref::themes) }</initializer>
+        <briefdescription>
+<para>Themes root directory: ~/.config/end/themes/. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="end/Map.h" line="360" column="36" bodyfile="end/Map.h" bodystart="360" bodyend="360"/>
+        <referencedby refid="structconfig_1_1_theme_1aeff8b69b8a933ad965831da6e6ee8563" compoundref="_map_8h" startline="354" endline="357">getPath</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="structconfig_1_1_theme_1aafc444831f946c55f55c9b5f987e4e1c" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref></type>
+        <definition>static const juce::String config::Theme::getName</definition>
+        <argsstring>() noexcept</argsstring>
+        <name>getName</name>
+        <qualifiedname>config::Theme::getName</qualifiedname>
+        <briefdescription>
+<para>Returns the filename for the theme lua file (&quot;theme.lua&quot;). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="end/Map.h" line="345" column="31" bodyfile="end/Map.h" bodystart="345" bodyend="348"/>
+        <references refid="structconfig_1_1_file_1a6ab20528e69a64a7091bd8d1269eac55" compoundref="_map_8h" startline="237" endline="237">config::File::extension</references>
+        <references refid="structjam_1_1Format_1a838b7c56ce7913ab2b4471148a1019cd">jam::Format::toFileName</references>
+        <referencedby refid="classconfig_1_1_look_and_feel_1ab82045056c39120b8b929541369678c5" compoundref="config_2_look_and_feel_8cpp" startline="7" endline="36">config::LookAndFeel::load</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="structconfig_1_1_theme_1aeff8b69b8a933ad965831da6e6ee8563" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>const <ref refid="classjuce_1_1File" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::File</ref></type>
+        <definition>static const juce::File config::Theme::getPath</definition>
+        <argsstring>(const juce::String &amp;theme) noexcept</argsstring>
+        <name>getPath</name>
+        <qualifiedname>config::Theme::getPath</qualifiedname>
+        <param>
+          <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref> &amp;</type>
+          <declname>theme</declname>
+        </param>
+        <briefdescription>
+<para>Returns the theme subdirectory for the given theme name. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>theme</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="structconfig_1_1_theme" kindref="compound">Theme</ref> directory name (e.g. &quot;gfx&quot;). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Resolved path: ~/.config/end/themes/<computeroutput>theme/</computeroutput> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="end/Map.h" line="354" column="29" bodyfile="end/Map.h" bodystart="354" bodyend="357"/>
+        <references refid="structconfig_1_1_theme_1a7542ea7e87709155d2d19a755aba07f6" compoundref="_map_8h" startline="360" endline="360">path</references>
+        <referencedby refid="classconfig_1_1_look_and_feel_1ab82045056c39120b8b929541369678c5" compoundref="config_2_look_and_feel_8cpp" startline="7" endline="36">config::LookAndFeel::load</referencedby>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para><ref refid="structconfig_1_1_theme" kindref="compound">Theme</ref> directory and filename resolution. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Owns the themes subdirectory path and provides filename/path resolution for theme lua files. Parallels <ref refid="structconfig_1_1_file" kindref="compound">config::File</ref> for the config root directory. </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>config::Theme</label>
+        <link refid="structconfig_1_1_theme"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>path</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>juce::File</label>
+        <link refid="classjuce_1_1File" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+    </collaborationgraph>
+    <location file="end/Map.h" line="342" column="1" bodyfile="end/Map.h" bodystart="343" bodyend="361"/>
+    <listofallmembers>
+      <member refid="structconfig_1_1_theme_1aafc444831f946c55f55c9b5f987e4e1c" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>getName</name></member>
+      <member refid="structconfig_1_1_theme_1aeff8b69b8a933ad965831da6e6ee8563" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>getPath</name></member>
+      <member refid="structconfig_1_1_theme_1a7542ea7e87709155d2d19a755aba07f6" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>path</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

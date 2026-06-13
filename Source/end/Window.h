@@ -3,23 +3,18 @@
  * @brief Config-reactive DocumentWindow for END.
  *
  * end::Window extends jam::Window with listener-driven style application.
- * It follows the same architectural pattern as ProcessorChain::parameters:
- * a jam::Function::Map keyed on juce::Identifier stores one typed callable
- * per config property, registered as @c add<juce::ValueTree>.  Each callable
- * receives the pre-resolved VT node (WINDOW node or BLUR_STYLE node) and reads
- * its one property directly from it.  Node resolution lives exclusively in
- * setStyle(property), which is the single source of tree navigation.
- * valueTreePropertyChanged() forwards to setStyle(property); setStyle() calls
- * setStyle(property) once per registered property to apply the initial config state.
+ * Visual properties (glass: tint colour, blur radius, WindowFX) are applied
+ * via lookAndFeelChanged(), which reads from the LAF at theme-change time.
+ * Operational properties (always_on_top, buttons) are driven by config::Model
+ * listener via styleParameters — a jam::Function::Map keyed on juce::Identifier
+ * storing one typed callable per config property.
  *
  * Config tree shape navigated by the dispatcher:
  * @code
  * CONFIG
  *   DISPLAY  (IDtype::display)
  *     WINDOW  (IDtype::window)
- *       colour, blur_radius, always_on_top, buttons, width, height
- *       BLUR_STYLE  (IDtype::blurStyle)
- *         mac, win
+ *       always_on_top, buttons
  * @endcode
  */
 #pragma once
@@ -34,15 +29,14 @@ namespace end
 /*____________________________________________________________________________*/
 
 /** @class Window
- *  @brief Config-reactive window that reacts to config tree mutations.
+ *  @brief Config-reactive window with LAF-driven glass and config-driven
+ *  operational properties.
  *
- *  Inherits jam::Window for glassmorphism and juce::ValueTree::Listener
- *  to react to config tree mutations.  Each WINDOW-section config property is
- *  mapped to a typed callable in styleParameters (the analog of
- *  ProcessorChain::parameters).  registerStyleParameters() registers one inline
- *  lambda per property; setStyle() dispatches to the registered callable for each
- *  property to apply the initial state; valueTreePropertyChanged() forwards to
- *  setStyle() on each subsequent change.
+ *  Inherits jam::Window for glassmorphism.  Visual properties (glass) are
+ *  applied in lookAndFeelChanged(), which reads the tint colour via
+ *  findColour(juce::ResizableWindow::backgroundColourId) and blur/FX from
+ *  end::LookAndFeel getters.  Operational properties (always_on_top, buttons)
+ *  are mapped via styleParameters and driven by juce::ValueTree::Listener.
  *
  *  Ownership: constructed and owned by end::Application.
  *  Lifecycle: config listener is added in the ctor and removed in the dtor.
@@ -57,6 +51,7 @@ public:
      *  Builds the styleParameters map inline, then calls setStyle() to apply
      *  the initial config state.  The config listener is added before setStyle()
      *  so that any tree mutations during construction are observed.
+     *  lookAndFeelChanged() is called after to apply the initial glass state.
      *
      *  @param mainComponent  Content component — ownership transferred to jam::Window.
      *  @param name           Window title string.
@@ -70,6 +65,11 @@ public:
 
     /** @brief Removes the config listener. */
     ~Window() override;
+
+    /** @brief Applies glass from the LAF when theme properties change.
+     *  Reads colour via findColour, blur and FX from end::LookAndFeel getters.
+     */
+    void lookAndFeelChanged() override;
 
     /** @brief Dispatches a single property change to its registered style callable.
      *
@@ -92,10 +92,9 @@ private:
     /** @brief Resolves the config node and dispatches it to the registered
      *  styleParameter callable for the given property.
      *
-     *  Two-branch dispatch: @c mac and @c win live one level deeper under
-     *  IDtype::blurStyle and receive that child node; all other properties
-     *  receive the WINDOW node directly.  The lambda reads its one property
-     *  from the passed node — no further navigation in the callable.
+     *  Receives the WINDOW node and forwards it to the registered callable.
+     *  The lambda reads its one property from the passed node — no further
+     *  navigation in the callable.
      *
      *  Used by both the ValueTree::Listener entry point (valueTreePropertyChanged)
      *  and the init path (setStyle iterates over all registered properties and
@@ -106,32 +105,6 @@ private:
     void setStyle (const juce::Identifier& property);
 
     jam::Function::Map<juce::Identifier, void> styleParameters;
-
-    /** @brief Cached tint colour — last value applied via setGlass.
-     *  Updated by the @c colour styleParameter, read by every glass-related
-     *  setter to keep setGlass arguments consistent.
-     */
-    juce::Colour tintColour { juce::Colours::black };
-
-    /** @brief Cached blur radius — last value applied via setGlass.
-     *  Updated by the @c blurRadius styleParameter, read by every glass-related
-     *  setter to keep setGlass arguments consistent.
-     */
-    float blurRadius { 0.0f };
-
-    /** @brief Cached blur backend — last value applied via setGlass.
-     *  Updated by the @c mac / @c win styleParameter, read by every glass-related
-     *  setter to keep setGlass arguments consistent.  Platform default matches
-     *  jam::button::Dialog::show, jam::GlassComponent::handleAsyncUpdate, and
-     *  jam::look_and_feel::Theme::preparePopupMenuWindow.
-     */
-    jam::BackgroundBlur::Backend glassBackend {
-#if JUCE_MAC
-        jam::BackgroundBlur::Backend::backgroundBlur
-#elif JUCE_WINDOWS
-        jam::BackgroundBlur::Backend::blurBehind
-#endif
-    };
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Window)

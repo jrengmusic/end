@@ -259,6 +259,12 @@
       </node>
     </inheritancegraph>
     <collaborationgraph>
+      <node id="43">
+        <label>config::LookAndFeel</label>
+        <link refid="classconfig_1_1_look_and_feel"/>
+        <childnode refid="22" relation="public-inheritance">
+        </childnode>
+      </node>
       <node id="29">
         <label>config::Model</label>
         <link refid="classconfig_1_1_model"/>
@@ -280,6 +286,9 @@
         <childnode refid="41" relation="usage">
           <edgelabel>graphicsCallbacks</edgelabel>
         </childnode>
+        <childnode refid="43" relation="usage">
+          <edgelabel>lookAndFeel</edgelabel>
+        </childnode>
       </node>
       <node id="1">
         <label>end::Tabs</label>
@@ -293,7 +302,7 @@
         <childnode refid="29" relation="usage">
           <edgelabel>config</edgelabel>
         </childnode>
-        <childnode refid="43" relation="usage">
+        <childnode refid="44" relation="usage">
           <edgelabel>attachments</edgelabel>
         </childnode>
       </node>
@@ -387,7 +396,7 @@
           <edgelabel>state</edgelabel>
         </childnode>
       </node>
-      <node id="43">
+      <node id="44">
         <label>jam::Owner&lt; jam::Model::Attachment &gt;</label>
         <link refid="classjam_1_1Owner" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>

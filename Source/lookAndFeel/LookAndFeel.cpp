@@ -92,7 +92,7 @@ void LookAndFeel::initialiseColours()
     setColours (config.state);
 }
 
-LookAndFeel::~LookAndFeel() { config.removeListener (this); };
+LookAndFeel::~LookAndFeel() { config.removeListener (this); }
 
 void LookAndFeel::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
 {
@@ -100,12 +100,7 @@ void LookAndFeel::valueTreePropertyChanged (juce::ValueTree& tree, const juce::I
         setColours (config.state);
 
     if (tree.getType() == IDtype::graphics or tree.getType() == IDtype::tabButton)
-    {
         loadGraphics();
-
-        for (int i { 0 }; i < juce::Desktop::getInstance().getNumComponents(); ++i)
-            juce::Desktop::getInstance().getComponent (i)->repaint();
-    }
 }
 
 //==============================================================================
@@ -159,6 +154,24 @@ juce::BorderSize<int> LookAndFeel::getTabBarPadding() const
     auto [top, right, bottom, left] = config.getInt16 (IDtype::tab, jam::ID::padding);
 
     return juce::BorderSize<int> { top, left, bottom, right };
+}
+
+LookAndFeel::Glass LookAndFeel::getWindowGlass() const
+{
+    auto colour { jam::Model::toColour (theme.getValue (IDtype::window, ID::backgroundColour)) };
+    int blur { theme.getValue (IDtype::window, ID::blurRadius) };
+    int fx { 0 };
+
+#if JUCE_MAC
+    auto name { theme.getValue (IDtype::windowFx, ID::mac).toString() };
+#elif JUCE_WINDOWS
+    auto name { theme.getValue (IDtype::windowFx, ID::win).toString() };
+#endif
+
+    if (jam::map::WindowFX::getInstance()->contains (name))
+        fx = jam::map::WindowFX::get (name);
+
+    return Glass::pack (colour, blur, fx);
 }
 
 juce::String LookAndFeel::getTabText (const juce::String& tabName) const

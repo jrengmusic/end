@@ -20,8 +20,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="202" column="24" bodyfile="config/Config.h" bodystart="202" bodyend="-1"/>
-        <referencedby refid="classconfig_1_1_model_1abd7d146ee9fede8da7f5f0678faed50e" compoundref="_config_8cpp" startline="225" endline="230">startWatcher</referencedby>
+        <location file="config/Config.h" line="206" column="24" bodyfile="config/Config.h" bodystart="206" bodyend="-1"/>
+        <referencedby refid="classconfig_1_1_model_1abd7d146ee9fede8da7f5f0678faed50e" compoundref="_config_8cpp" startline="221" endline="226">startWatcher</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classconfig_1_1_model_1af8a17f5a0e0588d27e68953995b925ac" prot="private" static="no" mutable="no">
         <type><ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref></type>
@@ -37,9 +37,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="209" column="18" bodyfile="config/Config.h" bodystart="209" bodyend="-1"/>
-        <referencedby refid="classconfig_1_1_model_1a8a75866892ea2fd6887d390ebb2c8c0a" compoundref="_config_8h" startline="108" endline="108">getLoadMessage</referencedby>
-        <referencedby refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="115" endline="173">loadFromPath</referencedby>
+        <location file="config/Config.h" line="213" column="18" bodyfile="config/Config.h" bodystart="213" bodyend="-1"/>
+        <referencedby refid="classconfig_1_1_model_1a8a75866892ea2fd6887d390ebb2c8c0a" compoundref="_config_8h" startline="109" endline="109">getLoadMessage</referencedby>
+        <referencedby refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="112" endline="169">loadFromPath</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classconfig_1_1_model_1af427d6e053fd4508c7179979330e5ab9" prot="private" static="no" mutable="no">
         <type><ref refid="namespacejam_1_1lua_1aae45181cfa50569933457727bbcee734" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::lua::Validators</ref></type>
@@ -55,10 +55,10 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="221" column="26" bodyfile="config/Config.h" bodystart="221" bodyend="-1"/>
-        <referencedby refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" compoundref="_config_8cpp" startline="43" endline="83">initialise</referencedby>
-        <referencedby refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="115" endline="173">loadFromPath</referencedby>
-        <referencedby refid="classconfig_1_1_model_1a37ce70da66e8164f746a16925295c343" compoundref="_config_8cpp" startline="251" endline="257">registerValidator</referencedby>
+        <location file="config/Config.h" line="225" column="26" bodyfile="config/Config.h" bodystart="225" bodyend="-1"/>
+        <referencedby refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" compoundref="_config_8cpp" startline="43" endline="80">initialise</referencedby>
+        <referencedby refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="112" endline="169">loadFromPath</referencedby>
+        <referencedby refid="classconfig_1_1_model_1a37ce70da66e8164f746a16925295c343" compoundref="_config_8cpp" startline="247" endline="253">registerValidator</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classconfig_1_1_model_1aab53f2dffa259bc65116d9b97ce44a49" prot="private" static="no" mutable="no">
         <type><ref refid="structjam_1_1Function_1_1Map" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Function::Map</ref>&lt; <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref>, void &gt;</type>
@@ -74,9 +74,25 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="230" column="24" bodyfile="config/Config.h" bodystart="230" bodyend="-1"/>
-        <referencedby refid="classconfig_1_1_model_1a04468ffcc63d66896bb34f4c0b4c37b2" compoundref="_config_8cpp" startline="175" endline="223">buildGraphicsCallbacks</referencedby>
-        <referencedby refid="classconfig_1_1_model_1aaf6b40ca395ac5c6325cb189f13fec0f" compoundref="_config_8cpp" startline="232" endline="248">fileChanged</referencedby>
+        <location file="config/Config.h" line="234" column="24" bodyfile="config/Config.h" bodystart="234" bodyend="-1"/>
+        <referencedby refid="classconfig_1_1_model_1a04468ffcc63d66896bb34f4c0b4c37b2" compoundref="_config_8cpp" startline="171" endline="219">buildGraphicsCallbacks</referencedby>
+        <referencedby refid="classconfig_1_1_model_1aaf6b40ca395ac5c6325cb189f13fec0f" compoundref="_config_8cpp" startline="228" endline="244">fileChanged</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="classconfig_1_1_model_1a182fc0cbbc90e0994d28521ece25e5c1" prot="private" static="no" mutable="no">
+        <type><ref refid="classconfig_1_1_look_and_feel" kindref="compound">LookAndFeel</ref></type>
+        <definition>LookAndFeel config::Model::lookAndFeel</definition>
+        <argsstring></argsstring>
+        <name>lookAndFeel</name>
+        <qualifiedname>config::Model::lookAndFeel</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="config/Config.h" line="236" column="17" bodyfile="config/Config.h" bodystart="236" bodyend="-1"/>
+        <referencedby refid="classconfig_1_1_model_1af8ded7b2fe48ad3cc715684a21726028" compoundref="_config_8h" startline="112" endline="112">getLookAndFeel</referencedby>
+        <referencedby refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="112" endline="169">loadFromPath</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">
@@ -93,12 +109,12 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="80" column="5" bodyfile="config/Config.cpp" bodystart="7" bodyend="14"/>
-        <references refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" compoundref="_config_8cpp" startline="43" endline="83">initialise</references>
-        <references refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="115" endline="173">loadFromPath</references>
+        <location file="config/Config.h" line="81" column="5" bodyfile="config/Config.cpp" bodystart="7" bodyend="14"/>
+        <references refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" compoundref="_config_8cpp" startline="43" endline="80">initialise</references>
+        <references refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="112" endline="169">loadFromPath</references>
         <references refid="classconfig_1_1_model_1a663ac662800dd1918dbab12d317fa4d5" compoundref="_config_8cpp" startline="7" endline="14">Model</references>
-        <references refid="classconfig_1_1_model_1acad607c8136bcc115ffeae9d47869e26" compoundref="_config_8cpp" startline="86" endline="113">saveToPath</references>
-        <references refid="classconfig_1_1_model_1abd7d146ee9fede8da7f5f0678faed50e" compoundref="_config_8cpp" startline="225" endline="230">startWatcher</references>
+        <references refid="classconfig_1_1_model_1acad607c8136bcc115ffeae9d47869e26" compoundref="_config_8cpp" startline="83" endline="110">saveToPath</references>
+        <references refid="classconfig_1_1_model_1abd7d146ee9fede8da7f5f0678faed50e" compoundref="_config_8cpp" startline="221" endline="226">startWatcher</references>
         <referencedby refid="classconfig_1_1_model_1a663ac662800dd1918dbab12d317fa4d5" compoundref="_config_8cpp" startline="7" endline="14">Model</referencedby>
       </memberdef>
       <memberdef kind="function" id="classconfig_1_1_model_1af95c0931a6f76206d56eb06a3c71a05a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -114,7 +130,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="84" column="5"/>
+        <location file="config/Config.h" line="85" column="5"/>
       </memberdef>
       <memberdef kind="function" id="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -131,23 +147,24 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="101" column="10" bodyfile="config/Config.cpp" bodystart="115" bodyend="173"/>
-        <references refid="classconfig_1_1_model_1a04468ffcc63d66896bb34f4c0b4c37b2" compoundref="_config_8cpp" startline="175" endline="223">buildGraphicsCallbacks</references>
-        <references refid="structconfig_1_1_file_1aa24a5faabf6b9a8f30497de675ca198ca0fc85df7daa8f0d98a096582ced3738f" compoundref="_map_8h" startline="183">config::File::config</references>
+        <location file="config/Config.h" line="102" column="10" bodyfile="config/Config.cpp" bodystart="112" bodyend="169"/>
+        <references refid="classconfig_1_1_model_1a04468ffcc63d66896bb34f4c0b4c37b2" compoundref="_config_8cpp" startline="171" endline="219">buildGraphicsCallbacks</references>
         <references refid="classjam_1_1Model_1af9ab05d8b04c75750fc69f8ad1225caa">jam::Model::fromLua</references>
         <references refid="structconfig_1_1_file_1a1fe87258f092c2141e6d0171085f1468" compoundref="_map_8h" startline="213" endline="213">config::File::get</references>
         <references refid="structjam_1_1Typeface_1aa4e5b151cfec5736f00ea049e45cda27">jam::Typeface::getDisplayScale</references>
         <references refid="classjuce_1_1File_1a5309789281ea7721eb832d21da99708f">juce::File::getFileName</references>
         <references refid="structconfig_1_1_file_1ae101919bc1214478f5086e2e859742de" compoundref="_map_8h" startline="221" endline="224">config::File::getName</references>
+        <references refid="classjam_1_1Model_1a91dc367954c0e066ce3af757919617da">jam::Model::getValue</references>
         <references refid="classjuce_1_1String_1a1f0c785b3834720c20a115ff82f138de">juce::String::isEmpty</references>
         <references refid="classjuce_1_1String_1af5084463343819f82187154ccb62ea3a">juce::String::isNotEmpty</references>
         <references refid="classjuce_1_1File_1aa65d2fa50370357bf93658d6447c296d">juce::File::loadFileAsString</references>
-        <references refid="classconfig_1_1_model_1af8a17f5a0e0588d27e68953995b925ac" compoundref="_config_8h" startline="209">loadMessage</references>
+        <references refid="classconfig_1_1_model_1af8a17f5a0e0588d27e68953995b925ac" compoundref="_config_8h" startline="213">loadMessage</references>
+        <references refid="classconfig_1_1_model_1a182fc0cbbc90e0994d28521ece25e5c1" compoundref="_config_8h" startline="236">lookAndFeel</references>
         <references refid="structconfig_1_1_file_1a256dc6f23b2efea619c33a43ae3d795c" compoundref="_map_8h" startline="233" endline="235">config::File::path</references>
         <references refid="classjam_1_1Model_1afd1a5ee11f1e480cb14c0027d6b617b7">jam::Model::setValuesFrom</references>
         <references refid="classjam_1_1Model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
-        <references refid="classconfig_1_1_model_1af427d6e053fd4508c7179979330e5ab9" compoundref="_config_8h" startline="221">validators</references>
-        <referencedby refid="classconfig_1_1_model_1aaf6b40ca395ac5c6325cb189f13fec0f" compoundref="_config_8cpp" startline="232" endline="248">fileChanged</referencedby>
+        <references refid="classconfig_1_1_model_1af427d6e053fd4508c7179979330e5ab9" compoundref="_config_8h" startline="225">validators</references>
+        <referencedby refid="classconfig_1_1_model_1aaf6b40ca395ac5c6325cb189f13fec0f" compoundref="_config_8cpp" startline="228" endline="244">fileChanged</referencedby>
         <referencedby refid="classconfig_1_1_model_1a663ac662800dd1918dbab12d317fa4d5" compoundref="_config_8cpp" startline="7" endline="14">Model</referencedby>
       </memberdef>
       <memberdef kind="function" id="classconfig_1_1_model_1a8a75866892ea2fd6887d390ebb2c8c0a" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
@@ -166,8 +183,24 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="108" column="24" bodyfile="config/Config.h" bodystart="108" bodyend="108"/>
-        <references refid="classconfig_1_1_model_1af8a17f5a0e0588d27e68953995b925ac" compoundref="_config_8h" startline="209">loadMessage</references>
+        <location file="config/Config.h" line="109" column="24" bodyfile="config/Config.h" bodystart="109" bodyend="109"/>
+        <references refid="classconfig_1_1_model_1af8a17f5a0e0588d27e68953995b925ac" compoundref="_config_8h" startline="213">loadMessage</references>
+      </memberdef>
+      <memberdef kind="function" id="classconfig_1_1_model_1af8ded7b2fe48ad3cc715684a21726028" prot="public" static="no" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type><ref refid="classconfig_1_1_look_and_feel" kindref="compound">LookAndFeel</ref> &amp;</type>
+        <definition>LookAndFeel &amp; config::Model::getLookAndFeel</definition>
+        <argsstring>() noexcept</argsstring>
+        <name>getLookAndFeel</name>
+        <qualifiedname>config::Model::getLookAndFeel</qualifiedname>
+        <briefdescription>
+<para>Returns the theme model for listener registration. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="config/Config.h" line="112" column="17" bodyfile="config/Config.h" bodystart="112" bodyend="112"/>
+        <references refid="classconfig_1_1_model_1a182fc0cbbc90e0994d28521ece25e5c1" compoundref="_config_8h" startline="236">lookAndFeel</references>
       </memberdef>
     </sectiondef>
     <sectiondef kind="private-func">
@@ -185,19 +218,18 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="124" column="10" bodyfile="config/Config.cpp" bodystart="43" bodyend="83"/>
+        <location file="config/Config.h" line="128" column="10" bodyfile="config/Config.cpp" bodystart="43" bodyend="80"/>
         <references refid="classjam_1_1Model_1ac78b7437a06da378bf49cbd4f27bfc63">jam::Model::addProperties</references>
         <references refid="classjam_1_1Model_1a59b57627d856a11d756eabe1690a7213">jam::Model::applyFunctionRecursively</references>
-        <references refid="structconfig_1_1_file_1aa24a5faabf6b9a8f30497de675ca198ca0fc85df7daa8f0d98a096582ced3738f" compoundref="_map_8h" startline="183">config::File::config</references>
         <references refid="classjam_1_1Model_1af9ab05d8b04c75750fc69f8ad1225caa">jam::Model::fromLua</references>
         <references refid="structconfig_1_1_file_1a1fe87258f092c2141e6d0171085f1468" compoundref="_map_8h" startline="213" endline="213">config::File::get</references>
         <references refid="namespaceconfig_1a061dd1953d794d0026d94b95435059c9" compoundref="_config_8cpp" startline="29" endline="40">config::getEnumValidator</references>
         <references refid="structconfig_1_1_file_1ae101919bc1214478f5086e2e859742de" compoundref="_map_8h" startline="221" endline="224">config::File::getName</references>
         <references refid="namespaceBinaryData_1ac7695032563aaf6d03ebfc469298bb1a">BinaryData::getString</references>
         <references refid="classjam_1_1Model_1a9be603e3c0a76e1f0b6c263066993b63">jam::Model::params</references>
-        <references refid="classconfig_1_1_model_1a37ce70da66e8164f746a16925295c343" compoundref="_config_8cpp" startline="251" endline="257">registerValidator</references>
+        <references refid="classconfig_1_1_model_1a37ce70da66e8164f746a16925295c343" compoundref="_config_8cpp" startline="247" endline="253">registerValidator</references>
         <references refid="classjam_1_1Model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
-        <references refid="classconfig_1_1_model_1af427d6e053fd4508c7179979330e5ab9" compoundref="_config_8h" startline="221">validators</references>
+        <references refid="classconfig_1_1_model_1af427d6e053fd4508c7179979330e5ab9" compoundref="_config_8h" startline="225">validators</references>
         <referencedby refid="classconfig_1_1_model_1a663ac662800dd1918dbab12d317fa4d5" compoundref="_config_8cpp" startline="7" endline="14">Model</referencedby>
       </memberdef>
       <memberdef kind="function" id="classconfig_1_1_model_1acad607c8136bcc115ffeae9d47869e26" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -216,7 +248,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="138" column="10" bodyfile="config/Config.cpp" bodystart="86" bodyend="113"/>
+        <location file="config/Config.h" line="142" column="10" bodyfile="config/Config.cpp" bodystart="83" bodyend="110"/>
         <references refid="classjuce_1_1File_1af540d2875c87e47836e7deef02537ea4">juce::File::createDirectory</references>
         <references refid="structBinaryData_1_1Raw_1a50f1331dd30f0df2d6614a9c67be4a66">BinaryData::Raw::data</references>
         <references refid="structBinaryData_1_1Raw_1aba1e79d5ef693005937990ddf2fe3363">BinaryData::Raw::exists</references>
@@ -245,9 +277,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="145" column="10" bodyfile="config/Config.cpp" bodystart="225" bodyend="230"/>
+        <location file="config/Config.h" line="149" column="10" bodyfile="config/Config.cpp" bodystart="221" bodyend="226"/>
         <references refid="structconfig_1_1_file_1a256dc6f23b2efea619c33a43ae3d795c" compoundref="_map_8h" startline="233" endline="235">config::File::path</references>
-        <references refid="classconfig_1_1_model_1a6a55abd98823bb3b8bcb92905cbdd377" compoundref="_config_8h" startline="202">watcher</references>
+        <references refid="classconfig_1_1_model_1a6a55abd98823bb3b8bcb92905cbdd377" compoundref="_config_8h" startline="206">watcher</references>
         <referencedby refid="classconfig_1_1_model_1a663ac662800dd1918dbab12d317fa4d5" compoundref="_config_8cpp" startline="7" endline="14">Model</referencedby>
       </memberdef>
       <memberdef kind="function" id="classconfig_1_1_model_1aaf6b40ca395ac5c6325cb189f13fec0f" prot="private" static="no" const="no" explicit="no" inline="no" virt="virtual">
@@ -290,13 +322,13 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="154" column="10" bodyfile="config/Config.cpp" bodystart="232" bodyend="248"/>
+        <location file="config/Config.h" line="158" column="10" bodyfile="config/Config.cpp" bodystart="228" bodyend="244"/>
         <references refid="structconfig_1_1_file_1a6ab20528e69a64a7091bd8d1269eac55" compoundref="_map_8h" startline="237" endline="237">config::File::extension</references>
         <references refid="structconfig_1_1_graphics_1a65b788f58d84dab0d495b814638c89f9" compoundref="_map_8h" startline="329" endline="329">config::Graphics::extension</references>
         <references refid="classjuce_1_1File_1a5309789281ea7721eb832d21da99708f">juce::File::getFileName</references>
-        <references refid="classconfig_1_1_model_1aab53f2dffa259bc65116d9b97ce44a49" compoundref="_config_8h" startline="230">graphicsCallbacks</references>
+        <references refid="classconfig_1_1_model_1aab53f2dffa259bc65116d9b97ce44a49" compoundref="_config_8h" startline="234">graphicsCallbacks</references>
         <references refid="classjuce_1_1File_1aeb95d4b90429613bca223acc6dc0d0bf">juce::File::hasFileExtension</references>
-        <references refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="115" endline="173">loadFromPath</references>
+        <references refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="112" endline="169">loadFromPath</references>
       </memberdef>
       <memberdef kind="function" id="classconfig_1_1_model_1a04468ffcc63d66896bb34f4c0b4c37b2" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -312,19 +344,19 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="167" column="10" bodyfile="config/Config.cpp" bodystart="175" bodyend="223"/>
+        <location file="config/Config.h" line="171" column="10" bodyfile="config/Config.cpp" bodystart="171" bodyend="219"/>
         <references refid="structjam_1_1ID_1ab2f74a80cdf109491dd81a7fe008bff4">jam::ID::disabled</references>
         <references refid="structjam_1_1ID_1a714c0054ca566e200942d0849bf5f967">jam::ID::disabledOn</references>
         <references refid="structjam_1_1ID_1a4eb7bd7fd9de5e8fd043db66cca07c4e">jam::ID::down</references>
         <references refid="structjam_1_1ID_1af4c4fc81c495f5f47c005f69325b0931">jam::ID::downOn</references>
         <references refid="structconfig_1_1_graphics_1a0b0f33c0070c5f80941536467ec4e416" compoundref="_map_8h" startline="307" endline="307">config::Graphics::get</references>
-        <references refid="classconfig_1_1_model_1aab53f2dffa259bc65116d9b97ce44a49" compoundref="_config_8h" startline="230">graphicsCallbacks</references>
+        <references refid="classconfig_1_1_model_1aab53f2dffa259bc65116d9b97ce44a49" compoundref="_config_8h" startline="234">graphicsCallbacks</references>
         <references refid="structjam_1_1ID_1a1cc4fcb0b1f1e97af0f2969e4d0474e1">jam::ID::normal</references>
         <references refid="structjam_1_1ID_1af7056af5f0aaaf64f8fc120c39ee3f18">jam::ID::normalOn</references>
         <references refid="structjam_1_1ID_1a3051e3cfbca842f2eefa10c4fcf32f71">jam::ID::over</references>
         <references refid="structjam_1_1ID_1a98e998732e2ae9a0e998a949084cabbb">jam::ID::overOn</references>
         <references refid="classjam_1_1Model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
-        <referencedby refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="115" endline="173">loadFromPath</referencedby>
+        <referencedby refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="112" endline="169">loadFromPath</referencedby>
       </memberdef>
       <memberdef kind="function" id="classconfig_1_1_model_1a37ce70da66e8164f746a16925295c343" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -377,9 +409,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="182" column="10" bodyfile="config/Config.cpp" bodystart="251" bodyend="257"/>
-        <references refid="classconfig_1_1_model_1af427d6e053fd4508c7179979330e5ab9" compoundref="_config_8h" startline="221">validators</references>
-        <referencedby refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" compoundref="_config_8cpp" startline="43" endline="83">initialise</referencedby>
+        <location file="config/Config.h" line="186" column="10" bodyfile="config/Config.cpp" bodystart="247" bodyend="253"/>
+        <references refid="classconfig_1_1_model_1af427d6e053fd4508c7179979330e5ab9" compoundref="_config_8h" startline="225">validators</references>
+        <referencedby refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" compoundref="_config_8cpp" startline="43" endline="80">initialise</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="private-static-func">
@@ -424,7 +456,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="196" column="16"/>
+        <location file="config/Config.h" line="200" column="16"/>
       </memberdef>
     </sectiondef>
     <briefdescription>
@@ -490,6 +522,12 @@
       </node>
     </inheritancegraph>
     <collaborationgraph>
+      <node id="22">
+        <label>config::LookAndFeel</label>
+        <link refid="classconfig_1_1_look_and_feel"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
       <node id="1">
         <label>config::Model</label>
         <link refid="classconfig_1_1_model"/>
@@ -510,6 +548,9 @@
         </childnode>
         <childnode refid="20" relation="usage">
           <edgelabel>graphicsCallbacks</edgelabel>
+        </childnode>
+        <childnode refid="22" relation="usage">
+          <edgelabel>lookAndFeel</edgelabel>
         </childnode>
       </node>
       <node id="4">
@@ -636,7 +677,7 @@
         </childnode>
       </node>
     </collaborationgraph>
-    <location file="config/Config.h" line="69" column="1" bodyfile="config/Config.h" bodystart="73" bodyend="234"/>
+    <location file="config/Config.h" line="70" column="1" bodyfile="config/Config.h" bodystart="74" bodyend="240"/>
     <listofallmembers>
       <member refid="classjam_1_1Model_1ae5d4d70e706dcc558cf21923125a9176" prot="public" virt="non-virtual"><scope>config::Model</scope><name>addListener</name></member>
       <member refid="classjam_1_1Model_1ac78b7437a06da378bf49cbd4f27bfc63" prot="public" virt="non-virtual"><scope>config::Model</scope><name>addProperties</name></member>
@@ -663,6 +704,7 @@
       <member refid="classjam_1_1Model_1aae1e12fc9077155368fc2ccc635b4bc1" prot="public" virt="non-virtual"><scope>config::Model</scope><name>getInt</name></member>
       <member refid="classjam_1_1Model_1a9d225eeff2565fc96addfd769c787eeb" prot="public" virt="non-virtual"><scope>config::Model</scope><name>getInt16</name></member>
       <member refid="classconfig_1_1_model_1a8a75866892ea2fd6887d390ebb2c8c0a" prot="public" virt="non-virtual"><scope>config::Model</scope><name>getLoadMessage</name></member>
+      <member refid="classconfig_1_1_model_1af8ded7b2fe48ad3cc715684a21726028" prot="public" virt="non-virtual"><scope>config::Model</scope><name>getLookAndFeel</name></member>
       <member refid="classjam_1_1Model_1a322c866d6fc435eb6799562d6d6db8b1" prot="public" virt="non-virtual"><scope>config::Model</scope><name>getOrCreateChildWithName</name></member>
       <member refid="classjam_1_1Model_1a4d93df7249f679710c1ac1c5f288147c" prot="public" virt="non-virtual"><scope>config::Model</scope><name>getOrCreateChildWithName</name></member>
       <member refid="classjam_1_1Model_1ad37ac05ef036ebe52d46f3909de8fa99" prot="public" virt="non-virtual"><scope>config::Model</scope><name>getRawParameterValue</name></member>
@@ -685,6 +727,7 @@
       <member refid="classjam_1_1Model_1a6662822c6b2f2539b5839a41daa668c9" prot="public" virt="non-virtual"><scope>config::Model</scope><name>loadState</name></member>
       <member refid="classjam_1_1Model_1ab3774dd3acd1ae1c9389c444432e58aa" prot="public" virt="non-virtual"><scope>config::Model</scope><name>loadText</name></member>
       <member refid="classjam_1_1Model_1a4ed7495a3eb4e503f070e266b2f75cfe" prot="public" virt="non-virtual"><scope>config::Model</scope><name>loadValue</name></member>
+      <member refid="classconfig_1_1_model_1a182fc0cbbc90e0994d28521ece25e5c1" prot="private" virt="non-virtual"><scope>config::Model</scope><name>lookAndFeel</name></member>
       <member refid="classconfig_1_1_model_1a663ac662800dd1918dbab12d317fa4d5" prot="public" virt="non-virtual"><scope>config::Model</scope><name>Model</name></member>
       <member refid="classjam_1_1Model_1afbe837fa9d9c8086381333783bb1db3b" prot="public" virt="non-virtual" ambiguityscope="jam::Model::"><scope>config::Model</scope><name>Model</name></member>
       <member refid="structjam_1_1Context_1a6716feb60b039083ca0c099a506a3474" prot="public" virt="non-virtual"><scope>config::Model</scope><name>operator=</name></member>

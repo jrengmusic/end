@@ -2,8 +2,8 @@
 <doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
   <compounddef id="dir_c9cfca4ec86141f7bb4e60ba321d4655" kind="dir">
     <compoundname>lookAndFeel</compoundname>
-    <innerfile refid="_look_and_feel_8cpp">LookAndFeel.cpp</innerfile>
-    <innerfile refid="_look_and_feel_8h">LookAndFeel.h</innerfile>
+    <innerfile refid="look_and_feel_2_look_and_feel_8cpp">LookAndFeel.cpp</innerfile>
+    <innerfile refid="look_and_feel_2_look_and_feel_8h">LookAndFeel.h</innerfile>
     <briefdescription>
     </briefdescription>
     <detaileddescription>

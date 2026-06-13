@@ -6,6 +6,7 @@
     <includes refid="_identifier_8h" local="yes">Identifier.h</includes>
     <includedby refid="_main_8h" local="yes">Main.h</includedby>
     <includedby refid="_config_8h" local="yes">config/Config.h</includedby>
+    <includedby refid="config_2_look_and_feel_8h" local="yes">config/LookAndFeel.h</includedby>
     <includedby refid="_view_8h" local="yes">end/View.h</includedby>
     <includedby refid="_window_8h" local="yes">end/Window.h</includedby>
     <incdepgraph>
@@ -50,7 +51,7 @@
         <childnode refid="7" relation="include">
         </childnode>
       </node>
-      <node id="9">
+      <node id="10">
         <label>config/Config.cpp</label>
         <link refid="_config_8cpp"/>
       </node>
@@ -61,18 +62,34 @@
         </childnode>
         <childnode refid="5" relation="include">
         </childnode>
-        <childnode refid="9" relation="include">
-        </childnode>
         <childnode refid="10" relation="include">
         </childnode>
         <childnode refid="11" relation="include">
         </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
         <childnode refid="7" relation="include">
         </childnode>
-        <childnode refid="13" relation="include">
+        <childnode refid="14" relation="include">
         </childnode>
-        <childnode refid="15" relation="include">
+        <childnode refid="16" relation="include">
         </childnode>
+      </node>
+      <node id="19">
+        <label>config/LookAndFeel.cpp</label>
+        <link refid="config_2_look_and_feel_8cpp"/>
+      </node>
+      <node id="18">
+        <label>config/LookAndFeel.h</label>
+        <link refid="config_2_look_and_feel_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>end/ActionRegistration.cpp</label>
+        <link refid="_action_registration_8cpp"/>
       </node>
       <node id="1">
         <label>end/Map.h</label>
@@ -81,30 +98,32 @@
         </childnode>
         <childnode refid="4" relation="include">
         </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
         <childnode refid="7" relation="include">
         </childnode>
-        <childnode refid="13" relation="include">
+        <childnode refid="14" relation="include">
         </childnode>
       </node>
-      <node id="10">
+      <node id="11">
         <label>end/MessageOverlay.h</label>
         <link refid="_message_overlay_8h"/>
         <childnode refid="7" relation="include">
         </childnode>
       </node>
-      <node id="12">
+      <node id="13">
         <label>end/Tabs.cpp</label>
         <link refid="_tabs_8cpp"/>
       </node>
-      <node id="11">
+      <node id="12">
         <label>end/Tabs.h</label>
         <link refid="_tabs_8h"/>
-        <childnode refid="12" relation="include">
+        <childnode refid="13" relation="include">
         </childnode>
         <childnode refid="7" relation="include">
         </childnode>
       </node>
-      <node id="8">
+      <node id="9">
         <label>end/View.cpp</label>
         <link refid="_view_8cpp"/>
       </node>
@@ -115,35 +134,37 @@
         </childnode>
         <childnode refid="8" relation="include">
         </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
       </node>
-      <node id="14">
+      <node id="15">
         <label>end/Window.cpp</label>
         <link refid="_window_8cpp"/>
       </node>
-      <node id="13">
+      <node id="14">
         <label>end/Window.h</label>
         <link refid="_window_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
-        <childnode refid="14" relation="include">
+        <childnode refid="15" relation="include">
         </childnode>
+      </node>
+      <node id="17">
+        <label>lookAndFeel/LookAndFeel.cpp</label>
+        <link refid="look_and_feel_2_look_and_feel_8cpp"/>
       </node>
       <node id="16">
-        <label>lookAndFeel/LookAndFeel.cpp</label>
-        <link refid="_look_and_feel_8cpp"/>
-      </node>
-      <node id="15">
         <label>lookAndFeel/LookAndFeel.h</label>
-        <link refid="_look_and_feel_8h"/>
+        <link refid="look_and_feel_2_look_and_feel_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
-        <childnode refid="10" relation="include">
-        </childnode>
-        <childnode refid="12" relation="include">
+        <childnode refid="11" relation="include">
         </childnode>
         <childnode refid="13" relation="include">
         </childnode>
-        <childnode refid="16" relation="include">
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
         </childnode>
       </node>
     </invincdepgraph>
@@ -153,6 +174,7 @@
     <innerclass refid="structend_1_1_drop_mode" prot="public">end::DropMode</innerclass>
     <innerclass refid="structconfig_1_1_file" prot="public">config::File</innerclass>
     <innerclass refid="structconfig_1_1_graphics" prot="public">config::Graphics</innerclass>
+    <innerclass refid="structconfig_1_1_theme" prot="public">config::Theme</innerclass>
     <innerclass refid="structend_1_1_map" prot="public">end::Map</innerclass>
     <innernamespace refid="namespaceend">end</innernamespace>
     <innernamespace refid="namespaceconfig">config</innernamespace>
@@ -165,7 +187,7 @@
 <codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;JuceHeader.h&gt;</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="3"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_identifier_8h" kindref="compound">Identifier.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="4"><highlight class="normal"></highlight></codeline>
-<codeline lineno="5" refid="namespaceend" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespaceend" kindref="compound">end</ref></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespaceend" kindref="compound">end</ref></highlight></codeline>
 <codeline lineno="6"><highlight class="normal">{</highlight></codeline>
 <codeline lineno="7"><highlight class="normal"></highlight><highlight class="comment">/*____________________________________________________________________________*/</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="8"><highlight class="normal"></highlight></codeline>
@@ -220,11 +242,11 @@
 <codeline lineno="88"><highlight class="normal">{</highlight></codeline>
 <codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
-<codeline lineno="96" refid="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05ba9d3c44ea19c8e9e5d1650be17ab4fc6e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05ba9d3c44ea19c8e9e5d1650be17ab4fc6e" kindref="member">top</ref>,<sp/><sp/><sp/><sp/></highlight></codeline>
-<codeline lineno="97" refid="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05bad52282e0dd5a6fbecfbe0f36ea5d4c23" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05bad52282e0dd5a6fbecfbe0f36ea5d4c23" kindref="member">right</ref>,<sp/><sp/></highlight></codeline>
-<codeline lineno="98" refid="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05ba9a50bf1430af6bb133f7995767ce297c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05ba9a50bf1430af6bb133f7995767ce297c" kindref="member">bottom</ref>,<sp/></highlight></codeline>
-<codeline lineno="99" refid="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05baff86c7b45e58c6678fc26bff2a0a821a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05baff86c7b45e58c6678fc26bff2a0a821a" kindref="member">left</ref>,<sp/><sp/><sp/></highlight></codeline>
-<codeline lineno="100" refid="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05bacb1af5b03312f174c715f20f8ba6a7f8" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05bacb1af5b03312f174c715f20f8ba6a7f8" kindref="member">center</ref>,<sp/></highlight></codeline>
+<codeline lineno="96" refid="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05ba9d3c44ea19c8e9e5d1650be17ab4fc6e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05ba9d3c44ea19c8e9e5d1650be17ab4fc6e" kindref="member">top</ref>,</highlight></codeline>
+<codeline lineno="97" refid="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05bad52282e0dd5a6fbecfbe0f36ea5d4c23" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05bad52282e0dd5a6fbecfbe0f36ea5d4c23" kindref="member">right</ref>,</highlight></codeline>
+<codeline lineno="98" refid="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05ba9a50bf1430af6bb133f7995767ce297c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05ba9a50bf1430af6bb133f7995767ce297c" kindref="member">bottom</ref>,</highlight></codeline>
+<codeline lineno="99" refid="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05baff86c7b45e58c6678fc26bff2a0a821a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05baff86c7b45e58c6678fc26bff2a0a821a" kindref="member">left</ref>,</highlight></codeline>
+<codeline lineno="100" refid="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05bacb1af5b03312f174c715f20f8ba6a7f8" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05bacb1af5b03312f174c715f20f8ba6a7f8" kindref="member">center</ref>,</highlight></codeline>
 <codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/>};</highlight></codeline>
 <codeline lineno="102"><highlight class="normal"></highlight></codeline>
 <codeline lineno="104" refid="structend_1_1_position_1aad8c1a31b60ce4b9b27447e15188fd6e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structend_1_1_position_1aad8c1a31b60ce4b9b27447e15188fd6e" kindref="member">Position</ref>()</highlight></codeline>
@@ -296,7 +318,7 @@
 <codeline lineno="194" refid="structconfig_1_1_file_1ae65e95e7d00b4fcaad4a0ab2265d903d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structconfig_1_1_file_1ae65e95e7d00b4fcaad4a0ab2265d903d" kindref="member">File</ref>()</highlight></codeline>
 <codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
 <codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classjam_1_1Map_1_1Instance_1afe0acf25bab1f104aea20f20174129d1" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">map</ref><sp/>=<sp/>{</highlight></codeline>
-<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/><ref refid="structconfig_1_1_file_1aa24a5faabf6b9a8f30497de675ca198ca0fc85df7daa8f0d98a096582ced3738f" kindref="member">File::config</ref>,<sp/><sp/><sp/>IDref::config<sp/><sp/><sp/>},</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/><ref refid="structconfig_1_1_file_1aa24a5faabf6b9a8f30497de675ca198ca0fc85df7daa8f0d98a096582ced3738f" kindref="member">File::config</ref>,<sp/><sp/><sp/>IDref::end<sp/><sp/><sp/>},</highlight></codeline>
 <codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/><ref refid="structconfig_1_1_file_1aa24a5faabf6b9a8f30497de675ca198ca8445a8e632640713c5459f4255889087" kindref="member">File::whelmed</ref>,<sp/><sp/>IDref::whelmed<sp/><sp/>},</highlight></codeline>
 <codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/><ref refid="structconfig_1_1_file_1aa24a5faabf6b9a8f30497de675ca198ca223730b185e3ae2640f6f0b87a067d01" kindref="member">File::nexus</ref>,<sp/><sp/><sp/><sp/>IDref::nexus<sp/><sp/><sp/><sp/>},</highlight></codeline>
 <codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/><ref refid="structconfig_1_1_file_1aa24a5faabf6b9a8f30497de675ca198ca81cd47b1607025b96034d93f45523319" kindref="member">File::display</ref>,<sp/><sp/>IDref::display<sp/><sp/>},</highlight></codeline>
@@ -333,16 +355,16 @@
 <codeline lineno="269"><highlight class="normal">{</highlight></codeline>
 <codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
-<codeline lineno="273" refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea569fa475ce9202aadea617aff4696e47" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea569fa475ce9202aadea617aff4696e47" kindref="member">tabBar</ref>,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
-<codeline lineno="274" refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea34bd580725e15fc46636dd411c6dcf15" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea34bd580725e15fc46636dd411c6dcf15" kindref="member">tabHighlight</ref>,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
-<codeline lineno="275" refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea715efdd89e879fa3f2becdc3d9da8f3b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea715efdd89e879fa3f2becdc3d9da8f3b" kindref="member">tabButtonNormal</ref>,<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
-<codeline lineno="276" refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea2acc2e462992d20cfdcc2a243de6ef15" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea2acc2e462992d20cfdcc2a243de6ef15" kindref="member">tabButtonOver</ref>,<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
-<codeline lineno="277" refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3eaa69af12343f02479fd6e45627e741433" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3eaa69af12343f02479fd6e45627e741433" kindref="member">tabButtonDown</ref>,<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
-<codeline lineno="278" refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea9a9c09a14dc512fdec5fce6a8081169e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea9a9c09a14dc512fdec5fce6a8081169e" kindref="member">tabButtonDisabled</ref>,<sp/><sp/><sp/></highlight></codeline>
-<codeline lineno="279" refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea22b6133a7afc06d908c6433d6491b9f1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea22b6133a7afc06d908c6433d6491b9f1" kindref="member">tabButtonNormalOn</ref>,<sp/><sp/><sp/></highlight></codeline>
-<codeline lineno="280" refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3eaac33f2e47d0ffe912b41f87c55fecbf7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3eaac33f2e47d0ffe912b41f87c55fecbf7" kindref="member">tabButtonOverOn</ref>,<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
-<codeline lineno="281" refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3eaf66c9e682427d6c2947f7b5be8f490a0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3eaf66c9e682427d6c2947f7b5be8f490a0" kindref="member">tabButtonDownOn</ref>,<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
-<codeline lineno="282" refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea52fac2613f896ebe4c9d535b550de4af" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea52fac2613f896ebe4c9d535b550de4af" kindref="member">tabButtonDisabledOn</ref>,<sp/></highlight></codeline>
+<codeline lineno="273" refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea569fa475ce9202aadea617aff4696e47" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea569fa475ce9202aadea617aff4696e47" kindref="member">tabBar</ref>,</highlight></codeline>
+<codeline lineno="274" refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea34bd580725e15fc46636dd411c6dcf15" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea34bd580725e15fc46636dd411c6dcf15" kindref="member">tabHighlight</ref>,</highlight></codeline>
+<codeline lineno="275" refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea715efdd89e879fa3f2becdc3d9da8f3b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea715efdd89e879fa3f2becdc3d9da8f3b" kindref="member">tabButtonNormal</ref>,</highlight></codeline>
+<codeline lineno="276" refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea2acc2e462992d20cfdcc2a243de6ef15" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea2acc2e462992d20cfdcc2a243de6ef15" kindref="member">tabButtonOver</ref>,</highlight></codeline>
+<codeline lineno="277" refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3eaa69af12343f02479fd6e45627e741433" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3eaa69af12343f02479fd6e45627e741433" kindref="member">tabButtonDown</ref>,</highlight></codeline>
+<codeline lineno="278" refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea9a9c09a14dc512fdec5fce6a8081169e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea9a9c09a14dc512fdec5fce6a8081169e" kindref="member">tabButtonDisabled</ref>,</highlight></codeline>
+<codeline lineno="279" refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea22b6133a7afc06d908c6433d6491b9f1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea22b6133a7afc06d908c6433d6491b9f1" kindref="member">tabButtonNormalOn</ref>,</highlight></codeline>
+<codeline lineno="280" refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3eaac33f2e47d0ffe912b41f87c55fecbf7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3eaac33f2e47d0ffe912b41f87c55fecbf7" kindref="member">tabButtonOverOn</ref>,</highlight></codeline>
+<codeline lineno="281" refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3eaf66c9e682427d6c2947f7b5be8f490a0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3eaf66c9e682427d6c2947f7b5be8f490a0" kindref="member">tabButtonDownOn</ref>,</highlight></codeline>
+<codeline lineno="282" refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea52fac2613f896ebe4c9d535b550de4af" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea52fac2613f896ebe4c9d535b550de4af" kindref="member">tabButtonDisabledOn</ref>,</highlight></codeline>
 <codeline lineno="283"><highlight class="normal"><sp/><sp/><sp/><sp/>};</highlight></codeline>
 <codeline lineno="284"><highlight class="normal"></highlight></codeline>
 <codeline lineno="286" refid="structconfig_1_1_graphics_1a665d2fcba7612a71f5d94fe7a8830a24" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structconfig_1_1_graphics_1a665d2fcba7612a71f5d94fe7a8830a24" kindref="member">Graphics</ref>()</highlight></codeline>
@@ -379,24 +401,40 @@
 <codeline lineno="331"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
 <codeline lineno="332" refid="structconfig_1_1_graphics_1af70f25cb52043c6932df53dfc8dc8c29" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref>&amp;<sp/><ref refid="structconfig_1_1_graphics_1af70f25cb52043c6932df53dfc8dc8c29" kindref="member">getDefault</ref>()<sp/>const<sp/>noexcept</highlight><highlight class="keyword"><sp/>override<sp/></highlight><highlight class="normal">{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classjam_1_1Map_1_1Instance_1afe0acf25bab1f104aea20f20174129d1" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">map</ref>.at<sp/>(<ref refid="structconfig_1_1_graphics_1a471392c30c06d7af516210a40d97bb3ea569fa475ce9202aadea617aff4696e47" kindref="member">Graphics::tabBar</ref>);<sp/>}</highlight></codeline>
 <codeline lineno="333"><highlight class="normal">};</highlight></codeline>
-<codeline lineno="335"><highlight class="normal">}</highlight><highlight class="comment">//<sp/>namespace<sp/>config</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="336"><highlight class="normal"></highlight></codeline>
-<codeline lineno="337"><highlight class="normal"></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="338"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespaceend" kindref="compound">end</ref></highlight></codeline>
-<codeline lineno="339"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="340"><highlight class="normal"></highlight><highlight class="comment">/*____________________________________________________________________________*/</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="341" refid="structend_1_1_map" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structend_1_1_map" kindref="compound">Map</ref></highlight></codeline>
-<codeline lineno="342"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="343" refid="structend_1_1_map_1a9ed0f9cafe65b1c31d6ff26bf04dcfc5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structend_1_1_boolean" kindref="compound">end::Boolean</ref><sp/><ref refid="structend_1_1_map_1a9ed0f9cafe65b1c31d6ff26bf04dcfc5" kindref="member">boolMap</ref>;</highlight></codeline>
-<codeline lineno="344" refid="structend_1_1_map_1acf559dc819e8496d1b63872a888580a8" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structend_1_1_gpu_mode" kindref="compound">end::GpuMode</ref><sp/><ref refid="structend_1_1_map_1acf559dc819e8496d1b63872a888580a8" kindref="member">gpuModeMap</ref>;</highlight></codeline>
-<codeline lineno="345" refid="structend_1_1_map_1a5bbcff386cc1b3242e24acd022500a28" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structend_1_1_position" kindref="compound">end::Position</ref><sp/><ref refid="structend_1_1_map_1a5bbcff386cc1b3242e24acd022500a28" kindref="member">positionMap</ref>;</highlight></codeline>
-<codeline lineno="346" refid="structend_1_1_map_1a4649535ff19c4ddf877f0ebddde1d906" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structend_1_1_drop_mode" kindref="compound">end::DropMode</ref><sp/><ref refid="structend_1_1_map_1a4649535ff19c4ddf877f0ebddde1d906" kindref="member">dropModeMap</ref>;</highlight></codeline>
-<codeline lineno="347" refid="structend_1_1_map_1a9d23d8ab019848af5ca72120d391e217" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structconfig_1_1_file" kindref="compound">config::File</ref><sp/><ref refid="structend_1_1_map_1a9d23d8ab019848af5ca72120d391e217" kindref="member">file</ref>;</highlight></codeline>
-<codeline lineno="348" refid="structend_1_1_map_1a89388974198bca2f7a151533ca29fb2f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structconfig_1_1_graphics" kindref="compound">config::Graphics</ref><sp/><ref refid="structend_1_1_map_1a89388974198bca2f7a151533ca29fb2f" kindref="member">graphics</ref>;</highlight></codeline>
-<codeline lineno="349" refid="structend_1_1_map_1a780abe7d84b9a789212176fc2c9e6dcf" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structjam_1_1map_1_1Segment" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::map::Segment</ref><sp/><ref refid="structend_1_1_map_1a780abe7d84b9a789212176fc2c9e6dcf" kindref="member">segment</ref>;</highlight></codeline>
-<codeline lineno="350" refid="structend_1_1_map_1a01c80dbdabc4176ed5b6bea5be5651d7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structjam_1_1map_1_1ButtonState" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::map::ButtonState</ref><sp/><ref refid="structend_1_1_map_1a01c80dbdabc4176ed5b6bea5be5651d7" kindref="member">buttonState</ref>;</highlight></codeline>
-<codeline lineno="351"><highlight class="normal">};</highlight></codeline>
-<codeline lineno="353"><highlight class="normal">}</highlight><highlight class="comment">//<sp/>namespace<sp/>end</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="334"><highlight class="normal"></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="342" refid="structconfig_1_1_theme" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structconfig_1_1_theme" kindref="compound">Theme</ref></highlight></codeline>
+<codeline lineno="343"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="345" refid="structconfig_1_1_theme_1aafc444831f946c55f55c9b5f987e4e1c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref><sp/><ref refid="structconfig_1_1_theme_1aafc444831f946c55f55c9b5f987e4e1c" kindref="member">getName</ref>()<sp/>noexcept</highlight></codeline>
+<codeline lineno="346"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="347"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="structjam_1_1Format_1a838b7c56ce7913ab2b4471148a1019cd" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Format::toFileName</ref><sp/>(IDref::theme,<sp/><ref refid="structconfig_1_1_file_1a6ab20528e69a64a7091bd8d1269eac55" kindref="member">File::extension</ref>);</highlight></codeline>
+<codeline lineno="348"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="349"><highlight class="normal"></highlight></codeline>
+<codeline lineno="354" refid="structconfig_1_1_theme_1aeff8b69b8a933ad965831da6e6ee8563" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classjuce_1_1File" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::File</ref><sp/><ref refid="structconfig_1_1_theme_1aeff8b69b8a933ad965831da6e6ee8563" kindref="member">getPath</ref><sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref>&amp;<sp/>theme)<sp/></highlight><highlight class="keyword">noexcept</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="355"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="356"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="structconfig_1_1_theme_1a7542ea7e87709155d2d19a755aba07f6" kindref="member">path</ref>.getChildFile<sp/>(theme);</highlight></codeline>
+<codeline lineno="357"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="358"><highlight class="normal"></highlight></codeline>
+<codeline lineno="360" refid="structconfig_1_1_theme_1a7542ea7e87709155d2d19a755aba07f6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classjuce_1_1File" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::File</ref><sp/><ref refid="structconfig_1_1_theme_1a7542ea7e87709155d2d19a755aba07f6" kindref="member">path</ref><sp/>{<sp/><ref refid="structconfig_1_1_file_1a8fb7a80701aaed8671256aa65afaf19d" kindref="member">File::getPath</ref><sp/>(IDref::themes)<sp/>};</highlight></codeline>
+<codeline lineno="361"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="363"><highlight class="normal">}</highlight><highlight class="comment">//<sp/>namespace<sp/>config</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="364"><highlight class="normal"></highlight></codeline>
+<codeline lineno="365"><highlight class="normal"></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="366"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespaceend" kindref="compound">end</ref></highlight></codeline>
+<codeline lineno="367"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="368"><highlight class="normal"></highlight><highlight class="comment">/*____________________________________________________________________________*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="369" refid="structend_1_1_map" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structend_1_1_map" kindref="compound">Map</ref></highlight></codeline>
+<codeline lineno="370"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="371" refid="structend_1_1_map_1a511ad659554875b5fc765c6610af9699" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structend_1_1_boolean" kindref="compound">end::Boolean</ref><sp/><ref refid="structend_1_1_map_1a511ad659554875b5fc765c6610af9699" kindref="member">boolean</ref>;</highlight></codeline>
+<codeline lineno="372" refid="structend_1_1_map_1ac70a7218eff14cd21199b5efb9669f3d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structend_1_1_gpu_mode" kindref="compound">end::GpuMode</ref><sp/><ref refid="structend_1_1_map_1ac70a7218eff14cd21199b5efb9669f3d" kindref="member">gpu</ref>;</highlight></codeline>
+<codeline lineno="373" refid="structend_1_1_map_1add2134439c9c266fbf3f64ce5214c7eb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structend_1_1_position" kindref="compound">end::Position</ref><sp/><ref refid="structend_1_1_map_1add2134439c9c266fbf3f64ce5214c7eb" kindref="member">position</ref>;</highlight></codeline>
+<codeline lineno="374" refid="structend_1_1_map_1a53ca25979a281743925c2228d43dd638" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structend_1_1_drop_mode" kindref="compound">end::DropMode</ref><sp/><ref refid="structend_1_1_map_1a53ca25979a281743925c2228d43dd638" kindref="member">dropMode</ref>;</highlight></codeline>
+<codeline lineno="375" refid="structend_1_1_map_1a9d23d8ab019848af5ca72120d391e217" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structconfig_1_1_file" kindref="compound">config::File</ref><sp/><ref refid="structend_1_1_map_1a9d23d8ab019848af5ca72120d391e217" kindref="member">file</ref>;</highlight></codeline>
+<codeline lineno="376" refid="structend_1_1_map_1a89388974198bca2f7a151533ca29fb2f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structconfig_1_1_graphics" kindref="compound">config::Graphics</ref><sp/><ref refid="structend_1_1_map_1a89388974198bca2f7a151533ca29fb2f" kindref="member">graphics</ref>;</highlight></codeline>
+<codeline lineno="377" refid="structend_1_1_map_1a88c8891aec9b1ea0b4d6831bca8f7bfb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structjam_1_1map_1_1WindowFX" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::map::WindowFX</ref><sp/><ref refid="structend_1_1_map_1a88c8891aec9b1ea0b4d6831bca8f7bfb" kindref="member">window</ref>;</highlight></codeline>
+<codeline lineno="378" refid="structend_1_1_map_1a780abe7d84b9a789212176fc2c9e6dcf" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structjam_1_1map_1_1Segment" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::map::Segment</ref><sp/><ref refid="structend_1_1_map_1a780abe7d84b9a789212176fc2c9e6dcf" kindref="member">segment</ref>;</highlight></codeline>
+<codeline lineno="379" refid="structend_1_1_map_1a1b6c1a3dbe3009f4254e8242839446ba" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structjam_1_1map_1_1ButtonState" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::map::ButtonState</ref><sp/><ref refid="structend_1_1_map_1a1b6c1a3dbe3009f4254e8242839446ba" kindref="member">button</ref>;</highlight></codeline>
+<codeline lineno="380"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="382"><highlight class="normal">}</highlight><highlight class="comment">//<sp/>namespace<sp/>end</highlight><highlight class="normal"></highlight></codeline>
     </programlisting>
     <location file="end/Map.h"/>
   </compounddef>

@@ -93,11 +93,11 @@ struct Position : public jam::Map::Instance<Position>
      */
     enum
     {
-        top,    ///< Position at top.
-        right,  ///< Position at right.
-        bottom, ///< Position at bottom (default).
-        left,   ///< Position at left.
-        center, ///< Centered position.
+        top,///< Position at top.
+        right,///< Position at right.
+        bottom,///< Position at bottom (default).
+        left,///< Position at left.
+        center,///< Centered position.
     };
 
     /** @brief Populates the bimap with all five entries. */
@@ -194,7 +194,7 @@ struct File : public jam::Map::Instance<File>
     File()
     {
         map = {
-            { File::config,   IDref::config   },
+            { File::config,   IDref::end   },
             { File::whelmed,  IDref::whelmed  },
             { File::nexus,    IDref::nexus    },
             { File::display,  IDref::display  },
@@ -270,16 +270,16 @@ struct Graphics : public jam::Map::Instance<Graphics>
     /** @brief Integer keys for all SVG graphics assets. */
     enum
     {
-        tabBar,              ///< Tab bar background SVG asset.
-        tabHighlight,        ///< Sliding tab highlight SVG asset.
-        tabButtonNormal,     ///< Tab button normal-state SVG asset stem.
-        tabButtonOver,       ///< Tab button over-state SVG asset stem.
-        tabButtonDown,       ///< Tab button down-state SVG asset stem.
-        tabButtonDisabled,   ///< Tab button disabled-state SVG asset stem.
-        tabButtonNormalOn,   ///< Tab button normalOn-state SVG asset stem.
-        tabButtonOverOn,     ///< Tab button overOn-state SVG asset stem.
-        tabButtonDownOn,     ///< Tab button downOn-state SVG asset stem.
-        tabButtonDisabledOn, ///< Tab button disabledOn-state SVG asset stem.
+        tabBar,///< Tab bar background SVG asset.
+        tabHighlight,///< Sliding tab highlight SVG asset.
+        tabButtonNormal,///< Tab button normal-state SVG asset stem.
+        tabButtonOver,///< Tab button over-state SVG asset stem.
+        tabButtonDown,///< Tab button down-state SVG asset stem.
+        tabButtonDisabled,///< Tab button disabled-state SVG asset stem.
+        tabButtonNormalOn,///< Tab button normalOn-state SVG asset stem.
+        tabButtonOverOn,///< Tab button overOn-state SVG asset stem.
+        tabButtonDownOn,///< Tab button downOn-state SVG asset stem.
+        tabButtonDisabledOn,///< Tab button disabledOn-state SVG asset stem.
     };
 
     /** @brief Populates the bimap with all 10 entries. */
@@ -331,6 +331,34 @@ struct Graphics : public jam::Map::Instance<Graphics>
 private:
     const juce::String& getDefault() const noexcept override { return map.at (Graphics::tabBar); }
 };
+//==============================================================================
+/**
+ * @brief Theme directory and filename resolution.
+ *
+ * Owns the themes subdirectory path and provides filename/path
+ * resolution for theme lua files. Parallels config::File for the
+ * config root directory.
+ */
+struct Theme
+{
+    /** @brief Returns the filename for the theme lua file ("theme.lua"). */
+    static const juce::String getName() noexcept
+    {
+        return jam::Format::toFileName (IDref::theme, File::extension);
+    }
+
+    /** @brief Returns the theme subdirectory for the given theme name.
+     *  @param theme  Theme directory name (e.g. "gfx").
+     *  @return       Resolved path: ~/.config/end/themes/@p theme/
+     */
+    static const juce::File getPath (const juce::String& theme) noexcept
+    {
+        return path.getChildFile (theme);
+    }
+
+    /** @brief Themes root directory: ~/.config/end/themes/ */
+    inline static const juce::File path { File::getPath (IDref::themes) };
+};
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace config
 
@@ -340,14 +368,15 @@ namespace end
 /*____________________________________________________________________________*/
 struct Map
 {
-    end::Boolean boolMap;
-    end::GpuMode gpuModeMap;
-    end::Position positionMap;
-    end::DropMode dropModeMap;
+    end::Boolean boolean;
+    end::GpuMode gpu;
+    end::Position position;
+    end::DropMode dropMode;
     config::File file;
     config::Graphics graphics;
+    jam::map::WindowFX window;
     jam::map::Segment segment;
-    jam::map::ButtonState buttonState;
+    jam::map::ButtonState button;
 };
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace end

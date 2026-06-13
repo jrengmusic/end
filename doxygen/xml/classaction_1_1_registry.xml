@@ -287,12 +287,18 @@
         <childnode refid="6" relation="usage">
           <edgelabel>config</edgelabel>
         </childnode>
-        <childnode refid="25" relation="usage">
+        <childnode refid="26" relation="usage">
           <edgelabel>keys</edgelabel>
           <edgelabel>modalKeys</edgelabel>
         </childnode>
-        <childnode refid="26" relation="usage">
+        <childnode refid="27" relation="usage">
           <edgelabel>prefixKey</edgelabel>
+        </childnode>
+      </node>
+      <node id="25">
+        <label>config::LookAndFeel</label>
+        <link refid="classconfig_1_1_look_and_feel"/>
+        <childnode refid="7" relation="public-inheritance">
         </childnode>
       </node>
       <node id="6">
@@ -315,6 +321,9 @@
         </childnode>
         <childnode refid="24" relation="usage">
           <edgelabel>graphicsCallbacks</edgelabel>
+        </childnode>
+        <childnode refid="25" relation="usage">
+          <edgelabel>lookAndFeel</edgelabel>
         </childnode>
       </node>
       <node id="8">
@@ -388,7 +397,7 @@
         <label>jam::HashMap&lt; juce::Identifier, std::unique_ptr&lt; void, Deleter &gt; &gt;</label>
         <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
-      <node id="25">
+      <node id="26">
         <label>jam::HashMap&lt; juce::KeyPress, juce::Identifier &gt;</label>
         <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
@@ -415,7 +424,7 @@
         <label>juce::File</label>
         <link refid="classjuce_1_1File" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="26">
+      <node id="27">
         <label>juce::KeyPress</label>
         <link refid="classjuce_1_1KeyPress" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>

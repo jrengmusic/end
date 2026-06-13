@@ -1,6 +1,7 @@
 #pragma once
 #include <JuceHeader.h>
 #include "../end/Map.h"
+#include "LookAndFeel.h"
 
 namespace config
 {
@@ -106,6 +107,9 @@ public:
                 on failure. Never stored on the value tree.
     */
     const juce::String& getLoadMessage() const noexcept { return loadMessage; }
+
+    /** @brief Returns the theme model for listener registration. */
+    LookAndFeel& getLookAndFeel() noexcept { return lookAndFeel; }
 
 private:
     /**
@@ -228,6 +232,8 @@ private:
                each graphics asset.
     */
     jam::Function::Map<juce::String, void> graphicsCallbacks;
+
+    LookAndFeel lookAndFeel;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Model)

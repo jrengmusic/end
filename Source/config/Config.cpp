@@ -44,18 +44,15 @@ void Model::initialise()
 {
     for (auto& [key, value] : File::get())
     {
-        if (key != File::config)
+        auto lua { jam::lua::State() };
+
+        auto result { lua.getType (BinaryData::getString (File::getName (key))) };
+
+        if (result.wasOk())
         {
-            auto lua { jam::lua::State() };
-
-            auto result { lua.getType (BinaryData::getString (File::getName (key))) };
-
-            if (result.wasOk())
-            {
-                auto child { jam::Model::fromLua (
-                    result.value(), value.toUpperCase(), &validators) };
-                state.appendChild (child, nullptr);
-            }
+            auto child { jam::Model::fromLua (
+                result.value(), value.toUpperCase(), &validators) };
+            state.appendChild (child, nullptr);
         }
     }
 
@@ -118,32 +115,29 @@ void Model::loadFromPath()
 
     for (auto& [key, value] : File::get())
     {
-        if (key != File::config)
+        const juce::File file { File::path.getChildFile (File::getName (key)) };
+        auto lua { jam::lua::State() };
+
+        auto result { lua.getType (file.loadFileAsString(), file.getFileName()) };
+
+        if (result.wasOk())
         {
-            const juce::File file { File::path.getChildFile (File::getName (key)) };
-            auto lua { jam::lua::State() };
+            juce::String fileErrors;
+            lua.getLineMapBuilder().flushRoot (value.toUpperCase());
+            auto child { jam::Model::fromLua (result.value(),
+                                              value.toUpperCase(),
+                                              &validators,
+                                              &fileErrors,
+                                              &lua.getLineMap()) };
 
-            auto result { lua.getType (file.loadFileAsString(), file.getFileName()) };
+            if (fileErrors.isNotEmpty())
+                errors << file.getFileName() << ":\n" << fileErrors;
 
-            if (result.wasOk())
-            {
-                juce::String fileErrors;
-                lua.getLineMapBuilder().flushRoot (value.toUpperCase());
-                auto child { jam::Model::fromLua (result.value(),
-                                                  value.toUpperCase(),
-                                                  &validators,
-                                                  &fileErrors,
-                                                  &lua.getLineMap()) };
-
-                if (fileErrors.isNotEmpty())
-                    errors << file.getFileName() << ":\n" << fileErrors;
-
-                setValuesFrom (child);
-            }
-            else
-            {
-                errors << file.getFileName() << ": " << result.getErrorMessage() << "\n";
-            }
+            setValuesFrom (child);
+        }
+        else
+        {
+            errors << file.getFileName() << ": " << result.getErrorMessage() << "\n";
         }
     }
 
@@ -170,6 +164,8 @@ void Model::loadFromPath()
         loadMessage = errors;
 
     state.sendPropertyChangeMessage (ID::loadMessage);
+
+    lookAndFeel.load (juce::Identifier { getValue (IDtype::end, ID::theme)});
 }
 
 void Model::buildGraphicsCallbacks()

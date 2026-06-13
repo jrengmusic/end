@@ -31,7 +31,9 @@
     X (popups, "popups")     \
     X (whelmed, "whelmed")   \
     X (graphics, "graphics") \
-    X (loadMessage, "load_message")
+    X (loadMessage, "load_message") \
+    X (theme, "theme")       \
+    X (themes, "themes")
 
 // Keys shared across multiple config sections (not in jam::ID)
 #define IDENTIFIER_COMMON(X)                \
@@ -68,6 +70,8 @@
     X (tabs, "tabs")                               \
     X (pane, "pane")                               \
     X (window, "window")                           \
+    X (windowFx, "window_fx")                      \
+    X (backgroundColour, "background_colour")      \
     X (size, "size")                               \
     X (view, "view")                               \
     X (popup, "popup")                             \
@@ -251,9 +255,9 @@
     X (scrollTop, "scroll_top")                          \
     X (scrollBottom, "scroll_bottom")
 
-// Platform + BackgroundBlur Backend keys (display.lua / window.blur_style)
+// Platform + BackgroundBlur WindowFX keys (display.lua / window.blur_style)
 // "mac"/"win" identify the platform in the blur_style table;
-// the remaining values map to jam::BackgroundBlur::Backend per platform.
+// the remaining values map to jam::BackgroundBlur::WindowFX per platform.
 #define IDENTIFIER_BACKEND(X)                                \
     X (mac, "mac")                                           \
     X (win, "win")                                           \

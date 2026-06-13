@@ -3,8 +3,10 @@
   <compounddef id="namespaceconfig" kind="namespace" language="C++">
     <compoundname>config</compoundname>
     <innerclass refid="classconfig_1_1_model" prot="public">config::Model</innerclass>
+    <innerclass refid="classconfig_1_1_look_and_feel" prot="public">config::LookAndFeel</innerclass>
     <innerclass refid="structconfig_1_1_file" prot="public">config::File</innerclass>
     <innerclass refid="structconfig_1_1_graphics" prot="public">config::Graphics</innerclass>
+    <innerclass refid="structconfig_1_1_theme" prot="public">config::Theme</innerclass>
     <sectiondef kind="func">
       <memberdef kind="function" id="namespaceconfig_1add672f45a783ef9f13d810962fe6042c" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
         <templateparamlist>
@@ -49,7 +51,7 @@
         <location file="config/Config.cpp" line="29" column="22" bodyfile="config/Config.cpp" bodystart="29" bodyend="40"/>
         <references refid="namespaceconfig_1add672f45a783ef9f13d810962fe6042c" compoundref="_config_8cpp" startline="19" endline="25">enumCheck</references>
         <references refid="structjam_1_1Context_1a3ff553f70ef61043352c54cfed475b4c">jam::Context&lt; Derived &gt;::getInstance</references>
-        <referencedby refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" compoundref="_config_8cpp" startline="43" endline="83">config::Model::initialise</referencedby>
+        <referencedby refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" compoundref="_config_8cpp" startline="43" endline="80">config::Model::initialise</referencedby>
       </memberdef>
     </sectiondef>
     <briefdescription>

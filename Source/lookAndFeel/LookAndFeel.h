@@ -67,6 +67,16 @@ public:
      */
     juce::BorderSize<int> getTabBarPadding() const override;
 
+    /** @brief Packed window glass parameters from the active theme.
+     *  Returns { argb colour, blur radius, windowFX style } packed into
+     *  Union<uint32_t, int16_t, int16_t>. Consumer unpacks via structured binding.
+     *  Returns zeros when theme is not loaded.
+     */
+
+    using Glass = jam::Union<juce::Colour, int16_t, int16_t>;
+
+    Glass getWindowGlass() const;
+
     void drawStretchableLayoutResizerBar (juce::Graphics&,
                                           int w,
                                           int h,
@@ -85,7 +95,7 @@ private:
     jam::Grapheme graphemeInstance;
 
     config::Model& config { *config::Model::getInstance() };
-
+    config::LookAndFeel& theme { config.getLookAndFeel() };
     //==============================================================================
     /** @brief JUCE embedded font ownership — Ptrs kept alive so font names resolve
      *  via juce::Font name lookup without requiring system-installed fonts.

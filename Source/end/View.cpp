@@ -22,6 +22,7 @@ View::View (jam::Model& m)
     attachments.add (std::make_unique<jam::Model::Attachment> (tabs));
 
     config.addListener (this);
+    config.getLookAndFeel().addListener (this);
 
     setTabOrientation();
     tabs.addNewTab();
@@ -33,6 +34,7 @@ View::View (jam::Model& m)
 
 View::~View()
 {
+    config.getLookAndFeel().removeListener (this);
     config.removeListener (this);
     removeKeyListener (this);
 }
@@ -65,11 +67,17 @@ void View::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifi
         auto id { tree.getProperty (jam::ID::id) };
         state.setProperty (ID::focusedPane, id, nullptr);
     }
+
+    if (tree.getType() == IDtype::graphics or tree.getType() == IDtype::tabButton)
+        getTopLevelComponent()->sendLookAndFeelChange();
 }
 
 void View::valueTreeChildAdded (juce::ValueTree& parentTree,
                                 juce::ValueTree& childWhichHasBeenAdded)
 {
+    if (parentTree.getType() == config.getLookAndFeel().getType())
+        getTopLevelComponent()->sendLookAndFeelChange();
+
     auto id { childWhichHasBeenAdded.getChildWithName (IDtype::pane).getProperty (jam::ID::id) };
     state.setProperty (ID::focusedPane, id, nullptr);
 }
@@ -89,103 +97,6 @@ void View::setTabOrientation()
 
     if (Position::getInstance()->contains (pos))
         tabs.setOrientation (Position::get (pos));
-}
-
-//==============================================================================
-void View::registerActions()
-{
-    registry.actions.add (ID::newTab,
-                          [this]
-                          {
-                              tabs.addNewTab();
-                          });
-
-    registry.actions.add (ID::closeTab,
-                          [this]
-                          {
-                              tabs.removeCurrentTab();
-                          });
-
-    registry.actions.add (ID::nextTab,
-                          [this]
-                          {
-                              auto next { tabs.getCurrentTabIndex() + 1 };
-
-                              if (next < tabs.getNumTabs())
-                                  tabs.setCurrentTabIndex (next);
-                          });
-
-    registry.actions.add (ID::prevTab,
-                          [this]
-                          {
-                              auto prev { tabs.getCurrentTabIndex() - 1 };
-
-                              if (prev >= 0)
-                                  tabs.setCurrentTabIndex (prev);
-                          });
-
-    registry.actions.add (ID::splitHorizontal,
-                          [this]
-                          {
-                              auto id { state.getProperty (ID::focusedPane) };
-                              if (auto* panes { tabs.getActivePanes() })
-                                  panes->split (
-                                      jam::UUID (static_cast<int64_t> (id)), jam::ID::horizontal);
-                          });
-
-    registry.actions.add (ID::splitVertical,
-                          [this]
-                          {
-                              auto id { state.getProperty (ID::focusedPane) };
-                              if (auto* panes { tabs.getActivePanes() })
-                                  panes->split (
-                                      jam::UUID (static_cast<int64_t> (id)), jam::ID::vertical);
-                          });
-
-    registry.actions.add (ID::closePane,
-                          [this]
-                          {
-                              if (auto* panes { tabs.getActivePanes() })
-                              {
-                                  if (panes->getPaneCount() == 1)
-                                  {
-                                      tabs.removeCurrentTab();
-                                  }
-                                  else
-                                  {
-                                      auto id { state.getProperty (ID::focusedPane) };
-                                      panes->removePane (jam::UUID (static_cast<int64_t> (id)));
-                                  }
-                              }
-                          });
-
-    registry.actions.add (ID::paneLeft,
-                          [this]
-                          {
-                              if (auto* p { tabs.getActivePanes() })
-                                  p->focusPane (ID::paneLeft);
-                          });
-
-    registry.actions.add (ID::paneRight,
-                          [this]
-                          {
-                              if (auto* p { tabs.getActivePanes() })
-                                  p->focusPane (ID::paneRight);
-                          });
-
-    registry.actions.add (ID::paneUp,
-                          [this]
-                          {
-                              if (auto* p { tabs.getActivePanes() })
-                                  p->focusPane (ID::paneUp);
-                          });
-
-    registry.actions.add (ID::paneDown,
-                          [this]
-                          {
-                              if (auto* p { tabs.getActivePanes() })
-                                  p->focusPane (ID::paneDown);
-                          });
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

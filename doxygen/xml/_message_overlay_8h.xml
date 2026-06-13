@@ -5,7 +5,7 @@
     <includes local="no">JuceHeader.h</includes>
     <includes refid="_identifier_8h" local="yes">Identifier.h</includes>
     <includes refid="_config_8h" local="yes">../config/Config.h</includes>
-    <includes refid="_look_and_feel_8h" local="yes">../lookAndFeel/LookAndFeel.h</includes>
+    <includes refid="look_and_feel_2_look_and_feel_8h" local="yes">../lookAndFeel/LookAndFeel.h</includes>
     <includedby refid="_view_8h" local="yes">end/View.h</includedby>
     <incdepgraph>
       <node id="3">
@@ -17,6 +17,16 @@
       <node id="4">
         <label>../config/Config.h</label>
         <link refid="_config_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>LookAndFeel.h</label>
+        <link refid="config_2_look_and_feel_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
         <childnode refid="5" relation="include">
@@ -39,22 +49,22 @@
         </childnode>
         <childnode refid="4" relation="include">
         </childnode>
-        <childnode refid="6" relation="include">
+        <childnode refid="7" relation="include">
         </childnode>
       </node>
-      <node id="6">
+      <node id="7">
         <label>../lookAndFeel/LookAndFeel.h</label>
-        <link refid="_look_and_feel_8h"/>
+        <link refid="look_and_feel_2_look_and_feel_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
-        <childnode refid="7" relation="include">
+        <childnode refid="8" relation="include">
         </childnode>
         <childnode refid="3" relation="include">
         </childnode>
         <childnode refid="4" relation="include">
         </childnode>
       </node>
-      <node id="7">
+      <node id="8">
         <label>JamFontsBinaryData.h</label>
       </node>
       <node id="2">
@@ -72,13 +82,17 @@
         <childnode refid="4" relation="include">
         </childnode>
       </node>
+      <node id="5">
+        <label>end/ActionRegistration.cpp</label>
+        <link refid="_action_registration_8cpp"/>
+      </node>
       <node id="1">
         <label>end/MessageOverlay.h</label>
         <link refid="_message_overlay_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
       </node>
-      <node id="5">
+      <node id="6">
         <label>end/View.cpp</label>
         <link refid="_view_8cpp"/>
       </node>
@@ -88,6 +102,8 @@
         <childnode refid="3" relation="include">
         </childnode>
         <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
         </childnode>
       </node>
     </invincdepgraph>
@@ -129,7 +145,7 @@
 <codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;JuceHeader.h&gt;</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_identifier_8h" kindref="compound">Identifier.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_config_8h" kindref="compound">../config/Config.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_look_and_feel_8h" kindref="compound">../lookAndFeel/LookAndFeel.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="look_and_feel_2_look_and_feel_8h" kindref="compound">../lookAndFeel/LookAndFeel.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="39"><highlight class="normal"></highlight></codeline>
 <codeline lineno="40"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespaceend" kindref="compound">end</ref></highlight></codeline>
 <codeline lineno="41"><highlight class="normal">{</highlight></codeline>

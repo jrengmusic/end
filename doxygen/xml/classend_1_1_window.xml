@@ -33,70 +33,10 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Window.h" line="108" column="24" bodyfile="end/Window.h" bodystart="108" bodyend="-1"/>
-        <referencedby refid="classend_1_1_window_1ac277dcb496977e31338298a1c2f8e2d5" compoundref="_window_8cpp" startline="45" endline="96">registerStyleParameters</referencedby>
-        <referencedby refid="classend_1_1_window_1a016aba9d48d96c5bf6ba212a540841fe" compoundref="_window_8cpp" startline="29" endline="43">setStyle</referencedby>
-        <referencedby refid="classend_1_1_window_1a7725512f1abd3448ce816b735ce55c4f" compoundref="_window_8cpp" startline="7" endline="19">Window</referencedby>
-      </memberdef>
-      <memberdef kind="variable" id="classend_1_1_window_1af4e0636b21d5630786dc5dd890bf29df" prot="private" static="no" mutable="no">
-        <type><ref refid="classjuce_1_1Colour" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Colour</ref></type>
-        <definition>juce::Colour end::Window::tintColour</definition>
-        <argsstring></argsstring>
-        <name>tintColour</name>
-        <qualifiedname>end::Window::tintColour</qualifiedname>
-        <initializer>{ <ref refid="namespacejuce_1_1Colours_1a66baf4b357f69a75cd055fecebadba6e" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Colours::black</ref> }</initializer>
-        <briefdescription>
-<para>Cached tint colour — last value applied via setGlass. </para>
-        </briefdescription>
-        <detaileddescription>
-<para>Updated by the <computeroutput>colour</computeroutput> styleParameter, read by every glass-related setter to keep setGlass arguments consistent. </para>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="end/Window.h" line="114" column="18" bodyfile="end/Window.h" bodystart="114" bodyend="114"/>
-        <referencedby refid="classend_1_1_window_1ac277dcb496977e31338298a1c2f8e2d5" compoundref="_window_8cpp" startline="45" endline="96">registerStyleParameters</referencedby>
-      </memberdef>
-      <memberdef kind="variable" id="classend_1_1_window_1afd19744d8dca66b30dfbe7d1222f3ffe" prot="private" static="no" mutable="no">
-        <type>float</type>
-        <definition>float end::Window::blurRadius</definition>
-        <argsstring></argsstring>
-        <name>blurRadius</name>
-        <qualifiedname>end::Window::blurRadius</qualifiedname>
-        <initializer>{ 0.0f }</initializer>
-        <briefdescription>
-<para>Cached blur radius — last value applied via setGlass. </para>
-        </briefdescription>
-        <detaileddescription>
-<para>Updated by the <computeroutput>blurRadius</computeroutput> styleParameter, read by every glass-related setter to keep setGlass arguments consistent. </para>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="end/Window.h" line="120" column="11" bodyfile="end/Window.h" bodystart="120" bodyend="120"/>
-        <referencedby refid="classend_1_1_window_1ac277dcb496977e31338298a1c2f8e2d5" compoundref="_window_8cpp" startline="45" endline="96">registerStyleParameters</referencedby>
-      </memberdef>
-      <memberdef kind="variable" id="classend_1_1_window_1a5496b743dc7c10f5dc2f657e732edf53" prot="private" static="no" mutable="no">
-        <type><ref refid="structjam_1_1BackgroundBlur_1a333a1c51f6aea241e291ba1f82662f32" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::BackgroundBlur::Backend</ref></type>
-        <definition>jam::BackgroundBlur::Backend end::Window::glassBackend</definition>
-        <argsstring></argsstring>
-        <name>glassBackend</name>
-        <qualifiedname>end::Window::glassBackend</qualifiedname>
-        <initializer>{
-
-        jam::BackgroundBlur::Backend::backgroundBlur
-
-
-
-    }</initializer>
-        <briefdescription>
-<para>Cached blur backend — last value applied via setGlass. </para>
-        </briefdescription>
-        <detaileddescription>
-<para>Updated by the <computeroutput>mac</computeroutput> / <computeroutput>win</computeroutput> styleParameter, read by every glass-related setter to keep setGlass arguments consistent. Platform default matches jam::button::Dialog::show, <ref refid="classjam_1_1GlassComponent_1a1e1a4325107f4a0ae7ca24bb7f89968f" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::GlassComponent::handleAsyncUpdate</ref>, and jam::look_and_feel::Theme::preparePopupMenuWindow. </para>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="end/Window.h" line="128" column="34" bodyfile="end/Window.h" bodystart="128" bodyend="134"/>
-        <referencedby refid="classend_1_1_window_1ac277dcb496977e31338298a1c2f8e2d5" compoundref="_window_8cpp" startline="45" endline="96">registerStyleParameters</referencedby>
+        <location file="end/Window.h" line="107" column="24" bodyfile="end/Window.h" bodystart="107" bodyend="-1"/>
+        <referencedby refid="classend_1_1_window_1ac277dcb496977e31338298a1c2f8e2d5" compoundref="_window_8cpp" startline="52" endline="67">registerStyleParameters</referencedby>
+        <referencedby refid="classend_1_1_window_1a016aba9d48d96c5bf6ba212a540841fe" compoundref="_window_8cpp" startline="40" endline="50">setStyle</referencedby>
+        <referencedby refid="classend_1_1_window_1a7725512f1abd3448ce816b735ce55c4f" compoundref="_window_8cpp" startline="7" endline="20">Window</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">
@@ -126,7 +66,7 @@
 <para>Constructs the window and applies config-driven style. </para>
         </briefdescription>
         <detaileddescription>
-<para>Builds the styleParameters map inline, then calls <ref refid="classend_1_1_window_1a016aba9d48d96c5bf6ba212a540841fe" kindref="member">setStyle()</ref> to apply the initial config state. The config listener is added before <ref refid="classend_1_1_window_1a016aba9d48d96c5bf6ba212a540841fe" kindref="member">setStyle()</ref> so that any tree mutations during construction are observed.</para>
+<para>Builds the styleParameters map inline, then calls <ref refid="classend_1_1_window_1a016aba9d48d96c5bf6ba212a540841fe" kindref="member">setStyle()</ref> to apply the initial config state. The config listener is added before <ref refid="classend_1_1_window_1a016aba9d48d96c5bf6ba212a540841fe" kindref="member">setStyle()</ref> so that any tree mutations during construction are observed. <ref refid="classend_1_1_window_1a279cbf0eeecc24936c924fae92ad61a6" kindref="member">lookAndFeelChanged()</ref> is called after to apply the initial glass state.</para>
 <para><parameterlist kind="param"><parameteritem>
 <parameternamelist>
 <parametername>mainComponent</parametername>
@@ -164,12 +104,13 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Window.h" line="66" column="5" bodyfile="end/Window.cpp" bodystart="7" bodyend="19"/>
-        <references refid="classend_1_1_window_1ac277dcb496977e31338298a1c2f8e2d5" compoundref="_window_8cpp" startline="45" endline="96">registerStyleParameters</references>
-        <references refid="classend_1_1_window_1a016aba9d48d96c5bf6ba212a540841fe" compoundref="_window_8cpp" startline="29" endline="43">setStyle</references>
-        <references refid="classend_1_1_window_1a56bf0a4cec2844d980843a4bd0ca35b8" compoundref="_window_8h" startline="108">styleParameters</references>
-        <references refid="classend_1_1_window_1a7725512f1abd3448ce816b735ce55c4f" compoundref="_window_8cpp" startline="7" endline="19">Window</references>
-        <referencedby refid="classend_1_1_window_1a7725512f1abd3448ce816b735ce55c4f" compoundref="_window_8cpp" startline="7" endline="19">Window</referencedby>
+        <location file="end/Window.h" line="61" column="5" bodyfile="end/Window.cpp" bodystart="7" bodyend="20"/>
+        <references refid="classend_1_1_window_1a279cbf0eeecc24936c924fae92ad61a6" compoundref="_window_8cpp" startline="24" endline="32">lookAndFeelChanged</references>
+        <references refid="classend_1_1_window_1ac277dcb496977e31338298a1c2f8e2d5" compoundref="_window_8cpp" startline="52" endline="67">registerStyleParameters</references>
+        <references refid="classend_1_1_window_1a016aba9d48d96c5bf6ba212a540841fe" compoundref="_window_8cpp" startline="40" endline="50">setStyle</references>
+        <references refid="classend_1_1_window_1a56bf0a4cec2844d980843a4bd0ca35b8" compoundref="_window_8h" startline="107">styleParameters</references>
+        <references refid="classend_1_1_window_1a7725512f1abd3448ce816b735ce55c4f" compoundref="_window_8cpp" startline="7" endline="20">Window</references>
+        <referencedby refid="classend_1_1_window_1a7725512f1abd3448ce816b735ce55c4f" compoundref="_window_8cpp" startline="7" endline="20">Window</referencedby>
       </memberdef>
       <memberdef kind="function" id="classend_1_1_window_1abd211e67a1b243d9aed658bddc5d71e3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type></type>
@@ -184,7 +125,27 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Window.h" line="72" column="5" bodyfile="end/Window.cpp" bodystart="21" bodyend="21"/>
+        <location file="end/Window.h" line="67" column="5" bodyfile="end/Window.cpp" bodystart="22" bodyend="22"/>
+      </memberdef>
+      <memberdef kind="function" id="classend_1_1_window_1a279cbf0eeecc24936c924fae92ad61a6" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void end::Window::lookAndFeelChanged</definition>
+        <argsstring>() override</argsstring>
+        <name>lookAndFeelChanged</name>
+        <qualifiedname>end::Window::lookAndFeelChanged</qualifiedname>
+        <reimplements refid="classjuce_1_1ResizableWindow_1a671e4588b69689744b51ffa974c244a7">lookAndFeelChanged</reimplements>
+        <briefdescription>
+<para>Applies glass from the LAF when theme properties change. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Reads colour via findColour, blur and FX from <ref refid="classend_1_1_look_and_feel" kindref="compound">end::LookAndFeel</ref> getters. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="end/Window.h" line="72" column="10" bodyfile="end/Window.cpp" bodystart="24" bodyend="32"/>
+        <references refid="classjuce_1_1Component_1ad55f2def99fd7d05f6a71ef505e1a43b">juce::Component::getLookAndFeel</references>
+        <references refid="classjam_1_1Window_1aea2bfb6784dacfb25bc2a2f2b1de0faf">jam::Window::setGlass</references>
+        <referencedby refid="classend_1_1_window_1a7725512f1abd3448ce816b735ce55c4f" compoundref="_window_8cpp" startline="7" endline="20">Window</referencedby>
       </memberdef>
       <memberdef kind="function" id="classend_1_1_window_1a83a14c6067ee4a40da3db59f9e1b8764" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
         <type>void</type>
@@ -227,9 +188,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Window.h" line="85" column="5" bodyfile="end/Window.cpp" bodystart="23" bodyend="27"/>
+        <location file="end/Window.h" line="85" column="5" bodyfile="end/Window.cpp" bodystart="34" bodyend="38"/>
         <references refid="namespacejuce_1a86deae84ff8b95d7e40214a493b3dfe0">juce::ignoreUnused</references>
-        <references refid="classend_1_1_window_1a016aba9d48d96c5bf6ba212a540841fe" compoundref="_window_8cpp" startline="29" endline="43">setStyle</references>
+        <references refid="classend_1_1_window_1a016aba9d48d96c5bf6ba212a540841fe" compoundref="_window_8cpp" startline="40" endline="50">setStyle</references>
       </memberdef>
     </sectiondef>
     <sectiondef kind="private-func">
@@ -245,19 +206,12 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Window.h" line="90" column="10" bodyfile="end/Window.cpp" bodystart="45" bodyend="96"/>
-        <references refid="structjam_1_1ID_1ad0061fc64dd7485a0e5d200e51f8a42d">jam::ID::background</references>
-        <references refid="classend_1_1_window_1afd19744d8dca66b30dfbe7d1222f3ffe" compoundref="_window_8h" startline="120" endline="120">blurRadius</references>
-        <references refid="structjam_1_1BackgroundBlur_1a19cc127c6ee13b3b43d9e11cb4429dec">jam::BackgroundBlur::fromString</references>
+        <location file="end/Window.h" line="90" column="10" bodyfile="end/Window.cpp" bodystart="52" bodyend="67"/>
         <references refid="structend_1_1_boolean_1a4c8cfcd41ccfd2261fb8d3e08ee6143a" compoundref="_map_8h" startline="24" endline="24">end::Boolean::get</references>
-        <references refid="classend_1_1_window_1a5496b743dc7c10f5dc2f657e732edf53" compoundref="_window_8h" startline="128" endline="134">glassBackend</references>
         <references refid="classjuce_1_1Component_1a7f2af71c2c981fb7c43d7262563d185f">juce::Component::setAlwaysOnTop</references>
-        <references refid="classjam_1_1Window_1a6b6e141bfe84856299b09e493c350f1e">jam::Window::setGlass</references>
         <references refid="classjam_1_1Window_1a72baeb690a2a47a8866afe0bbc6d44e0">jam::Window::setShowWindowButtons</references>
-        <references refid="classend_1_1_window_1a56bf0a4cec2844d980843a4bd0ca35b8" compoundref="_window_8h" startline="108">styleParameters</references>
-        <references refid="classend_1_1_window_1af4e0636b21d5630786dc5dd890bf29df" compoundref="_window_8h" startline="114" endline="114">tintColour</references>
-        <references refid="classjam_1_1Model_1a996fa3b0c8889e5c5280ca29dcd281e4">jam::Model::toColour</references>
-        <referencedby refid="classend_1_1_window_1a7725512f1abd3448ce816b735ce55c4f" compoundref="_window_8cpp" startline="7" endline="19">Window</referencedby>
+        <references refid="classend_1_1_window_1a56bf0a4cec2844d980843a4bd0ca35b8" compoundref="_window_8h" startline="107">styleParameters</references>
+        <referencedby refid="classend_1_1_window_1a7725512f1abd3448ce816b735ce55c4f" compoundref="_window_8cpp" startline="7" endline="20">Window</referencedby>
       </memberdef>
       <memberdef kind="function" id="classend_1_1_window_1a016aba9d48d96c5bf6ba212a540841fe" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -273,7 +227,7 @@
 <para>Resolves the config node and dispatches it to the registered styleParameter callable for the given property. </para>
         </briefdescription>
         <detaileddescription>
-<para>Two-branch dispatch: <computeroutput>mac</computeroutput> and <computeroutput>win</computeroutput> live one level deeper under IDtype::blurStyle and receive that child node; all other properties receive the WINDOW node directly. The lambda reads its one property from the passed node — no further navigation in the callable.</para>
+<para>Receives the WINDOW node and forwards it to the registered callable. The lambda reads its one property from the passed node — no further navigation in the callable.</para>
 <para>Used by both the ValueTree::Listener entry point (valueTreePropertyChanged) and the init path (setStyle iterates over all registered properties and calls this for each).</para>
 <para><parameterlist kind="param"><parameteritem>
 <parameternamelist>
@@ -288,17 +242,17 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Window.h" line="106" column="10" bodyfile="end/Window.cpp" bodystart="29" bodyend="43"/>
-        <references refid="classend_1_1_window_1a56bf0a4cec2844d980843a4bd0ca35b8" compoundref="_window_8h" startline="108">styleParameters</references>
-        <referencedby refid="classend_1_1_window_1a83a14c6067ee4a40da3db59f9e1b8764" compoundref="_window_8cpp" startline="23" endline="27">valueTreePropertyChanged</referencedby>
-        <referencedby refid="classend_1_1_window_1a7725512f1abd3448ce816b735ce55c4f" compoundref="_window_8cpp" startline="7" endline="19">Window</referencedby>
+        <location file="end/Window.h" line="105" column="10" bodyfile="end/Window.cpp" bodystart="40" bodyend="50"/>
+        <references refid="classend_1_1_window_1a56bf0a4cec2844d980843a4bd0ca35b8" compoundref="_window_8h" startline="107">styleParameters</references>
+        <referencedby refid="classend_1_1_window_1a83a14c6067ee4a40da3db59f9e1b8764" compoundref="_window_8cpp" startline="34" endline="38">valueTreePropertyChanged</referencedby>
+        <referencedby refid="classend_1_1_window_1a7725512f1abd3448ce816b735ce55c4f" compoundref="_window_8cpp" startline="7" endline="20">Window</referencedby>
       </memberdef>
     </sectiondef>
     <briefdescription>
-<para>Config-reactive window that reacts to config tree mutations. </para>
+<para>Config-reactive window with LAF-driven glass and config-driven operational properties. </para>
     </briefdescription>
     <detaileddescription>
-<para>Inherits <ref refid="classjam_1_1Window" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Window</ref> for glassmorphism and <ref refid="classjuce_1_1ValueTree_1_1Listener" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::ValueTree::Listener</ref> to react to config tree mutations. Each WINDOW-section config property is mapped to a typed callable in styleParameters (the analog of ProcessorChain::parameters). <ref refid="classend_1_1_window_1ac277dcb496977e31338298a1c2f8e2d5" kindref="member">registerStyleParameters()</ref> registers one inline lambda per property; <ref refid="classend_1_1_window_1a016aba9d48d96c5bf6ba212a540841fe" kindref="member">setStyle()</ref> dispatches to the registered callable for each property to apply the initial state; <ref refid="classend_1_1_window_1a83a14c6067ee4a40da3db59f9e1b8764" kindref="member">valueTreePropertyChanged()</ref> forwards to <ref refid="classend_1_1_window_1a016aba9d48d96c5bf6ba212a540841fe" kindref="member">setStyle()</ref> on each subsequent change.</para>
+<para>Inherits <ref refid="classjam_1_1Window" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Window</ref> for glassmorphism. Visual properties (glass) are applied in <ref refid="classend_1_1_window_1a279cbf0eeecc24936c924fae92ad61a6" kindref="member">lookAndFeelChanged()</ref>, which reads the tint colour via findColour(juce::ResizableWindow::backgroundColourId) and blur/FX from <ref refid="classend_1_1_look_and_feel" kindref="compound">end::LookAndFeel</ref> getters. Operational properties (always_on_top, buttons) are mapped via styleParameters and driven by <ref refid="classjuce_1_1ValueTree_1_1Listener" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::ValueTree::Listener</ref>.</para>
 <para>Ownership: constructed and owned by <ref refid="classend_1_1_application" kindref="compound">end::Application</ref>. Lifecycle: config listener is added in the ctor and removed in the dtor. </para>
     </detaileddescription>
     <inheritancegraph>
@@ -362,6 +316,12 @@
       </node>
     </inheritancegraph>
     <collaborationgraph>
+      <node id="37">
+        <label>config::LookAndFeel</label>
+        <link refid="classconfig_1_1_look_and_feel"/>
+        <childnode refid="17" relation="public-inheritance">
+        </childnode>
+      </node>
       <node id="16">
         <label>config::Model</label>
         <link refid="classconfig_1_1_model"/>
@@ -383,6 +343,9 @@
         <childnode refid="35" relation="usage">
           <edgelabel>graphicsCallbacks</edgelabel>
         </childnode>
+        <childnode refid="37" relation="usage">
+          <edgelabel>lookAndFeel</edgelabel>
+        </childnode>
       </node>
       <node id="1">
         <label>end::Window</label>
@@ -394,11 +357,8 @@
         <childnode refid="16" relation="usage">
           <edgelabel>config</edgelabel>
         </childnode>
-        <childnode refid="37" relation="usage">
+        <childnode refid="38" relation="usage">
           <edgelabel>styleParameters</edgelabel>
-        </childnode>
-        <childnode refid="14" relation="usage">
-          <edgelabel>tintColour</edgelabel>
         </childnode>
       </node>
       <node id="19">
@@ -444,7 +404,7 @@
         <label>jam::File::Watcher::Listener</label>
         <link refid="classjam_1_1File_1_1Watcher_1_1Listener" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
-      <node id="37">
+      <node id="38">
         <label>jam::Function::Map&lt; juce::Identifier, void &gt;</label>
         <link refid="structjam_1_1Function_1_1Map" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
         <childnode refid="36" relation="public-inheritance">
@@ -618,7 +578,7 @@
         </childnode>
       </node>
     </collaborationgraph>
-    <location file="end/Window.h" line="50" column="1" bodyfile="end/Window.h" bodystart="53" bodyend="138"/>
+    <location file="end/Window.h" line="44" column="1" bodyfile="end/Window.h" bodystart="47" bodyend="111"/>
     <listofallmembers>
       <member refid="classjuce_1_1ResizableWindow_1a961de147d2c1eab5a305b3d1ff661158" prot="protected" virt="virtual"><scope>end::Window</scope><name>activeWindowStatusChanged</name></member>
       <member refid="classjuce_1_1Component_1a7cc925a367e95b3807255f8b4a94dddd" prot="public" virt="non-virtual"><scope>end::Window</scope><name>addAndMakeVisible</name></member>
@@ -637,7 +597,7 @@
       <member refid="classjuce_1_1AsyncUpdater_1aea9d8a497fd6161fe98aa3f69d51d3ea" prot="private" virt="non-virtual"><scope>end::Window</scope><name>AsyncUpdater</name></member>
       <member refid="classjuce_1_1ResizableWindow_1a6953f9d7f63e732cc3b57a5e67a9e0efa8077296aa4d879dbbbde03231262257a" prot="public" virt="non-virtual"><scope>end::Window</scope><name>backgroundColourId</name></member>
       <member refid="classjuce_1_1Component_1aad3e09eb0d65ae052c4c7978c31046b1" prot="public" virt="non-virtual"><scope>end::Window</scope><name>beginDragAutoRepeat</name></member>
-      <member refid="classend_1_1_window_1afd19744d8dca66b30dfbe7d1222f3ffe" prot="private" virt="non-virtual"><scope>end::Window</scope><name>blurRadius</name></member>
+      <member refid="classjam_1_1Window_1ad2774b7f581825d992778717b23d2db6" prot="private" virt="non-virtual"><scope>end::Window</scope><name>blurRadius</name></member>
       <member refid="classjuce_1_1Component_1ac1f6364a21760c9bd4c56bca5e5377bf" prot="public" virt="virtual"><scope>end::Window</scope><name>broughtToFront</name></member>
       <member refid="classjuce_1_1AsyncUpdater_1ad4eefc331e3628b8a3baf77ce62ab54c" prot="private" virt="non-virtual"><scope>end::Window</scope><name>cancelPendingUpdate</name></member>
       <member refid="classjuce_1_1Component_1a88b588249d10f8fcca565fc4ac8b356f" prot="public" virt="virtual"><scope>end::Window</scope><name>canModalEventBeSentToComponent</name></member>
@@ -769,7 +729,6 @@
       <member refid="classjuce_1_1Component_1a6123617cab9d2d3f845902ea75c31814" prot="public" virt="non-virtual"><scope>end::Window</scope><name>getX</name></member>
       <member refid="classjuce_1_1Component_1aa3b86cc30f7794e19d1319b94ce831be" prot="public" virt="non-virtual"><scope>end::Window</scope><name>getY</name></member>
       <member refid="classjuce_1_1Component_1a252b2f1df8d4c6002b31548c128f0bf6" prot="public" virt="non-virtual"><scope>end::Window</scope><name>giveAwayKeyboardFocus</name></member>
-      <member refid="classend_1_1_window_1a5496b743dc7c10f5dc2f657e732edf53" prot="private" virt="non-virtual"><scope>end::Window</scope><name>glassBackend</name></member>
       <member refid="classjuce_1_1Component_1a5d3e328e9134d2a336d649b2657bb8d8" prot="public" virt="non-virtual"><scope>end::Window</scope><name>grabKeyboardFocus</name></member>
       <member refid="classjam_1_1Window_1ab127df332a1a573a2d9597d80f9ae7b7" prot="public" virt="virtual"><scope>end::Window</scope><name>handleAsyncUpdate</name></member>
       <member refid="classjuce_1_1Component_1aa4881c3c7756f4bbba1a6e21e35e233d" prot="public" virt="virtual"><scope>end::Window</scope><name>handleCommandMessage</name></member>
@@ -816,7 +775,7 @@
       <member refid="classjuce_1_1Component_1ab5a932015f46a85bb803282d97e0d5a0" prot="public" virt="non-virtual"><scope>end::Window</scope><name>localAreaToGlobal</name></member>
       <member refid="classjuce_1_1Component_1acd96b47d21fb902a8155dbf75b112acf" prot="public" virt="non-virtual"><scope>end::Window</scope><name>localPointToGlobal</name></member>
       <member refid="classjuce_1_1Component_1aca7ef1076cad3b7ea920e53a0e4c6d9d" prot="public" virt="non-virtual"><scope>end::Window</scope><name>localPointToGlobal</name></member>
-      <member refid="classjuce_1_1ResizableWindow_1a671e4588b69689744b51ffa974c244a7" prot="protected" virt="virtual"><scope>end::Window</scope><name>lookAndFeelChanged</name></member>
+      <member refid="classend_1_1_window_1a279cbf0eeecc24936c924fae92ad61a6" prot="public" virt="virtual"><scope>end::Window</scope><name>lookAndFeelChanged</name></member>
       <member refid="classjuce_1_1DocumentWindow_1a74cd674f1b27550b7fccb937f8887c56a88d03e2eb97526c1b9fdc8cd58c6fc91" prot="public" virt="non-virtual"><scope>end::Window</scope><name>maximiseButton</name></member>
       <member refid="classjuce_1_1DocumentWindow_1ab250696a416cc5b73b76292ac74d57ad" prot="public" virt="virtual"><scope>end::Window</scope><name>maximiseButtonPressed</name></member>
       <member refid="classjuce_1_1Component_1a6f8d23a3dfcc0c2263ee7a35f62bbb98" prot="public" virt="virtual"><scope>end::Window</scope><name>minimisationStateChanged</name></member>
@@ -900,7 +859,7 @@
       <member refid="classjuce_1_1ComponentBoundsConstrainer_1a5ddaf44b8d73731958ae86eb6490f093" prot="public" virt="non-virtual"><scope>end::Window</scope><name>setFixedAspectRatio</name></member>
       <member refid="classjuce_1_1Component_1a54d2dd432e5d4ba549c6e66349a0c13b" prot="public" virt="non-virtual"><scope>end::Window</scope><name>setFocusContainerType</name></member>
       <member refid="classjuce_1_1ResizableWindow_1a0d00782c82a84f03a88a4079796b25a4" prot="public" virt="non-virtual"><scope>end::Window</scope><name>setFullScreen</name></member>
-      <member refid="classjam_1_1Window_1a6b6e141bfe84856299b09e493c350f1e" prot="public" virt="non-virtual"><scope>end::Window</scope><name>setGlass</name></member>
+      <member refid="classjam_1_1Window_1aea2bfb6784dacfb25bc2a2f2b1de0faf" prot="public" virt="non-virtual"><scope>end::Window</scope><name>setGlass</name></member>
       <member refid="classjuce_1_1Component_1ab76b1a1cbac597be27c63b081f62c1ca" prot="public" virt="non-virtual"><scope>end::Window</scope><name>setHasFocusOutline</name></member>
       <member refid="classjuce_1_1Component_1ad84ab870f0f31829fac6d9714ecf4558" prot="public" virt="non-virtual"><scope>end::Window</scope><name>setHelpText</name></member>
       <member refid="classjuce_1_1DocumentWindow_1a8d14b1d59bf167fc539fac3cf85df683" prot="public" virt="non-virtual"><scope>end::Window</scope><name>setIcon</name></member>
@@ -945,7 +904,7 @@
       <member refid="classjam_1_1Window_1a6f7bfbfaf7d786d449060f6f1e950e53" prot="private" virt="non-virtual"><scope>end::Window</scope><name>shouldShowWindowButtons</name></member>
       <member refid="classend_1_1_window_1a56bf0a4cec2844d980843a4bd0ca35b8" prot="private" virt="non-virtual"><scope>end::Window</scope><name>styleParameters</name></member>
       <member refid="classjuce_1_1DocumentWindow_1a58c0207c94f8993f895e08cba8b310d5a77e90939237a05737171099d49eacafc" prot="public" virt="non-virtual"><scope>end::Window</scope><name>textColourId</name></member>
-      <member refid="classend_1_1_window_1af4e0636b21d5630786dc5dd890bf29df" prot="private" virt="non-virtual"><scope>end::Window</scope><name>tintColour</name></member>
+      <member refid="classjam_1_1Window_1a088190a38701b89973caeb4e4ba27217" prot="private" virt="non-virtual"><scope>end::Window</scope><name>tintColour</name></member>
       <member refid="classjuce_1_1DocumentWindow_1a74cd674f1b27550b7fccb937f8887c56" prot="public" virt="non-virtual"><scope>end::Window</scope><name>TitleBarButtons</name></member>
       <member refid="classjuce_1_1Component_1a66265db6f483d493d0f3ccdddad65b25" prot="public" virt="non-virtual"><scope>end::Window</scope><name>toBack</name></member>
       <member refid="classjuce_1_1Component_1a253c1e1027791f67f7aa6e4261ca604f" prot="public" virt="non-virtual"><scope>end::Window</scope><name>toBehind</name></member>
@@ -967,6 +926,7 @@
       <member refid="classjuce_1_1Component_1ac3252468bfe619eabc2b58bce21f44c2" prot="public" virt="virtual"><scope>end::Window</scope><name>windowControlClickedMaximise</name></member>
       <member refid="classjuce_1_1Component_1afa8f7596bbb458085d52c24707932d14" prot="public" virt="virtual"><scope>end::Window</scope><name>windowControlClickedMinimise</name></member>
       <member refid="classjuce_1_1Component_1a02e7a20532c82a435105e26d9ffd8657" prot="public" virt="non-virtual"><scope>end::Window</scope><name>WindowControlKind</name></member>
+      <member refid="classjam_1_1Window_1aaf308a3f95cae78257d3008e012f4785" prot="private" virt="non-virtual"><scope>end::Window</scope><name>windowFX</name></member>
       <member refid="classjuce_1_1Component_1a8f874a0cbd6600cd6d2ce5584b8e95e3" prot="public" virt="non-virtual"><scope>end::Window</scope><name>withDefaultMetrics</name></member>
       <member refid="classjuce_1_1AsyncUpdater_1ad5137af27e9162ee84c294d0d3f79842" prot="private" virt="virtual"><scope>end::Window</scope><name>~AsyncUpdater</name></member>
       <member refid="classjuce_1_1Component_1ac12a29e18888b4666c8c85b14887c62e" prot="public" virt="non-virtual"><scope>end::Window</scope><name>~Component</name></member>

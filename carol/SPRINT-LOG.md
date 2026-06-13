@@ -2,6 +2,69 @@
 
 ---
 
+## Sprint 16: Theme Engine Foundation, Window Glass Migration, map::WindowFX
+
+**Date:** 2026-06-14
+**Duration:** 03:30
+
+### Agents Participated
+- COUNSELOR: architecture discussion, incremental migration planning, chain tracing, BLESSED violation identification
+- Pathfinder: config/theme architecture survey, construction order tracing, JUCE Colour/ValueTree source verification
+- Librarian: JUCE ValueTree::copyPropertiesAndChildrenFrom event analysis, jam::debug::Log API
+- Engineer: all code implementation (theme files, config::LookAndFeel, Window migration, map::WindowFX, rename)
+
+### Files Modified (25 total)
+
+**JAM framework (11 files):**
+- `jam_data_structures/map_instance/jam_map_window_fx.h` (new) — map::WindowFX bidirectional int-string bimap for BackgroundBlur window FX styles, platform-conditional
+- `jam_data_structures/jam_data_structures.h:50` — added jam_map_window_fx.h include
+- `jam_style/background_blur/jam_background_blur.h:15,31,105,120-146` — enum class Backend renamed to WindowFX, fromString() deleted
+- `jam_style/background_blur/jam_background_blur.cpp:128-139` — enable() signature + switch cases renamed Backend to WindowFX
+- `jam_style/background_blur/jam_background_blur.mm:179-190` — same rename in macOS implementation
+- `jam_gui/window/jam_window.h:20,90,137` — setGlass signature, windowFX member, doxygen
+- `jam_gui/window/jam_window.cpp:84-173` — setGlass impl + all deferred paths renamed
+- `jam_gui/window/jam_modal_window.h:69,85` — signature rename
+- `jam_gui/window/jam_modal_window.cpp:26,46` — definition rename
+- `jam_gui/window/jam_glass_component.cpp:56,58` — enum qualifier rename
+- `jam_gui/button/jam_button_dialog.h:137,139` — enum qualifier rename
+- `jam_look_and_feel/theme/jam_look_and_feel_theme.cpp:123,125` — enum qualifier rename
+
+**END project (14 files):**
+- `Source/config/LookAndFeel.h` (new) — config::LookAndFeel class, jam::Model for theme state
+- `Source/config/LookAndFeel.cpp` (new) — load() reads theme.lua from themes dir, seeds from BinaryData
+- `Source/config/Config.h:4,112,233` — includes LookAndFeel.h, getLookAndFeel() getter, lookAndFeel member
+- `Source/config/Config.cpp:47,121,168` — File::config skip removed in initialise/loadFromPath, lookAndFeel.load() call wired
+- `Source/config/lua/end.lua:35-37` — rewritten from require-hub to return { theme = "gfx" }
+- `Source/config/lua/theme/gfx/theme.lua` (new) — default theme window section
+- `Source/end/Map.h:197,334-361` — File::config mapped to IDref::end, config::Theme struct added, end::Map members updated with WindowFX
+- `Source/end/View.cpp:24-39,57-83` — theme tree listener registration, graphics propagation via sendLookAndFeelChange, theme child detection in valueTreeChildAdded
+- `Source/end/Window.h:1-114` — rewritten: lookAndFeelChanged override added, cached glass members removed, doxygen updated for LAF-driven glass
+- `Source/end/Window.cpp:1-74` — lookAndFeelChanged reads packed glass from LAF, visual styleParameters removed, blur_style platform-guarded, setStyle simplified
+- `Source/lookAndFeel/LookAndFeel.h:70-79` — getWindowGlass() packed Union getter
+- `Source/lookAndFeel/LookAndFeel.cpp:13-14,95,97-104,159-181` — ThemeListener removed, Desktop walk deleted, getWindowGlass implementation
+- `Source/Identifier.h:35-36,73-74` — theme, themes, windowFx, backgroundColour identifiers added
+
+### Alignment Check
+- [x] BLESSED principles followed — Desktop walk (Encapsulation violation) removed from LAF, View owns propagation
+- [x] NAMES.md adhered — WindowFX (platform-neutral), Theme (path struct), getWindowGlass (packed Union)
+- [x] MANIFESTO.md principles applied — SSOT for window glass values (theme.lua), Lean (packed Union replaces 3 cached members + 4 lambdas)
+
+### Problems Solved
+- BackgroundBlur::Backend/fromString duplicate HashMap eliminated — map::WindowFX is SSOT
+- Window glass cached-member pattern (3 members + 4 per-property lambdas) collapsed to one packed Union getter
+- Desktop walk BLESSED violation in LAF::valueTreePropertyChanged removed — View owns propagation hierarchy
+- Platform crash: map::WindowFX::get("blurBehind") on macOS — blur_style registration platform-guarded
+- ValueTree::copyPropertiesAndChildrenFrom does not fire valueTreePropertyChanged for child properties — theme detection moved to valueTreeChildAdded
+- findColour(backgroundColourId) returning 00000000 — window tint sourced from theme tree directly via getWindowGlass
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 15: LookAndFeel Rendering Context, Model Typed-Array API, Tab Bar Padding ✅
 
 **Date:** 2026-06-13
