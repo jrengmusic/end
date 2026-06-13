@@ -84,13 +84,6 @@ public:
     ~Model() = default;
 
     /**
-        @brief Parses @c display.window.size from the live tree and returns
-               it as a width × height rectangle for the initial window bounds.
-        @return The initial window size, in pixels.
-    */
-    juce::Rectangle<int> getInitWindowSize() const noexcept;
-
-    /**
         @brief Reads each lua config file from disk and updates state.
 
         For every lua section (except @c File::config) loads the file from
@@ -113,9 +106,6 @@ public:
                 on failure. Never stored on the value tree.
     */
     const juce::String& getLoadMessage() const noexcept { return loadMessage; }
-
-    juce::ValueTree getDisplay (const juce::Identifier& childType) const noexcept;
-    juce::ValueTree getGraphics() const noexcept;
 
 private:
     /**

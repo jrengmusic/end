@@ -150,8 +150,8 @@
 <codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classend_1_1_view_1a7e6ee211dd7d9e06224826283296fa65" kindref="member">tabs</ref>.addNewTab();</highlight></codeline>
 <codeline lineno="28"><highlight class="normal"></highlight></codeline>
 <codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>init<sp/>{<sp/><ref refid="namespaceconfig" kindref="compound">config</ref>.getInitWindowSize()<sp/>};</highlight></codeline>
-<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classjuce_1_1Component_1ab11f2db9935bf7a7c1e2661007ffdeb7" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">setSize</ref><sp/>(init.getWidth(),<sp/>init.getHeight());</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>[width,<sp/>height]<sp/>=<sp/><ref refid="namespaceconfig" kindref="compound">config</ref>.getInt<sp/>(IDtype::window,<sp/>ID::size);</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classjuce_1_1Component_1ab11f2db9935bf7a7c1e2661007ffdeb7" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">setSize</ref><sp/>(width,<sp/>height);</highlight></codeline>
 <codeline lineno="32"><highlight class="normal">}</highlight></codeline>
 <codeline lineno="33"><highlight class="normal"></highlight></codeline>
 <codeline lineno="34" refid="classend_1_1_view_1aac73d85c15164ea7a9ae443b9673996c" refkind="member"><highlight class="normal"><ref refid="classend_1_1_view_1aac73d85c15164ea7a9ae443b9673996c" kindref="member">View::~View</ref>()</highlight></codeline>

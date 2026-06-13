@@ -109,9 +109,8 @@ public:
     void paint (juce::Graphics& g) override
     {
         config::Model& config { *config::Model::getInstance() };
-        auto overlay { config.getDisplay (jam::IDtype::overlay) };
-        auto family { overlay.getProperty (ID::fontFamily, "Display Mono").toString() };
-        auto size { static_cast<float> (overlay.getProperty (ID::fontSize, 12)) };
+        auto family { config.getValue (jam::IDtype::overlay, ID::fontFamily).toString() };
+        auto size { static_cast<float> (config.getValue (jam::IDtype::overlay, ID::fontSize)) };
         juce::Font font { juce::FontOptions().withName (family).withPointHeight (size) };
 
         auto bgColour { findColour (juce::Label::backgroundColourId) };

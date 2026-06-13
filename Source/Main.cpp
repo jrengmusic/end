@@ -49,34 +49,6 @@ void Application::initialise (const juce::String& commandLine)
         });
 }
 
-void Application::registerTypefaces()
-{
-    auto font { config.getDisplay (IDtype::code) };
-    juce::String fontFamily { font.getProperty (ID::fontFamily) };
-    float fontSize { font.getProperty (ID::fontSize) };
-
-    auto typeface { std::make_unique<jam::Typeface> (fontFamily,
-#if JUCE_MAC
-                                                     "Apple Color Emoji",
-#elif JUCE_WINDOWS
-                                                     "Segoe UI Emoji",
-#else
-                                                     "Noto Color Emoji",
-#endif
-                                                     fontSize) };
-    // Display Mono Book as first fallback — wins PUA codepoint resolution (E000/E001 branding).
-    typeface->addFallbackFont (
-        jam::fonts::DisplayMonoBook_ttf, jam::fonts::DisplayMonoBook_ttfSize);
-
-    typeface->addFallbackFont (
-        BinaryData::SymbolsNerdFontRegular_ttf, BinaryData::SymbolsNerdFontRegular_ttfSize);
-
-    // Style variant — font metadata declares bold.
-    typeface->registerStyleFont (
-        jam::fonts::DisplayMonoBold_ttf, jam::fonts::DisplayMonoBold_ttfSize);
-
-    jam::Typeface::registerTypeface (fontFamily, std::move (typeface));
-}
 
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace end

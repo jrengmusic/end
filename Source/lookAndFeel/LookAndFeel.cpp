@@ -7,9 +7,54 @@ namespace end
 //==============================================================================
 LookAndFeel::LookAndFeel()
 {
+    registerTypeface();
     initialiseColours();
     loadGraphics();
     config.addListener (this);
+}
+
+void LookAndFeel::registerTypeface()
+{
+    // JUCE side: create Ptrs from embedded binaries so font name lookup resolves
+    // without requiring system-installed fonts. Lambda avoids 6x repetition.
+    auto add = [this] (const void* data, int size)
+    {
+        auto ptr { juce::Typeface::createSystemTypefaceFor (data, size) };
+        typefaces.insert_or_assign (ptr->getName(), ptr);
+    };
+
+    add (jam::fonts::DisplayBold_ttf, jam::fonts::DisplayBold_ttfSize);
+    add (jam::fonts::DisplayBook_ttf, jam::fonts::DisplayBook_ttfSize);
+    add (jam::fonts::DisplayMedium_ttf, jam::fonts::DisplayMedium_ttfSize);
+    add (jam::fonts::DisplayMonoBold_ttf, jam::fonts::DisplayMonoBold_ttfSize);
+    add (jam::fonts::DisplayMonoBook_ttf, jam::fonts::DisplayMonoBook_ttfSize);
+    add (jam::fonts::DisplayMonoMedium_ttf, jam::fonts::DisplayMonoMedium_ttfSize);
+
+    // jam side: build the composite code typeface from config, with emoji + nerd-font fallbacks
+    // and a bold style variant.
+    juce::String fontFamily { config.getValue (IDtype::code, ID::fontFamily) };
+    float fontSize { config.getValue (IDtype::code, ID::fontSize) };
+
+    auto typeface { std::make_unique<jam::Typeface> (fontFamily,
+#if JUCE_MAC
+                                                     "Apple Color Emoji",
+#elif JUCE_WINDOWS
+                                                     "Segoe UI Emoji",
+#else
+                                                     "Noto Color Emoji",
+#endif
+                                                     fontSize) };
+
+    typeface->addFallbackFont (
+        jam::fonts::DisplayMonoBook_ttf, jam::fonts::DisplayMonoBook_ttfSize);
+
+    typeface->addFallbackFont (
+        BinaryData::SymbolsNerdFontRegular_ttf, BinaryData::SymbolsNerdFontRegular_ttfSize);
+
+    typeface->registerStyleFont (
+        jam::fonts::DisplayMonoBold_ttf, jam::fonts::DisplayMonoBold_ttfSize);
+
+    jam::Typeface::registerTypeface (fontFamily, std::move (typeface));
 }
 
 void LookAndFeel::initialiseColours()
@@ -96,10 +141,9 @@ void LookAndFeel::drawTabButton (juce::Graphics& g,
 
 juce::Font LookAndFeel::getTabFont() const
 {
-    auto tab { config.getDisplay (IDtype::tab) };
-    auto fontFamily { tab.getProperty (ID::fontFamily) };
-    auto fontSize { tab.getProperty (ID::fontSize) };
-    const float kerning { tab.getProperty (ID::kerningFactor) };
+    auto fontFamily { config.getValue (IDtype::tab, ID::fontFamily) };
+    auto fontSize { config.getValue (IDtype::tab, ID::fontSize) };
+    const float kerning { config.getValue (IDtype::tab, ID::kerningFactor) };
 
     return juce::Font { juce::FontOptions()
                             .withName (fontFamily)
@@ -107,17 +151,19 @@ juce::Font LookAndFeel::getTabFont() const
                             .withKerningFactor (kerning) };
 }
 
-int LookAndFeel::getTabPadding (const juce::Font& font) const
+int LookAndFeel::getTabPadding() const { return config.getValue (IDtype::tab, ID::textPadding); }
+
+juce::BorderSize<int> LookAndFeel::getTabBarPadding() const
 {
-    juce::ignoreUnused (font);
-    return config.getDisplay (IDtype::tab).getProperty (jam::ID::padding);
+    // CSS order { top, right, bottom, left }; BorderSize ctor is (top, left, bottom, right).
+    auto [top, right, bottom, left] = config.getInt16 (IDtype::tab, jam::ID::padding);
+
+    return juce::BorderSize<int> { top, left, bottom, right };
 }
 
 juce::String LookAndFeel::getTabText (const juce::String& tabName) const
 {
-    auto tab { config.getDisplay (IDtype::tab) };
-
-    if (bool uppercase { tab.getProperty (ID::uppercase) })
+    if (bool uppercase { config.getValue (IDtype::tab, ID::uppercase) })
         return tabName.toUpperCase();
 
     return tabName;

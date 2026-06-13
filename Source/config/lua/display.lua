@@ -281,7 +281,11 @@ return {
 		depth = 3.0,
 
 		-- Horizontal space between tab text and tab edge, in pixels (per side).
-		padding = 8,
+		text_padding = 8,
+
+		-- Component padding: space between bar edges and tab content.
+		-- CSS convention: { top, right, bottom, left }.
+		padding = { 4, 8, 4, 8 },
 
 		-- Active tab text colour (juce::TextButton::textColourOnId).
 		text_on = 0xff00c8d8,

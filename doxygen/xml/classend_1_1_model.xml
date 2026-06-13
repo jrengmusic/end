@@ -115,7 +115,7 @@
     <listofallmembers>
       <member refid="classjam_1_1Model_1ae5d4d70e706dcc558cf21923125a9176" prot="public" virt="non-virtual"><scope>end::Model</scope><name>addListener</name></member>
       <member refid="classjam_1_1Model_1ac78b7437a06da378bf49cbd4f27bfc63" prot="public" virt="non-virtual"><scope>end::Model</scope><name>addProperties</name></member>
-      <member refid="classjam_1_1Model_1ac6bae44384dc4abd9070eddfceaef845" prot="public" virt="non-virtual"><scope>end::Model</scope><name>addTextParameter</name></member>
+      <member refid="classjam_1_1Model_1a42b6f4d30f1aab57b5013b204fee1017" prot="public" virt="non-virtual"><scope>end::Model</scope><name>addTextParameter</name></member>
       <member refid="classjam_1_1Model_1ae0cb2cc2b04acb47eb9760d92dcedc46" prot="public" virt="non-virtual"><scope>end::Model</scope><name>appendChild</name></member>
       <member refid="classjam_1_1Model_1a59b57627d856a11d756eabe1690a7213" prot="public" virt="non-virtual"><scope>end::Model</scope><name>applyFunctionRecursively</name></member>
       <member refid="classjam_1_1Model_1a60083575b158241a4921488754e168a9" prot="public" virt="non-virtual"><scope>end::Model</scope><name>applyFunctionRecursively</name></member>
@@ -129,6 +129,8 @@
       <member refid="classjam_1_1Model_1ac0204402c1739f45230319069868ab23" prot="public" virt="non-virtual"><scope>end::Model</scope><name>getChildWithID</name></member>
       <member refid="classjam_1_1Model_1aecef6b658fc1de8bd8642ce3c0011036" prot="public" virt="non-virtual"><scope>end::Model</scope><name>getChildWithName</name></member>
       <member refid="classjam_1_1Model_1a7c77bf75e42b16586ae50b355668f2e0" prot="public" virt="non-virtual"><scope>end::Model</scope><name>getChildWithName</name></member>
+      <member refid="classjam_1_1Model_1aae1e12fc9077155368fc2ccc635b4bc1" prot="public" virt="non-virtual"><scope>end::Model</scope><name>getInt</name></member>
+      <member refid="classjam_1_1Model_1a9d225eeff2565fc96addfd769c787eeb" prot="public" virt="non-virtual"><scope>end::Model</scope><name>getInt16</name></member>
       <member refid="classjam_1_1Model_1a322c866d6fc435eb6799562d6d6db8b1" prot="public" virt="non-virtual"><scope>end::Model</scope><name>getOrCreateChildWithName</name></member>
       <member refid="classjam_1_1Model_1a4d93df7249f679710c1ac1c5f288147c" prot="public" virt="non-virtual"><scope>end::Model</scope><name>getOrCreateChildWithName</name></member>
       <member refid="classjam_1_1Model_1ad37ac05ef036ebe52d46f3909de8fa99" prot="public" virt="non-virtual"><scope>end::Model</scope><name>getRawParameterValue</name></member>
@@ -136,8 +138,9 @@
       <member refid="classjam_1_1Model_1abe937e02011833b8cf8f20bfb650ac9d" prot="public" virt="non-virtual"><scope>end::Model</scope><name>getTreeProperty</name></member>
       <member refid="classjam_1_1Model_1a3466c9f9fcd9a4baa862bb400562e7b7" prot="public" virt="non-virtual"><scope>end::Model</scope><name>getTreePropertyAsValue</name></member>
       <member refid="classjam_1_1Model_1ac922db931cd481a9cf483c90e4de2543" prot="public" virt="non-virtual"><scope>end::Model</scope><name>getType</name></member>
+      <member refid="classjam_1_1Model_1a91dc367954c0e066ce3af757919617da" prot="public" virt="non-virtual"><scope>end::Model</scope><name>getValue</name></member>
       <member refid="classjam_1_1Model_1a2f037e88407eb8b95b9ab7daf7c0b15c" prot="public" virt="non-virtual"><scope>end::Model</scope><name>getValueFromChildWithID</name></member>
-      <member refid="classjam_1_1Model_1a4d4ed473066b67b001ced0f5296f577f" prot="public" virt="non-virtual"><scope>end::Model</scope><name>getValueFromChildWithName</name></member>
+      <member refid="classjam_1_1Model_1a1032430642def825ff972dc86d6608c4" prot="public" virt="non-virtual"><scope>end::Model</scope><name>getValueFromChildWithProperty</name></member>
       <member refid="classjam_1_1Model_1a710fd55b83d2e5657e48d49ce5225ea2" prot="public" virt="non-virtual"><scope>end::Model</scope><name>getXml</name></member>
       <member refid="classjam_1_1Model_1a1c976506dd5eb7d125a0e804c97c61e2" prot="private" virt="non-virtual"><scope>end::Model</scope><name>idleHz</name></member>
       <member refid="classjuce_1_1Timer_1a525f38cc7afdc0696b467bd4ed3f17da" prot="public" virt="non-virtual"><scope>end::Model</scope><name>isTimerRunning</name></member>
@@ -153,6 +156,7 @@
       <member refid="classjam_1_1Model_1a73bb2822ba0b1211ca9e290d57c5cd2d" prot="public" virt="non-virtual"><scope>end::Model</scope><name>replaceState</name></member>
       <member refid="classjam_1_1Model_1a77ac5fd7f2a2caa0e892cd993d4df2d7" prot="public" virt="non-virtual"><scope>end::Model</scope><name>restoreValues</name></member>
       <member refid="classjam_1_1Model_1a3263920ba9cd2e5633d714a49c0a5000" prot="public" virt="non-virtual"><scope>end::Model</scope><name>setTreeProperty</name></member>
+      <member refid="classjam_1_1Model_1af7401e3c38ecf3fb0428369ebb822283" prot="public" virt="non-virtual"><scope>end::Model</scope><name>setValue</name></member>
       <member refid="classjam_1_1Model_1afd1a5ee11f1e480cb14c0027d6b617b7" prot="public" virt="non-virtual"><scope>end::Model</scope><name>setValuesFrom</name></member>
       <member refid="classjuce_1_1Timer_1acb43e06d5742106830080af3d50b422d" prot="public" virt="non-virtual"><scope>end::Model</scope><name>startTimer</name></member>
       <member refid="classjuce_1_1Timer_1a49a4cf0bb438ca956bfae44c1010b0f9" prot="public" virt="non-virtual"><scope>end::Model</scope><name>startTimerHz</name></member>

@@ -4,7 +4,7 @@
     <compoundname>Main.cpp</compoundname>
     <includes refid="_main_8h" local="yes">Main.h</includes>
     <incdepgraph>
-      <node id="7">
+      <node id="6">
         <label>Identifier.h</label>
         <link refid="_identifier_8h"/>
         <childnode refid="3" relation="include">
@@ -23,17 +23,15 @@
         </childnode>
         <childnode refid="4" relation="include">
         </childnode>
-        <childnode refid="5" relation="include">
+        <childnode refid="7" relation="include">
         </childnode>
         <childnode refid="8" relation="include">
         </childnode>
-        <childnode refid="9" relation="include">
-        </childnode>
         <childnode refid="16" relation="include">
         </childnode>
-        <childnode refid="14" relation="include">
+        <childnode refid="13" relation="include">
         </childnode>
-        <childnode refid="6" relation="include">
+        <childnode refid="5" relation="include">
         </childnode>
       </node>
       <node id="15">
@@ -41,87 +39,87 @@
         <link refid="_registry_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
-        <childnode refid="5" relation="include">
+        <childnode refid="4" relation="include">
         </childnode>
       </node>
-      <node id="5">
+      <node id="4">
         <label>config/Config.h</label>
         <link refid="_config_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
-        <childnode refid="6" relation="include">
+        <childnode refid="5" relation="include">
         </childnode>
       </node>
-      <node id="6">
+      <node id="5">
         <label>../end/Map.h</label>
         <link refid="_map_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
-        <childnode refid="7" relation="include">
+        <childnode refid="6" relation="include">
         </childnode>
       </node>
-      <node id="13">
+      <node id="12">
         <label>end/MessageOverlay.h</label>
         <link refid="_message_overlay_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
-        <childnode refid="7" relation="include">
+        <childnode refid="6" relation="include">
         </childnode>
-        <childnode refid="5" relation="include">
+        <childnode refid="4" relation="include">
         </childnode>
-        <childnode refid="14" relation="include">
+        <childnode refid="13" relation="include">
         </childnode>
       </node>
-      <node id="8">
+      <node id="7">
         <label>end/Model.h</label>
         <link refid="_model_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
-        <childnode refid="7" relation="include">
+        <childnode refid="6" relation="include">
         </childnode>
       </node>
-      <node id="12">
+      <node id="11">
         <label>end/PaneView.h</label>
         <link refid="_pane_view_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
-        <childnode refid="7" relation="include">
+        <childnode refid="6" relation="include">
         </childnode>
       </node>
-      <node id="11">
+      <node id="10">
         <label>end/Panes.h</label>
         <link refid="_panes_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
-        <childnode refid="12" relation="include">
+        <childnode refid="11" relation="include">
         </childnode>
       </node>
-      <node id="10">
+      <node id="9">
         <label>end/Tabs.h</label>
         <link refid="_tabs_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
-        <childnode refid="11" relation="include">
+        <childnode refid="10" relation="include">
         </childnode>
-        <childnode refid="5" relation="include">
+        <childnode refid="4" relation="include">
         </childnode>
-        <childnode refid="7" relation="include">
+        <childnode refid="6" relation="include">
         </childnode>
       </node>
-      <node id="9">
+      <node id="8">
         <label>end/View.h</label>
         <link refid="_view_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
-        <childnode refid="10" relation="include">
+        <childnode refid="9" relation="include">
         </childnode>
-        <childnode refid="13" relation="include">
+        <childnode refid="12" relation="include">
         </childnode>
         <childnode refid="15" relation="include">
         </childnode>
-        <childnode refid="5" relation="include">
+        <childnode refid="4" relation="include">
         </childnode>
-        <childnode refid="6" relation="include">
+        <childnode refid="5" relation="include">
         </childnode>
       </node>
       <node id="16">
@@ -129,28 +127,28 @@
         <link refid="_window_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
-        <childnode refid="5" relation="include">
+        <childnode refid="4" relation="include">
         </childnode>
-        <childnode refid="14" relation="include">
-        </childnode>
-        <childnode refid="7" relation="include">
+        <childnode refid="13" relation="include">
         </childnode>
         <childnode refid="6" relation="include">
         </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
       </node>
-      <node id="14">
+      <node id="13">
         <label>../lookAndFeel/LookAndFeel.h</label>
         <link refid="_look_and_feel_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
         <childnode refid="4" relation="include">
         </childnode>
-        <childnode refid="7" relation="include">
-        </childnode>
-        <childnode refid="5" relation="include">
-        </childnode>
       </node>
-      <node id="4">
+      <node id="14">
         <label>JamFontsBinaryData.h</label>
       </node>
       <node id="3">
@@ -214,40 +212,12 @@
 <codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>});</highlight></codeline>
 <codeline lineno="50"><highlight class="normal">}</highlight></codeline>
 <codeline lineno="51"><highlight class="normal"></highlight></codeline>
-<codeline lineno="52" refid="classend_1_1_application_1aaac8004cfc7b1be41014d6273346c5a9" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_application_1aaac8004cfc7b1be41014d6273346c5a9" kindref="member">Application::registerTypefaces</ref>()</highlight></codeline>
-<codeline lineno="53"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>font<sp/>{<sp/><ref refid="namespaceconfig" kindref="compound">config</ref>.getDisplay<sp/>(IDtype::code)<sp/>};</highlight></codeline>
-<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref><sp/>fontFamily<sp/>{<sp/>font.getProperty<sp/>(ID::fontFamily)<sp/>};</highlight></codeline>
-<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>fontSize<sp/>{<sp/>font.getProperty<sp/>(ID::fontSize)<sp/>};</highlight></codeline>
-<codeline lineno="57"><highlight class="normal"></highlight></codeline>
-<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>typeface<sp/>{<sp/>std::make_unique&lt;jam::Typeface&gt;<sp/>(fontFamily,</highlight></codeline>
-<codeline lineno="59"><highlight class="normal">#</highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>JUCE_MAC</highlight></codeline>
-<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;Apple<sp/>Color<sp/>Emoji&quot;</highlight><highlight class="normal">,</highlight></codeline>
-<codeline lineno="61"><highlight class="normal">#elif<sp/>JUCE_WINDOWS</highlight></codeline>
-<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;Segoe<sp/>UI<sp/>Emoji&quot;</highlight><highlight class="normal">,</highlight></codeline>
-<codeline lineno="63"><highlight class="normal">#</highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;Noto<sp/>Color<sp/>Emoji&quot;</highlight><highlight class="normal">,</highlight></codeline>
-<codeline lineno="65"><highlight class="normal">#endif</highlight></codeline>
-<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fontSize)<sp/>};</highlight></codeline>
-<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Display<sp/>Mono<sp/>Book<sp/>as<sp/>first<sp/>fallback<sp/>—<sp/>wins<sp/>PUA<sp/>codepoint<sp/>resolution<sp/>(E000/E001<sp/>branding).</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/>typeface-&gt;addFallbackFont<sp/>(</highlight></codeline>
-<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>jam::fonts::DisplayMonoBook_ttf,<sp/>jam::fonts::DisplayMonoBook_ttfSize);</highlight></codeline>
-<codeline lineno="70"><highlight class="normal"></highlight></codeline>
-<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/>typeface-&gt;addFallbackFont<sp/>(</highlight></codeline>
-<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>BinaryData::SymbolsNerdFontRegular_ttf,<sp/>BinaryData::SymbolsNerdFontRegular_ttfSize);</highlight></codeline>
-<codeline lineno="73"><highlight class="normal"></highlight></codeline>
-<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Style<sp/>variant<sp/>—<sp/>font<sp/>metadata<sp/>declares<sp/>bold.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/>typeface-&gt;registerStyleFont<sp/>(</highlight></codeline>
-<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>jam::fonts::DisplayMonoBold_ttf,<sp/>jam::fonts::DisplayMonoBold_ttfSize);</highlight></codeline>
-<codeline lineno="77"><highlight class="normal"></highlight></codeline>
-<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structjam_1_1Typeface_1a727a842470128ebfc77ccab7ffcafa79" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Typeface::registerTypeface</ref><sp/>(fontFamily,<sp/>std::move<sp/>(typeface));</highlight></codeline>
-<codeline lineno="79"><highlight class="normal">}</highlight></codeline>
-<codeline lineno="80"><highlight class="normal"></highlight></codeline>
-<codeline lineno="82"><highlight class="normal">}</highlight><highlight class="comment">//<sp/>namespace<sp/>end</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="83"><highlight class="normal"></highlight></codeline>
-<codeline lineno="84"><highlight class="normal"></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="85"><highlight class="normal"></highlight><highlight class="comment">//<sp/>This<sp/>macro<sp/>generates<sp/>the<sp/>main()<sp/>routine<sp/>that<sp/>launches<sp/>the<sp/>app.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="86"><highlight class="normal"><ref refid="juce__Initialisation_8h_1a10c79cf9cafd40244a741e5945878e79" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">START_JUCE_APPLICATION</ref><sp/>(<ref refid="classend_1_1_application" kindref="compound">end::Application</ref>)</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal">}</highlight><highlight class="comment">//<sp/>namespace<sp/>end</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight><highlight class="comment">//<sp/>This<sp/>macro<sp/>generates<sp/>the<sp/>main()<sp/>routine<sp/>that<sp/>launches<sp/>the<sp/>app.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><ref refid="juce__Initialisation_8h_1a10c79cf9cafd40244a741e5945878e79" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">START_JUCE_APPLICATION</ref><sp/>(<ref refid="classend_1_1_application" kindref="compound">end::Application</ref>)</highlight></codeline>
     </programlisting>
     <location file="Main.cpp"/>
   </compounddef>

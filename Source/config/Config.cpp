@@ -14,30 +14,6 @@ Model::Model()
 }
 
 //==============================================================================
-juce::Rectangle<int> Model::getInitWindowSize() const noexcept
-{
-    auto display { state.getChildWithName (IDtype::display) };
-    auto window { display.getChildWithName (IDtype::window) };
-    auto size { juce::StringArray::fromTokens (window.getProperty (ID::size).toString(), ',') };
-    enum
-    {
-        width,
-        height
-    };
-
-    return { size[width].getIntValue(), size[height].getIntValue() };
-}
-
-juce::ValueTree Model::getDisplay (const juce::Identifier& childType) const noexcept
-{
-    return { state.getChildWithName (IDtype::display).getChildWithName (childType) };
-}
-
-juce::ValueTree Model::getGraphics() const noexcept
-{
-    return { state.getChildWithName (IDtype::graphics) };
-}
-//==============================================================================
 /* Wraps a Map::Instance contains() check as a string-enum validator. */
 template<typename MapType>
 static std::function<bool (const juce::var&)> enumCheck (MapType* map)
@@ -132,8 +108,7 @@ void Model::saveToPath()
 
     writeWhenNeeded (File::path, *File::getInstance());
 
-    auto graphics { getGraphics() };
-    auto path { Graphics::path.getChildFile (graphics.getProperty (jam::ID::path).toString()) };
+    auto path { Graphics::path.getChildFile (getValue (IDtype::graphics, jam::ID::path).toString()) };
     writeWhenNeeded (path, *Graphics::getInstance());
 }
 

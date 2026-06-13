@@ -17,6 +17,14 @@
           <detaileddescription>
           </detaileddescription>
         </enumvalue>
+        <enumvalue id="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05bad52282e0dd5a6fbecfbe0f36ea5d4c23" prot="public">
+          <name>right</name>
+          <briefdescription>
+<para><ref refid="structend_1_1_position" kindref="compound">Position</ref> at right. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
         <enumvalue id="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05ba9a50bf1430af6bb133f7995767ce297c" prot="public">
           <name>bottom</name>
           <briefdescription>
@@ -29,14 +37,6 @@
           <name>left</name>
           <briefdescription>
 <para><ref refid="structend_1_1_position" kindref="compound">Position</ref> at left. </para>
-          </briefdescription>
-          <detaileddescription>
-          </detaileddescription>
-        </enumvalue>
-        <enumvalue id="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05bad52282e0dd5a6fbecfbe0f36ea5d4c23" prot="public">
-          <name>right</name>
-          <briefdescription>
-<para><ref refid="structend_1_1_position" kindref="compound">Position</ref> at right. </para>
           </briefdescription>
           <detaileddescription>
           </detaileddescription>
@@ -75,11 +75,11 @@
         <inbodydescription>
         </inbodydescription>
         <location file="end/Map.h" line="104" column="5" bodyfile="end/Map.h" bodystart="104" bodyend="113"/>
-        <references refid="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05ba9a50bf1430af6bb133f7995767ce297c" compoundref="_map_8h" startline="97">bottom</references>
+        <references refid="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05ba9a50bf1430af6bb133f7995767ce297c" compoundref="_map_8h" startline="98">bottom</references>
         <references refid="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05bacb1af5b03312f174c715f20f8ba6a7f8" compoundref="_map_8h" startline="100">center</references>
-        <references refid="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05baff86c7b45e58c6678fc26bff2a0a821a" compoundref="_map_8h" startline="98">left</references>
+        <references refid="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05baff86c7b45e58c6678fc26bff2a0a821a" compoundref="_map_8h" startline="99">left</references>
         <references refid="classjam_1_1Map_1_1Instance_1afe0acf25bab1f104aea20f20174129d1">jam::Map::Instance&lt; Position &gt;::map</references>
-        <references refid="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05bad52282e0dd5a6fbecfbe0f36ea5d4c23" compoundref="_map_8h" startline="99">right</references>
+        <references refid="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05bad52282e0dd5a6fbecfbe0f36ea5d4c23" compoundref="_map_8h" startline="97">right</references>
         <references refid="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05ba9d3c44ea19c8e9e5d1650be17ab4fc6e" compoundref="_map_8h" startline="96">top</references>
       </memberdef>
       <memberdef kind="function" id="structend_1_1_position_1af5f03f30b13680f5dd13496ac3cc6f39" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="virtual">
@@ -96,7 +96,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="end/Map.h" line="115" column="24" bodyfile="end/Map.h" bodystart="115" bodyend="115"/>
-        <references refid="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05ba9a50bf1430af6bb133f7995767ce297c" compoundref="_map_8h" startline="97">bottom</references>
+        <references refid="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05ba9a50bf1430af6bb133f7995767ce297c" compoundref="_map_8h" startline="98">bottom</references>
         <references refid="classjam_1_1Map_1_1Instance_1afe0acf25bab1f104aea20f20174129d1">jam::Map::Instance&lt; Position &gt;::map</references>
       </memberdef>
     </sectiondef>
@@ -163,7 +163,7 @@
     </briefdescription>
     <detaileddescription>
 <para>Used by display.tab.orientation, display.status_bar.position, display.action_list.position, and any future positional config fields.</para>
-<para>Integer keys deliberately mirror <ref refid="classjam_1_1button_1_1Bar_1ac6f9e6002553676e21da8628cc3273bf" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::button::Bar::Orientation</ref> so that orientation values can be forwarded directly to Bar::setOrientation(): 0 → &quot;top&quot; 1 → &quot;bottom&quot; (default) 2 → &quot;left&quot; 3 → &quot;right&quot; 4 → &quot;center&quot;</para>
+<para>Integer keys deliberately mirror <ref refid="classjam_1_1button_1_1Bar_1ac6f9e6002553676e21da8628cc3273bf" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::button::Bar::Orientation</ref> so that orientation values can be forwarded directly to Bar::setOrientation(): 0 → &quot;top&quot; 1 → &quot;right&quot; 2 → &quot;bottom&quot; 3 → &quot;left&quot; 4 → &quot;center&quot;</para>
 <para>Registered in <ref refid="classend_1_1_application" kindref="compound">Application</ref> CONTEXT before <ref refid="classconfig_1_1_model" kindref="compound">config::Model</ref> construction. </para>
     </detaileddescription>
     <inheritancegraph>

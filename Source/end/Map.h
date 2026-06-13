@@ -77,9 +77,9 @@ struct GpuMode : public jam::Map::Instance<GpuMode>
  * Integer keys deliberately mirror jam::button::Bar::Orientation so that
  * orientation values can be forwarded directly to Bar::setOrientation():
  *   0 → "top"
- *   1 → "bottom" (default)
- *   2 → "left"
- *   3 → "right"
+ *   1 → "right"
+ *   2 → "bottom"
+ *   3 → "left"
  *   4 → "center"
  *
  * Registered in Application CONTEXT before config::Model construction.
@@ -93,11 +93,11 @@ struct Position : public jam::Map::Instance<Position>
      */
     enum
     {
-        top,///< Position at top.
-        bottom,///< Position at bottom (default).
-        left,///< Position at left.
-        right,///< Position at right.
-        center,///< Centered position.
+        top,    ///< Position at top.
+        right,  ///< Position at right.
+        bottom, ///< Position at bottom (default).
+        left,   ///< Position at left.
+        center, ///< Centered position.
     };
 
     /** @brief Populates the bimap with all five entries. */
@@ -105,9 +105,9 @@ struct Position : public jam::Map::Instance<Position>
     {
         map = {
             { Position::top,    "top"    },
+            { Position::right,  "right"  },
             { Position::bottom, "bottom" },
             { Position::left,   "left"   },
-            { Position::right,  "right"  },
             { Position::center, "center" },
         };
     }

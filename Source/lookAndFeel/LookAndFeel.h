@@ -51,11 +51,9 @@ public:
     juce::Font getTabFont() const override;
 
     /** @brief Returns horizontal padding in pixels per side of the tab label.
-     *  Reads tab.padding from the display config (user-configurable).
-     *  @param font  Tab font (ignored — padding is read from config, not derived
-     *               from font metrics).
+     *  Reads tab.text_padding from the display config (user-configurable).
      */
-    int getTabPadding (const juce::Font& font) const override;
+    int getTabPadding() const override;
 
     /** @brief Display transform applied to a tab label before measuring and painting.
      *  Reads tab.uppercase from the display config; returns toUpperCase() when set,
@@ -63,6 +61,11 @@ public:
      *  drawTabButton (render) so measured width and painted string never diverge.
      */
     juce::String getTabText (const juce::String& tabName) const override;
+
+    /** @brief Component-level padding for the tab bar from display config.
+     *  Reads tab.padding { top, right, bottom, left } (CSS convention).
+     */
+    juce::BorderSize<int> getTabBarPadding() const override;
 
     void drawStretchableLayoutResizerBar (juce::Graphics&,
                                           int w,
@@ -72,7 +75,23 @@ public:
                                           bool isMouseDown) override;
 
 private:
+    /** @brief Rendering-context typeface registry and shared glyph atlas. */
+    jam::TypefaceResources typefaceResources;
+
+    /** @brief Rendering-context style table — self-registers as jam::Stamp::getInstance(). */
+    jam::Stamp stampInstance;
+
+    /** @brief Rendering-context grapheme cluster table — self-registers as jam::Grapheme::getInstance(). */
+    jam::Grapheme graphemeInstance;
+
     config::Model& config { *config::Model::getInstance() };
+
+    //==============================================================================
+    /** @brief JUCE embedded font ownership — Ptrs kept alive so font names resolve
+     *  via juce::Font name lookup without requiring system-installed fonts.
+     *  @see registerTypeface
+     */
+    jam::HashMap<juce::String, juce::Typeface::Ptr> typefaces;
 
     /** @brief Parsed SVG assets keyed by their GRAPHICS property id or button
      *  state identifier.
@@ -90,13 +109,11 @@ private:
      */
     jam::HashMap<juce::Identifier, jam::SVG::Flex::Segments> graphics;
 
+    //==============================================================================
+    void registerTypeface();
     void loadGraphics();
     void initialiseColours();
 
-    // TODO: SHOULD BE CONFIG DRIVEN
-    static inline const juce::Typeface::Ptr displayBold { juce::Typeface::createSystemTypefaceFor (
-        jam::fonts::DisplayMedium_ttf,
-        jam::fonts::DisplayMedium_ttfSize) };
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LookAndFeel)
 };

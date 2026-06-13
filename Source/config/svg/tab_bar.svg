@@ -26,16 +26,16 @@
     </g>
     <g id="top-right">
         <rect id="bounds6" serif:id="bounds" x="40" y="0" width="20" height="20" style="fill:none;stroke:#ff00cd;stroke-width:0.1px;"/>
-        <path id="outline3" serif:id="outline" d="M40.34,1.5L58,1.5" style="fill:none;stroke:#2c4144;stroke-width:1px;"/>
+        <path id="outline3" serif:id="outline" d="M40,1.5L58,1.5" style="fill:none;stroke:#2c4144;stroke-width:1px;"/>
         <rect id="background2" serif:id="background" x="57" y="-0" width="3" height="3" style="fill:#699daa;"/>
     </g>
     <g id="top">
         <rect id="bounds7" serif:id="bounds" x="20" y="0" width="20" height="20" style="fill:none;stroke:#f0f;stroke-width:0.1px;"/>
-        <path id="outline4" serif:id="outline" d="M20.156,1.5L40.34,1.5" style="fill:none;stroke:#2c4144;stroke-width:1px;"/>
+        <path id="outline4" serif:id="outline" d="M20,1.5L40,1.5" style="fill:none;stroke:#2c4144;stroke-width:1px;"/>
     </g>
     <g id="top-left">
         <rect id="bounds8" serif:id="bounds" x="0" y="0" width="20" height="20" style="fill:none;stroke:#ff00cd;stroke-width:0.1px;"/>
-        <path id="outline5" serif:id="outline" d="M2,1.5L20.156,1.5" style="fill:none;stroke:#2c4144;stroke-width:1px;"/>
+        <path id="outline5" serif:id="outline" d="M2,1.5L20,1.5" style="fill:none;stroke:#2c4144;stroke-width:1px;"/>
         <rect id="background3" serif:id="background" x="0" y="-0" width="3" height="3" style="fill:#699daa;"/>
     </g>
 </svg>

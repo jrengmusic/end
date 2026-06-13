@@ -2,9 +2,6 @@
 <doxygenindex xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="index.xsd" version="1.16.1" xml:lang="en-US">
   <compound refid="classend_1_1_application" kind="class"><name>end::Application</name>
     <member refid="classend_1_1_application_1a5cf59c3fd7618551ddb01407879269af" kind="variable"><name>context</name></member>
-    <member refid="classend_1_1_application_1a3bc9f4a932d0847752639fded0fd53dd" kind="variable"><name>typefaceResources</name></member>
-    <member refid="classend_1_1_application_1ab378c66054ca7dabd6ca40cf1684ca6a" kind="variable"><name>stampInstance</name></member>
-    <member refid="classend_1_1_application_1ac4add576e7e9b6d0714d02a26dd65418" kind="variable"><name>graphemeInstance</name></member>
     <member refid="classend_1_1_application_1a765f410d9d4232de53d86311b3ad303f" kind="variable"><name>config</name></member>
     <member refid="classend_1_1_application_1ad5d031f4ee343e64f205b9e158447140" kind="variable"><name>model</name></member>
     <member refid="classend_1_1_application_1afe921d4972c796aa0612d3ce96adaca0" kind="variable"><name>lookAndFeel</name></member>
@@ -16,7 +13,6 @@
     <member refid="classend_1_1_application_1a18d7fd1d8bbcca6a1c7af73e3bf503a8" kind="function"><name>shutdown</name></member>
     <member refid="classend_1_1_application_1a636a8c0776059c65df3d0405229858f4" kind="function"><name>systemRequestedQuit</name></member>
     <member refid="classend_1_1_application_1a598aa5d15712e3107ade5df8f6c5e33d" kind="function"><name>initialise</name></member>
-    <member refid="classend_1_1_application_1aaac8004cfc7b1be41014d6273346c5a9" kind="function"><name>registerTypefaces</name></member>
   </compound>
   <compound refid="structend_1_1_boolean" kind="struct"><name>end::Boolean</name>
     <member refid="structend_1_1_boolean_1aee152d13cb0daadb827c739b3493a439" kind="function"><name>Boolean</name></member>
@@ -136,63 +132,64 @@
     <member refid="struct_i_d_1a19fced222f13e97eddfb839d835c517f" kind="function"><name>AS_IDENTIFIER</name></member>
     <member refid="struct_i_d_1ae612ac79307f2d9d5b41a7c2abc90745" kind="function"><name>AS_IDENTIFIER</name></member>
     <member refid="struct_i_d_1a1064762fcbe91f15705921b4307e2404" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1a73ddfe5254f3b466731e2f59b402d1aa" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1a6e6ca50d2726acad11169baf3819ec52" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1aee18938186916edbc68f851af0840262" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1a714e49114897d947d35b5d77031de076" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1a97c780cbcef83abd8bc7bdbc93451879" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1ad7f22145f78653090bf0866b0f991aa7" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1a08dfa3812991cb5a5efd9c68cb073408" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1aecfe9ab45d21c2d9313812341ba22e4e" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1a92cfc7f1b50ecfe1485ade44da5cbd19" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1ab7b3b5c39c14aa3b3a584ae1544e25c2" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1a73a238697f4ecd28c8c4c84ccc34f2fe" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1af3df6e07922b9473184bc948df78f8ee" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1a4251057071d7ed058bc6734d7d8545a0" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1ad81f4a2cc0de4ae51b7c8559004bc5e8" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1a7fdcbb2c01943742c588bf210453810c" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1a7f1c714df52f15fcfefe5cee16d71534" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1aec3513a3092e8689a17bd459d68e2a68" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1ae10ff56a88fe928000e69dea743ca947" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1afec37f2f9d88d8b25c7709a50ccf062d" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1acc039218419a80262f62df0871ff9cbe" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1a61c4e5d4347acbc3bb69ec428cade70a" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1a4d074d61ec3a4d5c016c25d9a6549c62" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1adf980ed201f455ab508c2c2216b76d00" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1ad2e6d4cf04333b2107980f7367359a74" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1a542920cf15062f4dacd5145605048188" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1a82996353169c2fc18529a29ab6756184" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1a403391e7f6389f126a524f7c9573fa55" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1a4152969409292cd49478955db3bb0c78" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1a93008b1ae2034f8e796d3898dd7adb3f" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1a965f0b2373860aa974bcde243a8bcfcb" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1a8061fd68271c772ec2cba0ce29d0e66f" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1a1b73bba35d29bda57f8848d05b1af80e" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1aa68f30f9fe27cea45b96a124a9062c84" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1af839371694e4bd3e632a9b582e474a81" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1a403fb1a8cb80b4b7ac168681a402b3f7" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1a43aacd771424d556f6f2e50f409d120c" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1ac5ec06a9641bdf48bad401d8893b1931" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1a46f152c081528926955e40c36b3af1e8" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1a40324a3f042245f687e302ce9d7a49a8" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1a437fbfd7fb887d6ba7aaf1a560d32360" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1a751aba5ba350e6c6466b8d7393081c30" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1a45ff86725ba6afa8b9bdb8252279b0a3" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1a9f427b8aded0731e160eaa58d119ad74" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1a5fb0ecf177990d9785bbdaa0aeb0d1cd" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1a976a10c54e2372d5f6c60bc290c1cf0e" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1a349c0f16864585463ce1961392a59b95" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1a7a332556b440a1df32e7fe4f07d031bd" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1afa2fabd073bd77278317a321da8c32c1" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1aec54a9b22bfdac8719c9e25976face79" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1aef12588299ee21673c5bdad029232769" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1a0cbe68cf27c6b54a7720b2df91521389" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1afc6c6fb6d7bc88bcae9d64092178376c" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1a4159f9e1a0d21662fe892f31791bb938" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1a0d2ad6d19aa611494357aa02a6b208e2" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1ad2391314a41df16899ea5f8456b08d20" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1ab54b2e026e8511d33613f5679828b553" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1aff7d2cf4c0a9d616feea06ecb3b1fb10" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1a588dffbb6f36e03f31cc0d1207f0c7e6" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1a422f45bf86bdd9d15472762d6e3ba5a4" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1a84b9fd3719a899106431ee7e6c88bdf7" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1a6a16f1a2e51451f6a69f639b3389536b" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1a223ceadbac0dc035cd0d4ac94052d822" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1a1f81abb69def8394a6a8a2bef69209b5" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1a0c456cc0a31b80b3a07c0b8163fd690b" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1a0544a15c3f417bfbc2a00cbcfdb8156e" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1a5a2024a644df6020f59abbee7bb41f97" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1a0e8ec7398d0e0857a67a39d44ef50849" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1a7f43a3452ab7965f2ebce26a07c37c63" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1ab4f3811a79b07e9a5105f02e2b32cb4c" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1a17ab1dbf78cb1c7644304b26e0c53955" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1a977b9876fc935d7e84f7d964db871f80" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1a579906adc372940814444e0606bc4790" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1a39e18fda8bd75613df8a5b030cfa2793" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1a82b540741c9ddff363a03ef2a06b1e54" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1a0c5d495667f4c49f97d094a13784d2c7" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1a30e95ad0b95351c1052b2c5d15ac6ef1" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1add862c0f1f351f4e2803a9166f122eb0" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1afa507c77847b4452edaf26e9b161499b" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1ab8b0d030636b5432e37bf4a2c38865b3" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1ac6e910fdcf2e38ac9965a53c5b9b14dc" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1a796c458b2e1fdbc7198a9f489329fa5b" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1ae966d033fbbf43b4922d74fc792b602e" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1ae2c6f735de0adb88fadced165ba4cf8e" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1ae5b2029d02b78236d48cdfab8570701d" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1acf13e1ffa83e0b3f2058c4deaa7f8a5f" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1a501237465c8969e55f649ec71f34f7a3" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1a000e7ce6d2cf56235d0dd1e3f6000536" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1a10ca31104ca238461a45c9e49231904a" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1a933a1a3a461166fb2210734840e531e8" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1afee2814dbf6a314ae61536b567c97099" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1aa3e920639d77b19b5e237c53b506f2c8" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1aef0b26dcd384f53d6f7d46a6b2003423" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1ab3028d0a3fb1a2b265ca7ef64f96a5c1" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1aad8e40c4ea7db45981df303de63515a4" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1a1e8595b08af27b30131ed21dc16ff90a" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1a3cc9dd5186d3bd86fd07c83c3604f164" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1aa4402bf087af3db9fa104c65632e7087" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1ab0aa5cd7f5d818a2473de2b59c8d9d30" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1ac3d8ee1d459d9caef8714ea164162b3f" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1a501fa34e12a3c420b21f4a552b38879b" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1a5b8d3eaf7f161196d30b14c53442ad02" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1a269421a5c0d13d11065f507170be97c2" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1ae75379f2bcd07b1588bd1826a0eb1823" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1a8fa6506ee526417dc643b3c5aa25960f" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1a411b3fa84a33e5ecf2b906588d728f2f" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1a7dbd8060ac283f7b74392d1bc6416258" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1a9ec13689f8af8f8198f7aaf9aa175ee6" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1a83f3f2141421e8077a38071b47f9b7f2" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1aebfdef6919d01e4991bd04a2e3f44bee" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1a4d64bfe77aca669f7bf72f9800785d7d" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1a86c9ad2587d1b9275fdbab9784181227" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1aa3483f7d03ca3482c95046d6c86f3cf6" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1a4d9de84db47f1b338ecf9615a7b4092f" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1a8b2d1f29f360a7b07682e4048af2e671" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1a8956d3e159c9f65dcd4cce8fa9df27c9" kind="function"><name>AS_IDENTIFIER</name></member>
   </compound>
   <compound refid="struct_i_dref" kind="struct"><name>IDref</name>
     <member refid="struct_i_dref_1a15336e61beceb953f8c3ff39521b7c22" kind="function"><name>AS_STRINGREF</name></member>
@@ -247,63 +244,64 @@
     <member refid="struct_i_dref_1a15fde569d8950c67d2b4887b4994a95d" kind="function"><name>AS_STRINGREF</name></member>
     <member refid="struct_i_dref_1a4cfd0a8f048633b718aa5b693be3b176" kind="function"><name>AS_STRINGREF</name></member>
     <member refid="struct_i_dref_1ae43a3dc9fdedbcc43a2fb9cb53f896a3" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1aab3d2a0eaba221c2e52a306984fc8130" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1a9886fbeb79323c2177c4d350cad3527f" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1a00225e34dcfd468642efcb3c9480b84d" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1a4d3dbd4e1c817eafaf1f0cb075b07f10" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1ae45f5ab7939ddd3c459bf74ac777da9a" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1a2fe17a3888b55149ab194311fa223142" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1a427f4c535e6f9bc0c026664d9ed55191" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1a8d445abdff669e53f43140ad40c54b15" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1a6818ed2865727a2998837b4856cdac24" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1aa37fb8a4ab1c3e488b73bb0808c1b3e2" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1a59f763a2f80e11943bbed125bf7887cd" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1a7c3a423e7f8d38fbfa6e709e020b432f" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1ae2b80fb0697e8b877bb9a7e98e0905e7" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1adf0ca9832fd015c5b2a92a38e94bab2a" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1ae2f1db95bc49bb2eeb901d19a061beb1" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1a1c6f536f37c0f0e2d804daf71dad3ab6" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1a97d285915ffe9d92dc65d2b2b9b13888" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1a6126c8c0c62d3e48d328c9377c32f596" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1aab694dd082cc8a9417cbe76360368825" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1af18c9006b2c61400a8578f65ef4357bc" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1a211222d603ed98aa79f6f74cc8fcbfa9" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1a8997ba8aadb412b54c6abd392fff5dae" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1a98bdd770ca84f84a13ebca10fbed031b" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1a12e1ec55133b05079662cc6a90029247" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1ad3bd9691f5ab72dcd939e72b1d664f9a" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1a181eeee47af3dfd84082d3ead42d53ca" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1ab2093c23d39b658ec318e3284b4e8ee2" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1ada44c26eb6bfe4534ee9487f84bd848f" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1a94c6b2aa1d95f784c7756b6d43c10e4f" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1ad4700cf36145322aa8c76da284da21b6" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1a7081929722f518cc6c8fafed2dffaf7a" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1a501d995496a21779b94154dacd7d372e" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1ac35f7c94af28912128d09dc606a080aa" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1a14ae1504fca654032be9f097370fb0ce" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1a5ef6c31f4188738f90a5f7adb1470e5c" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1aa8c0a5af3cce4919bf5125ed044e60ac" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1ae0270045a786bcdad2bb614916535db0" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1af6cc706be638909837e8fe70556f5c4d" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1a818ac6e755e56730d14a3013df5836ed" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1a8dc718e4bb758b72f1109f691a88cc46" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1a89d565d5e40e4eecf79d0419cf93d887" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1ae714783cf75dac0edcb8f34d6f3cc20b" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1a220b068db76302c30d2732786c5c3ca4" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1a2bf6ad28e2d47ef30a611f39b7f11212" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1afc44be7fe600c4f57b9950873c5c1446" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1aa2fb5c66a3a34931855eddd57faf9e8c" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1a51bb725e4de9b0ecfdffb6d6468edbe8" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1abafd87e544ed504b931efdcb168508c7" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1ad62edd39ac095afab62fd1be9c28fd96" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1a6bdfa7332103f0ef46d24aff9ba502ee" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1aecf4b9cbe3a8c4888714bfbe4836b81b" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1ad7412b017505b5248b50466c11714584" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1a6da78c9543b61b76ca49fb01e6bbe06d" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1a25be05e0f11ee3006cd9cfae204889ed" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1aad666c7a632db0e7d9c98e31b8e161f6" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1aabd70a48ebf59e9e28249084e8267f89" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1afd6ecf9658d78f0770a9f330749ac29b" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1ab2e017df5849ba62aee1fb835c79976f" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1a82794adf5a86044dbe931584a83a7069" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1a3abed20241d6cc69698b8ba62f0e39e4" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1a687990b89193168fb7334233511862bc" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1a8dd6653e9530d450f5de1703d68f8ddc" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1a9d57f96bbeddfcd00f9dd7dcd771af02" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1a60d6713367a9eff78ac70ed8c714c40d" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1a9c462ae5924d3128fd3276ce7c156471" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1aa559a34851cac6cc0c49968d5f217f06" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1a8e9c6760e95b356c72fe000086121b13" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1aedfaa68f99ebbc0ffe231c2dbd4efbbc" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1a6ae809f1aaa45eb74713937e2d57041c" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1ab891fdfef9df5fb48f2f88f9143763fb" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1a8d2948f8a704583aee184d16ab80052a" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1ad786800645d2f3697c5637d6ee9d09b7" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1a80b4baf2055c515c836d00d2e6d99230" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1afba631348501f95ba4000cb9d4503a72" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1a506543f40bd56ff79e025f3902766ee4" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1a2171bb67630201dafc4a4188e9b4b78a" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1a37c6b5505b8d1b94e375d045c43f3297" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1ad1a6c209b39f843f6a0c9337f42f8e9d" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1a9602e51cbb46052fcfd633e2f7ab0fc0" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1a4ab8ba98ecb904a1249b399f52b5c083" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1a6673bb08c42614dbc84c3d786798c6d4" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1a902f42eca2a222c2f880e3c98645064a" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1ab4008b340032bd8f5d9cca44746cf302" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1a59f5b7079fc73074852ef71d2e3a2159" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1a302d36ef45697173115df638d1f6d961" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1aafe7254ed6901ed13e40a9b86285e95c" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1ad17cd1563c9d0b27e2cc3cd27ad90f78" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1a42c408e49d30cfc27bad7ca0f2f60f8b" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1aa9d82a45fab291923940704f3673dbc0" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1a20dee790eb476a90b6e05b9b3946f960" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1a6ba378378a88da1ee874846a5c155401" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1aa6480eadac09bb622f128f7a7d14981c" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1ac78fdd5e371363ab24d4270fd4b225a1" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1a07b57bbbcc368e48e241bf8a5701031c" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1af4220a0a1d17019e98235df6f082d8f6" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1af67d8e4569d52d07622ced7837d8b089" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1a8426a71d6791c3c3b153ecc5e16a1e80" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1a75906bb974ecc9782b0f6439a62a053a" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1a643f9a701df92d1e15129c2ca3ecdab2" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1ab700f84022e84172d4a716fc18a3098a" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1af0e53be8ea08eecaca4387b006e047ac" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1a53a4c6e4b3502adbb9129588eb0b03be" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1a0cd9430aa821dba824079d233944d35f" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1a1b0409611d3a53d88e842bdad95f85c0" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1aead6aeba890b4f3033ee1902622c5d76" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1a737ce3b88d27ab3592d72c0affb5f1a3" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1aa9e94d0ff3ceba16204496a2e0f10499" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1af39efc1d5aae2c7e1f675bbbd0b56dd2" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1a1c2c485ab608fbe390833f45a50fcc87" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1aac97c1bff9ba0ecb0b00e94c78d33f7d" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1a208d0a6f70e4e2281648a3441681bade" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1ae5823e2254084c06570c7d84c39fb2e1" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1a739e4d85d906f8bb693e9ec24498d6a3" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1a0a3666a9ff79af218402cac25893a91d" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1ae937eca77a26204a5d6a3d520e2a937e" kind="function"><name>AS_STRINGREF</name></member>
   </compound>
   <compound refid="struct_i_dtag" kind="struct"><name>IDtag</name>
     <member refid="struct_i_dtag_1a3e7c1d2932d996b3894e727d495aa6a5" kind="function"><name>AS_UPPER</name></member>
@@ -358,63 +356,64 @@
     <member refid="struct_i_dtag_1ab214636e20cecc76c248b40921186c87" kind="function"><name>AS_UPPER</name></member>
     <member refid="struct_i_dtag_1ae9ed2abfd2ade983119a45862751ad52" kind="function"><name>AS_UPPER</name></member>
     <member refid="struct_i_dtag_1a66e135264ec8a8cefc431457a0bb0db3" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1a3821106e368e29f57ef85cbde8f5a012" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1a383d8d7962eb5a24dd740e3cc78957af" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1a40d3cba146ebb7ac641b90dabf1c7f51" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1aeae05d0f739ac2815b06e33fb7da020d" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1ace4e3f13cbb29e4588ca96c42a362619" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1a1f95a5768c180fb79f11d7ca04490340" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1a72aa50c9c1fe3aa4f6eb0ca84c528986" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1a1481ec5b6feace1f401728d6c71c4e39" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1a23c5a985a2dd1213dd84d584820fe0ca" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1a7c100ab3c2bc7a1d653e56cf178f943c" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1a9b41a7b67e4db50880d371fb0e41315a" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1a511e6069599e501f618be127206a7142" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1a21f45379b171fd5bc5d90d760a93962b" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1a0a6de5630b6b2c78526bc260255aa5a5" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1a6297a61d71887584ae1ce98c91a8545e" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1a6bf67fb739f8968fae4a9dc2c99c1621" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1aa50dc911b2a723ea54810fe8e7d4f774" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1a876810b2744bec5401d9b2c5f3e8dfa4" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1a5e68b16eef4369bf8b1299ba17d8f87c" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1a56cf54d0b8a6e817fc7eeb966ee1213f" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1aca84a69a11418ce144035d60d5dfd4ff" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1ae1c3efec94c1522c2dfd507893df60fe" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1a134616d3f74c7ec45bf1855c8869ffa6" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1a6ce08af6793793d89f9da5285f454fe2" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1acbe2985388f39394f95e3eb37f29d70d" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1ae5e085b92f4a4378f832c3fae4d20080" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1a2c6817668cbaaba8bce0ce5991a0b65f" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1a2a4c3040c7bfe401f8f7fbead05695bd" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1aeb8552c3f16445ae99aa142f5941fe05" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1a54350b70f545b2dd4ae0408a71319a24" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1aebc4380a7c11c414ef5b526335f0f44e" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1af4b82697117f70a35540b30058d1b55e" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1a341eb736ff7596a607946c748bb5a9af" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1aaafad9c70507bd0672cd13013f64f5e6" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1aade7e869fcbac700c1d374330a2a91bf" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1ab91d3bc5e66cf2174e621e87a8b3d1ee" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1a621abcfd47cb03ed3fcdbd76325cfce1" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1a3b7448ef6ff3b684be7b7c5c62699f56" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1a42fe5bf13f359e43892b688e0de73d91" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1ae40c191419e6f00ae80fba8ef36c2589" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1a30219e9a8be97bb08d899deac216a44b" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1a6bf3dd6e104a820011d16ef38e45e9e3" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1a60e41423c4c180b7c3a2eec6f34c2fdd" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1a06697c88d6d65b0e814b5374d4db2d5f" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1addb6f926f13d2fbf1fc0795032f1711b" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1aa0e8d293871fa201e2db6b6c19821965" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1a5f7f37a2b0d3add1888ffcd0ce7f4768" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1a5802ba12f783ecd8139776545b239541" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1aaaa3f1faaa8554967b764af33fb07b0d" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1a035d1472dfa4f56f0763883d026ef9f3" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1afa29106ff28bc0b1095031510036d2a8" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1aae07c58d95cb71fe7df91daa364234d5" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1a3b0e50ac9cb3e20497398c607ec7e57c" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1a77a563295644b02baeaa697af039ac02" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1a96a241ac8e8e437f711b9c0f80a727df" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1a98f18ee1ed561f43dfac0ee3ee1bc400" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1ac95dd5b82e78e8566fe8e364fc06cb1c" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a715730f19556fd494ba1694bf141f24a" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1ac343d232d0e47542358797398278bd30" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1aa2d4728d895275c7504a96497a4b13b4" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a51b60a0b092befc499ba070877d1a10f" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1ac6a56280cdaa2d022ba03c364fa146ce" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a765c19d00fa7cbec998248f9141f044d" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a9da6ac2266a17747a3e6135d586635c1" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a1a06785b3f745c25db100719cf7b0db5" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a23365d31f1719e1c8f28cd439086f30b" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a38d097e8f5ad2751c5dcd5d1be447880" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a77e305aa1542cef1295ae443103426a7" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a6d782ab4ec64c23f2f268d8ce297ef32" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a7659dbd66ed35c68ff06cd84198a3ae1" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a21041304c14378f106605ade08dd2cb0" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a539c96c138429adec4bc4a83729cf608" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1ab75d0eb7347d15989d4ad082c945d366" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a5a774abe828cff132cb70981b178c967" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a083718b269e78e98879b7d1a216f916c" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a0a0104929b8956d4297716cf6ecdce16" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1ab046e32362bd1244c790192ae4423fc6" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1af5d444a271023270aa771552b16f8c02" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a7efebec661ba7ad68c1cb184e8a412bd" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a16c00a7ae28668e6e286ffc93e7dd1b8" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1af062c3e6e239eac99f58d15df08a8e29" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1aeb11e3805508a164fcca23df4d24fa16" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a99795df9b7303a0b67b1701bd3d7de4c" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1acab8da90523d9877eb13b4a1486e33c9" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a8bb32cb3085360fc4c330e4c5fb7a180" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a1756580e170f6ffdb6782aa37beb5514" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a96b49d3ee4a77ce0337d3696b22502e7" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a8dbf7f4bc6f9fa62cc4d5fdb8c7f3d5f" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a66e0989666f67a760bc352c822458709" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a2d8dab97f176cc6fe134e85e09fd7c0b" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a10a5c4ee665669c4132aaa3966f25335" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a716eb51422459b7645b60370d4c2c6da" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a1bf758fb326358d507d98450437335b7" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1ae23f9428d8b7191f6810e07d7667b93f" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a8b851880d50d56cb4d9763d448e32303" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1adcf43412d4be44d8cf5f684635d7de0d" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a881ce8dec6fa6ddf5f1610707dd98660" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a86d1128113ce806df31641a699c33367" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1af368403a1b154fe4b4de6003019bdea6" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a80dd1060631569f15edd105992ab68c5" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1ac01584f7f7a64bbc17e067063ef6f3cf" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a9ddad4442907a119cb75b8716f190c64" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1acdd59c46eef61b737e69c5f8c4875e42" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1af500090b789098a7c03d86a3292deeb4" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a8a07af96602863ab757610e99a1f4aab" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a784c8e3ab128a5cce8f706254208ea7c" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1af62d2cabb2e59ea253a56e948a15329e" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a263b07fb3f0a89722b8462be9070a6a5" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1af505fa7d7e1c849f627d9504c937e3ec" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a490690a26a4a857dec7e465e6c83d7d2" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a3b01195b4a4e401237e3bd650954e3eb" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a8e3a5fc6629d3e4b4411ad5208777deb" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a917f4ea32b3318e6d0d62ee13373be4d" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a40fa4f91b9df1be722317698327cfedf" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a5efeeb8c220dfd0018e7797ce9ad4c96" kind="function"><name>AS_UPPER</name></member>
   </compound>
   <compound refid="struct_i_dtype" kind="struct"><name>IDtype</name>
     <member refid="struct_i_dtype_1a6407ccc02f46025e81c8c4bb9598845a" kind="function"><name>AS_TYPE</name></member>
@@ -469,63 +468,64 @@
     <member refid="struct_i_dtype_1ac0e944787990b8ce0dea34160eef3f8a" kind="function"><name>AS_TYPE</name></member>
     <member refid="struct_i_dtype_1a5696d34458cc1d857fadd25d69c631ea" kind="function"><name>AS_TYPE</name></member>
     <member refid="struct_i_dtype_1a551df345efbe0ba31777eb11750833de" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1ab67a191ffb245797ffcd04fd47324207" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1a8b018bffdb00d8ac5de35b02122f3e33" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1a4cad1bd3bdc6f6e1718d6fd0bf260099" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1a255cc34955a33a3c26879df76baec200" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1ab24e876c2042324205cdafed7ae9d47d" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1a640b651ee9a15cdc4c27bf37f0abd396" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1ac01369fa044236e9927f010f5738e513" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1afae4e196d7e7ee2a02b550aa8c43675f" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1af025fe2ceceab49341516400bced32b4" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1a762aa0c1304ae5d5f77a513c42eb3071" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1ab53c147b858c3873efd75ecfecb8aa4f" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1a29ad8514b8b873e6298bd711f131e8be" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1aa7a0570e58cd6496941bcc939bceee02" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1abc8570f9ffca396f9934ce3acc53f4d7" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1a56414019fec049b3db4bc58e1e7513ea" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1ae5aa44bfa1ab0acafe2a0ea4ccda487a" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1a494a98fb51afc8601f41b0b6cda255ad" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1a90a7518d93a882fd78b156f8439f26ed" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1aa14bcdbacf8cfb46f587a9eaaddd43f6" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1a5ede90ff340d7ec3cf378854568bd7c0" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1a4cff9db87777ff929d5c914c28de6a25" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1a241780dbfb16d7d7f118e9bcfc724cf9" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1ac32a6be33009421f1aef789e4dd7ba92" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1ad182a0fd73a2714b09c927c422367574" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1afc3ad6baaf39bb65702b73eea79ab833" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1ae7c5445b37eb0111111fa3d6588bb2d0" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1a02f3eac5eae84a80d49e00a0763ac6e2" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1a3ecea7e20341201351b82a9f0695b936" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1a74632d3fa7cfbc24c2867b923a9036eb" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1a44d46d992f56e8f778e06540db96d732" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1a374fcdc973c078dc2b45c0d8526c7dbe" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1a4878a6d8ce57d5715b76b1d0b1cae206" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1abd5e7fb28bcbe77f102fee1701249d69" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1a3644cafd9fd62fa39cc424ae6eb21499" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1afd6a9ffa06dc50c0bab3c993f02e4807" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1a82d6451f04d37cc13bff789cc7cf53e7" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1a6e7ed63015a30266e7a0b7494f935a17" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1af5c30e358b60e20650ddb92ae78a38b8" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1ae10361ac248c81cd0fb31cb3f0c333b0" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1ae6095b96fd7daa35d71ebfec696478ee" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1a8272cab0c58e3353133fb8c99a82c197" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1ac5adba32c59748d5a77464c9e3b59c74" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1a917a93ffc5c120dac81201fd39bc546a" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1abae12b09c3f14ec891405d15603528ff" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1a9bb3c7abbb7131b11e7f2c5adcd99b22" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1a65e766724f9747fa8c114e7cac062843" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1a99927f97fd2374917c741011ce2042b4" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1a4b07e9f65aa4a524d7a0293c6b500f1c" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1af0084bb62d9107549c6e3a66e584f9e5" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1ad86ba078bec1318e6fb6e821a9982a61" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1aa66e71ae2118f1cb935347fd8471d1a7" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1a6ef7df49fd763b92ef3cac59e032fb0a" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1a6e6e8082294e126aaae021e4f9fdd4f5" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1a0df77facde0f4a42899191b565733951" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1afe45778498bd4262e39d1aab2ddee3cf" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1a4b43fd985e4e185d44e47ddb46a7cad6" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1a1d42f75b2635be4acab9bff387a36ceb" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a4cb94a55ce0122d728cfa437c1daf70a" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a99ce435c422e2e3441865d21ec9ddbb5" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a3230d5e7d78b0ae29f742c6dfc45c94a" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a972d119660f4f9231edd0fd0adef56b2" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a8ca7aa997ea109c5f0d2b16344e4b31e" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a821cc1307326a04c9bc9177b2543fa6c" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a4b1e2f53d9da86ef3b13d171c69573ba" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1aa0a4190ee398e7d6f66d838ecdb32228" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a2e320f08b1f532dd99b3419edc181caf" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a6c80126dd4fdee6c77bd5cea90139d9f" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1ae37057ea0c6fa25bb824475e4c7956be" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1abe24f825c55c1818bbb39b38aaa78e9d" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1af61d1bf87fd145069b16d662f274b991" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a6a78e8a842ae576b22a9294f27c6bda6" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1af6d012903bd8658741834c593e6a7340" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1addb2c1774d0bf54800b6f2cae8473975" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a4d6274bafef2129f38bd5a3b8df128c4" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a8b1bb99a16af28817e7ff9599554471d" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a55027c61bad9c891f89c32f6b476a352" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1aa3953814af9277a91adc4b0c8c8b0533" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a9fc70cb709b55614a7521bcd586fc097" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1aaf3d8e3823874acd70f28ab36586c201" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a95cc9d7579cf7c80ebbd8c853fdbe873" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a95c1c8ca7b080ecca9eec91dfb5e70f9" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1ada613d1fb14ca53d15a1f966346735c3" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a87e486274cb3279a87832f4d888fdd8c" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a75520d1747d62e0d1f740db82038e37f" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a421f13afa47f08bbedc21ced529aaf33" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a67248bdb002f559c392d9c0f71108cce" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a05bcc32e4ef9a09e5a1d352da529b754" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1ae613f8207be9059bddb422042afade5c" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a610cbe271a68a7a416cc82e69d2218c6" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a717b8a8711ef106e175e76e0a5e78a94" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a948a2107d0602291688e952d430fc261" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a56d7fc562bce5cdf60bcb5d1e50831cc" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a6d989e383a6bdc48d6a3296eaef2e338" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1aebbb51c591cc374f34d0feb055ff8bc8" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1affa688c4b940301e96d2ad42000832da" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a40ec7ea162d15f1fa0d3711e59f09ccf" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1add486a9a629f93063c5064dc053b5fa7" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a838f8ee9a2983128ede13ca700bb13d7" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a947d8415fec0a55ff2037553310b3552" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a9543f60f71060a6d3daf6309ea0a7498" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a951d42724bd9d23e43a388237b2f1ac8" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1abe148d9cd18ebb99cf2f5c2047868053" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a3a457afc71e15036d24000d1c3df758d" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a897cdf250a8852bfbca16ad043c20958" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1ab167aac14aef687825de824ef5695b96" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a6982148e3824bd05d004dad8237affa5" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a40e88198f549b1f20b6b94a4f0ed6669" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a303eb0db24c20211a33955610661d606" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1aeddbe84190551fcb43e9eb3b5851cc70" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a4d53f826a8db3c44a71f3b18492f3060" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a932aab22effd24a5318b1915d4baa103" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a40b637a4dcf92cdbf5aac981d407c8c9" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a8137054b9eb04ef40c6fad79a7543c42" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a55c2508307740e87f611e1778f5e0576" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a055e411ca3cfef2883f36369f75425a1" kind="function"><name>AS_TYPE</name></member>
   </compound>
   <compound refid="classend_1_1_look_and_feel" kind="class"><name>end::LookAndFeel</name>
     <member refid="classend_1_1_look_and_feel_1a96444644e5b541f2a7a2235c0dc91cf8" kind="enum"><name>ColourIds</name></member>
@@ -539,9 +539,12 @@
     <member refid="classend_1_1_look_and_feel_1a96444644e5b541f2a7a2235c0dc91cf8a02b6d1024860431f9162852be60a805a" kind="enumvalue"><name>hintLabelBgColourId</name></member>
     <member refid="classend_1_1_look_and_feel_1a96444644e5b541f2a7a2235c0dc91cf8abefbf6c1366bd689905ebed8e1805c47" kind="enumvalue"><name>hintLabelFgColourId</name></member>
     <member refid="classend_1_1_look_and_feel_1a96444644e5b541f2a7a2235c0dc91cf8a29bcd8deec252b03c2577f82f8f481c6" kind="enumvalue"><name>selectionCursorColourId</name></member>
+    <member refid="classend_1_1_look_and_feel_1a5b0750e2d459a043f895553223d516d9" kind="variable"><name>typefaceResources</name></member>
+    <member refid="classend_1_1_look_and_feel_1a59e5e3477cf52e483b0fad1777027add" kind="variable"><name>stampInstance</name></member>
+    <member refid="classend_1_1_look_and_feel_1ae9738a335c02bce7d7088c307dfde79a" kind="variable"><name>graphemeInstance</name></member>
     <member refid="classend_1_1_look_and_feel_1a9f5a36b2e39117101eef6cc2210af64a" kind="variable"><name>config</name></member>
+    <member refid="classend_1_1_look_and_feel_1a7735b5653ef6b5779d206aac7d34ca3b" kind="variable"><name>typefaces</name></member>
     <member refid="classend_1_1_look_and_feel_1afecd477f3e694f5abd9b809e06125d2d" kind="variable"><name>graphics</name></member>
-    <member refid="classend_1_1_look_and_feel_1a956586019439f2b1c051f48b278bc59f" kind="variable"><name>displayBold</name></member>
     <member refid="classend_1_1_look_and_feel_1a9313c08eb0def3e3a423f8bfd362f435" kind="function"><name>LookAndFeel</name></member>
     <member refid="classend_1_1_look_and_feel_1a4e4378865cd561e4bccbb346cf7a8114" kind="function"><name>~LookAndFeel</name></member>
     <member refid="classend_1_1_look_and_feel_1a7c2fe0979150705dd5b0a67886857d30" kind="function"><name>valueTreePropertyChanged</name></member>
@@ -549,9 +552,11 @@
     <member refid="classend_1_1_look_and_feel_1a0c9015e091848eb9edb77a7f3130b768" kind="function"><name>drawBarHighlight</name></member>
     <member refid="classend_1_1_look_and_feel_1a2d99c5eec680d18f5f5136bb1f374b25" kind="function"><name>drawTabButton</name></member>
     <member refid="classend_1_1_look_and_feel_1a52fd566f92d3c845a23d02bd0babc8e3" kind="function"><name>getTabFont</name></member>
-    <member refid="classend_1_1_look_and_feel_1ab3d807990ce8ed3dd7dde3ad2a04e152" kind="function"><name>getTabPadding</name></member>
+    <member refid="classend_1_1_look_and_feel_1a786940014b12e5ddd8223a473033cb99" kind="function"><name>getTabPadding</name></member>
     <member refid="classend_1_1_look_and_feel_1a4ac05f3e7acb64f081c68550b063e440" kind="function"><name>getTabText</name></member>
+    <member refid="classend_1_1_look_and_feel_1ab677c2f87a87ee2daceb3a1e7e72caf7" kind="function"><name>getTabBarPadding</name></member>
     <member refid="classend_1_1_look_and_feel_1a2d895cfa802013b3734d533380e71252" kind="function"><name>drawStretchableLayoutResizerBar</name></member>
+    <member refid="classend_1_1_look_and_feel_1ae56cb662b3902cb26f76f3e3fa0be713" kind="function"><name>registerTypeface</name></member>
     <member refid="classend_1_1_look_and_feel_1a6bac0b983ceeffd331beb5262030dbe8" kind="function"><name>loadGraphics</name></member>
     <member refid="classend_1_1_look_and_feel_1a1b336d849e97d92bb98a1dc743f918e8" kind="function"><name>initialiseColours</name></member>
   </compound>
@@ -585,11 +590,8 @@
     <member refid="classconfig_1_1_model_1aab53f2dffa259bc65116d9b97ce44a49" kind="variable"><name>graphicsCallbacks</name></member>
     <member refid="classconfig_1_1_model_1a663ac662800dd1918dbab12d317fa4d5" kind="function"><name>Model</name></member>
     <member refid="classconfig_1_1_model_1af95c0931a6f76206d56eb06a3c71a05a" kind="function"><name>~Model</name></member>
-    <member refid="classconfig_1_1_model_1ab192f674b56bb1c270a2f2361b8c4b91" kind="function"><name>getInitWindowSize</name></member>
     <member refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" kind="function"><name>loadFromPath</name></member>
     <member refid="classconfig_1_1_model_1a8a75866892ea2fd6887d390ebb2c8c0a" kind="function"><name>getLoadMessage</name></member>
-    <member refid="classconfig_1_1_model_1a2109fb126f11667b4bc59007e9e4ba5f" kind="function"><name>getDisplay</name></member>
-    <member refid="classconfig_1_1_model_1a90016135acf99a99cb276f6f31e3c85e" kind="function"><name>getGraphics</name></member>
     <member refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" kind="function"><name>initialise</name></member>
     <member refid="classconfig_1_1_model_1acad607c8136bcc115ffeae9d47869e26" kind="function"><name>saveToPath</name></member>
     <member refid="classconfig_1_1_model_1abd7d146ee9fede8da7f5f0678faed50e" kind="function"><name>startWatcher</name></member>
@@ -625,9 +627,9 @@
   <compound refid="structend_1_1_position" kind="struct"><name>end::Position</name>
     <member refid="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05b" kind="enum"><name>@277214137317010015316303354216265052334255124010</name></member>
     <member refid="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05ba9d3c44ea19c8e9e5d1650be17ab4fc6e" kind="enumvalue"><name>top</name></member>
+    <member refid="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05bad52282e0dd5a6fbecfbe0f36ea5d4c23" kind="enumvalue"><name>right</name></member>
     <member refid="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05ba9a50bf1430af6bb133f7995767ce297c" kind="enumvalue"><name>bottom</name></member>
     <member refid="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05baff86c7b45e58c6678fc26bff2a0a821a" kind="enumvalue"><name>left</name></member>
-    <member refid="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05bad52282e0dd5a6fbecfbe0f36ea5d4c23" kind="enumvalue"><name>right</name></member>
     <member refid="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05bacb1af5b03312f174c715f20f8ba6a7f8" kind="enumvalue"><name>center</name></member>
     <member refid="structend_1_1_position_1aad8c1a31b60ce4b9b27447e15188fd6e" kind="function"><name>Position</name></member>
     <member refid="structend_1_1_position_1af5f03f30b13680f5dd13496ac3cc6f39" kind="function"><name>getDefault</name></member>

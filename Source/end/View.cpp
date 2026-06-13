@@ -27,8 +27,8 @@ View::View (jam::Model& m)
     tabs.addNewTab();
 
     //==============================================================================
-    auto init { config.getInitWindowSize() };
-    setSize (init.getWidth(), init.getHeight());
+    auto [width, height] = config.getInt (IDtype::window, ID::size);
+    setSize (width, height);
 }
 
 View::~View()

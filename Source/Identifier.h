@@ -131,7 +131,8 @@
     X (buttonOn, "button_on")                      \
     X (uppercase, "uppercase")        \
     X (depth, "depth")                \
-    X (kerningFactor, "kerning_factor")
+    X (kerningFactor, "kerning_factor") \
+    X (textPadding, "text_padding")
 
 // Key binding names (keys.lua)
 #define IDENTIFIER_KEYS(X)                             \

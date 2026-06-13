@@ -19,7 +19,9 @@ void Tabs::addNewTab()
     jam::UUID uuid;
     auto* panes { new Panes (uuid, model) };
 
-    static constexpr const char* tabNames[] { "Home", "Settings", "Terminal", "Dev", "Logs & Output", "DB", "Configuration Panel" };
+    static constexpr const char* tabNames[] {
+        "Home", "Settings", "Terminal", "Dev", "Logs & Output", "DB", "Configuration Panel"
+    };
     static constexpr int numNames { 7 };
 
     addTab (tabNames[getNumTabs() % numNames], juce::Colours::transparentBlack, panes, true);
@@ -76,8 +78,7 @@ void Tabs::updateTabBarVisibility()
     else
     {
         auto& laf { static_cast<end::LookAndFeel&> (getLookAndFeel()) };
-        const auto tab { config.getDisplay (IDtype::tab) };
-        const float depth { tab.getProperty (ID::depth) };
+        const float depth { config.getValue (IDtype::tab, ID::depth) };
 
         setTabBarDepth (juce::roundToInt (laf.getTabFont().getHeight() * depth));
     }

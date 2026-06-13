@@ -35,8 +35,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="end/Tabs.h" line="59" column="16" bodyfile="end/Tabs.h" bodystart="59" bodyend="-1"/>
-        <referencedby refid="classend_1_1_tabs_1a5d92721be181f26d6425b39bfa3724f4" compoundref="_tabs_8cpp" startline="17" endline="32">addNewTab</referencedby>
-        <referencedby refid="classend_1_1_tabs_1a629895e04058463b40f27526739b65fe" compoundref="_tabs_8cpp" startline="34" endline="50">removeCurrentTab</referencedby>
+        <referencedby refid="classend_1_1_tabs_1a5d92721be181f26d6425b39bfa3724f4" compoundref="_tabs_8cpp" startline="17" endline="34">addNewTab</referencedby>
+        <referencedby refid="classend_1_1_tabs_1a629895e04058463b40f27526739b65fe" compoundref="_tabs_8cpp" startline="36" endline="52">removeCurrentTab</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">
@@ -88,14 +88,14 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Tabs.h" line="37" column="10" bodyfile="end/Tabs.cpp" bodystart="17" bodyend="32"/>
+        <location file="end/Tabs.h" line="37" column="10" bodyfile="end/Tabs.cpp" bodystart="17" bodyend="34"/>
         <references refid="classjam_1_1TabbedComponent_1a52e2d240fb8fdab778223797995be95c">jam::TabbedComponent::addTab</references>
         <references refid="classend_1_1_tabs_1a0a04c1c18eb83b30d0c23901ea3fdc45" compoundref="_tabs_8h" startline="59">attachments</references>
         <references refid="classjam_1_1TabbedComponent_1ab52aa701daae6c2f6dd778e4fc1b9352">jam::TabbedComponent::getNumTabs</references>
         <references refid="structjam_1_1Model_1_1Component_1aa5a0c333addf975536c95bca7a9685be">jam::Model::Component::model</references>
         <references refid="classjam_1_1TabbedComponent_1a02fe2df3f471fb0a291b69a12b61b683">jam::TabbedComponent::setCurrentTabIndex</references>
         <references refid="namespacejuce_1_1Colours_1a2d59beef8fef5d9b43c030dc5968a2bb">juce::Colours::transparentBlack</references>
-        <references refid="classend_1_1_tabs_1a530f82b0d136b1c3385be168d79d5b66" compoundref="_tabs_8cpp" startline="70" endline="84">updateTabBarVisibility</references>
+        <references refid="classend_1_1_tabs_1a530f82b0d136b1c3385be168d79d5b66" compoundref="_tabs_8cpp" startline="72" endline="85">updateTabBarVisibility</references>
       </memberdef>
       <memberdef kind="function" id="classend_1_1_tabs_1a629895e04058463b40f27526739b65fe" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -110,7 +110,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Tabs.h" line="40" column="10" bodyfile="end/Tabs.cpp" bodystart="34" bodyend="50"/>
+        <location file="end/Tabs.h" line="40" column="10" bodyfile="end/Tabs.cpp" bodystart="36" bodyend="52"/>
         <references refid="classend_1_1_tabs_1a0a04c1c18eb83b30d0c23901ea3fdc45" compoundref="_tabs_8h" startline="59">attachments</references>
         <references refid="classjam_1_1TabbedComponent_1abf9b16f6ff7eca56996fb95c99deaaa2">jam::TabbedComponent::getCurrentTabIndex</references>
         <references refid="classjuce_1_1JUCEApplication_1a692d98883525936314ee3554c219c42b">juce::JUCEApplication::getInstance</references>
@@ -119,7 +119,7 @@
         <references refid="classjam_1_1TabbedComponent_1ad62770b4cbf4b8e3fa19f262d80af1a0">jam::TabbedComponent::removeTab</references>
         <references refid="classjam_1_1TabbedComponent_1a02fe2df3f471fb0a291b69a12b61b683">jam::TabbedComponent::setCurrentTabIndex</references>
         <references refid="classjuce_1_1JUCEApplication_1a8c2f7ab5ab49f2d3b80074cbc8fdeef9">juce::JUCEApplication::systemRequestedQuit</references>
-        <references refid="classend_1_1_tabs_1a530f82b0d136b1c3385be168d79d5b66" compoundref="_tabs_8cpp" startline="70" endline="84">updateTabBarVisibility</references>
+        <references refid="classend_1_1_tabs_1a530f82b0d136b1c3385be168d79d5b66" compoundref="_tabs_8cpp" startline="72" endline="85">updateTabBarVisibility</references>
       </memberdef>
       <memberdef kind="function" id="classend_1_1_tabs_1a202281e6b55f4974b00b7cf030cf3f12" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
         <type><ref refid="classend_1_1_panes" kindref="compound">Panes</ref> *</type>
@@ -134,7 +134,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Tabs.h" line="43" column="11" bodyfile="end/Tabs.cpp" bodystart="52" bodyend="55"/>
+        <location file="end/Tabs.h" line="43" column="11" bodyfile="end/Tabs.cpp" bodystart="54" bodyend="57"/>
         <references refid="classjam_1_1TabbedComponent_1ac4eabdabb00d256d4464b78bbd79da63">jam::TabbedComponent::getCurrentContentComponent</references>
       </memberdef>
     </sectiondef>
@@ -160,7 +160,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Tabs.h" line="46" column="10" bodyfile="end/Tabs.cpp" bodystart="57" bodyend="57"/>
+        <location file="end/Tabs.h" line="46" column="10" bodyfile="end/Tabs.cpp" bodystart="59" bodyend="59"/>
       </memberdef>
     </sectiondef>
     <sectiondef kind="private-func">
@@ -187,11 +187,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Tabs.h" line="53" column="10" bodyfile="end/Tabs.cpp" bodystart="59" bodyend="68"/>
+        <location file="end/Tabs.h" line="53" column="10" bodyfile="end/Tabs.cpp" bodystart="61" bodyend="70"/>
         <references refid="classjuce_1_1ValueTree_1ac7027d954636d660784dcf930caa89ca">juce::ValueTree::getType</references>
         <references refid="namespacejuce_1a86deae84ff8b95d7e40214a493b3dfe0">juce::ignoreUnused</references>
         <references refid="classjam_1_1TabbedComponent_1aa0bf75ada147ccafd3722eb3e4c68a89">jam::TabbedComponent::resized</references>
-        <references refid="classend_1_1_tabs_1a530f82b0d136b1c3385be168d79d5b66" compoundref="_tabs_8cpp" startline="70" endline="84">updateTabBarVisibility</references>
+        <references refid="classend_1_1_tabs_1a530f82b0d136b1c3385be168d79d5b66" compoundref="_tabs_8cpp" startline="72" endline="85">updateTabBarVisibility</references>
       </memberdef>
       <memberdef kind="function" id="classend_1_1_tabs_1a530f82b0d136b1c3385be168d79d5b66" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -205,14 +205,14 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Tabs.h" line="55" column="10" bodyfile="end/Tabs.cpp" bodystart="70" bodyend="84"/>
+        <location file="end/Tabs.h" line="55" column="10" bodyfile="end/Tabs.cpp" bodystart="72" bodyend="85"/>
         <references refid="classjuce_1_1Component_1ad55f2def99fd7d05f6a71ef505e1a43b">juce::Component::getLookAndFeel</references>
         <references refid="classjam_1_1TabbedComponent_1ab52aa701daae6c2f6dd778e4fc1b9352">jam::TabbedComponent::getNumTabs</references>
         <references refid="namespacejuce_1af0e7f88f33180df5f8f74d53290e11fc">juce::roundToInt</references>
         <references refid="classjam_1_1TabbedComponent_1ae43e06c068bf37737a3a73331e2e8dbc">jam::TabbedComponent::setTabBarDepth</references>
-        <referencedby refid="classend_1_1_tabs_1a5d92721be181f26d6425b39bfa3724f4" compoundref="_tabs_8cpp" startline="17" endline="32">addNewTab</referencedby>
-        <referencedby refid="classend_1_1_tabs_1a629895e04058463b40f27526739b65fe" compoundref="_tabs_8cpp" startline="34" endline="50">removeCurrentTab</referencedby>
-        <referencedby refid="classend_1_1_tabs_1a7f640e13f40ccf782f708c78fd274362" compoundref="_tabs_8cpp" startline="59" endline="68">valueTreePropertyChanged</referencedby>
+        <referencedby refid="classend_1_1_tabs_1a5d92721be181f26d6425b39bfa3724f4" compoundref="_tabs_8cpp" startline="17" endline="34">addNewTab</referencedby>
+        <referencedby refid="classend_1_1_tabs_1a629895e04058463b40f27526739b65fe" compoundref="_tabs_8cpp" startline="36" endline="52">removeCurrentTab</referencedby>
+        <referencedby refid="classend_1_1_tabs_1a7f640e13f40ccf782f708c78fd274362" compoundref="_tabs_8cpp" startline="61" endline="70">valueTreePropertyChanged</referencedby>
       </memberdef>
     </sectiondef>
     <briefdescription>

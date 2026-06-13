@@ -1,6 +1,5 @@
 #pragma once
 #include <JuceHeader.h>
-#include <JamFontsBinaryData.h>
 #include "config/Config.h"
 #include "end/Model.h"
 #include "end/View.h"
@@ -30,19 +29,9 @@ private:
 #endif
 
     //==============================================================================
-    // CONTEXT — all jam::Map::Instance<T> owners live here, lifetime bound
-    // to the JUCEApplication instance. Declared before any consumer so the
+    // CONTEXT — jam::Map::Instance<T> owner. Declared before any consumer so the
     // single-global-pointer Context<T> slot is populated before first use.
     Map context;
-
-    /** @brief Application-owned typeface registry and shared glyph atlas. */
-    jam::TypefaceResources typefaceResources;
-
-    /** @brief Application-owned style table — self-registers as jam::Stamp::getInstance() on construction. */
-    jam::Stamp stampInstance;
-
-    /** @brief Application-owned grapheme cluster table — self-registers as jam::Grapheme::getInstance() on construction. */
-    jam::Grapheme graphemeInstance;
 
     config::Model config;
 
@@ -53,7 +42,6 @@ private:
 
     //==============================================================================
     void initialise (const juce::String& commandLine) override;
-    void registerTypefaces();
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Application)
 };
