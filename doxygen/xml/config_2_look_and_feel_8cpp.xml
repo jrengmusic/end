@@ -87,7 +87,7 @@
 <codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classjam_1_1Model_1aef4cd7ff33d3393980f2d12217e49857" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">state</ref>.sendPropertyChangeMessage<sp/>(ID::theme);</highlight></codeline>
 <codeline lineno="44"><highlight class="normal">}</highlight></codeline>
 <codeline lineno="45"><highlight class="normal"></highlight></codeline>
-<codeline lineno="47"><highlight class="normal">}</highlight><highlight class="comment">//<sp/>namespace<sp/>config</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal">}</highlight><highlight class="comment">//<sp/>namespace<sp/></highlight><highlight class="normal"></highlight></codeline>
     </programlisting>
     <location file="config/LookAndFeel.cpp"/>
   </compounddef>

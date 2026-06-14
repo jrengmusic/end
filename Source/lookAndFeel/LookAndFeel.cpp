@@ -113,12 +113,48 @@ void LookAndFeel::valueTreePropertyChanged (juce::ValueTree& tree, const juce::I
 //==============================================================================
 void LookAndFeel::drawBarBackground (juce::Graphics& g, juce::Component& bar)
 {
-    jam::SVG::Flex::paint (g, bar, graphics.at (ID::tabBar));
+    auto bounds { bar.getLocalBounds().toFloat() };
+    auto* parentBar { dynamic_cast<jam::button::Bar*> (bar.getParentComponent()) };
+
+    if (parentBar != nullptr and parentBar->isVertical())
+    {
+        const auto w { bounds.getWidth() };
+        const auto h { bounds.getHeight() };
+
+        if (parentBar->getOrientation() == jam::button::Bar::Orientation::left)
+            g.addTransform (juce::AffineTransform::rotation (-juce::MathConstants<float>::halfPi)
+                                .translated (0.0f, h));
+        else
+            g.addTransform (juce::AffineTransform::rotation (juce::MathConstants<float>::halfPi)
+                                .translated (w, 0.0f));
+
+        bounds = { 0.0f, 0.0f, h, w };
+    }
+
+    jam::SVG::Flex::paint (g, *this, graphics.at (ID::tabBar), bounds);
 }
 
 void LookAndFeel::drawBarHighlight (juce::Graphics& g, juce::Component& highlight)
 {
-    jam::SVG::Flex::paint (g, highlight, graphics.at (ID::tabHighlight));
+    auto bounds { highlight.getLocalBounds().toFloat() };
+    auto* parentBar { dynamic_cast<jam::button::Bar*> (highlight.getParentComponent()) };
+
+    if (parentBar != nullptr and parentBar->isVertical())
+    {
+        const auto w { bounds.getWidth() };
+        const auto h { bounds.getHeight() };
+
+        if (parentBar->getOrientation() == jam::button::Bar::Orientation::left)
+            g.addTransform (juce::AffineTransform::rotation (-juce::MathConstants<float>::halfPi)
+                                .translated (0.0f, h));
+        else
+            g.addTransform (juce::AffineTransform::rotation (juce::MathConstants<float>::halfPi)
+                                .translated (w, 0.0f));
+
+        bounds = { 0.0f, 0.0f, h, w };
+    }
+
+    jam::SVG::Flex::paint (g, *this, graphics.at (ID::tabHighlight), bounds);
 }
 
 void LookAndFeel::drawTabButton (juce::Graphics& g,
@@ -126,19 +162,39 @@ void LookAndFeel::drawTabButton (juce::Graphics& g,
                                  bool isMouseOver,
                                  bool isMouseDown)
 {
+    auto bounds { button.getLocalBounds().toFloat() };
+    auto* parentBar { dynamic_cast<jam::button::Bar*> (button.getParentComponent()) };
+    const bool vertical { parentBar != nullptr and parentBar->isVertical() };
+
+    if (vertical)
+    {
+        const auto w { bounds.getWidth() };
+        const auto h { bounds.getHeight() };
+
+        if (parentBar->getOrientation() == jam::button::Bar::Orientation::left)
+            g.addTransform (juce::AffineTransform::rotation (-juce::MathConstants<float>::halfPi)
+                                .translated (0.0f, h));
+        else
+            g.addTransform (juce::AffineTransform::rotation (juce::MathConstants<float>::halfPi)
+                                .translated (w, 0.0f));
+
+        bounds = { 0.0f, 0.0f, h, w };
+    }
+
     const auto state { jam::SVG::Button::getState (
         button, isMouseOver, isMouseDown, jam::map::ButtonState::get().size()) };
     const juce::Identifier stateId { jam::map::ButtonState::get (state) };
 
     // Sparse bank — paint only when the state slot was authored in theme.lua graphics section.
     if (graphics.contains (stateId))
-        jam::SVG::Flex::paint (g, button, graphics.at (stateId));
+        jam::SVG::Flex::paint (g, *this, graphics.at (stateId), bounds);
 
     g.setFont (getTabFont());
     g.setColour (button.findColour (button.getToggleState() ? juce::TextButton::textColourOnId
                                                             : juce::TextButton::textColourOffId));
-    g.drawText (
-        getTabText (button.getButtonText()), button.getLocalBounds(), juce::Justification::centred);
+    g.drawText (getTabText (button.getButtonText()),
+                bounds.toNearestInt(),
+                juce::Justification::centred);
 }
 
 juce::Font LookAndFeel::getTabFont() const

@@ -44,4 +44,4 @@ void LookAndFeel::load (const juce::Identifier& theme)
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace config
+}// namespace 

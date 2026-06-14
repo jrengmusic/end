@@ -69,7 +69,10 @@ void View::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifi
     }
 
     if (property == ID::theme)
+    {
+        setTabOrientation();
         getTopLevelComponent()->sendLookAndFeelChange();
+    }
 
     if (tree.getType() == IDtype::graphics or tree.getType() == IDtype::tabButton)
         getTopLevelComponent()->sendLookAndFeelChange();
