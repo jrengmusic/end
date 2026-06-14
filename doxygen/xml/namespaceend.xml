@@ -2,8 +2,6 @@
 <doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
   <compounddef id="namespaceend" kind="namespace" language="C++">
     <compoundname>end</compoundname>
-    <innerclass refid="structend_1_1_boolean" prot="public">end::Boolean</innerclass>
-    <innerclass refid="structend_1_1_gpu_mode" prot="public">end::GpuMode</innerclass>
     <innerclass refid="structend_1_1_position" prot="public">end::Position</innerclass>
     <innerclass refid="structend_1_1_drop_mode" prot="public">end::DropMode</innerclass>
     <innerclass refid="structend_1_1_map" prot="public">end::Map</innerclass>

@@ -47,7 +47,7 @@ return {
     -- Close active pane, then tab, then window.
     close_pane = "cmd+w",
 
-    -- Reload all configuration files (end.lua + action.lua).
+    -- Reload all configuration files (end.lua).
     reload = "cmd+r",
 
     -- Increase font size.
@@ -157,4 +157,18 @@ return {
 
     -- Exit selection mode.
     selection_exit = "escape",
+
+    -- ---- Whelmed document navigation ----
+
+    -- Scroll document down one step.
+    scroll_down = "j",
+
+    -- Scroll document up one step.
+    scroll_up = "k",
+
+    -- Jump to top of document (press twice: gg).
+    scroll_top = "gg",
+
+    -- Jump to bottom of document.
+    scroll_bottom = "G",
 }

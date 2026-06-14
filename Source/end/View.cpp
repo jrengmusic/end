@@ -28,7 +28,7 @@ View::View (jam::Model& m)
     tabs.addNewTab();
 
     //==============================================================================
-    auto [width, height] = config.getInt (IDtype::window, ID::size);
+    auto [width, height] = config.getInt (IDtype::end, ID::size);
     setSize (width, height);
 }
 
@@ -68,16 +68,28 @@ void View::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifi
         state.setProperty (ID::focusedPane, id, nullptr);
     }
 
+    if (property == ID::theme)
+        getTopLevelComponent()->sendLookAndFeelChange();
+
     if (tree.getType() == IDtype::graphics or tree.getType() == IDtype::tabButton)
         getTopLevelComponent()->sendLookAndFeelChange();
+
+    if (tree.getType() == IDtype::end)
+    {
+        if (auto* window { dynamic_cast<jam::Window*> (getTopLevelComponent()) })
+        {
+            if (property == ID::alwaysOnTop)
+                window->setAlwaysOnTop (tree.getProperty (property));
+
+            if (property == ID::titleBarButtons)
+                window->setShowWindowButtons (tree.getProperty (property));
+        }
+    }
 }
 
 void View::valueTreeChildAdded (juce::ValueTree& parentTree,
                                 juce::ValueTree& childWhichHasBeenAdded)
 {
-    if (parentTree.getType() == config.getLookAndFeel().getType())
-        getTopLevelComponent()->sendLookAndFeelChange();
-
     auto id { childWhichHasBeenAdded.getChildWithName (IDtype::pane).getProperty (jam::ID::id) };
     state.setProperty (ID::focusedPane, id, nullptr);
 }
@@ -91,9 +103,7 @@ void View::setViewState (int width, int height)
 
 void View::setTabOrientation()
 {
-    auto display { config.getChildWithName (IDtype::display) };
-    auto tabNode { display.getChildWithName (IDtype::tab) };
-    auto pos { tabNode.getProperty (ID::orientation).toString() };
+    auto pos { config.getLookAndFeel().getValue (IDtype::tab, ID::orientation).toString() };
 
     if (Position::getInstance()->contains (pos))
         tabs.setOrientation (Position::get (pos));

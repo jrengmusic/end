@@ -12,10 +12,11 @@ namespace config
 
     @details
     End is a terminal emulator. Every knob the user can twist lives in lua
-    files under @c ~/.config/end/ — @c config.lua, @c display.lua, @c graphics.lua
-    (SVG asset registry), @c actions.lua, @c keys.lua, @c popups.lua, @c nexus.lua,
-    @c whelmed.lua. config::Model is the single object that loads, validates,
-    and exposes them as a live juce::ValueTree to the rest of the app.
+    files under @c ~/.config/end/ — @c end.lua, @c popups.lua, @c keys.lua
+    (3 config sections). Theme files (@c theme.lua, @c whelmed.lua) and SVG
+    assets live under @c ~/.config/end/themes/\<name\>/. config::Model is the
+    single object that loads, validates, and exposes them as a live
+    juce::ValueTree to the rest of the app.
 
     @par Inherited roles
     Inherits from jam::Model (ValueTree wrapper exposing CONTEXT and tree
@@ -23,7 +24,7 @@ namespace config
     any code that includes this header), and jam::File::Watcher::Listener
     (receives filesystem change notifications).
 
-    @par Two-phase init
+    @par Four-phase init
     The constructor runs two phases in fixed order — see HARD RULES in
     CAROL.md, the constructor sequence is contract:
 
@@ -36,7 +37,7 @@ namespace config
     3. @c loadFromPath() — reads each lua file from disk, walks the
        table, applies validators, and (if validation passes) overlays
        the result on the live tree via @c setValuesFrom.
-    4. @c startWatching() — installs the file watcher for hot reload.
+    4. @c startWatcher() — installs the file watcher for hot reload.
 
     @par Validator map
     @c validators is a nested juce::Identifier → Identifier → predicate
@@ -53,11 +54,12 @@ namespace config
     walk can produce "<line> '<key>: invalid value "..."' style errors.
 
     @par File watcher
-    Watches @c ~/.config/end/ for @c .lua edits and the configured SVG
-    subdir for @c .svg edits. Lua edits trigger a full @c loadFromPath()
-    cycle. SVG edits look up the filename in @c graphicsCallbacks and
-    fire a property-change message on the matching identifier so the
-    affected look-and-feel element repaints.
+    Watches @c ~/.config/end/ for @c .lua edits and the active theme
+    directory (@c ~/.config/end/themes/\<name\>/) for @c .svg edits. Lua
+    edits trigger a full @c loadFromPath() cycle. SVG edits look up the
+    filename in @c graphicsCallbacks and fire a property-change message
+    on the matching identifier so the affected look-and-feel element
+    repaints.
 
     @par Lifetime
     One instance per process, owned by @c end::Application. Survives
@@ -76,7 +78,7 @@ public:
     //==========================================================================
     /**
         @brief Construct the model — runs initialise, saveToPath,
-               loadFromPath, startWatching in that fixed order.
+               loadFromPath, startWatcher in that fixed order.
     */
     Model();
 
@@ -87,7 +89,7 @@ public:
     /**
         @brief Reads each lua config file from disk and updates state.
 
-        For every lua section (except @c File::config) loads the file from
+        For every lua section loads the file from
         @c File::path, builds a temporary ValueTree via
         @c jam::lua::ValueTree::from with the populated validator map and
         line map, collects any per-file errors, and (if the tree is valid)
@@ -116,14 +118,14 @@ private:
         @brief Populates the live tree from BinaryData and builds the
                validator map in a single recursive walk.
         @details
-        For every key in @c File::get() except @c File::config, runs
+        For every key in @c File::get(), runs
         the corresponding lua source string from @c BinaryData through
         @c jam::lua::ValueTree::from with @c &validators, appending the
         child to the live @c state. Then walks every subtree and
         registers a type-based predicate per property; for string
         properties whose default value matches a known end::Map
-        (Boolean, Position, GpuMode, DropMode) the type-based predicate
-        is replaced with a Map-aware predicate via @c registerValidator.
+        (Position, DropMode) the type-based predicate is replaced with
+        a Map-aware predicate via @c registerValidator.
     */
     void initialise();
 
@@ -132,19 +134,20 @@ private:
                svg seed files from BinaryData.
         @details
         For every key in @c File::get() writes @"stem.lua" to
-        @c File::path if not already present on disk. Then writes every
-        @c Graphics stem (e.g. @"tab_bar.svg") to the SVG subdirectory
-        pointed at by the @c ID::path property of the live
-        @c IDtype::graphics subtree, if not already present. Files
-        already on disk are left untouched — this is a seed-once walk,
-        not a forced overwrite.
+        @c File::path if not already present on disk. Then writes theme
+        lua files (@c Theme::get()) to the active theme directory
+        @c ~/.config/end/themes/\<name\>/, and every
+        @c Theme::Graphics stem (e.g. @"tab_bar.svg") to the graphics
+        subdirectory inside that theme directory. Files already on disk
+        are left untouched — this is a seed-once walk, not a forced
+        overwrite.
     */
     void saveToPath();
 
     /**
-        @brief Installs the file watcher on @c File::path with
-               300 ms event coalescing and registers this Model as
-               a listener.
+        @brief Installs the file watcher on @c File::path and the active
+               theme directory with 300 ms event coalescing and registers
+               this Model as a listener.
     */
     void startWatcher();
 
@@ -164,9 +167,11 @@ private:
         Must be called after @c loadFromPath() so the runtime filenames
         (which may differ from BinaryData seeds) are present on the
         tree. Clears the existing map first, then for every
-        @c Graphics::get() entry builds a callback that fires
+        @c Theme::Graphics::get() entry builds a callback that fires
         @c sendPropertyChangeMessage on the matching identifier when
-        invoked.
+        invoked. Reads the graphics subtree from @c lookAndFeel.state,
+        not config @c state — graphics section now lives in the theme
+        tree.
     */
     void buildGraphicsCallbacks();
 
@@ -200,8 +205,8 @@ private:
     static int findLineNumber (const juce::String& sourceText, const juce::String& propertyName);
 
     /**
-        @brief Watches @c File::path (lua) and the SVG asset subdir
-               derived from the live @c IDtype::graphics subtree.
+        @brief Watches @c File::path (lua config root) and the active
+               theme directory for @c .svg asset changes.
     */
     jam::File::Watcher watcher;
 
@@ -217,9 +222,9 @@ private:
                @c initialise() in a single walk.
         @details
         Outer key = tree type. Inner key = property name. String
-        properties whose defaults match a known Map (Boolean,
-        Position, GpuMode, DropMode) receive domain-constrained
-        predicates; all others receive plain type predicates registered
+        properties whose defaults match a known Map (Position, DropMode)
+        receive domain-constrained predicates; all others receive plain
+        type predicates registered
         by @c jam::lua::ValueTree::from during the BinaryData walk.
     */
     jam::lua::Validators validators;

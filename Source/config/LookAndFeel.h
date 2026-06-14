@@ -11,7 +11,7 @@ namespace config
 
     @details
     Owns the live juce::ValueTree of colours, fonts, and metrics sourced
-    from the active theme's lua files (e.g. @c themes/gfx/display.lua).
+    from the active theme's lua files (e.g. @c themes/gfx/theme.lua).
     The tree ID is the theme name passed at construction (e.g. @c "gfx").
 
     Owned by config::Model. One instance per process.
@@ -28,7 +28,7 @@ public:
 
     /** @brief Rebuilds the theme state tree from the given theme directory.
      *
-     *  Reads display.lua (and eventually other lua files) from
+     *  Reads theme.lua and whelmed.lua from
      *  @c ~/.config/end/themes/@p theme/ and rebuilds the live state tree.
      *  Called by config::Model after loadFromPath() and on theme value change.
      *

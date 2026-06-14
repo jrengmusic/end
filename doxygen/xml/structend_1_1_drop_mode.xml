@@ -5,11 +5,11 @@
     <basecompoundref refid="classjam_1_1Map_1_1Instance" prot="public" virt="non-virtual">jam::Map::Instance&lt; DropMode &gt;</basecompoundref>
     <includes refid="_map_8h" local="no">Map.h</includes>
     <sectiondef kind="public-type">
-      <memberdef kind="enum" id="structend_1_1_drop_mode_1a2fea339e3fb033666ecd30029f7cf105" prot="public" static="no" strong="no">
+      <memberdef kind="enum" id="structend_1_1_drop_mode_1a842f2f4c8f4c271b614f4b98482c747d" prot="public" static="no" strong="no">
         <type></type>
-        <name>@215124113104175106342176324042375042114331211332</name>
-        <qualifiedname>end::DropMode::@215124113104175106342176324042375042114331211332</qualifiedname>
-        <enumvalue id="structend_1_1_drop_mode_1a2fea339e3fb033666ecd30029f7cf105a1746f4c0de312d491a81c6c009a9648c" prot="public">
+        <name>@277214137317010015316303354216265052334255124010</name>
+        <qualifiedname>end::DropMode::@277214137317010015316303354216265052334255124010</qualifiedname>
+        <enumvalue id="structend_1_1_drop_mode_1a842f2f4c8f4c271b614f4b98482c747da1746f4c0de312d491a81c6c009a9648c" prot="public">
           <name>space</name>
           <briefdescription>
 <para>Join dropped paths with spaces (default). </para>
@@ -17,7 +17,7 @@
           <detaileddescription>
           </detaileddescription>
         </enumvalue>
-        <enumvalue id="structend_1_1_drop_mode_1a2fea339e3fb033666ecd30029f7cf105af3939225d96f70a8f811ddf6e5401ca1" prot="public">
+        <enumvalue id="structend_1_1_drop_mode_1a842f2f4c8f4c271b614f4b98482c747daf3939225d96f70a8f811ddf6e5401ca1" prot="public">
           <name>newline</name>
           <briefdescription>
 <para>Join dropped paths with newlines. </para>
@@ -32,7 +32,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="140" column="5" bodyfile="end/Map.h" bodystart="141" bodyend="144"/>
+        <location file="end/Map.h" line="79" column="5" bodyfile="end/Map.h" bodystart="80" bodyend="83"/>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">
@@ -49,10 +49,10 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="147" column="5" bodyfile="end/Map.h" bodystart="147" bodyend="153"/>
+        <location file="end/Map.h" line="86" column="5" bodyfile="end/Map.h" bodystart="86" bodyend="92"/>
         <references refid="classjam_1_1Map_1_1Instance_1afe0acf25bab1f104aea20f20174129d1">jam::Map::Instance&lt; DropMode &gt;::map</references>
-        <references refid="structend_1_1_drop_mode_1a2fea339e3fb033666ecd30029f7cf105af3939225d96f70a8f811ddf6e5401ca1" compoundref="_map_8h" startline="143">newline</references>
-        <references refid="structend_1_1_drop_mode_1a2fea339e3fb033666ecd30029f7cf105a1746f4c0de312d491a81c6c009a9648c" compoundref="_map_8h" startline="142">space</references>
+        <references refid="structend_1_1_drop_mode_1a842f2f4c8f4c271b614f4b98482c747daf3939225d96f70a8f811ddf6e5401ca1" compoundref="_map_8h" startline="82">newline</references>
+        <references refid="structend_1_1_drop_mode_1a842f2f4c8f4c271b614f4b98482c747da1746f4c0de312d491a81c6c009a9648c" compoundref="_map_8h" startline="81">space</references>
       </memberdef>
       <memberdef kind="function" id="structend_1_1_drop_mode_1a7f5937c51beb5ec66953420bcfab919a" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="virtual">
         <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref> &amp;</type>
@@ -67,9 +67,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="155" column="24" bodyfile="end/Map.h" bodystart="155" bodyend="155"/>
+        <location file="end/Map.h" line="94" column="24" bodyfile="end/Map.h" bodystart="94" bodyend="94"/>
         <references refid="classjam_1_1Map_1_1Instance_1afe0acf25bab1f104aea20f20174129d1">jam::Map::Instance&lt; DropMode &gt;::map</references>
-        <references refid="structend_1_1_drop_mode_1a2fea339e3fb033666ecd30029f7cf105a1746f4c0de312d491a81c6c009a9648c" compoundref="_map_8h" startline="142">space</references>
+        <references refid="structend_1_1_drop_mode_1a842f2f4c8f4c271b614f4b98482c747da1746f4c0de312d491a81c6c009a9648c" compoundref="_map_8h" startline="81">space</references>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-static-func">
@@ -85,7 +85,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="157" column="23" bodyfile="end/Map.h" bodystart="157" bodyend="157"/>
+        <location file="end/Map.h" line="96" column="23" bodyfile="end/Map.h" bodystart="96" bodyend="96"/>
         <references refid="structjam_1_1Context_1a3ff553f70ef61043352c54cfed475b4c">jam::Context&lt; Derived &gt;::getInstance</references>
       </memberdef>
     </sectiondef>
@@ -93,7 +93,7 @@
 <para>Bimap for multi-file drop separator mode — &quot;space&quot; or &quot;newline&quot;. </para>
     </briefdescription>
     <detaileddescription>
-<para>Used by nexus.terminal.drop_multifiles. 0 → &quot;space&quot; — join paths with spaces (default) 1 → &quot;newline&quot; — join paths with newlines</para>
+<para>Used by end.terminal.drop_multifiles. 0 → &quot;space&quot; — join paths with spaces (default) 1 → &quot;newline&quot; — join paths with newlines</para>
 <para>Registered in <ref refid="classend_1_1_application" kindref="compound">Application</ref> CONTEXT before <ref refid="classconfig_1_1_model" kindref="compound">config::Model</ref> construction. </para>
     </detaileddescription>
     <inheritancegraph>
@@ -139,7 +139,7 @@
         </childnode>
       </node>
     </collaborationgraph>
-    <location file="end/Map.h" line="137" column="1" bodyfile="end/Map.h" bodystart="138" bodyend="158"/>
+    <location file="end/Map.h" line="76" column="1" bodyfile="end/Map.h" bodystart="77" bodyend="97"/>
     <listofallmembers>
       <member refid="classjam_1_1Map_1_1Instance_1a39231f6d1e13c6f64e72a07851a130c4" prot="public" virt="non-virtual"><scope>end::DropMode</scope><name>contains</name></member>
       <member refid="structjam_1_1Context_1a6e3f38a234db8ff2a9acb5986e72a2de" prot="public" virt="non-virtual"><scope>end::DropMode</scope><name>Context</name></member>
@@ -150,10 +150,10 @@
       <member refid="structjam_1_1Context_1a3ff553f70ef61043352c54cfed475b4c" prot="public" virt="non-virtual"><scope>end::DropMode</scope><name>getInstance</name></member>
       <member refid="structjam_1_1Context_1a5900ff66cdba02d6f6947cc6d5e8ec3d" prot="private" virt="non-virtual"><scope>end::DropMode</scope><name>head</name></member>
       <member refid="classjam_1_1Map_1_1Instance_1afe0acf25bab1f104aea20f20174129d1" prot="protected" virt="non-virtual"><scope>end::DropMode</scope><name>map</name></member>
-      <member refid="structend_1_1_drop_mode_1a2fea339e3fb033666ecd30029f7cf105af3939225d96f70a8f811ddf6e5401ca1" prot="public" virt="non-virtual"><scope>end::DropMode</scope><name>newline</name></member>
+      <member refid="structend_1_1_drop_mode_1a842f2f4c8f4c271b614f4b98482c747daf3939225d96f70a8f811ddf6e5401ca1" prot="public" virt="non-virtual"><scope>end::DropMode</scope><name>newline</name></member>
       <member refid="structjam_1_1Context_1a6716feb60b039083ca0c099a506a3474" prot="public" virt="non-virtual"><scope>end::DropMode</scope><name>operator=</name></member>
       <member refid="structjam_1_1Context_1aa1862120f2983ab7ddef536ba03bb114" prot="private" virt="non-virtual"><scope>end::DropMode</scope><name>previous</name></member>
-      <member refid="structend_1_1_drop_mode_1a2fea339e3fb033666ecd30029f7cf105a1746f4c0de312d491a81c6c009a9648c" prot="public" virt="non-virtual"><scope>end::DropMode</scope><name>space</name></member>
+      <member refid="structend_1_1_drop_mode_1a842f2f4c8f4c271b614f4b98482c747da1746f4c0de312d491a81c6c009a9648c" prot="public" virt="non-virtual"><scope>end::DropMode</scope><name>space</name></member>
       <member refid="structjam_1_1Context_1a4169820e71837632922d3d17b377aeee" prot="public" virt="virtual"><scope>end::DropMode</scope><name>~Context</name></member>
     </listofallmembers>
   </compounddef>

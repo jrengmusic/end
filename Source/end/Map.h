@@ -6,73 +6,12 @@ namespace end
 {
 /*____________________________________________________________________________*/
 
-struct Boolean : public jam::Map::Instance<Boolean>
-{
-    /**
-     * @brief Populates the bimap with all known display mode entries.
-     */
-    Boolean()
-    {
-        map = {
-            { false, "false" },
-            { true,  "true"  }
-        };
-    }
-
-    const juce::String& getDefault() const noexcept override { return map.at (false); }
-
-    static const auto& get() noexcept { return getInstance()->map; }
-
-    static const bool get (const juce::String& value) noexcept
-    {
-        return jam::Map::getKey (get()).at (value);
-    }
-
-    static const juce::String get (int key) noexcept { return get().at (key); }
-};
-
-//==============================================================================
-/**
- * @brief Bimap for the GPU rendering backend selection.
- *
- * Maps integer keys to the three valid gpu config values:
- *   0 → "auto"   — GPU if available, CPU fallback (default)
- *   1 → "true"   — Force GPU rendering
- *   2 → "false"  — Force CPU rendering
- *
- * Registered in Application CONTEXT before config::Model construction.
- */
-struct GpuMode : public jam::Map::Instance<GpuMode>
-{
-    /** @brief Integer keys for all GPU mode entries. */
-    enum
-    {
-        automatic,///< Use GPU if available, CPU fallback.
-        enabled,///< Force GPU rendering.
-        disabled,///< Force CPU rendering.
-    };
-
-    /** @brief Populates the bimap with all three entries. */
-    GpuMode()
-    {
-        map = {
-            { GpuMode::automatic, "auto"  },
-            { GpuMode::enabled,   "true"  },
-            { GpuMode::disabled,  "false" },
-        };
-    }
-
-    const juce::String& getDefault() const noexcept override { return map.at (GpuMode::automatic); }
-
-    static const auto& get() noexcept { return getInstance()->map; }
-};
-
 //==============================================================================
 /**
  * @brief Bimap for component position — "top", "bottom", "left", "right", or "center".
  *
- * Used by display.tab.orientation, display.status_bar.position,
- * display.action_list.position, and any future positional config fields.
+ * Used by theme.tab.orientation, theme.status_bar.position,
+ * theme.action_list.position, and any future positional config fields.
  *
  * Integer keys deliberately mirror jam::button::Bar::Orientation so that
  * orientation values can be forwarded directly to Bar::setOrientation():
@@ -128,7 +67,7 @@ struct Position : public jam::Map::Instance<Position>
 /**
  * @brief Bimap for multi-file drop separator mode — "space" or "newline".
  *
- * Used by nexus.terminal.drop_multifiles.
+ * Used by end.terminal.drop_multifiles.
  *   0 → "space"   — join paths with spaces (default)
  *   1 → "newline" — join paths with newlines
  *
@@ -166,7 +105,7 @@ namespace config
 /*____________________________________________________________________________*/
 
 /**
- * @brief Registry of lua config files — 8 section keys.
+ * @brief Registry of lua config files — 3 section keys.
  *        CRTP-derived from jam::Map::Instance<File>.
  *
  * Maps each enum key to its Identifier stem (e.g. config → "config") and
@@ -180,28 +119,18 @@ struct File : public jam::Map::Instance<File>
     /** @brief Integer keys for all lua config section files. */
     enum
     {
-        config,///< Master config section — written but never overlaid.
-        whelmed,///< Whelmed renderer styles.
-        nexus,///< Nexus GPU probe / runner settings.
-        display,///< Display/window properties.
-        graphics,///< SVG asset path registry.
-        actions,///< Action registry.
-        popups,///< Popup registry.
+        config,///< Application config (end.lua).
+        popups,///< Popup terminal definitions.
         keys,///< Key bindings.
     };
 
-    /** @brief Populates the bimap with all 8 entries. */
+    /** @brief Populates the bimap with all 3 entries. */
     File()
     {
         map = {
-            { File::config,   IDref::end   },
-            { File::whelmed,  IDref::whelmed  },
-            { File::nexus,    IDref::nexus    },
-            { File::display,  IDref::display  },
-            { File::graphics, IDref::graphics },
-            { File::actions,  IDref::actions  },
-            { File::popups,   IDref::popups   },
-            { File::keys,     IDref::keys     },
+            { File::config, IDref::end    },
+            { File::popups, IDref::popups },
+            { File::keys,   IDref::keys   },
         };
     }
 
@@ -216,7 +145,7 @@ struct File : public jam::Map::Instance<File>
      * @brief Returns the filename for the given enum key (always "stem.lua").
      *
      * @param key  One of the File enum values.
-     * @return     Filename string including extension (e.g. "display.lua").
+     * @return     Filename string including extension (e.g. "end.lua").
      */
     static const juce::String getName (int key) noexcept
     {
@@ -240,111 +169,44 @@ private:
     const juce::String& getDefault() const noexcept override { return map.at (File::config); }
 };
 
-//==============================================================================
 /**
- * @brief Registry of SVG graphics assets — 10 keys.
- *        CRTP-derived from jam::Map::Instance<Graphics>.
+ * @brief Registry of theme directory files — 2 section keys.
+ *        CRTP-derived from jam::Map::Instance<Theme>.
  *
  * Maps each enum key to its Identifier stem and resolves the on-disk
- * filename via getName(). All keys produce "stem.svg":
- *   tabBar              → tab_bar.svg
- *   tabHighlight        → tab_highlight.svg
- *   tabButtonNormal     → tab_button_normal.svg
- *   tabButtonOver       → tab_button_over.svg
- *   tabButtonDown       → tab_button_down.svg
- *   tabButtonDisabled   → tab_button_disabled.svg
- *   tabButtonNormalOn   → tab_button_normalOn.svg
- *   tabButtonOverOn     → tab_button_overOn.svg
- *   tabButtonDownOn     → tab_button_downOn.svg
- *   tabButtonDisabledOn → tab_button_disabledOn.svg
+ * filename via getName(). All keys produce "stem.lua".
  *
- * Only stems embedded in BinaryData are deployed — absent states are a
- * design choice and are silently skipped by the raw.exists() guard in
- * Config.cpp saveToPath.
- *
- * Owns the graphics subdirectory and the svg extension. The live instance
- * is owned by end::Application — static get() resolves through Context<Graphics>.
+ * Owns the themes root directory path. The live instance is owned by
+ * end::Application — static get() resolves through Context<Theme>.
  */
-struct Graphics : public jam::Map::Instance<Graphics>
+struct Theme : public jam::Map::Instance<Theme>
 {
-    /** @brief Integer keys for all SVG graphics assets. */
+    /** @brief Integer keys for theme lua files. */
     enum
     {
-        tabBar,///< Tab bar background SVG asset.
-        tabHighlight,///< Sliding tab highlight SVG asset.
-        tabButtonNormal,///< Tab button normal-state SVG asset stem.
-        tabButtonOver,///< Tab button over-state SVG asset stem.
-        tabButtonDown,///< Tab button down-state SVG asset stem.
-        tabButtonDisabled,///< Tab button disabled-state SVG asset stem.
-        tabButtonNormalOn,///< Tab button normalOn-state SVG asset stem.
-        tabButtonOverOn,///< Tab button overOn-state SVG asset stem.
-        tabButtonDownOn,///< Tab button downOn-state SVG asset stem.
-        tabButtonDisabledOn,///< Tab button disabledOn-state SVG asset stem.
+        theme,///< Visual properties (colours, fonts, metrics, graphics).
+        whelmed,///< Whelmed markdown renderer styles.
     };
 
-    /** @brief Populates the bimap with all 10 entries. */
-    Graphics()
+    /** @brief Populates the bimap with both entries. */
+    Theme()
     {
         map = {
-            { Graphics::tabBar,              IDref::tabBar              },
-            { Graphics::tabHighlight,        IDref::tabHighlight        },
-            { Graphics::tabButtonNormal,     IDref::tabButtonNormal     },
-            { Graphics::tabButtonOver,       IDref::tabButtonOver       },
-            { Graphics::tabButtonDown,       IDref::tabButtonDown       },
-            { Graphics::tabButtonDisabled,   IDref::tabButtonDisabled   },
-            { Graphics::tabButtonNormalOn,   IDref::tabButtonNormalOn   },
-            { Graphics::tabButtonOverOn,     IDref::tabButtonOverOn     },
-            { Graphics::tabButtonDownOn,     IDref::tabButtonDownOn     },
-            { Graphics::tabButtonDisabledOn, IDref::tabButtonDisabledOn },
+            { Theme::theme,   IDref::theme   },
+            { Theme::whelmed, IDref::whelmed },
         };
     }
 
-    /**
-     * @brief Returns the int→Identifier-stem map from the live context instance.
-     *
-     * Caller must ensure a config::Graphics owner is live (end::Application is).
-     */
+    /** @brief Returns the int→Identifier-stem map from the live context instance. */
     static const auto& get() noexcept { return getInstance()->map; }
 
-    /**
-     * @brief Returns the filename for the given enum key (always "stem.svg").
-     *
-     * @param key  One of the Graphics enum values.
-     * @return     Filename string including extension (e.g. "tab_bar.svg").
+    /** @brief Returns the filename for the given enum key (always "stem.lua").
+     *  @param key  One of the Theme enum values.
+     *  @return     Filename string including extension (e.g. "theme.lua").
      */
     static const juce::String getName (int key) noexcept
     {
         return jam::Format::toFileName (get().at (key), extension);
-    }
-
-    /** @brief Returns the graphics directory child path. */
-    static const juce::File getPath (juce::StringRef child) noexcept
-    {
-        return path.getChildFile (child);
-    }
-
-    /** @brief SVG asset subdirectory: ~/.config/end/graphics/ */
-    inline static const juce::File path { File::getPath (jam::IDref::graphics) };
-    /** @brief Bare svg extension (no wildcard) for file watcher checks. */
-    inline static const juce::String extension { "svg" };
-
-private:
-    const juce::String& getDefault() const noexcept override { return map.at (Graphics::tabBar); }
-};
-//==============================================================================
-/**
- * @brief Theme directory and filename resolution.
- *
- * Owns the themes subdirectory path and provides filename/path
- * resolution for theme lua files. Parallels config::File for the
- * config root directory.
- */
-struct Theme
-{
-    /** @brief Returns the filename for the theme lua file ("theme.lua"). */
-    static const juce::String getName() noexcept
-    {
-        return jam::Format::toFileName (IDref::theme, File::extension);
     }
 
     /** @brief Returns the theme subdirectory for the given theme name.
@@ -358,6 +220,77 @@ struct Theme
 
     /** @brief Themes root directory: ~/.config/end/themes/ */
     inline static const juce::File path { File::getPath (IDref::themes) };
+    /** @brief Lua extension for theme files. */
+    inline static const juce::String extension { "lua" };
+
+    //==========================================================================
+    /**
+     * @brief Registry of SVG graphics assets — 10 keys.
+     *        Nested inside Theme. CRTP-derived from jam::Map::Instance<Graphics>.
+     *
+     * Maps each enum key to its Identifier stem and resolves the on-disk
+     * filename via getName(). All keys produce "stem.svg".
+     *
+     * No static path — graphics directory resolved at call site:
+     * Theme::getPath(name).getChildFile(jam::IDref::graphics).
+     *
+     * The live instance is owned by end::Application via end::Map.
+     */
+    struct Graphics : public jam::Map::Instance<Graphics>
+    {
+        /** @brief Integer keys for all SVG graphics assets. */
+        enum
+        {
+            tabBar,///< Tab bar background SVG asset.
+            tabHighlight,///< Sliding tab highlight SVG asset.
+            tabButtonNormal,///< Tab button normal-state SVG asset stem.
+            tabButtonOver,///< Tab button over-state SVG asset stem.
+            tabButtonDown,///< Tab button down-state SVG asset stem.
+            tabButtonDisabled,///< Tab button disabled-state SVG asset stem.
+            tabButtonNormalOn,///< Tab button normalOn-state SVG asset stem.
+            tabButtonOverOn,///< Tab button overOn-state SVG asset stem.
+            tabButtonDownOn,///< Tab button downOn-state SVG asset stem.
+            tabButtonDisabledOn,///< Tab button disabledOn-state SVG asset stem.
+        };
+
+        /** @brief Populates the bimap with all 10 entries. */
+        Graphics()
+        {
+            map = {
+                { Graphics::tabBar,              IDref::tabBar              },
+                { Graphics::tabHighlight,        IDref::tabHighlight        },
+                { Graphics::tabButtonNormal,     IDref::tabButtonNormal     },
+                { Graphics::tabButtonOver,       IDref::tabButtonOver       },
+                { Graphics::tabButtonDown,       IDref::tabButtonDown       },
+                { Graphics::tabButtonDisabled,   IDref::tabButtonDisabled   },
+                { Graphics::tabButtonNormalOn,   IDref::tabButtonNormalOn   },
+                { Graphics::tabButtonOverOn,     IDref::tabButtonOverOn     },
+                { Graphics::tabButtonDownOn,     IDref::tabButtonDownOn     },
+                { Graphics::tabButtonDisabledOn, IDref::tabButtonDisabledOn },
+            };
+        }
+
+        /** @brief Returns the int→Identifier-stem map from the live context instance. */
+        static const auto& get() noexcept { return getInstance()->map; }
+
+        /** @brief Returns the filename for the given enum key (always "stem.svg").
+         *  @param key  One of the Graphics enum values.
+         *  @return     Filename string including extension (e.g. "tab_bar.svg").
+         */
+        static const juce::String getName (int key) noexcept
+        {
+            return jam::Format::toFileName (get().at (key), extension);
+        }
+
+        /** @brief Bare svg extension (no wildcard) for file watcher checks. */
+        inline static const juce::String extension { "svg" };
+
+    private:
+        const juce::String& getDefault() const noexcept override { return map.at (Graphics::tabBar); }
+    };
+
+private:
+    const juce::String& getDefault() const noexcept override { return map.at (Theme::theme); }
 };
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace config
@@ -368,12 +301,11 @@ namespace end
 /*____________________________________________________________________________*/
 struct Map
 {
-    end::Boolean boolean;
-    end::GpuMode gpu;
     end::Position position;
     end::DropMode dropMode;
     config::File file;
-    config::Graphics graphics;
+    config::Theme theme;
+    config::Theme::Graphics graphics;
     jam::map::WindowFX window;
     jam::map::Segment segment;
     jam::map::ButtonState button;

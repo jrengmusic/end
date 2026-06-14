@@ -35,10 +35,12 @@ void Application::initialise (const juce::String& commandLine)
     // LookAndFeel: set as default, register as ValueTree listener
     juce::LookAndFeel::setDefaultLookAndFeel (&lookAndFeel);
 
-    // end::Window reads all remaining WINDOW properties (colour, blur, backend,
-    // always_on_top, buttons) from config inside its own setStyle() call.
+    // end::Window applies glass via lookAndFeelChanged(). Operational properties
+    // (always_on_top, title_bar_buttons) passed at construction.
     auto* view { new View (model) };
-    window.reset (new end::Window { view, ProjectInfo::projectName, false, false });
+    bool alwaysOnTop { config.getValue (IDtype::end, ID::alwaysOnTop) };
+    bool titleBarButtons { config.getValue (IDtype::end, ID::titleBarButtons) };
+    window.reset (new end::Window { view, ProjectInfo::projectName, alwaysOnTop, titleBarButtons });
     window->setVisible (true);
 
     juce::MessageManager::callAsync (

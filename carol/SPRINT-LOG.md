@@ -2,6 +2,80 @@
 
 ---
 
+## Sprint 17: Theme Engine — Config/Theme Restructure, Per-Component Colour Map ✅
+
+**Date:** 2026-06-14
+**Duration:** ~06:00
+
+### Agents Participated
+- COUNSELOR: architecture, planning, orchestration, direct fixes
+- Engineer: Map.h rewrite, Identifier.h restructure, lua files, Config.cpp, LookAndFeel.cpp, View.cpp, Window.h/cpp
+- Pathfinder: full config consumer audit (2x), jam identifier survey
+- Auditor: 28-finding audit — all resolved
+- Researcher: ANSI colour naming convention
+
+### Files Modified (32 total)
+
+**END — Config lua (eliminated):**
+- `Source/config/lua/display.lua` — DELETED (all content → theme.lua)
+- `Source/config/lua/graphics.lua` — DELETED (filename mappings → theme.lua graphics section)
+- `Source/config/lua/nexus.lua` — DELETED (content → end.lua)
+- `Source/config/lua/actions.lua` — DELETED (content → end.lua actions section)
+- `Source/config/lua/whelmed.lua` — DELETED (moved to theme dir)
+
+**END — Config lua (modified):**
+- `Source/config/lua/end.lua` — rewritten: app config + runtime (absorbs nexus + actions), native booleans, gpu collapsed to bool
+- `Source/config/lua/keys.lua` — added whelmed navigation keys (scroll_down/up/top/bottom)
+
+**END — Theme lua (new/modified):**
+- `Source/config/lua/theme/gfx/theme.lua` — complete visual config: window, ansi, code, cursor, scrollbar, tab, button, overlay, pane, status_bar, hint, menu, action_list, graphics
+- `Source/config/lua/theme/gfx/whelmed.lua` — NEW (moved from config root, nav keys removed)
+
+**END — C++ headers:**
+- `Source/Identifier.h` — DISPLAY→THEME, NEXUS→APP, removed nexus/display/actions from CONFIG, whelmed nav keys→KEYS, blurStyle dead ID removed, titleBarButtons/saveWindowState/ansi/scrollbar/hint/thumb/track/labelBackground/labelText/spinner added, backgroundColour removed
+- `Source/end/Map.h` — File enum 8→3, Theme Map::Instance with nested Graphics, standalone Graphics deleted, Boolean/GpuMode deleted, end::Map updated
+- `Source/end/Window.h` — dumb: no VTL, no config, no styleParameters
+- `Source/end/View.h` — unchanged
+- `Source/end/Tabs.h` — doxygen: display→theme
+- `Source/end/MessageOverlay.h` — reads from theme tree, doxygen updated
+- `Source/config/Config.h` — doxygen: 3 files, four-phase init, removed stale references
+- `Source/config/LookAndFeel.h` — doxygen: themes/gfx/theme.lua, reads theme.lua+whelmed.lua
+- `Source/lookAndFeel/LookAndFeel.h` — Glass typedef Union<Colour, int16, int16>, getWindowGlass
+
+**END — C++ source:**
+- `Source/Main.cpp` — reads alwaysOnTop/titleBarButtons from config, stale comment fixed
+- `Source/end/Window.cpp` — dumb: ctor calls lookAndFeelChanged() only, no VTL
+- `Source/end/View.cpp` — dispatches window ops via getTopLevelComponent, setTabOrientation from theme, sendLookAndFeelChange on ID::theme signal, size from IDtype::end
+- `Source/end/Tabs.cpp` — depth from theme via config.getLookAndFeel()
+- `Source/config/Config.cpp` — File 3 entries, theme seeding via Theme::get/Graphics, buildGraphicsCallbacks from theme tree, watcher watches theme dir, Boolean/GpuMode validators removed, Windows desktop scale block removed
+- `Source/config/LookAndFeel.cpp` — iterates Theme::get() for all theme lua files, sendPropertyChangeMessage(ID::theme) after complete tree, removeAllChildren on reload
+- `Source/lookAndFeel/LookAndFeel.cpp` — ColourMap from theme.state, per-component setColourId (code/scrollbar/tab/button/overlay/pane/statusBar/hint), all getValue/getInt16 from theme, vtpc handles ID::theme signal, loadGraphics from theme tree, getWindowGlass uses jam::ID::background
+
+**JAM framework:**
+- `jam_lua/jam_lua_types.h` — LineMapBuilder: std::map→HashMap, std::set→HashSet, Error class deleted
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- Theme engine complete: all visual properties in theme directory, config root shrunk to 3 operational files
+- Per-component colour nodes with 1:1 colourId mapping (no flat dump)
+- Window dumb — View orchestrates operational properties
+- Native lua booleans everywhere — Boolean/GpuMode bimaps eliminated
+- Proper ValueTree::Listener for theme reload: sendPropertyChangeMessage(ID::theme) after copyPropertiesAndChildrenFrom, no bail-out guards
+- config::Theme Map::Instance with nested Theme::Graphics — follows existing Map::Instance pattern
+- Startup bug: initial always_on_top/title_bar_buttons read from config at construction
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 16: Theme Engine Foundation, Window Glass Migration, map::WindowFX
 
 **Date:** 2026-06-14

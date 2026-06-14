@@ -22,7 +22,7 @@ namespace end
  *  tabAttachments — RAII ensures detach on removal.
  *
  *  Listens to the config ValueTree so that bar depth re-computes whenever
- *  the display tab node changes (depth, font_size, font_family).
+ *  the theme tab node changes (depth, font_size, font_family).
  */
 class Tabs
     : public jam::TabbedComponent
@@ -46,7 +46,7 @@ protected:
     void currentTabChanged (int newCurrentTabIndex, const juce::String& newCurrentTabName) override;
 
 private:
-    /** @brief Re-computes bar depth and relays tab positions when the display tab node changes.
+    /** @brief Re-computes bar depth and relays tab positions when the theme tab node changes.
      *  Calls updateTabBarVisibility() then resized() so that padding and depth
      *  changes both take effect without requiring a second event.
      */

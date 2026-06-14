@@ -6,33 +6,41 @@ namespace config
 
 void LookAndFeel::load (const juce::Identifier& theme)
 {
-    auto path { Theme::getPath (theme.toString()) };
+    auto themePath { Theme::getPath (theme.toString()) };
 
-    if (not path.exists())
-        path.createDirectory();
+    if (not themePath.exists())
+        themePath.createDirectory();
 
-    const juce::File themeFile { path.getChildFile (Theme::getName()) };
+    state.removeAllChildren (nullptr);
 
-    if (not themeFile.existsAsFile())
+    for (auto& [key, value] : Theme::get())
     {
-        BinaryData::Raw raw (Theme::getName());
+        const auto name { Theme::getName (key) };
+        const juce::File file { themePath.getChildFile (name) };
 
-        if (raw.exists())
-            themeFile.replaceWithData (raw.data, static_cast<size_t> (raw.size));
-    }
-
-    if (themeFile.existsAsFile())
-    {
-        auto lua { jam::lua::State() };
-        auto result { lua.getType (themeFile.loadFileAsString(), themeFile.getFileName()) };
-
-        if (result.wasOk())
+        if (not file.existsAsFile())
         {
-            auto tree { jam::Model::fromLua (result.value(), theme.toString().toUpperCase()) };
+            BinaryData::Raw raw (name);
 
-            state.copyPropertiesAndChildrenFrom (tree, nullptr);
+            if (raw.exists())
+                file.replaceWithData (raw.data, static_cast<size_t> (raw.size));
+        }
+
+        if (file.existsAsFile())
+        {
+            auto lua { jam::lua::State() };
+            auto result { lua.getType (file.loadFileAsString(), file.getFileName()) };
+
+            if (result.wasOk())
+            {
+                auto tree { jam::Model::fromLua (result.value(), value.toUpperCase()) };
+
+                state.addChild (tree.createCopy(), -1, nullptr);
+            }
         }
     }
+
+    state.sendPropertyChangeMessage (ID::theme);
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

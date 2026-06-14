@@ -8,7 +8,6 @@
     <includedby refid="_model_8h" local="yes">end/Model.h</includedby>
     <includedby refid="_pane_view_8h" local="yes">end/PaneView.h</includedby>
     <includedby refid="_tabs_8h" local="yes">end/Tabs.h</includedby>
-    <includedby refid="_window_8h" local="yes">end/Window.h</includedby>
     <includedby refid="look_and_feel_2_look_and_feel_8h" local="yes">lookAndFeel/LookAndFeel.h</includedby>
     <incdepgraph>
       <node id="1">
@@ -36,8 +35,6 @@
         <childnode refid="13" relation="include">
         </childnode>
         <childnode refid="15" relation="include">
-        </childnode>
-        <childnode refid="17" relation="include">
         </childnode>
       </node>
       <node id="4">
@@ -83,8 +80,6 @@
         </childnode>
         <childnode refid="15" relation="include">
         </childnode>
-        <childnode refid="17" relation="include">
-        </childnode>
       </node>
       <node id="20">
         <label>config/LookAndFeel.cpp</label>
@@ -112,8 +107,6 @@
         <childnode refid="19" relation="include">
         </childnode>
         <childnode refid="8" relation="include">
-        </childnode>
-        <childnode refid="15" relation="include">
         </childnode>
       </node>
       <node id="12">
@@ -178,23 +171,23 @@
         <childnode refid="10" relation="include">
         </childnode>
       </node>
-      <node id="16">
+      <node id="17">
         <label>end/Window.cpp</label>
         <link refid="_window_8cpp"/>
       </node>
-      <node id="15">
+      <node id="16">
         <label>end/Window.h</label>
         <link refid="_window_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
-        <childnode refid="16" relation="include">
+        <childnode refid="17" relation="include">
         </childnode>
       </node>
       <node id="18">
         <label>lookAndFeel/LookAndFeel.cpp</label>
         <link refid="look_and_feel_2_look_and_feel_8cpp"/>
       </node>
-      <node id="17">
+      <node id="15">
         <label>lookAndFeel/LookAndFeel.h</label>
         <link refid="look_and_feel_2_look_and_feel_8h"/>
         <childnode refid="3" relation="include">
@@ -203,7 +196,7 @@
         </childnode>
         <childnode refid="14" relation="include">
         </childnode>
-        <childnode refid="15" relation="include">
+        <childnode refid="16" relation="include">
         </childnode>
         <childnode refid="18" relation="include">
         </childnode>
@@ -219,23 +212,25 @@
         <param><defname>X</defname></param>
         <initializer><ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (<ref refid="namespaceconfig" kindref="compound">config</ref>, &quot;config&quot;)     \
 <ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (<ref refid="namespaceend" kindref="compound">end</ref>, &quot;end&quot;)           \
-<ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (nexus, &quot;nexus&quot;)       \
-<ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (display, &quot;display&quot;)   \
-<ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (actions, &quot;actions&quot;)   \
 <ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (keys, &quot;keys&quot;)         \
 <ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (popups, &quot;popups&quot;)     \
 <ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (whelmed, &quot;whelmed&quot;)   \
 <ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (graphics, &quot;graphics&quot;) \
 <ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (loadMessage, &quot;load_message&quot;) \
 <ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (theme, &quot;theme&quot;)       \
-<ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (themes, &quot;themes&quot;)</initializer>
+<ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (themes, &quot;themes&quot;)        \
+<ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (ansi, &quot;ansi&quot;)            \
+<ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (scrollbar, &quot;scrollbar&quot;)  \
+<ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (hint, &quot;hint&quot;)            \
+<ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (titleBarButtons, &quot;title_bar_buttons&quot;) \
+<ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (saveWindowState, &quot;save_window_state&quot;)</initializer>
         <briefdescription>
         </briefdescription>
         <detaileddescription>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="24" column="9" bodyfile="Identifier.h" bodystart="24" bodyend="36"/>
+        <location file="Identifier.h" line="24" column="9" bodyfile="Identifier.h" bodystart="24" bodyend="38"/>
       </memberdef>
       <memberdef kind="define" id="_identifier_8h_1aa9bf783750310652518ef44491b8648a" prot="public" static="no">
         <name>IDENTIFIER_COMMON</name>
@@ -261,10 +256,10 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="39" column="9" bodyfile="Identifier.h" bodystart="39" bodyend="54"/>
+        <location file="Identifier.h" line="41" column="9" bodyfile="Identifier.h" bodystart="41" bodyend="56"/>
       </memberdef>
-      <memberdef kind="define" id="_identifier_8h_1a81c336dc80d673d32421d8419ab93335" prot="public" static="no">
-        <name>IDENTIFIER_DISPLAY</name>
+      <memberdef kind="define" id="_identifier_8h_1a475b7c3934b9bcf7a39786c581d4b3d0" prot="public" static="no">
+        <name>IDENTIFIER_THEME</name>
         <param><defname>X</defname></param>
         <briefdescription>
         </briefdescription>
@@ -272,7 +267,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="57" column="9" bodyfile="Identifier.h" bodystart="57" bodyend="139"/>
+        <location file="Identifier.h" line="59" column="9" bodyfile="Identifier.h" bodystart="59" bodyend="143"/>
       </memberdef>
       <memberdef kind="define" id="_identifier_8h_1a3b61c469b6a88f4abbc11ac75acb71b6" prot="public" static="no">
         <name>IDENTIFIER_KEYS</name>
@@ -283,10 +278,10 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="142" column="9" bodyfile="Identifier.h" bodystart="142" bodyend="182"/>
+        <location file="Identifier.h" line="146" column="9" bodyfile="Identifier.h" bodystart="146" bodyend="190"/>
       </memberdef>
-      <memberdef kind="define" id="_identifier_8h_1a56b9c893856b239f7bcc89e18b6ee011" prot="public" static="no">
-        <name>IDENTIFIER_NEXUS</name>
+      <memberdef kind="define" id="_identifier_8h_1a74daa67650c53429660a64aad2e743b6" prot="public" static="no">
+        <name>IDENTIFIER_APP</name>
         <param><defname>X</defname></param>
         <initializer><ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (gpu, &quot;gpu&quot;)                        \
 <ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (daemon, &quot;daemon&quot;)                  \
@@ -307,7 +302,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="187" column="9" bodyfile="Identifier.h" bodystart="187" bodyend="200"/>
+        <location file="Identifier.h" line="195" column="9" bodyfile="Identifier.h" bodystart="195" bodyend="208"/>
       </memberdef>
       <memberdef kind="define" id="_identifier_8h_1ad35c7126ba2ab690e2b9bfa0de0f6868" prot="public" static="no">
         <name>IDENTIFIER_POPUPS</name>
@@ -320,7 +315,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="203" column="9" bodyfile="Identifier.h" bodystart="203" bodyend="205"/>
+        <location file="Identifier.h" line="211" column="9" bodyfile="Identifier.h" bodystart="211" bodyend="213"/>
       </memberdef>
       <memberdef kind="define" id="_identifier_8h_1adeca505ca9b5e31c464aa09976652cdd" prot="public" static="no">
         <name>IDENTIFIER_ACTIONS</name>
@@ -333,7 +328,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="208" column="9" bodyfile="Identifier.h" bodystart="208" bodyend="210"/>
+        <location file="Identifier.h" line="216" column="9" bodyfile="Identifier.h" bodystart="216" bodyend="218"/>
       </memberdef>
       <memberdef kind="define" id="_identifier_8h_1a4485766306c975b32e043f2a9eb45a8a" prot="public" static="no">
         <name>IDENTIFIER_WHELMED</name>
@@ -344,14 +339,13 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="213" column="9" bodyfile="Identifier.h" bodystart="213" bodyend="256"/>
+        <location file="Identifier.h" line="221" column="9" bodyfile="Identifier.h" bodystart="221" bodyend="260"/>
       </memberdef>
       <memberdef kind="define" id="_identifier_8h_1a089ca9bdcc5559d95557c6c6ddf9db0c" prot="public" static="no">
         <name>IDENTIFIER_BACKEND</name>
         <param><defname>X</defname></param>
         <initializer><ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (mac, &quot;mac&quot;)                                           \
 <ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (win, &quot;win&quot;)                                           \
-<ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (blurStyle, &quot;blur_style&quot;)                              \
 <ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (backgroundBlur, &quot;backgroundBlur&quot;)                     \
 <ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (visualFXWindowBackground, &quot;visualFXWindowBackground&quot;) \
 <ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (glassFXRegular, &quot;glassFXRegular&quot;)                     \
@@ -366,7 +360,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="261" column="9" bodyfile="Identifier.h" bodystart="261" bodyend="272"/>
+        <location file="Identifier.h" line="265" column="9" bodyfile="Identifier.h" bodystart="265" bodyend="275"/>
       </memberdef>
       <memberdef kind="define" id="_identifier_8h_1a3f1d190c83b5d7a37ef5c213fcb2bfaf" prot="public" static="no">
         <name>IDENTIFIER_MODEL</name>
@@ -381,7 +375,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="275" column="9" bodyfile="Identifier.h" bodystart="275" bodyend="279"/>
+        <location file="Identifier.h" line="278" column="9" bodyfile="Identifier.h" bodystart="278" bodyend="282"/>
       </memberdef>
       <memberdef kind="define" id="_identifier_8h_1aa678230a5f71071f7d9e20dd31ad5547" prot="public" static="no">
         <name>END_MAKE_VIEW</name>
@@ -391,9 +385,9 @@
 {                                     \
     <ref refid="_identifier_8h_1a40d51e0ccfbbdea334e323d8e091af54" kindref="member">IDENTIFIER_CONFIG</ref> (EXPANDER)      \
     <ref refid="_identifier_8h_1aa9bf783750310652518ef44491b8648a" kindref="member">IDENTIFIER_COMMON</ref> (EXPANDER)      \
-    <ref refid="_identifier_8h_1a81c336dc80d673d32421d8419ab93335" kindref="member">IDENTIFIER_DISPLAY</ref> (EXPANDER)     \
+    <ref refid="_identifier_8h_1a475b7c3934b9bcf7a39786c581d4b3d0" kindref="member">IDENTIFIER_THEME</ref> (EXPANDER)       \
     <ref refid="_identifier_8h_1a3b61c469b6a88f4abbc11ac75acb71b6" kindref="member">IDENTIFIER_KEYS</ref> (EXPANDER)        \
-    <ref refid="_identifier_8h_1a56b9c893856b239f7bcc89e18b6ee011" kindref="member">IDENTIFIER_NEXUS</ref> (EXPANDER)       \
+    <ref refid="_identifier_8h_1a74daa67650c53429660a64aad2e743b6" kindref="member">IDENTIFIER_APP</ref> (EXPANDER)         \
     <ref refid="_identifier_8h_1ad35c7126ba2ab690e2b9bfa0de0f6868" kindref="member">IDENTIFIER_POPUPS</ref> (EXPANDER)      \
     <ref refid="_identifier_8h_1adeca505ca9b5e31c464aa09976652cdd" kindref="member">IDENTIFIER_ACTIONS</ref> (EXPANDER)     \
     <ref refid="_identifier_8h_1a4485766306c975b32e043f2a9eb45a8a" kindref="member">IDENTIFIER_WHELMED</ref> (EXPANDER)     \
@@ -406,7 +400,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="282" column="9" bodyfile="Identifier.h" bodystart="282" bodyend="295"/>
+        <location file="Identifier.h" line="285" column="9" bodyfile="Identifier.h" bodystart="285" bodyend="298"/>
         <referencedby refid="struct_i_dref_1a15336e61beceb953f8c3ff39521b7c22">IDref::AS_STRINGREF</referencedby>
         <referencedby refid="struct_i_dtype_1a6407ccc02f46025e81c8c4bb9598845a">IDtype::AS_TYPE</referencedby>
         <referencedby refid="struct_i_dtag_1a3e7c1d2932d996b3894e727d495aa6a5">IDtag::AS_UPPER</referencedby>
@@ -432,284 +426,287 @@
 <codeline lineno="20"><highlight class="normal"></highlight><highlight class="comment">//<sp/>JRENG!</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="21"><highlight class="normal"></highlight><highlight class="comment">//<sp/>============================================================================</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="22"><highlight class="normal"></highlight></codeline>
-<codeline lineno="23"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Top-level<sp/>config<sp/>section<sp/>names</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Config<sp/>+<sp/>theme<sp/>section<sp/>and<sp/>node<sp/>names</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="24" refid="_identifier_8h_1a40d51e0ccfbbdea334e323d8e091af54" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>IDENTIFIER_CONFIG(X)<sp/>\</highlight></codeline>
 <codeline lineno="25"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(config,<sp/>&quot;config&quot;)<sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
 <codeline lineno="26"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(end,<sp/>&quot;end&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="27"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(nexus,<sp/>&quot;nexus&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="28"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(display,<sp/>&quot;display&quot;)<sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="29"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(actions,<sp/>&quot;actions&quot;)<sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="30"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(keys,<sp/>&quot;keys&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="31"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(popups,<sp/>&quot;popups&quot;)<sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="32"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(whelmed,<sp/>&quot;whelmed&quot;)<sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="33"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(graphics,<sp/>&quot;graphics&quot;)<sp/>\</highlight></codeline>
-<codeline lineno="34"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(loadMessage,<sp/>&quot;load_message&quot;)<sp/>\</highlight></codeline>
-<codeline lineno="35"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(theme,<sp/>&quot;theme&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="36"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(themes,<sp/>&quot;themes&quot;)</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="37"><highlight class="normal"></highlight></codeline>
-<codeline lineno="38"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Keys<sp/>shared<sp/>across<sp/>multiple<sp/>config<sp/>sections<sp/>(not<sp/>in<sp/>jam::ID)</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="39" refid="_identifier_8h_1aa9bf783750310652518ef44491b8648a" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>IDENTIFIER_COMMON(X)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="40"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(position,<sp/>&quot;position&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="41"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(orientation,<sp/>&quot;orientation&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="42"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(inactive,<sp/>&quot;inactive&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="43"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(active,<sp/>&quot;active&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="44"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(scrollbarWidth,<sp/>&quot;scrollbar_width&quot;)<sp/><sp/>\</highlight></codeline>
-<codeline lineno="45"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(barColour,<sp/>&quot;bar_colour&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="46"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(barHighlight,<sp/>&quot;bar_highlight&quot;)<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="47"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(borderColour,<sp/>&quot;border_colour&quot;)<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="48"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(borderWidth,<sp/>&quot;border_width&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="49"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(scrollbackLines,<sp/>&quot;scrollback_lines&quot;)\</highlight></codeline>
-<codeline lineno="50"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(scrollStep,<sp/>&quot;scroll_step&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="51"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(cols,<sp/>&quot;cols&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="52"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(rows,<sp/>&quot;rows&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="53"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(scrollbarThumb,<sp/>&quot;scrollbar_thumb&quot;)<sp/><sp/>\</highlight></codeline>
-<codeline lineno="54"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(scrollbarTrack,<sp/>&quot;scrollbar_track&quot;)</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="55"><highlight class="normal"></highlight></codeline>
-<codeline lineno="56"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Display-specific<sp/>keys<sp/>(not<sp/>in<sp/>jam::ID<sp/>or<sp/>COMMON)</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="57" refid="_identifier_8h_1a81c336dc80d673d32421d8419ab93335" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>IDENTIFIER_DISPLAY(X)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="58"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tab,<sp/>&quot;tab&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="59"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tabBar,<sp/>&quot;tab_bar&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="60"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tabButton,<sp/>&quot;tab_button&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="61"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tabHighlight,<sp/>&quot;tab_highlight&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="62"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tabButtonNormal,<sp/><sp/><sp/><sp/><sp/>&quot;tab_button_normal&quot;)<sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="63"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tabButtonOver,<sp/><sp/><sp/><sp/><sp/><sp/><sp/>&quot;tab_button_over&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="64"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tabButtonDown,<sp/><sp/><sp/><sp/><sp/><sp/><sp/>&quot;tab_button_down&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="65"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tabButtonDisabled,<sp/><sp/><sp/>&quot;tab_button_disabled&quot;)<sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="66"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tabButtonNormalOn,<sp/><sp/><sp/>&quot;tab_button_normalOn&quot;)<sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="67"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tabButtonOverOn,<sp/><sp/><sp/><sp/><sp/>&quot;tab_button_overOn&quot;)<sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="68"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tabButtonDownOn,<sp/><sp/><sp/><sp/><sp/>&quot;tab_button_downOn&quot;)<sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="69"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tabButtonDisabledOn,<sp/>&quot;tab_button_disabledOn&quot;)<sp/>\</highlight></codeline>
-<codeline lineno="70"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tabs,<sp/>&quot;tabs&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="71"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(pane,<sp/>&quot;pane&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="72"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(window,<sp/>&quot;window&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="73"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(windowFx,<sp/>&quot;window_fx&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="74"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(backgroundColour,<sp/>&quot;background_colour&quot;)<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="75"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(size,<sp/>&quot;size&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="76"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(view,<sp/>&quot;view&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="77"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(popup,<sp/>&quot;popup&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="78"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(ligatures,<sp/>&quot;ligatures&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="79"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(embolden,<sp/>&quot;embolden&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="80"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(lineHeight,<sp/>&quot;line_height&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="81"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(cellWidth,<sp/>&quot;cell_width&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="82"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(desktopScale,<sp/>&quot;desktop_scale&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="83"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(blink,<sp/>&quot;blink&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="84"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(blinkInterval,<sp/>&quot;blink_interval&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="85"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(force,<sp/>&quot;force&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="86"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(editorBackground,<sp/>&quot;editor_background&quot;)<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="87"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(editorOutline,<sp/>&quot;editor_outline&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="88"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(caret,<sp/>&quot;caret&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="89"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(highlight,<sp/>&quot;highlight&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="90"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(selectionCursor,<sp/>&quot;selection_cursor&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="91"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(black,<sp/>&quot;black&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="92"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(red,<sp/>&quot;red&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="93"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(green,<sp/>&quot;green&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="94"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(yellow,<sp/>&quot;yellow&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="95"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(blue,<sp/>&quot;blue&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="96"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(magenta,<sp/>&quot;magenta&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="97"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(cyan,<sp/>&quot;cyan&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="98"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(white,<sp/>&quot;white&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="99"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(brightBlack,<sp/>&quot;bright_black&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="100"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(brightRed,<sp/>&quot;bright_red&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="101"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(brightGreen,<sp/>&quot;bright_green&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="102"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(brightYellow,<sp/>&quot;bright_yellow&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="103"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(brightBlue,<sp/>&quot;bright_blue&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="104"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(brightMagenta,<sp/>&quot;bright_magenta&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="105"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(brightCyan,<sp/>&quot;bright_cyan&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="106"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(brightWhite,<sp/>&quot;bright_white&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="107"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(statusBar,<sp/>&quot;status_bar&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="108"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(statusBarLabelBg,<sp/>&quot;status_bar_label_bg&quot;)<sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="109"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(statusBarLabelFg,<sp/>&quot;status_bar_label_fg&quot;)<sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="110"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(statusBarSpinner,<sp/>&quot;status_bar_spinner&quot;)<sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="111"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(hintLabelBg,<sp/>&quot;hint_label_bg&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="112"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(hintLabelFg,<sp/>&quot;hint_label_fg&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="113"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(blurRadius,<sp/>&quot;blur_radius&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="114"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(alwaysOnTop,<sp/>&quot;always_on_top&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="115"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(saveSize,<sp/>&quot;save_size&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="116"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(confirmationOnExit,<sp/>&quot;confirmation_on_exit&quot;)<sp/>\</highlight></codeline>
-<codeline lineno="117"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(forceDwm,<sp/>&quot;force_dwm&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="118"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(buttons,<sp/>&quot;buttons&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="119"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(closeOnRun,<sp/>&quot;close_on_run&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="120"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(code,<sp/>&quot;code&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="121"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(nameFontFamily,<sp/>&quot;name_font_family&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="122"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(nameFontStyle,<sp/>&quot;name_font_style&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="123"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(nameFontSize,<sp/>&quot;name_font_size&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="124"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(shortcutFontFamily,<sp/>&quot;shortcut_font_family&quot;)<sp/>\</highlight></codeline>
-<codeline lineno="125"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(shortcutFontStyle,<sp/>&quot;shortcut_font_style&quot;)<sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="126"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(shortcutFontSize,<sp/>&quot;shortcut_font_size&quot;)<sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="127"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(nameColour,<sp/>&quot;name_colour&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="128"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(shortcutColour,<sp/>&quot;shortcut_colour&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="129"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(highlightColour,<sp/>&quot;highlight_colour&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="130"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(fontFamily,<sp/>&quot;font_family&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="131"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(fontSize,<sp/>&quot;font_size&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="132"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(fontStyle,<sp/>&quot;font_style&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="133"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(textOn,<sp/>&quot;text_on&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="134"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(textOff,<sp/>&quot;text_off&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="135"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(buttonOn,<sp/>&quot;button_on&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="136"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(uppercase,<sp/>&quot;uppercase&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="137"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(depth,<sp/>&quot;depth&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="138"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(kerningFactor,<sp/>&quot;kerning_factor&quot;)<sp/>\</highlight></codeline>
-<codeline lineno="139"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(textPadding,<sp/>&quot;text_padding&quot;)</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="140"><highlight class="normal"></highlight></codeline>
-<codeline lineno="141"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Key<sp/>binding<sp/>names<sp/>(keys.lua)</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="142" refid="_identifier_8h_1a3b61c469b6a88f4abbc11ac75acb71b6" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>IDENTIFIER_KEYS(X)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="143"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(prefix,<sp/>&quot;prefix&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="144"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(prefixTimeout,<sp/>&quot;prefix_timeout&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="145"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(copy,<sp/>&quot;copy&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="146"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(paste,<sp/>&quot;paste&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="147"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(quit,<sp/>&quot;quit&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="148"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(closeTab,<sp/>&quot;close_tab&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="149"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(closePane,<sp/>&quot;close_pane&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="150"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(reload,<sp/>&quot;reload&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="151"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(zoomIn,<sp/>&quot;zoom_in&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="152"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(zoomOut,<sp/>&quot;zoom_out&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="153"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(zoomReset,<sp/>&quot;zoom_reset&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="154"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(newWindow,<sp/>&quot;new_window&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="155"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(newTab,<sp/>&quot;new_tab&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="156"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(prevTab,<sp/>&quot;prev_tab&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="157"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(nextTab,<sp/>&quot;next_tab&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="158"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(renameTab,<sp/>&quot;rename_tab&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="159"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(splitHorizontal,<sp/>&quot;split_horizontal&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="160"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(splitVertical,<sp/>&quot;split_vertical&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="161"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(paneLeft,<sp/>&quot;pane_left&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="162"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(paneDown,<sp/>&quot;pane_down&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="163"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(paneUp,<sp/>&quot;pane_up&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="164"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(paneRight,<sp/>&quot;pane_right&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="165"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(newline,<sp/>&quot;newline&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="166"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(actionList,<sp/>&quot;action_list&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="167"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(enterSelection,<sp/>&quot;enter_selection&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="168"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(enterOpenFile,<sp/>&quot;enter_open_file&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="169"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(openFileNextPage,<sp/>&quot;open_file_next_page&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="170"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(selectionUp,<sp/>&quot;selection_up&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="171"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(selectionDown,<sp/>&quot;selection_down&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="172"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(selectionLeft,<sp/>&quot;selection_left&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="173"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(selectionRight,<sp/>&quot;selection_right&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="174"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(selectionVisual,<sp/>&quot;selection_visual&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="175"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(selectionVisualLine,<sp/>&quot;selection_visual_line&quot;)<sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="176"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(selectionVisualBlock,<sp/>&quot;selection_visual_block&quot;)<sp/>\</highlight></codeline>
-<codeline lineno="177"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(selectionCopy,<sp/>&quot;selection_copy&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="178"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(selectionTop,<sp/>&quot;selection_top&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="179"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(selectionBottom,<sp/>&quot;selection_bottom&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="180"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(selectionLineStart,<sp/>&quot;selection_line_start&quot;)<sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="181"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(selectionLineEnd,<sp/>&quot;selection_line_end&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="182"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(selectionExit,<sp/>&quot;selection_exit&quot;)</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="183"><highlight class="normal"></highlight></codeline>
-<codeline lineno="184"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Nexus<sp/>/<sp/>system<sp/>keys<sp/>(nexus.lua)<sp/>—<sp/>excludes<sp/>jam::ID:<sp/>editor<sp/>(&quot;editor&quot;),</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="185"><highlight class="normal"></highlight><highlight class="comment">//<sp/>cwd<sp/>(&quot;cwd&quot;),<sp/>image<sp/>(&quot;image&quot;),<sp/>mode<sp/>(&quot;mode&quot;),<sp/>interval<sp/>(&quot;interval&quot;)</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="186"><highlight class="normal"></highlight><highlight class="comment">//<sp/>jam::gpu<sp/>has<sp/>string<sp/>&quot;GPU&quot;<sp/>(uppercase)<sp/>—<sp/>&quot;gpu&quot;<sp/>(lowercase)<sp/>is<sp/>a<sp/>distinct<sp/>lua<sp/>key,<sp/>declared<sp/>here</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="187" refid="_identifier_8h_1a56b9c893856b239f7bcc89e18b6ee011" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>IDENTIFIER_NEXUS(X)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="188"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(gpu,<sp/>&quot;gpu&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="189"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(daemon,<sp/>&quot;daemon&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="190"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(autoReload,<sp/>&quot;auto_reload&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="191"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(shell,<sp/>&quot;shell&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="192"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(program,<sp/>&quot;program&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="193"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(args,<sp/>&quot;args&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="194"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(integration,<sp/>&quot;integration&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="195"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(terminal,<sp/>&quot;terminal&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="196"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(dropMultifiles,<sp/>&quot;drop_multifiles&quot;)<sp/>\</highlight></codeline>
-<codeline lineno="197"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(dropQuoted,<sp/>&quot;drop_quoted&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="198"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(hyperlinks,<sp/>&quot;hyperlinks&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="199"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(atlasDimension,<sp/>&quot;atlas_dimension&quot;)<sp/>\</highlight></codeline>
-<codeline lineno="200"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(border,<sp/>&quot;border&quot;)</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="201"><highlight class="normal"></highlight></codeline>
-<codeline lineno="202"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Popup<sp/>entry<sp/>keys<sp/>(popups.lua)<sp/>—<sp/>cols,<sp/>rows<sp/>already<sp/>in<sp/>COMMON</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="203" refid="_identifier_8h_1ad35c7126ba2ab690e2b9bfa0de0f6868" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>IDENTIFIER_POPUPS(X)<sp/>\</highlight></codeline>
-<codeline lineno="204"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(command,<sp/>&quot;command&quot;)<sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="205"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(modal,<sp/>&quot;modal&quot;)</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="206"><highlight class="normal"></highlight></codeline>
-<codeline lineno="207"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Action<sp/>entry<sp/>keys<sp/>(actions.lua)</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="208" refid="_identifier_8h_1adeca505ca9b5e31c464aa09976652cdd" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>IDENTIFIER_ACTIONS(X)<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="209"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(description,<sp/>&quot;description&quot;)<sp/>\</highlight></codeline>
-<codeline lineno="210"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(execute,<sp/>&quot;execute&quot;)</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="211"><highlight class="normal"></highlight></codeline>
-<codeline lineno="212"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Whelmed-specific<sp/>keys<sp/>(whelmed.lua)</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="213" refid="_identifier_8h_1a4485766306c975b32e043f2a9eb45a8a" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>IDENTIFIER_WHELMED(X)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="214"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(bodyColour,<sp/>&quot;body_colour&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="215"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(linkColour,<sp/>&quot;link_colour&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="216"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(h1Size,<sp/>&quot;h1_size&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="217"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(h2Size,<sp/>&quot;h2_size&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="218"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(h3Size,<sp/>&quot;h3_size&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="219"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(h4Size,<sp/>&quot;h4_size&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="220"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(h5Size,<sp/>&quot;h5_size&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="221"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(h6Size,<sp/>&quot;h6_size&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="222"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(h1Colour,<sp/>&quot;h1_colour&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="223"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(h2Colour,<sp/>&quot;h2_colour&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="224"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(h3Colour,<sp/>&quot;h3_colour&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="225"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(h4Colour,<sp/>&quot;h4_colour&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="226"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(h5Colour,<sp/>&quot;h5_colour&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="227"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(h6Colour,<sp/>&quot;h6_colour&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="228"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(codeFenceBackground,<sp/>&quot;code_fence_background&quot;)<sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="229"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(codeColour,<sp/>&quot;code_colour&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="230"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tokenError,<sp/>&quot;token_error&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="231"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tokenComment,<sp/>&quot;token_comment&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="232"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tokenKeyword,<sp/>&quot;token_keyword&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="233"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tokenOperator,<sp/>&quot;token_operator&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="234"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tokenIdentifier,<sp/>&quot;token_identifier&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="235"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tokenInteger,<sp/>&quot;token_integer&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="236"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tokenFloat,<sp/>&quot;token_float&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="237"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tokenString,<sp/>&quot;token_string&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="238"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tokenBracket,<sp/>&quot;token_bracket&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="239"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tokenPunctuation,<sp/>&quot;token_punctuation&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="240"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tokenPreprocessor,<sp/>&quot;token_preprocessor&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="241"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tableBackground,<sp/>&quot;table_background&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="242"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tableHeaderBackground,<sp/>&quot;table_header_background&quot;)<sp/>\</highlight></codeline>
-<codeline lineno="243"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tableRowAlt,<sp/>&quot;table_row_alt&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="244"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tableBorderColour,<sp/>&quot;table_border_colour&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="245"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tableHeaderText,<sp/>&quot;table_header_text&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="246"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tableCellText,<sp/>&quot;table_cell_text&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="247"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(progressBackground,<sp/>&quot;progress_background&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="248"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(progressForeground,<sp/>&quot;progress_foreground&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="249"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(progressTextColour,<sp/>&quot;progress_text_colour&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="250"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(progressSpinnerColour,<sp/>&quot;progress_spinner_colour&quot;)<sp/>\</highlight></codeline>
-<codeline lineno="251"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(scrollbarBackground,<sp/>&quot;scrollbar_background&quot;)<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="252"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(selectionColour,<sp/>&quot;selection_colour&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="253"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(scrollDown,<sp/>&quot;scroll_down&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="254"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(scrollUp,<sp/>&quot;scroll_up&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="255"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(scrollTop,<sp/>&quot;scroll_top&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="256"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(scrollBottom,<sp/>&quot;scroll_bottom&quot;)</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="257"><highlight class="normal"></highlight></codeline>
-<codeline lineno="258"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Platform<sp/>+<sp/>BackgroundBlur<sp/>WindowFX<sp/>keys<sp/>(display.lua<sp/>/<sp/>window.blur_style)</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="259"><highlight class="normal"></highlight><highlight class="comment">//<sp/>&quot;mac&quot;/&quot;win&quot;<sp/>identify<sp/>the<sp/>platform<sp/>in<sp/>the<sp/>blur_style<sp/>table;</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="260"><highlight class="normal"></highlight><highlight class="comment">//<sp/>the<sp/>remaining<sp/>values<sp/>map<sp/>to<sp/>jam::BackgroundBlur::WindowFX<sp/>per<sp/>platform.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="261" refid="_identifier_8h_1a089ca9bdcc5559d95557c6c6ddf9db0c" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>IDENTIFIER_BACKEND(X)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="262"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(mac,<sp/>&quot;mac&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="263"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(win,<sp/>&quot;win&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="264"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(blurStyle,<sp/>&quot;blur_style&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="265"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(backgroundBlur,<sp/>&quot;backgroundBlur&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="266"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(visualFXWindowBackground,<sp/>&quot;visualFXWindowBackground&quot;)<sp/>\</highlight></codeline>
-<codeline lineno="267"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(glassFXRegular,<sp/>&quot;glassFXRegular&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="268"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(glassFXClear,<sp/>&quot;glassFXClear&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="269"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(blurBehind,<sp/>&quot;blurBehind&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="270"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(acrylic10,<sp/>&quot;acrylic10&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="271"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(acrylic11,<sp/>&quot;acrylic11&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="272"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(mica,<sp/>&quot;mica&quot;)</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="273"><highlight class="normal"></highlight></codeline>
-<codeline lineno="274"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Runtime<sp/>state<sp/>keys<sp/>(end::Model)</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="275" refid="_identifier_8h_1a3f1d190c83b5d7a37ef5c213fcb2bfaf" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>IDENTIFIER_MODEL(X)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="276"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(focusedPane,<sp/>&quot;focused_pane&quot;)<sp/>\</highlight></codeline>
-<codeline lineno="277"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(focus,<sp/>&quot;focus&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="278"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(zoom,<sp/>&quot;zoom&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="279"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(renderer,<sp/>&quot;renderer&quot;)</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="280"><highlight class="normal"></highlight></codeline>
-<codeline lineno="281"><highlight class="normal"></highlight><highlight class="comment">//<sp/>============================================================================</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="282" refid="_identifier_8h_1aa678230a5f71071f7d9e20dd31ad5547" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>END_MAKE_VIEW(ViewName,<sp/>EXPANDER)<sp/>\</highlight></codeline>
-<codeline lineno="283"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>struct<sp/>ViewName<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="284"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="285"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_CONFIG<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="286"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_COMMON<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="287"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_DISPLAY<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="288"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_KEYS<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="289"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_NEXUS<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="290"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_POPUPS<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="291"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_ACTIONS<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="292"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_WHELMED<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="293"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_BACKEND<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="294"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_MODEL<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="295"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>};</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="296"><highlight class="normal"></highlight></codeline>
-<codeline lineno="297" refid="struct_i_d_1ade3efe103f202bf24e5c45db41614f8d" refkind="member"><highlight class="normal"><ref refid="_identifier_8h_1aa678230a5f71071f7d9e20dd31ad5547" kindref="member">END_MAKE_VIEW</ref><sp/>(<ref refid="struct_i_d" kindref="compound">ID</ref>,<sp/><ref refid="struct_i_d_1ade3efe103f202bf24e5c45db41614f8d" kindref="member">AS_IDENTIFIER</ref>)</highlight></codeline>
-<codeline lineno="298" refid="struct_i_dref_1a15336e61beceb953f8c3ff39521b7c22" refkind="member"><highlight class="normal"><ref refid="_identifier_8h_1aa678230a5f71071f7d9e20dd31ad5547" kindref="member">END_MAKE_VIEW</ref><sp/>(<ref refid="struct_i_dref" kindref="compound">IDref</ref>,<sp/><ref refid="struct_i_dref_1a15336e61beceb953f8c3ff39521b7c22" kindref="member">AS_STRINGREF</ref>)</highlight></codeline>
-<codeline lineno="299" refid="struct_i_dtag_1a3e7c1d2932d996b3894e727d495aa6a5" refkind="member"><highlight class="normal"><ref refid="_identifier_8h_1aa678230a5f71071f7d9e20dd31ad5547" kindref="member">END_MAKE_VIEW</ref><sp/>(<ref refid="struct_i_dtag" kindref="compound">IDtag</ref>,<sp/><ref refid="struct_i_dtag_1a3e7c1d2932d996b3894e727d495aa6a5" kindref="member">AS_UPPER</ref>)</highlight></codeline>
-<codeline lineno="300" refid="struct_i_dtype_1a6407ccc02f46025e81c8c4bb9598845a" refkind="member"><highlight class="normal"><ref refid="_identifier_8h_1aa678230a5f71071f7d9e20dd31ad5547" kindref="member">END_MAKE_VIEW</ref><sp/>(<ref refid="struct_i_dtype" kindref="compound">IDtype</ref>,<sp/><ref refid="struct_i_dtype_1a6407ccc02f46025e81c8c4bb9598845a" kindref="member">AS_TYPE</ref>)</highlight></codeline>
+<codeline lineno="27"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(keys,<sp/>&quot;keys&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="28"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(popups,<sp/>&quot;popups&quot;)<sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="29"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(whelmed,<sp/>&quot;whelmed&quot;)<sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="30"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(graphics,<sp/>&quot;graphics&quot;)<sp/>\</highlight></codeline>
+<codeline lineno="31"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(loadMessage,<sp/>&quot;load_message&quot;)<sp/>\</highlight></codeline>
+<codeline lineno="32"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(theme,<sp/>&quot;theme&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="33"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(themes,<sp/>&quot;themes&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="34"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(ansi,<sp/>&quot;ansi&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="35"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(scrollbar,<sp/>&quot;scrollbar&quot;)<sp/><sp/>\</highlight></codeline>
+<codeline lineno="36"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(hint,<sp/>&quot;hint&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="37"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(titleBarButtons,<sp/>&quot;title_bar_buttons&quot;)<sp/>\</highlight></codeline>
+<codeline lineno="38"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(saveWindowState,<sp/>&quot;save_window_state&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Keys<sp/>shared<sp/>across<sp/>multiple<sp/>config<sp/>sections<sp/>(not<sp/>in<sp/>jam::ID)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41" refid="_identifier_8h_1aa9bf783750310652518ef44491b8648a" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>IDENTIFIER_COMMON(X)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="42"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(position,<sp/>&quot;position&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="43"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(orientation,<sp/>&quot;orientation&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="44"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(inactive,<sp/>&quot;inactive&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="45"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(active,<sp/>&quot;active&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="46"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(scrollbarWidth,<sp/>&quot;scrollbar_width&quot;)<sp/><sp/>\</highlight></codeline>
+<codeline lineno="47"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(barColour,<sp/>&quot;bar_colour&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="48"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(barHighlight,<sp/>&quot;bar_highlight&quot;)<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="49"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(borderColour,<sp/>&quot;border_colour&quot;)<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="50"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(borderWidth,<sp/>&quot;border_width&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="51"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(scrollbackLines,<sp/>&quot;scrollback_lines&quot;)\</highlight></codeline>
+<codeline lineno="52"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(scrollStep,<sp/>&quot;scroll_step&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="53"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(cols,<sp/>&quot;cols&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="54"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(rows,<sp/>&quot;rows&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="55"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(scrollbarThumb,<sp/>&quot;scrollbar_thumb&quot;)<sp/><sp/>\</highlight></codeline>
+<codeline lineno="56"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(scrollbarTrack,<sp/>&quot;scrollbar_track&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Theme-specific<sp/>keys<sp/>(theme<sp/>tree<sp/>property<sp/>and<sp/>node<sp/>names)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="59" refid="_identifier_8h_1a475b7c3934b9bcf7a39786c581d4b3d0" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>IDENTIFIER_THEME(X)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="60"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tab,<sp/>&quot;tab&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="61"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tabBar,<sp/>&quot;tab_bar&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="62"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tabButton,<sp/>&quot;tab_button&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="63"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tabHighlight,<sp/>&quot;tab_highlight&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="64"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tabButtonNormal,<sp/><sp/><sp/><sp/><sp/>&quot;tab_button_normal&quot;)<sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="65"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tabButtonOver,<sp/><sp/><sp/><sp/><sp/><sp/><sp/>&quot;tab_button_over&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="66"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tabButtonDown,<sp/><sp/><sp/><sp/><sp/><sp/><sp/>&quot;tab_button_down&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="67"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tabButtonDisabled,<sp/><sp/><sp/>&quot;tab_button_disabled&quot;)<sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="68"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tabButtonNormalOn,<sp/><sp/><sp/>&quot;tab_button_normalOn&quot;)<sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="69"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tabButtonOverOn,<sp/><sp/><sp/><sp/><sp/>&quot;tab_button_overOn&quot;)<sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="70"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tabButtonDownOn,<sp/><sp/><sp/><sp/><sp/>&quot;tab_button_downOn&quot;)<sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="71"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tabButtonDisabledOn,<sp/>&quot;tab_button_disabledOn&quot;)<sp/>\</highlight></codeline>
+<codeline lineno="72"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tabs,<sp/>&quot;tabs&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="73"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(pane,<sp/>&quot;pane&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="74"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(window,<sp/>&quot;window&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="75"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(windowFx,<sp/>&quot;window_fx&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="76"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(size,<sp/>&quot;size&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="77"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(view,<sp/>&quot;view&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="78"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(popup,<sp/>&quot;popup&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="79"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(ligatures,<sp/>&quot;ligatures&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="80"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(embolden,<sp/>&quot;embolden&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="81"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(lineHeight,<sp/>&quot;line_height&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="82"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(cellWidth,<sp/>&quot;cell_width&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="83"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(desktopScale,<sp/>&quot;desktop_scale&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="84"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(blink,<sp/>&quot;blink&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="85"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(blinkInterval,<sp/>&quot;blink_interval&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="86"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(force,<sp/>&quot;force&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="87"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(editorBackground,<sp/>&quot;editor_background&quot;)<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="88"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(editorOutline,<sp/>&quot;editor_outline&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="89"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(caret,<sp/>&quot;caret&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="90"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(highlight,<sp/>&quot;highlight&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="91"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(selectionCursor,<sp/>&quot;selection_cursor&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="92"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(black,<sp/>&quot;black&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="93"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(red,<sp/>&quot;red&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="94"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(green,<sp/>&quot;green&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="95"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(yellow,<sp/>&quot;yellow&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="96"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(blue,<sp/>&quot;blue&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="97"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(magenta,<sp/>&quot;magenta&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="98"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(cyan,<sp/>&quot;cyan&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="99"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(white,<sp/>&quot;white&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="100"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(brightBlack,<sp/>&quot;bright_black&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="101"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(brightRed,<sp/>&quot;bright_red&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="102"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(brightGreen,<sp/>&quot;bright_green&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="103"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(brightYellow,<sp/>&quot;bright_yellow&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="104"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(brightBlue,<sp/>&quot;bright_blue&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="105"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(brightMagenta,<sp/>&quot;bright_magenta&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="106"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(brightCyan,<sp/>&quot;bright_cyan&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="107"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(brightWhite,<sp/>&quot;bright_white&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="108"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(statusBar,<sp/>&quot;status_bar&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="109"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(statusBarLabelBg,<sp/>&quot;status_bar_label_bg&quot;)<sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="110"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(statusBarLabelFg,<sp/>&quot;status_bar_label_fg&quot;)<sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="111"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(statusBarSpinner,<sp/>&quot;status_bar_spinner&quot;)<sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="112"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(hintLabelBg,<sp/>&quot;hint_label_bg&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="113"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(hintLabelFg,<sp/>&quot;hint_label_fg&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="114"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(thumb,<sp/>&quot;thumb&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="115"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(track,<sp/>&quot;track&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="116"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(labelBackground,<sp/>&quot;label_background&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="117"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(labelText,<sp/>&quot;label_text&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="118"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(spinner,<sp/>&quot;spinner&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="119"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(blurRadius,<sp/>&quot;blur_radius&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="120"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(alwaysOnTop,<sp/>&quot;always_on_top&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="121"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(confirmationOnExit,<sp/>&quot;confirmation_on_exit&quot;)<sp/>\</highlight></codeline>
+<codeline lineno="122"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(forceDwm,<sp/>&quot;force_dwm&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="123"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(closeOnRun,<sp/>&quot;close_on_run&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="124"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(code,<sp/>&quot;code&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="125"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(nameFontFamily,<sp/>&quot;name_font_family&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="126"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(nameFontStyle,<sp/>&quot;name_font_style&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="127"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(nameFontSize,<sp/>&quot;name_font_size&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="128"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(shortcutFontFamily,<sp/>&quot;shortcut_font_family&quot;)<sp/>\</highlight></codeline>
+<codeline lineno="129"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(shortcutFontStyle,<sp/>&quot;shortcut_font_style&quot;)<sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="130"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(shortcutFontSize,<sp/>&quot;shortcut_font_size&quot;)<sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="131"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(nameColour,<sp/>&quot;name_colour&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="132"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(shortcutColour,<sp/>&quot;shortcut_colour&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="133"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(highlightColour,<sp/>&quot;highlight_colour&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="134"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(fontFamily,<sp/>&quot;font_family&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="135"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(fontSize,<sp/>&quot;font_size&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="136"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(fontStyle,<sp/>&quot;font_style&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="137"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(textOn,<sp/>&quot;text_on&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="138"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(textOff,<sp/>&quot;text_off&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="139"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(buttonOn,<sp/>&quot;button_on&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="140"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(uppercase,<sp/>&quot;uppercase&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="141"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(depth,<sp/>&quot;depth&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="142"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(kerningFactor,<sp/>&quot;kerning_factor&quot;)<sp/>\</highlight></codeline>
+<codeline lineno="143"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(textPadding,<sp/>&quot;text_padding&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Key<sp/>binding<sp/>names<sp/>(keys.lua)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="146" refid="_identifier_8h_1a3b61c469b6a88f4abbc11ac75acb71b6" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>IDENTIFIER_KEYS(X)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="147"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(prefix,<sp/>&quot;prefix&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="148"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(prefixTimeout,<sp/>&quot;prefix_timeout&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="149"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(copy,<sp/>&quot;copy&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="150"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(paste,<sp/>&quot;paste&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="151"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(quit,<sp/>&quot;quit&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="152"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(closeTab,<sp/>&quot;close_tab&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="153"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(closePane,<sp/>&quot;close_pane&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="154"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(reload,<sp/>&quot;reload&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="155"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(zoomIn,<sp/>&quot;zoom_in&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="156"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(zoomOut,<sp/>&quot;zoom_out&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="157"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(zoomReset,<sp/>&quot;zoom_reset&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="158"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(newWindow,<sp/>&quot;new_window&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="159"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(newTab,<sp/>&quot;new_tab&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="160"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(prevTab,<sp/>&quot;prev_tab&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="161"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(nextTab,<sp/>&quot;next_tab&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="162"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(renameTab,<sp/>&quot;rename_tab&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="163"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(splitHorizontal,<sp/>&quot;split_horizontal&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="164"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(splitVertical,<sp/>&quot;split_vertical&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="165"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(paneLeft,<sp/>&quot;pane_left&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="166"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(paneDown,<sp/>&quot;pane_down&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="167"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(paneUp,<sp/>&quot;pane_up&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="168"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(paneRight,<sp/>&quot;pane_right&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="169"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(newline,<sp/>&quot;newline&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="170"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(actionList,<sp/>&quot;action_list&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="171"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(enterSelection,<sp/>&quot;enter_selection&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="172"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(enterOpenFile,<sp/>&quot;enter_open_file&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="173"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(openFileNextPage,<sp/>&quot;open_file_next_page&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="174"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(selectionUp,<sp/>&quot;selection_up&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="175"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(selectionDown,<sp/>&quot;selection_down&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="176"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(selectionLeft,<sp/>&quot;selection_left&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="177"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(selectionRight,<sp/>&quot;selection_right&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="178"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(selectionVisual,<sp/>&quot;selection_visual&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="179"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(selectionVisualLine,<sp/>&quot;selection_visual_line&quot;)<sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="180"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(selectionVisualBlock,<sp/>&quot;selection_visual_block&quot;)<sp/>\</highlight></codeline>
+<codeline lineno="181"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(selectionCopy,<sp/>&quot;selection_copy&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="182"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(selectionTop,<sp/>&quot;selection_top&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="183"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(selectionBottom,<sp/>&quot;selection_bottom&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="184"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(selectionLineStart,<sp/>&quot;selection_line_start&quot;)<sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="185"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(selectionLineEnd,<sp/>&quot;selection_line_end&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="186"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(selectionExit,<sp/>&quot;selection_exit&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="187"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(scrollDown,<sp/>&quot;scroll_down&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="188"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(scrollUp,<sp/>&quot;scroll_up&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="189"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(scrollTop,<sp/>&quot;scroll_top&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="190"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(scrollBottom,<sp/>&quot;scroll_bottom&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="191"><highlight class="normal"></highlight></codeline>
+<codeline lineno="192"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Application<sp/>runtime<sp/>keys<sp/>(end.lua<sp/>sections)<sp/>—<sp/>excludes<sp/>jam::ID:<sp/>editor<sp/>(&quot;editor&quot;),</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="193"><highlight class="normal"></highlight><highlight class="comment">//<sp/>cwd<sp/>(&quot;cwd&quot;),<sp/>image<sp/>(&quot;image&quot;),<sp/>mode<sp/>(&quot;mode&quot;),<sp/>interval<sp/>(&quot;interval&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="194"><highlight class="normal"></highlight><highlight class="comment">//<sp/>jam::gpu<sp/>has<sp/>string<sp/>&quot;GPU&quot;<sp/>(uppercase)<sp/>—<sp/>&quot;gpu&quot;<sp/>(lowercase)<sp/>is<sp/>a<sp/>distinct<sp/>lua<sp/>key,<sp/>declared<sp/>here</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="195" refid="_identifier_8h_1a74daa67650c53429660a64aad2e743b6" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>IDENTIFIER_APP(X)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="196"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(gpu,<sp/>&quot;gpu&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="197"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(daemon,<sp/>&quot;daemon&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="198"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(autoReload,<sp/>&quot;auto_reload&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="199"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(shell,<sp/>&quot;shell&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="200"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(program,<sp/>&quot;program&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="201"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(args,<sp/>&quot;args&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="202"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(integration,<sp/>&quot;integration&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="203"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(terminal,<sp/>&quot;terminal&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="204"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(dropMultifiles,<sp/>&quot;drop_multifiles&quot;)<sp/>\</highlight></codeline>
+<codeline lineno="205"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(dropQuoted,<sp/>&quot;drop_quoted&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="206"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(hyperlinks,<sp/>&quot;hyperlinks&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="207"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(atlasDimension,<sp/>&quot;atlas_dimension&quot;)<sp/>\</highlight></codeline>
+<codeline lineno="208"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(border,<sp/>&quot;border&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="209"><highlight class="normal"></highlight></codeline>
+<codeline lineno="210"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Popup<sp/>entry<sp/>keys<sp/>(popups.lua)<sp/>—<sp/>cols,<sp/>rows<sp/>already<sp/>in<sp/>COMMON</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="211" refid="_identifier_8h_1ad35c7126ba2ab690e2b9bfa0de0f6868" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>IDENTIFIER_POPUPS(X)<sp/>\</highlight></codeline>
+<codeline lineno="212"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(command,<sp/>&quot;command&quot;)<sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="213"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(modal,<sp/>&quot;modal&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="214"><highlight class="normal"></highlight></codeline>
+<codeline lineno="215"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Action<sp/>entry<sp/>keys<sp/>(end.lua<sp/>actions<sp/>section)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="216" refid="_identifier_8h_1adeca505ca9b5e31c464aa09976652cdd" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>IDENTIFIER_ACTIONS(X)<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="217"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(description,<sp/>&quot;description&quot;)<sp/>\</highlight></codeline>
+<codeline lineno="218"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(execute,<sp/>&quot;execute&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="219"><highlight class="normal"></highlight></codeline>
+<codeline lineno="220"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Whelmed-specific<sp/>keys<sp/>(whelmed.lua)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="221" refid="_identifier_8h_1a4485766306c975b32e043f2a9eb45a8a" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>IDENTIFIER_WHELMED(X)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="222"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(bodyColour,<sp/>&quot;body_colour&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="223"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(linkColour,<sp/>&quot;link_colour&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="224"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(h1Size,<sp/>&quot;h1_size&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="225"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(h2Size,<sp/>&quot;h2_size&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="226"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(h3Size,<sp/>&quot;h3_size&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="227"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(h4Size,<sp/>&quot;h4_size&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="228"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(h5Size,<sp/>&quot;h5_size&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="229"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(h6Size,<sp/>&quot;h6_size&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="230"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(h1Colour,<sp/>&quot;h1_colour&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="231"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(h2Colour,<sp/>&quot;h2_colour&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="232"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(h3Colour,<sp/>&quot;h3_colour&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="233"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(h4Colour,<sp/>&quot;h4_colour&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="234"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(h5Colour,<sp/>&quot;h5_colour&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="235"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(h6Colour,<sp/>&quot;h6_colour&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="236"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(codeFenceBackground,<sp/>&quot;code_fence_background&quot;)<sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="237"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(codeColour,<sp/>&quot;code_colour&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="238"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tokenError,<sp/>&quot;token_error&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="239"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tokenComment,<sp/>&quot;token_comment&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="240"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tokenKeyword,<sp/>&quot;token_keyword&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="241"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tokenOperator,<sp/>&quot;token_operator&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="242"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tokenIdentifier,<sp/>&quot;token_identifier&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="243"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tokenInteger,<sp/>&quot;token_integer&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="244"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tokenFloat,<sp/>&quot;token_float&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="245"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tokenString,<sp/>&quot;token_string&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="246"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tokenBracket,<sp/>&quot;token_bracket&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="247"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tokenPunctuation,<sp/>&quot;token_punctuation&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="248"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tokenPreprocessor,<sp/>&quot;token_preprocessor&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="249"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tableBackground,<sp/>&quot;table_background&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="250"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tableHeaderBackground,<sp/>&quot;table_header_background&quot;)<sp/>\</highlight></codeline>
+<codeline lineno="251"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tableRowAlt,<sp/>&quot;table_row_alt&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="252"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tableBorderColour,<sp/>&quot;table_border_colour&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="253"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tableHeaderText,<sp/>&quot;table_header_text&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="254"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(tableCellText,<sp/>&quot;table_cell_text&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="255"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(progressBackground,<sp/>&quot;progress_background&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="256"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(progressForeground,<sp/>&quot;progress_foreground&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="257"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(progressTextColour,<sp/>&quot;progress_text_colour&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="258"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(progressSpinnerColour,<sp/>&quot;progress_spinner_colour&quot;)<sp/>\</highlight></codeline>
+<codeline lineno="259"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(scrollbarBackground,<sp/>&quot;scrollbar_background&quot;)<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="260"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(selectionColour,<sp/>&quot;selection_colour&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="261"><highlight class="normal"></highlight></codeline>
+<codeline lineno="262"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Platform<sp/>+<sp/>BackgroundBlur<sp/>WindowFX<sp/>keys<sp/>(theme.lua<sp/>/<sp/>window.window_fx)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="263"><highlight class="normal"></highlight><highlight class="comment">//<sp/>&quot;mac&quot;/&quot;win&quot;<sp/>identify<sp/>the<sp/>platform<sp/>in<sp/>the<sp/>window_fx<sp/>table;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="264"><highlight class="normal"></highlight><highlight class="comment">//<sp/>the<sp/>remaining<sp/>values<sp/>map<sp/>to<sp/>jam::BackgroundBlur::WindowFX<sp/>per<sp/>platform.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="265" refid="_identifier_8h_1a089ca9bdcc5559d95557c6c6ddf9db0c" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>IDENTIFIER_BACKEND(X)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="266"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(mac,<sp/>&quot;mac&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="267"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(win,<sp/>&quot;win&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="268"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(backgroundBlur,<sp/>&quot;backgroundBlur&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="269"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(visualFXWindowBackground,<sp/>&quot;visualFXWindowBackground&quot;)<sp/>\</highlight></codeline>
+<codeline lineno="270"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(glassFXRegular,<sp/>&quot;glassFXRegular&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="271"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(glassFXClear,<sp/>&quot;glassFXClear&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="272"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(blurBehind,<sp/>&quot;blurBehind&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="273"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(acrylic10,<sp/>&quot;acrylic10&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="274"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(acrylic11,<sp/>&quot;acrylic11&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="275"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(mica,<sp/>&quot;mica&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="276"><highlight class="normal"></highlight></codeline>
+<codeline lineno="277"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Runtime<sp/>state<sp/>keys<sp/>(end::Model)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="278" refid="_identifier_8h_1a3f1d190c83b5d7a37ef5c213fcb2bfaf" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>IDENTIFIER_MODEL(X)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="279"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(focusedPane,<sp/>&quot;focused_pane&quot;)<sp/>\</highlight></codeline>
+<codeline lineno="280"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(focus,<sp/>&quot;focus&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="281"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(zoom,<sp/>&quot;zoom&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="282"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(renderer,<sp/>&quot;renderer&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="283"><highlight class="normal"></highlight></codeline>
+<codeline lineno="284"><highlight class="normal"></highlight><highlight class="comment">//<sp/>============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="285" refid="_identifier_8h_1aa678230a5f71071f7d9e20dd31ad5547" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>END_MAKE_VIEW(ViewName,<sp/>EXPANDER)<sp/>\</highlight></codeline>
+<codeline lineno="286"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>struct<sp/>ViewName<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="287"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="288"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_CONFIG<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="289"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_COMMON<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="290"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_THEME<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="291"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_KEYS<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="292"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_APP<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="293"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_POPUPS<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="294"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_ACTIONS<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="295"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_WHELMED<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="296"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_BACKEND<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="297"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_MODEL<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="298"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>};</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="299"><highlight class="normal"></highlight></codeline>
+<codeline lineno="300" refid="struct_i_d_1ade3efe103f202bf24e5c45db41614f8d" refkind="member"><highlight class="normal"><ref refid="_identifier_8h_1aa678230a5f71071f7d9e20dd31ad5547" kindref="member">END_MAKE_VIEW</ref><sp/>(<ref refid="struct_i_d" kindref="compound">ID</ref>,<sp/><ref refid="struct_i_d_1ade3efe103f202bf24e5c45db41614f8d" kindref="member">AS_IDENTIFIER</ref>)</highlight></codeline>
+<codeline lineno="301" refid="struct_i_dref_1a15336e61beceb953f8c3ff39521b7c22" refkind="member"><highlight class="normal"><ref refid="_identifier_8h_1aa678230a5f71071f7d9e20dd31ad5547" kindref="member">END_MAKE_VIEW</ref><sp/>(<ref refid="struct_i_dref" kindref="compound">IDref</ref>,<sp/><ref refid="struct_i_dref_1a15336e61beceb953f8c3ff39521b7c22" kindref="member">AS_STRINGREF</ref>)</highlight></codeline>
+<codeline lineno="302" refid="struct_i_dtag_1a3e7c1d2932d996b3894e727d495aa6a5" refkind="member"><highlight class="normal"><ref refid="_identifier_8h_1aa678230a5f71071f7d9e20dd31ad5547" kindref="member">END_MAKE_VIEW</ref><sp/>(<ref refid="struct_i_dtag" kindref="compound">IDtag</ref>,<sp/><ref refid="struct_i_dtag_1a3e7c1d2932d996b3894e727d495aa6a5" kindref="member">AS_UPPER</ref>)</highlight></codeline>
+<codeline lineno="303" refid="struct_i_dtype_1a6407ccc02f46025e81c8c4bb9598845a" refkind="member"><highlight class="normal"><ref refid="_identifier_8h_1aa678230a5f71071f7d9e20dd31ad5547" kindref="member">END_MAKE_VIEW</ref><sp/>(<ref refid="struct_i_dtype" kindref="compound">IDtype</ref>,<sp/><ref refid="struct_i_dtype_1a6407ccc02f46025e81c8c4bb9598845a" kindref="member">AS_TYPE</ref>)</highlight></codeline>
     </programlisting>
     <location file="Identifier.h"/>
   </compounddef>

@@ -180,7 +180,7 @@
           <defname>property</defname>
         </param>
         <briefdescription>
-<para>Re-computes bar depth and relays tab positions when the display tab node changes. </para>
+<para>Re-computes bar depth and relays tab positions when the theme tab node changes. </para>
         </briefdescription>
         <detaileddescription>
 <para>Calls <ref refid="classend_1_1_tabs_1a530f82b0d136b1c3385be168d79d5b66" kindref="member">updateTabBarVisibility()</ref> then <ref refid="classjam_1_1TabbedComponent_1aa0bf75ada147ccafd3722eb3e4c68a89" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">resized()</ref> so that padding and depth changes both take effect without requiring a second event. </para>
@@ -220,7 +220,7 @@
     </briefdescription>
     <detaileddescription>
 <para>Inherits <ref refid="classjam_1_1TabbedComponent" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::TabbedComponent</ref> for tab strip and content management. Each tab&apos;s content component is an <ref refid="classend_1_1_panes" kindref="compound">end::Panes</ref> instance, owned by TabbedComponent (deleteComponentWhenNotNeeded = true). Each <ref refid="classend_1_1_panes" kindref="compound">Panes</ref> child has a corresponding <ref refid="classjam_1_1Model_1_1Attachment" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Model::Attachment</ref> held in tabAttachments — RAII ensures detach on removal.</para>
-<para>Listens to the config ValueTree so that bar depth re-computes whenever the display tab node changes (depth, font_size, font_family). </para>
+<para>Listens to the config ValueTree so that bar depth re-computes whenever the theme tab node changes (depth, font_size, font_family). </para>
     </detaileddescription>
     <inheritancegraph>
       <node id="1">

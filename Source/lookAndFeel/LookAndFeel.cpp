@@ -11,6 +11,7 @@ LookAndFeel::LookAndFeel()
     initialiseColours();
     loadGraphics();
     config.addListener (this);
+    theme.addListener (this);
 }
 
 void LookAndFeel::registerTypeface()
@@ -30,10 +31,10 @@ void LookAndFeel::registerTypeface()
     add (jam::fonts::DisplayMonoBook_ttf, jam::fonts::DisplayMonoBook_ttfSize);
     add (jam::fonts::DisplayMonoMedium_ttf, jam::fonts::DisplayMonoMedium_ttfSize);
 
-    // jam side: build the composite code typeface from config, with emoji + nerd-font fallbacks
+    // jam side: build the composite code typeface from theme, with emoji + nerd-font fallbacks
     // and a bold style variant.
-    juce::String fontFamily { config.getValue (IDtype::code, ID::fontFamily) };
-    float fontSize { config.getValue (IDtype::code, ID::fontSize) };
+    juce::String fontFamily { theme.getValue (IDtype::code, ID::fontFamily) };
+    float fontSize { theme.getValue (IDtype::code, ID::fontSize) };
 
     auto typeface { std::make_unique<jam::Typeface> (fontFamily,
 #if JUCE_MAC
@@ -59,45 +60,51 @@ void LookAndFeel::registerTypeface()
 
 void LookAndFeel::initialiseColours()
 {
-    colourMap = jam::ColourMap::fromValueTree (config.state);
+    colourMap = jam::ColourMap::fromValueTree (theme.state);
 
+    setColourId (IDtype::code, jam::ID::text, jam::CodeView::textColourId);
+    setColourId (IDtype::code, jam::ID::background, jam::CodeView::backgroundColourId);
+    setColourId (IDtype::code, ID::caret, jam::CaretComponent::caretColourId);
+    setColourId (IDtype::code, ID::highlight, juce::TextEditor::highlightColourId);
+    setColourId (IDtype::code, ID::selectionCursor, selectionCursorColourId);
+    setColourId (IDtype::code, ID::editorBackground, juce::TextEditor::backgroundColourId);
+    setColourId (IDtype::code, ID::editorOutline, juce::TextEditor::outlineColourId);
+    setColourId (IDtype::scrollbar, ID::thumb, juce::ScrollBar::thumbColourId);
+    setColourId (IDtype::scrollbar, ID::track, juce::ScrollBar::trackColourId);
     setColourId (IDtype::tab, jam::ID::background, jam::button::Bar::backgroundColourId);
     setColourId (IDtype::tab, ID::highlight, jam::button::Bar::highlightColourId);
     setColourId (IDtype::tab, jam::ID::outline, jam::button::Bar::outlineColourId);
-    setColourId (IDtype::tab, jam::ID::button, juce::TextButton::buttonColourId);
-    setColourId (IDtype::tab, ID::buttonOn, juce::TextButton::buttonOnColourId);
-    setColourId (IDtype::tab, ID::textOff, juce::TextButton::textColourOffId);
-    setColourId (IDtype::tab, ID::textOn, juce::TextButton::textColourOnId);
-    setColourId (jam::IDtype::colours, ID::caret, jam::CaretComponent::caretColourId);
-    setColourId (jam::IDtype::colours, jam::ID::text, jam::CodeView::textColourId);
-    setColourId (jam::IDtype::colours, jam::ID::background, jam::CodeView::backgroundColourId);
-    setColourId (jam::IDtype::colours, ID::highlight, juce::TextEditor::highlightColourId);
-    setColourId (jam::IDtype::colours, ID::editorBackground, juce::TextEditor::backgroundColourId);
-    setColourId (jam::IDtype::colours, ID::editorOutline, juce::TextEditor::outlineColourId);
-    setColourId (jam::IDtype::colours, ID::scrollbarThumb, juce::ScrollBar::thumbColourId);
-    setColourId (jam::IDtype::colours, ID::scrollbarTrack, juce::ScrollBar::trackColourId);
-    setColourId (jam::IDtype::colours, ID::selectionCursor, selectionCursorColourId);
-    setColourId (jam::IDtype::colours, ID::statusBar, statusBarBackgroundColourId);
-    setColourId (jam::IDtype::colours, ID::statusBarLabelBg, statusBarLabelBackgroundColourId);
-    setColourId (jam::IDtype::colours, ID::statusBarLabelFg, statusBarLabelTextColourId);
-    setColourId (jam::IDtype::colours, ID::statusBarSpinner, statusBarSpinnerColourId);
-    setColourId (jam::IDtype::colours, ID::hintLabelBg, hintLabelBgColourId);
-    setColourId (jam::IDtype::colours, ID::hintLabelFg, hintLabelFgColourId);
-    setColourId (IDtype::window, jam::ID::background, juce::ResizableWindow::backgroundColourId);
-    setColourId (IDtype::pane, ID::barColour, paneBarColourId);
-    setColourId (IDtype::pane, ID::barHighlight, paneBarHighlightColourId);
+    setColourId (jam::IDtype::button, jam::ID::button, juce::TextButton::buttonColourId);
+    setColourId (jam::IDtype::button, ID::buttonOn, juce::TextButton::buttonOnColourId);
+    setColourId (jam::IDtype::button, ID::textOff, juce::TextButton::textColourOffId);
+    setColourId (jam::IDtype::button, ID::textOn, juce::TextButton::textColourOnId);
     setColourId (jam::IDtype::overlay, jam::ID::background, juce::Label::backgroundColourId);
     setColourId (jam::IDtype::overlay, jam::ID::text, juce::Label::textColourId);
+    setColourId (IDtype::pane, ID::barColour, paneBarColourId);
+    setColourId (IDtype::pane, ID::barHighlight, paneBarHighlightColourId);
+    setColourId (IDtype::statusBar, jam::ID::background, statusBarBackgroundColourId);
+    setColourId (IDtype::statusBar, ID::labelBackground, statusBarLabelBackgroundColourId);
+    setColourId (IDtype::statusBar, ID::labelText, statusBarLabelTextColourId);
+    setColourId (IDtype::statusBar, ID::spinner, statusBarSpinnerColourId);
+    setColourId (IDtype::hint, jam::ID::background, hintLabelBgColourId);
+    setColourId (IDtype::hint, jam::ID::text, hintLabelFgColourId);
 
-    setColours (config.state);
+    setColours (theme.state);
 }
 
-LookAndFeel::~LookAndFeel() { config.removeListener (this); }
+LookAndFeel::~LookAndFeel()
+{
+    theme.removeListener (this);
+    config.removeListener (this);
+}
 
 void LookAndFeel::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
 {
+    if (property == ID::theme)
+        initialiseColours();
+
     if (contains (tree, property))
-        setColours (config.state);
+        setColours (theme.state);
 
     if (tree.getType() == IDtype::graphics or tree.getType() == IDtype::tabButton)
         loadGraphics();
@@ -123,7 +130,7 @@ void LookAndFeel::drawTabButton (juce::Graphics& g,
         button, isMouseOver, isMouseDown, jam::map::ButtonState::get().size()) };
     const juce::Identifier stateId { jam::map::ButtonState::get (state) };
 
-    // Sparse bank — paint only when the state slot was authored in graphics.lua.
+    // Sparse bank — paint only when the state slot was authored in theme.lua graphics section.
     if (graphics.contains (stateId))
         jam::SVG::Flex::paint (g, button, graphics.at (stateId));
 
@@ -136,9 +143,9 @@ void LookAndFeel::drawTabButton (juce::Graphics& g,
 
 juce::Font LookAndFeel::getTabFont() const
 {
-    auto fontFamily { config.getValue (IDtype::tab, ID::fontFamily) };
-    auto fontSize { config.getValue (IDtype::tab, ID::fontSize) };
-    const float kerning { config.getValue (IDtype::tab, ID::kerningFactor) };
+    auto fontFamily { theme.getValue (IDtype::tab, ID::fontFamily) };
+    auto fontSize { theme.getValue (IDtype::tab, ID::fontSize) };
+    const float kerning { theme.getValue (IDtype::tab, ID::kerningFactor) };
 
     return juce::Font { juce::FontOptions()
                             .withName (fontFamily)
@@ -146,19 +153,19 @@ juce::Font LookAndFeel::getTabFont() const
                             .withKerningFactor (kerning) };
 }
 
-int LookAndFeel::getTabPadding() const { return config.getValue (IDtype::tab, ID::textPadding); }
+int LookAndFeel::getTabPadding() const { return theme.getValue (IDtype::tab, ID::textPadding); }
 
 juce::BorderSize<int> LookAndFeel::getTabBarPadding() const
 {
     // CSS order { top, right, bottom, left }; BorderSize ctor is (top, left, bottom, right).
-    auto [top, right, bottom, left] = config.getInt16 (IDtype::tab, jam::ID::padding);
+    auto [top, right, bottom, left] = theme.getInt16 (IDtype::tab, jam::ID::padding);
 
     return juce::BorderSize<int> { top, left, bottom, right };
 }
 
 LookAndFeel::Glass LookAndFeel::getWindowGlass() const
 {
-    auto colour { jam::Model::toColour (theme.getValue (IDtype::window, ID::backgroundColour)) };
+    auto colour { jam::Model::toColour (theme.getValue (IDtype::window, jam::ID::background)) };
     int blur { theme.getValue (IDtype::window, ID::blurRadius) };
     int fx { 0 };
 
@@ -176,7 +183,7 @@ LookAndFeel::Glass LookAndFeel::getWindowGlass() const
 
 juce::String LookAndFeel::getTabText (const juce::String& tabName) const
 {
-    if (bool uppercase { config.getValue (IDtype::tab, ID::uppercase) })
+    if (bool uppercase { theme.getValue (IDtype::tab, ID::uppercase) })
         return tabName.toUpperCase();
 
     return tabName;
@@ -200,22 +207,22 @@ void LookAndFeel::drawStretchableLayoutResizerBar (juce::Graphics& g,
 
 void LookAndFeel::loadGraphics()
 {
-    auto configGraphics { config.state.getChildWithName (IDtype::graphics) };
-    auto directory { config::Graphics::path.getChildFile (
-        configGraphics.getProperty (jam::ID::path).toString()) };
+    auto themeName { config.getValue (IDtype::end, ID::theme).toString() };
+    auto themeGraphics { jam::Model::getChildWithName (theme.state, IDtype::graphics) };
+    auto directory { config::Theme::getPath (themeName).getChildFile (jam::IDref::graphics) };
     const auto* tab { colourMap.getChildWithName (IDtype::tab) };
-    assert (tab != nullptr and "loadGraphics: tab configGraphics missing from colourMap");
+    assert (tab != nullptr and "loadGraphics: tab missing from colourMap");
 
     // Tab bar background
     {
-        auto svg { directory.getChildFile (configGraphics.getProperty (ID::tabBar).toString())
+        auto svg { directory.getChildFile (themeGraphics.getProperty (ID::tabBar).toString())
                        .loadFileAsString() };
         graphics.insert_or_assign (ID::tabBar, jam::SVG::Flex::getSegments (svg, *tab));
     }
 
     // Tab highlight
     {
-        auto svg { directory.getChildFile (configGraphics.getProperty (ID::tabHighlight).toString())
+        auto svg { directory.getChildFile (themeGraphics.getProperty (ID::tabHighlight).toString())
                        .loadFileAsString() };
         graphics.insert_or_assign (ID::tabHighlight, jam::SVG::Flex::getSegments (svg, *tab));
     }
@@ -223,7 +230,7 @@ void LookAndFeel::loadGraphics()
     // Tab button state bank — sparse 8-slot: all ButtonState slots iterated,
     // unauthored states (empty filename) simply absent from the map.
     {
-        auto tabButtonNode { configGraphics.getChildWithName (IDtype::tabButton) };
+        auto tabButtonNode { themeGraphics.getChildWithName (IDtype::tabButton) };
 
         for (size_t slot { 0 }; slot < jam::map::ButtonState::get().size(); ++slot)
         {

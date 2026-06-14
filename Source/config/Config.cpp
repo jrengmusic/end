@@ -28,12 +28,8 @@ static std::function<bool (const juce::var&)> enumCheck (MapType* map)
    Returns an empty function when the value belongs to no known Map. */
 static std::function<bool (const juce::var&)> getEnumValidator (const juce::String& value)
 {
-    if (end::Boolean::getInstance()->contains (value))
-        return enumCheck (end::Boolean::getInstance());
     if (end::Position::getInstance()->contains (value))
         return enumCheck (end::Position::getInstance());
-    if (end::GpuMode::getInstance()->contains (value))
-        return enumCheck (end::GpuMode::getInstance());
     if (end::DropMode::getInstance()->contains (value))
         return enumCheck (end::DropMode::getInstance());
     return {};
@@ -105,8 +101,13 @@ void Model::saveToPath()
 
     writeWhenNeeded (File::path, *File::getInstance());
 
-    auto path { Graphics::path.getChildFile (getValue (IDtype::graphics, jam::ID::path).toString()) };
-    writeWhenNeeded (path, *Graphics::getInstance());
+    auto themeName { getValue (IDtype::end, ID::theme).toString() };
+    auto themePath { Theme::getPath (themeName) };
+
+    writeWhenNeeded (themePath, *Theme::getInstance());
+
+    auto graphicsPath { themePath.getChildFile (jam::IDref::graphics) };
+    writeWhenNeeded (graphicsPath, *Theme::Graphics::getInstance());
 }
 
 void Model::loadFromPath()
@@ -142,20 +143,6 @@ void Model::loadFromPath()
     }
 
     //==============================================================================
-#if JUCE_WINDOWS
-    const float scale { jam::Typeface::getDisplayScale() };
-
-    auto font { getCode() };
-    float fontSize { font.getProperty (ID::fontSize) };
-
-    if (scale > 0.0f)
-    {
-        fontSize /= scale;
-        font.setProperty (fontSize);
-    }
-#endif
-
-    //==============================================================================
     buildGraphicsCallbacks();
 
     if (errors.isEmpty())
@@ -172,9 +159,9 @@ void Model::buildGraphicsCallbacks()
 {
     graphicsCallbacks.clear();
 
-    if (auto graphics { state.getChildWithName (IDtype::graphics) }; graphics.isValid())
+    if (auto graphics { lookAndFeel.state.getChildWithName (IDtype::graphics) }; graphics.isValid())
     {
-        for (auto& [key, value] : Graphics::get())
+        for (auto& [key, value] : Theme::Graphics::get())
         {
             auto id { juce::Identifier (value) };
             auto fileName { graphics.getProperty (id).toString() };
@@ -221,6 +208,10 @@ void Model::buildGraphicsCallbacks()
 void Model::startWatcher()
 {
     watcher.addFolder (File::path);
+
+    auto themeName { getValue (IDtype::end, ID::theme).toString() };
+    watcher.addFolder (Theme::getPath (themeName));
+
     watcher.coalesceEvents (300);
     watcher.addListener (this);
 }
@@ -233,7 +224,7 @@ void Model::fileChanged (const juce::File& file, jam::File::Watcher::Event event
         {
             loadFromPath();
         }
-        else if (file.hasFileExtension (Graphics::extension))
+        else if (file.hasFileExtension (Theme::Graphics::extension))
         {
             auto fileName { file.getFileName() };
 

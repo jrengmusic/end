@@ -20,20 +20,22 @@
 // JRENG!
 // ============================================================================
 
-// Top-level config section names
+// Config + theme section and node names
 #define IDENTIFIER_CONFIG(X) \
     X (config, "config")     \
     X (end, "end")           \
-    X (nexus, "nexus")       \
-    X (display, "display")   \
-    X (actions, "actions")   \
     X (keys, "keys")         \
     X (popups, "popups")     \
     X (whelmed, "whelmed")   \
     X (graphics, "graphics") \
     X (loadMessage, "load_message") \
     X (theme, "theme")       \
-    X (themes, "themes")
+    X (themes, "themes")        \
+    X (ansi, "ansi")            \
+    X (scrollbar, "scrollbar")  \
+    X (hint, "hint")            \
+    X (titleBarButtons, "title_bar_buttons") \
+    X (saveWindowState, "save_window_state")
 
 // Keys shared across multiple config sections (not in jam::ID)
 #define IDENTIFIER_COMMON(X)                \
@@ -53,8 +55,8 @@
     X (scrollbarThumb, "scrollbar_thumb")  \
     X (scrollbarTrack, "scrollbar_track")
 
-// Display-specific keys (not in jam::ID or COMMON)
-#define IDENTIFIER_DISPLAY(X)                      \
+// Theme-specific keys (theme tree property and node names)
+#define IDENTIFIER_THEME(X)                      \
     X (tab, "tab")                                 \
     X (tabBar, "tab_bar")                          \
     X (tabButton, "tab_button")                    \
@@ -71,7 +73,6 @@
     X (pane, "pane")                               \
     X (window, "window")                           \
     X (windowFx, "window_fx")                      \
-    X (backgroundColour, "background_colour")      \
     X (size, "size")                               \
     X (view, "view")                               \
     X (popup, "popup")                             \
@@ -110,12 +111,15 @@
     X (statusBarSpinner, "status_bar_spinner")     \
     X (hintLabelBg, "hint_label_bg")               \
     X (hintLabelFg, "hint_label_fg")               \
+    X (thumb, "thumb")                             \
+    X (track, "track")                             \
+    X (labelBackground, "label_background")        \
+    X (labelText, "label_text")                    \
+    X (spinner, "spinner")                         \
     X (blurRadius, "blur_radius")                  \
     X (alwaysOnTop, "always_on_top")               \
-    X (saveSize, "save_size")                      \
     X (confirmationOnExit, "confirmation_on_exit") \
     X (forceDwm, "force_dwm")                      \
-    X (buttons, "buttons")                         \
     X (closeOnRun, "close_on_run")                 \
     X (code, "code")                               \
     X (nameFontFamily, "name_font_family")         \
@@ -179,12 +183,16 @@
     X (selectionBottom, "selection_bottom")            \
     X (selectionLineStart, "selection_line_start")     \
     X (selectionLineEnd, "selection_line_end")         \
-    X (selectionExit, "selection_exit")
+    X (selectionExit, "selection_exit")              \
+    X (scrollDown, "scroll_down")                      \
+    X (scrollUp, "scroll_up")                          \
+    X (scrollTop, "scroll_top")                        \
+    X (scrollBottom, "scroll_bottom")
 
-// Nexus / system keys (nexus.lua) — excludes jam::ID: editor ("editor"),
+// Application runtime keys (end.lua sections) — excludes jam::ID: editor ("editor"),
 // cwd ("cwd"), image ("image"), mode ("mode"), interval ("interval")
 // jam::gpu has string "GPU" (uppercase) — "gpu" (lowercase) is a distinct lua key, declared here
-#define IDENTIFIER_NEXUS(X)               \
+#define IDENTIFIER_APP(X)               \
     X (gpu, "gpu")                        \
     X (daemon, "daemon")                  \
     X (autoReload, "auto_reload")         \
@@ -204,7 +212,7 @@
     X (command, "command")   \
     X (modal, "modal")
 
-// Action entry keys (actions.lua)
+// Action entry keys (end.lua actions section)
 #define IDENTIFIER_ACTIONS(X)      \
     X (description, "description") \
     X (execute, "execute")
@@ -249,19 +257,14 @@
     X (progressTextColour, "progress_text_colour")       \
     X (progressSpinnerColour, "progress_spinner_colour") \
     X (scrollbarBackground, "scrollbar_background")      \
-    X (selectionColour, "selection_colour")              \
-    X (scrollDown, "scroll_down")                        \
-    X (scrollUp, "scroll_up")                            \
-    X (scrollTop, "scroll_top")                          \
-    X (scrollBottom, "scroll_bottom")
+    X (selectionColour, "selection_colour")
 
-// Platform + BackgroundBlur WindowFX keys (display.lua / window.blur_style)
-// "mac"/"win" identify the platform in the blur_style table;
+// Platform + BackgroundBlur WindowFX keys (theme.lua / window.window_fx)
+// "mac"/"win" identify the platform in the window_fx table;
 // the remaining values map to jam::BackgroundBlur::WindowFX per platform.
 #define IDENTIFIER_BACKEND(X)                                \
     X (mac, "mac")                                           \
     X (win, "win")                                           \
-    X (blurStyle, "blur_style")                              \
     X (backgroundBlur, "backgroundBlur")                     \
     X (visualFXWindowBackground, "visualFXWindowBackground") \
     X (glassFXRegular, "glassFXRegular")                     \
@@ -284,9 +287,9 @@
     {                                     \
         IDENTIFIER_CONFIG (EXPANDER)      \
         IDENTIFIER_COMMON (EXPANDER)      \
-        IDENTIFIER_DISPLAY (EXPANDER)     \
+        IDENTIFIER_THEME (EXPANDER)       \
         IDENTIFIER_KEYS (EXPANDER)        \
-        IDENTIFIER_NEXUS (EXPANDER)       \
+        IDENTIFIER_APP (EXPANDER)         \
         IDENTIFIER_POPUPS (EXPANDER)      \
         IDENTIFIER_ACTIONS (EXPANDER)     \
         IDENTIFIER_WHELMED (EXPANDER)     \

@@ -5,11 +5,11 @@
     <basecompoundref refid="classjam_1_1Map_1_1Instance" prot="public" virt="non-virtual">jam::Map::Instance&lt; Position &gt;</basecompoundref>
     <includes refid="_map_8h" local="no">Map.h</includes>
     <sectiondef kind="public-type">
-      <memberdef kind="enum" id="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05b" prot="public" static="no" strong="no">
+      <memberdef kind="enum" id="structend_1_1_position_1ab2fe4f146ba9f32af08e83a678fcc143" prot="public" static="no" strong="no">
         <type></type>
-        <name>@277214137317010015316303354216265052334255124010</name>
-        <qualifiedname>end::Position::@277214137317010015316303354216265052334255124010</qualifiedname>
-        <enumvalue id="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05ba9d3c44ea19c8e9e5d1650be17ab4fc6e" prot="public">
+        <name>@250111151202034007030276371203050156100271335300</name>
+        <qualifiedname>end::Position::@250111151202034007030276371203050156100271335300</qualifiedname>
+        <enumvalue id="structend_1_1_position_1ab2fe4f146ba9f32af08e83a678fcc143a9d3c44ea19c8e9e5d1650be17ab4fc6e" prot="public">
           <name>top</name>
           <briefdescription>
 <para><ref refid="structend_1_1_position" kindref="compound">Position</ref> at top. </para>
@@ -17,7 +17,7 @@
           <detaileddescription>
           </detaileddescription>
         </enumvalue>
-        <enumvalue id="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05bad52282e0dd5a6fbecfbe0f36ea5d4c23" prot="public">
+        <enumvalue id="structend_1_1_position_1ab2fe4f146ba9f32af08e83a678fcc143ad52282e0dd5a6fbecfbe0f36ea5d4c23" prot="public">
           <name>right</name>
           <briefdescription>
 <para><ref refid="structend_1_1_position" kindref="compound">Position</ref> at right. </para>
@@ -25,7 +25,7 @@
           <detaileddescription>
           </detaileddescription>
         </enumvalue>
-        <enumvalue id="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05ba9a50bf1430af6bb133f7995767ce297c" prot="public">
+        <enumvalue id="structend_1_1_position_1ab2fe4f146ba9f32af08e83a678fcc143a9a50bf1430af6bb133f7995767ce297c" prot="public">
           <name>bottom</name>
           <briefdescription>
 <para><ref refid="structend_1_1_position" kindref="compound">Position</ref> at bottom (default). </para>
@@ -33,7 +33,7 @@
           <detaileddescription>
           </detaileddescription>
         </enumvalue>
-        <enumvalue id="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05baff86c7b45e58c6678fc26bff2a0a821a" prot="public">
+        <enumvalue id="structend_1_1_position_1ab2fe4f146ba9f32af08e83a678fcc143aff86c7b45e58c6678fc26bff2a0a821a" prot="public">
           <name>left</name>
           <briefdescription>
 <para><ref refid="structend_1_1_position" kindref="compound">Position</ref> at left. </para>
@@ -41,7 +41,7 @@
           <detaileddescription>
           </detaileddescription>
         </enumvalue>
-        <enumvalue id="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05bacb1af5b03312f174c715f20f8ba6a7f8" prot="public">
+        <enumvalue id="structend_1_1_position_1ab2fe4f146ba9f32af08e83a678fcc143acb1af5b03312f174c715f20f8ba6a7f8" prot="public">
           <name>center</name>
           <briefdescription>
 <para>Centered position. </para>
@@ -57,7 +57,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="94" column="5" bodyfile="end/Map.h" bodystart="95" bodyend="101"/>
+        <location file="end/Map.h" line="33" column="5" bodyfile="end/Map.h" bodystart="34" bodyend="40"/>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">
@@ -74,13 +74,13 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="104" column="5" bodyfile="end/Map.h" bodystart="104" bodyend="113"/>
-        <references refid="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05ba9a50bf1430af6bb133f7995767ce297c" compoundref="_map_8h" startline="98">bottom</references>
-        <references refid="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05bacb1af5b03312f174c715f20f8ba6a7f8" compoundref="_map_8h" startline="100">center</references>
-        <references refid="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05baff86c7b45e58c6678fc26bff2a0a821a" compoundref="_map_8h" startline="99">left</references>
+        <location file="end/Map.h" line="43" column="5" bodyfile="end/Map.h" bodystart="43" bodyend="52"/>
+        <references refid="structend_1_1_position_1ab2fe4f146ba9f32af08e83a678fcc143a9a50bf1430af6bb133f7995767ce297c" compoundref="_map_8h" startline="37">bottom</references>
+        <references refid="structend_1_1_position_1ab2fe4f146ba9f32af08e83a678fcc143acb1af5b03312f174c715f20f8ba6a7f8" compoundref="_map_8h" startline="39">center</references>
+        <references refid="structend_1_1_position_1ab2fe4f146ba9f32af08e83a678fcc143aff86c7b45e58c6678fc26bff2a0a821a" compoundref="_map_8h" startline="38">left</references>
         <references refid="classjam_1_1Map_1_1Instance_1afe0acf25bab1f104aea20f20174129d1">jam::Map::Instance&lt; Position &gt;::map</references>
-        <references refid="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05bad52282e0dd5a6fbecfbe0f36ea5d4c23" compoundref="_map_8h" startline="97">right</references>
-        <references refid="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05ba9d3c44ea19c8e9e5d1650be17ab4fc6e" compoundref="_map_8h" startline="96">top</references>
+        <references refid="structend_1_1_position_1ab2fe4f146ba9f32af08e83a678fcc143ad52282e0dd5a6fbecfbe0f36ea5d4c23" compoundref="_map_8h" startline="36">right</references>
+        <references refid="structend_1_1_position_1ab2fe4f146ba9f32af08e83a678fcc143a9d3c44ea19c8e9e5d1650be17ab4fc6e" compoundref="_map_8h" startline="35">top</references>
       </memberdef>
       <memberdef kind="function" id="structend_1_1_position_1af5f03f30b13680f5dd13496ac3cc6f39" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="virtual">
         <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref> &amp;</type>
@@ -95,8 +95,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="115" column="24" bodyfile="end/Map.h" bodystart="115" bodyend="115"/>
-        <references refid="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05ba9a50bf1430af6bb133f7995767ce297c" compoundref="_map_8h" startline="98">bottom</references>
+        <location file="end/Map.h" line="54" column="24" bodyfile="end/Map.h" bodystart="54" bodyend="54"/>
+        <references refid="structend_1_1_position_1ab2fe4f146ba9f32af08e83a678fcc143a9a50bf1430af6bb133f7995767ce297c" compoundref="_map_8h" startline="37">bottom</references>
         <references refid="classjam_1_1Map_1_1Instance_1afe0acf25bab1f104aea20f20174129d1">jam::Map::Instance&lt; Position &gt;::map</references>
       </memberdef>
     </sectiondef>
@@ -113,10 +113,10 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="117" column="23" bodyfile="end/Map.h" bodystart="117" bodyend="117"/>
+        <location file="end/Map.h" line="56" column="23" bodyfile="end/Map.h" bodystart="56" bodyend="56"/>
         <references refid="structjam_1_1Context_1a3ff553f70ef61043352c54cfed475b4c">jam::Context&lt; Derived &gt;::getInstance</references>
-        <referencedby refid="structend_1_1_position_1a2f477149e1e15d0eb91f7ab652b1e7d6" compoundref="_map_8h" startline="119" endline="122">get</referencedby>
-        <referencedby refid="classend_1_1_view_1a91ed8ef126c0a1b3feb458079c3a7849" compoundref="_view_8cpp" startline="92" endline="100">end::View::setTabOrientation</referencedby>
+        <referencedby refid="structend_1_1_position_1a2f477149e1e15d0eb91f7ab652b1e7d6" compoundref="_map_8h" startline="58" endline="61">get</referencedby>
+        <referencedby refid="classend_1_1_view_1a91ed8ef126c0a1b3feb458079c3a7849" compoundref="_view_8cpp" startline="104" endline="110">end::View::setTabOrientation</referencedby>
       </memberdef>
       <memberdef kind="function" id="structend_1_1_position_1a2f477149e1e15d0eb91f7ab652b1e7d6" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
         <type>int</type>
@@ -134,8 +134,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="119" column="16" bodyfile="end/Map.h" bodystart="119" bodyend="122"/>
-        <references refid="structend_1_1_position_1a60c3eb56c5d84d1d92833502247abfdd" compoundref="_map_8h" startline="117" endline="117">get</references>
+        <location file="end/Map.h" line="58" column="16" bodyfile="end/Map.h" bodystart="58" bodyend="61"/>
+        <references refid="structend_1_1_position_1a60c3eb56c5d84d1d92833502247abfdd" compoundref="_map_8h" startline="56" endline="56">get</references>
         <references refid="structjam_1_1Map_1ae8fbbc14cd030a156f6e3aaabba5778c">jam::Map::getKey</references>
       </memberdef>
       <memberdef kind="function" id="structend_1_1_position_1a8870ba1c7d71c5c2c0ed07727d3a17ae" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
@@ -154,7 +154,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="124" column="31" bodyfile="end/Map.h" bodystart="124" bodyend="124"/>
+        <location file="end/Map.h" line="63" column="31" bodyfile="end/Map.h" bodystart="63" bodyend="63"/>
         <references refid="structjam_1_1Context_1a3ff553f70ef61043352c54cfed475b4c">jam::Context&lt; Derived &gt;::getInstance</references>
       </memberdef>
     </sectiondef>
@@ -162,7 +162,7 @@
 <para>Bimap for component position — &quot;top&quot;, &quot;bottom&quot;, &quot;left&quot;, &quot;right&quot;, or &quot;center&quot;. </para>
     </briefdescription>
     <detaileddescription>
-<para>Used by display.tab.orientation, display.status_bar.position, display.action_list.position, and any future positional config fields.</para>
+<para>Used by theme.tab.orientation, theme.status_bar.position, theme.action_list.position, and any future positional config fields.</para>
 <para>Integer keys deliberately mirror <ref refid="classjam_1_1button_1_1Bar_1ac6f9e6002553676e21da8628cc3273bf" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::button::Bar::Orientation</ref> so that orientation values can be forwarded directly to Bar::setOrientation(): 0 → &quot;top&quot; 1 → &quot;right&quot; 2 → &quot;bottom&quot; 3 → &quot;left&quot; 4 → &quot;center&quot;</para>
 <para>Registered in <ref refid="classend_1_1_application" kindref="compound">Application</ref> CONTEXT before <ref refid="classconfig_1_1_model" kindref="compound">config::Model</ref> construction. </para>
     </detaileddescription>
@@ -209,10 +209,10 @@
         </childnode>
       </node>
     </collaborationgraph>
-    <location file="end/Map.h" line="87" column="1" bodyfile="end/Map.h" bodystart="88" bodyend="125"/>
+    <location file="end/Map.h" line="26" column="1" bodyfile="end/Map.h" bodystart="27" bodyend="64"/>
     <listofallmembers>
-      <member refid="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05ba9a50bf1430af6bb133f7995767ce297c" prot="public" virt="non-virtual"><scope>end::Position</scope><name>bottom</name></member>
-      <member refid="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05bacb1af5b03312f174c715f20f8ba6a7f8" prot="public" virt="non-virtual"><scope>end::Position</scope><name>center</name></member>
+      <member refid="structend_1_1_position_1ab2fe4f146ba9f32af08e83a678fcc143a9a50bf1430af6bb133f7995767ce297c" prot="public" virt="non-virtual"><scope>end::Position</scope><name>bottom</name></member>
+      <member refid="structend_1_1_position_1ab2fe4f146ba9f32af08e83a678fcc143acb1af5b03312f174c715f20f8ba6a7f8" prot="public" virt="non-virtual"><scope>end::Position</scope><name>center</name></member>
       <member refid="classjam_1_1Map_1_1Instance_1a39231f6d1e13c6f64e72a07851a130c4" prot="public" virt="non-virtual"><scope>end::Position</scope><name>contains</name></member>
       <member refid="structjam_1_1Context_1a6e3f38a234db8ff2a9acb5986e72a2de" prot="public" virt="non-virtual"><scope>end::Position</scope><name>Context</name></member>
       <member refid="structend_1_1_position_1a60c3eb56c5d84d1d92833502247abfdd" prot="public" virt="non-virtual"><scope>end::Position</scope><name>get</name></member>
@@ -222,13 +222,13 @@
       <member refid="structend_1_1_position_1af5f03f30b13680f5dd13496ac3cc6f39" prot="public" virt="virtual"><scope>end::Position</scope><name>getDefault</name></member>
       <member refid="structjam_1_1Context_1a3ff553f70ef61043352c54cfed475b4c" prot="public" virt="non-virtual"><scope>end::Position</scope><name>getInstance</name></member>
       <member refid="structjam_1_1Context_1a5900ff66cdba02d6f6947cc6d5e8ec3d" prot="private" virt="non-virtual"><scope>end::Position</scope><name>head</name></member>
-      <member refid="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05baff86c7b45e58c6678fc26bff2a0a821a" prot="public" virt="non-virtual"><scope>end::Position</scope><name>left</name></member>
+      <member refid="structend_1_1_position_1ab2fe4f146ba9f32af08e83a678fcc143aff86c7b45e58c6678fc26bff2a0a821a" prot="public" virt="non-virtual"><scope>end::Position</scope><name>left</name></member>
       <member refid="classjam_1_1Map_1_1Instance_1afe0acf25bab1f104aea20f20174129d1" prot="protected" virt="non-virtual"><scope>end::Position</scope><name>map</name></member>
       <member refid="structjam_1_1Context_1a6716feb60b039083ca0c099a506a3474" prot="public" virt="non-virtual"><scope>end::Position</scope><name>operator=</name></member>
       <member refid="structend_1_1_position_1aad8c1a31b60ce4b9b27447e15188fd6e" prot="public" virt="non-virtual"><scope>end::Position</scope><name>Position</name></member>
       <member refid="structjam_1_1Context_1aa1862120f2983ab7ddef536ba03bb114" prot="private" virt="non-virtual"><scope>end::Position</scope><name>previous</name></member>
-      <member refid="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05bad52282e0dd5a6fbecfbe0f36ea5d4c23" prot="public" virt="non-virtual"><scope>end::Position</scope><name>right</name></member>
-      <member refid="structend_1_1_position_1a8ce5d0a5380dd62635bde19f79eeb05ba9d3c44ea19c8e9e5d1650be17ab4fc6e" prot="public" virt="non-virtual"><scope>end::Position</scope><name>top</name></member>
+      <member refid="structend_1_1_position_1ab2fe4f146ba9f32af08e83a678fcc143ad52282e0dd5a6fbecfbe0f36ea5d4c23" prot="public" virt="non-virtual"><scope>end::Position</scope><name>right</name></member>
+      <member refid="structend_1_1_position_1ab2fe4f146ba9f32af08e83a678fcc143a9d3c44ea19c8e9e5d1650be17ab4fc6e" prot="public" virt="non-virtual"><scope>end::Position</scope><name>top</name></member>
       <member refid="structjam_1_1Context_1a4169820e71837632922d3d17b377aeee" prot="public" virt="virtual"><scope>end::Position</scope><name>~Context</name></member>
     </listofallmembers>
   </compounddef>

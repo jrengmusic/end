@@ -19,7 +19,7 @@
  * mouse events, so selection and scrolling work normally while it is visible.
  *
  * ### Font and colour
- * Font is read from the config tree (display > overlay: family + size) on every
+ * Font is read from the config tree (theme > overlay: family + size) on every
  * paint pass — hot-reload is free.  Background uses
  * `juce::ResizableWindow::backgroundColourId`; text uses
  * `juce::Label::textColourId`.
@@ -108,9 +108,9 @@ public:
      */
     void paint (juce::Graphics& g) override
     {
-        config::Model& config { *config::Model::getInstance() };
-        auto family { config.getValue (jam::IDtype::overlay, ID::fontFamily).toString() };
-        auto size { static_cast<float> (config.getValue (jam::IDtype::overlay, ID::fontSize)) };
+        auto& theme { config::Model::getInstance()->getLookAndFeel() };
+        auto family { theme.getValue (jam::IDtype::overlay, ID::fontFamily).toString() };
+        auto size { static_cast<float> (theme.getValue (jam::IDtype::overlay, ID::fontSize)) };
         juce::Font font { juce::FontOptions().withName (family).withPointHeight (size) };
 
         auto bgColour { findColour (juce::Label::backgroundColourId) };
