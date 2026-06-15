@@ -255,12 +255,17 @@
     X (scrollbarBackground, "scrollbar_background")      \
     X (selectionColour, "selection_colour")
 
-// Shader manifest keys (shaders.lua)
+// Shader manifest keys (shaders.lua) + embedded shader file stems
 #define IDENTIFIER_SHADER(X)            \
     X (shader, "shader")                \
     X (channels, "channels")            \
     X (postProcess, "post_process")     \
-    X (buffer, "buffer")
+    X (buffer, "buffer")                \
+    X (quad, "quad")                    \
+    X (iResolution, "iResolution")      \
+    X (iTime, "iTime")                  \
+    X (iTimeDelta, "iTimeDelta")        \
+    X (iFrame, "iFrame")
 
 // Platform + BackgroundBlur WindowFX keys (theme.lua / window.window_fx)
 // "mac"/"win" identify the platform in the window_fx table;

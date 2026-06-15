@@ -1,0 +1,131 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="structshader_1_1_compiler" kind="struct" language="C++" prot="public">
+    <compoundname>shader::Compiler</compoundname>
+    <includes refid="_compiler_8h" local="no">Compiler.h</includes>
+    <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="structshader_1_1_compiler_1a95ea022f07f67cfc5678fe687ae10e0c" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::unique_ptr&lt; <ref refid="classjuce_1_1OpenGLShaderProgram" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::OpenGLShaderProgram</ref> &gt;</type>
+        <definition>std::unique_ptr&lt; juce::OpenGLShaderProgram &gt; shader::Compiler::build</definition>
+        <argsstring>(const juce::StringArray &amp;fragments, juce::OpenGLContext &amp;context, juce::String &amp;error)</argsstring>
+        <name>build</name>
+        <qualifiedname>shader::Compiler::build</qualifiedname>
+        <param>
+          <type>const <ref refid="classjuce_1_1StringArray" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::StringArray</ref> &amp;</type>
+          <declname>fragments</declname>
+        </param>
+        <param>
+          <type><ref refid="classjuce_1_1OpenGLContext" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::OpenGLContext</ref> &amp;</type>
+          <declname>context</declname>
+        </param>
+        <param>
+          <type><ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref> &amp;</type>
+          <declname>error</declname>
+        </param>
+        <briefdescription>
+<para>Compiles and links a shader program from fragment sources. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Loads quad.vert from <ref refid="namespaceBinaryData" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">BinaryData</ref> via <ref refid="structconfig_1_1_file_1_1_shaders_1ab3a1e144ea7488ee5fbe16155363756b" kindref="member">config::File::Shaders::getName()</ref>. Adds each fragment source via addFragmentShader in a loop. Links.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>fragments</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Fragment shader sources (e.g. shader.frag wrapper + user source). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>context</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The active OpenGL context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>error</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Receives error message on failure. Empty on success. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Compiled and linked program, or nullptr on failure. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="shader/Compiler.h" line="34" column="28" bodyfile="shader/Compiler.cpp" bodystart="43" bodyend="65"/>
+        <references refid="structconfig_1_1_file_1_1_shaders_1ab3a1e144ea7488ee5fbe16155363756b" compoundref="_map_8h" startline="262" endline="265">config::File::Shaders::getName</references>
+        <references refid="namespaceBinaryData_1ac7695032563aaf6d03ebfc469298bb1a">BinaryData::getString</references>
+        <references refid="structconfig_1_1_file_1_1_shaders_1a134314f315b88abc283dec64eb7a993daa09054135397d036e434d68c894d01eb" compoundref="_map_8h" startline="241">config::File::Shaders::quad</references>
+        <references refid="classjuce_1_1OpenGLHelpers_1aed1816eb5a538250841d56e526e04a13">juce::OpenGLHelpers::translateVertexShaderToV3</references>
+      </memberdef>
+      <memberdef kind="function" id="structshader_1_1_compiler_1ab5d4c6ce12a2e5a165972fc6446ede16" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void shader::Compiler::registerUniforms</definition>
+        <argsstring>(const juce::OpenGLShaderProgram &amp;program, jam::Function::Map&lt; juce::Identifier, void &gt; &amp;uniforms)</argsstring>
+        <name>registerUniforms</name>
+        <qualifiedname>shader::Compiler::registerUniforms</qualifiedname>
+        <param>
+          <type>const <ref refid="classjuce_1_1OpenGLShaderProgram" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::OpenGLShaderProgram</ref> &amp;</type>
+          <declname>program</declname>
+        </param>
+        <param>
+          <type><ref refid="structjam_1_1Function_1_1Map" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Function::Map</ref>&lt; <ref refid="classjuce_1_1Identifier" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Identifier</ref>, void &gt; &amp;</type>
+          <declname>uniforms</declname>
+        </param>
+        <briefdescription>
+<para>Discovers active uniforms from a linked program and registers dispatch lambdas in the caller&apos;s Function::Map. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Queries glGetActiveUniform for all active uniforms. For each, looks up the GL type in a static setter table (braced-initializer HashMap) and registers a lambda capturing the location in the caller&apos;s map via add().</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>program</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Linked shader program to query. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>uniforms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Caller&apos;s Function::Map to populate with uniform setters. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="shader/Compiler.h" line="49" column="17" bodyfile="shader/Compiler.cpp" bodystart="68" bodyend="105"/>
+        <references refid="structjam_1_1Function_1_1Map_1a4c5333e037712bf4fbed00a9d1dcaf34">jam::Function::Map&lt; typename KeyType, typename ReturnType &gt;::add</references>
+        <references refid="classjuce_1_1OpenGLShaderProgram_1ab414272c32ae0581b30b98a800ea4344">juce::OpenGLShaderProgram::getProgramID</references>
+        <references refid="namespacejuce_1_1gl_1af671f4f7a87a673f690bfd41f3a2a467a2831b578e99a931a7f9b38da7caecbf7">juce::gl::GL_ACTIVE_UNIFORMS</references>
+        <references refid="namespacejuce_1_1gl_1a364284b763df1f7e302491fdb8bf51ee">juce::gl::glGetActiveUniform</references>
+        <references refid="namespacejuce_1_1gl_1a71c7da68da2f9b441d345d7b9ca2cafc">juce::gl::glGetProgramiv</references>
+        <references refid="namespacejuce_1_1gl_1a82ea9960a13967b6d101b365352caaae">juce::gl::glGetUniformLocation</references>
+        <references refid="namespaceshader_1a96140a4e70c7ed6c0a1c8ac6d68ee820" compoundref="_compiler_8cpp" startline="11" endline="40">shader::setters</references>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Static shader program builder — compiles and links OpenGL shader programs. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Pure static utility following the <ref refid="structjam_1_1view_1_1Manager" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::view::Manager</ref> pattern. No instance state.</para>
+<para><ref refid="structshader_1_1_compiler_1a95ea022f07f67cfc5678fe687ae10e0c" kindref="member">build()</ref> takes fragment source strings, loads quad.vert from <ref refid="namespaceBinaryData" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">BinaryData</ref> via <ref refid="structconfig_1_1_file_1_1_shaders" kindref="compound">config::File::Shaders</ref>, compiles, links, returns the program. Caller owns the result.</para>
+<para>Thread contract: ALL methods GL THREAD only. </para>
+    </detaileddescription>
+    <location file="shader/Compiler.h" line="22" column="1" bodyfile="shader/Compiler.h" bodystart="23" bodyend="52"/>
+    <listofallmembers>
+      <member refid="structshader_1_1_compiler_1a95ea022f07f67cfc5678fe687ae10e0c" prot="public" virt="non-virtual"><scope>shader::Compiler</scope><name>build</name></member>
+      <member refid="structshader_1_1_compiler_1ab5d4c6ce12a2e5a165972fc6446ede16" prot="public" virt="non-virtual"><scope>shader::Compiler</scope><name>registerUniforms</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

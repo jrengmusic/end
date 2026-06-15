@@ -5,7 +5,7 @@
 #pragma once
 #include <JuceHeader.h>
 #include "shader/Quad.h"
-#include "shader/Pass.h"
+#include "shader/Compiler.h"
 
 namespace shader
 {
@@ -17,6 +17,10 @@ namespace shader
  *  getFrameCounter(), shutdownOpenGL(). Adds attach/detach for runtime GPU/CPU switching.
  *
  *  Owned by end::View as a single member. View delegates all GL lifecycle to this class.
+ *
+ *  Owns the compiled shader programs (jam::Owner<juce::OpenGLShaderProgram>) and the
+ *  uniform dispatch table (jam::Function::Map<juce::Identifier, void>). Uses Compiler
+ *  to build programs on the GL thread during initialise().
  *
  *  Thread contract:
  *  - attach() / detach() / isAttached() : MESSAGE THREAD
@@ -80,7 +84,8 @@ private:
 
     int frameCounter { 0 };
     Quad quad;
-    Pass background;
+    jam::Owner<juce::OpenGLShaderProgram> programs;
+    jam::Function::Map<juce::Identifier, void> uniforms;
 
     //==========================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Controller)

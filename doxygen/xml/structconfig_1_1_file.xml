@@ -200,7 +200,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="282" column="24" bodyfile="end/Map.h" bodystart="282" bodyend="282"/>
+        <location file="end/Map.h" line="286" column="24" bodyfile="end/Map.h" bodystart="286" bodyend="286"/>
         <references refid="structconfig_1_1_file_1a683ed3a3b06e2a36ef94e7c301deae90a0fc85df7daa8f0d98a096582ced3738f" compoundref="_map_8h" startline="122">config</references>
         <references refid="classjam_1_1Map_1_1Instance_1afe0acf25bab1f104aea20f20174129d1">jam::Map::Instance&lt; File &gt;::map</references>
       </memberdef>
@@ -270,7 +270,7 @@
         <link refid="classjuce_1_1String" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
     </collaborationgraph>
-    <location file="end/Map.h" line="117" column="1" bodyfile="end/Map.h" bodystart="118" bodyend="283"/>
+    <location file="end/Map.h" line="117" column="1" bodyfile="end/Map.h" bodystart="118" bodyend="287"/>
     <listofallmembers>
       <member refid="structconfig_1_1_file_1a683ed3a3b06e2a36ef94e7c301deae90a0fc85df7daa8f0d98a096582ced3738f" prot="public" virt="non-virtual"><scope>config::File</scope><name>config</name></member>
       <member refid="classjam_1_1Map_1_1Instance_1a39231f6d1e13c6f64e72a07851a130c4" prot="public" virt="non-virtual"><scope>config::File</scope><name>contains</name></member>

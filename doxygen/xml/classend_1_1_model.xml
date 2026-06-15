@@ -155,7 +155,6 @@
       <member refid="classjam_1_1Model_1a1032430642def825ff972dc86d6608c4" prot="public" virt="non-virtual"><scope>end::Model</scope><name>getValueFromChildWithProperty</name></member>
       <member refid="classjam_1_1Model_1a710fd55b83d2e5657e48d49ce5225ea2" prot="public" virt="non-virtual"><scope>end::Model</scope><name>getXml</name></member>
       <member refid="classjam_1_1Model_1a1c976506dd5eb7d125a0e804c97c61e2" prot="private" virt="non-virtual"><scope>end::Model</scope><name>idleHz</name></member>
-      <member refid="classjam_1_1Model_1a7824ccf1d91c240980145d68baf91b2b" prot="private" virt="non-virtual"><scope>end::Model</scope><name>ignoreCallbacks</name></member>
       <member refid="classjuce_1_1Timer_1a525f38cc7afdc0696b467bd4ed3f17da" prot="public" virt="non-virtual"><scope>end::Model</scope><name>isTimerRunning</name></member>
       <member refid="classjam_1_1Model_1afb401fb24025fa7fddf2740e374df4aa" prot="public" virt="non-virtual"><scope>end::Model</scope><name>loadState</name></member>
       <member refid="classjam_1_1Model_1a6662822c6b2f2539b5839a41daa668c9" prot="public" virt="non-virtual"><scope>end::Model</scope><name>loadState</name></member>

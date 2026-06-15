@@ -4,7 +4,6 @@
     <compoundname>Quad.h</compoundname>
     <includes local="no">JuceHeader.h</includes>
     <includedby refid="_controller_8h" local="yes">shader/Controller.h</includedby>
-    <includedby refid="_pass_8h" local="yes">shader/Pass.h</includedby>
     <includedby refid="_quad_8cpp" local="yes">shader/Quad.cpp</includedby>
     <incdepgraph>
       <node id="1">
@@ -64,19 +63,7 @@
         <childnode refid="9" relation="include">
         </childnode>
       </node>
-      <node id="11">
-        <label>shader/Pass.cpp</label>
-        <link refid="_pass_8cpp"/>
-      </node>
       <node id="10">
-        <label>shader/Pass.h</label>
-        <link refid="_pass_8h"/>
-        <childnode refid="2" relation="include">
-        </childnode>
-        <childnode refid="11" relation="include">
-        </childnode>
-      </node>
-      <node id="12">
         <label>shader/Quad.cpp</label>
         <link refid="_quad_8cpp"/>
       </node>
@@ -87,45 +74,39 @@
         </childnode>
         <childnode refid="10" relation="include">
         </childnode>
-        <childnode refid="12" relation="include">
-        </childnode>
       </node>
     </invincdepgraph>
     <innerclass refid="structshader_1_1_quad" prot="public">shader::Quad</innerclass>
     <innernamespace refid="namespaceshader">shader</innernamespace>
     <briefdescription>
+<para>Fullscreen quad VBO — shared geometry for all shader passes. </para>
     </briefdescription>
     <detaileddescription>
     </detaileddescription>
     <programlisting>
-<codeline lineno="1"><highlight class="preprocessor">#pragma<sp/>once</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;JuceHeader.h&gt;</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="3"><highlight class="normal"></highlight></codeline>
-<codeline lineno="4"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespaceshader" kindref="compound">shader</ref></highlight></codeline>
-<codeline lineno="5"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="6"><highlight class="normal"></highlight><highlight class="comment">/*____________________________________________________________________________*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="preprocessor">#pragma<sp/>once</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;JuceHeader.h&gt;</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="7"><highlight class="normal"></highlight></codeline>
-<codeline lineno="19" refid="structshader_1_1_quad" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structshader_1_1_quad" kindref="compound">Quad</ref></highlight></codeline>
-<codeline lineno="20"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="structshader_1_1_quad_1a65b28b493996c39223de339b21be19ec" kindref="member">create</ref><sp/>(<ref refid="classjuce_1_1OpenGLContext" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::OpenGLContext</ref>&amp;<sp/>context);</highlight></codeline>
-<codeline lineno="25"><highlight class="normal"></highlight></codeline>
-<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="structshader_1_1_quad_1a23b41191d7a967586a196278862db086" kindref="member">destroy</ref>();</highlight></codeline>
-<codeline lineno="28"><highlight class="normal"></highlight></codeline>
-<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="structshader_1_1_quad_1a67729686a31a58bd02578f473136734f" kindref="member">draw</ref>();</highlight></codeline>
-<codeline lineno="31"><highlight class="normal"></highlight></codeline>
-<codeline lineno="35" refid="structshader_1_1_quad_1ab1f77e75665b604f5b7afe0bd4da6614" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref>&amp;<sp/><ref refid="structshader_1_1_quad_1ab1f77e75665b604f5b7afe0bd4da6614" kindref="member">getVertexShader</ref>()<sp/>const<sp/>noexcept<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="structshader_1_1_quad_1a6d4a0ff1a648a9738ecf798c8ebe5d00" kindref="member">vertexShader</ref>;<sp/>}</highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespaceshader" kindref="compound">shader</ref></highlight></codeline>
+<codeline lineno="9"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="comment">/*____________________________________________________________________________*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight></codeline>
+<codeline lineno="22" refid="structshader_1_1_quad" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structshader_1_1_quad" kindref="compound">Quad</ref></highlight></codeline>
+<codeline lineno="23"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="structshader_1_1_quad_1a2f7c8b0a3beaa4c91698aee32f093de6" kindref="member">create</ref>();</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="structshader_1_1_quad_1a23b41191d7a967586a196278862db086" kindref="member">destroy</ref>();</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="structshader_1_1_quad_1a67729686a31a58bd02578f473136734f" kindref="member">draw</ref>();</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="35" refid="structshader_1_1_quad_1af020c17c362b50aac4564ee9cb16f61d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="juce__gl_8h_1aa311c7f0d6ec4f1a33f9235c3651b86b" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GLuint</ref><sp/><ref refid="structshader_1_1_quad_1af020c17c362b50aac4564ee9cb16f61d" kindref="member">vbo</ref><sp/>{<sp/>0<sp/>};</highlight></codeline>
 <codeline lineno="36"><highlight class="normal"></highlight></codeline>
-<codeline lineno="38" refid="structshader_1_1_quad_1ae4780e3a60d9c4eb005e9f3022dddbbb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structshader_1_1_quad_1ae4780e3a60d9c4eb005e9f3022dddbbb" kindref="member">isCreated</ref>()<sp/>const<sp/>noexcept<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="structshader_1_1_quad_1af020c17c362b50aac4564ee9cb16f61d" kindref="member">vbo</ref><sp/>!=<sp/>0;<sp/>}</highlight></codeline>
-<codeline lineno="39"><highlight class="normal"></highlight></codeline>
-<codeline lineno="40"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
-<codeline lineno="42" refid="structshader_1_1_quad_1af020c17c362b50aac4564ee9cb16f61d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="juce__gl_8h_1aa311c7f0d6ec4f1a33f9235c3651b86b" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GLuint</ref><sp/><ref refid="structshader_1_1_quad_1af020c17c362b50aac4564ee9cb16f61d" kindref="member">vbo</ref><sp/>{<sp/>0<sp/>};</highlight></codeline>
-<codeline lineno="43"><highlight class="normal"></highlight></codeline>
-<codeline lineno="45" refid="structshader_1_1_quad_1a6d4a0ff1a648a9738ecf798c8ebe5d00" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref><sp/><ref refid="structshader_1_1_quad_1a6d4a0ff1a648a9738ecf798c8ebe5d00" kindref="member">vertexShader</ref>;</highlight></codeline>
-<codeline lineno="46"><highlight class="normal"></highlight></codeline>
-<codeline lineno="48" refid="structshader_1_1_quad_1aae32920dbf3e83cfaa99c9666a41a771" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">constexpr</highlight><highlight class="normal"><sp/><ref refid="juce__gl_8h_1aa311c7f0d6ec4f1a33f9235c3651b86b" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GLuint</ref><sp/><ref refid="structshader_1_1_quad_1aae32920dbf3e83cfaa99c9666a41a771" kindref="member">positionAttribute</ref><sp/>{<sp/>0<sp/>};</highlight></codeline>
-<codeline lineno="49"><highlight class="normal">};</highlight></codeline>
-<codeline lineno="50"><highlight class="normal"></highlight></codeline>
-<codeline lineno="52"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>shader</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38" refid="structshader_1_1_quad_1aae32920dbf3e83cfaa99c9666a41a771" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">constexpr</highlight><highlight class="normal"><sp/><ref refid="juce__gl_8h_1aa311c7f0d6ec4f1a33f9235c3651b86b" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GLuint</ref><sp/><ref refid="structshader_1_1_quad_1aae32920dbf3e83cfaa99c9666a41a771" kindref="member">positionAttribute</ref><sp/>{<sp/>0<sp/>};</highlight></codeline>
+<codeline lineno="39"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>shader</highlight><highlight class="normal"></highlight></codeline>
     </programlisting>
     <location file="shader/Quad.h"/>
   </compounddef>

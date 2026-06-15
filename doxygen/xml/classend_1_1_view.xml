@@ -785,6 +785,10 @@
         <label>jam::Owner&lt; jam::button::Bar::TabInfo &gt;</label>
         <link refid="classjam_1_1Owner" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
+      <node id="56">
+        <label>jam::Owner&lt; juce::OpenGLShaderProgram &gt;</label>
+        <link refid="classjam_1_1Owner" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
       <node id="34">
         <label>jam::TabbedComponent</label>
         <link refid="classjam_1_1TabbedComponent" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
@@ -904,10 +908,6 @@
         <label>juce::OpenGLRenderer</label>
         <link refid="classjuce_1_1OpenGLRenderer" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="58">
-        <label>juce::OpenGLShaderProgram</label>
-        <link refid="classjuce_1_1OpenGLShaderProgram" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-      </node>
       <node id="23">
         <label>juce::OwnedArray&lt; Impl &gt;</label>
         <link refid="classjuce_1_1OwnedArray" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
@@ -958,22 +958,15 @@
           <edgelabel>quad</edgelabel>
         </childnode>
         <childnode refid="56" relation="usage">
-          <edgelabel>background</edgelabel>
+          <edgelabel>programs</edgelabel>
         </childnode>
-      </node>
-      <node id="56">
-        <label>shader::Pass</label>
-        <link refid="structshader_1_1_pass"/>
-        <childnode refid="57" relation="usage">
-          <edgelabel>program</edgelabel>
+        <childnode refid="30" relation="usage">
+          <edgelabel>uniforms</edgelabel>
         </childnode>
       </node>
       <node id="55">
         <label>shader::Quad</label>
         <link refid="structshader_1_1_quad"/>
-        <childnode refid="24" relation="usage">
-          <edgelabel>vertexShader</edgelabel>
-        </childnode>
       </node>
       <node id="18">
         <label>std::map&lt; juce::File, std::unique_ptr&lt; jam::File::Watcher::CoalesceTimer &gt; &gt;</label>
@@ -999,12 +992,6 @@
       <node id="40">
         <label>std::unique_ptr&lt; juce::Button &gt;</label>
         <childnode refid="41" relation="usage">
-          <edgelabel>ptr</edgelabel>
-        </childnode>
-      </node>
-      <node id="57">
-        <label>std::unique_ptr&lt; juce::OpenGLShaderProgram &gt;</label>
-        <childnode refid="58" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>

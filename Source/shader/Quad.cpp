@@ -4,17 +4,11 @@ namespace shader
 {
 /*____________________________________________________________________________*/
 
-void Quad::create (juce::OpenGLContext& context)
+void Quad::create()
 {
     using namespace juce::gl;
 
-    // Load vertex shader from BinaryData and translate to GLSL v3
-    vertexShader = juce::OpenGLHelpers::translateVertexShaderToV3 (
-        BinaryData::getString ("passthrough.vert"));
-
-    // Triangle strip: two triangles covering [-1,1] NDC
-    static constexpr float vertices[] =
-    {
+    static constexpr float vertices[] {
         -1.0f, -1.0f,
          1.0f, -1.0f,
         -1.0f,  1.0f,

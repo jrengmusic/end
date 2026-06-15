@@ -19,29 +19,10 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="shader/Quad.h" line="42" column="12" bodyfile="shader/Quad.h" bodystart="42" bodyend="42"/>
-        <referencedby refid="structshader_1_1_quad_1a65b28b493996c39223de339b21be19ec" compoundref="_quad_8cpp" startline="7" endline="28">create</referencedby>
-        <referencedby refid="structshader_1_1_quad_1a23b41191d7a967586a196278862db086" compoundref="_quad_8cpp" startline="30" endline="39">destroy</referencedby>
-        <referencedby refid="structshader_1_1_quad_1a67729686a31a58bd02578f473136734f" compoundref="_quad_8cpp" startline="41" endline="55">draw</referencedby>
-        <referencedby refid="structshader_1_1_quad_1ae4780e3a60d9c4eb005e9f3022dddbbb" compoundref="_quad_8h" startline="38" endline="38">isCreated</referencedby>
-      </memberdef>
-      <memberdef kind="variable" id="structshader_1_1_quad_1a6d4a0ff1a648a9738ecf798c8ebe5d00" prot="private" static="no" mutable="no">
-        <type><ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref></type>
-        <definition>juce::String shader::Quad::vertexShader</definition>
-        <argsstring></argsstring>
-        <name>vertexShader</name>
-        <qualifiedname>shader::Quad::vertexShader</qualifiedname>
-        <briefdescription>
-<para>Vertex shader source translated to GLSL v3 by JUCE. </para>
-        </briefdescription>
-        <detaileddescription>
-<para>Valid after <ref refid="structshader_1_1_quad_1a65b28b493996c39223de339b21be19ec" kindref="member">create()</ref>. </para>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="shader/Quad.h" line="45" column="18" bodyfile="shader/Quad.h" bodystart="45" bodyend="-1"/>
-        <referencedby refid="structshader_1_1_quad_1a65b28b493996c39223de339b21be19ec" compoundref="_quad_8cpp" startline="7" endline="28">create</referencedby>
-        <referencedby refid="structshader_1_1_quad_1ab1f77e75665b604f5b7afe0bd4da6614" compoundref="_quad_8h" startline="35" endline="35">getVertexShader</referencedby>
+        <location file="shader/Quad.h" line="35" column="12" bodyfile="shader/Quad.h" bodystart="35" bodyend="35"/>
+        <referencedby refid="structshader_1_1_quad_1a2f7c8b0a3beaa4c91698aee32f093de6" compoundref="_quad_8cpp" startline="7" endline="22">create</referencedby>
+        <referencedby refid="structshader_1_1_quad_1a23b41191d7a967586a196278862db086" compoundref="_quad_8cpp" startline="24" endline="33">destroy</referencedby>
+        <referencedby refid="structshader_1_1_quad_1a67729686a31a58bd02578f473136734f" compoundref="_quad_8cpp" startline="35" endline="49">draw</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="private-static-attrib">
@@ -53,54 +34,37 @@
         <qualifiedname>shader::Quad::positionAttribute</qualifiedname>
         <initializer>{ 0 }</initializer>
         <briefdescription>
-<para>Position attribute location in the passthrough vertex shader. </para>
+<para>Position attribute location in the vertex shader. </para>
         </briefdescription>
         <detaileddescription>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="shader/Quad.h" line="48" column="29" bodyfile="shader/Quad.h" bodystart="48" bodyend="48"/>
-        <referencedby refid="structshader_1_1_quad_1a67729686a31a58bd02578f473136734f" compoundref="_quad_8cpp" startline="41" endline="55">draw</referencedby>
+        <location file="shader/Quad.h" line="38" column="29" bodyfile="shader/Quad.h" bodystart="38" bodyend="38"/>
+        <referencedby refid="structshader_1_1_quad_1a67729686a31a58bd02578f473136734f" compoundref="_quad_8cpp" startline="35" endline="49">draw</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">
-      <memberdef kind="function" id="structshader_1_1_quad_1a65b28b493996c39223de339b21be19ec" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+      <memberdef kind="function" id="structshader_1_1_quad_1a2f7c8b0a3beaa4c91698aee32f093de6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
         <definition>void shader::Quad::create</definition>
-        <argsstring>(juce::OpenGLContext &amp;context)</argsstring>
+        <argsstring>()</argsstring>
         <name>create</name>
         <qualifiedname>shader::Quad::create</qualifiedname>
-        <param>
-          <type><ref refid="classjuce_1_1OpenGLContext" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::OpenGLContext</ref> &amp;</type>
-          <declname>context</declname>
-        </param>
         <briefdescription>
-<para>Allocates the VBO and translates the vertex shader from <ref refid="namespaceBinaryData" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">BinaryData</ref>. </para>
+<para>Allocates the VBO. </para>
         </briefdescription>
         <detaileddescription>
-<para><parameterlist kind="param"><parameteritem>
-<parameternamelist>
-<parametername>context</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>The active OpenGL context. </para>
-</parameterdescription>
-</parameteritem>
-</parameterlist>
-</para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="shader/Quad.h" line="24" column="10" bodyfile="shader/Quad.cpp" bodystart="7" bodyend="28"/>
-        <references refid="namespaceBinaryData_1ac7695032563aaf6d03ebfc469298bb1a">BinaryData::getString</references>
+        <location file="shader/Quad.h" line="25" column="10" bodyfile="shader/Quad.cpp" bodystart="7" bodyend="22"/>
         <references refid="namespacejuce_1_1gl_1af671f4f7a87a673f690bfd41f3a2a467a87924651f6f7b3bb8c5b40fd81fa6387">juce::gl::GL_ARRAY_BUFFER</references>
         <references refid="namespacejuce_1_1gl_1af671f4f7a87a673f690bfd41f3a2a467ae8faeac5064724f48e06aff5c55c6d95">juce::gl::GL_STATIC_DRAW</references>
         <references refid="namespacejuce_1_1gl_1a132a1fe42d1ddaf0a6e4fef274dc0059">juce::gl::glBindBuffer</references>
         <references refid="namespacejuce_1_1gl_1ab3530fb02d8759d0c5810e8f52300ff1">juce::gl::glBufferData</references>
         <references refid="namespacejuce_1_1gl_1a2f255efba2bd84dafd068c055bb412e5">juce::gl::glGenBuffers</references>
-        <references refid="classjuce_1_1OpenGLHelpers_1aed1816eb5a538250841d56e526e04a13">juce::OpenGLHelpers::translateVertexShaderToV3</references>
-        <references refid="structshader_1_1_quad_1af020c17c362b50aac4564ee9cb16f61d" compoundref="_quad_8h" startline="42" endline="42">vbo</references>
-        <references refid="structshader_1_1_quad_1a6d4a0ff1a648a9738ecf798c8ebe5d00" compoundref="_quad_8h" startline="45">vertexShader</references>
+        <references refid="structshader_1_1_quad_1af020c17c362b50aac4564ee9cb16f61d" compoundref="_quad_8h" startline="35" endline="35">vbo</references>
       </memberdef>
       <memberdef kind="function" id="structshader_1_1_quad_1a23b41191d7a967586a196278862db086" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -116,9 +80,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="shader/Quad.h" line="27" column="10" bodyfile="shader/Quad.cpp" bodystart="30" bodyend="39"/>
+        <location file="shader/Quad.h" line="28" column="10" bodyfile="shader/Quad.cpp" bodystart="24" bodyend="33"/>
         <references refid="namespacejuce_1_1gl_1a3b97f903dba9986e77559def10db53dc">juce::gl::glDeleteBuffers</references>
-        <references refid="structshader_1_1_quad_1af020c17c362b50aac4564ee9cb16f61d" compoundref="_quad_8h" startline="42" endline="42">vbo</references>
+        <references refid="structshader_1_1_quad_1af020c17c362b50aac4564ee9cb16f61d" compoundref="_quad_8h" startline="35" endline="35">vbo</references>
       </memberdef>
       <memberdef kind="function" id="structshader_1_1_quad_1a67729686a31a58bd02578f473136734f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -133,7 +97,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="shader/Quad.h" line="30" column="10" bodyfile="shader/Quad.cpp" bodystart="41" bodyend="55"/>
+        <location file="shader/Quad.h" line="31" column="10" bodyfile="shader/Quad.cpp" bodystart="35" bodyend="49"/>
         <references refid="namespacejuce_1_1gl_1af671f4f7a87a673f690bfd41f3a2a467a87924651f6f7b3bb8c5b40fd81fa6387">juce::gl::GL_ARRAY_BUFFER</references>
         <references refid="namespacejuce_1_1gl_1af671f4f7a87a673f690bfd41f3a2a467a40c376a1f69f3f941c37d8c6248b245f">juce::gl::GL_FALSE</references>
         <references refid="namespacejuce_1_1gl_1af671f4f7a87a673f690bfd41f3a2a467a09a5485e7c31dca1973cc8f17e66500f">juce::gl::GL_FLOAT</references>
@@ -143,75 +107,25 @@
         <references refid="namespacejuce_1_1gl_1ab9518082af997fbc57fdace745931cf7">juce::gl::glDrawArrays</references>
         <references refid="namespacejuce_1_1gl_1a065fc91758852879934df698abbe2499">juce::gl::glEnableVertexAttribArray</references>
         <references refid="namespacejuce_1_1gl_1a13411f76108e773b087ea047c6ebc691">juce::gl::glVertexAttribPointer</references>
-        <references refid="structshader_1_1_quad_1aae32920dbf3e83cfaa99c9666a41a771" compoundref="_quad_8h" startline="48" endline="48">positionAttribute</references>
-        <references refid="structshader_1_1_quad_1af020c17c362b50aac4564ee9cb16f61d" compoundref="_quad_8h" startline="42" endline="42">vbo</references>
-        <referencedby refid="structshader_1_1_pass_1ad4ba68255c49b2235c6c0b1710d97364" compoundref="_pass_8cpp" startline="49" endline="69">shader::Pass::render</referencedby>
-      </memberdef>
-      <memberdef kind="function" id="structshader_1_1_quad_1ab1f77e75665b604f5b7afe0bd4da6614" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
-        <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref> &amp;</type>
-        <definition>const juce::String &amp; shader::Quad::getVertexShader</definition>
-        <argsstring>() const noexcept</argsstring>
-        <name>getVertexShader</name>
-        <qualifiedname>shader::Quad::getVertexShader</qualifiedname>
-        <briefdescription>
-<para>Returns the compiled vertex shader source (GLSL v3 translated). </para>
-        </briefdescription>
-        <detaileddescription>
-<para>Valid after <ref refid="structshader_1_1_quad_1a65b28b493996c39223de339b21be19ec" kindref="member">create()</ref>. Used by <ref refid="structshader_1_1_pass" kindref="compound">shader::Pass</ref> to link programs. </para>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="shader/Quad.h" line="35" column="24" bodyfile="shader/Quad.h" bodystart="35" bodyend="35"/>
-        <references refid="structshader_1_1_quad_1a6d4a0ff1a648a9738ecf798c8ebe5d00" compoundref="_quad_8h" startline="45">vertexShader</references>
-      </memberdef>
-      <memberdef kind="function" id="structshader_1_1_quad_1ae4780e3a60d9c4eb005e9f3022dddbbb" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
-        <type>bool</type>
-        <definition>bool shader::Quad::isCreated</definition>
-        <argsstring>() const noexcept</argsstring>
-        <name>isCreated</name>
-        <qualifiedname>shader::Quad::isCreated</qualifiedname>
-        <briefdescription>
-<para>Returns true if the VBO has been created. </para>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="shader/Quad.h" line="38" column="10" bodyfile="shader/Quad.h" bodystart="38" bodyend="38"/>
-        <references refid="structshader_1_1_quad_1af020c17c362b50aac4564ee9cb16f61d" compoundref="_quad_8h" startline="42" endline="42">vbo</references>
+        <references refid="structshader_1_1_quad_1aae32920dbf3e83cfaa99c9666a41a771" compoundref="_quad_8h" startline="38" endline="38">positionAttribute</references>
+        <references refid="structshader_1_1_quad_1af020c17c362b50aac4564ee9cb16f61d" compoundref="_quad_8h" startline="35" endline="35">vbo</references>
       </memberdef>
     </sectiondef>
     <briefdescription>
-<para>Fullscreen quad geometry — shared by all shader passes. </para>
+<para>Fullscreen quad VBO — shared geometry for all shader passes. </para>
     </briefdescription>
     <detaileddescription>
-<para>Owns a VBO with 4 vertices in a triangle strip covering [-1,1] NDC. The passthrough vertex shader is loaded from <ref refid="namespaceBinaryData" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">BinaryData</ref> (passthrough.vert).</para>
-<para>GL resource lifecycle: <ref refid="structshader_1_1_quad_1a65b28b493996c39223de339b21be19ec" kindref="member">create()</ref> allocates VBO on the GL thread (call from newOpenGLContextCreated). <ref refid="structshader_1_1_quad_1a23b41191d7a967586a196278862db086" kindref="member">destroy()</ref> releases it (call from openGLContextClosing).</para>
+<para>Owns a VBO with 4 vertices in a triangle strip covering [-1,1] NDC.</para>
+<para>GL resource lifecycle: <ref refid="structshader_1_1_quad_1a2f7c8b0a3beaa4c91698aee32f093de6" kindref="member">create()</ref> allocates VBO on the GL thread (call from newOpenGLContextCreated). <ref refid="structshader_1_1_quad_1a23b41191d7a967586a196278862db086" kindref="member">destroy()</ref> releases it (call from openGLContextClosing).</para>
 <para>Thread contract: ALL methods GL THREAD only. </para>
     </detaileddescription>
-    <collaborationgraph>
-      <node id="2">
-        <label>juce::String</label>
-        <link refid="classjuce_1_1String" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-      </node>
-      <node id="1">
-        <label>shader::Quad</label>
-        <link refid="structshader_1_1_quad"/>
-        <childnode refid="2" relation="usage">
-          <edgelabel>vertexShader</edgelabel>
-        </childnode>
-      </node>
-    </collaborationgraph>
-    <location file="shader/Quad.h" line="19" column="1" bodyfile="shader/Quad.h" bodystart="20" bodyend="49"/>
+    <location file="shader/Quad.h" line="22" column="1" bodyfile="shader/Quad.h" bodystart="23" bodyend="39"/>
     <listofallmembers>
-      <member refid="structshader_1_1_quad_1a65b28b493996c39223de339b21be19ec" prot="public" virt="non-virtual"><scope>shader::Quad</scope><name>create</name></member>
+      <member refid="structshader_1_1_quad_1a2f7c8b0a3beaa4c91698aee32f093de6" prot="public" virt="non-virtual"><scope>shader::Quad</scope><name>create</name></member>
       <member refid="structshader_1_1_quad_1a23b41191d7a967586a196278862db086" prot="public" virt="non-virtual"><scope>shader::Quad</scope><name>destroy</name></member>
       <member refid="structshader_1_1_quad_1a67729686a31a58bd02578f473136734f" prot="public" virt="non-virtual"><scope>shader::Quad</scope><name>draw</name></member>
-      <member refid="structshader_1_1_quad_1ab1f77e75665b604f5b7afe0bd4da6614" prot="public" virt="non-virtual"><scope>shader::Quad</scope><name>getVertexShader</name></member>
-      <member refid="structshader_1_1_quad_1ae4780e3a60d9c4eb005e9f3022dddbbb" prot="public" virt="non-virtual"><scope>shader::Quad</scope><name>isCreated</name></member>
       <member refid="structshader_1_1_quad_1aae32920dbf3e83cfaa99c9666a41a771" prot="private" virt="non-virtual"><scope>shader::Quad</scope><name>positionAttribute</name></member>
       <member refid="structshader_1_1_quad_1af020c17c362b50aac4564ee9cb16f61d" prot="private" virt="non-virtual"><scope>shader::Quad</scope><name>vbo</name></member>
-      <member refid="structshader_1_1_quad_1a6d4a0ff1a648a9738ecf798c8ebe5d00" prot="private" virt="non-virtual"><scope>shader::Quad</scope><name>vertexShader</name></member>
     </listofallmembers>
   </compounddef>
 </doxygen>

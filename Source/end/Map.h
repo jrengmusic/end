@@ -226,7 +226,7 @@ struct File : public jam::Map::Instance<File>
 
     //==========================================================================
     /**
-     * @brief Registry of shader project files — 1 manifest key.
+     * @brief Registry of shader project files — manifest + embedded shaders.
      *        Nested inside File. CRTP-derived from jam::Map::Instance<Shaders>.
      *
      * Owns the shaders root directory path. The live instance is owned by
@@ -234,30 +234,34 @@ struct File : public jam::Map::Instance<File>
      */
     struct Shaders : public jam::Map::Instance<Shaders>
     {
-        /** @brief Integer keys for shader manifest files. */
+        /** @brief Integer keys for shader files. */
         enum
         {
-            shaders,///< Shader manifest (shaders.lua).
+            shaders, ///< Shader manifest (shaders.lua).
+            quad,    ///< Fullscreen quad vertex shader (quad.vert, BinaryData).
+            shader,  ///< Fragment wrapper (shader.frag, BinaryData).
         };
 
-        /** @brief Populates the bimap with the single entry. */
+        /** @brief Populates the bimap with all entries. */
         Shaders()
         {
             map = {
                 { Shaders::shaders, IDref::shaders },
+                { Shaders::quad,    IDref::quad },
+                { Shaders::shader,  IDref::shader },
             };
         }
 
         /** @brief Returns the int→Identifier-stem map from the live context instance. */
         static const auto& get() noexcept { return getInstance()->map; }
 
-        /** @brief Returns the filename for the given enum key (always "stem.lua").
+        /** @brief Returns the filename for the given enum key using per-key extension.
          *  @param key  One of the Shaders enum values.
-         *  @return     Filename string including extension (e.g. "shaders.lua").
+         *  @return     Filename string including per-key extension (e.g. "shaders.lua", "quad.vert").
          */
         static const juce::String getName (int key) noexcept
         {
-            return jam::Format::toFileName (get().at (key), extension);
+            return jam::Format::toFileName (get().at (key), extension.getReference (key));
         }
 
         /** @brief Returns the shader project subdirectory for the given name.
@@ -271,8 +275,8 @@ struct File : public jam::Map::Instance<File>
 
         /** @brief Shaders root directory: ~/.config/end/shaders/ */
         inline static const juce::File path { File::getPath (IDref::shaders) };
-        /** @brief Lua extension for shader manifest files. */
-        inline static const juce::String extension { "lua" };
+        /** @brief Per-key file extensions: lua, vert, frag. */
+        inline static const juce::StringArray extension { "lua", "vert", "frag" };
 
     private:
         const juce::String& getDefault() const noexcept override { return map.at (Shaders::shaders); }

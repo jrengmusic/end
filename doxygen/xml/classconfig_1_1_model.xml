@@ -745,7 +745,6 @@ lua files (@c File::Theme::get()) to the active theme directory
       <member refid="classconfig_1_1_model_1aab53f2dffa259bc65116d9b97ce44a49" prot="private" virt="non-virtual"><scope>config::Model</scope><name>graphicsCallbacks</name></member>
       <member refid="structjam_1_1Context_1a5900ff66cdba02d6f6947cc6d5e8ec3d" prot="private" virt="non-virtual"><scope>config::Model</scope><name>head</name></member>
       <member refid="classjam_1_1Model_1a1c976506dd5eb7d125a0e804c97c61e2" prot="private" virt="non-virtual"><scope>config::Model</scope><name>idleHz</name></member>
-      <member refid="classjam_1_1Model_1a7824ccf1d91c240980145d68baf91b2b" prot="private" virt="non-virtual"><scope>config::Model</scope><name>ignoreCallbacks</name></member>
       <member refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" prot="private" virt="non-virtual"><scope>config::Model</scope><name>initialise</name></member>
       <member refid="classjuce_1_1Timer_1a525f38cc7afdc0696b467bd4ed3f17da" prot="public" virt="non-virtual"><scope>config::Model</scope><name>isTimerRunning</name></member>
       <member refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" prot="public" virt="non-virtual"><scope>config::Model</scope><name>loadFromPath</name></member>

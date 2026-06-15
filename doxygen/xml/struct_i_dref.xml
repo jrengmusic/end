@@ -22,9 +22,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="13"/>
+        <location file="Identifier.h" line="310" column="13"/>
         <references refid="struct_i_dref_1a15336e61beceb953f8c3ff39521b7c22">AS_STRINGREF</references>
-        <references refid="_identifier_8h_1aa678230a5f71071f7d9e20dd31ad5547" compoundref="_identifier_8h" startline="288" endline="302">END_MAKE_VIEW</references>
+        <references refid="_identifier_8h_1aa678230a5f71071f7d9e20dd31ad5547" compoundref="_identifier_8h" startline="293" endline="307">END_MAKE_VIEW</references>
         <referencedby refid="struct_i_dref_1a15336e61beceb953f8c3ff39521b7c22">AS_STRINGREF</referencedby>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1ac37f79c6ab260ae0ba0df9b66e39b9a9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -45,7 +45,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="38"/>
+        <location file="Identifier.h" line="310" column="38"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1aa4b5465e3b1f08de856a9b80c6f11828" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups</type>
@@ -65,7 +65,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="66"/>
+        <location file="Identifier.h" line="310" column="66"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a6a72862c81c975c627344c9b7f8d26ac" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics</type>
@@ -85,7 +85,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="96"/>
+        <location file="Identifier.h" line="310" column="96"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1ac796039a772ca79eaec34e6866f63935" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme</type>
@@ -105,7 +105,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="123"/>
+        <location file="Identifier.h" line="310" column="123"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a145534aab66ba2d3fb67de58958a45c9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi</type>
@@ -125,7 +125,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="149"/>
+        <location file="Identifier.h" line="310" column="149"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a4f561ca27a2de00e15a35c51f5aa908a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint</type>
@@ -145,7 +145,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="175"/>
+        <location file="Identifier.h" line="310" column="175"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a51e980ba74d948efb6c5d69c2ea08dd3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state</type>
@@ -165,7 +165,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="212"/>
+        <location file="Identifier.h" line="310" column="212"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a7bf77bfb6cf29b368cb0bf409b96179b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation</type>
@@ -185,7 +185,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="245"/>
+        <location file="Identifier.h" line="310" column="245"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1ae589e5900548516d6eb7e3abc52128ce" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active</type>
@@ -205,7 +205,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="273"/>
+        <location file="Identifier.h" line="310" column="273"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a571054429c184700b1d1bdf01e955f97" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar</type>
@@ -225,7 +225,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="305"/>
+        <location file="Identifier.h" line="310" column="305"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a0f67a5c00c3f4f5ec94ba4e1bbdbe88d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness</type>
@@ -245,7 +245,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="347"/>
+        <location file="Identifier.h" line="310" column="347"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1ac691b6f103c06bfc0c66c804ce3cc970" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width</type>
@@ -265,7 +265,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="381"/>
+        <location file="Identifier.h" line="310" column="381"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a7679a07a7d0766d33b4c7eb4c0c5a742" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step</type>
@@ -285,7 +285,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="413"/>
+        <location file="Identifier.h" line="310" column="413"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a76df73dde81a255100ac3c65e98a19e8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows</type>
@@ -305,7 +305,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="439"/>
+        <location file="Identifier.h" line="310" column="439"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a532fb6a079b8638cb7d75febae13a5c2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track</type>
@@ -325,7 +325,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="474"/>
+        <location file="Identifier.h" line="310" column="474"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a5a352dd897a099761eba96288dd0ba2b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar</type>
@@ -345,7 +345,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="503"/>
+        <location file="Identifier.h" line="310" column="503"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1abfb3f63926262dd41ebe42ceb3188974" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight</type>
@@ -365,7 +365,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="538"/>
+        <location file="Identifier.h" line="310" column="538"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a80f6ba18ce0e4ab15bc453c5effbb070" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs</type>
@@ -385,7 +385,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="564"/>
+        <location file="Identifier.h" line="310" column="564"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1af61880eced500a85c59c03a72ce7a010" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window</type>
@@ -405,7 +405,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="592"/>
+        <location file="Identifier.h" line="310" column="592"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a19858a06427f6bcdf7d99609744d4f48" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size</type>
@@ -425,7 +425,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="618"/>
+        <location file="Identifier.h" line="310" column="618"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a2f09b475087a9035dfe6775f366019eb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup</type>
@@ -445,7 +445,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="645"/>
+        <location file="Identifier.h" line="310" column="645"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a37dc42c1c82b52c1238efd0f062f5c8b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden</type>
@@ -465,7 +465,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="675"/>
+        <location file="Identifier.h" line="310" column="675"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1ac06471fa068c0dd223103a26a090a0cd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width</type>
@@ -485,7 +485,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="707"/>
+        <location file="Identifier.h" line="310" column="707"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a596313d4f92bcafacf37bd2cbbb040ec" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink</type>
@@ -505,7 +505,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="734"/>
+        <location file="Identifier.h" line="310" column="734"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1acd7dcbc13dd191e7e2e9d2ea98bf6cd2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force</type>
@@ -525,7 +525,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="761"/>
+        <location file="Identifier.h" line="310" column="761"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a6c823eb35e46a47db87f6788f0b4471a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline</type>
@@ -545,7 +545,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="797"/>
+        <location file="Identifier.h" line="310" column="797"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a6b17023c10c2f5989645d64d1dc27054" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight</type>
@@ -565,7 +565,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="828"/>
+        <location file="Identifier.h" line="310" column="828"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a12c8090992a9a065febe590f675e7ca9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black</type>
@@ -585,7 +585,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="855"/>
+        <location file="Identifier.h" line="310" column="855"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1ab39b2e5ce0c22288158cac6abdacdd38" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green</type>
@@ -605,7 +605,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="882"/>
+        <location file="Identifier.h" line="310" column="882"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1ac8d8b38bf22cd022ce9e5d2c8ee6cc6b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue</type>
@@ -625,7 +625,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="908"/>
+        <location file="Identifier.h" line="310" column="908"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1aaa35c9f4e1c32143a5cccb4d6aa68985" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan</type>
@@ -645,7 +645,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="934"/>
+        <location file="Identifier.h" line="310" column="934"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1ad132d92a460ce7d26a801e7176183540" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black</type>
@@ -665,7 +665,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="968"/>
+        <location file="Identifier.h" line="310" column="968"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1ac8945118c4bdd69f0be35caa4b5c5234" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green</type>
@@ -685,7 +685,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="1002"/>
+        <location file="Identifier.h" line="310" column="1002"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1aaa5e07bfffa527486fff6e34fd85561e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue</type>
@@ -705,7 +705,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="1035"/>
+        <location file="Identifier.h" line="310" column="1035"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1accb32dc1fac870fb264c6c3a2aa10db5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan</type>
@@ -725,7 +725,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="1068"/>
+        <location file="Identifier.h" line="310" column="1068"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a90f9ccfb89802e24fc61ab46a565b51b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar</type>
@@ -745,7 +745,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="1100"/>
+        <location file="Identifier.h" line="310" column="1100"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1abc6cf87644e1c0a6270126e8d59bbb05" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg</type>
@@ -765,7 +765,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="1141"/>
+        <location file="Identifier.h" line="310" column="1141"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1ab7a0f18604ec2122645592a13069ae07" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg</type>
@@ -785,7 +785,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="1176"/>
+        <location file="Identifier.h" line="310" column="1176"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a4f7f08f6d22e3bff189a1182d5a2a3b1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb</type>
@@ -805,7 +805,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="1203"/>
+        <location file="Identifier.h" line="310" column="1203"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a423a81ea62d14845926764bbd8a5e5a3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background</type>
@@ -825,7 +825,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="1241"/>
+        <location file="Identifier.h" line="310" column="1241"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1ac88a06541b33726627599353e7016cf9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner</type>
@@ -845,7 +845,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="1270"/>
+        <location file="Identifier.h" line="310" column="1270"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a259bf023246428fb813fa83d69155d90" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top</type>
@@ -865,7 +865,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="1305"/>
+        <location file="Identifier.h" line="310" column="1305"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a8564743d2c1d5f30b5c9d8bb5d69b1c1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm</type>
@@ -885,7 +885,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="1336"/>
+        <location file="Identifier.h" line="310" column="1336"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1aef9706da81a514e3c1b5dca596c0e2a0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref></type>
@@ -905,7 +905,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="1362"/>
+        <location file="Identifier.h" line="310" column="1362"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a7fdd274beb6a125b2e2dc77ac20ac06c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style</type>
@@ -925,7 +925,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="1399"/>
+        <location file="Identifier.h" line="310" column="1399"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a1f444499ee76c6a98c2f024d391f2d1d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family</type>
@@ -945,7 +945,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="1441"/>
+        <location file="Identifier.h" line="310" column="1441"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a48292bf83458bd1cdebbd2fdf1d1297b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size</type>
@@ -965,7 +965,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="1481"/>
+        <location file="Identifier.h" line="310" column="1481"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a46a9344e24ba37225f10d6f93fe90bbe" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour</type>
@@ -985,7 +985,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="1518"/>
+        <location file="Identifier.h" line="310" column="1518"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a206920862caa53d826177495ba43176f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family</type>
@@ -1005,7 +1005,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="1551"/>
+        <location file="Identifier.h" line="310" column="1551"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a3e6f301c7ceb664b3207947d65e2f785" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style</type>
@@ -1025,7 +1025,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="1583"/>
+        <location file="Identifier.h" line="310" column="1583"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1aceecc548007f7f3ce1cfcb64b9b7cee0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off</type>
@@ -1045,7 +1045,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="1613"/>
+        <location file="Identifier.h" line="310" column="1613"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a6b8cb6f38a53e54d434193e68dd9b149" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase</type>
@@ -1065,7 +1065,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="1644"/>
+        <location file="Identifier.h" line="310" column="1644"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a8acc23092acdedd87816e99204f37879" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor</type>
@@ -1085,7 +1085,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="1680"/>
+        <location file="Identifier.h" line="310" column="1680"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a37cf1258d9e3a9f8688b7cc309b75215" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix</type>
@@ -1105,7 +1105,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="1706"/>
+        <location file="Identifier.h" line="310" column="1706"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a0b7be719cd27b0ed7e4590a3e350b70c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy</type>
@@ -1125,7 +1125,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="1732"/>
+        <location file="Identifier.h" line="310" column="1732"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1ab6d51113c4fa1c9c7103b1e2ec821845" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit</type>
@@ -1145,7 +1145,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="1758"/>
+        <location file="Identifier.h" line="310" column="1758"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a70c6eea369ab0a72d472ec4bfb7e41c4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane</type>
@@ -1165,7 +1165,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="1790"/>
+        <location file="Identifier.h" line="310" column="1790"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a571c2343b85a0037379014bb4d832539" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in</type>
@@ -1185,7 +1185,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="1819"/>
+        <location file="Identifier.h" line="310" column="1819"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1ae2821c06b52d1c7f8e427175c13ac3aa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset</type>
@@ -1205,7 +1205,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="1851"/>
+        <location file="Identifier.h" line="310" column="1851"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1ac4c60873696f5897d5bf232148e51d3d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab</type>
@@ -1225,7 +1225,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="1880"/>
+        <location file="Identifier.h" line="310" column="1880"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1aa788ac2de6b40ced6ec37ab6ca1ffd6d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab</type>
@@ -1245,7 +1245,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="1910"/>
+        <location file="Identifier.h" line="310" column="1910"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a1f40059bfe0d9b3da8a9b63d7dd252c3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal</type>
@@ -1265,7 +1265,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="1948"/>
+        <location file="Identifier.h" line="310" column="1948"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1ad2ddad277776cb8bd927f0d8fb3a9827" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left</type>
@@ -1285,7 +1285,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="1979"/>
+        <location file="Identifier.h" line="310" column="1979"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a726a45c3b7e335c741cacfe6e3b6cc47" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up</type>
@@ -1305,7 +1305,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="2008"/>
+        <location file="Identifier.h" line="310" column="2008"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a227b2dbe248ab77f8790ac3ca220bc95" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline</type>
@@ -1325,7 +1325,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="2037"/>
+        <location file="Identifier.h" line="310" column="2037"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a46940b48abbbd4f5dfcd48b157be2292" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection</type>
@@ -1345,7 +1345,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="2074"/>
+        <location file="Identifier.h" line="310" column="2074"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a475fd5eeec8ea14415c32767018c4cc2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page</type>
@@ -1365,7 +1365,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="2115"/>
+        <location file="Identifier.h" line="310" column="2115"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a31ef30de68e0be3c7c9719745098f1f4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down</type>
@@ -1385,7 +1385,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="2151"/>
+        <location file="Identifier.h" line="310" column="2151"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1adf22aa5c0136919ac9a7488a9fd8fc87" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right</type>
@@ -1405,7 +1405,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="2188"/>
+        <location file="Identifier.h" line="310" column="2188"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1ad1970d78ace65a350637aa336cd63b26" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line</type>
@@ -1425,7 +1425,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="2231"/>
+        <location file="Identifier.h" line="310" column="2231"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1ab258ed09c37cce8315dfac0036663e5d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy</type>
@@ -1445,7 +1445,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="2267"/>
+        <location file="Identifier.h" line="310" column="2267"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1af8b99383d0e9d052c64778a22f89563a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom</type>
@@ -1465,7 +1465,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="2305"/>
+        <location file="Identifier.h" line="310" column="2305"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1acefc969f430e679888796feecf8dcdde" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end</type>
@@ -1485,7 +1485,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="2345"/>
+        <location file="Identifier.h" line="310" column="2345"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a36bf4f997521492c7cd1e36603bb3102" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down</type>
@@ -1505,7 +1505,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="2378"/>
+        <location file="Identifier.h" line="310" column="2378"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a892bed743e910156d71a25407e140da3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top</type>
@@ -1525,7 +1525,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="2410"/>
+        <location file="Identifier.h" line="310" column="2410"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a9390fd4620603c0bcabd5dda25f955a5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu</type>
@@ -1545,7 +1545,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="2433"/>
+        <location file="Identifier.h" line="310" column="2433"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a90711df92c6c32582c8b8d25933bd6db" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon</type>
@@ -1565,7 +1565,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="2461"/>
+        <location file="Identifier.h" line="310" column="2461"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1ac3aae9596164731b3c4bb3dec4d02436" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell</type>
@@ -1585,7 +1585,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="2488"/>
+        <location file="Identifier.h" line="310" column="2488"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a5a481554f8e2fd17eddfd8a718534028" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args</type>
@@ -1605,7 +1605,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="2514"/>
+        <location file="Identifier.h" line="310" column="2514"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a724fa0ea20b1ea60fbd19110dfbcb35d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal</type>
@@ -1625,7 +1625,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="2544"/>
+        <location file="Identifier.h" line="310" column="2544"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a6874918a0cb08862837d2e5bac9b5945" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted</type>
@@ -1645,7 +1645,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="2577"/>
+        <location file="Identifier.h" line="310" column="2577"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a964652812f652ca211ca27bc66b60681" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension</type>
@@ -1665,7 +1665,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="2614"/>
+        <location file="Identifier.h" line="310" column="2614"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1aeb48522a5c668cbfbdbf2972944689d3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation</type>
@@ -1685,7 +1685,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="2649"/>
+        <location file="Identifier.h" line="310" column="2649"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a9fdf73fb3520a75218ea2e04af53125f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal</type>
@@ -1705,7 +1705,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="2674"/>
+        <location file="Identifier.h" line="310" column="2674"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a0b2ef9861c094263f80ae9f5e4e34c1a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute</type>
@@ -1725,7 +1725,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="2701"/>
+        <location file="Identifier.h" line="310" column="2701"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a5830daf73e6e96c07454c15977d0d943" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour</type>
@@ -1745,7 +1745,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="2734"/>
+        <location file="Identifier.h" line="310" column="2734"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a344a8afc7603e46897814db28f95e81b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size</type>
@@ -1765,7 +1765,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="2763"/>
+        <location file="Identifier.h" line="310" column="2763"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1ab1dc28b000e9b2ecd54d8e22ad6d2368" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size</type>
@@ -1785,7 +1785,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="2792"/>
+        <location file="Identifier.h" line="310" column="2792"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1af92d86c24345c0b1969da6b528317906" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size</type>
@@ -1805,7 +1805,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="2821"/>
+        <location file="Identifier.h" line="310" column="2821"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a8c2931bc10e27e59c7c1affe2f370d3a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour</type>
@@ -1825,7 +1825,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="2852"/>
+        <location file="Identifier.h" line="310" column="2852"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a1407262e983e973c17b7da2de5e8d296" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour</type>
@@ -1845,7 +1845,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="2883"/>
+        <location file="Identifier.h" line="310" column="2883"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1aeebd023193b3dca2328a19e5b5236345" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour</type>
@@ -1865,7 +1865,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="2914"/>
+        <location file="Identifier.h" line="310" column="2914"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a0c9083302c704de34ac6a1268a47d6d0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour</type>
@@ -1885,7 +1885,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="2947"/>
+        <location file="Identifier.h" line="310" column="2947"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a5afa6b8bd4f59e7c0e0659b968b73848" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment</type>
@@ -1905,7 +1905,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="2982"/>
+        <location file="Identifier.h" line="310" column="2982"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a9c8440ed67d986b0e1b1fc1a3830c4df" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator</type>
@@ -1925,7 +1925,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="3018"/>
+        <location file="Identifier.h" line="310" column="3018"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1aaaae5ec31f9303ba58caa76950015960" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer</type>
@@ -1945,7 +1945,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="3053"/>
+        <location file="Identifier.h" line="310" column="3053"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1aba4b5549b2333ea1e8e7728ad6bb4799" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string</type>
@@ -1965,7 +1965,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="3087"/>
+        <location file="Identifier.h" line="310" column="3087"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1ab5fb794c90bc5607de243f5d2902f6b6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation</type>
@@ -1985,7 +1985,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="3126"/>
+        <location file="Identifier.h" line="310" column="3126"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a1aa4670e9a248a1eeec1c3964b15e9b1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background</type>
@@ -2005,7 +2005,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="3164"/>
+        <location file="Identifier.h" line="310" column="3164"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a072b3a625cdbf4718dc654d78a46da49" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt</type>
@@ -2025,7 +2025,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="3199"/>
+        <location file="Identifier.h" line="310" column="3199"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a29ed328c558718e33124882199ff8ce9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text</type>
@@ -2045,7 +2045,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="3238"/>
+        <location file="Identifier.h" line="310" column="3238"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a54eb046a87abd008fa3f06133957ca86" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background</type>
@@ -2065,7 +2065,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="3279"/>
+        <location file="Identifier.h" line="310" column="3279"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a95ff193360e92425da60ba1628ec75d4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour</type>
@@ -2085,7 +2085,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="3321"/>
+        <location file="Identifier.h" line="310" column="3321"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a5426a8fe53f027abe7fc40a72107995e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background</type>
@@ -2105,7 +2105,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="3363"/>
+        <location file="Identifier.h" line="310" column="3363"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1aeccbb4d7c091d3fb72b9b94643b6631c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac</type>
@@ -2125,7 +2125,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="3386"/>
+        <location file="Identifier.h" line="310" column="3386"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1af21c9f64e1c6e02ca5513c73914a35b3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur</type>
@@ -2145,7 +2145,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="3422"/>
+        <location file="Identifier.h" line="310" column="3422"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a86db142d3f83a31669d0f0600145cd1b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular</type>
@@ -2165,7 +2165,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="3458"/>
+        <location file="Identifier.h" line="310" column="3458"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1a0cb3ad2bb74a0aa7b777c7ad60575010" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind</type>
@@ -2185,7 +2185,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="3490"/>
+        <location file="Identifier.h" line="310" column="3490"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1ab3364d1205afe99f5d4959548b077d60" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11</type>
@@ -2205,7 +2205,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="3521"/>
+        <location file="Identifier.h" line="310" column="3521"/>
       </memberdef>
       <memberdef kind="function" id="struct_i_dref_1af9afef1c69791876108a7d0f26ba8586" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 <ref refid="namespaceshader" kindref="compound">shader</ref></type>
@@ -2225,12 +2225,12 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="3547"/>
+        <location file="Identifier.h" line="310" column="3547"/>
       </memberdef>
-      <memberdef kind="function" id="struct_i_dref_1ac3929cbbd70e839bb791c3197e697a5c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+      <memberdef kind="function" id="struct_i_dref_1a29fad0d6fad3c2f0aef9512c8b7898cd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 <ref refid="namespaceshader" kindref="compound">shader</ref> post_process</type>
         <definition>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 shader post_process IDref::AS_STRINGREF</definition>
-        <argsstring>(buffer, &quot;buffer&quot;) AS_STRINGREF(focusedPane</argsstring>
+        <argsstring>(buffer, &quot;buffer&quot;) AS_STRINGREF(quad</argsstring>
         <name>AS_STRINGREF</name>
         <qualifiedname>IDref::AS_STRINGREF</qualifiedname>
         <param>
@@ -2245,19 +2245,19 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="3581"/>
+        <location file="Identifier.h" line="310" column="3581"/>
       </memberdef>
-      <memberdef kind="function" id="struct_i_dref_1aa70ba71654d9223631057c1b65d3f881" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 <ref refid="namespaceshader" kindref="compound">shader</ref> post_process focused_pane</type>
-        <definition>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 shader post_process focused_pane IDref::AS_STRINGREF</definition>
-        <argsstring>(focus, &quot;focus&quot;) AS_STRINGREF(zoom</argsstring>
+      <memberdef kind="function" id="struct_i_dref_1ac773d0975500d82f32026d9c5dd1715e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 <ref refid="namespaceshader" kindref="compound">shader</ref> post_process quad</type>
+        <definition>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 shader post_process quad IDref::AS_STRINGREF</definition>
+        <argsstring>(iResolution, &quot;iResolution&quot;) AS_STRINGREF(iTime</argsstring>
         <name>AS_STRINGREF</name>
         <qualifiedname>IDref::AS_STRINGREF</qualifiedname>
         <param>
-          <type>focus</type>
+          <type>iResolution</type>
         </param>
         <param>
-          <type>&quot;focus&quot;</type>
+          <type>&quot;iResolution&quot;</type>
         </param>
         <briefdescription>
         </briefdescription>
@@ -2265,14 +2265,74 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="305" column="3613"/>
+        <location file="Identifier.h" line="310" column="3607"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_i_dref_1acb413434f5deade651e7e23f1943022d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 <ref refid="namespaceshader" kindref="compound">shader</ref> post_process quad iTime</type>
+        <definition>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 shader post_process quad iTime IDref::AS_STRINGREF</definition>
+        <argsstring>(iTimeDelta, &quot;iTimeDelta&quot;) AS_STRINGREF(iFrame</argsstring>
+        <name>AS_STRINGREF</name>
+        <qualifiedname>IDref::AS_STRINGREF</qualifiedname>
+        <param>
+          <type>iTimeDelta</type>
+        </param>
+        <param>
+          <type>&quot;iTimeDelta&quot;</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Identifier.h" line="310" column="3634"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_i_dref_1ae85935132e3c519375f96c9c80e849cf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 <ref refid="namespaceshader" kindref="compound">shader</ref> post_process quad iTime iFrame</type>
+        <definition>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 shader post_process quad iTime iFrame IDref::AS_STRINGREF</definition>
+        <argsstring>(focusedPane, &quot;focused_pane&quot;) AS_STRINGREF(focus</argsstring>
+        <name>AS_STRINGREF</name>
+        <qualifiedname>IDref::AS_STRINGREF</qualifiedname>
+        <param>
+          <type>focusedPane</type>
+        </param>
+        <param>
+          <type>&quot;focused_pane&quot;</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Identifier.h" line="310" column="3660"/>
+      </memberdef>
+      <memberdef kind="function" id="struct_i_dref_1ad44285a75db816d07dc32a16c22641ac" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="namespaceend" kindref="compound">end</ref> popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm <ref refid="juce__UnityPluginInterface_8h_1a45a5b7c00a796a23f01673cef1dbe0a9" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">code</ref> name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 <ref refid="namespaceshader" kindref="compound">shader</ref> post_process quad iTime iFrame focus</type>
+        <definition>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 shader post_process quad iTime iFrame focus IDref::AS_STRINGREF</definition>
+        <argsstring>(zoom, &quot;zoom&quot;) AS_STRINGREF(renderer</argsstring>
+        <name>AS_STRINGREF</name>
+        <qualifiedname>IDref::AS_STRINGREF</qualifiedname>
+        <param>
+          <type>zoom</type>
+        </param>
+        <param>
+          <type>&quot;zoom&quot;</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Identifier.h" line="310" column="3687"/>
       </memberdef>
     </sectiondef>
     <briefdescription>
     </briefdescription>
     <detaileddescription>
     </detaileddescription>
-    <location file="Identifier.h" line="305" column="2" bodyfile="Identifier.h" bodystart="305" bodyend="305"/>
+    <location file="Identifier.h" line="310" column="2" bodyfile="Identifier.h" bodystart="310" bodyend="310"/>
     <listofallmembers>
       <member refid="struct_i_dref_1a15336e61beceb953f8c3ff39521b7c22" prot="public" virt="non-virtual"><scope>IDref</scope><name>AS_STRINGREF</name></member>
       <member refid="struct_i_dref_1ac37f79c6ab260ae0ba0df9b66e39b9a9" prot="public" virt="non-virtual"><scope>IDref</scope><name>AS_STRINGREF</name></member>
@@ -2385,8 +2445,11 @@
       <member refid="struct_i_dref_1a0cb3ad2bb74a0aa7b777c7ad60575010" prot="public" virt="non-virtual"><scope>IDref</scope><name>AS_STRINGREF</name></member>
       <member refid="struct_i_dref_1ab3364d1205afe99f5d4959548b077d60" prot="public" virt="non-virtual"><scope>IDref</scope><name>AS_STRINGREF</name></member>
       <member refid="struct_i_dref_1af9afef1c69791876108a7d0f26ba8586" prot="public" virt="non-virtual"><scope>IDref</scope><name>AS_STRINGREF</name></member>
-      <member refid="struct_i_dref_1ac3929cbbd70e839bb791c3197e697a5c" prot="public" virt="non-virtual"><scope>IDref</scope><name>AS_STRINGREF</name></member>
-      <member refid="struct_i_dref_1aa70ba71654d9223631057c1b65d3f881" prot="public" virt="non-virtual"><scope>IDref</scope><name>AS_STRINGREF</name></member>
+      <member refid="struct_i_dref_1a29fad0d6fad3c2f0aef9512c8b7898cd" prot="public" virt="non-virtual"><scope>IDref</scope><name>AS_STRINGREF</name></member>
+      <member refid="struct_i_dref_1ac773d0975500d82f32026d9c5dd1715e" prot="public" virt="non-virtual"><scope>IDref</scope><name>AS_STRINGREF</name></member>
+      <member refid="struct_i_dref_1acb413434f5deade651e7e23f1943022d" prot="public" virt="non-virtual"><scope>IDref</scope><name>AS_STRINGREF</name></member>
+      <member refid="struct_i_dref_1ae85935132e3c519375f96c9c80e849cf" prot="public" virt="non-virtual"><scope>IDref</scope><name>AS_STRINGREF</name></member>
+      <member refid="struct_i_dref_1ad44285a75db816d07dc32a16c22641ac" prot="public" virt="non-virtual"><scope>IDref</scope><name>AS_STRINGREF</name></member>
     </listofallmembers>
   </compounddef>
 </doxygen>

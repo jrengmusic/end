@@ -57,12 +57,13 @@ void Controller::initialise()
     jam::BackgroundBlur::enableWindowTransparency();
 #endif
 
-    quad.create (openGLContext);
+    quad.create();
 }
 
 void Controller::shutdown()
 {
-    background.release();
+    programs.clear();
+    uniforms.clear();
     quad.destroy();
 }
 
