@@ -18,6 +18,10 @@ View::View (jam::Model& m)
     addAndMakeVisible (tabs);
     addChildComponent (messageOverlay);
 
+    auto [width, height] = config.getInt (IDtype::end, ID::size);
+    state.setProperty (jam::ID::width, width, nullptr);
+    state.setProperty (jam::ID::height, height, nullptr);
+
     //==============================================================================
     attachments.add (std::make_unique<jam::Model::Attachment> (*this));
     attachments.add (std::make_unique<jam::Model::Attachment> (tabs));
@@ -30,7 +34,6 @@ View::View (jam::Model& m)
     tabs.addNewTab();
 
     //==============================================================================
-    auto [width, height] = config.getInt (IDtype::end, ID::size);
     setSize (width, height);
 
     juce::MessageManager::callAsync ([this]
@@ -56,9 +59,6 @@ View::~View()
 void View::resized()
 {
     setViewState (getWidth(), getHeight());
-
-    if (shader.isAttached())
-        shader.resize (getWidth(), getHeight());
 
     tabs.setBounds (getLocalBounds());
     messageOverlay.setBounds (getLocalBounds());
@@ -87,8 +87,8 @@ void View::valueTreeChildAdded (juce::ValueTree& parentTree,
 
 void View::setViewState (int width, int height)
 {
-    state.setProperty (jam::ID::width, width, nullptr);
-    state.setProperty (jam::ID::height, height, nullptr);
+    model.setValue (IDtype::view, jam::ID::width, width);
+    model.setValue (IDtype::view, jam::ID::height, height);
 }
 
 void View::setTabOrientation()

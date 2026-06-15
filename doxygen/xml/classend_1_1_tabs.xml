@@ -300,7 +300,7 @@
         </childnode>
         <childnode refid="21" relation="public-inheritance">
         </childnode>
-        <childnode refid="28" relation="public-inheritance">
+        <childnode refid="23" relation="public-inheritance">
         </childnode>
         <childnode refid="29" relation="usage">
           <edgelabel>config</edgelabel>
@@ -309,13 +309,13 @@
           <edgelabel>attachments</edgelabel>
         </childnode>
       </node>
-      <node id="23">
+      <node id="24">
         <label>jam::AnyMap</label>
         <link refid="classjam_1_1AnyMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-        <childnode refid="24" relation="usage">
+        <childnode refid="25" relation="usage">
           <edgelabel>entries</edgelabel>
         </childnode>
-        <childnode refid="25" relation="usage">
+        <childnode refid="26" relation="usage">
           <edgelabel>types</edgelabel>
         </childnode>
       </node>
@@ -366,11 +366,11 @@
         <label>jam::HashMap&lt; juce::Identifier, jam::HashMap&lt; juce::Identifier, std::function&lt; bool(const juce::var &amp;)&gt; &gt; &gt;</label>
         <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
-      <node id="25">
+      <node id="26">
         <label>jam::HashMap&lt; juce::Identifier, std::type_index &gt;</label>
         <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
-      <node id="24">
+      <node id="25">
         <label>jam::HashMap&lt; juce::Identifier, std::unique_ptr&lt; void, Deleter &gt; &gt;</label>
         <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
@@ -379,13 +379,15 @@
         <link refid="classjam_1_1Model" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
         <childnode refid="18" relation="public-inheritance">
         </childnode>
-        <childnode refid="23" relation="usage">
+        <childnode refid="23" relation="public-inheritance">
+        </childnode>
+        <childnode refid="24" relation="usage">
           <edgelabel>params</edgelabel>
         </childnode>
-        <childnode refid="26" relation="usage">
+        <childnode refid="27" relation="usage">
           <edgelabel>state</edgelabel>
         </childnode>
-        <childnode refid="27" relation="usage">
+        <childnode refid="28" relation="usage">
           <edgelabel>valueTreeChanging</edgelabel>
         </childnode>
       </node>
@@ -395,7 +397,7 @@
         <childnode refid="22" relation="usage">
           <edgelabel>model</edgelabel>
         </childnode>
-        <childnode refid="26" relation="usage">
+        <childnode refid="27" relation="usage">
           <edgelabel>state</edgelabel>
         </childnode>
       </node>
@@ -494,7 +496,7 @@
         <childnode refid="18" relation="private-inheritance">
         </childnode>
       </node>
-      <node id="27">
+      <node id="28">
         <label>juce::CriticalSection</label>
         <link refid="classjuce_1_1CriticalSection" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
@@ -536,11 +538,11 @@
         <label>juce::TooltipClient</label>
         <link refid="classjuce_1_1TooltipClient" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="26">
+      <node id="27">
         <label>juce::ValueTree</label>
         <link refid="classjuce_1_1ValueTree" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="28">
+      <node id="23">
         <label>juce::ValueTree::Listener</label>
         <link refid="classjuce_1_1ValueTree_1_1Listener" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>

@@ -300,21 +300,6 @@
     <namespace>end</namespace>
   </compound>
   <compound kind="file">
-    <name>Buffer.cpp</name>
-    <path>shader/</path>
-    <filename>_buffer_8cpp.html</filename>
-    <includes id="_buffer_8h" name="Buffer.h" local="yes" import="no" module="no" objc="no">shader/Buffer.h</includes>
-    <namespace>shader</namespace>
-  </compound>
-  <compound kind="file">
-    <name>Buffer.h</name>
-    <path>shader/</path>
-    <filename>_buffer_8h.html</filename>
-    <includes id="_pass_8h" name="Pass.h" local="yes" import="no" module="no" objc="no">shader/Pass.h</includes>
-    <class kind="struct">shader::Buffer</class>
-    <namespace>shader</namespace>
-  </compound>
-  <compound kind="file">
     <name>Controller.cpp</name>
     <path>shader/</path>
     <filename>_controller_8cpp.html</filename>
@@ -327,7 +312,6 @@
     <filename>_controller_8h.html</filename>
     <includes id="_quad_8h" name="Quad.h" local="yes" import="no" module="no" objc="no">shader/Quad.h</includes>
     <includes id="_pass_8h" name="Pass.h" local="yes" import="no" module="no" objc="no">shader/Pass.h</includes>
-    <includes id="_buffer_8h" name="Buffer.h" local="yes" import="no" module="no" objc="no">shader/Buffer.h</includes>
     <class kind="struct">shader::Controller</class>
     <namespace>shader</namespace>
   </compound>
@@ -450,69 +434,9 @@
     </member>
   </compound>
   <compound kind="struct">
-    <name>shader::Buffer</name>
-    <filename>structshader_1_1_buffer.html</filename>
-    <member kind="function">
-      <type>bool</type>
-      <name>resize</name>
-      <anchorfile>structshader_1_1_buffer.html</anchorfile>
-      <anchor>a90277d4cc17437fac2f6dfa718d2956a</anchor>
-      <arglist>(juce::OpenGLContext &amp;context, int width, int height)</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>render</name>
-      <anchorfile>structshader_1_1_buffer.html</anchorfile>
-      <anchor>a77d994ece740392fb3582156dfc44871</anchor>
-      <arglist>(Quad &amp;quad, int width, int height, float time, float timeDelta, int frame, const float mouse[4])</arglist>
-    </member>
-    <member kind="function">
-      <type>GLuint</type>
-      <name>getReadTexture</name>
-      <anchorfile>structshader_1_1_buffer.html</anchorfile>
-      <anchor>a9e27e5094f3b75c15806645d31ef8b21</anchor>
-      <arglist>() const noexcept</arglist>
-    </member>
-    <member kind="function">
-      <type>bool</type>
-      <name>isLoaded</name>
-      <anchorfile>structshader_1_1_buffer.html</anchorfile>
-      <anchor>af9a819e823a712d7a6953209bd525c7f</anchor>
-      <arglist>() const noexcept</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>release</name>
-      <anchorfile>structshader_1_1_buffer.html</anchorfile>
-      <anchor>aba151e8032e6831933a754d0a41e00de</anchor>
-      <arglist>()</arglist>
-    </member>
-    <member kind="variable">
-      <type>Pass</type>
-      <name>pass</name>
-      <anchorfile>structshader_1_1_buffer.html</anchorfile>
-      <anchor>ac0025193a0bc77cffaee1f3e2db61a2f</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable" protection="private">
-      <type>juce::OpenGLFrameBuffer</type>
-      <name>fbos</name>
-      <anchorfile>structshader_1_1_buffer.html</anchorfile>
-      <anchor>a2a5f1651784be3cbd7f3aeaa633a9353</anchor>
-      <arglist>[2]</arglist>
-    </member>
-    <member kind="variable" protection="private">
-      <type>int</type>
-      <name>writeIndex</name>
-      <anchorfile>structshader_1_1_buffer.html</anchorfile>
-      <anchor>a7ff5107d8754eabe830c521da42554f2</anchor>
-      <arglist></arglist>
-    </member>
-  </compound>
-  <compound kind="struct">
     <name>shader::Controller</name>
     <filename>structshader_1_1_controller.html</filename>
-    <base>juce::OpenGLRenderer</base>
+    <base protection="private">juce::OpenGLRenderer</base>
     <member kind="function">
       <type></type>
       <name>Controller</name>
@@ -526,6 +450,20 @@
       <anchorfile>structshader_1_1_controller.html</anchorfile>
       <anchor>a3b63ec57879dc4dad31c99c1ff1ad60a</anchor>
       <arglist>() override</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>getFrameCounter</name>
+      <anchorfile>structshader_1_1_controller.html</anchorfile>
+      <anchor>a3fb139ea98ddcf75a83224894a5ba4df</anchor>
+      <arglist>() const noexcept</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>shutdownOpenGL</name>
+      <anchorfile>structshader_1_1_controller.html</anchorfile>
+      <anchor>a61e18f3ad9688a09aa4d4b7bbb01ccb7</anchor>
+      <arglist>()</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -548,39 +486,60 @@
       <anchor>a33e37a46958ce5de0585b76e8e451f24</anchor>
       <arglist>() const noexcept</arglist>
     </member>
-    <member kind="function">
-      <type>void</type>
-      <name>resize</name>
+    <member kind="variable">
+      <type>juce::OpenGLContext</type>
+      <name>openGLContext</name>
       <anchorfile>structshader_1_1_controller.html</anchorfile>
-      <anchor>ae60aa6289254c3bbec119ad0e1cd4b3e</anchor>
-      <arglist>(int width, int height)</arglist>
+      <anchor>a9bf822833c1d1308b1115aae3ac6f35a</anchor>
+      <arglist></arglist>
     </member>
-    <member kind="function">
+    <member kind="function" protection="private">
       <type>void</type>
       <name>newOpenGLContextCreated</name>
       <anchorfile>structshader_1_1_controller.html</anchorfile>
       <anchor>aa9689e38d31580d9ba6651cb6f12cd73</anchor>
       <arglist>() override</arglist>
     </member>
-    <member kind="function">
+    <member kind="function" protection="private">
       <type>void</type>
       <name>renderOpenGL</name>
       <anchorfile>structshader_1_1_controller.html</anchorfile>
       <anchor>a08ef3c4c7114fb06c4094af17535d725</anchor>
       <arglist>() override</arglist>
     </member>
-    <member kind="function">
+    <member kind="function" protection="private">
       <type>void</type>
       <name>openGLContextClosing</name>
       <anchorfile>structshader_1_1_controller.html</anchorfile>
       <anchor>af327793eb89fca8a3fb018a0fa11bcab</anchor>
       <arglist>() override</arglist>
     </member>
-    <member kind="variable" protection="private">
-      <type>juce::OpenGLContext</type>
-      <name>context</name>
+    <member kind="function" protection="private">
+      <type>void</type>
+      <name>initialise</name>
       <anchorfile>structshader_1_1_controller.html</anchorfile>
-      <anchor>a8f950e6005e718b369325bdfc1f1c488</anchor>
+      <anchor>a9a3adad202f34ebf260ae5a025193518</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" protection="private">
+      <type>void</type>
+      <name>shutdown</name>
+      <anchorfile>structshader_1_1_controller.html</anchorfile>
+      <anchor>a51dc8fc16ff000ac9e46e68f10c82869</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" protection="private">
+      <type>void</type>
+      <name>render</name>
+      <anchorfile>structshader_1_1_controller.html</anchorfile>
+      <anchor>a98c779a896ffd3370fb064665b81e8b6</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="variable" protection="private">
+      <type>int</type>
+      <name>frameCounter</name>
+      <anchorfile>structshader_1_1_controller.html</anchorfile>
+      <anchor>ae963718eabc18998f839b2f8c9280258</anchor>
       <arglist></arglist>
     </member>
     <member kind="variable" protection="private">
@@ -595,69 +554,6 @@
       <name>background</name>
       <anchorfile>structshader_1_1_controller.html</anchorfile>
       <anchor>ac34780b2cae1072d3a686f606a4a1a23</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable" protection="private">
-      <type>std::array&lt; Buffer, 4 &gt;</type>
-      <name>buffers</name>
-      <anchorfile>structshader_1_1_controller.html</anchorfile>
-      <anchor>a35fdc155b5c39356e0527a9cd96be180</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable" protection="private">
-      <type>int</type>
-      <name>viewportWidth</name>
-      <anchorfile>structshader_1_1_controller.html</anchorfile>
-      <anchor>a336ead076637bcad4396c48b037603fe</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable" protection="private">
-      <type>int</type>
-      <name>viewportHeight</name>
-      <anchorfile>structshader_1_1_controller.html</anchorfile>
-      <anchor>acc23e86afd06eeb0778ecabf4ebad004</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable" protection="private">
-      <type>float</type>
-      <name>startTime</name>
-      <anchorfile>structshader_1_1_controller.html</anchorfile>
-      <anchor>aae31d05aa24be6e6c82ae8e0f5266397</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable" protection="private">
-      <type>float</type>
-      <name>lastFrameTime</name>
-      <anchorfile>structshader_1_1_controller.html</anchorfile>
-      <anchor>af930e200a46b5d7a40bf9bc02b0ee060</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable" protection="private">
-      <type>int</type>
-      <name>frameCount</name>
-      <anchorfile>structshader_1_1_controller.html</anchorfile>
-      <anchor>a3a520769e8c0b5ac8dba408b2d032613</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable" protection="private">
-      <type>float</type>
-      <name>mouse</name>
-      <anchorfile>structshader_1_1_controller.html</anchorfile>
-      <anchor>a236262e3bff434dbaa37df9d6c1ab77b</anchor>
-      <arglist>[4]</arglist>
-    </member>
-    <member kind="variable" protection="private">
-      <type>std::atomic&lt; int &gt;</type>
-      <name>pendingWidth</name>
-      <anchorfile>structshader_1_1_controller.html</anchorfile>
-      <anchor>aac90c2ca729836e121111a13278951f1</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable" protection="private">
-      <type>std::atomic&lt; int &gt;</type>
-      <name>pendingHeight</name>
-      <anchorfile>structshader_1_1_controller.html</anchorfile>
-      <anchor>ac5ac49079d7cfd2ee3314046d279e11d</anchor>
       <arglist></arglist>
     </member>
   </compound>
@@ -4735,15 +4631,8 @@
       <type>void</type>
       <name>render</name>
       <anchorfile>structshader_1_1_pass.html</anchorfile>
-      <anchor>ab6c99ee6059a5ac410e4f1d045863d2e</anchor>
-      <arglist>(Quad &amp;quad, int width, int height, float time, float timeDelta, int frame, const float mouse[4])</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>setChannel</name>
-      <anchorfile>structshader_1_1_pass.html</anchorfile>
-      <anchor>ad25841cf3e542d667e07fb69a2aa476d</anchor>
-      <arglist>(int channel, GLuint textureID)</arglist>
+      <anchor>ad4ba68255c49b2235c6c0b1710d97364</anchor>
+      <arglist>(Quad &amp;quad, int width, int height, float time, float timeDelta, int frame)</arglist>
     </member>
     <member kind="function">
       <type>bool</type>
@@ -4793,41 +4682,6 @@
       <anchorfile>structshader_1_1_pass.html</anchorfile>
       <anchor>ae4255b2111ad15fc37ec761e6f0dfb8d</anchor>
       <arglist></arglist>
-    </member>
-    <member kind="variable" protection="private">
-      <type>GLint</type>
-      <name>locMouse</name>
-      <anchorfile>structshader_1_1_pass.html</anchorfile>
-      <anchor>a5aae150875305961a7fbba94edca6be4</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable" protection="private">
-      <type>GLint</type>
-      <name>locDate</name>
-      <anchorfile>structshader_1_1_pass.html</anchorfile>
-      <anchor>af9494f07cb3862568f95e09c26e586ec</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable" protection="private">
-      <type>GLint</type>
-      <name>locChannelResolution</name>
-      <anchorfile>structshader_1_1_pass.html</anchorfile>
-      <anchor>a10538c63f7e18b6609e3e6e74982c2d1</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable" protection="private">
-      <type>GLint</type>
-      <name>locChannel</name>
-      <anchorfile>structshader_1_1_pass.html</anchorfile>
-      <anchor>a8d68617675e82907b78083dbe29a54a6</anchor>
-      <arglist>[4]</arglist>
-    </member>
-    <member kind="variable" protection="private">
-      <type>GLuint</type>
-      <name>channelTextures</name>
-      <anchorfile>structshader_1_1_pass.html</anchorfile>
-      <anchor>ae681faeb02b8fbc64dfc16c38518723a</anchor>
-      <arglist>[4]</arglist>
     </member>
   </compound>
   <compound kind="struct">
@@ -5539,7 +5393,6 @@
   <compound kind="namespace">
     <name>shader</name>
     <filename>namespaceshader.html</filename>
-    <class kind="struct">shader::Buffer</class>
     <class kind="struct">shader::Controller</class>
     <class kind="struct">shader::Pass</class>
     <class kind="struct">shader::Quad</class>
@@ -5595,8 +5448,6 @@
     <name>shader</name>
     <path>shader/</path>
     <filename>dir_225117c6f4e9d1521c5bb9675f91a3f0.html</filename>
-    <file>Buffer.cpp</file>
-    <file>Buffer.h</file>
     <file>Controller.cpp</file>
     <file>Controller.h</file>
     <file>Pass.cpp</file>

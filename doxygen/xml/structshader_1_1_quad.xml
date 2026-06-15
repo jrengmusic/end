@@ -145,7 +145,7 @@
         <references refid="namespacejuce_1_1gl_1a13411f76108e773b087ea047c6ebc691">juce::gl::glVertexAttribPointer</references>
         <references refid="structshader_1_1_quad_1aae32920dbf3e83cfaa99c9666a41a771" compoundref="_quad_8h" startline="48" endline="48">positionAttribute</references>
         <references refid="structshader_1_1_quad_1af020c17c362b50aac4564ee9cb16f61d" compoundref="_quad_8h" startline="42" endline="42">vbo</references>
-        <referencedby refid="structshader_1_1_pass_1ab6c99ee6059a5ac410e4f1d045863d2e" compoundref="_pass_8cpp" startline="73" endline="128">shader::Pass::render</referencedby>
+        <referencedby refid="structshader_1_1_pass_1ad4ba68255c49b2235c6c0b1710d97364" compoundref="_pass_8cpp" startline="49" endline="69">shader::Pass::render</referencedby>
       </memberdef>
       <memberdef kind="function" id="structshader_1_1_quad_1ab1f77e75665b604f5b7afe0bd4da6614" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
         <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref> &amp;</type>

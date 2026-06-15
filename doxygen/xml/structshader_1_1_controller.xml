@@ -2,28 +2,48 @@
 <doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
   <compounddef id="structshader_1_1_controller" kind="struct" language="C++" prot="public">
     <compoundname>shader::Controller</compoundname>
-    <basecompoundref refid="classjuce_1_1OpenGLRenderer" prot="public" virt="non-virtual">juce::OpenGLRenderer</basecompoundref>
+    <basecompoundref refid="classjuce_1_1OpenGLRenderer" prot="private" virt="non-virtual">juce::OpenGLRenderer</basecompoundref>
     <includes refid="_controller_8h" local="no">Controller.h</includes>
-    <sectiondef kind="private-attrib">
-      <memberdef kind="variable" id="structshader_1_1_controller_1a8f950e6005e718b369325bdfc1f1c488" prot="private" static="no" mutable="no">
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structshader_1_1_controller_1a9bf822833c1d1308b1115aae3ac6f35a" prot="public" static="no" mutable="no">
         <type><ref refid="classjuce_1_1OpenGLContext" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::OpenGLContext</ref></type>
-        <definition>juce::OpenGLContext shader::Controller::context</definition>
+        <definition>juce::OpenGLContext shader::Controller::openGLContext</definition>
         <argsstring></argsstring>
-        <name>context</name>
-        <qualifiedname>shader::Controller::context</qualifiedname>
+        <name>openGLContext</name>
+        <qualifiedname>shader::Controller::openGLContext</qualifiedname>
+        <briefdescription>
+<para>The GL context. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Public, same as OpenGLAppComponent. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="shader/Controller.h" line="52" column="25" bodyfile="shader/Controller.h" bodystart="52" bodyend="-1"/>
+        <referencedby refid="structshader_1_1_controller_1a261eecb70bbd676b432e328c166816f1" compoundref="_controller_8cpp" startline="18" endline="24">attach</referencedby>
+        <referencedby refid="structshader_1_1_controller_1ac888bf835596922d42e6b530c8156670" compoundref="_controller_8cpp" startline="26" endline="29">detach</referencedby>
+        <referencedby refid="structshader_1_1_controller_1a9a3adad202f34ebf260ae5a025193518" compoundref="_controller_8cpp" startline="54" endline="61">initialise</referencedby>
+        <referencedby refid="structshader_1_1_controller_1a33e37a46958ce5de0585b76e8e451f24" compoundref="_controller_8cpp" startline="31" endline="34">isAttached</referencedby>
+        <referencedby refid="structshader_1_1_controller_1a61e18f3ad9688a09aa4d4b7bbb01ccb7" compoundref="_controller_8cpp" startline="13" endline="16">shutdownOpenGL</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="structshader_1_1_controller_1ae963718eabc18998f839b2f8c9280258" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int shader::Controller::frameCounter</definition>
+        <argsstring></argsstring>
+        <name>frameCounter</name>
+        <qualifiedname>shader::Controller::frameCounter</qualifiedname>
+        <initializer>{ 0 }</initializer>
         <briefdescription>
         </briefdescription>
         <detaileddescription>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="shader/Controller.h" line="77" column="25" bodyfile="shader/Controller.h" bodystart="77" bodyend="-1"/>
-        <referencedby refid="structshader_1_1_controller_1a261eecb70bbd676b432e328c166816f1" compoundref="_controller_8cpp" startline="13" endline="19">attach</referencedby>
-        <referencedby refid="structshader_1_1_controller_1ac888bf835596922d42e6b530c8156670" compoundref="_controller_8cpp" startline="21" endline="24">detach</referencedby>
-        <referencedby refid="structshader_1_1_controller_1a33e37a46958ce5de0585b76e8e451f24" compoundref="_controller_8cpp" startline="26" endline="29">isAttached</referencedby>
-        <referencedby refid="structshader_1_1_controller_1aa9689e38d31580d9ba6651cb6f12cd73" compoundref="_controller_8cpp" startline="39" endline="51">newOpenGLContextCreated</referencedby>
-        <referencedby refid="structshader_1_1_controller_1a08ef3c4c7114fb06c4094af17535d725" compoundref="_controller_8cpp" startline="63" endline="107">renderOpenGL</referencedby>
-        <referencedby refid="structshader_1_1_controller_1ae60aa6289254c3bbec119ad0e1cd4b3e" compoundref="_controller_8cpp" startline="31" endline="36">resize</referencedby>
+        <location file="shader/Controller.h" line="81" column="9" bodyfile="shader/Controller.h" bodystart="81" bodyend="81"/>
+        <referencedby refid="structshader_1_1_controller_1a3fb139ea98ddcf75a83224894a5ba4df" compoundref="_controller_8h" startline="31" endline="31">getFrameCounter</referencedby>
+        <referencedby refid="structshader_1_1_controller_1a08ef3c4c7114fb06c4094af17535d725" compoundref="_controller_8cpp" startline="42" endline="46">renderOpenGL</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structshader_1_1_controller_1a0ff01484f7ee0d673a929dc397d08057" prot="private" static="no" mutable="no">
         <type><ref refid="structshader_1_1_quad" kindref="compound">Quad</ref></type>
@@ -37,10 +57,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="shader/Controller.h" line="78" column="10" bodyfile="shader/Controller.h" bodystart="78" bodyend="-1"/>
-        <referencedby refid="structshader_1_1_controller_1aa9689e38d31580d9ba6651cb6f12cd73" compoundref="_controller_8cpp" startline="39" endline="51">newOpenGLContextCreated</referencedby>
-        <referencedby refid="structshader_1_1_controller_1af327793eb89fca8a3fb018a0fa11bcab" compoundref="_controller_8cpp" startline="53" endline="61">openGLContextClosing</referencedby>
-        <referencedby refid="structshader_1_1_controller_1a08ef3c4c7114fb06c4094af17535d725" compoundref="_controller_8cpp" startline="63" endline="107">renderOpenGL</referencedby>
+        <location file="shader/Controller.h" line="82" column="10" bodyfile="shader/Controller.h" bodystart="82" bodyend="-1"/>
+        <referencedby refid="structshader_1_1_controller_1a9a3adad202f34ebf260ae5a025193518" compoundref="_controller_8cpp" startline="54" endline="61">initialise</referencedby>
+        <referencedby refid="structshader_1_1_controller_1a51dc8fc16ff000ac9e46e68f10c82869" compoundref="_controller_8cpp" startline="63" endline="67">shutdown</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structshader_1_1_controller_1ac34780b2cae1072d3a686f606a4a1a23" prot="private" static="no" mutable="no">
         <type><ref refid="structshader_1_1_pass" kindref="compound">Pass</ref></type>
@@ -54,158 +73,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="shader/Controller.h" line="79" column="10" bodyfile="shader/Controller.h" bodystart="79" bodyend="-1"/>
-        <referencedby refid="structshader_1_1_controller_1af327793eb89fca8a3fb018a0fa11bcab" compoundref="_controller_8cpp" startline="53" endline="61">openGLContextClosing</referencedby>
-        <referencedby refid="structshader_1_1_controller_1a08ef3c4c7114fb06c4094af17535d725" compoundref="_controller_8cpp" startline="63" endline="107">renderOpenGL</referencedby>
-      </memberdef>
-      <memberdef kind="variable" id="structshader_1_1_controller_1a35fdc155b5c39356e0527a9cd96be180" prot="private" static="no" mutable="no">
-        <type>std::array&lt; <ref refid="structshader_1_1_buffer" kindref="compound">Buffer</ref>, 4 &gt;</type>
-        <definition>std::array&lt;Buffer, 4&gt; shader::Controller::buffers</definition>
-        <argsstring></argsstring>
-        <name>buffers</name>
-        <qualifiedname>shader::Controller::buffers</qualifiedname>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="shader/Controller.h" line="80" column="16" bodyfile="shader/Controller.h" bodystart="80" bodyend="-1"/>
-        <referencedby refid="structshader_1_1_controller_1af327793eb89fca8a3fb018a0fa11bcab" compoundref="_controller_8cpp" startline="53" endline="61">openGLContextClosing</referencedby>
-        <referencedby refid="structshader_1_1_controller_1a08ef3c4c7114fb06c4094af17535d725" compoundref="_controller_8cpp" startline="63" endline="107">renderOpenGL</referencedby>
-      </memberdef>
-      <memberdef kind="variable" id="structshader_1_1_controller_1a336ead076637bcad4396c48b037603fe" prot="private" static="no" mutable="no">
-        <type>int</type>
-        <definition>int shader::Controller::viewportWidth</definition>
-        <argsstring></argsstring>
-        <name>viewportWidth</name>
-        <qualifiedname>shader::Controller::viewportWidth</qualifiedname>
-        <initializer>{ 0 }</initializer>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="shader/Controller.h" line="83" column="9" bodyfile="shader/Controller.h" bodystart="83" bodyend="83"/>
-        <referencedby refid="structshader_1_1_controller_1a08ef3c4c7114fb06c4094af17535d725" compoundref="_controller_8cpp" startline="63" endline="107">renderOpenGL</referencedby>
-      </memberdef>
-      <memberdef kind="variable" id="structshader_1_1_controller_1acc23e86afd06eeb0778ecabf4ebad004" prot="private" static="no" mutable="no">
-        <type>int</type>
-        <definition>int shader::Controller::viewportHeight</definition>
-        <argsstring></argsstring>
-        <name>viewportHeight</name>
-        <qualifiedname>shader::Controller::viewportHeight</qualifiedname>
-        <initializer>{ 0 }</initializer>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="shader/Controller.h" line="84" column="9" bodyfile="shader/Controller.h" bodystart="84" bodyend="84"/>
-        <referencedby refid="structshader_1_1_controller_1a08ef3c4c7114fb06c4094af17535d725" compoundref="_controller_8cpp" startline="63" endline="107">renderOpenGL</referencedby>
-      </memberdef>
-      <memberdef kind="variable" id="structshader_1_1_controller_1aae31d05aa24be6e6c82ae8e0f5266397" prot="private" static="no" mutable="no">
-        <type>float</type>
-        <definition>float shader::Controller::startTime</definition>
-        <argsstring></argsstring>
-        <name>startTime</name>
-        <qualifiedname>shader::Controller::startTime</qualifiedname>
-        <initializer>{ 0.0f }</initializer>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="shader/Controller.h" line="85" column="11" bodyfile="shader/Controller.h" bodystart="85" bodyend="85"/>
-        <referencedby refid="structshader_1_1_controller_1aa9689e38d31580d9ba6651cb6f12cd73" compoundref="_controller_8cpp" startline="39" endline="51">newOpenGLContextCreated</referencedby>
-        <referencedby refid="structshader_1_1_controller_1a08ef3c4c7114fb06c4094af17535d725" compoundref="_controller_8cpp" startline="63" endline="107">renderOpenGL</referencedby>
-      </memberdef>
-      <memberdef kind="variable" id="structshader_1_1_controller_1af930e200a46b5d7a40bf9bc02b0ee060" prot="private" static="no" mutable="no">
-        <type>float</type>
-        <definition>float shader::Controller::lastFrameTime</definition>
-        <argsstring></argsstring>
-        <name>lastFrameTime</name>
-        <qualifiedname>shader::Controller::lastFrameTime</qualifiedname>
-        <initializer>{ 0.0f }</initializer>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="shader/Controller.h" line="86" column="11" bodyfile="shader/Controller.h" bodystart="86" bodyend="86"/>
-        <referencedby refid="structshader_1_1_controller_1aa9689e38d31580d9ba6651cb6f12cd73" compoundref="_controller_8cpp" startline="39" endline="51">newOpenGLContextCreated</referencedby>
-        <referencedby refid="structshader_1_1_controller_1a08ef3c4c7114fb06c4094af17535d725" compoundref="_controller_8cpp" startline="63" endline="107">renderOpenGL</referencedby>
-      </memberdef>
-      <memberdef kind="variable" id="structshader_1_1_controller_1a3a520769e8c0b5ac8dba408b2d032613" prot="private" static="no" mutable="no">
-        <type>int</type>
-        <definition>int shader::Controller::frameCount</definition>
-        <argsstring></argsstring>
-        <name>frameCount</name>
-        <qualifiedname>shader::Controller::frameCount</qualifiedname>
-        <initializer>{ 0 }</initializer>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="shader/Controller.h" line="87" column="9" bodyfile="shader/Controller.h" bodystart="87" bodyend="87"/>
-        <referencedby refid="structshader_1_1_controller_1aa9689e38d31580d9ba6651cb6f12cd73" compoundref="_controller_8cpp" startline="39" endline="51">newOpenGLContextCreated</referencedby>
-        <referencedby refid="structshader_1_1_controller_1a08ef3c4c7114fb06c4094af17535d725" compoundref="_controller_8cpp" startline="63" endline="107">renderOpenGL</referencedby>
-      </memberdef>
-      <memberdef kind="variable" id="structshader_1_1_controller_1a236262e3bff434dbaa37df9d6c1ab77b" prot="private" static="no" mutable="no">
-        <type>float</type>
-        <definition>float shader::Controller::mouse[4]</definition>
-        <argsstring>[4]</argsstring>
-        <name>mouse</name>
-        <qualifiedname>shader::Controller::mouse</qualifiedname>
-        <initializer>{ 0.0f, 0.0f, 0.0f, 0.0f }</initializer>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="shader/Controller.h" line="88" column="11" bodyfile="shader/Controller.h" bodystart="88" bodyend="88"/>
-        <referencedby refid="structshader_1_1_controller_1a08ef3c4c7114fb06c4094af17535d725" compoundref="_controller_8cpp" startline="63" endline="107">renderOpenGL</referencedby>
-      </memberdef>
-      <memberdef kind="variable" id="structshader_1_1_controller_1aac90c2ca729836e121111a13278951f1" prot="private" static="no" mutable="no">
-        <type>std::atomic&lt; int &gt;</type>
-        <definition>std::atomic&lt;int&gt; shader::Controller::pendingWidth</definition>
-        <argsstring></argsstring>
-        <name>pendingWidth</name>
-        <qualifiedname>shader::Controller::pendingWidth</qualifiedname>
-        <initializer>{ 0 }</initializer>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="shader/Controller.h" line="91" column="17" bodyfile="shader/Controller.h" bodystart="91" bodyend="91"/>
-        <referencedby refid="structshader_1_1_controller_1a08ef3c4c7114fb06c4094af17535d725" compoundref="_controller_8cpp" startline="63" endline="107">renderOpenGL</referencedby>
-        <referencedby refid="structshader_1_1_controller_1ae60aa6289254c3bbec119ad0e1cd4b3e" compoundref="_controller_8cpp" startline="31" endline="36">resize</referencedby>
-      </memberdef>
-      <memberdef kind="variable" id="structshader_1_1_controller_1ac5ac49079d7cfd2ee3314046d279e11d" prot="private" static="no" mutable="no">
-        <type>std::atomic&lt; int &gt;</type>
-        <definition>std::atomic&lt;int&gt; shader::Controller::pendingHeight</definition>
-        <argsstring></argsstring>
-        <name>pendingHeight</name>
-        <qualifiedname>shader::Controller::pendingHeight</qualifiedname>
-        <initializer>{ 0 }</initializer>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="shader/Controller.h" line="92" column="17" bodyfile="shader/Controller.h" bodystart="92" bodyend="92"/>
-        <referencedby refid="structshader_1_1_controller_1a08ef3c4c7114fb06c4094af17535d725" compoundref="_controller_8cpp" startline="63" endline="107">renderOpenGL</referencedby>
-        <referencedby refid="structshader_1_1_controller_1ae60aa6289254c3bbec119ad0e1cd4b3e" compoundref="_controller_8cpp" startline="31" endline="36">resize</referencedby>
+        <location file="shader/Controller.h" line="83" column="10" bodyfile="shader/Controller.h" bodystart="83" bodyend="-1"/>
+        <referencedby refid="structshader_1_1_controller_1a51dc8fc16ff000ac9e46e68f10c82869" compoundref="_controller_8cpp" startline="63" endline="67">shutdown</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">
@@ -221,11 +90,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="shader/Controller.h" line="32" column="5"/>
-        <references refid="structshader_1_1_controller_1aa9689e38d31580d9ba6651cb6f12cd73" compoundref="_controller_8cpp" startline="39" endline="51">newOpenGLContextCreated</references>
-        <references refid="structshader_1_1_controller_1af327793eb89fca8a3fb018a0fa11bcab" compoundref="_controller_8cpp" startline="53" endline="61">openGLContextClosing</references>
-        <references refid="structshader_1_1_controller_1a08ef3c4c7114fb06c4094af17535d725" compoundref="_controller_8cpp" startline="63" endline="107">renderOpenGL</references>
-        <references refid="structshader_1_1_controller_1ae60aa6289254c3bbec119ad0e1cd4b3e" compoundref="_controller_8cpp" startline="31" endline="36">resize</references>
+        <location file="shader/Controller.h" line="27" column="5"/>
       </memberdef>
       <memberdef kind="function" id="structshader_1_1_controller_1a3b63ec57879dc4dad31c99c1ff1ad60a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type></type>
@@ -239,8 +104,42 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="shader/Controller.h" line="33" column="5" bodyfile="shader/Controller.cpp" bodystart="7" bodyend="10"/>
-        <references refid="structshader_1_1_controller_1ac888bf835596922d42e6b530c8156670" compoundref="_controller_8cpp" startline="21" endline="24">detach</references>
+        <location file="shader/Controller.h" line="28" column="5" bodyfile="shader/Controller.cpp" bodystart="7" bodyend="10"/>
+        <references refid="structshader_1_1_controller_1a61e18f3ad9688a09aa4d4b7bbb01ccb7" compoundref="_controller_8cpp" startline="13" endline="16">shutdownOpenGL</references>
+      </memberdef>
+      <memberdef kind="function" id="structshader_1_1_controller_1a3fb139ea98ddcf75a83224894a5ba4df" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int shader::Controller::getFrameCounter</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>getFrameCounter</name>
+        <qualifiedname>shader::Controller::getFrameCounter</qualifiedname>
+        <briefdescription>
+<para>Returns the number of frames rendered since context creation. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="shader/Controller.h" line="31" column="9" bodyfile="shader/Controller.h" bodystart="31" bodyend="31"/>
+        <references refid="structshader_1_1_controller_1ae963718eabc18998f839b2f8c9280258" compoundref="_controller_8h" startline="81" endline="81">frameCounter</references>
+      </memberdef>
+      <memberdef kind="function" id="structshader_1_1_controller_1a61e18f3ad9688a09aa4d4b7bbb01ccb7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void shader::Controller::shutdownOpenGL</definition>
+        <argsstring>()</argsstring>
+        <name>shutdownOpenGL</name>
+        <qualifiedname>shader::Controller::shutdownOpenGL</qualifiedname>
+        <briefdescription>
+<para>Detaches the GL context. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Call from subclass destructor if needed. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="shader/Controller.h" line="34" column="10" bodyfile="shader/Controller.cpp" bodystart="13" bodyend="16"/>
+        <references refid="structshader_1_1_controller_1a9bf822833c1d1308b1115aae3ac6f35a" compoundref="_controller_8h" startline="52">openGLContext</references>
+        <referencedby refid="structshader_1_1_controller_1a3b63ec57879dc4dad31c99c1ff1ad60a" compoundref="_controller_8cpp" startline="7" endline="10">~Controller</referencedby>
       </memberdef>
       <memberdef kind="function" id="structshader_1_1_controller_1a261eecb70bbd676b432e328c166816f1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -256,7 +155,7 @@
 <para>Attaches the GL context to the given component. </para>
         </briefdescription>
         <detaileddescription>
-<para>Enables JUCE native component painting, disables continuous repainting (render on demand via triggerRepaint), registers this as the renderer, then attaches the context.</para>
+<para>Enables JUCE native component painting, disables continuous repainting, registers this as the renderer, then attaches the context.</para>
 <para><parameterlist kind="param"><parameteritem>
 <parameternamelist>
 <parametername>component</parametername>
@@ -270,8 +169,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="shader/Controller.h" line="43" column="10" bodyfile="shader/Controller.cpp" bodystart="13" bodyend="19"/>
-        <references refid="structshader_1_1_controller_1a8f950e6005e718b369325bdfc1f1c488" compoundref="_controller_8h" startline="77">context</references>
+        <location file="shader/Controller.h" line="43" column="10" bodyfile="shader/Controller.cpp" bodystart="18" bodyend="24"/>
+        <references refid="structshader_1_1_controller_1a9bf822833c1d1308b1115aae3ac6f35a" compoundref="_controller_8h" startline="52">openGLContext</references>
       </memberdef>
       <memberdef kind="function" id="structshader_1_1_controller_1ac888bf835596922d42e6b530c8156670" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -283,13 +182,11 @@
 <para>Detaches the GL context (CPU mode or shutdown). </para>
         </briefdescription>
         <detaileddescription>
-<para>Triggers openGLContextClosing on the GL thread before returning. </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="shader/Controller.h" line="49" column="10" bodyfile="shader/Controller.cpp" bodystart="21" bodyend="24"/>
-        <references refid="structshader_1_1_controller_1a8f950e6005e718b369325bdfc1f1c488" compoundref="_controller_8h" startline="77">context</references>
-        <referencedby refid="structshader_1_1_controller_1a3b63ec57879dc4dad31c99c1ff1ad60a" compoundref="_controller_8cpp" startline="7" endline="10">~Controller</referencedby>
+        <location file="shader/Controller.h" line="46" column="10" bodyfile="shader/Controller.cpp" bodystart="26" bodyend="29"/>
+        <references refid="structshader_1_1_controller_1a9bf822833c1d1308b1115aae3ac6f35a" compoundref="_controller_8h" startline="52">openGLContext</references>
       </memberdef>
       <memberdef kind="function" id="structshader_1_1_controller_1a33e37a46958ce5de0585b76e8e451f24" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
         <type>bool</type>
@@ -304,56 +201,12 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="shader/Controller.h" line="52" column="10" bodyfile="shader/Controller.cpp" bodystart="26" bodyend="29"/>
-        <references refid="structshader_1_1_controller_1a8f950e6005e718b369325bdfc1f1c488" compoundref="_controller_8h" startline="77">context</references>
+        <location file="shader/Controller.h" line="49" column="10" bodyfile="shader/Controller.cpp" bodystart="31" bodyend="34"/>
+        <references refid="structshader_1_1_controller_1a9bf822833c1d1308b1115aae3ac6f35a" compoundref="_controller_8h" startline="52">openGLContext</references>
       </memberdef>
-      <memberdef kind="function" id="structshader_1_1_controller_1ae60aa6289254c3bbec119ad0e1cd4b3e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type>void</type>
-        <definition>void shader::Controller::resize</definition>
-        <argsstring>(int width, int height)</argsstring>
-        <name>resize</name>
-        <qualifiedname>shader::Controller::resize</qualifiedname>
-        <param>
-          <type>int</type>
-          <declname>width</declname>
-        </param>
-        <param>
-          <type>int</type>
-          <declname>height</declname>
-        </param>
-        <briefdescription>
-<para>Notifies the controller of a component resize. </para>
-        </briefdescription>
-        <detaileddescription>
-<para>Stores new dimensions atomically — buffer resize happens on the GL thread at the start of the next <ref refid="structshader_1_1_controller_1a08ef3c4c7114fb06c4094af17535d725" kindref="member">renderOpenGL()</ref> call.</para>
-<para><parameterlist kind="param"><parameteritem>
-<parameternamelist>
-<parametername>width</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>New width in pixels. </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>height</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>New height in pixels. </para>
-</parameterdescription>
-</parameteritem>
-</parameterlist>
-</para>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="shader/Controller.h" line="62" column="10" bodyfile="shader/Controller.cpp" bodystart="31" bodyend="36"/>
-        <references refid="structshader_1_1_controller_1a8f950e6005e718b369325bdfc1f1c488" compoundref="_controller_8h" startline="77">context</references>
-        <references refid="structshader_1_1_controller_1ac5ac49079d7cfd2ee3314046d279e11d" compoundref="_controller_8h" startline="92" endline="92">pendingHeight</references>
-        <references refid="structshader_1_1_controller_1aac90c2ca729836e121111a13278951f1" compoundref="_controller_8h" startline="91" endline="91">pendingWidth</references>
-        <referencedby refid="structshader_1_1_controller_1ad27c97aa3e386c62d8607545aa5a37f4">Controller</referencedby>
-      </memberdef>
-      <memberdef kind="function" id="structshader_1_1_controller_1aa9689e38d31580d9ba6651cb6f12cd73" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+    </sectiondef>
+    <sectiondef kind="private-func">
+      <memberdef kind="function" id="structshader_1_1_controller_1aa9689e38d31580d9ba6651cb6f12cd73" prot="private" static="no" const="no" explicit="no" inline="no" virt="virtual">
         <type>void</type>
         <definition>void shader::Controller::newOpenGLContextCreated</definition>
         <argsstring>() override</argsstring>
@@ -361,23 +214,16 @@
         <qualifiedname>shader::Controller::newOpenGLContextCreated</qualifiedname>
         <reimplements refid="classjuce_1_1OpenGLRenderer_1ad1b12890dcfa23da0ad90276b21edf82">newOpenGLContextCreated</reimplements>
         <briefdescription>
-<para>Initialises GL resources on the GL thread (context just became active). </para>
+<para>Initialises GL resources on the GL thread. </para>
         </briefdescription>
         <detaileddescription>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="shader/Controller.h" line="68" column="10" bodyfile="shader/Controller.cpp" bodystart="39" bodyend="51"/>
-        <references refid="structshader_1_1_controller_1a8f950e6005e718b369325bdfc1f1c488" compoundref="_controller_8h" startline="77">context</references>
-        <references refid="structjam_1_1BackgroundBlur_1aba30ef82c71f521f855171339dc180c1">jam::BackgroundBlur::enableWindowTransparency</references>
-        <references refid="structshader_1_1_controller_1a3a520769e8c0b5ac8dba408b2d032613" compoundref="_controller_8h" startline="87" endline="87">frameCount</references>
-        <references refid="classjuce_1_1Time_1a4f84742100383e6904d12470d94fefca">juce::Time::getMillisecondCounterHiRes</references>
-        <references refid="structshader_1_1_controller_1af930e200a46b5d7a40bf9bc02b0ee060" compoundref="_controller_8h" startline="86" endline="86">lastFrameTime</references>
-        <references refid="structshader_1_1_controller_1a0ff01484f7ee0d673a929dc397d08057" compoundref="_controller_8h" startline="78">quad</references>
-        <references refid="structshader_1_1_controller_1aae31d05aa24be6e6c82ae8e0f5266397" compoundref="_controller_8h" startline="85" endline="85">startTime</references>
-        <referencedby refid="structshader_1_1_controller_1ad27c97aa3e386c62d8607545aa5a37f4">Controller</referencedby>
+        <location file="shader/Controller.h" line="59" column="10" bodyfile="shader/Controller.cpp" bodystart="37" bodyend="40"/>
+        <references refid="structshader_1_1_controller_1a9a3adad202f34ebf260ae5a025193518" compoundref="_controller_8cpp" startline="54" endline="61">initialise</references>
       </memberdef>
-      <memberdef kind="function" id="structshader_1_1_controller_1a08ef3c4c7114fb06c4094af17535d725" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+      <memberdef kind="function" id="structshader_1_1_controller_1a08ef3c4c7114fb06c4094af17535d725" prot="private" static="no" const="no" explicit="no" inline="no" virt="virtual">
         <type>void</type>
         <definition>void shader::Controller::renderOpenGL</definition>
         <argsstring>() override</argsstring>
@@ -385,32 +231,17 @@
         <qualifiedname>shader::Controller::renderOpenGL</qualifiedname>
         <reimplements refid="classjuce_1_1OpenGLRenderer_1a70dec21215ee71cc2d029ff04fab02e7">renderOpenGL</reimplements>
         <briefdescription>
-<para>Renders one frame on the GL thread. </para>
+<para>Renders one frame — increments counter, calls <ref refid="structshader_1_1_controller_1a98c779a896ffd3370fb064665b81e8b6" kindref="member">render()</ref>. </para>
         </briefdescription>
         <detaileddescription>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="shader/Controller.h" line="71" column="10" bodyfile="shader/Controller.cpp" bodystart="63" bodyend="107"/>
-        <references refid="structshader_1_1_controller_1ac34780b2cae1072d3a686f606a4a1a23" compoundref="_controller_8h" startline="79">background</references>
-        <references refid="structshader_1_1_controller_1a35fdc155b5c39356e0527a9cd96be180" compoundref="_controller_8h" startline="80">buffers</references>
-        <references refid="classjuce_1_1OpenGLHelpers_1afb2ec794b86a370169b631c68a874b0f">juce::OpenGLHelpers::clear</references>
-        <references refid="structshader_1_1_controller_1a8f950e6005e718b369325bdfc1f1c488" compoundref="_controller_8h" startline="77">context</references>
-        <references refid="structshader_1_1_controller_1a3a520769e8c0b5ac8dba408b2d032613" compoundref="_controller_8h" startline="87" endline="87">frameCount</references>
-        <references refid="classjuce_1_1Time_1a4f84742100383e6904d12470d94fefca">juce::Time::getMillisecondCounterHiRes</references>
-        <references refid="namespacejuce_1_1gl_1a425eb845f8cb936a9247544f2b7d536d">juce::gl::glViewport</references>
-        <references refid="structshader_1_1_controller_1af930e200a46b5d7a40bf9bc02b0ee060" compoundref="_controller_8h" startline="86" endline="86">lastFrameTime</references>
-        <references refid="structshader_1_1_controller_1a236262e3bff434dbaa37df9d6c1ab77b" compoundref="_controller_8h" startline="88" endline="88">mouse</references>
-        <references refid="structshader_1_1_controller_1ac5ac49079d7cfd2ee3314046d279e11d" compoundref="_controller_8h" startline="92" endline="92">pendingHeight</references>
-        <references refid="structshader_1_1_controller_1aac90c2ca729836e121111a13278951f1" compoundref="_controller_8h" startline="91" endline="91">pendingWidth</references>
-        <references refid="structshader_1_1_controller_1a0ff01484f7ee0d673a929dc397d08057" compoundref="_controller_8h" startline="78">quad</references>
-        <references refid="structshader_1_1_controller_1aae31d05aa24be6e6c82ae8e0f5266397" compoundref="_controller_8h" startline="85" endline="85">startTime</references>
-        <references refid="namespacejuce_1_1Colours_1a2d59beef8fef5d9b43c030dc5968a2bb">juce::Colours::transparentBlack</references>
-        <references refid="structshader_1_1_controller_1acc23e86afd06eeb0778ecabf4ebad004" compoundref="_controller_8h" startline="84" endline="84">viewportHeight</references>
-        <references refid="structshader_1_1_controller_1a336ead076637bcad4396c48b037603fe" compoundref="_controller_8h" startline="83" endline="83">viewportWidth</references>
-        <referencedby refid="structshader_1_1_controller_1ad27c97aa3e386c62d8607545aa5a37f4">Controller</referencedby>
+        <location file="shader/Controller.h" line="62" column="10" bodyfile="shader/Controller.cpp" bodystart="42" bodyend="46"/>
+        <references refid="structshader_1_1_controller_1ae963718eabc18998f839b2f8c9280258" compoundref="_controller_8h" startline="81" endline="81">frameCounter</references>
+        <references refid="structshader_1_1_controller_1a98c779a896ffd3370fb064665b81e8b6" compoundref="_controller_8cpp" startline="69" endline="74">render</references>
       </memberdef>
-      <memberdef kind="function" id="structshader_1_1_controller_1af327793eb89fca8a3fb018a0fa11bcab" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+      <memberdef kind="function" id="structshader_1_1_controller_1af327793eb89fca8a3fb018a0fa11bcab" prot="private" static="no" const="no" explicit="no" inline="no" virt="virtual">
         <type>void</type>
         <definition>void shader::Controller::openGLContextClosing</definition>
         <argsstring>() override</argsstring>
@@ -418,29 +249,80 @@
         <qualifiedname>shader::Controller::openGLContextClosing</qualifiedname>
         <reimplements refid="classjuce_1_1OpenGLRenderer_1ae8b66edbce35cc4edbb743549382318a">openGLContextClosing</reimplements>
         <briefdescription>
-<para>Releases all GL resources on the GL thread (context about to be destroyed). </para>
+<para>Releases all GL resources on the GL thread. </para>
         </briefdescription>
         <detaileddescription>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="shader/Controller.h" line="74" column="10" bodyfile="shader/Controller.cpp" bodystart="53" bodyend="61"/>
-        <references refid="structshader_1_1_controller_1ac34780b2cae1072d3a686f606a4a1a23" compoundref="_controller_8h" startline="79">background</references>
-        <references refid="structshader_1_1_controller_1a35fdc155b5c39356e0527a9cd96be180" compoundref="_controller_8h" startline="80">buffers</references>
-        <references refid="structshader_1_1_controller_1a0ff01484f7ee0d673a929dc397d08057" compoundref="_controller_8h" startline="78">quad</references>
-        <referencedby refid="structshader_1_1_controller_1ad27c97aa3e386c62d8607545aa5a37f4">Controller</referencedby>
+        <location file="shader/Controller.h" line="65" column="10" bodyfile="shader/Controller.cpp" bodystart="48" bodyend="51"/>
+        <references refid="structshader_1_1_controller_1a51dc8fc16ff000ac9e46e68f10c82869" compoundref="_controller_8cpp" startline="63" endline="67">shutdown</references>
+      </memberdef>
+      <memberdef kind="function" id="structshader_1_1_controller_1a9a3adad202f34ebf260ae5a025193518" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void shader::Controller::initialise</definition>
+        <argsstring>()</argsstring>
+        <name>initialise</name>
+        <qualifiedname>shader::Controller::initialise</qualifiedname>
+        <briefdescription>
+<para>Called from newOpenGLContextCreated — creates GL resources. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="shader/Controller.h" line="71" column="10" bodyfile="shader/Controller.cpp" bodystart="54" bodyend="61"/>
+        <references refid="structjam_1_1BackgroundBlur_1aba30ef82c71f521f855171339dc180c1">jam::BackgroundBlur::enableWindowTransparency</references>
+        <references refid="structshader_1_1_controller_1a9bf822833c1d1308b1115aae3ac6f35a" compoundref="_controller_8h" startline="52">openGLContext</references>
+        <references refid="structshader_1_1_controller_1a0ff01484f7ee0d673a929dc397d08057" compoundref="_controller_8h" startline="82">quad</references>
+        <referencedby refid="structshader_1_1_controller_1aa9689e38d31580d9ba6651cb6f12cd73" compoundref="_controller_8cpp" startline="37" endline="40">newOpenGLContextCreated</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="structshader_1_1_controller_1a51dc8fc16ff000ac9e46e68f10c82869" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void shader::Controller::shutdown</definition>
+        <argsstring>()</argsstring>
+        <name>shutdown</name>
+        <qualifiedname>shader::Controller::shutdown</qualifiedname>
+        <briefdescription>
+<para>Called from openGLContextClosing — releases GL resources. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="shader/Controller.h" line="74" column="10" bodyfile="shader/Controller.cpp" bodystart="63" bodyend="67"/>
+        <references refid="structshader_1_1_controller_1ac34780b2cae1072d3a686f606a4a1a23" compoundref="_controller_8h" startline="83">background</references>
+        <references refid="structshader_1_1_controller_1a0ff01484f7ee0d673a929dc397d08057" compoundref="_controller_8h" startline="82">quad</references>
+        <referencedby refid="structshader_1_1_controller_1af327793eb89fca8a3fb018a0fa11bcab" compoundref="_controller_8cpp" startline="48" endline="51">openGLContextClosing</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="structshader_1_1_controller_1a98c779a896ffd3370fb064665b81e8b6" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void shader::Controller::render</definition>
+        <argsstring>()</argsstring>
+        <name>render</name>
+        <qualifiedname>shader::Controller::render</qualifiedname>
+        <briefdescription>
+<para>Called from renderOpenGL — draws one frame. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="shader/Controller.h" line="77" column="10" bodyfile="shader/Controller.cpp" bodystart="69" bodyend="74"/>
+        <references refid="classjuce_1_1OpenGLHelpers_1afb2ec794b86a370169b631c68a874b0f">juce::OpenGLHelpers::clear</references>
+        <references refid="namespacejuce_1_1Colours_1a2d59beef8fef5d9b43c030dc5968a2bb">juce::Colours::transparentBlack</references>
+        <referencedby refid="structshader_1_1_controller_1a08ef3c4c7114fb06c4094af17535d725" compoundref="_controller_8cpp" startline="42" endline="46">renderOpenGL</referencedby>
       </memberdef>
     </sectiondef>
     <briefdescription>
-<para>Shader engine orchestrator — owns the GL pipeline for background rendering. </para>
+<para>GL pipeline orchestrator — mirrors <ref refid="classjuce_1_1OpenGLAppComponent" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::OpenGLAppComponent</ref> with attach/detach. </para>
     </briefdescription>
     <detaileddescription>
-<para>Implements <ref refid="classjuce_1_1OpenGLRenderer" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::OpenGLRenderer</ref>. Owns the OpenGL context, fullscreen quad, background pass, and 4 ping-pong buffer slots.</para>
-<para>Component painting is enabled — JUCE composites components natively on top of the background rendered here. <ref refid="structshader_1_1_controller" kindref="compound">Controller</ref> only draws behind components.</para>
-<para>Owned by <ref refid="classend_1_1_view" kindref="compound">end::View</ref> as a single member. View delegates all GL lifecycle to this class and stays clean.</para>
+<para>Identical API to <ref refid="classjuce_1_1OpenGLAppComponent" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::OpenGLAppComponent</ref>: initialise/shutdown/render virtuals, <ref refid="structshader_1_1_controller_1a3fb139ea98ddcf75a83224894a5ba4df" kindref="member">getFrameCounter()</ref>, <ref refid="structshader_1_1_controller_1a61e18f3ad9688a09aa4d4b7bbb01ccb7" kindref="member">shutdownOpenGL()</ref>. Adds attach/detach for runtime GPU/CPU switching.</para>
+<para>Owned by <ref refid="classend_1_1_view" kindref="compound">end::View</ref> as a single member. View delegates all GL lifecycle to this class.</para>
 <para>Thread contract:<itemizedlist>
-<listitem><para><ref refid="structshader_1_1_controller_1a261eecb70bbd676b432e328c166816f1" kindref="member">attach()</ref> / <ref refid="structshader_1_1_controller_1ac888bf835596922d42e6b530c8156670" kindref="member">detach()</ref> / <ref refid="structshader_1_1_controller_1ae60aa6289254c3bbec119ad0e1cd4b3e" kindref="member">resize()</ref> : MESSAGE THREAD</para>
-</listitem><listitem><para>renderOpenGL / newOpenGLContextCreated / openGLContextClosing : GL THREAD </para>
+<listitem><para><ref refid="structshader_1_1_controller_1a261eecb70bbd676b432e328c166816f1" kindref="member">attach()</ref> / <ref refid="structshader_1_1_controller_1ac888bf835596922d42e6b530c8156670" kindref="member">detach()</ref> / <ref refid="structshader_1_1_controller_1a33e37a46958ce5de0585b76e8e451f24" kindref="member">isAttached()</ref> : MESSAGE THREAD</para>
+</listitem><listitem><para>newOpenGLContextCreated / renderOpenGL / openGLContextClosing : GL THREAD </para>
 </listitem></itemizedlist>
 </para>
     </detaileddescription>
@@ -452,7 +334,7 @@
       <node id="1">
         <label>shader::Controller</label>
         <link refid="structshader_1_1_controller"/>
-        <childnode refid="2" relation="public-inheritance">
+        <childnode refid="2" relation="private-inheritance">
         </childnode>
       </node>
     </inheritancegraph>
@@ -460,10 +342,6 @@
       <node id="3">
         <label>juce::OpenGLContext</label>
         <link refid="classjuce_1_1OpenGLContext" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-      </node>
-      <node id="11">
-        <label>juce::OpenGLFrameBuffer</label>
-        <link refid="classjuce_1_1OpenGLFrameBuffer" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
       <node id="2">
         <label>juce::OpenGLRenderer</label>
@@ -477,36 +355,19 @@
         <label>juce::String</label>
         <link refid="classjuce_1_1String" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="10">
-        <label>shader::Buffer</label>
-        <link refid="structshader_1_1_buffer"/>
-        <childnode refid="6" relation="usage">
-          <edgelabel>pass</edgelabel>
-        </childnode>
-        <childnode refid="11" relation="usage">
-          <edgelabel>fbos</edgelabel>
-        </childnode>
-      </node>
       <node id="1">
         <label>shader::Controller</label>
         <link refid="structshader_1_1_controller"/>
-        <childnode refid="2" relation="public-inheritance">
+        <childnode refid="2" relation="private-inheritance">
         </childnode>
         <childnode refid="3" relation="usage">
-          <edgelabel>context</edgelabel>
+          <edgelabel>openGLContext</edgelabel>
         </childnode>
         <childnode refid="4" relation="usage">
           <edgelabel>quad</edgelabel>
         </childnode>
         <childnode refid="6" relation="usage">
           <edgelabel>background</edgelabel>
-        </childnode>
-        <childnode refid="9" relation="usage">
-          <edgelabel>buffers</edgelabel>
-        </childnode>
-        <childnode refid="12" relation="usage">
-          <edgelabel>pendingHeight</edgelabel>
-          <edgelabel>pendingWidth</edgelabel>
         </childnode>
       </node>
       <node id="6">
@@ -523,15 +384,6 @@
           <edgelabel>vertexShader</edgelabel>
         </childnode>
       </node>
-      <node id="9">
-        <label>std::array&lt; shader::Buffer, 4 &gt;</label>
-        <childnode refid="10" relation="usage">
-          <edgelabel>elements</edgelabel>
-        </childnode>
-      </node>
-      <node id="12">
-        <label>std::atomic&lt; int &gt;</label>
-      </node>
       <node id="7">
         <label>std::unique_ptr&lt; juce::OpenGLShaderProgram &gt;</label>
         <childnode refid="8" relation="usage">
@@ -539,31 +391,27 @@
         </childnode>
       </node>
     </collaborationgraph>
-    <location file="shader/Controller.h" line="30" column="1" bodyfile="shader/Controller.h" bodystart="31" bodyend="96"/>
+    <location file="shader/Controller.h" line="25" column="1" bodyfile="shader/Controller.h" bodystart="26" bodyend="87"/>
     <listofallmembers>
       <member refid="structshader_1_1_controller_1a261eecb70bbd676b432e328c166816f1" prot="public" virt="non-virtual"><scope>shader::Controller</scope><name>attach</name></member>
       <member refid="structshader_1_1_controller_1ac34780b2cae1072d3a686f606a4a1a23" prot="private" virt="non-virtual"><scope>shader::Controller</scope><name>background</name></member>
-      <member refid="structshader_1_1_controller_1a35fdc155b5c39356e0527a9cd96be180" prot="private" virt="non-virtual"><scope>shader::Controller</scope><name>buffers</name></member>
-      <member refid="structshader_1_1_controller_1a8f950e6005e718b369325bdfc1f1c488" prot="private" virt="non-virtual"><scope>shader::Controller</scope><name>context</name></member>
       <member refid="structshader_1_1_controller_1ad27c97aa3e386c62d8607545aa5a37f4" prot="public" virt="non-virtual"><scope>shader::Controller</scope><name>Controller</name></member>
       <member refid="structshader_1_1_controller_1ac888bf835596922d42e6b530c8156670" prot="public" virt="non-virtual"><scope>shader::Controller</scope><name>detach</name></member>
-      <member refid="structshader_1_1_controller_1a3a520769e8c0b5ac8dba408b2d032613" prot="private" virt="non-virtual"><scope>shader::Controller</scope><name>frameCount</name></member>
+      <member refid="structshader_1_1_controller_1ae963718eabc18998f839b2f8c9280258" prot="private" virt="non-virtual"><scope>shader::Controller</scope><name>frameCounter</name></member>
+      <member refid="structshader_1_1_controller_1a3fb139ea98ddcf75a83224894a5ba4df" prot="public" virt="non-virtual"><scope>shader::Controller</scope><name>getFrameCounter</name></member>
+      <member refid="structshader_1_1_controller_1a9a3adad202f34ebf260ae5a025193518" prot="private" virt="non-virtual"><scope>shader::Controller</scope><name>initialise</name></member>
       <member refid="structshader_1_1_controller_1a33e37a46958ce5de0585b76e8e451f24" prot="public" virt="non-virtual"><scope>shader::Controller</scope><name>isAttached</name></member>
-      <member refid="structshader_1_1_controller_1af930e200a46b5d7a40bf9bc02b0ee060" prot="private" virt="non-virtual"><scope>shader::Controller</scope><name>lastFrameTime</name></member>
-      <member refid="structshader_1_1_controller_1a236262e3bff434dbaa37df9d6c1ab77b" prot="private" virt="non-virtual"><scope>shader::Controller</scope><name>mouse</name></member>
-      <member refid="structshader_1_1_controller_1aa9689e38d31580d9ba6651cb6f12cd73" prot="public" virt="virtual"><scope>shader::Controller</scope><name>newOpenGLContextCreated</name></member>
-      <member refid="structshader_1_1_controller_1af327793eb89fca8a3fb018a0fa11bcab" prot="public" virt="virtual"><scope>shader::Controller</scope><name>openGLContextClosing</name></member>
-      <member refid="classjuce_1_1OpenGLRenderer_1a316fcc53e73236bb0b36879824ed96d0" prot="public" virt="non-virtual"><scope>shader::Controller</scope><name>OpenGLRenderer</name></member>
-      <member refid="structshader_1_1_controller_1ac5ac49079d7cfd2ee3314046d279e11d" prot="private" virt="non-virtual"><scope>shader::Controller</scope><name>pendingHeight</name></member>
-      <member refid="structshader_1_1_controller_1aac90c2ca729836e121111a13278951f1" prot="private" virt="non-virtual"><scope>shader::Controller</scope><name>pendingWidth</name></member>
+      <member refid="structshader_1_1_controller_1aa9689e38d31580d9ba6651cb6f12cd73" prot="private" virt="virtual"><scope>shader::Controller</scope><name>newOpenGLContextCreated</name></member>
+      <member refid="structshader_1_1_controller_1a9bf822833c1d1308b1115aae3ac6f35a" prot="public" virt="non-virtual"><scope>shader::Controller</scope><name>openGLContext</name></member>
+      <member refid="structshader_1_1_controller_1af327793eb89fca8a3fb018a0fa11bcab" prot="private" virt="virtual"><scope>shader::Controller</scope><name>openGLContextClosing</name></member>
+      <member refid="classjuce_1_1OpenGLRenderer_1a316fcc53e73236bb0b36879824ed96d0" prot="private" virt="non-virtual"><scope>shader::Controller</scope><name>OpenGLRenderer</name></member>
       <member refid="structshader_1_1_controller_1a0ff01484f7ee0d673a929dc397d08057" prot="private" virt="non-virtual"><scope>shader::Controller</scope><name>quad</name></member>
-      <member refid="structshader_1_1_controller_1a08ef3c4c7114fb06c4094af17535d725" prot="public" virt="virtual"><scope>shader::Controller</scope><name>renderOpenGL</name></member>
-      <member refid="structshader_1_1_controller_1ae60aa6289254c3bbec119ad0e1cd4b3e" prot="public" virt="non-virtual"><scope>shader::Controller</scope><name>resize</name></member>
-      <member refid="structshader_1_1_controller_1aae31d05aa24be6e6c82ae8e0f5266397" prot="private" virt="non-virtual"><scope>shader::Controller</scope><name>startTime</name></member>
-      <member refid="structshader_1_1_controller_1acc23e86afd06eeb0778ecabf4ebad004" prot="private" virt="non-virtual"><scope>shader::Controller</scope><name>viewportHeight</name></member>
-      <member refid="structshader_1_1_controller_1a336ead076637bcad4396c48b037603fe" prot="private" virt="non-virtual"><scope>shader::Controller</scope><name>viewportWidth</name></member>
+      <member refid="structshader_1_1_controller_1a98c779a896ffd3370fb064665b81e8b6" prot="private" virt="non-virtual"><scope>shader::Controller</scope><name>render</name></member>
+      <member refid="structshader_1_1_controller_1a08ef3c4c7114fb06c4094af17535d725" prot="private" virt="virtual"><scope>shader::Controller</scope><name>renderOpenGL</name></member>
+      <member refid="structshader_1_1_controller_1a51dc8fc16ff000ac9e46e68f10c82869" prot="private" virt="non-virtual"><scope>shader::Controller</scope><name>shutdown</name></member>
+      <member refid="structshader_1_1_controller_1a61e18f3ad9688a09aa4d4b7bbb01ccb7" prot="public" virt="non-virtual"><scope>shader::Controller</scope><name>shutdownOpenGL</name></member>
       <member refid="structshader_1_1_controller_1a3b63ec57879dc4dad31c99c1ff1ad60a" prot="public" virt="non-virtual"><scope>shader::Controller</scope><name>~Controller</name></member>
-      <member refid="classjuce_1_1OpenGLRenderer_1acc36f485ff59927cd1aff26e359c41e4" prot="public" virt="virtual"><scope>shader::Controller</scope><name>~OpenGLRenderer</name></member>
+      <member refid="classjuce_1_1OpenGLRenderer_1acc36f485ff59927cd1aff26e359c41e4" prot="private" virt="virtual"><scope>shader::Controller</scope><name>~OpenGLRenderer</name></member>
     </listofallmembers>
   </compounddef>
 </doxygen>

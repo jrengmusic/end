@@ -406,6 +406,8 @@
         <link refid="classjam_1_1Model" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
         <childnode refid="2" relation="public-inheritance">
         </childnode>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
         <childnode refid="8" relation="usage">
           <edgelabel>params</edgelabel>
         </childnode>

@@ -4,7 +4,6 @@
     <compoundname>Pass.h</compoundname>
     <includes local="no">JuceHeader.h</includes>
     <includes refid="_quad_8h" local="yes">shader/Quad.h</includes>
-    <includedby refid="_buffer_8h" local="yes">shader/Buffer.h</includedby>
     <includedby refid="_controller_8h" local="yes">shader/Controller.h</includedby>
     <includedby refid="_pass_8cpp" local="yes">shader/Pass.cpp</includedby>
     <incdepgraph>
@@ -27,65 +26,53 @@
       </node>
     </incdepgraph>
     <invincdepgraph>
-      <node id="7">
+      <node id="5">
         <label>Main.cpp</label>
         <link refid="_main_8cpp"/>
       </node>
-      <node id="6">
+      <node id="4">
         <label>Main.h</label>
         <link refid="_main_8h"/>
-        <childnode refid="7" relation="include">
+        <childnode refid="5" relation="include">
         </childnode>
       </node>
-      <node id="8">
+      <node id="6">
         <label>end/ActionRegistration.cpp</label>
         <link refid="_action_registration_8cpp"/>
       </node>
-      <node id="9">
+      <node id="7">
         <label>end/EventRegistration.cpp</label>
         <link refid="end_2_event_registration_8cpp"/>
       </node>
-      <node id="10">
+      <node id="8">
         <label>end/View.cpp</label>
         <link refid="_view_8cpp"/>
       </node>
-      <node id="5">
+      <node id="3">
         <label>end/View.h</label>
         <link refid="_view_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
         <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
         </childnode>
         <childnode refid="8" relation="include">
         </childnode>
-        <childnode refid="9" relation="include">
-        </childnode>
-        <childnode refid="10" relation="include">
-        </childnode>
       </node>
-      <node id="3">
-        <label>shader/Buffer.cpp</label>
-        <link refid="_buffer_8cpp"/>
-      </node>
-      <node id="2">
-        <label>shader/Buffer.h</label>
-        <link refid="_buffer_8h"/>
-        <childnode refid="3" relation="include">
-        </childnode>
-        <childnode refid="4" relation="include">
-        </childnode>
-      </node>
-      <node id="11">
+      <node id="9">
         <label>shader/Controller.cpp</label>
         <link refid="_controller_8cpp"/>
       </node>
-      <node id="4">
+      <node id="2">
         <label>shader/Controller.h</label>
         <link refid="_controller_8h"/>
-        <childnode refid="5" relation="include">
+        <childnode refid="3" relation="include">
         </childnode>
-        <childnode refid="11" relation="include">
+        <childnode refid="9" relation="include">
         </childnode>
       </node>
-      <node id="12">
+      <node id="10">
         <label>shader/Pass.cpp</label>
         <link refid="_pass_8cpp"/>
       </node>
@@ -94,9 +81,7 @@
         <link refid="_pass_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
-        <childnode refid="4" relation="include">
-        </childnode>
-        <childnode refid="12" relation="include">
+        <childnode refid="10" relation="include">
         </childnode>
       </node>
     </invincdepgraph>
@@ -117,40 +102,30 @@
 <codeline lineno="10"><highlight class="normal">{</highlight></codeline>
 <codeline lineno="11"><highlight class="normal"></highlight><highlight class="comment">/*____________________________________________________________________________*/</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="12"><highlight class="normal"></highlight></codeline>
-<codeline lineno="24" refid="structshader_1_1_pass" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structshader_1_1_pass" kindref="compound">Pass</ref></highlight></codeline>
-<codeline lineno="25"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref><sp/><ref refid="structshader_1_1_pass_1af67411e5658785759c900808b548e962" kindref="member">compile</ref><sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref>&amp;<sp/>source,</highlight></codeline>
-<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref>&amp;<sp/>vertexShader,</highlight></codeline>
-<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classjuce_1_1OpenGLContext" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::OpenGLContext</ref>&amp;<sp/>context);</highlight></codeline>
-<codeline lineno="39"><highlight class="normal"></highlight></codeline>
-<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="structshader_1_1_pass_1ab6c99ee6059a5ac410e4f1d045863d2e" kindref="member">render</ref><sp/>(<ref refid="structshader_1_1_quad" kindref="compound">Quad</ref>&amp;<sp/>quad,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>width,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>height,</highlight></codeline>
-<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>time,<sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>timeDelta,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>frame,</highlight></codeline>
-<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>mouse[4]);</highlight></codeline>
+<codeline lineno="25" refid="structshader_1_1_pass" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structshader_1_1_pass" kindref="compound">Pass</ref></highlight></codeline>
+<codeline lineno="26"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref><sp/><ref refid="structshader_1_1_pass_1af67411e5658785759c900808b548e962" kindref="member">compile</ref><sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref>&amp;<sp/>source,</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref>&amp;<sp/>vertexShader,</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classjuce_1_1OpenGLContext" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::OpenGLContext</ref>&amp;<sp/>context);</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="structshader_1_1_pass_1ad4ba68255c49b2235c6c0b1710d97364" kindref="member">render</ref><sp/>(<ref refid="structshader_1_1_quad" kindref="compound">Quad</ref>&amp;<sp/>quad,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>width,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>height,</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>time,<sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>timeDelta,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>frame);</highlight></codeline>
 <codeline lineno="53"><highlight class="normal"></highlight></codeline>
-<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="structshader_1_1_pass_1ad25841cf3e542d667e07fb69a2aa476d" kindref="member">setChannel</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>channel,<sp/><ref refid="juce__gl_8h_1aa311c7f0d6ec4f1a33f9235c3651b86b" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GLuint</ref><sp/>textureID);</highlight></codeline>
+<codeline lineno="55" refid="structshader_1_1_pass_1a43f2b127108dacafb851a6072531e4ba" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structshader_1_1_pass_1a43f2b127108dacafb851a6072531e4ba" kindref="member">isLoaded</ref>()<sp/>const<sp/>noexcept<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="structshader_1_1_pass_1a63169c457ee0596ff988c5fb87a3cdbe" kindref="member">program</ref><sp/>!=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">;<sp/>}</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="structshader_1_1_pass_1a3d29fb27aa8d3fb3373513a86bff28e5" kindref="member">release</ref>();</highlight></codeline>
 <codeline lineno="59"><highlight class="normal"></highlight></codeline>
-<codeline lineno="61" refid="structshader_1_1_pass_1a43f2b127108dacafb851a6072531e4ba" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structshader_1_1_pass_1a43f2b127108dacafb851a6072531e4ba" kindref="member">isLoaded</ref>()<sp/>const<sp/>noexcept<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="structshader_1_1_pass_1a63169c457ee0596ff988c5fb87a3cdbe" kindref="member">program</ref><sp/>!=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">;<sp/>}</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="61" refid="structshader_1_1_pass_1a63169c457ee0596ff988c5fb87a3cdbe" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::unique_ptr&lt;juce::OpenGLShaderProgram&gt;<sp/><ref refid="structshader_1_1_pass_1a63169c457ee0596ff988c5fb87a3cdbe" kindref="member">program</ref>;</highlight></codeline>
 <codeline lineno="62"><highlight class="normal"></highlight></codeline>
-<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="structshader_1_1_pass_1a3d29fb27aa8d3fb3373513a86bff28e5" kindref="member">release</ref>();</highlight></codeline>
-<codeline lineno="65"><highlight class="normal"></highlight></codeline>
-<codeline lineno="66"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
-<codeline lineno="67" refid="structshader_1_1_pass_1a63169c457ee0596ff988c5fb87a3cdbe" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::unique_ptr&lt;juce::OpenGLShaderProgram&gt;<sp/><ref refid="structshader_1_1_pass_1a63169c457ee0596ff988c5fb87a3cdbe" kindref="member">program</ref>;</highlight></codeline>
-<codeline lineno="68"><highlight class="normal"></highlight></codeline>
-<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Shadertoy<sp/>uniform<sp/>locations<sp/>—<sp/>cached<sp/>after<sp/>compile,<sp/>-1<sp/>=<sp/>not<sp/>found</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="70" refid="structshader_1_1_pass_1ae71acfe52aa9c93b5ba47654a85302ad" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="juce__gl_8h_1a5ac0f3c4d7fafd42b284b5487a791017" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GLint</ref><sp/><ref refid="structshader_1_1_pass_1ae71acfe52aa9c93b5ba47654a85302ad" kindref="member">locResolution</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/>-1<sp/>};</highlight></codeline>
-<codeline lineno="71" refid="structshader_1_1_pass_1a1bd69ca7ba0d5c8642f7e0b38795bf5f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="juce__gl_8h_1a5ac0f3c4d7fafd42b284b5487a791017" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GLint</ref><sp/><ref refid="structshader_1_1_pass_1a1bd69ca7ba0d5c8642f7e0b38795bf5f" kindref="member">locTime</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/>-1<sp/>};</highlight></codeline>
-<codeline lineno="72" refid="structshader_1_1_pass_1a439d35703ee1a8a96b1e6b0f853dbcb8" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="juce__gl_8h_1a5ac0f3c4d7fafd42b284b5487a791017" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GLint</ref><sp/><ref refid="structshader_1_1_pass_1a439d35703ee1a8a96b1e6b0f853dbcb8" kindref="member">locTimeDelta</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/>-1<sp/>};</highlight></codeline>
-<codeline lineno="73" refid="structshader_1_1_pass_1ae4255b2111ad15fc37ec761e6f0dfb8d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="juce__gl_8h_1a5ac0f3c4d7fafd42b284b5487a791017" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GLint</ref><sp/><ref refid="structshader_1_1_pass_1ae4255b2111ad15fc37ec761e6f0dfb8d" kindref="member">locFrame</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/>-1<sp/>};</highlight></codeline>
-<codeline lineno="74" refid="structshader_1_1_pass_1a5aae150875305961a7fbba94edca6be4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="juce__gl_8h_1a5ac0f3c4d7fafd42b284b5487a791017" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GLint</ref><sp/><ref refid="structshader_1_1_pass_1a5aae150875305961a7fbba94edca6be4" kindref="member">locMouse</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/>-1<sp/>};</highlight></codeline>
-<codeline lineno="75" refid="structshader_1_1_pass_1af9494f07cb3862568f95e09c26e586ec" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="juce__gl_8h_1a5ac0f3c4d7fafd42b284b5487a791017" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GLint</ref><sp/><ref refid="structshader_1_1_pass_1af9494f07cb3862568f95e09c26e586ec" kindref="member">locDate</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/>-1<sp/>};</highlight></codeline>
-<codeline lineno="76" refid="structshader_1_1_pass_1a10538c63f7e18b6609e3e6e74982c2d1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="juce__gl_8h_1a5ac0f3c4d7fafd42b284b5487a791017" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GLint</ref><sp/><ref refid="structshader_1_1_pass_1a10538c63f7e18b6609e3e6e74982c2d1" kindref="member">locChannelResolution</ref><sp/>{<sp/>-1<sp/>};</highlight></codeline>
-<codeline lineno="77" refid="structshader_1_1_pass_1a8d68617675e82907b78083dbe29a54a6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="juce__gl_8h_1a5ac0f3c4d7fafd42b284b5487a791017" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GLint</ref><sp/><ref refid="structshader_1_1_pass_1a8d68617675e82907b78083dbe29a54a6" kindref="member">locChannel</ref>[4]<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/>-1,<sp/>-1,<sp/>-1,<sp/>-1<sp/>};</highlight></codeline>
-<codeline lineno="78"><highlight class="normal"></highlight></codeline>
-<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Currently<sp/>bound<sp/>channel<sp/>texture<sp/>IDs</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="80" refid="structshader_1_1_pass_1ae681faeb02b8fbc64dfc16c38518723a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="juce__gl_8h_1aa311c7f0d6ec4f1a33f9235c3651b86b" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GLuint</ref><sp/><ref refid="structshader_1_1_pass_1ae681faeb02b8fbc64dfc16c38518723a" kindref="member">channelTextures</ref>[4]<sp/>{<sp/>0,<sp/>0,<sp/>0,<sp/>0<sp/>};</highlight></codeline>
-<codeline lineno="81"><highlight class="normal">};</highlight></codeline>
-<codeline lineno="82"><highlight class="normal"></highlight></codeline>
-<codeline lineno="84"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>shader</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Shadertoy<sp/>minimum<sp/>uniform<sp/>locations<sp/>—<sp/>cached<sp/>after<sp/>compile,<sp/>-1<sp/>=<sp/>not<sp/>found</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="64" refid="structshader_1_1_pass_1ae71acfe52aa9c93b5ba47654a85302ad" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="juce__gl_8h_1a5ac0f3c4d7fafd42b284b5487a791017" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GLint</ref><sp/><ref refid="structshader_1_1_pass_1ae71acfe52aa9c93b5ba47654a85302ad" kindref="member">locResolution</ref><sp/>{<sp/>-1<sp/>};</highlight></codeline>
+<codeline lineno="65" refid="structshader_1_1_pass_1a1bd69ca7ba0d5c8642f7e0b38795bf5f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="juce__gl_8h_1a5ac0f3c4d7fafd42b284b5487a791017" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GLint</ref><sp/><ref refid="structshader_1_1_pass_1a1bd69ca7ba0d5c8642f7e0b38795bf5f" kindref="member">locTime</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/>-1<sp/>};</highlight></codeline>
+<codeline lineno="66" refid="structshader_1_1_pass_1a439d35703ee1a8a96b1e6b0f853dbcb8" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="juce__gl_8h_1a5ac0f3c4d7fafd42b284b5487a791017" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GLint</ref><sp/><ref refid="structshader_1_1_pass_1a439d35703ee1a8a96b1e6b0f853dbcb8" kindref="member">locTimeDelta</ref><sp/><sp/>{<sp/>-1<sp/>};</highlight></codeline>
+<codeline lineno="67" refid="structshader_1_1_pass_1ae4255b2111ad15fc37ec761e6f0dfb8d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="juce__gl_8h_1a5ac0f3c4d7fafd42b284b5487a791017" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GLint</ref><sp/><ref refid="structshader_1_1_pass_1ae4255b2111ad15fc37ec761e6f0dfb8d" kindref="member">locFrame</ref><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/>-1<sp/>};</highlight></codeline>
+<codeline lineno="68"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal">}</highlight><highlight class="comment">//<sp/>namespace<sp/>shader</highlight><highlight class="normal"></highlight></codeline>
     </programlisting>
     <location file="shader/Pass.h"/>
   </compounddef>

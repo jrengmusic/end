@@ -82,7 +82,7 @@
 <codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespacejuce_1_1gl_1a132a1fe42d1ddaf0a6e4fef274dc0059" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">glBindBuffer</ref><sp/>(<ref refid="namespacejuce_1_1gl_1af671f4f7a87a673f690bfd41f3a2a467a87924651f6f7b3bb8c5b40fd81fa6387" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GL_ARRAY_BUFFER</ref>,<sp/>0);</highlight></codeline>
 <codeline lineno="55"><highlight class="normal">}</highlight></codeline>
 <codeline lineno="56"><highlight class="normal"></highlight></codeline>
-<codeline lineno="58"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>shader</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal">}</highlight><highlight class="comment">//<sp/>namespace<sp/>shader</highlight><highlight class="normal"></highlight></codeline>
     </programlisting>
     <location file="shader/Quad.cpp"/>
   </compounddef>

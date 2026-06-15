@@ -14,38 +14,24 @@
     <member refid="classend_1_1_application_1a636a8c0776059c65df3d0405229858f4" kind="function"><name>systemRequestedQuit</name></member>
     <member refid="classend_1_1_application_1a598aa5d15712e3107ade5df8f6c5e33d" kind="function"><name>initialise</name></member>
   </compound>
-  <compound refid="structshader_1_1_buffer" kind="struct"><name>shader::Buffer</name>
-    <member refid="structshader_1_1_buffer_1ac0025193a0bc77cffaee1f3e2db61a2f" kind="variable"><name>pass</name></member>
-    <member refid="structshader_1_1_buffer_1a2a5f1651784be3cbd7f3aeaa633a9353" kind="variable"><name>fbos</name></member>
-    <member refid="structshader_1_1_buffer_1a7ff5107d8754eabe830c521da42554f2" kind="variable"><name>writeIndex</name></member>
-    <member refid="structshader_1_1_buffer_1a90277d4cc17437fac2f6dfa718d2956a" kind="function"><name>resize</name></member>
-    <member refid="structshader_1_1_buffer_1a77d994ece740392fb3582156dfc44871" kind="function"><name>render</name></member>
-    <member refid="structshader_1_1_buffer_1a9e27e5094f3b75c15806645d31ef8b21" kind="function"><name>getReadTexture</name></member>
-    <member refid="structshader_1_1_buffer_1af9a819e823a712d7a6953209bd525c7f" kind="function"><name>isLoaded</name></member>
-    <member refid="structshader_1_1_buffer_1aba151e8032e6831933a754d0a41e00de" kind="function"><name>release</name></member>
-  </compound>
   <compound refid="structshader_1_1_controller" kind="struct"><name>shader::Controller</name>
-    <member refid="structshader_1_1_controller_1a8f950e6005e718b369325bdfc1f1c488" kind="variable"><name>context</name></member>
+    <member refid="structshader_1_1_controller_1a9bf822833c1d1308b1115aae3ac6f35a" kind="variable"><name>openGLContext</name></member>
+    <member refid="structshader_1_1_controller_1ae963718eabc18998f839b2f8c9280258" kind="variable"><name>frameCounter</name></member>
     <member refid="structshader_1_1_controller_1a0ff01484f7ee0d673a929dc397d08057" kind="variable"><name>quad</name></member>
     <member refid="structshader_1_1_controller_1ac34780b2cae1072d3a686f606a4a1a23" kind="variable"><name>background</name></member>
-    <member refid="structshader_1_1_controller_1a35fdc155b5c39356e0527a9cd96be180" kind="variable"><name>buffers</name></member>
-    <member refid="structshader_1_1_controller_1a336ead076637bcad4396c48b037603fe" kind="variable"><name>viewportWidth</name></member>
-    <member refid="structshader_1_1_controller_1acc23e86afd06eeb0778ecabf4ebad004" kind="variable"><name>viewportHeight</name></member>
-    <member refid="structshader_1_1_controller_1aae31d05aa24be6e6c82ae8e0f5266397" kind="variable"><name>startTime</name></member>
-    <member refid="structshader_1_1_controller_1af930e200a46b5d7a40bf9bc02b0ee060" kind="variable"><name>lastFrameTime</name></member>
-    <member refid="structshader_1_1_controller_1a3a520769e8c0b5ac8dba408b2d032613" kind="variable"><name>frameCount</name></member>
-    <member refid="structshader_1_1_controller_1a236262e3bff434dbaa37df9d6c1ab77b" kind="variable"><name>mouse</name></member>
-    <member refid="structshader_1_1_controller_1aac90c2ca729836e121111a13278951f1" kind="variable"><name>pendingWidth</name></member>
-    <member refid="structshader_1_1_controller_1ac5ac49079d7cfd2ee3314046d279e11d" kind="variable"><name>pendingHeight</name></member>
     <member refid="structshader_1_1_controller_1ad27c97aa3e386c62d8607545aa5a37f4" kind="function"><name>Controller</name></member>
     <member refid="structshader_1_1_controller_1a3b63ec57879dc4dad31c99c1ff1ad60a" kind="function"><name>~Controller</name></member>
+    <member refid="structshader_1_1_controller_1a3fb139ea98ddcf75a83224894a5ba4df" kind="function"><name>getFrameCounter</name></member>
+    <member refid="structshader_1_1_controller_1a61e18f3ad9688a09aa4d4b7bbb01ccb7" kind="function"><name>shutdownOpenGL</name></member>
     <member refid="structshader_1_1_controller_1a261eecb70bbd676b432e328c166816f1" kind="function"><name>attach</name></member>
     <member refid="structshader_1_1_controller_1ac888bf835596922d42e6b530c8156670" kind="function"><name>detach</name></member>
     <member refid="structshader_1_1_controller_1a33e37a46958ce5de0585b76e8e451f24" kind="function"><name>isAttached</name></member>
-    <member refid="structshader_1_1_controller_1ae60aa6289254c3bbec119ad0e1cd4b3e" kind="function"><name>resize</name></member>
     <member refid="structshader_1_1_controller_1aa9689e38d31580d9ba6651cb6f12cd73" kind="function"><name>newOpenGLContextCreated</name></member>
     <member refid="structshader_1_1_controller_1a08ef3c4c7114fb06c4094af17535d725" kind="function"><name>renderOpenGL</name></member>
     <member refid="structshader_1_1_controller_1af327793eb89fca8a3fb018a0fa11bcab" kind="function"><name>openGLContextClosing</name></member>
+    <member refid="structshader_1_1_controller_1a9a3adad202f34ebf260ae5a025193518" kind="function"><name>initialise</name></member>
+    <member refid="structshader_1_1_controller_1a51dc8fc16ff000ac9e46e68f10c82869" kind="function"><name>shutdown</name></member>
+    <member refid="structshader_1_1_controller_1a98c779a896ffd3370fb064665b81e8b6" kind="function"><name>render</name></member>
   </compound>
   <compound refid="structend_1_1_drop_mode" kind="struct"><name>end::DropMode</name>
     <member refid="structend_1_1_drop_mode_1a842f2f4c8f4c271b614f4b98482c747d" kind="enum"><name>@277214137317010015316303354216265052334255124010</name></member>
@@ -642,14 +628,8 @@
     <member refid="structshader_1_1_pass_1a1bd69ca7ba0d5c8642f7e0b38795bf5f" kind="variable"><name>locTime</name></member>
     <member refid="structshader_1_1_pass_1a439d35703ee1a8a96b1e6b0f853dbcb8" kind="variable"><name>locTimeDelta</name></member>
     <member refid="structshader_1_1_pass_1ae4255b2111ad15fc37ec761e6f0dfb8d" kind="variable"><name>locFrame</name></member>
-    <member refid="structshader_1_1_pass_1a5aae150875305961a7fbba94edca6be4" kind="variable"><name>locMouse</name></member>
-    <member refid="structshader_1_1_pass_1af9494f07cb3862568f95e09c26e586ec" kind="variable"><name>locDate</name></member>
-    <member refid="structshader_1_1_pass_1a10538c63f7e18b6609e3e6e74982c2d1" kind="variable"><name>locChannelResolution</name></member>
-    <member refid="structshader_1_1_pass_1a8d68617675e82907b78083dbe29a54a6" kind="variable"><name>locChannel</name></member>
-    <member refid="structshader_1_1_pass_1ae681faeb02b8fbc64dfc16c38518723a" kind="variable"><name>channelTextures</name></member>
     <member refid="structshader_1_1_pass_1af67411e5658785759c900808b548e962" kind="function"><name>compile</name></member>
-    <member refid="structshader_1_1_pass_1ab6c99ee6059a5ac410e4f1d045863d2e" kind="function"><name>render</name></member>
-    <member refid="structshader_1_1_pass_1ad25841cf3e542d667e07fb69a2aa476d" kind="function"><name>setChannel</name></member>
+    <member refid="structshader_1_1_pass_1ad4ba68255c49b2235c6c0b1710d97364" kind="function"><name>render</name></member>
     <member refid="structshader_1_1_pass_1a43f2b127108dacafb851a6072531e4ba" kind="function"><name>isLoaded</name></member>
     <member refid="structshader_1_1_pass_1a3d29fb27aa8d3fb3373513a86bff28e5" kind="function"><name>release</name></member>
   </compound>
@@ -829,10 +809,6 @@
   <compound refid="_main_8cpp" kind="file"><name>Main.cpp</name>
   </compound>
   <compound refid="_main_8h" kind="file"><name>Main.h</name>
-  </compound>
-  <compound refid="_buffer_8cpp" kind="file"><name>Buffer.cpp</name>
-  </compound>
-  <compound refid="_buffer_8h" kind="file"><name>Buffer.h</name>
   </compound>
   <compound refid="_controller_8cpp" kind="file"><name>Controller.cpp</name>
   </compound>

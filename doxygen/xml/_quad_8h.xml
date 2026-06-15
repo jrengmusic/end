@@ -52,18 +52,6 @@
         <childnode refid="8" relation="include">
         </childnode>
       </node>
-      <node id="12">
-        <label>shader/Buffer.cpp</label>
-        <link refid="_buffer_8cpp"/>
-      </node>
-      <node id="11">
-        <label>shader/Buffer.h</label>
-        <link refid="_buffer_8h"/>
-        <childnode refid="12" relation="include">
-        </childnode>
-        <childnode refid="2" relation="include">
-        </childnode>
-      </node>
       <node id="9">
         <label>shader/Controller.cpp</label>
         <link refid="_controller_8cpp"/>
@@ -76,21 +64,19 @@
         <childnode refid="9" relation="include">
         </childnode>
       </node>
-      <node id="13">
+      <node id="11">
         <label>shader/Pass.cpp</label>
         <link refid="_pass_8cpp"/>
       </node>
       <node id="10">
         <label>shader/Pass.h</label>
         <link refid="_pass_8h"/>
-        <childnode refid="11" relation="include">
-        </childnode>
         <childnode refid="2" relation="include">
         </childnode>
-        <childnode refid="13" relation="include">
+        <childnode refid="11" relation="include">
         </childnode>
       </node>
-      <node id="14">
+      <node id="12">
         <label>shader/Quad.cpp</label>
         <link refid="_quad_8cpp"/>
       </node>
@@ -101,7 +87,7 @@
         </childnode>
         <childnode refid="10" relation="include">
         </childnode>
-        <childnode refid="14" relation="include">
+        <childnode refid="12" relation="include">
         </childnode>
       </node>
     </invincdepgraph>

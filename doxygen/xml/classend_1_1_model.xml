@@ -52,10 +52,16 @@
         <link refid="classjam_1_1Model" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
         <childnode refid="3" relation="public-inheritance">
         </childnode>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
       </node>
       <node id="3">
         <label>juce::Timer</label>
         <link refid="classjuce_1_1Timer" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="4">
+        <label>juce::ValueTree::Listener</label>
+        <link refid="classjuce_1_1ValueTree_1_1Listener" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
     </inheritancegraph>
     <collaborationgraph>
@@ -65,21 +71,21 @@
         <childnode refid="2" relation="public-inheritance">
         </childnode>
       </node>
-      <node id="4">
+      <node id="5">
         <label>jam::AnyMap</label>
         <link refid="classjam_1_1AnyMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-        <childnode refid="5" relation="usage">
+        <childnode refid="6" relation="usage">
           <edgelabel>entries</edgelabel>
         </childnode>
-        <childnode refid="6" relation="usage">
+        <childnode refid="7" relation="usage">
           <edgelabel>types</edgelabel>
         </childnode>
       </node>
-      <node id="6">
+      <node id="7">
         <label>jam::HashMap&lt; juce::Identifier, std::type_index &gt;</label>
         <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
-      <node id="5">
+      <node id="6">
         <label>jam::HashMap&lt; juce::Identifier, std::unique_ptr&lt; void, Deleter &gt; &gt;</label>
         <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
@@ -88,17 +94,19 @@
         <link refid="classjam_1_1Model" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
         <childnode refid="3" relation="public-inheritance">
         </childnode>
-        <childnode refid="4" relation="usage">
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+        <childnode refid="5" relation="usage">
           <edgelabel>params</edgelabel>
         </childnode>
-        <childnode refid="7" relation="usage">
+        <childnode refid="8" relation="usage">
           <edgelabel>state</edgelabel>
         </childnode>
-        <childnode refid="8" relation="usage">
+        <childnode refid="9" relation="usage">
           <edgelabel>valueTreeChanging</edgelabel>
         </childnode>
       </node>
-      <node id="8">
+      <node id="9">
         <label>juce::CriticalSection</label>
         <link refid="classjuce_1_1CriticalSection" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
@@ -106,9 +114,13 @@
         <label>juce::Timer</label>
         <link refid="classjuce_1_1Timer" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="7">
+      <node id="8">
         <label>juce::ValueTree</label>
         <link refid="classjuce_1_1ValueTree" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="4">
+        <label>juce::ValueTree::Listener</label>
+        <link refid="classjuce_1_1ValueTree_1_1Listener" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
     </collaborationgraph>
     <location file="end/Model.h" line="8" column="1" bodyfile="end/Model.h" bodystart="9" bodyend="17"/>
@@ -143,6 +155,7 @@
       <member refid="classjam_1_1Model_1a1032430642def825ff972dc86d6608c4" prot="public" virt="non-virtual"><scope>end::Model</scope><name>getValueFromChildWithProperty</name></member>
       <member refid="classjam_1_1Model_1a710fd55b83d2e5657e48d49ce5225ea2" prot="public" virt="non-virtual"><scope>end::Model</scope><name>getXml</name></member>
       <member refid="classjam_1_1Model_1a1c976506dd5eb7d125a0e804c97c61e2" prot="private" virt="non-virtual"><scope>end::Model</scope><name>idleHz</name></member>
+      <member refid="classjam_1_1Model_1a7824ccf1d91c240980145d68baf91b2b" prot="private" virt="non-virtual"><scope>end::Model</scope><name>ignoreCallbacks</name></member>
       <member refid="classjuce_1_1Timer_1a525f38cc7afdc0696b467bd4ed3f17da" prot="public" virt="non-virtual"><scope>end::Model</scope><name>isTimerRunning</name></member>
       <member refid="classjam_1_1Model_1afb401fb24025fa7fddf2740e374df4aa" prot="public" virt="non-virtual"><scope>end::Model</scope><name>loadState</name></member>
       <member refid="classjam_1_1Model_1a6662822c6b2f2539b5839a41daa668c9" prot="public" virt="non-virtual"><scope>end::Model</scope><name>loadState</name></member>
@@ -172,7 +185,14 @@
       <member refid="classjam_1_1Model_1a2a242b840bd054d5c80158b34f83f05f" prot="public" virt="non-virtual"><scope>end::Model</scope><name>toInt</name></member>
       <member refid="classjam_1_1Model_1ad7d29cc11027835e39f6bb1c5bbe3677" prot="public" virt="non-virtual"><scope>end::Model</scope><name>toStringArray</name></member>
       <member refid="classjam_1_1Model_1a495677a2122cc1dbb67c416ddfd51e17" prot="private" virt="non-virtual"><scope>end::Model</scope><name>valueTreeChanging</name></member>
+      <member refid="classjuce_1_1ValueTree_1_1Listener_1ac26fa68e6f4625f71b52ab6fe776e0dc" prot="public" virt="virtual"><scope>end::Model</scope><name>valueTreeChildAdded</name></member>
+      <member refid="classjuce_1_1ValueTree_1_1Listener_1a5fb2f9f798c9ebb48235ba15759fd48b" prot="public" virt="virtual"><scope>end::Model</scope><name>valueTreeChildOrderChanged</name></member>
+      <member refid="classjuce_1_1ValueTree_1_1Listener_1a09dc85f9c71389f2801c9a7bc582ae1b" prot="public" virt="virtual"><scope>end::Model</scope><name>valueTreeChildRemoved</name></member>
+      <member refid="classjuce_1_1ValueTree_1_1Listener_1a2e39febd013de0ff7da23a5b574055db" prot="public" virt="virtual"><scope>end::Model</scope><name>valueTreeParentChanged</name></member>
+      <member refid="classjam_1_1Model_1ab664f3dda27392cd40724b87549d0b6c" prot="public" virt="virtual"><scope>end::Model</scope><name>valueTreePropertyChanged</name></member>
+      <member refid="classjuce_1_1ValueTree_1_1Listener_1aa46de90c3746a395792a632219e404f2" prot="public" virt="virtual"><scope>end::Model</scope><name>valueTreeRedirected</name></member>
       <member refid="classjam_1_1Model_1a5e0284f87a2a71c84edd644b75f4d07f" prot="public" virt="non-virtual"><scope>end::Model</scope><name>writeToXml</name></member>
+      <member refid="classjuce_1_1ValueTree_1_1Listener_1ab78745617b47f3b12726c0de220e8d9b" prot="public" virt="virtual"><scope>end::Model</scope><name>~Listener</name></member>
       <member refid="classend_1_1_model_1ad6cbf73ea05928511bcb64cececef692" prot="public" virt="non-virtual"><scope>end::Model</scope><name>~Model</name></member>
       <member refid="classjuce_1_1Timer_1aa1de34211c34295dfa6a658474ae0ae0" prot="public" virt="virtual"><scope>end::Model</scope><name>~Timer</name></member>
     </listofallmembers>

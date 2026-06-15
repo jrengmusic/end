@@ -55,4 +55,4 @@ void Quad::draw()
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
-} // namespace shader
+}// namespace shader

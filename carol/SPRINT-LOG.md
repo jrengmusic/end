@@ -2,6 +2,76 @@
 
 ---
 
+## Sprint 23: Model Bidirectional Sync + Shader Cleanup ✅
+
+**Date:** 2026-06-15
+**Duration:** ~01:30
+
+### Agents Participated
+- COUNSELOR: Sprint lead, architecture discussion (jam::Model APVTS conformance, OpenGLAppComponent pattern, cross-thread contract, YAGNI analysis), plan authoring, delegation, verification, audit processing
+- Pathfinder: jam::Model API survey, endless GL wiring research, JUCE VBlank/OpenGLAppComponent discovery
+- Researcher: JUCE APVTS bidirectional sync mechanism (valueTreePropertyChanged → atomic chain, loopback guard)
+- Librarian: JUCE OpenGLAppComponent API, VBlankAttachment
+- Engineer: All file edits across JAM + END (8 delegations)
+- Auditor: Full sprint audit — found H1 (type dispatch divergence), M1 (submodule includes), M2 (|| vs or), L1/L2 (brace init, namespace consistency)
+
+### Files Modified (14 total)
+
+**JAM — jam_data_structures/model/**
+- `jam_model.h:28-29` — Model inherits juce::ValueTree::Listener; added valueTreePropertyChanged override (no Model-level guard — per-parameter APVTS pattern)
+- `jam_model.cpp:5-21` — constructors register state listener, destructor removes; valueTreePropertyChanged implementation (dispatches on registered AnyMap type via isType<T>, per-parameter isIgnoringCallbacks guard)
+- `jam_parameter.h` — moved from value_tree/; added per-parameter `ignoreCallbacks` + `isIgnoringCallbacks()` + `ScopedValueSetter` in flush() on all three specializations (int, int64_t, float) — VERBATIM APVTS loopback guard pattern
+- `jam_parameter_text.h` — moved from value_tree/, removed submodule includes (#include "jam_parameter.h", <atomic>, <cstring>)
+- `jam_value_tree_utils.cpp` — moved from value_tree/
+
+**JAM — jam_data_structures/**
+- `jam_data_structures.h:30-31` — include paths value_tree/ → model/
+- `jam_data_structures.cpp:3` — include path value_tree/ → model/
+
+**END — Source/shader/**
+- `Controller.h` — rewritten: mirrors OpenGLAppComponent VERBATIM (openGLContext public, getFrameCounter, shutdownOpenGL, private OpenGLRenderer). Added attach/detach. Removed all shadow state.
+- `Controller.cpp` — rewritten: initialise/shutdown/render delegates, attach sets componentPainting+renderer, render clears transparent
+- `Pass.h` — stripped: removed locMouse/locDate/locChannelResolution/locChannel/channelTextures/setChannel, mouse param from render
+- `Pass.cpp` — literal string → BinaryData::getString (shadertoy_uniforms.frag + shadertoy_main.frag), stripped uniforms/channels/mouse
+- `Buffer.h` — DELETED (YAGNI)
+- `Buffer.cpp` — DELETED (YAGNI)
+
+**END — Source/shaders/**
+- `shadertoy_uniforms.frag` — NEW: 11 Shadertoy uniform declarations (BinaryData-embedded)
+- `shadertoy_main.frag` — NEW: mainImage→main bridge (BinaryData-embedded)
+
+**END — Source/end/**
+- `View.cpp:21-23` — seed width/height on state before Attachment for atomic registration
+- `View.cpp:85-89` — setViewState uses model.setValue() (bidirectional sync → atomic for GL thread)
+- `View.cpp:60-61` — removed shader.resize() call (Controller no longer has it)
+
+### Alignment Check
+- [x] BLESSED principles followed
+  - B: GL thread reads atomics, message thread writes VT. Bidirectional sync bridges. No cross-thread direct calls.
+  - L: Controller stripped to OpenGLAppComponent minimum. Buffer deleted. Pass stripped to 4 uniforms. YAGNI enforced.
+  - E: No magic strings — .glsl files in BinaryData. No shadow state. Per-parameter loopback guard (VERBATIM APVTS pattern).
+  - S: VT is message-thread truth, atomic is GL-thread truth. Bidirectional sync = one SSOT with two thread-safe views.
+  - D: Same VT write → same atomic → same GL output.
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+- [x] JRENG-CODING-STANDARD.md (brace init, not/and/or, namespace close brace consistency, no submodule includes)
+
+### Problems Solved
+- **jam::Model missing VT→atomic sync:** Model only had atomic→VT (flush). APVTS has bidirectional via ValueTree::Listener. Added valueTreePropertyChanged with per-parameter loopback guard (VERBATIM APVTS: ignoreCallbacks on Parameter, ScopedValueSetter in flush, isIgnoringCallbacks checked in listener). Message thread writes VT → listener updates atomic → GL thread reads.
+- **Global loopback guard → per-parameter:** Initial implementation used Model-level ignoreCallbacks flag. APVTS uses per-parameter guard (ignoreParameterChangedCallbacks on ParameterAdapter). Corrected to match APVTS VERBATIM — no invented patterns.
+- **Type dispatch divergence (H1):** valueTreePropertyChanged initially dispatched on live var type (value.isInt()). XML/lua round-trips can coerce int↔double. Fixed: dispatch on AnyMap registered type via isType<T>().
+- **Assertion crash on config reload:** valueTreePropertyChanged fired for ALL tree nodes (including those without Parameter groups). params.get<AnyMap>(groupId) asserted on absent key. Fixed: guard with params.isType<AnyMap>(groupId) before get.
+- **Shadow state on Controller:** viewportWidth/Height shadowed pendingWidth/Height atomics. Timing (startTime/lastFrameTime/frameCount) dead with no continuous repainting. mouse[4] never written. All removed.
+- **Literal string shader wrapper:** Shadertoy uniform block was inline C++ string. Extracted to actual .frag files, loaded via BinaryData::getString().
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 22: shader:: GL Rendering Infrastructure + Event-Driven Init ✅
 
 **Date:** 2026-06-15

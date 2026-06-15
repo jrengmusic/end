@@ -511,16 +511,16 @@ lua files (@c File::Theme::get()) to the active theme directory
         <link refid="classconfig_1_1_model"/>
         <childnode refid="2" relation="public-inheritance">
         </childnode>
-        <childnode refid="4" relation="public-inheritance">
-        </childnode>
         <childnode refid="5" relation="public-inheritance">
         </childnode>
+        <childnode refid="6" relation="public-inheritance">
+        </childnode>
       </node>
-      <node id="4">
+      <node id="5">
         <label>jam::Context&lt; Model &gt;</label>
         <link refid="structjam_1_1Context" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
-      <node id="5">
+      <node id="6">
         <label>jam::File::Watcher::Listener</label>
         <link refid="classjam_1_1File_1_1Watcher_1_1Listener" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
@@ -529,10 +529,16 @@ lua files (@c File::Theme::get()) to the active theme directory
         <link refid="classjam_1_1Model" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
         <childnode refid="3" relation="public-inheritance">
         </childnode>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
       </node>
       <node id="3">
         <label>juce::Timer</label>
         <link refid="classjuce_1_1Timer" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="4">
+        <label>juce::ValueTree::Listener</label>
+        <link refid="classjuce_1_1ValueTree_1_1Listener" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
     </inheritancegraph>
     <collaborationgraph>
@@ -541,94 +547,94 @@ lua files (@c File::Theme::get()) to the active theme directory
         <link refid="classconfig_1_1_model"/>
         <childnode refid="2" relation="public-inheritance">
         </childnode>
-        <childnode refid="9" relation="public-inheritance">
-        </childnode>
         <childnode refid="10" relation="public-inheritance">
         </childnode>
-        <childnode refid="11" relation="usage">
+        <childnode refid="11" relation="public-inheritance">
+        </childnode>
+        <childnode refid="12" relation="usage">
           <edgelabel>watcher</edgelabel>
         </childnode>
-        <childnode refid="18" relation="usage">
+        <childnode refid="19" relation="usage">
           <edgelabel>loadMessage</edgelabel>
         </childnode>
-        <childnode refid="19" relation="usage">
+        <childnode refid="20" relation="usage">
           <edgelabel>validators</edgelabel>
         </childnode>
-        <childnode refid="20" relation="usage">
+        <childnode refid="21" relation="usage">
           <edgelabel>graphicsCallbacks</edgelabel>
         </childnode>
-        <childnode refid="22" relation="usage">
+        <childnode refid="23" relation="usage">
           <edgelabel>theme</edgelabel>
         </childnode>
       </node>
-      <node id="22">
+      <node id="23">
         <label>config::Theme</label>
         <link refid="classconfig_1_1_theme"/>
         <childnode refid="2" relation="public-inheritance">
         </childnode>
       </node>
-      <node id="4">
+      <node id="5">
         <label>jam::AnyMap</label>
         <link refid="classjam_1_1AnyMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-        <childnode refid="5" relation="usage">
+        <childnode refid="6" relation="usage">
           <edgelabel>entries</edgelabel>
         </childnode>
-        <childnode refid="6" relation="usage">
+        <childnode refid="7" relation="usage">
           <edgelabel>types</edgelabel>
         </childnode>
       </node>
-      <node id="9">
+      <node id="10">
         <label>jam::Context&lt; Model &gt;</label>
         <link refid="structjam_1_1Context" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
-      <node id="11">
+      <node id="12">
         <label>jam::File::Watcher</label>
         <link refid="structjam_1_1File_1_1Watcher" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-        <childnode refid="12" relation="usage">
+        <childnode refid="13" relation="usage">
           <edgelabel>timers</edgelabel>
         </childnode>
-        <childnode refid="16" relation="usage">
+        <childnode refid="17" relation="usage">
           <edgelabel>listeners</edgelabel>
         </childnode>
-        <childnode refid="17" relation="usage">
+        <childnode refid="18" relation="usage">
           <edgelabel>watched</edgelabel>
         </childnode>
       </node>
-      <node id="15">
+      <node id="16">
         <label>jam::File::Watcher::CoalesceTimer</label>
         <link refid="structjam_1_1File_1_1Watcher_1_1CoalesceTimer" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
         <childnode refid="3" relation="public-inheritance">
         </childnode>
-        <childnode refid="11" relation="usage">
+        <childnode refid="12" relation="usage">
           <edgelabel>owner</edgelabel>
         </childnode>
-        <childnode refid="13" relation="usage">
+        <childnode refid="14" relation="usage">
           <edgelabel>f</edgelabel>
         </childnode>
       </node>
-      <node id="10">
+      <node id="11">
         <label>jam::File::Watcher::Listener</label>
         <link refid="classjam_1_1File_1_1Watcher_1_1Listener" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
-      <node id="20">
+      <node id="21">
         <label>jam::Function::Map&lt; juce::String, void &gt;</label>
         <link refid="structjam_1_1Function_1_1Map" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-        <childnode refid="21" relation="public-inheritance">
+        <childnode refid="22" relation="public-inheritance">
         </childnode>
       </node>
-      <node id="21">
+      <node id="22">
         <label>jam::HashMap&lt; KeyType, std::unique_ptr&lt; Function::Common &gt; &gt;</label>
         <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
-      <node id="19">
+      <node id="20">
         <label>jam::HashMap&lt; juce::Identifier, jam::HashMap&lt; juce::Identifier, std::function&lt; bool(const juce::var &amp;)&gt; &gt; &gt;</label>
         <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
-      <node id="6">
+      <node id="7">
         <label>jam::HashMap&lt; juce::Identifier, std::type_index &gt;</label>
         <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
-      <node id="5">
+      <node id="6">
         <label>jam::HashMap&lt; juce::Identifier, std::unique_ptr&lt; void, Deleter &gt; &gt;</label>
         <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
@@ -637,33 +643,35 @@ lua files (@c File::Theme::get()) to the active theme directory
         <link refid="classjam_1_1Model" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
         <childnode refid="3" relation="public-inheritance">
         </childnode>
-        <childnode refid="4" relation="usage">
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+        <childnode refid="5" relation="usage">
           <edgelabel>params</edgelabel>
         </childnode>
-        <childnode refid="7" relation="usage">
+        <childnode refid="8" relation="usage">
           <edgelabel>state</edgelabel>
         </childnode>
-        <childnode refid="8" relation="usage">
+        <childnode refid="9" relation="usage">
           <edgelabel>valueTreeChanging</edgelabel>
         </childnode>
       </node>
-      <node id="8">
+      <node id="9">
         <label>juce::CriticalSection</label>
         <link refid="classjuce_1_1CriticalSection" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="13">
+      <node id="14">
         <label>juce::File</label>
         <link refid="classjuce_1_1File" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="16">
+      <node id="17">
         <label>juce::ListenerList&lt; jam::File::Watcher::Listener &gt;</label>
         <link refid="classjuce_1_1ListenerList" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="17">
+      <node id="18">
         <label>juce::OwnedArray&lt; Impl &gt;</label>
         <link refid="classjuce_1_1OwnedArray" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="18">
+      <node id="19">
         <label>juce::String</label>
         <link refid="classjuce_1_1String" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
@@ -671,22 +679,26 @@ lua files (@c File::Theme::get()) to the active theme directory
         <label>juce::Timer</label>
         <link refid="classjuce_1_1Timer" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="7">
+      <node id="8">
         <label>juce::ValueTree</label>
         <link refid="classjuce_1_1ValueTree" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="12">
+      <node id="4">
+        <label>juce::ValueTree::Listener</label>
+        <link refid="classjuce_1_1ValueTree_1_1Listener" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="13">
         <label>std::map&lt; juce::File, std::unique_ptr&lt; jam::File::Watcher::CoalesceTimer &gt; &gt;</label>
-        <childnode refid="13" relation="usage">
+        <childnode refid="14" relation="usage">
           <edgelabel>keys</edgelabel>
         </childnode>
-        <childnode refid="14" relation="usage">
+        <childnode refid="15" relation="usage">
           <edgelabel>elements</edgelabel>
         </childnode>
       </node>
-      <node id="14">
+      <node id="15">
         <label>std::unique_ptr&lt; jam::File::Watcher::CoalesceTimer &gt;</label>
-        <childnode refid="15" relation="usage">
+        <childnode refid="16" relation="usage">
           <edgelabel>ptr</edgelabel>
         </childnode>
       </node>
@@ -733,6 +745,7 @@ lua files (@c File::Theme::get()) to the active theme directory
       <member refid="classconfig_1_1_model_1aab53f2dffa259bc65116d9b97ce44a49" prot="private" virt="non-virtual"><scope>config::Model</scope><name>graphicsCallbacks</name></member>
       <member refid="structjam_1_1Context_1a5900ff66cdba02d6f6947cc6d5e8ec3d" prot="private" virt="non-virtual"><scope>config::Model</scope><name>head</name></member>
       <member refid="classjam_1_1Model_1a1c976506dd5eb7d125a0e804c97c61e2" prot="private" virt="non-virtual"><scope>config::Model</scope><name>idleHz</name></member>
+      <member refid="classjam_1_1Model_1a7824ccf1d91c240980145d68baf91b2b" prot="private" virt="non-virtual"><scope>config::Model</scope><name>ignoreCallbacks</name></member>
       <member refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" prot="private" virt="non-virtual"><scope>config::Model</scope><name>initialise</name></member>
       <member refid="classjuce_1_1Timer_1a525f38cc7afdc0696b467bd4ed3f17da" prot="public" virt="non-virtual"><scope>config::Model</scope><name>isTimerRunning</name></member>
       <member refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" prot="public" virt="non-virtual"><scope>config::Model</scope><name>loadFromPath</name></member>
@@ -772,10 +785,17 @@ lua files (@c File::Theme::get()) to the active theme directory
       <member refid="classjam_1_1Model_1ad7d29cc11027835e39f6bb1c5bbe3677" prot="public" virt="non-virtual"><scope>config::Model</scope><name>toStringArray</name></member>
       <member refid="classconfig_1_1_model_1af427d6e053fd4508c7179979330e5ab9" prot="private" virt="non-virtual"><scope>config::Model</scope><name>validators</name></member>
       <member refid="classjam_1_1Model_1a495677a2122cc1dbb67c416ddfd51e17" prot="private" virt="non-virtual"><scope>config::Model</scope><name>valueTreeChanging</name></member>
+      <member refid="classjuce_1_1ValueTree_1_1Listener_1ac26fa68e6f4625f71b52ab6fe776e0dc" prot="public" virt="virtual"><scope>config::Model</scope><name>valueTreeChildAdded</name></member>
+      <member refid="classjuce_1_1ValueTree_1_1Listener_1a5fb2f9f798c9ebb48235ba15759fd48b" prot="public" virt="virtual"><scope>config::Model</scope><name>valueTreeChildOrderChanged</name></member>
+      <member refid="classjuce_1_1ValueTree_1_1Listener_1a09dc85f9c71389f2801c9a7bc582ae1b" prot="public" virt="virtual"><scope>config::Model</scope><name>valueTreeChildRemoved</name></member>
+      <member refid="classjuce_1_1ValueTree_1_1Listener_1a2e39febd013de0ff7da23a5b574055db" prot="public" virt="virtual"><scope>config::Model</scope><name>valueTreeParentChanged</name></member>
+      <member refid="classjam_1_1Model_1ab664f3dda27392cd40724b87549d0b6c" prot="public" virt="virtual"><scope>config::Model</scope><name>valueTreePropertyChanged</name></member>
+      <member refid="classjuce_1_1ValueTree_1_1Listener_1aa46de90c3746a395792a632219e404f2" prot="public" virt="virtual"><scope>config::Model</scope><name>valueTreeRedirected</name></member>
       <member refid="classconfig_1_1_model_1a6a55abd98823bb3b8bcb92905cbdd377" prot="private" virt="non-virtual"><scope>config::Model</scope><name>watcher</name></member>
       <member refid="classjam_1_1Model_1a5e0284f87a2a71c84edd644b75f4d07f" prot="public" virt="non-virtual"><scope>config::Model</scope><name>writeToXml</name></member>
       <member refid="structjam_1_1Context_1a4169820e71837632922d3d17b377aeee" prot="public" virt="virtual"><scope>config::Model</scope><name>~Context</name></member>
-      <member refid="classjam_1_1File_1_1Watcher_1_1Listener_1a36c31b730e410628b516813e6e0679e7" prot="public" virt="virtual"><scope>config::Model</scope><name>~Listener</name></member>
+      <member refid="classjuce_1_1ValueTree_1_1Listener_1ab78745617b47f3b12726c0de220e8d9b" prot="public" virt="virtual" ambiguityscope="jam::"><scope>config::Model</scope><name>~Listener</name></member>
+      <member refid="classjam_1_1File_1_1Watcher_1_1Listener_1a36c31b730e410628b516813e6e0679e7" prot="public" virt="virtual" ambiguityscope="jam::File::Watcher::Listener::"><scope>config::Model</scope><name>~Listener</name></member>
       <member refid="classconfig_1_1_model_1af95c0931a6f76206d56eb06a3c71a05a" prot="public" virt="non-virtual"><scope>config::Model</scope><name>~Model</name></member>
       <member refid="classjuce_1_1Timer_1aa1de34211c34295dfa6a658474ae0ae0" prot="public" virt="virtual"><scope>config::Model</scope><name>~Timer</name></member>
     </listofallmembers>

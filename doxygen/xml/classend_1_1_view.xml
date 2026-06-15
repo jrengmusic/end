@@ -71,9 +71,9 @@
         </inbodydescription>
         <location file="end/View.h" line="138" column="10" bodyfile="end/View.h" bodystart="138" bodyend="-1"/>
         <referencedby refid="classend_1_1_view_1aa33112ca0bcd3004779201b4c966b96c" compoundref="_action_registration_8cpp" startline="7" endline="101">registerActions</referencedby>
-        <referencedby refid="classend_1_1_view_1a14f07f6fc295c80b4ff0555798fa583c" compoundref="_view_8cpp" startline="56" endline="65">resized</referencedby>
+        <referencedby refid="classend_1_1_view_1a14f07f6fc295c80b4ff0555798fa583c" compoundref="_view_8cpp" startline="59" endline="65">resized</referencedby>
         <referencedby refid="classend_1_1_view_1a91ed8ef126c0a1b3feb458079c3a7849" compoundref="_view_8cpp" startline="94" endline="100">setTabOrientation</referencedby>
-        <referencedby refid="classend_1_1_view_1af1202f1cb8659e8eb6ae04b9703c4be4" compoundref="_view_8cpp" startline="7" endline="46">View</referencedby>
+        <referencedby refid="classend_1_1_view_1af1202f1cb8659e8eb6ae04b9703c4be4" compoundref="_view_8cpp" startline="7" endline="49">View</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classend_1_1_view_1a97bd88a9912af6789293637a52e8da3f" prot="private" static="no" mutable="no">
         <type><ref refid="classend_1_1_message_overlay" kindref="compound">MessageOverlay</ref></type>
@@ -90,8 +90,8 @@
         </inbodydescription>
         <location file="end/View.h" line="141" column="20" bodyfile="end/View.h" bodystart="141" bodyend="-1"/>
         <referencedby refid="classend_1_1_view_1aeecb3eed7c649f6731032784dc2ed98d" compoundref="end_2_event_registration_8cpp" startline="7" endline="75">registerEvents</referencedby>
-        <referencedby refid="classend_1_1_view_1a14f07f6fc295c80b4ff0555798fa583c" compoundref="_view_8cpp" startline="56" endline="65">resized</referencedby>
-        <referencedby refid="classend_1_1_view_1af1202f1cb8659e8eb6ae04b9703c4be4" compoundref="_view_8cpp" startline="7" endline="46">View</referencedby>
+        <referencedby refid="classend_1_1_view_1a14f07f6fc295c80b4ff0555798fa583c" compoundref="_view_8cpp" startline="59" endline="65">resized</referencedby>
+        <referencedby refid="classend_1_1_view_1af1202f1cb8659e8eb6ae04b9703c4be4" compoundref="_view_8cpp" startline="7" endline="49">View</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classend_1_1_view_1a2abdc967e6ba24310abe2ef0d1fcf0b8" prot="private" static="no" mutable="no">
         <type><ref refid="classjam_1_1Owner" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Owner</ref>&lt; <ref refid="classjam_1_1Model_1_1Attachment" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Model::Attachment</ref> &gt;</type>
@@ -107,7 +107,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="end/View.h" line="144" column="16" bodyfile="end/View.h" bodystart="144" bodyend="-1"/>
-        <referencedby refid="classend_1_1_view_1af1202f1cb8659e8eb6ae04b9703c4be4" compoundref="_view_8cpp" startline="7" endline="46">View</referencedby>
+        <referencedby refid="classend_1_1_view_1af1202f1cb8659e8eb6ae04b9703c4be4" compoundref="_view_8cpp" startline="7" endline="49">View</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classend_1_1_view_1a53296c1bef3150326d6cff63ba81ea7f" prot="private" static="no" mutable="no">
         <type><ref refid="structjam_1_1Function_1_1Map" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Function::Map</ref>&lt; <ref refid="classjuce_1_1Identifier" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Identifier</ref>, void &gt;</type>
@@ -126,7 +126,7 @@
         <location file="end/View.h" line="152" column="24" bodyfile="end/View.h" bodystart="152" bodyend="-1"/>
         <referencedby refid="classend_1_1_view_1aeecb3eed7c649f6731032784dc2ed98d" compoundref="end_2_event_registration_8cpp" startline="7" endline="75">registerEvents</referencedby>
         <referencedby refid="classend_1_1_view_1a8d59e9750bef6937f2647078b1614dc7" compoundref="_view_8cpp" startline="73" endline="79">valueTreePropertyChanged</referencedby>
-        <referencedby refid="classend_1_1_view_1af1202f1cb8659e8eb6ae04b9703c4be4" compoundref="_view_8cpp" startline="7" endline="46">View</referencedby>
+        <referencedby refid="classend_1_1_view_1af1202f1cb8659e8eb6ae04b9703c4be4" compoundref="_view_8cpp" startline="7" endline="49">View</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classend_1_1_view_1a21045eae4b82466eb270a6c2375ec004" prot="private" static="no" mutable="no">
         <type><ref refid="structshader_1_1_controller" kindref="compound">shader::Controller</ref></type>
@@ -173,7 +173,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/View.h" line="52" column="14" bodyfile="end/View.cpp" bodystart="7" bodyend="46"/>
+        <location file="end/View.h" line="52" column="14" bodyfile="end/View.cpp" bodystart="7" bodyend="49"/>
         <references refid="classjuce_1_1Component_1a7cc925a367e95b3807255f8b4a94dddd">juce::Component::addAndMakeVisible</references>
         <references refid="classjuce_1_1Component_1aed11b73938f89474ec0941fa89e36310">juce::Component::addChildComponent</references>
         <references refid="classjuce_1_1Component_1a8d7bd030d40b26625000318c5198189a">juce::Component::addKeyListener</references>
@@ -182,6 +182,7 @@
         <references refid="structjam_1_1Model_1_1Component_1a15efb3e60173aa525b19b914f5fb99eb">jam::Model::Component::Component</references>
         <references refid="classend_1_1_view_1a53296c1bef3150326d6cff63ba81ea7f" compoundref="_view_8h" startline="152">events</references>
         <references refid="classjuce_1_1Component_1a5d3e328e9134d2a336d649b2657bb8d8">juce::Component::grabKeyboardFocus</references>
+        <references refid="structjam_1_1ID_1ab6389fe91d4bb010418fc3d930e869b6">jam::ID::height</references>
         <references refid="classend_1_1_view_1a97bd88a9912af6789293637a52e8da3f" compoundref="_view_8h" startline="141">messageOverlay</references>
         <references refid="structjam_1_1Model_1_1Component_1aa5a0c333addf975536c95bca7a9685be">jam::Model::Component::model</references>
         <references refid="classend_1_1_view_1aa33112ca0bcd3004779201b4c966b96c" compoundref="_action_registration_8cpp" startline="7" endline="101">registerActions</references>
@@ -190,8 +191,10 @@
         <references refid="classjuce_1_1Component_1ab11f2db9935bf7a7c1e2661007ffdeb7">juce::Component::setSize</references>
         <references refid="classend_1_1_view_1a91ed8ef126c0a1b3feb458079c3a7849" compoundref="_view_8cpp" startline="94" endline="100">setTabOrientation</references>
         <references refid="classjuce_1_1Component_1ab7ddcb4bf8a7c6534f6e1d9a22e6330b">juce::Component::setWantsKeyboardFocus</references>
+        <references refid="structjam_1_1Model_1_1Component_1a708164c4ae3e826d1c3ee90dbcf1afa3">jam::Model::Component::state</references>
         <references refid="classend_1_1_view_1a7e6ee211dd7d9e06224826283296fa65" compoundref="_view_8h" startline="138">tabs</references>
         <references refid="classjuce_1_1Component_1a68b9958705577cf5ed361210b29f3a4e">juce::Component::toFront</references>
+        <references refid="structjam_1_1ID_1a3d0d8290681c62b75160843928ff3689">jam::ID::width</references>
       </memberdef>
       <memberdef kind="function" id="classend_1_1_view_1aac73d85c15164ea7a9ae443b9673996c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type></type>
@@ -206,7 +209,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/View.h" line="55" column="5" bodyfile="end/View.cpp" bodystart="48" bodyend="54"/>
+        <location file="end/View.h" line="55" column="5" bodyfile="end/View.cpp" bodystart="51" bodyend="57"/>
         <references refid="structjam_1_1Model_1_1Component_1aa5a0c333addf975536c95bca7a9685be">jam::Model::Component::model</references>
         <references refid="classjuce_1_1Component_1af3f592f985fd53ebe13bdd1d29019749">juce::Component::removeKeyListener</references>
       </memberdef>
@@ -225,7 +228,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/View.h" line="62" column="10" bodyfile="end/View.cpp" bodystart="56" bodyend="65"/>
+        <location file="end/View.h" line="62" column="10" bodyfile="end/View.cpp" bodystart="59" bodyend="65"/>
         <references refid="classjuce_1_1Component_1a5b7a932d5731db79424fbc8acd247805">juce::Component::getHeight</references>
         <references refid="classjuce_1_1Component_1ad886e26b7514369fe38fdc03074b7c80">juce::Component::getLocalBounds</references>
         <references refid="classjuce_1_1Component_1ac109beb72e9dafdc724da22b8cb883c0">juce::Component::getWidth</references>
@@ -412,7 +415,7 @@
         <references refid="structjam_1_1Model_1_1Component_1a708164c4ae3e826d1c3ee90dbcf1afa3">jam::Model::Component::state</references>
         <references refid="classend_1_1_view_1a7e6ee211dd7d9e06224826283296fa65" compoundref="_view_8h" startline="138">tabs</references>
         <references refid="structjam_1_1ID_1ad6179e961f55ba2e9ce853a2165a74c4">jam::ID::vertical</references>
-        <referencedby refid="classend_1_1_view_1af1202f1cb8659e8eb6ae04b9703c4be4" compoundref="_view_8cpp" startline="7" endline="46">View</referencedby>
+        <referencedby refid="classend_1_1_view_1af1202f1cb8659e8eb6ae04b9703c4be4" compoundref="_view_8cpp" startline="7" endline="49">View</referencedby>
       </memberdef>
       <memberdef kind="function" id="classend_1_1_view_1aeecb3eed7c649f6731032784dc2ed98d" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -439,7 +442,7 @@
         <references refid="classend_1_1_view_1a91ed8ef126c0a1b3feb458079c3a7849" compoundref="_view_8cpp" startline="94" endline="100">setTabOrientation</references>
         <references refid="structjam_1_1Model_1_1Component_1a708164c4ae3e826d1c3ee90dbcf1afa3">jam::Model::Component::state</references>
         <references refid="namespacejam_1a98b95ca36e02992bb295e7e1c74c51b8">jam::toBool</references>
-        <referencedby refid="classend_1_1_view_1af1202f1cb8659e8eb6ae04b9703c4be4" compoundref="_view_8cpp" startline="7" endline="46">View</referencedby>
+        <referencedby refid="classend_1_1_view_1af1202f1cb8659e8eb6ae04b9703c4be4" compoundref="_view_8cpp" startline="7" endline="49">View</referencedby>
       </memberdef>
       <memberdef kind="function" id="classend_1_1_view_1a91ed8ef126c0a1b3feb458079c3a7849" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -460,7 +463,7 @@
         <references refid="structjam_1_1Context_1a3ff553f70ef61043352c54cfed475b4c">jam::Context&lt; Derived &gt;::getInstance</references>
         <references refid="classend_1_1_view_1a7e6ee211dd7d9e06224826283296fa65" compoundref="_view_8h" startline="138">tabs</references>
         <referencedby refid="classend_1_1_view_1aeecb3eed7c649f6731032784dc2ed98d" compoundref="end_2_event_registration_8cpp" startline="7" endline="75">registerEvents</referencedby>
-        <referencedby refid="classend_1_1_view_1af1202f1cb8659e8eb6ae04b9703c4be4" compoundref="_view_8cpp" startline="7" endline="46">View</referencedby>
+        <referencedby refid="classend_1_1_view_1af1202f1cb8659e8eb6ae04b9703c4be4" compoundref="_view_8cpp" startline="7" endline="49">View</referencedby>
       </memberdef>
       <memberdef kind="function" id="classend_1_1_view_1a7917a0f9fd49d8944b5c1f69025678ec" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -503,9 +506,9 @@
         </inbodydescription>
         <location file="end/View.h" line="131" column="10" bodyfile="end/View.cpp" bodystart="88" bodyend="92"/>
         <references refid="structjam_1_1ID_1ab6389fe91d4bb010418fc3d930e869b6">jam::ID::height</references>
-        <references refid="structjam_1_1Model_1_1Component_1a708164c4ae3e826d1c3ee90dbcf1afa3">jam::Model::Component::state</references>
+        <references refid="structjam_1_1Model_1_1Component_1aa5a0c333addf975536c95bca7a9685be">jam::Model::Component::model</references>
         <references refid="structjam_1_1ID_1a3d0d8290681c62b75160843928ff3689">jam::ID::width</references>
-        <referencedby refid="classend_1_1_view_1a14f07f6fc295c80b4ff0555798fa583c" compoundref="_view_8cpp" startline="56" endline="65">resized</referencedby>
+        <referencedby refid="classend_1_1_view_1a14f07f6fc295c80b4ff0555798fa583c" compoundref="_view_8cpp" startline="59" endline="65">resized</referencedby>
       </memberdef>
     </sectiondef>
     <briefdescription>
@@ -562,7 +565,7 @@
         <link refid="classaction_1_1_registry"/>
         <childnode refid="6" relation="private-inheritance">
         </childnode>
-        <childnode refid="12" relation="public-inheritance">
+        <childnode refid="7" relation="public-inheritance">
         </childnode>
         <childnode refid="30" relation="usage">
           <edgelabel>actions</edgelabel>
@@ -627,7 +630,7 @@
         </childnode>
         <childnode refid="4" relation="public-inheritance">
         </childnode>
-        <childnode refid="12" relation="public-inheritance">
+        <childnode refid="7" relation="public-inheritance">
         </childnode>
         <childnode refid="14" relation="usage">
           <edgelabel>config</edgelabel>
@@ -643,7 +646,7 @@
         </childnode>
         <childnode refid="4" relation="public-inheritance">
         </childnode>
-        <childnode refid="12" relation="public-inheritance">
+        <childnode refid="7" relation="public-inheritance">
         </childnode>
         <childnode refid="13" relation="public-inheritance">
         </childnode>
@@ -672,13 +675,13 @@
           <edgelabel>shader</edgelabel>
         </childnode>
       </node>
-      <node id="7">
+      <node id="8">
         <label>jam::AnyMap</label>
         <link refid="classjam_1_1AnyMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-        <childnode refid="8" relation="usage">
+        <childnode refid="9" relation="usage">
           <edgelabel>entries</edgelabel>
         </childnode>
-        <childnode refid="9" relation="usage">
+        <childnode refid="10" relation="usage">
           <edgelabel>types</edgelabel>
         </childnode>
       </node>
@@ -735,11 +738,11 @@
         <label>jam::HashMap&lt; juce::Identifier, jam::HashMap&lt; juce::Identifier, std::function&lt; bool(const juce::var &amp;)&gt; &gt; &gt;</label>
         <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
-      <node id="9">
+      <node id="10">
         <label>jam::HashMap&lt; juce::Identifier, std::type_index &gt;</label>
         <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
-      <node id="8">
+      <node id="9">
         <label>jam::HashMap&lt; juce::Identifier, std::unique_ptr&lt; void, Deleter &gt; &gt;</label>
         <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
@@ -752,13 +755,15 @@
         <link refid="classjam_1_1Model" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
         <childnode refid="6" relation="public-inheritance">
         </childnode>
-        <childnode refid="7" relation="usage">
+        <childnode refid="7" relation="public-inheritance">
+        </childnode>
+        <childnode refid="8" relation="usage">
           <edgelabel>params</edgelabel>
         </childnode>
-        <childnode refid="10" relation="usage">
+        <childnode refid="11" relation="usage">
           <edgelabel>state</edgelabel>
         </childnode>
-        <childnode refid="11" relation="usage">
+        <childnode refid="12" relation="usage">
           <edgelabel>valueTreeChanging</edgelabel>
         </childnode>
       </node>
@@ -768,7 +773,7 @@
         <childnode refid="5" relation="usage">
           <edgelabel>model</edgelabel>
         </childnode>
-        <childnode refid="10" relation="usage">
+        <childnode refid="11" relation="usage">
           <edgelabel>state</edgelabel>
         </childnode>
       </node>
@@ -867,7 +872,7 @@
         <childnode refid="6" relation="private-inheritance">
         </childnode>
       </node>
-      <node id="11">
+      <node id="12">
         <label>juce::CriticalSection</label>
         <link refid="classjuce_1_1CriticalSection" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
@@ -894,10 +899,6 @@
       <node id="54">
         <label>juce::OpenGLContext</label>
         <link refid="classjuce_1_1OpenGLContext" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-      </node>
-      <node id="61">
-        <label>juce::OpenGLFrameBuffer</label>
-        <link refid="classjuce_1_1OpenGLFrameBuffer" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
       <node id="53">
         <label>juce::OpenGLRenderer</label>
@@ -933,11 +934,11 @@
         <label>juce::TooltipClient</label>
         <link refid="classjuce_1_1TooltipClient" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="10">
+      <node id="11">
         <label>juce::ValueTree</label>
         <link refid="classjuce_1_1ValueTree" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="12">
+      <node id="7">
         <label>juce::ValueTree::Listener</label>
         <link refid="classjuce_1_1ValueTree_1_1Listener" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
@@ -945,36 +946,19 @@
         <label>juce::WeakReference&lt; juce::Component &gt;</label>
         <link refid="classjuce_1_1WeakReference" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="60">
-        <label>shader::Buffer</label>
-        <link refid="structshader_1_1_buffer"/>
-        <childnode refid="56" relation="usage">
-          <edgelabel>pass</edgelabel>
-        </childnode>
-        <childnode refid="61" relation="usage">
-          <edgelabel>fbos</edgelabel>
-        </childnode>
-      </node>
       <node id="52">
         <label>shader::Controller</label>
         <link refid="structshader_1_1_controller"/>
-        <childnode refid="53" relation="public-inheritance">
+        <childnode refid="53" relation="private-inheritance">
         </childnode>
         <childnode refid="54" relation="usage">
-          <edgelabel>context</edgelabel>
+          <edgelabel>openGLContext</edgelabel>
         </childnode>
         <childnode refid="55" relation="usage">
           <edgelabel>quad</edgelabel>
         </childnode>
         <childnode refid="56" relation="usage">
           <edgelabel>background</edgelabel>
-        </childnode>
-        <childnode refid="59" relation="usage">
-          <edgelabel>buffers</edgelabel>
-        </childnode>
-        <childnode refid="62" relation="usage">
-          <edgelabel>pendingHeight</edgelabel>
-          <edgelabel>pendingWidth</edgelabel>
         </childnode>
       </node>
       <node id="56">
@@ -990,15 +974,6 @@
         <childnode refid="24" relation="usage">
           <edgelabel>vertexShader</edgelabel>
         </childnode>
-      </node>
-      <node id="59">
-        <label>std::array&lt; shader::Buffer, 4 &gt;</label>
-        <childnode refid="60" relation="usage">
-          <edgelabel>elements</edgelabel>
-        </childnode>
-      </node>
-      <node id="62">
-        <label>std::atomic&lt; int &gt;</label>
       </node>
       <node id="18">
         <label>std::map&lt; juce::File, std::unique_ptr&lt; jam::File::Watcher::CoalesceTimer &gt; &gt;</label>
