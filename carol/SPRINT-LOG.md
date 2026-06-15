@@ -2,6 +2,45 @@
 
 ---
 
+## Sprint 21: Tab Orientation from Theme to Config ✅
+
+**Date:** 2026-06-15
+**Duration:** ~00:15
+
+### Agents Participated
+- COUNSELOR: Sprint lead, decision framing (lua key naming), delegation, verification
+- Pathfinder: Theme/config structure discovery, tab orientation flow trace
+- Engineer: All file edits — identifier, lua configs, View, EventRegistration, doxygen
+
+### Files Modified (5 total)
+
+**END — Source/**
+- `Identifier.h:203` — added `X (tabOrientation, "tab_orientation")` to IDENTIFIER_APP
+- `end/View.cpp:84` — `theme.getValue (IDtype::tab, ID::orientation)` → `config.getValue (IDtype::end, ID::tabOrientation)`
+- `end/View.h:112-113,120` — doxygen: registerEvents handler list updated (orientation → tabOrientation, theme handler description), setTabOrientation source updated
+- `end/EventRegistration.cpp:15` — event key `ID::orientation` → `ID::tabOrientation`; `ID::theme` handler: removed `setTabOrientation()` call
+
+**Config — Source/config/lua/**
+- `end.lua:51-52` — added `tab_orientation = "top"` with comment in APP section
+- `theme/gfx/theme.lua:243-244` — removed `orientation = "top"` and comment from tab table
+
+### Alignment Check
+- [x] BLESSED principles followed (S/SSOT: orientation owned by one config surface, not two)
+- [x] NAMES.md adhered (tabOrientation follows camelCase convention, lua key snake_case)
+- [x] MANIFESTO.md principles applied
+- [x] JRENG-CODING-STANDARD.md
+
+### Problems Solved
+- View VTPC listened to theme tree solely for tab orientation changes — moved orientation to end.lua config tree, eliminating unnecessary theme→View coupling for this property
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 20: View + LookAndFeel VTPC Event Dispatch ✅
 
 **Date:** 2026-06-15

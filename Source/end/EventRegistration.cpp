@@ -12,7 +12,7 @@ void View::registerEvents()
                                       messageOverlay.showMessage (config.getLoadMessage());
                                   });
 
-    events.add<juce::ValueTree&> (ID::orientation,
+    events.add<juce::ValueTree&> (ID::tabOrientation,
                                   [this] (juce::ValueTree&)
                                   {
                                       setTabOrientation();
@@ -31,7 +31,6 @@ void View::registerEvents()
     events.add<juce::ValueTree&> (ID::theme,
                                   [this] (juce::ValueTree&)
                                   {
-                                      setTabOrientation();
                                       getTopLevelComponent()->sendLookAndFeelChange();
                                   });
 

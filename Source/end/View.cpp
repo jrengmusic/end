@@ -81,7 +81,7 @@ void View::setViewState (int width, int height)
 
 void View::setTabOrientation()
 {
-    auto pos { config.getTheme().getValue (IDtype::tab, ID::orientation).toString() };
+    auto pos { config.getValue (IDtype::end, ID::tabOrientation).toString() };
 
     if (Position::getInstance()->contains (pos))
         tabs.setOrientation (Position::get (pos));

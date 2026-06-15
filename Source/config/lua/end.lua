@@ -48,6 +48,9 @@ return {
 	-- fixed at construction and cannot be added/removed at runtime.
 	title_bar_buttons = false,
 
+	-- Tab bar position: "top", "bottom", "left", "right".
+	tab_orientation = "top",
+
 	-- Persist window size across instances to ~/.config/end/window.state.
 	-- When true, every quit writes the current window size; new instances
 	-- (with no session to restore) load it as their initial size.

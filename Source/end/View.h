@@ -94,6 +94,7 @@ public:
 private:
     /** @brief Singleton config model reference. */
     config::Model& config { *config::Model::getInstance() };
+    config::Theme& theme { config.getTheme() };
 
     //==============================================================================
     /** @brief Populates action::Registry with keybinding-triggered callbacks.
@@ -108,15 +109,15 @@ private:
     /** @brief Populates the events map with ValueTree property/type-keyed callbacks.
      *
      *  Registers handlers for: loadMessage (shows config load message overlay),
-     *  orientation (applies tab orientation from theme), focus (updates focusedPane
-     *  state), theme (re-applies orientation and propagates LookAndFeel change),
+     *  tabOrientation (applies tab orientation from end.lua config), focus (updates focusedPane
+     *  state), theme (propagates LookAndFeel change),
      *  graphics and tabButton tree types (propagate LookAndFeel change),
      *  alwaysOnTop and titleBarButtons (dispatch to jam::Window).
      *  Defined in EventRegistration.cpp.
      */
     void registerEvents();
 
-    /** @brief Reads tab orientation from the theme config and applies it to tabs. */
+    /** @brief Reads tab orientation from end.lua config and applies it to tabs. */
     void setTabOrientation();
 
     /** @brief Writes the view dimensions into the view state tree.

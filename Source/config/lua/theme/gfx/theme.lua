@@ -240,9 +240,6 @@ return {
 		-- CSS convention: { top, right, bottom, left }.
 		padding = { 4, 8, 4, 8 },
 
-		-- Tab bar orientation: "top", "bottom", "left", "right".
-		orientation = "top",
-
 		-- Always convert tab label to upper-case.
 		uppercase = true,
 

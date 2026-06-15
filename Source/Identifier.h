@@ -199,7 +199,8 @@
     X (dropQuoted, "drop_quoted")         \
     X (hyperlinks, "hyperlinks")          \
     X (atlasDimension, "atlas_dimension") \
-    X (border, "border")
+    X (border, "border")                  \
+    X (tabOrientation, "tab_orientation")
 
 // Popup entry keys (popups.lua) — cols, rows already in COMMON
 #define IDENTIFIER_POPUPS(X) \
