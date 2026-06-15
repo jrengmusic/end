@@ -93,6 +93,8 @@
         </childnode>
         <childnode refid="8" relation="include">
         </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
         <childnode refid="9" relation="include">
         </childnode>
       </node>
@@ -106,6 +108,40 @@
         <childnode refid="7" relation="include">
         </childnode>
         <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>shader/Buffer.h</label>
+        <link refid="_buffer_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>shader/Controller.h</label>
+        <link refid="_controller_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>shader/Pass.h</label>
+        <link refid="_pass_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>shader/Quad.h</label>
+        <link refid="_quad_8h"/>
+        <childnode refid="3" relation="include">
         </childnode>
       </node>
       <node id="12">

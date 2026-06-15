@@ -1,0 +1,274 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="structconfig_1_1_file_1_1_shaders" kind="struct" language="C++" prot="public">
+    <compoundname>config::File::Shaders</compoundname>
+    <basecompoundref refid="classjam_1_1Map_1_1Instance" prot="public" virt="non-virtual">jam::Map::Instance&lt; Shaders &gt;</basecompoundref>
+    <includes refid="_map_8h" local="no">Map.h</includes>
+    <sectiondef kind="public-type">
+      <memberdef kind="enum" id="structconfig_1_1_file_1_1_shaders_1a134314f315b88abc283dec64eb7a993d" prot="public" static="no" strong="no">
+        <type></type>
+        <name>@160022316121231062120335251212313115145017054223</name>
+        <qualifiedname>config::File::Shaders::@160022316121231062120335251212313115145017054223</qualifiedname>
+        <enumvalue id="structconfig_1_1_file_1_1_shaders_1a134314f315b88abc283dec64eb7a993dafa4ff2483b0ab539d1cdcc0902e00dc6" prot="public">
+          <name>shaders</name>
+          <briefdescription>
+<para>Shader manifest (shaders.lua). </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Integer keys for shader manifest files. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="end/Map.h" line="238" column="9" bodyfile="end/Map.h" bodystart="239" bodyend="241"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="public-static-attrib">
+      <memberdef kind="variable" id="structconfig_1_1_file_1_1_shaders_1a0d288c0151edcaeb66788936533e7527" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="classjuce_1_1File" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::File</ref></type>
+        <definition>const juce::File config::File::Shaders::path</definition>
+        <argsstring></argsstring>
+        <name>path</name>
+        <qualifiedname>config::File::Shaders::path</qualifiedname>
+        <initializer>{ <ref refid="structconfig_1_1_file_1a8fb7a80701aaed8671256aa65afaf19d" kindref="member">File::getPath</ref> (IDref::shaders) }</initializer>
+        <briefdescription>
+<para><ref refid="structconfig_1_1_file_1_1_shaders" kindref="compound">Shaders</ref> root directory: ~/.config/end/shaders/. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="end/Map.h" line="273" column="40" bodyfile="end/Map.h" bodystart="273" bodyend="273"/>
+        <referencedby refid="structconfig_1_1_file_1_1_shaders_1aba40922876a7a61539f37275ee496ed2" compoundref="_map_8h" startline="267" endline="270">getPath</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structconfig_1_1_file_1_1_shaders_1a5b140ab3aa459f13c242e4f19cd915e4" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref></type>
+        <definition>const juce::String config::File::Shaders::extension</definition>
+        <argsstring></argsstring>
+        <name>extension</name>
+        <qualifiedname>config::File::Shaders::extension</qualifiedname>
+        <initializer>{ &quot;lua&quot; }</initializer>
+        <briefdescription>
+<para>Lua extension for shader manifest files. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="end/Map.h" line="275" column="42" bodyfile="end/Map.h" bodystart="275" bodyend="275"/>
+        <referencedby refid="structconfig_1_1_file_1_1_shaders_1ab3a1e144ea7488ee5fbe16155363756b" compoundref="_map_8h" startline="258" endline="261">getName</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="public-func">
+      <memberdef kind="function" id="structconfig_1_1_file_1_1_shaders_1a2c9c019a90d6dabd34d305f4d792ecba" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>config::File::Shaders::Shaders</definition>
+        <argsstring>()</argsstring>
+        <name>Shaders</name>
+        <qualifiedname>config::File::Shaders::Shaders</qualifiedname>
+        <briefdescription>
+<para>Populates the bimap with the single entry. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="end/Map.h" line="244" column="9" bodyfile="end/Map.h" bodystart="244" bodyend="249"/>
+        <references refid="classjam_1_1Map_1_1Instance_1afe0acf25bab1f104aea20f20174129d1">jam::Map::Instance&lt; Shaders &gt;::map</references>
+        <references refid="structconfig_1_1_file_1_1_shaders_1a134314f315b88abc283dec64eb7a993dafa4ff2483b0ab539d1cdcc0902e00dc6" compoundref="_map_8h" startline="240">shaders</references>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="structconfig_1_1_file_1_1_shaders_1aa57d90d95ec92f5c3e46b80b84f3bf6a" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>const auto &amp;</type>
+        <definition>static const auto &amp; config::File::Shaders::get</definition>
+        <argsstring>() noexcept</argsstring>
+        <name>get</name>
+        <qualifiedname>config::File::Shaders::get</qualifiedname>
+        <briefdescription>
+<para>Returns the int→Identifier-stem map from the live context instance. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="end/Map.h" line="252" column="27" bodyfile="end/Map.h" bodystart="252" bodyend="252"/>
+        <references refid="structjam_1_1Context_1a3ff553f70ef61043352c54cfed475b4c">jam::Context&lt; Derived &gt;::getInstance</references>
+        <referencedby refid="structconfig_1_1_file_1_1_shaders_1ab3a1e144ea7488ee5fbe16155363756b" compoundref="_map_8h" startline="258" endline="261">getName</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="structconfig_1_1_file_1_1_shaders_1ab3a1e144ea7488ee5fbe16155363756b" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref></type>
+        <definition>static const juce::String config::File::Shaders::getName</definition>
+        <argsstring>(int key) noexcept</argsstring>
+        <name>getName</name>
+        <qualifiedname>config::File::Shaders::getName</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>key</declname>
+        </param>
+        <briefdescription>
+<para>Returns the filename for the given enum key (always &quot;stem.lua&quot;). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>key</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>One of the <ref refid="structconfig_1_1_file_1_1_shaders" kindref="compound">Shaders</ref> enum values. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Filename string including extension (e.g. &quot;shaders.lua&quot;). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="end/Map.h" line="258" column="35" bodyfile="end/Map.h" bodystart="258" bodyend="261"/>
+        <references refid="structconfig_1_1_file_1_1_shaders_1a5b140ab3aa459f13c242e4f19cd915e4" compoundref="_map_8h" startline="275" endline="275">extension</references>
+        <references refid="structconfig_1_1_file_1_1_shaders_1aa57d90d95ec92f5c3e46b80b84f3bf6a" compoundref="_map_8h" startline="252" endline="252">get</references>
+        <references refid="structjam_1_1Format_1a838b7c56ce7913ab2b4471148a1019cd">jam::Format::toFileName</references>
+      </memberdef>
+      <memberdef kind="function" id="structconfig_1_1_file_1_1_shaders_1aba40922876a7a61539f37275ee496ed2" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>const <ref refid="classjuce_1_1File" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::File</ref></type>
+        <definition>static const juce::File config::File::Shaders::getPath</definition>
+        <argsstring>(const juce::String &amp;shadersName) noexcept</argsstring>
+        <name>getPath</name>
+        <qualifiedname>config::File::Shaders::getPath</qualifiedname>
+        <param>
+          <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref> &amp;</type>
+          <declname>shadersName</declname>
+        </param>
+        <briefdescription>
+<para>Returns the shader project subdirectory for the given name. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>shadersName</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Shader project directory name (e.g. &quot;cyberpunk&quot;). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Resolved path: ~/.config/end/shaders/<computeroutput>shadersName/</computeroutput> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="end/Map.h" line="267" column="33" bodyfile="end/Map.h" bodystart="267" bodyend="270"/>
+        <references refid="structconfig_1_1_file_1_1_shaders_1a0d288c0151edcaeb66788936533e7527" compoundref="_map_8h" startline="273" endline="273">path</references>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="private-func">
+      <memberdef kind="function" id="structconfig_1_1_file_1_1_shaders_1ac01dba94dec6e45bd2a4a307a9a1f6a9" prot="private" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="virtual">
+        <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref> &amp;</type>
+        <definition>const juce::String &amp; config::File::Shaders::getDefault</definition>
+        <argsstring>() const noexcept override</argsstring>
+        <name>getDefault</name>
+        <qualifiedname>config::File::Shaders::getDefault</qualifiedname>
+        <reimplements refid="classjam_1_1Map_1_1Instance_1acf3bf9980fc2a26ba7a0c79c65908550">getDefault</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="end/Map.h" line="278" column="28" bodyfile="end/Map.h" bodystart="278" bodyend="278"/>
+        <references refid="classjam_1_1Map_1_1Instance_1afe0acf25bab1f104aea20f20174129d1">jam::Map::Instance&lt; Shaders &gt;::map</references>
+        <references refid="structconfig_1_1_file_1_1_shaders_1a134314f315b88abc283dec64eb7a993dafa4ff2483b0ab539d1cdcc0902e00dc6" compoundref="_map_8h" startline="240">shaders</references>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Registry of shader project files — 1 manifest key. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Nested inside <ref refid="structconfig_1_1_file" kindref="compound">File</ref>. CRTP-derived from <ref refid="classjam_1_1Map_1_1Instance" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Map::Instance&lt;Shaders&gt;</ref>.</para>
+<para>Owns the shaders root directory path. The live instance is owned by <ref refid="classend_1_1_application" kindref="compound">end::Application</ref> — static <ref refid="structconfig_1_1_file_1_1_shaders_1aa57d90d95ec92f5c3e46b80b84f3bf6a" kindref="member">get()</ref> resolves through Context&lt;Shaders&gt;. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>config::File::Shaders</label>
+        <link refid="structconfig_1_1_file_1_1_shaders"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>jam::Context&lt; Derived &gt;</label>
+        <link refid="structjam_1_1Context" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
+      <node id="2">
+        <label>jam::Map::Instance&lt; Shaders &gt;</label>
+        <link refid="classjam_1_1Map_1_1Instance" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>config::File::Shaders</label>
+        <link refid="structconfig_1_1_file_1_1_shaders"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>path</edgelabel>
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>extension</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>jam::Context&lt; Derived &gt;</label>
+        <link refid="structjam_1_1Context" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
+      <node id="4">
+        <label>jam::HashMap&lt; int, juce::String &gt;</label>
+        <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
+      <node id="2">
+        <label>jam::Map::Instance&lt; Shaders &gt;</label>
+        <link refid="classjam_1_1Map_1_1Instance" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>map</edgelabel>
+        </childnode>
+      </node>
+      <node id="5">
+        <label>juce::File</label>
+        <link refid="classjuce_1_1File" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="6">
+        <label>juce::String</label>
+        <link refid="classjuce_1_1String" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+    </collaborationgraph>
+    <location file="end/Map.h" line="235" column="5" bodyfile="end/Map.h" bodystart="236" bodyend="279"/>
+    <listofallmembers>
+      <member refid="classjam_1_1Map_1_1Instance_1a39231f6d1e13c6f64e72a07851a130c4" prot="public" virt="non-virtual"><scope>config::File::Shaders</scope><name>contains</name></member>
+      <member refid="structjam_1_1Context_1a6e3f38a234db8ff2a9acb5986e72a2de" prot="public" virt="non-virtual"><scope>config::File::Shaders</scope><name>Context</name></member>
+      <member refid="structconfig_1_1_file_1_1_shaders_1a5b140ab3aa459f13c242e4f19cd915e4" prot="public" virt="non-virtual"><scope>config::File::Shaders</scope><name>extension</name></member>
+      <member refid="structconfig_1_1_file_1_1_shaders_1aa57d90d95ec92f5c3e46b80b84f3bf6a" prot="public" virt="non-virtual"><scope>config::File::Shaders</scope><name>get</name></member>
+      <member refid="classjam_1_1Map_1_1Instance_1a098abe8fd166d7d61763bf0d215799cd" prot="public" virt="non-virtual" ambiguityscope="jam::Map::Instance&lt; Shaders &gt;::"><scope>config::File::Shaders</scope><name>get</name></member>
+      <member refid="structconfig_1_1_file_1_1_shaders_1ac01dba94dec6e45bd2a4a307a9a1f6a9" prot="private" virt="virtual"><scope>config::File::Shaders</scope><name>getDefault</name></member>
+      <member refid="structjam_1_1Context_1a3ff553f70ef61043352c54cfed475b4c" prot="public" virt="non-virtual"><scope>config::File::Shaders</scope><name>getInstance</name></member>
+      <member refid="structconfig_1_1_file_1_1_shaders_1ab3a1e144ea7488ee5fbe16155363756b" prot="public" virt="non-virtual"><scope>config::File::Shaders</scope><name>getName</name></member>
+      <member refid="structconfig_1_1_file_1_1_shaders_1aba40922876a7a61539f37275ee496ed2" prot="public" virt="non-virtual"><scope>config::File::Shaders</scope><name>getPath</name></member>
+      <member refid="structjam_1_1Context_1a5900ff66cdba02d6f6947cc6d5e8ec3d" prot="private" virt="non-virtual"><scope>config::File::Shaders</scope><name>head</name></member>
+      <member refid="classjam_1_1Map_1_1Instance_1afe0acf25bab1f104aea20f20174129d1" prot="protected" virt="non-virtual"><scope>config::File::Shaders</scope><name>map</name></member>
+      <member refid="structjam_1_1Context_1a6716feb60b039083ca0c099a506a3474" prot="public" virt="non-virtual"><scope>config::File::Shaders</scope><name>operator=</name></member>
+      <member refid="structconfig_1_1_file_1_1_shaders_1a0d288c0151edcaeb66788936533e7527" prot="public" virt="non-virtual"><scope>config::File::Shaders</scope><name>path</name></member>
+      <member refid="structjam_1_1Context_1aa1862120f2983ab7ddef536ba03bb114" prot="private" virt="non-virtual"><scope>config::File::Shaders</scope><name>previous</name></member>
+      <member refid="structconfig_1_1_file_1_1_shaders_1a2c9c019a90d6dabd34d305f4d792ecba" prot="public" virt="non-virtual"><scope>config::File::Shaders</scope><name>Shaders</name></member>
+      <member refid="structconfig_1_1_file_1_1_shaders_1a134314f315b88abc283dec64eb7a993dafa4ff2483b0ab539d1cdcc0902e00dc6" prot="public" virt="non-virtual"><scope>config::File::Shaders</scope><name>shaders</name></member>
+      <member refid="structjam_1_1Context_1a4169820e71837632922d3d17b377aeee" prot="public" virt="virtual"><scope>config::File::Shaders</scope><name>~Context</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -2,6 +2,76 @@
 
 ---
 
+## Sprint 22: shader:: GL Rendering Infrastructure + Event-Driven Init ✅
+
+**Date:** 2026-06-15
+**Duration:** ~04:00
+
+### Agents Participated
+- COUNSELOR: Sprint lead, architecture discussion (Shadertoy pipeline, JUCE GL integration, config flow, VTPC event-driven init), plan authoring, delegation, verification, cleanup iterations
+- Pathfinder: Endless (old END) GL wiring survey, JAM module survey (Mailbox, Buffer, Resizer, Atlas)
+- Researcher: Shadertoy multipass spec (Buffer A-D, iChannel routing, ping-pong, uniforms)
+- Librarian: JUCE OpenGL API research (OpenGLContext render sequence, OpenGLFrameBuffer, OpenGLShaderProgram, OpenGLGraphicsContextCustomShader, translateFragmentShaderToV3)
+- Engineer: All file creation and edits across 10+ delegations
+
+### Files Modified (17 total)
+
+**New — Source/shader/**
+- `shader/Controller.h` — GL pipeline orchestrator, juce::OpenGLRenderer, owns context + quad + Pass + Buffer[4]
+- `shader/Controller.cpp` — attach/detach (setComponentPaintingEnabled true, JUCE native), renderOpenGL (clear + buffers + background), GL resource lifecycle
+- `shader/Pass.h` — Shadertoy shader pass: compile with uniform wrapper, render with cached glUniform locations
+- `shader/Pass.cpp` — Shadertoy wrapper prepend, translateFragmentShaderToV3, iChannel texture binding
+- `shader/Buffer.h` — ping-pong double-buffered FBO for multipass feedback
+- `shader/Buffer.cpp` — two OpenGLFrameBuffer + index swap, resize, render delegate to Pass
+- `shader/Quad.h` — fullscreen quad VBO, passthrough vertex shader from BinaryData
+- `shader/Quad.cpp` — VBO create/destroy/draw, triangle strip 4 vertices
+
+**New — Source/shaders/**
+- `shaders/passthrough.vert` — GLSL 1.10 passthrough vertex shader (BinaryData-embedded)
+
+**Modified — Source/end/**
+- `View.h` — added shader::Controller member, removed setRenderer/initRenderer/paint override, SSOT doxygen
+- `View.cpp:36-45` — callAsync fires gpu/alwaysOnTop/titleBarButtons events for init (DRY/SSOT), removed initRenderer/setRenderer/buildAndPostSnapshot
+- `EventRegistration.cpp:49-58` — added ID::gpu event handler (GpuProbe + config → canUseGpu → BackgroundBlur + shader attach/detach)
+- `Window.h:42-46` — constructor simplified to (Component*, String)
+- `Window.cpp:7-12` — constructor defaults alwaysOnTop=false, showWindowButtons=true
+
+**Modified — Source/config/**
+- `config/lua/end.lua:82-86` — added `shaders = ""` config key
+- `Config.cpp` — unchanged from prior sprint (watcher additions removed during cleanup)
+
+**Modified — Source/**
+- `Identifier.h:191,274-278,299` — IDENTIFIER_SHADER block (shader, channels, postProcess, buffer), shaders in IDENTIFIER_APP, wired into END_MAKE_VIEW
+- `end/Map.h:228-283,297` — config::File::Shaders struct (parallel to Theme), added to end::Map
+- `Main.cpp:15-36` — stripped to pure lifecycle: LookAndFeel default, View+Window construct, setVisible. Zero config reads.
+
+### Alignment Check
+- [x] BLESSED principles followed
+  - B: GL thread owns GL resources, message thread owns config/state, Mailbox removed (was wrong transport)
+  - L: Controller stripped to minimum (context + quad + background + buffers), no sceneFBO/postProcess/MM lock
+  - E: Event-driven init via SSOT handlers, config gpu bool explicit
+  - S: Single event handler for gpu init AND hot-reload, no duplication
+  - D: Fixed render order (clear → buffers → background → JUCE components)
+- [x] NAMES.md adhered (shader::Controller, shader::Pass, shader::Buffer, shader::Quad — all nouns, semantic)
+- [x] MANIFESTO.md principles applied
+- [x] JRENG-CODING-STANDARD.md
+
+### Problems Solved
+- **Architecture violation (Snapshot/Mailbox):** Initial design bypassed ValueTree config chain with a lock-free Mailbox + Snapshot struct. Violated ARCHITECTURE.md:196-205 (config chain). Deleted Snapshot.h, removed Mailbox, config data flows through ValueTree listeners.
+- **Architecture violation (View file I/O):** buildAndPostSnapshot() on View did lua parsing + disk reads — config::Model's job. Deleted entirely.
+- **UB crash (GL attach during initialise):** Attaching GL context synchronously in Main::initialise() before event loop runs caused UB. Moved to deferred callAsync in View constructor.
+- **UB crash (manual component paint from GL thread):** setComponentPaintingEnabled(false) + manual paintEntireComponent with MessageManagerLock from GL thread caused deadlocks and thread starvation. Reverted to setComponentPaintingEnabled(true) — JUCE native pipeline.
+- **Main bloat:** Main read config, resolved state, called setRenderer — all View's responsibility. Stripped Main to pure lifecycle owner.
+- **Init/hot-reload duplication:** initRenderer() duplicated event handler logic. Eliminated by firing event handlers via callAsync for initial state — same code path as VTPC.
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 21: Tab Orientation from Theme to Config ✅
 
 **Date:** 2026-06-15

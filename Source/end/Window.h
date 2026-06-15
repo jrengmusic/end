@@ -34,15 +34,14 @@ public:
     /** @brief Constructs the window and calls lookAndFeelChanged() to apply
      *  the initial glass state.
      *
-     *  @param mainComponent      Content component — ownership transferred to jam::Window.
-     *  @param name               Window title string.
-     *  @param alwaysOnTop        Initial always-on-top hint.
-     *  @param showWindowButtons  Initial chrome hint.
+     *  Operational properties (alwaysOnTop, showWindowButtons) default to false
+     *  and true respectively. View::initRenderer() corrects both from config
+     *  on the first message loop iteration.
+     *
+     *  @param mainComponent  Content component — ownership transferred to jam::Window.
+     *  @param name           Window title string.
      */
-    Window (juce::Component* mainComponent,
-            const juce::String& name,
-            bool alwaysOnTop,
-            bool showWindowButtons);
+    Window (juce::Component* mainComponent, const juce::String& name);
 
     /** @brief Applies glass from the LAF when theme properties change.
      *  Reads colour, blur and FX from end::LookAndFeel::getWindowGlass().

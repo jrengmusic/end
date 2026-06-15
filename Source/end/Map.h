@@ -224,6 +224,60 @@ struct File : public jam::Map::Instance<File>
         const juce::String& getDefault() const noexcept override { return map.at (Theme::theme); }
     };
 
+    //==========================================================================
+    /**
+     * @brief Registry of shader project files — 1 manifest key.
+     *        Nested inside File. CRTP-derived from jam::Map::Instance<Shaders>.
+     *
+     * Owns the shaders root directory path. The live instance is owned by
+     * end::Application — static get() resolves through Context<Shaders>.
+     */
+    struct Shaders : public jam::Map::Instance<Shaders>
+    {
+        /** @brief Integer keys for shader manifest files. */
+        enum
+        {
+            shaders,///< Shader manifest (shaders.lua).
+        };
+
+        /** @brief Populates the bimap with the single entry. */
+        Shaders()
+        {
+            map = {
+                { Shaders::shaders, IDref::shaders },
+            };
+        }
+
+        /** @brief Returns the int→Identifier-stem map from the live context instance. */
+        static const auto& get() noexcept { return getInstance()->map; }
+
+        /** @brief Returns the filename for the given enum key (always "stem.lua").
+         *  @param key  One of the Shaders enum values.
+         *  @return     Filename string including extension (e.g. "shaders.lua").
+         */
+        static const juce::String getName (int key) noexcept
+        {
+            return jam::Format::toFileName (get().at (key), extension);
+        }
+
+        /** @brief Returns the shader project subdirectory for the given name.
+         *  @param shadersName  Shader project directory name (e.g. "cyberpunk").
+         *  @return             Resolved path: ~/.config/end/shaders/@p shadersName/
+         */
+        static const juce::File getPath (const juce::String& shadersName) noexcept
+        {
+            return path.getChildFile (shadersName);
+        }
+
+        /** @brief Shaders root directory: ~/.config/end/shaders/ */
+        inline static const juce::File path { File::getPath (IDref::shaders) };
+        /** @brief Lua extension for shader manifest files. */
+        inline static const juce::String extension { "lua" };
+
+    private:
+        const juce::String& getDefault() const noexcept override { return map.at (Shaders::shaders); }
+    };
+
 private:
     const juce::String& getDefault() const noexcept override { return map.at (File::config); }
 };
@@ -240,6 +294,7 @@ struct Map
     end::DropMode dropMode;
     config::File file;
     config::File::Theme theme;
+    config::File::Shaders shaders;
     jam::map::WindowFX window;
     jam::map::Segment segment;
     jam::map::ButtonState button;

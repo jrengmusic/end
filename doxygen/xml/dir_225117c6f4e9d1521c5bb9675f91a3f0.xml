@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="dir_225117c6f4e9d1521c5bb9675f91a3f0" kind="dir">
+    <compoundname>shader</compoundname>
+    <innerfile refid="_buffer_8cpp">Buffer.cpp</innerfile>
+    <innerfile refid="_buffer_8h">Buffer.h</innerfile>
+    <innerfile refid="_controller_8cpp">Controller.cpp</innerfile>
+    <innerfile refid="_controller_8h">Controller.h</innerfile>
+    <innerfile refid="_pass_8cpp">Pass.cpp</innerfile>
+    <innerfile refid="_pass_8h">Pass.h</innerfile>
+    <innerfile refid="_quad_8cpp">Quad.cpp</innerfile>
+    <innerfile refid="_quad_8h">Quad.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="shader/"/>
+  </compounddef>
+</doxygen>

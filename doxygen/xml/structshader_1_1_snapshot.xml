@@ -1,0 +1,138 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="structshader_1_1_snapshot" kind="struct" language="C++" prot="public">
+    <compoundname>shader::Snapshot</compoundname>
+    <includes refid="_snapshot_8h" local="no">Snapshot.h</includes>
+    <innerclass refid="structshader_1_1_snapshot_1_1_pass" prot="public">shader::Snapshot::Pass</innerclass>
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structshader_1_1_snapshot_1a9c29da193d83c3544eb5a45e4af80491" prot="public" static="no" mutable="no">
+        <type><ref refid="classjuce_1_1File" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::File</ref></type>
+        <definition>juce::File shader::Snapshot::directory</definition>
+        <argsstring></argsstring>
+        <name>directory</name>
+        <qualifiedname>shader::Snapshot::directory</qualifiedname>
+        <briefdescription>
+<para>Shader project directory path (resolved from config). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="shader/Snapshot.h" line="36" column="16" bodyfile="shader/Snapshot.h" bodystart="36" bodyend="-1"/>
+        <referencedby refid="structshader_1_1_controller_1a8d8eb49c0f27a465721f7cb6ec0eed66" compoundref="_controller_8cpp" startline="186" endline="245">shader::Controller::applySnapshot</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structshader_1_1_snapshot_1a4cb928425d47d9e6de408fed4020a922" prot="public" static="no" mutable="no">
+        <type><ref refid="structshader_1_1_snapshot_1_1_pass" kindref="compound">Pass</ref></type>
+        <definition>Pass shader::Snapshot::background</definition>
+        <argsstring></argsstring>
+        <name>background</name>
+        <qualifiedname>shader::Snapshot::background</qualifiedname>
+        <briefdescription>
+<para>Background pass (Shadertoy Image — renders behind components). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="shader/Snapshot.h" line="39" column="10" bodyfile="shader/Snapshot.h" bodystart="39" bodyend="-1"/>
+        <referencedby refid="structshader_1_1_controller_1a8d8eb49c0f27a465721f7cb6ec0eed66" compoundref="_controller_8cpp" startline="186" endline="245">shader::Controller::applySnapshot</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structshader_1_1_snapshot_1a8d5593b6339c2fc6bcad1d3f0e4d2e11" prot="public" static="no" mutable="no">
+        <type><ref refid="structshader_1_1_snapshot_1_1_pass" kindref="compound">Pass</ref></type>
+        <definition>Pass shader::Snapshot::postProcess</definition>
+        <argsstring></argsstring>
+        <name>postProcess</name>
+        <qualifiedname>shader::Snapshot::postProcess</qualifiedname>
+        <briefdescription>
+<para>Post-process pass (reads composited scene as iChannel0). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="shader/Snapshot.h" line="42" column="10" bodyfile="shader/Snapshot.h" bodystart="42" bodyend="-1"/>
+        <referencedby refid="structshader_1_1_controller_1a8d8eb49c0f27a465721f7cb6ec0eed66" compoundref="_controller_8cpp" startline="186" endline="245">shader::Controller::applySnapshot</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structshader_1_1_snapshot_1a7a1b4ffcd978969d3890079583cf7330" prot="public" static="no" mutable="no">
+        <type>std::array&lt; <ref refid="structshader_1_1_snapshot_1_1_pass" kindref="compound">Pass</ref>, 4 &gt;</type>
+        <definition>std::array&lt;Pass, 4&gt; shader::Snapshot::buffers</definition>
+        <argsstring></argsstring>
+        <name>buffers</name>
+        <qualifiedname>shader::Snapshot::buffers</qualifiedname>
+        <briefdescription>
+<para>Compute buffer passes [0-3] (Shadertoy <ref refid="structshader_1_1_buffer" kindref="compound">Buffer</ref> A-D). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="shader/Snapshot.h" line="45" column="16" bodyfile="shader/Snapshot.h" bodystart="45" bodyend="-1"/>
+        <referencedby refid="structshader_1_1_controller_1a8d8eb49c0f27a465721f7cb6ec0eed66" compoundref="_controller_8cpp" startline="186" endline="245">shader::Controller::applySnapshot</referencedby>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Immutable config snapshot transported from message thread to GL thread via <ref refid="classjam_1_1Mailbox" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Mailbox</ref>. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Built on the message thread when config changes (shader project switch, shader file edit, channel routing change). The GL thread reads it in renderOpenGL() and recompiles/reloads as needed.</para>
+<para>Thread contract: constructed and written on MESSAGE THREAD only. Read and consumed on GL THREAD only. Transport is lock-free via <ref refid="classjam_1_1Mailbox" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Mailbox</ref> atomic pointer exchange. </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="2">
+        <label>juce::File</label>
+        <link refid="classjuce_1_1File" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="4">
+        <label>juce::String</label>
+        <link refid="classjuce_1_1String" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="6">
+        <label>juce::var</label>
+        <link refid="classjuce_1_1var" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="1">
+        <label>shader::Snapshot</label>
+        <link refid="structshader_1_1_snapshot"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>directory</edgelabel>
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>background</edgelabel>
+          <edgelabel>postProcess</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>buffers</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>shader::Snapshot::Pass</label>
+        <link refid="structshader_1_1_snapshot_1_1_pass"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>source</edgelabel>
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>channels</edgelabel>
+        </childnode>
+      </node>
+      <node id="5">
+        <label>std::array&lt; juce::var, 4 &gt;</label>
+        <childnode refid="6" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+      <node id="7">
+        <label>std::array&lt; shader::Snapshot::Pass, 4 &gt;</label>
+        <childnode refid="3" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="shader/Snapshot.h" line="23" column="1" bodyfile="shader/Snapshot.h" bodystart="24" bodyend="46"/>
+    <listofallmembers>
+      <member refid="structshader_1_1_snapshot_1a4cb928425d47d9e6de408fed4020a922" prot="public" virt="non-virtual"><scope>shader::Snapshot</scope><name>background</name></member>
+      <member refid="structshader_1_1_snapshot_1a7a1b4ffcd978969d3890079583cf7330" prot="public" virt="non-virtual"><scope>shader::Snapshot</scope><name>buffers</name></member>
+      <member refid="structshader_1_1_snapshot_1a9c29da193d83c3544eb5a45e4af80491" prot="public" virt="non-virtual"><scope>shader::Snapshot</scope><name>directory</name></member>
+      <member refid="structshader_1_1_snapshot_1a8d5593b6339c2fc6bcad1d3f0e4d2e11" prot="public" virt="non-virtual"><scope>shader::Snapshot</scope><name>postProcess</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

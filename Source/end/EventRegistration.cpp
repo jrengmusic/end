@@ -46,19 +46,32 @@ void View::registerEvents()
                                       getTopLevelComponent()->sendLookAndFeelChange();
                                   });
 
-    events.add<juce::ValueTree&> (ID::alwaysOnTop,
-                                  [this] (juce::ValueTree& tree)
+    events.add<juce::ValueTree&> (ID::gpu,
+                                  [this] (juce::ValueTree&)
                                   {
-                                      if (auto* window { dynamic_cast<jam::Window*> (getTopLevelComponent()) })
-                                          window->setAlwaysOnTop (tree.getProperty (ID::alwaysOnTop));
+                                      const auto gpu { jam::GpuProbe::probe() };
+                                      bool canUseGpu { config.getValue (IDtype::end, ID::gpu) and gpu.isAvailable };
+                                      jam::BackgroundBlur::setEnabled (canUseGpu);
+
+                                      if (canUseGpu != shader.isAttached())
+                                          canUseGpu ? shader.attach (*this) : shader.detach();
                                   });
 
-    events.add<juce::ValueTree&> (ID::titleBarButtons,
-                                  [this] (juce::ValueTree& tree)
-                                  {
-                                      if (auto* window { dynamic_cast<jam::Window*> (getTopLevelComponent()) })
-                                          window->setShowWindowButtons (tree.getProperty (ID::titleBarButtons));
-                                  });
+    events.add<juce::ValueTree&> (
+        ID::alwaysOnTop,
+        [this] (juce::ValueTree& tree)
+        {
+            if (auto* window { dynamic_cast<jam::Window*> (getTopLevelComponent()) })
+                window->setAlwaysOnTop (tree.getProperty (ID::alwaysOnTop));
+        });
+
+    events.add<juce::ValueTree&> (
+        ID::titleBarButtons,
+        [this] (juce::ValueTree& tree)
+        {
+            if (auto* window { dynamic_cast<jam::Window*> (getTopLevelComponent()) })
+                window->setShowWindowButtons (tree.getProperty (ID::titleBarButtons));
+        });
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

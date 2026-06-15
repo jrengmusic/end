@@ -28,27 +28,11 @@ void Application::initialise (const juce::String& commandLine)
         }
     }
 #endif
-    // GPU probe: resolve renderer, gate glass
-    const auto probe { jam::GpuProbe::probe() };
-    jam::BackgroundBlur::setEnabled (probe.isAvailable);
-
-    // LookAndFeel: set as default, register as ValueTree listener
     juce::LookAndFeel::setDefaultLookAndFeel (&lookAndFeel);
 
-    // end::Window applies glass via lookAndFeelChanged(). Operational properties
-    // (always_on_top, title_bar_buttons) passed at construction.
     auto* view { new View (model) };
-    bool alwaysOnTop { config.getValue (IDtype::end, ID::alwaysOnTop) };
-    bool titleBarButtons { config.getValue (IDtype::end, ID::titleBarButtons) };
-    window.reset (new end::Window { view, ProjectInfo::projectName, alwaysOnTop, titleBarButtons });
+    window.reset (new end::Window { view, ProjectInfo::projectName });
     window->setVisible (true);
-
-    juce::MessageManager::callAsync (
-        [this]
-        {
-            if (auto* v { dynamic_cast<View*> (window->getContentComponent()) })
-                v->grabKeyboardFocus();
-        });
 }
 
 

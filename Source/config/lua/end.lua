@@ -79,6 +79,12 @@ return {
 	-- When false, force CPU rendering (no blur, no transparency).
 	gpu = true,
 
+	-- Active shader project directory name.
+	-- Shader projects live in ~/.config/end/shaders/<name>/shaders.lua.
+	-- Changing this value reloads all shader passes from the named directory.
+	-- Empty string disables all shader passes.
+	shaders = "",
+
 	-- ==========================================================================
 	-- NEXUS DAEMON
 	-- ==========================================================================

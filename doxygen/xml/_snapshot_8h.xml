@@ -1,0 +1,111 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="_snapshot_8h" kind="file" language="C++">
+    <compoundname>Snapshot.h</compoundname>
+    <includes local="no">JuceHeader.h</includes>
+    <includedby refid="_controller_8h" local="yes">shader/Controller.h</includedby>
+    <incdepgraph>
+      <node id="1">
+        <label>shader/Snapshot.h</label>
+        <link refid="_snapshot_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>JuceHeader.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="5">
+        <label>Main.cpp</label>
+        <link refid="_main_8cpp"/>
+      </node>
+      <node id="4">
+        <label>Main.h</label>
+        <link refid="_main_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>end/ActionRegistration.cpp</label>
+        <link refid="_action_registration_8cpp"/>
+      </node>
+      <node id="7">
+        <label>end/EventRegistration.cpp</label>
+        <link refid="end_2_event_registration_8cpp"/>
+      </node>
+      <node id="8">
+        <label>end/View.cpp</label>
+        <link refid="_view_8cpp"/>
+      </node>
+      <node id="3">
+        <label>end/View.h</label>
+        <link refid="_view_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>shader/Controller.cpp</label>
+        <link refid="_controller_8cpp"/>
+      </node>
+      <node id="2">
+        <label>shader/Controller.h</label>
+        <link refid="_controller_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>shader/Snapshot.h</label>
+        <link refid="_snapshot_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structshader_1_1_snapshot" prot="public">shader::Snapshot</innerclass>
+    <innerclass refid="structshader_1_1_snapshot_1_1_pass" prot="public">shader::Snapshot::Pass</innerclass>
+    <innernamespace refid="namespaceshader">shader</innernamespace>
+    <briefdescription>
+<para>Immutable config snapshot transported from message thread to GL thread. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="preprocessor">#pragma<sp/>once</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;JuceHeader.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespaceshader" kindref="compound">shader</ref></highlight></codeline>
+<codeline lineno="9"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="comment">/*____________________________________________________________________________*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23" refid="structshader_1_1_snapshot" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structshader_1_1_snapshot" kindref="compound">Snapshot</ref></highlight></codeline>
+<codeline lineno="24"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="26" refid="structshader_1_1_snapshot_1_1_pass" refkind="compound"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structshader_1_1_snapshot_1_1_pass" kindref="compound">Pass</ref></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="29" refid="structshader_1_1_snapshot_1_1_pass_1a2f0d2e6469f15d672344b3c2ce57c616" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref><sp/><ref refid="structshader_1_1_snapshot_1_1_pass_1a2f0d2e6469f15d672344b3c2ce57c616" kindref="member">source</ref>;</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="32" refid="structshader_1_1_snapshot_1_1_pass_1ac1438c61a5e0d042bdb4572bfb88b969" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::array&lt;juce::var,<sp/>4&gt;<sp/><ref refid="structshader_1_1_snapshot_1_1_pass_1ac1438c61a5e0d042bdb4572bfb88b969" kindref="member">channels</ref>;</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36" refid="structshader_1_1_snapshot_1a9c29da193d83c3544eb5a45e4af80491" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classjuce_1_1File" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::File</ref><sp/><ref refid="structshader_1_1_snapshot_1a9c29da193d83c3544eb5a45e4af80491" kindref="member">directory</ref>;</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39" refid="structshader_1_1_snapshot_1a4cb928425d47d9e6de408fed4020a922" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structshader_1_1_snapshot_1_1_pass" kindref="compound">Pass</ref><sp/><ref refid="structshader_1_1_snapshot_1a4cb928425d47d9e6de408fed4020a922" kindref="member">background</ref>;</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42" refid="structshader_1_1_snapshot_1a8d5593b6339c2fc6bcad1d3f0e4d2e11" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structshader_1_1_snapshot_1_1_pass" kindref="compound">Pass</ref><sp/><ref refid="structshader_1_1_snapshot_1a8d5593b6339c2fc6bcad1d3f0e4d2e11" kindref="member">postProcess</ref>;</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45" refid="structshader_1_1_snapshot_1a7a1b4ffcd978969d3890079583cf7330" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::array&lt;Pass,<sp/>4&gt;<sp/><ref refid="structshader_1_1_snapshot_1a7a1b4ffcd978969d3890079583cf7330" kindref="member">buffers</ref>;</highlight></codeline>
+<codeline lineno="46"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>shader</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="shader/Snapshot.h"/>
+  </compounddef>
+</doxygen>

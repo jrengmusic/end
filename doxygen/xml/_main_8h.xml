@@ -28,7 +28,7 @@
         </childnode>
         <childnode refid="7" relation="include">
         </childnode>
-        <childnode refid="15" relation="include">
+        <childnode refid="19" relation="include">
         </childnode>
         <childnode refid="12" relation="include">
         </childnode>
@@ -120,10 +120,12 @@
         </childnode>
         <childnode refid="3" relation="include">
         </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
         <childnode refid="4" relation="include">
         </childnode>
       </node>
-      <node id="15">
+      <node id="19">
         <label>end/Window.h</label>
         <link refid="_window_8h"/>
         <childnode refid="2" relation="include">
@@ -141,6 +143,40 @@
         <childnode refid="5" relation="include">
         </childnode>
         <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="18">
+        <label>shader/Buffer.h</label>
+        <link refid="_buffer_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>shader/Controller.h</label>
+        <link refid="_controller_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>shader/Pass.h</label>
+        <link refid="_pass_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>shader/Quad.h</label>
+        <link refid="_quad_8h"/>
+        <childnode refid="2" relation="include">
         </childnode>
       </node>
       <node id="13">

@@ -188,6 +188,7 @@
 // jam::gpu has string "GPU" (uppercase) — "gpu" (lowercase) is a distinct lua key, declared here
 #define IDENTIFIER_APP(X)               \
     X (gpu, "gpu")                        \
+    X (shaders, "shaders")               \
     X (daemon, "daemon")                  \
     X (autoReload, "auto_reload")         \
     X (shell, "shell")                    \
@@ -254,6 +255,13 @@
     X (scrollbarBackground, "scrollbar_background")      \
     X (selectionColour, "selection_colour")
 
+// Shader manifest keys (shaders.lua)
+#define IDENTIFIER_SHADER(X)            \
+    X (shader, "shader")                \
+    X (channels, "channels")            \
+    X (postProcess, "post_process")     \
+    X (buffer, "buffer")
+
 // Platform + BackgroundBlur WindowFX keys (theme.lua / window.window_fx)
 // "mac"/"win" identify the platform in the window_fx table;
 // the remaining values map to jam::BackgroundBlur::WindowFX per platform.
@@ -289,6 +297,7 @@
         IDENTIFIER_ACTIONS (EXPANDER)     \
         IDENTIFIER_WHELMED (EXPANDER)     \
         IDENTIFIER_BACKEND (EXPANDER)     \
+        IDENTIFIER_SHADER (EXPANDER)     \
         IDENTIFIER_MODEL (EXPANDER)       \
     };
 

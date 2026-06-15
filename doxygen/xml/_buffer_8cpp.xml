@@ -1,0 +1,99 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="_buffer_8cpp" kind="file" language="C++">
+    <compoundname>Buffer.cpp</compoundname>
+    <includes refid="_buffer_8h" local="yes">shader/Buffer.h</includes>
+    <incdepgraph>
+      <node id="1">
+        <label>shader/Buffer.cpp</label>
+        <link refid="_buffer_8cpp"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>shader/Buffer.h</label>
+        <link refid="_buffer_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>shader/Pass.h</label>
+        <link refid="_pass_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>shader/Quad.h</label>
+        <link refid="_quad_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>JuceHeader.h</label>
+      </node>
+    </incdepgraph>
+    <innernamespace refid="namespaceshader">shader</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_buffer_8h" kindref="compound">shader/Buffer.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight></codeline>
+<codeline lineno="3" refid="namespaceshader" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespaceshader" kindref="compound">shader</ref></highlight></codeline>
+<codeline lineno="4"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">/*____________________________________________________________________________*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="keyword">using<sp/>namespace<sp/></highlight><highlight class="normal"><ref refid="namespacejuce_1_1gl" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::gl</ref>;</highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight></codeline>
+<codeline lineno="9" refid="structshader_1_1_buffer_1a90277d4cc17437fac2f6dfa718d2956a" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structshader_1_1_buffer_1a90277d4cc17437fac2f6dfa718d2956a" kindref="member">Buffer::resize</ref><sp/>(<ref refid="classjuce_1_1OpenGLContext" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::OpenGLContext</ref>&amp;<sp/>context,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>width,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>height)</highlight></codeline>
+<codeline lineno="10"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="11"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structshader_1_1_buffer_1a2a5f1651784be3cbd7f3aeaa633a9353" kindref="member">fbos</ref>[0].release();</highlight></codeline>
+<codeline lineno="12"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structshader_1_1_buffer_1a2a5f1651784be3cbd7f3aeaa633a9353" kindref="member">fbos</ref>[1].release();</highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>ok0<sp/>=<sp/><ref refid="structshader_1_1_buffer_1a2a5f1651784be3cbd7f3aeaa633a9353" kindref="member">fbos</ref>[0].initialise<sp/>(context,<sp/>width,<sp/>height);</highlight></codeline>
+<codeline lineno="15"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>ok1<sp/>=<sp/><ref refid="structshader_1_1_buffer_1a2a5f1651784be3cbd7f3aeaa633a9353" kindref="member">fbos</ref>[1].initialise<sp/>(context,<sp/>width,<sp/>height);</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structshader_1_1_buffer_1a2a5f1651784be3cbd7f3aeaa633a9353" kindref="member">fbos</ref>[0].makeCurrentAndClear();</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structshader_1_1_buffer_1a2a5f1651784be3cbd7f3aeaa633a9353" kindref="member">fbos</ref>[0].releaseAsRenderingTarget();</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structshader_1_1_buffer_1a2a5f1651784be3cbd7f3aeaa633a9353" kindref="member">fbos</ref>[1].makeCurrentAndClear();</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structshader_1_1_buffer_1a2a5f1651784be3cbd7f3aeaa633a9353" kindref="member">fbos</ref>[1].releaseAsRenderingTarget();</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ok0<sp/>and<sp/>ok1;</highlight></codeline>
+<codeline lineno="24"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26" refid="structshader_1_1_buffer_1a77d994ece740392fb3582156dfc44871" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="structshader_1_1_buffer_1a77d994ece740392fb3582156dfc44871" kindref="member">Buffer::render</ref><sp/>(<ref refid="structshader_1_1_quad" kindref="compound">Quad</ref>&amp;<sp/>quad,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>width,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>height,</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>time,<sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>timeDelta,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>frame,</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>mouse[4])</highlight></codeline>
+<codeline lineno="29"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structshader_1_1_buffer_1a2a5f1651784be3cbd7f3aeaa633a9353" kindref="member">fbos</ref>[<ref refid="structshader_1_1_buffer_1a7ff5107d8754eabe830c521da42554f2" kindref="member">writeIndex</ref>].makeCurrentRenderingTarget();</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classjuce_1_1OpenGLHelpers_1afb2ec794b86a370169b631c68a874b0f" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::OpenGLHelpers::clear</ref><sp/>(<ref refid="namespacejuce_1_1Colours_1a2d59beef8fef5d9b43c030dc5968a2bb" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Colours::transparentBlack</ref>);</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespacejuce_1_1gl_1a425eb845f8cb936a9247544f2b7d536d" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">glViewport</ref><sp/>(0,<sp/>0,<sp/>width,<sp/>height);</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structshader_1_1_buffer_1ac0025193a0bc77cffaee1f3e2db61a2f" kindref="member">pass</ref>.render<sp/>(quad,<sp/>width,<sp/>height,<sp/>time,<sp/>timeDelta,<sp/>frame,<sp/>mouse);</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structshader_1_1_buffer_1a2a5f1651784be3cbd7f3aeaa633a9353" kindref="member">fbos</ref>[<ref refid="structshader_1_1_buffer_1a7ff5107d8754eabe830c521da42554f2" kindref="member">writeIndex</ref>].releaseAsRenderingTarget();</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structshader_1_1_buffer_1a7ff5107d8754eabe830c521da42554f2" kindref="member">writeIndex</ref><sp/>=<sp/>1<sp/>-<sp/><ref refid="structshader_1_1_buffer_1a7ff5107d8754eabe830c521da42554f2" kindref="member">writeIndex</ref>;</highlight></codeline>
+<codeline lineno="36"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38" refid="structshader_1_1_buffer_1a9e27e5094f3b75c15806645d31ef8b21" refkind="member"><highlight class="normal"><ref refid="juce__gl_8h_1aa311c7f0d6ec4f1a33f9235c3651b86b" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GLuint</ref><sp/><ref refid="structshader_1_1_buffer_1a9e27e5094f3b75c15806645d31ef8b21" kindref="member">Buffer::getReadTexture</ref>()<sp/>const<sp/>noexcept</highlight></codeline>
+<codeline lineno="39"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="structshader_1_1_buffer_1a2a5f1651784be3cbd7f3aeaa633a9353" kindref="member">fbos</ref>[1<sp/>-<sp/><ref refid="structshader_1_1_buffer_1a7ff5107d8754eabe830c521da42554f2" kindref="member">writeIndex</ref>].getTextureID();</highlight></codeline>
+<codeline lineno="41"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43" refid="structshader_1_1_buffer_1aba151e8032e6831933a754d0a41e00de" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="structshader_1_1_buffer_1aba151e8032e6831933a754d0a41e00de" kindref="member">Buffer::release</ref>()</highlight></codeline>
+<codeline lineno="44"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structshader_1_1_buffer_1a2a5f1651784be3cbd7f3aeaa633a9353" kindref="member">fbos</ref>[0].release();</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structshader_1_1_buffer_1a2a5f1651784be3cbd7f3aeaa633a9353" kindref="member">fbos</ref>[1].release();</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structshader_1_1_buffer_1ac0025193a0bc77cffaee1f3e2db61a2f" kindref="member">pass</ref>.release();</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structshader_1_1_buffer_1a7ff5107d8754eabe830c521da42554f2" kindref="member">writeIndex</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>shader</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="shader/Buffer.cpp"/>
+  </compounddef>
+</doxygen>

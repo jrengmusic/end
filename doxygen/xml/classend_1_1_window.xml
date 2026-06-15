@@ -5,10 +5,10 @@
     <basecompoundref refid="classjam_1_1Window" prot="public" virt="non-virtual">jam::Window</basecompoundref>
     <includes refid="_window_8h" local="no">Window.h</includes>
     <sectiondef kind="public-func">
-      <memberdef kind="function" id="classend_1_1_window_1a7725512f1abd3448ce816b735ce55c4f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+      <memberdef kind="function" id="classend_1_1_window_1a64c39fff8c924a52cf04904c6fb5dfd9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type></type>
         <definition>end::Window::Window</definition>
-        <argsstring>(juce::Component *mainComponent, const juce::String &amp;name, bool alwaysOnTop, bool showWindowButtons)</argsstring>
+        <argsstring>(juce::Component *mainComponent, const juce::String &amp;name)</argsstring>
         <name>Window</name>
         <qualifiedname>end::Window::Window</qualifiedname>
         <param>
@@ -19,18 +19,11 @@
           <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref> &amp;</type>
           <declname>name</declname>
         </param>
-        <param>
-          <type>bool</type>
-          <declname>alwaysOnTop</declname>
-        </param>
-        <param>
-          <type>bool</type>
-          <declname>showWindowButtons</declname>
-        </param>
         <briefdescription>
 <para>Constructs the window and calls <ref refid="classend_1_1_window_1a279cbf0eeecc24936c924fae92ad61a6" kindref="member">lookAndFeelChanged()</ref> to apply the initial glass state. </para>
         </briefdescription>
         <detaileddescription>
+<para>Operational properties (alwaysOnTop, showWindowButtons) default to false and true respectively. View::initRenderer() corrects both from config on the first message loop iteration.</para>
 <para><parameterlist kind="param"><parameteritem>
 <parameternamelist>
 <parametername>mainComponent</parametername>
@@ -47,31 +40,15 @@
 <para><ref refid="classend_1_1_window" kindref="compound">Window</ref> title string. </para>
 </parameterdescription>
 </parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>alwaysOnTop</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>Initial always-on-top hint. </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>showWindowButtons</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>Initial chrome hint. </para>
-</parameterdescription>
-</parameteritem>
 </parameterlist>
 </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Window.h" line="42" column="5" bodyfile="end/Window.cpp" bodystart="7" bodyend="14"/>
-        <references refid="classend_1_1_window_1a279cbf0eeecc24936c924fae92ad61a6" compoundref="_window_8cpp" startline="16" endline="24">lookAndFeelChanged</references>
-        <references refid="classend_1_1_window_1a7725512f1abd3448ce816b735ce55c4f" compoundref="_window_8cpp" startline="7" endline="14">Window</references>
-        <referencedby refid="classend_1_1_window_1a7725512f1abd3448ce816b735ce55c4f" compoundref="_window_8cpp" startline="7" endline="14">Window</referencedby>
+        <location file="end/Window.h" line="44" column="5" bodyfile="end/Window.cpp" bodystart="7" bodyend="12"/>
+        <references refid="classend_1_1_window_1a279cbf0eeecc24936c924fae92ad61a6" compoundref="_window_8cpp" startline="14" endline="22">lookAndFeelChanged</references>
+        <references refid="classend_1_1_window_1a64c39fff8c924a52cf04904c6fb5dfd9" compoundref="_window_8cpp" startline="7" endline="12">Window</references>
+        <referencedby refid="classend_1_1_window_1a64c39fff8c924a52cf04904c6fb5dfd9" compoundref="_window_8cpp" startline="7" endline="12">Window</referencedby>
       </memberdef>
       <memberdef kind="function" id="classend_1_1_window_1a279cbf0eeecc24936c924fae92ad61a6" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
         <type>void</type>
@@ -88,10 +65,10 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Window.h" line="50" column="10" bodyfile="end/Window.cpp" bodystart="16" bodyend="24"/>
+        <location file="end/Window.h" line="49" column="10" bodyfile="end/Window.cpp" bodystart="14" bodyend="22"/>
         <references refid="classjuce_1_1Component_1ad55f2def99fd7d05f6a71ef505e1a43b">juce::Component::getLookAndFeel</references>
         <references refid="classjam_1_1Window_1aea2bfb6784dacfb25bc2a2f2b1de0faf">jam::Window::setGlass</references>
-        <referencedby refid="classend_1_1_window_1a7725512f1abd3448ce816b735ce55c4f" compoundref="_window_8cpp" startline="7" endline="14">Window</referencedby>
+        <referencedby refid="classend_1_1_window_1a64c39fff8c924a52cf04904c6fb5dfd9" compoundref="_window_8cpp" startline="7" endline="12">Window</referencedby>
       </memberdef>
     </sectiondef>
     <briefdescription>
@@ -246,7 +223,7 @@
         </childnode>
       </node>
     </collaborationgraph>
-    <location file="end/Window.h" line="31" column="1" bodyfile="end/Window.h" bodystart="32" bodyend="54"/>
+    <location file="end/Window.h" line="31" column="1" bodyfile="end/Window.h" bodystart="32" bodyend="53"/>
     <listofallmembers>
       <member refid="classjuce_1_1ResizableWindow_1a961de147d2c1eab5a305b3d1ff661158" prot="protected" virt="virtual"><scope>end::Window</scope><name>activeWindowStatusChanged</name></member>
       <member refid="classjuce_1_1Component_1a7cc925a367e95b3807255f8b4a94dddd" prot="public" virt="non-virtual"><scope>end::Window</scope><name>addAndMakeVisible</name></member>
@@ -579,7 +556,8 @@
       <member refid="classjuce_1_1Component_1aceedc525d7b689b85d3f60027418131c" prot="public" virt="non-virtual"><scope>end::Window</scope><name>updateMouseCursor</name></member>
       <member refid="classjuce_1_1Component_1ab854fa4dae56ad80bf408dbbe6310bdb" prot="public" virt="virtual"><scope>end::Window</scope><name>userTriedToCloseWindow</name></member>
       <member refid="classjam_1_1Window_1a65914a48bd611a45d7f34cbd321dc8c6" prot="public" virt="virtual"><scope>end::Window</scope><name>visibilityChanged</name></member>
-      <member refid="classend_1_1_window_1a7725512f1abd3448ce816b735ce55c4f" prot="public" virt="non-virtual"><scope>end::Window</scope><name>Window</name></member>
+      <member refid="classend_1_1_window_1a64c39fff8c924a52cf04904c6fb5dfd9" prot="public" virt="non-virtual"><scope>end::Window</scope><name>Window</name></member>
+      <member refid="classjam_1_1Window_1a19d1b836f0173df011da0a32448f25bb" prot="public" virt="non-virtual" ambiguityscope="jam::Window::"><scope>end::Window</scope><name>Window</name></member>
       <member refid="classjuce_1_1Component_1af05a47b1a669b0af6d0ad39f71a8de75" prot="public" virt="virtual"><scope>end::Window</scope><name>windowControlClickedClose</name></member>
       <member refid="classjuce_1_1Component_1ac3252468bfe619eabc2b58bce21f44c2" prot="public" virt="virtual"><scope>end::Window</scope><name>windowControlClickedMaximise</name></member>
       <member refid="classjuce_1_1Component_1afa8f7596bbb458085d52c24707932d14" prot="public" virt="virtual"><scope>end::Window</scope><name>windowControlClickedMinimise</name></member>

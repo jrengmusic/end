@@ -8,6 +8,7 @@
 #include "end/MessageOverlay.h"
 #include "action/Registry.h"
 #include "config/Config.h"
+#include "shader/Controller.h"
 #include "Map.h"
 
 namespace end
@@ -28,6 +29,8 @@ namespace end
  *    @c events jam::Function::Map, populated by registerEvents(). Single-key
  *    dispatch in valueTreePropertyChanged(): the changed property is checked
  *    first; if absent from the map, the tree type is used as the fallback key.
+ *    The same event handlers drive both initial state (fired via callAsync) and
+ *    hot-reload — a single SSOT code path.
  *
  *  Transparent — glass shows through from Window.
  */
@@ -58,7 +61,7 @@ public:
      */
     void resized() override;
 
-    /** @brief No-op — transparent; glass shows through from Window. */
+    /** @brief No-op — component is transparent; Window glass shows through. */
     void paint (juce::Graphics&) override {}
 
     /** @brief Routes key presses to the action registry.
@@ -112,7 +115,8 @@ private:
      *  tabOrientation (applies tab orientation from end.lua config), focus (updates focusedPane
      *  state), theme (propagates LookAndFeel change),
      *  graphics and tabButton tree types (propagate LookAndFeel change),
-     *  alwaysOnTop and titleBarButtons (dispatch to jam::Window).
+     *  alwaysOnTop and titleBarButtons (dispatch to jam::Window),
+     *  gpu (attach/detach shader based on config and probe result).
      *  Defined in EventRegistration.cpp.
      */
     void registerEvents();
@@ -146,6 +150,9 @@ private:
      *  the fallback.
      */
     jam::Function::Map<juce::Identifier, void> events;
+
+    /** @brief GL pipeline orchestrator — attach/detach driven by the gpu event. */
+    shader::Controller shader;
 
     //==============================================================================
 #if JUCE_DEBUG

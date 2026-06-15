@@ -5,10 +5,8 @@ namespace end
 /*____________________________________________________________________________*/
 
 Window::Window (juce::Component* mainComponent,
-                const juce::String& name,
-                bool alwaysOnTop,
-                bool showWindowButtons)
-    : jam::Window { mainComponent, name, alwaysOnTop, showWindowButtons }
+                const juce::String& name)
+    : jam::Window { mainComponent, name, false, true }
 {
     lookAndFeelChanged();
 }

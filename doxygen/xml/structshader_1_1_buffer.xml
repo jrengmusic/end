@@ -1,0 +1,341 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="structshader_1_1_buffer" kind="struct" language="C++" prot="public">
+    <compoundname>shader::Buffer</compoundname>
+    <includes refid="_buffer_8h" local="no">Buffer.h</includes>
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structshader_1_1_buffer_1ac0025193a0bc77cffaee1f3e2db61a2f" prot="public" static="no" mutable="no">
+        <type><ref refid="structshader_1_1_pass" kindref="compound">Pass</ref></type>
+        <definition>Pass shader::Buffer::pass</definition>
+        <argsstring></argsstring>
+        <name>pass</name>
+        <qualifiedname>shader::Buffer::pass</qualifiedname>
+        <briefdescription>
+<para>The shader pass for this buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Public for compile access. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="shader/Buffer.h" line="58" column="10" bodyfile="shader/Buffer.h" bodystart="58" bodyend="-1"/>
+        <referencedby refid="structshader_1_1_buffer_1af9a819e823a712d7a6953209bd525c7f" compoundref="_buffer_8h" startline="52" endline="52">isLoaded</referencedby>
+        <referencedby refid="structshader_1_1_buffer_1aba151e8032e6831933a754d0a41e00de" compoundref="_buffer_8cpp" startline="43" endline="49">release</referencedby>
+        <referencedby refid="structshader_1_1_buffer_1a77d994ece740392fb3582156dfc44871" compoundref="_buffer_8cpp" startline="26" endline="36">render</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="structshader_1_1_buffer_1a2a5f1651784be3cbd7f3aeaa633a9353" prot="private" static="no" mutable="no">
+        <type><ref refid="classjuce_1_1OpenGLFrameBuffer" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::OpenGLFrameBuffer</ref></type>
+        <definition>juce::OpenGLFrameBuffer shader::Buffer::fbos[2]</definition>
+        <argsstring>[2]</argsstring>
+        <name>fbos</name>
+        <qualifiedname>shader::Buffer::fbos</qualifiedname>
+        <briefdescription>
+<para>FBO pair. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Index 0 and 1, swapped each frame. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="shader/Buffer.h" line="62" column="29" bodyfile="shader/Buffer.h" bodystart="62" bodyend="-1"/>
+        <referencedby refid="structshader_1_1_buffer_1a9e27e5094f3b75c15806645d31ef8b21" compoundref="_buffer_8cpp" startline="38" endline="41">getReadTexture</referencedby>
+        <referencedby refid="structshader_1_1_buffer_1aba151e8032e6831933a754d0a41e00de" compoundref="_buffer_8cpp" startline="43" endline="49">release</referencedby>
+        <referencedby refid="structshader_1_1_buffer_1a77d994ece740392fb3582156dfc44871" compoundref="_buffer_8cpp" startline="26" endline="36">render</referencedby>
+        <referencedby refid="structshader_1_1_buffer_1a90277d4cc17437fac2f6dfa718d2956a" compoundref="_buffer_8cpp" startline="9" endline="24">resize</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structshader_1_1_buffer_1a7ff5107d8754eabe830c521da42554f2" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int shader::Buffer::writeIndex</definition>
+        <argsstring></argsstring>
+        <name>writeIndex</name>
+        <qualifiedname>shader::Buffer::writeIndex</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+<para>Current write index (0 or 1). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Read index is 1 - writeIndex. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="shader/Buffer.h" line="65" column="9" bodyfile="shader/Buffer.h" bodystart="65" bodyend="65"/>
+        <referencedby refid="structshader_1_1_buffer_1a9e27e5094f3b75c15806645d31ef8b21" compoundref="_buffer_8cpp" startline="38" endline="41">getReadTexture</referencedby>
+        <referencedby refid="structshader_1_1_buffer_1aba151e8032e6831933a754d0a41e00de" compoundref="_buffer_8cpp" startline="43" endline="49">release</referencedby>
+        <referencedby refid="structshader_1_1_buffer_1a77d994ece740392fb3582156dfc44871" compoundref="_buffer_8cpp" startline="26" endline="36">render</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="public-func">
+      <memberdef kind="function" id="structshader_1_1_buffer_1a90277d4cc17437fac2f6dfa718d2956a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool shader::Buffer::resize</definition>
+        <argsstring>(juce::OpenGLContext &amp;context, int width, int height)</argsstring>
+        <name>resize</name>
+        <qualifiedname>shader::Buffer::resize</qualifiedname>
+        <param>
+          <type><ref refid="classjuce_1_1OpenGLContext" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::OpenGLContext</ref> &amp;</type>
+          <declname>context</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>width</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>height</declname>
+        </param>
+        <briefdescription>
+<para>Initialises both FBOs at the given dimensions. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>context</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The active OpenGL context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>width</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Width in pixels. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>height</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Height in pixels. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>True if both FBOs initialised successfully. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="shader/Buffer.h" line="27" column="10" bodyfile="shader/Buffer.cpp" bodystart="9" bodyend="24"/>
+        <references refid="structshader_1_1_buffer_1a2a5f1651784be3cbd7f3aeaa633a9353" compoundref="_buffer_8h" startline="62">fbos</references>
+      </memberdef>
+      <memberdef kind="function" id="structshader_1_1_buffer_1a77d994ece740392fb3582156dfc44871" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void shader::Buffer::render</definition>
+        <argsstring>(Quad &amp;quad, int width, int height, float time, float timeDelta, int frame, const float mouse[4])</argsstring>
+        <name>render</name>
+        <qualifiedname>shader::Buffer::render</qualifiedname>
+        <param>
+          <type><ref refid="structshader_1_1_quad" kindref="compound">Quad</ref> &amp;</type>
+          <declname>quad</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>width</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>height</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>time</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>timeDelta</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>frame</declname>
+        </param>
+        <param>
+          <type>const float</type>
+          <declname>mouse</declname>
+          <array>[4]</array>
+        </param>
+        <briefdescription>
+<para>Renders the buffer pass into the write FBO, then swaps. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Binds the write FBO as render target, delegates to pass.render(), releases the FBO, and swaps read↔write indices.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>quad</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Shared fullscreen quad. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>width</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Viewport width. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>height</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Viewport height. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>iTime. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>timeDelta</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>iTimeDelta. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>iFrame. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>mouse</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>iMouse (4 floats). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="shader/Buffer.h" line="42" column="10" bodyfile="shader/Buffer.cpp" bodystart="26" bodyend="36"/>
+        <references refid="classjuce_1_1OpenGLHelpers_1afb2ec794b86a370169b631c68a874b0f">juce::OpenGLHelpers::clear</references>
+        <references refid="structshader_1_1_buffer_1a2a5f1651784be3cbd7f3aeaa633a9353" compoundref="_buffer_8h" startline="62">fbos</references>
+        <references refid="namespacejuce_1_1gl_1a425eb845f8cb936a9247544f2b7d536d">juce::gl::glViewport</references>
+        <references refid="structshader_1_1_buffer_1ac0025193a0bc77cffaee1f3e2db61a2f" compoundref="_buffer_8h" startline="58">pass</references>
+        <references refid="namespacejuce_1_1Colours_1a2d59beef8fef5d9b43c030dc5968a2bb">juce::Colours::transparentBlack</references>
+        <references refid="structshader_1_1_buffer_1a7ff5107d8754eabe830c521da42554f2" compoundref="_buffer_8h" startline="65" endline="65">writeIndex</references>
+      </memberdef>
+      <memberdef kind="function" id="structshader_1_1_buffer_1a9e27e5094f3b75c15806645d31ef8b21" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type><ref refid="juce__gl_8h_1aa311c7f0d6ec4f1a33f9235c3651b86b" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GLuint</ref></type>
+        <definition>GLuint shader::Buffer::getReadTexture</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>getReadTexture</name>
+        <qualifiedname>shader::Buffer::getReadTexture</qualifiedname>
+        <briefdescription>
+<para>Returns the previous-frame texture <ref refid="struct_i_d" kindref="compound">ID</ref> (the read FBO). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Other passes bind this as an iChannel to sample this buffer&apos;s output. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="shader/Buffer.h" line="49" column="12" bodyfile="shader/Buffer.cpp" bodystart="38" bodyend="41"/>
+        <references refid="structshader_1_1_buffer_1a2a5f1651784be3cbd7f3aeaa633a9353" compoundref="_buffer_8h" startline="62">fbos</references>
+        <references refid="structshader_1_1_buffer_1a7ff5107d8754eabe830c521da42554f2" compoundref="_buffer_8h" startline="65" endline="65">writeIndex</references>
+      </memberdef>
+      <memberdef kind="function" id="structshader_1_1_buffer_1af9a819e823a712d7a6953209bd525c7f" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool shader::Buffer::isLoaded</definition>
+        <argsstring>() const noexcept</argsstring>
+        <name>isLoaded</name>
+        <qualifiedname>shader::Buffer::isLoaded</qualifiedname>
+        <briefdescription>
+<para>Returns true if the pass has a compiled shader. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="shader/Buffer.h" line="52" column="10" bodyfile="shader/Buffer.h" bodystart="52" bodyend="52"/>
+        <references refid="structshader_1_1_buffer_1ac0025193a0bc77cffaee1f3e2db61a2f" compoundref="_buffer_8h" startline="58">pass</references>
+      </memberdef>
+      <memberdef kind="function" id="structshader_1_1_buffer_1aba151e8032e6831933a754d0a41e00de" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void shader::Buffer::release</definition>
+        <argsstring>()</argsstring>
+        <name>release</name>
+        <qualifiedname>shader::Buffer::release</qualifiedname>
+        <briefdescription>
+<para>Releases both FBOs and the shader pass. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="shader/Buffer.h" line="55" column="10" bodyfile="shader/Buffer.cpp" bodystart="43" bodyend="49"/>
+        <references refid="structshader_1_1_buffer_1a2a5f1651784be3cbd7f3aeaa633a9353" compoundref="_buffer_8h" startline="62">fbos</references>
+        <references refid="structshader_1_1_buffer_1ac0025193a0bc77cffaee1f3e2db61a2f" compoundref="_buffer_8h" startline="58">pass</references>
+        <references refid="structshader_1_1_buffer_1a7ff5107d8754eabe830c521da42554f2" compoundref="_buffer_8h" startline="65" endline="65">writeIndex</references>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Ping-pong double-buffered FBO — one Shadertoy compute buffer slot. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Owns two <ref refid="classjuce_1_1OpenGLFrameBuffer" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::OpenGLFrameBuffer</ref> instances (read/write) and a <ref refid="structshader_1_1_pass" kindref="compound">shader::Pass</ref>. Each frame, <ref refid="structshader_1_1_buffer_1a77d994ece740392fb3582156dfc44871" kindref="member">render()</ref> binds the write FBO, runs the pass, then swaps read↔write so the next frame reads this frame&apos;s output.</para>
+<para>Used for Shadertoy <ref refid="structshader_1_1_buffer" kindref="compound">Buffer</ref> A-D (feedback effects, particle sims, fluid).</para>
+<para>Thread contract: ALL methods GL THREAD only. </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="5">
+        <label>juce::OpenGLFrameBuffer</label>
+        <link refid="classjuce_1_1OpenGLFrameBuffer" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="4">
+        <label>juce::OpenGLShaderProgram</label>
+        <link refid="classjuce_1_1OpenGLShaderProgram" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="1">
+        <label>shader::Buffer</label>
+        <link refid="structshader_1_1_buffer"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>pass</edgelabel>
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>fbos</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>shader::Pass</label>
+        <link refid="structshader_1_1_pass"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>program</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>std::unique_ptr&lt; juce::OpenGLShaderProgram &gt;</label>
+        <childnode refid="4" relation="usage">
+          <edgelabel>ptr</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="shader/Buffer.h" line="19" column="1" bodyfile="shader/Buffer.h" bodystart="20" bodyend="66"/>
+    <listofallmembers>
+      <member refid="structshader_1_1_buffer_1a2a5f1651784be3cbd7f3aeaa633a9353" prot="private" virt="non-virtual"><scope>shader::Buffer</scope><name>fbos</name></member>
+      <member refid="structshader_1_1_buffer_1a9e27e5094f3b75c15806645d31ef8b21" prot="public" virt="non-virtual"><scope>shader::Buffer</scope><name>getReadTexture</name></member>
+      <member refid="structshader_1_1_buffer_1af9a819e823a712d7a6953209bd525c7f" prot="public" virt="non-virtual"><scope>shader::Buffer</scope><name>isLoaded</name></member>
+      <member refid="structshader_1_1_buffer_1ac0025193a0bc77cffaee1f3e2db61a2f" prot="public" virt="non-virtual"><scope>shader::Buffer</scope><name>pass</name></member>
+      <member refid="structshader_1_1_buffer_1aba151e8032e6831933a754d0a41e00de" prot="public" virt="non-virtual"><scope>shader::Buffer</scope><name>release</name></member>
+      <member refid="structshader_1_1_buffer_1a77d994ece740392fb3582156dfc44871" prot="public" virt="non-virtual"><scope>shader::Buffer</scope><name>render</name></member>
+      <member refid="structshader_1_1_buffer_1a90277d4cc17437fac2f6dfa718d2956a" prot="public" virt="non-virtual"><scope>shader::Buffer</scope><name>resize</name></member>
+      <member refid="structshader_1_1_buffer_1a7ff5107d8754eabe830c521da42554f2" prot="private" virt="non-virtual"><scope>shader::Buffer</scope><name>writeIndex</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -32,6 +32,17 @@ View::View (jam::Model& m)
     //==============================================================================
     auto [width, height] = config.getInt (IDtype::end, ID::size);
     setSize (width, height);
+
+    juce::MessageManager::callAsync ([this]
+    {
+        // Fire window events for initial state — addListener doesn't replay.
+        // Uses the SAME event handlers as VTPC hot-reload (DRY/SSOT).
+        auto endTree { config.state.getChildWithName (IDtype::end) };
+        events.get (ID::gpu, endTree);
+        events.get (ID::alwaysOnTop, endTree);
+        events.get (ID::titleBarButtons, endTree);
+        grabKeyboardFocus();
+    });
 }
 
 View::~View()
@@ -46,7 +57,9 @@ void View::resized()
 {
     setViewState (getWidth(), getHeight());
 
-    //==============================================================================
+    if (shader.isAttached())
+        shader.resize (getWidth(), getHeight());
+
     tabs.setBounds (getLocalBounds());
     messageOverlay.setBounds (getLocalBounds());
 }
@@ -72,7 +85,6 @@ void View::valueTreeChildAdded (juce::ValueTree& parentTree,
     state.setProperty (ID::focusedPane, id, nullptr);
 }
 
-//==============================================================================
 void View::setViewState (int width, int height)
 {
     state.setProperty (jam::ID::width, width, nullptr);
@@ -88,4 +100,4 @@ void View::setTabOrientation()
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace end
+} // namespace end

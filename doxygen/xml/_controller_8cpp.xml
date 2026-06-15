@@ -1,0 +1,169 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="_controller_8cpp" kind="file" language="C++">
+    <compoundname>Controller.cpp</compoundname>
+    <includes refid="_controller_8h" local="yes">shader/Controller.h</includes>
+    <incdepgraph>
+      <node id="6">
+        <label>shader/Buffer.h</label>
+        <link refid="_buffer_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>shader/Controller.cpp</label>
+        <link refid="_controller_8cpp"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>shader/Controller.h</label>
+        <link refid="_controller_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>shader/Pass.h</label>
+        <link refid="_pass_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>shader/Quad.h</label>
+        <link refid="_quad_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>JuceHeader.h</label>
+      </node>
+    </incdepgraph>
+    <innernamespace refid="namespaceshader">shader</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_controller_8h" kindref="compound">shader/Controller.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespaceshader" kindref="compound">shader</ref></highlight></codeline>
+<codeline lineno="4"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">/*____________________________________________________________________________*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="7" refid="structshader_1_1_controller_1a3b63ec57879dc4dad31c99c1ff1ad60a" refkind="member"><highlight class="normal"><ref refid="structshader_1_1_controller_1a3b63ec57879dc4dad31c99c1ff1ad60a" kindref="member">Controller::~Controller</ref>()</highlight></codeline>
+<codeline lineno="8"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="9"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structshader_1_1_controller_1ac888bf835596922d42e6b530c8156670" kindref="member">detach</ref>();</highlight></codeline>
+<codeline lineno="10"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13" refid="structshader_1_1_controller_1a261eecb70bbd676b432e328c166816f1" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="structshader_1_1_controller_1a261eecb70bbd676b432e328c166816f1" kindref="member">Controller::attach</ref><sp/>(<ref refid="classjuce_1_1Component" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Component</ref>&amp;<sp/>component)</highlight></codeline>
+<codeline lineno="14"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="15"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structshader_1_1_controller_1a8f950e6005e718b369325bdfc1f1c488" kindref="member">context</ref>.setComponentPaintingEnabled<sp/>(</highlight><highlight class="keyword">true</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structshader_1_1_controller_1a8f950e6005e718b369325bdfc1f1c488" kindref="member">context</ref>.setContinuousRepainting<sp/>(</highlight><highlight class="keyword">false</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structshader_1_1_controller_1a8f950e6005e718b369325bdfc1f1c488" kindref="member">context</ref>.setRenderer<sp/>(</highlight><highlight class="keyword">this</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structshader_1_1_controller_1a8f950e6005e718b369325bdfc1f1c488" kindref="member">context</ref>.attachTo<sp/>(component);</highlight></codeline>
+<codeline lineno="19"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21" refid="structshader_1_1_controller_1ac888bf835596922d42e6b530c8156670" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="structshader_1_1_controller_1ac888bf835596922d42e6b530c8156670" kindref="member">Controller::detach</ref>()</highlight></codeline>
+<codeline lineno="22"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structshader_1_1_controller_1a8f950e6005e718b369325bdfc1f1c488" kindref="member">context</ref>.detach();</highlight></codeline>
+<codeline lineno="24"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26" refid="structshader_1_1_controller_1a33e37a46958ce5de0585b76e8e451f24" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structshader_1_1_controller_1a33e37a46958ce5de0585b76e8e451f24" kindref="member">Controller::isAttached</ref>()<sp/>const<sp/>noexcept</highlight></codeline>
+<codeline lineno="27"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="structshader_1_1_controller_1a8f950e6005e718b369325bdfc1f1c488" kindref="member">context</ref>.isAttached();</highlight></codeline>
+<codeline lineno="29"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31" refid="structshader_1_1_controller_1ae60aa6289254c3bbec119ad0e1cd4b3e" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="structshader_1_1_controller_1ae60aa6289254c3bbec119ad0e1cd4b3e" kindref="member">Controller::resize</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>width,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>height)</highlight></codeline>
+<codeline lineno="32"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structshader_1_1_controller_1aac90c2ca729836e121111a13278951f1" kindref="member">pendingWidth</ref>.store<sp/>(width);</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structshader_1_1_controller_1ac5ac49079d7cfd2ee3314046d279e11d" kindref="member">pendingHeight</ref>.store<sp/>(height);</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structshader_1_1_controller_1a8f950e6005e718b369325bdfc1f1c488" kindref="member">context</ref>.triggerRepaint();</highlight></codeline>
+<codeline lineno="36"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39" refid="structshader_1_1_controller_1aa9689e38d31580d9ba6651cb6f12cd73" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="structshader_1_1_controller_1aa9689e38d31580d9ba6651cb6f12cd73" kindref="member">Controller::newOpenGLContextCreated</ref>()</highlight></codeline>
+<codeline lineno="40"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>JUCE_MAC<sp/>||<sp/>JUCE_WINDOWS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structjam_1_1BackgroundBlur_1aba30ef82c71f521f855171339dc180c1" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::BackgroundBlur::enableWindowTransparency</ref>();</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structshader_1_1_controller_1a0ff01484f7ee0d673a929dc397d08057" kindref="member">quad</ref>.create<sp/>(<ref refid="structshader_1_1_controller_1a8f950e6005e718b369325bdfc1f1c488" kindref="member">context</ref>);</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>now<sp/>=<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">float</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(<ref refid="classjuce_1_1Time_1a4f84742100383e6904d12470d94fefca" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Time::getMillisecondCounterHiRes</ref>()<sp/>*<sp/>0.001);</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structshader_1_1_controller_1aae31d05aa24be6e6c82ae8e0f5266397" kindref="member">startTime</ref><sp/><sp/><sp/><sp/><sp/>=<sp/>now;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structshader_1_1_controller_1af930e200a46b5d7a40bf9bc02b0ee060" kindref="member">lastFrameTime</ref><sp/>=<sp/>now;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structshader_1_1_controller_1a3a520769e8c0b5ac8dba408b2d032613" kindref="member">frameCount</ref><sp/><sp/><sp/><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="51"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53" refid="structshader_1_1_controller_1af327793eb89fca8a3fb018a0fa11bcab" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="structshader_1_1_controller_1af327793eb89fca8a3fb018a0fa11bcab" kindref="member">Controller::openGLContextClosing</ref>()</highlight></codeline>
+<codeline lineno="54"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structshader_1_1_controller_1ac34780b2cae1072d3a686f606a4a1a23" kindref="member">background</ref>.release();</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keyword">auto</highlight><highlight class="normal">&amp;<sp/>b<sp/>:<sp/><ref refid="structshader_1_1_controller_1a35fdc155b5c39356e0527a9cd96be180" kindref="member">buffers</ref>)</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>b.release();</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structshader_1_1_controller_1a0ff01484f7ee0d673a929dc397d08057" kindref="member">quad</ref>.destroy();</highlight></codeline>
+<codeline lineno="61"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63" refid="structshader_1_1_controller_1a08ef3c4c7114fb06c4094af17535d725" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="structshader_1_1_controller_1a08ef3c4c7114fb06c4094af17535d725" kindref="member">Controller::renderOpenGL</ref>()</highlight></codeline>
+<codeline lineno="64"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">using<sp/>namespace<sp/></highlight><highlight class="normal"><ref refid="namespacejuce_1_1gl" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::gl</ref>;</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>pw<sp/>=<sp/><ref refid="structshader_1_1_controller_1aac90c2ca729836e121111a13278951f1" kindref="member">pendingWidth</ref>.exchange<sp/>(0);</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>ph<sp/>=<sp/><ref refid="structshader_1_1_controller_1ac5ac49079d7cfd2ee3314046d279e11d" kindref="member">pendingHeight</ref>.exchange<sp/>(0);</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(pw<sp/>&gt;<sp/>0<sp/>and<sp/>ph<sp/>&gt;<sp/>0)</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structshader_1_1_controller_1a336ead076637bcad4396c48b037603fe" kindref="member">viewportWidth</ref><sp/><sp/>=<sp/>pw;</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structshader_1_1_controller_1acc23e86afd06eeb0778ecabf4ebad004" kindref="member">viewportHeight</ref><sp/>=<sp/>ph;</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keyword">auto</highlight><highlight class="normal">&amp;<sp/>b<sp/>:<sp/><ref refid="structshader_1_1_controller_1a35fdc155b5c39356e0527a9cd96be180" kindref="member">buffers</ref>)</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(b.isLoaded())</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>b.resize<sp/>(<ref refid="structshader_1_1_controller_1a8f950e6005e718b369325bdfc1f1c488" kindref="member">context</ref>,<sp/><ref refid="structshader_1_1_controller_1a336ead076637bcad4396c48b037603fe" kindref="member">viewportWidth</ref>,<sp/><ref refid="structshader_1_1_controller_1acc23e86afd06eeb0778ecabf4ebad004" kindref="member">viewportHeight</ref>);</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="structshader_1_1_controller_1a336ead076637bcad4396c48b037603fe" kindref="member">viewportWidth</ref><sp/>&lt;=<sp/>0<sp/>or<sp/><ref refid="structshader_1_1_controller_1acc23e86afd06eeb0778ecabf4ebad004" kindref="member">viewportHeight</ref><sp/>&lt;=<sp/>0)</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Timing</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/><sp/>now<sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="keywordtype">float</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal"><sp/>(<ref refid="classjuce_1_1Time_1a4f84742100383e6904d12470d94fefca" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Time::getMillisecondCounterHiRes</ref>()<sp/>*<sp/>0.001);</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>time<sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>now<sp/>-<sp/><ref refid="structshader_1_1_controller_1aae31d05aa24be6e6c82ae8e0f5266397" kindref="member">startTime</ref>;</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>timeDelta<sp/>=<sp/>now<sp/>-<sp/><ref refid="structshader_1_1_controller_1af930e200a46b5d7a40bf9bc02b0ee060" kindref="member">lastFrameTime</ref>;</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structshader_1_1_controller_1af930e200a46b5d7a40bf9bc02b0ee060" kindref="member">lastFrameTime</ref><sp/><sp/><sp/>=<sp/>now;</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Clear<sp/>to<sp/>transparent<sp/>—<sp/>glass<sp/>shows<sp/>through</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classjuce_1_1OpenGLHelpers_1afb2ec794b86a370169b631c68a874b0f" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::OpenGLHelpers::clear</ref><sp/>(<ref refid="namespacejuce_1_1Colours_1a2d59beef8fef5d9b43c030dc5968a2bb" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Colours::transparentBlack</ref>);</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespacejuce_1_1gl_1a425eb845f8cb936a9247544f2b7d536d" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">glViewport</ref><sp/>(0,<sp/>0,<sp/><ref refid="structshader_1_1_controller_1a336ead076637bcad4396c48b037603fe" kindref="member">viewportWidth</ref>,<sp/><ref refid="structshader_1_1_controller_1acc23e86afd06eeb0778ecabf4ebad004" kindref="member">viewportHeight</ref>);</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Multipass<sp/>buffers</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>4;<sp/>++i)</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="structshader_1_1_controller_1a35fdc155b5c39356e0527a9cd96be180" kindref="member">buffers</ref>[i].isLoaded())</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structshader_1_1_controller_1a35fdc155b5c39356e0527a9cd96be180" kindref="member">buffers</ref>[i].render<sp/>(<ref refid="structshader_1_1_controller_1a0ff01484f7ee0d673a929dc397d08057" kindref="member">quad</ref>,<sp/><ref refid="structshader_1_1_controller_1a336ead076637bcad4396c48b037603fe" kindref="member">viewportWidth</ref>,<sp/><ref refid="structshader_1_1_controller_1acc23e86afd06eeb0778ecabf4ebad004" kindref="member">viewportHeight</ref>,<sp/>time,<sp/>timeDelta,<sp/><ref refid="structshader_1_1_controller_1a3a520769e8c0b5ac8dba408b2d032613" kindref="member">frameCount</ref>,<sp/><ref refid="structshader_1_1_controller_1a236262e3bff434dbaa37df9d6c1ab77b" kindref="member">mouse</ref>);</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Background<sp/>shader<sp/>—<sp/>renders<sp/>behind<sp/>JUCE<sp/>components</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="structshader_1_1_controller_1ac34780b2cae1072d3a686f606a4a1a23" kindref="member">background</ref>.isLoaded())</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structshader_1_1_controller_1ac34780b2cae1072d3a686f606a4a1a23" kindref="member">background</ref>.render<sp/>(<ref refid="structshader_1_1_controller_1a0ff01484f7ee0d673a929dc397d08057" kindref="member">quad</ref>,<sp/><ref refid="structshader_1_1_controller_1a336ead076637bcad4396c48b037603fe" kindref="member">viewportWidth</ref>,<sp/><ref refid="structshader_1_1_controller_1acc23e86afd06eeb0778ecabf4ebad004" kindref="member">viewportHeight</ref>,<sp/>time,<sp/>timeDelta,<sp/><ref refid="structshader_1_1_controller_1a3a520769e8c0b5ac8dba408b2d032613" kindref="member">frameCount</ref>,<sp/><ref refid="structshader_1_1_controller_1a236262e3bff434dbaa37df9d6c1ab77b" kindref="member">mouse</ref>);</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/>++<ref refid="structshader_1_1_controller_1a3a520769e8c0b5ac8dba408b2d032613" kindref="member">frameCount</ref>;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>shader</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="shader/Controller.cpp"/>
+  </compounddef>
+</doxygen>
