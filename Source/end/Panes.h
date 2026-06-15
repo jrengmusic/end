@@ -11,9 +11,9 @@ namespace end
 /*____________________________________________________________________________*/
 
 /** @class Panes
- *  @brief Per-tab split-pane container — IS the TAB node in the model tree.
+ *  @brief Per-tab split-pane container — IS the TAB tree in the model.
  *
- *  Inherits jam::Model::Component (IDtype::tab) so it owns a TAB ValueTree node.
+ *  Inherits jam::Model::Component (IDtype::tab) so it owns a TAB ValueTree.
  *  Sets Name and componentID directly in the constructor body. Owns PaneManager
  *  (binary tree), PaneView pool, resizer
  *  bar pool, and Attachments for each PaneView child.
@@ -25,7 +25,7 @@ class Panes
 {
 public:
     /** @brief Constructs the container with one initial pane.
-     *  @param uuid   UUID for both this TAB node and the first PaneView leaf.
+     *  @param uuid   UUID for both this TAB tree and the first PaneView leaf.
      *  @param model  Model reference — forwarded to Component and child Attachments.
      */
     Panes (jam::UUID uuid, jam::Model& model);

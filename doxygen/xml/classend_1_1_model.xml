@@ -170,6 +170,7 @@
       <member refid="classjam_1_1Model_1a5de5c362c126a9f4d8d21c592b678bdb" prot="private" virt="virtual"><scope>end::Model</scope><name>timerCallback</name></member>
       <member refid="classjam_1_1Model_1a996fa3b0c8889e5c5280ca29dcd281e4" prot="public" virt="non-virtual"><scope>end::Model</scope><name>toColour</name></member>
       <member refid="classjam_1_1Model_1a2a242b840bd054d5c80158b34f83f05f" prot="public" virt="non-virtual"><scope>end::Model</scope><name>toInt</name></member>
+      <member refid="classjam_1_1Model_1ad7d29cc11027835e39f6bb1c5bbe3677" prot="public" virt="non-virtual"><scope>end::Model</scope><name>toStringArray</name></member>
       <member refid="classjam_1_1Model_1a495677a2122cc1dbb67c416ddfd51e17" prot="private" virt="non-virtual"><scope>end::Model</scope><name>valueTreeChanging</name></member>
       <member refid="classjam_1_1Model_1a5e0284f87a2a71c84edd644b75f4d07f" prot="public" virt="non-virtual"><scope>end::Model</scope><name>writeToXml</name></member>
       <member refid="classend_1_1_model_1ad6cbf73ea05928511bcb64cececef692" prot="public" virt="non-virtual"><scope>end::Model</scope><name>~Model</name></member>

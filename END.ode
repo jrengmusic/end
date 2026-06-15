@@ -1,5 +1,31 @@
 
 **********************************************************
 
-Log started: 14 Jun 2026 5:42:11pm
+Log started: 15 Jun 2026 8:30:12am
 
+loadGraphics -- theme: gfx
+loadGraphics -- directory: /Users/jreng/.config/end/themes/gfx/graphics
+loadGraphics -- directory exists: 1
+loadGraphics -- theme.state children: 2
+  tree: END | files: 0 | colours: 0
+  tree: THEME | files: 0 | colours: 1
+  tree: WINDOW | files: 0 | colours: 1
+  tree: WINDOW_FX | files: 0 | colours: 1
+  tree: OVERLAY | files: 0 | colours: 1
+  tree: SCROLLBAR | files: 0 | colours: 1
+  tree: ANSI | files: 0 | colours: 1
+  tree: MENU | files: 0 | colours: 1
+  tree: STATUS_BAR | files: 0 | colours: 1
+  tree: HINT | files: 0 | colours: 1
+  tree: PANE | files: 1 | colours: 1
+    resizer_bar.svg -> id=resizer_bar svgLen=1383
+  tree: BUTTON | files: 0 | colours: 1
+  tree: CODE | files: 0 | colours: 1
+  tree: TAB | files: 3 | colours: 1
+    tab_bar.svg -> id=tab_bar svgLen=3017
+    tab_highlight.svg -> id=tab_highlight svgLen=3085
+    tab_button_normalOn.svg -> id=normalOn svgLen=3043
+  tree: ACTION_LIST | files: 0 | colours: 1
+  tree: CURSOR | files: 0 | colours: 1
+  tree: WHELMED | files: 0 | colours: 1
+loadGraphics -- total entries: 4

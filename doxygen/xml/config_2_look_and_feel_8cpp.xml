@@ -2,12 +2,20 @@
 <doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
   <compounddef id="config_2_look_and_feel_8cpp" kind="file" language="C++">
     <compoundname>LookAndFeel.cpp</compoundname>
-    <includes refid="config_2_look_and_feel_8h" local="yes">LookAndFeel.h</includes>
+    <includes refid="_config_8h" local="yes">Config.h</includes>
     <incdepgraph>
       <node id="5">
         <label>Identifier.h</label>
         <link refid="_identifier_8h"/>
         <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>Config.h</label>
+        <link refid="_config_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
         </childnode>
       </node>
       <node id="1">
@@ -16,16 +24,8 @@
         <childnode refid="2" relation="include">
         </childnode>
       </node>
-      <node id="2">
-        <label>LookAndFeel.h</label>
-        <link refid="config_2_look_and_feel_8h"/>
-        <childnode refid="3" relation="include">
-        </childnode>
-        <childnode refid="4" relation="include">
-        </childnode>
-      </node>
       <node id="4">
-        <label>end/Map.h</label>
+        <label>../end/Map.h</label>
         <link refid="_map_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
@@ -42,24 +42,24 @@
     <detaileddescription>
     </detaileddescription>
     <programlisting>
-<codeline lineno="1"><highlight class="preprocessor">#include<sp/>&quot;<ref refid="config_2_look_and_feel_8h" kindref="compound">LookAndFeel.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="1"><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_config_8h" kindref="compound">Config.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="2"><highlight class="normal"></highlight></codeline>
 <codeline lineno="3"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespaceconfig" kindref="compound">config</ref></highlight></codeline>
 <codeline lineno="4"><highlight class="normal">{</highlight></codeline>
 <codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">/*____________________________________________________________________________*/</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="6"><highlight class="normal"></highlight></codeline>
-<codeline lineno="7" refid="classconfig_1_1_look_and_feel_1ab82045056c39120b8b929541369678c5" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classconfig_1_1_look_and_feel_1ab82045056c39120b8b929541369678c5" kindref="member">LookAndFeel::load</ref><sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classjuce_1_1Identifier" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Identifier</ref>&amp;<sp/>theme)</highlight></codeline>
+<codeline lineno="7" refid="classconfig_1_1_theme_1ad1c552afe63e04ce01d6479bdd197996" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classconfig_1_1_theme_1ad1c552afe63e04ce01d6479bdd197996" kindref="member">Theme::load</ref><sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classjuce_1_1Identifier" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Identifier</ref>&amp;<sp/>themeName)</highlight></codeline>
 <codeline lineno="8"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="9"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>themePath<sp/>{<sp/><ref refid="structconfig_1_1_theme_1aeff8b69b8a933ad965831da6e6ee8563" kindref="member">Theme::getPath</ref><sp/>(theme.<ref refid="classjuce_1_1Identifier_1ab6f0db1de2c36cacd1a9d7280f73aeeb" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">toString</ref>())<sp/>};</highlight></codeline>
+<codeline lineno="9"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>themePath<sp/>{<sp/><ref refid="structconfig_1_1_file_1_1_theme_1a1a4f485d0cd842d77061933a01b1a55c" kindref="member">File::Theme::getPath</ref><sp/>(themeName.<ref refid="classjuce_1_1Identifier_1ab6f0db1de2c36cacd1a9d7280f73aeeb" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">toString</ref>())<sp/>};</highlight></codeline>
 <codeline lineno="10"><highlight class="normal"></highlight></codeline>
 <codeline lineno="11"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(not<sp/>themePath.exists())</highlight></codeline>
 <codeline lineno="12"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>themePath.createDirectory();</highlight></codeline>
 <codeline lineno="13"><highlight class="normal"></highlight></codeline>
 <codeline lineno="14"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classjam_1_1Model_1aef4cd7ff33d3393980f2d12217e49857" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">state</ref>.removeAllChildren<sp/>(</highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">);</highlight></codeline>
 <codeline lineno="15"><highlight class="normal"></highlight></codeline>
-<codeline lineno="16"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keyword">auto</highlight><highlight class="normal">&amp;<sp/>[key,<sp/>value]<sp/>:<sp/><ref refid="structconfig_1_1_theme_1afdb84dbc42f95e8f97ec27975ef140c5" kindref="member">Theme::get</ref>())</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keyword">auto</highlight><highlight class="normal">&amp;<sp/>[key,<sp/>value]<sp/>:<sp/><ref refid="structconfig_1_1_file_1_1_theme_1a259522514f9d57dccbffc3e3f1349a7f" kindref="member">File::Theme::get</ref>())</highlight></codeline>
 <codeline lineno="17"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
-<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/><ref refid="juce__UnityPluginInterface_8h_1a010e50efcb9d6d393b9414f09f368dbc" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">name</ref><sp/>{<sp/><ref refid="structconfig_1_1_theme_1a53fa4d62039514603905e3f94d3dbdc4" kindref="member">Theme::getName</ref><sp/>(key)<sp/>};</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/><ref refid="juce__UnityPluginInterface_8h_1a010e50efcb9d6d393b9414f09f368dbc" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">name</ref><sp/>{<sp/><ref refid="structconfig_1_1_file_1_1_theme_1aae7b0309384b8333ee5d8daa47406edb" kindref="member">File::Theme::getName</ref><sp/>(key)<sp/>};</highlight></codeline>
 <codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classjuce_1_1File" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::File</ref><sp/>file<sp/>{<sp/>themePath.getChildFile<sp/>(<ref refid="juce__UnityPluginInterface_8h_1a010e50efcb9d6d393b9414f09f368dbc" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">name</ref>)<sp/>};</highlight></codeline>
 <codeline lineno="20"><highlight class="normal"></highlight></codeline>
 <codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(not<sp/>file.<ref refid="classjuce_1_1File_1a37e88fbc390d78f3d79675974f53fa78" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">existsAsFile</ref>())</highlight></codeline>
@@ -87,7 +87,7 @@
 <codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classjam_1_1Model_1aef4cd7ff33d3393980f2d12217e49857" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">state</ref>.sendPropertyChangeMessage<sp/>(ID::theme);</highlight></codeline>
 <codeline lineno="44"><highlight class="normal">}</highlight></codeline>
 <codeline lineno="45"><highlight class="normal"></highlight></codeline>
-<codeline lineno="47"><highlight class="normal">}</highlight><highlight class="comment">//<sp/>namespace<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal">}</highlight><highlight class="comment">//<sp/>namespace<sp/>config</highlight><highlight class="normal"></highlight></codeline>
     </programlisting>
     <location file="config/LookAndFeel.cpp"/>
   </compounddef>

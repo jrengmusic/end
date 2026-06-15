@@ -11,9 +11,9 @@ namespace end
 /*____________________________________________________________________________*/
 
 /** @class PaneView
- *  @brief Stub pane component with ValueTree node identity.
+ *  @brief Stub pane component with ValueTree identity.
  *
- *  Each PaneView owns a PANE node (via jam::Model::Component) identified by a UUID.
+ *  Each PaneView owns a PANE tree (via jam::Model::Component) identified by a UUID.
  *  Seeds focus=0 and stores the UUID as both componentID (for PaneManager matching)
  *  and as an ID::id VT property (for model tree inspection).
  *  Empty in Phase 3 — terminal::View subclasses this in Phase 4.
@@ -46,13 +46,13 @@ public:
             toFront (true);
     }
 
-    /** @brief Sets focus=1 on this pane's state node when keyboard focus is gained. */
+    /** @brief Sets focus=1 on this pane's state tree when keyboard focus is gained. */
     void focusGained (FocusChangeType) override
     {
         state.setProperty (ID::focus, 1, nullptr);
     }
 
-    /** @brief Sets focus=0 on this pane's state node when keyboard focus is lost. */
+    /** @brief Sets focus=0 on this pane's state tree when keyboard focus is lost. */
     void focusLost (FocusChangeType) override
     {
         state.setProperty (ID::focus, 0, nullptr);

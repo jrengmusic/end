@@ -1,4 +1,5 @@
 #include "end/Panes.h"
+#include "config/Config.h"
 
 namespace end
 {
@@ -9,6 +10,10 @@ Panes::Panes (jam::UUID uuid, jam::Model& m)
 {
     setName (IDtype::tab.toString());
     setComponentID (uuid.toString());
+    state.setProperty (jam::ID::name, juce::String {}, nullptr);
+
+    const int thickness { config::Model::getInstance()->getTheme().getValue (IDtype::pane, ID::resizeBarThickness) };
+    paneManager.setResizerBarSize (thickness);
 
     auto pane { std::make_unique<PaneView> (uuid, model) };
     addAndMakeVisible (*pane);

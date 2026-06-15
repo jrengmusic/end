@@ -3,7 +3,7 @@
   <compounddef id="_window_8h" kind="file" language="C++">
     <compoundname>Window.h</compoundname>
     <includes local="no">JuceHeader.h</includes>
-    <includes refid="look_and_feel_2_look_and_feel_8h" local="yes">lookAndFeel/LookAndFeel.h</includes>
+    <includes refid="_look_and_feel_8h" local="yes">lookAndFeel/LookAndFeel.h</includes>
     <includedby refid="_main_8h" local="yes">Main.h</includedby>
     <includedby refid="_window_8cpp" local="yes">end/Window.cpp</includedby>
     <incdepgraph>
@@ -16,16 +16,6 @@
       <node id="6">
         <label>../config/Config.h</label>
         <link refid="_config_8h"/>
-        <childnode refid="2" relation="include">
-        </childnode>
-        <childnode refid="7" relation="include">
-        </childnode>
-        <childnode refid="8" relation="include">
-        </childnode>
-      </node>
-      <node id="8">
-        <label>LookAndFeel.h</label>
-        <link refid="config_2_look_and_feel_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
         <childnode refid="7" relation="include">
@@ -49,7 +39,7 @@
       </node>
       <node id="3">
         <label>lookAndFeel/LookAndFeel.h</label>
-        <link refid="look_and_feel_2_look_and_feel_8h"/>
+        <link refid="_look_and_feel_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
         <childnode refid="4" relation="include">
@@ -103,7 +93,7 @@
 <codeline lineno="1"><highlight class="normal"></highlight></codeline>
 <codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#pragma<sp/>once</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;JuceHeader.h&gt;</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="look_and_feel_2_look_and_feel_8h" kindref="compound">lookAndFeel/LookAndFeel.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_look_and_feel_8h" kindref="compound">lookAndFeel/LookAndFeel.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="17"><highlight class="normal"></highlight></codeline>
 <codeline lineno="18"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespaceend" kindref="compound">end</ref></highlight></codeline>
 <codeline lineno="19"><highlight class="normal">{</highlight></codeline>

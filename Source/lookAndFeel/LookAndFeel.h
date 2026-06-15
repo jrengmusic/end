@@ -48,6 +48,11 @@ public:
                         bool isMouseOver,
                         bool isMouseDown) override;
 
+    /** @brief Tab label rendering — uses getTabFont() and getTabText() from theme config.
+     *  No border, centred, colour from Label::textColourId (synced by Tab::buttonStateChanged).
+     */
+    void drawTabLabel (juce::Graphics&, juce::Label& label) override;
+
     juce::Font getTabFont() const override;
 
     /** @brief Returns horizontal padding in pixels per side of the tab label.
@@ -77,12 +82,10 @@ public:
 
     Glass getWindowGlass() const;
 
-    void drawStretchableLayoutResizerBar (juce::Graphics&,
-                                          int w,
-                                          int h,
-                                          bool isVertical,
-                                          bool isMouseOver,
-                                          bool isMouseDown) override;
+    /** @brief Pane resizer bar — SVG Flex rendering with pane colourIds.
+     *  Hover/pressed state swaps bar colour to highlight colour.
+     */
+    void drawResizerBar (juce::Graphics&, juce::Component& bar) override;
 
 private:
     /** @brief Rendering-context typeface registry and shared glyph atlas. */
@@ -95,7 +98,7 @@ private:
     jam::Grapheme graphemeInstance;
 
     config::Model& config { *config::Model::getInstance() };
-    config::LookAndFeel& theme { config.getLookAndFeel() };
+    config::Theme& theme { config.getTheme() };
     //==============================================================================
     /** @brief JUCE embedded font ownership — Ptrs kept alive so font names resolve
      *  via juce::Font name lookup without requiring system-installed fonts.
@@ -108,7 +111,7 @@ private:
      *
      *  Each entry is a SVG::Flex::Segments set (9-slice layout, paint-ready)
      *  produced by SVG::Flex::getSegments from the SVG file named by the
-     *  matching property in the IDtype::graphics ValueTree node. Rebuilt by
+     *  matching property in the IDtype::graphics ValueTree. Rebuilt by
      *  loadGraphics() on construction and on every SVG file-change event.
      *
      *  Keys are either:

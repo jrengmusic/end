@@ -22,7 +22,8 @@ View::View (jam::Model& m)
     attachments.add (std::make_unique<jam::Model::Attachment> (tabs));
 
     config.addListener (this);
-    config.getLookAndFeel().addListener (this);
+    config.getTheme().addListener (this);
+    model.addListener (this);
 
     setTabOrientation();
     tabs.addNewTab();
@@ -34,7 +35,8 @@ View::View (jam::Model& m)
 
 View::~View()
 {
-    config.getLookAndFeel().removeListener (this);
+    model.removeListener (this);
+    config.getTheme().removeListener (this);
     config.removeListener (this);
     removeKeyListener (this);
 }
@@ -106,7 +108,7 @@ void View::setViewState (int width, int height)
 
 void View::setTabOrientation()
 {
-    auto pos { config.getLookAndFeel().getValue (IDtype::tab, ID::orientation).toString() };
+    auto pos { config.getTheme().getValue (IDtype::tab, ID::orientation).toString() };
 
     if (Position::getInstance()->contains (pos))
         tabs.setOrientation (Position::get (pos));

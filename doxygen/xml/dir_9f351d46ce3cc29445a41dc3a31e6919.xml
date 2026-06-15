@@ -4,8 +4,6 @@
     <compoundname>config</compoundname>
     <innerfile refid="_config_8cpp">Config.cpp</innerfile>
     <innerfile refid="_config_8h">Config.h</innerfile>
-    <innerfile refid="config_2_look_and_feel_8cpp">LookAndFeel.cpp</innerfile>
-    <innerfile refid="config_2_look_and_feel_8h">LookAndFeel.h</innerfile>
     <briefdescription>
     </briefdescription>
     <detaileddescription>

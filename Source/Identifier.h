@@ -20,7 +20,7 @@
 // JRENG!
 // ============================================================================
 
-// Config + theme section and node names
+// Config + theme section and tree type names
 #define IDENTIFIER_CONFIG(X) \
     X (config, "config")     \
     X (end, "end")           \
@@ -44,8 +44,9 @@
     X (inactive, "inactive")               \
     X (active, "active")                   \
     X (scrollbarWidth, "scrollbar_width")  \
-    X (barColour, "bar_colour")            \
-    X (barHighlight, "bar_highlight")      \
+    X (resizeBar, "resize_bar")            \
+    X (resizeBarHighlight, "resize_bar_highlight") \
+    X (resizeBarThickness, "resize_bar_thickness") \
     X (borderColour, "border_colour")      \
     X (borderWidth, "border_width")        \
     X (scrollbackLines, "scrollback_lines")\
@@ -55,20 +56,13 @@
     X (scrollbarThumb, "scrollbar_thumb")  \
     X (scrollbarTrack, "scrollbar_track")
 
-// Theme-specific keys (theme tree property and node names)
+// Theme-specific keys (theme tree property and type names)
 #define IDENTIFIER_THEME(X)                      \
     X (tab, "tab")                                 \
     X (tabBar, "tab_bar")                          \
     X (tabButton, "tab_button")                    \
     X (tabHighlight, "tab_highlight")              \
-    X (tabButtonNormal,     "tab_button_normal")     \
-    X (tabButtonOver,       "tab_button_over")       \
-    X (tabButtonDown,       "tab_button_down")       \
-    X (tabButtonDisabled,   "tab_button_disabled")   \
-    X (tabButtonNormalOn,   "tab_button_normalOn")   \
-    X (tabButtonOverOn,     "tab_button_overOn")     \
-    X (tabButtonDownOn,     "tab_button_downOn")     \
-    X (tabButtonDisabledOn, "tab_button_disabledOn") \
+    X (resizerBar, "resizer_bar")                   \
     X (tabs, "tabs")                               \
     X (pane, "pane")                               \
     X (window, "window")                           \

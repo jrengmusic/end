@@ -35,8 +35,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="end/Tabs.h" line="59" column="16" bodyfile="end/Tabs.h" bodystart="59" bodyend="-1"/>
-        <referencedby refid="classend_1_1_tabs_1a5d92721be181f26d6425b39bfa3724f4" compoundref="_tabs_8cpp" startline="17" endline="34">addNewTab</referencedby>
-        <referencedby refid="classend_1_1_tabs_1a629895e04058463b40f27526739b65fe" compoundref="_tabs_8cpp" startline="36" endline="52">removeCurrentTab</referencedby>
+        <referencedby refid="classend_1_1_tabs_1a5d92721be181f26d6425b39bfa3724f4" compoundref="_tabs_8cpp" startline="17" endline="46">addNewTab</referencedby>
+        <referencedby refid="classend_1_1_tabs_1a629895e04058463b40f27526739b65fe" compoundref="_tabs_8cpp" startline="48" endline="64">removeCurrentTab</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">
@@ -88,14 +88,17 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Tabs.h" line="37" column="10" bodyfile="end/Tabs.cpp" bodystart="17" bodyend="34"/>
+        <location file="end/Tabs.h" line="37" column="10" bodyfile="end/Tabs.cpp" bodystart="17" bodyend="46"/>
         <references refid="classjam_1_1TabbedComponent_1a52e2d240fb8fdab778223797995be95c">jam::TabbedComponent::addTab</references>
         <references refid="classend_1_1_tabs_1a0a04c1c18eb83b30d0c23901ea3fdc45" compoundref="_tabs_8h" startline="59">attachments</references>
+        <references refid="classjam_1_1TabbedComponent_1a7ab0d785a051e0ff35ea9ea69f13fd15">jam::TabbedComponent::getBar</references>
         <references refid="classjam_1_1TabbedComponent_1ab52aa701daae6c2f6dd778e4fc1b9352">jam::TabbedComponent::getNumTabs</references>
+        <references refid="classjam_1_1button_1_1Bar_1a2ed822b5b2731e40e21a4d82fb0bef5f">jam::button::Bar::getTabButton</references>
         <references refid="structjam_1_1Model_1_1Component_1aa5a0c333addf975536c95bca7a9685be">jam::Model::Component::model</references>
+        <references refid="structjam_1_1ID_1a2f2ee05e76603e24f721a5ad93fe4795">jam::ID::name</references>
         <references refid="classjam_1_1TabbedComponent_1a02fe2df3f471fb0a291b69a12b61b683">jam::TabbedComponent::setCurrentTabIndex</references>
         <references refid="namespacejuce_1_1Colours_1a2d59beef8fef5d9b43c030dc5968a2bb">juce::Colours::transparentBlack</references>
-        <references refid="classend_1_1_tabs_1a530f82b0d136b1c3385be168d79d5b66" compoundref="_tabs_8cpp" startline="72" endline="85">updateTabBarVisibility</references>
+        <references refid="classend_1_1_tabs_1a530f82b0d136b1c3385be168d79d5b66" compoundref="_tabs_8cpp" startline="84" endline="97">updateTabBarVisibility</references>
       </memberdef>
       <memberdef kind="function" id="classend_1_1_tabs_1a629895e04058463b40f27526739b65fe" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -110,7 +113,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Tabs.h" line="40" column="10" bodyfile="end/Tabs.cpp" bodystart="36" bodyend="52"/>
+        <location file="end/Tabs.h" line="40" column="10" bodyfile="end/Tabs.cpp" bodystart="48" bodyend="64"/>
         <references refid="classend_1_1_tabs_1a0a04c1c18eb83b30d0c23901ea3fdc45" compoundref="_tabs_8h" startline="59">attachments</references>
         <references refid="classjam_1_1TabbedComponent_1abf9b16f6ff7eca56996fb95c99deaaa2">jam::TabbedComponent::getCurrentTabIndex</references>
         <references refid="classjuce_1_1JUCEApplication_1a692d98883525936314ee3554c219c42b">juce::JUCEApplication::getInstance</references>
@@ -119,7 +122,7 @@
         <references refid="classjam_1_1TabbedComponent_1ad62770b4cbf4b8e3fa19f262d80af1a0">jam::TabbedComponent::removeTab</references>
         <references refid="classjam_1_1TabbedComponent_1a02fe2df3f471fb0a291b69a12b61b683">jam::TabbedComponent::setCurrentTabIndex</references>
         <references refid="classjuce_1_1JUCEApplication_1a8c2f7ab5ab49f2d3b80074cbc8fdeef9">juce::JUCEApplication::systemRequestedQuit</references>
-        <references refid="classend_1_1_tabs_1a530f82b0d136b1c3385be168d79d5b66" compoundref="_tabs_8cpp" startline="72" endline="85">updateTabBarVisibility</references>
+        <references refid="classend_1_1_tabs_1a530f82b0d136b1c3385be168d79d5b66" compoundref="_tabs_8cpp" startline="84" endline="97">updateTabBarVisibility</references>
       </memberdef>
       <memberdef kind="function" id="classend_1_1_tabs_1a202281e6b55f4974b00b7cf030cf3f12" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
         <type><ref refid="classend_1_1_panes" kindref="compound">Panes</ref> *</type>
@@ -134,7 +137,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Tabs.h" line="43" column="11" bodyfile="end/Tabs.cpp" bodystart="54" bodyend="57"/>
+        <location file="end/Tabs.h" line="43" column="11" bodyfile="end/Tabs.cpp" bodystart="66" bodyend="69"/>
         <references refid="classjam_1_1TabbedComponent_1ac4eabdabb00d256d4464b78bbd79da63">jam::TabbedComponent::getCurrentContentComponent</references>
       </memberdef>
     </sectiondef>
@@ -160,7 +163,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Tabs.h" line="46" column="10" bodyfile="end/Tabs.cpp" bodystart="59" bodyend="59"/>
+        <location file="end/Tabs.h" line="46" column="10" bodyfile="end/Tabs.cpp" bodystart="71" bodyend="71"/>
       </memberdef>
     </sectiondef>
     <sectiondef kind="private-func">
@@ -180,18 +183,18 @@
           <defname>property</defname>
         </param>
         <briefdescription>
-<para>Re-computes bar depth and relays tab positions when the theme tab node changes. </para>
+<para>Re-computes bar depth and relays tab positions when the theme tab tree changes. </para>
         </briefdescription>
         <detaileddescription>
 <para>Calls <ref refid="classend_1_1_tabs_1a530f82b0d136b1c3385be168d79d5b66" kindref="member">updateTabBarVisibility()</ref> then <ref refid="classjam_1_1TabbedComponent_1aa0bf75ada147ccafd3722eb3e4c68a89" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">resized()</ref> so that padding and depth changes both take effect without requiring a second event. </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Tabs.h" line="53" column="10" bodyfile="end/Tabs.cpp" bodystart="61" bodyend="70"/>
+        <location file="end/Tabs.h" line="53" column="10" bodyfile="end/Tabs.cpp" bodystart="73" bodyend="82"/>
         <references refid="classjuce_1_1ValueTree_1ac7027d954636d660784dcf930caa89ca">juce::ValueTree::getType</references>
         <references refid="namespacejuce_1a86deae84ff8b95d7e40214a493b3dfe0">juce::ignoreUnused</references>
         <references refid="classjam_1_1TabbedComponent_1aa0bf75ada147ccafd3722eb3e4c68a89">jam::TabbedComponent::resized</references>
-        <references refid="classend_1_1_tabs_1a530f82b0d136b1c3385be168d79d5b66" compoundref="_tabs_8cpp" startline="72" endline="85">updateTabBarVisibility</references>
+        <references refid="classend_1_1_tabs_1a530f82b0d136b1c3385be168d79d5b66" compoundref="_tabs_8cpp" startline="84" endline="97">updateTabBarVisibility</references>
       </memberdef>
       <memberdef kind="function" id="classend_1_1_tabs_1a530f82b0d136b1c3385be168d79d5b66" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -205,14 +208,14 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Tabs.h" line="55" column="10" bodyfile="end/Tabs.cpp" bodystart="72" bodyend="85"/>
+        <location file="end/Tabs.h" line="55" column="10" bodyfile="end/Tabs.cpp" bodystart="84" bodyend="97"/>
         <references refid="classjuce_1_1Component_1ad55f2def99fd7d05f6a71ef505e1a43b">juce::Component::getLookAndFeel</references>
         <references refid="classjam_1_1TabbedComponent_1ab52aa701daae6c2f6dd778e4fc1b9352">jam::TabbedComponent::getNumTabs</references>
         <references refid="namespacejuce_1af0e7f88f33180df5f8f74d53290e11fc">juce::roundToInt</references>
         <references refid="classjam_1_1TabbedComponent_1ae43e06c068bf37737a3a73331e2e8dbc">jam::TabbedComponent::setTabBarDepth</references>
-        <referencedby refid="classend_1_1_tabs_1a5d92721be181f26d6425b39bfa3724f4" compoundref="_tabs_8cpp" startline="17" endline="34">addNewTab</referencedby>
-        <referencedby refid="classend_1_1_tabs_1a629895e04058463b40f27526739b65fe" compoundref="_tabs_8cpp" startline="36" endline="52">removeCurrentTab</referencedby>
-        <referencedby refid="classend_1_1_tabs_1a7f640e13f40ccf782f708c78fd274362" compoundref="_tabs_8cpp" startline="61" endline="70">valueTreePropertyChanged</referencedby>
+        <referencedby refid="classend_1_1_tabs_1a5d92721be181f26d6425b39bfa3724f4" compoundref="_tabs_8cpp" startline="17" endline="46">addNewTab</referencedby>
+        <referencedby refid="classend_1_1_tabs_1a629895e04058463b40f27526739b65fe" compoundref="_tabs_8cpp" startline="48" endline="64">removeCurrentTab</referencedby>
+        <referencedby refid="classend_1_1_tabs_1a7f640e13f40ccf782f708c78fd274362" compoundref="_tabs_8cpp" startline="73" endline="82">valueTreePropertyChanged</referencedby>
       </memberdef>
     </sectiondef>
     <briefdescription>
@@ -220,7 +223,7 @@
     </briefdescription>
     <detaileddescription>
 <para>Inherits <ref refid="classjam_1_1TabbedComponent" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::TabbedComponent</ref> for tab strip and content management. Each tab&apos;s content component is an <ref refid="classend_1_1_panes" kindref="compound">end::Panes</ref> instance, owned by TabbedComponent (deleteComponentWhenNotNeeded = true). Each <ref refid="classend_1_1_panes" kindref="compound">Panes</ref> child has a corresponding <ref refid="classjam_1_1Model_1_1Attachment" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Model::Attachment</ref> held in tabAttachments — RAII ensures detach on removal.</para>
-<para>Listens to the config ValueTree so that bar depth re-computes whenever the theme tab node changes (depth, font_size, font_family). </para>
+<para>Listens to the config ValueTree so that bar depth re-computes whenever the theme tab tree changes (depth, font_size, font_family). </para>
     </detaileddescription>
     <inheritancegraph>
       <node id="1">
@@ -259,12 +262,6 @@
       </node>
     </inheritancegraph>
     <collaborationgraph>
-      <node id="43">
-        <label>config::LookAndFeel</label>
-        <link refid="classconfig_1_1_look_and_feel"/>
-        <childnode refid="22" relation="public-inheritance">
-        </childnode>
-      </node>
       <node id="29">
         <label>config::Model</label>
         <link refid="classconfig_1_1_model"/>
@@ -287,7 +284,13 @@
           <edgelabel>graphicsCallbacks</edgelabel>
         </childnode>
         <childnode refid="43" relation="usage">
-          <edgelabel>lookAndFeel</edgelabel>
+          <edgelabel>theme</edgelabel>
+        </childnode>
+      </node>
+      <node id="43">
+        <label>config::Theme</label>
+        <link refid="classconfig_1_1_theme"/>
+        <childnode refid="22" relation="public-inheritance">
         </childnode>
       </node>
       <node id="1">
@@ -610,7 +613,7 @@
       <member refid="classjuce_1_1Component_1a1fc9aaf708e5349095e17ff746348457" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>createComponentSnapshot</name></member>
       <member refid="classjuce_1_1Component_1a89ae12304d481943462a2b22436287d5" prot="public" virt="virtual"><scope>end::Tabs</scope><name>createFocusTraverser</name></member>
       <member refid="classjuce_1_1Component_1a91bf4b1d9837aca8688f5c7266d0aa7a" prot="public" virt="virtual"><scope>end::Tabs</scope><name>createKeyboardFocusTraverser</name></member>
-      <member refid="classjam_1_1TabbedComponent_1a3a3dfe4ee524c74e457be0f0c1823678" prot="protected" virt="virtual"><scope>end::Tabs</scope><name>createTabButton</name></member>
+      <member refid="classjam_1_1TabbedComponent_1ad7381f506f7cfe9aa1d9c7da976cc922" prot="protected" virt="virtual"><scope>end::Tabs</scope><name>createTabButton</name></member>
       <member refid="classend_1_1_tabs_1a42964332bbe9734aef710f26f0111536" prot="protected" virt="virtual"><scope>end::Tabs</scope><name>currentTabChanged</name></member>
       <member refid="classjuce_1_1Component_1a0be5d779a36fd22ee741e969f0a16bd6" prot="public" virt="non-virtual"><scope>end::Tabs</scope><name>deleteAllChildren</name></member>
       <member refid="classjam_1_1TabbedComponent_1a6e19f83f4c27946146dac053eea701bf" prot="private" virt="non-virtual"><scope>end::Tabs</scope><name>edgeIndent</name></member>

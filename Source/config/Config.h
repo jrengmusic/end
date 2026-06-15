@@ -1,12 +1,34 @@
 #pragma once
 #include <JuceHeader.h>
 #include "../end/Map.h"
-#include "LookAndFeel.h"
 
 namespace config
 {
 /*____________________________________________________________________________*/
 
+/**
+    @brief Theme state model — owns the live ValueTree of theme lua files.
+
+    Reads theme.lua and whelmed.lua from the active theme directory
+    and rebuilds the live state tree. Used by end::LookAndFeel for
+    colour, font, and graphics resolution.
+*/
+class Theme : public jam::Model
+{
+public:
+    Theme() = default;
+    ~Theme() = default;
+
+    /** @brief Rebuilds the theme state tree from the given theme directory.
+     *  @param themeName  Theme directory name (e.g. @c "gfx").
+     */
+    void load (const juce::Identifier& themeName);
+
+private:
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Theme)
+};
+
+//==============================================================================
 /**
     @brief END's configuration model — owns the live ValueTree of all lua-driven config.
 
@@ -111,7 +133,7 @@ public:
     const juce::String& getLoadMessage() const noexcept { return loadMessage; }
 
     /** @brief Returns the theme model for listener registration. */
-    LookAndFeel& getLookAndFeel() noexcept { return lookAndFeel; }
+    Theme& getTheme() noexcept { return theme; }
 
 private:
     /**
@@ -135,9 +157,9 @@ private:
         @details
         For every key in @c File::get() writes @"stem.lua" to
         @c File::path if not already present on disk. Then writes theme
-        lua files (@c Theme::get()) to the active theme directory
+        lua files (@c File::Theme::get()) to the active theme directory
         @c ~/.config/end/themes/\<name\>/, and every
-        @c Theme::Graphics stem (e.g. @"tab_bar.svg") to the graphics
+        @c File::Graphics stem (e.g. @"tab_bar.svg") to the graphics
         subdirectory inside that theme directory. Files already on disk
         are left untouched — this is a seed-once walk, not a forced
         overwrite.
@@ -167,9 +189,9 @@ private:
         Must be called after @c loadFromPath() so the runtime filenames
         (which may differ from BinaryData seeds) are present on the
         tree. Clears the existing map first, then for every
-        @c Theme::Graphics::get() entry builds a callback that fires
+        @c File::Graphics::get() entry builds a callback that fires
         @c sendPropertyChangeMessage on the matching identifier when
-        invoked. Reads the graphics subtree from @c lookAndFeel.state,
+        invoked. Reads the graphics subtree from @c theme.state,
         not config @c state — graphics section now lives in the theme
         tree.
     */
@@ -238,7 +260,7 @@ private:
     */
     jam::Function::Map<juce::String, void> graphicsCallbacks;
 
-    LookAndFeel lookAndFeel;
+    Theme theme;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Model)

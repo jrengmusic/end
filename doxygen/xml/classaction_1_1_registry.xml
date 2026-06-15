@@ -295,12 +295,6 @@
           <edgelabel>prefixKey</edgelabel>
         </childnode>
       </node>
-      <node id="25">
-        <label>config::LookAndFeel</label>
-        <link refid="classconfig_1_1_look_and_feel"/>
-        <childnode refid="7" relation="public-inheritance">
-        </childnode>
-      </node>
       <node id="6">
         <label>config::Model</label>
         <link refid="classconfig_1_1_model"/>
@@ -323,7 +317,13 @@
           <edgelabel>graphicsCallbacks</edgelabel>
         </childnode>
         <childnode refid="25" relation="usage">
-          <edgelabel>lookAndFeel</edgelabel>
+          <edgelabel>theme</edgelabel>
+        </childnode>
+      </node>
+      <node id="25">
+        <label>config::Theme</label>
+        <link refid="classconfig_1_1_theme"/>
+        <childnode refid="7" relation="public-inheritance">
         </childnode>
       </node>
       <node id="8">

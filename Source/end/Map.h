@@ -165,132 +165,67 @@ struct File : public jam::Map::Instance<File>
     /** @brief Bare lua extension (no wildcard) for file watcher checks. */
     inline static const juce::String extension { "lua" };
 
-private:
-    const juce::String& getDefault() const noexcept override { return map.at (File::config); }
-};
-
-/**
- * @brief Registry of theme directory files — 2 section keys.
- *        CRTP-derived from jam::Map::Instance<Theme>.
- *
- * Maps each enum key to its Identifier stem and resolves the on-disk
- * filename via getName(). All keys produce "stem.lua".
- *
- * Owns the themes root directory path. The live instance is owned by
- * end::Application — static get() resolves through Context<Theme>.
- */
-struct Theme : public jam::Map::Instance<Theme>
-{
-    /** @brief Integer keys for theme lua files. */
-    enum
-    {
-        theme,///< Visual properties (colours, fonts, metrics, graphics).
-        whelmed,///< Whelmed markdown renderer styles.
-    };
-
-    /** @brief Populates the bimap with both entries. */
-    Theme()
-    {
-        map = {
-            { Theme::theme,   IDref::theme   },
-            { Theme::whelmed, IDref::whelmed },
-        };
-    }
-
-    /** @brief Returns the int→Identifier-stem map from the live context instance. */
-    static const auto& get() noexcept { return getInstance()->map; }
-
-    /** @brief Returns the filename for the given enum key (always "stem.lua").
-     *  @param key  One of the Theme enum values.
-     *  @return     Filename string including extension (e.g. "theme.lua").
-     */
-    static const juce::String getName (int key) noexcept
-    {
-        return jam::Format::toFileName (get().at (key), extension);
-    }
-
-    /** @brief Returns the theme subdirectory for the given theme name.
-     *  @param theme  Theme directory name (e.g. "gfx").
-     *  @return       Resolved path: ~/.config/end/themes/@p theme/
-     */
-    static const juce::File getPath (const juce::String& theme) noexcept
-    {
-        return path.getChildFile (theme);
-    }
-
-    /** @brief Themes root directory: ~/.config/end/themes/ */
-    inline static const juce::File path { File::getPath (IDref::themes) };
-    /** @brief Lua extension for theme files. */
-    inline static const juce::String extension { "lua" };
-
     //==========================================================================
     /**
-     * @brief Registry of SVG graphics assets — 10 keys.
-     *        Nested inside Theme. CRTP-derived from jam::Map::Instance<Graphics>.
+     * @brief Registry of theme directory files — 2 section keys.
+     *        Nested inside File. CRTP-derived from jam::Map::Instance<Theme>.
      *
      * Maps each enum key to its Identifier stem and resolves the on-disk
-     * filename via getName(). All keys produce "stem.svg".
+     * filename via getName(). All keys produce "stem.lua".
      *
-     * No static path — graphics directory resolved at call site:
-     * Theme::getPath(name).getChildFile(jam::IDref::graphics).
-     *
-     * The live instance is owned by end::Application via end::Map.
+     * Owns the themes root directory path. The live instance is owned by
+     * end::Application — static get() resolves through Context<Theme>.
      */
-    struct Graphics : public jam::Map::Instance<Graphics>
+    struct Theme : public jam::Map::Instance<Theme>
     {
-        /** @brief Integer keys for all SVG graphics assets. */
+        /** @brief Integer keys for theme lua files. */
         enum
         {
-            tabBar,///< Tab bar background SVG asset.
-            tabHighlight,///< Sliding tab highlight SVG asset.
-            tabButtonNormal,///< Tab button normal-state SVG asset stem.
-            tabButtonOver,///< Tab button over-state SVG asset stem.
-            tabButtonDown,///< Tab button down-state SVG asset stem.
-            tabButtonDisabled,///< Tab button disabled-state SVG asset stem.
-            tabButtonNormalOn,///< Tab button normalOn-state SVG asset stem.
-            tabButtonOverOn,///< Tab button overOn-state SVG asset stem.
-            tabButtonDownOn,///< Tab button downOn-state SVG asset stem.
-            tabButtonDisabledOn,///< Tab button disabledOn-state SVG asset stem.
+            theme,///< Visual properties (colours, fonts, metrics, graphics).
+            whelmed,///< Whelmed markdown renderer styles.
         };
 
-        /** @brief Populates the bimap with all 10 entries. */
-        Graphics()
+        /** @brief Populates the bimap with both entries. */
+        Theme()
         {
             map = {
-                { Graphics::tabBar,              IDref::tabBar              },
-                { Graphics::tabHighlight,        IDref::tabHighlight        },
-                { Graphics::tabButtonNormal,     IDref::tabButtonNormal     },
-                { Graphics::tabButtonOver,       IDref::tabButtonOver       },
-                { Graphics::tabButtonDown,       IDref::tabButtonDown       },
-                { Graphics::tabButtonDisabled,   IDref::tabButtonDisabled   },
-                { Graphics::tabButtonNormalOn,   IDref::tabButtonNormalOn   },
-                { Graphics::tabButtonOverOn,     IDref::tabButtonOverOn     },
-                { Graphics::tabButtonDownOn,     IDref::tabButtonDownOn     },
-                { Graphics::tabButtonDisabledOn, IDref::tabButtonDisabledOn },
+                { Theme::theme,   IDref::theme   },
+                { Theme::whelmed, IDref::whelmed },
             };
         }
 
         /** @brief Returns the int→Identifier-stem map from the live context instance. */
         static const auto& get() noexcept { return getInstance()->map; }
 
-        /** @brief Returns the filename for the given enum key (always "stem.svg").
-         *  @param key  One of the Graphics enum values.
-         *  @return     Filename string including extension (e.g. "tab_bar.svg").
+        /** @brief Returns the filename for the given enum key (always "stem.lua").
+         *  @param key  One of the Theme enum values.
+         *  @return     Filename string including extension (e.g. "theme.lua").
          */
         static const juce::String getName (int key) noexcept
         {
             return jam::Format::toFileName (get().at (key), extension);
         }
 
-        /** @brief Bare svg extension (no wildcard) for file watcher checks. */
-        inline static const juce::String extension { "svg" };
+        /** @brief Returns the theme subdirectory for the given theme name.
+         *  @param themeName  Theme directory name (e.g. "gfx").
+         *  @return           Resolved path: ~/.config/end/themes/@p themeName/
+         */
+        static const juce::File getPath (const juce::String& themeName) noexcept
+        {
+            return path.getChildFile (themeName);
+        }
+
+        /** @brief Themes root directory: ~/.config/end/themes/ */
+        inline static const juce::File path { File::getPath (IDref::themes) };
+        /** @brief Lua extension for theme files. */
+        inline static const juce::String extension { "lua" };
 
     private:
-        const juce::String& getDefault() const noexcept override { return map.at (Graphics::tabBar); }
+        const juce::String& getDefault() const noexcept override { return map.at (Theme::theme); }
     };
 
 private:
-    const juce::String& getDefault() const noexcept override { return map.at (Theme::theme); }
+    const juce::String& getDefault() const noexcept override { return map.at (File::config); }
 };
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace config
@@ -304,8 +239,7 @@ struct Map
     end::Position position;
     end::DropMode dropMode;
     config::File file;
-    config::Theme theme;
-    config::Theme::Graphics graphics;
+    config::File::Theme theme;
     jam::map::WindowFX window;
     jam::map::Segment segment;
     jam::map::ButtonState button;

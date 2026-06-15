@@ -179,7 +179,7 @@
         <references refid="structconfig_1_1_theme_1a7542ea7e87709155d2d19a755aba07f6" compoundref="_map_8h" startline="222" endline="222">path</references>
         <references refid="structconfig_1_1_theme_1aca1d1338a00fe739cb1a099a7331f574ac7b94dfdcb11785e53ba7cc912aff539" compoundref="_map_8h" startline="187">theme</references>
         <referencedby refid="classconfig_1_1_look_and_feel_1ab82045056c39120b8b929541369678c5" compoundref="config_2_look_and_feel_8cpp" startline="7" endline="44">config::LookAndFeel::load</referencedby>
-        <referencedby refid="classend_1_1_look_and_feel_1a6bac0b983ceeffd331beb5262030dbe8" compoundref="look_and_feel_2_look_and_feel_8cpp" startline="264" endline="303">end::LookAndFeel::loadGraphics</referencedby>
+        <referencedby refid="classend_1_1_look_and_feel_1a6bac0b983ceeffd331beb5262030dbe8" compoundref="look_and_feel_2_look_and_feel_8cpp" startline="278" endline="317">end::LookAndFeel::loadGraphics</referencedby>
         <referencedby refid="classconfig_1_1_model_1acad607c8136bcc115ffeae9d47869e26" compoundref="_config_8cpp" startline="79" endline="111">config::Model::saveToPath</referencedby>
         <referencedby refid="classconfig_1_1_model_1abd7d146ee9fede8da7f5f0678faed50e" compoundref="_config_8cpp" startline="208" endline="217">config::Model::startWatcher</referencedby>
       </memberdef>

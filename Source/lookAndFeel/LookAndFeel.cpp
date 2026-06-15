@@ -80,8 +80,8 @@ void LookAndFeel::initialiseColours()
     setColourId (jam::IDtype::button, ID::textOn, juce::TextButton::textColourOnId);
     setColourId (jam::IDtype::overlay, jam::ID::background, juce::Label::backgroundColourId);
     setColourId (jam::IDtype::overlay, jam::ID::text, juce::Label::textColourId);
-    setColourId (IDtype::pane, ID::barColour, paneBarColourId);
-    setColourId (IDtype::pane, ID::barHighlight, paneBarHighlightColourId);
+    setColourId (IDtype::pane, ID::resizeBar, paneBarColourId);
+    setColourId (IDtype::pane, ID::resizeBarHighlight, paneBarHighlightColourId);
     setColourId (IDtype::statusBar, jam::ID::background, statusBarBackgroundColourId);
     setColourId (IDtype::statusBar, ID::labelBackground, statusBarLabelBackgroundColourId);
     setColourId (IDtype::statusBar, ID::labelText, statusBarLabelTextColourId);
@@ -131,7 +131,8 @@ void LookAndFeel::drawBarBackground (juce::Graphics& g, juce::Component& bar)
         bounds = { 0.0f, 0.0f, h, w };
     }
 
-    jam::SVG::Flex::paint (g, *this, graphics.at (ID::tabBar), bounds);
+    if (graphics.contains (ID::tabBar))
+        jam::SVG::Flex::paint (g, *this, graphics.at (ID::tabBar), bounds);
 }
 
 void LookAndFeel::drawBarHighlight (juce::Graphics& g, juce::Component& highlight)
@@ -154,7 +155,8 @@ void LookAndFeel::drawBarHighlight (juce::Graphics& g, juce::Component& highligh
         bounds = { 0.0f, 0.0f, h, w };
     }
 
-    jam::SVG::Flex::paint (g, *this, graphics.at (ID::tabHighlight), bounds);
+    if (graphics.contains (ID::tabHighlight))
+        jam::SVG::Flex::paint (g, *this, graphics.at (ID::tabHighlight), bounds);
 }
 
 void LookAndFeel::drawTabButton (juce::Graphics& g,
@@ -188,13 +190,20 @@ void LookAndFeel::drawTabButton (juce::Graphics& g,
     // Sparse bank — paint only when the state slot was authored in theme.lua graphics section.
     if (graphics.contains (stateId))
         jam::SVG::Flex::paint (g, *this, graphics.at (stateId), bounds);
+}
 
-    g.setFont (getTabFont());
-    g.setColour (button.findColour (button.getToggleState() ? juce::TextButton::textColourOnId
-                                                            : juce::TextButton::textColourOffId));
-    g.drawText (getTabText (button.getButtonText()),
-                bounds.toNearestInt(),
-                juce::Justification::centred);
+void LookAndFeel::drawTabLabel (juce::Graphics& g, juce::Label& label)
+{
+    g.fillAll (label.findColour (juce::Label::backgroundColourId));
+
+    if (not label.isBeingEdited())
+    {
+        g.setFont (getTabFont());
+        g.setColour (label.findColour (juce::Label::textColourId));
+        g.drawText (getTabText (label.getText()),
+                    label.getLocalBounds(),
+                    juce::Justification::centred);
+    }
 }
 
 juce::Font LookAndFeel::getTabFont() const
@@ -246,60 +255,85 @@ juce::String LookAndFeel::getTabText (const juce::String& tabName) const
 }
 
 //==============================================================================
-void LookAndFeel::drawStretchableLayoutResizerBar (juce::Graphics& g,
-                                                   int w,
-                                                   int h,
-                                                   bool /*isVertical*/,
-                                                   bool isMouseOver,
-                                                   bool isMouseDown)
+void LookAndFeel::drawResizerBar (juce::Graphics& g, juce::Component& bar)
 {
-    if (isMouseOver or isMouseDown)
-        g.setColour (findColour (paneBarHighlightColourId));
-    else
-        g.setColour (findColour (paneBarColourId));
+    auto bounds { bar.getLocalBounds().toFloat() };
+    auto* resizer { dynamic_cast<jam::PaneResizerBar*> (&bar) };
 
-    g.fillRect (0, 0, w, h);
+    if (resizer != nullptr and resizer->isVerticalBar())
+    {
+        const auto w { bounds.getWidth() };
+        const auto h { bounds.getHeight() };
+
+        g.addTransform (juce::AffineTransform::rotation (-juce::MathConstants<float>::halfPi)
+                            .translated (0.0f, h));
+
+        bounds = { 0.0f, 0.0f, h, w };
+    }
+
+    // Hover/pressed: swap bar colour to highlight
+    const bool hover { bar.isMouseOver() or bar.isMouseButtonDown() };
+    const auto savedColour { findColour (paneBarColourId) };
+
+    if (hover)
+        setColour (paneBarColourId, findColour (paneBarHighlightColourId));
+
+    if (graphics.contains (ID::resizerBar))
+        jam::SVG::Flex::paint (g, *this, graphics.at (ID::resizerBar), bounds);
+
+    if (hover)
+        setColour (paneBarColourId, savedColour);
 }
 
 void LookAndFeel::loadGraphics()
 {
     auto themeName { config.getValue (IDtype::end, ID::theme).toString() };
-    auto themeGraphics { jam::Model::getChildWithName (theme.state, IDtype::graphics) };
-    auto directory { config::Theme::getPath (themeName).getChildFile (jam::IDref::graphics) };
-    const auto* tab { colourMap.getChildWithName (IDtype::tab) };
-    assert (tab != nullptr and "loadGraphics: tab missing from colourMap");
+    auto directory { config::File::Theme::getPath (themeName)
+                         .getChildFile (jam::IDref::graphics) };
 
-    // Tab bar background
-    {
-        auto svg { directory.getChildFile (themeGraphics.getProperty (ID::tabBar).toString())
-                       .loadFileAsString() };
-        graphics.insert_or_assign (ID::tabBar, jam::SVG::Flex::getSegments (svg, *tab));
-    }
+    jam::debug::Log::write ("loadGraphics -- theme: " + themeName);
+    jam::debug::Log::write ("loadGraphics -- directory: " + directory.getFullPathName());
+    jam::debug::Log::write ("loadGraphics -- directory exists: " + juce::String (static_cast<int> (directory.exists())));
+    jam::debug::Log::write ("loadGraphics -- theme.state children: " + juce::String (theme.state.getNumChildren()));
 
-    // Tab highlight
-    {
-        auto svg { directory.getChildFile (themeGraphics.getProperty (ID::tabHighlight).toString())
-                       .loadFileAsString() };
-        graphics.insert_or_assign (ID::tabHighlight, jam::SVG::Flex::getSegments (svg, *tab));
-    }
+    graphics.clear();
 
-    // Tab button state bank — sparse 8-slot: all ButtonState slots iterated,
-    // unauthored states (empty filename) simply absent from the map.
-    {
-        auto tabButtonNode { themeGraphics.getChildWithName (IDtype::tabButton) };
-
-        for (size_t slot { 0 }; slot < jam::map::ButtonState::get().size(); ++slot)
+    jam::Model::applyFunctionRecursively (theme.state,
+        [&] (const juce::ValueTree& tree)
         {
-            const juce::Identifier stateId { jam::map::ButtonState::get (static_cast<int> (slot)) };
-            const auto fileName { tabButtonNode.getProperty (stateId).toString() };
+            auto fileNames { jam::Model::toStringArray (tree.getProperty (ID::graphics)) };
+            const auto* colours { colourMap.getChildWithName (tree.getType()) };
 
-            if (fileName.isNotEmpty())
+            jam::debug::Log::write ("  tree: " + tree.getType().toString()
+                + " | files: " + juce::String (fileNames.size())
+                + " | colours: " + juce::String (static_cast<int> (colours != nullptr)));
+
+            for (const auto& fileName : fileNames)
             {
-                auto svg { directory.getChildFile (fileName).loadFileAsString() };
-                graphics.insert_or_assign (stateId, jam::SVG::Flex::getSegments (svg, *tab));
+                if (fileName.isNotEmpty())
+                {
+                    auto stem { jam::Format::getFilenameWithoutExtension (fileName) };
+                    auto suffix { stem.fromLastOccurrenceOf ("_", false, false) };
+
+                    juce::Identifier id { suffix.isNotEmpty()
+                        and jam::map::ButtonState::getInstance()->contains (suffix)
+                            ? suffix : stem };
+
+                    auto svg { directory.getChildFile (fileName).loadFileAsString() };
+
+                    jam::debug::Log::write ("    " + fileName + " -> id=" + id.toString()
+                        + " svgLen=" + juce::String (svg.length()));
+
+                    graphics.insert_or_assign (id,
+                        jam::SVG::Flex::getSegments (svg,
+                            colours != nullptr ? *colours : colourMap));
+                }
             }
-        }
-    }
+
+            return false;
+        });
+
+    jam::debug::Log::write ("loadGraphics -- total entries: " + juce::String (static_cast<int> (graphics.size())));
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

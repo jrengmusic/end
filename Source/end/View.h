@@ -56,11 +56,11 @@ private:
     Tabs tabs;
     MessageOverlay messageOverlay;
     jam::Owner<jam::Model::Attachment> attachments;
-
+    // jam::HashMap<juce::Identifier, void> events;
     //==============================================================================
-// #if JUCE_DEBUG
-//     jam::debug::Widget widget { this, model.state, false };
-// #endif
+#if JUCE_DEBUG
+    jam::debug::Widget widget { this, model.state, false };
+#endif
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (View)
 };

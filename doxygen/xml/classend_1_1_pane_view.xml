@@ -110,7 +110,7 @@
           <type><ref refid="classjuce_1_1Component_1a7e166cfd0a7244f70b7761c10d78dc8a" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">FocusChangeType</ref></type>
         </param>
         <briefdescription>
-<para>Sets focus=1 on this pane&apos;s state node when keyboard focus is gained. </para>
+<para>Sets focus=1 on this pane&apos;s state tree when keyboard focus is gained. </para>
         </briefdescription>
         <detaileddescription>
         </detaileddescription>
@@ -130,7 +130,7 @@
           <type><ref refid="classjuce_1_1Component_1a7e166cfd0a7244f70b7761c10d78dc8a" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">FocusChangeType</ref></type>
         </param>
         <briefdescription>
-<para>Sets focus=0 on this pane&apos;s state node when keyboard focus is lost. </para>
+<para>Sets focus=0 on this pane&apos;s state tree when keyboard focus is lost. </para>
         </briefdescription>
         <detaileddescription>
         </detaileddescription>
@@ -141,10 +141,10 @@
       </memberdef>
     </sectiondef>
     <briefdescription>
-<para>Stub pane component with ValueTree node identity. </para>
+<para>Stub pane component with ValueTree identity. </para>
     </briefdescription>
     <detaileddescription>
-<para>Each <ref refid="classend_1_1_pane_view" kindref="compound">PaneView</ref> owns a PANE node (via <ref refid="structjam_1_1Model_1_1Component" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Model::Component</ref>) identified by a UUID. Seeds focus=0 and stores the UUID as both componentID (for PaneManager matching) and as an ID::id VT property (for model tree inspection). Empty in Phase 3 — terminal::View subclasses this in Phase 4. </para>
+<para>Each <ref refid="classend_1_1_pane_view" kindref="compound">PaneView</ref> owns a PANE tree (via <ref refid="structjam_1_1Model_1_1Component" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Model::Component</ref>) identified by a UUID. Seeds focus=0 and stores the UUID as both componentID (for PaneManager matching) and as an ID::id VT property (for model tree inspection). Empty in Phase 3 — terminal::View subclasses this in Phase 4. </para>
     </detaileddescription>
     <inheritancegraph>
       <node id="1">

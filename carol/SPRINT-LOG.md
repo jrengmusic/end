@@ -2,6 +2,75 @@
 
 ---
 
+## Sprint 18: button::Tab, SVG Flex Data-Driven, LAF + Config Restructure ✅
+
+**Date:** 2026-06-15
+**Duration:** ~08:00
+
+### Agents Participated
+- COUNSELOR: Sprint lead, design discussion, plan, delegation, verification
+- Engineer: Code implementation across JAM + END
+- Pathfinder: Codebase discovery (tab button patterns, LAF structure, PaneManager)
+- Auditor: N/A (findings resolved inline)
+
+### Files Modified (35 total)
+
+**JAM framework:**
+- `jam_graphics/svg/jam_svg_flex.h` — SVG::Flex::paint + StyledGraphics::paint: Component& removed, takes LookAndFeel& + bounds
+- `jam_graphics/svg/jam_svg_flex.cpp` — implementations updated
+- `jam_gui/button/jam_button_tab.h` — NEW: button::Tab with TabLabel, showEditor, setLabelLayout
+- `jam_gui/button/jam_button_bar.h` — Events<SVG> → Events<Tab>, TabInfo type, createTabButton/getTabButton types
+- `jam_gui/button/jam_button_bar.cpp` — createTabButton creates Events<Tab>, onRightClick → showEditor, highlight uses target bounds, label layout propagation
+- `jam_gui/layout/jam_tabbed_component.h` — createTabButton type
+- `jam_gui/layout/jam_tabbed_component.cpp` — createTabButton type + impl
+- `jam_gui/layout/jam_pane_resizer_bar.h` — delegates to Custom::drawResizerBar, LookAndFeelMethods removed, isVerticalBar reads live, isVertical member removed, constructor simplified
+- `jam_gui/layout/jam_pane_resizer_bar.cpp` — constructor + paint updated
+- `jam_gui/layout/jam_pane_manager.h` — resizerBarSize configurable, NeededBar::isVertical removed, onMouseDrag reads live
+- `jam_gui/jam_gui.h` — jam_button_tab.h include added
+- `jam_look_and_feel/jam_look_and_feel_custom.h` — drawTabLabel, drawResizerBar virtuals
+- `jam_data_structures/model/jam_model.h` — toStringArray static utility
+
+**END project:**
+- `Source/Identifier.h` — resizeBar/resizeBarHighlight/resizeBarThickness identifiers, dead Graphics identifiers removed, "node" → "tree" comments
+- `Source/end/Map.h` — File::Theme + File::Graphics nested inside File, File::Graphics struct deleted, end::Map updated
+- `Source/config/Config.h` — config::Theme class inlined (was config::LookAndFeel), getLookAndFeel → getTheme, LookAndFeel.h include removed
+- `Source/config/Config.cpp` — Theme::load moved here, initialise builds theme tree, saveToPath tree-driven SVG seeding, buildGraphicsCallbacks tree walk, fileChanged uses jam::IDref::svg
+- `Source/config/LookAndFeel.h` — DELETED
+- `Source/config/LookAndFeel.cpp` — DELETED (merged into Config.cpp)
+- `Source/lookAndFeel/LookAndFeel.h` — config::Theme& theme, drawTabLabel, drawResizerBar, drawStretchableLayoutResizerBar removed
+- `Source/lookAndFeel/LookAndFeel.cpp` — drawTabButton text removed, drawTabLabel, drawResizerBar with SVG Flex, drawBarBackground/drawBarHighlight/drawResizerBar contains() guards, loadGraphics single tree walk with toStringArray
+- `Source/end/View.cpp` — model.addListener for focus events, setTabOrientation on theme reload, getTheme() refs
+- `Source/end/Tabs.h` — "node" → "tree" doxygen
+- `Source/end/Tabs.cpp` — getTheme() ref, Label value wired after Attachment
+- `Source/end/Panes.h` — "node" → "tree" doxygen
+- `Source/end/Panes.cpp` — seeds jam::ID::name, reads resize_bar_thickness
+- `Source/end/PaneView.h` — "node" → "tree" doxygen
+- `Source/end/MessageOverlay.h` — getTheme() ref
+- `Source/config/lua/theme/gfx/theme.lua` — graphics arrays on tab/pane tables, resize_bar/resize_bar_highlight/resize_bar_thickness, flat graphics section deleted
+- `Source/config/svg/resizer_bar.svg` — NEW: 3-slice dummy SVG
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered (node → tree enforced)
+- [x] MANIFESTO.md principles applied
+- [x] JRENG-CODING-STANDARD.md (no bail-out guards, positive nesting, brace init)
+
+### Problems Solved
+- Tab orientation not updating on theme reload — View vtpc now calls setTabOrientation on ID::theme
+- Vertical tab rendering — SVG Flex paint decoupled from Component (bounds param), LAF rotation for vertical bars
+- Highlight position stale after drag-reorder — uses computed target bounds, not pre-animation getBounds
+- PaneResizerBar isVertical stale after tree restructure — reads live from splitNode, no cached bool
+- focusedPane never set — View now listens to end::Model for PaneView focus events
+- Data-driven SVG loading — single tree walk replaces manual per-file blocks, toStringArray for CSV properties
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 17: Theme Engine — Config/Theme Restructure, Per-Component Colour Map ✅
 
 **Date:** 2026-06-14

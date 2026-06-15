@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="60px" height="20px" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:1.5;">
+    <g id="left">
+        <rect id="bounds" x="0" y="0" width="20" height="20" style="fill:none;stroke:#f0f;stroke-width:0.1px;"/>
+        <rect x="0" y="8" width="4" height="4" style="fill:#8fc6d0;"/>
+        <path id="resize_bar" d="M4,10L20,10" style="fill:none;stroke:#2c4144;stroke-width:1px;"/>
+    </g>
+    <g id="centre">
+        <rect id="bounds1" serif:id="bounds" x="20" y="0" width="20" height="20" style="fill:none;stroke:#f0f;stroke-width:0.1px;"/>
+        <path id="resize_bar1" serif:id="resize_bar" d="M20,10L40,10" style="fill:none;stroke:#2c4144;stroke-width:1px;"/>
+    </g>
+    <g id="right">
+        <rect id="bounds2" serif:id="bounds" x="40" y="0" width="20" height="20" style="fill:none;stroke:#f0f;stroke-width:0.1px;"/>
+        <rect x="56" y="8" width="4" height="4" style="fill:#8fc6d0;"/>
+        <path id="resize_bar2" serif:id="resize_bar" d="M40,10L56,10" style="fill:none;stroke:#2c4144;stroke-width:1px;"/>
+    </g>
+</svg>

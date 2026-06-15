@@ -4,6 +4,7 @@
     <compoundname>config::File</compoundname>
     <basecompoundref refid="classjam_1_1Map_1_1Instance" prot="public" virt="non-virtual">jam::Map::Instance&lt; File &gt;</basecompoundref>
     <includes refid="_map_8h" local="no">Map.h</includes>
+    <innerclass refid="structconfig_1_1_file_1_1_theme" prot="public">config::File::Theme</innerclass>
     <sectiondef kind="public-type">
       <memberdef kind="enum" id="structconfig_1_1_file_1a683ed3a3b06e2a36ef94e7c301deae90" prot="public" static="no" strong="no">
         <type></type>
@@ -62,9 +63,9 @@
         </inbodydescription>
         <location file="end/Map.h" line="162" column="36" bodyfile="end/Map.h" bodystart="162" bodyend="164"/>
         <referencedby refid="structconfig_1_1_file_1a8fb7a80701aaed8671256aa65afaf19d" compoundref="_map_8h" startline="156" endline="159">getPath</referencedby>
-        <referencedby refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="113" endline="156">config::Model::loadFromPath</referencedby>
-        <referencedby refid="classconfig_1_1_model_1acad607c8136bcc115ffeae9d47869e26" compoundref="_config_8cpp" startline="79" endline="111">config::Model::saveToPath</referencedby>
-        <referencedby refid="classconfig_1_1_model_1abd7d146ee9fede8da7f5f0678faed50e" compoundref="_config_8cpp" startline="208" endline="217">config::Model::startWatcher</referencedby>
+        <referencedby refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="152" endline="192">config::Model::loadFromPath</referencedby>
+        <referencedby refid="classconfig_1_1_model_1acad607c8136bcc115ffeae9d47869e26" compoundref="_config_8cpp" startline="92" endline="150">config::Model::saveToPath</referencedby>
+        <referencedby refid="classconfig_1_1_model_1abd7d146ee9fede8da7f5f0678faed50e" compoundref="_config_8cpp" startline="228" endline="237">config::Model::startWatcher</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structconfig_1_1_file_1a6ab20528e69a64a7091bd8d1269eac55" prot="public" static="yes" mutable="no">
         <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref></type>
@@ -81,7 +82,7 @@
         <inbodydescription>
         </inbodydescription>
         <location file="end/Map.h" line="166" column="38" bodyfile="end/Map.h" bodystart="166" bodyend="166"/>
-        <referencedby refid="classconfig_1_1_model_1aaf6b40ca395ac5c6325cb189f13fec0f" compoundref="_config_8cpp" startline="219" endline="235">config::Model::fileChanged</referencedby>
+        <referencedby refid="classconfig_1_1_model_1aaf6b40ca395ac5c6325cb189f13fec0f" compoundref="_config_8cpp" startline="239" endline="255">config::Model::fileChanged</referencedby>
         <referencedby refid="structconfig_1_1_file_1ae101919bc1214478f5086e2e859742de" compoundref="_map_8h" startline="150" endline="153">getName</referencedby>
       </memberdef>
     </sectiondef>
@@ -124,8 +125,8 @@
         <location file="end/Map.h" line="142" column="23" bodyfile="end/Map.h" bodystart="142" bodyend="142"/>
         <references refid="structjam_1_1Context_1a3ff553f70ef61043352c54cfed475b4c">jam::Context&lt; Derived &gt;::getInstance</references>
         <referencedby refid="structconfig_1_1_file_1ae101919bc1214478f5086e2e859742de" compoundref="_map_8h" startline="150" endline="153">getName</referencedby>
-        <referencedby refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" compoundref="_config_8cpp" startline="39" endline="76">config::Model::initialise</referencedby>
-        <referencedby refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="113" endline="156">config::Model::loadFromPath</referencedby>
+        <referencedby refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" compoundref="_config_8cpp" startline="39" endline="89">config::Model::initialise</referencedby>
+        <referencedby refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="152" endline="192">config::Model::loadFromPath</referencedby>
       </memberdef>
       <memberdef kind="function" id="structconfig_1_1_file_1ae101919bc1214478f5086e2e859742de" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
         <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref></type>
@@ -160,8 +161,8 @@
         <references refid="structconfig_1_1_file_1a6ab20528e69a64a7091bd8d1269eac55" compoundref="_map_8h" startline="166" endline="166">extension</references>
         <references refid="structconfig_1_1_file_1a1fe87258f092c2141e6d0171085f1468" compoundref="_map_8h" startline="142" endline="142">get</references>
         <references refid="structjam_1_1Format_1a838b7c56ce7913ab2b4471148a1019cd">jam::Format::toFileName</references>
-        <referencedby refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" compoundref="_config_8cpp" startline="39" endline="76">config::Model::initialise</referencedby>
-        <referencedby refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="113" endline="156">config::Model::loadFromPath</referencedby>
+        <referencedby refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" compoundref="_config_8cpp" startline="39" endline="89">config::Model::initialise</referencedby>
+        <referencedby refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="152" endline="192">config::Model::loadFromPath</referencedby>
       </memberdef>
       <memberdef kind="function" id="structconfig_1_1_file_1a8fb7a80701aaed8671256aa65afaf19d" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
         <type>const <ref refid="classjuce_1_1File" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::File</ref></type>
@@ -198,7 +199,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="169" column="24" bodyfile="end/Map.h" bodystart="169" bodyend="169"/>
+        <location file="end/Map.h" line="228" column="24" bodyfile="end/Map.h" bodystart="228" bodyend="228"/>
         <references refid="structconfig_1_1_file_1a683ed3a3b06e2a36ef94e7c301deae90a0fc85df7daa8f0d98a096582ced3738f" compoundref="_map_8h" startline="122">config</references>
         <references refid="classjam_1_1Map_1_1Instance_1afe0acf25bab1f104aea20f20174129d1">jam::Map::Instance&lt; File &gt;::map</references>
       </memberdef>
@@ -268,7 +269,7 @@
         <link refid="classjuce_1_1String" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
     </collaborationgraph>
-    <location file="end/Map.h" line="117" column="1" bodyfile="end/Map.h" bodystart="118" bodyend="170"/>
+    <location file="end/Map.h" line="117" column="1" bodyfile="end/Map.h" bodystart="118" bodyend="229"/>
     <listofallmembers>
       <member refid="structconfig_1_1_file_1a683ed3a3b06e2a36ef94e7c301deae90a0fc85df7daa8f0d98a096582ced3738f" prot="public" virt="non-virtual"><scope>config::File</scope><name>config</name></member>
       <member refid="classjam_1_1Map_1_1Instance_1a39231f6d1e13c6f64e72a07851a130c4" prot="public" virt="non-virtual"><scope>config::File</scope><name>contains</name></member>

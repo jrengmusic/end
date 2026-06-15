@@ -46,9 +46,22 @@ void Model::initialise()
 
         if (result.wasOk())
         {
-            auto child { jam::Model::fromLua (
-                result.value(), value.toUpperCase(), &validators) };
+            auto child { jam::Model::fromLua (result.value(), value.toUpperCase(), &validators) };
             state.appendChild (child, nullptr);
+        }
+    }
+
+    // Theme lua files — build theme tree so saveToPath can walk it for SVG filenames.
+    for (auto& [key, value] : File::Theme::get())
+    {
+        auto lua { jam::lua::State() };
+
+        auto result { lua.getType (BinaryData::getString (File::Theme::getName (key))) };
+
+        if (result.wasOk())
+        {
+            auto child { jam::Model::fromLua (result.value(), value.toUpperCase()) };
+            theme.state.appendChild (child, nullptr);
         }
     }
 
@@ -102,12 +115,38 @@ void Model::saveToPath()
     writeWhenNeeded (File::path, *File::getInstance());
 
     auto themeName { getValue (IDtype::end, ID::theme).toString() };
-    auto themePath { Theme::getPath (themeName) };
+    auto themePath { File::Theme::getPath (themeName) };
 
-    writeWhenNeeded (themePath, *Theme::getInstance());
+    writeWhenNeeded (themePath, *File::Theme::getInstance());
 
+    // Seed SVG graphics assets — walk theme tree for filenames.
     auto graphicsPath { themePath.getChildFile (jam::IDref::graphics) };
-    writeWhenNeeded (graphicsPath, *Theme::Graphics::getInstance());
+
+    if (not graphicsPath.exists())
+        graphicsPath.createDirectory();
+
+    jam::Model::applyFunctionRecursively (
+        theme.state,
+        [&] (const juce::ValueTree& tree)
+        {
+            for (const auto& fileName : jam::Model::toStringArray (tree.getProperty (ID::graphics)))
+            {
+                if (fileName.isNotEmpty())
+                {
+                    juce::File file { graphicsPath.getChildFile (fileName) };
+
+                    if (not file.existsAsFile())
+                    {
+                        BinaryData::Raw raw (fileName);
+
+                        if (raw.exists())
+                            file.replaceWithData (raw.data, static_cast<size_t> (raw.size));
+                    }
+                }
+            }
+
+            return false;
+        });
 }
 
 void Model::loadFromPath()
@@ -125,11 +164,8 @@ void Model::loadFromPath()
         {
             juce::String fileErrors;
             lua.getLineMapBuilder().flushRoot (value.toUpperCase());
-            auto child { jam::Model::fromLua (result.value(),
-                                              value.toUpperCase(),
-                                              &validators,
-                                              &fileErrors,
-                                              &lua.getLineMap()) };
+            auto child { jam::Model::fromLua (
+                result.value(), value.toUpperCase(), &validators, &fileErrors, &lua.getLineMap()) };
 
             if (fileErrors.isNotEmpty())
                 errors << file.getFileName() << ":\n" << fileErrors;
@@ -152,57 +188,41 @@ void Model::loadFromPath()
 
     state.sendPropertyChangeMessage (ID::loadMessage);
 
-    lookAndFeel.load (juce::Identifier { getValue (IDtype::end, ID::theme)});
+    theme.load (juce::Identifier { getValue (IDtype::end, ID::theme) });
 }
 
 void Model::buildGraphicsCallbacks()
 {
     graphicsCallbacks.clear();
 
-    if (auto graphics { lookAndFeel.state.getChildWithName (IDtype::graphics) }; graphics.isValid())
-    {
-        for (auto& [key, value] : Theme::Graphics::get())
+    jam::Model::applyFunctionRecursively (
+        theme.state,
+        [&] (const juce::ValueTree& tree)
         {
-            auto id { juce::Identifier (value) };
-            auto fileName { graphics.getProperty (id).toString() };
-
-            if (fileName.isNotEmpty())
+            for (const auto& fileName : jam::Model::toStringArray (tree.getProperty (ID::graphics)))
             {
-                graphicsCallbacks.add<juce::ValueTree> (fileName,
-                                                        [id] (juce::ValueTree t)
-                                                        {
-                                                            t.sendPropertyChangeMessage (id);
-                                                        });
-            }
-        }
-
-        // Walk the nested tab_button child: register one callback per state slot
-        // present in the config, in jam::map::ButtonState order.
-        // Each callback fires sendPropertyChangeMessage on the tab_button child
-        // (not the graphics root) keyed by the state identifier.
-        if (auto tabButton { graphics.getChildWithName (IDtype::tabButton) }; tabButton.isValid())
-        {
-            const juce::Identifier stateIds[] {
-                jam::ID::normal,   jam::ID::over,   jam::ID::down,   jam::ID::disabled,
-                jam::ID::normalOn, jam::ID::overOn, jam::ID::downOn, jam::ID::disabledOn,
-            };
-
-            for (auto& stateId : stateIds)
-            {
-                auto fileName { tabButton.getProperty (stateId).toString() };
-
                 if (fileName.isNotEmpty())
                 {
-                    graphicsCallbacks.add<juce::ValueTree> (
-                        fileName,
-                        [stateId] (juce::ValueTree t)
-                        {
-                            t.sendPropertyChangeMessage (stateId);
-                        });
+                    auto stem { jam::Format::getFilenameWithoutExtension (fileName) };
+                    auto suffix { stem.fromLastOccurrenceOf ("_", false, false) };
+
+                    juce::Identifier id {
+                        suffix.isNotEmpty()
+                                and jam::map::ButtonState::getInstance()->contains (suffix)
+                            ? suffix
+                            : stem
+                    };
+
+                    graphicsCallbacks.add<juce::ValueTree> (fileName,
+                                                            [id] (juce::ValueTree t)
+                                                            {
+                                                                t.sendPropertyChangeMessage (id);
+                                                            });
                 }
             }
-        }
-    }
+
+            return false;
+        });
 }
 
 void Model::startWatcher()
@@ -210,7 +230,7 @@ void Model::startWatcher()
     watcher.addFolder (File::path);
 
     auto themeName { getValue (IDtype::end, ID::theme).toString() };
-    watcher.addFolder (Theme::getPath (themeName));
+    watcher.addFolder (File::Theme::getPath (themeName));
 
     watcher.coalesceEvents (300);
     watcher.addListener (this);
@@ -224,7 +244,7 @@ void Model::fileChanged (const juce::File& file, jam::File::Watcher::Event event
         {
             loadFromPath();
         }
-        else if (file.hasFileExtension (Theme::Graphics::extension))
+        else if (file.hasFileExtension (jam::IDref::svg))
         {
             auto fileName { file.getFileName() };
 
@@ -241,6 +261,46 @@ void Model::registerValidator (juce::Identifier treeType,
 {
     validators.try_emplace (treeType).first->second.insert_or_assign (
         propertyName, std::move (validator));
+}
+
+//==============================================================================
+void Theme::load (const juce::Identifier& themeName)
+{
+    auto themePath { File::Theme::getPath (themeName.toString()) };
+
+    if (not themePath.exists())
+        themePath.createDirectory();
+
+    state.removeAllChildren (nullptr);
+
+    for (auto& [key, value] : File::Theme::get())
+    {
+        const auto name { File::Theme::getName (key) };
+        const juce::File file { themePath.getChildFile (name) };
+
+        if (not file.existsAsFile())
+        {
+            BinaryData::Raw raw (name);
+
+            if (raw.exists())
+                file.replaceWithData (raw.data, static_cast<size_t> (raw.size));
+        }
+
+        if (file.existsAsFile())
+        {
+            auto lua { jam::lua::State() };
+            auto result { lua.getType (file.loadFileAsString(), file.getFileName()) };
+
+            if (result.wasOk())
+            {
+                auto tree { jam::Model::fromLua (result.value(), value.toUpperCase()) };
+
+                state.addChild (tree.createCopy(), -1, nullptr);
+            }
+        }
+    }
+
+    state.sendPropertyChangeMessage (ID::theme);
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

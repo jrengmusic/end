@@ -209,6 +209,15 @@ return {
 
 		-- Always convert tab label to upper-case.
 		uppercase = true,
+
+		-- SVG graphics assets. Filenames are arbitrary — the suffix after
+		-- the last underscore determines the identifier key.
+		-- Convention: anyname_<key>.svg
+		graphics = {
+			"tab_bar.svg",
+			"tab_highlight.svg",
+			"tab_button_normalOn.svg",
+		},
 	},
 
 	-- ========================================================================
@@ -253,10 +262,18 @@ return {
 
 	pane = {
 		-- Pane divider bar (paneBarColourId).
-		bar_colour = 0xff33535b,
+		resize_bar = 0xff2C4144,
 
 		-- Pane divider bar when dragging or hovering (paneBarHighlightColourId).
-		bar_highlight = 0xff4e8c93,
+		resize_bar_highlight = 0xff6b9099,
+
+		-- Pane divider bar thickness in pixels.
+		resize_bar_thickness = 8,
+
+		-- SVG graphics assets for pane resizer bars.
+		graphics = {
+			"resizer_bar.svg",
+		},
 	},
 
 	-- ========================================================================
@@ -355,29 +372,5 @@ return {
 
 		-- Background colour for the highlighted/selected row.
 		highlight_colour = 0x2000ddee,
-	},
-
-	-- ========================================================================
-	-- GRAPHICS — SVG asset filename mappings
-	-- ========================================================================
-	--
-	-- SVG files are loaded from themes/<name>/graphics/.
-	-- Each key specifies a filename relative to that directory.
-	-- Empty = not loaded.
-	--
-
-	graphics = {
-		-- Tab bar background shape.
-		tab_bar = "tab_bar.svg",
-
-		-- Sliding tab highlight shape (moves to the active tab).
-		tab_highlight = "tab_highlight.svg",
-
-		-- Tab button state slots. Eight states, any subset may be authored:
-		-- normal, over, down, disabled, normalOn, overOn, downOn, disabledOn.
-		-- Unset states are not painted. Default ships only normalOn.
-		tab_button = {
-			normalOn = "tab_button_normalOn.svg",
-		},
 	},
 }

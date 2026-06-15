@@ -24,11 +24,23 @@ void Tabs::addNewTab()
     };
     static constexpr int numNames { 7 };
 
-    addTab (tabNames[getNumTabs() % numNames], juce::Colours::transparentBlack, panes, true);
+    const auto tabName { tabNames[getNumTabs() % numNames] };
+    panes->state.setProperty (jam::ID::name, juce::String { tabName }, nullptr);
+
+    addTab (tabName, juce::Colours::transparentBlack, panes, true);
 
     setCurrentTabIndex (getNumTabs() - 1);
 
     attachments.add (std::make_unique<jam::Model::Attachment> (*panes));
+
+    // Wire label value to model state — must happen AFTER Attachment grafts the state.
+    auto* tab { getBar().getTabButton (getNumTabs() - 1) };
+
+    if (tab != nullptr)
+    {
+        auto nameValue { panes->state.getPropertyAsValue (jam::ID::name, nullptr) };
+        tab->label.getTextValue().referTo (nameValue);
+    }
 
     updateTabBarVisibility();
 }
@@ -78,7 +90,7 @@ void Tabs::updateTabBarVisibility()
     else
     {
         auto& laf { static_cast<end::LookAndFeel&> (getLookAndFeel()) };
-        const float depth { config.getLookAndFeel().getValue (IDtype::tab, ID::depth) };
+        const float depth { config.getTheme().getValue (IDtype::tab, ID::depth) };
 
         setTabBarDepth (juce::roundToInt (laf.getTabFont().getHeight() * depth));
     }
