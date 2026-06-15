@@ -2,6 +2,49 @@
 
 ---
 
+## Sprint 20: View + LookAndFeel VTPC Event Dispatch ✅
+
+**Date:** 2026-06-15
+**Duration:** ~01:30
+
+### Agents Participated
+- COUNSELOR: Sprint lead, dispatch pattern design discussion, delegation, verification
+- Engineer: EventRegistration.cpp creation (View + LookAndFeel), VTPC refactor, doxygen updates
+- Pathfinder: jam::Function::Map API discovery, Identifier macro system verification (AS_TYPE uppercase vs AS_IDENTIFIER lowercase)
+
+### Files Modified (6 total)
+
+**END — Source/end/**
+- `View.h` — doxygen: comprehensive documentation for all public/private members, class doc updated with action/event dispatch system description, single-key dispatch rule
+- `View.cpp:15-16` — added `registerEvents()` call in constructor after `registerActions()`
+- `View.cpp:60-66` — `valueTreePropertyChanged` refactored: single-key dispatch (`property` priority, `tree.getType()` fallback), replaces 34-line inline if-chain
+- `EventRegistration.cpp` — **new file**: `View::registerEvents()` populating events map with 8 handlers (loadMessage, orientation, focus, theme, graphics, tabButton, alwaysOnTop, titleBarButtons)
+
+**END — Source/lookAndFeel/**
+- `LookAndFeel.h:124,128-130` — added `events` member (`jam::Function::Map<Identifier, void>`), `registerEvents()` declaration; doxygen: comprehensive documentation for all public/private members including class doc, constructor, destructor, draw/get methods, registration methods, event map key listing
+- `LookAndFeel.cpp` — `registerTypeface()`, `initialiseColours()`, `loadGraphics()` moved out to EventRegistration.cpp; `registerEvents()` call added to constructor; `valueTreePropertyChanged` refactored to single-key dispatch (identical to View); all `jam::debug::Log::write` diagnostics removed from loadGraphics
+- `EventRegistration.cpp` — **new file**: `registerTypeface()`, `initialiseColours()`, `loadGraphics()` (moved from LookAndFeel.cpp, debug logs stripped), `registerEvents()` registering 11 handlers (theme, graphics, tabButton, + 8 colour tree types: code, scrollbar, tab, button, overlay, pane, statusBar, hint)
+
+### Alignment Check
+- [x] BLESSED principles followed (L: 3-branch rule — VTPC if-chains replaced by direct lookup; S/SSOT: event handlers declared once in registration, dispatched uniformly; E: explicit key selection logic)
+- [x] NAMES.md adhered (no new names introduced)
+- [x] MANIFESTO.md principles applied
+- [x] JRENG-CODING-STANDARD.md (doxygen header-only, @param matching signatures, zero-warning target)
+
+### Problems Solved
+- View VTPC: 34-line inline if-chain with mixed property/type checks → single-key Function::Map dispatch (parameterChanged pattern from kuassa/jreng-filter-strip)
+- LookAndFeel VTPC: inline `contains(tree, property)` colourMap check eliminated → colour tree types registered as events, same single-key dispatch
+- LookAndFeel.cpp god-object tendency: registration methods extracted to EventRegistration.cpp, .cpp now exclusively LAF rendering methods + VTPC dispatch
+- Stale debug diagnostics: 7 `jam::debug::Log::write` calls removed from loadGraphics (infrastructure preserved)
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 19: Named Colour Palette + lua::State Full Standard Library ✅
 
 **Date:** 2026-06-15

@@ -41,6 +41,20 @@
     <namespace>end</namespace>
   </compound>
   <compound kind="file">
+    <name>EventRegistration.cpp</name>
+    <path>end/</path>
+    <filename>end_2_event_registration_8cpp.html</filename>
+    <includes id="_view_8h" name="View.h" local="yes" import="no" module="no" objc="no">View.h</includes>
+    <namespace>end</namespace>
+  </compound>
+  <compound kind="file">
+    <name>EventRegistration.cpp</name>
+    <path>lookAndFeel/</path>
+    <filename>look_and_feel_2_event_registration_8cpp.html</filename>
+    <includes id="_look_and_feel_8h" name="LookAndFeel.h" local="yes" import="no" module="no" objc="no">LookAndFeel.h</includes>
+    <namespace>end</namespace>
+  </compound>
+  <compound kind="file">
     <name>Map.h</name>
     <path>end/</path>
     <filename>_map_8h.html</filename>
@@ -3777,29 +3791,29 @@
       <type>void</type>
       <name>drawBarBackground</name>
       <anchorfile>classend_1_1_look_and_feel.html</anchorfile>
-      <anchor>ade27fb3312b73e1a30fc6e147cf32d0d</anchor>
-      <arglist>(juce::Graphics &amp;, juce::Component &amp;bar) override</arglist>
+      <anchor>a818541837a61a60413419f58fad1090a</anchor>
+      <arglist>(juce::Graphics &amp;g, juce::Component &amp;bar) override</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>drawBarHighlight</name>
       <anchorfile>classend_1_1_look_and_feel.html</anchorfile>
-      <anchor>a0c9015e091848eb9edb77a7f3130b768</anchor>
-      <arglist>(juce::Graphics &amp;, juce::Component &amp;highlight) override</arglist>
+      <anchor>aeb1b35cec62b29f3e5f18140138400a6</anchor>
+      <arglist>(juce::Graphics &amp;g, juce::Component &amp;highlight) override</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>drawTabButton</name>
       <anchorfile>classend_1_1_look_and_feel.html</anchorfile>
-      <anchor>a2d99c5eec680d18f5f5136bb1f374b25</anchor>
-      <arglist>(juce::Graphics &amp;, juce::Button &amp;button, bool isMouseOver, bool isMouseDown) override</arglist>
+      <anchor>ac8b6fb1c8ca7771faf94967a34727bb6</anchor>
+      <arglist>(juce::Graphics &amp;g, juce::Button &amp;button, bool isMouseOver, bool isMouseDown) override</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>drawTabLabel</name>
       <anchorfile>classend_1_1_look_and_feel.html</anchorfile>
-      <anchor>a9fdb20a3e899bc9144fd48968e4c4d39</anchor>
-      <arglist>(juce::Graphics &amp;, juce::Label &amp;label) override</arglist>
+      <anchor>a99e79dac7ce58c96dce327c86a4cf091</anchor>
+      <arglist>(juce::Graphics &amp;g, juce::Label &amp;label) override</arglist>
     </member>
     <member kind="function">
       <type>juce::Font</type>
@@ -3840,8 +3854,8 @@
       <type>void</type>
       <name>drawResizerBar</name>
       <anchorfile>classend_1_1_look_and_feel.html</anchorfile>
-      <anchor>aa8c227486efbf47f91b4be5c2a19f3e8</anchor>
-      <arglist>(juce::Graphics &amp;, juce::Component &amp;bar) override</arglist>
+      <anchor>a79bd54f3b855ffc1978e690387825b50</anchor>
+      <arglist>(juce::Graphics &amp;g, juce::Component &amp;bar) override</arglist>
     </member>
     <member kind="function" protection="private">
       <type>void</type>
@@ -3862,6 +3876,13 @@
       <name>initialiseColours</name>
       <anchorfile>classend_1_1_look_and_feel.html</anchorfile>
       <anchor>a1b336d849e97d92bb98a1dc743f918e8</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" protection="private">
+      <type>void</type>
+      <name>registerEvents</name>
+      <anchorfile>classend_1_1_look_and_feel.html</anchorfile>
+      <anchor>a122cf96d7047f9d317f122687bad1dce</anchor>
       <arglist>()</arglist>
     </member>
     <member kind="variable" protection="private">
@@ -3911,6 +3932,13 @@
       <name>graphics</name>
       <anchorfile>classend_1_1_look_and_feel.html</anchorfile>
       <anchor>afecd477f3e694f5abd9b809e06125d2d</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="private">
+      <type>jam::Function::Map&lt; juce::Identifier, void &gt;</type>
+      <name>events</name>
+      <anchorfile>classend_1_1_look_and_feel.html</anchorfile>
+      <anchor>af54cabbea0a09abaa6e8f972a5158567</anchor>
       <arglist></arglist>
     </member>
   </compound>
@@ -4743,8 +4771,8 @@
       <type>void</type>
       <name>valueTreePropertyChanged</name>
       <anchorfile>classend_1_1_view.html</anchorfile>
-      <anchor>af52de711464f4dba65c969a4ffbbafc6</anchor>
-      <arglist>(juce::ValueTree &amp;, const juce::Identifier &amp;) override</arglist>
+      <anchor>a8d59e9750bef6937f2647078b1614dc7</anchor>
+      <arglist>(juce::ValueTree &amp;tree, const juce::Identifier &amp;property) override</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -4758,6 +4786,13 @@
       <name>registerActions</name>
       <anchorfile>classend_1_1_view.html</anchorfile>
       <anchor>aa33112ca0bcd3004779201b4c966b96c</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" protection="private">
+      <type>void</type>
+      <name>registerEvents</name>
+      <anchorfile>classend_1_1_view.html</anchorfile>
+      <anchor>aeecb3eed7c649f6731032784dc2ed98d</anchor>
       <arglist>()</arglist>
     </member>
     <member kind="function" protection="private">
@@ -4807,6 +4842,13 @@
       <name>attachments</name>
       <anchorfile>classend_1_1_view.html</anchorfile>
       <anchor>a2abdc967e6ba24310abe2ef0d1fcf0b8</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="private">
+      <type>jam::Function::Map&lt; juce::Identifier, void &gt;</type>
+      <name>events</name>
+      <anchorfile>classend_1_1_view.html</anchorfile>
+      <anchor>a53296c1bef3150326d6cff63ba81ea7f</anchor>
       <arglist></arglist>
     </member>
   </compound>
@@ -4895,6 +4937,7 @@
     <path>end/</path>
     <filename>dir_df2986c7b29a3b9e8768851adf6ae18d.html</filename>
     <file>ActionRegistration.cpp</file>
+    <file>EventRegistration.cpp</file>
     <file>Map.h</file>
     <file>MessageOverlay.h</file>
     <file>Model.cpp</file>
@@ -4913,6 +4956,7 @@
     <name>lookAndFeel</name>
     <path>lookAndFeel/</path>
     <filename>dir_c9cfca4ec86141f7bb4e60ba321d4655.html</filename>
+    <file>EventRegistration.cpp</file>
     <file>LookAndFeel.cpp</file>
     <file>LookAndFeel.h</file>
   </compound>

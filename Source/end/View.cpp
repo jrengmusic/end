@@ -13,6 +13,7 @@ View::View (jam::Model& m)
     setWantsKeyboardFocus (true);
     toFront (true);
     registerActions();
+    registerEvents();
 
     addAndMakeVisible (tabs);
     addChildComponent (messageOverlay);
@@ -58,38 +59,10 @@ bool View::keyPressed (const juce::KeyPress& key, juce::Component* originatingCo
 
 void View::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
 {
-    if (property == ID::loadMessage)
-        messageOverlay.showMessage (config.getLoadMessage());
+    auto key { events.contains (property) ? property : tree.getType() };
 
-    if (property == ID::orientation)
-        setTabOrientation();
-
-    if (jam::toBool (tree.getProperty (ID::focus)))
-    {
-        auto id { tree.getProperty (jam::ID::id) };
-        state.setProperty (ID::focusedPane, id, nullptr);
-    }
-
-    if (property == ID::theme)
-    {
-        setTabOrientation();
-        getTopLevelComponent()->sendLookAndFeelChange();
-    }
-
-    if (tree.getType() == IDtype::graphics or tree.getType() == IDtype::tabButton)
-        getTopLevelComponent()->sendLookAndFeelChange();
-
-    if (tree.getType() == IDtype::end)
-    {
-        if (auto* window { dynamic_cast<jam::Window*> (getTopLevelComponent()) })
-        {
-            if (property == ID::alwaysOnTop)
-                window->setAlwaysOnTop (tree.getProperty (property));
-
-            if (property == ID::titleBarButtons)
-                window->setShowWindowButtons (tree.getProperty (property));
-        }
-    }
+    if (events.contains (key))
+        events.get (key, tree);
 }
 
 void View::valueTreeChildAdded (juce::ValueTree& parentTree,

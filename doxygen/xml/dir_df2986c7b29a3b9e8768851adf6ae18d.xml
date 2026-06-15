@@ -3,6 +3,7 @@
   <compounddef id="dir_df2986c7b29a3b9e8768851adf6ae18d" kind="dir">
     <compoundname>end</compoundname>
     <innerfile refid="_action_registration_8cpp">ActionRegistration.cpp</innerfile>
+    <innerfile refid="end_2_event_registration_8cpp">EventRegistration.cpp</innerfile>
     <innerfile refid="_map_8h">Map.h</innerfile>
     <innerfile refid="_message_overlay_8h">MessageOverlay.h</innerfile>
     <innerfile refid="_model_8cpp">Model.cpp</innerfile>

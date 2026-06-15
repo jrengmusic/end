@@ -78,6 +78,10 @@
         <label>end/ActionRegistration.cpp</label>
         <link refid="_action_registration_8cpp"/>
       </node>
+      <node id="7">
+        <label>end/EventRegistration.cpp</label>
+        <link refid="end_2_event_registration_8cpp"/>
+      </node>
       <node id="2">
         <label>end/Tabs.cpp</label>
         <link refid="_tabs_8cpp"/>
@@ -90,7 +94,7 @@
         <childnode refid="3" relation="include">
         </childnode>
       </node>
-      <node id="7">
+      <node id="8">
         <label>end/View.cpp</label>
         <link refid="_view_8cpp"/>
       </node>
@@ -102,6 +106,8 @@
         <childnode refid="6" relation="include">
         </childnode>
         <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
         </childnode>
       </node>
     </invincdepgraph>

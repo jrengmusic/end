@@ -49,7 +49,7 @@
         <childnode refid="7" relation="include">
         </childnode>
       </node>
-      <node id="10">
+      <node id="11">
         <label>config/Config.cpp</label>
         <link refid="_config_8cpp"/>
       </node>
@@ -60,22 +60,26 @@
         </childnode>
         <childnode refid="5" relation="include">
         </childnode>
-        <childnode refid="10" relation="include">
-        </childnode>
         <childnode refid="11" relation="include">
         </childnode>
         <childnode refid="12" relation="include">
         </childnode>
         <childnode refid="13" relation="include">
         </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
         <childnode refid="7" relation="include">
         </childnode>
-        <childnode refid="15" relation="include">
+        <childnode refid="16" relation="include">
         </childnode>
       </node>
       <node id="8">
         <label>end/ActionRegistration.cpp</label>
         <link refid="_action_registration_8cpp"/>
+      </node>
+      <node id="9">
+        <label>end/EventRegistration.cpp</label>
+        <link refid="end_2_event_registration_8cpp"/>
       </node>
       <node id="1">
         <label>end/Map.h</label>
@@ -87,29 +91,29 @@
         <childnode refid="7" relation="include">
         </childnode>
       </node>
-      <node id="11">
+      <node id="12">
         <label>end/MessageOverlay.h</label>
         <link refid="_message_overlay_8h"/>
         <childnode refid="7" relation="include">
         </childnode>
       </node>
-      <node id="12">
+      <node id="13">
         <label>end/Panes.cpp</label>
         <link refid="_panes_8cpp"/>
       </node>
-      <node id="14">
+      <node id="15">
         <label>end/Tabs.cpp</label>
         <link refid="_tabs_8cpp"/>
       </node>
-      <node id="13">
+      <node id="14">
         <label>end/Tabs.h</label>
         <link refid="_tabs_8h"/>
-        <childnode refid="14" relation="include">
+        <childnode refid="15" relation="include">
         </childnode>
         <childnode refid="7" relation="include">
         </childnode>
       </node>
-      <node id="9">
+      <node id="10">
         <label>end/View.cpp</label>
         <link refid="_view_8cpp"/>
       </node>
@@ -122,35 +126,43 @@
         </childnode>
         <childnode refid="9" relation="include">
         </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
       </node>
-      <node id="17">
+      <node id="18">
         <label>end/Window.cpp</label>
         <link refid="_window_8cpp"/>
       </node>
-      <node id="16">
+      <node id="17">
         <label>end/Window.h</label>
         <link refid="_window_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
-        <childnode refid="17" relation="include">
+        <childnode refid="18" relation="include">
         </childnode>
       </node>
-      <node id="18">
+      <node id="19">
+        <label>lookAndFeel/EventRegistration.cpp</label>
+        <link refid="look_and_feel_2_event_registration_8cpp"/>
+      </node>
+      <node id="20">
         <label>lookAndFeel/LookAndFeel.cpp</label>
         <link refid="_look_and_feel_8cpp"/>
       </node>
-      <node id="15">
+      <node id="16">
         <label>lookAndFeel/LookAndFeel.h</label>
         <link refid="_look_and_feel_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
-        <childnode refid="11" relation="include">
+        <childnode refid="12" relation="include">
         </childnode>
-        <childnode refid="14" relation="include">
+        <childnode refid="15" relation="include">
         </childnode>
-        <childnode refid="16" relation="include">
+        <childnode refid="17" relation="include">
         </childnode>
-        <childnode refid="18" relation="include">
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
         </childnode>
       </node>
     </invincdepgraph>

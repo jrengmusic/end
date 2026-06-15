@@ -506,22 +506,24 @@
     <member refid="classend_1_1_look_and_feel_1a14affae1205191d2a4c0c2f989d909c3" kind="variable"><name>theme</name></member>
     <member refid="classend_1_1_look_and_feel_1a7735b5653ef6b5779d206aac7d34ca3b" kind="variable"><name>typefaces</name></member>
     <member refid="classend_1_1_look_and_feel_1afecd477f3e694f5abd9b809e06125d2d" kind="variable"><name>graphics</name></member>
+    <member refid="classend_1_1_look_and_feel_1af54cabbea0a09abaa6e8f972a5158567" kind="variable"><name>events</name></member>
     <member refid="classend_1_1_look_and_feel_1a9313c08eb0def3e3a423f8bfd362f435" kind="function"><name>LookAndFeel</name></member>
     <member refid="classend_1_1_look_and_feel_1a4e4378865cd561e4bccbb346cf7a8114" kind="function"><name>~LookAndFeel</name></member>
     <member refid="classend_1_1_look_and_feel_1a7c2fe0979150705dd5b0a67886857d30" kind="function"><name>valueTreePropertyChanged</name></member>
-    <member refid="classend_1_1_look_and_feel_1ade27fb3312b73e1a30fc6e147cf32d0d" kind="function"><name>drawBarBackground</name></member>
-    <member refid="classend_1_1_look_and_feel_1a0c9015e091848eb9edb77a7f3130b768" kind="function"><name>drawBarHighlight</name></member>
-    <member refid="classend_1_1_look_and_feel_1a2d99c5eec680d18f5f5136bb1f374b25" kind="function"><name>drawTabButton</name></member>
-    <member refid="classend_1_1_look_and_feel_1a9fdb20a3e899bc9144fd48968e4c4d39" kind="function"><name>drawTabLabel</name></member>
+    <member refid="classend_1_1_look_and_feel_1a818541837a61a60413419f58fad1090a" kind="function"><name>drawBarBackground</name></member>
+    <member refid="classend_1_1_look_and_feel_1aeb1b35cec62b29f3e5f18140138400a6" kind="function"><name>drawBarHighlight</name></member>
+    <member refid="classend_1_1_look_and_feel_1ac8b6fb1c8ca7771faf94967a34727bb6" kind="function"><name>drawTabButton</name></member>
+    <member refid="classend_1_1_look_and_feel_1a99e79dac7ce58c96dce327c86a4cf091" kind="function"><name>drawTabLabel</name></member>
     <member refid="classend_1_1_look_and_feel_1a52fd566f92d3c845a23d02bd0babc8e3" kind="function"><name>getTabFont</name></member>
     <member refid="classend_1_1_look_and_feel_1a786940014b12e5ddd8223a473033cb99" kind="function"><name>getTabPadding</name></member>
     <member refid="classend_1_1_look_and_feel_1a4ac05f3e7acb64f081c68550b063e440" kind="function"><name>getTabText</name></member>
     <member refid="classend_1_1_look_and_feel_1ab677c2f87a87ee2daceb3a1e7e72caf7" kind="function"><name>getTabBarPadding</name></member>
     <member refid="classend_1_1_look_and_feel_1a2dcdbaeab4b6adceacd70d73a85f1e83" kind="function"><name>getWindowGlass</name></member>
-    <member refid="classend_1_1_look_and_feel_1aa8c227486efbf47f91b4be5c2a19f3e8" kind="function"><name>drawResizerBar</name></member>
+    <member refid="classend_1_1_look_and_feel_1a79bd54f3b855ffc1978e690387825b50" kind="function"><name>drawResizerBar</name></member>
     <member refid="classend_1_1_look_and_feel_1ae56cb662b3902cb26f76f3e3fa0be713" kind="function"><name>registerTypeface</name></member>
     <member refid="classend_1_1_look_and_feel_1a6bac0b983ceeffd331beb5262030dbe8" kind="function"><name>loadGraphics</name></member>
     <member refid="classend_1_1_look_and_feel_1a1b336d849e97d92bb98a1dc743f918e8" kind="function"><name>initialiseColours</name></member>
+    <member refid="classend_1_1_look_and_feel_1a122cf96d7047f9d317f122687bad1dce" kind="function"><name>registerEvents</name></member>
   </compound>
   <compound refid="structend_1_1_map" kind="struct"><name>end::Map</name>
     <member refid="structend_1_1_map_1add2134439c9c266fbf3f64ce5214c7eb" kind="variable"><name>position</name></member>
@@ -651,14 +653,16 @@
     <member refid="classend_1_1_view_1a7e6ee211dd7d9e06224826283296fa65" kind="variable"><name>tabs</name></member>
     <member refid="classend_1_1_view_1a97bd88a9912af6789293637a52e8da3f" kind="variable"><name>messageOverlay</name></member>
     <member refid="classend_1_1_view_1a2abdc967e6ba24310abe2ef0d1fcf0b8" kind="variable"><name>attachments</name></member>
+    <member refid="classend_1_1_view_1a53296c1bef3150326d6cff63ba81ea7f" kind="variable"><name>events</name></member>
     <member refid="classend_1_1_view_1af1202f1cb8659e8eb6ae04b9703c4be4" kind="function"><name>View</name></member>
     <member refid="classend_1_1_view_1aac73d85c15164ea7a9ae443b9673996c" kind="function"><name>~View</name></member>
     <member refid="classend_1_1_view_1a14f07f6fc295c80b4ff0555798fa583c" kind="function"><name>resized</name></member>
     <member refid="classend_1_1_view_1a2b7111f9b62f43d038bc092d269b5b1c" kind="function"><name>paint</name></member>
     <member refid="classend_1_1_view_1a41cd1e902149d1b7eff5b13e08d9bd27" kind="function"><name>keyPressed</name></member>
-    <member refid="classend_1_1_view_1af52de711464f4dba65c969a4ffbbafc6" kind="function"><name>valueTreePropertyChanged</name></member>
+    <member refid="classend_1_1_view_1a8d59e9750bef6937f2647078b1614dc7" kind="function"><name>valueTreePropertyChanged</name></member>
     <member refid="classend_1_1_view_1a1904f3df086fd0f9d1b3bb0e6cb1538b" kind="function"><name>valueTreeChildAdded</name></member>
     <member refid="classend_1_1_view_1aa33112ca0bcd3004779201b4c966b96c" kind="function"><name>registerActions</name></member>
+    <member refid="classend_1_1_view_1aeecb3eed7c649f6731032784dc2ed98d" kind="function"><name>registerEvents</name></member>
     <member refid="classend_1_1_view_1a91ed8ef126c0a1b3feb458079c3a7849" kind="function"><name>setTabOrientation</name></member>
     <member refid="classend_1_1_view_1a7917a0f9fd49d8944b5c1f69025678ec" kind="function"><name>setViewState</name></member>
   </compound>
@@ -685,6 +689,10 @@
   <compound refid="_config_8h" kind="file"><name>Config.h</name>
   </compound>
   <compound refid="_action_registration_8cpp" kind="file"><name>ActionRegistration.cpp</name>
+  </compound>
+  <compound refid="end_2_event_registration_8cpp" kind="file"><name>EventRegistration.cpp</name>
+  </compound>
+  <compound refid="look_and_feel_2_event_registration_8cpp" kind="file"><name>EventRegistration.cpp</name>
   </compound>
   <compound refid="_map_8h" kind="file"><name>Map.h</name>
   </compound>

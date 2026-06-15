@@ -179,7 +179,7 @@
         <location file="end/Map.h" line="213" column="33" bodyfile="end/Map.h" bodystart="213" bodyend="216"/>
         <references refid="structconfig_1_1_file_1_1_theme_1a9c704922e3f4af999c084142d0da1661" compoundref="_map_8h" startline="219" endline="219">path</references>
         <referencedby refid="classconfig_1_1_theme_1ad1c552afe63e04ce01d6479bdd197996" compoundref="_config_8cpp" startline="267" endline="304">config::Theme::load</referencedby>
-        <referencedby refid="classend_1_1_look_and_feel_1a6bac0b983ceeffd331beb5262030dbe8" compoundref="_look_and_feel_8cpp" startline="288" endline="337">end::LookAndFeel::loadGraphics</referencedby>
+        <referencedby refid="classend_1_1_look_and_feel_1a6bac0b983ceeffd331beb5262030dbe8" compoundref="look_and_feel_2_event_registration_8cpp" startline="85" endline="120">end::LookAndFeel::loadGraphics</referencedby>
         <referencedby refid="classconfig_1_1_model_1acad607c8136bcc115ffeae9d47869e26" compoundref="_config_8cpp" startline="92" endline="150">config::Model::saveToPath</referencedby>
         <referencedby refid="classconfig_1_1_model_1abd7d146ee9fede8da7f5f0678faed50e" compoundref="_config_8cpp" startline="228" endline="237">config::Model::startWatcher</referencedby>
       </memberdef>

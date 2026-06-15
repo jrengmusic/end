@@ -1,6 +1,6 @@
 /**
  * @file end/View.h
- * @brief Root content component — owns Tabs and Registry, routes keyboard input.
+ * @brief Root content component — owns Tabs and Registry, routes keyboard input and ValueTree events.
  */
 #pragma once
 #include <JuceHeader.h>
@@ -17,11 +17,19 @@ namespace end
 /** @class View
  *  @brief Root content component inside end::Window.
  *
- *  Owns the tab system, action registry, and attachments. Receives the jam::Model
- *  reference and creates its own Attachments — grafting its own state and Tabs'
- *  state into the model tree. Implements KeyListener to intercept key presses and route
- *  them through the Registry's prefix key state machine. Transparent — glass
- *  shows through from Window.
+ *  Owns the tab system, action registry, model attachments, and two dispatch
+ *  systems wired to ValueTree changes:
+ *
+ *  - **Action dispatch** — keybinding-triggered callbacks registered in
+ *    action::Registry via registerActions(). Key presses are routed through
+ *    the Registry's prefix key state machine.
+ *
+ *  - **Event dispatch** — ValueTree property/type-keyed callbacks stored in the
+ *    @c events jam::Function::Map, populated by registerEvents(). Single-key
+ *    dispatch in valueTreePropertyChanged(): the changed property is checked
+ *    first; if absent from the map, the tree type is used as the fallback key.
+ *
+ *  Transparent — glass shows through from Window.
  */
 class View
     : public juce::Component
@@ -30,35 +38,117 @@ class View
     , public juce::KeyListener
 {
 public:
+    /** @brief Constructs the View and wires all subsystems.
+     *
+     *  Registers actions and events, creates model attachments for View and
+     *  Tabs state, adds this as a listener to config, theme, and model trees,
+     *  applies the initial tab orientation, and opens the first tab.
+     *
+     *  @param m  Shared jam::Model that owns the application state tree.
+     */
     explicit View (jam::Model& m);
+
+    /** @brief Destructs the View, removing all listeners and the key listener. */
     ~View() override;
 
+    /** @brief Updates view state dimensions and lays out tabs and messageOverlay.
+     *
+     *  Writes the current width and height into the view state tree, then
+     *  bounds both @c tabs and @c messageOverlay to @c getLocalBounds().
+     */
     void resized() override;
+
+    /** @brief No-op — transparent; glass shows through from Window. */
     void paint (juce::Graphics&) override {}
 
     /** @brief Routes key presses to the action registry.
+     *  @param key                    The key press event.
+     *  @param originatingComponent   Component that originated the key press (unused).
      *  @return true if consumed by an action binding.
      */
     bool keyPressed (const juce::KeyPress& key, juce::Component* originatingComponent) override;
-    void valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier&) override;
+
+    /** @brief Single-key dispatch through the events map.
+     *
+     *  Checks whether @p property is a key in @c events; if so, dispatches
+     *  with @p property. Otherwise falls back to @p tree.getType() as the
+     *  lookup key. Handles config, theme, focus, and window property changes.
+     *
+     *  @param tree      The ValueTree whose property changed.
+     *  @param property  The identifier of the changed property.
+     */
+    void valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
+
+    /** @brief Sets the focusedPane state when a new tab's pane is added.
+     *
+     *  Reads the pane id from @p childWhichHasBeenAdded and writes it to the
+     *  view state tree as @c ID::focusedPane.
+     *
+     *  @param parentTree                The parent tree the child was added to.
+     *  @param childWhichHasBeenAdded    The newly added child tree (a tab tree
+     *                                   containing an @c IDtype::pane subtree).
+     */
     void valueTreeChildAdded (juce::ValueTree& parentTree,
                               juce::ValueTree& childWhichHasBeenAdded) override;
 
 private:
+    /** @brief Singleton config model reference. */
     config::Model& config { *config::Model::getInstance() };
 
     //==============================================================================
+    /** @brief Populates action::Registry with keybinding-triggered callbacks.
+     *
+     *  Registers actions for tab navigation (newTab, closeTab, nextTab, prevTab),
+     *  pane splitting (splitHorizontal, splitVertical), pane closing (closePane),
+     *  and directional pane focus (paneLeft, paneRight, paneUp, paneDown).
+     *  Defined in ActionRegistration.cpp.
+     */
     void registerActions();
+
+    /** @brief Populates the events map with ValueTree property/type-keyed callbacks.
+     *
+     *  Registers handlers for: loadMessage (shows config load message overlay),
+     *  orientation (applies tab orientation from theme), focus (updates focusedPane
+     *  state), theme (re-applies orientation and propagates LookAndFeel change),
+     *  graphics and tabButton tree types (propagate LookAndFeel change),
+     *  alwaysOnTop and titleBarButtons (dispatch to jam::Window).
+     *  Defined in EventRegistration.cpp.
+     */
+    void registerEvents();
+
+    /** @brief Reads tab orientation from the theme config and applies it to tabs. */
     void setTabOrientation();
+
+    /** @brief Writes the view dimensions into the view state tree.
+     *  @param width   Current component width in pixels.
+     *  @param height  Current component height in pixels.
+     */
     void setViewState (int width, int height);
+
     //==============================================================================
+    /** @brief Action registry — maps key bindings to action callbacks. */
     action::Registry registry;
+
+    /** @brief Tab system — owns panes and terminal sessions. */
     Tabs tabs;
+
+    /** @brief Transient message display triggered by config load events. */
     MessageOverlay messageOverlay;
+
+    /** @brief Model attachments grafting View and Tabs state into the jam::Model tree. */
     jam::Owner<jam::Model::Attachment> attachments;
-    // jam::HashMap<juce::Identifier, void> events;
+
+    /** @brief Event dispatch map — keyed by juce::Identifier (property or tree type).
+     *
+     *  Callbacks receive the changed ValueTree. Dispatched via single-key lookup
+     *  in valueTreePropertyChanged(): property key takes priority, tree type is
+     *  the fallback.
+     */
+    jam::Function::Map<juce::Identifier, void> events;
+
     //==============================================================================
 #if JUCE_DEBUG
+    /** @brief ValueTree inspector widget, debug builds only. */
     jam::debug::Widget widget { this, model.state, false };
 #endif
     //==============================================================================
