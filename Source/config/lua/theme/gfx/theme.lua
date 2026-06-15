@@ -3,13 +3,49 @@
 -- https://github.com/jrengmusic/end
 -- ============================================================================
 --
--- This file defines the visual appearance for the "gfx" theme.
--- Each section maps 1:1 to a component scope. Colour properties map
--- directly to JUCE/jam colourIds.
+-- This file defines the visual appearance for the END default "gfx" theme.
+-- Each section maps 1:1 to a component scope.
 --
--- Colour format: 0xAARRGGBB hex integer (JUCE native ARGB format).
+-- Colour format: 0xAARRGGBB hex integer (Alpha|Red|Green|Blue).
 --
 -- ============================================================================
+-- COLOUR PALETTE
+-- ============================================================================
+
+local colours = {
+	-- Alpha variant: a is 0..1, returns 0xAARRGGBB.
+	withAlpha = function(c, a)
+		return (math.floor(a * 255 + 0.5) << 24) | (c & 0xffffff)
+	end,
+
+	narwhalGrey = 0xff090d12,
+	preciousPersimmon = 0xfffc704c,
+	gentleCold = 0xffc5f0e9,
+	silkStar = 0xfff3f5c5,
+	skyFall = 0xff8cc9d9,
+	lagoon = 0xff519299,
+	tranquiliTeal = 0xff699daa,
+	steam = 0xffdddddd,
+	mediterranea = 0xff33535b,
+	paleSky = 0xffbafffd,
+	mattWhite = 0xfffeffd2,
+	poseidonJr_ = 0xff67dfef,
+	caribbeanBlue = 0xff01c2d2,
+	blueBikini = 0xff00c8d8,
+	crystal = 0xffa1d6e5,
+	paradiso = 0xff4e8c93,
+	coldLightOfDay = 0xff00ddee,
+	littleMermaid = 0xff2c4144,
+	continentalWaters = 0xff8fc6d0,
+	cavoloNero = 0xff6b9099,
+	aztec = 0xff273233,
+	void = 0xff001a20,
+	vulcan = 0xff2d3b40,
+	trappedDarkness = 0xff112130,
+	aqua = 0xff00ffff,
+	dreamlessSleep = 0xff111111,
+	transparent = 0x00000000,
+}
 
 return {
 	-- ========================================================================
@@ -19,7 +55,7 @@ return {
 	window = {
 		-- Window background tint.
 		-- Alpha controls window transparency (glass mode).
-		background = 0xbf090d12,
+		background = colours.withAlpha(colours.narwhalGrey, 0.75),
 
 		-- Background blur radius in pixels (0 = no blur). GPU only.
 		blur_radius = 32,
@@ -42,22 +78,22 @@ return {
 	--
 
 	ansi = {
-		black = 0xff090d12,
-		red = 0xfffc704c,
-		green = 0xffc5f0e9,
-		yellow = 0xfff3f5c5,
-		blue = 0xff8cc9d9,
-		magenta = 0xff519299,
-		cyan = 0xff699daa,
-		white = 0xffdddddd,
-		bright_black = 0xff33535b,
-		bright_red = 0xfffc704c,
-		bright_green = 0xffbafffd,
-		bright_yellow = 0xfffeffd2,
-		bright_blue = 0xff67dfef,
-		bright_magenta = 0xff01c2d2,
-		bright_cyan = 0xff00c8d8,
-		bright_white = 0xffbafffd,
+		black = colours.narwhalGrey,
+		red = colours.preciousPersimmon,
+		green = colours.gentleCold,
+		yellow = colours.silkStar,
+		blue = colours.skyFall,
+		magenta = colours.lagoon,
+		cyan = colours.tranquiliTeal,
+		white = colours.steam,
+		bright_black = colours.mediterranea,
+		bright_red = colours.preciousPersimmon,
+		bright_green = colours.paleSky,
+		bright_yellow = colours.mattWhite,
+		bright_blue = colours.poseidonJr_,
+		bright_magenta = colours.caribbeanBlue,
+		bright_cyan = colours.blueBikini,
+		bright_white = colours.paleSky,
 	},
 
 	-- ========================================================================
@@ -66,29 +102,29 @@ return {
 
 	code = {
 		-- Default text foreground (jam::CodeView::textColourId).
-		text = 0xffa1d6e5,
+		text = colours.crystal,
 
 		-- Default background (jam::CodeView::backgroundColourId).
 		-- Transparent lets the window glass effect show through.
-		background = 0x00000000,
+		background = colours.transparent,
 
 		-- Caret (jam::CaretComponent::caretColourId).
-		caret = 0xff4e8c93,
+		caret = colours.paradiso,
 
 		-- Selection highlight (juce::TextEditor::highlightColourId).
 		-- Semi-transparent recommended so text remains readable.
-		highlight = 0x2000ddee,
+		highlight = colours.withAlpha(colours.coldLightOfDay, 0.125),
 
 		-- Selection-mode cursor (selectionCursorColourId).
 		-- Shown instead of the normal cursor when selection mode is active.
-		selection_cursor = 0xff00ddee,
+		selection_cursor = colours.coldLightOfDay,
 
 		-- Editor widget background fill (juce::TextEditor::backgroundColourId).
 		-- Transparent lets the window glass effect show through.
-		editor_background = 0x00000000,
+		editor_background = colours.transparent,
 
 		-- Editor widget outline (juce::TextEditor::outlineColourId).
-		editor_outline = 0x00000000,
+		editor_outline = colours.transparent,
 
 		-- Space between the window edge and the terminal text, in pixels.
 		-- CSS convention: { top, right, bottom, left }.
@@ -160,11 +196,11 @@ return {
 	scrollbar = {
 		-- Scrollbar thumb (juce::ScrollBar::thumbColourId).
 		-- Semi-transparent recommended.
-		thumb = 0x802c4144,
+		thumb = colours.withAlpha(colours.littleMermaid, 0.5),
 
 		-- Scrollbar track (juce::ScrollBar::trackColourId).
 		-- Transparent for no visible track.
-		track = 0x00000000,
+		track = colours.transparent,
 
 		-- Scrollbar width in pixels. Set to 0 to hide scrollbar.
 		width = 8,
@@ -176,13 +212,13 @@ return {
 
 	tab = {
 		-- Bar strip background (jam::button::Bar::backgroundColourId).
-		background = 0xFF8FC6D0,
+		background = colours.continentalWaters,
 
 		-- Sliding selection highlight (jam::button::Bar::highlightColourId).
-		highlight = 0xff6b9099,
+		highlight = colours.cavoloNero,
 
 		-- SVG group outline (jam::button::Bar::outlineColourId).
-		outline = 0xff273233,
+		outline = colours.aztec,
 
 		-- Tab bar font family.
 		font_family = "Display",
@@ -226,16 +262,16 @@ return {
 
 	button = {
 		-- Inactive tab fill (juce::TextButton::buttonColourId).
-		button = 0xff001a20,
+		button = colours.void,
 
 		-- Active tab fill (juce::TextButton::buttonOnColourId).
-		button_on = 0xff2d3b40,
+		button_on = colours.vulcan,
 
 		-- Inactive tab text (juce::TextButton::textColourOffId).
-		text_off = 0xff33535b,
+		text_off = colours.mediterranea,
 
 		-- Active tab text (juce::TextButton::textColourOnId).
-		text_on = 0xff00c8d8,
+		text_on = colours.blueBikini,
 	},
 
 	-- ========================================================================
@@ -244,10 +280,10 @@ return {
 
 	overlay = {
 		-- Overlay background (juce::Label::backgroundColourId).
-		background = 0xbf090d12,
+		background = colours.withAlpha(colours.narwhalGrey, 0.75),
 
 		-- Overlay text (juce::Label::textColourId).
-		text = 0xff4e8c93,
+		text = colours.paradiso,
 
 		-- Overlay font family (used for status messages).
 		font_family = "Display Mono",
@@ -262,10 +298,10 @@ return {
 
 	pane = {
 		-- Pane divider bar (paneBarColourId).
-		resize_bar = 0xff2C4144,
+		resize_bar = colours.littleMermaid,
 
 		-- Pane divider bar when dragging or hovering (paneBarHighlightColourId).
-		resize_bar_highlight = 0xff6b9099,
+		resize_bar_highlight = colours.cavoloNero,
 
 		-- Pane divider bar thickness in pixels.
 		resize_bar_thickness = 8,
@@ -282,16 +318,16 @@ return {
 
 	status_bar = {
 		-- Status bar background (statusBarBackgroundColourId).
-		background = 0xff090d12,
+		background = colours.narwhalGrey,
 
 		-- Mode label background (statusBarLabelBackgroundColourId).
-		label_background = 0xff112130,
+		label_background = colours.trappedDarkness,
 
 		-- Mode label text (statusBarLabelTextColourId).
-		label_text = 0xff4e8c93,
+		label_text = colours.paradiso,
 
 		-- Spinner (statusBarSpinnerColourId).
-		spinner = 0xff00c8d8,
+		spinner = colours.blueBikini,
 
 		-- Status bar position: "top" or "bottom".
 		position = "bottom",
@@ -312,10 +348,10 @@ return {
 
 	hint = {
 		-- Hint label background (hintLabelBgColourId).
-		background = 0xff00ffff,
+		background = colours.aqua,
 
 		-- Hint label text (hintLabelFgColourId).
-		text = 0xff111111,
+		text = colours.dreamlessSleep,
 	},
 
 	-- ========================================================================
@@ -358,10 +394,10 @@ return {
 		padding = { 10, 10, 10, 10 },
 
 		-- Text colour for action name labels.
-		name_colour = 0xffa1d6e5,
+		name_colour = colours.crystal,
 
 		-- Text colour for keyboard shortcut labels.
-		shortcut_colour = 0xff00c8d8,
+		shortcut_colour = colours.blueBikini,
 
 		-- Proportional width of the action list relative to the terminal window (0.1 - 1.0).
 		width = 0.3,
@@ -371,6 +407,6 @@ return {
 		height = 0.3,
 
 		-- Background colour for the highlighted/selected row.
-		highlight_colour = 0x2000ddee,
+		highlight_colour = colours.withAlpha(colours.coldLightOfDay, 0.125),
 	},
 }
