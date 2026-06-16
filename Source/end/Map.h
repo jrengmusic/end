@@ -105,7 +105,7 @@ namespace config
 /*____________________________________________________________________________*/
 
 /**
- * @brief Registry of lua config files — 3 section keys.
+ * @brief Registry of lua config files — 4 section keys.
  *        CRTP-derived from jam::Map::Instance<File>.
  *
  * Maps each enum key to its Identifier stem (e.g. config → "config") and
@@ -120,15 +120,17 @@ struct File : public jam::Map::Instance<File>
     enum
     {
         config,///< Application config (end.lua).
+        end,
         popups,///< Popup terminal definitions.
         keys,///< Key bindings.
     };
 
-    /** @brief Populates the bimap with all 3 entries. */
+    /** @brief Populates the bimap with all 4 entries. */
     File()
     {
         map = {
-            { File::config, IDref::end    },
+            { File::config, IDref::config },
+            { File::end,    IDref::end    },
             { File::popups, IDref::popups },
             { File::keys,   IDref::keys   },
         };
@@ -226,46 +228,47 @@ struct File : public jam::Map::Instance<File>
 
     //==========================================================================
     /**
-     * @brief Registry of shader project files — manifest + embedded shaders.
+     * @brief Registry of Shadertoy pass file names — deterministic discovery.
      *        Nested inside File. CRTP-derived from jam::Map::Instance<Shaders>.
+     *
+     * Maps each enum key to its Identifier stem which IS the on-disk filename
+     * (no extension — Shadertoy convention). The filesystem is the manifest:
+     * present files are loaded, absent files are skipped.
      *
      * Owns the shaders root directory path. The live instance is owned by
      * end::Application — static get() resolves through Context<Shaders>.
      */
     struct Shaders : public jam::Map::Instance<Shaders>
     {
-        /** @brief Integer keys for shader files. */
+        /** @brief Integer keys for Shadertoy pass types. */
         enum
         {
-            shaders, ///< Shader manifest (shaders.lua).
-            quad,    ///< Fullscreen quad vertex shader (quad.vert, BinaryData).
-            shader,  ///< Fragment wrapper (shader.frag, BinaryData).
+            common,///< Shared library code, prepended to all passes.
+            image,///< Main output pass (always present).
+            bufferA,///< Intermediate FBO pass A.
+            bufferB,///< Intermediate FBO pass B.
+            bufferC,///< Intermediate FBO pass C.
+            bufferD,///< Intermediate FBO pass D.
         };
 
-        /** @brief Populates the bimap with all entries. */
+        /** @brief Populates the bimap with all Shadertoy pass entries. */
         Shaders()
         {
             map = {
-                { Shaders::shaders, IDref::shaders },
-                { Shaders::quad,    IDref::quad },
-                { Shaders::shader,  IDref::shader },
+                { Shaders::common,  IDref::common  },
+                { Shaders::image,   IDref::image   },
+                { Shaders::bufferA, IDref::bufferA },
+                { Shaders::bufferB, IDref::bufferB },
+                { Shaders::bufferC, IDref::bufferC },
+                { Shaders::bufferD, IDref::bufferD },
             };
         }
 
         /** @brief Returns the int→Identifier-stem map from the live context instance. */
         static const auto& get() noexcept { return getInstance()->map; }
 
-        /** @brief Returns the filename for the given enum key using per-key extension.
-         *  @param key  One of the Shaders enum values.
-         *  @return     Filename string including per-key extension (e.g. "shaders.lua", "quad.vert").
-         */
-        static const juce::String getName (int key) noexcept
-        {
-            return jam::Format::toFileName (get().at (key), extension.getReference (key));
-        }
-
         /** @brief Returns the shader project subdirectory for the given name.
-         *  @param shadersName  Shader project directory name (e.g. "cyberpunk").
+         *  @param shadersName  Shader project directory name (e.g. "sea-at-night").
          *  @return             Resolved path: ~/.config/end/shaders/@p shadersName/
          */
         static const juce::File getPath (const juce::String& shadersName) noexcept
@@ -275,11 +278,9 @@ struct File : public jam::Map::Instance<File>
 
         /** @brief Shaders root directory: ~/.config/end/shaders/ */
         inline static const juce::File path { File::getPath (IDref::shaders) };
-        /** @brief Per-key file extensions: lua, vert, frag. */
-        inline static const juce::StringArray extension { "lua", "vert", "frag" };
 
     private:
-        const juce::String& getDefault() const noexcept override { return map.at (Shaders::shaders); }
+        const juce::String& getDefault() const noexcept override { return map.at (Shaders::image); }
     };
 
 private:

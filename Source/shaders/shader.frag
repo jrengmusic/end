@@ -3,13 +3,16 @@ uniform float iTime;
 uniform float iTimeDelta;
 uniform int   iFrame;
 
-out vec4 fragColor;
+uniform sampler2D iChannel0;
+uniform sampler2D iChannel1;
+uniform sampler2D iChannel2;
+uniform sampler2D iChannel3;
 
-void mainImage (out vec4 fragColor, in vec2 fragCoord);
+%%source%%
 
 void main()
 {
     vec4 col;
     mainImage (col, gl_FragCoord.xy);
-    fragColor = col;
+    gl_FragColor = col;
 }

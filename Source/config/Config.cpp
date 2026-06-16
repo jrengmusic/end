@@ -40,29 +40,24 @@ void Model::initialise()
 {
     for (auto& [key, value] : File::get())
     {
-        auto lua { jam::lua::State() };
-
-        auto result { lua.getType (BinaryData::getString (File::getName (key))) };
-
-        if (result.wasOk())
+        if (key != File::config)
         {
-            auto child { jam::Model::fromLua (result.value(), value.toUpperCase(), &validators) };
-            state.appendChild (child, nullptr);
+            auto child { jam::Model::fromLua (
+                BinaryData::getString (File::getName (key)), value.toUpperCase(), {}, &validators) };
+
+            if (child.isValid())
+                state.appendChild (child, nullptr);
         }
     }
 
     // Theme lua files — build theme tree so saveToPath can walk it for SVG filenames.
     for (auto& [key, value] : File::Theme::get())
     {
-        auto lua { jam::lua::State() };
+        auto child { jam::Model::fromLua (
+            BinaryData::getString (File::Theme::getName (key)), value.toUpperCase()) };
 
-        auto result { lua.getType (BinaryData::getString (File::Theme::getName (key))) };
-
-        if (result.wasOk())
-        {
-            auto child { jam::Model::fromLua (result.value(), value.toUpperCase()) };
+        if (child.isValid())
             theme.state.appendChild (child, nullptr);
-        }
     }
 
     jam::Model::applyFunctionRecursively (
@@ -155,26 +150,23 @@ void Model::loadFromPath()
 
     for (auto& [key, value] : File::get())
     {
-        const juce::File file { File::path.getChildFile (File::getName (key)) };
-        auto lua { jam::lua::State() };
-
-        auto result { lua.getType (file.loadFileAsString(), file.getFileName()) };
-
-        if (result.wasOk())
+        if (key != File::config)
         {
+            const juce::File file { File::path.getChildFile (File::getName (key)) };
             juce::String fileErrors;
-            lua.getLineMapBuilder().flushRoot (value.toUpperCase());
+
             auto child { jam::Model::fromLua (
-                result.value(), value.toUpperCase(), &validators, &fileErrors, &lua.getLineMap()) };
+                file.loadFileAsString(), value.toUpperCase(), file.getFileName(), &validators, &fileErrors) };
 
             if (fileErrors.isNotEmpty())
                 errors << file.getFileName() << ":\n" << fileErrors;
 
-            setValuesFrom (child);
-        }
-        else
-        {
-            errors << file.getFileName() << ": " << result.getErrorMessage() << "\n";
+            if (child.isValid())
+            {
+                juce::ValueTree root { state.getType() };
+                root.appendChild (child, nullptr);
+                setValuesFrom (root);
+            }
         }
     }
 
@@ -189,6 +181,8 @@ void Model::loadFromPath()
     state.sendPropertyChangeMessage (ID::loadMessage);
 
     theme.load (juce::Identifier { getValue (IDtype::end, ID::theme) });
+
+    shader.load (getValue (IDtype::shaders, ID::background).toString());
 }
 
 void Model::buildGraphicsCallbacks()
@@ -264,6 +258,31 @@ void Model::registerValidator (juce::Identifier treeType,
 }
 
 //==============================================================================
+void Shader::load (const juce::String& shaderName)
+{
+    state.removeAllChildren (nullptr);
+
+    if (shaderName.isNotEmpty())
+    {
+        auto shaderPath { File::Shaders::getPath (shaderName) };
+
+        for (auto& [key, value] : File::Shaders::get())
+        {
+            const juce::File file { shaderPath.getChildFile (value) };
+
+            if (file.existsAsFile())
+            {
+                juce::ValueTree child { juce::Identifier { value } };
+                child.setProperty (jam::ID::value, file.loadFileAsString(), nullptr);
+                state.addChild (child, -1, nullptr);
+            }
+        }
+    }
+
+    state.sendPropertyChangeMessage (IDtype::shaders);
+}
+
+//==============================================================================
 void Theme::load (const juce::Identifier& themeName)
 {
     auto themePath { File::Theme::getPath (themeName.toString()) };
@@ -288,15 +307,10 @@ void Theme::load (const juce::Identifier& themeName)
 
         if (file.existsAsFile())
         {
-            auto lua { jam::lua::State() };
-            auto result { lua.getType (file.loadFileAsString(), file.getFileName()) };
+            auto tree { jam::Model::fromLua (file.loadFileAsString(), value.toUpperCase()) };
 
-            if (result.wasOk())
-            {
-                auto tree { jam::Model::fromLua (result.value(), value.toUpperCase()) };
-
+            if (tree.isValid())
                 state.addChild (tree.createCopy(), -1, nullptr);
-            }
         }
     }
 

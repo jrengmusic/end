@@ -29,6 +29,7 @@
     <path>config/</path>
     <filename>_config_8h.html</filename>
     <includes id="_map_8h" name="Map.h" local="yes" import="no" module="no" objc="no">../end/Map.h</includes>
+    <class kind="class">config::Shader</class>
     <class kind="class">config::Theme</class>
     <class kind="class">config::Model</class>
     <namespace>config</namespace>
@@ -310,7 +311,6 @@
     <name>Compiler.h</name>
     <path>shader/</path>
     <filename>_compiler_8h.html</filename>
-    <includes id="_map_8h" name="Map.h" local="yes" import="no" module="no" objc="no">end/Map.h</includes>
     <class kind="struct">shader::Compiler</class>
     <namespace>shader</namespace>
   </compound>
@@ -327,7 +327,9 @@
     <filename>_controller_8h.html</filename>
     <includes id="_quad_8h" name="Quad.h" local="yes" import="no" module="no" objc="no">shader/Quad.h</includes>
     <includes id="_compiler_8h" name="Compiler.h" local="yes" import="no" module="no" objc="no">shader/Compiler.h</includes>
+    <includes id="_config_8h" name="Config.h" local="yes" import="no" module="no" objc="no">config/Config.h</includes>
     <class kind="struct">shader::Controller</class>
+    <class kind="struct">shader::Controller::Pass</class>
     <namespace>shader</namespace>
   </compound>
   <compound kind="file">
@@ -436,25 +438,34 @@
   <compound kind="struct">
     <name>shader::Compiler</name>
     <filename>structshader_1_1_compiler.html</filename>
+    <member kind="typedef">
+      <type>std::function&lt; void(float, float, float, float, int)&gt;</type>
+      <name>UniformSetter</name>
+      <anchorfile>structshader_1_1_compiler.html</anchorfile>
+      <anchor>aaa51a231bfc2ed6adb421ff45a4fe668</anchor>
+      <arglist></arglist>
+    </member>
     <member kind="function" static="yes">
       <type>static std::unique_ptr&lt; juce::OpenGLShaderProgram &gt;</type>
       <name>build</name>
       <anchorfile>structshader_1_1_compiler.html</anchorfile>
-      <anchor>a95ea022f07f67cfc5678fe687ae10e0c</anchor>
-      <arglist>(const juce::StringArray &amp;fragments, juce::OpenGLContext &amp;context, juce::String &amp;error)</arglist>
+      <anchor>a1fc06cd95371860a447a28fcf9000d35</anchor>
+      <arglist>(const juce::String &amp;vertexSource, const juce::String &amp;fragmentSource, juce::OpenGLContext &amp;context, juce::String &amp;error)</arglist>
     </member>
     <member kind="function" static="yes">
-      <type>static void</type>
-      <name>registerUniforms</name>
+      <type>static UniformSetter</type>
+      <name>buildUniformSetter</name>
       <anchorfile>structshader_1_1_compiler.html</anchorfile>
-      <anchor>ab5d4c6ce12a2e5a165972fc6446ede16</anchor>
-      <arglist>(const juce::OpenGLShaderProgram &amp;program, jam::Function::Map&lt; juce::Identifier, void &gt; &amp;uniforms)</arglist>
+      <anchor>a504ae4bf80f9c504b7b224fad2caf8ec</anchor>
+      <arglist>(const juce::OpenGLShaderProgram &amp;program)</arglist>
     </member>
   </compound>
   <compound kind="struct">
     <name>shader::Controller</name>
     <filename>structshader_1_1_controller.html</filename>
     <base protection="private">juce::OpenGLRenderer</base>
+    <base protection="private">juce::ValueTree::Listener</base>
+    <class kind="struct">shader::Controller::Pass</class>
     <member kind="function">
       <type></type>
       <name>Controller</name>
@@ -553,6 +564,20 @@
       <anchor>a98c779a896ffd3370fb064665b81e8b6</anchor>
       <arglist>()</arglist>
     </member>
+    <member kind="function" protection="private">
+      <type>void</type>
+      <name>valueTreePropertyChanged</name>
+      <anchorfile>structshader_1_1_controller.html</anchorfile>
+      <anchor>a875459eca0ce7cc1cf7184da1a91f1d8</anchor>
+      <arglist>(juce::ValueTree &amp;tree, const juce::Identifier &amp;property) override</arglist>
+    </member>
+    <member kind="function" protection="private">
+      <type>void</type>
+      <name>loadShaders</name>
+      <anchorfile>structshader_1_1_controller.html</anchorfile>
+      <anchor>a3d374a76e1c128b739b98107c2f413c8</anchor>
+      <arglist>(const jam::HashMap&lt; juce::Identifier, juce::String &gt; &amp;sources)</arglist>
+    </member>
     <member kind="variable" protection="private">
       <type>int</type>
       <name>frameCounter</name>
@@ -568,17 +593,31 @@
       <arglist></arglist>
     </member>
     <member kind="variable" protection="private">
-      <type>jam::Owner&lt; juce::OpenGLShaderProgram &gt;</type>
-      <name>programs</name>
+      <type>jam::HashMap&lt; juce::Identifier, Pass &gt;</type>
+      <name>passes</name>
       <anchorfile>structshader_1_1_controller.html</anchorfile>
-      <anchor>a1031b82336383225c4c826a311e3ab47</anchor>
+      <anchor>a60e01e6d4be8deaf70f84236d02be0f4</anchor>
       <arglist></arglist>
     </member>
     <member kind="variable" protection="private">
-      <type>jam::Function::Map&lt; juce::Identifier, void &gt;</type>
-      <name>uniforms</name>
+      <type>config::Shader &amp;</type>
+      <name>shaderConfig</name>
       <anchorfile>structshader_1_1_controller.html</anchorfile>
-      <anchor>ac61edd526175d378d712b3a139a67ada</anchor>
+      <anchor>a10de49b0344c71ffa0119b40b775a618</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="private" static="yes">
+      <type>static const juce::String</type>
+      <name>vertexSource</name>
+      <anchorfile>structshader_1_1_controller.html</anchorfile>
+      <anchor>addf4a74f07919acc5176a96189121148</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="private" static="yes">
+      <type>static const juce::String</type>
+      <name>wrapper</name>
+      <anchorfile>structshader_1_1_controller.html</anchorfile>
+      <anchor>a4ef43cb9c4020b89f79ec4b1d00d1616</anchor>
       <arglist></arglist>
     </member>
   </compound>
@@ -645,6 +684,12 @@
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
+      <name>end</name>
+      <anchorfile>structconfig_1_1_file.html</anchorfile>
+      <anchor>a683ed3a3b06e2a36ef94e7c301deae90acb0c136bc8294d848fc394d785cba5b3</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
       <name>popups</name>
       <anchorfile>structconfig_1_1_file.html</anchorfile>
       <anchor>a683ed3a3b06e2a36ef94e7c301deae90afcbf6aafaecace693615939e7179e737</anchor>
@@ -660,6 +705,12 @@
       <name>config</name>
       <anchorfile>structconfig_1_1_file.html</anchorfile>
       <anchor>a683ed3a3b06e2a36ef94e7c301deae90a0fc85df7daa8f0d98a096582ced3738f</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>end</name>
+      <anchorfile>structconfig_1_1_file.html</anchorfile>
+      <anchor>a683ed3a3b06e2a36ef94e7c301deae90acb0c136bc8294d848fc394d785cba5b3</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
@@ -1505,49 +1556,63 @@
       <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11</type>
       <name>AS_IDENTIFIER</name>
       <anchorfile>struct_i_d.html</anchorfile>
-      <anchor>a0a181084a48fbb7bd12cc7592e50c55b</anchor>
-      <arglist>(mica, &quot;mica&quot;) AS_IDENTIFIER(shader</arglist>
+      <anchor>a3a993180a1ffc7d4eba21df85a75f94d</anchor>
+      <arglist>(mica, &quot;mica&quot;) AS_IDENTIFIER(iResolution</arglist>
     </member>
     <member kind="function">
-      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 shader</type>
+      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 iResolution</type>
       <name>AS_IDENTIFIER</name>
       <anchorfile>struct_i_d.html</anchorfile>
-      <anchor>ae1b7095dd939d1503729eea82c388f82</anchor>
-      <arglist>(channels, &quot;channels&quot;) AS_IDENTIFIER(postProcess</arglist>
+      <anchor>a6683214e6a836ba15a62a3aac6d98451</anchor>
+      <arglist>(iTime, &quot;iTime&quot;) AS_IDENTIFIER(iTimeDelta</arglist>
     </member>
     <member kind="function">
-      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 shader post_process</type>
+      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 iResolution iTimeDelta</type>
       <name>AS_IDENTIFIER</name>
       <anchorfile>struct_i_d.html</anchorfile>
-      <anchor>a0c3302828610782e0d81232b7aef8acb</anchor>
-      <arglist>(buffer, &quot;buffer&quot;) AS_IDENTIFIER(quad</arglist>
+      <anchor>a1fdd1aedb5939b2e5bd27a5f7bea6651</anchor>
+      <arglist>(iFrame, &quot;iFrame&quot;) AS_IDENTIFIER(common</arglist>
     </member>
     <member kind="function">
-      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 shader post_process quad</type>
+      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 iResolution iTimeDelta Common</type>
       <name>AS_IDENTIFIER</name>
       <anchorfile>struct_i_d.html</anchorfile>
-      <anchor>acf45686ccf89731759a025d3359e1d50</anchor>
-      <arglist>(iResolution, &quot;iResolution&quot;) AS_IDENTIFIER(iTime</arglist>
+      <anchor>add63899d1515a3537a11eca0acc37b23</anchor>
+      <arglist>(image, &quot;Image&quot;) AS_IDENTIFIER(bufferA</arglist>
     </member>
     <member kind="function">
-      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 shader post_process quad iTime</type>
+      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 iResolution iTimeDelta Common BufferA</type>
       <name>AS_IDENTIFIER</name>
       <anchorfile>struct_i_d.html</anchorfile>
-      <anchor>a4409019c3565046081f869fa6e6730bb</anchor>
-      <arglist>(iTimeDelta, &quot;iTimeDelta&quot;) AS_IDENTIFIER(iFrame</arglist>
+      <anchor>abc70ecc17b8a992ad55345849fe13174</anchor>
+      <arglist>(bufferB, &quot;BufferB&quot;) AS_IDENTIFIER(bufferC</arglist>
     </member>
     <member kind="function">
-      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 shader post_process quad iTime iFrame</type>
+      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 iResolution iTimeDelta Common BufferA BufferC</type>
       <name>AS_IDENTIFIER</name>
       <anchorfile>struct_i_d.html</anchorfile>
-      <anchor>af6698edd67290409254acc9747a3e8bb</anchor>
+      <anchor>a6c4761698f49d189ae3ec3f176c2d1d2</anchor>
+      <arglist>(bufferD, &quot;BufferD&quot;) AS_IDENTIFIER(background</arglist>
+    </member>
+    <member kind="function">
+      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 iResolution iTimeDelta Common BufferA BufferC background</type>
+      <name>AS_IDENTIFIER</name>
+      <anchorfile>struct_i_d.html</anchorfile>
+      <anchor>ac30c561ca20222ca4ee3bdf8c9d7e842</anchor>
+      <arglist>(backgroundOpacity, &quot;background_opacity&quot;) AS_IDENTIFIER(postProcessing</arglist>
+    </member>
+    <member kind="function">
+      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 iResolution iTimeDelta Common BufferA BufferC background post_processing</type>
+      <name>AS_IDENTIFIER</name>
+      <anchorfile>struct_i_d.html</anchorfile>
+      <anchor>a456d634be1e65fdfa44a8ecb937f1e83</anchor>
       <arglist>(focusedPane, &quot;focused_pane&quot;) AS_IDENTIFIER(focus</arglist>
     </member>
     <member kind="function">
-      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 shader post_process quad iTime iFrame focus</type>
+      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 iResolution iTimeDelta Common BufferA BufferC background post_processing focus</type>
       <name>AS_IDENTIFIER</name>
       <anchorfile>struct_i_d.html</anchorfile>
-      <anchor>aaee1355d07b25cf1b81f5406b2903a98</anchor>
+      <anchor>aa89fdc7e30ab50a635a72f9e3446d0f0</anchor>
       <arglist>(zoom, &quot;zoom&quot;) AS_IDENTIFIER(renderer</arglist>
     </member>
   </compound>
@@ -2321,49 +2386,63 @@
       <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11</type>
       <name>AS_STRINGREF</name>
       <anchorfile>struct_i_dref.html</anchorfile>
-      <anchor>ab3364d1205afe99f5d4959548b077d60</anchor>
-      <arglist>(mica, &quot;mica&quot;) AS_STRINGREF(shader</arglist>
+      <anchor>a7a0818750776f3e75f211b0a0336d63b</anchor>
+      <arglist>(mica, &quot;mica&quot;) AS_STRINGREF(iResolution</arglist>
     </member>
     <member kind="function">
-      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 shader</type>
+      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 iResolution</type>
       <name>AS_STRINGREF</name>
       <anchorfile>struct_i_dref.html</anchorfile>
-      <anchor>af9afef1c69791876108a7d0f26ba8586</anchor>
-      <arglist>(channels, &quot;channels&quot;) AS_STRINGREF(postProcess</arglist>
+      <anchor>abbd468652cba534a6ecb774bdc968614</anchor>
+      <arglist>(iTime, &quot;iTime&quot;) AS_STRINGREF(iTimeDelta</arglist>
     </member>
     <member kind="function">
-      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 shader post_process</type>
+      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 iResolution iTimeDelta</type>
       <name>AS_STRINGREF</name>
       <anchorfile>struct_i_dref.html</anchorfile>
-      <anchor>a29fad0d6fad3c2f0aef9512c8b7898cd</anchor>
-      <arglist>(buffer, &quot;buffer&quot;) AS_STRINGREF(quad</arglist>
+      <anchor>a737db02f7ae856de1cef1a4df83d3cb9</anchor>
+      <arglist>(iFrame, &quot;iFrame&quot;) AS_STRINGREF(common</arglist>
     </member>
     <member kind="function">
-      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 shader post_process quad</type>
+      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 iResolution iTimeDelta Common</type>
       <name>AS_STRINGREF</name>
       <anchorfile>struct_i_dref.html</anchorfile>
-      <anchor>ac773d0975500d82f32026d9c5dd1715e</anchor>
-      <arglist>(iResolution, &quot;iResolution&quot;) AS_STRINGREF(iTime</arglist>
+      <anchor>a5b577e8e78e70e9297aeb70354f251ec</anchor>
+      <arglist>(image, &quot;Image&quot;) AS_STRINGREF(bufferA</arglist>
     </member>
     <member kind="function">
-      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 shader post_process quad iTime</type>
+      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 iResolution iTimeDelta Common BufferA</type>
       <name>AS_STRINGREF</name>
       <anchorfile>struct_i_dref.html</anchorfile>
-      <anchor>acb413434f5deade651e7e23f1943022d</anchor>
-      <arglist>(iTimeDelta, &quot;iTimeDelta&quot;) AS_STRINGREF(iFrame</arglist>
+      <anchor>aa5fdbabc10d88e506520c7861c39230a</anchor>
+      <arglist>(bufferB, &quot;BufferB&quot;) AS_STRINGREF(bufferC</arglist>
     </member>
     <member kind="function">
-      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 shader post_process quad iTime iFrame</type>
+      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 iResolution iTimeDelta Common BufferA BufferC</type>
       <name>AS_STRINGREF</name>
       <anchorfile>struct_i_dref.html</anchorfile>
-      <anchor>ae85935132e3c519375f96c9c80e849cf</anchor>
+      <anchor>af2608d569250d9762f1988b1e5456c25</anchor>
+      <arglist>(bufferD, &quot;BufferD&quot;) AS_STRINGREF(background</arglist>
+    </member>
+    <member kind="function">
+      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 iResolution iTimeDelta Common BufferA BufferC background</type>
+      <name>AS_STRINGREF</name>
+      <anchorfile>struct_i_dref.html</anchorfile>
+      <anchor>a656f2689381ef3e41dbcb23a7a6f6bc7</anchor>
+      <arglist>(backgroundOpacity, &quot;background_opacity&quot;) AS_STRINGREF(postProcessing</arglist>
+    </member>
+    <member kind="function">
+      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 iResolution iTimeDelta Common BufferA BufferC background post_processing</type>
+      <name>AS_STRINGREF</name>
+      <anchorfile>struct_i_dref.html</anchorfile>
+      <anchor>a2dbc331e51daa0c20120e46c62ceab4b</anchor>
       <arglist>(focusedPane, &quot;focused_pane&quot;) AS_STRINGREF(focus</arglist>
     </member>
     <member kind="function">
-      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 shader post_process quad iTime iFrame focus</type>
+      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 iResolution iTimeDelta Common BufferA BufferC background post_processing focus</type>
       <name>AS_STRINGREF</name>
       <anchorfile>struct_i_dref.html</anchorfile>
-      <anchor>ad44285a75db816d07dc32a16c22641ac</anchor>
+      <anchor>ab250e50b3f12ebf692edec31317c824b</anchor>
       <arglist>(zoom, &quot;zoom&quot;) AS_STRINGREF(renderer</arglist>
     </member>
   </compound>
@@ -3137,49 +3216,63 @@
       <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11</type>
       <name>AS_UPPER</name>
       <anchorfile>struct_i_dtag.html</anchorfile>
-      <anchor>acdda226fda9d41a7d1fe16660e0599ea</anchor>
-      <arglist>(mica, &quot;mica&quot;) AS_UPPER(shader</arglist>
+      <anchor>a108e580378977d9f711db34c85355634</anchor>
+      <arglist>(mica, &quot;mica&quot;) AS_UPPER(iResolution</arglist>
     </member>
     <member kind="function">
-      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 shader</type>
+      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 iResolution</type>
       <name>AS_UPPER</name>
       <anchorfile>struct_i_dtag.html</anchorfile>
-      <anchor>a01ce0efd5338ce3a6c07b2a99358e9a7</anchor>
-      <arglist>(channels, &quot;channels&quot;) AS_UPPER(postProcess</arglist>
+      <anchor>a5ade1bf302dc4a9e5d15c06d0656e928</anchor>
+      <arglist>(iTime, &quot;iTime&quot;) AS_UPPER(iTimeDelta</arglist>
     </member>
     <member kind="function">
-      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 shader post_process</type>
+      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 iResolution iTimeDelta</type>
       <name>AS_UPPER</name>
       <anchorfile>struct_i_dtag.html</anchorfile>
-      <anchor>ac67f923f2cd8f327d1f0d2682da71c0d</anchor>
-      <arglist>(buffer, &quot;buffer&quot;) AS_UPPER(quad</arglist>
+      <anchor>a4fde4e32ee82d4c12bcd9802f9553de2</anchor>
+      <arglist>(iFrame, &quot;iFrame&quot;) AS_UPPER(common</arglist>
     </member>
     <member kind="function">
-      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 shader post_process quad</type>
+      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 iResolution iTimeDelta Common</type>
       <name>AS_UPPER</name>
       <anchorfile>struct_i_dtag.html</anchorfile>
-      <anchor>a6d645c400e14013ab4e7ffb8ac0cfa97</anchor>
-      <arglist>(iResolution, &quot;iResolution&quot;) AS_UPPER(iTime</arglist>
+      <anchor>a583fa64c1090f83d180f7a7015f874f2</anchor>
+      <arglist>(image, &quot;Image&quot;) AS_UPPER(bufferA</arglist>
     </member>
     <member kind="function">
-      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 shader post_process quad iTime</type>
+      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 iResolution iTimeDelta Common BufferA</type>
       <name>AS_UPPER</name>
       <anchorfile>struct_i_dtag.html</anchorfile>
-      <anchor>abb78414b9d952195dd0e3cd40c2ced14</anchor>
-      <arglist>(iTimeDelta, &quot;iTimeDelta&quot;) AS_UPPER(iFrame</arglist>
+      <anchor>a4939387b7a50a654850c142246bb1b0c</anchor>
+      <arglist>(bufferB, &quot;BufferB&quot;) AS_UPPER(bufferC</arglist>
     </member>
     <member kind="function">
-      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 shader post_process quad iTime iFrame</type>
+      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 iResolution iTimeDelta Common BufferA BufferC</type>
       <name>AS_UPPER</name>
       <anchorfile>struct_i_dtag.html</anchorfile>
-      <anchor>ad5cb2b47f492123a04f9617121c76f47</anchor>
+      <anchor>aacd9a98be61e6bb97917cfba87fdf5ad</anchor>
+      <arglist>(bufferD, &quot;BufferD&quot;) AS_UPPER(background</arglist>
+    </member>
+    <member kind="function">
+      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 iResolution iTimeDelta Common BufferA BufferC background</type>
+      <name>AS_UPPER</name>
+      <anchorfile>struct_i_dtag.html</anchorfile>
+      <anchor>a802cded68873bfa36bfaeb0982bcaeec</anchor>
+      <arglist>(backgroundOpacity, &quot;background_opacity&quot;) AS_UPPER(postProcessing</arglist>
+    </member>
+    <member kind="function">
+      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 iResolution iTimeDelta Common BufferA BufferC background post_processing</type>
+      <name>AS_UPPER</name>
+      <anchorfile>struct_i_dtag.html</anchorfile>
+      <anchor>a10c5d2765402515428c805d21d49a023</anchor>
       <arglist>(focusedPane, &quot;focused_pane&quot;) AS_UPPER(focus</arglist>
     </member>
     <member kind="function">
-      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 shader post_process quad iTime iFrame focus</type>
+      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 iResolution iTimeDelta Common BufferA BufferC background post_processing focus</type>
       <name>AS_UPPER</name>
       <anchorfile>struct_i_dtag.html</anchorfile>
-      <anchor>adda4c6b0610665837a2b5b85170b6348</anchor>
+      <anchor>a7ce2ace7d53aec58ed1f03bddb6dc5de</anchor>
       <arglist>(zoom, &quot;zoom&quot;) AS_UPPER(renderer</arglist>
     </member>
   </compound>
@@ -3953,49 +4046,63 @@
       <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11</type>
       <name>AS_TYPE</name>
       <anchorfile>struct_i_dtype.html</anchorfile>
-      <anchor>aaa1c9e85c2891ff946e870ff5f6bec58</anchor>
-      <arglist>(mica, &quot;mica&quot;) AS_TYPE(shader</arglist>
+      <anchor>a2a6e03db028cd6519228988319dd014a</anchor>
+      <arglist>(mica, &quot;mica&quot;) AS_TYPE(iResolution</arglist>
     </member>
     <member kind="function">
-      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 shader</type>
+      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 iResolution</type>
       <name>AS_TYPE</name>
       <anchorfile>struct_i_dtype.html</anchorfile>
-      <anchor>aa8827ca3bcad592234a8eed6d28451a8</anchor>
-      <arglist>(channels, &quot;channels&quot;) AS_TYPE(postProcess</arglist>
+      <anchor>ac8977ad4f376fa27e0b3d738a995b8fe</anchor>
+      <arglist>(iTime, &quot;iTime&quot;) AS_TYPE(iTimeDelta</arglist>
     </member>
     <member kind="function">
-      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 shader post_process</type>
+      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 iResolution iTimeDelta</type>
       <name>AS_TYPE</name>
       <anchorfile>struct_i_dtype.html</anchorfile>
-      <anchor>ab72ce48a95b68df886db018f5e18a039</anchor>
-      <arglist>(buffer, &quot;buffer&quot;) AS_TYPE(quad</arglist>
+      <anchor>a996cc61dd913f1effbe505dfb104c76d</anchor>
+      <arglist>(iFrame, &quot;iFrame&quot;) AS_TYPE(common</arglist>
     </member>
     <member kind="function">
-      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 shader post_process quad</type>
+      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 iResolution iTimeDelta Common</type>
       <name>AS_TYPE</name>
       <anchorfile>struct_i_dtype.html</anchorfile>
-      <anchor>a97890755f1e5402bff4db89f99b82450</anchor>
-      <arglist>(iResolution, &quot;iResolution&quot;) AS_TYPE(iTime</arglist>
+      <anchor>ad65a53856f21c3d98dffcc9de1a8f1b9</anchor>
+      <arglist>(image, &quot;Image&quot;) AS_TYPE(bufferA</arglist>
     </member>
     <member kind="function">
-      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 shader post_process quad iTime</type>
+      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 iResolution iTimeDelta Common BufferA</type>
       <name>AS_TYPE</name>
       <anchorfile>struct_i_dtype.html</anchorfile>
-      <anchor>a7ef3f82fef2326f0bfd5414025bbc11d</anchor>
-      <arglist>(iTimeDelta, &quot;iTimeDelta&quot;) AS_TYPE(iFrame</arglist>
+      <anchor>a2ff7cf4630c84b5551574e9a1df7c908</anchor>
+      <arglist>(bufferB, &quot;BufferB&quot;) AS_TYPE(bufferC</arglist>
     </member>
     <member kind="function">
-      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 shader post_process quad iTime iFrame</type>
+      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 iResolution iTimeDelta Common BufferA BufferC</type>
       <name>AS_TYPE</name>
       <anchorfile>struct_i_dtype.html</anchorfile>
-      <anchor>a7ba0ff53eacae8cd2e59e8c0e1e00742</anchor>
+      <anchor>a7a0530ef6c65d0e4020c0340965ca1f4</anchor>
+      <arglist>(bufferD, &quot;BufferD&quot;) AS_TYPE(background</arglist>
+    </member>
+    <member kind="function">
+      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 iResolution iTimeDelta Common BufferA BufferC background</type>
+      <name>AS_TYPE</name>
+      <anchorfile>struct_i_dtype.html</anchorfile>
+      <anchor>a1b35609375f2032084ceed5f726ba5e5</anchor>
+      <arglist>(backgroundOpacity, &quot;background_opacity&quot;) AS_TYPE(postProcessing</arglist>
+    </member>
+    <member kind="function">
+      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 iResolution iTimeDelta Common BufferA BufferC background post_processing</type>
+      <name>AS_TYPE</name>
+      <anchorfile>struct_i_dtype.html</anchorfile>
+      <anchor>a01a67b1fe950686b0f9e5f07f04640a4</anchor>
       <arglist>(focusedPane, &quot;focused_pane&quot;) AS_TYPE(focus</arglist>
     </member>
     <member kind="function">
-      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 shader post_process quad iTime iFrame focus</type>
+      <type>end popups graphics theme ansi hint save_window_state orientation active resize_bar resize_bar_thickness border_width scroll_step rows scrollbar_track tab_bar tab_highlight tabs window size popup embolden cell_width blink force editor_outline highlight black green blue cyan bright_black bright_green bright_blue bright_cyan status_bar status_bar_label_fg hint_label_bg thumb label_background spinner always_on_top force_dwm code name_font_style shortcut_font_family shortcut_font_size shortcut_colour font_family font_style text_off uppercase kerning_factor prefix copy quit close_pane zoom_in zoom_reset new_tab next_tab split_horizontal pane_left pane_up newline enter_selection open_file_next_page selection_down selection_right selection_visual_line selection_copy selection_bottom selection_line_end scroll_down scroll_top gpu daemon shell args terminal drop_quoted atlas_dimension tab_orientation modal execute link_colour h2_size h4_size h6_size h2_colour h4_colour h6_colour code_colour token_comment token_operator token_integer token_string token_punctuation table_background table_row_alt table_header_text progress_background progress_text_colour scrollbar_background mac backgroundBlur glassFXRegular blurBehind acrylic11 iResolution iTimeDelta Common BufferA BufferC background post_processing focus</type>
       <name>AS_TYPE</name>
       <anchorfile>struct_i_dtype.html</anchorfile>
-      <anchor>a47b117353c0b1ebc5161833d3500e651</anchor>
+      <anchor>af5677d7766171ad16d25cc6c76b4cc54</anchor>
       <arglist>(zoom, &quot;zoom&quot;) AS_TYPE(renderer</arglist>
     </member>
   </compound>
@@ -4498,6 +4605,13 @@
       <anchor>a6b0b5ce07200d8f7d6ee69c02a7f1835</anchor>
       <arglist>() noexcept</arglist>
     </member>
+    <member kind="function">
+      <type>Shader &amp;</type>
+      <name>getShader</name>
+      <anchorfile>classconfig_1_1_model.html</anchorfile>
+      <anchor>afedcb175b50ca63f63f1cb154e2902ba</anchor>
+      <arglist>() noexcept</arglist>
+    </member>
     <member kind="function" protection="private">
       <type>void</type>
       <name>initialise</name>
@@ -4540,13 +4654,6 @@
       <anchor>a37ce70da66e8164f746a16925295c343</anchor>
       <arglist>(juce::Identifier treeType, juce::Identifier propertyName, std::function&lt; bool(const juce::var &amp;)&gt; validator)</arglist>
     </member>
-    <member kind="function" protection="private" static="yes">
-      <type>static int</type>
-      <name>findLineNumber</name>
-      <anchorfile>classconfig_1_1_model.html</anchorfile>
-      <anchor>a73b49c4ce0784638aa7230f683755a09</anchor>
-      <arglist>(const juce::String &amp;sourceText, const juce::String &amp;propertyName)</arglist>
-    </member>
     <member kind="variable" protection="private">
       <type>jam::File::Watcher</type>
       <name>watcher</name>
@@ -4580,6 +4687,13 @@
       <name>theme</name>
       <anchorfile>classconfig_1_1_model.html</anchorfile>
       <anchor>acc92bf3f0a72eb6d85b5e73fd9944df7</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="private">
+      <type>Shader</type>
+      <name>shader</name>
+      <anchorfile>classconfig_1_1_model.html</anchorfile>
+      <anchor>ad957b792d02a8560887e423cd0b753db</anchor>
       <arglist></arglist>
     </member>
   </compound>
@@ -4727,6 +4841,31 @@
     </member>
   </compound>
   <compound kind="struct">
+    <name>shader::Controller::Pass</name>
+    <filename>structshader_1_1_controller_1_1_pass.html</filename>
+    <member kind="variable">
+      <type>std::unique_ptr&lt; juce::OpenGLShaderProgram &gt;</type>
+      <name>program</name>
+      <anchorfile>structshader_1_1_controller_1_1_pass.html</anchorfile>
+      <anchor>a056b795d29776283dbc8d454e040ab71</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable">
+      <type>std::unique_ptr&lt; juce::OpenGLFrameBuffer &gt;</type>
+      <name>fbo</name>
+      <anchorfile>structshader_1_1_controller_1_1_pass.html</anchorfile>
+      <anchor>a59335cb509e68ae8221884496a2ddfa7</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable">
+      <type>Compiler::UniformSetter</type>
+      <name>setUniforms</name>
+      <anchorfile>structshader_1_1_controller_1_1_pass.html</anchorfile>
+      <anchor>a08650979e10b47dfce3179dd54dca77a</anchor>
+      <arglist></arglist>
+    </member>
+  </compound>
+  <compound kind="struct">
     <name>end::Position</name>
     <filename>structend_1_1_position.html</filename>
     <base>jam::Map::Instance&lt; Position &gt;</base>
@@ -4852,6 +4991,13 @@
     </member>
     <member kind="variable" protection="private">
       <type>GLuint</type>
+      <name>vao</name>
+      <anchorfile>structshader_1_1_quad.html</anchorfile>
+      <anchor>a5c602580f23a7fc41a0d66eb6580ae2e</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="private">
+      <type>GLuint</type>
       <name>vbo</name>
       <anchorfile>structshader_1_1_quad.html</anchorfile>
       <anchor>af020c17c362b50aac4564ee9cb16f61d</anchor>
@@ -4962,44 +5108,106 @@
       <arglist></arglist>
     </member>
   </compound>
+  <compound kind="class">
+    <name>config::Shader</name>
+    <filename>classconfig_1_1_shader.html</filename>
+    <base>jam::Model</base>
+    <member kind="function">
+      <type></type>
+      <name>Shader</name>
+      <anchorfile>classconfig_1_1_shader.html</anchorfile>
+      <anchor>ada217a4ba5644dd1f3cd27b637435609</anchor>
+      <arglist>()=default</arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>~Shader</name>
+      <anchorfile>classconfig_1_1_shader.html</anchorfile>
+      <anchor>a87c5d7e63bea7056c04c5a01293abb14</anchor>
+      <arglist>()=default</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>load</name>
+      <anchorfile>classconfig_1_1_shader.html</anchorfile>
+      <anchor>a5d1eeff039b1bf119b6c184d96fb350e</anchor>
+      <arglist>(const juce::String &amp;shaderName)</arglist>
+    </member>
+  </compound>
   <compound kind="struct">
     <name>config::File::Shaders</name>
     <filename>structconfig_1_1_file_1_1_shaders.html</filename>
     <base>jam::Map::Instance&lt; Shaders &gt;</base>
     <member kind="enumvalue">
-      <name>shaders</name>
+      <name>common</name>
       <anchorfile>structconfig_1_1_file_1_1_shaders.html</anchorfile>
-      <anchor>a134314f315b88abc283dec64eb7a993dafa4ff2483b0ab539d1cdcc0902e00dc6</anchor>
+      <anchor>a134314f315b88abc283dec64eb7a993da5f812a882781c800b2034243a5ea7723</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
-      <name>quad</name>
+      <name>image</name>
       <anchorfile>structconfig_1_1_file_1_1_shaders.html</anchorfile>
-      <anchor>a134314f315b88abc283dec64eb7a993daa09054135397d036e434d68c894d01eb</anchor>
+      <anchor>a134314f315b88abc283dec64eb7a993da6d02fdee5c6647ce9ae6ff5e64c15dc5</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
-      <name>shader</name>
+      <name>bufferA</name>
       <anchorfile>structconfig_1_1_file_1_1_shaders.html</anchorfile>
-      <anchor>a134314f315b88abc283dec64eb7a993da271c73e9c5c9c8126399899c9543eaa3</anchor>
+      <anchor>a134314f315b88abc283dec64eb7a993da325ec4a452d9b54b80714024834995b6</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
-      <name>shaders</name>
+      <name>bufferB</name>
       <anchorfile>structconfig_1_1_file_1_1_shaders.html</anchorfile>
-      <anchor>a134314f315b88abc283dec64eb7a993dafa4ff2483b0ab539d1cdcc0902e00dc6</anchor>
+      <anchor>a134314f315b88abc283dec64eb7a993dac3446430886a58fb0e5af482aac3a107</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
-      <name>quad</name>
+      <name>bufferC</name>
       <anchorfile>structconfig_1_1_file_1_1_shaders.html</anchorfile>
-      <anchor>a134314f315b88abc283dec64eb7a993daa09054135397d036e434d68c894d01eb</anchor>
+      <anchor>a134314f315b88abc283dec64eb7a993da0330b5a3a16bbf60f0ff4a2adbbc6d24</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
-      <name>shader</name>
+      <name>bufferD</name>
       <anchorfile>structconfig_1_1_file_1_1_shaders.html</anchorfile>
-      <anchor>a134314f315b88abc283dec64eb7a993da271c73e9c5c9c8126399899c9543eaa3</anchor>
+      <anchor>a134314f315b88abc283dec64eb7a993da7b465696c329e0a1da1c9bf6d873283c</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>common</name>
+      <anchorfile>structconfig_1_1_file_1_1_shaders.html</anchorfile>
+      <anchor>a134314f315b88abc283dec64eb7a993da5f812a882781c800b2034243a5ea7723</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>image</name>
+      <anchorfile>structconfig_1_1_file_1_1_shaders.html</anchorfile>
+      <anchor>a134314f315b88abc283dec64eb7a993da6d02fdee5c6647ce9ae6ff5e64c15dc5</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>bufferA</name>
+      <anchorfile>structconfig_1_1_file_1_1_shaders.html</anchorfile>
+      <anchor>a134314f315b88abc283dec64eb7a993da325ec4a452d9b54b80714024834995b6</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>bufferB</name>
+      <anchorfile>structconfig_1_1_file_1_1_shaders.html</anchorfile>
+      <anchor>a134314f315b88abc283dec64eb7a993dac3446430886a58fb0e5af482aac3a107</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>bufferC</name>
+      <anchorfile>structconfig_1_1_file_1_1_shaders.html</anchorfile>
+      <anchor>a134314f315b88abc283dec64eb7a993da0330b5a3a16bbf60f0ff4a2adbbc6d24</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>bufferD</name>
+      <anchorfile>structconfig_1_1_file_1_1_shaders.html</anchorfile>
+      <anchor>a134314f315b88abc283dec64eb7a993da7b465696c329e0a1da1c9bf6d873283c</anchor>
       <arglist></arglist>
     </member>
     <member kind="function">
@@ -5017,13 +5225,6 @@
       <arglist>() noexcept</arglist>
     </member>
     <member kind="function" static="yes">
-      <type>static const juce::String</type>
-      <name>getName</name>
-      <anchorfile>structconfig_1_1_file_1_1_shaders.html</anchorfile>
-      <anchor>ab3a1e144ea7488ee5fbe16155363756b</anchor>
-      <arglist>(int key) noexcept</arglist>
-    </member>
-    <member kind="function" static="yes">
       <type>static const juce::File</type>
       <name>getPath</name>
       <anchorfile>structconfig_1_1_file_1_1_shaders.html</anchorfile>
@@ -5035,13 +5236,6 @@
       <name>path</name>
       <anchorfile>structconfig_1_1_file_1_1_shaders.html</anchorfile>
       <anchor>a0d288c0151edcaeb66788936533e7527</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable" static="yes">
-      <type>static const juce::StringArray</type>
-      <name>extension</name>
-      <anchorfile>structconfig_1_1_file_1_1_shaders.html</anchorfile>
-      <anchor>a1b8cd0c1598b99f6e4d6ddd8ea535ade</anchor>
       <arglist></arglist>
     </member>
     <member kind="function" protection="private">
@@ -5401,6 +5595,7 @@
   <compound kind="namespace">
     <name>config</name>
     <filename>namespaceconfig.html</filename>
+    <class kind="class">config::Shader</class>
     <class kind="class">config::Theme</class>
     <class kind="class">config::Model</class>
     <class kind="struct">config::File</class>
@@ -5441,18 +5636,18 @@
     <class kind="struct">shader::Compiler</class>
     <class kind="struct">shader::Controller</class>
     <class kind="struct">shader::Quad</class>
-    <member kind="typedef">
-      <type>std::function&lt; void(GLint, const juce::var &amp;)&gt;</type>
-      <name>Setter</name>
+    <member kind="variable" static="yes">
+      <type>static constexpr int</type>
+      <name>viewportWidth</name>
       <anchorfile>namespaceshader.html</anchorfile>
-      <anchor>ae4d1a2c6626a5fc52d40b96ef3c42a0a</anchor>
+      <anchor>aeecf5f29466b536d41ae0a584e099c53</anchor>
       <arglist></arglist>
     </member>
     <member kind="variable" static="yes">
-      <type>static const jam::HashMap&lt; GLenum, Setter &gt;</type>
-      <name>setters</name>
+      <type>static constexpr int</type>
+      <name>viewportHeight</name>
       <anchorfile>namespaceshader.html</anchorfile>
-      <anchor>a96140a4e70c7ed6c0a1c8ac6d68ee820</anchor>
+      <anchor>ad5d899b6af682678124cc1d99720d3b6</anchor>
       <arglist></arglist>
     </member>
   </compound>

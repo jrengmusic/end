@@ -80,7 +80,8 @@ public:
      *  @param tree      The ValueTree whose property changed.
      *  @param property  The identifier of the changed property.
      */
-    void valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
+    void
+    valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
 
     /** @brief Sets the focusedPane state when a new tab's pane is added.
      *
@@ -157,7 +158,7 @@ private:
     //==============================================================================
 #if JUCE_DEBUG
     /** @brief ValueTree inspector widget, debug builds only. */
-    jam::debug::Widget widget { this, model.state, false };
+    jam::debug::Widget widget { this, config.state, false };
 #endif
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (View)

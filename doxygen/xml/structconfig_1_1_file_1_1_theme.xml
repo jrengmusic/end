@@ -32,7 +32,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="182" column="9" bodyfile="end/Map.h" bodystart="183" bodyend="186"/>
+        <location file="end/Map.h" line="184" column="9" bodyfile="end/Map.h" bodystart="185" bodyend="188"/>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-static-attrib">
@@ -50,8 +50,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="219" column="40" bodyfile="end/Map.h" bodystart="219" bodyend="219"/>
-        <referencedby refid="structconfig_1_1_file_1_1_theme_1a1a4f485d0cd842d77061933a01b1a55c" compoundref="_map_8h" startline="213" endline="216">getPath</referencedby>
+        <location file="end/Map.h" line="221" column="40" bodyfile="end/Map.h" bodystart="221" bodyend="221"/>
+        <referencedby refid="structconfig_1_1_file_1_1_theme_1a1a4f485d0cd842d77061933a01b1a55c" compoundref="_map_8h" startline="215" endline="218">getPath</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structconfig_1_1_file_1_1_theme_1a3a58c2e9641b37c1e6c2c4f7f3ff96c5" prot="public" static="yes" mutable="no">
         <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref></type>
@@ -67,8 +67,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="221" column="42" bodyfile="end/Map.h" bodystart="221" bodyend="221"/>
-        <referencedby refid="structconfig_1_1_file_1_1_theme_1aae7b0309384b8333ee5d8daa47406edb" compoundref="_map_8h" startline="204" endline="207">getName</referencedby>
+        <location file="end/Map.h" line="223" column="42" bodyfile="end/Map.h" bodystart="223" bodyend="223"/>
+        <referencedby refid="structconfig_1_1_file_1_1_theme_1aae7b0309384b8333ee5d8daa47406edb" compoundref="_map_8h" startline="206" endline="209">getName</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">
@@ -85,10 +85,10 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="189" column="9" bodyfile="end/Map.h" bodystart="189" bodyend="195"/>
+        <location file="end/Map.h" line="191" column="9" bodyfile="end/Map.h" bodystart="191" bodyend="197"/>
         <references refid="classjam_1_1Map_1_1Instance_1afe0acf25bab1f104aea20f20174129d1">jam::Map::Instance&lt; Theme &gt;::map</references>
-        <references refid="structconfig_1_1_file_1_1_theme_1a1d33497232e79d9f30bf579bb7e4e841ae8458505754c846a3811711c799dd94e" compoundref="_map_8h" startline="184">theme</references>
-        <references refid="structconfig_1_1_file_1_1_theme_1a1d33497232e79d9f30bf579bb7e4e841ab297a878b9ea3a2f06aa1e1f3116042f" compoundref="_map_8h" startline="185">whelmed</references>
+        <references refid="structconfig_1_1_file_1_1_theme_1a1d33497232e79d9f30bf579bb7e4e841ae8458505754c846a3811711c799dd94e" compoundref="_map_8h" startline="186">theme</references>
+        <references refid="structconfig_1_1_file_1_1_theme_1a1d33497232e79d9f30bf579bb7e4e841ab297a878b9ea3a2f06aa1e1f3116042f" compoundref="_map_8h" startline="187">whelmed</references>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-static-func">
@@ -105,11 +105,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="198" column="27" bodyfile="end/Map.h" bodystart="198" bodyend="198"/>
+        <location file="end/Map.h" line="200" column="27" bodyfile="end/Map.h" bodystart="200" bodyend="200"/>
         <references refid="structjam_1_1Context_1a3ff553f70ef61043352c54cfed475b4c">jam::Context&lt; Derived &gt;::getInstance</references>
-        <referencedby refid="structconfig_1_1_file_1_1_theme_1aae7b0309384b8333ee5d8daa47406edb" compoundref="_map_8h" startline="204" endline="207">getName</referencedby>
-        <referencedby refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" compoundref="_config_8cpp" startline="39" endline="89">config::Model::initialise</referencedby>
-        <referencedby refid="classconfig_1_1_theme_1ad1c552afe63e04ce01d6479bdd197996" compoundref="_config_8cpp" startline="267" endline="304">config::Theme::load</referencedby>
+        <referencedby refid="structconfig_1_1_file_1_1_theme_1aae7b0309384b8333ee5d8daa47406edb" compoundref="_map_8h" startline="206" endline="209">getName</referencedby>
+        <referencedby refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" compoundref="_config_8cpp" startline="39" endline="84">config::Model::initialise</referencedby>
+        <referencedby refid="classconfig_1_1_theme_1ad1c552afe63e04ce01d6479bdd197996" compoundref="_config_8cpp" startline="286" endline="318">config::Theme::load</referencedby>
       </memberdef>
       <memberdef kind="function" id="structconfig_1_1_file_1_1_theme_1aae7b0309384b8333ee5d8daa47406edb" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
         <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref></type>
@@ -140,12 +140,12 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="204" column="35" bodyfile="end/Map.h" bodystart="204" bodyend="207"/>
-        <references refid="structconfig_1_1_file_1_1_theme_1a3a58c2e9641b37c1e6c2c4f7f3ff96c5" compoundref="_map_8h" startline="221" endline="221">extension</references>
-        <references refid="structconfig_1_1_file_1_1_theme_1a259522514f9d57dccbffc3e3f1349a7f" compoundref="_map_8h" startline="198" endline="198">get</references>
+        <location file="end/Map.h" line="206" column="35" bodyfile="end/Map.h" bodystart="206" bodyend="209"/>
+        <references refid="structconfig_1_1_file_1_1_theme_1a3a58c2e9641b37c1e6c2c4f7f3ff96c5" compoundref="_map_8h" startline="223" endline="223">extension</references>
+        <references refid="structconfig_1_1_file_1_1_theme_1a259522514f9d57dccbffc3e3f1349a7f" compoundref="_map_8h" startline="200" endline="200">get</references>
         <references refid="structjam_1_1Format_1a838b7c56ce7913ab2b4471148a1019cd">jam::Format::toFileName</references>
-        <referencedby refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" compoundref="_config_8cpp" startline="39" endline="89">config::Model::initialise</referencedby>
-        <referencedby refid="classconfig_1_1_theme_1ad1c552afe63e04ce01d6479bdd197996" compoundref="_config_8cpp" startline="267" endline="304">config::Theme::load</referencedby>
+        <referencedby refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" compoundref="_config_8cpp" startline="39" endline="84">config::Model::initialise</referencedby>
+        <referencedby refid="classconfig_1_1_theme_1ad1c552afe63e04ce01d6479bdd197996" compoundref="_config_8cpp" startline="286" endline="318">config::Theme::load</referencedby>
       </memberdef>
       <memberdef kind="function" id="structconfig_1_1_file_1_1_theme_1a1a4f485d0cd842d77061933a01b1a55c" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
         <type>const <ref refid="classjuce_1_1File" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::File</ref></type>
@@ -176,12 +176,12 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="213" column="33" bodyfile="end/Map.h" bodystart="213" bodyend="216"/>
-        <references refid="structconfig_1_1_file_1_1_theme_1a9c704922e3f4af999c084142d0da1661" compoundref="_map_8h" startline="219" endline="219">path</references>
-        <referencedby refid="classconfig_1_1_theme_1ad1c552afe63e04ce01d6479bdd197996" compoundref="_config_8cpp" startline="267" endline="304">config::Theme::load</referencedby>
+        <location file="end/Map.h" line="215" column="33" bodyfile="end/Map.h" bodystart="215" bodyend="218"/>
+        <references refid="structconfig_1_1_file_1_1_theme_1a9c704922e3f4af999c084142d0da1661" compoundref="_map_8h" startline="221" endline="221">path</references>
+        <referencedby refid="classconfig_1_1_theme_1ad1c552afe63e04ce01d6479bdd197996" compoundref="_config_8cpp" startline="286" endline="318">config::Theme::load</referencedby>
         <referencedby refid="classend_1_1_look_and_feel_1a6bac0b983ceeffd331beb5262030dbe8" compoundref="look_and_feel_2_event_registration_8cpp" startline="85" endline="120">end::LookAndFeel::loadGraphics</referencedby>
-        <referencedby refid="classconfig_1_1_model_1acad607c8136bcc115ffeae9d47869e26" compoundref="_config_8cpp" startline="92" endline="150">config::Model::saveToPath</referencedby>
-        <referencedby refid="classconfig_1_1_model_1abd7d146ee9fede8da7f5f0678faed50e" compoundref="_config_8cpp" startline="228" endline="237">config::Model::startWatcher</referencedby>
+        <referencedby refid="classconfig_1_1_model_1acad607c8136bcc115ffeae9d47869e26" compoundref="_config_8cpp" startline="87" endline="145">config::Model::saveToPath</referencedby>
+        <referencedby refid="classconfig_1_1_model_1abd7d146ee9fede8da7f5f0678faed50e" compoundref="_config_8cpp" startline="222" endline="231">config::Model::startWatcher</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="private-func">
@@ -198,9 +198,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="224" column="28" bodyfile="end/Map.h" bodystart="224" bodyend="224"/>
+        <location file="end/Map.h" line="226" column="28" bodyfile="end/Map.h" bodystart="226" bodyend="226"/>
         <references refid="classjam_1_1Map_1_1Instance_1afe0acf25bab1f104aea20f20174129d1">jam::Map::Instance&lt; Theme &gt;::map</references>
-        <references refid="structconfig_1_1_file_1_1_theme_1a1d33497232e79d9f30bf579bb7e4e841ae8458505754c846a3811711c799dd94e" compoundref="_map_8h" startline="184">theme</references>
+        <references refid="structconfig_1_1_file_1_1_theme_1a1d33497232e79d9f30bf579bb7e4e841ae8458505754c846a3811711c799dd94e" compoundref="_map_8h" startline="186">theme</references>
       </memberdef>
     </sectiondef>
     <briefdescription>
@@ -268,7 +268,7 @@
         <link refid="classjuce_1_1String" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
     </collaborationgraph>
-    <location file="end/Map.h" line="179" column="5" bodyfile="end/Map.h" bodystart="180" bodyend="225"/>
+    <location file="end/Map.h" line="181" column="5" bodyfile="end/Map.h" bodystart="182" bodyend="227"/>
     <listofallmembers>
       <member refid="classjam_1_1Map_1_1Instance_1a39231f6d1e13c6f64e72a07851a130c4" prot="public" virt="non-virtual"><scope>config::File::Theme</scope><name>contains</name></member>
       <member refid="structjam_1_1Context_1a6e3f38a234db8ff2a9acb5986e72a2de" prot="public" virt="non-virtual"><scope>config::File::Theme</scope><name>Context</name></member>

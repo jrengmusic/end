@@ -15,15 +15,18 @@
     <member refid="classend_1_1_application_1a598aa5d15712e3107ade5df8f6c5e33d" kind="function"><name>initialise</name></member>
   </compound>
   <compound refid="structshader_1_1_compiler" kind="struct"><name>shader::Compiler</name>
-    <member refid="structshader_1_1_compiler_1a95ea022f07f67cfc5678fe687ae10e0c" kind="function"><name>build</name></member>
-    <member refid="structshader_1_1_compiler_1ab5d4c6ce12a2e5a165972fc6446ede16" kind="function"><name>registerUniforms</name></member>
+    <member refid="structshader_1_1_compiler_1aaa51a231bfc2ed6adb421ff45a4fe668" kind="typedef"><name>UniformSetter</name></member>
+    <member refid="structshader_1_1_compiler_1a1fc06cd95371860a447a28fcf9000d35" kind="function"><name>build</name></member>
+    <member refid="structshader_1_1_compiler_1a504ae4bf80f9c504b7b224fad2caf8ec" kind="function"><name>buildUniformSetter</name></member>
   </compound>
   <compound refid="structshader_1_1_controller" kind="struct"><name>shader::Controller</name>
     <member refid="structshader_1_1_controller_1a9bf822833c1d1308b1115aae3ac6f35a" kind="variable"><name>openGLContext</name></member>
+    <member refid="structshader_1_1_controller_1addf4a74f07919acc5176a96189121148" kind="variable"><name>vertexSource</name></member>
+    <member refid="structshader_1_1_controller_1a4ef43cb9c4020b89f79ec4b1d00d1616" kind="variable"><name>wrapper</name></member>
     <member refid="structshader_1_1_controller_1ae963718eabc18998f839b2f8c9280258" kind="variable"><name>frameCounter</name></member>
     <member refid="structshader_1_1_controller_1a0ff01484f7ee0d673a929dc397d08057" kind="variable"><name>quad</name></member>
-    <member refid="structshader_1_1_controller_1a1031b82336383225c4c826a311e3ab47" kind="variable"><name>programs</name></member>
-    <member refid="structshader_1_1_controller_1ac61edd526175d378d712b3a139a67ada" kind="variable"><name>uniforms</name></member>
+    <member refid="structshader_1_1_controller_1a60e01e6d4be8deaf70f84236d02be0f4" kind="variable"><name>passes</name></member>
+    <member refid="structshader_1_1_controller_1a10de49b0344c71ffa0119b40b775a618" kind="variable"><name>shaderConfig</name></member>
     <member refid="structshader_1_1_controller_1ad27c97aa3e386c62d8607545aa5a37f4" kind="function"><name>Controller</name></member>
     <member refid="structshader_1_1_controller_1a3b63ec57879dc4dad31c99c1ff1ad60a" kind="function"><name>~Controller</name></member>
     <member refid="structshader_1_1_controller_1a3fb139ea98ddcf75a83224894a5ba4df" kind="function"><name>getFrameCounter</name></member>
@@ -37,6 +40,8 @@
     <member refid="structshader_1_1_controller_1a9a3adad202f34ebf260ae5a025193518" kind="function"><name>initialise</name></member>
     <member refid="structshader_1_1_controller_1a51dc8fc16ff000ac9e46e68f10c82869" kind="function"><name>shutdown</name></member>
     <member refid="structshader_1_1_controller_1a98c779a896ffd3370fb064665b81e8b6" kind="function"><name>render</name></member>
+    <member refid="structshader_1_1_controller_1a875459eca0ce7cc1cf7184da1a91f1d8" kind="function"><name>valueTreePropertyChanged</name></member>
+    <member refid="structshader_1_1_controller_1a3d374a76e1c128b739b98107c2f413c8" kind="function"><name>loadShaders</name></member>
   </compound>
   <compound refid="structend_1_1_drop_mode" kind="struct"><name>end::DropMode</name>
     <member refid="structend_1_1_drop_mode_1a842f2f4c8f4c271b614f4b98482c747d" kind="enum"><name>@277214137317010015316303354216265052334255124010</name></member>
@@ -49,6 +54,7 @@
   <compound refid="structconfig_1_1_file" kind="struct"><name>config::File</name>
     <member refid="structconfig_1_1_file_1a683ed3a3b06e2a36ef94e7c301deae90" kind="enum"><name>@215124113104175106342176324042375042114331211332</name></member>
     <member refid="structconfig_1_1_file_1a683ed3a3b06e2a36ef94e7c301deae90a0fc85df7daa8f0d98a096582ced3738f" kind="enumvalue"><name>config</name></member>
+    <member refid="structconfig_1_1_file_1a683ed3a3b06e2a36ef94e7c301deae90acb0c136bc8294d848fc394d785cba5b3" kind="enumvalue"><name>end</name></member>
     <member refid="structconfig_1_1_file_1a683ed3a3b06e2a36ef94e7c301deae90afcbf6aafaecace693615939e7179e737" kind="enumvalue"><name>popups</name></member>
     <member refid="structconfig_1_1_file_1a683ed3a3b06e2a36ef94e7c301deae90a61592c1bf865f03bcbd13f0c6fa4340e" kind="enumvalue"><name>keys</name></member>
     <member refid="structconfig_1_1_file_1a256dc6f23b2efea619c33a43ae3d795c" kind="variable"><name>path</name></member>
@@ -172,13 +178,15 @@
     <member refid="struct_i_d_1a4baae4e4d2740f26bd9c87e36d653849" kind="function"><name>AS_IDENTIFIER</name></member>
     <member refid="struct_i_d_1ac13e5093fd5bbf67f3e4bdfd3f7fa5f2" kind="function"><name>AS_IDENTIFIER</name></member>
     <member refid="struct_i_d_1add16f5e213fad12ad824f627b1e03dcb" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1a0a181084a48fbb7bd12cc7592e50c55b" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1ae1b7095dd939d1503729eea82c388f82" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1a0c3302828610782e0d81232b7aef8acb" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1acf45686ccf89731759a025d3359e1d50" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1a4409019c3565046081f869fa6e6730bb" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1af6698edd67290409254acc9747a3e8bb" kind="function"><name>AS_IDENTIFIER</name></member>
-    <member refid="struct_i_d_1aaee1355d07b25cf1b81f5406b2903a98" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1a3a993180a1ffc7d4eba21df85a75f94d" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1a6683214e6a836ba15a62a3aac6d98451" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1a1fdd1aedb5939b2e5bd27a5f7bea6651" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1add63899d1515a3537a11eca0acc37b23" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1abc70ecc17b8a992ad55345849fe13174" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1a6c4761698f49d189ae3ec3f176c2d1d2" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1ac30c561ca20222ca4ee3bdf8c9d7e842" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1a456d634be1e65fdfa44a8ecb937f1e83" kind="function"><name>AS_IDENTIFIER</name></member>
+    <member refid="struct_i_d_1aa89fdc7e30ab50a635a72f9e3446d0f0" kind="function"><name>AS_IDENTIFIER</name></member>
   </compound>
   <compound refid="struct_i_dref" kind="struct"><name>IDref</name>
     <member refid="struct_i_dref_1a15336e61beceb953f8c3ff39521b7c22" kind="function"><name>AS_STRINGREF</name></member>
@@ -290,13 +298,15 @@
     <member refid="struct_i_dref_1af21c9f64e1c6e02ca5513c73914a35b3" kind="function"><name>AS_STRINGREF</name></member>
     <member refid="struct_i_dref_1a86db142d3f83a31669d0f0600145cd1b" kind="function"><name>AS_STRINGREF</name></member>
     <member refid="struct_i_dref_1a0cb3ad2bb74a0aa7b777c7ad60575010" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1ab3364d1205afe99f5d4959548b077d60" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1af9afef1c69791876108a7d0f26ba8586" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1a29fad0d6fad3c2f0aef9512c8b7898cd" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1ac773d0975500d82f32026d9c5dd1715e" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1acb413434f5deade651e7e23f1943022d" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1ae85935132e3c519375f96c9c80e849cf" kind="function"><name>AS_STRINGREF</name></member>
-    <member refid="struct_i_dref_1ad44285a75db816d07dc32a16c22641ac" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1a7a0818750776f3e75f211b0a0336d63b" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1abbd468652cba534a6ecb774bdc968614" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1a737db02f7ae856de1cef1a4df83d3cb9" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1a5b577e8e78e70e9297aeb70354f251ec" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1aa5fdbabc10d88e506520c7861c39230a" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1af2608d569250d9762f1988b1e5456c25" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1a656f2689381ef3e41dbcb23a7a6f6bc7" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1a2dbc331e51daa0c20120e46c62ceab4b" kind="function"><name>AS_STRINGREF</name></member>
+    <member refid="struct_i_dref_1ab250e50b3f12ebf692edec31317c824b" kind="function"><name>AS_STRINGREF</name></member>
   </compound>
   <compound refid="struct_i_dtag" kind="struct"><name>IDtag</name>
     <member refid="struct_i_dtag_1a3e7c1d2932d996b3894e727d495aa6a5" kind="function"><name>AS_UPPER</name></member>
@@ -408,13 +418,15 @@
     <member refid="struct_i_dtag_1a70d56a383e323b3e9a445b70c756a13c" kind="function"><name>AS_UPPER</name></member>
     <member refid="struct_i_dtag_1a0b251e6ea5f20393ffa970c8525e5026" kind="function"><name>AS_UPPER</name></member>
     <member refid="struct_i_dtag_1a5f3011685dd57d1494452befca0c7977" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1acdda226fda9d41a7d1fe16660e0599ea" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1a01ce0efd5338ce3a6c07b2a99358e9a7" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1ac67f923f2cd8f327d1f0d2682da71c0d" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1a6d645c400e14013ab4e7ffb8ac0cfa97" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1abb78414b9d952195dd0e3cd40c2ced14" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1ad5cb2b47f492123a04f9617121c76f47" kind="function"><name>AS_UPPER</name></member>
-    <member refid="struct_i_dtag_1adda4c6b0610665837a2b5b85170b6348" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a108e580378977d9f711db34c85355634" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a5ade1bf302dc4a9e5d15c06d0656e928" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a4fde4e32ee82d4c12bcd9802f9553de2" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a583fa64c1090f83d180f7a7015f874f2" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a4939387b7a50a654850c142246bb1b0c" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1aacd9a98be61e6bb97917cfba87fdf5ad" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a802cded68873bfa36bfaeb0982bcaeec" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a10c5d2765402515428c805d21d49a023" kind="function"><name>AS_UPPER</name></member>
+    <member refid="struct_i_dtag_1a7ce2ace7d53aec58ed1f03bddb6dc5de" kind="function"><name>AS_UPPER</name></member>
   </compound>
   <compound refid="struct_i_dtype" kind="struct"><name>IDtype</name>
     <member refid="struct_i_dtype_1a6407ccc02f46025e81c8c4bb9598845a" kind="function"><name>AS_TYPE</name></member>
@@ -526,13 +538,15 @@
     <member refid="struct_i_dtype_1af31e95d66e8997759215a36196f8c07e" kind="function"><name>AS_TYPE</name></member>
     <member refid="struct_i_dtype_1aa1b5bc590fdbfee8c37230af7c9cbad9" kind="function"><name>AS_TYPE</name></member>
     <member refid="struct_i_dtype_1a512be062438a94c13ca755ea799178c8" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1aaa1c9e85c2891ff946e870ff5f6bec58" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1aa8827ca3bcad592234a8eed6d28451a8" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1ab72ce48a95b68df886db018f5e18a039" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1a97890755f1e5402bff4db89f99b82450" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1a7ef3f82fef2326f0bfd5414025bbc11d" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1a7ba0ff53eacae8cd2e59e8c0e1e00742" kind="function"><name>AS_TYPE</name></member>
-    <member refid="struct_i_dtype_1a47b117353c0b1ebc5161833d3500e651" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a2a6e03db028cd6519228988319dd014a" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1ac8977ad4f376fa27e0b3d738a995b8fe" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a996cc61dd913f1effbe505dfb104c76d" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1ad65a53856f21c3d98dffcc9de1a8f1b9" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a2ff7cf4630c84b5551574e9a1df7c908" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a7a0530ef6c65d0e4020c0340965ca1f4" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a1b35609375f2032084ceed5f726ba5e5" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1a01a67b1fe950686b0f9e5f07f04640a4" kind="function"><name>AS_TYPE</name></member>
+    <member refid="struct_i_dtype_1af5677d7766171ad16d25cc6c76b4cc54" kind="function"><name>AS_TYPE</name></member>
   </compound>
   <compound refid="classend_1_1_look_and_feel" kind="class"><name>end::LookAndFeel</name>
     <member refid="classend_1_1_look_and_feel_1a96444644e5b541f2a7a2235c0dc91cf8" kind="enum"><name>ColourIds</name></member>
@@ -602,18 +616,19 @@
     <member refid="classconfig_1_1_model_1af427d6e053fd4508c7179979330e5ab9" kind="variable"><name>validators</name></member>
     <member refid="classconfig_1_1_model_1aab53f2dffa259bc65116d9b97ce44a49" kind="variable"><name>graphicsCallbacks</name></member>
     <member refid="classconfig_1_1_model_1acc92bf3f0a72eb6d85b5e73fd9944df7" kind="variable"><name>theme</name></member>
+    <member refid="classconfig_1_1_model_1ad957b792d02a8560887e423cd0b753db" kind="variable"><name>shader</name></member>
     <member refid="classconfig_1_1_model_1a663ac662800dd1918dbab12d317fa4d5" kind="function"><name>Model</name></member>
     <member refid="classconfig_1_1_model_1af95c0931a6f76206d56eb06a3c71a05a" kind="function"><name>~Model</name></member>
     <member refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" kind="function"><name>loadFromPath</name></member>
     <member refid="classconfig_1_1_model_1a8a75866892ea2fd6887d390ebb2c8c0a" kind="function"><name>getLoadMessage</name></member>
     <member refid="classconfig_1_1_model_1a6b0b5ce07200d8f7d6ee69c02a7f1835" kind="function"><name>getTheme</name></member>
+    <member refid="classconfig_1_1_model_1afedcb175b50ca63f63f1cb154e2902ba" kind="function"><name>getShader</name></member>
     <member refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" kind="function"><name>initialise</name></member>
     <member refid="classconfig_1_1_model_1acad607c8136bcc115ffeae9d47869e26" kind="function"><name>saveToPath</name></member>
     <member refid="classconfig_1_1_model_1abd7d146ee9fede8da7f5f0678faed50e" kind="function"><name>startWatcher</name></member>
     <member refid="classconfig_1_1_model_1aaf6b40ca395ac5c6325cb189f13fec0f" kind="function"><name>fileChanged</name></member>
     <member refid="classconfig_1_1_model_1a04468ffcc63d66896bb34f4c0b4c37b2" kind="function"><name>buildGraphicsCallbacks</name></member>
     <member refid="classconfig_1_1_model_1a37ce70da66e8164f746a16925295c343" kind="function"><name>registerValidator</name></member>
-    <member refid="classconfig_1_1_model_1a73b49c4ce0784638aa7230f683755a09" kind="function"><name>findLineNumber</name></member>
   </compound>
   <compound refid="classend_1_1_model" kind="class"><name>end::Model</name>
     <member refid="classend_1_1_model_1a001a60fde895e5f54ad2672682909e69" kind="function"><name>Model</name></member>
@@ -639,6 +654,11 @@
     <member refid="classend_1_1_pane_view_1acdf4e27496d3dd1bb6151100412df600" kind="function"><name>focusGained</name></member>
     <member refid="classend_1_1_pane_view_1aaf521f0dc56abcb3819407d6ea382703" kind="function"><name>focusLost</name></member>
   </compound>
+  <compound refid="structshader_1_1_controller_1_1_pass" kind="struct"><name>shader::Controller::Pass</name>
+    <member refid="structshader_1_1_controller_1_1_pass_1a056b795d29776283dbc8d454e040ab71" kind="variable"><name>program</name></member>
+    <member refid="structshader_1_1_controller_1_1_pass_1a59335cb509e68ae8221884496a2ddfa7" kind="variable"><name>fbo</name></member>
+    <member refid="structshader_1_1_controller_1_1_pass_1a08650979e10b47dfce3179dd54dca77a" kind="variable"><name>setUniforms</name></member>
+  </compound>
   <compound refid="structend_1_1_position" kind="struct"><name>end::Position</name>
     <member refid="structend_1_1_position_1ab2fe4f146ba9f32af08e83a678fcc143" kind="enum"><name>@250111151202034007030276371203050156100271335300</name></member>
     <member refid="structend_1_1_position_1ab2fe4f146ba9f32af08e83a678fcc143a9d3c44ea19c8e9e5d1650be17ab4fc6e" kind="enumvalue"><name>top</name></member>
@@ -653,6 +673,7 @@
     <member refid="structend_1_1_position_1a8870ba1c7d71c5c2c0ed07727d3a17ae" kind="function"><name>get</name></member>
   </compound>
   <compound refid="structshader_1_1_quad" kind="struct"><name>shader::Quad</name>
+    <member refid="structshader_1_1_quad_1a5c602580f23a7fc41a0d66eb6580ae2e" kind="variable"><name>vao</name></member>
     <member refid="structshader_1_1_quad_1af020c17c362b50aac4564ee9cb16f61d" kind="variable"><name>vbo</name></member>
     <member refid="structshader_1_1_quad_1aae32920dbf3e83cfaa99c9666a41a771" kind="variable"><name>positionAttribute</name></member>
     <member refid="structshader_1_1_quad_1a2f7c8b0a3beaa4c91698aee32f093de6" kind="function"><name>create</name></member>
@@ -674,16 +695,22 @@
     <member refid="classaction_1_1_registry_1a03afbec3b059b2ecfcbf117121f31b8d" kind="function"><name>run</name></member>
     <member refid="classaction_1_1_registry_1adfb52cb08bb171416025fe0487476ebb" kind="function"><name>timerCallback</name></member>
   </compound>
+  <compound refid="classconfig_1_1_shader" kind="class"><name>config::Shader</name>
+    <member refid="classconfig_1_1_shader_1ada217a4ba5644dd1f3cd27b637435609" kind="function"><name>Shader</name></member>
+    <member refid="classconfig_1_1_shader_1a87c5d7e63bea7056c04c5a01293abb14" kind="function"><name>~Shader</name></member>
+    <member refid="classconfig_1_1_shader_1a5d1eeff039b1bf119b6c184d96fb350e" kind="function"><name>load</name></member>
+  </compound>
   <compound refid="structconfig_1_1_file_1_1_shaders" kind="struct"><name>config::File::Shaders</name>
     <member refid="structconfig_1_1_file_1_1_shaders_1a134314f315b88abc283dec64eb7a993d" kind="enum"><name>@160022316121231062120335251212313115145017054223</name></member>
-    <member refid="structconfig_1_1_file_1_1_shaders_1a134314f315b88abc283dec64eb7a993dafa4ff2483b0ab539d1cdcc0902e00dc6" kind="enumvalue"><name>shaders</name></member>
-    <member refid="structconfig_1_1_file_1_1_shaders_1a134314f315b88abc283dec64eb7a993daa09054135397d036e434d68c894d01eb" kind="enumvalue"><name>quad</name></member>
-    <member refid="structconfig_1_1_file_1_1_shaders_1a134314f315b88abc283dec64eb7a993da271c73e9c5c9c8126399899c9543eaa3" kind="enumvalue"><name>shader</name></member>
+    <member refid="structconfig_1_1_file_1_1_shaders_1a134314f315b88abc283dec64eb7a993da5f812a882781c800b2034243a5ea7723" kind="enumvalue"><name>common</name></member>
+    <member refid="structconfig_1_1_file_1_1_shaders_1a134314f315b88abc283dec64eb7a993da6d02fdee5c6647ce9ae6ff5e64c15dc5" kind="enumvalue"><name>image</name></member>
+    <member refid="structconfig_1_1_file_1_1_shaders_1a134314f315b88abc283dec64eb7a993da325ec4a452d9b54b80714024834995b6" kind="enumvalue"><name>bufferA</name></member>
+    <member refid="structconfig_1_1_file_1_1_shaders_1a134314f315b88abc283dec64eb7a993dac3446430886a58fb0e5af482aac3a107" kind="enumvalue"><name>bufferB</name></member>
+    <member refid="structconfig_1_1_file_1_1_shaders_1a134314f315b88abc283dec64eb7a993da0330b5a3a16bbf60f0ff4a2adbbc6d24" kind="enumvalue"><name>bufferC</name></member>
+    <member refid="structconfig_1_1_file_1_1_shaders_1a134314f315b88abc283dec64eb7a993da7b465696c329e0a1da1c9bf6d873283c" kind="enumvalue"><name>bufferD</name></member>
     <member refid="structconfig_1_1_file_1_1_shaders_1a0d288c0151edcaeb66788936533e7527" kind="variable"><name>path</name></member>
-    <member refid="structconfig_1_1_file_1_1_shaders_1a1b8cd0c1598b99f6e4d6ddd8ea535ade" kind="variable"><name>extension</name></member>
     <member refid="structconfig_1_1_file_1_1_shaders_1a2c9c019a90d6dabd34d305f4d792ecba" kind="function"><name>Shaders</name></member>
     <member refid="structconfig_1_1_file_1_1_shaders_1aa57d90d95ec92f5c3e46b80b84f3bf6a" kind="function"><name>get</name></member>
-    <member refid="structconfig_1_1_file_1_1_shaders_1ab3a1e144ea7488ee5fbe16155363756b" kind="function"><name>getName</name></member>
     <member refid="structconfig_1_1_file_1_1_shaders_1aba40922876a7a61539f37275ee496ed2" kind="function"><name>getPath</name></member>
     <member refid="structconfig_1_1_file_1_1_shaders_1ac01dba94dec6e45bd2a4a307a9a1f6a9" kind="function"><name>getDefault</name></member>
   </compound>
@@ -750,8 +777,8 @@
   <compound refid="namespaceend" kind="namespace"><name>end</name>
   </compound>
   <compound refid="namespaceshader" kind="namespace"><name>shader</name>
-    <member refid="namespaceshader_1ae4d1a2c6626a5fc52d40b96ef3c42a0a" kind="typedef"><name>Setter</name></member>
-    <member refid="namespaceshader_1a96140a4e70c7ed6c0a1c8ac6d68ee820" kind="variable"><name>setters</name></member>
+    <member refid="namespaceshader_1aeecf5f29466b536d41ae0a584e099c53" kind="variable"><name>viewportWidth</name></member>
+    <member refid="namespaceshader_1ad5d899b6af682678124cc1d99720d3b6" kind="variable"><name>viewportHeight</name></member>
   </compound>
   <compound refid="namespacestd" kind="namespace"><name>std</name>
   </compound>

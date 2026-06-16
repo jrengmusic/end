@@ -5,67 +5,40 @@
     <innerclass refid="structshader_1_1_compiler" prot="public">shader::Compiler</innerclass>
     <innerclass refid="structshader_1_1_controller" prot="public">shader::Controller</innerclass>
     <innerclass refid="structshader_1_1_quad" prot="public">shader::Quad</innerclass>
-    <sectiondef kind="typedef">
-      <memberdef kind="typedef" id="namespaceshader_1ae4d1a2c6626a5fc52d40b96ef3c42a0a" prot="public" static="no">
-        <type>std::function&lt; void(<ref refid="juce__gl_8h_1a5ac0f3c4d7fafd42b284b5487a791017" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GLint</ref>, const <ref refid="classjuce_1_1var" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::var</ref> &amp;)&gt;</type>
-        <definition>using shader::Setter = std::function&lt;void (GLint, const juce::var&amp;)&gt;</definition>
-        <argsstring></argsstring>
-        <name>Setter</name>
-        <qualifiedname>shader::Setter</qualifiedname>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="shader/Compiler.cpp" line="8" column="1" bodyfile="shader/Compiler.cpp" bodystart="8" bodyend="-1"/>
-      </memberdef>
-    </sectiondef>
     <sectiondef kind="var">
-      <memberdef kind="variable" id="namespaceshader_1a96140a4e70c7ed6c0a1c8ac6d68ee820" prot="public" static="yes" mutable="no">
-        <type>const <ref refid="classjam_1_1HashMap" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::HashMap</ref>&lt; <ref refid="juce__gl_8h_1a7efd7809e1632cdae75603fd1fee61c0" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GLenum</ref>, <ref refid="namespaceshader_1ae4d1a2c6626a5fc52d40b96ef3c42a0a" kindref="member">Setter</ref> &gt;</type>
-        <definition>const jam::HashMap&lt;GLenum, Setter&gt; shader::setters</definition>
+      <memberdef kind="variable" id="namespaceshader_1aeecf5f29466b536d41ae0a584e099c53" prot="public" static="yes" constexpr="yes" mutable="no">
+        <type>int</type>
+        <definition>int shader::viewportWidth</definition>
         <argsstring></argsstring>
-        <name>setters</name>
-        <qualifiedname>shader::setters</qualifiedname>
-        <initializer>{
-    { <ref refid="namespacejuce_1_1gl_1af671f4f7a87a673f690bfd41f3a2a467a09a5485e7c31dca1973cc8f17e66500f" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GL_FLOAT</ref>,      [] (<ref refid="juce__gl_8h_1a5ac0f3c4d7fafd42b284b5487a791017" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GLint</ref> loc, const <ref refid="classjuce_1_1var" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::var</ref>&amp; v) { <ref refid="namespacejuce_1_1gl_1a7fe359cc1002df073f44d7f81987d1e5" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">glUniform1f</ref> (loc, static_cast&lt;<ref refid="juce__gl_8h_1a836cf6377099e88abf24c255b5b0ac52" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GLfloat</ref>&gt; (v)); } },
-    { <ref refid="namespacejuce_1_1gl_1af671f4f7a87a673f690bfd41f3a2a467a65a0a07b53d7cea0fc5f2c7aeeb3f30f" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GL_FLOAT_VEC2</ref>, [] (<ref refid="juce__gl_8h_1a5ac0f3c4d7fafd42b284b5487a791017" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GLint</ref> loc, const <ref refid="classjuce_1_1var" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::var</ref>&amp; v)
-        {
-            if (auto* a { v.getArray() })
-                <ref refid="namespacejuce_1_1gl_1a69ead4139f5e1fe5aba673b6c94167c3" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">glUniform2f</ref> (loc,
-                             static_cast&lt;<ref refid="juce__gl_8h_1a836cf6377099e88abf24c255b5b0ac52" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GLfloat</ref>&gt; (a-&gt;getReference (0)),
-                             static_cast&lt;<ref refid="juce__gl_8h_1a836cf6377099e88abf24c255b5b0ac52" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GLfloat</ref>&gt; (a-&gt;getReference (1)));
-        } },
-    { <ref refid="namespacejuce_1_1gl_1af671f4f7a87a673f690bfd41f3a2a467aa7d5f396c4b1114ea0b4dd03ac8e410a" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GL_FLOAT_VEC3</ref>, [] (<ref refid="juce__gl_8h_1a5ac0f3c4d7fafd42b284b5487a791017" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GLint</ref> loc, const <ref refid="classjuce_1_1var" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::var</ref>&amp; v)
-        {
-            if (auto* a { v.getArray() })
-                <ref refid="namespacejuce_1_1gl_1af9c4c1c20468e3a3c1630a8a0e5d64e5" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">glUniform3f</ref> (loc,
-                             static_cast&lt;<ref refid="juce__gl_8h_1a836cf6377099e88abf24c255b5b0ac52" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GLfloat</ref>&gt; (a-&gt;getReference (0)),
-                             static_cast&lt;<ref refid="juce__gl_8h_1a836cf6377099e88abf24c255b5b0ac52" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GLfloat</ref>&gt; (a-&gt;getReference (1)),
-                             static_cast&lt;<ref refid="juce__gl_8h_1a836cf6377099e88abf24c255b5b0ac52" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GLfloat</ref>&gt; (a-&gt;getReference (2)));
-        } },
-    { <ref refid="namespacejuce_1_1gl_1af671f4f7a87a673f690bfd41f3a2a467a9badfffcf0f9e619162dd9d2fa5b9458" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GL_FLOAT_VEC4</ref>, [] (<ref refid="juce__gl_8h_1a5ac0f3c4d7fafd42b284b5487a791017" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GLint</ref> loc, const <ref refid="classjuce_1_1var" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::var</ref>&amp; v)
-        {
-            if (auto* a { v.getArray() })
-                <ref refid="namespacejuce_1_1gl_1aa31f64cc085a0b406ab977c857fc9f00" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">glUniform4f</ref> (loc,
-                             static_cast&lt;<ref refid="juce__gl_8h_1a836cf6377099e88abf24c255b5b0ac52" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GLfloat</ref>&gt; (a-&gt;getReference (0)),
-                             static_cast&lt;<ref refid="juce__gl_8h_1a836cf6377099e88abf24c255b5b0ac52" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GLfloat</ref>&gt; (a-&gt;getReference (1)),
-                             static_cast&lt;<ref refid="juce__gl_8h_1a836cf6377099e88abf24c255b5b0ac52" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GLfloat</ref>&gt; (a-&gt;getReference (2)),
-                             static_cast&lt;<ref refid="juce__gl_8h_1a836cf6377099e88abf24c255b5b0ac52" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GLfloat</ref>&gt; (a-&gt;getReference (3)));
-        } },
-    { <ref refid="namespacejuce_1_1gl_1af671f4f7a87a673f690bfd41f3a2a467a4faef4fdf47204a525214d2ee7ddf739" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GL_INT</ref>,        [] (<ref refid="juce__gl_8h_1a5ac0f3c4d7fafd42b284b5487a791017" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GLint</ref> loc, const <ref refid="classjuce_1_1var" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::var</ref>&amp; v) { <ref refid="namespacejuce_1_1gl_1a7ec8253ba57f5e3544dc5acc50a811e8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">glUniform1i</ref> (loc, static_cast&lt;<ref refid="juce__gl_8h_1a5ac0f3c4d7fafd42b284b5487a791017" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GLint</ref>&gt; (v)); } },
-    { <ref refid="namespacejuce_1_1gl_1af671f4f7a87a673f690bfd41f3a2a467a50591a5a76d25c73317d8c6c39dd6e0c" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GL_BOOL</ref>,       [] (<ref refid="juce__gl_8h_1a5ac0f3c4d7fafd42b284b5487a791017" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GLint</ref> loc, const <ref refid="classjuce_1_1var" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::var</ref>&amp; v) { <ref refid="namespacejuce_1_1gl_1a7ec8253ba57f5e3544dc5acc50a811e8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">glUniform1i</ref> (loc, static_cast&lt;<ref refid="juce__gl_8h_1a5ac0f3c4d7fafd42b284b5487a791017" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GLint</ref>&gt; (v)); } },
-    { <ref refid="namespacejuce_1_1gl_1af671f4f7a87a673f690bfd41f3a2a467a50c999402f4a1bb1c2fda9b827e0531b" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GL_SAMPLER_2D</ref>, [] (<ref refid="juce__gl_8h_1a5ac0f3c4d7fafd42b284b5487a791017" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GLint</ref> loc, const <ref refid="classjuce_1_1var" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::var</ref>&amp; v) { <ref refid="namespacejuce_1_1gl_1a7ec8253ba57f5e3544dc5acc50a811e8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">glUniform1i</ref> (loc, static_cast&lt;<ref refid="juce__gl_8h_1a5ac0f3c4d7fafd42b284b5487a791017" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GLint</ref>&gt; (v)); } },
-}</initializer>
+        <name>viewportWidth</name>
+        <qualifiedname>shader::viewportWidth</qualifiedname>
+        <initializer>{ 2 }</initializer>
         <briefdescription>
         </briefdescription>
         <detaileddescription>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="shader/Compiler.cpp" line="11" column="27" bodyfile="shader/Compiler.cpp" bodystart="11" bodyend="40"/>
-        <referencedby refid="structshader_1_1_compiler_1ab5d4c6ce12a2e5a165972fc6446ede16" compoundref="_compiler_8cpp" startline="68" endline="105">shader::Compiler::registerUniforms</referencedby>
+        <location file="shader/Controller.cpp" line="8" column="22" bodyfile="shader/Controller.cpp" bodystart="8" bodyend="8"/>
+        <referencedby refid="structshader_1_1_controller_1a3d374a76e1c128b739b98107c2f413c8" compoundref="_controller_8cpp" startline="191" endline="223">shader::Controller::loadShaders</referencedby>
+        <referencedby refid="structshader_1_1_controller_1a98c779a896ffd3370fb064665b81e8b6" compoundref="_controller_8cpp" startline="84" endline="153">shader::Controller::render</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="namespaceshader_1ad5d899b6af682678124cc1d99720d3b6" prot="public" static="yes" constexpr="yes" mutable="no">
+        <type>int</type>
+        <definition>int shader::viewportHeight</definition>
+        <argsstring></argsstring>
+        <name>viewportHeight</name>
+        <qualifiedname>shader::viewportHeight</qualifiedname>
+        <initializer>{ 3 }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="shader/Controller.cpp" line="9" column="22" bodyfile="shader/Controller.cpp" bodystart="9" bodyend="9"/>
+        <referencedby refid="structshader_1_1_controller_1a3d374a76e1c128b739b98107c2f413c8" compoundref="_controller_8cpp" startline="191" endline="223">shader::Controller::loadShaders</referencedby>
+        <referencedby refid="structshader_1_1_controller_1a98c779a896ffd3370fb064665b81e8b6" compoundref="_controller_8cpp" startline="84" endline="153">shader::Controller::render</referencedby>
       </memberdef>
     </sectiondef>
     <briefdescription>

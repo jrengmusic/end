@@ -286,6 +286,15 @@
         <childnode refid="43" relation="usage">
           <edgelabel>theme</edgelabel>
         </childnode>
+        <childnode refid="44" relation="usage">
+          <edgelabel>shader</edgelabel>
+        </childnode>
+      </node>
+      <node id="44">
+        <label>config::Shader</label>
+        <link refid="classconfig_1_1_shader"/>
+        <childnode refid="22" relation="public-inheritance">
+        </childnode>
       </node>
       <node id="43">
         <label>config::Theme</label>
@@ -305,7 +314,7 @@
         <childnode refid="29" relation="usage">
           <edgelabel>config</edgelabel>
         </childnode>
-        <childnode refid="44" relation="usage">
+        <childnode refid="45" relation="usage">
           <edgelabel>attachments</edgelabel>
         </childnode>
       </node>
@@ -401,7 +410,7 @@
           <edgelabel>state</edgelabel>
         </childnode>
       </node>
-      <node id="44">
+      <node id="45">
         <label>jam::Owner&lt; jam::Model::Attachment &gt;</label>
         <link refid="classjam_1_1Owner" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>

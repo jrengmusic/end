@@ -4,56 +4,18 @@ namespace shader
 {
 /*____________________________________________________________________________*/
 
-using namespace juce::gl;
-using Setter = std::function<void (GLint, const juce::var&)>;
-
-// GLenum → glUniform* setter. Braced initializer — no switch, no brackets.
-static const jam::HashMap<GLenum, Setter> setters {
-    { GL_FLOAT,      [] (GLint loc, const juce::var& v) { glUniform1f (loc, static_cast<GLfloat> (v)); } },
-    { GL_FLOAT_VEC2, [] (GLint loc, const juce::var& v)
-        {
-            if (auto* a { v.getArray() })
-                glUniform2f (loc,
-                             static_cast<GLfloat> (a->getReference (0)),
-                             static_cast<GLfloat> (a->getReference (1)));
-        } },
-    { GL_FLOAT_VEC3, [] (GLint loc, const juce::var& v)
-        {
-            if (auto* a { v.getArray() })
-                glUniform3f (loc,
-                             static_cast<GLfloat> (a->getReference (0)),
-                             static_cast<GLfloat> (a->getReference (1)),
-                             static_cast<GLfloat> (a->getReference (2)));
-        } },
-    { GL_FLOAT_VEC4, [] (GLint loc, const juce::var& v)
-        {
-            if (auto* a { v.getArray() })
-                glUniform4f (loc,
-                             static_cast<GLfloat> (a->getReference (0)),
-                             static_cast<GLfloat> (a->getReference (1)),
-                             static_cast<GLfloat> (a->getReference (2)),
-                             static_cast<GLfloat> (a->getReference (3)));
-        } },
-    { GL_INT,        [] (GLint loc, const juce::var& v) { glUniform1i (loc, static_cast<GLint> (v)); } },
-    { GL_BOOL,       [] (GLint loc, const juce::var& v) { glUniform1i (loc, static_cast<GLint> (v)); } },
-    { GL_SAMPLER_2D, [] (GLint loc, const juce::var& v) { glUniform1i (loc, static_cast<GLint> (v)); } },
-};
-
 //==============================================================================
-std::unique_ptr<juce::OpenGLShaderProgram> Compiler::build (
-    const juce::StringArray& fragments,
-    juce::OpenGLContext& context,
-    juce::String& error)
+std::unique_ptr<juce::OpenGLShaderProgram> Compiler::build (const juce::String& vertexSource,
+                                                            const juce::String& fragmentSource,
+                                                            juce::OpenGLContext& context,
+                                                            juce::String& error)
 {
     auto prog { std::make_unique<juce::OpenGLShaderProgram> (context) };
 
-    const auto vertexSource { juce::OpenGLHelpers::translateVertexShaderToV3 (
-        BinaryData::getString (config::File::Shaders::getName (config::File::Shaders::quad))) };
+    prog->addVertexShader (juce::OpenGLHelpers::translateVertexShaderToV3 (vertexSource));
+    prog->addFragmentShader (juce::OpenGLHelpers::translateFragmentShaderToV3 (fragmentSource));
 
-    prog->addVertexShader (vertexSource);
-
-    for (const auto& frag : fragments)
-        prog->addFragmentShader (frag);
+    juce::gl::glBindAttribLocation (prog->getProgramID(), 0, "position");
 
     if (not prog->link())
     {
@@ -65,43 +27,42 @@ std::unique_ptr<juce::OpenGLShaderProgram> Compiler::build (
 }
 
 //==============================================================================
-void Compiler::registerUniforms (
-    const juce::OpenGLShaderProgram& program,
-    jam::Function::Map<juce::Identifier, void>& uniforms)
+Compiler::UniformSetter Compiler::buildUniformSetter (const juce::OpenGLShaderProgram& program)
 {
+    using namespace juce::gl;
+
     const GLuint programId { program.getProgramID() };
     GLint uniformCount { 0 };
     glGetProgramiv (programId, GL_ACTIVE_UNIFORMS, &uniformCount);
 
-    for (GLint i { 0 }; i < uniformCount; ++i)
+    // Discover locations for known Shadertoy uniforms
+    GLint locResolution { glGetUniformLocation (programId, "iResolution") };
+    GLint locTime       { glGetUniformLocation (programId, "iTime") };
+    GLint locTimeDelta  { glGetUniformLocation (programId, "iTimeDelta") };
+    GLint locFrame      { glGetUniformLocation (programId, "iFrame") };
+
+    // iChannel sampler locations
+    std::array<GLint, 4> locChannels {
+        glGetUniformLocation (programId, "iChannel0"),
+        glGetUniformLocation (programId, "iChannel1"),
+        glGetUniformLocation (programId, "iChannel2"),
+        glGetUniformLocation (programId, "iChannel3"),
+    };
+
+    return [locResolution, locTime, locTimeDelta, locFrame, locChannels]
+           (float width, float height, float time, float timeDelta, int frame)
     {
-        GLchar name[256];
-        GLsizei nameLength { 0 };
-        GLint   size       { 0 };
-        GLenum  type       { 0 };
+        // glGetUniformLocation returns -1 for inactive uniforms.
+        // Positive check: if this uniform is active, set it.
+        if (locResolution >= 0) glUniform3f (locResolution, width, height, 1.0f);
+        if (locTime >= 0)       glUniform1f (locTime, time);
+        if (locTimeDelta >= 0)  glUniform1f (locTimeDelta, timeDelta);
+        if (locFrame >= 0)      glUniform1i (locFrame, frame);
 
-        glGetActiveUniform (programId, static_cast<GLuint> (i),
-                            sizeof (name), &nameLength, &size, &type, name);
-
-        const GLint location { glGetUniformLocation (programId, name) };
-
-        if (location >= 0)
-        {
-            const auto it { setters.find (type) };
-
-            if (it != setters.end())
-            {
-                const auto& setter { it->second };
-
-                uniforms.add<const juce::var&> (
-                    juce::Identifier { juce::String (name, static_cast<size_t> (nameLength)) },
-                    [location, &setter] (const juce::var& v)
-                    {
-                        setter (location, v);
-                    });
-            }
-        }
-    }
+        for (int ch { 0 }; ch < 4; ++ch)
+            if (locChannels.at (static_cast<size_t> (ch)) >= 0)
+                glUniform1i (locChannels.at (static_cast<size_t> (ch)), ch);
+    };
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

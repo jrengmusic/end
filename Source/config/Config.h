@@ -7,6 +7,30 @@ namespace config
 /*____________________________________________________________________________*/
 
 /**
+    @brief Shader source model — owns the live ValueTree of raw GLSL source strings.
+
+    Reads shader pass files (Common, Image, BufferA-D) from the active shader
+    project directory. Each present file becomes a child tree with the source
+    string stored as a property. Mirrors config::Theme lifecycle.
+*/
+class Shader : public jam::Model
+{
+public:
+    Shader() = default;
+    ~Shader() = default;
+
+    /** @brief Loads shader sources from the given project directory.
+     *  @param shaderName  Shader project directory name (e.g. "sea-at-night").
+     *                     Empty string clears all sources.
+     */
+    void load (const juce::String& shaderName);
+
+private:
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Shader)
+};
+
+//==============================================================================
+/**
     @brief Theme state model — owns the live ValueTree of theme lua files.
 
     Reads theme.lua and whelmed.lua from the active theme directory
@@ -47,7 +71,7 @@ private:
     (receives filesystem change notifications).
 
     @par Four-phase init
-    The constructor runs two phases in fixed order — see HARD RULES in
+    The constructor runs four phases in fixed order — see HARD RULES in
     CAROL.md, the constructor sequence is contract:
 
     1. @c initialise() — builds the live tree from BinaryData snapshots
@@ -135,6 +159,9 @@ public:
     /** @brief Returns the theme model for listener registration. */
     Theme& getTheme() noexcept { return theme; }
 
+    /** @brief Returns the shader model for listener registration. */
+    Shader& getShader() noexcept { return shader; }
+
 private:
     /**
         @brief Populates the live tree from BinaryData and builds the
@@ -215,18 +242,6 @@ private:
                             std::function<bool (const juce::var&)> validator);
 
     /**
-        @brief Returns the 1-based line number of the first line in
-               @p sourceText that contains @p propertyName as a whole
-               word followed by optional whitespace and @c '='.
-        @param sourceText    Raw Lua source as a single string.
-        @param propertyName  The bare lua key to search for
-                             (e.g. @"size", not @"FONT.size").
-        @return 1-based line number, or @c 0 if not found
-                (e.g. for a missing or nil property).
-    */
-    static int findLineNumber (const juce::String& sourceText, const juce::String& propertyName);
-
-    /**
         @brief Watches @c File::path (lua config root) and the active
                theme directory for @c .svg asset changes.
     */
@@ -261,6 +276,7 @@ private:
     jam::Function::Map<juce::String, void> graphicsCallbacks;
 
     Theme theme;
+    Shader shader;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Model)

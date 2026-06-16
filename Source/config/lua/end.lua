@@ -79,11 +79,17 @@ return {
 	-- When false, force CPU rendering (no blur, no transparency).
 	gpu = true,
 
-	-- Active shader project directory name.
-	-- Shader projects live in ~/.config/end/shaders/<name>/shaders.lua.
-	-- Changing this value reloads all shader passes from the named directory.
-	-- Empty string disables all shader passes.
-	shaders = "",
+	-- Shader configuration.
+	-- Shader projects live in ~/.config/end/shaders/<name>/.
+	-- Files: Common, Image, BufferA, BufferB, BufferC, BufferD (Shadertoy convention).
+	shaders = {
+		-- Background shader project directory name. Empty string disables.
+		background = "",
+		-- Background shader opacity (0.0 = transparent, 1.0 = opaque).
+		background_opacity = 0.5,
+		-- Post-processing shader project directory name. Empty string disables.
+		post_processing = "",
+	},
 
 	-- ==========================================================================
 	-- NEXUS DAEMON

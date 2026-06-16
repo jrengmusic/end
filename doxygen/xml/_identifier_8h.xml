@@ -28,9 +28,9 @@
         </childnode>
         <childnode refid="13" relation="include">
         </childnode>
-        <childnode refid="26" relation="include">
+        <childnode refid="24" relation="include">
         </childnode>
-        <childnode refid="28" relation="include">
+        <childnode refid="26" relation="include">
         </childnode>
         <childnode refid="15" relation="include">
         </childnode>
@@ -82,6 +82,8 @@
         </childnode>
         <childnode refid="17" relation="include">
         </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
       </node>
       <node id="9">
         <label>end/ActionRegistration.cpp</label>
@@ -100,8 +102,6 @@
         </childnode>
         <childnode refid="8" relation="include">
         </childnode>
-        <childnode refid="22" relation="include">
-        </childnode>
       </node>
       <node id="13">
         <label>end/MessageOverlay.h</label>
@@ -109,29 +109,29 @@
         <childnode refid="8" relation="include">
         </childnode>
       </node>
-      <node id="27">
+      <node id="25">
         <label>end/Model.cpp</label>
         <link refid="_model_8cpp"/>
       </node>
-      <node id="26">
+      <node id="24">
         <label>end/Model.h</label>
         <link refid="_model_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
-        <childnode refid="27" relation="include">
+        <childnode refid="25" relation="include">
         </childnode>
       </node>
-      <node id="28">
+      <node id="26">
         <label>end/PaneView.h</label>
         <link refid="_pane_view_8h"/>
-        <childnode refid="29" relation="include">
+        <childnode refid="27" relation="include">
         </childnode>
       </node>
       <node id="14">
         <label>end/Panes.cpp</label>
         <link refid="_panes_8cpp"/>
       </node>
-      <node id="29">
+      <node id="27">
         <label>end/Panes.h</label>
         <link refid="_panes_8h"/>
         <childnode refid="14" relation="include">
@@ -204,27 +204,15 @@
         </childnode>
       </node>
       <node id="23">
-        <label>shader/Compiler.cpp</label>
-        <link refid="_compiler_8cpp"/>
-      </node>
-      <node id="22">
-        <label>shader/Compiler.h</label>
-        <link refid="_compiler_8h"/>
-        <childnode refid="23" relation="include">
-        </childnode>
-        <childnode refid="24" relation="include">
-        </childnode>
-      </node>
-      <node id="25">
         <label>shader/Controller.cpp</label>
         <link refid="_controller_8cpp"/>
       </node>
-      <node id="24">
+      <node id="22">
         <label>shader/Controller.h</label>
         <link refid="_controller_8h"/>
         <childnode refid="8" relation="include">
         </childnode>
-        <childnode refid="25" relation="include">
+        <childnode refid="23" relation="include">
         </childnode>
       </node>
     </invincdepgraph>
@@ -310,9 +298,9 @@
       <memberdef kind="define" id="_identifier_8h_1a74daa67650c53429660a64aad2e743b6" prot="public" static="no">
         <name>IDENTIFIER_APP</name>
         <param><defname>X</defname></param>
-        <initializer><ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (gpu, &quot;gpu&quot;)                        \
-<ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (shaders, &quot;shaders&quot;)               \
-<ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (daemon, &quot;daemon&quot;)                  \
+        <initializer><ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (gpu, &quot;gpu&quot;)                                             \
+<ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (shaders, &quot;shaders&quot;)                                     \
+<ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (daemon, &quot;daemon&quot;)                                       \
 <ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (autoReload, &quot;auto_reload&quot;)         \
 <ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (shell, &quot;shell&quot;)                    \
 <ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (program, &quot;program&quot;)                \
@@ -373,22 +361,26 @@
       <memberdef kind="define" id="_identifier_8h_1ad4c0831367306aa1ce615da8dd9fcd32" prot="public" static="no">
         <name>IDENTIFIER_SHADER</name>
         <param><defname>X</defname></param>
-        <initializer><ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (<ref refid="namespaceshader" kindref="compound">shader</ref>, &quot;shader&quot;)                \
-<ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (channels, &quot;channels&quot;)            \
-<ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (postProcess, &quot;post_process&quot;)     \
-<ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (buffer, &quot;buffer&quot;)                \
-<ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (quad, &quot;quad&quot;)                    \
-<ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (iResolution, &quot;iResolution&quot;)      \
-<ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (iTime, &quot;iTime&quot;)                  \
-<ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (iTimeDelta, &quot;iTimeDelta&quot;)        \
-<ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (iFrame, &quot;iFrame&quot;)</initializer>
+        <initializer><ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (iResolution, &quot;iResolution&quot;)                    \
+<ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (iTime, &quot;iTime&quot;)                                \
+<ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (iTimeDelta, &quot;iTimeDelta&quot;)                      \
+<ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (iFrame, &quot;iFrame&quot;)                              \
+<ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (common, &quot;Common&quot;)                              \
+<ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (image, &quot;Image&quot;)                                \
+<ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (bufferA, &quot;BufferA&quot;)                            \
+<ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (bufferB, &quot;BufferB&quot;)                            \
+<ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (bufferC, &quot;BufferC&quot;)                            \
+<ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (bufferD, &quot;BufferD&quot;)                            \
+<ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (background, &quot;background&quot;)                      \
+<ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (backgroundOpacity, &quot;background_opacity&quot;)       \
+<ref refid="juce__Optional_8h_1a5addefc9f566d89d726f6a2a9995c177" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">X</ref> (postProcessing, &quot;post_processing&quot;)</initializer>
         <briefdescription>
         </briefdescription>
         <detaileddescription>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="259" column="9" bodyfile="Identifier.h" bodystart="259" bodyend="268"/>
+        <location file="Identifier.h" line="262" column="9" bodyfile="Identifier.h" bodystart="262" bodyend="275"/>
       </memberdef>
       <memberdef kind="define" id="_identifier_8h_1a089ca9bdcc5559d95557c6c6ddf9db0c" prot="public" static="no">
         <name>IDENTIFIER_BACKEND</name>
@@ -409,7 +401,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="273" column="9" bodyfile="Identifier.h" bodystart="273" bodyend="283"/>
+        <location file="Identifier.h" line="280" column="9" bodyfile="Identifier.h" bodystart="280" bodyend="290"/>
       </memberdef>
       <memberdef kind="define" id="_identifier_8h_1a3f1d190c83b5d7a37ef5c213fcb2bfaf" prot="public" static="no">
         <name>IDENTIFIER_MODEL</name>
@@ -424,7 +416,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="286" column="9" bodyfile="Identifier.h" bodystart="286" bodyend="290"/>
+        <location file="Identifier.h" line="293" column="9" bodyfile="Identifier.h" bodystart="293" bodyend="297"/>
       </memberdef>
       <memberdef kind="define" id="_identifier_8h_1aa678230a5f71071f7d9e20dd31ad5547" prot="public" static="no">
         <name>END_MAKE_VIEW</name>
@@ -450,7 +442,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Identifier.h" line="293" column="9" bodyfile="Identifier.h" bodystart="293" bodyend="307"/>
+        <location file="Identifier.h" line="300" column="9" bodyfile="Identifier.h" bodystart="300" bodyend="314"/>
         <referencedby refid="struct_i_dref_1a15336e61beceb953f8c3ff39521b7c22">IDref::AS_STRINGREF</referencedby>
         <referencedby refid="struct_i_dtype_1a6407ccc02f46025e81c8c4bb9598845a">IDtype::AS_TYPE</referencedby>
         <referencedby refid="struct_i_dtag_1a3e7c1d2932d996b3894e727d495aa6a5">IDtag::AS_UPPER</referencedby>
@@ -642,10 +634,10 @@
 <codeline lineno="186"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Application<sp/>runtime<sp/>keys<sp/>(end.lua<sp/>sections)<sp/>—<sp/>excludes<sp/>jam::ID:<sp/>editor<sp/>(&quot;editor&quot;),</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="187"><highlight class="normal"></highlight><highlight class="comment">//<sp/>cwd<sp/>(&quot;cwd&quot;),<sp/>image<sp/>(&quot;image&quot;),<sp/>mode<sp/>(&quot;mode&quot;),<sp/>interval<sp/>(&quot;interval&quot;)</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="188"><highlight class="normal"></highlight><highlight class="comment">//<sp/>jam::gpu<sp/>has<sp/>string<sp/>&quot;GPU&quot;<sp/>(uppercase)<sp/>—<sp/>&quot;gpu&quot;<sp/>(lowercase)<sp/>is<sp/>a<sp/>distinct<sp/>lua<sp/>key,<sp/>declared<sp/>here</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="189" refid="_identifier_8h_1a74daa67650c53429660a64aad2e743b6" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>IDENTIFIER_APP(X)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="190"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(gpu,<sp/>&quot;gpu&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="191"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(shaders,<sp/>&quot;shaders&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="192"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(daemon,<sp/>&quot;daemon&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="189" refid="_identifier_8h_1a74daa67650c53429660a64aad2e743b6" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>IDENTIFIER_APP(X)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="190"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(gpu,<sp/>&quot;gpu&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="191"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(shaders,<sp/>&quot;shaders&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="192"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(daemon,<sp/>&quot;daemon&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
 <codeline lineno="193"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(autoReload,<sp/>&quot;auto_reload&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
 <codeline lineno="194"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(shell,<sp/>&quot;shell&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
 <codeline lineno="195"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(program,<sp/>&quot;program&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
@@ -711,61 +703,68 @@
 <codeline lineno="255"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(scrollbarBackground,<sp/>&quot;scrollbar_background&quot;)<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
 <codeline lineno="256"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(selectionColour,<sp/>&quot;selection_colour&quot;)</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="257"><highlight class="normal"></highlight></codeline>
-<codeline lineno="258"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Shader<sp/>manifest<sp/>keys<sp/>(shaders.lua)<sp/>+<sp/>embedded<sp/>shader<sp/>file<sp/>stems</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="259" refid="_identifier_8h_1ad4c0831367306aa1ce615da8dd9fcd32" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>IDENTIFIER_SHADER(X)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="260"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(shader,<sp/>&quot;shader&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="261"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(channels,<sp/>&quot;channels&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="262"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(postProcess,<sp/>&quot;post_process&quot;)<sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="263"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(buffer,<sp/>&quot;buffer&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="264"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(quad,<sp/>&quot;quad&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="265"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(iResolution,<sp/>&quot;iResolution&quot;)<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="266"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(iTime,<sp/>&quot;iTime&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="267"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(iTimeDelta,<sp/>&quot;iTimeDelta&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="268"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(iFrame,<sp/>&quot;iFrame&quot;)</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="269"><highlight class="normal"></highlight></codeline>
-<codeline lineno="270"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Platform<sp/>+<sp/>BackgroundBlur<sp/>WindowFX<sp/>keys<sp/>(theme.lua<sp/>/<sp/>window.window_fx)</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="271"><highlight class="normal"></highlight><highlight class="comment">//<sp/>&quot;mac&quot;/&quot;win&quot;<sp/>identify<sp/>the<sp/>platform<sp/>in<sp/>the<sp/>window_fx<sp/>table;</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="272"><highlight class="normal"></highlight><highlight class="comment">//<sp/>the<sp/>remaining<sp/>values<sp/>map<sp/>to<sp/>jam::BackgroundBlur::WindowFX<sp/>per<sp/>platform.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="273" refid="_identifier_8h_1a089ca9bdcc5559d95557c6c6ddf9db0c" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>IDENTIFIER_BACKEND(X)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="274"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(mac,<sp/>&quot;mac&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="275"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(win,<sp/>&quot;win&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="276"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(backgroundBlur,<sp/>&quot;backgroundBlur&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="277"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(visualFXWindowBackground,<sp/>&quot;visualFXWindowBackground&quot;)<sp/>\</highlight></codeline>
-<codeline lineno="278"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(glassFXRegular,<sp/>&quot;glassFXRegular&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="279"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(glassFXClear,<sp/>&quot;glassFXClear&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="280"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(blurBehind,<sp/>&quot;blurBehind&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="281"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(acrylic10,<sp/>&quot;acrylic10&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="282"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(acrylic11,<sp/>&quot;acrylic11&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="283"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(mica,<sp/>&quot;mica&quot;)</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="284"><highlight class="normal"></highlight></codeline>
-<codeline lineno="285"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Runtime<sp/>state<sp/>keys<sp/>(end::Model)</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="286" refid="_identifier_8h_1a3f1d190c83b5d7a37ef5c213fcb2bfaf" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>IDENTIFIER_MODEL(X)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="287"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(focusedPane,<sp/>&quot;focused_pane&quot;)<sp/>\</highlight></codeline>
-<codeline lineno="288"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(focus,<sp/>&quot;focus&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="289"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(zoom,<sp/>&quot;zoom&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="290"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(renderer,<sp/>&quot;renderer&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="258"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Shader<sp/>pass<sp/>name<sp/>identifiers<sp/>+<sp/>embedded<sp/>shader<sp/>uniform<sp/>names.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="259"><highlight class="normal"></highlight><highlight class="comment">//<sp/>common<sp/>(&quot;Common&quot;)<sp/>and<sp/>image<sp/>(&quot;Image&quot;)<sp/>shadow<sp/>jam::ID<sp/>lowercase<sp/>versions<sp/>intentionally<sp/>—</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="260"><highlight class="normal"></highlight><highlight class="comment">//<sp/>these<sp/>match<sp/>the<sp/>Shadertoy<sp/>on-disk<sp/>filenames<sp/>(uppercase<sp/>first<sp/>letter).</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="261"><highlight class="normal"></highlight><highlight class="comment">//<sp/>background<sp/>shadows<sp/>jam::ID::background<sp/>intentionally<sp/>—<sp/>END&apos;s<sp/>ID<sp/>struct<sp/>is<sp/>separate<sp/>from<sp/>jam::ID.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="262" refid="_identifier_8h_1ad4c0831367306aa1ce615da8dd9fcd32" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>IDENTIFIER_SHADER(X)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="263"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(iResolution,<sp/>&quot;iResolution&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="264"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(iTime,<sp/>&quot;iTime&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="265"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(iTimeDelta,<sp/>&quot;iTimeDelta&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="266"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(iFrame,<sp/>&quot;iFrame&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="267"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(common,<sp/>&quot;Common&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="268"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(image,<sp/>&quot;Image&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="269"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(bufferA,<sp/>&quot;BufferA&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="270"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(bufferB,<sp/>&quot;BufferB&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="271"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(bufferC,<sp/>&quot;BufferC&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="272"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(bufferD,<sp/>&quot;BufferD&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="273"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(background,<sp/>&quot;background&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="274"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(backgroundOpacity,<sp/>&quot;background_opacity&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="275"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(postProcessing,<sp/>&quot;post_processing&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="276"><highlight class="normal"></highlight></codeline>
+<codeline lineno="277"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Platform<sp/>+<sp/>BackgroundBlur<sp/>WindowFX<sp/>keys<sp/>(theme.lua<sp/>/<sp/>window.window_fx)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="278"><highlight class="normal"></highlight><highlight class="comment">//<sp/>&quot;mac&quot;/&quot;win&quot;<sp/>identify<sp/>the<sp/>platform<sp/>in<sp/>the<sp/>window_fx<sp/>table;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="279"><highlight class="normal"></highlight><highlight class="comment">//<sp/>the<sp/>remaining<sp/>values<sp/>map<sp/>to<sp/>jam::BackgroundBlur::WindowFX<sp/>per<sp/>platform.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="280" refid="_identifier_8h_1a089ca9bdcc5559d95557c6c6ddf9db0c" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>IDENTIFIER_BACKEND(X)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="281"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(mac,<sp/>&quot;mac&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="282"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(win,<sp/>&quot;win&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="283"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(backgroundBlur,<sp/>&quot;backgroundBlur&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="284"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(visualFXWindowBackground,<sp/>&quot;visualFXWindowBackground&quot;)<sp/>\</highlight></codeline>
+<codeline lineno="285"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(glassFXRegular,<sp/>&quot;glassFXRegular&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="286"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(glassFXClear,<sp/>&quot;glassFXClear&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="287"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(blurBehind,<sp/>&quot;blurBehind&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="288"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(acrylic10,<sp/>&quot;acrylic10&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="289"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(acrylic11,<sp/>&quot;acrylic11&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="290"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(mica,<sp/>&quot;mica&quot;)</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="291"><highlight class="normal"></highlight></codeline>
-<codeline lineno="292"><highlight class="normal"></highlight><highlight class="comment">//<sp/>============================================================================</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="293" refid="_identifier_8h_1aa678230a5f71071f7d9e20dd31ad5547" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>END_MAKE_VIEW(ViewName,<sp/>EXPANDER)<sp/>\</highlight></codeline>
-<codeline lineno="294"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>struct<sp/>ViewName<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="295"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="296"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_CONFIG<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="297"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_COMMON<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="298"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_THEME<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="299"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_KEYS<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="300"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_APP<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="301"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_POPUPS<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="302"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_ACTIONS<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="303"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_WHELMED<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="304"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_BACKEND<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="305"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_SHADER<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="306"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_MODEL<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
-<codeline lineno="307"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>};</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="308"><highlight class="normal"></highlight></codeline>
-<codeline lineno="309" refid="struct_i_d_1ade3efe103f202bf24e5c45db41614f8d" refkind="member"><highlight class="normal"><ref refid="_identifier_8h_1aa678230a5f71071f7d9e20dd31ad5547" kindref="member">END_MAKE_VIEW</ref><sp/>(<ref refid="struct_i_d" kindref="compound">ID</ref>,<sp/><ref refid="struct_i_d_1ade3efe103f202bf24e5c45db41614f8d" kindref="member">AS_IDENTIFIER</ref>)</highlight></codeline>
-<codeline lineno="310" refid="struct_i_dref_1a15336e61beceb953f8c3ff39521b7c22" refkind="member"><highlight class="normal"><ref refid="_identifier_8h_1aa678230a5f71071f7d9e20dd31ad5547" kindref="member">END_MAKE_VIEW</ref><sp/>(<ref refid="struct_i_dref" kindref="compound">IDref</ref>,<sp/><ref refid="struct_i_dref_1a15336e61beceb953f8c3ff39521b7c22" kindref="member">AS_STRINGREF</ref>)</highlight></codeline>
-<codeline lineno="311" refid="struct_i_dtag_1a3e7c1d2932d996b3894e727d495aa6a5" refkind="member"><highlight class="normal"><ref refid="_identifier_8h_1aa678230a5f71071f7d9e20dd31ad5547" kindref="member">END_MAKE_VIEW</ref><sp/>(<ref refid="struct_i_dtag" kindref="compound">IDtag</ref>,<sp/><ref refid="struct_i_dtag_1a3e7c1d2932d996b3894e727d495aa6a5" kindref="member">AS_UPPER</ref>)</highlight></codeline>
-<codeline lineno="312" refid="struct_i_dtype_1a6407ccc02f46025e81c8c4bb9598845a" refkind="member"><highlight class="normal"><ref refid="_identifier_8h_1aa678230a5f71071f7d9e20dd31ad5547" kindref="member">END_MAKE_VIEW</ref><sp/>(<ref refid="struct_i_dtype" kindref="compound">IDtype</ref>,<sp/><ref refid="struct_i_dtype_1a6407ccc02f46025e81c8c4bb9598845a" kindref="member">AS_TYPE</ref>)</highlight></codeline>
+<codeline lineno="292"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Runtime<sp/>state<sp/>keys<sp/>(end::Model)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="293" refid="_identifier_8h_1a3f1d190c83b5d7a37ef5c213fcb2bfaf" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>IDENTIFIER_MODEL(X)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="294"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(focusedPane,<sp/>&quot;focused_pane&quot;)<sp/>\</highlight></codeline>
+<codeline lineno="295"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(focus,<sp/>&quot;focus&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="296"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(zoom,<sp/>&quot;zoom&quot;)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="297"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>X<sp/>(renderer,<sp/>&quot;renderer&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="298"><highlight class="normal"></highlight></codeline>
+<codeline lineno="299"><highlight class="normal"></highlight><highlight class="comment">//<sp/>============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="300" refid="_identifier_8h_1aa678230a5f71071f7d9e20dd31ad5547" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>END_MAKE_VIEW(ViewName,<sp/>EXPANDER)<sp/>\</highlight></codeline>
+<codeline lineno="301"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>struct<sp/>ViewName<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="302"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="303"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_CONFIG<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="304"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_COMMON<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="305"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_THEME<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="306"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_KEYS<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="307"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_APP<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="308"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_POPUPS<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="309"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_ACTIONS<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="310"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_WHELMED<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="311"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_BACKEND<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="312"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_SHADER<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="313"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IDENTIFIER_MODEL<sp/>(EXPANDER)<sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="314"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>};</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="315"><highlight class="normal"></highlight></codeline>
+<codeline lineno="316" refid="struct_i_d_1ade3efe103f202bf24e5c45db41614f8d" refkind="member"><highlight class="normal"><ref refid="_identifier_8h_1aa678230a5f71071f7d9e20dd31ad5547" kindref="member">END_MAKE_VIEW</ref><sp/>(<ref refid="struct_i_d" kindref="compound">ID</ref>,<sp/><ref refid="struct_i_d_1ade3efe103f202bf24e5c45db41614f8d" kindref="member">AS_IDENTIFIER</ref>)</highlight></codeline>
+<codeline lineno="317" refid="struct_i_dref_1a15336e61beceb953f8c3ff39521b7c22" refkind="member"><highlight class="normal"><ref refid="_identifier_8h_1aa678230a5f71071f7d9e20dd31ad5547" kindref="member">END_MAKE_VIEW</ref><sp/>(<ref refid="struct_i_dref" kindref="compound">IDref</ref>,<sp/><ref refid="struct_i_dref_1a15336e61beceb953f8c3ff39521b7c22" kindref="member">AS_STRINGREF</ref>)</highlight></codeline>
+<codeline lineno="318" refid="struct_i_dtag_1a3e7c1d2932d996b3894e727d495aa6a5" refkind="member"><highlight class="normal"><ref refid="_identifier_8h_1aa678230a5f71071f7d9e20dd31ad5547" kindref="member">END_MAKE_VIEW</ref><sp/>(<ref refid="struct_i_dtag" kindref="compound">IDtag</ref>,<sp/><ref refid="struct_i_dtag_1a3e7c1d2932d996b3894e727d495aa6a5" kindref="member">AS_UPPER</ref>)</highlight></codeline>
+<codeline lineno="319" refid="struct_i_dtype_1a6407ccc02f46025e81c8c4bb9598845a" refkind="member"><highlight class="normal"><ref refid="_identifier_8h_1aa678230a5f71071f7d9e20dd31ad5547" kindref="member">END_MAKE_VIEW</ref><sp/>(<ref refid="struct_i_dtype" kindref="compound">IDtype</ref>,<sp/><ref refid="struct_i_dtype_1a6407ccc02f46025e81c8c4bb9598845a" kindref="member">AS_TYPE</ref>)</highlight></codeline>
     </programlisting>
     <location file="Identifier.h"/>
   </compounddef>

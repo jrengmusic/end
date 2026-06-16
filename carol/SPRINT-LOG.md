@@ -2,73 +2,150 @@
 
 ---
 
-## Sprint 23: Model Bidirectional Sync + Shader Cleanup ✅
+## Sprint 24: Shader Config Pipeline Rework + SSOT fromLua ✅
 
-**Date:** 2026-06-15
-**Duration:** ~01:30
+**Date:** 2026-06-16
+**Duration:** ~08:00
 
 ### Agents Participated
-- COUNSELOR: Sprint lead, architecture discussion (jam::Model APVTS conformance, OpenGLAppComponent pattern, cross-thread contract, YAGNI analysis), plan authoring, delegation, verification, audit processing
-- Pathfinder: jam::Model API survey, endless GL wiring research, JUCE VBlank/OpenGLAppComponent discovery
-- Researcher: JUCE APVTS bidirectional sync mechanism (valueTreePropertyChanged → atomic chain, loopback guard)
-- Librarian: JUCE OpenGLAppComponent API, VBlankAttachment
-- Engineer: All file edits across JAM + END (8 delegations)
-- Auditor: Full sprint audit — found H1 (type dispatch divergence), M1 (submodule includes), M2 (|| vs or), L1/L2 (brace init, namespace consistency)
+- COUNSELOR: Sprint lead, architecture discussion (config::Shader mirroring Theme, shader.frag template, multipass FBO design, Controller rewrite against LAF pattern, uniform baked lambda design, VTPC tree-children-direct-read, SSOT fromLua extraction), plan authoring, delegation, verification, iterative design with ARCHITECT (6+ design discussions)
+- Pathfinder: Shader config discovery, disk shader files, config loading patterns, jam::lua::State API, LookAndFeel event flow
+- Librarian: JUCE OpenGLFrameBuffer API, OpenGLContext::executeOnGLThread, translateFragmentShaderToV3, OpenGLContext::setOpenGLVersionRequired, GL core profile VAO requirements
+- Engineer: All file edits — Compiler rewrite, Controller rewrite (3 iterations), Config.cpp SSOT refactor, Identifier/Map changes, end.lua table, shader.frag template, Quad VAO, GL version fix
+- Auditor: Two audit passes — BLESSED/NAMES/JRENG compliance, dead code, cross-thread contract, pattern fidelity
 
-### Files Modified (14 total)
+### Files Modified (12 total)
 
 **JAM — jam_data_structures/model/**
-- `jam_model.h:28-29` — Model inherits juce::ValueTree::Listener; added valueTreePropertyChanged override (no Model-level guard — per-parameter APVTS pattern)
-- `jam_model.cpp:5-21` — constructors register state listener, destructor removes; valueTreePropertyChanged implementation (dispatches on registered AnyMap type via isType<T>, per-parameter isIgnoringCallbacks guard)
-- `jam_parameter.h` — moved from value_tree/; added per-parameter `ignoreCallbacks` + `isIgnoringCallbacks()` + `ScopedValueSetter` in flush() on all three specializations (int, int64_t, float) — VERBATIM APVTS loopback guard pattern
-- `jam_parameter_text.h` — moved from value_tree/, removed submodule includes (#include "jam_parameter.h", <atomic>, <cstring>)
+- `jam_model.h:181-218` — NEW: `fromLua(source, tag, fileName, validators, errors)` SSOT overload. Encapsulates lua::State + getType + from. Replaces 4 duplicated parse sequences.
+
+**END — Source/shader/**
+- `Compiler.h` — rewritten: `build()` takes single `juce::String` fragment (not StringArray). `buildUniformSetter()` replaces `registerUniforms()` — returns baked `UniformSetter` lambda. `UniformSetter` type alias. Static setter table deleted.
+- `Compiler.cpp` — rewritten: `build()` single fragment, translateVertexShaderToV3 + translateFragmentShaderToV3, glBindAttribLocation. `buildUniformSetter()` discovers locations via glGetUniformLocation, captures in lambda — zero per-frame dispatch.
+- `Controller.h` — rewritten: Pass = program + UniformSetter + FBO. One `passes` HashMap. `loadShaders()` mirrors `loadGraphics()`. No events map, no registerEvents, no Function::Map for uniforms. VTPC = one if-check.
+- `Controller.cpp` — rewritten (3 iterations): VTPC reads tree children directly, extracts sources on message thread, posts to GL via executeOnGLThread. loadShaders compiles each pass, builds baked setter, creates FBO for buffers. render iterates bimap, one setUniforms call per pass. GL 3.2 core profile. Positive nesting throughout.
+- `Quad.h` — added VAO member for GL 3.2 core profile
+- `Quad.cpp` — create() generates VAO + captures attrib pointer; draw() binds VAO; destroy() deletes VAO
+
+**END — Source/shaders/**
+- `shader.frag` — template with `%%source%%` placeholder + iChannel0-3 sampler declarations
+
+**END — Source/config/**
+- `Config.h` — added config::Shader class (mirrors config::Theme), getShader() accessor, Shader member. Dead findLineNumber declaration removed. Stale doxygen fixed.
+- `Config.cpp` — Shader::load() reads extensionless files from shader project directory, stores source as jam::ID::value property per child. loadFromPath() calls shader.load(). initialise() + loadFromPath() + Theme::load() refactored to use SSOT fromLua overload. loadFromPath wrapper fix (root tree wrapping prevents property leakage to CONFIG root). File::config guard added to loadFromPath (matches initialise).
+
+**END — Source/**
+- `Identifier.h` — IDENTIFIER_SHADER: pass names (common, image, bufferA-D) + config leaf keys (background, backgroundOpacity, postProcessing). Dead keys removed (shader, channels, postProcess, buffer, quad, wrapper). Shadow comment.
+- `end/Map.h` — config::File::Shaders bimap reworked: deterministic pass names { common, image, bufferA-D }, extensionless filenames, no getName/extension.
+- `config/lua/end.lua` — flat shaders key → nested `shaders = { background, background_opacity = 0.5, post_processing }` table.
+
+### Alignment Check
+- [x] BLESSED principles followed
+  - B: Controller owns passes. Each Pass owns program + setter + FBO. GL compile via executeOnGLThread. RAII shutdown.
+  - L: Controller rewritten 3× to reach clean design. No events map (one signal). No Function::Map for uniforms (baked lambda). Pass is one struct, passes is one map. ≤30 lines per method.
+  - E: No magic strings — bimap drives iteration. %%source%% template via jam::Format::replaceholder. No bail-out guards — positive nesting. Baked uniform setter — no per-frame dispatch.
+  - S: passes is SSOT for compiled shader state. config::Shader state is SSOT for source strings. fromLua is SSOT for lua→ValueTree. No parallel maps, no shadow state.
+  - S: Pass is fully resolved artifact — no machinery state. Controller holds only frameCounter + passes + quad.
+  - E: loadShaders mirrors loadGraphics. Controller mirrors LAF + OpenGLAppComponent. Bimap drives. VTPC reads tree children directly.
+  - D: Same config → same sources → same compiled passes → same render.
+- [x] NAMES.md adhered (loadShaders/loadGraphics, passes/graphics, Pass artifact, buildUniformSetter, fromLua SSOT)
+- [x] MANIFESTO.md principles applied
+- [x] JRENG-CODING-STANDARD.md (positive nesting, not/and/or, brace init, contains+at not find/iterator, doxygen header-only, no anonymous namespace)
+
+### Problems Solved
+- **Config pipeline rework:** Dead shaders.lua manifest eliminated. Filesystem-is-manifest pattern. config::Shader mirrors config::Theme. Dedicated shaders table in end.lua.
+- **Controller architecture:** 3 iterations. First: 3 parallel maps + compileFromConfig + events map + Function::Map uniforms. Second: 1 passes map + loadShaders + events map. Final: 1 passes map + loadShaders + direct VTPC + baked UniformSetter. Each iteration removed a layer of garbage.
+- **SSOT fromLua:** 4 duplicated lua parse sequences (initialise config, initialise theme, loadFromPath, Theme::load) collapsed to one jam::Model::fromLua overload.
+- **loadFromPath property leakage:** setValuesFrom(child) wrote END properties to CONFIG root (type mismatch). Fixed: wrapper root tree aligns the recursive walk.
+- **GL 3.2 core profile:** Default GL 2.1 compatibility profile blocked translateFragmentShaderToV3 (version check < 3.2). setOpenGLVersionRequired(openGL3_2) enables core profile. VAO added to Quad (required by core profile).
+- **shader.frag template:** Separate addFragmentShader calls created independent compilation units — user source couldn't see wrapper uniforms. Single compilation unit via %%source%% placeholder + jam::Format::replaceholder.
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- Multipass FBO rendering (buffer passes produce black output — single-pass shaders work). Channel binding convention established (iChannel0=BufferA, etc.) but untested with working multipass content. Root cause undiagnosed.
+
+---
+
+## Sprint 23: Model Bidirectional Sync + Shader Architecture Rewrite ✅
+
+**Date:** 2026-06-15 — 2026-06-16
+**Duration:** ~04:00
+
+### Agents Participated
+- COUNSELOR: Sprint lead, architecture discussion (APVTS bidirectional contract, OpenGLAppComponent pattern, Compiler static builder, Controller ownership, YAGNI enforcement, Function::Map dispatch, static setter table, Shaders multi-extension map), plan authoring, delegation, verification, audit processing, iterative design with ARCHITECT
+- Pathfinder: jam::Model API survey, endless GL wiring research, JUCE VBlank/OpenGLAppComponent discovery, codebase HashMap/Function::Map pattern survey
+- Researcher: JUCE APVTS bidirectional sync mechanism (valueTreePropertyChanged chain, per-parameter loopback guard)
+- Librarian: JUCE OpenGLAppComponent API, OpenGLShaderProgram internals (addShader, glShaderSource count=1), VBlankAttachment
+- Engineer: All file edits across JAM + END (15+ delegations)
+- Auditor: Full sprint audit — H1 (type dispatch), H2 (dead code), M1/M2/L1/L2
+
+### Files Modified (22 total)
+
+**JAM — jam_data_structures/model/**
+- `jam_model.h:28-29` — Model inherits juce::ValueTree::Listener; valueTreePropertyChanged override (dispatches on registered AnyMap type via isType<T>)
+- `jam_model.cpp:5-21,266-288` — constructors register state listener, destructor removes; valueTreePropertyChanged with per-parameter isIgnoringCallbacks guard; flush/replaceState/setValuesFrom global guards removed
+- `jam_parameter.h` — moved from value_tree/; added per-parameter ignoreCallbacks + isIgnoringCallbacks() + ScopedValueSetter in flush() on all three specializations (VERBATIM APVTS pattern)
+- `jam_parameter_text.h` — moved from value_tree/, removed submodule includes
 - `jam_value_tree_utils.cpp` — moved from value_tree/
 
 **JAM — jam_data_structures/**
 - `jam_data_structures.h:30-31` — include paths value_tree/ → model/
 - `jam_data_structures.cpp:3` — include path value_tree/ → model/
 
-**END — Source/shader/**
-- `Controller.h` — rewritten: mirrors OpenGLAppComponent VERBATIM (openGLContext public, getFrameCounter, shutdownOpenGL, private OpenGLRenderer). Added attach/detach. Removed all shadow state.
-- `Controller.cpp` — rewritten: initialise/shutdown/render delegates, attach sets componentPainting+renderer, render clears transparent
-- `Pass.h` — stripped: removed locMouse/locDate/locChannelResolution/locChannel/channelTextures/setChannel, mouse param from render
-- `Pass.cpp` — literal string → BinaryData::getString (shadertoy_uniforms.frag + shadertoy_main.frag), stripped uniforms/channels/mouse
+**END — Source/shader/ (architecture rewrite)**
+- `Compiler.h` — NEW: static builder struct (jam::view::Manager pattern). build() + registerUniforms()
+- `Compiler.cpp` — NEW: static setter table (braced init HashMap<GLenum, Setter>), uniform discovery via glGetActiveUniform, Function::Map dispatch lambdas
+- `Controller.h` — rewritten: mirrors OpenGLAppComponent VERBATIM. Owns Owner<OpenGLShaderProgram> programs + Function::Map uniforms + Quad
+- `Controller.cpp` — rewritten: initialise/shutdown/render delegates. quad.create() no params. shutdown clears programs + uniforms
+- `Quad.h` — stripped to VBO only. Removed getVertexShader(), isCreated(), vertexShader member, context param from create()
+- `Quad.cpp` — stripped: create() allocates VBO only, no vertex shader loading
+- `Pass.h` — DELETED (replaced by Compiler + Controller ownership)
+- `Pass.cpp` — DELETED
 - `Buffer.h` — DELETED (YAGNI)
-- `Buffer.cpp` — DELETED (YAGNI)
+- `Buffer.cpp` — DELETED
 
 **END — Source/shaders/**
-- `shadertoy_uniforms.frag` — NEW: 11 Shadertoy uniform declarations (BinaryData-embedded)
-- `shadertoy_main.frag` — NEW: mainImage→main bridge (BinaryData-embedded)
+- `shader.frag` — NEW: single wrapper (uniforms + mainImage prototype + main). Replaces shadertoy_uniforms.frag + shadertoy_main.frag
+- `quad.vert` — renamed from passthrough.vert
+- `shadertoy_uniforms.frag` — DELETED
+- `shadertoy_main.frag` — DELETED
 
-**END — Source/end/**
-- `View.cpp:21-23` — seed width/height on state before Attachment for atomic registration
-- `View.cpp:85-89` — setViewState uses model.setValue() (bidirectional sync → atomic for GL thread)
-- `View.cpp:60-61` — removed shader.resize() call (Controller no longer has it)
+**END — Source/**
+- `Identifier.h:259-267` — IDENTIFIER_SHADER: added quad, iResolution, iTime, iTimeDelta, iFrame
+- `end/Map.h:235-279` — config::File::Shaders: multi-extension map (lua/vert/frag), enum adds quad + shader, getName() per-key extension lookup
+- `end/View.cpp:21-23,85-89` — seed width/height before Attachment, setViewState via model.setValue()
 
 ### Alignment Check
 - [x] BLESSED principles followed
-  - B: GL thread reads atomics, message thread writes VT. Bidirectional sync bridges. No cross-thread direct calls.
-  - L: Controller stripped to OpenGLAppComponent minimum. Buffer deleted. Pass stripped to 4 uniforms. YAGNI enforced.
-  - E: No magic strings — .glsl files in BinaryData. No shadow state. Per-parameter loopback guard (VERBATIM APVTS pattern).
-  - S: VT is message-thread truth, atomic is GL-thread truth. Bidirectional sync = one SSOT with two thread-safe views.
-  - D: Same VT write → same atomic → same GL output.
-- [x] NAMES.md adhered
+  - B: GL thread reads atomics, message thread writes VT. Per-parameter loopback guard (VERBATIM APVTS). Single owner for GL programs (Owner<>). RAII.
+  - L: Compiler is stateless utility (zero members). Buffer deleted. Pass deleted. Controller stripped. Static setter table replaces switch. YAGNI enforced.
+  - E: No magic strings — Shaders::getName() for filenames, ID:: constants for uniforms, braced init setter table. No shadow state.
+  - S: VT is message-thread truth, atomic is GL-thread truth. Bidirectional sync. shader.frag is sole SSOT for uniform declarations. Function::Map for uniform dispatch — .frag defines, Compiler discovers, Controller dispatches.
+  - S: Compiler is stateless. Controller holds only GL resources + dispatch map. No machinery state.
+  - D: Same VT write → same atomic → same GL output. Same fragments → same linked program.
+- [x] NAMES.md adhered (shader::Compiler, build(), registerUniforms(), quad.vert, shader.frag — nouns for things, verbs for actions, literal names for Identifier constants)
 - [x] MANIFESTO.md principles applied
-- [x] JRENG-CODING-STANDARD.md (brace init, not/and/or, namespace close brace consistency, no submodule includes)
+- [x] JRENG-CODING-STANDARD.md (brace init, not/and/or, namespace consistency, no submodule includes, getReference() not [], static for file-local, braced init for static HashMap)
 
 ### Problems Solved
-- **jam::Model missing VT→atomic sync:** Model only had atomic→VT (flush). APVTS has bidirectional via ValueTree::Listener. Added valueTreePropertyChanged with per-parameter loopback guard (VERBATIM APVTS: ignoreCallbacks on Parameter, ScopedValueSetter in flush, isIgnoringCallbacks checked in listener). Message thread writes VT → listener updates atomic → GL thread reads.
-- **Global loopback guard → per-parameter:** Initial implementation used Model-level ignoreCallbacks flag. APVTS uses per-parameter guard (ignoreParameterChangedCallbacks on ParameterAdapter). Corrected to match APVTS VERBATIM — no invented patterns.
-- **Type dispatch divergence (H1):** valueTreePropertyChanged initially dispatched on live var type (value.isInt()). XML/lua round-trips can coerce int↔double. Fixed: dispatch on AnyMap registered type via isType<T>().
-- **Assertion crash on config reload:** valueTreePropertyChanged fired for ALL tree nodes (including those without Parameter groups). params.get<AnyMap>(groupId) asserted on absent key. Fixed: guard with params.isType<AnyMap>(groupId) before get.
-- **Shadow state on Controller:** viewportWidth/Height shadowed pendingWidth/Height atomics. Timing (startTime/lastFrameTime/frameCount) dead with no continuous repainting. mouse[4] never written. All removed.
-- **Literal string shader wrapper:** Shadertoy uniform block was inline C++ string. Extracted to actual .frag files, loaded via BinaryData::getString().
+- **jam::Model missing VT→atomic sync:** Added ValueTree::Listener + valueTreePropertyChanged. Per-parameter loopback guard (VERBATIM APVTS — ignoreCallbacks on Parameter, ScopedValueSetter in flush, isIgnoringCallbacks in listener). Global guard initially implemented, corrected to per-parameter after ARCHITECT review.
+- **Type dispatch divergence:** valueTreePropertyChanged dispatches on registered AnyMap type (isType<T>), not live var type. Safe across int/double coercion.
+- **Assertion crash on config reload:** params.get<AnyMap>(groupId) asserted on absent key. Fixed: guard with params.isType<AnyMap>(groupId).
+- **Pass was stateful + owned program + did compilation + rendering + uniform dispatch:** Decomposed: Compiler (static builder), Controller (ownership + rendering), Function::Map (dispatch). Single responsibility each.
+- **String concatenation for shader sources:** Eliminated. Two addFragmentShader() calls (wrapper + user source). JUCE compiles each as separate shader object, links together. No raw GL boilerplate.
+- **Switch-case for uniform types:** Replaced with static HashMap<GLenum, Setter> braced initializer. Dispatch resolved at discovery time via Function::Map lambdas. Zero per-frame conditionals.
+- **Magic strings everywhere:** Eliminated. Shaders::getName() for filenames. ID:: Identifier constants for uniform names. Static setter table for GL type dispatch. Zero literal strings in shader:: code.
+- **Shadow state on Controller:** All removed. OpenGLAppComponent pattern: frameCounter only.
 
 ### Debts Paid
 - None
 
 ### Debts Deferred
 - None
+
+---
 
 ---
 

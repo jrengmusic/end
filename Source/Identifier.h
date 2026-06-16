@@ -186,10 +186,10 @@
 // Application runtime keys (end.lua sections) — excludes jam::ID: editor ("editor"),
 // cwd ("cwd"), image ("image"), mode ("mode"), interval ("interval")
 // jam::gpu has string "GPU" (uppercase) — "gpu" (lowercase) is a distinct lua key, declared here
-#define IDENTIFIER_APP(X)               \
-    X (gpu, "gpu")                        \
-    X (shaders, "shaders")               \
-    X (daemon, "daemon")                  \
+#define IDENTIFIER_APP(X)                                    \
+    X (gpu, "gpu")                                             \
+    X (shaders, "shaders")                                     \
+    X (daemon, "daemon")                                       \
     X (autoReload, "auto_reload")         \
     X (shell, "shell")                    \
     X (program, "program")                \
@@ -255,17 +255,24 @@
     X (scrollbarBackground, "scrollbar_background")      \
     X (selectionColour, "selection_colour")
 
-// Shader manifest keys (shaders.lua) + embedded shader file stems
-#define IDENTIFIER_SHADER(X)            \
-    X (shader, "shader")                \
-    X (channels, "channels")            \
-    X (postProcess, "post_process")     \
-    X (buffer, "buffer")                \
-    X (quad, "quad")                    \
-    X (iResolution, "iResolution")      \
-    X (iTime, "iTime")                  \
-    X (iTimeDelta, "iTimeDelta")        \
-    X (iFrame, "iFrame")
+// Shader pass name identifiers + embedded shader uniform names.
+// common ("Common") and image ("Image") shadow jam::ID lowercase versions intentionally —
+// these match the Shadertoy on-disk filenames (uppercase first letter).
+// background shadows jam::ID::background intentionally — END's ID struct is separate from jam::ID.
+#define IDENTIFIER_SHADER(X)                         \
+    X (iResolution, "iResolution")                    \
+    X (iTime, "iTime")                                \
+    X (iTimeDelta, "iTimeDelta")                      \
+    X (iFrame, "iFrame")                              \
+    X (common, "Common")                              \
+    X (image, "Image")                                \
+    X (bufferA, "BufferA")                            \
+    X (bufferB, "BufferB")                            \
+    X (bufferC, "BufferC")                            \
+    X (bufferD, "BufferD")                            \
+    X (background, "background")                      \
+    X (backgroundOpacity, "background_opacity")       \
+    X (postProcessing, "post_processing")
 
 // Platform + BackgroundBlur WindowFX keys (theme.lua / window.window_fx)
 // "mac"/"win" identify the platform in the window_fx table;

@@ -1,54 +1,56 @@
 /**
  * @file shader/Compiler.h
- * @brief Static shader program builder — compiles and links OpenGL shader programs.
+ * @brief Static shader program builder.
  */
 #pragma once
 #include <JuceHeader.h>
-#include "end/Map.h"
 
 namespace shader
 {
 /*____________________________________________________________________________*/
 
-/** @brief Static shader program builder — compiles and links OpenGL shader programs.
+/** @brief Static shader program builder — compiles, links, and binds uniform setters.
  *
- *  Pure static utility following the jam::view::Manager pattern. No instance state.
+ *  Pure static utility. No instance state.
  *
- *  build() takes fragment source strings, loads quad.vert from BinaryData via
- *  config::File::Shaders, compiles, links, returns the program. Caller owns the result.
+ *  build() compiles and links a shader program from vertex + fragment sources.
+ *  buildUniformSetter() discovers active uniforms from a linked program and
+ *  returns a single std::function that sets all of them in one call.
  *
  *  Thread contract: ALL methods GL THREAD only.
  */
 struct Compiler
 {
-    /** @brief Compiles and links a shader program from fragment sources.
-     *
-     *  Loads quad.vert from BinaryData via config::File::Shaders::getName().
-     *  Adds each fragment source via addFragmentShader in a loop. Links.
-     *
-     *  @param fragments  Fragment shader sources (e.g. shader.frag wrapper + user source).
-     *  @param context    The active OpenGL context.
-     *  @param error      Receives error message on failure. Empty on success.
-     *  @return           Compiled and linked program, or nullptr on failure.
+    /** @brief Uniform setter signature — width, height, time, timeDelta, frame. */
+    using UniformSetter = std::function<void (float, float, float, float, int)>;
+
+    /** @brief Compiles and links a shader program.
+     *  @param vertexSource   Vertex shader source.
+     *  @param fragmentSource Fragment shader source (single compilation unit).
+     *  @param context        Active OpenGL context.
+     *  @param error          Receives error message on failure.
+     *  @return               Linked program, or nullptr on failure.
      */
     static std::unique_ptr<juce::OpenGLShaderProgram> build (
-        const juce::StringArray& fragments,
+        const juce::String& vertexSource,
+        const juce::String& fragmentSource,
         juce::OpenGLContext& context,
         juce::String& error);
 
-    /** @brief Discovers active uniforms from a linked program and registers
-     *         dispatch lambdas in the caller's Function::Map.
+    /** @brief Discovers active uniforms and returns a baked setter function.
      *
-     *  Queries glGetActiveUniform for all active uniforms. For each, looks up
-     *  the GL type in a static setter table (braced-initializer HashMap) and
-     *  registers a lambda capturing the location in the caller's map via add().
+     *  Queries glGetActiveUniform for all active uniforms. For each known
+     *  Shadertoy uniform, captures its location and the matching glUniform*
+     *  call. Returns a single function that sets all discovered uniforms
+     *  from the five frame parameters (width, height, time, timeDelta, frame).
      *
-     *  @param program   Linked shader program to query.
-     *  @param uniforms  Caller's Function::Map to populate with uniform setters.
+     *  Unknown uniforms (user-defined) are silently skipped — they have no
+     *  value source in the frame parameters.
+     *
+     *  @param program  Linked shader program to query.
+     *  @return         Baked setter function. Callable every frame.
      */
-    static void registerUniforms (
-        const juce::OpenGLShaderProgram& program,
-        jam::Function::Map<juce::Identifier, void>& uniforms);
+    static UniformSetter buildUniformSetter (const juce::OpenGLShaderProgram& program);
 };
 
 /**______________________________END OF NAMESPACE______________________________*/
