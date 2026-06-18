@@ -1,8 +1,7 @@
 <?xml version='1.0' encoding='UTF-8' standalone='no'?>
 <doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
-  <compounddef id="structshader_1_1_controller_1_1_pass" kind="struct" language="C++" prot="public">
+  <compounddef id="structshader_1_1_controller_1_1_pass" kind="struct" language="C++" prot="private">
     <compoundname>shader::Controller::Pass</compoundname>
-    <includes refid="_controller_8h" local="no">Controller.h</includes>
     <sectiondef kind="public-attrib">
       <memberdef kind="variable" id="structshader_1_1_controller_1_1_pass_1a056b795d29776283dbc8d454e040ab71" prot="public" static="no" mutable="no">
         <type>std::unique_ptr&lt; <ref refid="classjuce_1_1OpenGLShaderProgram" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::OpenGLShaderProgram</ref> &gt;</type>
@@ -16,27 +15,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="shader/Controller.h" line="51" column="26" bodyfile="shader/Controller.h" bodystart="51" bodyend="-1"/>
-        <referencedby refid="structshader_1_1_controller_1a3d374a76e1c128b739b98107c2f413c8" compoundref="_controller_8cpp" startline="191" endline="223">shader::Controller::loadShaders</referencedby>
+        <location file="shader/Controller.h" line="75" column="25" bodyfile="shader/Controller.h" bodystart="75" bodyend="-1"/>
       </memberdef>
-      <memberdef kind="variable" id="structshader_1_1_controller_1_1_pass_1a59335cb509e68ae8221884496a2ddfa7" prot="public" static="no" mutable="no">
-        <type>std::unique_ptr&lt; <ref refid="classjuce_1_1OpenGLFrameBuffer" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::OpenGLFrameBuffer</ref> &gt;</type>
-        <definition>std::unique_ptr&lt;juce::OpenGLFrameBuffer&gt; shader::Controller::Pass::fbo</definition>
-        <argsstring></argsstring>
-        <name>fbo</name>
-        <qualifiedname>shader::Controller::Pass::fbo</qualifiedname>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="shader/Controller.h" line="52" column="28" bodyfile="shader/Controller.h" bodystart="52" bodyend="-1"/>
-        <referencedby refid="structshader_1_1_controller_1a3d374a76e1c128b739b98107c2f413c8" compoundref="_controller_8cpp" startline="191" endline="223">shader::Controller::loadShaders</referencedby>
-      </memberdef>
-      <memberdef kind="variable" id="structshader_1_1_controller_1_1_pass_1a08650979e10b47dfce3179dd54dca77a" prot="public" static="no" mutable="no">
-        <type><ref refid="structshader_1_1_compiler_1aaa51a231bfc2ed6adb421ff45a4fe668" kindref="member">Compiler::UniformSetter</ref></type>
-        <definition>Compiler::UniformSetter shader::Controller::Pass::setUniforms</definition>
+      <memberdef kind="variable" id="structshader_1_1_controller_1_1_pass_1aa80ed2a55dcd6091df139098be63d4db" prot="public" static="no" mutable="no">
+        <type>std::function&lt; void(int, int, int)&gt;</type>
+        <definition>std::function&lt;void (int, int, int)&gt; shader::Controller::Pass::setUniforms</definition>
         <argsstring></argsstring>
         <name>setUniforms</name>
         <qualifiedname>shader::Controller::Pass::setUniforms</qualifiedname>
@@ -46,21 +29,28 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="shader/Controller.h" line="53" column="53" bodyfile="shader/Controller.h" bodystart="53" bodyend="-1"/>
-        <referencedby refid="structshader_1_1_controller_1a3d374a76e1c128b739b98107c2f413c8" compoundref="_controller_8cpp" startline="191" endline="223">shader::Controller::loadShaders</referencedby>
+        <location file="shader/Controller.h" line="76" column="23" bodyfile="shader/Controller.h" bodystart="76" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structshader_1_1_controller_1_1_pass_1a9a58d050fc3a89e21872f6ba192a3916" prot="public" static="no" mutable="no">
+        <type>std::optional&lt; <ref refid="classjuce_1_1OpenGLFrameBuffer" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::OpenGLFrameBuffer</ref> &gt;</type>
+        <definition>std::optional&lt;juce::OpenGLFrameBuffer&gt; shader::Controller::Pass::fbo</definition>
+        <argsstring></argsstring>
+        <name>fbo</name>
+        <qualifiedname>shader::Controller::Pass::fbo</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="shader/Controller.h" line="77" column="23" bodyfile="shader/Controller.h" bodystart="77" bodyend="-1"/>
       </memberdef>
     </sectiondef>
     <briefdescription>
-<para>Fully resolved renderable pass — built at load time, used at render time. </para>
     </briefdescription>
     <detaileddescription>
-<para>program owns the linked shader. setUniforms is a baked lambda from <ref refid="structshader_1_1_compiler_1a504ae4bf80f9c504b7b224fad2caf8ec" kindref="member">Compiler::buildUniformSetter</ref> — captures all active uniform locations, calls the right glUniform* per known Shadertoy uniform. fbo is non-null for buffer passes (bufferA–D); null for image (renders to screen). </para>
     </detaileddescription>
     <collaborationgraph>
-      <node id="5">
-        <label>juce::OpenGLFrameBuffer</label>
-        <link refid="classjuce_1_1OpenGLFrameBuffer" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-      </node>
       <node id="3">
         <label>juce::OpenGLShaderProgram</label>
         <link refid="classjuce_1_1OpenGLShaderProgram" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
@@ -71,15 +61,6 @@
         <childnode refid="2" relation="usage">
           <edgelabel>program</edgelabel>
         </childnode>
-        <childnode refid="4" relation="usage">
-          <edgelabel>fbo</edgelabel>
-        </childnode>
-      </node>
-      <node id="4">
-        <label>std::unique_ptr&lt; juce::OpenGLFrameBuffer &gt;</label>
-        <childnode refid="5" relation="usage">
-          <edgelabel>ptr</edgelabel>
-        </childnode>
       </node>
       <node id="2">
         <label>std::unique_ptr&lt; juce::OpenGLShaderProgram &gt;</label>
@@ -88,11 +69,11 @@
         </childnode>
       </node>
     </collaborationgraph>
-    <location file="shader/Controller.h" line="49" column="5" bodyfile="shader/Controller.h" bodystart="50" bodyend="54"/>
+    <location file="shader/Controller.h" line="73" column="5" bodyfile="shader/Controller.h" bodystart="74" bodyend="78"/>
     <listofallmembers>
-      <member refid="structshader_1_1_controller_1_1_pass_1a59335cb509e68ae8221884496a2ddfa7" prot="public" virt="non-virtual"><scope>shader::Controller::Pass</scope><name>fbo</name></member>
+      <member refid="structshader_1_1_controller_1_1_pass_1a9a58d050fc3a89e21872f6ba192a3916" prot="public" virt="non-virtual"><scope>shader::Controller::Pass</scope><name>fbo</name></member>
       <member refid="structshader_1_1_controller_1_1_pass_1a056b795d29776283dbc8d454e040ab71" prot="public" virt="non-virtual"><scope>shader::Controller::Pass</scope><name>program</name></member>
-      <member refid="structshader_1_1_controller_1_1_pass_1a08650979e10b47dfce3179dd54dca77a" prot="public" virt="non-virtual"><scope>shader::Controller::Pass</scope><name>setUniforms</name></member>
+      <member refid="structshader_1_1_controller_1_1_pass_1aa80ed2a55dcd6091df139098be63d4db" prot="public" virt="non-virtual"><scope>shader::Controller::Pass</scope><name>setUniforms</name></member>
     </listofallmembers>
   </compounddef>
 </doxygen>

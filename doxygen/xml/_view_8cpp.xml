@@ -4,6 +4,14 @@
     <compoundname>View.cpp</compoundname>
     <includes refid="_view_8h" local="yes">end/View.h</includes>
     <incdepgraph>
+      <node id="9">
+        <label>../Bimap.h</label>
+        <link refid="_bimap_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
       <node id="7">
         <label>Identifier.h</label>
         <link refid="_identifier_8h"/>
@@ -24,14 +32,6 @@
         <childnode refid="3" relation="include">
         </childnode>
         <childnode refid="9" relation="include">
-        </childnode>
-      </node>
-      <node id="9">
-        <label>../end/Map.h</label>
-        <link refid="_map_8h"/>
-        <childnode refid="3" relation="include">
-        </childnode>
-        <childnode refid="7" relation="include">
         </childnode>
       </node>
       <node id="10">
@@ -110,28 +110,12 @@
         <childnode refid="8" relation="include">
         </childnode>
       </node>
-      <node id="16">
-        <label>shader/Compiler.h</label>
-        <link refid="_compiler_8h"/>
-        <childnode refid="3" relation="include">
-        </childnode>
-      </node>
       <node id="14">
         <label>shader/Controller.h</label>
         <link refid="_controller_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
-        <childnode refid="15" relation="include">
-        </childnode>
-        <childnode refid="16" relation="include">
-        </childnode>
         <childnode refid="8" relation="include">
-        </childnode>
-      </node>
-      <node id="15">
-        <label>shader/Quad.h</label>
-        <link refid="_quad_8h"/>
-        <childnode refid="3" relation="include">
         </childnode>
       </node>
       <node id="12">
@@ -185,70 +169,73 @@
 <codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classjuce_1_1Component_1ab11f2db9935bf7a7c1e2661007ffdeb7" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">setSize</ref><sp/>(width,<sp/>height);</highlight></codeline>
 <codeline lineno="38"><highlight class="normal"></highlight></codeline>
-<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classjuce_1_1MessageManager_1aa34494bcb54b9d4155934c8f53ed1070" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::MessageManager::callAsync</ref><sp/>([</highlight><highlight class="keyword">this</highlight><highlight class="normal">]</highlight></codeline>
-<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
-<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Fire<sp/>window<sp/>events<sp/>for<sp/>initial<sp/>state<sp/>—<sp/>addListener<sp/>doesn&apos;t<sp/>replay.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Uses<sp/>the<sp/>SAME<sp/>event<sp/>handlers<sp/>as<sp/>VTPC<sp/>hot-reload<sp/>(DRY/SSOT).</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>endTree<sp/>{<sp/><ref refid="namespaceconfig" kindref="compound">config</ref>.state.getChildWithName<sp/>(IDtype::end)<sp/>};</highlight></codeline>
-<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classend_1_1_view_1a53296c1bef3150326d6cff63ba81ea7f" kindref="member">events</ref>.get<sp/>(ID::gpu,<sp/>endTree);</highlight></codeline>
-<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classend_1_1_view_1a53296c1bef3150326d6cff63ba81ea7f" kindref="member">events</ref>.get<sp/>(ID::alwaysOnTop,<sp/>endTree);</highlight></codeline>
-<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classend_1_1_view_1a53296c1bef3150326d6cff63ba81ea7f" kindref="member">events</ref>.get<sp/>(ID::titleBarButtons,<sp/>endTree);</highlight></codeline>
-<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classjuce_1_1Component_1a5d3e328e9134d2a336d649b2657bb8d8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">grabKeyboardFocus</ref>();</highlight></codeline>
-<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/>});</highlight></codeline>
-<codeline lineno="49"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classjuce_1_1MessageManager_1aa34494bcb54b9d4155934c8f53ed1070" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::MessageManager::callAsync</ref><sp/>(</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>[</highlight><highlight class="keyword">this</highlight><highlight class="normal">]</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Fire<sp/>window<sp/>events<sp/>for<sp/>initial<sp/>state<sp/>—<sp/>addListener<sp/>doesn&apos;t<sp/>replay.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Uses<sp/>the<sp/>SAME<sp/>event<sp/>handlers<sp/>as<sp/>VTPC<sp/>hot-reload<sp/>(DRY/SSOT).</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>endTree<sp/>{<sp/><ref refid="namespaceconfig" kindref="compound">config</ref>.state.getChildWithName<sp/>(IDtype::end)<sp/>};</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classend_1_1_view_1a53296c1bef3150326d6cff63ba81ea7f" kindref="member">events</ref>.get<sp/>(ID::gpu,<sp/>endTree);</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classend_1_1_view_1a53296c1bef3150326d6cff63ba81ea7f" kindref="member">events</ref>.get<sp/>(ID::alwaysOnTop,<sp/>endTree);</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classend_1_1_view_1a53296c1bef3150326d6cff63ba81ea7f" kindref="member">events</ref>.get<sp/>(ID::titleBarButtons,<sp/>endTree);</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classjuce_1_1Component_1a5d3e328e9134d2a336d649b2657bb8d8" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">grabKeyboardFocus</ref>();</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>});</highlight></codeline>
 <codeline lineno="50"><highlight class="normal"></highlight></codeline>
-<codeline lineno="51" refid="classend_1_1_view_1aac73d85c15164ea7a9ae443b9673996c" refkind="member"><highlight class="normal"><ref refid="classend_1_1_view_1aac73d85c15164ea7a9ae443b9673996c" kindref="member">View::~View</ref>()</highlight></codeline>
-<codeline lineno="52"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structjam_1_1Model_1_1Component_1aa5a0c333addf975536c95bca7a9685be" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">model</ref>.removeListener<sp/>(</highlight><highlight class="keyword">this</highlight><highlight class="normal">);</highlight></codeline>
-<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespaceconfig" kindref="compound">config</ref>.getTheme().removeListener<sp/>(</highlight><highlight class="keyword">this</highlight><highlight class="normal">);</highlight></codeline>
-<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespaceconfig" kindref="compound">config</ref>.removeListener<sp/>(</highlight><highlight class="keyword">this</highlight><highlight class="normal">);</highlight></codeline>
-<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classjuce_1_1Component_1af3f592f985fd53ebe13bdd1d29019749" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">removeKeyListener</ref><sp/>(</highlight><highlight class="keyword">this</highlight><highlight class="normal">);</highlight></codeline>
-<codeline lineno="57"><highlight class="normal">}</highlight></codeline>
-<codeline lineno="58"><highlight class="normal"></highlight></codeline>
-<codeline lineno="59" refid="classend_1_1_view_1a14f07f6fc295c80b4ff0555798fa583c" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_view_1a14f07f6fc295c80b4ff0555798fa583c" kindref="member">View::resized</ref>()</highlight></codeline>
-<codeline lineno="60"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classend_1_1_view_1a7917a0f9fd49d8944b5c1f69025678ec" kindref="member">setViewState</ref><sp/>(<ref refid="classjuce_1_1Component_1ac109beb72e9dafdc724da22b8cb883c0" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">getWidth</ref>(),<sp/><ref refid="classjuce_1_1Component_1a5b7a932d5731db79424fbc8acd247805" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">getHeight</ref>());</highlight></codeline>
-<codeline lineno="62"><highlight class="normal"></highlight></codeline>
-<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classend_1_1_view_1a7e6ee211dd7d9e06224826283296fa65" kindref="member">tabs</ref>.setBounds<sp/>(<ref refid="classjuce_1_1Component_1ad886e26b7514369fe38fdc03074b7c80" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">getLocalBounds</ref>());</highlight></codeline>
-<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classend_1_1_view_1a97bd88a9912af6789293637a52e8da3f" kindref="member">messageOverlay</ref>.setBounds<sp/>(<ref refid="classjuce_1_1Component_1ad886e26b7514369fe38fdc03074b7c80" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">getLocalBounds</ref>());</highlight></codeline>
-<codeline lineno="65"><highlight class="normal">}</highlight></codeline>
-<codeline lineno="66"><highlight class="normal"></highlight></codeline>
-<codeline lineno="67" refid="classend_1_1_view_1a41cd1e902149d1b7eff5b13e08d9bd27" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_view_1a41cd1e902149d1b7eff5b13e08d9bd27" kindref="member">View::keyPressed</ref><sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classjuce_1_1KeyPress" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::KeyPress</ref>&amp;<sp/>key,<sp/><ref refid="classjuce_1_1Component" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Component</ref>*<sp/>originatingComponent)</highlight></codeline>
-<codeline lineno="68"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespacejuce_1a86deae84ff8b95d7e40214a493b3dfe0" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::ignoreUnused</ref><sp/>(originatingComponent);</highlight></codeline>
-<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_view_1ace453a44b620ac0ccd2d799ec99e2bbd" kindref="member">registry</ref>.keyPressed<sp/>(key);</highlight></codeline>
-<codeline lineno="71"><highlight class="normal">}</highlight></codeline>
-<codeline lineno="72"><highlight class="normal"></highlight></codeline>
-<codeline lineno="73" refid="classend_1_1_view_1a8d59e9750bef6937f2647078b1614dc7" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_view_1a8d59e9750bef6937f2647078b1614dc7" kindref="member">View::valueTreePropertyChanged</ref><sp/>(<ref refid="classjuce_1_1ValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::ValueTree</ref>&amp;<sp/>tree,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classjuce_1_1Identifier" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Identifier</ref>&amp;<sp/>property)</highlight></codeline>
-<codeline lineno="74"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>key<sp/>{<sp/><ref refid="classend_1_1_view_1a53296c1bef3150326d6cff63ba81ea7f" kindref="member">events</ref>.contains<sp/>(property)<sp/>?<sp/>property<sp/>:<sp/>tree.<ref refid="classjuce_1_1ValueTree_1ac7027d954636d660784dcf930caa89ca" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">getType</ref>()<sp/>};</highlight></codeline>
-<codeline lineno="76"><highlight class="normal"></highlight></codeline>
-<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classend_1_1_view_1a53296c1bef3150326d6cff63ba81ea7f" kindref="member">events</ref>.contains<sp/>(key))</highlight></codeline>
-<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classend_1_1_view_1a53296c1bef3150326d6cff63ba81ea7f" kindref="member">events</ref>.get<sp/>(key,<sp/>tree);</highlight></codeline>
-<codeline lineno="79"><highlight class="normal">}</highlight></codeline>
-<codeline lineno="80"><highlight class="normal"></highlight></codeline>
-<codeline lineno="81" refid="classend_1_1_view_1a1904f3df086fd0f9d1b3bb0e6cb1538b" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_view_1a1904f3df086fd0f9d1b3bb0e6cb1538b" kindref="member">View::valueTreeChildAdded</ref><sp/>(<ref refid="classjuce_1_1ValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::ValueTree</ref>&amp;<sp/>parentTree,</highlight></codeline>
-<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classjuce_1_1ValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::ValueTree</ref>&amp;<sp/>childWhichHasBeenAdded)</highlight></codeline>
-<codeline lineno="83"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal"><sp/>{<sp/>childWhichHasBeenAdded.<ref refid="classjuce_1_1ValueTree_1ac9bbcb6db4464f77b512b9bd8bbb8c3f" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">getChildWithName</ref><sp/>(IDtype::pane).<ref refid="classjuce_1_1ValueTree_1ab584e972c5f8e597f545e6321a895d06" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">getProperty</ref><sp/>(<ref refid="structjam_1_1ID_1a94afe032a3af21e6f22fb73c9625b60a" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::ID::id</ref>)<sp/>};</highlight></codeline>
-<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structjam_1_1Model_1_1Component_1a708164c4ae3e826d1c3ee90dbcf1afa3" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">state</ref>.setProperty<sp/>(ID::focusedPane,<sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">);</highlight></codeline>
-<codeline lineno="86"><highlight class="normal">}</highlight></codeline>
-<codeline lineno="87"><highlight class="normal"></highlight></codeline>
-<codeline lineno="88" refid="classend_1_1_view_1a7917a0f9fd49d8944b5c1f69025678ec" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_view_1a7917a0f9fd49d8944b5c1f69025678ec" kindref="member">View::setViewState</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>width,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>height)</highlight></codeline>
-<codeline lineno="89"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structjam_1_1Model_1_1Component_1aa5a0c333addf975536c95bca7a9685be" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">model</ref>.setValue<sp/>(IDtype::view,<sp/><ref refid="structjam_1_1ID_1a3d0d8290681c62b75160843928ff3689" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::ID::width</ref>,<sp/>width);</highlight></codeline>
-<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structjam_1_1Model_1_1Component_1aa5a0c333addf975536c95bca7a9685be" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">model</ref>.setValue<sp/>(IDtype::view,<sp/><ref refid="structjam_1_1ID_1ab6389fe91d4bb010418fc3d930e869b6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::ID::height</ref>,<sp/>height);</highlight></codeline>
-<codeline lineno="92"><highlight class="normal">}</highlight></codeline>
-<codeline lineno="93"><highlight class="normal"></highlight></codeline>
-<codeline lineno="94" refid="classend_1_1_view_1a91ed8ef126c0a1b3feb458079c3a7849" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_view_1a91ed8ef126c0a1b3feb458079c3a7849" kindref="member">View::setTabOrientation</ref>()</highlight></codeline>
-<codeline lineno="95"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>pos<sp/>{<sp/><ref refid="namespaceconfig" kindref="compound">config</ref>.getValue<sp/>(IDtype::end,<sp/>ID::tabOrientation).toString()<sp/>};</highlight></codeline>
-<codeline lineno="97"><highlight class="normal"></highlight></codeline>
-<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="structjam_1_1Context_1a3ff553f70ef61043352c54cfed475b4c" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">Position::getInstance</ref>()-&gt;<ref refid="classjuce_1_1Component_1a0063f788f01484e821535209c6938537" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">contains</ref><sp/>(pos))</highlight></codeline>
-<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classend_1_1_view_1a7e6ee211dd7d9e06224826283296fa65" kindref="member">tabs</ref>.setOrientation<sp/>(<ref refid="structend_1_1_position_1a60c3eb56c5d84d1d92833502247abfdd" kindref="member">Position::get</ref><sp/>(pos));</highlight></codeline>
-<codeline lineno="100"><highlight class="normal">}</highlight></codeline>
-<codeline lineno="101"><highlight class="normal"></highlight></codeline>
-<codeline lineno="103"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>end</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54" refid="classend_1_1_view_1aac73d85c15164ea7a9ae443b9673996c" refkind="member"><highlight class="normal"><ref refid="classend_1_1_view_1aac73d85c15164ea7a9ae443b9673996c" kindref="member">View::~View</ref>()</highlight></codeline>
+<codeline lineno="55"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structjam_1_1Model_1_1Component_1aa5a0c333addf975536c95bca7a9685be" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">model</ref>.removeListener<sp/>(</highlight><highlight class="keyword">this</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespaceconfig" kindref="compound">config</ref>.getTheme().removeListener<sp/>(</highlight><highlight class="keyword">this</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespaceconfig" kindref="compound">config</ref>.removeListener<sp/>(</highlight><highlight class="keyword">this</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classjuce_1_1Component_1af3f592f985fd53ebe13bdd1d29019749" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">removeKeyListener</ref><sp/>(</highlight><highlight class="keyword">this</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="60"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62" refid="classend_1_1_view_1a14f07f6fc295c80b4ff0555798fa583c" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_view_1a14f07f6fc295c80b4ff0555798fa583c" kindref="member">View::resized</ref>()</highlight></codeline>
+<codeline lineno="63"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classend_1_1_view_1a7917a0f9fd49d8944b5c1f69025678ec" kindref="member">setViewState</ref><sp/>(<ref refid="classjuce_1_1Component_1ac109beb72e9dafdc724da22b8cb883c0" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">getWidth</ref>(),<sp/><ref refid="classjuce_1_1Component_1a5b7a932d5731db79424fbc8acd247805" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">getHeight</ref>());</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classend_1_1_view_1a7e6ee211dd7d9e06224826283296fa65" kindref="member">tabs</ref>.setBounds<sp/>(<ref refid="classjuce_1_1Component_1ad886e26b7514369fe38fdc03074b7c80" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">getLocalBounds</ref>());</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classend_1_1_view_1a97bd88a9912af6789293637a52e8da3f" kindref="member">messageOverlay</ref>.setBounds<sp/>(<ref refid="classjuce_1_1Component_1ad886e26b7514369fe38fdc03074b7c80" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">getLocalBounds</ref>());</highlight></codeline>
+<codeline lineno="68"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70" refid="classend_1_1_view_1a41cd1e902149d1b7eff5b13e08d9bd27" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_view_1a41cd1e902149d1b7eff5b13e08d9bd27" kindref="member">View::keyPressed</ref><sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classjuce_1_1KeyPress" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::KeyPress</ref>&amp;<sp/>key,<sp/><ref refid="classjuce_1_1Component" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Component</ref>*<sp/>originatingComponent)</highlight></codeline>
+<codeline lineno="71"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespacejuce_1a86deae84ff8b95d7e40214a493b3dfe0" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::ignoreUnused</ref><sp/>(originatingComponent);</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_view_1ace453a44b620ac0ccd2d799ec99e2bbd" kindref="member">registry</ref>.keyPressed<sp/>(key);</highlight></codeline>
+<codeline lineno="74"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight></codeline>
+<codeline lineno="76" refid="classend_1_1_view_1a8d59e9750bef6937f2647078b1614dc7" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_view_1a8d59e9750bef6937f2647078b1614dc7" kindref="member">View::valueTreePropertyChanged</ref><sp/>(<ref refid="classjuce_1_1ValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::ValueTree</ref>&amp;<sp/>tree,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="classjuce_1_1Identifier" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Identifier</ref>&amp;<sp/>property)</highlight></codeline>
+<codeline lineno="77"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>key<sp/>{<sp/><ref refid="classend_1_1_view_1a53296c1bef3150326d6cff63ba81ea7f" kindref="member">events</ref>.contains<sp/>(property)<sp/>?<sp/>property<sp/>:<sp/>tree.<ref refid="classjuce_1_1ValueTree_1ac7027d954636d660784dcf930caa89ca" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">getType</ref>()<sp/>};</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classend_1_1_view_1a53296c1bef3150326d6cff63ba81ea7f" kindref="member">events</ref>.contains<sp/>(key))</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classend_1_1_view_1a53296c1bef3150326d6cff63ba81ea7f" kindref="member">events</ref>.get<sp/>(key,<sp/>tree);</highlight></codeline>
+<codeline lineno="82"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84" refid="classend_1_1_view_1a1904f3df086fd0f9d1b3bb0e6cb1538b" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_view_1a1904f3df086fd0f9d1b3bb0e6cb1538b" kindref="member">View::valueTreeChildAdded</ref><sp/>(<ref refid="classjuce_1_1ValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::ValueTree</ref>&amp;<sp/>parentTree,</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classjuce_1_1ValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::ValueTree</ref>&amp;<sp/>childWhichHasBeenAdded)</highlight></codeline>
+<codeline lineno="86"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal"><sp/>{<sp/>childWhichHasBeenAdded.<ref refid="classjuce_1_1ValueTree_1ac9bbcb6db4464f77b512b9bd8bbb8c3f" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">getChildWithName</ref><sp/>(IDtype::pane).<ref refid="classjuce_1_1ValueTree_1ab584e972c5f8e597f545e6321a895d06" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">getProperty</ref><sp/>(<ref refid="structjam_1_1ID_1a94afe032a3af21e6f22fb73c9625b60a" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::ID::id</ref>)<sp/>};</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structjam_1_1Model_1_1Component_1a708164c4ae3e826d1c3ee90dbcf1afa3" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">state</ref>.setProperty<sp/>(ID::focusedPane,<sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="89"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91" refid="classend_1_1_view_1a7917a0f9fd49d8944b5c1f69025678ec" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_view_1a7917a0f9fd49d8944b5c1f69025678ec" kindref="member">View::setViewState</ref><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>width,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>height)</highlight></codeline>
+<codeline lineno="92"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structjam_1_1Model_1_1Component_1aa5a0c333addf975536c95bca7a9685be" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">model</ref>.setValue<sp/>(IDtype::view,<sp/><ref refid="structjam_1_1ID_1a3d0d8290681c62b75160843928ff3689" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::ID::width</ref>,<sp/>width);</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structjam_1_1Model_1_1Component_1aa5a0c333addf975536c95bca7a9685be" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">model</ref>.setValue<sp/>(IDtype::view,<sp/><ref refid="structjam_1_1ID_1ab6389fe91d4bb010418fc3d930e869b6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::ID::height</ref>,<sp/>height);</highlight></codeline>
+<codeline lineno="95"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight></codeline>
+<codeline lineno="97" refid="classend_1_1_view_1a91ed8ef126c0a1b3feb458079c3a7849" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_view_1a91ed8ef126c0a1b3feb458079c3a7849" kindref="member">View::setTabOrientation</ref>()</highlight></codeline>
+<codeline lineno="98"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>pos<sp/>{<sp/><ref refid="namespaceconfig" kindref="compound">config</ref>.getValue<sp/>(IDtype::end,<sp/>ID::tabOrientation).toString()<sp/>};</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="structjam_1_1Instance_1ad5d2bbb58e37d8d260b428b334823140" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">Position::getInstance</ref>()-&gt;<ref refid="classjuce_1_1Component_1a0063f788f01484e821535209c6938537" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">contains</ref><sp/>(pos))</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classend_1_1_view_1a7e6ee211dd7d9e06224826283296fa65" kindref="member">tabs</ref>.setOrientation<sp/>(<ref refid="structend_1_1_position_1a60c3eb56c5d84d1d92833502247abfdd" kindref="member">Position::get</ref><sp/>(pos));</highlight></codeline>
+<codeline lineno="103"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal">}</highlight><highlight class="comment">//<sp/>namespace<sp/>end</highlight><highlight class="normal"></highlight></codeline>
     </programlisting>
     <location file="end/View.cpp"/>
   </compounddef>

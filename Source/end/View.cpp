@@ -36,16 +36,19 @@ View::View (jam::Model& m)
     //==============================================================================
     setSize (width, height);
 
-    juce::MessageManager::callAsync ([this]
-    {
-        // Fire window events for initial state — addListener doesn't replay.
-        // Uses the SAME event handlers as VTPC hot-reload (DRY/SSOT).
-        auto endTree { config.state.getChildWithName (IDtype::end) };
-        events.get (ID::gpu, endTree);
-        events.get (ID::alwaysOnTop, endTree);
-        events.get (ID::titleBarButtons, endTree);
-        grabKeyboardFocus();
-    });
+    juce::MessageManager::callAsync (
+        [this]
+        {
+            // Fire window events for initial state — addListener doesn't replay.
+            // Uses the SAME event handlers as VTPC hot-reload (DRY/SSOT).
+            auto endTree { config.state.getChildWithName (IDtype::end) };
+            events.get (ID::gpu, endTree);
+            events.get (ID::alwaysOnTop, endTree);
+            events.get (ID::titleBarButtons, endTree);
+            grabKeyboardFocus();
+        });
+
+    //==============================================================================
 }
 
 View::~View()
@@ -100,4 +103,4 @@ void View::setTabOrientation()
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
-} // namespace end
+}// namespace end

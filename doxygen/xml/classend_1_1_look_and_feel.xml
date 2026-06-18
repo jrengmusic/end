@@ -140,7 +140,7 @@
         <name>stampInstance</name>
         <qualifiedname>end::LookAndFeel::stampInstance</qualifiedname>
         <briefdescription>
-<para>Rendering-context style table — self-registers as <ref refid="structjam_1_1Context_1a3ff553f70ef61043352c54cfed475b4c" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Stamp::getInstance()</ref>. </para>
+<para>Rendering-context style table — self-registers as <ref refid="structjam_1_1Instance_1ad5d2bbb58e37d8d260b428b334823140" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Stamp::getInstance()</ref>. </para>
         </briefdescription>
         <detaileddescription>
         </detaileddescription>
@@ -155,7 +155,7 @@
         <name>graphemeInstance</name>
         <qualifiedname>end::LookAndFeel::graphemeInstance</qualifiedname>
         <briefdescription>
-<para>Rendering-context grapheme cluster table — self-registers as <ref refid="structjam_1_1Context_1a3ff553f70ef61043352c54cfed475b4c" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Grapheme::getInstance()</ref>. </para>
+<para>Rendering-context grapheme cluster table — self-registers as <ref refid="structjam_1_1Instance_1ad5d2bbb58e37d8d260b428b334823140" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Grapheme::getInstance()</ref>. </para>
         </briefdescription>
         <detaileddescription>
         </detaileddescription>
@@ -169,7 +169,7 @@
         <argsstring></argsstring>
         <name>config</name>
         <qualifiedname>end::LookAndFeel::config</qualifiedname>
-        <initializer>{ *<ref refid="structjam_1_1Context_1a3ff553f70ef61043352c54cfed475b4c" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">config::Model::getInstance</ref>() }</initializer>
+        <initializer>{ *<ref refid="structjam_1_1Instance_1ad5d2bbb58e37d8d260b428b334823140" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">config::Model::getInstance</ref>() }</initializer>
         <briefdescription>
 <para>Singleton config model reference — source for theme path and top-level config values. </para>
         </briefdescription>
@@ -670,7 +670,7 @@
         <references refid="structjam_1_1ID_1ad0061fc64dd7485a0e5d200e51f8a42d">jam::ID::background</references>
         <references refid="classjam_1_1LookAndFeel_1_1Methods_1a35099ab751a0c7ad31bf460715ccaad3">jam::LookAndFeel::Methods&lt; LookAndFeel &gt;::contains</references>
         <references refid="structjam_1_1map_1_1WindowFX_1a9f4ce746cfa3b8b96510a7d499c27f29">jam::map::WindowFX::get</references>
-        <references refid="structjam_1_1Context_1a3ff553f70ef61043352c54cfed475b4c">jam::Context&lt; Derived &gt;::getInstance</references>
+        <references refid="structjam_1_1Instance_1ad5d2bbb58e37d8d260b428b334823140">jam::Instance&lt; Derived &gt;::getInstance</references>
         <references refid="structjam_1_1Union_1a1ea5d51075b691d9e08a751836b4cd88">jam::Union&lt; juce::Colour, int16_t, int16_t &gt;::pack</references>
         <references refid="classend_1_1_look_and_feel_1a14affae1205191d2a4c0c2f989d909c3" compoundref="_look_and_feel_8h" startline="177" endline="177">theme</references>
         <references refid="classjam_1_1Model_1a996fa3b0c8889e5c5280ca29dcd281e4">jam::Model::toColour</references>
@@ -755,8 +755,8 @@
         <references refid="classjam_1_1LookAndFeel_1_1Methods_1a63619a9724f5b272deeb330155a8b0b1">jam::LookAndFeel::Methods&lt; LookAndFeel &gt;::colourMap</references>
         <references refid="classjuce_1_1File_1a57b992aacb19e09ee5905cd0f0e9bb31">juce::File::getChildFile</references>
         <references refid="structjam_1_1Format_1a2b0e4c817d4ed554673421a4ce452201">jam::Format::getFilenameWithoutExtension</references>
-        <references refid="structjam_1_1Context_1a3ff553f70ef61043352c54cfed475b4c">jam::Context&lt; Derived &gt;::getInstance</references>
-        <references refid="structconfig_1_1_file_1_1_theme_1a1a4f485d0cd842d77061933a01b1a55c" compoundref="_map_8h" startline="215" endline="218">config::File::Theme::getPath</references>
+        <references refid="structjam_1_1Instance_1ad5d2bbb58e37d8d260b428b334823140">jam::Instance&lt; Derived &gt;::getInstance</references>
+        <references refid="structconfig_1_1_file_1_1_theme_1a1a4f485d0cd842d77061933a01b1a55c" compoundref="_bimap_8h" startline="215" endline="218">config::File::Theme::getPath</references>
         <references refid="structjam_1_1SVG_1_1Flex_1a6003db70f3df7bef11c0b7bacdd92bb2">jam::SVG::Flex::getSegments</references>
         <references refid="classend_1_1_look_and_feel_1afecd477f3e694f5abd9b809e06125d2d" compoundref="_look_and_feel_8h" startline="200">graphics</references>
         <references refid="structjam_1_1IDref_1aa73fb0ae4fb0b8c627f2e2f9e34c79a1">jam::IDref::graphics</references>
@@ -1170,14 +1170,6 @@
         <childnode refid="38" relation="public-inheritance">
         </childnode>
       </node>
-      <node id="44">
-        <label>jam::Context&lt; Derived &gt;</label>
-        <link refid="structjam_1_1Context" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-      </node>
-      <node id="64">
-        <label>jam::Context&lt; Model &gt;</label>
-        <link refid="structjam_1_1Context" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-      </node>
       <node id="66">
         <label>jam::File::Watcher</label>
         <link refid="structjam_1_1File_1_1Watcher" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
@@ -1252,6 +1244,14 @@
       <node id="79">
         <label>jam::HashMap&lt; juce::String, juce::ReferenceCountedObjectPtr&lt; Typeface &gt; &gt;</label>
         <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
+      <node id="44">
+        <label>jam::Instance&lt; Derived &gt;</label>
+        <link refid="structjam_1_1Instance" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
+      <node id="64">
+        <label>jam::Instance&lt; Model &gt;</label>
+        <link refid="structjam_1_1Instance" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
       <node id="3">
         <label>jam::LookAndFeel::Custom</label>

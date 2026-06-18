@@ -4,6 +4,14 @@
     <compoundname>LookAndFeel.cpp</compoundname>
     <includes refid="_look_and_feel_8h" local="yes">LookAndFeel.h</includes>
     <incdepgraph>
+      <node id="7">
+        <label>../Bimap.h</label>
+        <link refid="_bimap_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
       <node id="5">
         <label>Identifier.h</label>
         <link refid="_identifier_8h"/>
@@ -16,14 +24,6 @@
         <childnode refid="3" relation="include">
         </childnode>
         <childnode refid="7" relation="include">
-        </childnode>
-      </node>
-      <node id="7">
-        <label>../end/Map.h</label>
-        <link refid="_map_8h"/>
-        <childnode refid="3" relation="include">
-        </childnode>
-        <childnode refid="5" relation="include">
         </childnode>
       </node>
       <node id="1">
@@ -218,7 +218,7 @@
 <codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/><ref refid="juce__UnityPluginInterface_8h_1a010e50efcb9d6d393b9414f09f368dbc" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">name</ref><sp/>{<sp/><ref refid="classend_1_1_look_and_feel_1a14affae1205191d2a4c0c2f989d909c3" kindref="member">theme</ref>.getValue<sp/>(IDtype::windowFx,<sp/>ID::win).toString()<sp/>};</highlight></codeline>
 <codeline lineno="160"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="161"><highlight class="normal"></highlight></codeline>
-<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="structjam_1_1Context_1a3ff553f70ef61043352c54cfed475b4c" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::map::WindowFX::getInstance</ref>()-&gt;<ref refid="classjam_1_1LookAndFeel_1_1Methods_1a35099ab751a0c7ad31bf460715ccaad3" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">contains</ref><sp/>(<ref refid="juce__UnityPluginInterface_8h_1a010e50efcb9d6d393b9414f09f368dbc" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">name</ref>))</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="structjam_1_1Instance_1ad5d2bbb58e37d8d260b428b334823140" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::map::WindowFX::getInstance</ref>()-&gt;<ref refid="classjam_1_1LookAndFeel_1_1Methods_1a35099ab751a0c7ad31bf460715ccaad3" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">contains</ref><sp/>(<ref refid="juce__UnityPluginInterface_8h_1a010e50efcb9d6d393b9414f09f368dbc" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">name</ref>))</highlight></codeline>
 <codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fx<sp/>=<sp/><ref refid="structjam_1_1map_1_1WindowFX_1a9f4ce746cfa3b8b96510a7d499c27f29" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::map::WindowFX::get</ref><sp/>(<ref refid="juce__UnityPluginInterface_8h_1a010e50efcb9d6d393b9414f09f368dbc" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">name</ref>);</highlight></codeline>
 <codeline lineno="164"><highlight class="normal"></highlight></codeline>
 <codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="structjam_1_1Union_1a1ea5d51075b691d9e08a751836b4cd88" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">Glass::pack</ref><sp/>(colour,<sp/>blur,<sp/>fx);</highlight></codeline>

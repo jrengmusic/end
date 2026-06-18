@@ -2,49 +2,11 @@
 <doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
   <compounddef id="namespaceshader" kind="namespace" language="C++">
     <compoundname>shader</compoundname>
-    <innerclass refid="structshader_1_1_compiler" prot="public">shader::Compiler</innerclass>
     <innerclass refid="structshader_1_1_controller" prot="public">shader::Controller</innerclass>
-    <innerclass refid="structshader_1_1_quad" prot="public">shader::Quad</innerclass>
-    <sectiondef kind="var">
-      <memberdef kind="variable" id="namespaceshader_1aeecf5f29466b536d41ae0a584e099c53" prot="public" static="yes" constexpr="yes" mutable="no">
-        <type>int</type>
-        <definition>int shader::viewportWidth</definition>
-        <argsstring></argsstring>
-        <name>viewportWidth</name>
-        <qualifiedname>shader::viewportWidth</qualifiedname>
-        <initializer>{ 2 }</initializer>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="shader/Controller.cpp" line="8" column="22" bodyfile="shader/Controller.cpp" bodystart="8" bodyend="8"/>
-        <referencedby refid="structshader_1_1_controller_1a3d374a76e1c128b739b98107c2f413c8" compoundref="_controller_8cpp" startline="191" endline="223">shader::Controller::loadShaders</referencedby>
-        <referencedby refid="structshader_1_1_controller_1a98c779a896ffd3370fb064665b81e8b6" compoundref="_controller_8cpp" startline="84" endline="153">shader::Controller::render</referencedby>
-      </memberdef>
-      <memberdef kind="variable" id="namespaceshader_1ad5d899b6af682678124cc1d99720d3b6" prot="public" static="yes" constexpr="yes" mutable="no">
-        <type>int</type>
-        <definition>int shader::viewportHeight</definition>
-        <argsstring></argsstring>
-        <name>viewportHeight</name>
-        <qualifiedname>shader::viewportHeight</qualifiedname>
-        <initializer>{ 3 }</initializer>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="shader/Controller.cpp" line="9" column="22" bodyfile="shader/Controller.cpp" bodystart="9" bodyend="9"/>
-        <referencedby refid="structshader_1_1_controller_1a3d374a76e1c128b739b98107c2f413c8" compoundref="_controller_8cpp" startline="191" endline="223">shader::Controller::loadShaders</referencedby>
-        <referencedby refid="structshader_1_1_controller_1a98c779a896ffd3370fb064665b81e8b6" compoundref="_controller_8cpp" startline="84" endline="153">shader::Controller::render</referencedby>
-      </memberdef>
-    </sectiondef>
     <briefdescription>
     </briefdescription>
     <detaileddescription>
     </detaileddescription>
-    <location file="shader/Compiler.cpp" line="3" column="1"/>
+    <location file="shader/Controller.cpp" line="3" column="1"/>
   </compounddef>
 </doxygen>

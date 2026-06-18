@@ -2,298 +2,69 @@
 <doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
   <compounddef id="structshader_1_1_pass" kind="struct" language="C++" prot="public">
     <compoundname>shader::Pass</compoundname>
-    <includes refid="_pass_8h" local="no">Pass.h</includes>
-    <sectiondef kind="private-attrib">
-      <memberdef kind="variable" id="structshader_1_1_pass_1a63169c457ee0596ff988c5fb87a3cdbe" prot="private" static="no" mutable="no">
+    <includes refid="_compiler_8h" local="no">Compiler.h</includes>
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structshader_1_1_pass_1a63169c457ee0596ff988c5fb87a3cdbe" prot="public" static="no" mutable="no">
         <type>std::unique_ptr&lt; <ref refid="classjuce_1_1OpenGLShaderProgram" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::OpenGLShaderProgram</ref> &gt;</type>
         <definition>std::unique_ptr&lt;juce::OpenGLShaderProgram&gt; shader::Pass::program</definition>
         <argsstring></argsstring>
         <name>program</name>
         <qualifiedname>shader::Pass::program</qualifiedname>
         <briefdescription>
+<para>Compiled, linked shader program. </para>
         </briefdescription>
         <detaileddescription>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="shader/Pass.h" line="61" column="21" bodyfile="shader/Pass.h" bodystart="61" bodyend="-1"/>
-        <referencedby refid="structshader_1_1_pass_1af67411e5658785759c900808b548e962" compoundref="_pass_8cpp" startline="10" endline="46">compile</referencedby>
-        <referencedby refid="structshader_1_1_pass_1a43f2b127108dacafb851a6072531e4ba" compoundref="_pass_8h" startline="55" endline="55">isLoaded</referencedby>
-        <referencedby refid="structshader_1_1_pass_1a3d29fb27aa8d3fb3373513a86bff28e5" compoundref="_pass_8cpp" startline="72" endline="75">release</referencedby>
-        <referencedby refid="structshader_1_1_pass_1ad4ba68255c49b2235c6c0b1710d97364" compoundref="_pass_8cpp" startline="49" endline="69">render</referencedby>
+        <location file="shader/Compiler.h" line="66" column="36" bodyfile="shader/Compiler.h" bodystart="66" bodyend="-1"/>
+        <referencedby refid="structshader_1_1_compiler_1adee5f8ed1b195826f783d1224c8077f7" compoundref="_compiler_8cpp" startline="30" endline="77">shader::Compiler::buildPass</referencedby>
+        <referencedby refid="structshader_1_1_controller_1a26e7fc88bb224bdc3281414288f6e19a" compoundref="_controller_8cpp" startline="171" endline="180">shader::Controller::drawPass</referencedby>
       </memberdef>
-      <memberdef kind="variable" id="structshader_1_1_pass_1ae71acfe52aa9c93b5ba47654a85302ad" prot="private" static="no" mutable="no">
-        <type><ref refid="juce__gl_8h_1a5ac0f3c4d7fafd42b284b5487a791017" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GLint</ref></type>
-        <definition>GLint shader::Pass::locResolution</definition>
+      <memberdef kind="variable" id="structshader_1_1_pass_1a81c716a70ca99a223f496f0a32b55633" prot="public" static="no" mutable="no">
+        <type>std::optional&lt; <ref refid="structshader_1_1_swap_chain" kindref="compound">SwapChain</ref> &gt;</type>
+        <definition>std::optional&lt;SwapChain&gt; shader::Pass::fbos</definition>
         <argsstring></argsstring>
-        <name>locResolution</name>
-        <qualifiedname>shader::Pass::locResolution</qualifiedname>
-        <initializer>{ -1 }</initializer>
+        <name>fbos</name>
+        <qualifiedname>shader::Pass::fbos</qualifiedname>
         <briefdescription>
+<para>Ping-pong FBO storage. </para>
         </briefdescription>
         <detaileddescription>
+<para>std::nullopt for screen pass (image). </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="shader/Pass.h" line="64" column="11" bodyfile="shader/Pass.h" bodystart="64" bodyend="64"/>
-        <referencedby refid="structshader_1_1_pass_1af67411e5658785759c900808b548e962" compoundref="_pass_8cpp" startline="10" endline="46">compile</referencedby>
-        <referencedby refid="structshader_1_1_pass_1ad4ba68255c49b2235c6c0b1710d97364" compoundref="_pass_8cpp" startline="49" endline="69">render</referencedby>
+        <location file="shader/Compiler.h" line="68" column="52" bodyfile="shader/Compiler.h" bodystart="68" bodyend="-1"/>
+        <referencedby refid="structshader_1_1_controller_1ad7197a891a2a6990151c91e31fd41c59" compoundref="_controller_8cpp" startline="196" endline="233">shader::Controller::loadShaders</referencedby>
       </memberdef>
-      <memberdef kind="variable" id="structshader_1_1_pass_1a1bd69ca7ba0d5c8642f7e0b38795bf5f" prot="private" static="no" mutable="no">
-        <type><ref refid="juce__gl_8h_1a5ac0f3c4d7fafd42b284b5487a791017" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GLint</ref></type>
-        <definition>GLint shader::Pass::locTime</definition>
+      <memberdef kind="variable" id="structshader_1_1_pass_1ae88bcd557ee0a1c8ccc04b02d113b65e" prot="public" static="no" mutable="no">
+        <type>std::function&lt; void(float, float, float, float, int)&gt;</type>
+        <definition>std::function&lt;void (float, float, float, float, int)&gt; shader::Pass::setUniforms</definition>
         <argsstring></argsstring>
-        <name>locTime</name>
-        <qualifiedname>shader::Pass::locTime</qualifiedname>
-        <initializer>{ -1 }</initializer>
+        <name>setUniforms</name>
+        <qualifiedname>shader::Pass::setUniforms</qualifiedname>
         <briefdescription>
+<para>Baked uniform setter — captures active <ref refid="juce__gl_8h_1a5ac0f3c4d7fafd42b284b5487a791017" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GLint</ref> locations at build time. </para>
         </briefdescription>
         <detaileddescription>
+<para>Signature: (width, height, time, timeDelta, frame). Inactive uniforms are GL no-ops (location -1 silently ignored). </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="shader/Pass.h" line="65" column="11" bodyfile="shader/Pass.h" bodystart="65" bodyend="65"/>
-        <referencedby refid="structshader_1_1_pass_1af67411e5658785759c900808b548e962" compoundref="_pass_8cpp" startline="10" endline="46">compile</referencedby>
-        <referencedby refid="structshader_1_1_pass_1ad4ba68255c49b2235c6c0b1710d97364" compoundref="_pass_8cpp" startline="49" endline="69">render</referencedby>
-      </memberdef>
-      <memberdef kind="variable" id="structshader_1_1_pass_1a439d35703ee1a8a96b1e6b0f853dbcb8" prot="private" static="no" mutable="no">
-        <type><ref refid="juce__gl_8h_1a5ac0f3c4d7fafd42b284b5487a791017" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GLint</ref></type>
-        <definition>GLint shader::Pass::locTimeDelta</definition>
-        <argsstring></argsstring>
-        <name>locTimeDelta</name>
-        <qualifiedname>shader::Pass::locTimeDelta</qualifiedname>
-        <initializer>{ -1 }</initializer>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="shader/Pass.h" line="66" column="11" bodyfile="shader/Pass.h" bodystart="66" bodyend="66"/>
-        <referencedby refid="structshader_1_1_pass_1af67411e5658785759c900808b548e962" compoundref="_pass_8cpp" startline="10" endline="46">compile</referencedby>
-        <referencedby refid="structshader_1_1_pass_1ad4ba68255c49b2235c6c0b1710d97364" compoundref="_pass_8cpp" startline="49" endline="69">render</referencedby>
-      </memberdef>
-      <memberdef kind="variable" id="structshader_1_1_pass_1ae4255b2111ad15fc37ec761e6f0dfb8d" prot="private" static="no" mutable="no">
-        <type><ref refid="juce__gl_8h_1a5ac0f3c4d7fafd42b284b5487a791017" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GLint</ref></type>
-        <definition>GLint shader::Pass::locFrame</definition>
-        <argsstring></argsstring>
-        <name>locFrame</name>
-        <qualifiedname>shader::Pass::locFrame</qualifiedname>
-        <initializer>{ -1 }</initializer>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="shader/Pass.h" line="67" column="11" bodyfile="shader/Pass.h" bodystart="67" bodyend="67"/>
-        <referencedby refid="structshader_1_1_pass_1af67411e5658785759c900808b548e962" compoundref="_pass_8cpp" startline="10" endline="46">compile</referencedby>
-        <referencedby refid="structshader_1_1_pass_1ad4ba68255c49b2235c6c0b1710d97364" compoundref="_pass_8cpp" startline="49" endline="69">render</referencedby>
-      </memberdef>
-    </sectiondef>
-    <sectiondef kind="public-func">
-      <memberdef kind="function" id="structshader_1_1_pass_1af67411e5658785759c900808b548e962" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type><ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref></type>
-        <definition>juce::String shader::Pass::compile</definition>
-        <argsstring>(const juce::String &amp;source, const juce::String &amp;vertexShader, juce::OpenGLContext &amp;context)</argsstring>
-        <name>compile</name>
-        <qualifiedname>shader::Pass::compile</qualifiedname>
-        <param>
-          <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref> &amp;</type>
-          <declname>source</declname>
-        </param>
-        <param>
-          <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref> &amp;</type>
-          <declname>vertexShader</declname>
-        </param>
-        <param>
-          <type><ref refid="classjuce_1_1OpenGLContext" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::OpenGLContext</ref> &amp;</type>
-          <declname>context</declname>
-        </param>
-        <briefdescription>
-<para>Compiles a Shadertoy fragment shader. </para>
-        </briefdescription>
-        <detaileddescription>
-<para>Wraps the user source with the uniform block (shadertoy_uniforms.frag) and mainImage bridge (shadertoy_main.frag) from <ref refid="namespaceBinaryData" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">BinaryData</ref>, translates to GL v3, and links with the quad&apos;s vertex shader.</para>
-<para><parameterlist kind="param"><parameteritem>
-<parameternamelist>
-<parametername>source</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>Raw user fragment shader (contains mainImage). </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>vertexShader</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>Translated vertex shader from <ref refid="structshader_1_1_quad_1ab1f77e75665b604f5b7afe0bd4da6614" kindref="member">Quad::getVertexShader()</ref>. </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>context</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>The active OpenGL context. </para>
-</parameterdescription>
-</parameteritem>
-</parameterlist>
-<simplesect kind="return"><para>Empty string on success, error message on failure. </para>
-</simplesect>
-</para>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="shader/Pass.h" line="38" column="18" bodyfile="shader/Pass.cpp" bodystart="10" bodyend="46"/>
-        <references refid="namespaceBinaryData_1ac7695032563aaf6d03ebfc469298bb1a">BinaryData::getString</references>
-        <references refid="namespacejuce_1_1gl_1a82ea9960a13967b6d101b365352caaae">juce::gl::glGetUniformLocation</references>
-        <references refid="structshader_1_1_pass_1ae4255b2111ad15fc37ec761e6f0dfb8d" compoundref="_pass_8h" startline="67" endline="67">locFrame</references>
-        <references refid="structshader_1_1_pass_1ae71acfe52aa9c93b5ba47654a85302ad" compoundref="_pass_8h" startline="64" endline="64">locResolution</references>
-        <references refid="structshader_1_1_pass_1a1bd69ca7ba0d5c8642f7e0b38795bf5f" compoundref="_pass_8h" startline="65" endline="65">locTime</references>
-        <references refid="structshader_1_1_pass_1a439d35703ee1a8a96b1e6b0f853dbcb8" compoundref="_pass_8h" startline="66" endline="66">locTimeDelta</references>
-        <references refid="structshader_1_1_pass_1a63169c457ee0596ff988c5fb87a3cdbe" compoundref="_pass_8h" startline="61">program</references>
-        <references refid="classjuce_1_1OpenGLHelpers_1a110eb5f992b5f6ef8eb0e32c0809fb77">juce::OpenGLHelpers::translateFragmentShaderToV3</references>
-      </memberdef>
-      <memberdef kind="function" id="structshader_1_1_pass_1ad4ba68255c49b2235c6c0b1710d97364" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type>void</type>
-        <definition>void shader::Pass::render</definition>
-        <argsstring>(Quad &amp;quad, int width, int height, float time, float timeDelta, int frame)</argsstring>
-        <name>render</name>
-        <qualifiedname>shader::Pass::render</qualifiedname>
-        <param>
-          <type><ref refid="structshader_1_1_quad" kindref="compound">Quad</ref> &amp;</type>
-          <declname>quad</declname>
-        </param>
-        <param>
-          <type>int</type>
-          <declname>width</declname>
-        </param>
-        <param>
-          <type>int</type>
-          <declname>height</declname>
-        </param>
-        <param>
-          <type>float</type>
-          <declname>time</declname>
-        </param>
-        <param>
-          <type>float</type>
-          <declname>timeDelta</declname>
-        </param>
-        <param>
-          <type>int</type>
-          <declname>frame</declname>
-        </param>
-        <briefdescription>
-<para>Renders the pass — sets Shadertoy minimum uniforms and draws the quad. </para>
-        </briefdescription>
-        <detaileddescription>
-<para><parameterlist kind="param"><parameteritem>
-<parameternamelist>
-<parametername>quad</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>Shared fullscreen quad geometry. </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>width</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>Viewport width in pixels (for iResolution). </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>height</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>Viewport height in pixels. </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>time</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>Seconds since context created (iTime). </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>timeDelta</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>Seconds since last frame (iTimeDelta). </para>
-</parameterdescription>
-</parameteritem>
-<parameteritem>
-<parameternamelist>
-<parametername>frame</parametername>
-</parameternamelist>
-<parameterdescription>
-<para>Frame counter (iFrame). </para>
-</parameterdescription>
-</parameteritem>
-</parameterlist>
-</para>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="shader/Pass.h" line="51" column="10" bodyfile="shader/Pass.cpp" bodystart="49" bodyend="69"/>
-        <references refid="structshader_1_1_quad_1a67729686a31a58bd02578f473136734f" compoundref="_quad_8cpp" startline="41" endline="55">shader::Quad::draw</references>
-        <references refid="namespacejuce_1_1gl_1a7fe359cc1002df073f44d7f81987d1e5">juce::gl::glUniform1f</references>
-        <references refid="namespacejuce_1_1gl_1a7ec8253ba57f5e3544dc5acc50a811e8">juce::gl::glUniform1i</references>
-        <references refid="namespacejuce_1_1gl_1af9c4c1c20468e3a3c1630a8a0e5d64e5">juce::gl::glUniform3f</references>
-        <references refid="structshader_1_1_pass_1ae4255b2111ad15fc37ec761e6f0dfb8d" compoundref="_pass_8h" startline="67" endline="67">locFrame</references>
-        <references refid="structshader_1_1_pass_1ae71acfe52aa9c93b5ba47654a85302ad" compoundref="_pass_8h" startline="64" endline="64">locResolution</references>
-        <references refid="structshader_1_1_pass_1a1bd69ca7ba0d5c8642f7e0b38795bf5f" compoundref="_pass_8h" startline="65" endline="65">locTime</references>
-        <references refid="structshader_1_1_pass_1a439d35703ee1a8a96b1e6b0f853dbcb8" compoundref="_pass_8h" startline="66" endline="66">locTimeDelta</references>
-        <references refid="structshader_1_1_pass_1a63169c457ee0596ff988c5fb87a3cdbe" compoundref="_pass_8h" startline="61">program</references>
-      </memberdef>
-      <memberdef kind="function" id="structshader_1_1_pass_1a43f2b127108dacafb851a6072531e4ba" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
-        <type>bool</type>
-        <definition>bool shader::Pass::isLoaded</definition>
-        <argsstring>() const noexcept</argsstring>
-        <name>isLoaded</name>
-        <qualifiedname>shader::Pass::isLoaded</qualifiedname>
-        <briefdescription>
-<para>Returns true if a program is compiled and linked. </para>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="shader/Pass.h" line="55" column="10" bodyfile="shader/Pass.h" bodystart="55" bodyend="55"/>
-        <references refid="structshader_1_1_pass_1a63169c457ee0596ff988c5fb87a3cdbe" compoundref="_pass_8h" startline="61">program</references>
-      </memberdef>
-      <memberdef kind="function" id="structshader_1_1_pass_1a3d29fb27aa8d3fb3373513a86bff28e5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type>void</type>
-        <definition>void shader::Pass::release</definition>
-        <argsstring>()</argsstring>
-        <name>release</name>
-        <qualifiedname>shader::Pass::release</qualifiedname>
-        <briefdescription>
-<para>Releases the compiled program. </para>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="shader/Pass.h" line="58" column="10" bodyfile="shader/Pass.cpp" bodystart="72" bodyend="75"/>
-        <references refid="structshader_1_1_pass_1a63169c457ee0596ff988c5fb87a3cdbe" compoundref="_pass_8h" startline="61">program</references>
+        <location file="shader/Compiler.h" line="73" column="23" bodyfile="shader/Compiler.h" bodystart="73" bodyend="-1"/>
+        <referencedby refid="structshader_1_1_compiler_1adee5f8ed1b195826f783d1224c8077f7" compoundref="_compiler_8cpp" startline="30" endline="77">shader::Compiler::buildPass</referencedby>
+        <referencedby refid="structshader_1_1_controller_1a26e7fc88bb224bdc3281414288f6e19a" compoundref="_controller_8cpp" startline="171" endline="180">shader::Controller::drawPass</referencedby>
       </memberdef>
     </sectiondef>
     <briefdescription>
-<para>One compiled Shadertoy-compatible shader pass. </para>
+<para>Render-ready shader bundle — built at load time, used at render time. </para>
     </briefdescription>
     <detaileddescription>
-<para>Owns an OpenGLShaderProgram, caches the Shadertoy minimum uniform locations (iResolution, iTime, iTimeDelta, iFrame), and draws a fullscreen quad per render call.</para>
-<para><ref refid="structshader_1_1_pass_1af67411e5658785759c900808b548e962" kindref="member">compile()</ref> prepends shadertoy_uniforms.frag and appends shadertoy_main.frag from <ref refid="namespaceBinaryData" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">BinaryData</ref>, then translates via OpenGLHelpers::translateFragmentShaderToV3 for GL version portability.</para>
-<para>Thread contract: ALL methods GL THREAD only. </para>
+<para><ref refid="structshader_1_1_pass" kindref="compound">Pass</ref> is the shader pipeline&apos;s equivalent of Segments in the LAF graphics pipeline: where Segments is a paint-ready SVG bundle produced by getSegments(), <ref refid="structshader_1_1_pass" kindref="compound">Pass</ref> is a render-ready shader bundle produced by <ref refid="structshader_1_1_compiler_1adee5f8ed1b195826f783d1224c8077f7" kindref="member">Compiler::buildPass()</ref>. Both are dumb data — no machinery state.</para>
+<para>program owns the linked shader. setUniforms is a baked dispatch function: all active <ref refid="juce__gl_8h_1a5ac0f3c4d7fafd42b284b5487a791017" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">GLint</ref> locations are captured by value in the lambda closure at build time (<ref refid="structshader_1_1_compiler_1adee5f8ed1b195826f783d1224c8077f7" kindref="member">Compiler::buildPass</ref>). Inactive uniforms (location -1) are GL no-ops — the if-checks inside setUniforms are baked at build time, not per-frame null guards. No <ref refid="structjuce_1_1OpenGLShaderProgram_1_1Uniform" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::OpenGLShaderProgram::Uniform</ref> objects are used — those assert on inactive uniforms.</para>
+<para>fbos is std::nullopt for the screen pass (ID::image) and a <ref refid="structshader_1_1_swap_chain" kindref="compound">SwapChain</ref> for buffer passes (ID::bufferA..D). <ref refid="structshader_1_1_swap_chain" kindref="compound">SwapChain</ref> owns and releases its FBOs.</para>
+<para>Thread contract: GL THREAD only. </para>
     </detaileddescription>
     <collaborationgraph>
       <node id="3">
@@ -314,17 +85,11 @@
         </childnode>
       </node>
     </collaborationgraph>
-    <location file="shader/Pass.h" line="25" column="1" bodyfile="shader/Pass.h" bodystart="26" bodyend="68"/>
+    <location file="shader/Compiler.h" line="63" column="1" bodyfile="shader/Compiler.h" bodystart="64" bodyend="74"/>
     <listofallmembers>
-      <member refid="structshader_1_1_pass_1af67411e5658785759c900808b548e962" prot="public" virt="non-virtual"><scope>shader::Pass</scope><name>compile</name></member>
-      <member refid="structshader_1_1_pass_1a43f2b127108dacafb851a6072531e4ba" prot="public" virt="non-virtual"><scope>shader::Pass</scope><name>isLoaded</name></member>
-      <member refid="structshader_1_1_pass_1ae4255b2111ad15fc37ec761e6f0dfb8d" prot="private" virt="non-virtual"><scope>shader::Pass</scope><name>locFrame</name></member>
-      <member refid="structshader_1_1_pass_1ae71acfe52aa9c93b5ba47654a85302ad" prot="private" virt="non-virtual"><scope>shader::Pass</scope><name>locResolution</name></member>
-      <member refid="structshader_1_1_pass_1a1bd69ca7ba0d5c8642f7e0b38795bf5f" prot="private" virt="non-virtual"><scope>shader::Pass</scope><name>locTime</name></member>
-      <member refid="structshader_1_1_pass_1a439d35703ee1a8a96b1e6b0f853dbcb8" prot="private" virt="non-virtual"><scope>shader::Pass</scope><name>locTimeDelta</name></member>
-      <member refid="structshader_1_1_pass_1a63169c457ee0596ff988c5fb87a3cdbe" prot="private" virt="non-virtual"><scope>shader::Pass</scope><name>program</name></member>
-      <member refid="structshader_1_1_pass_1a3d29fb27aa8d3fb3373513a86bff28e5" prot="public" virt="non-virtual"><scope>shader::Pass</scope><name>release</name></member>
-      <member refid="structshader_1_1_pass_1ad4ba68255c49b2235c6c0b1710d97364" prot="public" virt="non-virtual"><scope>shader::Pass</scope><name>render</name></member>
+      <member refid="structshader_1_1_pass_1a81c716a70ca99a223f496f0a32b55633" prot="public" virt="non-virtual"><scope>shader::Pass</scope><name>fbos</name></member>
+      <member refid="structshader_1_1_pass_1a63169c457ee0596ff988c5fb87a3cdbe" prot="public" virt="non-virtual"><scope>shader::Pass</scope><name>program</name></member>
+      <member refid="structshader_1_1_pass_1ae88bcd557ee0a1c8ccc04b02d113b65e" prot="public" virt="non-virtual"><scope>shader::Pass</scope><name>setUniforms</name></member>
     </listofallmembers>
   </compounddef>
 </doxygen>

@@ -13,6 +13,14 @@
     <includedby refid="look_and_feel_2_event_registration_8cpp" local="yes">lookAndFeel/EventRegistration.cpp</includedby>
     <includedby refid="_look_and_feel_8cpp" local="yes">lookAndFeel/LookAndFeel.cpp</includedby>
     <incdepgraph>
+      <node id="6">
+        <label>../Bimap.h</label>
+        <link refid="_bimap_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
       <node id="4">
         <label>Identifier.h</label>
         <link refid="_identifier_8h"/>
@@ -25,14 +33,6 @@
         <childnode refid="2" relation="include">
         </childnode>
         <childnode refid="6" relation="include">
-        </childnode>
-      </node>
-      <node id="6">
-        <label>../end/Map.h</label>
-        <link refid="_map_8h"/>
-        <childnode refid="2" relation="include">
-        </childnode>
-        <childnode refid="4" relation="include">
         </childnode>
       </node>
       <node id="1">
@@ -214,7 +214,7 @@
 <codeline lineno="169"><highlight class="normal"></highlight></codeline>
 <codeline lineno="171" refid="classend_1_1_look_and_feel_1ae9738a335c02bce7d7088c307dfde79a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structjam_1_1Grapheme" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Grapheme</ref><sp/><ref refid="classend_1_1_look_and_feel_1ae9738a335c02bce7d7088c307dfde79a" kindref="member">graphemeInstance</ref>;</highlight></codeline>
 <codeline lineno="172"><highlight class="normal"></highlight></codeline>
-<codeline lineno="174" refid="classend_1_1_look_and_feel_1a9f5a36b2e39117101eef6cc2210af64a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classconfig_1_1_model" kindref="compound">config::Model</ref>&amp;<sp/><ref refid="namespaceconfig" kindref="compound">config</ref><sp/>{<sp/>*<ref refid="structjam_1_1Context_1a3ff553f70ef61043352c54cfed475b4c" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">config::Model::getInstance</ref>()<sp/>};</highlight></codeline>
+<codeline lineno="174" refid="classend_1_1_look_and_feel_1a9f5a36b2e39117101eef6cc2210af64a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classconfig_1_1_model" kindref="compound">config::Model</ref>&amp;<sp/><ref refid="namespaceconfig" kindref="compound">config</ref><sp/>{<sp/>*<ref refid="structjam_1_1Instance_1ad5d2bbb58e37d8d260b428b334823140" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">config::Model::getInstance</ref>()<sp/>};</highlight></codeline>
 <codeline lineno="175"><highlight class="normal"></highlight></codeline>
 <codeline lineno="177" refid="classend_1_1_look_and_feel_1a14affae1205191d2a4c0c2f989d909c3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classconfig_1_1_theme" kindref="compound">config::Theme</ref>&amp;<sp/><ref refid="classend_1_1_look_and_feel_1a14affae1205191d2a4c0c2f989d909c3" kindref="member">theme</ref><sp/>{<sp/><ref refid="namespaceconfig" kindref="compound">config</ref>.getTheme()<sp/>};</highlight></codeline>
 <codeline lineno="178"><highlight class="normal"></highlight></codeline>

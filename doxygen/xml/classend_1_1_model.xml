@@ -136,6 +136,7 @@
       <member refid="classjam_1_1Model_1a0c6c6dcf22bdf37d65dced08a8dcdefc" prot="public" virt="non-virtual"><scope>end::Model</scope><name>findAndRemoveChild</name></member>
       <member refid="classjam_1_1Model_1a9eb2e927e025645e46609f37aa6f9304" prot="public" virt="non-virtual"><scope>end::Model</scope><name>flush</name></member>
       <member refid="classjam_1_1Model_1aaa8b722daed8928b8d587ec30662ac34" prot="private" virt="non-virtual"><scope>end::Model</scope><name>flushHz</name></member>
+      <member refid="classjam_1_1Model_1a56d070d548e85df035e527312421f5bf" prot="public" virt="non-virtual"><scope>end::Model</scope><name>forEachProperty</name></member>
       <member refid="classjam_1_1Model_1ada224019e4715d61684005a054d351e9" prot="public" virt="non-virtual"><scope>end::Model</scope><name>fromLua</name></member>
       <member refid="classjam_1_1Model_1af9ab05d8b04c75750fc69f8ad1225caa" prot="public" virt="non-virtual"><scope>end::Model</scope><name>fromLua</name></member>
       <member refid="classjam_1_1Model_1af021749d77eff216e06c20cb123a719a" prot="public" virt="non-virtual"><scope>end::Model</scope><name>fromLua</name></member>

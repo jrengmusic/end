@@ -21,48 +21,49 @@
 // ============================================================================
 
 // Config + theme section and tree type names
-#define IDENTIFIER_CONFIG(X) \
-    X (config, "config")     \
-    X (end, "end")           \
-    X (keys, "keys")         \
-    X (popups, "popups")     \
-    X (whelmed, "whelmed")   \
-    X (graphics, "graphics") \
-    X (loadMessage, "load_message") \
-    X (theme, "theme")       \
-    X (themes, "themes")        \
-    X (ansi, "ansi")            \
-    X (scrollbar, "scrollbar")  \
-    X (hint, "hint")            \
+#define IDENTIFIER_CONFIG(X)                 \
+    X (config, "config")                     \
+    X (init, "init")                         \
+    X (end, "end")                           \
+    X (keys, "keys")                         \
+    X (popups, "popups")                     \
+    X (whelmed, "whelmed")                   \
+    X (graphics, "graphics")                 \
+    X (loadMessage, "load_message")          \
+    X (theme, "theme")                       \
+    X (themes, "themes")                     \
+    X (ansi, "ansi")                         \
+    X (scrollbar, "scrollbar")               \
+    X (hint, "hint")                         \
     X (titleBarButtons, "title_bar_buttons") \
     X (saveWindowState, "save_window_state")
 
 // Keys shared across multiple config sections (not in jam::ID)
-#define IDENTIFIER_COMMON(X)                \
-    X (position, "position")               \
-    X (orientation, "orientation")         \
-    X (inactive, "inactive")               \
-    X (active, "active")                   \
-    X (scrollbarWidth, "scrollbar_width")  \
-    X (resizeBar, "resize_bar")            \
+#define IDENTIFIER_COMMON(X)                       \
+    X (position, "position")                       \
+    X (orientation, "orientation")                 \
+    X (inactive, "inactive")                       \
+    X (active, "active")                           \
+    X (scrollbarWidth, "scrollbar_width")          \
+    X (resizeBar, "resize_bar")                    \
     X (resizeBarHighlight, "resize_bar_highlight") \
     X (resizeBarThickness, "resize_bar_thickness") \
-    X (borderColour, "border_colour")      \
-    X (borderWidth, "border_width")        \
-    X (scrollbackLines, "scrollback_lines")\
-    X (scrollStep, "scroll_step")          \
-    X (cols, "cols")                       \
-    X (rows, "rows")                       \
-    X (scrollbarThumb, "scrollbar_thumb")  \
+    X (borderColour, "border_colour")              \
+    X (borderWidth, "border_width")                \
+    X (scrollbackLines, "scrollback_lines")        \
+    X (scrollStep, "scroll_step")                  \
+    X (cols, "cols")                               \
+    X (rows, "rows")                               \
+    X (scrollbarThumb, "scrollbar_thumb")          \
     X (scrollbarTrack, "scrollbar_track")
 
 // Theme-specific keys (theme tree property and type names)
-#define IDENTIFIER_THEME(X)                      \
+#define IDENTIFIER_THEME(X)                        \
     X (tab, "tab")                                 \
     X (tabBar, "tab_bar")                          \
     X (tabButton, "tab_button")                    \
     X (tabHighlight, "tab_highlight")              \
-    X (resizerBar, "resizer_bar")                   \
+    X (resizerBar, "resizer_bar")                  \
     X (tabs, "tabs")                               \
     X (pane, "pane")                               \
     X (window, "window")                           \
@@ -131,9 +132,9 @@
     X (textOn, "text_on")                          \
     X (textOff, "text_off")                        \
     X (buttonOn, "button_on")                      \
-    X (uppercase, "uppercase")        \
-    X (depth, "depth")                \
-    X (kerningFactor, "kerning_factor") \
+    X (uppercase, "uppercase")                     \
+    X (depth, "depth")                             \
+    X (kerningFactor, "kerning_factor")            \
     X (textPadding, "text_padding")
 
 // Key binding names (keys.lua)
@@ -177,7 +178,7 @@
     X (selectionBottom, "selection_bottom")            \
     X (selectionLineStart, "selection_line_start")     \
     X (selectionLineEnd, "selection_line_end")         \
-    X (selectionExit, "selection_exit")              \
+    X (selectionExit, "selection_exit")                \
     X (scrollDown, "scroll_down")                      \
     X (scrollUp, "scroll_up")                          \
     X (scrollTop, "scroll_top")                        \
@@ -186,10 +187,10 @@
 // Application runtime keys (end.lua sections) — excludes jam::ID: editor ("editor"),
 // cwd ("cwd"), image ("image"), mode ("mode"), interval ("interval")
 // jam::gpu has string "GPU" (uppercase) — "gpu" (lowercase) is a distinct lua key, declared here
-#define IDENTIFIER_APP(X)                                    \
-    X (gpu, "gpu")                                             \
-    X (shaders, "shaders")                                     \
-    X (daemon, "daemon")                                       \
+#define IDENTIFIER_APP(X)                 \
+    X (gpu, "gpu")                        \
+    X (shaders, "shaders")                \
+    X (daemon, "daemon")                  \
     X (autoReload, "auto_reload")         \
     X (shell, "shell")                    \
     X (program, "program")                \
@@ -259,19 +260,25 @@
 // common ("Common") and image ("Image") shadow jam::ID lowercase versions intentionally —
 // these match the Shadertoy on-disk filenames (uppercase first letter).
 // background shadows jam::ID::background intentionally — END's ID struct is separate from jam::ID.
-#define IDENTIFIER_SHADER(X)                         \
-    X (iResolution, "iResolution")                    \
-    X (iTime, "iTime")                                \
-    X (iTimeDelta, "iTimeDelta")                      \
-    X (iFrame, "iFrame")                              \
-    X (common, "Common")                              \
-    X (image, "Image")                                \
-    X (bufferA, "BufferA")                            \
-    X (bufferB, "BufferB")                            \
-    X (bufferC, "BufferC")                            \
-    X (bufferD, "BufferD")                            \
-    X (background, "background")                      \
-    X (backgroundOpacity, "background_opacity")       \
+// iChannel0..3 mirror the GLSL uniform keyword names declared in Source/shaders/shader.frag —
+// the C++ side uses them as iChannel slot identifiers (config::File::Shaders::Buffer).
+#define IDENTIFIER_SHADER(X)                    \
+    X (iResolution, "iResolution")              \
+    X (iTime, "iTime")                          \
+    X (iTimeDelta, "iTimeDelta")                \
+    X (iFrame, "iFrame")                        \
+    X (iChannel0, "iChannel0")                  \
+    X (iChannel1, "iChannel1")                  \
+    X (iChannel2, "iChannel2")                  \
+    X (iChannel3, "iChannel3")                  \
+    X (common, "Common")                        \
+    X (image, "Image")                          \
+    X (bufferA, "BufferA")                      \
+    X (bufferB, "BufferB")                      \
+    X (bufferC, "BufferC")                      \
+    X (bufferD, "BufferD")                      \
+    X (background, "background")                \
+    X (backgroundOpacity, "background_opacity") \
     X (postProcessing, "post_processing")
 
 // Platform + BackgroundBlur WindowFX keys (theme.lua / window.window_fx)
@@ -309,7 +316,7 @@
         IDENTIFIER_ACTIONS (EXPANDER)     \
         IDENTIFIER_WHELMED (EXPANDER)     \
         IDENTIFIER_BACKEND (EXPANDER)     \
-        IDENTIFIER_SHADER (EXPANDER)     \
+        IDENTIFIER_SHADER (EXPANDER)      \
         IDENTIFIER_MODEL (EXPANDER)       \
     };
 

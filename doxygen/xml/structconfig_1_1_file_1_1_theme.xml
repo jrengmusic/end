@@ -2,14 +2,14 @@
 <doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
   <compounddef id="structconfig_1_1_file_1_1_theme" kind="struct" language="C++" prot="public">
     <compoundname>config::File::Theme</compoundname>
-    <basecompoundref refid="classjam_1_1Map_1_1Instance" prot="public" virt="non-virtual">jam::Map::Instance&lt; Theme &gt;</basecompoundref>
-    <includes refid="_map_8h" local="no">Map.h</includes>
+    <basecompoundref refid="classjam_1_1Bimap" prot="public" virt="non-virtual">jam::Bimap&lt; Theme &gt;</basecompoundref>
+    <includes refid="_bimap_8h" local="no">Bimap.h</includes>
     <sectiondef kind="public-type">
-      <memberdef kind="enum" id="structconfig_1_1_file_1_1_theme_1a1d33497232e79d9f30bf579bb7e4e841" prot="public" static="no" strong="no">
+      <memberdef kind="enum" id="structconfig_1_1_file_1_1_theme_1aed8d18c860b42b7f2dcef824eed49117" prot="public" static="no" strong="no">
         <type></type>
-        <name>@055153075055103264106323356060260105123354243130</name>
-        <qualifiedname>config::File::Theme::@055153075055103264106323356060260105123354243130</qualifiedname>
-        <enumvalue id="structconfig_1_1_file_1_1_theme_1a1d33497232e79d9f30bf579bb7e4e841ae8458505754c846a3811711c799dd94e" prot="public">
+        <name>@263360076026324050176213317250306302236257051256</name>
+        <qualifiedname>config::File::Theme::@263360076026324050176213317250306302236257051256</qualifiedname>
+        <enumvalue id="structconfig_1_1_file_1_1_theme_1aed8d18c860b42b7f2dcef824eed49117ae8458505754c846a3811711c799dd94e" prot="public">
           <name>theme</name>
           <briefdescription>
 <para>Visual properties (colours, fonts, metrics, graphics). </para>
@@ -17,7 +17,7 @@
           <detaileddescription>
           </detaileddescription>
         </enumvalue>
-        <enumvalue id="structconfig_1_1_file_1_1_theme_1a1d33497232e79d9f30bf579bb7e4e841ab297a878b9ea3a2f06aa1e1f3116042f" prot="public">
+        <enumvalue id="structconfig_1_1_file_1_1_theme_1aed8d18c860b42b7f2dcef824eed49117ab297a878b9ea3a2f06aa1e1f3116042f" prot="public">
           <name>whelmed</name>
           <briefdescription>
 <para>Whelmed markdown renderer styles. </para>
@@ -32,7 +32,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="184" column="9" bodyfile="end/Map.h" bodystart="185" bodyend="188"/>
+        <location file="Bimap.h" line="184" column="9" bodyfile="Bimap.h" bodystart="185" bodyend="188"/>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-static-attrib">
@@ -50,8 +50,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="221" column="40" bodyfile="end/Map.h" bodystart="221" bodyend="221"/>
-        <referencedby refid="structconfig_1_1_file_1_1_theme_1a1a4f485d0cd842d77061933a01b1a55c" compoundref="_map_8h" startline="215" endline="218">getPath</referencedby>
+        <location file="Bimap.h" line="221" column="40" bodyfile="Bimap.h" bodystart="221" bodyend="221"/>
+        <referencedby refid="structconfig_1_1_file_1_1_theme_1a1a4f485d0cd842d77061933a01b1a55c" compoundref="_bimap_8h" startline="215" endline="218">getPath</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structconfig_1_1_file_1_1_theme_1a3a58c2e9641b37c1e6c2c4f7f3ff96c5" prot="public" static="yes" mutable="no">
         <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref></type>
@@ -67,8 +67,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="223" column="42" bodyfile="end/Map.h" bodystart="223" bodyend="223"/>
-        <referencedby refid="structconfig_1_1_file_1_1_theme_1aae7b0309384b8333ee5d8daa47406edb" compoundref="_map_8h" startline="206" endline="209">getName</referencedby>
+        <location file="Bimap.h" line="223" column="42" bodyfile="Bimap.h" bodystart="223" bodyend="223"/>
+        <referencedby refid="structconfig_1_1_file_1_1_theme_1aae7b0309384b8333ee5d8daa47406edb" compoundref="_bimap_8h" startline="206" endline="209">getName</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">
@@ -85,10 +85,10 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="191" column="9" bodyfile="end/Map.h" bodystart="191" bodyend="197"/>
-        <references refid="classjam_1_1Map_1_1Instance_1afe0acf25bab1f104aea20f20174129d1">jam::Map::Instance&lt; Theme &gt;::map</references>
-        <references refid="structconfig_1_1_file_1_1_theme_1a1d33497232e79d9f30bf579bb7e4e841ae8458505754c846a3811711c799dd94e" compoundref="_map_8h" startline="186">theme</references>
-        <references refid="structconfig_1_1_file_1_1_theme_1a1d33497232e79d9f30bf579bb7e4e841ab297a878b9ea3a2f06aa1e1f3116042f" compoundref="_map_8h" startline="187">whelmed</references>
+        <location file="Bimap.h" line="191" column="9" bodyfile="Bimap.h" bodystart="191" bodyend="197"/>
+        <references refid="classjam_1_1Bimap_1a9e17f006e09559363aa2352f78477e8e">jam::Bimap&lt; Theme &gt;::map</references>
+        <references refid="structconfig_1_1_file_1_1_theme_1aed8d18c860b42b7f2dcef824eed49117ae8458505754c846a3811711c799dd94e" compoundref="_bimap_8h" startline="186">theme</references>
+        <references refid="structconfig_1_1_file_1_1_theme_1aed8d18c860b42b7f2dcef824eed49117ab297a878b9ea3a2f06aa1e1f3116042f" compoundref="_bimap_8h" startline="187">whelmed</references>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-static-func">
@@ -105,11 +105,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="200" column="27" bodyfile="end/Map.h" bodystart="200" bodyend="200"/>
-        <references refid="structjam_1_1Context_1a3ff553f70ef61043352c54cfed475b4c">jam::Context&lt; Derived &gt;::getInstance</references>
-        <referencedby refid="structconfig_1_1_file_1_1_theme_1aae7b0309384b8333ee5d8daa47406edb" compoundref="_map_8h" startline="206" endline="209">getName</referencedby>
+        <location file="Bimap.h" line="200" column="27" bodyfile="Bimap.h" bodystart="200" bodyend="200"/>
+        <references refid="structjam_1_1Instance_1ad5d2bbb58e37d8d260b428b334823140">jam::Instance&lt; Derived &gt;::getInstance</references>
+        <referencedby refid="structconfig_1_1_file_1_1_theme_1aae7b0309384b8333ee5d8daa47406edb" compoundref="_bimap_8h" startline="206" endline="209">getName</referencedby>
         <referencedby refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" compoundref="_config_8cpp" startline="39" endline="84">config::Model::initialise</referencedby>
-        <referencedby refid="classconfig_1_1_theme_1ad1c552afe63e04ce01d6479bdd197996" compoundref="_config_8cpp" startline="286" endline="318">config::Theme::load</referencedby>
+        <referencedby refid="classconfig_1_1_theme_1ad1c552afe63e04ce01d6479bdd197996" compoundref="_config_8cpp" startline="282" endline="314">config::Theme::load</referencedby>
       </memberdef>
       <memberdef kind="function" id="structconfig_1_1_file_1_1_theme_1aae7b0309384b8333ee5d8daa47406edb" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
         <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref></type>
@@ -140,12 +140,12 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="206" column="35" bodyfile="end/Map.h" bodystart="206" bodyend="209"/>
-        <references refid="structconfig_1_1_file_1_1_theme_1a3a58c2e9641b37c1e6c2c4f7f3ff96c5" compoundref="_map_8h" startline="223" endline="223">extension</references>
-        <references refid="structconfig_1_1_file_1_1_theme_1a259522514f9d57dccbffc3e3f1349a7f" compoundref="_map_8h" startline="200" endline="200">get</references>
+        <location file="Bimap.h" line="206" column="35" bodyfile="Bimap.h" bodystart="206" bodyend="209"/>
+        <references refid="structconfig_1_1_file_1_1_theme_1a3a58c2e9641b37c1e6c2c4f7f3ff96c5" compoundref="_bimap_8h" startline="223" endline="223">extension</references>
+        <references refid="structconfig_1_1_file_1_1_theme_1a259522514f9d57dccbffc3e3f1349a7f" compoundref="_bimap_8h" startline="200" endline="200">get</references>
         <references refid="structjam_1_1Format_1a838b7c56ce7913ab2b4471148a1019cd">jam::Format::toFileName</references>
         <referencedby refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" compoundref="_config_8cpp" startline="39" endline="84">config::Model::initialise</referencedby>
-        <referencedby refid="classconfig_1_1_theme_1ad1c552afe63e04ce01d6479bdd197996" compoundref="_config_8cpp" startline="286" endline="318">config::Theme::load</referencedby>
+        <referencedby refid="classconfig_1_1_theme_1ad1c552afe63e04ce01d6479bdd197996" compoundref="_config_8cpp" startline="282" endline="314">config::Theme::load</referencedby>
       </memberdef>
       <memberdef kind="function" id="structconfig_1_1_file_1_1_theme_1a1a4f485d0cd842d77061933a01b1a55c" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
         <type>const <ref refid="classjuce_1_1File" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::File</ref></type>
@@ -176,9 +176,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="215" column="33" bodyfile="end/Map.h" bodystart="215" bodyend="218"/>
-        <references refid="structconfig_1_1_file_1_1_theme_1a9c704922e3f4af999c084142d0da1661" compoundref="_map_8h" startline="221" endline="221">path</references>
-        <referencedby refid="classconfig_1_1_theme_1ad1c552afe63e04ce01d6479bdd197996" compoundref="_config_8cpp" startline="286" endline="318">config::Theme::load</referencedby>
+        <location file="Bimap.h" line="215" column="33" bodyfile="Bimap.h" bodystart="215" bodyend="218"/>
+        <references refid="structconfig_1_1_file_1_1_theme_1a9c704922e3f4af999c084142d0da1661" compoundref="_bimap_8h" startline="221" endline="221">path</references>
+        <referencedby refid="classconfig_1_1_theme_1ad1c552afe63e04ce01d6479bdd197996" compoundref="_config_8cpp" startline="282" endline="314">config::Theme::load</referencedby>
         <referencedby refid="classend_1_1_look_and_feel_1a6bac0b983ceeffd331beb5262030dbe8" compoundref="look_and_feel_2_event_registration_8cpp" startline="85" endline="120">end::LookAndFeel::loadGraphics</referencedby>
         <referencedby refid="classconfig_1_1_model_1acad607c8136bcc115ffeae9d47869e26" compoundref="_config_8cpp" startline="87" endline="145">config::Model::saveToPath</referencedby>
         <referencedby refid="classconfig_1_1_model_1abd7d146ee9fede8da7f5f0678faed50e" compoundref="_config_8cpp" startline="222" endline="231">config::Model::startWatcher</referencedby>
@@ -191,25 +191,25 @@
         <argsstring>() const noexcept override</argsstring>
         <name>getDefault</name>
         <qualifiedname>config::File::Theme::getDefault</qualifiedname>
-        <reimplements refid="classjam_1_1Map_1_1Instance_1acf3bf9980fc2a26ba7a0c79c65908550">getDefault</reimplements>
+        <reimplements refid="classjam_1_1Bimap_1ad13260eca8ba349ebf22d814085a3d86">getDefault</reimplements>
         <briefdescription>
         </briefdescription>
         <detaileddescription>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="226" column="28" bodyfile="end/Map.h" bodystart="226" bodyend="226"/>
-        <references refid="classjam_1_1Map_1_1Instance_1afe0acf25bab1f104aea20f20174129d1">jam::Map::Instance&lt; Theme &gt;::map</references>
-        <references refid="structconfig_1_1_file_1_1_theme_1a1d33497232e79d9f30bf579bb7e4e841ae8458505754c846a3811711c799dd94e" compoundref="_map_8h" startline="186">theme</references>
+        <location file="Bimap.h" line="226" column="28" bodyfile="Bimap.h" bodystart="226" bodyend="226"/>
+        <references refid="classjam_1_1Bimap_1a9e17f006e09559363aa2352f78477e8e">jam::Bimap&lt; Theme &gt;::map</references>
+        <references refid="structconfig_1_1_file_1_1_theme_1aed8d18c860b42b7f2dcef824eed49117ae8458505754c846a3811711c799dd94e" compoundref="_bimap_8h" startline="186">theme</references>
       </memberdef>
     </sectiondef>
     <briefdescription>
 <para>Registry of theme directory files — 2 section keys. </para>
     </briefdescription>
     <detaileddescription>
-<para>Nested inside <ref refid="structconfig_1_1_file" kindref="compound">File</ref>. CRTP-derived from <ref refid="classjam_1_1Map_1_1Instance" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Map::Instance&lt;Theme&gt;</ref>.</para>
+<para>Nested inside <ref refid="structconfig_1_1_file" kindref="compound">File</ref>. CRTP-derived from <ref refid="classjam_1_1Bimap" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Bimap&lt;Theme&gt;</ref>.</para>
 <para>Maps each enum key to its Identifier stem and resolves the on-disk filename via <ref refid="structconfig_1_1_file_1_1_theme_1aae7b0309384b8333ee5d8daa47406edb" kindref="member">getName()</ref>. All keys produce &quot;stem.lua&quot;.</para>
-<para>Owns the themes root directory path. The live instance is owned by <ref refid="classend_1_1_application" kindref="compound">end::Application</ref> — static <ref refid="structconfig_1_1_file_1_1_theme_1a259522514f9d57dccbffc3e3f1349a7f" kindref="member">get()</ref> resolves through Context&lt;Theme&gt;. </para>
+<para>Owns the themes root directory path. The live instance is owned by <ref refid="classend_1_1_application" kindref="compound">end::Application</ref> — static <ref refid="structconfig_1_1_file_1_1_theme_1a259522514f9d57dccbffc3e3f1349a7f" kindref="member">get()</ref> resolves through Instance&lt;Theme&gt;. </para>
     </detaileddescription>
     <inheritancegraph>
       <node id="1">
@@ -218,15 +218,15 @@
         <childnode refid="2" relation="public-inheritance">
         </childnode>
       </node>
-      <node id="3">
-        <label>jam::Context&lt; Derived &gt;</label>
-        <link refid="structjam_1_1Context" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-      </node>
       <node id="2">
-        <label>jam::Map::Instance&lt; Theme &gt;</label>
-        <link refid="classjam_1_1Map_1_1Instance" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <label>jam::Bimap&lt; Theme &gt;</label>
+        <link refid="classjam_1_1Bimap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
         <childnode refid="3" relation="public-inheritance">
         </childnode>
+      </node>
+      <node id="3">
+        <label>jam::Instance&lt; Derived &gt;</label>
+        <link refid="structjam_1_1Instance" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
     </inheritancegraph>
     <collaborationgraph>
@@ -235,59 +235,61 @@
         <link refid="structconfig_1_1_file_1_1_theme"/>
         <childnode refid="2" relation="public-inheritance">
         </childnode>
-        <childnode refid="5" relation="usage">
+        <childnode refid="6" relation="usage">
           <edgelabel>path</edgelabel>
         </childnode>
-        <childnode refid="6" relation="usage">
+        <childnode refid="5" relation="usage">
           <edgelabel>extension</edgelabel>
         </childnode>
       </node>
-      <node id="3">
-        <label>jam::Context&lt; Derived &gt;</label>
-        <link refid="structjam_1_1Context" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-      </node>
-      <node id="4">
-        <label>jam::HashMap&lt; int, juce::String &gt;</label>
-        <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-      </node>
       <node id="2">
-        <label>jam::Map::Instance&lt; Theme &gt;</label>
-        <link refid="classjam_1_1Map_1_1Instance" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <label>jam::Bimap&lt; Theme &gt;</label>
+        <link refid="classjam_1_1Bimap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
         <childnode refid="3" relation="public-inheritance">
         </childnode>
         <childnode refid="4" relation="usage">
           <edgelabel>map</edgelabel>
         </childnode>
       </node>
-      <node id="5">
+      <node id="3">
+        <label>jam::Instance&lt; Derived &gt;</label>
+        <link refid="structjam_1_1Instance" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
+      <node id="6">
         <label>juce::File</label>
         <link refid="classjuce_1_1File" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="6">
+      <node id="5">
         <label>juce::String</label>
         <link refid="classjuce_1_1String" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
+      <node id="4">
+        <label>std::map&lt; int, juce::String &gt;</label>
+        <childnode refid="5" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
     </collaborationgraph>
-    <location file="end/Map.h" line="181" column="5" bodyfile="end/Map.h" bodystart="182" bodyend="227"/>
+    <location file="Bimap.h" line="181" column="5" bodyfile="Bimap.h" bodystart="182" bodyend="227"/>
     <listofallmembers>
-      <member refid="classjam_1_1Map_1_1Instance_1a39231f6d1e13c6f64e72a07851a130c4" prot="public" virt="non-virtual"><scope>config::File::Theme</scope><name>contains</name></member>
-      <member refid="structjam_1_1Context_1a6e3f38a234db8ff2a9acb5986e72a2de" prot="public" virt="non-virtual"><scope>config::File::Theme</scope><name>Context</name></member>
+      <member refid="classjam_1_1Bimap_1a3396307cd01cc5b2171954585f05aef2" prot="public" virt="non-virtual"><scope>config::File::Theme</scope><name>contains</name></member>
       <member refid="structconfig_1_1_file_1_1_theme_1a3a58c2e9641b37c1e6c2c4f7f3ff96c5" prot="public" virt="non-virtual"><scope>config::File::Theme</scope><name>extension</name></member>
       <member refid="structconfig_1_1_file_1_1_theme_1a259522514f9d57dccbffc3e3f1349a7f" prot="public" virt="non-virtual"><scope>config::File::Theme</scope><name>get</name></member>
-      <member refid="classjam_1_1Map_1_1Instance_1a098abe8fd166d7d61763bf0d215799cd" prot="public" virt="non-virtual" ambiguityscope="jam::Map::Instance&lt; Theme &gt;::"><scope>config::File::Theme</scope><name>get</name></member>
+      <member refid="classjam_1_1Bimap_1a0af1da30e2ad9caf0420dea9b49fde54" prot="public" virt="non-virtual" ambiguityscope="jam::Bimap&lt; Theme &gt;::"><scope>config::File::Theme</scope><name>get</name></member>
       <member refid="structconfig_1_1_file_1_1_theme_1ad29079fd8162a12911ec9cbda0b77498" prot="private" virt="virtual"><scope>config::File::Theme</scope><name>getDefault</name></member>
-      <member refid="structjam_1_1Context_1a3ff553f70ef61043352c54cfed475b4c" prot="public" virt="non-virtual"><scope>config::File::Theme</scope><name>getInstance</name></member>
+      <member refid="structjam_1_1Instance_1ad5d2bbb58e37d8d260b428b334823140" prot="public" virt="non-virtual"><scope>config::File::Theme</scope><name>getInstance</name></member>
       <member refid="structconfig_1_1_file_1_1_theme_1aae7b0309384b8333ee5d8daa47406edb" prot="public" virt="non-virtual"><scope>config::File::Theme</scope><name>getName</name></member>
       <member refid="structconfig_1_1_file_1_1_theme_1a1a4f485d0cd842d77061933a01b1a55c" prot="public" virt="non-virtual"><scope>config::File::Theme</scope><name>getPath</name></member>
-      <member refid="structjam_1_1Context_1a5900ff66cdba02d6f6947cc6d5e8ec3d" prot="private" virt="non-virtual"><scope>config::File::Theme</scope><name>head</name></member>
-      <member refid="classjam_1_1Map_1_1Instance_1afe0acf25bab1f104aea20f20174129d1" prot="protected" virt="non-virtual"><scope>config::File::Theme</scope><name>map</name></member>
-      <member refid="structjam_1_1Context_1a6716feb60b039083ca0c099a506a3474" prot="public" virt="non-virtual"><scope>config::File::Theme</scope><name>operator=</name></member>
+      <member refid="structjam_1_1Instance_1a719a3eec42d68f1566de6b5dcd34589a" prot="private" virt="non-virtual"><scope>config::File::Theme</scope><name>head</name></member>
+      <member refid="structjam_1_1Instance_1a85529c50c3424e8b843fa92fa2f9c4da" prot="public" virt="non-virtual"><scope>config::File::Theme</scope><name>Instance</name></member>
+      <member refid="classjam_1_1Bimap_1a9e17f006e09559363aa2352f78477e8e" prot="protected" virt="non-virtual"><scope>config::File::Theme</scope><name>map</name></member>
+      <member refid="structjam_1_1Instance_1a8bcf431bb53fe6432585a139f6bc562d" prot="public" virt="non-virtual"><scope>config::File::Theme</scope><name>operator=</name></member>
       <member refid="structconfig_1_1_file_1_1_theme_1a9c704922e3f4af999c084142d0da1661" prot="public" virt="non-virtual"><scope>config::File::Theme</scope><name>path</name></member>
-      <member refid="structjam_1_1Context_1aa1862120f2983ab7ddef536ba03bb114" prot="private" virt="non-virtual"><scope>config::File::Theme</scope><name>previous</name></member>
+      <member refid="structjam_1_1Instance_1af12a7073f28131cc327baa99fc5745d8" prot="private" virt="non-virtual"><scope>config::File::Theme</scope><name>previous</name></member>
       <member refid="structconfig_1_1_file_1_1_theme_1a74911505d8097349de91a2ec34442677" prot="public" virt="non-virtual"><scope>config::File::Theme</scope><name>Theme</name></member>
-      <member refid="structconfig_1_1_file_1_1_theme_1a1d33497232e79d9f30bf579bb7e4e841ae8458505754c846a3811711c799dd94e" prot="public" virt="non-virtual"><scope>config::File::Theme</scope><name>theme</name></member>
-      <member refid="structconfig_1_1_file_1_1_theme_1a1d33497232e79d9f30bf579bb7e4e841ab297a878b9ea3a2f06aa1e1f3116042f" prot="public" virt="non-virtual"><scope>config::File::Theme</scope><name>whelmed</name></member>
-      <member refid="structjam_1_1Context_1a4169820e71837632922d3d17b377aeee" prot="public" virt="virtual"><scope>config::File::Theme</scope><name>~Context</name></member>
+      <member refid="structconfig_1_1_file_1_1_theme_1aed8d18c860b42b7f2dcef824eed49117ae8458505754c846a3811711c799dd94e" prot="public" virt="non-virtual"><scope>config::File::Theme</scope><name>theme</name></member>
+      <member refid="structconfig_1_1_file_1_1_theme_1aed8d18c860b42b7f2dcef824eed49117ab297a878b9ea3a2f06aa1e1f3116042f" prot="public" virt="non-virtual"><scope>config::File::Theme</scope><name>whelmed</name></member>
+      <member refid="structjam_1_1Instance_1a6d091bd7f9bfd134ba3c831c8a3b04a3" prot="public" virt="virtual"><scope>config::File::Theme</scope><name>~Instance</name></member>
     </listofallmembers>
   </compounddef>
 </doxygen>

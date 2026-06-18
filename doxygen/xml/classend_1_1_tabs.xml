@@ -13,7 +13,7 @@
         <argsstring></argsstring>
         <name>config</name>
         <qualifiedname>end::Tabs::config</qualifiedname>
-        <initializer>{ *<ref refid="structjam_1_1Context_1a3ff553f70ef61043352c54cfed475b4c" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">config::Model::getInstance</ref>() }</initializer>
+        <initializer>{ *<ref refid="structjam_1_1Instance_1ad5d2bbb58e37d8d260b428b334823140" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">config::Model::getInstance</ref>() }</initializer>
         <briefdescription>
         </briefdescription>
         <detaileddescription>
@@ -328,10 +328,6 @@
           <edgelabel>types</edgelabel>
         </childnode>
       </node>
-      <node id="30">
-        <label>jam::Context&lt; Model &gt;</label>
-        <link refid="structjam_1_1Context" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-      </node>
       <node id="32">
         <label>jam::File::Watcher</label>
         <link refid="structjam_1_1File_1_1Watcher" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
@@ -382,6 +378,10 @@
       <node id="25">
         <label>jam::HashMap&lt; juce::Identifier, std::unique_ptr&lt; void, Deleter &gt; &gt;</label>
         <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
+      <node id="30">
+        <label>jam::Instance&lt; Model &gt;</label>
+        <link refid="structjam_1_1Instance" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
       <node id="22">
         <label>jam::Model</label>

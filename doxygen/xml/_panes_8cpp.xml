@@ -5,6 +5,14 @@
     <includes refid="_panes_8h" local="yes">end/Panes.h</includes>
     <includes refid="_config_8h" local="yes">config/Config.h</includes>
     <incdepgraph>
+      <node id="7">
+        <label>../Bimap.h</label>
+        <link refid="_bimap_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
       <node id="5">
         <label>Identifier.h</label>
         <link refid="_identifier_8h"/>
@@ -17,14 +25,6 @@
         <childnode refid="3" relation="include">
         </childnode>
         <childnode refid="7" relation="include">
-        </childnode>
-      </node>
-      <node id="7">
-        <label>../end/Map.h</label>
-        <link refid="_map_8h"/>
-        <childnode refid="3" relation="include">
-        </childnode>
-        <childnode refid="5" relation="include">
         </childnode>
       </node>
       <node id="4">
@@ -75,7 +75,7 @@
 <codeline lineno="12"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classjuce_1_1Component_1a190b586046ade66445e0ed23c2e9587f" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">setComponentID</ref><sp/>(uuid.<ref refid="structjam_1_1UUID_1aba00ad53671cb51fff70db9f742f43b0" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">toString</ref>());</highlight></codeline>
 <codeline lineno="13"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structjam_1_1Model_1_1Component_1a708164c4ae3e826d1c3ee90dbcf1afa3" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">state</ref>.setProperty<sp/>(<ref refid="structjam_1_1ID_1a2f2ee05e76603e24f721a5ad93fe4795" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::ID::name</ref>,<sp/><ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref><sp/>{},<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">);</highlight></codeline>
 <codeline lineno="14"><highlight class="normal"></highlight></codeline>
-<codeline lineno="15"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>thickness<sp/>{<sp/><ref refid="structjam_1_1Context_1a3ff553f70ef61043352c54cfed475b4c" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">config::Model::getInstance</ref>()-&gt;getTheme().getValue<sp/>(IDtype::pane,<sp/>ID::resizeBarThickness)<sp/>};</highlight></codeline>
+<codeline lineno="15"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>thickness<sp/>{<sp/><ref refid="structjam_1_1Instance_1ad5d2bbb58e37d8d260b428b334823140" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">config::Model::getInstance</ref>()-&gt;getTheme().getValue<sp/>(IDtype::pane,<sp/>ID::resizeBarThickness)<sp/>};</highlight></codeline>
 <codeline lineno="16"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classend_1_1_panes_1ac5e63314ccd3b2561cb9da6eeadcb707" kindref="member">paneManager</ref>.setResizerBarSize<sp/>(thickness);</highlight></codeline>
 <codeline lineno="17"><highlight class="normal"></highlight></codeline>
 <codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>pane<sp/>{<sp/>std::make_unique&lt;PaneView&gt;<sp/>(uuid,<sp/><ref refid="structjam_1_1Model_1_1Component_1aa5a0c333addf975536c95bca7a9685be" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">model</ref>)<sp/>};</highlight></codeline>

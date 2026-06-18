@@ -1,0 +1,140 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="structshader_1_1_swap_chain" kind="struct" language="C++" prot="public">
+    <compoundname>shader::SwapChain</compoundname>
+    <includes refid="_compiler_8h" local="no">Compiler.h</includes>
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structshader_1_1_swap_chain_1a575e3c823a40ce5e3d82574cc2a5cee0" prot="public" static="no" mutable="no">
+        <type>std::array&lt; std::unique_ptr&lt; <ref refid="classjuce_1_1OpenGLFrameBuffer" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::OpenGLFrameBuffer</ref> &gt;, 2 &gt;</type>
+        <definition>std::array&lt;std::unique_ptr&lt;juce::OpenGLFrameBuffer&gt;, 2&gt; shader::SwapChain::fbos</definition>
+        <argsstring></argsstring>
+        <name>fbos</name>
+        <qualifiedname>shader::SwapChain::fbos</qualifiedname>
+        <briefdescription>
+<para>The two FBO instances — ping and pong. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="shader/Compiler.h" line="31" column="18" bodyfile="shader/Compiler.h" bodystart="31" bodyend="-1"/>
+        <referencedby refid="structshader_1_1_swap_chain_1a3ffe7cd89471fb18730f0a6d5449d3f7" compoundref="_compiler_8h" startline="36" endline="36">read</referencedby>
+        <referencedby refid="structshader_1_1_swap_chain_1a41b1ec1cdaed8dd1775d9adb73d56e97" compoundref="_compiler_8h" startline="38" endline="38">write</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structshader_1_1_swap_chain_1a5277bcecaceb235ef1e79c06832cbbea" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int shader::SwapChain::index</definition>
+        <argsstring></argsstring>
+        <name>index</name>
+        <qualifiedname>shader::SwapChain::index</qualifiedname>
+        <initializer>{ 0 }</initializer>
+        <briefdescription>
+<para>Index of the &quot;read&quot; FBO (the previous frame&apos;s write). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>0 or 1. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="shader/Compiler.h" line="33" column="63" bodyfile="shader/Compiler.h" bodystart="33" bodyend="33"/>
+        <referencedby refid="structshader_1_1_swap_chain_1ab690dc5817b2d5bf8eea829ed8786710" compoundref="_compiler_8h" startline="40" endline="40">flip</referencedby>
+        <referencedby refid="structshader_1_1_swap_chain_1a3ffe7cd89471fb18730f0a6d5449d3f7" compoundref="_compiler_8h" startline="36" endline="36">read</referencedby>
+        <referencedby refid="structshader_1_1_swap_chain_1a41b1ec1cdaed8dd1775d9adb73d56e97" compoundref="_compiler_8h" startline="38" endline="38">write</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="public-func">
+      <memberdef kind="function" id="structshader_1_1_swap_chain_1a3ffe7cd89471fb18730f0a6d5449d3f7" prot="public" static="no" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type><ref refid="classjuce_1_1OpenGLFrameBuffer" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::OpenGLFrameBuffer</ref> &amp;</type>
+        <definition>juce::OpenGLFrameBuffer &amp; shader::SwapChain::read</definition>
+        <argsstring>() noexcept</argsstring>
+        <name>read</name>
+        <qualifiedname>shader::SwapChain::read</qualifiedname>
+        <briefdescription>
+<para>Returns the FBO the shader will sample (previous frame&apos;s output). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="shader/Compiler.h" line="36" column="29" bodyfile="shader/Compiler.h" bodystart="36" bodyend="36"/>
+        <references refid="structshader_1_1_swap_chain_1a575e3c823a40ce5e3d82574cc2a5cee0" compoundref="_compiler_8h" startline="31">fbos</references>
+        <references refid="structshader_1_1_swap_chain_1a5277bcecaceb235ef1e79c06832cbbea" compoundref="_compiler_8h" startline="33" endline="33">index</references>
+      </memberdef>
+      <memberdef kind="function" id="structshader_1_1_swap_chain_1a41b1ec1cdaed8dd1775d9adb73d56e97" prot="public" static="no" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type><ref refid="classjuce_1_1OpenGLFrameBuffer" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::OpenGLFrameBuffer</ref> &amp;</type>
+        <definition>juce::OpenGLFrameBuffer &amp; shader::SwapChain::write</definition>
+        <argsstring>() noexcept</argsstring>
+        <name>write</name>
+        <qualifiedname>shader::SwapChain::write</qualifiedname>
+        <briefdescription>
+<para>Returns the FBO the shader will render to (this frame&apos;s output). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="shader/Compiler.h" line="38" column="29" bodyfile="shader/Compiler.h" bodystart="38" bodyend="38"/>
+        <references refid="structshader_1_1_swap_chain_1a575e3c823a40ce5e3d82574cc2a5cee0" compoundref="_compiler_8h" startline="31">fbos</references>
+        <references refid="structshader_1_1_swap_chain_1a5277bcecaceb235ef1e79c06832cbbea" compoundref="_compiler_8h" startline="33" endline="33">index</references>
+      </memberdef>
+      <memberdef kind="function" id="structshader_1_1_swap_chain_1ab690dc5817b2d5bf8eea829ed8786710" prot="public" static="no" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void shader::SwapChain::flip</definition>
+        <argsstring>() noexcept</argsstring>
+        <name>flip</name>
+        <qualifiedname>shader::SwapChain::flip</qualifiedname>
+        <briefdescription>
+<para>Advance the ping-pong index. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Call at end of each pass&apos;s draw. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="shader/Compiler.h" line="40" column="10" bodyfile="shader/Compiler.h" bodystart="40" bodyend="40"/>
+        <references refid="structshader_1_1_swap_chain_1a5277bcecaceb235ef1e79c06832cbbea" compoundref="_compiler_8h" startline="33" endline="33">index</references>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Ping-pong double-buffered FBO storage for a buffer pass. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Two FBOs, one index. The orchestrator reads from <ref refid="structshader_1_1_swap_chain_1a3ffe7cd89471fb18730f0a6d5449d3f7" kindref="member">read()</ref> and writes to <ref refid="structshader_1_1_swap_chain_1a41b1ec1cdaed8dd1775d9adb73d56e97" kindref="member">write()</ref> each frame, then calls <ref refid="structshader_1_1_swap_chain_1ab690dc5817b2d5bf8eea829ed8786710" kindref="member">flip()</ref> to advance. The next frame&apos;s <ref refid="structshader_1_1_swap_chain_1a3ffe7cd89471fb18730f0a6d5449d3f7" kindref="member">read()</ref> returns what this frame wrote; downstream passes (in render order) reading from this pass&apos;s <ref refid="structshader_1_1_swap_chain_1a3ffe7cd89471fb18730f0a6d5449d3f7" kindref="member">read()</ref> see this frame&apos;s just-written output.</para>
+<para>Per OpenGL spec, framebuffer writes complete and become visible to subsequent texture fetches without explicit barriers when the textures differ. Ping-pong always has different read and write textures at any given draw, so no glMemoryBarrier is needed.</para>
+<para>GL thread only. </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="4">
+        <label>juce::OpenGLFrameBuffer</label>
+        <link refid="classjuce_1_1OpenGLFrameBuffer" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="1">
+        <label>shader::SwapChain</label>
+        <link refid="structshader_1_1_swap_chain"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>fbos</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>std::array&lt; std::unique_ptr&lt; juce::OpenGLFrameBuffer &gt;, 2 &gt;</label>
+        <childnode refid="3" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>std::unique_ptr&lt; juce::OpenGLFrameBuffer &gt;</label>
+        <childnode refid="4" relation="usage">
+          <edgelabel>ptr</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="shader/Compiler.h" line="28" column="1" bodyfile="shader/Compiler.h" bodystart="29" bodyend="41"/>
+    <listofallmembers>
+      <member refid="structshader_1_1_swap_chain_1a575e3c823a40ce5e3d82574cc2a5cee0" prot="public" virt="non-virtual"><scope>shader::SwapChain</scope><name>fbos</name></member>
+      <member refid="structshader_1_1_swap_chain_1ab690dc5817b2d5bf8eea829ed8786710" prot="public" virt="non-virtual"><scope>shader::SwapChain</scope><name>flip</name></member>
+      <member refid="structshader_1_1_swap_chain_1a5277bcecaceb235ef1e79c06832cbbea" prot="public" virt="non-virtual"><scope>shader::SwapChain</scope><name>index</name></member>
+      <member refid="structshader_1_1_swap_chain_1a3ffe7cd89471fb18730f0a6d5449d3f7" prot="public" virt="non-virtual"><scope>shader::SwapChain</scope><name>read</name></member>
+      <member refid="structshader_1_1_swap_chain_1a41b1ec1cdaed8dd1775d9adb73d56e97" prot="public" virt="non-virtual"><scope>shader::SwapChain</scope><name>write</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

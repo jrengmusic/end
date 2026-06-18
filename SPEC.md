@@ -126,7 +126,7 @@ Default lua files are compiled into the binary as BinaryData. The `config::Model
 
 **Config delivery — config::Model listeners react:**
 - **No `referTo`.** No manual distribution cascade from end::View.
-- config::Model is an **independent tree** (`jam::Model` + `Context<config::Model>`), NOT grafted to end::Model. Two separate trees, two separate listener registrations.
+- config::Model is an **independent tree** (`jam::Model` + `Instance<config::Model>`), NOT grafted to end::Model. Two separate trees, two separate listener registrations.
 - Each consumer that needs config values registers as `ValueTree::Listener` on config::Model directly.
 - Main's only job is: own the watcher, trigger the reload on `config::Model`, let the listener chain propagate naturally through config::Model.
 - This is the standard JUCE ValueTree listener pattern. No magic. No manual push.
@@ -184,7 +184,7 @@ ENDApplication                                        ← THE ORCHESTRATOR (Main
   │     composed from: config::Display, config::Nexus, config::Keys, config::Popups, config::Actions, config::Whelmed
   │     (consumers read config::Model only, never individual parsers)
   │
-  ├── end::Model (jam::Model + Context<end::Model>)    ← runtime state SSOT
+  ├── end::Model (jam::Model + Instance<end::Model>)    ← runtime state SSOT
   │
   ├── end::View                                        ← Controller of the application surface
   │     ├── Tabs (View to end::View, Controller of Panes)
@@ -194,13 +194,13 @@ ENDApplication                                        ← THE ORCHESTRATOR (Main
   │     │                 ├── listens on terminal::Model (runtime) + config::Model (config)
   │     │                 └── calls Controller::drain() on screenDirty
   │     │
-  │     ├── action::Registry (Context<Registry>)
+  │     ├── action::Registry (Instance<Registry>)
   │     ├── LookAndFeel (listener on config::Model)
   │     └── GL Pipeline
   │           ├── Background shader slot (user GLSL)
   │           └── Post-process shader slot (user GLSL)
   │
-  └── Nexus (Context<Nexus>)                           ← HOST — owns all terminal instances
+  └── Nexus (Instance<Nexus>)                           ← HOST — owns all terminal instances
         └── terminal::Controller[N] (= AudioProcessor)
               ├── terminal::Model (= APVTS) — state bridge, owned by Controller
               ├── terminal::Processor (= ProcessorChain) — references terminal::Model
@@ -215,13 +215,13 @@ ENDApplication                                        ← THE ORCHESTRATOR (Main
 
 **ENDApplication is the orchestrator.** It owns `config::Model` and `end::Model` as two independent trees — config and runtime state never mixed. It IS the `jam::File::Watcher::Listener` — on lua file change, it tells `config::Model` to re-read files from disk (same code path as init). config::Model updates its CONFIG tree, ValueTree listeners fire, consumers react.
 
-**config::Model is the config Model — a dedicated independent tree, NOT grafted to end::Model.** `jam::Model` + `Context<config::Model>`. It holds the sol2 VM privately (parser plus live custom-action Functions) and owns its own `juce::ValueTree`. Config is message-thread only — the reader never reads config::Model directly. Config-derived values the reader needs cross through `terminal::Model` atomics (see §2.0 Config → reader thread bridge). Main owns it as a value member.
+**config::Model is the config Model — a dedicated independent tree, NOT grafted to end::Model.** `jam::Model` + `Instance<config::Model>`. It holds the sol2 VM privately (parser plus live custom-action Functions) and owns its own `juce::ValueTree`. Config is message-thread only — the reader never reads config::Model directly. Config-derived values the reader needs cross through `terminal::Model` atomics (see §2.0 Config → reader thread bridge). Main owns it as a value member.
 
 **config::Model is composed from adjacent parsers** — `config::Display`, `config::Nexus`, `config::Keys`, `config::Popups`, `config::Actions`, `config::Whelmed`. Each parser handles one lua file/table and writes into config::Model's tree. **Consumers ONLY read config::Model** — they never access individual parsers. The parsers are internal to the config namespace.
 
-**Two Context models, clean separation:**
+**Two Instance models, clean separation:**
 - `config::Model` — config constants. Changes on reload only. Listeners fire only on config changes.
-- `end::Model` (`jam::Model` + `Context<end::Model>`) — runtime state. Changes during app lifetime. Listeners fire only on runtime changes.
+- `end::Model` (`jam::Model` + `Instance<end::Model>`) — runtime state. Changes during app lifetime. Listeners fire only on runtime changes.
 
 No config values on end::Model. No runtime state on config::Model. Consumers that need both (e.g. terminal::View) register as listener on both trees — two explicit registrations, two distinct concerns.
 
@@ -289,7 +289,7 @@ Same proven pattern from the previous iteration:
 |------|------|-----------|
 | App orchestrator | `ENDApplication` (Main.cpp) | Owns config::Model, end::Model, end::View, Nexus. Two independent trees. File watcher. Not namespaced. |
 | Config Model | `config::Model` | Independent ValueTree (NOT jam::Model — no atomics, no flush). CONFIG tree + sol2 VM (private). Composed from `config::Display`, `config::Nexus`, `config::Keys`, etc. — consumers read config::Model only. |
-| App state SSOT | `end::Model` | `jam::Model` + `Context<end::Model>`. Runtime state tree. Paired with `end::View`. |
+| App state SSOT | `end::Model` | `jam::Model` + `Instance<end::Model>`. Runtime state tree. Paired with `end::View`. |
 | App surface | `end::View` | `juce::KeyListener` + `juce::Desktop::FocusChangeListener`. Owns Tabs, LookAndFeel, GL context. Centralizes keyboard dispatch. |
 | Session host | `Nexus` | Owns all Controllers. Manages lifecycle. Routes IPC in daemon mode. |
 | Terminal instance | `terminal::Controller` | = AudioProcessor. Owns Model, Processor, CodeModel, CodeView. |
@@ -365,7 +365,7 @@ The mouse handler converts a pixel point to a cell coordinate with `jam::Cell::P
 END depends on JAM framework modules. These exist independently and are consumed by all JAM-based projects (END, TIT, CAKE, WHATDBG).
 
 ### jam_core
-Shared utilities: `Context<T>`, `Owner<T>`, `BufferSPSC`, `Resizer`, `AnyMap`, `Function::Map`.
+Shared utilities: `Instance<T>`, `Owner<T>`, `BufferSPSC`, `Resizer`, `AnyMap`, `Function::Map`.
 
 **Identifier system:** X-macro convention (`IDENTIFIER_*(X)`) expanded via `MAKE_VIEW` into `jam::ID` (Identifier), `jam::IDref` (StringRef), `jam::IDtag` (uppercase), `jam::IDtype` (uppercase Identifier). All identifiers across all jam modules share the same `jam::ID` struct — no per-module namespaces. Domain-specific identifier blocks are defined in their owning module and expanded alongside the rest. See §3.1.
 
@@ -533,12 +533,12 @@ Working JUCE GUI application. Tabs split, panes navigate, keyboard and mouse inp
 **Functional (working, testable by ARCHITECT):**
 - `ENDApplication` (Main.cpp) — orchestrator. Owns `config::Model`, `end::Model`, `end::View`, `Nexus`. Owns `jam::Stamp`, `jam::Grapheme` contexts. IS the `jam::File::Watcher::Listener`. Two independent trees: config::Model (config) and end::Model (runtime).
 - `config::Model` — `jam::Model`. Parses **display.lua** (colours, font family/size, tab SVG, pane bar) and **keys.lua** (prefix key, bindings for pane/tab actions). Other modules (nexus, popups, actions, whelmed) not yet parsed.
-- `end::Model` — `jam::Model` + `Context<end::Model>`. App state SSOT. CONFIG subtree grafted by Main.
+- `end::Model` — `jam::Model` + `Instance<end::Model>`. App state SSOT. CONFIG subtree grafted by Main.
 - `end::View` — `juce::KeyListener` + `juce::Desktop::FocusChangeListener`. Owns `Tabs`, `LookAndFeel`, GL context. Centralizes keyboard dispatch to active PaneView. Writes `activePaneID` on focus change.
 - `Tabs` — `jam::TabbedComponent` (button::Group, SVG 3-slice, sliding indicator). `jam::ValueTree::Component` — TABS node grafted into end::Model via Attachment.
 - `Panes` — per-tab container. `jam::ValueTree::Component` — PANES node grafted into TAB via Attachment. `PaneManager` binary tree (resizer bar lifecycle fix from Phase 0b), `PaneResizerBar`, `Owner<PaneView>`. Split horizontal/vertical, pane navigation (h/j/k/l).
 - `PaneView` base — `jam::ValueTree::ComponentWithID<PaneView>`
-- `Nexus` — `Context<Nexus>`. Minimal working: `create`/`remove`/`get` map. `Mode::standalone`. Stub Controllers created on tab open, destroyed on tab close. Lifecycle proven.
+- `Nexus` — `Instance<Nexus>`. Minimal working: `create`/`remove`/`get` map. `Mode::standalone`. Stub Controllers created on tab open, destroyed on tab close. Lifecycle proven.
 - `action::Registry` — functional. Built-in pane/tab actions registered (split_horizontal, split_vertical, close_pane, close_tab, new_tab, pane_left/right/up/down, next_tab, prev_tab). Prefix key state machine working. Key map built from keys.lua config. Lua custom actions dispatch through Registry (no DisplayCallbacks).
 - `LookAndFeel` — style-driven from CONFIG/DISPLAY (colours, tab SVG, pane bar). Hot-reload: lua file change → Main re-parses → CONFIG in place → LookAndFeel reacts.
 - GL pipeline — `renderOpenGL()` with background shader slot and post-process FBO capture slot (empty, compiling). JUCE GL compositing via `setComponentPaintingEnabled(true)`.

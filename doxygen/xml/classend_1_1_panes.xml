@@ -121,7 +121,7 @@
         <references refid="classjuce_1_1Component_1a7cc925a367e95b3807255f8b4a94dddd">juce::Component::addAndMakeVisible</references>
         <references refid="classend_1_1_panes_1ae911d35716d5df30df13a88afb66ef40" compoundref="_panes_8h" startline="59">attachments</references>
         <references refid="structjam_1_1Model_1_1Component_1a15efb3e60173aa525b19b914f5fb99eb">jam::Model::Component::Component</references>
-        <references refid="structjam_1_1Context_1a3ff553f70ef61043352c54cfed475b4c">jam::Context&lt; Model &gt;::getInstance</references>
+        <references refid="structjam_1_1Instance_1ad5d2bbb58e37d8d260b428b334823140">jam::Instance&lt; Model &gt;::getInstance</references>
         <references refid="structjam_1_1Model_1_1Component_1aa5a0c333addf975536c95bca7a9685be">jam::Model::Component::model</references>
         <references refid="structjam_1_1ID_1a2f2ee05e76603e24f721a5ad93fe4795">jam::ID::name</references>
         <references refid="classend_1_1_panes_1ac5e63314ccd3b2561cb9da6eeadcb707" compoundref="_panes_8h" startline="56">paneManager</references>

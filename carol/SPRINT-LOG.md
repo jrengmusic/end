@@ -2,6 +2,71 @@
 
 ---
 
+## Sprint 25: Shader Controller Redesign — Assets-to-Renderer, Ping-Pong, OOTB Uniform ✅
+
+**Date:** 2026-06-16
+**Duration:** ~06:00
+
+### Agents Participated
+- COUNSELOR: Sprint lead, deep design discussion (graphics-LAF vs shader-Controller asymmetry analysis, OpenGL ping-pong semantics, JUCE Uniform API discovery, SwapChain design, bimap ordering, data structure corrections — 8+ design iterations with ARCHITECT), plan authoring, delegation, verification, direct edits (Map.h bimap reorder, Controller.cpp VTPC/loadShaders/render rewrites, jam_map.h framework change)
+- Pathfinder: Graphics-LAF and shader-Controller data flow survey (full asset pipeline trace), jam Function::Map/HashMap API surface, JUCE OpenGL API surface (Uniform, OpenGLFrameBuffer, OpenGLContext, OpenGLAppComponent, VBlankAttachment)
+- Researcher: OpenGL ping-pong FBO semantics (GL spec feedback loop, glMemoryBarrier, glTextureBarrier, Shadertoy convention, Three.js GPUComputationRenderer, first-frame initialization, cross-pass binding model)
+- Librarian: JUCE OpenGL API exhaustive survey (Uniform ctor signature, FBO initialise/release lifecycle, translateFragmentShaderToV3, executeOnGLThread, VBlankAttachment platform analysis)
+- Engineer: Identifier.h iChannel entries, Map.h Buffer bimap, Compiler.h/cpp rewrite (Pass + SwapChain + buildPass factory), Controller.h/cpp rewrite (pipeline + render + loadShaders + resizeViewport), View.h/cpp resized() wiring, doxygen updates
+- Auditor: Full compliance audit (BLESSED/NAMES/JRENG/locked decisions — 11 PLAN checks, L line counts, E bail-out analysis, S SSOT verification)
+
+### Files Modified (9 total)
+
+**JAM — jam_core/map/**
+- `jam_map.h:148` — `Map::Instance::contains()` uses `Map::containsValue` (avoids C++20 `std::map::contains`).
+- `jam_map.h:153` — `Map::Instance::map` storage changed from `jam::HashMap<int, juce::String>` to `std::map<int, juce::String>`. Key-ordered iteration enables bimap-driven render order without manual arrays.
+
+**END — Source/shader/**
+- `Compiler.h` — rewritten: `Pass` struct (program + `optional<SwapChain>` + `unique_ptr<Uniform>` × 9). `SwapChain` struct (2 FBOs + ping-pong index + read/write/flip). `buildPass` factory declaration. `buildUniformSetter` + `UniformSetter` DELETED.
+- `Compiler.cpp` — rewritten: `buildPass` factory (compiles program, constructs Uniforms OOTB from Buffer bimap iteration). `buildUniformSetter` DELETED (37 lines).
+- `Controller.h` — rewritten: `std::vector<Pass> pipeline` (replaces `HashMap<Identifier, Pass>`). `resizeViewport(w,h)` public. `loadShaders(ValueTree)` (replaces HashMap param). `lastFrameTime`/`currentWidth`/`currentHeight` members. `bindIChannels`/`drawPass` private helpers. Cross-thread contract doxygen.
+- `Controller.cpp` — rewritten: `renderOpenGL` uses `juce::Time::getMillisecondCounterHiRes()`. `render` flat per-pass loop with `bindIChannels`/`drawPass`. `loadShaders` reads ValueTree directly via `getChildWithName` (no intermediate HashMap). `resizeViewport` re-inits all buffer FBOs + `makeCurrentAndClear()`. `valueTreePropertyChanged` passes tree by value to GL thread. `shutdown` releases FBOs before clear. Buffer bimap structured binding throughout.
+
+**END — Source/end/**
+- `Map.h` — `Shaders` enum reordered: `common, bufferA, bufferB, bufferC, bufferD, image` (render order = key order). Nested `Buffer` bimap: `channel0→"BufferA"` (source pass stem, not uniform name). `sourcePass(slot)` = direct `map.at(slot)` lookup.
+- `View.h:57-66` — `resized()` doxygen updated to document `shader.resizeViewport` call.
+- `View.cpp:65` — `shader.resizeViewport (getWidth(), getHeight())` added to `resized()`.
+
+**END — Source/**
+- `Identifier.h:262-272` — `IDENTIFIER_SHADER` block: added `iChannel0..3` uniform name constants.
+
+### Alignment Check
+- [x] BLESSED principles followed
+  - B: Pass owns program + SwapChain (2 FBOs) + Uniforms via unique_ptr. Release-before-destroy in shutdown/loadShaders. Cross-thread: GL thread never touches ValueTree; message thread never touches GL context. executeOnGLThread(block=false) is the only bridge.
+  - L: Compiler.cpp 57 lines. Controller.cpp 248 lines. buildPass ≤20 lines. render ≤30 lines. bindIChannels ≤20 lines. drawPass ≤10 lines.
+  - E: No magic strings — iChannel keywords from `"iChannel" + String(slot)` via Buffer bimap iteration. ID::image is the screen check. No bail-out guards — positive nesting throughout. Doxygen header-only.
+  - S: Buffer bimap is SSOT for channel→buffer mapping. pipeline is the only pass collection. lastFrameTime is the only time state. No intermediate HashMap in VTPC or loadShaders.
+  - S: Pass is dumb data — no isCompiled/isReady flags. SwapChain index is resource state co-located with FBOs.
+  - E: Compiler is static utility. Pass is dumb data. Controller orchestrates. View tells Controller to resize.
+  - D: std::map key-order iteration = render order. Same sources → same pipeline. juce::Time monotonic. First-frame FBO clear via makeCurrentAndClear().
+- [x] NAMES.md adhered (resizeViewport semantic over literal, SwapChain/Pass nouns, read/write/flip/buildPass/loadShaders verbs, Buffer for source-identity bimap)
+- [x] MANIFESTO.md principles applied
+- [x] JRENG-CODING-STANDARD.md (brace init, not/and/or, .at() on std::array, no anonymous namespace, doxygen header-only, positive nesting, structured binding on bimap)
+
+### Problems Solved
+- **Hand-rolled uniform setter replaced:** Compiler::buildUniformSetter (37-line lambda with captured GLint locations) deleted. JUCE OpenGLShaderProgram::Uniform OOTB — caches GLint at construction, .set() at render. Zero per-frame dispatch.
+- **Multipass ping-pong:** SwapChain (2 FBOs + index) enables self-feedback. read() = previous frame's output; write() = this frame's target; flip() at end of draw. Same code path for self-feedback and upstream reads.
+- **Render order deterministic:** Map::Instance::map changed from HashMap (hash-order) to std::map (key-order). Shaders enum reordered: buffers first, image last. Bimap iteration = render order. No manual std::array workaround.
+- **Buffer bimap redesigned:** Was iChannel uniform name lookup (channel0→"iChannel0") + sourcePass() arithmetic (bufferA + slot). Now source-identity bimap (channel0→"BufferA") + direct map.at(slot) lookup. Uniform names constructed from "iChannel" + String(slot) during bimap iteration.
+- **No intermediate HashMap:** VTPC passed tree by value to GL thread. loadShaders reads ValueTree directly via getChildWithName. No sources HashMap, no fragment assembly on message thread.
+- **FBO resize event-driven:** View::resized() → Controller::resizeViewport(w,h). No per-frame GL_VIEWPORT check (fallback retained for first frame before resized fires).
+- **Wall-clock time:** iTime/iTimeDelta from juce::Time::getMillisecondCounterHiRes(). Correct on 120Hz+ displays. Replaces frameCounter/60.0f.
+- **First-frame FBO determinism:** makeCurrentAndClear() on both ping and pong at pipeline init. GL spec does not guarantee cleared texture contents after glTexStorage2D.
+- **Pipeline as value vector:** std::vector<Pass> replaces jam::Owner<Pass>. Direct value iteration per frame — no pointer deref alias.
+
+### Debts Paid
+- None (sprint 24's multipass debt is structurally resolved by this redesign but requires ARCHITECT build verification)
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 24: Shader Config Pipeline Rework + SSOT fromLua ✅
 
 **Date:** 2026-06-16

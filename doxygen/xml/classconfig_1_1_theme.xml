@@ -62,22 +62,22 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="49" column="10" bodyfile="config/Config.cpp" bodystart="286" bodyend="318"/>
+        <location file="config/Config.h" line="49" column="10" bodyfile="config/Config.cpp" bodystart="282" bodyend="314"/>
         <references refid="structBinaryData_1_1Raw_1a50f1331dd30f0df2d6614a9c67be4a66">BinaryData::Raw::data</references>
         <references refid="structBinaryData_1_1Raw_1aba1e79d5ef693005937990ddf2fe3363">BinaryData::Raw::exists</references>
         <references refid="classjuce_1_1File_1a37e88fbc390d78f3d79675974f53fa78">juce::File::existsAsFile</references>
         <references refid="classjam_1_1Model_1ada224019e4715d61684005a054d351e9">jam::Model::fromLua</references>
-        <references refid="structconfig_1_1_file_1_1_theme_1a259522514f9d57dccbffc3e3f1349a7f" compoundref="_map_8h" startline="200" endline="200">config::File::Theme::get</references>
-        <references refid="structconfig_1_1_file_1_1_theme_1aae7b0309384b8333ee5d8daa47406edb" compoundref="_map_8h" startline="206" endline="209">config::File::Theme::getName</references>
-        <references refid="structconfig_1_1_file_1_1_theme_1a1a4f485d0cd842d77061933a01b1a55c" compoundref="_map_8h" startline="215" endline="218">config::File::Theme::getPath</references>
-        <references refid="classconfig_1_1_theme_1ad1c552afe63e04ce01d6479bdd197996" compoundref="_config_8cpp" startline="286" endline="318">load</references>
+        <references refid="structconfig_1_1_file_1_1_theme_1a259522514f9d57dccbffc3e3f1349a7f" compoundref="_bimap_8h" startline="200" endline="200">config::File::Theme::get</references>
+        <references refid="structconfig_1_1_file_1_1_theme_1aae7b0309384b8333ee5d8daa47406edb" compoundref="_bimap_8h" startline="206" endline="209">config::File::Theme::getName</references>
+        <references refid="structconfig_1_1_file_1_1_theme_1a1a4f485d0cd842d77061933a01b1a55c" compoundref="_bimap_8h" startline="215" endline="218">config::File::Theme::getPath</references>
+        <references refid="classconfig_1_1_theme_1ad1c552afe63e04ce01d6479bdd197996" compoundref="_config_8cpp" startline="282" endline="314">load</references>
         <references refid="classjuce_1_1File_1aa65d2fa50370357bf93658d6447c296d">juce::File::loadFileAsString</references>
         <references refid="classjuce_1_1File_1a5359ab794e314e7bbfe91140cb0120fa">juce::File::replaceWithData</references>
         <references refid="structBinaryData_1_1Raw_1aa6b91267d82ca52f42b607aa0064a05d">BinaryData::Raw::size</references>
         <references refid="classjam_1_1Model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
         <references refid="classjuce_1_1Identifier_1ab6f0db1de2c36cacd1a9d7280f73aeeb">juce::Identifier::toString</references>
         <references refid="classjuce_1_1String_1a1e7124c97cfb142b269080422fcba540">juce::String::toUpperCase</references>
-        <referencedby refid="classconfig_1_1_theme_1ad1c552afe63e04ce01d6479bdd197996" compoundref="_config_8cpp" startline="286" endline="318">load</referencedby>
+        <referencedby refid="classconfig_1_1_theme_1ad1c552afe63e04ce01d6479bdd197996" compoundref="_config_8cpp" startline="282" endline="314">load</referencedby>
       </memberdef>
     </sectiondef>
     <briefdescription>
@@ -182,6 +182,7 @@
       <member refid="classjam_1_1Model_1a0c6c6dcf22bdf37d65dced08a8dcdefc" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>findAndRemoveChild</name></member>
       <member refid="classjam_1_1Model_1a9eb2e927e025645e46609f37aa6f9304" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>flush</name></member>
       <member refid="classjam_1_1Model_1aaa8b722daed8928b8d587ec30662ac34" prot="private" virt="non-virtual"><scope>config::Theme</scope><name>flushHz</name></member>
+      <member refid="classjam_1_1Model_1a56d070d548e85df035e527312421f5bf" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>forEachProperty</name></member>
       <member refid="classjam_1_1Model_1ada224019e4715d61684005a054d351e9" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>fromLua</name></member>
       <member refid="classjam_1_1Model_1af9ab05d8b04c75750fc69f8ad1225caa" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>fromLua</name></member>
       <member refid="classjam_1_1Model_1af021749d77eff216e06c20cb123a719a" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>fromLua</name></member>

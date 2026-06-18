@@ -14,7 +14,7 @@ Model::Model()
 }
 
 //==============================================================================
-/* Wraps a Map::Instance contains() check as a string-enum validator. */
+/* Wraps a Bimap contains() check as a string-enum validator. */
 template<typename MapType>
 static std::function<bool (const juce::var&)> enumCheck (MapType* map)
 {
@@ -260,7 +260,7 @@ void Model::registerValidator (juce::Identifier treeType,
 //==============================================================================
 void Shader::load (const juce::String& shaderName)
 {
-    state.removeAllChildren (nullptr);
+    state.removeAllProperties (nullptr);
 
     if (shaderName.isNotEmpty())
     {
@@ -271,11 +271,7 @@ void Shader::load (const juce::String& shaderName)
             const juce::File file { shaderPath.getChildFile (value) };
 
             if (file.existsAsFile())
-            {
-                juce::ValueTree child { juce::Identifier { value } };
-                child.setProperty (jam::ID::value, file.loadFileAsString(), nullptr);
-                state.addChild (child, -1, nullptr);
-            }
+                state.setProperty (juce::Identifier { value }, file.loadFileAsString(), nullptr);
         }
     }
 

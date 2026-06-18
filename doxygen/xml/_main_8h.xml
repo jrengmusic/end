@@ -8,9 +8,17 @@
     <includes refid="_view_8h" local="yes">end/View.h</includes>
     <includes refid="_window_8h" local="yes">end/Window.h</includes>
     <includes refid="_look_and_feel_8h" local="yes">lookAndFeel/LookAndFeel.h</includes>
-    <includes refid="_map_8h" local="yes">end/Map.h</includes>
+    <includes refid="_bimap_8h" local="yes">Bimap.h</includes>
     <includedby refid="_main_8cpp" local="yes">Main.cpp</includedby>
     <incdepgraph>
+      <node id="4">
+        <label>../Bimap.h</label>
+        <link refid="_bimap_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
       <node id="5">
         <label>Identifier.h</label>
         <link refid="_identifier_8h"/>
@@ -28,7 +36,7 @@
         </childnode>
         <childnode refid="7" relation="include">
         </childnode>
-        <childnode refid="18" relation="include">
+        <childnode refid="16" relation="include">
         </childnode>
         <childnode refid="12" relation="include">
         </childnode>
@@ -49,14 +57,6 @@
         <childnode refid="2" relation="include">
         </childnode>
         <childnode refid="4" relation="include">
-        </childnode>
-      </node>
-      <node id="4">
-        <label>../end/Map.h</label>
-        <link refid="_map_8h"/>
-        <childnode refid="2" relation="include">
-        </childnode>
-        <childnode refid="5" relation="include">
         </childnode>
       </node>
       <node id="11">
@@ -125,7 +125,7 @@
         <childnode refid="4" relation="include">
         </childnode>
       </node>
-      <node id="18">
+      <node id="16">
         <label>end/Window.h</label>
         <link refid="_window_8h"/>
         <childnode refid="2" relation="include">
@@ -145,28 +145,12 @@
         <childnode refid="3" relation="include">
         </childnode>
       </node>
-      <node id="17">
-        <label>shader/Compiler.h</label>
-        <link refid="_compiler_8h"/>
-        <childnode refid="2" relation="include">
-        </childnode>
-      </node>
       <node id="15">
         <label>shader/Controller.h</label>
         <link refid="_controller_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
-        <childnode refid="16" relation="include">
-        </childnode>
-        <childnode refid="17" relation="include">
-        </childnode>
         <childnode refid="3" relation="include">
-        </childnode>
-      </node>
-      <node id="16">
-        <label>shader/Quad.h</label>
-        <link refid="_quad_8h"/>
-        <childnode refid="2" relation="include">
         </childnode>
       </node>
       <node id="13">
@@ -202,7 +186,7 @@
 <codeline lineno="5"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_view_8h" kindref="compound">end/View.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_window_8h" kindref="compound">end/Window.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_look_and_feel_8h" kindref="compound">lookAndFeel/LookAndFeel.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_map_8h" kindref="compound">end/Map.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="_bimap_8h" kindref="compound">Bimap.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="9"><highlight class="normal"></highlight></codeline>
 <codeline lineno="10"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespaceend" kindref="compound">end</ref></highlight></codeline>
 <codeline lineno="11"><highlight class="normal">{</highlight></codeline>
@@ -226,8 +210,8 @@
 <codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="30"><highlight class="normal"></highlight></codeline>
 <codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//==============================================================================</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>CONTEXT<sp/>—<sp/>jam::Map::Instance&lt;T&gt;<sp/>owner.<sp/>Declared<sp/>before<sp/>any<sp/>consumer<sp/>so<sp/>the</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>single-global-pointer<sp/>Context&lt;T&gt;<sp/>slot<sp/>is<sp/>populated<sp/>before<sp/>first<sp/>use.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>CONTEXT<sp/>—<sp/>jam::Bimap&lt;T&gt;<sp/>owner.<sp/>Declared<sp/>before<sp/>any<sp/>consumer<sp/>so<sp/>the</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>single-global-pointer<sp/>Instance&lt;T&gt;<sp/>slot<sp/>is<sp/>populated<sp/>before<sp/>first<sp/>use.</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="34" refid="classend_1_1_application_1a5cf59c3fd7618551ddb01407879269af" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structend_1_1_map" kindref="compound">Map</ref><sp/><ref refid="classend_1_1_application_1a5cf59c3fd7618551ddb01407879269af" kindref="member">context</ref>;</highlight></codeline>
 <codeline lineno="35"><highlight class="normal"></highlight></codeline>
 <codeline lineno="36" refid="classend_1_1_application_1a765f410d9d4232de53d86311b3ad303f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classconfig_1_1_model" kindref="compound">config::Model</ref><sp/><ref refid="namespaceconfig" kindref="compound">config</ref>;</highlight></codeline>

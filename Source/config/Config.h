@@ -1,6 +1,6 @@
 #pragma once
 #include <JuceHeader.h>
-#include "../end/Map.h"
+#include "../Bimap.h"
 
 namespace config
 {
@@ -66,7 +66,7 @@ private:
 
     @par Inherited roles
     Inherits from jam::Model (ValueTree wrapper exposing CONTEXT and tree
-    children), jam::Context<Model> (so the live instance is reachable from
+    children), jam::Instance<Model> (so the live instance is reachable from
     any code that includes this header), and jam::File::Watcher::Listener
     (receives filesystem change notifications).
 
@@ -117,7 +117,7 @@ private:
 */
 class Model
     : public jam::Model
-    , public jam::Context<Model>
+    , public jam::Instance<Model>
     , public jam::File::Watcher::Listener
 {
 public:

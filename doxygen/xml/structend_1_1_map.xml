@@ -2,7 +2,7 @@
 <doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
   <compounddef id="structend_1_1_map" kind="struct" language="C++" prot="public">
     <compoundname>end::Map</compoundname>
-    <includes refid="_map_8h" local="no">Map.h</includes>
+    <includes refid="_bimap_8h" local="no">Bimap.h</includes>
     <sectiondef kind="public-attrib">
       <memberdef kind="variable" id="structend_1_1_map_1add2134439c9c266fbf3f64ce5214c7eb" prot="public" static="no" mutable="no">
         <type><ref refid="structend_1_1_position" kindref="compound">end::Position</ref></type>
@@ -16,7 +16,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="298" column="19" bodyfile="end/Map.h" bodystart="298" bodyend="-1"/>
+        <location file="Bimap.h" line="360" column="19" bodyfile="Bimap.h" bodystart="360" bodyend="-1"/>
       </memberdef>
       <memberdef kind="variable" id="structend_1_1_map_1a53ca25979a281743925c2228d43dd638" prot="public" static="no" mutable="no">
         <type><ref refid="structend_1_1_drop_mode" kindref="compound">end::DropMode</ref></type>
@@ -30,7 +30,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="299" column="19" bodyfile="end/Map.h" bodystart="299" bodyend="-1"/>
+        <location file="Bimap.h" line="361" column="19" bodyfile="Bimap.h" bodystart="361" bodyend="-1"/>
       </memberdef>
       <memberdef kind="variable" id="structend_1_1_map_1a9d23d8ab019848af5ca72120d391e217" prot="public" static="no" mutable="no">
         <type><ref refid="structconfig_1_1_file" kindref="compound">config::File</ref></type>
@@ -44,7 +44,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="300" column="18" bodyfile="end/Map.h" bodystart="300" bodyend="-1"/>
+        <location file="Bimap.h" line="362" column="18" bodyfile="Bimap.h" bodystart="362" bodyend="-1"/>
       </memberdef>
       <memberdef kind="variable" id="structend_1_1_map_1a06976157d721af111292a451acac2494" prot="public" static="no" mutable="no">
         <type><ref refid="structconfig_1_1_file_1_1_theme" kindref="compound">config::File::Theme</ref></type>
@@ -58,7 +58,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="301" column="25" bodyfile="end/Map.h" bodystart="301" bodyend="-1"/>
+        <location file="Bimap.h" line="363" column="25" bodyfile="Bimap.h" bodystart="363" bodyend="-1"/>
       </memberdef>
       <memberdef kind="variable" id="structend_1_1_map_1a2e8fbf54f2d85f74342e0b64c1f604aa" prot="public" static="no" mutable="no">
         <type><ref refid="structconfig_1_1_file_1_1_shaders" kindref="compound">config::File::Shaders</ref></type>
@@ -72,7 +72,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="302" column="27" bodyfile="end/Map.h" bodystart="302" bodyend="-1"/>
+        <location file="Bimap.h" line="364" column="27" bodyfile="Bimap.h" bodystart="364" bodyend="-1"/>
       </memberdef>
       <memberdef kind="variable" id="structend_1_1_map_1a88c8891aec9b1ea0b4d6831bca8f7bfb" prot="public" static="no" mutable="no">
         <type><ref refid="structjam_1_1map_1_1WindowFX" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::map::WindowFX</ref></type>
@@ -86,7 +86,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="303" column="24" bodyfile="end/Map.h" bodystart="303" bodyend="-1"/>
+        <location file="Bimap.h" line="365" column="24" bodyfile="Bimap.h" bodystart="365" bodyend="-1"/>
       </memberdef>
       <memberdef kind="variable" id="structend_1_1_map_1a780abe7d84b9a789212176fc2c9e6dcf" prot="public" static="no" mutable="no">
         <type><ref refid="structjam_1_1map_1_1Segment" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::map::Segment</ref></type>
@@ -100,7 +100,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="304" column="23" bodyfile="end/Map.h" bodystart="304" bodyend="-1"/>
+        <location file="Bimap.h" line="366" column="23" bodyfile="Bimap.h" bodystart="366" bodyend="-1"/>
       </memberdef>
       <memberdef kind="variable" id="structend_1_1_map_1a1b6c1a3dbe3009f4254e8242839446ba" prot="public" static="no" mutable="no">
         <type><ref refid="structjam_1_1map_1_1ButtonState" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::map::ButtonState</ref></type>
@@ -114,7 +114,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="305" column="27" bodyfile="end/Map.h" bodystart="305" bodyend="-1"/>
+        <location file="Bimap.h" line="367" column="27" bodyfile="Bimap.h" bodystart="367" bodyend="-1"/>
       </memberdef>
     </sectiondef>
     <briefdescription>
@@ -122,15 +122,15 @@
     <detaileddescription>
     </detaileddescription>
     <collaborationgraph>
-      <node id="8">
+      <node id="9">
         <label>config::File</label>
         <link refid="structconfig_1_1_file"/>
-        <childnode refid="9" relation="public-inheritance">
-        </childnode>
-        <childnode refid="10" relation="usage">
-          <edgelabel>path</edgelabel>
+        <childnode refid="10" relation="public-inheritance">
         </childnode>
         <childnode refid="11" relation="usage">
+          <edgelabel>path</edgelabel>
+        </childnode>
+        <childnode refid="6" relation="usage">
           <edgelabel>extension</edgelabel>
         </childnode>
       </node>
@@ -139,7 +139,7 @@
         <link refid="structconfig_1_1_file_1_1_shaders"/>
         <childnode refid="15" relation="public-inheritance">
         </childnode>
-        <childnode refid="10" relation="usage">
+        <childnode refid="11" relation="usage">
           <edgelabel>path</edgelabel>
         </childnode>
       </node>
@@ -148,17 +148,17 @@
         <link refid="structconfig_1_1_file_1_1_theme"/>
         <childnode refid="13" relation="public-inheritance">
         </childnode>
-        <childnode refid="10" relation="usage">
+        <childnode refid="11" relation="usage">
           <edgelabel>path</edgelabel>
         </childnode>
-        <childnode refid="11" relation="usage">
+        <childnode refid="6" relation="usage">
           <edgelabel>extension</edgelabel>
         </childnode>
       </node>
-      <node id="6">
+      <node id="7">
         <label>end::DropMode</label>
         <link refid="structend_1_1_drop_mode"/>
-        <childnode refid="7" relation="public-inheritance">
+        <childnode refid="8" relation="public-inheritance">
         </childnode>
       </node>
       <node id="1">
@@ -167,10 +167,10 @@
         <childnode refid="2" relation="usage">
           <edgelabel>position</edgelabel>
         </childnode>
-        <childnode refid="6" relation="usage">
+        <childnode refid="7" relation="usage">
           <edgelabel>dropMode</edgelabel>
         </childnode>
-        <childnode refid="8" relation="usage">
+        <childnode refid="9" relation="usage">
           <edgelabel>file</edgelabel>
         </childnode>
         <childnode refid="12" relation="usage">
@@ -195,35 +195,27 @@
         <childnode refid="3" relation="public-inheritance">
         </childnode>
       </node>
-      <node id="4">
-        <label>jam::Context&lt; Derived &gt;</label>
-        <link refid="structjam_1_1Context" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-      </node>
-      <node id="5">
-        <label>jam::HashMap&lt; int, juce::String &gt;</label>
-        <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-      </node>
       <node id="21">
-        <label>jam::Map::Instance&lt; ButtonState &gt;</label>
-        <link refid="classjam_1_1Map_1_1Instance" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <label>jam::Bimap&lt; ButtonState &gt;</label>
+        <link refid="classjam_1_1Bimap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
         <childnode refid="4" relation="public-inheritance">
         </childnode>
         <childnode refid="5" relation="usage">
           <edgelabel>map</edgelabel>
         </childnode>
       </node>
-      <node id="7">
-        <label>jam::Map::Instance&lt; DropMode &gt;</label>
-        <link refid="classjam_1_1Map_1_1Instance" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      <node id="8">
+        <label>jam::Bimap&lt; DropMode &gt;</label>
+        <link refid="classjam_1_1Bimap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
         <childnode refid="4" relation="public-inheritance">
         </childnode>
         <childnode refid="5" relation="usage">
           <edgelabel>map</edgelabel>
         </childnode>
       </node>
-      <node id="9">
-        <label>jam::Map::Instance&lt; File &gt;</label>
-        <link refid="classjam_1_1Map_1_1Instance" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      <node id="10">
+        <label>jam::Bimap&lt; File &gt;</label>
+        <link refid="classjam_1_1Bimap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
         <childnode refid="4" relation="public-inheritance">
         </childnode>
         <childnode refid="5" relation="usage">
@@ -231,8 +223,8 @@
         </childnode>
       </node>
       <node id="3">
-        <label>jam::Map::Instance&lt; Position &gt;</label>
-        <link refid="classjam_1_1Map_1_1Instance" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <label>jam::Bimap&lt; Position &gt;</label>
+        <link refid="classjam_1_1Bimap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
         <childnode refid="4" relation="public-inheritance">
         </childnode>
         <childnode refid="5" relation="usage">
@@ -240,8 +232,8 @@
         </childnode>
       </node>
       <node id="19">
-        <label>jam::Map::Instance&lt; Segment &gt;</label>
-        <link refid="classjam_1_1Map_1_1Instance" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <label>jam::Bimap&lt; Segment &gt;</label>
+        <link refid="classjam_1_1Bimap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
         <childnode refid="4" relation="public-inheritance">
         </childnode>
         <childnode refid="5" relation="usage">
@@ -249,8 +241,8 @@
         </childnode>
       </node>
       <node id="15">
-        <label>jam::Map::Instance&lt; Shaders &gt;</label>
-        <link refid="classjam_1_1Map_1_1Instance" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <label>jam::Bimap&lt; Shaders &gt;</label>
+        <link refid="classjam_1_1Bimap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
         <childnode refid="4" relation="public-inheritance">
         </childnode>
         <childnode refid="5" relation="usage">
@@ -258,8 +250,8 @@
         </childnode>
       </node>
       <node id="13">
-        <label>jam::Map::Instance&lt; Theme &gt;</label>
-        <link refid="classjam_1_1Map_1_1Instance" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <label>jam::Bimap&lt; Theme &gt;</label>
+        <link refid="classjam_1_1Bimap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
         <childnode refid="4" relation="public-inheritance">
         </childnode>
         <childnode refid="5" relation="usage">
@@ -267,13 +259,17 @@
         </childnode>
       </node>
       <node id="17">
-        <label>jam::Map::Instance&lt; WindowFX &gt;</label>
-        <link refid="classjam_1_1Map_1_1Instance" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <label>jam::Bimap&lt; WindowFX &gt;</label>
+        <link refid="classjam_1_1Bimap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
         <childnode refid="4" relation="public-inheritance">
         </childnode>
         <childnode refid="5" relation="usage">
           <edgelabel>map</edgelabel>
         </childnode>
+      </node>
+      <node id="4">
+        <label>jam::Instance&lt; Derived &gt;</label>
+        <link refid="structjam_1_1Instance" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
       <node id="20">
         <label>jam::map::ButtonState</label>
@@ -293,16 +289,22 @@
         <childnode refid="17" relation="public-inheritance">
         </childnode>
       </node>
-      <node id="10">
+      <node id="11">
         <label>juce::File</label>
         <link refid="classjuce_1_1File" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="11">
+      <node id="6">
         <label>juce::String</label>
         <link refid="classjuce_1_1String" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
+      <node id="5">
+        <label>std::map&lt; int, juce::String &gt;</label>
+        <childnode refid="6" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
     </collaborationgraph>
-    <location file="end/Map.h" line="296" column="1" bodyfile="end/Map.h" bodystart="297" bodyend="306"/>
+    <location file="Bimap.h" line="358" column="1" bodyfile="Bimap.h" bodystart="359" bodyend="368"/>
     <listofallmembers>
       <member refid="structend_1_1_map_1a1b6c1a3dbe3009f4254e8242839446ba" prot="public" virt="non-virtual"><scope>end::Map</scope><name>button</name></member>
       <member refid="structend_1_1_map_1a53ca25979a281743925c2228d43dd638" prot="public" virt="non-virtual"><scope>end::Map</scope><name>dropMode</name></member>

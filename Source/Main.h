@@ -5,7 +5,7 @@
 #include "end/View.h"
 #include "end/Window.h"
 #include "lookAndFeel/LookAndFeel.h"
-#include "end/Map.h"
+#include "Bimap.h"
 
 namespace end
 {
@@ -29,8 +29,8 @@ private:
 #endif
 
     //==============================================================================
-    // CONTEXT — jam::Map::Instance<T> owner. Declared before any consumer so the
-    // single-global-pointer Context<T> slot is populated before first use.
+    // CONTEXT — jam::Bimap<T> owner. Declared before any consumer so the
+    // single-global-pointer Instance<T> slot is populated before first use.
     Map context;
 
     config::Model config;

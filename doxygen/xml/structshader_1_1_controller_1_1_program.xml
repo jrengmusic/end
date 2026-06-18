@@ -1,0 +1,64 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="structshader_1_1_controller_1_1_program" kind="struct" language="C++" prot="private">
+    <compoundname>shader::Controller::Program</compoundname>
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structshader_1_1_controller_1_1_program_1ad96877766dcd86ceba98ff505b0b764d" prot="public" static="no" mutable="no">
+        <type>std::unique_ptr&lt; <ref refid="classjuce_1_1OpenGLShaderProgram" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::OpenGLShaderProgram</ref> &gt;</type>
+        <definition>std::unique_ptr&lt;juce::OpenGLShaderProgram&gt; shader::Controller::Program::p</definition>
+        <argsstring></argsstring>
+        <name>p</name>
+        <qualifiedname>shader::Controller::Program::p</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="shader/Controller.h" line="75" column="25" bodyfile="shader/Controller.h" bodystart="75" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structshader_1_1_controller_1_1_program_1a29201049379400f08e9dd3e56fa8730a" prot="public" static="no" mutable="no">
+        <type>std::optional&lt; <ref refid="classjuce_1_1OpenGLFrameBuffer" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::OpenGLFrameBuffer</ref> &gt;</type>
+        <definition>std::optional&lt;juce::OpenGLFrameBuffer&gt; shader::Controller::Program::fbo</definition>
+        <argsstring></argsstring>
+        <name>fbo</name>
+        <qualifiedname>shader::Controller::Program::fbo</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="shader/Controller.h" line="76" column="23" bodyfile="shader/Controller.h" bodystart="76" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="3">
+        <label>juce::OpenGLShaderProgram</label>
+        <link refid="classjuce_1_1OpenGLShaderProgram" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="1">
+        <label>shader::Controller::Program</label>
+        <link refid="structshader_1_1_controller_1_1_program"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>p</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>std::unique_ptr&lt; juce::OpenGLShaderProgram &gt;</label>
+        <childnode refid="3" relation="usage">
+          <edgelabel>ptr</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="shader/Controller.h" line="73" column="5" bodyfile="shader/Controller.h" bodystart="74" bodyend="77"/>
+    <listofallmembers>
+      <member refid="structshader_1_1_controller_1_1_program_1a29201049379400f08e9dd3e56fa8730a" prot="public" virt="non-virtual"><scope>shader::Controller::Program</scope><name>fbo</name></member>
+      <member refid="structshader_1_1_controller_1_1_program_1ad96877766dcd86ceba98ff505b0b764d" prot="public" virt="non-virtual"><scope>shader::Controller::Program</scope><name>p</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

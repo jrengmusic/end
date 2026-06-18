@@ -9,7 +9,7 @@
 #include "action/Registry.h"
 #include "config/Config.h"
 #include "shader/Controller.h"
-#include "Map.h"
+#include "Bimap.h"
 
 namespace end
 {
@@ -54,10 +54,14 @@ public:
     /** @brief Destructs the View, removing all listeners and the key listener. */
     ~View() override;
 
-    /** @brief Updates view state dimensions and lays out tabs and messageOverlay.
+    /** @brief Updates view state dimensions, lays out tabs/messageOverlay, resizes shader pipeline FBOs.
      *
      *  Writes the current width and height into the view state tree, then
-     *  bounds both @c tabs and @c messageOverlay to @c getLocalBounds().
+     *  bounds both @c tabs and @c messageOverlay to @c getLocalBounds(). Also
+     *  calls @c shader.resizeViewport(w, h) to re-initialise every buffer-pass
+     *  FBO at the new dimensions and clear them for first-frame determinism
+     *  after a resize. View tells Controller to resize; Controller manages
+     *  its own FBO state.
      */
     void resized() override;
 

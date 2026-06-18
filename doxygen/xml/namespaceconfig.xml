@@ -2,10 +2,10 @@
 <doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
   <compounddef id="namespaceconfig" kind="namespace" language="C++">
     <compoundname>config</compoundname>
+    <innerclass refid="structconfig_1_1_file" prot="public">config::File</innerclass>
     <innerclass refid="classconfig_1_1_shader" prot="public">config::Shader</innerclass>
     <innerclass refid="classconfig_1_1_theme" prot="public">config::Theme</innerclass>
     <innerclass refid="classconfig_1_1_model" prot="public">config::Model</innerclass>
-    <innerclass refid="structconfig_1_1_file" prot="public">config::File</innerclass>
     <sectiondef kind="func">
       <memberdef kind="function" id="namespaceconfig_1add672f45a783ef9f13d810962fe6042c" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
         <templateparamlist>
@@ -49,7 +49,7 @@
         </inbodydescription>
         <location file="config/Config.cpp" line="29" column="22" bodyfile="config/Config.cpp" bodystart="29" bodyend="36"/>
         <references refid="namespaceconfig_1add672f45a783ef9f13d810962fe6042c" compoundref="_config_8cpp" startline="19" endline="25">enumCheck</references>
-        <references refid="structjam_1_1Context_1a3ff553f70ef61043352c54cfed475b4c">jam::Context&lt; Derived &gt;::getInstance</references>
+        <references refid="structjam_1_1Instance_1ad5d2bbb58e37d8d260b428b334823140">jam::Instance&lt; Derived &gt;::getInstance</references>
         <referencedby refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" compoundref="_config_8cpp" startline="39" endline="84">config::Model::initialise</referencedby>
       </memberdef>
     </sectiondef>
@@ -57,6 +57,6 @@
     </briefdescription>
     <detaileddescription>
     </detaileddescription>
-    <location file="config/Config.cpp" line="3" column="1"/>
+    <location file="Bimap.h" line="103" column="1"/>
   </compounddef>
 </doxygen>

@@ -2,14 +2,14 @@
 <doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
   <compounddef id="structend_1_1_position" kind="struct" language="C++" prot="public">
     <compoundname>end::Position</compoundname>
-    <basecompoundref refid="classjam_1_1Map_1_1Instance" prot="public" virt="non-virtual">jam::Map::Instance&lt; Position &gt;</basecompoundref>
-    <includes refid="_map_8h" local="no">Map.h</includes>
+    <basecompoundref refid="classjam_1_1Bimap" prot="public" virt="non-virtual">jam::Bimap&lt; Position &gt;</basecompoundref>
+    <includes refid="_bimap_8h" local="no">Bimap.h</includes>
     <sectiondef kind="public-type">
-      <memberdef kind="enum" id="structend_1_1_position_1ab2fe4f146ba9f32af08e83a678fcc143" prot="public" static="no" strong="no">
+      <memberdef kind="enum" id="structend_1_1_position_1a6dba09e7e98ef109c7c24c5244d2aeff" prot="public" static="no" strong="no">
         <type></type>
-        <name>@250111151202034007030276371203050156100271335300</name>
-        <qualifiedname>end::Position::@250111151202034007030276371203050156100271335300</qualifiedname>
-        <enumvalue id="structend_1_1_position_1ab2fe4f146ba9f32af08e83a678fcc143a9d3c44ea19c8e9e5d1650be17ab4fc6e" prot="public">
+        <name>@073136302230255122020054067150167175020125200332</name>
+        <qualifiedname>end::Position::@073136302230255122020054067150167175020125200332</qualifiedname>
+        <enumvalue id="structend_1_1_position_1a6dba09e7e98ef109c7c24c5244d2aeffa9d3c44ea19c8e9e5d1650be17ab4fc6e" prot="public">
           <name>top</name>
           <briefdescription>
 <para><ref refid="structend_1_1_position" kindref="compound">Position</ref> at top. </para>
@@ -17,7 +17,7 @@
           <detaileddescription>
           </detaileddescription>
         </enumvalue>
-        <enumvalue id="structend_1_1_position_1ab2fe4f146ba9f32af08e83a678fcc143ad52282e0dd5a6fbecfbe0f36ea5d4c23" prot="public">
+        <enumvalue id="structend_1_1_position_1a6dba09e7e98ef109c7c24c5244d2aeffad52282e0dd5a6fbecfbe0f36ea5d4c23" prot="public">
           <name>right</name>
           <briefdescription>
 <para><ref refid="structend_1_1_position" kindref="compound">Position</ref> at right. </para>
@@ -25,7 +25,7 @@
           <detaileddescription>
           </detaileddescription>
         </enumvalue>
-        <enumvalue id="structend_1_1_position_1ab2fe4f146ba9f32af08e83a678fcc143a9a50bf1430af6bb133f7995767ce297c" prot="public">
+        <enumvalue id="structend_1_1_position_1a6dba09e7e98ef109c7c24c5244d2aeffa9a50bf1430af6bb133f7995767ce297c" prot="public">
           <name>bottom</name>
           <briefdescription>
 <para><ref refid="structend_1_1_position" kindref="compound">Position</ref> at bottom (default). </para>
@@ -33,7 +33,7 @@
           <detaileddescription>
           </detaileddescription>
         </enumvalue>
-        <enumvalue id="structend_1_1_position_1ab2fe4f146ba9f32af08e83a678fcc143aff86c7b45e58c6678fc26bff2a0a821a" prot="public">
+        <enumvalue id="structend_1_1_position_1a6dba09e7e98ef109c7c24c5244d2aeffaff86c7b45e58c6678fc26bff2a0a821a" prot="public">
           <name>left</name>
           <briefdescription>
 <para><ref refid="structend_1_1_position" kindref="compound">Position</ref> at left. </para>
@@ -41,7 +41,7 @@
           <detaileddescription>
           </detaileddescription>
         </enumvalue>
-        <enumvalue id="structend_1_1_position_1ab2fe4f146ba9f32af08e83a678fcc143acb1af5b03312f174c715f20f8ba6a7f8" prot="public">
+        <enumvalue id="structend_1_1_position_1a6dba09e7e98ef109c7c24c5244d2aeffacb1af5b03312f174c715f20f8ba6a7f8" prot="public">
           <name>center</name>
           <briefdescription>
 <para>Centered position. </para>
@@ -57,7 +57,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="33" column="5" bodyfile="end/Map.h" bodystart="34" bodyend="40"/>
+        <location file="Bimap.h" line="33" column="5" bodyfile="Bimap.h" bodystart="34" bodyend="40"/>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">
@@ -74,13 +74,13 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="43" column="5" bodyfile="end/Map.h" bodystart="43" bodyend="52"/>
-        <references refid="structend_1_1_position_1ab2fe4f146ba9f32af08e83a678fcc143a9a50bf1430af6bb133f7995767ce297c" compoundref="_map_8h" startline="37">bottom</references>
-        <references refid="structend_1_1_position_1ab2fe4f146ba9f32af08e83a678fcc143acb1af5b03312f174c715f20f8ba6a7f8" compoundref="_map_8h" startline="39">center</references>
-        <references refid="structend_1_1_position_1ab2fe4f146ba9f32af08e83a678fcc143aff86c7b45e58c6678fc26bff2a0a821a" compoundref="_map_8h" startline="38">left</references>
-        <references refid="classjam_1_1Map_1_1Instance_1afe0acf25bab1f104aea20f20174129d1">jam::Map::Instance&lt; Position &gt;::map</references>
-        <references refid="structend_1_1_position_1ab2fe4f146ba9f32af08e83a678fcc143ad52282e0dd5a6fbecfbe0f36ea5d4c23" compoundref="_map_8h" startline="36">right</references>
-        <references refid="structend_1_1_position_1ab2fe4f146ba9f32af08e83a678fcc143a9d3c44ea19c8e9e5d1650be17ab4fc6e" compoundref="_map_8h" startline="35">top</references>
+        <location file="Bimap.h" line="43" column="5" bodyfile="Bimap.h" bodystart="43" bodyend="52"/>
+        <references refid="structend_1_1_position_1a6dba09e7e98ef109c7c24c5244d2aeffa9a50bf1430af6bb133f7995767ce297c" compoundref="_bimap_8h" startline="37">bottom</references>
+        <references refid="structend_1_1_position_1a6dba09e7e98ef109c7c24c5244d2aeffacb1af5b03312f174c715f20f8ba6a7f8" compoundref="_bimap_8h" startline="39">center</references>
+        <references refid="structend_1_1_position_1a6dba09e7e98ef109c7c24c5244d2aeffaff86c7b45e58c6678fc26bff2a0a821a" compoundref="_bimap_8h" startline="38">left</references>
+        <references refid="classjam_1_1Bimap_1a9e17f006e09559363aa2352f78477e8e">jam::Bimap&lt; Position &gt;::map</references>
+        <references refid="structend_1_1_position_1a6dba09e7e98ef109c7c24c5244d2aeffad52282e0dd5a6fbecfbe0f36ea5d4c23" compoundref="_bimap_8h" startline="36">right</references>
+        <references refid="structend_1_1_position_1a6dba09e7e98ef109c7c24c5244d2aeffa9d3c44ea19c8e9e5d1650be17ab4fc6e" compoundref="_bimap_8h" startline="35">top</references>
       </memberdef>
       <memberdef kind="function" id="structend_1_1_position_1af5f03f30b13680f5dd13496ac3cc6f39" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="virtual">
         <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref> &amp;</type>
@@ -88,16 +88,16 @@
         <argsstring>() const noexcept override</argsstring>
         <name>getDefault</name>
         <qualifiedname>end::Position::getDefault</qualifiedname>
-        <reimplements refid="classjam_1_1Map_1_1Instance_1acf3bf9980fc2a26ba7a0c79c65908550">getDefault</reimplements>
+        <reimplements refid="classjam_1_1Bimap_1ad13260eca8ba349ebf22d814085a3d86">getDefault</reimplements>
         <briefdescription>
         </briefdescription>
         <detaileddescription>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="54" column="24" bodyfile="end/Map.h" bodystart="54" bodyend="54"/>
-        <references refid="structend_1_1_position_1ab2fe4f146ba9f32af08e83a678fcc143a9a50bf1430af6bb133f7995767ce297c" compoundref="_map_8h" startline="37">bottom</references>
-        <references refid="classjam_1_1Map_1_1Instance_1afe0acf25bab1f104aea20f20174129d1">jam::Map::Instance&lt; Position &gt;::map</references>
+        <location file="Bimap.h" line="54" column="24" bodyfile="Bimap.h" bodystart="54" bodyend="54"/>
+        <references refid="structend_1_1_position_1a6dba09e7e98ef109c7c24c5244d2aeffa9a50bf1430af6bb133f7995767ce297c" compoundref="_bimap_8h" startline="37">bottom</references>
+        <references refid="classjam_1_1Bimap_1a9e17f006e09559363aa2352f78477e8e">jam::Bimap&lt; Position &gt;::map</references>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-static-func">
@@ -113,10 +113,10 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="56" column="23" bodyfile="end/Map.h" bodystart="56" bodyend="56"/>
-        <references refid="structjam_1_1Context_1a3ff553f70ef61043352c54cfed475b4c">jam::Context&lt; Derived &gt;::getInstance</references>
-        <referencedby refid="structend_1_1_position_1a2f477149e1e15d0eb91f7ab652b1e7d6" compoundref="_map_8h" startline="58" endline="61">get</referencedby>
-        <referencedby refid="classend_1_1_view_1a91ed8ef126c0a1b3feb458079c3a7849" compoundref="_view_8cpp" startline="94" endline="100">end::View::setTabOrientation</referencedby>
+        <location file="Bimap.h" line="56" column="23" bodyfile="Bimap.h" bodystart="56" bodyend="56"/>
+        <references refid="structjam_1_1Instance_1ad5d2bbb58e37d8d260b428b334823140">jam::Instance&lt; Derived &gt;::getInstance</references>
+        <referencedby refid="structend_1_1_position_1a2f477149e1e15d0eb91f7ab652b1e7d6" compoundref="_bimap_8h" startline="58" endline="61">get</referencedby>
+        <referencedby refid="classend_1_1_view_1a91ed8ef126c0a1b3feb458079c3a7849" compoundref="_view_8cpp" startline="97" endline="103">end::View::setTabOrientation</referencedby>
       </memberdef>
       <memberdef kind="function" id="structend_1_1_position_1a2f477149e1e15d0eb91f7ab652b1e7d6" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
         <type>int</type>
@@ -134,8 +134,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="58" column="16" bodyfile="end/Map.h" bodystart="58" bodyend="61"/>
-        <references refid="structend_1_1_position_1a60c3eb56c5d84d1d92833502247abfdd" compoundref="_map_8h" startline="56" endline="56">get</references>
+        <location file="Bimap.h" line="58" column="16" bodyfile="Bimap.h" bodystart="58" bodyend="61"/>
+        <references refid="structend_1_1_position_1a60c3eb56c5d84d1d92833502247abfdd" compoundref="_bimap_8h" startline="56" endline="56">get</references>
         <references refid="structjam_1_1Map_1ae8fbbc14cd030a156f6e3aaabba5778c">jam::Map::getKey</references>
       </memberdef>
       <memberdef kind="function" id="structend_1_1_position_1a8870ba1c7d71c5c2c0ed07727d3a17ae" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
@@ -154,8 +154,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="end/Map.h" line="63" column="31" bodyfile="end/Map.h" bodystart="63" bodyend="63"/>
-        <references refid="structjam_1_1Context_1a3ff553f70ef61043352c54cfed475b4c">jam::Context&lt; Derived &gt;::getInstance</references>
+        <location file="Bimap.h" line="63" column="31" bodyfile="Bimap.h" bodystart="63" bodyend="63"/>
+        <references refid="structjam_1_1Instance_1ad5d2bbb58e37d8d260b428b334823140">jam::Instance&lt; Derived &gt;::getInstance</references>
       </memberdef>
     </sectiondef>
     <briefdescription>
@@ -173,15 +173,15 @@
         <childnode refid="2" relation="public-inheritance">
         </childnode>
       </node>
-      <node id="3">
-        <label>jam::Context&lt; Derived &gt;</label>
-        <link refid="structjam_1_1Context" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-      </node>
       <node id="2">
-        <label>jam::Map::Instance&lt; Position &gt;</label>
-        <link refid="classjam_1_1Map_1_1Instance" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <label>jam::Bimap&lt; Position &gt;</label>
+        <link refid="classjam_1_1Bimap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
         <childnode refid="3" relation="public-inheritance">
         </childnode>
+      </node>
+      <node id="3">
+        <label>jam::Instance&lt; Derived &gt;</label>
+        <link refid="structjam_1_1Instance" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
     </inheritancegraph>
     <collaborationgraph>
@@ -191,45 +191,51 @@
         <childnode refid="2" relation="public-inheritance">
         </childnode>
       </node>
-      <node id="3">
-        <label>jam::Context&lt; Derived &gt;</label>
-        <link refid="structjam_1_1Context" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-      </node>
-      <node id="4">
-        <label>jam::HashMap&lt; int, juce::String &gt;</label>
-        <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-      </node>
       <node id="2">
-        <label>jam::Map::Instance&lt; Position &gt;</label>
-        <link refid="classjam_1_1Map_1_1Instance" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <label>jam::Bimap&lt; Position &gt;</label>
+        <link refid="classjam_1_1Bimap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
         <childnode refid="3" relation="public-inheritance">
         </childnode>
         <childnode refid="4" relation="usage">
           <edgelabel>map</edgelabel>
         </childnode>
       </node>
+      <node id="3">
+        <label>jam::Instance&lt; Derived &gt;</label>
+        <link refid="structjam_1_1Instance" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
+      <node id="5">
+        <label>juce::String</label>
+        <link refid="classjuce_1_1String" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="4">
+        <label>std::map&lt; int, juce::String &gt;</label>
+        <childnode refid="5" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
     </collaborationgraph>
-    <location file="end/Map.h" line="26" column="1" bodyfile="end/Map.h" bodystart="27" bodyend="64"/>
+    <location file="Bimap.h" line="26" column="1" bodyfile="Bimap.h" bodystart="27" bodyend="64"/>
     <listofallmembers>
-      <member refid="structend_1_1_position_1ab2fe4f146ba9f32af08e83a678fcc143a9a50bf1430af6bb133f7995767ce297c" prot="public" virt="non-virtual"><scope>end::Position</scope><name>bottom</name></member>
-      <member refid="structend_1_1_position_1ab2fe4f146ba9f32af08e83a678fcc143acb1af5b03312f174c715f20f8ba6a7f8" prot="public" virt="non-virtual"><scope>end::Position</scope><name>center</name></member>
-      <member refid="classjam_1_1Map_1_1Instance_1a39231f6d1e13c6f64e72a07851a130c4" prot="public" virt="non-virtual"><scope>end::Position</scope><name>contains</name></member>
-      <member refid="structjam_1_1Context_1a6e3f38a234db8ff2a9acb5986e72a2de" prot="public" virt="non-virtual"><scope>end::Position</scope><name>Context</name></member>
+      <member refid="structend_1_1_position_1a6dba09e7e98ef109c7c24c5244d2aeffa9a50bf1430af6bb133f7995767ce297c" prot="public" virt="non-virtual"><scope>end::Position</scope><name>bottom</name></member>
+      <member refid="structend_1_1_position_1a6dba09e7e98ef109c7c24c5244d2aeffacb1af5b03312f174c715f20f8ba6a7f8" prot="public" virt="non-virtual"><scope>end::Position</scope><name>center</name></member>
+      <member refid="classjam_1_1Bimap_1a3396307cd01cc5b2171954585f05aef2" prot="public" virt="non-virtual"><scope>end::Position</scope><name>contains</name></member>
       <member refid="structend_1_1_position_1a60c3eb56c5d84d1d92833502247abfdd" prot="public" virt="non-virtual"><scope>end::Position</scope><name>get</name></member>
       <member refid="structend_1_1_position_1a2f477149e1e15d0eb91f7ab652b1e7d6" prot="public" virt="non-virtual"><scope>end::Position</scope><name>get</name></member>
       <member refid="structend_1_1_position_1a8870ba1c7d71c5c2c0ed07727d3a17ae" prot="public" virt="non-virtual"><scope>end::Position</scope><name>get</name></member>
-      <member refid="classjam_1_1Map_1_1Instance_1a098abe8fd166d7d61763bf0d215799cd" prot="public" virt="non-virtual" ambiguityscope="jam::Map::Instance&lt; Position &gt;::"><scope>end::Position</scope><name>get</name></member>
+      <member refid="classjam_1_1Bimap_1a0af1da30e2ad9caf0420dea9b49fde54" prot="public" virt="non-virtual" ambiguityscope="jam::Bimap&lt; Position &gt;::"><scope>end::Position</scope><name>get</name></member>
       <member refid="structend_1_1_position_1af5f03f30b13680f5dd13496ac3cc6f39" prot="public" virt="virtual"><scope>end::Position</scope><name>getDefault</name></member>
-      <member refid="structjam_1_1Context_1a3ff553f70ef61043352c54cfed475b4c" prot="public" virt="non-virtual"><scope>end::Position</scope><name>getInstance</name></member>
-      <member refid="structjam_1_1Context_1a5900ff66cdba02d6f6947cc6d5e8ec3d" prot="private" virt="non-virtual"><scope>end::Position</scope><name>head</name></member>
-      <member refid="structend_1_1_position_1ab2fe4f146ba9f32af08e83a678fcc143aff86c7b45e58c6678fc26bff2a0a821a" prot="public" virt="non-virtual"><scope>end::Position</scope><name>left</name></member>
-      <member refid="classjam_1_1Map_1_1Instance_1afe0acf25bab1f104aea20f20174129d1" prot="protected" virt="non-virtual"><scope>end::Position</scope><name>map</name></member>
-      <member refid="structjam_1_1Context_1a6716feb60b039083ca0c099a506a3474" prot="public" virt="non-virtual"><scope>end::Position</scope><name>operator=</name></member>
+      <member refid="structjam_1_1Instance_1ad5d2bbb58e37d8d260b428b334823140" prot="public" virt="non-virtual"><scope>end::Position</scope><name>getInstance</name></member>
+      <member refid="structjam_1_1Instance_1a719a3eec42d68f1566de6b5dcd34589a" prot="private" virt="non-virtual"><scope>end::Position</scope><name>head</name></member>
+      <member refid="structjam_1_1Instance_1a85529c50c3424e8b843fa92fa2f9c4da" prot="public" virt="non-virtual"><scope>end::Position</scope><name>Instance</name></member>
+      <member refid="structend_1_1_position_1a6dba09e7e98ef109c7c24c5244d2aeffaff86c7b45e58c6678fc26bff2a0a821a" prot="public" virt="non-virtual"><scope>end::Position</scope><name>left</name></member>
+      <member refid="classjam_1_1Bimap_1a9e17f006e09559363aa2352f78477e8e" prot="protected" virt="non-virtual"><scope>end::Position</scope><name>map</name></member>
+      <member refid="structjam_1_1Instance_1a8bcf431bb53fe6432585a139f6bc562d" prot="public" virt="non-virtual"><scope>end::Position</scope><name>operator=</name></member>
       <member refid="structend_1_1_position_1aad8c1a31b60ce4b9b27447e15188fd6e" prot="public" virt="non-virtual"><scope>end::Position</scope><name>Position</name></member>
-      <member refid="structjam_1_1Context_1aa1862120f2983ab7ddef536ba03bb114" prot="private" virt="non-virtual"><scope>end::Position</scope><name>previous</name></member>
-      <member refid="structend_1_1_position_1ab2fe4f146ba9f32af08e83a678fcc143ad52282e0dd5a6fbecfbe0f36ea5d4c23" prot="public" virt="non-virtual"><scope>end::Position</scope><name>right</name></member>
-      <member refid="structend_1_1_position_1ab2fe4f146ba9f32af08e83a678fcc143a9d3c44ea19c8e9e5d1650be17ab4fc6e" prot="public" virt="non-virtual"><scope>end::Position</scope><name>top</name></member>
-      <member refid="structjam_1_1Context_1a4169820e71837632922d3d17b377aeee" prot="public" virt="virtual"><scope>end::Position</scope><name>~Context</name></member>
+      <member refid="structjam_1_1Instance_1af12a7073f28131cc327baa99fc5745d8" prot="private" virt="non-virtual"><scope>end::Position</scope><name>previous</name></member>
+      <member refid="structend_1_1_position_1a6dba09e7e98ef109c7c24c5244d2aeffad52282e0dd5a6fbecfbe0f36ea5d4c23" prot="public" virt="non-virtual"><scope>end::Position</scope><name>right</name></member>
+      <member refid="structend_1_1_position_1a6dba09e7e98ef109c7c24c5244d2aeffa9d3c44ea19c8e9e5d1650be17ab4fc6e" prot="public" virt="non-virtual"><scope>end::Position</scope><name>top</name></member>
+      <member refid="structjam_1_1Instance_1a6d091bd7f9bfd134ba3c831c8a3b04a3" prot="public" virt="virtual"><scope>end::Position</scope><name>~Instance</name></member>
     </listofallmembers>
   </compounddef>
 </doxygen>

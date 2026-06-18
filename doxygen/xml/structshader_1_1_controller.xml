@@ -5,7 +5,7 @@
     <basecompoundref refid="classjuce_1_1OpenGLRenderer" prot="private" virt="non-virtual">juce::OpenGLRenderer</basecompoundref>
     <basecompoundref refid="classjuce_1_1ValueTree_1_1Listener" prot="private" virt="non-virtual">juce::ValueTree::Listener</basecompoundref>
     <includes refid="_controller_8h" local="no">Controller.h</includes>
-    <innerclass refid="structshader_1_1_controller_1_1_pass" prot="public">shader::Controller::Pass</innerclass>
+    <innerclass refid="structshader_1_1_controller_1_1_program" prot="private">shader::Controller::Program</innerclass>
     <sectiondef kind="public-attrib">
       <memberdef kind="variable" id="structshader_1_1_controller_1a9bf822833c1d1308b1115aae3ac6f35a" prot="public" static="no" mutable="no">
         <type><ref refid="classjuce_1_1OpenGLContext" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::OpenGLContext</ref></type>
@@ -21,48 +21,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="shader/Controller.h" line="77" column="25" bodyfile="shader/Controller.h" bodystart="77" bodyend="-1"/>
-        <referencedby refid="structshader_1_1_controller_1a261eecb70bbd676b432e328c166816f1" compoundref="_controller_8cpp" startline="23" endline="34">attach</referencedby>
-        <referencedby refid="structshader_1_1_controller_1ac888bf835596922d42e6b530c8156670" compoundref="_controller_8cpp" startline="36" endline="40">detach</referencedby>
-        <referencedby refid="structshader_1_1_controller_1a33e37a46958ce5de0585b76e8e451f24" compoundref="_controller_8cpp" startline="42" endline="45">isAttached</referencedby>
-        <referencedby refid="structshader_1_1_controller_1a3d374a76e1c128b739b98107c2f413c8" compoundref="_controller_8cpp" startline="191" endline="223">loadShaders</referencedby>
-        <referencedby refid="structshader_1_1_controller_1a98c779a896ffd3370fb064665b81e8b6" compoundref="_controller_8cpp" startline="84" endline="153">render</referencedby>
-        <referencedby refid="structshader_1_1_controller_1a61e18f3ad9688a09aa4d4b7bbb01ccb7" compoundref="_controller_8cpp" startline="18" endline="21">shutdownOpenGL</referencedby>
-        <referencedby refid="structshader_1_1_controller_1a875459eca0ce7cc1cf7184da1a91f1d8" compoundref="_controller_8cpp" startline="156" endline="189">valueTreePropertyChanged</referencedby>
-      </memberdef>
-    </sectiondef>
-    <sectiondef kind="private-static-attrib">
-      <memberdef kind="variable" id="structshader_1_1_controller_1addf4a74f07919acc5176a96189121148" prot="private" static="yes" mutable="no">
-        <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref></type>
-        <definition>const juce::String shader::Controller::vertexSource</definition>
-        <argsstring></argsstring>
-        <name>vertexSource</name>
-        <qualifiedname>shader::Controller::vertexSource</qualifiedname>
-        <initializer>{ <ref refid="namespaceBinaryData_1ac7695032563aaf6d03ebfc469298bb1a" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">BinaryData::getString</ref> (&quot;quad.vert&quot;) }</initializer>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="shader/Controller.h" line="115" column="38" bodyfile="shader/Controller.h" bodystart="115" bodyend="115"/>
-        <referencedby refid="structshader_1_1_controller_1a3d374a76e1c128b739b98107c2f413c8" compoundref="_controller_8cpp" startline="191" endline="223">loadShaders</referencedby>
-      </memberdef>
-      <memberdef kind="variable" id="structshader_1_1_controller_1a4ef43cb9c4020b89f79ec4b1d00d1616" prot="private" static="yes" mutable="no">
-        <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref></type>
-        <definition>const juce::String shader::Controller::wrapper</definition>
-        <argsstring></argsstring>
-        <name>wrapper</name>
-        <qualifiedname>shader::Controller::wrapper</qualifiedname>
-        <initializer>{ <ref refid="namespaceBinaryData_1ac7695032563aaf6d03ebfc469298bb1a" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">BinaryData::getString</ref> (&quot;shader.frag&quot;) }</initializer>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="shader/Controller.h" line="116" column="38" bodyfile="shader/Controller.h" bodystart="116" bodyend="116"/>
-        <referencedby refid="structshader_1_1_controller_1a875459eca0ce7cc1cf7184da1a91f1d8" compoundref="_controller_8cpp" startline="156" endline="189">valueTreePropertyChanged</referencedby>
+        <location file="shader/Controller.h" line="48" column="25" bodyfile="shader/Controller.h" bodystart="48" bodyend="-1"/>
+        <referencedby refid="structshader_1_1_controller_1a261eecb70bbd676b432e328c166816f1" compoundref="_controller_8cpp" startline="13" endline="22">attach</referencedby>
+        <referencedby refid="structshader_1_1_controller_1ac888bf835596922d42e6b530c8156670" compoundref="_controller_8cpp" startline="24" endline="28">detach</referencedby>
+        <referencedby refid="structshader_1_1_controller_1a33e37a46958ce5de0585b76e8e451f24" compoundref="_controller_8cpp" startline="30" endline="30">isAttached</referencedby>
+        <referencedby refid="structshader_1_1_controller_1a61e18f3ad9688a09aa4d4b7bbb01ccb7" compoundref="_controller_8cpp" startline="11" endline="11">shutdownOpenGL</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="private-attrib">
@@ -79,63 +42,72 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="shader/Controller.h" line="118" column="9" bodyfile="shader/Controller.h" bodystart="118" bodyend="118"/>
-        <referencedby refid="structshader_1_1_controller_1a3fb139ea98ddcf75a83224894a5ba4df" compoundref="_controller_8h" startline="60" endline="60">getFrameCounter</referencedby>
-        <referencedby refid="structshader_1_1_controller_1a98c779a896ffd3370fb064665b81e8b6" compoundref="_controller_8cpp" startline="84" endline="153">render</referencedby>
-        <referencedby refid="structshader_1_1_controller_1a08ef3c4c7114fb06c4094af17535d725" compoundref="_controller_8cpp" startline="53" endline="57">renderOpenGL</referencedby>
+        <location file="shader/Controller.h" line="69" column="9" bodyfile="shader/Controller.h" bodystart="69" bodyend="69"/>
+        <referencedby refid="structshader_1_1_controller_1a3fb139ea98ddcf75a83224894a5ba4df" compoundref="_controller_8h" startline="31" endline="31">getFrameCounter</referencedby>
+        <referencedby refid="structshader_1_1_controller_1a08ef3c4c7114fb06c4094af17535d725" compoundref="_controller_8cpp" startline="39" endline="45">renderOpenGL</referencedby>
       </memberdef>
-      <memberdef kind="variable" id="structshader_1_1_controller_1a0ff01484f7ee0d673a929dc397d08057" prot="private" static="no" mutable="no">
-        <type><ref refid="structshader_1_1_quad" kindref="compound">Quad</ref></type>
-        <definition>Quad shader::Controller::quad</definition>
+      <memberdef kind="variable" id="structshader_1_1_controller_1a211e4712ec042e5aa804c955ef87b6f4" prot="private" static="no" mutable="no">
+        <type><ref refid="classjuce_1_1ValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::ValueTree</ref></type>
+        <definition>juce::ValueTree shader::Controller::shaders</definition>
         <argsstring></argsstring>
-        <name>quad</name>
-        <qualifiedname>shader::Controller::quad</qualifiedname>
+        <name>shaders</name>
+        <qualifiedname>shader::Controller::shaders</qualifiedname>
+        <initializer>{ <ref refid="structjam_1_1Instance_1ad5d2bbb58e37d8d260b428b334823140" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">config::Model::getInstance</ref>()-&gt;getShader().state }</initializer>
         <briefdescription>
         </briefdescription>
         <detaileddescription>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="shader/Controller.h" line="119" column="10" bodyfile="shader/Controller.h" bodystart="119" bodyend="-1"/>
-        <referencedby refid="structshader_1_1_controller_1a9a3adad202f34ebf260ae5a025193518" compoundref="_controller_8cpp" startline="65" endline="72">initialise</referencedby>
-        <referencedby refid="structshader_1_1_controller_1a98c779a896ffd3370fb064665b81e8b6" compoundref="_controller_8cpp" startline="84" endline="153">render</referencedby>
-        <referencedby refid="structshader_1_1_controller_1a51dc8fc16ff000ac9e46e68f10c82869" compoundref="_controller_8cpp" startline="74" endline="82">shutdown</referencedby>
+        <location file="shader/Controller.h" line="71" column="21" bodyfile="shader/Controller.h" bodystart="71" bodyend="71"/>
+        <referencedby refid="structshader_1_1_controller_1a261eecb70bbd676b432e328c166816f1" compoundref="_controller_8cpp" startline="13" endline="22">attach</referencedby>
+        <referencedby refid="structshader_1_1_controller_1ac888bf835596922d42e6b530c8156670" compoundref="_controller_8cpp" startline="24" endline="28">detach</referencedby>
       </memberdef>
-      <memberdef kind="variable" id="structshader_1_1_controller_1a60e01e6d4be8deaf70f84236d02be0f4" prot="private" static="no" mutable="no">
-        <type><ref refid="classjam_1_1HashMap" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::HashMap</ref>&lt; <ref refid="classjuce_1_1Identifier" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Identifier</ref>, <ref refid="structshader_1_1_controller_1_1_pass" kindref="compound">Pass</ref> &gt;</type>
-        <definition>jam::HashMap&lt;juce::Identifier, Pass&gt; shader::Controller::passes</definition>
+      <memberdef kind="variable" id="structshader_1_1_controller_1aa815de0a99de8a71f2b4c94be92ca754" prot="private" static="no" mutable="no">
+        <type><ref refid="classjam_1_1HashMap" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::HashMap</ref>&lt; <ref refid="classjuce_1_1Identifier" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Identifier</ref>, std::unique_ptr&lt; <ref refid="structshader_1_1_controller_1_1_program" kindref="compound">Program</ref> &gt; &gt;</type>
+        <definition>jam::HashMap&lt;juce::Identifier, std::unique_ptr&lt;Program&gt; &gt; shader::Controller::programs</definition>
         <argsstring></argsstring>
-        <name>passes</name>
-        <qualifiedname>shader::Controller::passes</qualifiedname>
-        <briefdescription>
-<para><ref refid="structshader_1_1_controller_1_1_pass" kindref="compound">Pass</ref> table — one entry per compiled shader pass. </para>
-        </briefdescription>
-        <detaileddescription>
-<para>Mirrors LookAndFeel::graphics. Rebuilt by <ref refid="structshader_1_1_controller_1a3d374a76e1c128b739b98107c2f413c8" kindref="member">loadShaders()</ref>. </para>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="shader/Controller.h" line="124" column="18" bodyfile="shader/Controller.h" bodystart="124" bodyend="-1"/>
-        <referencedby refid="structshader_1_1_controller_1a3d374a76e1c128b739b98107c2f413c8" compoundref="_controller_8cpp" startline="191" endline="223">loadShaders</referencedby>
-        <referencedby refid="structshader_1_1_controller_1a98c779a896ffd3370fb064665b81e8b6" compoundref="_controller_8cpp" startline="84" endline="153">render</referencedby>
-        <referencedby refid="structshader_1_1_controller_1a51dc8fc16ff000ac9e46e68f10c82869" compoundref="_controller_8cpp" startline="74" endline="82">shutdown</referencedby>
-      </memberdef>
-      <memberdef kind="variable" id="structshader_1_1_controller_1a10de49b0344c71ffa0119b40b775a618" prot="private" static="no" mutable="no">
-        <type><ref refid="classconfig_1_1_shader" kindref="compound">config::Shader</ref> &amp;</type>
-        <definition>config::Shader&amp; shader::Controller::shaderConfig</definition>
-        <argsstring></argsstring>
-        <name>shaderConfig</name>
-        <qualifiedname>shader::Controller::shaderConfig</qualifiedname>
-        <initializer>{ <ref refid="structjam_1_1Context_1a3ff553f70ef61043352c54cfed475b4c" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">config::Model::getInstance</ref>()-&gt;getShader() }</initializer>
+        <name>programs</name>
+        <qualifiedname>shader::Controller::programs</qualifiedname>
         <briefdescription>
         </briefdescription>
         <detaileddescription>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="shader/Controller.h" line="126" column="20" bodyfile="shader/Controller.h" bodystart="126" bodyend="126"/>
-        <referencedby refid="structshader_1_1_controller_1a261eecb70bbd676b432e328c166816f1" compoundref="_controller_8cpp" startline="23" endline="34">attach</referencedby>
-        <referencedby refid="structshader_1_1_controller_1ac888bf835596922d42e6b530c8156670" compoundref="_controller_8cpp" startline="36" endline="40">detach</referencedby>
+        <location file="shader/Controller.h" line="79" column="18" bodyfile="shader/Controller.h" bodystart="79" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="private-static-attrib">
+      <memberdef kind="variable" id="structshader_1_1_controller_1a4ef43cb9c4020b89f79ec4b1d00d1616" prot="private" static="yes" mutable="no">
+        <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref></type>
+        <definition>const juce::String shader::Controller::wrapper</definition>
+        <argsstring></argsstring>
+        <name>wrapper</name>
+        <qualifiedname>shader::Controller::wrapper</qualifiedname>
+        <initializer>{ <ref refid="namespaceBinaryData_1ac7695032563aaf6d03ebfc469298bb1a" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">BinaryData::getString</ref> (&quot;wrapper.frag&quot;) }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="shader/Controller.h" line="80" column="38" bodyfile="shader/Controller.h" bodystart="80" bodyend="80"/>
+      </memberdef>
+      <memberdef kind="variable" id="structshader_1_1_controller_1a903361fa221ca7b1628ede28454ae699" prot="private" static="yes" mutable="no">
+        <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref></type>
+        <definition>const juce::String shader::Controller::screenQuad</definition>
+        <argsstring></argsstring>
+        <name>screenQuad</name>
+        <qualifiedname>shader::Controller::screenQuad</qualifiedname>
+        <initializer>{ <ref refid="namespaceBinaryData_1ac7695032563aaf6d03ebfc469298bb1a" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">BinaryData::getString</ref> (&quot;screen.vert&quot;) }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="shader/Controller.h" line="81" column="38" bodyfile="shader/Controller.h" bodystart="81" bodyend="81"/>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">
@@ -151,7 +123,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="shader/Controller.h" line="56" column="5"/>
+        <location file="shader/Controller.h" line="27" column="5"/>
       </memberdef>
       <memberdef kind="function" id="structshader_1_1_controller_1a3b63ec57879dc4dad31c99c1ff1ad60a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type></type>
@@ -165,8 +137,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="shader/Controller.h" line="57" column="5" bodyfile="shader/Controller.cpp" bodystart="12" bodyend="15"/>
-        <references refid="structshader_1_1_controller_1a61e18f3ad9688a09aa4d4b7bbb01ccb7" compoundref="_controller_8cpp" startline="18" endline="21">shutdownOpenGL</references>
+        <location file="shader/Controller.h" line="28" column="5" bodyfile="shader/Controller.cpp" bodystart="8" bodyend="8"/>
+        <references refid="structshader_1_1_controller_1a61e18f3ad9688a09aa4d4b7bbb01ccb7" compoundref="_controller_8cpp" startline="11" endline="11">shutdownOpenGL</references>
       </memberdef>
       <memberdef kind="function" id="structshader_1_1_controller_1a3fb139ea98ddcf75a83224894a5ba4df" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
         <type>int</type>
@@ -181,8 +153,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="shader/Controller.h" line="60" column="9" bodyfile="shader/Controller.h" bodystart="60" bodyend="60"/>
-        <references refid="structshader_1_1_controller_1ae963718eabc18998f839b2f8c9280258" compoundref="_controller_8h" startline="118" endline="118">frameCounter</references>
+        <location file="shader/Controller.h" line="31" column="9" bodyfile="shader/Controller.h" bodystart="31" bodyend="31"/>
+        <references refid="structshader_1_1_controller_1ae963718eabc18998f839b2f8c9280258" compoundref="_controller_8h" startline="69" endline="69">frameCounter</references>
       </memberdef>
       <memberdef kind="function" id="structshader_1_1_controller_1a61e18f3ad9688a09aa4d4b7bbb01ccb7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -197,9 +169,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="shader/Controller.h" line="63" column="10" bodyfile="shader/Controller.cpp" bodystart="18" bodyend="21"/>
-        <references refid="structshader_1_1_controller_1a9bf822833c1d1308b1115aae3ac6f35a" compoundref="_controller_8h" startline="77">openGLContext</references>
-        <referencedby refid="structshader_1_1_controller_1a3b63ec57879dc4dad31c99c1ff1ad60a" compoundref="_controller_8cpp" startline="12" endline="15">~Controller</referencedby>
+        <location file="shader/Controller.h" line="34" column="10" bodyfile="shader/Controller.cpp" bodystart="11" bodyend="11"/>
+        <references refid="structshader_1_1_controller_1a9bf822833c1d1308b1115aae3ac6f35a" compoundref="_controller_8h" startline="48">openGLContext</references>
+        <referencedby refid="structshader_1_1_controller_1a3b63ec57879dc4dad31c99c1ff1ad60a" compoundref="_controller_8cpp" startline="8" endline="8">~Controller</referencedby>
       </memberdef>
       <memberdef kind="function" id="structshader_1_1_controller_1a261eecb70bbd676b432e328c166816f1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -228,11 +200,10 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="shader/Controller.h" line="68" column="10" bodyfile="shader/Controller.cpp" bodystart="23" bodyend="34"/>
+        <location file="shader/Controller.h" line="39" column="10" bodyfile="shader/Controller.cpp" bodystart="13" bodyend="22"/>
         <references refid="classjuce_1_1OpenGLContext_1ac41d6e6f7b3441f91bbdbc84a34cf76ca108671e4cd7308c65bcc908aa87dbbe2">juce::OpenGLContext::openGL3_2</references>
-        <references refid="structshader_1_1_controller_1a9bf822833c1d1308b1115aae3ac6f35a" compoundref="_controller_8h" startline="77">openGLContext</references>
-        <references refid="structshader_1_1_controller_1a10de49b0344c71ffa0119b40b775a618" compoundref="_controller_8h" startline="126" endline="126">shaderConfig</references>
-        <references refid="structshader_1_1_controller_1a875459eca0ce7cc1cf7184da1a91f1d8" compoundref="_controller_8cpp" startline="156" endline="189">valueTreePropertyChanged</references>
+        <references refid="structshader_1_1_controller_1a9bf822833c1d1308b1115aae3ac6f35a" compoundref="_controller_8h" startline="48">openGLContext</references>
+        <references refid="structshader_1_1_controller_1a211e4712ec042e5aa804c955ef87b6f4" compoundref="_controller_8h" startline="71" endline="71">shaders</references>
       </memberdef>
       <memberdef kind="function" id="structshader_1_1_controller_1ac888bf835596922d42e6b530c8156670" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -247,9 +218,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="shader/Controller.h" line="71" column="10" bodyfile="shader/Controller.cpp" bodystart="36" bodyend="40"/>
-        <references refid="structshader_1_1_controller_1a9bf822833c1d1308b1115aae3ac6f35a" compoundref="_controller_8h" startline="77">openGLContext</references>
-        <references refid="structshader_1_1_controller_1a10de49b0344c71ffa0119b40b775a618" compoundref="_controller_8h" startline="126" endline="126">shaderConfig</references>
+        <location file="shader/Controller.h" line="42" column="10" bodyfile="shader/Controller.cpp" bodystart="24" bodyend="28"/>
+        <references refid="structshader_1_1_controller_1a9bf822833c1d1308b1115aae3ac6f35a" compoundref="_controller_8h" startline="48">openGLContext</references>
+        <references refid="structshader_1_1_controller_1a211e4712ec042e5aa804c955ef87b6f4" compoundref="_controller_8h" startline="71" endline="71">shaders</references>
       </memberdef>
       <memberdef kind="function" id="structshader_1_1_controller_1a33e37a46958ce5de0585b76e8e451f24" prot="public" static="no" const="yes" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
         <type>bool</type>
@@ -264,8 +235,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="shader/Controller.h" line="74" column="10" bodyfile="shader/Controller.cpp" bodystart="42" bodyend="45"/>
-        <references refid="structshader_1_1_controller_1a9bf822833c1d1308b1115aae3ac6f35a" compoundref="_controller_8h" startline="77">openGLContext</references>
+        <location file="shader/Controller.h" line="45" column="10" bodyfile="shader/Controller.cpp" bodystart="30" bodyend="30"/>
+        <references refid="structshader_1_1_controller_1a9bf822833c1d1308b1115aae3ac6f35a" compoundref="_controller_8h" startline="48">openGLContext</references>
       </memberdef>
     </sectiondef>
     <sectiondef kind="private-func">
@@ -282,8 +253,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="shader/Controller.h" line="83" column="10" bodyfile="shader/Controller.cpp" bodystart="48" bodyend="51"/>
-        <references refid="structshader_1_1_controller_1a9a3adad202f34ebf260ae5a025193518" compoundref="_controller_8cpp" startline="65" endline="72">initialise</references>
+        <location file="shader/Controller.h" line="54" column="10" bodyfile="shader/Controller.cpp" bodystart="33" bodyend="37"/>
+        <references refid="structshader_1_1_controller_1a9a3adad202f34ebf260ae5a025193518" compoundref="_controller_8cpp" startline="50" endline="55">initialise</references>
+        <references refid="structshader_1_1_controller_1af626d48bd8424428b06fedcbb4564850" compoundref="_controller_8cpp" startline="65" endline="86">loadShaders</references>
       </memberdef>
       <memberdef kind="function" id="structshader_1_1_controller_1a08ef3c4c7114fb06c4094af17535d725" prot="private" static="no" const="no" explicit="no" inline="no" virt="virtual">
         <type>void</type>
@@ -298,9 +270,10 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="shader/Controller.h" line="84" column="10" bodyfile="shader/Controller.cpp" bodystart="53" bodyend="57"/>
-        <references refid="structshader_1_1_controller_1ae963718eabc18998f839b2f8c9280258" compoundref="_controller_8h" startline="118" endline="118">frameCounter</references>
-        <references refid="structshader_1_1_controller_1a98c779a896ffd3370fb064665b81e8b6" compoundref="_controller_8cpp" startline="84" endline="153">render</references>
+        <location file="shader/Controller.h" line="55" column="10" bodyfile="shader/Controller.cpp" bodystart="39" bodyend="45"/>
+        <references refid="classjuce_1_1OpenGLHelpers_1afb2ec794b86a370169b631c68a874b0f">juce::OpenGLHelpers::clear</references>
+        <references refid="structshader_1_1_controller_1ae963718eabc18998f839b2f8c9280258" compoundref="_controller_8h" startline="69" endline="69">frameCounter</references>
+        <references refid="namespacejuce_1_1Colours_1a2d59beef8fef5d9b43c030dc5968a2bb">juce::Colours::transparentBlack</references>
       </memberdef>
       <memberdef kind="function" id="structshader_1_1_controller_1af327793eb89fca8a3fb018a0fa11bcab" prot="private" static="no" const="no" explicit="no" inline="no" virt="virtual">
         <type>void</type>
@@ -315,8 +288,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="shader/Controller.h" line="85" column="10" bodyfile="shader/Controller.cpp" bodystart="59" bodyend="62"/>
-        <references refid="structshader_1_1_controller_1a51dc8fc16ff000ac9e46e68f10c82869" compoundref="_controller_8cpp" startline="74" endline="82">shutdown</references>
+        <location file="shader/Controller.h" line="56" column="10" bodyfile="shader/Controller.cpp" bodystart="47" bodyend="47"/>
+        <references refid="structshader_1_1_controller_1a51dc8fc16ff000ac9e46e68f10c82869" compoundref="_controller_8cpp" startline="57" endline="57">shutdown</references>
       </memberdef>
       <memberdef kind="function" id="structshader_1_1_controller_1a9a3adad202f34ebf260ae5a025193518" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -330,10 +303,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="shader/Controller.h" line="87" column="10" bodyfile="shader/Controller.cpp" bodystart="65" bodyend="72"/>
+        <location file="shader/Controller.h" line="58" column="10" bodyfile="shader/Controller.cpp" bodystart="50" bodyend="55"/>
         <references refid="structjam_1_1BackgroundBlur_1aba30ef82c71f521f855171339dc180c1">jam::BackgroundBlur::enableWindowTransparency</references>
-        <references refid="structshader_1_1_controller_1a0ff01484f7ee0d673a929dc397d08057" compoundref="_controller_8h" startline="119">quad</references>
-        <referencedby refid="structshader_1_1_controller_1aa9689e38d31580d9ba6651cb6f12cd73" compoundref="_controller_8cpp" startline="48" endline="51">newOpenGLContextCreated</referencedby>
+        <referencedby refid="structshader_1_1_controller_1aa9689e38d31580d9ba6651cb6f12cd73" compoundref="_controller_8cpp" startline="33" endline="37">newOpenGLContextCreated</referencedby>
       </memberdef>
       <memberdef kind="function" id="structshader_1_1_controller_1a51dc8fc16ff000ac9e46e68f10c82869" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -347,134 +319,70 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="shader/Controller.h" line="88" column="10" bodyfile="shader/Controller.cpp" bodystart="74" bodyend="82"/>
-        <references refid="structshader_1_1_controller_1a60e01e6d4be8deaf70f84236d02be0f4" compoundref="_controller_8h" startline="124">passes</references>
-        <references refid="structshader_1_1_controller_1a0ff01484f7ee0d673a929dc397d08057" compoundref="_controller_8h" startline="119">quad</references>
-        <referencedby refid="structshader_1_1_controller_1af327793eb89fca8a3fb018a0fa11bcab" compoundref="_controller_8cpp" startline="59" endline="62">openGLContextClosing</referencedby>
+        <location file="shader/Controller.h" line="59" column="10" bodyfile="shader/Controller.cpp" bodystart="57" bodyend="57"/>
+        <referencedby refid="structshader_1_1_controller_1af327793eb89fca8a3fb018a0fa11bcab" compoundref="_controller_8cpp" startline="47" endline="47">openGLContextClosing</referencedby>
       </memberdef>
-      <memberdef kind="function" id="structshader_1_1_controller_1a98c779a896ffd3370fb064665b81e8b6" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+      <memberdef kind="function" id="structshader_1_1_controller_1af626d48bd8424428b06fedcbb4564850" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
-        <definition>void shader::Controller::render</definition>
+        <definition>void shader::Controller::loadShaders</definition>
         <argsstring>()</argsstring>
-        <name>render</name>
-        <qualifiedname>shader::Controller::render</qualifiedname>
+        <name>loadShaders</name>
+        <qualifiedname>shader::Controller::loadShaders</qualifiedname>
         <briefdescription>
         </briefdescription>
         <detaileddescription>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="shader/Controller.h" line="89" column="10" bodyfile="shader/Controller.cpp" bodystart="84" bodyend="153"/>
-        <references refid="classjuce_1_1OpenGLHelpers_1afb2ec794b86a370169b631c68a874b0f">juce::OpenGLHelpers::clear</references>
-        <references refid="structconfig_1_1_file_1_1_shaders_1a134314f315b88abc283dec64eb7a993da5f812a882781c800b2034243a5ea7723" compoundref="_map_8h" startline="246">config::File::Shaders::common</references>
-        <references refid="structshader_1_1_controller_1ae963718eabc18998f839b2f8c9280258" compoundref="_controller_8h" startline="118" endline="118">frameCounter</references>
-        <references refid="structconfig_1_1_file_1_1_shaders_1aa57d90d95ec92f5c3e46b80b84f3bf6a" compoundref="_map_8h" startline="268" endline="268">config::File::Shaders::get</references>
-        <references refid="namespacejuce_1_1gl_1af671f4f7a87a673f690bfd41f3a2a467a77b017ceaa60b377f29022042555277d">juce::gl::GL_TEXTURE0</references>
-        <references refid="namespacejuce_1_1gl_1af671f4f7a87a673f690bfd41f3a2a467abbc6ab6ed9974dccd60d9ecdf2250050">juce::gl::GL_TEXTURE_2D</references>
-        <references refid="namespacejuce_1_1gl_1af671f4f7a87a673f690bfd41f3a2a467aa51c00a5a28a57c3052a6af953c1e268">juce::gl::GL_VIEWPORT</references>
-        <references refid="namespacejuce_1_1gl_1a36a222369fdefe1a980080649ce5477e">juce::gl::glActiveTexture</references>
-        <references refid="namespacejuce_1_1gl_1a7f31bd0cb4871565d6e6e4b177d43159">juce::gl::glBindTexture</references>
-        <references refid="namespacejuce_1_1gl_1a9197248cb7f1c288081bf93d7dcb8eca">juce::gl::glGetIntegerv</references>
-        <references refid="namespacejuce_1_1gl_1a425eb845f8cb936a9247544f2b7d536d">juce::gl::glViewport</references>
-        <references refid="structconfig_1_1_file_1_1_shaders_1a134314f315b88abc283dec64eb7a993da6d02fdee5c6647ce9ae6ff5e64c15dc5" compoundref="_map_8h" startline="247">config::File::Shaders::image</references>
-        <references refid="structshader_1_1_controller_1a9bf822833c1d1308b1115aae3ac6f35a" compoundref="_controller_8h" startline="77">openGLContext</references>
-        <references refid="structshader_1_1_controller_1a60e01e6d4be8deaf70f84236d02be0f4" compoundref="_controller_8h" startline="124">passes</references>
-        <references refid="structshader_1_1_controller_1a0ff01484f7ee0d673a929dc397d08057" compoundref="_controller_8h" startline="119">quad</references>
-        <references refid="namespacejuce_1_1Colours_1a2d59beef8fef5d9b43c030dc5968a2bb">juce::Colours::transparentBlack</references>
-        <references refid="namespaceshader_1ad5d899b6af682678124cc1d99720d3b6" compoundref="_controller_8cpp" startline="9" endline="9">shader::viewportHeight</references>
-        <references refid="namespaceshader_1aeecf5f29466b536d41ae0a584e099c53" compoundref="_controller_8cpp" startline="8" endline="8">shader::viewportWidth</references>
-        <referencedby refid="structshader_1_1_controller_1a08ef3c4c7114fb06c4094af17535d725" compoundref="_controller_8cpp" startline="53" endline="57">renderOpenGL</referencedby>
+        <location file="shader/Controller.h" line="60" column="10" bodyfile="shader/Controller.cpp" bodystart="65" bodyend="86"/>
+        <referencedby refid="structshader_1_1_controller_1aa9689e38d31580d9ba6651cb6f12cd73" compoundref="_controller_8cpp" startline="33" endline="37">newOpenGLContextCreated</referencedby>
+        <referencedby refid="structshader_1_1_controller_1a6bba381dbfa5bd0d118ba79417a65e86" compoundref="_controller_8cpp" startline="60" endline="63">valueTreePropertyChanged</referencedby>
       </memberdef>
-      <memberdef kind="function" id="structshader_1_1_controller_1a875459eca0ce7cc1cf7184da1a91f1d8" prot="private" static="no" const="no" explicit="no" inline="no" virt="virtual">
+      <memberdef kind="function" id="structshader_1_1_controller_1acff48820eb2275ed7250c066efbcdd9f" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void shader::Controller::buildQuad</definition>
+        <argsstring>()</argsstring>
+        <name>buildQuad</name>
+        <qualifiedname>shader::Controller::buildQuad</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="shader/Controller.h" line="61" column="10" bodyfile="shader/Controller.cpp" bodystart="88" bodyend="88"/>
+      </memberdef>
+      <memberdef kind="function" id="structshader_1_1_controller_1a6bba381dbfa5bd0d118ba79417a65e86" prot="private" static="no" const="no" explicit="no" inline="no" virt="virtual">
         <type>void</type>
         <definition>void shader::Controller::valueTreePropertyChanged</definition>
-        <argsstring>(juce::ValueTree &amp;tree, const juce::Identifier &amp;property) override</argsstring>
+        <argsstring>(juce::ValueTree &amp;, const juce::Identifier &amp;) override</argsstring>
         <name>valueTreePropertyChanged</name>
         <qualifiedname>shader::Controller::valueTreePropertyChanged</qualifiedname>
         <reimplements refid="classjuce_1_1ValueTree_1_1Listener_1a1a5481aafc0faa40aa3404a10c7b3785">valueTreePropertyChanged</reimplements>
         <param>
           <type><ref refid="classjuce_1_1ValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::ValueTree</ref> &amp;</type>
-          <declname>tree</declname>
         </param>
         <param>
           <type>const <ref refid="classjuce_1_1Identifier" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Identifier</ref> &amp;</type>
-          <declname>property</declname>
         </param>
         <briefdescription>
-<para>Routes <ref refid="classconfig_1_1_shader" kindref="compound">config::Shader</ref> state changes to loadShaders on the GL thread. </para>
         </briefdescription>
         <detaileddescription>
-<para>Reads pass sources from <computeroutput>tree</computeroutput> children on the message thread, captures assembled fragment strings, posts compilation to the GL thread. </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="shader/Controller.h" line="99" column="10" bodyfile="shader/Controller.cpp" bodystart="156" bodyend="189"/>
-        <references refid="classjam_1_1HashMap_1a5da94e81e11ec7e1c57ea5c3d49645c8">jam::HashMap&lt; typename Key, typename Mapped, typename HashFn, typename KeyEqual, typename AllocatorOrContainer, typename Bucket, typename BucketContainer, bool IsSegmented &gt;::insert_or_assign</references>
-        <references refid="structshader_1_1_controller_1a3d374a76e1c128b739b98107c2f413c8" compoundref="_controller_8cpp" startline="191" endline="223">loadShaders</references>
-        <references refid="structshader_1_1_controller_1a9bf822833c1d1308b1115aae3ac6f35a" compoundref="_controller_8h" startline="77">openGLContext</references>
-        <references refid="structjam_1_1Format_1a91802ebb1c814e13845182184a028d3f">jam::Format::replaceholder</references>
-        <references refid="structjam_1_1ID_1a3e141c2723640ea14d8ba1840a8e50eb">jam::ID::value</references>
-        <references refid="structshader_1_1_controller_1a4ef43cb9c4020b89f79ec4b1d00d1616" compoundref="_controller_8h" startline="116" endline="116">wrapper</references>
-        <referencedby refid="structshader_1_1_controller_1a261eecb70bbd676b432e328c166816f1" compoundref="_controller_8cpp" startline="23" endline="34">attach</referencedby>
-      </memberdef>
-      <memberdef kind="function" id="structshader_1_1_controller_1a3d374a76e1c128b739b98107c2f413c8" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type>void</type>
-        <definition>void shader::Controller::loadShaders</definition>
-        <argsstring>(const jam::HashMap&lt; juce::Identifier, juce::String &gt; &amp;sources)</argsstring>
-        <name>loadShaders</name>
-        <qualifiedname>shader::Controller::loadShaders</qualifiedname>
-        <param>
-          <type>const <ref refid="classjam_1_1HashMap" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::HashMap</ref>&lt; <ref refid="classjuce_1_1Identifier" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Identifier</ref>, <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref> &gt; &amp;</type>
-          <declname>sources</declname>
-        </param>
-        <briefdescription>
-<para>Compiles shader passes and builds the passes map. </para>
-        </briefdescription>
-        <detaileddescription>
-<para>GL THREAD only.</para>
-<para>Mirrors LookAndFeel::loadGraphics(). Takes pre-extracted fragment sources keyed by pass stem. For each entry, compiles via <ref refid="structshader_1_1_compiler_1a1fc06cd95371860a447a28fcf9000d35" kindref="member">Compiler::build</ref>, bakes uniform setter via <ref refid="structshader_1_1_compiler_1a504ae4bf80f9c504b7b224fad2caf8ec" kindref="member">Compiler::buildUniformSetter</ref>, creates FBO for buffer passes. Stores each <ref refid="structshader_1_1_controller_1_1_pass" kindref="compound">Pass</ref> in passes.</para>
-<para><parameterlist kind="param"><parameteritem>
-<parameternamelist>
-<parametername>sources</parametername>
-</parameternamelist>
-<parameterdescription>
-<para><ref refid="structshader_1_1_controller_1_1_pass" kindref="compound">Pass</ref> stem → assembled fragment source string. </para>
-</parameterdescription>
-</parameteritem>
-</parameterlist>
-</para>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="shader/Controller.h" line="111" column="10" bodyfile="shader/Controller.cpp" bodystart="191" bodyend="223"/>
-        <references refid="structshader_1_1_compiler_1a1fc06cd95371860a447a28fcf9000d35" compoundref="_compiler_8cpp" startline="8" endline="27">shader::Compiler::build</references>
-        <references refid="structshader_1_1_compiler_1a504ae4bf80f9c504b7b224fad2caf8ec" compoundref="_compiler_8cpp" startline="30" endline="66">shader::Compiler::buildUniformSetter</references>
-        <references refid="structshader_1_1_controller_1_1_pass_1a59335cb509e68ae8221884496a2ddfa7" compoundref="_controller_8h" startline="52">shader::Controller::Pass::fbo</references>
-        <references refid="namespacejuce_1_1gl_1af671f4f7a87a673f690bfd41f3a2a467aa51c00a5a28a57c3052a6af953c1e268">juce::gl::GL_VIEWPORT</references>
-        <references refid="namespacejuce_1_1gl_1a9197248cb7f1c288081bf93d7dcb8eca">juce::gl::glGetIntegerv</references>
-        <references refid="classjuce_1_1OpenGLFrameBuffer_1af7fe83ef0c6397cd6a249a2d6d92052e">juce::OpenGLFrameBuffer::initialise</references>
-        <references refid="structshader_1_1_controller_1a9bf822833c1d1308b1115aae3ac6f35a" compoundref="_controller_8h" startline="77">openGLContext</references>
-        <references refid="structshader_1_1_controller_1a60e01e6d4be8deaf70f84236d02be0f4" compoundref="_controller_8h" startline="124">passes</references>
-        <references refid="structshader_1_1_controller_1_1_pass_1a056b795d29776283dbc8d454e040ab71" compoundref="_controller_8h" startline="51">shader::Controller::Pass::program</references>
-        <references refid="structshader_1_1_controller_1_1_pass_1a08650979e10b47dfce3179dd54dca77a" compoundref="_controller_8h" startline="53">shader::Controller::Pass::setUniforms</references>
-        <references refid="structshader_1_1_controller_1addf4a74f07919acc5176a96189121148" compoundref="_controller_8h" startline="115" endline="115">vertexSource</references>
-        <references refid="namespaceshader_1ad5d899b6af682678124cc1d99720d3b6" compoundref="_controller_8cpp" startline="9" endline="9">shader::viewportHeight</references>
-        <references refid="namespaceshader_1aeecf5f29466b536d41ae0a584e099c53" compoundref="_controller_8cpp" startline="8" endline="8">shader::viewportWidth</references>
-        <referencedby refid="structshader_1_1_controller_1a875459eca0ce7cc1cf7184da1a91f1d8" compoundref="_controller_8cpp" startline="156" endline="189">valueTreePropertyChanged</referencedby>
+        <location file="shader/Controller.h" line="65" column="10" bodyfile="shader/Controller.cpp" bodystart="60" bodyend="63"/>
+        <references refid="structshader_1_1_controller_1af626d48bd8424428b06fedcbb4564850" compoundref="_controller_8cpp" startline="65" endline="86">loadShaders</references>
       </memberdef>
     </sectiondef>
     <briefdescription>
-<para>GL pipeline orchestrator — mirrors <ref refid="classjuce_1_1OpenGLAppComponent" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::OpenGLAppComponent</ref> + <ref refid="classend_1_1_look_and_feel" kindref="compound">end::LookAndFeel</ref>. </para>
+<para>GL pipeline orchestrator — mirrors <ref refid="classjuce_1_1OpenGLAppComponent" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::OpenGLAppComponent</ref>. </para>
     </briefdescription>
     <detaileddescription>
-<para>GL lifecycle mirrors <ref refid="classjuce_1_1OpenGLAppComponent" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::OpenGLAppComponent</ref>: public openGLContext, <ref refid="structshader_1_1_controller_1a3fb139ea98ddcf75a83224894a5ba4df" kindref="member">getFrameCounter()</ref>, <ref refid="structshader_1_1_controller_1a61e18f3ad9688a09aa4d4b7bbb01ccb7" kindref="member">shutdownOpenGL()</ref>, private OpenGLRenderer virtuals. <ref refid="structshader_1_1_controller_1a261eecb70bbd676b432e328c166816f1" kindref="member">attach()</ref>/detach() extend for runtime GPU/CPU switching.</para>
-<para>Config-driven loading mirrors <ref refid="classend_1_1_look_and_feel" kindref="compound">end::LookAndFeel</ref>: <ref refid="structshader_1_1_controller_1a3d374a76e1c128b739b98107c2f413c8" kindref="member">loadShaders()</ref> mirrors loadGraphics(), the passes map mirrors the graphics map. Shader loading is driven by <ref refid="structconfig_1_1_file_1_1_shaders" kindref="compound">config::File::Shaders</ref> bimap iteration.</para>
-<para>Each <ref refid="structshader_1_1_controller_1_1_pass" kindref="compound">Pass</ref> is a fully resolved artifact — program + baked uniform setter + optional FBO. No per-frame dispatch, no per-uniform if-checks. The setter is built at load time by <ref refid="structshader_1_1_compiler_1a504ae4bf80f9c504b7b224fad2caf8ec" kindref="member">Compiler::buildUniformSetter</ref> and captures all active uniform locations.</para>
-<para>valueTreePropertyChanged receives the <ref refid="classconfig_1_1_shader" kindref="compound">config::Shader</ref> state tree directly. Source extraction happens on the message thread; compilation and <ref refid="structshader_1_1_controller_1_1_pass" kindref="compound">Pass</ref> construction happen on the GL thread via executeOnGLThread.</para>
+<para>Skeleton: OpenGLAppComponent lifecycle + runtime GPU switching via <ref refid="structshader_1_1_controller_1a261eecb70bbd676b432e328c166816f1" kindref="member">attach()</ref>/detach(). Config-driven shader loading will be built on top of this skeleton to mirror <ref refid="classend_1_1_look_and_feel" kindref="compound">end::LookAndFeel</ref>&apos;s loadGraphics() pattern.</para>
 <para>Thread contract:<itemizedlist>
-<listitem><para><ref refid="structshader_1_1_controller_1a261eecb70bbd676b432e328c166816f1" kindref="member">attach()</ref> / <ref refid="structshader_1_1_controller_1ac888bf835596922d42e6b530c8156670" kindref="member">detach()</ref> / <ref refid="structshader_1_1_controller_1a33e37a46958ce5de0585b76e8e451f24" kindref="member">isAttached()</ref> / <ref refid="structshader_1_1_controller_1a875459eca0ce7cc1cf7184da1a91f1d8" kindref="member">valueTreePropertyChanged()</ref> : MESSAGE THREAD</para>
-</listitem><listitem><para>newOpenGLContextCreated / renderOpenGL / openGLContextClosing : GL THREAD</para>
-</listitem><listitem><para><ref refid="structshader_1_1_controller_1a3d374a76e1c128b739b98107c2f413c8" kindref="member">loadShaders()</ref> / <ref refid="structshader_1_1_controller_1a98c779a896ffd3370fb064665b81e8b6" kindref="member">render()</ref> : GL THREAD </para>
+<listitem><para><ref refid="structshader_1_1_controller_1a261eecb70bbd676b432e328c166816f1" kindref="member">attach()</ref> / <ref refid="structshader_1_1_controller_1ac888bf835596922d42e6b530c8156670" kindref="member">detach()</ref> / <ref refid="structshader_1_1_controller_1a33e37a46958ce5de0585b76e8e451f24" kindref="member">isAttached()</ref> : MESSAGE THREAD</para>
+</listitem><listitem><para>newOpenGLContextCreated / renderOpenGL / openGLContextClosing : GL THREAD </para>
 </listitem></itemizedlist>
 </para>
     </detaileddescription>
@@ -497,54 +405,9 @@
       </node>
     </inheritancegraph>
     <collaborationgraph>
-      <node id="8">
-        <label>config::Shader</label>
-        <link refid="classconfig_1_1_shader"/>
-        <childnode refid="9" relation="public-inheritance">
-        </childnode>
-      </node>
-      <node id="11">
-        <label>jam::AnyMap</label>
-        <link refid="classjam_1_1AnyMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-        <childnode refid="12" relation="usage">
-          <edgelabel>entries</edgelabel>
-        </childnode>
-        <childnode refid="13" relation="usage">
-          <edgelabel>types</edgelabel>
-        </childnode>
-      </node>
-      <node id="7">
-        <label>jam::HashMap&lt; juce::Identifier, shader::Controller::Pass &gt;</label>
+      <node id="6">
+        <label>jam::HashMap&lt; juce::Identifier, std::unique_ptr&lt; shader::Controller::Program &gt; &gt;</label>
         <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-      </node>
-      <node id="13">
-        <label>jam::HashMap&lt; juce::Identifier, std::type_index &gt;</label>
-        <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-      </node>
-      <node id="12">
-        <label>jam::HashMap&lt; juce::Identifier, std::unique_ptr&lt; void, Deleter &gt; &gt;</label>
-        <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-      </node>
-      <node id="9">
-        <label>jam::Model</label>
-        <link refid="classjam_1_1Model" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-        <childnode refid="10" relation="public-inheritance">
-        </childnode>
-        <childnode refid="3" relation="public-inheritance">
-        </childnode>
-        <childnode refid="11" relation="usage">
-          <edgelabel>params</edgelabel>
-        </childnode>
-        <childnode refid="14" relation="usage">
-          <edgelabel>state</edgelabel>
-        </childnode>
-        <childnode refid="15" relation="usage">
-          <edgelabel>valueTreeChanging</edgelabel>
-        </childnode>
-      </node>
-      <node id="15">
-        <label>juce::CriticalSection</label>
-        <link refid="classjuce_1_1CriticalSection" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
       <node id="4">
         <label>juce::OpenGLContext</label>
@@ -554,15 +417,11 @@
         <label>juce::OpenGLRenderer</label>
         <link refid="classjuce_1_1OpenGLRenderer" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="5">
+      <node id="7">
         <label>juce::String</label>
         <link refid="classjuce_1_1String" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="10">
-        <label>juce::Timer</label>
-        <link refid="classjuce_1_1Timer" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
-      </node>
-      <node id="14">
+      <node id="5">
         <label>juce::ValueTree</label>
         <link refid="classjuce_1_1ValueTree" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
@@ -581,52 +440,44 @@
           <edgelabel>openGLContext</edgelabel>
         </childnode>
         <childnode refid="5" relation="usage">
-          <edgelabel>vertexSource</edgelabel>
-          <edgelabel>wrapper</edgelabel>
+          <edgelabel>shaders</edgelabel>
         </childnode>
         <childnode refid="6" relation="usage">
-          <edgelabel>quad</edgelabel>
+          <edgelabel>programs</edgelabel>
         </childnode>
         <childnode refid="7" relation="usage">
-          <edgelabel>passes</edgelabel>
+          <edgelabel>screenQuad</edgelabel>
+          <edgelabel>wrapper</edgelabel>
         </childnode>
-        <childnode refid="8" relation="usage">
-          <edgelabel>shaderConfig</edgelabel>
-        </childnode>
-      </node>
-      <node id="6">
-        <label>shader::Quad</label>
-        <link refid="structshader_1_1_quad"/>
       </node>
     </collaborationgraph>
-    <location file="shader/Controller.h" line="39" column="1" bodyfile="shader/Controller.h" bodystart="41" bodyend="130"/>
+    <location file="shader/Controller.h" line="23" column="1" bodyfile="shader/Controller.h" bodystart="26" bodyend="84"/>
     <listofallmembers>
       <member refid="structshader_1_1_controller_1a261eecb70bbd676b432e328c166816f1" prot="public" virt="non-virtual"><scope>shader::Controller</scope><name>attach</name></member>
+      <member refid="structshader_1_1_controller_1acff48820eb2275ed7250c066efbcdd9f" prot="private" virt="non-virtual"><scope>shader::Controller</scope><name>buildQuad</name></member>
       <member refid="structshader_1_1_controller_1ad27c97aa3e386c62d8607545aa5a37f4" prot="public" virt="non-virtual"><scope>shader::Controller</scope><name>Controller</name></member>
       <member refid="structshader_1_1_controller_1ac888bf835596922d42e6b530c8156670" prot="public" virt="non-virtual"><scope>shader::Controller</scope><name>detach</name></member>
       <member refid="structshader_1_1_controller_1ae963718eabc18998f839b2f8c9280258" prot="private" virt="non-virtual"><scope>shader::Controller</scope><name>frameCounter</name></member>
       <member refid="structshader_1_1_controller_1a3fb139ea98ddcf75a83224894a5ba4df" prot="public" virt="non-virtual"><scope>shader::Controller</scope><name>getFrameCounter</name></member>
       <member refid="structshader_1_1_controller_1a9a3adad202f34ebf260ae5a025193518" prot="private" virt="non-virtual"><scope>shader::Controller</scope><name>initialise</name></member>
       <member refid="structshader_1_1_controller_1a33e37a46958ce5de0585b76e8e451f24" prot="public" virt="non-virtual"><scope>shader::Controller</scope><name>isAttached</name></member>
-      <member refid="structshader_1_1_controller_1a3d374a76e1c128b739b98107c2f413c8" prot="private" virt="non-virtual"><scope>shader::Controller</scope><name>loadShaders</name></member>
+      <member refid="structshader_1_1_controller_1af626d48bd8424428b06fedcbb4564850" prot="private" virt="non-virtual"><scope>shader::Controller</scope><name>loadShaders</name></member>
       <member refid="structshader_1_1_controller_1aa9689e38d31580d9ba6651cb6f12cd73" prot="private" virt="virtual"><scope>shader::Controller</scope><name>newOpenGLContextCreated</name></member>
       <member refid="structshader_1_1_controller_1a9bf822833c1d1308b1115aae3ac6f35a" prot="public" virt="non-virtual"><scope>shader::Controller</scope><name>openGLContext</name></member>
       <member refid="structshader_1_1_controller_1af327793eb89fca8a3fb018a0fa11bcab" prot="private" virt="virtual"><scope>shader::Controller</scope><name>openGLContextClosing</name></member>
       <member refid="classjuce_1_1OpenGLRenderer_1a316fcc53e73236bb0b36879824ed96d0" prot="private" virt="non-virtual"><scope>shader::Controller</scope><name>OpenGLRenderer</name></member>
-      <member refid="structshader_1_1_controller_1a60e01e6d4be8deaf70f84236d02be0f4" prot="private" virt="non-virtual"><scope>shader::Controller</scope><name>passes</name></member>
-      <member refid="structshader_1_1_controller_1a0ff01484f7ee0d673a929dc397d08057" prot="private" virt="non-virtual"><scope>shader::Controller</scope><name>quad</name></member>
-      <member refid="structshader_1_1_controller_1a98c779a896ffd3370fb064665b81e8b6" prot="private" virt="non-virtual"><scope>shader::Controller</scope><name>render</name></member>
+      <member refid="structshader_1_1_controller_1aa815de0a99de8a71f2b4c94be92ca754" prot="private" virt="non-virtual"><scope>shader::Controller</scope><name>programs</name></member>
       <member refid="structshader_1_1_controller_1a08ef3c4c7114fb06c4094af17535d725" prot="private" virt="virtual"><scope>shader::Controller</scope><name>renderOpenGL</name></member>
-      <member refid="structshader_1_1_controller_1a10de49b0344c71ffa0119b40b775a618" prot="private" virt="non-virtual"><scope>shader::Controller</scope><name>shaderConfig</name></member>
+      <member refid="structshader_1_1_controller_1a903361fa221ca7b1628ede28454ae699" prot="private" virt="non-virtual"><scope>shader::Controller</scope><name>screenQuad</name></member>
+      <member refid="structshader_1_1_controller_1a211e4712ec042e5aa804c955ef87b6f4" prot="private" virt="non-virtual"><scope>shader::Controller</scope><name>shaders</name></member>
       <member refid="structshader_1_1_controller_1a51dc8fc16ff000ac9e46e68f10c82869" prot="private" virt="non-virtual"><scope>shader::Controller</scope><name>shutdown</name></member>
       <member refid="structshader_1_1_controller_1a61e18f3ad9688a09aa4d4b7bbb01ccb7" prot="public" virt="non-virtual"><scope>shader::Controller</scope><name>shutdownOpenGL</name></member>
       <member refid="classjuce_1_1ValueTree_1_1Listener_1ac26fa68e6f4625f71b52ab6fe776e0dc" prot="private" virt="virtual"><scope>shader::Controller</scope><name>valueTreeChildAdded</name></member>
       <member refid="classjuce_1_1ValueTree_1_1Listener_1a5fb2f9f798c9ebb48235ba15759fd48b" prot="private" virt="virtual"><scope>shader::Controller</scope><name>valueTreeChildOrderChanged</name></member>
       <member refid="classjuce_1_1ValueTree_1_1Listener_1a09dc85f9c71389f2801c9a7bc582ae1b" prot="private" virt="virtual"><scope>shader::Controller</scope><name>valueTreeChildRemoved</name></member>
       <member refid="classjuce_1_1ValueTree_1_1Listener_1a2e39febd013de0ff7da23a5b574055db" prot="private" virt="virtual"><scope>shader::Controller</scope><name>valueTreeParentChanged</name></member>
-      <member refid="structshader_1_1_controller_1a875459eca0ce7cc1cf7184da1a91f1d8" prot="private" virt="virtual"><scope>shader::Controller</scope><name>valueTreePropertyChanged</name></member>
+      <member refid="structshader_1_1_controller_1a6bba381dbfa5bd0d118ba79417a65e86" prot="private" virt="virtual"><scope>shader::Controller</scope><name>valueTreePropertyChanged</name></member>
       <member refid="classjuce_1_1ValueTree_1_1Listener_1aa46de90c3746a395792a632219e404f2" prot="private" virt="virtual"><scope>shader::Controller</scope><name>valueTreeRedirected</name></member>
-      <member refid="structshader_1_1_controller_1addf4a74f07919acc5176a96189121148" prot="private" virt="non-virtual"><scope>shader::Controller</scope><name>vertexSource</name></member>
       <member refid="structshader_1_1_controller_1a4ef43cb9c4020b89f79ec4b1d00d1616" prot="private" virt="non-virtual"><scope>shader::Controller</scope><name>wrapper</name></member>
       <member refid="structshader_1_1_controller_1a3b63ec57879dc4dad31c99c1ff1ad60a" prot="public" virt="non-virtual"><scope>shader::Controller</scope><name>~Controller</name></member>
       <member refid="classjuce_1_1ValueTree_1_1Listener_1ab78745617b47f3b12726c0de220e8d9b" prot="private" virt="virtual"><scope>shader::Controller</scope><name>~Listener</name></member>

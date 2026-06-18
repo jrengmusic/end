@@ -240,7 +240,7 @@
         <references refid="classjuce_1_1Graphics_1aa5be67c3a5cdd8694d921d40d0cf2d94">juce::Graphics::drawFittedText</references>
         <references refid="classjuce_1_1Graphics_1af28f0dff675b147194e188c6ac115f8e">juce::Graphics::fillAll</references>
         <references refid="classjuce_1_1Component_1ab858d73201f7fed14b04f1f79e5c9b58">juce::Component::findColour</references>
-        <references refid="structjam_1_1Context_1a3ff553f70ef61043352c54cfed475b4c">jam::Context&lt; Model &gt;::getInstance</references>
+        <references refid="structjam_1_1Instance_1ad5d2bbb58e37d8d260b428b334823140">jam::Instance&lt; Model &gt;::getInstance</references>
         <references refid="classjuce_1_1Component_1ad886e26b7514369fe38fdc03074b7c80">juce::Component::getLocalBounds</references>
         <references refid="classend_1_1_message_overlay_1af3d0d9997543692ff68e8010401503ff" compoundref="_message_overlay_8h" startline="145" endline="145">maxLines</references>
         <references refid="classend_1_1_message_overlay_1ae476f43ba1eba337a9d61750f50432f1" compoundref="_message_overlay_8h" startline="135">message</references>
