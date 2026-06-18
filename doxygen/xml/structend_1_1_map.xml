@@ -16,7 +16,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Bimap.h" line="360" column="19" bodyfile="Bimap.h" bodystart="360" bodyend="-1"/>
+        <location file="Bimap.h" line="319" column="19" bodyfile="Bimap.h" bodystart="319" bodyend="-1"/>
       </memberdef>
       <memberdef kind="variable" id="structend_1_1_map_1a53ca25979a281743925c2228d43dd638" prot="public" static="no" mutable="no">
         <type><ref refid="structend_1_1_drop_mode" kindref="compound">end::DropMode</ref></type>
@@ -30,7 +30,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Bimap.h" line="361" column="19" bodyfile="Bimap.h" bodystart="361" bodyend="-1"/>
+        <location file="Bimap.h" line="320" column="19" bodyfile="Bimap.h" bodystart="320" bodyend="-1"/>
       </memberdef>
       <memberdef kind="variable" id="structend_1_1_map_1a9d23d8ab019848af5ca72120d391e217" prot="public" static="no" mutable="no">
         <type><ref refid="structconfig_1_1_file" kindref="compound">config::File</ref></type>
@@ -44,25 +44,25 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Bimap.h" line="362" column="18" bodyfile="Bimap.h" bodystart="362" bodyend="-1"/>
+        <location file="Bimap.h" line="321" column="18" bodyfile="Bimap.h" bodystart="321" bodyend="-1"/>
       </memberdef>
-      <memberdef kind="variable" id="structend_1_1_map_1a06976157d721af111292a451acac2494" prot="public" static="no" mutable="no">
-        <type><ref refid="structconfig_1_1_file_1_1_theme" kindref="compound">config::File::Theme</ref></type>
-        <definition>config::File::Theme end::Map::theme</definition>
+      <memberdef kind="variable" id="structend_1_1_map_1accdb3ceeda05cb7c7f05cc22726bd736" prot="public" static="no" mutable="no">
+        <type><ref refid="structconfig_1_1_themes" kindref="compound">config::Themes</ref></type>
+        <definition>config::Themes end::Map::themes</definition>
         <argsstring></argsstring>
-        <name>theme</name>
-        <qualifiedname>end::Map::theme</qualifiedname>
+        <name>themes</name>
+        <qualifiedname>end::Map::themes</qualifiedname>
         <briefdescription>
         </briefdescription>
         <detaileddescription>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Bimap.h" line="363" column="25" bodyfile="Bimap.h" bodystart="363" bodyend="-1"/>
+        <location file="Bimap.h" line="322" column="20" bodyfile="Bimap.h" bodystart="322" bodyend="-1"/>
       </memberdef>
-      <memberdef kind="variable" id="structend_1_1_map_1a2e8fbf54f2d85f74342e0b64c1f604aa" prot="public" static="no" mutable="no">
-        <type><ref refid="structconfig_1_1_file_1_1_shaders" kindref="compound">config::File::Shaders</ref></type>
-        <definition>config::File::Shaders end::Map::shaders</definition>
+      <memberdef kind="variable" id="structend_1_1_map_1ae5eb58f21c55b5bfb390df02d02b025c" prot="public" static="no" mutable="no">
+        <type><ref refid="structconfig_1_1_shaders" kindref="compound">config::Shaders</ref></type>
+        <definition>config::Shaders end::Map::shaders</definition>
         <argsstring></argsstring>
         <name>shaders</name>
         <qualifiedname>end::Map::shaders</qualifiedname>
@@ -72,7 +72,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Bimap.h" line="364" column="27" bodyfile="Bimap.h" bodystart="364" bodyend="-1"/>
+        <location file="Bimap.h" line="323" column="21" bodyfile="Bimap.h" bodystart="323" bodyend="-1"/>
       </memberdef>
       <memberdef kind="variable" id="structend_1_1_map_1a88c8891aec9b1ea0b4d6831bca8f7bfb" prot="public" static="no" mutable="no">
         <type><ref refid="structjam_1_1map_1_1WindowFX" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::map::WindowFX</ref></type>
@@ -86,7 +86,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Bimap.h" line="365" column="24" bodyfile="Bimap.h" bodystart="365" bodyend="-1"/>
+        <location file="Bimap.h" line="324" column="24" bodyfile="Bimap.h" bodystart="324" bodyend="-1"/>
       </memberdef>
       <memberdef kind="variable" id="structend_1_1_map_1a780abe7d84b9a789212176fc2c9e6dcf" prot="public" static="no" mutable="no">
         <type><ref refid="structjam_1_1map_1_1Segment" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::map::Segment</ref></type>
@@ -100,7 +100,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Bimap.h" line="366" column="23" bodyfile="Bimap.h" bodystart="366" bodyend="-1"/>
+        <location file="Bimap.h" line="325" column="23" bodyfile="Bimap.h" bodystart="325" bodyend="-1"/>
       </memberdef>
       <memberdef kind="variable" id="structend_1_1_map_1a1b6c1a3dbe3009f4254e8242839446ba" prot="public" static="no" mutable="no">
         <type><ref refid="structjam_1_1map_1_1ButtonState" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::map::ButtonState</ref></type>
@@ -114,7 +114,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Bimap.h" line="367" column="27" bodyfile="Bimap.h" bodystart="367" bodyend="-1"/>
+        <location file="Bimap.h" line="326" column="27" bodyfile="Bimap.h" bodystart="326" bodyend="-1"/>
       </memberdef>
     </sectiondef>
     <briefdescription>
@@ -135,8 +135,8 @@
         </childnode>
       </node>
       <node id="14">
-        <label>config::File::Shaders</label>
-        <link refid="structconfig_1_1_file_1_1_shaders"/>
+        <label>config::Shaders</label>
+        <link refid="structconfig_1_1_shaders"/>
         <childnode refid="15" relation="public-inheritance">
         </childnode>
         <childnode refid="11" relation="usage">
@@ -144,8 +144,8 @@
         </childnode>
       </node>
       <node id="12">
-        <label>config::File::Theme</label>
-        <link refid="structconfig_1_1_file_1_1_theme"/>
+        <label>config::Themes</label>
+        <link refid="structconfig_1_1_themes"/>
         <childnode refid="13" relation="public-inheritance">
         </childnode>
         <childnode refid="11" relation="usage">
@@ -174,7 +174,7 @@
           <edgelabel>file</edgelabel>
         </childnode>
         <childnode refid="12" relation="usage">
-          <edgelabel>theme</edgelabel>
+          <edgelabel>themes</edgelabel>
         </childnode>
         <childnode refid="14" relation="usage">
           <edgelabel>shaders</edgelabel>
@@ -250,7 +250,7 @@
         </childnode>
       </node>
       <node id="13">
-        <label>jam::Bimap&lt; Theme &gt;</label>
+        <label>jam::Bimap&lt; Themes &gt;</label>
         <link refid="classjam_1_1Bimap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
         <childnode refid="4" relation="public-inheritance">
         </childnode>
@@ -304,15 +304,15 @@
         </childnode>
       </node>
     </collaborationgraph>
-    <location file="Bimap.h" line="358" column="1" bodyfile="Bimap.h" bodystart="359" bodyend="368"/>
+    <location file="Bimap.h" line="317" column="1" bodyfile="Bimap.h" bodystart="318" bodyend="327"/>
     <listofallmembers>
       <member refid="structend_1_1_map_1a1b6c1a3dbe3009f4254e8242839446ba" prot="public" virt="non-virtual"><scope>end::Map</scope><name>button</name></member>
       <member refid="structend_1_1_map_1a53ca25979a281743925c2228d43dd638" prot="public" virt="non-virtual"><scope>end::Map</scope><name>dropMode</name></member>
       <member refid="structend_1_1_map_1a9d23d8ab019848af5ca72120d391e217" prot="public" virt="non-virtual"><scope>end::Map</scope><name>file</name></member>
       <member refid="structend_1_1_map_1add2134439c9c266fbf3f64ce5214c7eb" prot="public" virt="non-virtual"><scope>end::Map</scope><name>position</name></member>
       <member refid="structend_1_1_map_1a780abe7d84b9a789212176fc2c9e6dcf" prot="public" virt="non-virtual"><scope>end::Map</scope><name>segment</name></member>
-      <member refid="structend_1_1_map_1a2e8fbf54f2d85f74342e0b64c1f604aa" prot="public" virt="non-virtual"><scope>end::Map</scope><name>shaders</name></member>
-      <member refid="structend_1_1_map_1a06976157d721af111292a451acac2494" prot="public" virt="non-virtual"><scope>end::Map</scope><name>theme</name></member>
+      <member refid="structend_1_1_map_1ae5eb58f21c55b5bfb390df02d02b025c" prot="public" virt="non-virtual"><scope>end::Map</scope><name>shaders</name></member>
+      <member refid="structend_1_1_map_1accdb3ceeda05cb7c7f05cc22726bd736" prot="public" virt="non-virtual"><scope>end::Map</scope><name>themes</name></member>
       <member refid="structend_1_1_map_1a88c8891aec9b1ea0b4d6831bca8f7bfb" prot="public" virt="non-virtual"><scope>end::Map</scope><name>window</name></member>
     </listofallmembers>
   </compounddef>

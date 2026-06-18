@@ -4,6 +4,7 @@
     <compoundname>config</compoundname>
     <innerfile refid="_config_8cpp">Config.cpp</innerfile>
     <innerfile refid="_config_8h">Config.h</innerfile>
+    <innerfile refid="_directory_8h">Directory.h</innerfile>
     <briefdescription>
     </briefdescription>
     <detaileddescription>

@@ -108,7 +108,7 @@ return {
 	--
 	-- Automatically reload configuration when files change.
 	-- When true, END watches ~/.config/end/ for changes and reloads
-	-- end.lua on save. No restart or Cmd+R needed.
+	-- init.lua on save. No restart or Cmd+R needed.
 	-- When false, manual reload only (Cmd+R).
 	--
 

@@ -25,6 +25,14 @@
         </childnode>
         <childnode refid="7" relation="include">
         </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>Directory.h</label>
+        <link refid="_directory_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
       </node>
       <node id="1">
         <label>lookAndFeel/EventRegistration.cpp</label>
@@ -143,8 +151,8 @@
 <codeline lineno="84"><highlight class="normal"></highlight></codeline>
 <codeline lineno="85" refid="classend_1_1_look_and_feel_1a6bac0b983ceeffd331beb5262030dbe8" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_look_and_feel_1a6bac0b983ceeffd331beb5262030dbe8" kindref="member">LookAndFeel::loadGraphics</ref>()</highlight></codeline>
 <codeline lineno="86"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>themeName<sp/>{<sp/><ref refid="namespaceconfig" kindref="compound">config</ref>.getValue<sp/>(IDtype::end,<sp/>ID::theme).toString()<sp/>};</highlight></codeline>
-<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>directory<sp/>{<sp/><ref refid="structconfig_1_1_file_1_1_theme_1a1a4f485d0cd842d77061933a01b1a55c" kindref="member">config::File::Theme::getPath</ref><sp/>(themeName)</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>themeName<sp/>{<sp/><ref refid="namespaceconfig" kindref="compound">config</ref>.getValue<sp/>(IDtype::init,<sp/>ID::theme).toString()<sp/>};</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>directory<sp/>{<sp/><ref refid="structconfig_1_1_themes_1a260fc95ef3aaa64e0bbbdd28d12d071f" kindref="member">config::Themes::getPath</ref><sp/>(themeName)</highlight></codeline>
 <codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.<ref refid="classjuce_1_1File_1a57b992aacb19e09ee5905cd0f0e9bb31" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">getChildFile</ref><sp/>(<ref refid="structjam_1_1IDref_1aa73fb0ae4fb0b8c627f2e2f9e34c79a1" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::IDref::graphics</ref>)<sp/>};</highlight></codeline>
 <codeline lineno="90"><highlight class="normal"></highlight></codeline>
 <codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classend_1_1_look_and_feel_1afecd477f3e694f5abd9b809e06125d2d" kindref="member">graphics</ref>.clear();</highlight></codeline>

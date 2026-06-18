@@ -2,6 +2,75 @@
 
 ---
 
+## Sprint 26: Config Restructure — config::Directory Generalization ✅
+
+**Date:** 2026-06-18
+**Duration:** ~05:00
+
+### Agents Participated
+- COUNSELOR: Sprint lead — design discussion (split-lifecycle diagnosis, Theme/Shader divergence, abstraction-boundary decisions, registry de-nesting, end→init rename), PLAN authoring, OOTB mandate, delegation + verification across all steps, runtime crash diagnosis (registerTypeface jassert → Theme::saveToPath existence-vs-selection guard), de-abstraction pass (stripped getDirectory/seedFile/notify/notifyId on ARCHITECT directive)
+- Pathfinder: config/Theme/Shader flow survey, jam::Model base contract, Bimap consumer map, shader::Controller + LookAndFeel boundary trace
+- Librarian: jam OOTB API catalogue (forEachProperty, applyFunctionRecursively, fromLua, setValuesFrom, getOrCreateDirectory, File::Watcher, Bimap/Instance) — the no-handroll reference set
+- Engineer: Bimap/Identifier restructure, Directory base, Theme/Shader subclasses, Model shrink, lua rename + consumer retarget, crash fix, de-abstraction, header inlining
+- Auditor: per-step compliance audits (BLESSED/NAMES/JRENG/locked PLAN) — caught undeclared startWatcher, public-virtual encapsulation leak, missing ~Model() override, EventRegistration File::Theme compile-blocker, residual handrolls
+
+### Files Modified (13 total)
+
+**END — Source/config/**
+- `Directory.h` — NEW, header-only abstract base `config::Directory` (jam::Model + jam::File::Watcher::Listener). `load(const juce::File&)` runs initialise → saveToPath → loadFromPath → startWatcher inline; three protected pure virtuals; private startWatcher; `coalesceMs` constant. No getDirectory/seedFile/notify/notifyId.
+- `Directory.cpp` — created then DELETED (bodies inlined into the header per ARCHITECT).
+- `Config.h` — `Shader`/`Theme` redeclared as `Directory` subclasses (ctor passes treeType only); `config::Model` shrunk to root, `buildGraphicsCallbacks`/`graphicsCallbacks` moved to `Theme`; `~Model() override`; doxygen reworked (root-only, no seed wording).
+- `Config.cpp` — `Theme`/`Shader` four-phase overrides (inline BinaryData write via local `writeWhenNeeded`, inline `sendPropertyChangeMessage`); `Model::initialise` validator walk uses `forEachProperty`; `Model::saveToPath` inline root write; `Model::loadFromPath` resolves theme/shader dir via `config::Themes::getPath`/`config::Shaders::getPath` directly; root-only startWatcher/fileChanged. `Theme::saveToPath` guard = selection (non-empty path), not existence (crash fix).
+- `lua/end.lua` → `lua/init.lua` — renamed (tree type END → INIT).
+- `lua/keys.lua` — reload-key comment end.lua → init.lua.
+
+**END — Source/**
+- `Bimap.h` — `File::Theme`/`File::Shaders` de-nested to top-level `config::Themes`/`config::Shaders`; `File` enum reduced to `{init, popups, keys}` (dropped `config`); `Shaders::Buffer` + `sourcePass` deleted; `end::Map` updated; `DropMode` comment init.terminal.
+- `Identifier.h` — IDENTIFIER_SHADER comment: dropped deleted `File::Shaders::Buffer` ref, fixed stale `Source/shaders/shader.frag` → `Source/shader/wrapper.frag`; config-section `end.lua` → `init.lua` comments.
+
+**END — Source/end/**
+- `View.cpp` — config-section `IDtype::end` → `IDtype::init` (size, getChildWithName, tabOrientation).
+- `View.h` — `resized()` doxygen corrected (removed stale `shader.resizeViewport`/FBO language); `end.lua` → `init.lua` doc refs.
+- `EventRegistration.cpp` — `getValue(IDtype::end, ID::gpu)` → `IDtype::init`.
+
+**END — Source/lookAndFeel/**
+- `EventRegistration.cpp` — `getValue(IDtype::end, ID::theme)` → `IDtype::init`; `config::File::Theme::getPath` → `config::Themes::getPath` (compile-blocker).
+
+**END — Source/action/**
+- `Registry.cpp` — `buildKeyMap` manual `getNumProperties` loop → `jam::Model::forEachProperty` (explicit `[this]`).
+
+**Root**
+- `PLAN-config-restructure.md` — NEW plan document.
+
+### Alignment Check
+- [x] BLESSED principles followed
+  - B: each Directory owns its `jam::File::Watcher` (RAII); config::Model owns Theme/Shader by value; lifetimes traceable from end::Application. `~X() override` across the hierarchy.
+  - L: Directory header-only ≤112 lines; one inline write per saveToPath; dead `Buffer`/`config`/`sourcePass` removed (YAGNI); lookup/`forEachProperty` over hand loops.
+  - E (Explicit): no bail-out guards (positive nesting); `not/and/or`; brace-init; explicit lambda captures (`[this]`/`[graphicsDir]`, no `[&]`).
+  - S (SSOT): registries single-source filenames/paths; coalesceMs named constant; no shadow state (active name lives only in the config tree).
+  - S (Stateless): Directory is told `load(dir)`; never asks config for the name.
+  - E (Encapsulation): config pipes source via property-change; LookAndFeel builds Segments, Controller compiles GLSL — config does not build renderables; bimap pattern reused, not reinvented.
+  - D: BinaryData defaults guarantee a valid tree before disk I/O; overlay deterministic.
+- [x] NAMES.md adhered (Theme/Shader singular models, Themes/Shaders plural registries; `init` disambiguates the config section from runtime `end::Model`; four-phase contract verbs reused, no invented `seed`/`notify`/`getDirectory`)
+- [x] MANIFESTO.md principles applied
+- [x] JRENG-CODING-STANDARD.md (brace-init, not/and/or, override, explicit captures, header-only doxygen, positive nesting, structured binding on bimap)
+
+### Problems Solved
+- **Split lifecycle unified:** seeding/watching/svg-dispatch were scattered in config::Model while Theme/Shader only did the load half. Now each Directory subclass owns its full initialise→write→read→watch→notify cycle; config::Model is root-only.
+- **Over-nested + dead registries:** `File::Theme`/`File::Shaders`/`Shaders::Buffer` 3-level nesting + always-skipped `config` enum entry + orphaned `sourcePass` (deleted Compiler). Flattened to `config::File`/`Themes`/`Shaders`; gates and dead code removed.
+- **Semantic collision:** config section `end` (tree type END) collided with namespace `end` and runtime `end::Model` (also END). Renamed to `init`/INIT; runtime model untouched.
+- **OOTB enforcement:** ARCHITECT directive "no manual handroll." Replaced `getNumProperties` loops with `jam::Model::forEachProperty` (config + action::Registry); `jam::File::getOrCreateDirectory` for dir creation.
+- **First-launch crash:** `Theme::saveToPath` guarded on `dir.isDirectory()` (false before creation) → theme dir never written → empty `theme.state` → `LookAndFeel::registerTypeface` jassert on `getValue(IDtype::code)`. Fixed: guard on selection (non-empty path); `getOrCreateDirectory` creates the dir.
+- **Over-abstraction reverted:** `getDirectory`/`seedFile`/`notify`/`notifyId` (invented semantics against ARCHITECT's "no seed, no notify, no new patterns" directive) stripped. Owner calls the bimap directly; writes + notify inline; Directory.cpp inlined into the header.
+
+### Debts Paid
+None
+
+### Debts Deferred
+None
+
+---
+
 ## Sprint 25: Shader Controller Redesign — Assets-to-Renderer, Ping-Pong, OOTB Uniform ✅
 
 **Date:** 2026-06-16

@@ -1,0 +1,296 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
+  <compounddef id="structconfig_1_1_themes" kind="struct" language="C++" prot="public">
+    <compoundname>config::Themes</compoundname>
+    <basecompoundref refid="classjam_1_1Bimap" prot="public" virt="non-virtual">jam::Bimap&lt; Themes &gt;</basecompoundref>
+    <includes refid="_bimap_8h" local="no">Bimap.h</includes>
+    <sectiondef kind="public-type">
+      <memberdef kind="enum" id="structconfig_1_1_themes_1a8d39543549b6b4644ae0c89660015df3" prot="public" static="no" strong="no">
+        <type></type>
+        <name>@263360076026324050176213317250306302236257051256</name>
+        <qualifiedname>config::Themes::@263360076026324050176213317250306302236257051256</qualifiedname>
+        <enumvalue id="structconfig_1_1_themes_1a8d39543549b6b4644ae0c89660015df3a54da0695106a954a34155f800582a7c4" prot="public">
+          <name>theme</name>
+          <briefdescription>
+<para>Visual properties (colours, fonts, metrics, graphics). </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="structconfig_1_1_themes_1a8d39543549b6b4644ae0c89660015df3acae4b7247847813b1a1456474cfcd2fb" prot="public">
+          <name>whelmed</name>
+          <briefdescription>
+<para>Whelmed markdown renderer styles. </para>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Integer keys for theme lua files. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bimap.h" line="191" column="5" bodyfile="Bimap.h" bodystart="192" bodyend="195"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="public-static-attrib">
+      <memberdef kind="variable" id="structconfig_1_1_themes_1abc04da240af6c8a069846d0780af1739" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="classjuce_1_1File" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::File</ref></type>
+        <definition>const juce::File config::Themes::path</definition>
+        <argsstring></argsstring>
+        <name>path</name>
+        <qualifiedname>config::Themes::path</qualifiedname>
+        <initializer>{ <ref refid="structconfig_1_1_file_1a8fb7a80701aaed8671256aa65afaf19d" kindref="member">File::getPath</ref> (IDref::themes) }</initializer>
+        <briefdescription>
+<para><ref refid="structconfig_1_1_themes" kindref="compound">Themes</ref> root directory: ~/.config/end/themes/. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bimap.h" line="232" column="36" bodyfile="Bimap.h" bodystart="232" bodyend="232"/>
+        <referencedby refid="structconfig_1_1_themes_1a260fc95ef3aaa64e0bbbdd28d12d071f" compoundref="_bimap_8h" startline="226" endline="229">getPath</referencedby>
+      </memberdef>
+      <memberdef kind="variable" id="structconfig_1_1_themes_1ac8b1b388c34092c41edcb9ede0de5d41" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref></type>
+        <definition>const juce::String config::Themes::extension</definition>
+        <argsstring></argsstring>
+        <name>extension</name>
+        <qualifiedname>config::Themes::extension</qualifiedname>
+        <initializer>{ &quot;lua&quot; }</initializer>
+        <briefdescription>
+<para>Lua extension for theme files. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bimap.h" line="234" column="38" bodyfile="Bimap.h" bodystart="234" bodyend="234"/>
+        <referencedby refid="classconfig_1_1_theme_1a605ca54b6d1b90d93279fec757193458" compoundref="_config_8cpp" startline="254" endline="268">config::Theme::fileChanged</referencedby>
+        <referencedby refid="structconfig_1_1_themes_1a48be35feb4087a7891dd6a41a8674f18" compoundref="_bimap_8h" startline="215" endline="218">getName</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="public-func">
+      <memberdef kind="function" id="structconfig_1_1_themes_1ad4bb6cf24bedc3b93899eadf76eca770" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>config::Themes::Themes</definition>
+        <argsstring>()</argsstring>
+        <name>Themes</name>
+        <qualifiedname>config::Themes::Themes</qualifiedname>
+        <briefdescription>
+<para>Populates the bimap with both entries. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bimap.h" line="198" column="5" bodyfile="Bimap.h" bodystart="198" bodyend="204"/>
+        <references refid="classjam_1_1Bimap_1a9e17f006e09559363aa2352f78477e8e">jam::Bimap&lt; Themes &gt;::map</references>
+        <references refid="structconfig_1_1_themes_1a8d39543549b6b4644ae0c89660015df3a54da0695106a954a34155f800582a7c4" compoundref="_bimap_8h" startline="193">theme</references>
+        <references refid="structconfig_1_1_themes_1a8d39543549b6b4644ae0c89660015df3acae4b7247847813b1a1456474cfcd2fb" compoundref="_bimap_8h" startline="194">whelmed</references>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="structconfig_1_1_themes_1a75ef807eb5feb2ef9c9af61a265f21b7" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>const auto &amp;</type>
+        <definition>static const auto &amp; config::Themes::get</definition>
+        <argsstring>() noexcept</argsstring>
+        <name>get</name>
+        <qualifiedname>config::Themes::get</qualifiedname>
+        <briefdescription>
+<para>Returns the int→Identifier-stem map from the live context instance. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bimap.h" line="207" column="23" bodyfile="Bimap.h" bodystart="207" bodyend="207"/>
+        <references refid="structjam_1_1Instance_1ad5d2bbb58e37d8d260b428b334823140">jam::Instance&lt; Derived &gt;::getInstance</references>
+        <referencedby refid="structconfig_1_1_themes_1a48be35feb4087a7891dd6a41a8674f18" compoundref="_bimap_8h" startline="215" endline="218">getName</referencedby>
+        <referencedby refid="classconfig_1_1_theme_1a0c350ee3844fcceaa5d9d68023ae6cdd" compoundref="_config_8cpp" startline="178" endline="190">config::Theme::initialise</referencedby>
+        <referencedby refid="classconfig_1_1_theme_1a6d4ca39c5481082070ba546736a2f25b" compoundref="_config_8cpp" startline="229" endline="252">config::Theme::loadFromPath</referencedby>
+        <referencedby refid="classconfig_1_1_theme_1ae67d41c767ef6a64290e495bf2522487" compoundref="_config_8cpp" startline="192" endline="227">config::Theme::saveToPath</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="structconfig_1_1_themes_1a48be35feb4087a7891dd6a41a8674f18" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref></type>
+        <definition>static const juce::String config::Themes::getName</definition>
+        <argsstring>(int key) noexcept</argsstring>
+        <name>getName</name>
+        <qualifiedname>config::Themes::getName</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>key</declname>
+        </param>
+        <briefdescription>
+<para>Returns the filename for the given enum key (always &quot;stem.lua&quot;). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>key</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>One of the <ref refid="structconfig_1_1_themes" kindref="compound">Themes</ref> enum values. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Filename string including extension (e.g. &quot;theme.lua&quot;). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bimap.h" line="215" column="31" bodyfile="Bimap.h" bodystart="215" bodyend="218"/>
+        <references refid="structconfig_1_1_themes_1ac8b1b388c34092c41edcb9ede0de5d41" compoundref="_bimap_8h" startline="234" endline="234">extension</references>
+        <references refid="structconfig_1_1_themes_1a75ef807eb5feb2ef9c9af61a265f21b7" compoundref="_bimap_8h" startline="207" endline="207">get</references>
+        <references refid="structjam_1_1Format_1a838b7c56ce7913ab2b4471148a1019cd">jam::Format::toFileName</references>
+        <referencedby refid="classconfig_1_1_theme_1a0c350ee3844fcceaa5d9d68023ae6cdd" compoundref="_config_8cpp" startline="178" endline="190">config::Theme::initialise</referencedby>
+        <referencedby refid="classconfig_1_1_theme_1a6d4ca39c5481082070ba546736a2f25b" compoundref="_config_8cpp" startline="229" endline="252">config::Theme::loadFromPath</referencedby>
+        <referencedby refid="classconfig_1_1_theme_1ae67d41c767ef6a64290e495bf2522487" compoundref="_config_8cpp" startline="192" endline="227">config::Theme::saveToPath</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="structconfig_1_1_themes_1a260fc95ef3aaa64e0bbbdd28d12d071f" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
+        <type>const <ref refid="classjuce_1_1File" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::File</ref></type>
+        <definition>static const juce::File config::Themes::getPath</definition>
+        <argsstring>(const juce::String &amp;themeName) noexcept</argsstring>
+        <name>getPath</name>
+        <qualifiedname>config::Themes::getPath</qualifiedname>
+        <param>
+          <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref> &amp;</type>
+          <declname>themeName</declname>
+        </param>
+        <briefdescription>
+<para>Returns the theme subdirectory for the given theme name. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>themeName</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classconfig_1_1_theme" kindref="compound">Theme</ref> directory name (e.g. &quot;gfx&quot;). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Resolved path: ~/.config/end/themes/<computeroutput>themeName/</computeroutput> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bimap.h" line="226" column="29" bodyfile="Bimap.h" bodystart="226" bodyend="229"/>
+        <references refid="structconfig_1_1_themes_1abc04da240af6c8a069846d0780af1739" compoundref="_bimap_8h" startline="232" endline="232">path</references>
+        <referencedby refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="91" endline="124">config::Model::loadFromPath</referencedby>
+        <referencedby refid="classend_1_1_look_and_feel_1a6bac0b983ceeffd331beb5262030dbe8" compoundref="look_and_feel_2_event_registration_8cpp" startline="85" endline="120">end::LookAndFeel::loadGraphics</referencedby>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="private-func">
+      <memberdef kind="function" id="structconfig_1_1_themes_1a933af8932da0677fbde625c13b4bae1a" prot="private" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="virtual">
+        <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref> &amp;</type>
+        <definition>const juce::String &amp; config::Themes::getDefault</definition>
+        <argsstring>() const noexcept override</argsstring>
+        <name>getDefault</name>
+        <qualifiedname>config::Themes::getDefault</qualifiedname>
+        <reimplements refid="classjam_1_1Bimap_1ad13260eca8ba349ebf22d814085a3d86">getDefault</reimplements>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="Bimap.h" line="237" column="24" bodyfile="Bimap.h" bodystart="237" bodyend="237"/>
+        <references refid="classjam_1_1Bimap_1a9e17f006e09559363aa2352f78477e8e">jam::Bimap&lt; Themes &gt;::map</references>
+        <references refid="structconfig_1_1_themes_1a8d39543549b6b4644ae0c89660015df3a54da0695106a954a34155f800582a7c4" compoundref="_bimap_8h" startline="193">theme</references>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Registry of theme directory files — 2 section keys. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Top-level registry. CRTP-derived from <ref refid="classjam_1_1Bimap" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Bimap</ref>&lt;<ref refid="structconfig_1_1_themes" kindref="compound">Themes</ref>&gt;.</para>
+<para>Maps each enum key to its Identifier stem and resolves the on-disk filename via <ref refid="structconfig_1_1_themes_1a48be35feb4087a7891dd6a41a8674f18" kindref="member">getName()</ref>. All keys produce &quot;stem.lua&quot;.</para>
+<para>Owns the themes root directory path (seeded from <ref refid="structconfig_1_1_file_1a8fb7a80701aaed8671256aa65afaf19d" kindref="member">File::getPath</ref>). The live instance is owned by <ref refid="classend_1_1_application" kindref="compound">end::Application</ref> — static <ref refid="structconfig_1_1_themes_1a75ef807eb5feb2ef9c9af61a265f21b7" kindref="member">get()</ref> resolves through <ref refid="structjam_1_1Instance" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Instance</ref>&lt;<ref refid="structconfig_1_1_themes" kindref="compound">Themes</ref>&gt;. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>config::Themes</label>
+        <link refid="structconfig_1_1_themes"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>jam::Bimap&lt; Themes &gt;</label>
+        <link refid="classjam_1_1Bimap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>jam::Instance&lt; Derived &gt;</label>
+        <link refid="structjam_1_1Instance" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>config::Themes</label>
+        <link refid="structconfig_1_1_themes"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>path</edgelabel>
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>extension</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>jam::Bimap&lt; Themes &gt;</label>
+        <link refid="classjam_1_1Bimap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>map</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>jam::Instance&lt; Derived &gt;</label>
+        <link refid="structjam_1_1Instance" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
+      <node id="6">
+        <label>juce::File</label>
+        <link refid="classjuce_1_1File" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="5">
+        <label>juce::String</label>
+        <link refid="classjuce_1_1String" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="4">
+        <label>std::map&lt; int, juce::String &gt;</label>
+        <childnode refid="5" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="Bimap.h" line="188" column="1" bodyfile="Bimap.h" bodystart="189" bodyend="238"/>
+    <listofallmembers>
+      <member refid="classjam_1_1Bimap_1a3396307cd01cc5b2171954585f05aef2" prot="public" virt="non-virtual"><scope>config::Themes</scope><name>contains</name></member>
+      <member refid="structconfig_1_1_themes_1ac8b1b388c34092c41edcb9ede0de5d41" prot="public" virt="non-virtual"><scope>config::Themes</scope><name>extension</name></member>
+      <member refid="structconfig_1_1_themes_1a75ef807eb5feb2ef9c9af61a265f21b7" prot="public" virt="non-virtual"><scope>config::Themes</scope><name>get</name></member>
+      <member refid="classjam_1_1Bimap_1a0af1da30e2ad9caf0420dea9b49fde54" prot="public" virt="non-virtual" ambiguityscope="jam::Bimap&lt; Themes &gt;::"><scope>config::Themes</scope><name>get</name></member>
+      <member refid="structconfig_1_1_themes_1a933af8932da0677fbde625c13b4bae1a" prot="private" virt="virtual"><scope>config::Themes</scope><name>getDefault</name></member>
+      <member refid="structjam_1_1Instance_1ad5d2bbb58e37d8d260b428b334823140" prot="public" virt="non-virtual"><scope>config::Themes</scope><name>getInstance</name></member>
+      <member refid="structconfig_1_1_themes_1a48be35feb4087a7891dd6a41a8674f18" prot="public" virt="non-virtual"><scope>config::Themes</scope><name>getName</name></member>
+      <member refid="structconfig_1_1_themes_1a260fc95ef3aaa64e0bbbdd28d12d071f" prot="public" virt="non-virtual"><scope>config::Themes</scope><name>getPath</name></member>
+      <member refid="structjam_1_1Instance_1a719a3eec42d68f1566de6b5dcd34589a" prot="private" virt="non-virtual"><scope>config::Themes</scope><name>head</name></member>
+      <member refid="structjam_1_1Instance_1a85529c50c3424e8b843fa92fa2f9c4da" prot="public" virt="non-virtual"><scope>config::Themes</scope><name>Instance</name></member>
+      <member refid="classjam_1_1Bimap_1a9e17f006e09559363aa2352f78477e8e" prot="protected" virt="non-virtual"><scope>config::Themes</scope><name>map</name></member>
+      <member refid="structjam_1_1Instance_1a8bcf431bb53fe6432585a139f6bc562d" prot="public" virt="non-virtual"><scope>config::Themes</scope><name>operator=</name></member>
+      <member refid="structconfig_1_1_themes_1abc04da240af6c8a069846d0780af1739" prot="public" virt="non-virtual"><scope>config::Themes</scope><name>path</name></member>
+      <member refid="structjam_1_1Instance_1af12a7073f28131cc327baa99fc5745d8" prot="private" virt="non-virtual"><scope>config::Themes</scope><name>previous</name></member>
+      <member refid="structconfig_1_1_themes_1a8d39543549b6b4644ae0c89660015df3a54da0695106a954a34155f800582a7c4" prot="public" virt="non-virtual"><scope>config::Themes</scope><name>theme</name></member>
+      <member refid="structconfig_1_1_themes_1ad4bb6cf24bedc3b93899eadf76eca770" prot="public" virt="non-virtual"><scope>config::Themes</scope><name>Themes</name></member>
+      <member refid="structconfig_1_1_themes_1a8d39543549b6b4644ae0c89660015df3acae4b7247847813b1a1456474cfcd2fb" prot="public" virt="non-virtual"><scope>config::Themes</scope><name>whelmed</name></member>
+      <member refid="structjam_1_1Instance_1a6d091bd7f9bfd134ba3c831c8a3b04a3" prot="public" virt="virtual"><scope>config::Themes</scope><name>~Instance</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

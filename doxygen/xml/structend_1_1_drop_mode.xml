@@ -93,7 +93,7 @@
 <para>Bimap for multi-file drop separator mode — &quot;space&quot; or &quot;newline&quot;. </para>
     </briefdescription>
     <detaileddescription>
-<para>Used by end.terminal.drop_multifiles. 0 → &quot;space&quot; — join paths with spaces (default) 1 → &quot;newline&quot; — join paths with newlines</para>
+<para>Used by init.terminal.drop_multifiles. 0 → &quot;space&quot; — join paths with spaces (default) 1 → &quot;newline&quot; — join paths with newlines</para>
 <para>Registered in <ref refid="classend_1_1_application" kindref="compound">Application</ref> CONTEXT before <ref refid="classconfig_1_1_model" kindref="compound">config::Model</ref> construction. </para>
     </detaileddescription>
     <inheritancegraph>

@@ -25,9 +25,8 @@
     <class kind="struct">end::Position</class>
     <class kind="struct">end::DropMode</class>
     <class kind="struct">config::File</class>
-    <class kind="struct">config::File::Theme</class>
-    <class kind="struct">config::File::Shaders</class>
-    <class kind="struct">config::File::Shaders::Buffer</class>
+    <class kind="struct">config::Themes</class>
+    <class kind="struct">config::Shaders</class>
     <class kind="struct">end::Map</class>
     <namespace>end</namespace>
     <namespace>config</namespace>
@@ -44,9 +43,17 @@
     <path>config/</path>
     <filename>_config_8h.html</filename>
     <includes id="_bimap_8h" name="Bimap.h" local="yes" import="no" module="no" objc="no">../Bimap.h</includes>
+    <includes id="_directory_8h" name="Directory.h" local="yes" import="no" module="no" objc="no">Directory.h</includes>
     <class kind="class">config::Shader</class>
     <class kind="class">config::Theme</class>
     <class kind="class">config::Model</class>
+    <namespace>config</namespace>
+  </compound>
+  <compound kind="file">
+    <name>Directory.h</name>
+    <path>config/</path>
+    <filename>_directory_8h.html</filename>
+    <class kind="class">config::Directory</class>
     <namespace>config</namespace>
   </compound>
   <compound kind="file">
@@ -407,87 +414,6 @@
     </member>
   </compound>
   <compound kind="struct">
-    <name>config::File::Shaders::Buffer</name>
-    <filename>structconfig_1_1_file_1_1_shaders_1_1_buffer.html</filename>
-    <base>jam::Bimap&lt; Buffer &gt;</base>
-    <member kind="enumvalue">
-      <name>channel0</name>
-      <anchorfile>structconfig_1_1_file_1_1_shaders_1_1_buffer.html</anchorfile>
-      <anchor>a50194b85f04002532dcd20504718f49ea91a6edfde48a028fbbe7bc05e43e2c0d</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="enumvalue">
-      <name>channel1</name>
-      <anchorfile>structconfig_1_1_file_1_1_shaders_1_1_buffer.html</anchorfile>
-      <anchor>a50194b85f04002532dcd20504718f49eaf7a15bc18fc44b24c3241fba495a6f15</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="enumvalue">
-      <name>channel2</name>
-      <anchorfile>structconfig_1_1_file_1_1_shaders_1_1_buffer.html</anchorfile>
-      <anchor>a50194b85f04002532dcd20504718f49ea0999a397fba69b95cc3639aa6e815c63</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="enumvalue">
-      <name>channel3</name>
-      <anchorfile>structconfig_1_1_file_1_1_shaders_1_1_buffer.html</anchorfile>
-      <anchor>a50194b85f04002532dcd20504718f49eae404bd2c5ec855f755ea85bba4877198</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="enumvalue">
-      <name>channel0</name>
-      <anchorfile>structconfig_1_1_file_1_1_shaders_1_1_buffer.html</anchorfile>
-      <anchor>a50194b85f04002532dcd20504718f49ea91a6edfde48a028fbbe7bc05e43e2c0d</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="enumvalue">
-      <name>channel1</name>
-      <anchorfile>structconfig_1_1_file_1_1_shaders_1_1_buffer.html</anchorfile>
-      <anchor>a50194b85f04002532dcd20504718f49eaf7a15bc18fc44b24c3241fba495a6f15</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="enumvalue">
-      <name>channel2</name>
-      <anchorfile>structconfig_1_1_file_1_1_shaders_1_1_buffer.html</anchorfile>
-      <anchor>a50194b85f04002532dcd20504718f49ea0999a397fba69b95cc3639aa6e815c63</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="enumvalue">
-      <name>channel3</name>
-      <anchorfile>structconfig_1_1_file_1_1_shaders_1_1_buffer.html</anchorfile>
-      <anchor>a50194b85f04002532dcd20504718f49eae404bd2c5ec855f755ea85bba4877198</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="function">
-      <type></type>
-      <name>Buffer</name>
-      <anchorfile>structconfig_1_1_file_1_1_shaders_1_1_buffer.html</anchorfile>
-      <anchor>a277ee2f7236eaec431ca9fc3b7bb99c0</anchor>
-      <arglist>()</arglist>
-    </member>
-    <member kind="function" static="yes">
-      <type>static const auto &amp;</type>
-      <name>get</name>
-      <anchorfile>structconfig_1_1_file_1_1_shaders_1_1_buffer.html</anchorfile>
-      <anchor>a1da3a56b226d2ce6764ed8174ba5e4e3</anchor>
-      <arglist>() noexcept</arglist>
-    </member>
-    <member kind="function" static="yes">
-      <type>static juce::Identifier</type>
-      <name>sourcePass</name>
-      <anchorfile>structconfig_1_1_file_1_1_shaders_1_1_buffer.html</anchorfile>
-      <anchor>a40f32ec2b977880e103ccc2f1c4196df</anchor>
-      <arglist>(int slot) noexcept</arglist>
-    </member>
-    <member kind="function" protection="private">
-      <type>const juce::String &amp;</type>
-      <name>getDefault</name>
-      <anchorfile>structconfig_1_1_file_1_1_shaders_1_1_buffer.html</anchorfile>
-      <anchor>af6e544e638f471fcd73e50f3221934c1</anchor>
-      <arglist>() const noexcept override</arglist>
-    </member>
-  </compound>
-  <compound kind="struct">
     <name>shader::Controller</name>
     <filename>structshader_1_1_controller.html</filename>
     <base protection="private">juce::OpenGLRenderer</base>
@@ -641,6 +567,75 @@
       <arglist></arglist>
     </member>
   </compound>
+  <compound kind="class">
+    <name>config::Directory</name>
+    <filename>classconfig_1_1_directory.html</filename>
+    <base>jam::Model</base>
+    <base>jam::File::Watcher::Listener</base>
+    <member kind="function">
+      <type></type>
+      <name>Directory</name>
+      <anchorfile>classconfig_1_1_directory.html</anchorfile>
+      <anchor>ac8ce84c9839b82153f0f80c92a9fa672</anchor>
+      <arglist>(const juce::Identifier &amp;treeType)</arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>~Directory</name>
+      <anchorfile>classconfig_1_1_directory.html</anchorfile>
+      <anchor>aaf1021a0ac43bf490a3d677ba31ddc9c</anchor>
+      <arglist>() override=default</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>load</name>
+      <anchorfile>classconfig_1_1_directory.html</anchorfile>
+      <anchor>a1ea8c2e469d5d9c789fcc7aa117c2cb8</anchor>
+      <arglist>(const juce::File &amp;dir)</arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static constexpr int</type>
+      <name>coalesceMs</name>
+      <anchorfile>classconfig_1_1_directory.html</anchorfile>
+      <anchor>a9ac471bcf600eba99126334cc78130e1</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="function" protection="protected" virtualness="pure">
+      <type>virtual void</type>
+      <name>initialise</name>
+      <anchorfile>classconfig_1_1_directory.html</anchorfile>
+      <anchor>ad22b695ac4e5bc7c68bd2b72478e47dc</anchor>
+      <arglist>()=0</arglist>
+    </member>
+    <member kind="function" protection="protected" virtualness="pure">
+      <type>virtual void</type>
+      <name>saveToPath</name>
+      <anchorfile>classconfig_1_1_directory.html</anchorfile>
+      <anchor>a4a70f2587a465bbdd46ffebf13e8fb8c</anchor>
+      <arglist>(const juce::File &amp;dir)=0</arglist>
+    </member>
+    <member kind="function" protection="protected" virtualness="pure">
+      <type>virtual void</type>
+      <name>loadFromPath</name>
+      <anchorfile>classconfig_1_1_directory.html</anchorfile>
+      <anchor>a51328cf49c3096beaca962a2a9b1db30</anchor>
+      <arglist>(const juce::File &amp;dir)=0</arglist>
+    </member>
+    <member kind="function" protection="private">
+      <type>void</type>
+      <name>startWatcher</name>
+      <anchorfile>classconfig_1_1_directory.html</anchorfile>
+      <anchor>ac1c41259565f810efbd2b1048f784076</anchor>
+      <arglist>(const juce::File &amp;dir)</arglist>
+    </member>
+    <member kind="variable" protection="private">
+      <type>jam::File::Watcher</type>
+      <name>watcher</name>
+      <anchorfile>classconfig_1_1_directory.html</anchorfile>
+      <anchor>ac36ace96a36589e743bf946ee0ee1b39</anchor>
+      <arglist></arglist>
+    </member>
+  </compound>
   <compound kind="struct">
     <name>end::DropMode</name>
     <filename>structend_1_1_drop_mode.html</filename>
@@ -695,18 +690,10 @@
     <name>config::File</name>
     <filename>structconfig_1_1_file.html</filename>
     <base>jam::Bimap&lt; File &gt;</base>
-    <class kind="struct">config::File::Theme</class>
-    <class kind="struct">config::File::Shaders</class>
     <member kind="enumvalue">
-      <name>config</name>
+      <name>init</name>
       <anchorfile>structconfig_1_1_file.html</anchorfile>
-      <anchor>a36e6049325fb88e0539ec7bc64a3010aa0fc85df7daa8f0d98a096582ced3738f</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="enumvalue">
-      <name>end</name>
-      <anchorfile>structconfig_1_1_file.html</anchorfile>
-      <anchor>a36e6049325fb88e0539ec7bc64a3010aacb0c136bc8294d848fc394d785cba5b3</anchor>
+      <anchor>a36e6049325fb88e0539ec7bc64a3010aa14893e3947e3e8e86f11079bc90a56e6</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
@@ -722,15 +709,9 @@
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
-      <name>config</name>
+      <name>init</name>
       <anchorfile>structconfig_1_1_file.html</anchorfile>
-      <anchor>a36e6049325fb88e0539ec7bc64a3010aa0fc85df7daa8f0d98a096582ced3738f</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="enumvalue">
-      <name>end</name>
-      <anchorfile>structconfig_1_1_file.html</anchorfile>
-      <anchor>a36e6049325fb88e0539ec7bc64a3010aacb0c136bc8294d848fc394d785cba5b3</anchor>
+      <anchor>a36e6049325fb88e0539ec7bc64a3010aa14893e3947e3e8e86f11079bc90a56e6</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
@@ -4522,17 +4503,17 @@
       <arglist></arglist>
     </member>
     <member kind="variable">
-      <type>config::File::Theme</type>
-      <name>theme</name>
+      <type>config::Themes</type>
+      <name>themes</name>
       <anchorfile>structend_1_1_map.html</anchorfile>
-      <anchor>a06976157d721af111292a451acac2494</anchor>
+      <anchor>accdb3ceeda05cb7c7f05cc22726bd736</anchor>
       <arglist></arglist>
     </member>
     <member kind="variable">
-      <type>config::File::Shaders</type>
+      <type>config::Shaders</type>
       <name>shaders</name>
       <anchorfile>structend_1_1_map.html</anchorfile>
-      <anchor>a2e8fbf54f2d85f74342e0b64c1f604aa</anchor>
+      <anchor>ae5eb58f21c55b5bfb390df02d02b025c</anchor>
       <arglist></arglist>
     </member>
     <member kind="variable">
@@ -4657,8 +4638,8 @@
       <type></type>
       <name>~Model</name>
       <anchorfile>classconfig_1_1_model.html</anchorfile>
-      <anchor>af95c0931a6f76206d56eb06a3c71a05a</anchor>
-      <arglist>()=default</arglist>
+      <anchor>a999a3d75bffd8430dca275546734329f</anchor>
+      <arglist>() override=default</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -4718,13 +4699,6 @@
     </member>
     <member kind="function" protection="private">
       <type>void</type>
-      <name>buildGraphicsCallbacks</name>
-      <anchorfile>classconfig_1_1_model.html</anchorfile>
-      <anchor>a04468ffcc63d66896bb34f4c0b4c37b2</anchor>
-      <arglist>()</arglist>
-    </member>
-    <member kind="function" protection="private">
-      <type>void</type>
       <name>registerValidator</name>
       <anchorfile>classconfig_1_1_model.html</anchorfile>
       <anchor>a37ce70da66e8164f746a16925295c343</anchor>
@@ -4749,13 +4723,6 @@
       <name>validators</name>
       <anchorfile>classconfig_1_1_model.html</anchorfile>
       <anchor>af427d6e053fd4508c7179979330e5ab9</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable" protection="private">
-      <type>jam::Function::Map&lt; juce::String, void &gt;</type>
-      <name>graphicsCallbacks</name>
-      <anchorfile>classconfig_1_1_model.html</anchorfile>
-      <anchor>aab53f2dffa259bc65116d9b97ce44a49</anchor>
       <arglist></arglist>
     </member>
     <member kind="variable" protection="private">
@@ -5134,139 +5101,159 @@
   <compound kind="class">
     <name>config::Shader</name>
     <filename>classconfig_1_1_shader.html</filename>
-    <base>jam::Model</base>
+    <base>config::Directory</base>
     <member kind="function">
       <type></type>
       <name>Shader</name>
       <anchorfile>classconfig_1_1_shader.html</anchorfile>
-      <anchor>ada217a4ba5644dd1f3cd27b637435609</anchor>
-      <arglist>()=default</arglist>
+      <anchor>ad48dcfeb714ddc12a66be1261e310093</anchor>
+      <arglist>()</arglist>
     </member>
     <member kind="function">
       <type></type>
       <name>~Shader</name>
       <anchorfile>classconfig_1_1_shader.html</anchorfile>
-      <anchor>a87c5d7e63bea7056c04c5a01293abb14</anchor>
-      <arglist>()=default</arglist>
+      <anchor>a040aab72e915f4393a4dac916f658dcd</anchor>
+      <arglist>() override=default</arglist>
     </member>
-    <member kind="function">
+    <member kind="function" protection="protected">
       <type>void</type>
-      <name>load</name>
+      <name>initialise</name>
       <anchorfile>classconfig_1_1_shader.html</anchorfile>
-      <anchor>a5d1eeff039b1bf119b6c184d96fb350e</anchor>
-      <arglist>(const juce::String &amp;shaderName)</arglist>
+      <anchor>aa8b27be122a036faec6fccb1916faaa8</anchor>
+      <arglist>() override</arglist>
+    </member>
+    <member kind="function" protection="protected">
+      <type>void</type>
+      <name>saveToPath</name>
+      <anchorfile>classconfig_1_1_shader.html</anchorfile>
+      <anchor>a43a6029f5a5247916ea30c7f8df13b89</anchor>
+      <arglist>(const juce::File &amp;) override</arglist>
+    </member>
+    <member kind="function" protection="protected">
+      <type>void</type>
+      <name>loadFromPath</name>
+      <anchorfile>classconfig_1_1_shader.html</anchorfile>
+      <anchor>a36417d818db5236b3152f3d1c2533a4c</anchor>
+      <arglist>(const juce::File &amp;dir) override</arglist>
+    </member>
+    <member kind="function" protection="protected">
+      <type>void</type>
+      <name>fileChanged</name>
+      <anchorfile>classconfig_1_1_shader.html</anchorfile>
+      <anchor>a8c12579db7947e5e989808a7aca79c35</anchor>
+      <arglist>(const juce::File &amp;file, jam::File::Watcher::Event event) override</arglist>
     </member>
   </compound>
   <compound kind="struct">
-    <name>config::File::Shaders</name>
-    <filename>structconfig_1_1_file_1_1_shaders.html</filename>
+    <name>config::Shaders</name>
+    <filename>structconfig_1_1_shaders.html</filename>
     <base>jam::Bimap&lt; Shaders &gt;</base>
-    <class kind="struct">config::File::Shaders::Buffer</class>
     <member kind="enumvalue">
       <name>common</name>
-      <anchorfile>structconfig_1_1_file_1_1_shaders.html</anchorfile>
-      <anchor>a8742efdfadae17c4804b8942536862e0a5f812a882781c800b2034243a5ea7723</anchor>
+      <anchorfile>structconfig_1_1_shaders.html</anchorfile>
+      <anchor>afb6e93b9208fbf7dd3338a2b06da9a72a7031768076b803897f0b602102e68b81</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
       <name>bufferA</name>
-      <anchorfile>structconfig_1_1_file_1_1_shaders.html</anchorfile>
-      <anchor>a8742efdfadae17c4804b8942536862e0a325ec4a452d9b54b80714024834995b6</anchor>
+      <anchorfile>structconfig_1_1_shaders.html</anchorfile>
+      <anchor>afb6e93b9208fbf7dd3338a2b06da9a72a1b5c3da9a11cb1ac23857c8f828e21f6</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
       <name>bufferB</name>
-      <anchorfile>structconfig_1_1_file_1_1_shaders.html</anchorfile>
-      <anchor>a8742efdfadae17c4804b8942536862e0ac3446430886a58fb0e5af482aac3a107</anchor>
+      <anchorfile>structconfig_1_1_shaders.html</anchorfile>
+      <anchor>afb6e93b9208fbf7dd3338a2b06da9a72a72eb8523d5bbc725fb2d9dd724473f9f</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
       <name>bufferC</name>
-      <anchorfile>structconfig_1_1_file_1_1_shaders.html</anchorfile>
-      <anchor>a8742efdfadae17c4804b8942536862e0a0330b5a3a16bbf60f0ff4a2adbbc6d24</anchor>
+      <anchorfile>structconfig_1_1_shaders.html</anchorfile>
+      <anchor>afb6e93b9208fbf7dd3338a2b06da9a72ad76b0d8da7e3ce19684ee2eb08fe6048</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
       <name>bufferD</name>
-      <anchorfile>structconfig_1_1_file_1_1_shaders.html</anchorfile>
-      <anchor>a8742efdfadae17c4804b8942536862e0a7b465696c329e0a1da1c9bf6d873283c</anchor>
+      <anchorfile>structconfig_1_1_shaders.html</anchorfile>
+      <anchor>afb6e93b9208fbf7dd3338a2b06da9a72ae08e250d4fb6aca5a4c26325048219ca</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
       <name>image</name>
-      <anchorfile>structconfig_1_1_file_1_1_shaders.html</anchorfile>
-      <anchor>a8742efdfadae17c4804b8942536862e0a6d02fdee5c6647ce9ae6ff5e64c15dc5</anchor>
+      <anchorfile>structconfig_1_1_shaders.html</anchorfile>
+      <anchor>afb6e93b9208fbf7dd3338a2b06da9a72a48c781e7e4ef49c4b6b98a5abea46bc7</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
       <name>common</name>
-      <anchorfile>structconfig_1_1_file_1_1_shaders.html</anchorfile>
-      <anchor>a8742efdfadae17c4804b8942536862e0a5f812a882781c800b2034243a5ea7723</anchor>
+      <anchorfile>structconfig_1_1_shaders.html</anchorfile>
+      <anchor>afb6e93b9208fbf7dd3338a2b06da9a72a7031768076b803897f0b602102e68b81</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
       <name>bufferA</name>
-      <anchorfile>structconfig_1_1_file_1_1_shaders.html</anchorfile>
-      <anchor>a8742efdfadae17c4804b8942536862e0a325ec4a452d9b54b80714024834995b6</anchor>
+      <anchorfile>structconfig_1_1_shaders.html</anchorfile>
+      <anchor>afb6e93b9208fbf7dd3338a2b06da9a72a1b5c3da9a11cb1ac23857c8f828e21f6</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
       <name>bufferB</name>
-      <anchorfile>structconfig_1_1_file_1_1_shaders.html</anchorfile>
-      <anchor>a8742efdfadae17c4804b8942536862e0ac3446430886a58fb0e5af482aac3a107</anchor>
+      <anchorfile>structconfig_1_1_shaders.html</anchorfile>
+      <anchor>afb6e93b9208fbf7dd3338a2b06da9a72a72eb8523d5bbc725fb2d9dd724473f9f</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
       <name>bufferC</name>
-      <anchorfile>structconfig_1_1_file_1_1_shaders.html</anchorfile>
-      <anchor>a8742efdfadae17c4804b8942536862e0a0330b5a3a16bbf60f0ff4a2adbbc6d24</anchor>
+      <anchorfile>structconfig_1_1_shaders.html</anchorfile>
+      <anchor>afb6e93b9208fbf7dd3338a2b06da9a72ad76b0d8da7e3ce19684ee2eb08fe6048</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
       <name>bufferD</name>
-      <anchorfile>structconfig_1_1_file_1_1_shaders.html</anchorfile>
-      <anchor>a8742efdfadae17c4804b8942536862e0a7b465696c329e0a1da1c9bf6d873283c</anchor>
+      <anchorfile>structconfig_1_1_shaders.html</anchorfile>
+      <anchor>afb6e93b9208fbf7dd3338a2b06da9a72ae08e250d4fb6aca5a4c26325048219ca</anchor>
       <arglist></arglist>
     </member>
     <member kind="enumvalue">
       <name>image</name>
-      <anchorfile>structconfig_1_1_file_1_1_shaders.html</anchorfile>
-      <anchor>a8742efdfadae17c4804b8942536862e0a6d02fdee5c6647ce9ae6ff5e64c15dc5</anchor>
+      <anchorfile>structconfig_1_1_shaders.html</anchorfile>
+      <anchor>afb6e93b9208fbf7dd3338a2b06da9a72a48c781e7e4ef49c4b6b98a5abea46bc7</anchor>
       <arglist></arglist>
     </member>
     <member kind="function">
       <type></type>
       <name>Shaders</name>
-      <anchorfile>structconfig_1_1_file_1_1_shaders.html</anchorfile>
-      <anchor>a2c9c019a90d6dabd34d305f4d792ecba</anchor>
+      <anchorfile>structconfig_1_1_shaders.html</anchorfile>
+      <anchor>a142b0a1d4e050d7e450fc66b7723e94c</anchor>
       <arglist>()</arglist>
     </member>
     <member kind="function" static="yes">
       <type>static const auto &amp;</type>
       <name>get</name>
-      <anchorfile>structconfig_1_1_file_1_1_shaders.html</anchorfile>
-      <anchor>aa57d90d95ec92f5c3e46b80b84f3bf6a</anchor>
+      <anchorfile>structconfig_1_1_shaders.html</anchorfile>
+      <anchor>a0ad3245ff019beb74063ffcb2291482a</anchor>
       <arglist>() noexcept</arglist>
     </member>
     <member kind="function" static="yes">
       <type>static const juce::File</type>
       <name>getPath</name>
-      <anchorfile>structconfig_1_1_file_1_1_shaders.html</anchorfile>
-      <anchor>aba40922876a7a61539f37275ee496ed2</anchor>
+      <anchorfile>structconfig_1_1_shaders.html</anchorfile>
+      <anchor>a66789b82610d626b74180c404e6b99c4</anchor>
       <arglist>(const juce::String &amp;shadersName) noexcept</arglist>
     </member>
     <member kind="variable" static="yes">
       <type>static const juce::File</type>
       <name>path</name>
-      <anchorfile>structconfig_1_1_file_1_1_shaders.html</anchorfile>
-      <anchor>a0d288c0151edcaeb66788936533e7527</anchor>
+      <anchorfile>structconfig_1_1_shaders.html</anchorfile>
+      <anchor>ab867dbf1bcc710b35a99f8bc06ad5d54</anchor>
       <arglist></arglist>
     </member>
     <member kind="function" protection="private">
       <type>const juce::String &amp;</type>
       <name>getDefault</name>
-      <anchorfile>structconfig_1_1_file_1_1_shaders.html</anchorfile>
-      <anchor>ac01dba94dec6e45bd2a4a307a9a1f6a9</anchor>
+      <anchorfile>structconfig_1_1_shaders.html</anchorfile>
+      <anchor>a3139bc6a7116e115349c3eb6fd9eaeae</anchor>
       <arglist>() const noexcept override</arglist>
     </member>
   </compound>
@@ -5347,108 +5334,143 @@
       <arglist></arglist>
     </member>
   </compound>
-  <compound kind="struct">
-    <name>config::File::Theme</name>
-    <filename>structconfig_1_1_file_1_1_theme.html</filename>
-    <base>jam::Bimap&lt; Theme &gt;</base>
-    <member kind="enumvalue">
-      <name>theme</name>
-      <anchorfile>structconfig_1_1_file_1_1_theme.html</anchorfile>
-      <anchor>aed8d18c860b42b7f2dcef824eed49117ae8458505754c846a3811711c799dd94e</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="enumvalue">
-      <name>whelmed</name>
-      <anchorfile>structconfig_1_1_file_1_1_theme.html</anchorfile>
-      <anchor>aed8d18c860b42b7f2dcef824eed49117ab297a878b9ea3a2f06aa1e1f3116042f</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="enumvalue">
-      <name>theme</name>
-      <anchorfile>structconfig_1_1_file_1_1_theme.html</anchorfile>
-      <anchor>aed8d18c860b42b7f2dcef824eed49117ae8458505754c846a3811711c799dd94e</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="enumvalue">
-      <name>whelmed</name>
-      <anchorfile>structconfig_1_1_file_1_1_theme.html</anchorfile>
-      <anchor>aed8d18c860b42b7f2dcef824eed49117ab297a878b9ea3a2f06aa1e1f3116042f</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="function">
-      <type></type>
-      <name>Theme</name>
-      <anchorfile>structconfig_1_1_file_1_1_theme.html</anchorfile>
-      <anchor>a74911505d8097349de91a2ec34442677</anchor>
-      <arglist>()</arglist>
-    </member>
-    <member kind="function" static="yes">
-      <type>static const auto &amp;</type>
-      <name>get</name>
-      <anchorfile>structconfig_1_1_file_1_1_theme.html</anchorfile>
-      <anchor>a259522514f9d57dccbffc3e3f1349a7f</anchor>
-      <arglist>() noexcept</arglist>
-    </member>
-    <member kind="function" static="yes">
-      <type>static const juce::String</type>
-      <name>getName</name>
-      <anchorfile>structconfig_1_1_file_1_1_theme.html</anchorfile>
-      <anchor>aae7b0309384b8333ee5d8daa47406edb</anchor>
-      <arglist>(int key) noexcept</arglist>
-    </member>
-    <member kind="function" static="yes">
-      <type>static const juce::File</type>
-      <name>getPath</name>
-      <anchorfile>structconfig_1_1_file_1_1_theme.html</anchorfile>
-      <anchor>a1a4f485d0cd842d77061933a01b1a55c</anchor>
-      <arglist>(const juce::String &amp;themeName) noexcept</arglist>
-    </member>
-    <member kind="variable" static="yes">
-      <type>static const juce::File</type>
-      <name>path</name>
-      <anchorfile>structconfig_1_1_file_1_1_theme.html</anchorfile>
-      <anchor>a9c704922e3f4af999c084142d0da1661</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable" static="yes">
-      <type>static const juce::String</type>
-      <name>extension</name>
-      <anchorfile>structconfig_1_1_file_1_1_theme.html</anchorfile>
-      <anchor>a3a58c2e9641b37c1e6c2c4f7f3ff96c5</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="function" protection="private">
-      <type>const juce::String &amp;</type>
-      <name>getDefault</name>
-      <anchorfile>structconfig_1_1_file_1_1_theme.html</anchorfile>
-      <anchor>ad29079fd8162a12911ec9cbda0b77498</anchor>
-      <arglist>() const noexcept override</arglist>
-    </member>
-  </compound>
   <compound kind="class">
     <name>config::Theme</name>
     <filename>classconfig_1_1_theme.html</filename>
-    <base>jam::Model</base>
+    <base>config::Directory</base>
     <member kind="function">
       <type></type>
       <name>Theme</name>
       <anchorfile>classconfig_1_1_theme.html</anchorfile>
-      <anchor>aa2ffde18a91b4c82af7d11769f83fd54</anchor>
-      <arglist>()=default</arglist>
+      <anchor>aa182b80d05df79ff89ef029ccbf35c80</anchor>
+      <arglist>()</arglist>
     </member>
     <member kind="function">
       <type></type>
       <name>~Theme</name>
       <anchorfile>classconfig_1_1_theme.html</anchorfile>
-      <anchor>a3e1176f2fff32ac9705aa7786f4b4c3e</anchor>
-      <arglist>()=default</arglist>
+      <anchor>afe2d32aab8c6763fd2ee8b7b84083aeb</anchor>
+      <arglist>() override=default</arglist>
+    </member>
+    <member kind="function" protection="protected">
+      <type>void</type>
+      <name>initialise</name>
+      <anchorfile>classconfig_1_1_theme.html</anchorfile>
+      <anchor>a0c350ee3844fcceaa5d9d68023ae6cdd</anchor>
+      <arglist>() override</arglist>
+    </member>
+    <member kind="function" protection="protected">
+      <type>void</type>
+      <name>saveToPath</name>
+      <anchorfile>classconfig_1_1_theme.html</anchorfile>
+      <anchor>ae67d41c767ef6a64290e495bf2522487</anchor>
+      <arglist>(const juce::File &amp;dir) override</arglist>
+    </member>
+    <member kind="function" protection="protected">
+      <type>void</type>
+      <name>loadFromPath</name>
+      <anchorfile>classconfig_1_1_theme.html</anchorfile>
+      <anchor>a6d4ca39c5481082070ba546736a2f25b</anchor>
+      <arglist>(const juce::File &amp;dir) override</arglist>
+    </member>
+    <member kind="function" protection="protected">
+      <type>void</type>
+      <name>fileChanged</name>
+      <anchorfile>classconfig_1_1_theme.html</anchorfile>
+      <anchor>a605ca54b6d1b90d93279fec757193458</anchor>
+      <arglist>(const juce::File &amp;file, jam::File::Watcher::Event event) override</arglist>
+    </member>
+    <member kind="function" protection="private">
+      <type>void</type>
+      <name>buildGraphicsCallbacks</name>
+      <anchorfile>classconfig_1_1_theme.html</anchorfile>
+      <anchor>ab4b7a2e3123ac1dd7656921461e311af</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="variable" protection="private">
+      <type>jam::Function::Map&lt; juce::String, void &gt;</type>
+      <name>graphicsCallbacks</name>
+      <anchorfile>classconfig_1_1_theme.html</anchorfile>
+      <anchor>af85373792e04e1e72874efc010dbd02f</anchor>
+      <arglist></arglist>
+    </member>
+  </compound>
+  <compound kind="struct">
+    <name>config::Themes</name>
+    <filename>structconfig_1_1_themes.html</filename>
+    <base>jam::Bimap&lt; Themes &gt;</base>
+    <member kind="enumvalue">
+      <name>theme</name>
+      <anchorfile>structconfig_1_1_themes.html</anchorfile>
+      <anchor>a8d39543549b6b4644ae0c89660015df3a54da0695106a954a34155f800582a7c4</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>whelmed</name>
+      <anchorfile>structconfig_1_1_themes.html</anchorfile>
+      <anchor>a8d39543549b6b4644ae0c89660015df3acae4b7247847813b1a1456474cfcd2fb</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>theme</name>
+      <anchorfile>structconfig_1_1_themes.html</anchorfile>
+      <anchor>a8d39543549b6b4644ae0c89660015df3a54da0695106a954a34155f800582a7c4</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <name>whelmed</name>
+      <anchorfile>structconfig_1_1_themes.html</anchorfile>
+      <anchor>a8d39543549b6b4644ae0c89660015df3acae4b7247847813b1a1456474cfcd2fb</anchor>
+      <arglist></arglist>
     </member>
     <member kind="function">
-      <type>void</type>
-      <name>load</name>
-      <anchorfile>classconfig_1_1_theme.html</anchorfile>
-      <anchor>ad1c552afe63e04ce01d6479bdd197996</anchor>
-      <arglist>(const juce::Identifier &amp;themeName)</arglist>
+      <type></type>
+      <name>Themes</name>
+      <anchorfile>structconfig_1_1_themes.html</anchorfile>
+      <anchor>ad4bb6cf24bedc3b93899eadf76eca770</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static const auto &amp;</type>
+      <name>get</name>
+      <anchorfile>structconfig_1_1_themes.html</anchorfile>
+      <anchor>a75ef807eb5feb2ef9c9af61a265f21b7</anchor>
+      <arglist>() noexcept</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static const juce::String</type>
+      <name>getName</name>
+      <anchorfile>structconfig_1_1_themes.html</anchorfile>
+      <anchor>a48be35feb4087a7891dd6a41a8674f18</anchor>
+      <arglist>(int key) noexcept</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static const juce::File</type>
+      <name>getPath</name>
+      <anchorfile>structconfig_1_1_themes.html</anchorfile>
+      <anchor>a260fc95ef3aaa64e0bbbdd28d12d071f</anchor>
+      <arglist>(const juce::String &amp;themeName) noexcept</arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::File</type>
+      <name>path</name>
+      <anchorfile>structconfig_1_1_themes.html</anchorfile>
+      <anchor>abc04da240af6c8a069846d0780af1739</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const juce::String</type>
+      <name>extension</name>
+      <anchorfile>structconfig_1_1_themes.html</anchorfile>
+      <anchor>ac8b1b388c34092c41edcb9ede0de5d41</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="function" protection="private">
+      <type>const juce::String &amp;</type>
+      <name>getDefault</name>
+      <anchorfile>structconfig_1_1_themes.html</anchorfile>
+      <anchor>a933af8932da0677fbde625c13b4bae1a</anchor>
+      <arglist>() const noexcept override</arglist>
     </member>
   </compound>
   <compound kind="class">
@@ -5620,9 +5642,12 @@
     <name>config</name>
     <filename>namespaceconfig.html</filename>
     <class kind="struct">config::File</class>
+    <class kind="struct">config::Themes</class>
+    <class kind="struct">config::Shaders</class>
     <class kind="class">config::Shader</class>
     <class kind="class">config::Theme</class>
     <class kind="class">config::Model</class>
+    <class kind="class">config::Directory</class>
     <member kind="function" static="yes">
       <type>static std::function&lt; bool(const juce::var &amp;)&gt;</type>
       <name>enumCheck</name>
@@ -5677,6 +5702,7 @@
     <filename>dir_9f351d46ce3cc29445a41dc3a31e6919.html</filename>
     <file>Config.cpp</file>
     <file>Config.h</file>
+    <file>Directory.h</file>
   </compound>
   <compound kind="dir">
     <name>end</name>

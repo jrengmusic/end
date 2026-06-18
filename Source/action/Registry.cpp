@@ -22,20 +22,19 @@ void Registry::buildKeyMap()
     prefixKey = juce::KeyPress::createFromDescription (keysSection.getProperty (ID::prefix).toString());
     prefixTimeout = keysSection.getProperty (ID::prefixTimeout);
 
-    for (int i { 0 }; i < keysSection.getNumProperties(); ++i)
-    {
-        auto propName { keysSection.getPropertyName (i) };
+    jam::Model::forEachProperty (keysSection,
+                                 [this] (const juce::Identifier& propName, const juce::var& value)
+                                 {
+                                     if (propName != ID::prefix and propName != ID::prefixTimeout)
+                                     {
+                                         auto key { juce::KeyPress::createFromDescription (value.toString()) };
 
-        if (propName != ID::prefix and propName != ID::prefixTimeout)
-        {
-            auto key { juce::KeyPress::createFromDescription (keysSection.getProperty (propName).toString()) };
-
-            if (key.getModifiers().isCommandDown() or key.getModifiers().isCtrlDown())
-                keys.emplace (key, propName);
-            else
-                modalKeys.emplace (key, propName);
-        }
-    }
+                                         if (key.getModifiers().isCommandDown() or key.getModifiers().isCtrlDown())
+                                             keys.emplace (key, propName);
+                                         else
+                                             modalKeys.emplace (key, propName);
+                                     }
+                                 });
 }
 
 bool Registry::keyPressed (const juce::KeyPress& key)

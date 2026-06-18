@@ -2,28 +2,29 @@
 <doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
   <compounddef id="classconfig_1_1_shader" kind="class" language="C++" prot="public">
     <compoundname>config::Shader</compoundname>
-    <basecompoundref refid="classjam_1_1Model" prot="public" virt="non-virtual">jam::Model</basecompoundref>
+    <basecompoundref refid="classconfig_1_1_directory" prot="public" virt="non-virtual">config::Directory</basecompoundref>
     <includes refid="_config_8h" local="no">Config.h</includes>
     <sectiondef kind="public-func">
-      <memberdef kind="function" id="classconfig_1_1_shader_1ada217a4ba5644dd1f3cd27b637435609" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+      <memberdef kind="function" id="classconfig_1_1_shader_1ad48dcfeb714ddc12a66be1261e310093" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
         <type></type>
         <definition>config::Shader::Shader</definition>
-        <argsstring>()=default</argsstring>
+        <argsstring>()</argsstring>
         <name>Shader</name>
         <qualifiedname>config::Shader::Shader</qualifiedname>
         <briefdescription>
+<para>Constructs with treeType = shaders. </para>
         </briefdescription>
         <detaileddescription>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="19" column="5"/>
-        <referencedby refid="classconfig_1_1_shader_1a87c5d7e63bea7056c04c5a01293abb14">~Shader</referencedby>
+        <location file="config/Config.h" line="29" column="5" bodyfile="config/Config.h" bodystart="29" bodyend="32"/>
+        <references refid="classconfig_1_1_directory_1ac8ce84c9839b82153f0f80c92a9fa672" compoundref="_directory_8h" startline="40" endline="40">config::Directory::Directory</references>
       </memberdef>
-      <memberdef kind="function" id="classconfig_1_1_shader_1a87c5d7e63bea7056c04c5a01293abb14" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+      <memberdef kind="function" id="classconfig_1_1_shader_1a040aab72e915f4393a4dac916f658dcd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type></type>
         <definition>config::Shader::~Shader</definition>
-        <argsstring>()=default</argsstring>
+        <argsstring>() override=default</argsstring>
         <name>~Shader</name>
         <qualifiedname>config::Shader::~Shader</qualifiedname>
         <briefdescription>
@@ -32,29 +33,68 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="20" column="5"/>
-        <references refid="classconfig_1_1_shader_1ada217a4ba5644dd1f3cd27b637435609">Shader</references>
+        <location file="config/Config.h" line="34" column="5"/>
       </memberdef>
-      <memberdef kind="function" id="classconfig_1_1_shader_1a5d1eeff039b1bf119b6c184d96fb350e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+    </sectiondef>
+    <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classconfig_1_1_shader_1aa8b27be122a036faec6fccb1916faaa8" prot="protected" static="no" const="no" explicit="no" inline="yes" virt="virtual">
         <type>void</type>
-        <definition>void config::Shader::load</definition>
-        <argsstring>(const juce::String &amp;shaderName)</argsstring>
-        <name>load</name>
-        <qualifiedname>config::Shader::load</qualifiedname>
-        <param>
-          <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref> &amp;</type>
-          <declname>shaderName</declname>
-        </param>
+        <definition>void config::Shader::initialise</definition>
+        <argsstring>() override</argsstring>
+        <name>initialise</name>
+        <qualifiedname>config::Shader::initialise</qualifiedname>
+        <reimplements refid="classconfig_1_1_directory_1ad22b695ac4e5bc7c68bd2b72478e47dc">initialise</reimplements>
         <briefdescription>
-<para>Loads shader sources from the given project directory. </para>
+<para>No <ref refid="namespaceBinaryData" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">BinaryData</ref> defaults for shaders — no-op. </para>
         </briefdescription>
         <detaileddescription>
-<para><parameterlist kind="param"><parameteritem>
+<para><ref refid="classconfig_1_1_shader" kindref="compound">Shader</ref> projects are user-supplied on disk. There is nothing to write to disk from <ref refid="namespaceBinaryData" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">BinaryData</ref> at startup. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="config/Config.h" line="43" column="10" bodyfile="config/Config.h" bodystart="43" bodyend="43"/>
+      </memberdef>
+      <memberdef kind="function" id="classconfig_1_1_shader_1a43a6029f5a5247916ea30c7f8df13b89" prot="protected" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>void config::Shader::saveToPath</definition>
+        <argsstring>(const juce::File &amp;) override</argsstring>
+        <name>saveToPath</name>
+        <qualifiedname>config::Shader::saveToPath</qualifiedname>
+        <reimplements refid="classconfig_1_1_directory_1a4a70f2587a465bbdd46ffebf13e8fb8c">saveToPath</reimplements>
+        <param>
+          <type>const <ref refid="classjuce_1_1File" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::File</ref> &amp;</type>
+        </param>
+        <briefdescription>
+<para>No files to write for shaders — no-op. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><ref refid="classconfig_1_1_shader" kindref="compound">Shader</ref> projects are user-supplied on disk. There is nothing to write to disk from <ref refid="namespaceBinaryData" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">BinaryData</ref> at startup. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="config/Config.h" line="51" column="10" bodyfile="config/Config.h" bodystart="51" bodyend="51"/>
+      </memberdef>
+      <memberdef kind="function" id="classconfig_1_1_shader_1a36417d818db5236b3152f3d1c2533a4c" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void config::Shader::loadFromPath</definition>
+        <argsstring>(const juce::File &amp;dir) override</argsstring>
+        <name>loadFromPath</name>
+        <qualifiedname>config::Shader::loadFromPath</qualifiedname>
+        <reimplements refid="classconfig_1_1_directory_1a51328cf49c3096beaca962a2a9b1db30">loadFromPath</reimplements>
+        <param>
+          <type>const <ref refid="classjuce_1_1File" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::File</ref> &amp;</type>
+          <declname>dir</declname>
+        </param>
+        <briefdescription>
+<para>Clears all source properties, then reads each present pass file from <computeroutput>dir</computeroutput> into <computeroutput>state</computeroutput> as a string property. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Fires <computeroutput>state.sendPropertyChangeMessage(IDtype::shaders)</computeroutput> last. <parameterlist kind="param"><parameteritem>
 <parameternamelist>
-<parametername>shaderName</parametername>
+<parametername>dir</parametername>
 </parameternamelist>
 <parameterdescription>
-<para><ref refid="classconfig_1_1_shader" kindref="compound">Shader</ref> project directory name (e.g. &quot;sea-at-night&quot;). Empty string clears all sources. </para>
+<para><ref refid="classconfig_1_1_shader" kindref="compound">Shader</ref> project directory (may be invalid when name is empty). </para>
 </parameterdescription>
 </parameteritem>
 </parameterlist>
@@ -62,107 +102,230 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="26" column="10" bodyfile="config/Config.cpp" bodystart="261" bodyend="279"/>
+        <location file="config/Config.h" line="58" column="10" bodyfile="config/Config.cpp" bodystart="153" bodyend="169"/>
         <references refid="classjuce_1_1File_1a37e88fbc390d78f3d79675974f53fa78">juce::File::existsAsFile</references>
-        <references refid="structconfig_1_1_file_1_1_shaders_1aa57d90d95ec92f5c3e46b80b84f3bf6a" compoundref="_bimap_8h" startline="279" endline="279">config::File::Shaders::get</references>
-        <references refid="structconfig_1_1_file_1_1_shaders_1aba40922876a7a61539f37275ee496ed2" compoundref="_bimap_8h" startline="285" endline="288">config::File::Shaders::getPath</references>
-        <references refid="classjuce_1_1String_1af5084463343819f82187154ccb62ea3a">juce::String::isNotEmpty</references>
-        <references refid="classconfig_1_1_shader_1a5d1eeff039b1bf119b6c184d96fb350e" compoundref="_config_8cpp" startline="261" endline="279">load</references>
+        <references refid="structconfig_1_1_shaders_1a0ad3245ff019beb74063ffcb2291482a" compoundref="_bimap_8h" startline="290" endline="290">config::Shaders::get</references>
+        <references refid="classjuce_1_1File_1a57b992aacb19e09ee5905cd0f0e9bb31">juce::File::getChildFile</references>
+        <references refid="classjuce_1_1File_1a18538c2901eeed52e291f67e16150dda">juce::File::isDirectory</references>
         <references refid="classjuce_1_1File_1aa65d2fa50370357bf93658d6447c296d">juce::File::loadFileAsString</references>
         <references refid="classjam_1_1Model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
-        <referencedby refid="classconfig_1_1_shader_1a5d1eeff039b1bf119b6c184d96fb350e" compoundref="_config_8cpp" startline="261" endline="279">load</referencedby>
+        <referencedby refid="classconfig_1_1_shader_1a8c12579db7947e5e989808a7aca79c35" compoundref="_config_8cpp" startline="171" endline="175">fileChanged</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classconfig_1_1_shader_1a8c12579db7947e5e989808a7aca79c35" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void config::Shader::fileChanged</definition>
+        <argsstring>(const juce::File &amp;file, jam::File::Watcher::Event event) override</argsstring>
+        <name>fileChanged</name>
+        <qualifiedname>config::Shader::fileChanged</qualifiedname>
+        <reimplements refid="classjam_1_1File_1_1Watcher_1_1Listener_1a138401762ba6d0915d2adb5b0a81486f">fileChanged</reimplements>
+        <param>
+          <type>const <ref refid="classjuce_1_1File" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::File</ref> &amp;</type>
+          <declname>file</declname>
+        </param>
+        <param>
+          <type><ref refid="structjam_1_1File_1_1Watcher_1a67463011ada054bc1dc66cdf49d446f2" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::File::Watcher::Event</ref></type>
+          <declname>event</declname>
+        </param>
+        <briefdescription>
+<para>On <computeroutput>fileUpdated</computeroutput> — reloads all sources from the changed file&apos;s parent directory. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><computeroutput>loadFromPath</computeroutput> handles the notify. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>file</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The file that changed. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>event</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Change event type. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="config/Config.h" line="65" column="10" bodyfile="config/Config.cpp" bodystart="171" bodyend="175"/>
+        <references refid="classjuce_1_1File_1ab6bec65fbcf19ce10e38cf9d1015770d">juce::File::getParentDirectory</references>
+        <references refid="classconfig_1_1_shader_1a36417d818db5236b3152f3d1c2533a4c" compoundref="_config_8cpp" startline="153" endline="169">loadFromPath</references>
       </memberdef>
     </sectiondef>
     <briefdescription>
-<para><ref refid="classconfig_1_1_shader" kindref="compound">Shader</ref> source model — owns the live ValueTree of raw GLSL source strings. </para>
+<para><ref refid="classconfig_1_1_shader" kindref="compound">Shader</ref> source model — <computeroutput><ref refid="classconfig_1_1_directory" kindref="compound">config::Directory</ref></computeroutput> subclass that owns the live ValueTree of raw GLSL source strings. </para>
     </briefdescription>
     <detaileddescription>
-<para>Reads shader pass files (Common, Image, BufferA-D) from the active shader project directory. Each present file becomes a child tree with the source string stored as a property. Mirrors <ref refid="classconfig_1_1_theme" kindref="compound">config::Theme</ref> lifecycle. </para>
+<para>Reads shader pass files (Common, Image, BufferA-D) from the active shader project directory passed directly as a resolved <computeroutput><ref refid="classjuce_1_1File" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::File</ref></computeroutput>. Each present file becomes a property on <computeroutput>state</computeroutput> keyed by its bare filename stem. Absent files are silently skipped.</para>
+<para>Load policy: no <ref refid="namespaceBinaryData" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">BinaryData</ref> defaults (<computeroutput>initialise</computeroutput> is a no-op); no disk writing (<computeroutput>saveToPath</computeroutput> is a no-op). Only <computeroutput>loadFromPath</computeroutput> and <computeroutput>fileChanged</computeroutput> perform work. <computeroutput>loadFromPath</computeroutput> ends by firing <computeroutput>state.sendPropertyChangeMessage(IDtype::shaders)</computeroutput>. Controller listens on the <computeroutput>IDtype::shaders</computeroutput> notify channel. </para>
     </detaileddescription>
     <inheritancegraph>
+      <node id="2">
+        <label>config::Directory</label>
+        <link refid="classconfig_1_1_directory"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+        <childnode refid="6" relation="public-inheritance">
+        </childnode>
+      </node>
       <node id="1">
         <label>config::Shader</label>
         <link refid="classconfig_1_1_shader"/>
         <childnode refid="2" relation="public-inheritance">
         </childnode>
       </node>
-      <node id="2">
-        <label>jam::Model</label>
-        <link refid="classjam_1_1Model" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-        <childnode refid="3" relation="public-inheritance">
-        </childnode>
-        <childnode refid="4" relation="public-inheritance">
-        </childnode>
+      <node id="6">
+        <label>jam::File::Watcher::Listener</label>
+        <link refid="classjam_1_1File_1_1Watcher_1_1Listener" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
       <node id="3">
+        <label>jam::Model</label>
+        <link refid="classjam_1_1Model" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
         <label>juce::Timer</label>
         <link refid="classjuce_1_1Timer" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="4">
+      <node id="5">
         <label>juce::ValueTree::Listener</label>
         <link refid="classjuce_1_1ValueTree_1_1Listener" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
     </inheritancegraph>
     <collaborationgraph>
+      <node id="2">
+        <label>config::Directory</label>
+        <link refid="classconfig_1_1_directory"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+        <childnode refid="11" relation="public-inheritance">
+        </childnode>
+        <childnode refid="12" relation="usage">
+          <edgelabel>watcher</edgelabel>
+        </childnode>
+      </node>
       <node id="1">
         <label>config::Shader</label>
         <link refid="classconfig_1_1_shader"/>
         <childnode refid="2" relation="public-inheritance">
         </childnode>
       </node>
-      <node id="5">
+      <node id="6">
         <label>jam::AnyMap</label>
         <link refid="classjam_1_1AnyMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-        <childnode refid="6" relation="usage">
+        <childnode refid="7" relation="usage">
           <edgelabel>entries</edgelabel>
         </childnode>
-        <childnode refid="7" relation="usage">
+        <childnode refid="8" relation="usage">
           <edgelabel>types</edgelabel>
         </childnode>
       </node>
-      <node id="7">
+      <node id="12">
+        <label>jam::File::Watcher</label>
+        <link refid="structjam_1_1File_1_1Watcher" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="13" relation="usage">
+          <edgelabel>timers</edgelabel>
+        </childnode>
+        <childnode refid="17" relation="usage">
+          <edgelabel>listeners</edgelabel>
+        </childnode>
+        <childnode refid="18" relation="usage">
+          <edgelabel>watched</edgelabel>
+        </childnode>
+      </node>
+      <node id="16">
+        <label>jam::File::Watcher::CoalesceTimer</label>
+        <link refid="structjam_1_1File_1_1Watcher_1_1CoalesceTimer" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+        <childnode refid="12" relation="usage">
+          <edgelabel>owner</edgelabel>
+        </childnode>
+        <childnode refid="14" relation="usage">
+          <edgelabel>f</edgelabel>
+        </childnode>
+      </node>
+      <node id="11">
+        <label>jam::File::Watcher::Listener</label>
+        <link refid="classjam_1_1File_1_1Watcher_1_1Listener" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
+      <node id="8">
         <label>jam::HashMap&lt; juce::Identifier, std::type_index &gt;</label>
         <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
-      <node id="6">
+      <node id="7">
         <label>jam::HashMap&lt; juce::Identifier, std::unique_ptr&lt; void, Deleter &gt; &gt;</label>
         <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
-      <node id="2">
+      <node id="3">
         <label>jam::Model</label>
         <link refid="classjam_1_1Model" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-        <childnode refid="3" relation="public-inheritance">
-        </childnode>
         <childnode refid="4" relation="public-inheritance">
         </childnode>
-        <childnode refid="5" relation="usage">
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+        <childnode refid="6" relation="usage">
           <edgelabel>params</edgelabel>
         </childnode>
-        <childnode refid="8" relation="usage">
+        <childnode refid="9" relation="usage">
           <edgelabel>state</edgelabel>
         </childnode>
-        <childnode refid="9" relation="usage">
+        <childnode refid="10" relation="usage">
           <edgelabel>valueTreeChanging</edgelabel>
         </childnode>
       </node>
-      <node id="9">
+      <node id="10">
         <label>juce::CriticalSection</label>
         <link refid="classjuce_1_1CriticalSection" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="3">
+      <node id="14">
+        <label>juce::File</label>
+        <link refid="classjuce_1_1File" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="17">
+        <label>juce::ListenerList&lt; jam::File::Watcher::Listener &gt;</label>
+        <link refid="classjuce_1_1ListenerList" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="18">
+        <label>juce::OwnedArray&lt; Impl &gt;</label>
+        <link refid="classjuce_1_1OwnedArray" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="4">
         <label>juce::Timer</label>
         <link refid="classjuce_1_1Timer" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="8">
+      <node id="9">
         <label>juce::ValueTree</label>
         <link refid="classjuce_1_1ValueTree" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="4">
+      <node id="5">
         <label>juce::ValueTree::Listener</label>
         <link refid="classjuce_1_1ValueTree_1_1Listener" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
+      <node id="13">
+        <label>std::map&lt; juce::File, std::unique_ptr&lt; jam::File::Watcher::CoalesceTimer &gt; &gt;</label>
+        <childnode refid="14" relation="usage">
+          <edgelabel>keys</edgelabel>
+        </childnode>
+        <childnode refid="15" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+      <node id="15">
+        <label>std::unique_ptr&lt; jam::File::Watcher::CoalesceTimer &gt;</label>
+        <childnode refid="16" relation="usage">
+          <edgelabel>ptr</edgelabel>
+        </childnode>
+      </node>
     </collaborationgraph>
-    <location file="config/Config.h" line="16" column="1" bodyfile="config/Config.h" bodystart="17" bodyend="30"/>
+    <location file="config/Config.h" line="25" column="1" bodyfile="config/Config.h" bodystart="26" bodyend="69"/>
     <listofallmembers>
       <member refid="classjam_1_1Model_1ae5d4d70e706dcc558cf21923125a9176" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>addListener</name></member>
       <member refid="classjam_1_1Model_1ac78b7437a06da378bf49cbd4f27bfc63" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>addProperties</name></member>
@@ -172,9 +335,13 @@
       <member refid="classjam_1_1Model_1a60083575b158241a4921488754e168a9" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>applyFunctionRecursively</name></member>
       <member refid="classjuce_1_1Timer_1a5eb2dfa3e6810c268704c159ddcb37bc" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>callAfterDelay</name></member>
       <member refid="classjuce_1_1Timer_1a6c366b7f5a5d70c270a1e85b8aa45888" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>callPendingTimersSynchronously</name></member>
+      <member refid="classconfig_1_1_directory_1a9ac471bcf600eba99126334cc78130e1" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>coalesceMs</name></member>
+      <member refid="classconfig_1_1_directory_1ac8ce84c9839b82153f0f80c92a9fa672" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>Directory</name></member>
+      <member refid="classconfig_1_1_shader_1a8c12579db7947e5e989808a7aca79c35" prot="protected" virt="virtual"><scope>config::Shader</scope><name>fileChanged</name></member>
       <member refid="classjam_1_1Model_1a0c6c6dcf22bdf37d65dced08a8dcdefc" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>findAndRemoveChild</name></member>
       <member refid="classjam_1_1Model_1a9eb2e927e025645e46609f37aa6f9304" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>flush</name></member>
       <member refid="classjam_1_1Model_1aaa8b722daed8928b8d587ec30662ac34" prot="private" virt="non-virtual"><scope>config::Shader</scope><name>flushHz</name></member>
+      <member refid="classjam_1_1File_1_1Watcher_1_1Listener_1a75221307eb1bf0ef2735e9ef80ebf4a4" prot="public" virt="virtual"><scope>config::Shader</scope><name>folderChanged</name></member>
       <member refid="classjam_1_1Model_1a56d070d548e85df035e527312421f5bf" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>forEachProperty</name></member>
       <member refid="classjam_1_1Model_1ada224019e4715d61684005a054d351e9" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>fromLua</name></member>
       <member refid="classjam_1_1Model_1af9ab05d8b04c75750fc69f8ad1225caa" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>fromLua</name></member>
@@ -196,8 +363,10 @@
       <member refid="classjam_1_1Model_1a1032430642def825ff972dc86d6608c4" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>getValueFromChildWithProperty</name></member>
       <member refid="classjam_1_1Model_1a710fd55b83d2e5657e48d49ce5225ea2" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>getXml</name></member>
       <member refid="classjam_1_1Model_1a1c976506dd5eb7d125a0e804c97c61e2" prot="private" virt="non-virtual"><scope>config::Shader</scope><name>idleHz</name></member>
+      <member refid="classconfig_1_1_shader_1aa8b27be122a036faec6fccb1916faaa8" prot="protected" virt="virtual"><scope>config::Shader</scope><name>initialise</name></member>
       <member refid="classjuce_1_1Timer_1a525f38cc7afdc0696b467bd4ed3f17da" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>isTimerRunning</name></member>
-      <member refid="classconfig_1_1_shader_1a5d1eeff039b1bf119b6c184d96fb350e" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>load</name></member>
+      <member refid="classconfig_1_1_directory_1a1ea8c2e469d5d9c789fcc7aa117c2cb8" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>load</name></member>
+      <member refid="classconfig_1_1_shader_1a36417d818db5236b3152f3d1c2533a4c" prot="protected" virt="virtual"><scope>config::Shader</scope><name>loadFromPath</name></member>
       <member refid="classjam_1_1Model_1afb401fb24025fa7fddf2740e374df4aa" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>loadState</name></member>
       <member refid="classjam_1_1Model_1a6662822c6b2f2539b5839a41daa668c9" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>loadState</name></member>
       <member refid="classjam_1_1Model_1ab3774dd3acd1ae1c9389c444432e58aa" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>loadText</name></member>
@@ -209,12 +378,14 @@
       <member refid="classjam_1_1Model_1a688b7625ae8b2a4d4d1f1643a6b3aa41" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>removeListener</name></member>
       <member refid="classjam_1_1Model_1a73bb2822ba0b1211ca9e290d57c5cd2d" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>replaceState</name></member>
       <member refid="classjam_1_1Model_1a77ac5fd7f2a2caa0e892cd993d4df2d7" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>restoreValues</name></member>
+      <member refid="classconfig_1_1_shader_1a43a6029f5a5247916ea30c7f8df13b89" prot="protected" virt="virtual"><scope>config::Shader</scope><name>saveToPath</name></member>
       <member refid="classjam_1_1Model_1a3263920ba9cd2e5633d714a49c0a5000" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>setTreeProperty</name></member>
       <member refid="classjam_1_1Model_1af7401e3c38ecf3fb0428369ebb822283" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>setValue</name></member>
       <member refid="classjam_1_1Model_1afd1a5ee11f1e480cb14c0027d6b617b7" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>setValuesFrom</name></member>
-      <member refid="classconfig_1_1_shader_1ada217a4ba5644dd1f3cd27b637435609" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>Shader</name></member>
+      <member refid="classconfig_1_1_shader_1ad48dcfeb714ddc12a66be1261e310093" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>Shader</name></member>
       <member refid="classjuce_1_1Timer_1acb43e06d5742106830080af3d50b422d" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>startTimer</name></member>
       <member refid="classjuce_1_1Timer_1a49a4cf0bb438ca956bfae44c1010b0f9" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>startTimerHz</name></member>
+      <member refid="classconfig_1_1_directory_1ac1c41259565f810efbd2b1048f784076" prot="private" virt="non-virtual"><scope>config::Shader</scope><name>startWatcher</name></member>
       <member refid="classjam_1_1Model_1aef4cd7ff33d3393980f2d12217e49857" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>state</name></member>
       <member refid="classjuce_1_1Timer_1a2ff70b860a8c875658b4baa91c8bcef0" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>stopTimer</name></member>
       <member refid="classjam_1_1Model_1abb1a0d3535077011043e287faf0347c9" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>storeValue</name></member>
@@ -233,10 +404,13 @@
       <member refid="classjuce_1_1ValueTree_1_1Listener_1a2e39febd013de0ff7da23a5b574055db" prot="public" virt="virtual"><scope>config::Shader</scope><name>valueTreeParentChanged</name></member>
       <member refid="classjam_1_1Model_1ab664f3dda27392cd40724b87549d0b6c" prot="public" virt="virtual"><scope>config::Shader</scope><name>valueTreePropertyChanged</name></member>
       <member refid="classjuce_1_1ValueTree_1_1Listener_1aa46de90c3746a395792a632219e404f2" prot="public" virt="virtual"><scope>config::Shader</scope><name>valueTreeRedirected</name></member>
+      <member refid="classconfig_1_1_directory_1ac36ace96a36589e743bf946ee0ee1b39" prot="private" virt="non-virtual"><scope>config::Shader</scope><name>watcher</name></member>
       <member refid="classjam_1_1Model_1a5e0284f87a2a71c84edd644b75f4d07f" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>writeToXml</name></member>
-      <member refid="classjuce_1_1ValueTree_1_1Listener_1ab78745617b47f3b12726c0de220e8d9b" prot="public" virt="virtual"><scope>config::Shader</scope><name>~Listener</name></member>
+      <member refid="classconfig_1_1_directory_1aaf1021a0ac43bf490a3d677ba31ddc9c" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>~Directory</name></member>
+      <member refid="classjuce_1_1ValueTree_1_1Listener_1ab78745617b47f3b12726c0de220e8d9b" prot="public" virt="virtual" ambiguityscope="config::jam::"><scope>config::Shader</scope><name>~Listener</name></member>
+      <member refid="classjam_1_1File_1_1Watcher_1_1Listener_1a36c31b730e410628b516813e6e0679e7" prot="public" virt="virtual" ambiguityscope="jam::File::Watcher::Listener::"><scope>config::Shader</scope><name>~Listener</name></member>
       <member refid="classjam_1_1Model_1afb01105d951530920a004ca01b5c54c1" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>~Model</name></member>
-      <member refid="classconfig_1_1_shader_1a87c5d7e63bea7056c04c5a01293abb14" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>~Shader</name></member>
+      <member refid="classconfig_1_1_shader_1a040aab72e915f4393a4dac916f658dcd" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>~Shader</name></member>
       <member refid="classjuce_1_1Timer_1aa1de34211c34295dfa6a658474ae0ae0" prot="public" virt="virtual"><scope>config::Shader</scope><name>~Timer</name></member>
     </listofallmembers>
   </compounddef>

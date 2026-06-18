@@ -14,14 +14,14 @@
         <name>watcher</name>
         <qualifiedname>config::Model::watcher</qualifiedname>
         <briefdescription>
-<para>Watches <computeroutput><ref refid="structconfig_1_1_file_1a256dc6f23b2efea619c33a43ae3d795c" kindref="member">File::path</ref></computeroutput> (lua config root) and the active theme directory for <computeroutput></computeroutput>.svg asset changes. </para>
+<para>Watches <computeroutput><ref refid="structconfig_1_1_file_1a256dc6f23b2efea619c33a43ae3d795c" kindref="member">File::path</ref></computeroutput> (root lua directory only) for <computeroutput></computeroutput>.lua changes. </para>
         </briefdescription>
         <detaileddescription>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="248" column="24" bodyfile="config/Config.h" bodystart="248" bodyend="-1"/>
-        <referencedby refid="classconfig_1_1_model_1abd7d146ee9fede8da7f5f0678faed50e" compoundref="_config_8cpp" startline="222" endline="231">startWatcher</referencedby>
+        <location file="config/Config.h" line="347" column="24" bodyfile="config/Config.h" bodystart="347" bodyend="-1"/>
+        <referencedby refid="classconfig_1_1_model_1abd7d146ee9fede8da7f5f0678faed50e" compoundref="_config_8cpp" startline="126" endline="131">startWatcher</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classconfig_1_1_model_1af8a17f5a0e0588d27e68953995b925ac" prot="private" static="no" mutable="no">
         <type><ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref></type>
@@ -37,9 +37,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="255" column="18" bodyfile="config/Config.h" bodystart="255" bodyend="-1"/>
-        <referencedby refid="classconfig_1_1_model_1a8a75866892ea2fd6887d390ebb2c8c0a" compoundref="_config_8h" startline="157" endline="157">getLoadMessage</referencedby>
-        <referencedby refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="147" endline="186">loadFromPath</referencedby>
+        <location file="config/Config.h" line="354" column="18" bodyfile="config/Config.h" bodystart="354" bodyend="-1"/>
+        <referencedby refid="classconfig_1_1_model_1a8a75866892ea2fd6887d390ebb2c8c0a" compoundref="_config_8h" startline="273" endline="273">getLoadMessage</referencedby>
+        <referencedby refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="91" endline="124">loadFromPath</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classconfig_1_1_model_1af427d6e053fd4508c7179979330e5ab9" prot="private" static="no" mutable="no">
         <type><ref refid="namespacejam_1_1lua_1aae45181cfa50569933457727bbcee734" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::lua::Validators</ref></type>
@@ -51,32 +51,14 @@
 <para>Type-based and Map-aware validators built during <computeroutput><ref refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" kindref="member">initialise()</ref></computeroutput> in a single walk. </para>
         </briefdescription>
         <detaileddescription>
-<para>Outer key = tree type. Inner key = property name. String properties whose defaults match a known Map (Position, DropMode) receive domain-constrained predicates; all others receive plain type predicates registered by <computeroutput><ref refid="structjam_1_1lua_1_1ValueTree_1af1496f8c466f7f9b697d2df5614ea732" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::lua::ValueTree::from</ref></computeroutput> during the <ref refid="namespaceBinaryData" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">BinaryData</ref> walk. </para>
+<para>Outer key = tree type. Inner key = property name. String properties whose defaults match a known Map (Position, DropMode) receive domain-constrained predicates; all others receive plain type predicates registered by <computeroutput><ref refid="classjam_1_1Model_1ada224019e4715d61684005a054d351e9" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Model::fromLua</ref></computeroutput> during the <ref refid="namespaceBinaryData" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">BinaryData</ref> walk. </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="267" column="26" bodyfile="config/Config.h" bodystart="267" bodyend="-1"/>
-        <referencedby refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" compoundref="_config_8cpp" startline="39" endline="84">initialise</referencedby>
-        <referencedby refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="147" endline="186">loadFromPath</referencedby>
-        <referencedby refid="classconfig_1_1_model_1a37ce70da66e8164f746a16925295c343" compoundref="_config_8cpp" startline="252" endline="258">registerValidator</referencedby>
-      </memberdef>
-      <memberdef kind="variable" id="classconfig_1_1_model_1aab53f2dffa259bc65116d9b97ce44a49" prot="private" static="no" mutable="no">
-        <type><ref refid="structjam_1_1Function_1_1Map" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Function::Map</ref>&lt; <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref>, void &gt;</type>
-        <definition>jam::Function::Map&lt;juce::String, void&gt; config::Model::graphicsCallbacks</definition>
-        <argsstring></argsstring>
-        <name>graphicsCallbacks</name>
-        <qualifiedname>config::Model::graphicsCallbacks</qualifiedname>
-        <briefdescription>
-<para>SVG filename → <computeroutput>sendPropertyChangeMessage</computeroutput> callbacks, keyed by filename. </para>
-        </briefdescription>
-        <detaileddescription>
-<para>Rebuilt by <computeroutput><ref refid="classconfig_1_1_model_1a04468ffcc63d66896bb34f4c0b4c37b2" kindref="member">buildGraphicsCallbacks()</ref></computeroutput> on every <computeroutput><ref refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" kindref="member">loadFromPath()</ref></computeroutput> so the watcher can dispatch property changes for the current on-disk filename of each graphics asset. </para>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="config/Config.h" line="276" column="24" bodyfile="config/Config.h" bodystart="276" bodyend="-1"/>
-        <referencedby refid="classconfig_1_1_model_1a04468ffcc63d66896bb34f4c0b4c37b2" compoundref="_config_8cpp" startline="188" endline="220">buildGraphicsCallbacks</referencedby>
-        <referencedby refid="classconfig_1_1_model_1aaf6b40ca395ac5c6325cb189f13fec0f" compoundref="_config_8cpp" startline="233" endline="249">fileChanged</referencedby>
+        <location file="config/Config.h" line="366" column="26" bodyfile="config/Config.h" bodystart="366" bodyend="-1"/>
+        <referencedby refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" compoundref="_config_8cpp" startline="39" endline="69">initialise</referencedby>
+        <referencedby refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="91" endline="124">loadFromPath</referencedby>
+        <referencedby refid="classconfig_1_1_model_1a37ce70da66e8164f746a16925295c343" compoundref="_config_8cpp" startline="144" endline="150">registerValidator</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classconfig_1_1_model_1acc92bf3f0a72eb6d85b5e73fd9944df7" prot="private" static="no" mutable="no">
         <type><ref refid="classconfig_1_1_theme" kindref="compound">Theme</ref></type>
@@ -90,12 +72,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="278" column="11" bodyfile="config/Config.h" bodystart="278" bodyend="-1"/>
-        <referencedby refid="classconfig_1_1_model_1a04468ffcc63d66896bb34f4c0b4c37b2" compoundref="_config_8cpp" startline="188" endline="220">buildGraphicsCallbacks</referencedby>
-        <referencedby refid="classconfig_1_1_model_1a6b0b5ce07200d8f7d6ee69c02a7f1835" compoundref="_config_8h" startline="160" endline="160">getTheme</referencedby>
-        <referencedby refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" compoundref="_config_8cpp" startline="39" endline="84">initialise</referencedby>
-        <referencedby refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="147" endline="186">loadFromPath</referencedby>
-        <referencedby refid="classconfig_1_1_model_1acad607c8136bcc115ffeae9d47869e26" compoundref="_config_8cpp" startline="87" endline="145">saveToPath</referencedby>
+        <location file="config/Config.h" line="368" column="11" bodyfile="config/Config.h" bodystart="368" bodyend="-1"/>
+        <referencedby refid="classconfig_1_1_model_1a6b0b5ce07200d8f7d6ee69c02a7f1835" compoundref="_config_8h" startline="276" endline="276">getTheme</referencedby>
+        <referencedby refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="91" endline="124">loadFromPath</referencedby>
       </memberdef>
       <memberdef kind="variable" id="classconfig_1_1_model_1ad957b792d02a8560887e423cd0b753db" prot="private" static="no" mutable="no">
         <type><ref refid="classconfig_1_1_shader" kindref="compound">Shader</ref></type>
@@ -109,7 +88,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="279" column="12" bodyfile="config/Config.h" bodystart="279" bodyend="-1"/>
+        <location file="config/Config.h" line="369" column="12" bodyfile="config/Config.h" bodystart="369" bodyend="-1"/>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">
@@ -126,18 +105,18 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="129" column="5" bodyfile="config/Config.cpp" bodystart="7" bodyend="14"/>
-        <references refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" compoundref="_config_8cpp" startline="39" endline="84">initialise</references>
-        <references refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="147" endline="186">loadFromPath</references>
+        <location file="config/Config.h" line="247" column="5" bodyfile="config/Config.cpp" bodystart="7" bodyend="14"/>
+        <references refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" compoundref="_config_8cpp" startline="39" endline="69">initialise</references>
+        <references refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="91" endline="124">loadFromPath</references>
         <references refid="classconfig_1_1_model_1a663ac662800dd1918dbab12d317fa4d5" compoundref="_config_8cpp" startline="7" endline="14">Model</references>
-        <references refid="classconfig_1_1_model_1acad607c8136bcc115ffeae9d47869e26" compoundref="_config_8cpp" startline="87" endline="145">saveToPath</references>
-        <references refid="classconfig_1_1_model_1abd7d146ee9fede8da7f5f0678faed50e" compoundref="_config_8cpp" startline="222" endline="231">startWatcher</references>
+        <references refid="classconfig_1_1_model_1acad607c8136bcc115ffeae9d47869e26" compoundref="_config_8cpp" startline="72" endline="89">saveToPath</references>
+        <references refid="classconfig_1_1_model_1abd7d146ee9fede8da7f5f0678faed50e" compoundref="_config_8cpp" startline="126" endline="131">startWatcher</references>
         <referencedby refid="classconfig_1_1_model_1a663ac662800dd1918dbab12d317fa4d5" compoundref="_config_8cpp" startline="7" endline="14">Model</referencedby>
       </memberdef>
-      <memberdef kind="function" id="classconfig_1_1_model_1af95c0931a6f76206d56eb06a3c71a05a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+      <memberdef kind="function" id="classconfig_1_1_model_1a999a3d75bffd8430dca275546734329f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type></type>
         <definition>config::Model::~Model</definition>
-        <argsstring>()=default</argsstring>
+        <argsstring>() override=default</argsstring>
         <name>~Model</name>
         <qualifiedname>config::Model::~Model</qualifiedname>
         <briefdescription>
@@ -147,7 +126,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="133" column="5"/>
+        <location file="config/Config.h" line="251" column="5"/>
       </memberdef>
       <memberdef kind="function" id="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -156,36 +135,33 @@
         <name>loadFromPath</name>
         <qualifiedname>config::Model::loadFromPath</qualifiedname>
         <briefdescription>
-<para>Reads each lua config file from disk and updates state. </para>
+<para>Reads each root lua config file from disk and updates state. </para>
         </briefdescription>
         <detaileddescription>
-<para>For every lua section loads the file from <computeroutput><ref refid="structconfig_1_1_file_1a256dc6f23b2efea619c33a43ae3d795c" kindref="member">File::path</ref></computeroutput>, builds a temporary ValueTree via <computeroutput><ref refid="structjam_1_1lua_1_1ValueTree_1af1496f8c466f7f9b697d2df5614ea732" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::lua::ValueTree::from</ref></computeroutput> with the populated validator map and line map, collects any per-file errors, and (if the tree is valid) overlays the result onto the live tree via <computeroutput>setValuesFrom</computeroutput>.</para>
-<para>After the walk, rebuilds <computeroutput>graphicsCallbacks</computeroutput> from the live <computeroutput>IDtype::graphics</computeroutput> subtree&apos;s current filenames, sets <computeroutput>loadMessage</computeroutput> to "RELOAD" on success or the accumulated error text on failure, and fires <computeroutput>sendPropertyChangeMessage</computeroutput> on <computeroutput>ID::loadMessage</computeroutput>. </para>
+<para>For every entry in <computeroutput><ref refid="structconfig_1_1_file_1a1fe87258f092c2141e6d0171085f1468" kindref="member">File::get()</ref></computeroutput>, loads the file from <computeroutput><ref refid="structconfig_1_1_file_1a256dc6f23b2efea619c33a43ae3d795c" kindref="member">File::path</ref></computeroutput>, builds a temporary ValueTree via <computeroutput><ref refid="classjam_1_1Model_1ada224019e4715d61684005a054d351e9" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Model::fromLua</ref></computeroutput> with the populated validator map, collects any per-file errors, and (if the tree is valid) overlays the result onto the live tree via <computeroutput>setValuesFrom</computeroutput>. After the walk, sets <computeroutput>loadMessage</computeroutput> to "RELOAD" on success or the accumulated error text on failure, fires <computeroutput>sendPropertyChangeMessage</computeroutput> on <computeroutput>ID::loadMessage</computeroutput>, then drives <computeroutput>theme.load()</computeroutput> and <computeroutput>shader.load()</computeroutput> with the dir resolved directly via the bimap. </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="150" column="10" bodyfile="config/Config.cpp" bodystart="147" bodyend="186"/>
+        <location file="config/Config.h" line="266" column="10" bodyfile="config/Config.cpp" bodystart="91" bodyend="124"/>
         <references refid="classjuce_1_1ValueTree_1a98d6f83140f913101a059e611b7dfade">juce::ValueTree::appendChild</references>
-        <references refid="classconfig_1_1_model_1a04468ffcc63d66896bb34f4c0b4c37b2" compoundref="_config_8cpp" startline="188" endline="220">buildGraphicsCallbacks</references>
-        <references refid="structconfig_1_1_file_1a36e6049325fb88e0539ec7bc64a3010aa0fc85df7daa8f0d98a096582ced3738f" compoundref="_bimap_8h" startline="122">config::File::config</references>
         <references refid="classjam_1_1Model_1ada224019e4715d61684005a054d351e9">jam::Model::fromLua</references>
-        <references refid="structconfig_1_1_file_1a1fe87258f092c2141e6d0171085f1468" compoundref="_bimap_8h" startline="144" endline="144">config::File::get</references>
+        <references refid="structconfig_1_1_file_1a1fe87258f092c2141e6d0171085f1468" compoundref="_bimap_8h" startline="146" endline="146">config::File::get</references>
         <references refid="classjuce_1_1File_1a5309789281ea7721eb832d21da99708f">juce::File::getFileName</references>
-        <references refid="structconfig_1_1_file_1ae101919bc1214478f5086e2e859742de" compoundref="_bimap_8h" startline="152" endline="155">config::File::getName</references>
+        <references refid="structconfig_1_1_file_1ae101919bc1214478f5086e2e859742de" compoundref="_bimap_8h" startline="154" endline="157">config::File::getName</references>
+        <references refid="structconfig_1_1_shaders_1a66789b82610d626b74180c404e6b99c4" compoundref="_bimap_8h" startline="298" endline="301">config::Shaders::getPath</references>
+        <references refid="structconfig_1_1_themes_1a260fc95ef3aaa64e0bbbdd28d12d071f" compoundref="_bimap_8h" startline="226" endline="229">config::Themes::getPath</references>
         <references refid="classjam_1_1Model_1a91dc367954c0e066ce3af757919617da">jam::Model::getValue</references>
         <references refid="classjuce_1_1String_1a1f0c785b3834720c20a115ff82f138de">juce::String::isEmpty</references>
         <references refid="classjuce_1_1String_1af5084463343819f82187154ccb62ea3a">juce::String::isNotEmpty</references>
         <references refid="classjuce_1_1File_1aa65d2fa50370357bf93658d6447c296d">juce::File::loadFileAsString</references>
-        <references refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="147" endline="186">loadFromPath</references>
-        <references refid="classconfig_1_1_model_1af8a17f5a0e0588d27e68953995b925ac" compoundref="_config_8h" startline="255">loadMessage</references>
-        <references refid="structconfig_1_1_file_1a256dc6f23b2efea619c33a43ae3d795c" compoundref="_bimap_8h" startline="164" endline="166">config::File::path</references>
+        <references refid="classconfig_1_1_model_1af8a17f5a0e0588d27e68953995b925ac" compoundref="_config_8h" startline="354">loadMessage</references>
+        <references refid="structconfig_1_1_file_1a256dc6f23b2efea619c33a43ae3d795c" compoundref="_bimap_8h" startline="166" endline="168">config::File::path</references>
         <references refid="classjam_1_1Model_1afd1a5ee11f1e480cb14c0027d6b617b7">jam::Model::setValuesFrom</references>
         <references refid="classjam_1_1Model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
-        <references refid="classconfig_1_1_model_1acc92bf3f0a72eb6d85b5e73fd9944df7" compoundref="_config_8h" startline="278">theme</references>
+        <references refid="classconfig_1_1_model_1acc92bf3f0a72eb6d85b5e73fd9944df7" compoundref="_config_8h" startline="368">theme</references>
         <references refid="classjuce_1_1String_1a1e7124c97cfb142b269080422fcba540">juce::String::toUpperCase</references>
-        <references refid="classconfig_1_1_model_1af427d6e053fd4508c7179979330e5ab9" compoundref="_config_8h" startline="267">validators</references>
-        <referencedby refid="classconfig_1_1_model_1aaf6b40ca395ac5c6325cb189f13fec0f" compoundref="_config_8cpp" startline="233" endline="249">fileChanged</referencedby>
-        <referencedby refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="147" endline="186">loadFromPath</referencedby>
+        <references refid="classconfig_1_1_model_1af427d6e053fd4508c7179979330e5ab9" compoundref="_config_8h" startline="366">validators</references>
+        <referencedby refid="classconfig_1_1_model_1aaf6b40ca395ac5c6325cb189f13fec0f" compoundref="_config_8cpp" startline="134" endline="141">fileChanged</referencedby>
         <referencedby refid="classconfig_1_1_model_1a663ac662800dd1918dbab12d317fa4d5" compoundref="_config_8cpp" startline="7" endline="14">Model</referencedby>
       </memberdef>
       <memberdef kind="function" id="classconfig_1_1_model_1a8a75866892ea2fd6887d390ebb2c8c0a" prot="public" static="no" const="yes" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
@@ -204,8 +180,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="157" column="24" bodyfile="config/Config.h" bodystart="157" bodyend="157"/>
-        <references refid="classconfig_1_1_model_1af8a17f5a0e0588d27e68953995b925ac" compoundref="_config_8h" startline="255">loadMessage</references>
+        <location file="config/Config.h" line="273" column="24" bodyfile="config/Config.h" bodystart="273" bodyend="273"/>
+        <references refid="classconfig_1_1_model_1af8a17f5a0e0588d27e68953995b925ac" compoundref="_config_8h" startline="354">loadMessage</references>
       </memberdef>
       <memberdef kind="function" id="classconfig_1_1_model_1a6b0b5ce07200d8f7d6ee69c02a7f1835" prot="public" static="no" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
         <type><ref refid="classconfig_1_1_theme" kindref="compound">Theme</ref> &amp;</type>
@@ -220,8 +196,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="160" column="11" bodyfile="config/Config.h" bodystart="160" bodyend="160"/>
-        <references refid="classconfig_1_1_model_1acc92bf3f0a72eb6d85b5e73fd9944df7" compoundref="_config_8h" startline="278">theme</references>
+        <location file="config/Config.h" line="276" column="11" bodyfile="config/Config.h" bodystart="276" bodyend="276"/>
+        <references refid="classconfig_1_1_model_1acc92bf3f0a72eb6d85b5e73fd9944df7" compoundref="_config_8h" startline="368">theme</references>
       </memberdef>
       <memberdef kind="function" id="classconfig_1_1_model_1afedcb175b50ca63f63f1cb154e2902ba" prot="public" static="no" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
         <type><ref refid="classconfig_1_1_shader" kindref="compound">Shader</ref> &amp;</type>
@@ -236,7 +212,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="163" column="12" bodyfile="config/Config.h" bodystart="163" bodyend="163"/>
+        <location file="config/Config.h" line="279" column="12" bodyfile="config/Config.h" bodystart="279" bodyend="279"/>
       </memberdef>
     </sectiondef>
     <sectiondef kind="private-func">
@@ -250,26 +226,25 @@
 <para>Populates the live tree from <ref refid="namespaceBinaryData" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">BinaryData</ref> and builds the validator map in a single recursive walk. </para>
         </briefdescription>
         <detaileddescription>
-<para>For every key in <computeroutput><ref refid="structconfig_1_1_file_1a1fe87258f092c2141e6d0171085f1468" kindref="member">File::get()</ref></computeroutput>, runs the corresponding lua source string from <computeroutput><ref refid="namespaceBinaryData" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">BinaryData</ref></computeroutput> through <computeroutput><ref refid="structjam_1_1lua_1_1ValueTree_1af1496f8c466f7f9b697d2df5614ea732" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::lua::ValueTree::from</ref></computeroutput> with <computeroutput>&amp;validators</computeroutput>, appending the child to the live <computeroutput>state</computeroutput>. Then walks every subtree and registers a type-based predicate per property; for string properties whose default value matches a known <ref refid="structend_1_1_map" kindref="compound">end::Map</ref> (Position, DropMode) the type-based predicate is replaced with a Map-aware predicate via <computeroutput>registerValidator</computeroutput>. </para>
+<para>For every entry in <computeroutput><ref refid="structconfig_1_1_file_1a1fe87258f092c2141e6d0171085f1468" kindref="member">File::get()</ref></computeroutput>, runs the corresponding <ref refid="namespaceBinaryData" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">BinaryData</ref> lua source through <computeroutput><ref refid="classjam_1_1Model_1ada224019e4715d61684005a054d351e9" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Model::fromLua</ref></computeroutput> with <computeroutput>&amp;validators</computeroutput>, appending the child to <computeroutput>state</computeroutput>. Then walks every subtree via <computeroutput><ref refid="classjam_1_1Model_1a59b57627d856a11d756eabe1690a7213" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Model::applyFunctionRecursively</ref></computeroutput> and registers a type-based predicate per property; for string properties whose default matches a known <computeroutput><ref refid="structend_1_1_map" kindref="compound">end::Map</ref></computeroutput> (Position, DropMode) the predicate is replaced with a Map-aware predicate via <computeroutput>registerValidator</computeroutput>. </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="179" column="10" bodyfile="config/Config.cpp" bodystart="39" bodyend="84"/>
+        <location file="config/Config.h" line="294" column="10" bodyfile="config/Config.cpp" bodystart="39" bodyend="69"/>
         <references refid="classjam_1_1Model_1ac78b7437a06da378bf49cbd4f27bfc63">jam::Model::addProperties</references>
         <references refid="classjam_1_1Model_1a59b57627d856a11d756eabe1690a7213">jam::Model::applyFunctionRecursively</references>
-        <references refid="structconfig_1_1_file_1a36e6049325fb88e0539ec7bc64a3010aa0fc85df7daa8f0d98a096582ced3738f" compoundref="_bimap_8h" startline="122">config::File::config</references>
+        <references refid="classjam_1_1Model_1a56d070d548e85df035e527312421f5bf">jam::Model::forEachProperty</references>
         <references refid="classjam_1_1Model_1ada224019e4715d61684005a054d351e9">jam::Model::fromLua</references>
-        <references refid="structconfig_1_1_file_1a1fe87258f092c2141e6d0171085f1468" compoundref="_bimap_8h" startline="144" endline="144">config::File::get</references>
-        <references refid="structconfig_1_1_file_1_1_theme_1a259522514f9d57dccbffc3e3f1349a7f" compoundref="_bimap_8h" startline="200" endline="200">config::File::Theme::get</references>
+        <references refid="structconfig_1_1_file_1a1fe87258f092c2141e6d0171085f1468" compoundref="_bimap_8h" startline="146" endline="146">config::File::get</references>
         <references refid="namespaceconfig_1a061dd1953d794d0026d94b95435059c9" compoundref="_config_8cpp" startline="29" endline="36">config::getEnumValidator</references>
-        <references refid="structconfig_1_1_file_1ae101919bc1214478f5086e2e859742de" compoundref="_bimap_8h" startline="152" endline="155">config::File::getName</references>
-        <references refid="structconfig_1_1_file_1_1_theme_1aae7b0309384b8333ee5d8daa47406edb" compoundref="_bimap_8h" startline="206" endline="209">config::File::Theme::getName</references>
+        <references refid="structconfig_1_1_file_1ae101919bc1214478f5086e2e859742de" compoundref="_bimap_8h" startline="154" endline="157">config::File::getName</references>
         <references refid="namespaceBinaryData_1ac7695032563aaf6d03ebfc469298bb1a">BinaryData::getString</references>
+        <references refid="classjuce_1_1var_1a24ee6777303e1e699add7f2f224fcb6b">juce::var::isString</references>
         <references refid="classjam_1_1Model_1a9be603e3c0a76e1f0b6c263066993b63">jam::Model::params</references>
-        <references refid="classconfig_1_1_model_1a37ce70da66e8164f746a16925295c343" compoundref="_config_8cpp" startline="252" endline="258">registerValidator</references>
+        <references refid="classconfig_1_1_model_1a37ce70da66e8164f746a16925295c343" compoundref="_config_8cpp" startline="144" endline="150">registerValidator</references>
         <references refid="classjam_1_1Model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
-        <references refid="classconfig_1_1_model_1acc92bf3f0a72eb6d85b5e73fd9944df7" compoundref="_config_8h" startline="278">theme</references>
-        <references refid="classconfig_1_1_model_1af427d6e053fd4508c7179979330e5ab9" compoundref="_config_8h" startline="267">validators</references>
+        <references refid="classjuce_1_1var_1a9124185792334ed563f6026a93b5cdd8">juce::var::toString</references>
+        <references refid="classconfig_1_1_model_1af427d6e053fd4508c7179979330e5ab9" compoundref="_config_8h" startline="366">validators</references>
         <referencedby refid="classconfig_1_1_model_1a663ac662800dd1918dbab12d317fa4d5" compoundref="_config_8cpp" startline="7" endline="14">Model</referencedby>
       </memberdef>
       <memberdef kind="function" id="classconfig_1_1_model_1acad607c8136bcc115ffeae9d47869e26" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -279,34 +254,23 @@
         <name>saveToPath</name>
         <qualifiedname>config::Model::saveToPath</qualifiedname>
         <briefdescription>
-<para>Creates <computeroutput>~/</computeroutput>.config/end/ and writes any missing lua + svg seed files from <ref refid="namespaceBinaryData" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">BinaryData</ref>. </para>
+<para>Writes missing root lua files from <ref refid="namespaceBinaryData" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">BinaryData</ref> to <computeroutput><ref refid="structconfig_1_1_file_1a256dc6f23b2efea619c33a43ae3d795c" kindref="member">File::path</ref></computeroutput> inline. </para>
         </briefdescription>
         <detaileddescription>
-<para>For every key in <computeroutput><ref refid="structconfig_1_1_file_1a1fe87258f092c2141e6d0171085f1468" kindref="member">File::get()</ref></computeroutput> writes "stem.lua&quot; to
-@c File::path if not already present on disk. Then writes theme
-lua files (@c File::Theme::get()) to the active theme directory
-@c ~/.config/end/themes/\&lt;name\&gt;/, and every
-@c File::Graphics stem (e.g. @&quot;tab_bar.svg") to the graphics subdirectory inside that theme directory. Files already on disk are left untouched — this is a seed-once walk, not a forced overwrite. </para>
+<para>For every entry in <computeroutput><ref refid="structconfig_1_1_file_1a1fe87258f092c2141e6d0171085f1468" kindref="member">File::get()</ref></computeroutput>, writes the file from <ref refid="namespaceBinaryData" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">BinaryData</ref> to <computeroutput><ref refid="structconfig_1_1_file_1a256dc6f23b2efea619c33a43ae3d795c" kindref="member">File::path</ref></computeroutput> only when the file does not already exist and the <ref refid="namespaceBinaryData" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">BinaryData</ref> entry is present (written once). <ref refid="classconfig_1_1_theme" kindref="compound">Theme</ref> lua and SVG writing is owned entirely by <computeroutput><ref refid="classconfig_1_1_theme_1ae67d41c767ef6a64290e495bf2522487" kindref="member">Theme::saveToPath()</ref></computeroutput>. </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="194" column="10" bodyfile="config/Config.cpp" bodystart="87" bodyend="145"/>
-        <references refid="classjam_1_1Model_1a59b57627d856a11d756eabe1690a7213">jam::Model::applyFunctionRecursively</references>
-        <references refid="classjuce_1_1File_1af540d2875c87e47836e7deef02537ea4">juce::File::createDirectory</references>
+        <location file="config/Config.h" line="304" column="10" bodyfile="config/Config.cpp" bodystart="72" bodyend="89"/>
         <references refid="structBinaryData_1_1Raw_1a50f1331dd30f0df2d6614a9c67be4a66">BinaryData::Raw::data</references>
         <references refid="structBinaryData_1_1Raw_1aba1e79d5ef693005937990ddf2fe3363">BinaryData::Raw::exists</references>
-        <references refid="classjuce_1_1File_1aec22e75cf76048360e1dda14d724d06d">juce::File::exists</references>
         <references refid="classjuce_1_1File_1a37e88fbc390d78f3d79675974f53fa78">juce::File::existsAsFile</references>
-        <references refid="classjuce_1_1File_1a57b992aacb19e09ee5905cd0f0e9bb31">juce::File::getChildFile</references>
-        <references refid="structjam_1_1Instance_1ad5d2bbb58e37d8d260b428b334823140">jam::Instance&lt; Derived &gt;::getInstance</references>
-        <references refid="structconfig_1_1_file_1_1_theme_1a1a4f485d0cd842d77061933a01b1a55c" compoundref="_bimap_8h" startline="215" endline="218">config::File::Theme::getPath</references>
-        <references refid="classjam_1_1Model_1a91dc367954c0e066ce3af757919617da">jam::Model::getValue</references>
-        <references refid="structjam_1_1IDref_1aa73fb0ae4fb0b8c627f2e2f9e34c79a1">jam::IDref::graphics</references>
-        <references refid="structconfig_1_1_file_1a256dc6f23b2efea619c33a43ae3d795c" compoundref="_bimap_8h" startline="164" endline="166">config::File::path</references>
+        <references refid="structconfig_1_1_file_1a1fe87258f092c2141e6d0171085f1468" compoundref="_bimap_8h" startline="146" endline="146">config::File::get</references>
+        <references refid="structconfig_1_1_file_1ae101919bc1214478f5086e2e859742de" compoundref="_bimap_8h" startline="154" endline="157">config::File::getName</references>
+        <references refid="structjam_1_1File_1a2c41a1b1d9c179ea1027724e3109c1d6">jam::File::getOrCreateDirectory</references>
+        <references refid="structconfig_1_1_file_1a256dc6f23b2efea619c33a43ae3d795c" compoundref="_bimap_8h" startline="166" endline="168">config::File::path</references>
         <references refid="classjuce_1_1File_1a5359ab794e314e7bbfe91140cb0120fa">juce::File::replaceWithData</references>
         <references refid="structBinaryData_1_1Raw_1aa6b91267d82ca52f42b607aa0064a05d">BinaryData::Raw::size</references>
-        <references refid="classconfig_1_1_model_1acc92bf3f0a72eb6d85b5e73fd9944df7" compoundref="_config_8h" startline="278">theme</references>
-        <references refid="classjuce_1_1var_1a9124185792334ed563f6026a93b5cdd8">juce::var::toString</references>
         <referencedby refid="classconfig_1_1_model_1a663ac662800dd1918dbab12d317fa4d5" compoundref="_config_8cpp" startline="7" endline="14">Model</referencedby>
       </memberdef>
       <memberdef kind="function" id="classconfig_1_1_model_1abd7d146ee9fede8da7f5f0678faed50e" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
@@ -316,20 +280,18 @@ lua files (@c File::Theme::get()) to the active theme directory
         <name>startWatcher</name>
         <qualifiedname>config::Model::startWatcher</qualifiedname>
         <briefdescription>
-<para>Installs the file watcher on <computeroutput><ref refid="structconfig_1_1_file_1a256dc6f23b2efea619c33a43ae3d795c" kindref="member">File::path</ref></computeroutput> and the active theme directory with 300 ms event coalescing and registers this <ref refid="classconfig_1_1_model" kindref="compound">Model</ref> as a listener. </para>
+<para>Installs the file watcher on <computeroutput><ref refid="structconfig_1_1_file_1a256dc6f23b2efea619c33a43ae3d795c" kindref="member">File::path</ref></computeroutput> with <computeroutput><ref refid="classconfig_1_1_directory_1a9ac471bcf600eba99126334cc78130e1" kindref="member">Directory::coalesceMs</ref></computeroutput> (300 ms) event coalescing and registers this <ref refid="classconfig_1_1_model" kindref="compound">Model</ref> as a listener. </para>
         </briefdescription>
         <detaileddescription>
+<para>Watches root only — theme directory watching is owned by <computeroutput><ref refid="classconfig_1_1_theme" kindref="compound">Theme</ref></computeroutput>. </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="201" column="10" bodyfile="config/Config.cpp" bodystart="222" bodyend="231"/>
-        <references refid="structconfig_1_1_file_1_1_theme_1a1a4f485d0cd842d77061933a01b1a55c" compoundref="_bimap_8h" startline="215" endline="218">config::File::Theme::getPath</references>
-        <references refid="classjam_1_1Model_1a91dc367954c0e066ce3af757919617da">jam::Model::getValue</references>
-        <references refid="structconfig_1_1_file_1a256dc6f23b2efea619c33a43ae3d795c" compoundref="_bimap_8h" startline="164" endline="166">config::File::path</references>
-        <references refid="classconfig_1_1_model_1abd7d146ee9fede8da7f5f0678faed50e" compoundref="_config_8cpp" startline="222" endline="231">startWatcher</references>
-        <references refid="classconfig_1_1_model_1a6a55abd98823bb3b8bcb92905cbdd377" compoundref="_config_8h" startline="248">watcher</references>
+        <location file="config/Config.h" line="312" column="10" bodyfile="config/Config.cpp" bodystart="126" bodyend="131"/>
+        <references refid="classconfig_1_1_directory_1a9ac471bcf600eba99126334cc78130e1" compoundref="_directory_8h" startline="65" endline="65">config::Directory::coalesceMs</references>
+        <references refid="structconfig_1_1_file_1a256dc6f23b2efea619c33a43ae3d795c" compoundref="_bimap_8h" startline="166" endline="168">config::File::path</references>
+        <references refid="classconfig_1_1_model_1a6a55abd98823bb3b8bcb92905cbdd377" compoundref="_config_8h" startline="347">watcher</references>
         <referencedby refid="classconfig_1_1_model_1a663ac662800dd1918dbab12d317fa4d5" compoundref="_config_8cpp" startline="7" endline="14">Model</referencedby>
-        <referencedby refid="classconfig_1_1_model_1abd7d146ee9fede8da7f5f0678faed50e" compoundref="_config_8cpp" startline="222" endline="231">startWatcher</referencedby>
       </memberdef>
       <memberdef kind="function" id="classconfig_1_1_model_1aaf6b40ca395ac5c6325cb189f13fec0f" prot="private" static="no" const="no" explicit="no" inline="no" virt="virtual">
         <type>void</type>
@@ -347,9 +309,10 @@ lua files (@c File::Theme::get()) to the active theme directory
           <declname>event</declname>
         </param>
         <briefdescription>
-<para>Reloads lua config on <computeroutput></computeroutput>.lua update; dispatches a property-change message for matching <computeroutput></computeroutput>.svg asset updates. </para>
+<para>Reloads root lua config on <computeroutput></computeroutput>.lua <computeroutput>fileUpdated</computeroutput> events. </para>
         </briefdescription>
         <detaileddescription>
+<para>Only <computeroutput>fileUpdated</computeroutput> for a <computeroutput><ref refid="structconfig_1_1_file_1a6ab20528e69a64a7091bd8d1269eac55" kindref="member">File::extension</ref></computeroutput> file triggers work — calls <computeroutput><ref refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" kindref="member">loadFromPath()</ref></computeroutput>. All other events and extensions are ignored. SVG dispatch is owned by <computeroutput><ref refid="classconfig_1_1_theme_1a605ca54b6d1b90d93279fec757193458" kindref="member">Theme::fileChanged()</ref></computeroutput>.</para>
 <para><parameterlist kind="param"><parameteritem>
 <parameternamelist>
 <parametername>file</parametername>
@@ -363,7 +326,7 @@ lua files (@c File::Theme::get()) to the active theme directory
 <parametername>event</parametername>
 </parameternamelist>
 <parameterdescription>
-<para>The change event type. Only <computeroutput>fileUpdated</computeroutput> triggers any work; create/remove are ignored. </para>
+<para>The change event type. </para>
 </parameterdescription>
 </parameteritem>
 </parameterlist>
@@ -371,37 +334,10 @@ lua files (@c File::Theme::get()) to the active theme directory
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="210" column="10" bodyfile="config/Config.cpp" bodystart="233" bodyend="249"/>
-        <references refid="structconfig_1_1_file_1a6ab20528e69a64a7091bd8d1269eac55" compoundref="_bimap_8h" startline="168" endline="168">config::File::extension</references>
-        <references refid="classconfig_1_1_model_1aaf6b40ca395ac5c6325cb189f13fec0f" compoundref="_config_8cpp" startline="233" endline="249">fileChanged</references>
-        <references refid="classjuce_1_1File_1a5309789281ea7721eb832d21da99708f">juce::File::getFileName</references>
-        <references refid="classconfig_1_1_model_1aab53f2dffa259bc65116d9b97ce44a49" compoundref="_config_8h" startline="276">graphicsCallbacks</references>
+        <location file="config/Config.h" line="324" column="10" bodyfile="config/Config.cpp" bodystart="134" bodyend="141"/>
+        <references refid="structconfig_1_1_file_1a6ab20528e69a64a7091bd8d1269eac55" compoundref="_bimap_8h" startline="170" endline="170">config::File::extension</references>
         <references refid="classjuce_1_1File_1aeb95d4b90429613bca223acc6dc0d0bf">juce::File::hasFileExtension</references>
-        <references refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="147" endline="186">loadFromPath</references>
-        <references refid="structjam_1_1IDref_1af1bbf60b671b097a475e22b3296a4b83">jam::IDref::svg</references>
-        <referencedby refid="classconfig_1_1_model_1aaf6b40ca395ac5c6325cb189f13fec0f" compoundref="_config_8cpp" startline="233" endline="249">fileChanged</referencedby>
-      </memberdef>
-      <memberdef kind="function" id="classconfig_1_1_model_1a04468ffcc63d66896bb34f4c0b4c37b2" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type>void</type>
-        <definition>void config::Model::buildGraphicsCallbacks</definition>
-        <argsstring>()</argsstring>
-        <name>buildGraphicsCallbacks</name>
-        <qualifiedname>config::Model::buildGraphicsCallbacks</qualifiedname>
-        <briefdescription>
-<para>Populates <computeroutput>graphicsCallbacks</computeroutput> from the live <computeroutput>IDtype::graphics</computeroutput> subtree&apos;s current filenames. </para>
-        </briefdescription>
-        <detaileddescription>
-<para>Must be called after <computeroutput><ref refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" kindref="member">loadFromPath()</ref></computeroutput> so the runtime filenames (which may differ from <ref refid="namespaceBinaryData" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">BinaryData</ref> seeds) are present on the tree. Clears the existing map first, then for every <computeroutput>File::Graphics::get()</computeroutput> entry builds a callback that fires <computeroutput>sendPropertyChangeMessage</computeroutput> on the matching identifier when invoked. Reads the graphics subtree from <computeroutput>theme.state</computeroutput>, not config <computeroutput>state</computeroutput> — graphics section now lives in the theme tree. </para>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="config/Config.h" line="225" column="10" bodyfile="config/Config.cpp" bodystart="188" bodyend="220"/>
-        <references refid="classjam_1_1Model_1a59b57627d856a11d756eabe1690a7213">jam::Model::applyFunctionRecursively</references>
-        <references refid="classconfig_1_1_model_1a04468ffcc63d66896bb34f4c0b4c37b2" compoundref="_config_8cpp" startline="188" endline="220">buildGraphicsCallbacks</references>
-        <references refid="classconfig_1_1_model_1aab53f2dffa259bc65116d9b97ce44a49" compoundref="_config_8h" startline="276">graphicsCallbacks</references>
-        <references refid="classconfig_1_1_model_1acc92bf3f0a72eb6d85b5e73fd9944df7" compoundref="_config_8h" startline="278">theme</references>
-        <referencedby refid="classconfig_1_1_model_1a04468ffcc63d66896bb34f4c0b4c37b2" compoundref="_config_8cpp" startline="188" endline="220">buildGraphicsCallbacks</referencedby>
-        <referencedby refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="147" endline="186">loadFromPath</referencedby>
+        <references refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="91" endline="124">loadFromPath</references>
       </memberdef>
       <memberdef kind="function" id="classconfig_1_1_model_1a37ce70da66e8164f746a16925295c343" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -454,36 +390,38 @@ lua files (@c File::Theme::get()) to the active theme directory
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="240" column="10" bodyfile="config/Config.cpp" bodystart="252" bodyend="258"/>
-        <references refid="classconfig_1_1_model_1a37ce70da66e8164f746a16925295c343" compoundref="_config_8cpp" startline="252" endline="258">registerValidator</references>
-        <references refid="classconfig_1_1_model_1af427d6e053fd4508c7179979330e5ab9" compoundref="_config_8h" startline="267">validators</references>
-        <referencedby refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" compoundref="_config_8cpp" startline="39" endline="84">initialise</referencedby>
-        <referencedby refid="classconfig_1_1_model_1a37ce70da66e8164f746a16925295c343" compoundref="_config_8cpp" startline="252" endline="258">registerValidator</referencedby>
+        <location file="config/Config.h" line="339" column="10" bodyfile="config/Config.cpp" bodystart="144" bodyend="150"/>
+        <references refid="classconfig_1_1_model_1af427d6e053fd4508c7179979330e5ab9" compoundref="_config_8h" startline="366">validators</references>
+        <referencedby refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" compoundref="_config_8cpp" startline="39" endline="69">initialise</referencedby>
       </memberdef>
     </sectiondef>
     <briefdescription>
-<para>END&apos;s configuration model — owns the live ValueTree of all lua-driven config. </para>
+<para>END&apos;s root configuration model — owns the live ValueTree for all root lua config files and drives the Theme/Shader sub-models. </para>
     </briefdescription>
     <detaileddescription>
-<para>End is a terminal emulator. Every knob the user can twist lives in lua files under <computeroutput>~/</computeroutput>.config/end/ — <computeroutput>end.lua</computeroutput>, <computeroutput>popups.lua</computeroutput>, <computeroutput>keys.lua</computeroutput> (3 config sections). <ref refid="classconfig_1_1_theme" kindref="compound">Theme</ref> files (<computeroutput>theme.lua</computeroutput>, <computeroutput>whelmed.lua</computeroutput>) and SVG assets live under <computeroutput>~/</computeroutput>.config/end/themes/&lt;name&gt;/. <ref refid="classconfig_1_1_model" kindref="compound">config::Model</ref> is the single object that loads, validates, and exposes them as a live <ref refid="classjuce_1_1ValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::ValueTree</ref> to the rest of the app.</para>
-<para><simplesect kind="par"><title>Inherited roles</title><para>Inherits from <ref refid="classjam_1_1Model" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Model</ref> (ValueTree wrapper exposing CONTEXT and tree children), <ref refid="structjam_1_1Instance" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Instance&lt;Model&gt;</ref> (so the live instance is reachable from any code that includes this header), and <ref refid="classjam_1_1File_1_1Watcher_1_1Listener" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::File::Watcher::Listener</ref> (receives filesystem change notifications).</para>
+<para>End is a terminal emulator. Every user-facing knob lives in lua files under <computeroutput>~/</computeroutput>.config/end/ — <computeroutput>init.lua</computeroutput>, <computeroutput>popups.lua</computeroutput>, <computeroutput>keys.lua</computeroutput> (the three root config sections). <ref refid="classconfig_1_1_model" kindref="compound">config::Model</ref> loads, validates, and exposes them as a live <computeroutput><ref refid="classjuce_1_1ValueTree" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::ValueTree</ref></computeroutput>. It is NOT a <computeroutput><ref refid="classconfig_1_1_directory" kindref="compound">Directory</ref></computeroutput> subclass — it handles only the root directory and owns one <computeroutput><ref refid="classconfig_1_1_theme" kindref="compound">Theme</ref></computeroutput> and one <computeroutput><ref refid="classconfig_1_1_shader" kindref="compound">Shader</ref></computeroutput> instance, driving their <computeroutput>load()</computeroutput> cycle after every root reload.</para>
+<para><simplesect kind="par"><title>Inherited roles</title><para>Inherits from <computeroutput><ref refid="classjam_1_1Model" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Model</ref></computeroutput> (ValueTree wrapper exposing CONTEXT and tree children), <computeroutput><ref refid="structjam_1_1Instance" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Instance&lt;Model&gt;</ref></computeroutput> (so the live instance is reachable from any code that includes this header), and <computeroutput><ref refid="classjam_1_1File_1_1Watcher_1_1Listener" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::File::Watcher::Listener</ref></computeroutput> (receives root-directory filesystem change notifications).</para>
 </simplesect>
-<simplesect kind="par"><title>Four-phase init</title><para>The constructor runs four phases in fixed order — see HARD RULES in CAROL.md, the constructor sequence is contract:</para>
+<simplesect kind="par"><title>Four-phase init (§1.5 binary-defaults → disk overlay contract)</title><para>The constructor runs four phases in fixed order:</para>
 </simplesect>
 <orderedlist>
-<listitem><para><computeroutput><ref refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" kindref="member">initialise()</ref></computeroutput> — builds the live tree from <ref refid="namespaceBinaryData" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">BinaryData</ref> snapshots baked into the binary at compile time, and walks every subtree once to register type-based + Map-aware validators.</para>
-</listitem><listitem><para><computeroutput><ref refid="classconfig_1_1_model_1acad607c8136bcc115ffeae9d47869e26" kindref="member">saveToPath()</ref></computeroutput> — creates <computeroutput>~/</computeroutput>.config/end/ on disk if absent and writes any BinaryData-backed lua/svg file that is not already present (seed-once).</para>
-</listitem><listitem><para><computeroutput><ref refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" kindref="member">loadFromPath()</ref></computeroutput> — reads each lua file from disk, walks the table, applies validators, and (if validation passes) overlays the result on the live tree via <computeroutput>setValuesFrom</computeroutput>.</para>
-</listitem><listitem><para><computeroutput><ref refid="classconfig_1_1_model_1abd7d146ee9fede8da7f5f0678faed50e" kindref="member">startWatcher()</ref></computeroutput> — installs the file watcher for hot reload.</para>
+<listitem><para><computeroutput><ref refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" kindref="member">initialise()</ref></computeroutput> — builds the live tree from <ref refid="namespaceBinaryData" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">BinaryData</ref> defaults (all three root lua files) and registers type-based + Map-aware validators in a single recursive walk.</para>
+</listitem><listitem><para><computeroutput><ref refid="classconfig_1_1_model_1acad607c8136bcc115ffeae9d47869e26" kindref="member">saveToPath()</ref></computeroutput> — writes each missing root lua file inline from <ref refid="namespaceBinaryData" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">BinaryData</ref>. Files already on disk are left untouched (written once). <ref refid="classconfig_1_1_theme" kindref="compound">Theme</ref> lua and SVG writing is owned entirely by <computeroutput><ref refid="classconfig_1_1_theme_1ae67d41c767ef6a64290e495bf2522487" kindref="member">Theme::saveToPath()</ref></computeroutput>.</para>
+</listitem><listitem><para><computeroutput><ref refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" kindref="member">loadFromPath()</ref></computeroutput> — reads each lua file from disk, overlays the result on the live tree via <computeroutput>setValuesFrom</computeroutput>, then drives <computeroutput>theme.load()</computeroutput> and <computeroutput>shader.load()</computeroutput> with the dir resolved directly via the bimap.</para>
+</listitem><listitem><para><computeroutput><ref refid="classconfig_1_1_model_1abd7d146ee9fede8da7f5f0678faed50e" kindref="member">startWatcher()</ref></computeroutput> — installs the <computeroutput><ref refid="structjam_1_1File_1_1Watcher" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::File::Watcher</ref></computeroutput> on <computeroutput><ref refid="structconfig_1_1_file_1a256dc6f23b2efea619c33a43ae3d795c" kindref="member">File::path</ref></computeroutput> with <computeroutput><ref refid="classconfig_1_1_directory_1a9ac471bcf600eba99126334cc78130e1" kindref="member">Directory::coalesceMs</ref></computeroutput> (300 ms) coalescing.</para>
 </listitem></orderedlist>
 </para>
-<para><simplesect kind="par"><title>Validator map</title><para><computeroutput>validators</computeroutput> is a nested <ref refid="classjuce_1_1Identifier" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Identifier</ref> → Identifier → predicate map. Outer key = tree type. Inner key = property name. <ref refid="unionValue" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">Value</ref> = predicate accepting the candidate <computeroutput><ref refid="classjuce_1_1var" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::var</ref></computeroutput>. The map is populated during <computeroutput><ref refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" kindref="member">initialise()</ref></computeroutput> and consumed during <computeroutput><ref refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" kindref="member">loadFromPath()</ref></computeroutput> — when a property is found in the live tree and the predicate returns false for the on-disk value, the property is dropped and an error is appended to the load report.</para>
+<para><simplesect kind="par"><title>Validator map</title><para><computeroutput>validators</computeroutput> is a nested <computeroutput><ref refid="classjuce_1_1Identifier" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Identifier</ref></computeroutput> → Identifier → predicate map built during <computeroutput><ref refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" kindref="member">initialise()</ref></computeroutput> and consumed during <computeroutput><ref refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" kindref="member">loadFromPath()</ref></computeroutput>. When a predicate returns <computeroutput>false</computeroutput> for an on-disk value the property is dropped and an error is appended to the load report.</para>
 </simplesect>
-<simplesect kind="par"><title>Line map</title><para>Populated during <computeroutput><ref refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" kindref="member">loadFromPath()</ref></computeroutput> by <ref refid="classjam_1_1lua_1_1State" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::lua::State</ref>&apos;s parser hook: captures source-line numbers for every (tag, key) so the validator walk can produce &quot;&lt;line&gt; &apos;&lt;key&gt;: invalid value &quot;..."&apos; style errors.</para>
-</simplesect>
-<simplesect kind="par"><title>File watcher</title><para>Watches <computeroutput>~/</computeroutput>.config/end/ for <computeroutput></computeroutput>.lua edits and the active theme directory (<computeroutput>~/</computeroutput>.config/end/themes/&lt;name&gt;/) for <computeroutput></computeroutput>.svg edits. Lua edits trigger a full <computeroutput><ref refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" kindref="member">loadFromPath()</ref></computeroutput> cycle. SVG edits look up the filename in <computeroutput>graphicsCallbacks</computeroutput> and fire a property-change message on the matching identifier so the affected look-and-feel element repaints.</para>
+<simplesect kind="par"><title>File watcher</title><para>Watches <computeroutput>~/</computeroutput>.config/end/ for <computeroutput></computeroutput>.lua edits only. On change triggers a full <computeroutput><ref refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" kindref="member">loadFromPath()</ref></computeroutput> cycle (which in turn drives <computeroutput>theme.load()</computeroutput> and <computeroutput>shader.load()</computeroutput>). SVG/theme watching is owned entirely by <computeroutput><ref refid="classconfig_1_1_theme" kindref="compound">Theme</ref></computeroutput>.</para>
 </simplesect>
 <simplesect kind="par"><title>Lifetime</title><para>One instance per process, owned by <computeroutput><ref refid="classend_1_1_application" kindref="compound">end::Application</ref></computeroutput>. Survives until Application shutdown.</para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classconfig_1_1_directory" kindref="compound">config::Directory</ref> </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classconfig_1_1_theme" kindref="compound">config::Theme</ref> </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classconfig_1_1_shader" kindref="compound">config::Shader</ref> </para>
 </simplesect>
 <simplesect kind="see"><para><ref refid="classjam_1_1Model" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Model</ref> </para>
 </simplesect>
@@ -530,6 +468,17 @@ lua files (@c File::Theme::get()) to the active theme directory
       </node>
     </inheritancegraph>
     <collaborationgraph>
+      <node id="22">
+        <label>config::Directory</label>
+        <link refid="classconfig_1_1_directory"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="11" relation="public-inheritance">
+        </childnode>
+        <childnode refid="12" relation="usage">
+          <edgelabel>watcher</edgelabel>
+        </childnode>
+      </node>
       <node id="1">
         <label>config::Model</label>
         <link refid="classconfig_1_1_model"/>
@@ -549,25 +498,25 @@ lua files (@c File::Theme::get()) to the active theme directory
           <edgelabel>validators</edgelabel>
         </childnode>
         <childnode refid="21" relation="usage">
-          <edgelabel>graphicsCallbacks</edgelabel>
-        </childnode>
-        <childnode refid="23" relation="usage">
           <edgelabel>theme</edgelabel>
         </childnode>
-        <childnode refid="24" relation="usage">
+        <childnode refid="25" relation="usage">
           <edgelabel>shader</edgelabel>
         </childnode>
       </node>
-      <node id="24">
+      <node id="25">
         <label>config::Shader</label>
         <link refid="classconfig_1_1_shader"/>
-        <childnode refid="2" relation="public-inheritance">
+        <childnode refid="22" relation="public-inheritance">
         </childnode>
       </node>
-      <node id="23">
+      <node id="21">
         <label>config::Theme</label>
         <link refid="classconfig_1_1_theme"/>
-        <childnode refid="2" relation="public-inheritance">
+        <childnode refid="22" relation="public-inheritance">
+        </childnode>
+        <childnode refid="23" relation="usage">
+          <edgelabel>graphicsCallbacks</edgelabel>
         </childnode>
       </node>
       <node id="5">
@@ -609,13 +558,13 @@ lua files (@c File::Theme::get()) to the active theme directory
         <label>jam::File::Watcher::Listener</label>
         <link refid="classjam_1_1File_1_1Watcher_1_1Listener" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
-      <node id="21">
+      <node id="23">
         <label>jam::Function::Map&lt; juce::String, void &gt;</label>
         <link refid="structjam_1_1Function_1_1Map" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-        <childnode refid="22" relation="public-inheritance">
+        <childnode refid="24" relation="public-inheritance">
         </childnode>
       </node>
-      <node id="22">
+      <node id="24">
         <label>jam::HashMap&lt; KeyType, std::unique_ptr&lt; Function::Common &gt; &gt;</label>
         <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
@@ -700,7 +649,7 @@ lua files (@c File::Theme::get()) to the active theme directory
         </childnode>
       </node>
     </collaborationgraph>
-    <location file="config/Config.h" line="118" column="1" bodyfile="config/Config.h" bodystart="122" bodyend="283"/>
+    <location file="config/Config.h" line="236" column="1" bodyfile="config/Config.h" bodystart="240" bodyend="373"/>
     <listofallmembers>
       <member refid="classjam_1_1Model_1ae5d4d70e706dcc558cf21923125a9176" prot="public" virt="non-virtual"><scope>config::Model</scope><name>addListener</name></member>
       <member refid="classjam_1_1Model_1ac78b7437a06da378bf49cbd4f27bfc63" prot="public" virt="non-virtual"><scope>config::Model</scope><name>addProperties</name></member>
@@ -708,7 +657,6 @@ lua files (@c File::Theme::get()) to the active theme directory
       <member refid="classjam_1_1Model_1ae0cb2cc2b04acb47eb9760d92dcedc46" prot="public" virt="non-virtual"><scope>config::Model</scope><name>appendChild</name></member>
       <member refid="classjam_1_1Model_1a59b57627d856a11d756eabe1690a7213" prot="public" virt="non-virtual"><scope>config::Model</scope><name>applyFunctionRecursively</name></member>
       <member refid="classjam_1_1Model_1a60083575b158241a4921488754e168a9" prot="public" virt="non-virtual"><scope>config::Model</scope><name>applyFunctionRecursively</name></member>
-      <member refid="classconfig_1_1_model_1a04468ffcc63d66896bb34f4c0b4c37b2" prot="private" virt="non-virtual"><scope>config::Model</scope><name>buildGraphicsCallbacks</name></member>
       <member refid="classjuce_1_1Timer_1a5eb2dfa3e6810c268704c159ddcb37bc" prot="public" virt="non-virtual"><scope>config::Model</scope><name>callAfterDelay</name></member>
       <member refid="classjuce_1_1Timer_1a6c366b7f5a5d70c270a1e85b8aa45888" prot="public" virt="non-virtual"><scope>config::Model</scope><name>callPendingTimersSynchronously</name></member>
       <member refid="classconfig_1_1_model_1aaf6b40ca395ac5c6325cb189f13fec0f" prot="private" virt="virtual"><scope>config::Model</scope><name>fileChanged</name></member>
@@ -740,7 +688,6 @@ lua files (@c File::Theme::get()) to the active theme directory
       <member refid="classjam_1_1Model_1a2f037e88407eb8b95b9ab7daf7c0b15c" prot="public" virt="non-virtual"><scope>config::Model</scope><name>getValueFromChildWithID</name></member>
       <member refid="classjam_1_1Model_1a1032430642def825ff972dc86d6608c4" prot="public" virt="non-virtual"><scope>config::Model</scope><name>getValueFromChildWithProperty</name></member>
       <member refid="classjam_1_1Model_1a710fd55b83d2e5657e48d49ce5225ea2" prot="public" virt="non-virtual"><scope>config::Model</scope><name>getXml</name></member>
-      <member refid="classconfig_1_1_model_1aab53f2dffa259bc65116d9b97ce44a49" prot="private" virt="non-virtual"><scope>config::Model</scope><name>graphicsCallbacks</name></member>
       <member refid="structjam_1_1Instance_1a719a3eec42d68f1566de6b5dcd34589a" prot="private" virt="non-virtual"><scope>config::Model</scope><name>head</name></member>
       <member refid="classjam_1_1Model_1a1c976506dd5eb7d125a0e804c97c61e2" prot="private" virt="non-virtual"><scope>config::Model</scope><name>idleHz</name></member>
       <member refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" prot="private" virt="non-virtual"><scope>config::Model</scope><name>initialise</name></member>
@@ -795,7 +742,7 @@ lua files (@c File::Theme::get()) to the active theme directory
       <member refid="structjam_1_1Instance_1a6d091bd7f9bfd134ba3c831c8a3b04a3" prot="public" virt="virtual"><scope>config::Model</scope><name>~Instance</name></member>
       <member refid="classjuce_1_1ValueTree_1_1Listener_1ab78745617b47f3b12726c0de220e8d9b" prot="public" virt="virtual" ambiguityscope="jam::"><scope>config::Model</scope><name>~Listener</name></member>
       <member refid="classjam_1_1File_1_1Watcher_1_1Listener_1a36c31b730e410628b516813e6e0679e7" prot="public" virt="virtual" ambiguityscope="jam::File::Watcher::Listener::"><scope>config::Model</scope><name>~Listener</name></member>
-      <member refid="classconfig_1_1_model_1af95c0931a6f76206d56eb06a3c71a05a" prot="public" virt="non-virtual"><scope>config::Model</scope><name>~Model</name></member>
+      <member refid="classconfig_1_1_model_1a999a3d75bffd8430dca275546734329f" prot="public" virt="non-virtual"><scope>config::Model</scope><name>~Model</name></member>
       <member refid="classjuce_1_1Timer_1aa1de34211c34295dfa6a658474ae0ae0" prot="public" virt="virtual"><scope>config::Model</scope><name>~Timer</name></member>
     </listofallmembers>
   </compounddef>

@@ -84,8 +84,8 @@ void LookAndFeel::initialiseColours()
 
 void LookAndFeel::loadGraphics()
 {
-    auto themeName { config.getValue (IDtype::end, ID::theme).toString() };
-    auto directory { config::File::Theme::getPath (themeName)
+    auto themeName { config.getValue (IDtype::init, ID::theme).toString() };
+    auto directory { config::Themes::getPath (themeName)
                          .getChildFile (jam::IDref::graphics) };
 
     graphics.clear();

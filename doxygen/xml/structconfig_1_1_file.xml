@@ -4,24 +4,15 @@
     <compoundname>config::File</compoundname>
     <basecompoundref refid="classjam_1_1Bimap" prot="public" virt="non-virtual">jam::Bimap&lt; File &gt;</basecompoundref>
     <includes refid="_bimap_8h" local="no">Bimap.h</includes>
-    <innerclass refid="structconfig_1_1_file_1_1_theme" prot="public">config::File::Theme</innerclass>
-    <innerclass refid="structconfig_1_1_file_1_1_shaders" prot="public">config::File::Shaders</innerclass>
     <sectiondef kind="public-type">
       <memberdef kind="enum" id="structconfig_1_1_file_1a36e6049325fb88e0539ec7bc64a3010a" prot="public" static="no" strong="no">
         <type></type>
         <name>@032363077165107243347010073377156325115115151102</name>
         <qualifiedname>config::File::@032363077165107243347010073377156325115115151102</qualifiedname>
-        <enumvalue id="structconfig_1_1_file_1a36e6049325fb88e0539ec7bc64a3010aa0fc85df7daa8f0d98a096582ced3738f" prot="public">
-          <name>config</name>
+        <enumvalue id="structconfig_1_1_file_1a36e6049325fb88e0539ec7bc64a3010aa14893e3947e3e8e86f11079bc90a56e6" prot="public">
+          <name>init</name>
           <briefdescription>
-<para>Application config (end.lua). </para>
-          </briefdescription>
-          <detaileddescription>
-          </detaileddescription>
-        </enumvalue>
-        <enumvalue id="structconfig_1_1_file_1a36e6049325fb88e0539ec7bc64a3010aacb0c136bc8294d848fc394d785cba5b3" prot="public">
-          <name>end</name>
-          <briefdescription>
+<para>Application init config (init.lua). </para>
           </briefdescription>
           <detaileddescription>
           </detaileddescription>
@@ -49,7 +40,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Bimap.h" line="120" column="5" bodyfile="Bimap.h" bodystart="121" bodyend="126"/>
+        <location file="Bimap.h" line="124" column="5" bodyfile="Bimap.h" bodystart="125" bodyend="129"/>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-static-attrib">
@@ -69,11 +60,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Bimap.h" line="164" column="36" bodyfile="Bimap.h" bodystart="164" bodyend="166"/>
-        <referencedby refid="structconfig_1_1_file_1a8fb7a80701aaed8671256aa65afaf19d" compoundref="_bimap_8h" startline="158" endline="161">getPath</referencedby>
-        <referencedby refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="147" endline="186">config::Model::loadFromPath</referencedby>
-        <referencedby refid="classconfig_1_1_model_1acad607c8136bcc115ffeae9d47869e26" compoundref="_config_8cpp" startline="87" endline="145">config::Model::saveToPath</referencedby>
-        <referencedby refid="classconfig_1_1_model_1abd7d146ee9fede8da7f5f0678faed50e" compoundref="_config_8cpp" startline="222" endline="231">config::Model::startWatcher</referencedby>
+        <location file="Bimap.h" line="166" column="36" bodyfile="Bimap.h" bodystart="166" bodyend="168"/>
+        <referencedby refid="structconfig_1_1_file_1a8fb7a80701aaed8671256aa65afaf19d" compoundref="_bimap_8h" startline="160" endline="163">getPath</referencedby>
+        <referencedby refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="91" endline="124">config::Model::loadFromPath</referencedby>
+        <referencedby refid="classconfig_1_1_model_1acad607c8136bcc115ffeae9d47869e26" compoundref="_config_8cpp" startline="72" endline="89">config::Model::saveToPath</referencedby>
+        <referencedby refid="classconfig_1_1_model_1abd7d146ee9fede8da7f5f0678faed50e" compoundref="_config_8cpp" startline="126" endline="131">config::Model::startWatcher</referencedby>
       </memberdef>
       <memberdef kind="variable" id="structconfig_1_1_file_1a6ab20528e69a64a7091bd8d1269eac55" prot="public" static="yes" mutable="no">
         <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref></type>
@@ -89,9 +80,9 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Bimap.h" line="168" column="38" bodyfile="Bimap.h" bodystart="168" bodyend="168"/>
-        <referencedby refid="classconfig_1_1_model_1aaf6b40ca395ac5c6325cb189f13fec0f" compoundref="_config_8cpp" startline="233" endline="249">config::Model::fileChanged</referencedby>
-        <referencedby refid="structconfig_1_1_file_1ae101919bc1214478f5086e2e859742de" compoundref="_bimap_8h" startline="152" endline="155">getName</referencedby>
+        <location file="Bimap.h" line="170" column="38" bodyfile="Bimap.h" bodystart="170" bodyend="170"/>
+        <referencedby refid="classconfig_1_1_model_1aaf6b40ca395ac5c6325cb189f13fec0f" compoundref="_config_8cpp" startline="134" endline="141">config::Model::fileChanged</referencedby>
+        <referencedby refid="structconfig_1_1_file_1ae101919bc1214478f5086e2e859742de" compoundref="_bimap_8h" startline="154" endline="157">getName</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">
@@ -102,18 +93,17 @@
         <name>File</name>
         <qualifiedname>config::File::File</qualifiedname>
         <briefdescription>
-<para>Populates the bimap with all 4 entries. </para>
+<para>Populates the bimap with all 3 entries. </para>
         </briefdescription>
         <detaileddescription>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Bimap.h" line="129" column="5" bodyfile="Bimap.h" bodystart="129" bodyend="137"/>
-        <references refid="structconfig_1_1_file_1a36e6049325fb88e0539ec7bc64a3010aa0fc85df7daa8f0d98a096582ced3738f" compoundref="_bimap_8h" startline="122">config</references>
-        <references refid="structconfig_1_1_file_1a36e6049325fb88e0539ec7bc64a3010aacb0c136bc8294d848fc394d785cba5b3" compoundref="_bimap_8h" startline="123">end</references>
-        <references refid="structconfig_1_1_file_1a36e6049325fb88e0539ec7bc64a3010aa61592c1bf865f03bcbd13f0c6fa4340e" compoundref="_bimap_8h" startline="125">keys</references>
+        <location file="Bimap.h" line="132" column="5" bodyfile="Bimap.h" bodystart="132" bodyend="139"/>
+        <references refid="structconfig_1_1_file_1a36e6049325fb88e0539ec7bc64a3010aa14893e3947e3e8e86f11079bc90a56e6" compoundref="_bimap_8h" startline="126">init</references>
+        <references refid="structconfig_1_1_file_1a36e6049325fb88e0539ec7bc64a3010aa61592c1bf865f03bcbd13f0c6fa4340e" compoundref="_bimap_8h" startline="128">keys</references>
         <references refid="classjam_1_1Bimap_1a9e17f006e09559363aa2352f78477e8e">jam::Bimap&lt; File &gt;::map</references>
-        <references refid="structconfig_1_1_file_1a36e6049325fb88e0539ec7bc64a3010aafcbf6aafaecace693615939e7179e737" compoundref="_bimap_8h" startline="124">popups</references>
+        <references refid="structconfig_1_1_file_1a36e6049325fb88e0539ec7bc64a3010aafcbf6aafaecace693615939e7179e737" compoundref="_bimap_8h" startline="127">popups</references>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-static-func">
@@ -131,11 +121,12 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Bimap.h" line="144" column="23" bodyfile="Bimap.h" bodystart="144" bodyend="144"/>
+        <location file="Bimap.h" line="146" column="23" bodyfile="Bimap.h" bodystart="146" bodyend="146"/>
         <references refid="structjam_1_1Instance_1ad5d2bbb58e37d8d260b428b334823140">jam::Instance&lt; Derived &gt;::getInstance</references>
-        <referencedby refid="structconfig_1_1_file_1ae101919bc1214478f5086e2e859742de" compoundref="_bimap_8h" startline="152" endline="155">getName</referencedby>
-        <referencedby refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" compoundref="_config_8cpp" startline="39" endline="84">config::Model::initialise</referencedby>
-        <referencedby refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="147" endline="186">config::Model::loadFromPath</referencedby>
+        <referencedby refid="structconfig_1_1_file_1ae101919bc1214478f5086e2e859742de" compoundref="_bimap_8h" startline="154" endline="157">getName</referencedby>
+        <referencedby refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" compoundref="_config_8cpp" startline="39" endline="69">config::Model::initialise</referencedby>
+        <referencedby refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="91" endline="124">config::Model::loadFromPath</referencedby>
+        <referencedby refid="classconfig_1_1_model_1acad607c8136bcc115ffeae9d47869e26" compoundref="_config_8cpp" startline="72" endline="89">config::Model::saveToPath</referencedby>
       </memberdef>
       <memberdef kind="function" id="structconfig_1_1_file_1ae101919bc1214478f5086e2e859742de" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
         <type>const <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref></type>
@@ -160,18 +151,19 @@
 </parameterdescription>
 </parameteritem>
 </parameterlist>
-<simplesect kind="return"><para>Filename string including extension (e.g. &quot;end.lua&quot;). </para>
+<simplesect kind="return"><para>Filename string including extension (e.g. &quot;init.lua&quot;). </para>
 </simplesect>
 </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Bimap.h" line="152" column="31" bodyfile="Bimap.h" bodystart="152" bodyend="155"/>
-        <references refid="structconfig_1_1_file_1a6ab20528e69a64a7091bd8d1269eac55" compoundref="_bimap_8h" startline="168" endline="168">extension</references>
-        <references refid="structconfig_1_1_file_1a1fe87258f092c2141e6d0171085f1468" compoundref="_bimap_8h" startline="144" endline="144">get</references>
+        <location file="Bimap.h" line="154" column="31" bodyfile="Bimap.h" bodystart="154" bodyend="157"/>
+        <references refid="structconfig_1_1_file_1a6ab20528e69a64a7091bd8d1269eac55" compoundref="_bimap_8h" startline="170" endline="170">extension</references>
+        <references refid="structconfig_1_1_file_1a1fe87258f092c2141e6d0171085f1468" compoundref="_bimap_8h" startline="146" endline="146">get</references>
         <references refid="structjam_1_1Format_1a838b7c56ce7913ab2b4471148a1019cd">jam::Format::toFileName</references>
-        <referencedby refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" compoundref="_config_8cpp" startline="39" endline="84">config::Model::initialise</referencedby>
-        <referencedby refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="147" endline="186">config::Model::loadFromPath</referencedby>
+        <referencedby refid="classconfig_1_1_model_1acc87be7141289aff086792b5597ba839" compoundref="_config_8cpp" startline="39" endline="69">config::Model::initialise</referencedby>
+        <referencedby refid="classconfig_1_1_model_1ab4a1705f34cbc49af0a3a26bcd3d4df9" compoundref="_config_8cpp" startline="91" endline="124">config::Model::loadFromPath</referencedby>
+        <referencedby refid="classconfig_1_1_model_1acad607c8136bcc115ffeae9d47869e26" compoundref="_config_8cpp" startline="72" endline="89">config::Model::saveToPath</referencedby>
       </memberdef>
       <memberdef kind="function" id="structconfig_1_1_file_1a8fb7a80701aaed8671256aa65afaf19d" prot="public" static="yes" const="no" explicit="no" inline="yes" noexcept="yes" virt="non-virtual">
         <type>const <ref refid="classjuce_1_1File" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::File</ref></type>
@@ -190,8 +182,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Bimap.h" line="158" column="29" bodyfile="Bimap.h" bodystart="158" bodyend="161"/>
-        <references refid="structconfig_1_1_file_1a256dc6f23b2efea619c33a43ae3d795c" compoundref="_bimap_8h" startline="164" endline="166">path</references>
+        <location file="Bimap.h" line="160" column="29" bodyfile="Bimap.h" bodystart="160" bodyend="163"/>
+        <references refid="structconfig_1_1_file_1a256dc6f23b2efea619c33a43ae3d795c" compoundref="_bimap_8h" startline="166" endline="168">path</references>
       </memberdef>
     </sectiondef>
     <sectiondef kind="private-func">
@@ -208,18 +200,19 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="Bimap.h" line="349" column="24" bodyfile="Bimap.h" bodystart="349" bodyend="349"/>
-        <references refid="structconfig_1_1_file_1a36e6049325fb88e0539ec7bc64a3010aa0fc85df7daa8f0d98a096582ced3738f" compoundref="_bimap_8h" startline="122">config</references>
+        <location file="Bimap.h" line="173" column="24" bodyfile="Bimap.h" bodystart="173" bodyend="173"/>
+        <references refid="structconfig_1_1_file_1a36e6049325fb88e0539ec7bc64a3010aa14893e3947e3e8e86f11079bc90a56e6" compoundref="_bimap_8h" startline="126">init</references>
         <references refid="classjam_1_1Bimap_1a9e17f006e09559363aa2352f78477e8e">jam::Bimap&lt; File &gt;::map</references>
       </memberdef>
     </sectiondef>
     <briefdescription>
-<para>Registry of lua config files — 4 section keys. </para>
+<para>Registry of lua config files — 3 section keys. </para>
     </briefdescription>
     <detaileddescription>
-<para>CRTP-derived from <ref refid="classjam_1_1Bimap" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Bimap&lt;File&gt;</ref>.</para>
-<para>Maps each enum key to its Identifier stem (e.g. config → &quot;config&quot;) and resolves the on-disk filename via <ref refid="structconfig_1_1_file_1ae101919bc1214478f5086e2e859742de" kindref="member">getName()</ref>. All keys produce &quot;stem.lua&quot;.</para>
-<para>Owns the user config directory and the lua extension. The live instance is owned by <ref refid="classend_1_1_application" kindref="compound">end::Application</ref> — static <ref refid="structconfig_1_1_file_1a1fe87258f092c2141e6d0171085f1468" kindref="member">get()</ref> resolves through Instance&lt;File&gt;. </para>
+<para>Top-level registry. CRTP-derived from <ref refid="classjam_1_1Bimap" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Bimap</ref>&lt;<ref refid="structconfig_1_1_file" kindref="compound">File</ref>&gt;.</para>
+<para>Maps each enum key to its Identifier stem (e.g. init → &quot;init&quot;) and resolves the on-disk filename via <ref refid="structconfig_1_1_file_1ae101919bc1214478f5086e2e859742de" kindref="member">getName()</ref>. All keys produce &quot;stem.lua&quot;.</para>
+<para>Owns the user config directory and the lua extension. The live instance is owned by <ref refid="classend_1_1_application" kindref="compound">end::Application</ref> — static <ref refid="structconfig_1_1_file_1a1fe87258f092c2141e6d0171085f1468" kindref="member">get()</ref> resolves through <ref refid="structjam_1_1Instance" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Instance</ref>&lt;<ref refid="structconfig_1_1_file" kindref="compound">File</ref>&gt;.</para>
+<para><ref refid="structconfig_1_1_file_1a8fb7a80701aaed8671256aa65afaf19d" kindref="member">getPath()</ref> is the canonical child-path resolver used by <ref refid="structconfig_1_1_themes" kindref="compound">Themes</ref> and <ref refid="structconfig_1_1_shaders" kindref="compound">Shaders</ref> to seed their own static path members. </para>
     </detaileddescription>
     <inheritancegraph>
       <node id="1">
@@ -280,11 +273,9 @@
         </childnode>
       </node>
     </collaborationgraph>
-    <location file="Bimap.h" line="117" column="1" bodyfile="Bimap.h" bodystart="118" bodyend="350"/>
+    <location file="Bimap.h" line="121" column="1" bodyfile="Bimap.h" bodystart="122" bodyend="174"/>
     <listofallmembers>
-      <member refid="structconfig_1_1_file_1a36e6049325fb88e0539ec7bc64a3010aa0fc85df7daa8f0d98a096582ced3738f" prot="public" virt="non-virtual"><scope>config::File</scope><name>config</name></member>
       <member refid="classjam_1_1Bimap_1a3396307cd01cc5b2171954585f05aef2" prot="public" virt="non-virtual"><scope>config::File</scope><name>contains</name></member>
-      <member refid="structconfig_1_1_file_1a36e6049325fb88e0539ec7bc64a3010aacb0c136bc8294d848fc394d785cba5b3" prot="public" virt="non-virtual"><scope>config::File</scope><name>end</name></member>
       <member refid="structconfig_1_1_file_1a6ab20528e69a64a7091bd8d1269eac55" prot="public" virt="non-virtual"><scope>config::File</scope><name>extension</name></member>
       <member refid="structconfig_1_1_file_1ae65e95e7d00b4fcaad4a0ab2265d903d" prot="public" virt="non-virtual"><scope>config::File</scope><name>File</name></member>
       <member refid="structconfig_1_1_file_1a1fe87258f092c2141e6d0171085f1468" prot="public" virt="non-virtual"><scope>config::File</scope><name>get</name></member>
@@ -294,6 +285,7 @@
       <member refid="structconfig_1_1_file_1ae101919bc1214478f5086e2e859742de" prot="public" virt="non-virtual"><scope>config::File</scope><name>getName</name></member>
       <member refid="structconfig_1_1_file_1a8fb7a80701aaed8671256aa65afaf19d" prot="public" virt="non-virtual"><scope>config::File</scope><name>getPath</name></member>
       <member refid="structjam_1_1Instance_1a719a3eec42d68f1566de6b5dcd34589a" prot="private" virt="non-virtual"><scope>config::File</scope><name>head</name></member>
+      <member refid="structconfig_1_1_file_1a36e6049325fb88e0539ec7bc64a3010aa14893e3947e3e8e86f11079bc90a56e6" prot="public" virt="non-virtual"><scope>config::File</scope><name>init</name></member>
       <member refid="structjam_1_1Instance_1a85529c50c3424e8b843fa92fa2f9c4da" prot="public" virt="non-virtual"><scope>config::File</scope><name>Instance</name></member>
       <member refid="structconfig_1_1_file_1a36e6049325fb88e0539ec7bc64a3010aa61592c1bf865f03bcbd13f0c6fa4340e" prot="public" virt="non-virtual"><scope>config::File</scope><name>keys</name></member>
       <member refid="classjam_1_1Bimap_1a9e17f006e09559363aa2352f78477e8e" prot="protected" virt="non-virtual"><scope>config::File</scope><name>map</name></member>

@@ -67,7 +67,7 @@ struct Position : public jam::Bimap<Position>
 /**
  * @brief Bimap for multi-file drop separator mode — "space" or "newline".
  *
- * Used by end.terminal.drop_multifiles.
+ * Used by init.terminal.drop_multifiles.
  *   0 → "space"   — join paths with spaces (default)
  *   1 → "newline" — join paths with newlines
  *
@@ -105,32 +105,34 @@ namespace config
 /*____________________________________________________________________________*/
 
 /**
- * @brief Registry of lua config files — 4 section keys.
- *        CRTP-derived from jam::Bimap<File>.
+ * @brief Registry of lua config files — 3 section keys.
+ *        Top-level registry. CRTP-derived from jam::Bimap\<File\>.
  *
- * Maps each enum key to its Identifier stem (e.g. config → "config") and
+ * Maps each enum key to its Identifier stem (e.g. init → "init") and
  * resolves the on-disk filename via getName(). All keys produce "stem.lua".
  *
  * Owns the user config directory and the lua extension. The live instance
- * is owned by end::Application — static get() resolves through Instance<File>.
+ * is owned by end::Application — static get() resolves through
+ * jam::Instance\<File\>.
+ *
+ * getPath() is the canonical child-path resolver used by Themes and Shaders
+ * to seed their own static path members.
  */
 struct File : public jam::Bimap<File>
 {
     /** @brief Integer keys for all lua config section files. */
     enum
     {
-        config,///< Application config (end.lua).
-        end,
+        init,///< Application init config (init.lua).
         popups,///< Popup terminal definitions.
         keys,///< Key bindings.
     };
 
-    /** @brief Populates the bimap with all 4 entries. */
+    /** @brief Populates the bimap with all 3 entries. */
     File()
     {
         map = {
-            { File::config, IDref::config },
-            { File::end,    IDref::end    },
+            { File::init,   IDref::init   },
             { File::popups, IDref::popups },
             { File::keys,   IDref::keys   },
         };
@@ -147,7 +149,7 @@ struct File : public jam::Bimap<File>
      * @brief Returns the filename for the given enum key (always "stem.lua").
      *
      * @param key  One of the File enum values.
-     * @return     Filename string including extension (e.g. "end.lua").
+     * @return     Filename string including extension (e.g. "init.lua").
      */
     static const juce::String getName (int key) noexcept
     {
@@ -167,187 +169,144 @@ struct File : public jam::Bimap<File>
     /** @brief Bare lua extension (no wildcard) for file watcher checks. */
     inline static const juce::String extension { "lua" };
 
-    //==========================================================================
-    /**
-     * @brief Registry of theme directory files — 2 section keys.
-     *        Nested inside File. CRTP-derived from jam::Bimap<Theme>.
-     *
-     * Maps each enum key to its Identifier stem and resolves the on-disk
-     * filename via getName(). All keys produce "stem.lua".
-     *
-     * Owns the themes root directory path. The live instance is owned by
-     * end::Application — static get() resolves through Instance<Theme>.
-     */
-    struct Theme : public jam::Bimap<Theme>
+private:
+    const juce::String& getDefault() const noexcept override { return map.at (File::init); }
+};
+
+//==============================================================================
+/**
+ * @brief Registry of theme directory files — 2 section keys.
+ *        Top-level registry. CRTP-derived from jam::Bimap\<Themes\>.
+ *
+ * Maps each enum key to its Identifier stem and resolves the on-disk
+ * filename via getName(). All keys produce "stem.lua".
+ *
+ * Owns the themes root directory path (seeded from File::getPath).
+ * The live instance is owned by end::Application — static get() resolves
+ * through jam::Instance\<Themes\>.
+ */
+struct Themes : public jam::Bimap<Themes>
+{
+    /** @brief Integer keys for theme lua files. */
+    enum
     {
-        /** @brief Integer keys for theme lua files. */
-        enum
-        {
-            theme,///< Visual properties (colours, fonts, metrics, graphics).
-            whelmed,///< Whelmed markdown renderer styles.
-        };
-
-        /** @brief Populates the bimap with both entries. */
-        Theme()
-        {
-            map = {
-                { Theme::theme,   IDref::theme   },
-                { Theme::whelmed, IDref::whelmed },
-            };
-        }
-
-        /** @brief Returns the int→Identifier-stem map from the live context instance. */
-        static const auto& get() noexcept { return getInstance()->map; }
-
-        /** @brief Returns the filename for the given enum key (always "stem.lua").
-         *  @param key  One of the Theme enum values.
-         *  @return     Filename string including extension (e.g. "theme.lua").
-         */
-        static const juce::String getName (int key) noexcept
-        {
-            return jam::Format::toFileName (get().at (key), extension);
-        }
-
-        /** @brief Returns the theme subdirectory for the given theme name.
-         *  @param themeName  Theme directory name (e.g. "gfx").
-         *  @return           Resolved path: ~/.config/end/themes/@p themeName/
-         */
-        static const juce::File getPath (const juce::String& themeName) noexcept
-        {
-            return path.getChildFile (themeName);
-        }
-
-        /** @brief Themes root directory: ~/.config/end/themes/ */
-        inline static const juce::File path { File::getPath (IDref::themes) };
-        /** @brief Lua extension for theme files. */
-        inline static const juce::String extension { "lua" };
-
-    private:
-        const juce::String& getDefault() const noexcept override { return map.at (Theme::theme); }
+        theme,///< Visual properties (colours, fonts, metrics, graphics).
+        whelmed,///< Whelmed markdown renderer styles.
     };
 
-    //==========================================================================
-    /**
-     * @brief Registry of Shadertoy pass file names + iChannel slot lookup.
-     *        Nested inside File. CRTP-derived from jam::Bimap<Shaders>.
-     *
-     * The primary bimap (Shaders itself) maps each enum key to its Identifier
-     * stem which IS the on-disk filename (no extension — Shadertoy convention).
-     * The filesystem is the manifest: present files are loaded, absent files
-     * are skipped.
-     *
-     * A secondary nested bimap (Shaders::Buffer) maps iChannel slot indices
-     * to uniform name identifiers and encodes the iChannelN→Buffer(A+N)
-     * convention in sourcePass() — single source of truth.
-     *
-     * Owns the shaders root directory path. The live instance is owned by
-     * end::Application — static get() resolves through Instance<Shaders>.
-     */
-    struct Shaders : public jam::Bimap<Shaders>
+    /** @brief Populates the bimap with both entries. */
+    Themes()
     {
-        /** @brief Integer keys for Shadertoy pass types.
-         *
-         *  Enum order = render order: common (skipped), buffers first, image
-         *  last. Bimap::map is std::map — iteration follows ascending
-         *  key order. loadShaders iterates the bimap directly; no manual
-         *  ordering array needed.
-         */
-        enum
-        {
-            common,///< Shared library code, prepended to all passes.
-            bufferA,///< Intermediate FBO pass A.
-            bufferB,///< Intermediate FBO pass B.
-            bufferC,///< Intermediate FBO pass C.
-            bufferD,///< Intermediate FBO pass D.
-            image,///< Main output pass (always present). Last = renders last.
+        map = {
+            { Themes::theme,   IDref::theme   },
+            { Themes::whelmed, IDref::whelmed },
         };
+    }
 
-        /** @brief Populates the bimap — render order matches enum key order. */
-        Shaders()
-        {
-            map = {
-                { Shaders::common,  IDref::common  },
-                { Shaders::bufferA, IDref::bufferA },
-                { Shaders::bufferB, IDref::bufferB },
-                { Shaders::bufferC, IDref::bufferC },
-                { Shaders::bufferD, IDref::bufferD },
-                { Shaders::image,   IDref::image   },
-            };
-        }
+    /** @brief Returns the int→Identifier-stem map from the live context instance. */
+    static const auto& get() noexcept { return getInstance()->map; }
 
-        /** @brief Returns the int→Identifier-stem map from the live context instance. */
-        static const auto& get() noexcept { return getInstance()->map; }
+    /**
+     * @brief Returns the filename for the given enum key (always "stem.lua").
+     *
+     * @param key  One of the Themes enum values.
+     * @return     Filename string including extension (e.g. "theme.lua").
+     */
+    static const juce::String getName (int key) noexcept
+    {
+        return jam::Format::toFileName (get().at (key), extension);
+    }
 
-        /** @brief Returns the shader project subdirectory for the given name.
-         *  @param shadersName  Shader project directory name (e.g. "sea-at-night").
-         *  @return             Resolved path: ~/.config/end/shaders/@p shadersName/
-         */
-        static const juce::File getPath (const juce::String& shadersName) noexcept
-        {
-            return path.getChildFile (shadersName);
-        }
+    /**
+     * @brief Returns the theme subdirectory for the given theme name.
+     *
+     * @param themeName  Theme directory name (e.g. "gfx").
+     * @return           Resolved path: ~/.config/end/themes/@p themeName/
+     */
+    static const juce::File getPath (const juce::String& themeName) noexcept
+    {
+        return path.getChildFile (themeName);
+    }
 
-        /** @brief Shaders root directory: ~/.config/end/shaders/ */
-        inline static const juce::File path { File::getPath (IDref::shaders) };
-
-        //======================================================================
-        /**
-         * @brief iChannel slot → source buffer pass stem bimap.
-         *
-         * Maps each iChannel slot index to the buffer pass stem it reads
-         * from per Shadertoy convention: iChannel0 reads BufferA, etc.
-         * sourcePass() is a direct bimap lookup — no arithmetic, no
-         * cross-enum dependency.
-         *
-         * iChannel uniform keyword strings (iChannel0..3) are NOT stored
-         * here — they are compile-time IDref constants in Identifier.h,
-         * used directly by Compiler::buildPass.
-         */
-        struct Buffer : public jam::Bimap<Buffer>
-        {
-            /** @brief iChannel slot indices. */
-            enum
-            {
-                channel0,///< iChannel0 reads from BufferA.
-                channel1,///< iChannel1 reads from BufferB.
-                channel2,///< iChannel2 reads from BufferC.
-                channel3,///< iChannel3 reads from BufferD.
-            };
-
-            /** @brief Populates the bimap: slot → buffer pass stem. */
-            Buffer()
-            {
-                map = {
-                    { Buffer::channel0, IDref::bufferA },
-                    { Buffer::channel1, IDref::bufferB },
-                    { Buffer::channel2, IDref::bufferC },
-                    { Buffer::channel3, IDref::bufferD },
-                };
-            }
-
-            /** @brief Returns the slot→stem map from the live context instance. */
-            static const auto& get() noexcept { return getInstance()->map; }
-
-            /** @brief Returns the source pass Identifier for iChannel @p slot.
-             *  Direct bimap lookup — no arithmetic.
-             *  @param slot  iChannel index 0..3.
-             */
-            static juce::Identifier sourcePass (int slot) noexcept
-            {
-                return juce::Identifier { getInstance()->map.at (slot) };
-            }
-
-        private:
-            const juce::String& getDefault() const noexcept override { return map.at (Buffer::channel0); }
-        };
-
-    private:
-        const juce::String& getDefault() const noexcept override { return map.at (Shaders::image); }
-    };
+    /** @brief Themes root directory: ~/.config/end/themes/ */
+    inline static const juce::File path { File::getPath (IDref::themes) };
+    /** @brief Lua extension for theme files. */
+    inline static const juce::String extension { "lua" };
 
 private:
-    const juce::String& getDefault() const noexcept override { return map.at (File::config); }
+    const juce::String& getDefault() const noexcept override { return map.at (Themes::theme); }
 };
+
+//==============================================================================
+/**
+ * @brief Registry of Shadertoy pass file names — 6 section keys.
+ *        Top-level registry. CRTP-derived from jam::Bimap\<Shaders\>.
+ *
+ * Maps each enum key to its Identifier stem which IS the on-disk filename
+ * (no extension — Shadertoy bare-stem convention). The filesystem is the
+ * manifest: present files are loaded, absent files are skipped.
+ *
+ * Enum order equals render order: common (shared library, prepended),
+ * buffers A–D (intermediate FBO passes), image (main output, last).
+ * jam::Bimap::map is std::map — iteration follows ascending key order,
+ * so no manual ordering array is needed.
+ *
+ * Owns the shaders root directory path (seeded from File::getPath).
+ * The live instance is owned by end::Application — static get() resolves
+ * through jam::Instance\<Shaders\>.
+ */
+struct Shaders : public jam::Bimap<Shaders>
+{
+    /** @brief Integer keys for Shadertoy pass types.
+     *
+     *  Enum order = render order: common (skipped), buffers first, image
+     *  last. Bimap::map is std::map — iteration follows ascending key order.
+     *  loadShaders iterates the bimap directly; no manual ordering array needed.
+     */
+    enum
+    {
+        common,///< Shared library code, prepended to all passes.
+        bufferA,///< Intermediate FBO pass A.
+        bufferB,///< Intermediate FBO pass B.
+        bufferC,///< Intermediate FBO pass C.
+        bufferD,///< Intermediate FBO pass D.
+        image,///< Main output pass (always present). Last = renders last.
+    };
+
+    /** @brief Populates the bimap — render order matches enum key order. */
+    Shaders()
+    {
+        map = {
+            { Shaders::common,  IDref::common  },
+            { Shaders::bufferA, IDref::bufferA },
+            { Shaders::bufferB, IDref::bufferB },
+            { Shaders::bufferC, IDref::bufferC },
+            { Shaders::bufferD, IDref::bufferD },
+            { Shaders::image,   IDref::image   },
+        };
+    }
+
+    /** @brief Returns the int→Identifier-stem map from the live context instance. */
+    static const auto& get() noexcept { return getInstance()->map; }
+
+    /**
+     * @brief Returns the shader project subdirectory for the given name.
+     *
+     * @param shadersName  Shader project directory name (e.g. "sea-at-night").
+     * @return             Resolved path: ~/.config/end/shaders/@p shadersName/
+     */
+    static const juce::File getPath (const juce::String& shadersName) noexcept
+    {
+        return path.getChildFile (shadersName);
+    }
+
+    /** @brief Shaders root directory: ~/.config/end/shaders/ */
+    inline static const juce::File path { File::getPath (IDref::shaders) };
+
+private:
+    const juce::String& getDefault() const noexcept override { return map.at (Shaders::image); }
+};
+
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace config
 
@@ -360,8 +319,8 @@ struct Map
     end::Position position;
     end::DropMode dropMode;
     config::File file;
-    config::File::Theme theme;
-    config::File::Shaders shaders;
+    config::Themes themes;
+    config::Shaders shaders;
     jam::map::WindowFX window;
     jam::map::Segment segment;
     jam::map::ButtonState button;

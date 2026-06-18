@@ -18,7 +18,7 @@
         <childnode refid="3" relation="include">
         </childnode>
       </node>
-      <node id="13">
+      <node id="14">
         <label>action/Registry.h</label>
         <link refid="_registry_8h"/>
         <childnode refid="3" relation="include">
@@ -33,8 +33,16 @@
         </childnode>
         <childnode refid="9" relation="include">
         </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
       </node>
       <node id="10">
+        <label>Directory.h</label>
+        <link refid="_directory_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
         <label>end/MessageOverlay.h</label>
         <link refid="_message_overlay_8h"/>
         <childnode refid="3" relation="include">
@@ -43,7 +51,7 @@
         </childnode>
         <childnode refid="8" relation="include">
         </childnode>
-        <childnode refid="11" relation="include">
+        <childnode refid="12" relation="include">
         </childnode>
       </node>
       <node id="6">
@@ -87,30 +95,30 @@
         </childnode>
         <childnode refid="4" relation="include">
         </childnode>
-        <childnode refid="10" relation="include">
+        <childnode refid="11" relation="include">
         </childnode>
-        <childnode refid="13" relation="include">
+        <childnode refid="14" relation="include">
         </childnode>
         <childnode refid="8" relation="include">
         </childnode>
-        <childnode refid="14" relation="include">
+        <childnode refid="15" relation="include">
         </childnode>
         <childnode refid="9" relation="include">
         </childnode>
       </node>
-      <node id="11">
+      <node id="12">
         <label>../lookAndFeel/LookAndFeel.h</label>
         <link refid="_look_and_feel_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
-        <childnode refid="12" relation="include">
+        <childnode refid="13" relation="include">
         </childnode>
         <childnode refid="7" relation="include">
         </childnode>
         <childnode refid="8" relation="include">
         </childnode>
       </node>
-      <node id="14">
+      <node id="15">
         <label>shader/Controller.h</label>
         <link refid="_controller_8h"/>
         <childnode refid="3" relation="include">
@@ -118,7 +126,7 @@
         <childnode refid="8" relation="include">
         </childnode>
       </node>
-      <node id="12">
+      <node id="13">
         <label>JamFontsBinaryData.h</label>
       </node>
       <node id="3">
@@ -151,7 +159,7 @@
 <codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classjuce_1_1Component_1a7cc925a367e95b3807255f8b4a94dddd" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">addAndMakeVisible</ref><sp/>(<ref refid="classend_1_1_view_1a7e6ee211dd7d9e06224826283296fa65" kindref="member">tabs</ref>);</highlight></codeline>
 <codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classjuce_1_1Component_1aed11b73938f89474ec0941fa89e36310" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">addChildComponent</ref><sp/>(<ref refid="classend_1_1_view_1a97bd88a9912af6789293637a52e8da3f" kindref="member">messageOverlay</ref>);</highlight></codeline>
 <codeline lineno="20"><highlight class="normal"></highlight></codeline>
-<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>[width,<sp/>height]<sp/>=<sp/><ref refid="namespaceconfig" kindref="compound">config</ref>.getInt<sp/>(IDtype::end,<sp/>ID::size);</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>[width,<sp/>height]<sp/>=<sp/><ref refid="namespaceconfig" kindref="compound">config</ref>.getInt<sp/>(IDtype::init,<sp/>ID::size);</highlight></codeline>
 <codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structjam_1_1Model_1_1Component_1a708164c4ae3e826d1c3ee90dbcf1afa3" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">state</ref>.setProperty<sp/>(<ref refid="structjam_1_1ID_1a3d0d8290681c62b75160843928ff3689" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::ID::width</ref>,<sp/>width,<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">);</highlight></codeline>
 <codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structjam_1_1Model_1_1Component_1a708164c4ae3e826d1c3ee90dbcf1afa3" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">state</ref>.setProperty<sp/>(<ref refid="structjam_1_1ID_1ab6389fe91d4bb010418fc3d930e869b6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::ID::height</ref>,<sp/>height,<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">);</highlight></codeline>
 <codeline lineno="24"><highlight class="normal"></highlight></codeline>
@@ -174,7 +182,7 @@
 <codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
 <codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Fire<sp/>window<sp/>events<sp/>for<sp/>initial<sp/>state<sp/>—<sp/>addListener<sp/>doesn&apos;t<sp/>replay.</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Uses<sp/>the<sp/>SAME<sp/>event<sp/>handlers<sp/>as<sp/>VTPC<sp/>hot-reload<sp/>(DRY/SSOT).</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>endTree<sp/>{<sp/><ref refid="namespaceconfig" kindref="compound">config</ref>.state.getChildWithName<sp/>(IDtype::end)<sp/>};</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>endTree<sp/>{<sp/><ref refid="namespaceconfig" kindref="compound">config</ref>.state.getChildWithName<sp/>(IDtype::init)<sp/>};</highlight></codeline>
 <codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classend_1_1_view_1a53296c1bef3150326d6cff63ba81ea7f" kindref="member">events</ref>.get<sp/>(ID::gpu,<sp/>endTree);</highlight></codeline>
 <codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classend_1_1_view_1a53296c1bef3150326d6cff63ba81ea7f" kindref="member">events</ref>.get<sp/>(ID::alwaysOnTop,<sp/>endTree);</highlight></codeline>
 <codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classend_1_1_view_1a53296c1bef3150326d6cff63ba81ea7f" kindref="member">events</ref>.get<sp/>(ID::titleBarButtons,<sp/>endTree);</highlight></codeline>
@@ -229,7 +237,7 @@
 <codeline lineno="96"><highlight class="normal"></highlight></codeline>
 <codeline lineno="97" refid="classend_1_1_view_1a91ed8ef126c0a1b3feb458079c3a7849" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classend_1_1_view_1a91ed8ef126c0a1b3feb458079c3a7849" kindref="member">View::setTabOrientation</ref>()</highlight></codeline>
 <codeline lineno="98"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>pos<sp/>{<sp/><ref refid="namespaceconfig" kindref="compound">config</ref>.getValue<sp/>(IDtype::end,<sp/>ID::tabOrientation).toString()<sp/>};</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>pos<sp/>{<sp/><ref refid="namespaceconfig" kindref="compound">config</ref>.getValue<sp/>(IDtype::init,<sp/>ID::tabOrientation).toString()<sp/>};</highlight></codeline>
 <codeline lineno="100"><highlight class="normal"></highlight></codeline>
 <codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="structjam_1_1Instance_1ad5d2bbb58e37d8d260b428b334823140" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">Position::getInstance</ref>()-&gt;<ref refid="classjuce_1_1Component_1a0063f788f01484e821535209c6938537" kindref="member" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">contains</ref><sp/>(pos))</highlight></codeline>
 <codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classend_1_1_view_1a7e6ee211dd7d9e06224826283296fa65" kindref="member">tabs</ref>.setOrientation<sp/>(<ref refid="structend_1_1_position_1a60c3eb56c5d84d1d92833502247abfdd" kindref="member">Position::get</ref><sp/>(pos));</highlight></codeline>

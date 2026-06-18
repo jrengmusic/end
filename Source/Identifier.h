@@ -184,7 +184,7 @@
     X (scrollTop, "scroll_top")                        \
     X (scrollBottom, "scroll_bottom")
 
-// Application runtime keys (end.lua sections) — excludes jam::ID: editor ("editor"),
+// Application runtime keys (init.lua sections) — excludes jam::ID: editor ("editor"),
 // cwd ("cwd"), image ("image"), mode ("mode"), interval ("interval")
 // jam::gpu has string "GPU" (uppercase) — "gpu" (lowercase) is a distinct lua key, declared here
 #define IDENTIFIER_APP(X)                 \
@@ -209,7 +209,7 @@
     X (command, "command")   \
     X (modal, "modal")
 
-// Action entry keys (end.lua actions section)
+// Action entry keys (init.lua actions section)
 #define IDENTIFIER_ACTIONS(X)      \
     X (description, "description") \
     X (execute, "execute")
@@ -260,8 +260,8 @@
 // common ("Common") and image ("Image") shadow jam::ID lowercase versions intentionally —
 // these match the Shadertoy on-disk filenames (uppercase first letter).
 // background shadows jam::ID::background intentionally — END's ID struct is separate from jam::ID.
-// iChannel0..3 mirror the GLSL uniform keyword names declared in Source/shaders/shader.frag —
-// the C++ side uses them as iChannel slot identifiers (config::File::Shaders::Buffer).
+// iChannel0..3 mirror the GLSL uniform keyword names declared in Source/shader/wrapper.frag —
+// the C++ side uses them as iChannel slot identifiers in config::Shaders.
 #define IDENTIFIER_SHADER(X)                    \
     X (iResolution, "iResolution")              \
     X (iTime, "iTime")                          \

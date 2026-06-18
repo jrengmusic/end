@@ -18,7 +18,7 @@ View::View (jam::Model& m)
     addAndMakeVisible (tabs);
     addChildComponent (messageOverlay);
 
-    auto [width, height] = config.getInt (IDtype::end, ID::size);
+    auto [width, height] = config.getInt (IDtype::init, ID::size);
     state.setProperty (jam::ID::width, width, nullptr);
     state.setProperty (jam::ID::height, height, nullptr);
 
@@ -41,7 +41,7 @@ View::View (jam::Model& m)
         {
             // Fire window events for initial state — addListener doesn't replay.
             // Uses the SAME event handlers as VTPC hot-reload (DRY/SSOT).
-            auto endTree { config.state.getChildWithName (IDtype::end) };
+            auto endTree { config.state.getChildWithName (IDtype::init) };
             events.get (ID::gpu, endTree);
             events.get (ID::alwaysOnTop, endTree);
             events.get (ID::titleBarButtons, endTree);
@@ -96,7 +96,7 @@ void View::setViewState (int width, int height)
 
 void View::setTabOrientation()
 {
-    auto pos { config.getValue (IDtype::end, ID::tabOrientation).toString() };
+    auto pos { config.getValue (IDtype::init, ID::tabOrientation).toString() };
 
     if (Position::getInstance()->contains (pos))
         tabs.setOrientation (Position::get (pos));

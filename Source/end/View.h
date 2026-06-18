@@ -54,14 +54,11 @@ public:
     /** @brief Destructs the View, removing all listeners and the key listener. */
     ~View() override;
 
-    /** @brief Updates view state dimensions, lays out tabs/messageOverlay, resizes shader pipeline FBOs.
+    /** @brief Updates view-state dimensions and lays out tabs and the message overlay.
      *
-     *  Writes the current width and height into the view state tree, then
-     *  bounds both @c tabs and @c messageOverlay to @c getLocalBounds(). Also
-     *  calls @c shader.resizeViewport(w, h) to re-initialise every buffer-pass
-     *  FBO at the new dimensions and clear them for first-frame determinism
-     *  after a resize. View tells Controller to resize; Controller manages
-     *  its own FBO state.
+     *  Writes the current width and height into the view state tree via
+     *  @c setViewState, then bounds both @c tabs and @c messageOverlay to
+     *  @c getLocalBounds().
      */
     void resized() override;
 
@@ -117,7 +114,7 @@ private:
     /** @brief Populates the events map with ValueTree property/type-keyed callbacks.
      *
      *  Registers handlers for: loadMessage (shows config load message overlay),
-     *  tabOrientation (applies tab orientation from end.lua config), focus (updates focusedPane
+     *  tabOrientation (applies tab orientation from init.lua config), focus (updates focusedPane
      *  state), theme (propagates LookAndFeel change),
      *  graphics and tabButton tree types (propagate LookAndFeel change),
      *  alwaysOnTop and titleBarButtons (dispatch to jam::Window),
@@ -126,7 +123,7 @@ private:
      */
     void registerEvents();
 
-    /** @brief Reads tab orientation from end.lua config and applies it to tabs. */
+    /** @brief Reads tab orientation from init.lua config and applies it to tabs. */
     void setTabOrientation();
 
     /** @brief Writes the view dimensions into the view state tree.

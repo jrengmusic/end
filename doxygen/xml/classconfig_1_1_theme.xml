@@ -2,28 +2,49 @@
 <doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.16.1" xml:lang="en-US">
   <compounddef id="classconfig_1_1_theme" kind="class" language="C++" prot="public">
     <compoundname>config::Theme</compoundname>
-    <basecompoundref refid="classjam_1_1Model" prot="public" virt="non-virtual">jam::Model</basecompoundref>
+    <basecompoundref refid="classconfig_1_1_directory" prot="public" virt="non-virtual">config::Directory</basecompoundref>
     <includes refid="_config_8h" local="no">Config.h</includes>
+    <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classconfig_1_1_theme_1af85373792e04e1e72874efc010dbd02f" prot="private" static="no" mutable="no">
+        <type><ref refid="structjam_1_1Function_1_1Map" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Function::Map</ref>&lt; <ref refid="classjuce_1_1String" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::String</ref>, void &gt;</type>
+        <definition>jam::Function::Map&lt;juce::String, void&gt; config::Theme::graphicsCallbacks</definition>
+        <argsstring></argsstring>
+        <name>graphicsCallbacks</name>
+        <qualifiedname>config::Theme::graphicsCallbacks</qualifiedname>
+        <briefdescription>
+<para>SVG filename to <computeroutput>sendPropertyChangeMessage</computeroutput> callback map. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Rebuilt by <computeroutput><ref refid="classconfig_1_1_theme_1ab4b7a2e3123ac1dd7656921461e311af" kindref="member">buildGraphicsCallbacks()</ref></computeroutput> after every disk load. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="config/Config.h" line="172" column="24" bodyfile="config/Config.h" bodystart="172" bodyend="-1"/>
+        <referencedby refid="classconfig_1_1_theme_1ab4b7a2e3123ac1dd7656921461e311af" compoundref="_config_8cpp" startline="270" endline="302">buildGraphicsCallbacks</referencedby>
+        <referencedby refid="classconfig_1_1_theme_1a605ca54b6d1b90d93279fec757193458" compoundref="_config_8cpp" startline="254" endline="268">fileChanged</referencedby>
+      </memberdef>
+    </sectiondef>
     <sectiondef kind="public-func">
-      <memberdef kind="function" id="classconfig_1_1_theme_1aa2ffde18a91b4c82af7d11769f83fd54" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+      <memberdef kind="function" id="classconfig_1_1_theme_1aa182b80d05df79ff89ef029ccbf35c80" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
         <type></type>
         <definition>config::Theme::Theme</definition>
-        <argsstring>()=default</argsstring>
+        <argsstring>()</argsstring>
         <name>Theme</name>
         <qualifiedname>config::Theme::Theme</qualifiedname>
         <briefdescription>
+<para>Constructs with treeType = themes. </para>
         </briefdescription>
         <detaileddescription>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="43" column="5"/>
-        <referencedby refid="classconfig_1_1_theme_1a3e1176f2fff32ac9705aa7786f4b4c3e">~Theme</referencedby>
+        <location file="config/Config.h" line="101" column="5" bodyfile="config/Config.h" bodystart="101" bodyend="104"/>
+        <references refid="classconfig_1_1_directory_1ac8ce84c9839b82153f0f80c92a9fa672" compoundref="_directory_8h" startline="40" endline="40">config::Directory::Directory</references>
       </memberdef>
-      <memberdef kind="function" id="classconfig_1_1_theme_1a3e1176f2fff32ac9705aa7786f4b4c3e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+      <memberdef kind="function" id="classconfig_1_1_theme_1afe2d32aab8c6763fd2ee8b7b84083aeb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type></type>
         <definition>config::Theme::~Theme</definition>
-        <argsstring>()=default</argsstring>
+        <argsstring>() override=default</argsstring>
         <name>~Theme</name>
         <qualifiedname>config::Theme::~Theme</qualifiedname>
         <briefdescription>
@@ -32,29 +53,54 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="44" column="5"/>
-        <references refid="classconfig_1_1_theme_1aa2ffde18a91b4c82af7d11769f83fd54">Theme</references>
+        <location file="config/Config.h" line="106" column="5"/>
       </memberdef>
-      <memberdef kind="function" id="classconfig_1_1_theme_1ad1c552afe63e04ce01d6479bdd197996" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+    </sectiondef>
+    <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classconfig_1_1_theme_1a0c350ee3844fcceaa5d9d68023ae6cdd" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
         <type>void</type>
-        <definition>void config::Theme::load</definition>
-        <argsstring>(const juce::Identifier &amp;themeName)</argsstring>
-        <name>load</name>
-        <qualifiedname>config::Theme::load</qualifiedname>
-        <param>
-          <type>const <ref refid="classjuce_1_1Identifier" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::Identifier</ref> &amp;</type>
-          <declname>themeName</declname>
-        </param>
+        <definition>void config::Theme::initialise</definition>
+        <argsstring>() override</argsstring>
+        <name>initialise</name>
+        <qualifiedname>config::Theme::initialise</qualifiedname>
+        <reimplements refid="classconfig_1_1_directory_1ad22b695ac4e5bc7c68bd2b72478e47dc">initialise</reimplements>
         <briefdescription>
-<para>Rebuilds the theme state tree from the given theme directory. </para>
+<para>Builds the default theme tree from <ref refid="namespaceBinaryData" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">BinaryData</ref> — required so <computeroutput>saveToPath</computeroutput> can walk the tree for SVG filenames. </para>
         </briefdescription>
         <detaileddescription>
+<para>For each <computeroutput><ref refid="structconfig_1_1_themes_1a75ef807eb5feb2ef9c9af61a265f21b7" kindref="member">config::Themes::get()</ref></computeroutput> entry, runs the <ref refid="namespaceBinaryData" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">BinaryData</ref> lua source through <computeroutput><ref refid="classjam_1_1Model_1ada224019e4715d61684005a054d351e9" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Model::fromLua</ref></computeroutput> and appends the result to <computeroutput>state</computeroutput>. Called fresh on every <computeroutput><ref refid="classconfig_1_1_directory_1a1ea8c2e469d5d9c789fcc7aa117c2cb8" kindref="member">load()</ref></computeroutput> cycle before disk ops. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="config/Config.h" line="116" column="10" bodyfile="config/Config.cpp" bodystart="178" bodyend="190"/>
+        <references refid="classjam_1_1Model_1ada224019e4715d61684005a054d351e9">jam::Model::fromLua</references>
+        <references refid="structconfig_1_1_themes_1a75ef807eb5feb2ef9c9af61a265f21b7" compoundref="_bimap_8h" startline="207" endline="207">config::Themes::get</references>
+        <references refid="structconfig_1_1_themes_1a48be35feb4087a7891dd6a41a8674f18" compoundref="_bimap_8h" startline="215" endline="218">config::Themes::getName</references>
+        <references refid="namespaceBinaryData_1ac7695032563aaf6d03ebfc469298bb1a">BinaryData::getString</references>
+        <references refid="classjam_1_1Model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+      </memberdef>
+      <memberdef kind="function" id="classconfig_1_1_theme_1ae67d41c767ef6a64290e495bf2522487" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void config::Theme::saveToPath</definition>
+        <argsstring>(const juce::File &amp;dir) override</argsstring>
+        <name>saveToPath</name>
+        <qualifiedname>config::Theme::saveToPath</qualifiedname>
+        <reimplements refid="classconfig_1_1_directory_1a4a70f2587a465bbdd46ffebf13e8fb8c">saveToPath</reimplements>
+        <param>
+          <type>const <ref refid="classjuce_1_1File" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::File</ref> &amp;</type>
+          <declname>dir</declname>
+        </param>
+        <briefdescription>
+<para>Writes each theme lua file and every graphics SVG into <computeroutput>dir</computeroutput> inline. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Guards on <computeroutput>dir.getFullPathName()</computeroutput>.isNotEmpty(). Uses a local lambda to write each file only when absent and the <ref refid="namespaceBinaryData" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">BinaryData</ref> entry exists. Calls <computeroutput><ref refid="structjam_1_1File_1a2c41a1b1d9c179ea1027724e3109c1d6" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::File::getOrCreateDirectory</ref></computeroutput> to create <computeroutput>dir</computeroutput> before writing, then walks <computeroutput>state</computeroutput> via <computeroutput><ref refid="classjam_1_1Model_1a59b57627d856a11d756eabe1690a7213" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Model::applyFunctionRecursively</ref></computeroutput> reading <computeroutput>ID::graphics</computeroutput> (<computeroutput><ref refid="classjam_1_1Model_1ad7d29cc11027835e39f6bb1c5bbe3677" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Model::toStringArray</ref></computeroutput>) and writes each non-empty SVG name to the graphics subdirectory.</para>
 <para><parameterlist kind="param"><parameteritem>
 <parameternamelist>
-<parametername>themeName</parametername>
+<parametername>dir</parametername>
 </parameternamelist>
 <parameterdescription>
-<para><ref refid="classconfig_1_1_theme" kindref="compound">Theme</ref> directory name (e.g. <computeroutput>&quot;gfx&quot;</computeroutput>). </para>
+<para><ref refid="classconfig_1_1_theme" kindref="compound">Theme</ref> directory to write into (may be invalid if empty name). </para>
 </parameterdescription>
 </parameteritem>
 </parameterlist>
@@ -62,114 +108,340 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="49" column="10" bodyfile="config/Config.cpp" bodystart="282" bodyend="314"/>
+        <location file="config/Config.h" line="129" column="10" bodyfile="config/Config.cpp" bodystart="192" bodyend="227"/>
+        <references refid="classjam_1_1Model_1a59b57627d856a11d756eabe1690a7213">jam::Model::applyFunctionRecursively</references>
         <references refid="structBinaryData_1_1Raw_1a50f1331dd30f0df2d6614a9c67be4a66">BinaryData::Raw::data</references>
         <references refid="structBinaryData_1_1Raw_1aba1e79d5ef693005937990ddf2fe3363">BinaryData::Raw::exists</references>
         <references refid="classjuce_1_1File_1a37e88fbc390d78f3d79675974f53fa78">juce::File::existsAsFile</references>
-        <references refid="classjam_1_1Model_1ada224019e4715d61684005a054d351e9">jam::Model::fromLua</references>
-        <references refid="structconfig_1_1_file_1_1_theme_1a259522514f9d57dccbffc3e3f1349a7f" compoundref="_bimap_8h" startline="200" endline="200">config::File::Theme::get</references>
-        <references refid="structconfig_1_1_file_1_1_theme_1aae7b0309384b8333ee5d8daa47406edb" compoundref="_bimap_8h" startline="206" endline="209">config::File::Theme::getName</references>
-        <references refid="structconfig_1_1_file_1_1_theme_1a1a4f485d0cd842d77061933a01b1a55c" compoundref="_bimap_8h" startline="215" endline="218">config::File::Theme::getPath</references>
-        <references refid="classconfig_1_1_theme_1ad1c552afe63e04ce01d6479bdd197996" compoundref="_config_8cpp" startline="282" endline="314">load</references>
-        <references refid="classjuce_1_1File_1aa65d2fa50370357bf93658d6447c296d">juce::File::loadFileAsString</references>
+        <references refid="structconfig_1_1_themes_1a75ef807eb5feb2ef9c9af61a265f21b7" compoundref="_bimap_8h" startline="207" endline="207">config::Themes::get</references>
+        <references refid="classjuce_1_1File_1a57b992aacb19e09ee5905cd0f0e9bb31">juce::File::getChildFile</references>
+        <references refid="classjuce_1_1File_1a5309789281ea7721eb832d21da99708f">juce::File::getFileName</references>
+        <references refid="classjuce_1_1File_1a515fa016b189068f365cc875e241e2a1">juce::File::getFullPathName</references>
+        <references refid="structconfig_1_1_themes_1a48be35feb4087a7891dd6a41a8674f18" compoundref="_bimap_8h" startline="215" endline="218">config::Themes::getName</references>
+        <references refid="structjam_1_1File_1a2c41a1b1d9c179ea1027724e3109c1d6">jam::File::getOrCreateDirectory</references>
+        <references refid="classjuce_1_1File_1ab6bec65fbcf19ce10e38cf9d1015770d">juce::File::getParentDirectory</references>
+        <references refid="classjuce_1_1ValueTree_1ab584e972c5f8e597f545e6321a895d06">juce::ValueTree::getProperty</references>
+        <references refid="structjam_1_1IDref_1aa73fb0ae4fb0b8c627f2e2f9e34c79a1">jam::IDref::graphics</references>
+        <references refid="classjuce_1_1String_1af5084463343819f82187154ccb62ea3a">juce::String::isNotEmpty</references>
         <references refid="classjuce_1_1File_1a5359ab794e314e7bbfe91140cb0120fa">juce::File::replaceWithData</references>
         <references refid="structBinaryData_1_1Raw_1aa6b91267d82ca52f42b607aa0064a05d">BinaryData::Raw::size</references>
         <references refid="classjam_1_1Model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
-        <references refid="classjuce_1_1Identifier_1ab6f0db1de2c36cacd1a9d7280f73aeeb">juce::Identifier::toString</references>
+        <references refid="classjam_1_1Model_1ad7d29cc11027835e39f6bb1c5bbe3677">jam::Model::toStringArray</references>
+      </memberdef>
+      <memberdef kind="function" id="classconfig_1_1_theme_1a6d4ca39c5481082070ba546736a2f25b" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void config::Theme::loadFromPath</definition>
+        <argsstring>(const juce::File &amp;dir) override</argsstring>
+        <name>loadFromPath</name>
+        <qualifiedname>config::Theme::loadFromPath</qualifiedname>
+        <reimplements refid="classconfig_1_1_directory_1a51328cf49c3096beaca962a2a9b1db30">loadFromPath</reimplements>
+        <param>
+          <type>const <ref refid="classjuce_1_1File" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::File</ref> &amp;</type>
+          <declname>dir</declname>
+        </param>
+        <briefdescription>
+<para>Clears <computeroutput>state</computeroutput>, reads each lua from disk, rebuilds graphics callbacks, then fires <computeroutput>state.sendPropertyChangeMessage(ID::theme)</computeroutput>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><computeroutput>state.removeAllChildren()</computeroutput> first. If <computeroutput>dir.isDirectory()</computeroutput>, for each <computeroutput><ref refid="structconfig_1_1_themes_1a75ef807eb5feb2ef9c9af61a265f21b7" kindref="member">config::Themes::get()</ref></computeroutput> entry reads the file from disk through <computeroutput><ref refid="classjam_1_1Model_1ada224019e4715d61684005a054d351e9" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Model::fromLua</ref></computeroutput> and appends the result child to <computeroutput>state</computeroutput>. Always calls <computeroutput><ref refid="classconfig_1_1_theme_1ab4b7a2e3123ac1dd7656921461e311af" kindref="member">buildGraphicsCallbacks()</ref></computeroutput> then <computeroutput>state.sendPropertyChangeMessage(ID::theme)</computeroutput> last.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dir</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classconfig_1_1_theme" kindref="compound">Theme</ref> directory to read from. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="config/Config.h" line="142" column="10" bodyfile="config/Config.cpp" bodystart="229" bodyend="252"/>
+        <references refid="classconfig_1_1_theme_1ab4b7a2e3123ac1dd7656921461e311af" compoundref="_config_8cpp" startline="270" endline="302">buildGraphicsCallbacks</references>
+        <references refid="classjuce_1_1File_1a37e88fbc390d78f3d79675974f53fa78">juce::File::existsAsFile</references>
+        <references refid="classjam_1_1Model_1ada224019e4715d61684005a054d351e9">jam::Model::fromLua</references>
+        <references refid="structconfig_1_1_themes_1a75ef807eb5feb2ef9c9af61a265f21b7" compoundref="_bimap_8h" startline="207" endline="207">config::Themes::get</references>
+        <references refid="classjuce_1_1File_1a57b992aacb19e09ee5905cd0f0e9bb31">juce::File::getChildFile</references>
+        <references refid="structconfig_1_1_themes_1a48be35feb4087a7891dd6a41a8674f18" compoundref="_bimap_8h" startline="215" endline="218">config::Themes::getName</references>
+        <references refid="classjuce_1_1File_1a18538c2901eeed52e291f67e16150dda">juce::File::isDirectory</references>
+        <references refid="classjuce_1_1File_1aa65d2fa50370357bf93658d6447c296d">juce::File::loadFileAsString</references>
+        <references refid="classjam_1_1Model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
         <references refid="classjuce_1_1String_1a1e7124c97cfb142b269080422fcba540">juce::String::toUpperCase</references>
-        <referencedby refid="classconfig_1_1_theme_1ad1c552afe63e04ce01d6479bdd197996" compoundref="_config_8cpp" startline="282" endline="314">load</referencedby>
+        <referencedby refid="classconfig_1_1_theme_1a605ca54b6d1b90d93279fec757193458" compoundref="_config_8cpp" startline="254" endline="268">fileChanged</referencedby>
+      </memberdef>
+      <memberdef kind="function" id="classconfig_1_1_theme_1a605ca54b6d1b90d93279fec757193458" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void config::Theme::fileChanged</definition>
+        <argsstring>(const juce::File &amp;file, jam::File::Watcher::Event event) override</argsstring>
+        <name>fileChanged</name>
+        <qualifiedname>config::Theme::fileChanged</qualifiedname>
+        <reimplements refid="classjam_1_1File_1_1Watcher_1_1Listener_1a138401762ba6d0915d2adb5b0a81486f">fileChanged</reimplements>
+        <param>
+          <type>const <ref refid="classjuce_1_1File" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::File</ref> &amp;</type>
+          <declname>file</declname>
+        </param>
+        <param>
+          <type><ref refid="structjam_1_1File_1_1Watcher_1a67463011ada054bc1dc66cdf49d446f2" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::File::Watcher::Event</ref></type>
+          <declname>event</declname>
+        </param>
+        <briefdescription>
+<para>Dispatches theme and SVG file changes. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>On <computeroutput>fileUpdated:</computeroutput> if the extension matches <computeroutput><ref refid="structconfig_1_1_themes_1ac8b1b388c34092c41edcb9ede0de5d41" kindref="member">config::Themes::extension</ref></computeroutput> — calls <computeroutput>loadFromPath</computeroutput>(file.getParentDirectory()); <computeroutput>loadFromPath</computeroutput> handles the notify. If extension matches <computeroutput><ref refid="structjam_1_1IDref_1af1bbf60b671b097a475e22b3296a4b83" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::IDref::svg</ref></computeroutput> — looks up the filename in <computeroutput>graphicsCallbacks</computeroutput> and calls the stored callback.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>file</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The file that changed. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>event</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Change event type. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="config/Config.h" line="154" column="10" bodyfile="config/Config.cpp" bodystart="254" bodyend="268"/>
+        <references refid="structconfig_1_1_themes_1ac8b1b388c34092c41edcb9ede0de5d41" compoundref="_bimap_8h" startline="234" endline="234">config::Themes::extension</references>
+        <references refid="classjuce_1_1File_1a5309789281ea7721eb832d21da99708f">juce::File::getFileName</references>
+        <references refid="classjuce_1_1File_1ab6bec65fbcf19ce10e38cf9d1015770d">juce::File::getParentDirectory</references>
+        <references refid="classconfig_1_1_theme_1af85373792e04e1e72874efc010dbd02f" compoundref="_config_8h" startline="172">graphicsCallbacks</references>
+        <references refid="classjuce_1_1File_1aeb95d4b90429613bca223acc6dc0d0bf">juce::File::hasFileExtension</references>
+        <references refid="classconfig_1_1_theme_1a6d4ca39c5481082070ba546736a2f25b" compoundref="_config_8cpp" startline="229" endline="252">loadFromPath</references>
+        <references refid="structjam_1_1IDref_1af1bbf60b671b097a475e22b3296a4b83">jam::IDref::svg</references>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="private-func">
+      <memberdef kind="function" id="classconfig_1_1_theme_1ab4b7a2e3123ac1dd7656921461e311af" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void config::Theme::buildGraphicsCallbacks</definition>
+        <argsstring>()</argsstring>
+        <name>buildGraphicsCallbacks</name>
+        <qualifiedname>config::Theme::buildGraphicsCallbacks</qualifiedname>
+        <briefdescription>
+<para>Rebuilds <computeroutput>graphicsCallbacks</computeroutput> from the live <computeroutput>state</computeroutput> tree. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Clears the map, then walks <computeroutput>state</computeroutput> via <computeroutput><ref refid="classjam_1_1Model_1a59b57627d856a11d756eabe1690a7213" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Model::applyFunctionRecursively</ref></computeroutput> reading the <computeroutput>ID::graphics</computeroutput> property (<computeroutput><ref refid="classjam_1_1Model_1ad7d29cc11027835e39f6bb1c5bbe3677" kindref="member" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::Model::toStringArray</ref></computeroutput>) on each node. For each non-empty filename builds a callback that fires <computeroutput>state.sendPropertyChangeMessage</computeroutput> on the matching identifier — either the button-state suffix (when present in <computeroutput><ref refid="structjam_1_1map_1_1ButtonState" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">jam::map::ButtonState</ref></computeroutput>) or the bare stem. Called at the end of every <computeroutput><ref refid="classconfig_1_1_theme_1a6d4ca39c5481082070ba546736a2f25b" kindref="member">loadFromPath()</ref></computeroutput>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="config/Config.h" line="167" column="10" bodyfile="config/Config.cpp" bodystart="270" bodyend="302"/>
+        <references refid="classjam_1_1Model_1a59b57627d856a11d756eabe1690a7213">jam::Model::applyFunctionRecursively</references>
+        <references refid="structjam_1_1Format_1a2b0e4c817d4ed554673421a4ce452201">jam::Format::getFilenameWithoutExtension</references>
+        <references refid="structjam_1_1Instance_1ad5d2bbb58e37d8d260b428b334823140">jam::Instance&lt; Derived &gt;::getInstance</references>
+        <references refid="classjuce_1_1ValueTree_1ab584e972c5f8e597f545e6321a895d06">juce::ValueTree::getProperty</references>
+        <references refid="classconfig_1_1_theme_1af85373792e04e1e72874efc010dbd02f" compoundref="_config_8h" startline="172">graphicsCallbacks</references>
+        <references refid="classjam_1_1Model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
+        <references refid="classjam_1_1Model_1ad7d29cc11027835e39f6bb1c5bbe3677">jam::Model::toStringArray</references>
+        <referencedby refid="classconfig_1_1_theme_1a6d4ca39c5481082070ba546736a2f25b" compoundref="_config_8cpp" startline="229" endline="252">loadFromPath</referencedby>
       </memberdef>
     </sectiondef>
     <briefdescription>
-<para><ref refid="classconfig_1_1_theme" kindref="compound">Theme</ref> state model — owns the live ValueTree of theme lua files. </para>
+<para><ref refid="classconfig_1_1_theme" kindref="compound">Theme</ref> state model — <computeroutput><ref refid="classconfig_1_1_directory" kindref="compound">config::Directory</ref></computeroutput> subclass that owns the live ValueTree of theme lua files and SVG graphics callbacks. </para>
     </briefdescription>
     <detaileddescription>
-<para>Reads theme.lua and whelmed.lua from the active theme directory and rebuilds the live state tree. Used by <ref refid="classend_1_1_look_and_feel" kindref="compound">end::LookAndFeel</ref> for colour, font, and graphics resolution. </para>
+<para>Manages the full lifecycle for a named theme subdirectory passed as a resolved <computeroutput><ref refid="classjuce_1_1File" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::File</ref>:</computeroutput> </para>
+<para><itemizedlist>
+<listitem><para><computeroutput><ref refid="classconfig_1_1_theme_1a0c350ee3844fcceaa5d9d68023ae6cdd" kindref="member">initialise()</ref></computeroutput> builds the default tree from <ref refid="namespaceBinaryData" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">BinaryData</ref> (theme.lua, whelmed.lua) so that <computeroutput>saveToPath</computeroutput> can walk it for SVG filenames.</para>
+</listitem><listitem><para><computeroutput>saveToPath(dir)</computeroutput> writes each theme lua and every graphics SVG listed in the tree into <computeroutput>dir</computeroutput> inline via a local lambda — no shared write method.</para>
+</listitem><listitem><para><computeroutput>loadFromPath(dir)</computeroutput> clears <computeroutput>state</computeroutput>, reads each lua from disk into the tree, rebuilds <computeroutput>graphicsCallbacks</computeroutput>, then fires <computeroutput>state.sendPropertyChangeMessage(ID::theme)</computeroutput> last.</para>
+</listitem><listitem><para><computeroutput>fileChanged(...)</computeroutput> on <computeroutput>fileUpdated</computeroutput> for <computeroutput></computeroutput>.lua — calls <computeroutput>loadFromPath</computeroutput> (which handles the notify); for <computeroutput></computeroutput>.svg — dispatches via <computeroutput>graphicsCallbacks</computeroutput>.</para>
+</listitem></itemizedlist>
+</para>
+<para>LookAndFeel listens on the <computeroutput>ID::theme</computeroutput> notify channel.</para>
+<para><simplesect kind="see"><para><ref refid="classconfig_1_1_directory" kindref="compound">config::Directory</ref> </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classend_1_1_look_and_feel" kindref="compound">end::LookAndFeel</ref> </para>
+</simplesect>
+</para>
     </detaileddescription>
     <inheritancegraph>
+      <node id="2">
+        <label>config::Directory</label>
+        <link refid="classconfig_1_1_directory"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+        <childnode refid="6" relation="public-inheritance">
+        </childnode>
+      </node>
       <node id="1">
         <label>config::Theme</label>
         <link refid="classconfig_1_1_theme"/>
         <childnode refid="2" relation="public-inheritance">
         </childnode>
       </node>
-      <node id="2">
-        <label>jam::Model</label>
-        <link refid="classjam_1_1Model" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-        <childnode refid="3" relation="public-inheritance">
-        </childnode>
-        <childnode refid="4" relation="public-inheritance">
-        </childnode>
+      <node id="6">
+        <label>jam::File::Watcher::Listener</label>
+        <link refid="classjam_1_1File_1_1Watcher_1_1Listener" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
       <node id="3">
+        <label>jam::Model</label>
+        <link refid="classjam_1_1Model" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
         <label>juce::Timer</label>
         <link refid="classjuce_1_1Timer" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="4">
+      <node id="5">
         <label>juce::ValueTree::Listener</label>
         <link refid="classjuce_1_1ValueTree_1_1Listener" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
     </inheritancegraph>
     <collaborationgraph>
+      <node id="2">
+        <label>config::Directory</label>
+        <link refid="classconfig_1_1_directory"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+        <childnode refid="11" relation="public-inheritance">
+        </childnode>
+        <childnode refid="12" relation="usage">
+          <edgelabel>watcher</edgelabel>
+        </childnode>
+      </node>
       <node id="1">
         <label>config::Theme</label>
         <link refid="classconfig_1_1_theme"/>
         <childnode refid="2" relation="public-inheritance">
         </childnode>
+        <childnode refid="19" relation="usage">
+          <edgelabel>graphicsCallbacks</edgelabel>
+        </childnode>
       </node>
-      <node id="5">
+      <node id="6">
         <label>jam::AnyMap</label>
         <link refid="classjam_1_1AnyMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-        <childnode refid="6" relation="usage">
+        <childnode refid="7" relation="usage">
           <edgelabel>entries</edgelabel>
         </childnode>
-        <childnode refid="7" relation="usage">
+        <childnode refid="8" relation="usage">
           <edgelabel>types</edgelabel>
         </childnode>
       </node>
-      <node id="7">
+      <node id="12">
+        <label>jam::File::Watcher</label>
+        <link refid="structjam_1_1File_1_1Watcher" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="13" relation="usage">
+          <edgelabel>timers</edgelabel>
+        </childnode>
+        <childnode refid="17" relation="usage">
+          <edgelabel>listeners</edgelabel>
+        </childnode>
+        <childnode refid="18" relation="usage">
+          <edgelabel>watched</edgelabel>
+        </childnode>
+      </node>
+      <node id="16">
+        <label>jam::File::Watcher::CoalesceTimer</label>
+        <link refid="structjam_1_1File_1_1Watcher_1_1CoalesceTimer" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+        <childnode refid="12" relation="usage">
+          <edgelabel>owner</edgelabel>
+        </childnode>
+        <childnode refid="14" relation="usage">
+          <edgelabel>f</edgelabel>
+        </childnode>
+      </node>
+      <node id="11">
+        <label>jam::File::Watcher::Listener</label>
+        <link refid="classjam_1_1File_1_1Watcher_1_1Listener" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
+      <node id="19">
+        <label>jam::Function::Map&lt; juce::String, void &gt;</label>
+        <link refid="structjam_1_1Function_1_1Map" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+        <childnode refid="20" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="20">
+        <label>jam::HashMap&lt; KeyType, std::unique_ptr&lt; Function::Common &gt; &gt;</label>
+        <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
+      </node>
+      <node id="8">
         <label>jam::HashMap&lt; juce::Identifier, std::type_index &gt;</label>
         <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
-      <node id="6">
+      <node id="7">
         <label>jam::HashMap&lt; juce::Identifier, std::unique_ptr&lt; void, Deleter &gt; &gt;</label>
         <link refid="classjam_1_1HashMap" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
       </node>
-      <node id="2">
+      <node id="3">
         <label>jam::Model</label>
         <link refid="classjam_1_1Model" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml"/>
-        <childnode refid="3" relation="public-inheritance">
-        </childnode>
         <childnode refid="4" relation="public-inheritance">
         </childnode>
-        <childnode refid="5" relation="usage">
+        <childnode refid="5" relation="public-inheritance">
+        </childnode>
+        <childnode refid="6" relation="usage">
           <edgelabel>params</edgelabel>
         </childnode>
-        <childnode refid="8" relation="usage">
+        <childnode refid="9" relation="usage">
           <edgelabel>state</edgelabel>
         </childnode>
-        <childnode refid="9" relation="usage">
+        <childnode refid="10" relation="usage">
           <edgelabel>valueTreeChanging</edgelabel>
         </childnode>
       </node>
-      <node id="9">
+      <node id="10">
         <label>juce::CriticalSection</label>
         <link refid="classjuce_1_1CriticalSection" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="3">
+      <node id="14">
+        <label>juce::File</label>
+        <link refid="classjuce_1_1File" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="17">
+        <label>juce::ListenerList&lt; jam::File::Watcher::Listener &gt;</label>
+        <link refid="classjuce_1_1ListenerList" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="18">
+        <label>juce::OwnedArray&lt; Impl &gt;</label>
+        <link refid="classjuce_1_1OwnedArray" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
+      </node>
+      <node id="4">
         <label>juce::Timer</label>
         <link refid="classjuce_1_1Timer" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="8">
+      <node id="9">
         <label>juce::ValueTree</label>
         <link refid="classjuce_1_1ValueTree" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
-      <node id="4">
+      <node id="5">
         <label>juce::ValueTree::Listener</label>
         <link refid="classjuce_1_1ValueTree_1_1Listener" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml"/>
       </node>
+      <node id="13">
+        <label>std::map&lt; juce::File, std::unique_ptr&lt; jam::File::Watcher::CoalesceTimer &gt; &gt;</label>
+        <childnode refid="14" relation="usage">
+          <edgelabel>keys</edgelabel>
+        </childnode>
+        <childnode refid="15" relation="usage">
+          <edgelabel>elements</edgelabel>
+        </childnode>
+      </node>
+      <node id="15">
+        <label>std::unique_ptr&lt; jam::File::Watcher::CoalesceTimer &gt;</label>
+        <childnode refid="16" relation="usage">
+          <edgelabel>ptr</edgelabel>
+        </childnode>
+      </node>
     </collaborationgraph>
-    <location file="config/Config.h" line="40" column="1" bodyfile="config/Config.h" bodystart="41" bodyend="53"/>
+    <location file="config/Config.h" line="97" column="1" bodyfile="config/Config.h" bodystart="98" bodyend="175"/>
     <listofallmembers>
       <member refid="classjam_1_1Model_1ae5d4d70e706dcc558cf21923125a9176" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>addListener</name></member>
       <member refid="classjam_1_1Model_1ac78b7437a06da378bf49cbd4f27bfc63" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>addProperties</name></member>
@@ -177,11 +449,16 @@
       <member refid="classjam_1_1Model_1ae0cb2cc2b04acb47eb9760d92dcedc46" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>appendChild</name></member>
       <member refid="classjam_1_1Model_1a59b57627d856a11d756eabe1690a7213" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>applyFunctionRecursively</name></member>
       <member refid="classjam_1_1Model_1a60083575b158241a4921488754e168a9" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>applyFunctionRecursively</name></member>
+      <member refid="classconfig_1_1_theme_1ab4b7a2e3123ac1dd7656921461e311af" prot="private" virt="non-virtual"><scope>config::Theme</scope><name>buildGraphicsCallbacks</name></member>
       <member refid="classjuce_1_1Timer_1a5eb2dfa3e6810c268704c159ddcb37bc" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>callAfterDelay</name></member>
       <member refid="classjuce_1_1Timer_1a6c366b7f5a5d70c270a1e85b8aa45888" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>callPendingTimersSynchronously</name></member>
+      <member refid="classconfig_1_1_directory_1a9ac471bcf600eba99126334cc78130e1" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>coalesceMs</name></member>
+      <member refid="classconfig_1_1_directory_1ac8ce84c9839b82153f0f80c92a9fa672" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>Directory</name></member>
+      <member refid="classconfig_1_1_theme_1a605ca54b6d1b90d93279fec757193458" prot="protected" virt="virtual"><scope>config::Theme</scope><name>fileChanged</name></member>
       <member refid="classjam_1_1Model_1a0c6c6dcf22bdf37d65dced08a8dcdefc" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>findAndRemoveChild</name></member>
       <member refid="classjam_1_1Model_1a9eb2e927e025645e46609f37aa6f9304" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>flush</name></member>
       <member refid="classjam_1_1Model_1aaa8b722daed8928b8d587ec30662ac34" prot="private" virt="non-virtual"><scope>config::Theme</scope><name>flushHz</name></member>
+      <member refid="classjam_1_1File_1_1Watcher_1_1Listener_1a75221307eb1bf0ef2735e9ef80ebf4a4" prot="public" virt="virtual"><scope>config::Theme</scope><name>folderChanged</name></member>
       <member refid="classjam_1_1Model_1a56d070d548e85df035e527312421f5bf" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>forEachProperty</name></member>
       <member refid="classjam_1_1Model_1ada224019e4715d61684005a054d351e9" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>fromLua</name></member>
       <member refid="classjam_1_1Model_1af9ab05d8b04c75750fc69f8ad1225caa" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>fromLua</name></member>
@@ -202,9 +479,12 @@
       <member refid="classjam_1_1Model_1a2f037e88407eb8b95b9ab7daf7c0b15c" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>getValueFromChildWithID</name></member>
       <member refid="classjam_1_1Model_1a1032430642def825ff972dc86d6608c4" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>getValueFromChildWithProperty</name></member>
       <member refid="classjam_1_1Model_1a710fd55b83d2e5657e48d49ce5225ea2" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>getXml</name></member>
+      <member refid="classconfig_1_1_theme_1af85373792e04e1e72874efc010dbd02f" prot="private" virt="non-virtual"><scope>config::Theme</scope><name>graphicsCallbacks</name></member>
       <member refid="classjam_1_1Model_1a1c976506dd5eb7d125a0e804c97c61e2" prot="private" virt="non-virtual"><scope>config::Theme</scope><name>idleHz</name></member>
+      <member refid="classconfig_1_1_theme_1a0c350ee3844fcceaa5d9d68023ae6cdd" prot="protected" virt="virtual"><scope>config::Theme</scope><name>initialise</name></member>
       <member refid="classjuce_1_1Timer_1a525f38cc7afdc0696b467bd4ed3f17da" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>isTimerRunning</name></member>
-      <member refid="classconfig_1_1_theme_1ad1c552afe63e04ce01d6479bdd197996" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>load</name></member>
+      <member refid="classconfig_1_1_directory_1a1ea8c2e469d5d9c789fcc7aa117c2cb8" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>load</name></member>
+      <member refid="classconfig_1_1_theme_1a6d4ca39c5481082070ba546736a2f25b" prot="protected" virt="virtual"><scope>config::Theme</scope><name>loadFromPath</name></member>
       <member refid="classjam_1_1Model_1afb401fb24025fa7fddf2740e374df4aa" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>loadState</name></member>
       <member refid="classjam_1_1Model_1a6662822c6b2f2539b5839a41daa668c9" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>loadState</name></member>
       <member refid="classjam_1_1Model_1ab3774dd3acd1ae1c9389c444432e58aa" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>loadText</name></member>
@@ -216,17 +496,19 @@
       <member refid="classjam_1_1Model_1a688b7625ae8b2a4d4d1f1643a6b3aa41" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>removeListener</name></member>
       <member refid="classjam_1_1Model_1a73bb2822ba0b1211ca9e290d57c5cd2d" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>replaceState</name></member>
       <member refid="classjam_1_1Model_1a77ac5fd7f2a2caa0e892cd993d4df2d7" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>restoreValues</name></member>
+      <member refid="classconfig_1_1_theme_1ae67d41c767ef6a64290e495bf2522487" prot="protected" virt="virtual"><scope>config::Theme</scope><name>saveToPath</name></member>
       <member refid="classjam_1_1Model_1a3263920ba9cd2e5633d714a49c0a5000" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>setTreeProperty</name></member>
       <member refid="classjam_1_1Model_1af7401e3c38ecf3fb0428369ebb822283" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>setValue</name></member>
       <member refid="classjam_1_1Model_1afd1a5ee11f1e480cb14c0027d6b617b7" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>setValuesFrom</name></member>
       <member refid="classjuce_1_1Timer_1acb43e06d5742106830080af3d50b422d" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>startTimer</name></member>
       <member refid="classjuce_1_1Timer_1a49a4cf0bb438ca956bfae44c1010b0f9" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>startTimerHz</name></member>
+      <member refid="classconfig_1_1_directory_1ac1c41259565f810efbd2b1048f784076" prot="private" virt="non-virtual"><scope>config::Theme</scope><name>startWatcher</name></member>
       <member refid="classjam_1_1Model_1aef4cd7ff33d3393980f2d12217e49857" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>state</name></member>
       <member refid="classjuce_1_1Timer_1a2ff70b860a8c875658b4baa91c8bcef0" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>stopTimer</name></member>
       <member refid="classjam_1_1Model_1abb1a0d3535077011043e287faf0347c9" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>storeValue</name></member>
       <member refid="classjam_1_1Model_1a48a47a42d9b91aeeddf268acc1288806" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>storeValue</name></member>
       <member refid="classjam_1_1Model_1adfc7fc56035e71adea6442eeca2e4795" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>storeValue</name></member>
-      <member refid="classconfig_1_1_theme_1aa2ffde18a91b4c82af7d11769f83fd54" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>Theme</name></member>
+      <member refid="classconfig_1_1_theme_1aa182b80d05df79ff89ef029ccbf35c80" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>Theme</name></member>
       <member refid="classjuce_1_1Timer_1a4517f6b34af45ee3edc05c468959146e" prot="protected" virt="non-virtual"><scope>config::Theme</scope><name>Timer</name></member>
       <member refid="classjuce_1_1Timer_1a2ef75896b7a44dfc641ce2faea04682c" prot="protected" virt="non-virtual"><scope>config::Theme</scope><name>Timer</name></member>
       <member refid="classjam_1_1Model_1a5de5c362c126a9f4d8d21c592b678bdb" prot="private" virt="virtual"><scope>config::Theme</scope><name>timerCallback</name></member>
@@ -240,10 +522,13 @@
       <member refid="classjuce_1_1ValueTree_1_1Listener_1a2e39febd013de0ff7da23a5b574055db" prot="public" virt="virtual"><scope>config::Theme</scope><name>valueTreeParentChanged</name></member>
       <member refid="classjam_1_1Model_1ab664f3dda27392cd40724b87549d0b6c" prot="public" virt="virtual"><scope>config::Theme</scope><name>valueTreePropertyChanged</name></member>
       <member refid="classjuce_1_1ValueTree_1_1Listener_1aa46de90c3746a395792a632219e404f2" prot="public" virt="virtual"><scope>config::Theme</scope><name>valueTreeRedirected</name></member>
+      <member refid="classconfig_1_1_directory_1ac36ace96a36589e743bf946ee0ee1b39" prot="private" virt="non-virtual"><scope>config::Theme</scope><name>watcher</name></member>
       <member refid="classjam_1_1Model_1a5e0284f87a2a71c84edd644b75f4d07f" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>writeToXml</name></member>
-      <member refid="classjuce_1_1ValueTree_1_1Listener_1ab78745617b47f3b12726c0de220e8d9b" prot="public" virt="virtual"><scope>config::Theme</scope><name>~Listener</name></member>
+      <member refid="classconfig_1_1_directory_1aaf1021a0ac43bf490a3d677ba31ddc9c" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>~Directory</name></member>
+      <member refid="classjuce_1_1ValueTree_1_1Listener_1ab78745617b47f3b12726c0de220e8d9b" prot="public" virt="virtual" ambiguityscope="config::jam::"><scope>config::Theme</scope><name>~Listener</name></member>
+      <member refid="classjam_1_1File_1_1Watcher_1_1Listener_1a36c31b730e410628b516813e6e0679e7" prot="public" virt="virtual" ambiguityscope="jam::File::Watcher::Listener::"><scope>config::Theme</scope><name>~Listener</name></member>
       <member refid="classjam_1_1Model_1afb01105d951530920a004ca01b5c54c1" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>~Model</name></member>
-      <member refid="classconfig_1_1_theme_1a3e1176f2fff32ac9705aa7786f4b4c3e" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>~Theme</name></member>
+      <member refid="classconfig_1_1_theme_1afe2d32aab8c6763fd2ee8b7b84083aeb" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>~Theme</name></member>
       <member refid="classjuce_1_1Timer_1aa1de34211c34295dfa6a658474ae0ae0" prot="public" virt="virtual"><scope>config::Theme</scope><name>~Timer</name></member>
     </listofallmembers>
   </compounddef>

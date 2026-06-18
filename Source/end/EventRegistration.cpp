@@ -50,7 +50,7 @@ void View::registerEvents()
                                   [this] (juce::ValueTree&)
                                   {
                                       const auto gpu { jam::GpuProbe::probe() };
-                                      bool canUseGpu { config.getValue (IDtype::end, ID::gpu) and gpu.isAvailable };
+                                      bool canUseGpu { config.getValue (IDtype::init, ID::gpu) and gpu.isAvailable };
                                       jam::BackgroundBlur::setEnabled (canUseGpu);
 
                                       if (canUseGpu != shader.isAttached())
