@@ -16,14 +16,13 @@
         <qualifiedname>config::Directory::coalesceMs</qualifiedname>
         <initializer>{ 300 }</initializer>
         <briefdescription>
-<para>Event coalescing window shared by all config watchers — 300 ms. </para>
         </briefdescription>
         <detaileddescription>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Directory.h" line="65" column="26" bodyfile="config/Directory.h" bodystart="65" bodyend="65"/>
-        <referencedby refid="classconfig_1_1_directory_1ac1c41259565f810efbd2b1048f784076" compoundref="_directory_8h" startline="92" endline="102">startWatcher</referencedby>
+        <location file="config/Directory.h" line="67" column="26" bodyfile="config/Directory.h" bodystart="67" bodyend="67"/>
+        <referencedby refid="classconfig_1_1_directory_1ac1c41259565f810efbd2b1048f784076" compoundref="_directory_8h" startline="94" endline="104">startWatcher</referencedby>
         <referencedby refid="classconfig_1_1_model_1abd7d146ee9fede8da7f5f0678faed50e" compoundref="_config_8cpp" startline="126" endline="131">config::Model::startWatcher</referencedby>
       </memberdef>
     </sectiondef>
@@ -40,8 +39,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Directory.h" line="104" column="24" bodyfile="config/Directory.h" bodystart="104" bodyend="-1"/>
-        <referencedby refid="classconfig_1_1_directory_1ac1c41259565f810efbd2b1048f784076" compoundref="_directory_8h" startline="92" endline="102">startWatcher</referencedby>
+        <location file="config/Directory.h" line="106" column="24" bodyfile="config/Directory.h" bodystart="106" bodyend="-1"/>
+        <referencedby refid="classconfig_1_1_directory_1ac1c41259565f810efbd2b1048f784076" compoundref="_directory_8h" startline="94" endline="104">startWatcher</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="public-func">
@@ -72,10 +71,10 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Directory.h" line="40" column="14" bodyfile="config/Directory.h" bodystart="40" bodyend="40"/>
+        <location file="config/Directory.h" line="40" column="14" bodyfile="config/Directory.h" bodystart="40" bodyend="43"/>
         <references refid="classjam_1_1Model_1afbe837fa9d9c8086381333783bb1db3b">jam::Model::Model</references>
         <referencedby refid="classconfig_1_1_shader_1ad48dcfeb714ddc12a66be1261e310093" compoundref="_config_8h" startline="29" endline="32">config::Shader::Shader</referencedby>
-        <referencedby refid="classconfig_1_1_theme_1aa182b80d05df79ff89ef029ccbf35c80" compoundref="_config_8h" startline="101" endline="104">config::Theme::Theme</referencedby>
+        <referencedby refid="classconfig_1_1_theme_1aa182b80d05df79ff89ef029ccbf35c80" compoundref="_config_8h" startline="85" endline="88">config::Theme::Theme</referencedby>
       </memberdef>
       <memberdef kind="function" id="classconfig_1_1_directory_1aaf1021a0ac43bf490a3d677ba31ddc9c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type></type>
@@ -89,7 +88,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Directory.h" line="42" column="5"/>
+        <location file="config/Directory.h" line="45" column="5"/>
       </memberdef>
       <memberdef kind="function" id="classconfig_1_1_directory_1a1ea8c2e469d5d9c789fcc7aa117c2cb8" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
         <type>void</type>
@@ -105,7 +104,7 @@
 <para>Runs the four-phase contract for the resolved <computeroutput>dir</computeroutput>. </para>
         </briefdescription>
         <detaileddescription>
-<para>Calls <computeroutput><ref refid="classconfig_1_1_directory_1ad22b695ac4e5bc7c68bd2b72478e47dc" kindref="member">initialise()</ref></computeroutput>, <computeroutput>saveToPath(dir)</computeroutput>, <computeroutput>loadFromPath(dir)</computeroutput>, and <computeroutput>startWatcher(dir)</computeroutput> in that fixed order. <computeroutput>loadFromPath</computeroutput> is responsible for firing <computeroutput>state.sendPropertyChangeMessage</computeroutput>. Empty or invalid <computeroutput>dir</computeroutput> handling is delegated to the subclass virtuals.</para>
+<para>Calls <computeroutput><ref refid="classconfig_1_1_directory_1ae83c28995bbec814ee15b291306be400" kindref="member">initialise()</ref></computeroutput>, <computeroutput>saveToPath(dir)</computeroutput>, <computeroutput>loadFromPath(dir)</computeroutput>, and <computeroutput>startWatcher(dir)</computeroutput> in that fixed order. <computeroutput>loadFromPath</computeroutput> is responsible for firing <computeroutput>state.sendPropertyChangeMessage</computeroutput>. Empty or invalid <computeroutput>dir</computeroutput> handling is delegated to the subclass virtuals.</para>
 <para><parameterlist kind="param"><parameteritem>
 <parameternamelist>
 <parametername>dir</parametername>
@@ -119,21 +118,20 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Directory.h" line="56" column="10" bodyfile="config/Directory.h" bodystart="56" bodyend="62"/>
-        <references refid="classconfig_1_1_directory_1ad22b695ac4e5bc7c68bd2b72478e47dc">initialise</references>
+        <location file="config/Directory.h" line="59" column="10" bodyfile="config/Directory.h" bodystart="59" bodyend="65"/>
+        <references refid="classconfig_1_1_directory_1ae83c28995bbec814ee15b291306be400" compoundref="_directory_8h" startline="72" endline="72">initialise</references>
         <references refid="classconfig_1_1_directory_1a51328cf49c3096beaca962a2a9b1db30">loadFromPath</references>
-        <references refid="classconfig_1_1_directory_1a4a70f2587a465bbdd46ffebf13e8fb8c">saveToPath</references>
-        <references refid="classconfig_1_1_directory_1ac1c41259565f810efbd2b1048f784076" compoundref="_directory_8h" startline="92" endline="102">startWatcher</references>
+        <references refid="classconfig_1_1_directory_1ac6b1f4f0038136d519318d44ed3dec51" compoundref="_directory_8h" startline="75" endline="75">saveToPath</references>
+        <references refid="classconfig_1_1_directory_1ac1c41259565f810efbd2b1048f784076" compoundref="_directory_8h" startline="94" endline="104">startWatcher</references>
       </memberdef>
     </sectiondef>
     <sectiondef kind="protected-func">
-      <memberdef kind="function" id="classconfig_1_1_directory_1ad22b695ac4e5bc7c68bd2b72478e47dc" prot="protected" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+      <memberdef kind="function" id="classconfig_1_1_directory_1ae83c28995bbec814ee15b291306be400" prot="protected" static="no" const="no" explicit="no" inline="yes" virt="virtual">
         <type>void</type>
         <definition>virtual void config::Directory::initialise</definition>
-        <argsstring>()=0</argsstring>
+        <argsstring>()</argsstring>
         <name>initialise</name>
         <qualifiedname>config::Directory::initialise</qualifiedname>
-        <reimplementedby refid="classconfig_1_1_shader_1aa8b27be122a036faec6fccb1916faaa8">initialise</reimplementedby>
         <reimplementedby refid="classconfig_1_1_theme_1a0c350ee3844fcceaa5d9d68023ae6cdd">initialise</reimplementedby>
         <briefdescription>
 <para>Build in-memory defaults from <ref refid="namespaceBinaryData" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">BinaryData</ref> (called before disk ops). </para>
@@ -142,16 +140,15 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Directory.h" line="70" column="18"/>
-        <referencedby refid="classconfig_1_1_directory_1a1ea8c2e469d5d9c789fcc7aa117c2cb8" compoundref="_directory_8h" startline="56" endline="62">load</referencedby>
+        <location file="config/Directory.h" line="72" column="18" bodyfile="config/Directory.h" bodystart="72" bodyend="72"/>
+        <referencedby refid="classconfig_1_1_directory_1a1ea8c2e469d5d9c789fcc7aa117c2cb8" compoundref="_directory_8h" startline="59" endline="65">load</referencedby>
       </memberdef>
-      <memberdef kind="function" id="classconfig_1_1_directory_1a4a70f2587a465bbdd46ffebf13e8fb8c" prot="protected" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+      <memberdef kind="function" id="classconfig_1_1_directory_1ac6b1f4f0038136d519318d44ed3dec51" prot="protected" static="no" const="no" explicit="no" inline="yes" virt="virtual">
         <type>void</type>
         <definition>virtual void config::Directory::saveToPath</definition>
-        <argsstring>(const juce::File &amp;dir)=0</argsstring>
+        <argsstring>(const juce::File &amp;dir)</argsstring>
         <name>saveToPath</name>
         <qualifiedname>config::Directory::saveToPath</qualifiedname>
-        <reimplementedby refid="classconfig_1_1_shader_1a43a6029f5a5247916ea30c7f8df13b89">saveToPath</reimplementedby>
         <reimplementedby refid="classconfig_1_1_theme_1ae67d41c767ef6a64290e495bf2522487">saveToPath</reimplementedby>
         <param>
           <type>const <ref refid="classjuce_1_1File" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::File</ref> &amp;</type>
@@ -164,8 +161,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Directory.h" line="73" column="18"/>
-        <referencedby refid="classconfig_1_1_directory_1a1ea8c2e469d5d9c789fcc7aa117c2cb8" compoundref="_directory_8h" startline="56" endline="62">load</referencedby>
+        <location file="config/Directory.h" line="75" column="18" bodyfile="config/Directory.h" bodystart="75" bodyend="75"/>
+        <referencedby refid="classconfig_1_1_directory_1a1ea8c2e469d5d9c789fcc7aa117c2cb8" compoundref="_directory_8h" startline="59" endline="65">load</referencedby>
       </memberdef>
       <memberdef kind="function" id="classconfig_1_1_directory_1a51328cf49c3096beaca962a2a9b1db30" prot="protected" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
         <type>void</type>
@@ -186,8 +183,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Directory.h" line="79" column="18"/>
-        <referencedby refid="classconfig_1_1_directory_1a1ea8c2e469d5d9c789fcc7aa117c2cb8" compoundref="_directory_8h" startline="56" endline="62">load</referencedby>
+        <location file="config/Directory.h" line="81" column="18"/>
+        <referencedby refid="classconfig_1_1_directory_1a1ea8c2e469d5d9c789fcc7aa117c2cb8" compoundref="_directory_8h" startline="59" endline="65">load</referencedby>
       </memberdef>
     </sectiondef>
     <sectiondef kind="private-func">
@@ -219,11 +216,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Directory.h" line="92" column="10" bodyfile="config/Directory.h" bodystart="92" bodyend="102"/>
-        <references refid="classconfig_1_1_directory_1a9ac471bcf600eba99126334cc78130e1" compoundref="_directory_8h" startline="65" endline="65">coalesceMs</references>
+        <location file="config/Directory.h" line="94" column="10" bodyfile="config/Directory.h" bodystart="94" bodyend="104"/>
+        <references refid="classconfig_1_1_directory_1a9ac471bcf600eba99126334cc78130e1" compoundref="_directory_8h" startline="67" endline="67">coalesceMs</references>
         <references refid="classjuce_1_1File_1a18538c2901eeed52e291f67e16150dda">juce::File::isDirectory</references>
-        <references refid="classconfig_1_1_directory_1ac36ace96a36589e743bf946ee0ee1b39" compoundref="_directory_8h" startline="104">watcher</references>
-        <referencedby refid="classconfig_1_1_directory_1a1ea8c2e469d5d9c789fcc7aa117c2cb8" compoundref="_directory_8h" startline="56" endline="62">load</referencedby>
+        <references refid="classconfig_1_1_directory_1ac36ace96a36589e743bf946ee0ee1b39" compoundref="_directory_8h" startline="106">watcher</references>
+        <referencedby refid="classconfig_1_1_directory_1a1ea8c2e469d5d9c789fcc7aa117c2cb8" compoundref="_directory_8h" startline="59" endline="65">load</referencedby>
       </memberdef>
     </sectiondef>
     <briefdescription>
@@ -232,7 +229,7 @@
     <detaileddescription>
 <para><ref refid="classconfig_1_1_directory" kindref="compound">Directory</ref> implements the self-contained four-phase contract for a single config subdirectory passed as a resolved <computeroutput><ref refid="classjuce_1_1File" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::File</ref>:</computeroutput> </para>
 <para><orderedlist>
-<listitem><para><computeroutput><ref refid="classconfig_1_1_directory_1ad22b695ac4e5bc7c68bd2b72478e47dc" kindref="member">initialise()</ref></computeroutput> — build in-memory defaults from <ref refid="namespaceBinaryData" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">BinaryData</ref>.</para>
+<listitem><para><computeroutput><ref refid="classconfig_1_1_directory_1ae83c28995bbec814ee15b291306be400" kindref="member">initialise()</ref></computeroutput> — build in-memory defaults from <ref refid="namespaceBinaryData" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">BinaryData</ref>.</para>
 </listitem><listitem><para><computeroutput>saveToPath(dir)</computeroutput> — write missing files from <ref refid="namespaceBinaryData" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">BinaryData</ref> to disk inline.</para>
 </listitem><listitem><para><computeroutput>loadFromPath(dir)—</computeroutput> clear state and read from disk into <computeroutput>state</computeroutput>, then fire <computeroutput>state.sendPropertyChangeMessage</computeroutput>.</para>
 </listitem><listitem><para><computeroutput>startWatcher(dir)—</computeroutput> install the filesystem watcher on <computeroutput>dir</computeroutput>.</para>
@@ -407,7 +404,7 @@
         </childnode>
       </node>
     </collaborationgraph>
-    <location file="config/Directory.h" line="30" column="1" bodyfile="config/Directory.h" bodystart="33" bodyend="108"/>
+    <location file="config/Directory.h" line="30" column="1" bodyfile="config/Directory.h" bodystart="33" bodyend="110"/>
     <listofallmembers>
       <member refid="classjam_1_1Model_1ae5d4d70e706dcc558cf21923125a9176" prot="public" virt="non-virtual"><scope>config::Directory</scope><name>addListener</name></member>
       <member refid="classjam_1_1Model_1ac78b7437a06da378bf49cbd4f27bfc63" prot="public" virt="non-virtual"><scope>config::Directory</scope><name>addProperties</name></member>
@@ -445,7 +442,7 @@
       <member refid="classjam_1_1Model_1a1032430642def825ff972dc86d6608c4" prot="public" virt="non-virtual"><scope>config::Directory</scope><name>getValueFromChildWithProperty</name></member>
       <member refid="classjam_1_1Model_1a710fd55b83d2e5657e48d49ce5225ea2" prot="public" virt="non-virtual"><scope>config::Directory</scope><name>getXml</name></member>
       <member refid="classjam_1_1Model_1a1c976506dd5eb7d125a0e804c97c61e2" prot="private" virt="non-virtual"><scope>config::Directory</scope><name>idleHz</name></member>
-      <member refid="classconfig_1_1_directory_1ad22b695ac4e5bc7c68bd2b72478e47dc" prot="protected" virt="pure-virtual"><scope>config::Directory</scope><name>initialise</name></member>
+      <member refid="classconfig_1_1_directory_1ae83c28995bbec814ee15b291306be400" prot="protected" virt="virtual"><scope>config::Directory</scope><name>initialise</name></member>
       <member refid="classjuce_1_1Timer_1a525f38cc7afdc0696b467bd4ed3f17da" prot="public" virt="non-virtual"><scope>config::Directory</scope><name>isTimerRunning</name></member>
       <member refid="classconfig_1_1_directory_1a1ea8c2e469d5d9c789fcc7aa117c2cb8" prot="public" virt="non-virtual"><scope>config::Directory</scope><name>load</name></member>
       <member refid="classconfig_1_1_directory_1a51328cf49c3096beaca962a2a9b1db30" prot="protected" virt="pure-virtual"><scope>config::Directory</scope><name>loadFromPath</name></member>
@@ -460,7 +457,7 @@
       <member refid="classjam_1_1Model_1a688b7625ae8b2a4d4d1f1643a6b3aa41" prot="public" virt="non-virtual"><scope>config::Directory</scope><name>removeListener</name></member>
       <member refid="classjam_1_1Model_1a73bb2822ba0b1211ca9e290d57c5cd2d" prot="public" virt="non-virtual"><scope>config::Directory</scope><name>replaceState</name></member>
       <member refid="classjam_1_1Model_1a77ac5fd7f2a2caa0e892cd993d4df2d7" prot="public" virt="non-virtual"><scope>config::Directory</scope><name>restoreValues</name></member>
-      <member refid="classconfig_1_1_directory_1a4a70f2587a465bbdd46ffebf13e8fb8c" prot="protected" virt="pure-virtual"><scope>config::Directory</scope><name>saveToPath</name></member>
+      <member refid="classconfig_1_1_directory_1ac6b1f4f0038136d519318d44ed3dec51" prot="protected" virt="virtual"><scope>config::Directory</scope><name>saveToPath</name></member>
       <member refid="classjam_1_1Model_1a3263920ba9cd2e5633d714a49c0a5000" prot="public" virt="non-virtual"><scope>config::Directory</scope><name>setTreeProperty</name></member>
       <member refid="classjam_1_1Model_1af7401e3c38ecf3fb0428369ebb822283" prot="public" virt="non-virtual"><scope>config::Directory</scope><name>setValue</name></member>
       <member refid="classjam_1_1Model_1afd1a5ee11f1e480cb14c0027d6b617b7" prot="public" virt="non-virtual"><scope>config::Directory</scope><name>setValuesFrom</name></member>

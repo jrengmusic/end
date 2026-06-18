@@ -19,7 +19,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="172" column="24" bodyfile="config/Config.h" bodystart="172" bodyend="-1"/>
+        <location file="config/Config.h" line="156" column="24" bodyfile="config/Config.h" bodystart="156" bodyend="-1"/>
         <referencedby refid="classconfig_1_1_theme_1ab4b7a2e3123ac1dd7656921461e311af" compoundref="_config_8cpp" startline="270" endline="302">buildGraphicsCallbacks</referencedby>
         <referencedby refid="classconfig_1_1_theme_1a605ca54b6d1b90d93279fec757193458" compoundref="_config_8cpp" startline="254" endline="268">fileChanged</referencedby>
       </memberdef>
@@ -38,8 +38,8 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="101" column="5" bodyfile="config/Config.h" bodystart="101" bodyend="104"/>
-        <references refid="classconfig_1_1_directory_1ac8ce84c9839b82153f0f80c92a9fa672" compoundref="_directory_8h" startline="40" endline="40">config::Directory::Directory</references>
+        <location file="config/Config.h" line="85" column="5" bodyfile="config/Config.h" bodystart="85" bodyend="88"/>
+        <references refid="classconfig_1_1_directory_1ac8ce84c9839b82153f0f80c92a9fa672" compoundref="_directory_8h" startline="40" endline="43">config::Directory::Directory</references>
       </memberdef>
       <memberdef kind="function" id="classconfig_1_1_theme_1afe2d32aab8c6763fd2ee8b7b84083aeb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type></type>
@@ -53,7 +53,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="106" column="5"/>
+        <location file="config/Config.h" line="90" column="5"/>
       </memberdef>
     </sectiondef>
     <sectiondef kind="protected-func">
@@ -63,7 +63,7 @@
         <argsstring>() override</argsstring>
         <name>initialise</name>
         <qualifiedname>config::Theme::initialise</qualifiedname>
-        <reimplements refid="classconfig_1_1_directory_1ad22b695ac4e5bc7c68bd2b72478e47dc">initialise</reimplements>
+        <reimplements refid="classconfig_1_1_directory_1ae83c28995bbec814ee15b291306be400">initialise</reimplements>
         <briefdescription>
 <para>Builds the default theme tree from <ref refid="namespaceBinaryData" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">BinaryData</ref> — required so <computeroutput>saveToPath</computeroutput> can walk the tree for SVG filenames. </para>
         </briefdescription>
@@ -72,7 +72,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="116" column="10" bodyfile="config/Config.cpp" bodystart="178" bodyend="190"/>
+        <location file="config/Config.h" line="100" column="10" bodyfile="config/Config.cpp" bodystart="178" bodyend="190"/>
         <references refid="classjam_1_1Model_1ada224019e4715d61684005a054d351e9">jam::Model::fromLua</references>
         <references refid="structconfig_1_1_themes_1a75ef807eb5feb2ef9c9af61a265f21b7" compoundref="_bimap_8h" startline="207" endline="207">config::Themes::get</references>
         <references refid="structconfig_1_1_themes_1a48be35feb4087a7891dd6a41a8674f18" compoundref="_bimap_8h" startline="215" endline="218">config::Themes::getName</references>
@@ -85,7 +85,7 @@
         <argsstring>(const juce::File &amp;dir) override</argsstring>
         <name>saveToPath</name>
         <qualifiedname>config::Theme::saveToPath</qualifiedname>
-        <reimplements refid="classconfig_1_1_directory_1a4a70f2587a465bbdd46ffebf13e8fb8c">saveToPath</reimplements>
+        <reimplements refid="classconfig_1_1_directory_1ac6b1f4f0038136d519318d44ed3dec51">saveToPath</reimplements>
         <param>
           <type>const <ref refid="classjuce_1_1File" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::File</ref> &amp;</type>
           <declname>dir</declname>
@@ -108,7 +108,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="129" column="10" bodyfile="config/Config.cpp" bodystart="192" bodyend="227"/>
+        <location file="config/Config.h" line="113" column="10" bodyfile="config/Config.cpp" bodystart="192" bodyend="227"/>
         <references refid="classjam_1_1Model_1a59b57627d856a11d756eabe1690a7213">jam::Model::applyFunctionRecursively</references>
         <references refid="structBinaryData_1_1Raw_1a50f1331dd30f0df2d6614a9c67be4a66">BinaryData::Raw::data</references>
         <references refid="structBinaryData_1_1Raw_1aba1e79d5ef693005937990ddf2fe3363">BinaryData::Raw::exists</references>
@@ -157,7 +157,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="142" column="10" bodyfile="config/Config.cpp" bodystart="229" bodyend="252"/>
+        <location file="config/Config.h" line="126" column="10" bodyfile="config/Config.cpp" bodystart="229" bodyend="252"/>
         <references refid="classconfig_1_1_theme_1ab4b7a2e3123ac1dd7656921461e311af" compoundref="_config_8cpp" startline="270" endline="302">buildGraphicsCallbacks</references>
         <references refid="classjuce_1_1File_1a37e88fbc390d78f3d79675974f53fa78">juce::File::existsAsFile</references>
         <references refid="classjam_1_1Model_1ada224019e4715d61684005a054d351e9">jam::Model::fromLua</references>
@@ -211,11 +211,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="154" column="10" bodyfile="config/Config.cpp" bodystart="254" bodyend="268"/>
+        <location file="config/Config.h" line="138" column="10" bodyfile="config/Config.cpp" bodystart="254" bodyend="268"/>
         <references refid="structconfig_1_1_themes_1ac8b1b388c34092c41edcb9ede0de5d41" compoundref="_bimap_8h" startline="234" endline="234">config::Themes::extension</references>
         <references refid="classjuce_1_1File_1a5309789281ea7721eb832d21da99708f">juce::File::getFileName</references>
         <references refid="classjuce_1_1File_1ab6bec65fbcf19ce10e38cf9d1015770d">juce::File::getParentDirectory</references>
-        <references refid="classconfig_1_1_theme_1af85373792e04e1e72874efc010dbd02f" compoundref="_config_8h" startline="172">graphicsCallbacks</references>
+        <references refid="classconfig_1_1_theme_1af85373792e04e1e72874efc010dbd02f" compoundref="_config_8h" startline="156">graphicsCallbacks</references>
         <references refid="classjuce_1_1File_1aeb95d4b90429613bca223acc6dc0d0bf">juce::File::hasFileExtension</references>
         <references refid="classconfig_1_1_theme_1a6d4ca39c5481082070ba546736a2f25b" compoundref="_config_8cpp" startline="229" endline="252">loadFromPath</references>
         <references refid="structjam_1_1IDref_1af1bbf60b671b097a475e22b3296a4b83">jam::IDref::svg</references>
@@ -236,12 +236,12 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="167" column="10" bodyfile="config/Config.cpp" bodystart="270" bodyend="302"/>
+        <location file="config/Config.h" line="151" column="10" bodyfile="config/Config.cpp" bodystart="270" bodyend="302"/>
         <references refid="classjam_1_1Model_1a59b57627d856a11d756eabe1690a7213">jam::Model::applyFunctionRecursively</references>
         <references refid="structjam_1_1Format_1a2b0e4c817d4ed554673421a4ce452201">jam::Format::getFilenameWithoutExtension</references>
         <references refid="structjam_1_1Instance_1ad5d2bbb58e37d8d260b428b334823140">jam::Instance&lt; Derived &gt;::getInstance</references>
         <references refid="classjuce_1_1ValueTree_1ab584e972c5f8e597f545e6321a895d06">juce::ValueTree::getProperty</references>
-        <references refid="classconfig_1_1_theme_1af85373792e04e1e72874efc010dbd02f" compoundref="_config_8h" startline="172">graphicsCallbacks</references>
+        <references refid="classconfig_1_1_theme_1af85373792e04e1e72874efc010dbd02f" compoundref="_config_8h" startline="156">graphicsCallbacks</references>
         <references refid="classjam_1_1Model_1aef4cd7ff33d3393980f2d12217e49857">jam::Model::state</references>
         <references refid="classjam_1_1Model_1ad7d29cc11027835e39f6bb1c5bbe3677">jam::Model::toStringArray</references>
         <referencedby refid="classconfig_1_1_theme_1a6d4ca39c5481082070ba546736a2f25b" compoundref="_config_8cpp" startline="229" endline="252">loadFromPath</referencedby>
@@ -441,7 +441,7 @@
         </childnode>
       </node>
     </collaborationgraph>
-    <location file="config/Config.h" line="97" column="1" bodyfile="config/Config.h" bodystart="98" bodyend="175"/>
+    <location file="config/Config.h" line="81" column="1" bodyfile="config/Config.h" bodystart="82" bodyend="159"/>
     <listofallmembers>
       <member refid="classjam_1_1Model_1ae5d4d70e706dcc558cf21923125a9176" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>addListener</name></member>
       <member refid="classjam_1_1Model_1ac78b7437a06da378bf49cbd4f27bfc63" prot="public" virt="non-virtual"><scope>config::Theme</scope><name>addProperties</name></member>

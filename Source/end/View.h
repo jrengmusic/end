@@ -99,7 +99,6 @@ public:
 private:
     /** @brief Singleton config model reference. */
     config::Model& config { *config::Model::getInstance() };
-    config::Theme& theme { config.getTheme() };
 
     //==============================================================================
     /** @brief Populates action::Registry with keybinding-triggered callbacks.
@@ -116,7 +115,6 @@ private:
      *  Registers handlers for: loadMessage (shows config load message overlay),
      *  tabOrientation (applies tab orientation from init.lua config), focus (updates focusedPane
      *  state), theme (propagates LookAndFeel change),
-     *  graphics and tabButton tree types (propagate LookAndFeel change),
      *  alwaysOnTop and titleBarButtons (dispatch to jam::Window),
      *  gpu (attach/detach shader based on config and probe result).
      *  Defined in EventRegistration.cpp.

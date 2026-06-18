@@ -19,7 +19,8 @@
         <inbodydescription>
         </inbodydescription>
         <location file="config/Config.h" line="29" column="5" bodyfile="config/Config.h" bodystart="29" bodyend="32"/>
-        <references refid="classconfig_1_1_directory_1ac8ce84c9839b82153f0f80c92a9fa672" compoundref="_directory_8h" startline="40" endline="40">config::Directory::Directory</references>
+        <references refid="classconfig_1_1_directory_1ac8ce84c9839b82153f0f80c92a9fa672" compoundref="_directory_8h" startline="40" endline="43">config::Directory::Directory</references>
+        <referencedby refid="classconfig_1_1_shader_1a040aab72e915f4393a4dac916f658dcd">~Shader</referencedby>
       </memberdef>
       <memberdef kind="function" id="classconfig_1_1_shader_1a040aab72e915f4393a4dac916f658dcd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type></type>
@@ -34,46 +35,10 @@
         <inbodydescription>
         </inbodydescription>
         <location file="config/Config.h" line="34" column="5"/>
+        <references refid="classconfig_1_1_shader_1ad48dcfeb714ddc12a66be1261e310093" compoundref="_config_8h" startline="29" endline="32">Shader</references>
       </memberdef>
     </sectiondef>
     <sectiondef kind="protected-func">
-      <memberdef kind="function" id="classconfig_1_1_shader_1aa8b27be122a036faec6fccb1916faaa8" prot="protected" static="no" const="no" explicit="no" inline="yes" virt="virtual">
-        <type>void</type>
-        <definition>void config::Shader::initialise</definition>
-        <argsstring>() override</argsstring>
-        <name>initialise</name>
-        <qualifiedname>config::Shader::initialise</qualifiedname>
-        <reimplements refid="classconfig_1_1_directory_1ad22b695ac4e5bc7c68bd2b72478e47dc">initialise</reimplements>
-        <briefdescription>
-<para>No <ref refid="namespaceBinaryData" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">BinaryData</ref> defaults for shaders — no-op. </para>
-        </briefdescription>
-        <detaileddescription>
-<para><ref refid="classconfig_1_1_shader" kindref="compound">Shader</ref> projects are user-supplied on disk. There is nothing to write to disk from <ref refid="namespaceBinaryData" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">BinaryData</ref> at startup. </para>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="config/Config.h" line="43" column="10" bodyfile="config/Config.h" bodystart="43" bodyend="43"/>
-      </memberdef>
-      <memberdef kind="function" id="classconfig_1_1_shader_1a43a6029f5a5247916ea30c7f8df13b89" prot="protected" static="no" const="no" explicit="no" inline="yes" virt="virtual">
-        <type>void</type>
-        <definition>void config::Shader::saveToPath</definition>
-        <argsstring>(const juce::File &amp;) override</argsstring>
-        <name>saveToPath</name>
-        <qualifiedname>config::Shader::saveToPath</qualifiedname>
-        <reimplements refid="classconfig_1_1_directory_1a4a70f2587a465bbdd46ffebf13e8fb8c">saveToPath</reimplements>
-        <param>
-          <type>const <ref refid="classjuce_1_1File" kindref="compound" external="/Users/jreng/Documents/Poems/JUCE/docs/tagfile.xml">juce::File</ref> &amp;</type>
-        </param>
-        <briefdescription>
-<para>No files to write for shaders — no-op. </para>
-        </briefdescription>
-        <detaileddescription>
-<para><ref refid="classconfig_1_1_shader" kindref="compound">Shader</ref> projects are user-supplied on disk. There is nothing to write to disk from <ref refid="namespaceBinaryData" kindref="compound" external="/Users/jreng/Documents/Poems/dev/jam/docs/tagfile.xml">BinaryData</ref> at startup. </para>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="config/Config.h" line="51" column="10" bodyfile="config/Config.h" bodystart="51" bodyend="51"/>
-      </memberdef>
       <memberdef kind="function" id="classconfig_1_1_shader_1a36417d818db5236b3152f3d1c2533a4c" prot="protected" static="no" const="no" explicit="no" inline="no" virt="virtual">
         <type>void</type>
         <definition>void config::Shader::loadFromPath</definition>
@@ -102,7 +67,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="58" column="10" bodyfile="config/Config.cpp" bodystart="153" bodyend="169"/>
+        <location file="config/Config.h" line="42" column="10" bodyfile="config/Config.cpp" bodystart="153" bodyend="169"/>
         <references refid="classjuce_1_1File_1a37e88fbc390d78f3d79675974f53fa78">juce::File::existsAsFile</references>
         <references refid="structconfig_1_1_shaders_1a0ad3245ff019beb74063ffcb2291482a" compoundref="_bimap_8h" startline="290" endline="290">config::Shaders::get</references>
         <references refid="classjuce_1_1File_1a57b992aacb19e09ee5905cd0f0e9bb31">juce::File::getChildFile</references>
@@ -151,7 +116,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="config/Config.h" line="65" column="10" bodyfile="config/Config.cpp" bodystart="171" bodyend="175"/>
+        <location file="config/Config.h" line="49" column="10" bodyfile="config/Config.cpp" bodystart="171" bodyend="175"/>
         <references refid="classjuce_1_1File_1ab6bec65fbcf19ce10e38cf9d1015770d">juce::File::getParentDirectory</references>
         <references refid="classconfig_1_1_shader_1a36417d818db5236b3152f3d1c2533a4c" compoundref="_config_8cpp" startline="153" endline="169">loadFromPath</references>
       </memberdef>
@@ -325,7 +290,7 @@
         </childnode>
       </node>
     </collaborationgraph>
-    <location file="config/Config.h" line="25" column="1" bodyfile="config/Config.h" bodystart="26" bodyend="69"/>
+    <location file="config/Config.h" line="25" column="1" bodyfile="config/Config.h" bodystart="26" bodyend="53"/>
     <listofallmembers>
       <member refid="classjam_1_1Model_1ae5d4d70e706dcc558cf21923125a9176" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>addListener</name></member>
       <member refid="classjam_1_1Model_1ac78b7437a06da378bf49cbd4f27bfc63" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>addProperties</name></member>
@@ -363,7 +328,7 @@
       <member refid="classjam_1_1Model_1a1032430642def825ff972dc86d6608c4" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>getValueFromChildWithProperty</name></member>
       <member refid="classjam_1_1Model_1a710fd55b83d2e5657e48d49ce5225ea2" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>getXml</name></member>
       <member refid="classjam_1_1Model_1a1c976506dd5eb7d125a0e804c97c61e2" prot="private" virt="non-virtual"><scope>config::Shader</scope><name>idleHz</name></member>
-      <member refid="classconfig_1_1_shader_1aa8b27be122a036faec6fccb1916faaa8" prot="protected" virt="virtual"><scope>config::Shader</scope><name>initialise</name></member>
+      <member refid="classconfig_1_1_directory_1ae83c28995bbec814ee15b291306be400" prot="protected" virt="virtual"><scope>config::Shader</scope><name>initialise</name></member>
       <member refid="classjuce_1_1Timer_1a525f38cc7afdc0696b467bd4ed3f17da" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>isTimerRunning</name></member>
       <member refid="classconfig_1_1_directory_1a1ea8c2e469d5d9c789fcc7aa117c2cb8" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>load</name></member>
       <member refid="classconfig_1_1_shader_1a36417d818db5236b3152f3d1c2533a4c" prot="protected" virt="virtual"><scope>config::Shader</scope><name>loadFromPath</name></member>
@@ -378,7 +343,7 @@
       <member refid="classjam_1_1Model_1a688b7625ae8b2a4d4d1f1643a6b3aa41" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>removeListener</name></member>
       <member refid="classjam_1_1Model_1a73bb2822ba0b1211ca9e290d57c5cd2d" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>replaceState</name></member>
       <member refid="classjam_1_1Model_1a77ac5fd7f2a2caa0e892cd993d4df2d7" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>restoreValues</name></member>
-      <member refid="classconfig_1_1_shader_1a43a6029f5a5247916ea30c7f8df13b89" prot="protected" virt="virtual"><scope>config::Shader</scope><name>saveToPath</name></member>
+      <member refid="classconfig_1_1_directory_1ac6b1f4f0038136d519318d44ed3dec51" prot="protected" virt="virtual"><scope>config::Shader</scope><name>saveToPath</name></member>
       <member refid="classjam_1_1Model_1a3263920ba9cd2e5633d714a49c0a5000" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>setTreeProperty</name></member>
       <member refid="classjam_1_1Model_1af7401e3c38ecf3fb0428369ebb822283" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>setValue</name></member>
       <member refid="classjam_1_1Model_1afd1a5ee11f1e480cb14c0027d6b617b7" prot="public" virt="non-virtual"><scope>config::Shader</scope><name>setValuesFrom</name></member>

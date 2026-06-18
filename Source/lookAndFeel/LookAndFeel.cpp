@@ -12,14 +12,9 @@ LookAndFeel::LookAndFeel()
     loadGraphics();
     registerEvents();
     config.addListener (this);
-    theme.addListener (this);
 }
 
-LookAndFeel::~LookAndFeel()
-{
-    theme.removeListener (this);
-    config.removeListener (this);
-}
+LookAndFeel::~LookAndFeel() { config.removeListener (this); }
 
 void LookAndFeel::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
 {
@@ -119,17 +114,16 @@ void LookAndFeel::drawTabLabel (juce::Graphics& g, juce::Label& label)
     {
         g.setFont (getTabFont());
         g.setColour (label.findColour (juce::Label::textColourId));
-        g.drawText (getTabText (label.getText()),
-                    label.getLocalBounds(),
-                    juce::Justification::centred);
+        g.drawText (
+            getTabText (label.getText()), label.getLocalBounds(), juce::Justification::centred);
     }
 }
 
 juce::Font LookAndFeel::getTabFont() const
 {
-    auto fontFamily { theme.getValue (IDtype::tab, ID::fontFamily) };
-    auto fontSize { theme.getValue (IDtype::tab, ID::fontSize) };
-    const float kerning { theme.getValue (IDtype::tab, ID::kerningFactor) };
+    auto fontFamily { config.getValue (IDtype::tab, ID::fontFamily) };
+    auto fontSize { config.getValue (IDtype::tab, ID::fontSize) };
+    const float kerning { config.getValue (IDtype::tab, ID::kerningFactor) };
 
     return juce::Font { juce::FontOptions()
                             .withName (fontFamily)
@@ -137,26 +131,26 @@ juce::Font LookAndFeel::getTabFont() const
                             .withKerningFactor (kerning) };
 }
 
-int LookAndFeel::getTabPadding() const { return theme.getValue (IDtype::tab, ID::textPadding); }
+int LookAndFeel::getTabPadding() const { return config.getValue (IDtype::tab, ID::textPadding); }
 
 juce::BorderSize<int> LookAndFeel::getTabBarPadding() const
 {
     // CSS order { top, right, bottom, left }; BorderSize ctor is (top, left, bottom, right).
-    auto [top, right, bottom, left] = theme.getInt16 (IDtype::tab, jam::ID::padding);
+    auto [top, right, bottom, left] = config.getInt16 (IDtype::tab, jam::ID::padding);
 
     return juce::BorderSize<int> { top, left, bottom, right };
 }
 
 LookAndFeel::Glass LookAndFeel::getWindowGlass() const
 {
-    auto colour { jam::Model::toColour (theme.getValue (IDtype::window, jam::ID::background)) };
-    int blur { theme.getValue (IDtype::window, ID::blurRadius) };
+    auto colour { jam::Model::toColour (config.getValue (IDtype::window, jam::ID::background)) };
+    int blur { config.getValue (IDtype::window, ID::blurRadius) };
     int fx { 0 };
 
 #if JUCE_MAC
-    auto name { theme.getValue (IDtype::windowFx, ID::mac).toString() };
+    auto name { config.getValue (IDtype::windowFx, ID::mac).toString() };
 #elif JUCE_WINDOWS
-    auto name { theme.getValue (IDtype::windowFx, ID::win).toString() };
+    auto name { config.getValue (IDtype::windowFx, ID::win).toString() };
 #endif
 
     if (jam::map::WindowFX::getInstance()->contains (name))
@@ -167,7 +161,7 @@ LookAndFeel::Glass LookAndFeel::getWindowGlass() const
 
 juce::String LookAndFeel::getTabText (const juce::String& tabName) const
 {
-    if (bool uppercase { theme.getValue (IDtype::tab, ID::uppercase) })
+    if (bool uppercase { config.getValue (IDtype::tab, ID::uppercase) })
         return tabName.toUpperCase();
 
     return tabName;

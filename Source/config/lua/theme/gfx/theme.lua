@@ -242,15 +242,6 @@ return {
 
 		-- Always convert tab label to upper-case.
 		uppercase = true,
-
-		-- SVG graphics assets. Filenames are arbitrary — the suffix after
-		-- the last underscore determines the identifier key.
-		-- Convention: anyname_<key>.svg
-		graphics = {
-			"tab_bar.svg",
-			"tab_highlight.svg",
-			"tab_button_normalOn.svg",
-		},
 	},
 
 	-- ========================================================================
@@ -302,11 +293,6 @@ return {
 
 		-- Pane divider bar thickness in pixels.
 		resize_bar_thickness = 8,
-
-		-- SVG graphics assets for pane resizer bars.
-		graphics = {
-			"resizer_bar.svg",
-		},
 	},
 
 	-- ========================================================================

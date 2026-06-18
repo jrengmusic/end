@@ -34,23 +34,11 @@ void View::registerEvents()
                                       getTopLevelComponent()->sendLookAndFeelChange();
                                   });
 
-    events.add<juce::ValueTree&> (IDtype::graphics,
-                                  [this] (juce::ValueTree&)
-                                  {
-                                      getTopLevelComponent()->sendLookAndFeelChange();
-                                  });
-
-    events.add<juce::ValueTree&> (IDtype::tabButton,
-                                  [this] (juce::ValueTree&)
-                                  {
-                                      getTopLevelComponent()->sendLookAndFeelChange();
-                                  });
-
     events.add<juce::ValueTree&> (ID::gpu,
                                   [this] (juce::ValueTree&)
                                   {
                                       const auto gpu { jam::GpuProbe::probe() };
-                                      bool canUseGpu { config.getValue (IDtype::init, ID::gpu) and gpu.isAvailable };
+                                      bool canUseGpu { config.state.getProperty (ID::gpu) and gpu.isAvailable };
                                       jam::BackgroundBlur::setEnabled (canUseGpu);
 
                                       if (canUseGpu != shader.isAttached())

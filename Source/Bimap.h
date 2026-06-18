@@ -124,7 +124,7 @@ struct File : public jam::Bimap<File>
     enum
     {
         init,///< Application init config (init.lua).
-        popups,///< Popup terminal definitions.
+        popup,///< Popup terminal definitions.
         keys,///< Key bindings.
     };
 
@@ -132,9 +132,9 @@ struct File : public jam::Bimap<File>
     File()
     {
         map = {
-            { File::init,   IDref::init   },
-            { File::popups, IDref::popups },
-            { File::keys,   IDref::keys   },
+            { File::init,  IDref::init  },
+            { File::popup, IDref::popup },
+            { File::keys,  IDref::keys  },
         };
     }
 
@@ -239,6 +239,66 @@ private:
 
 //==============================================================================
 /**
+ * @brief Registry of theme SVG graphics assets — 4 section keys.
+ *        Top-level registry. CRTP-derived from jam::Bimap\<Flex\>.
+ *
+ * Maps each enum key to its Identifier stem. The on-disk filename is
+ * stem + ".svg" (via getName()). The filesystem is the manifest: present
+ * files are loaded into the FLEX ValueTree child nested under THEME,
+ * absent files are skipped.
+ *
+ * Lives inside the active theme subdirectory under flex/ — no
+ * independent root path. Theme resolves the directory and passes it to
+ * the scan.
+ *
+ * The live instance is owned by end::Application — static get() resolves
+ * through jam::Instance\<Flex\>.
+ */
+struct Flex : public jam::Bimap<Flex>
+{
+    /** @brief Integer keys for known SVG graphics assets. */
+    enum
+    {
+        tabBar,///< Tab bar background.
+        tabHighlight,///< Tab highlight overlay.
+        tabButtonNormalOn,///< Tab button active state.
+        resizerBar,///< Pane resizer bar.
+    };
+
+    /** @brief Populates the bimap with all 4 entries. */
+    Flex()
+    {
+        map = {
+            { Flex::tabBar,            IDref::tabBar            },
+            { Flex::tabHighlight,      IDref::tabHighlight      },
+            { Flex::tabButtonNormalOn, IDref::tabButtonNormalOn },
+            { Flex::resizerBar,        IDref::resizerBar        },
+        };
+    }
+
+    /** @brief Returns the int→Identifier-stem map from the live context instance. */
+    static const auto& get() noexcept { return getInstance()->map; }
+
+    /**
+     * @brief Returns the filename for the given enum key ("stem.svg").
+     *
+     * @param key  One of the Flex enum values.
+     * @return     Filename string including extension (e.g. "tab_bar.svg").
+     */
+    static const juce::String getName (int key) noexcept
+    {
+        return jam::Format::toFileName (get().at (key), extension);
+    }
+
+    /** @brief SVG extension for flex files. */
+    inline static const juce::String extension { "svg" };
+
+private:
+    const juce::String& getDefault() const noexcept override { return map.at (Flex::tabBar); }
+};
+
+//==============================================================================
+/**
  * @brief Registry of Shadertoy pass file names — 6 section keys.
  *        Top-level registry. CRTP-derived from jam::Bimap\<Shaders\>.
  *
@@ -320,6 +380,7 @@ struct Map
     end::DropMode dropMode;
     config::File file;
     config::Themes themes;
+    config::Flex flex;
     config::Shaders shaders;
     jam::map::WindowFX window;
     jam::map::Segment segment;

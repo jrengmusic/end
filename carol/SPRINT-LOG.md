@@ -2,6 +2,60 @@
 
 ---
 
+## Sprint 27: Config Tree Flattening — Flat CONFIG, FLEX/SHADER Children ✅
+
+**Date:** 2026-06-18
+**Duration:** ~04:00
+
+### Agents Participated
+- COUNSELOR: planning, orchestration, fact-checking
+- Engineer: all code implementation (12 dispatches)
+- Pathfinder: codebase discovery (bimap/consumer mapping)
+
+### Files Modified (16 total)
+- `Source/config/Directory.h` — fileChanged moved to base, initialise/saveToPath non-pure
+- `Source/config/Config.h` — getTheme/getShader removed, Theme/Shader/Model doxygen rewritten for flat tree
+- `Source/config/Config.cpp` — Model::initialise flattens init.lua as CONFIG type; loadFromPath overlay pattern; Shader::loadFromPath creates SHADER child under GRAPHICS; Theme::loadFromPath creates FLEX child under THEME; no removeChild anywhere
+- `Source/Identifier.h` — popups→popup, added flex, shader, tabButtonNormalOn identifiers; removed duplicate popup from IDENTIFIER_THEME
+- `Source/Bimap.h` — File::popups→popup; config::Flex bimap (4 SVG entries, was Graphics); end::Map updated
+- `Source/config/lua/init.lua` — shaders section renamed to graphics
+- `Source/config/lua/popup.lua` — renamed from popups.lua
+- `Source/config/lua/theme/gfx/theme.lua` — graphics={} CSV sections removed
+- `Source/lookAndFeel/LookAndFeel.h` — theme member removed, doxygen updated
+- `Source/lookAndFeel/LookAndFeel.cpp` — theme.addListener/removeListener removed, all theme.getValue→config.getValue
+- `Source/lookAndFeel/EventRegistration.cpp` — loadGraphics reads FLEX child via forEachProperty; IDtype::graphics/tabButton events removed; ID::theme fires initialiseColours+loadGraphics; all setColours(theme.state)→config.state
+- `Source/end/View.h` — theme member removed
+- `Source/end/View.cpp` — theme listener removed; IDtype::init→root property access
+- `Source/end/EventRegistration.cpp` — IDtype::graphics/tabButton events removed; IDtype::init→root property
+- `Source/end/MessageOverlay.h` — getTheme()→getInstance() direct
+- `Source/end/Tabs.cpp` — getTheme().getValue→config.getValue
+- `Source/end/Panes.cpp` — getTheme().getValue→getInstance()->getValue
+- `Source/shader/Controller.h` — getChildWithName recursive search for SHADER
+- `~/Documents/Poems/dev/jam/jam_look_and_feel/jam_look_and_feel_custom.h` — tree→node parameter rename (contains, setColours)
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered (singular POPUP, SHADER, FLEX)
+- [x] MANIFESTO.md principles applied (SSOT single tree, no shadow state, Lean removal of graphicsCallbacks/CSV manifest)
+
+### Problems Solved
+- Three separate ValueTree roots unified into single flat CONFIG tree
+- SVG CSV manifest replaced with bimap-driven disk scan (consistent with Shader pattern)
+- SHADERS name collision resolved (init.lua section→GRAPHICS, GLSL→SHADER child)
+- INIT wrapper removed (init.lua parsed as CONFIG type)
+- graphicsCallbacks/buildGraphicsCallbacks deleted (unnecessary indirection)
+- fileChanged unified in Directory base (Theme/Shader had identical implementations)
+- JAM parameter name collision fixed (tree→node in setColours/contains)
+- removeChild anti-pattern eliminated throughout
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 26: Config Restructure — config::Directory Generalization ✅
 
 **Date:** 2026-06-18

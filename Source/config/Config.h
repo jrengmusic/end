@@ -8,19 +8,23 @@ namespace config
 /*____________________________________________________________________________*/
 
 /**
-    @brief Shader source model — @c config::Directory subclass that owns the
-           live ValueTree of raw GLSL source strings.
+    @brief Shader source model — @c config::Directory subclass that populates
+           the SHADER child nested under GRAPHICS in the shared config @c state
+           with raw GLSL source strings.
+
+    @c state is reassigned to config::Model::state in the Model constructor, so
+    all children created here appear directly under @c \<CONFIG\>.
 
     Reads shader pass files (Common, Image, BufferA-D) from the active shader
     project directory passed directly as a resolved @c juce::File. Each present
-    file becomes a property on @c state keyed by its bare filename stem. Absent
-    files are silently skipped.
+    file becomes a property on the SHADER child (under GRAPHICS) keyed by its
+    bare filename. Absent files are silently skipped.
 
     Load policy: no BinaryData defaults (@c initialise is a no-op); no disk
-    writing (@c saveToPath is a no-op). Only @c loadFromPath and @c fileChanged
-    perform work. @c loadFromPath ends by firing
-    @c state.sendPropertyChangeMessage(IDtype::shaders). Controller listens on
-    the @c IDtype::shaders notify channel.
+    writing (@c saveToPath is a no-op). Only @c loadFromPath performs work
+    (fileChanged is inherited from @c Directory). @c loadFromPath ends by firing
+    @c state.sendPropertyChangeMessage(IDtype::graphics). Controller listens on
+    the @c IDtype::graphics notify channel.
 */
 class Shader : public Directory
 {
@@ -34,35 +38,13 @@ public:
     ~Shader() override = default;
 
 protected:
-    /**
-        @brief No BinaryData defaults for shaders — no-op.
-
-        Shader projects are user-supplied on disk. There is nothing to
-        write to disk from BinaryData at startup.
-    */
-    void initialise() override {}
-
-    /**
-        @brief No files to write for shaders — no-op.
-
-        Shader projects are user-supplied on disk. There is nothing to
-        write to disk from BinaryData at startup.
-    */
-    void saveToPath (const juce::File&) override {}
-
-    /** @brief Clears all source properties, then reads each present pass
-     *         file from @c dir into @c state as a string property. Fires
-     *         @c state.sendPropertyChangeMessage(IDtype::shaders) last.
+    /** @brief Finds GRAPHICS child on @c state (shared config.state), gets or
+     *         creates a SHADER child under it, then reads each present pass file
+     *         from @c dir as a string property. Fires
+     *         @c state.sendPropertyChangeMessage(IDtype::graphics) last.
      *  @param dir  Shader project directory (may be invalid when name is empty).
      */
     void loadFromPath (const juce::File& dir) override;
-
-    /** @brief On @c fileUpdated — reloads all sources from the changed file's
-     *         parent directory. @c loadFromPath handles the notify.
-     *  @param file   The file that changed.
-     *  @param event  Change event type.
-     */
-    void fileChanged (const juce::File& file, jam::File::Watcher::Event event) override;
 
 private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Shader)
@@ -70,24 +52,32 @@ private:
 
 //==============================================================================
 /**
-    @brief Theme state model — @c config::Directory subclass that owns the
-           live ValueTree of theme lua files and SVG graphics callbacks.
+    @brief Theme state model — @c config::Directory subclass that creates
+           THEME and WHELMED children directly on the shared config @c state,
+           and a FLEX child nested under THEME.
+
+    @c state is reassigned to config::Model::state in the Model constructor, so
+    all children created here appear directly under @c \<CONFIG\>. This class
+    never calls @c removeAllChildren — @c state is shared with other config
+    sections (KEYS, POPUP). Removals are always by child name.
 
     Manages the full lifecycle for a named theme subdirectory passed as a
     resolved @c juce::File:
 
-    - @c initialise()         builds the default tree from BinaryData (theme.lua,
-                              whelmed.lua) so that @c saveToPath can walk it for
-                              SVG filenames.
-    - @c saveToPath(dir)      writes each theme lua and every graphics SVG listed
-                              in the tree into @c dir inline via a local lambda —
-                              no shared write method.
-    - @c loadFromPath(dir)    clears @c state, reads each lua from disk into the
-                              tree, rebuilds @c graphicsCallbacks, then fires
-                              @c state.sendPropertyChangeMessage(ID::theme) last.
-    - @c fileChanged(...)     on @c fileUpdated for @c .lua — calls
-                              @c loadFromPath (which handles the notify);
-                              for @c .svg — dispatches via @c graphicsCallbacks.
+    - @c initialise()         replaces THEME/WHELMED children on @c state from
+                              BinaryData defaults. Called before @c saveToPath
+                              so the bimap-driven SVG list is available for disk
+                              seeding.
+    - @c saveToPath(dir)      writes each theme lua and every SVG from the
+                              @c config::Flex bimap into @c dir inline via a
+                              local lambda — no CSV manifest, no @c ID::flex
+                              property walk.
+    - @c loadFromPath(dir)    reads each lua from disk, creates a FLEX child
+                              nested under the THEME child populated by scanning
+                              the @c config::Flex bimap, then fires
+                              @c state.sendPropertyChangeMessage(ID::theme).
+    - @c fileChanged(...)     inherited from @c Directory — on @c fileUpdated
+                              calls @c loadFromPath (which handles the notify).
 
     LookAndFeel listens on the @c ID::theme notify channel.
 
@@ -106,71 +96,46 @@ public:
     ~Theme() override = default;
 
 protected:
-    /** @brief Builds the default theme tree from BinaryData — required so
-     *         @c saveToPath can walk the tree for SVG filenames.
+    /** @brief Replaces THEME and WHELMED children on @c state (shared config.state)
+     *         from BinaryData defaults — required so @c saveToPath has bimap
+     *         entries available for SVG seeding.
      *
-     *  For each @c config::Themes::get() entry, runs the BinaryData lua
-     *  source through @c jam::Model::fromLua and appends the result to
-     *  @c state. Called fresh on every @c load() cycle before disk ops.
+     *  For each @c config::Themes::get() entry, removes any existing child with
+     *  that name, then runs the BinaryData lua source through @c jam::Model::fromLua
+     *  and appends the result to @c state. Does NOT call @c removeAllChildren.
      */
     void initialise() override;
 
-    /** @brief Writes each theme lua file and every graphics SVG into @c dir inline.
+    /** @brief Writes each theme lua file and every SVG from @c config::Flex
+     *         bimap into @c dir inline.
      *
      *  Guards on @c dir.getFullPathName().isNotEmpty(). Uses a local lambda to
      *  write each file only when absent and the BinaryData entry exists. Calls
-     *  @c jam::File::getOrCreateDirectory to create @c dir before writing, then
-     *  walks @c state via @c jam::Model::applyFunctionRecursively reading
-     *  @c ID::graphics (@c jam::Model::toStringArray) and writes each non-empty
-     *  SVG name to the graphics subdirectory.
+     *  @c jam::File::getOrCreateDirectory to create @c dir and the @c flex/
+     *  subdirectory. Iterates @c config::Flex::get() for SVG filenames —
+     *  no CSV manifest, no @c ID::flex property walk.
      *
      *  @param dir  Theme directory to write into (may be invalid if empty name).
      */
     void saveToPath (const juce::File& dir) override;
 
-    /** @brief Clears @c state, reads each lua from disk, rebuilds graphics
-     *         callbacks, then fires @c state.sendPropertyChangeMessage(ID::theme).
+    /** @brief Reads each lua from disk, creates a FLEX child nested under the
+     *         THEME child from the @c config::Flex bimap scan, then fires
+     *         @c state.sendPropertyChangeMessage(ID::theme).
      *
-     *  @c state.removeAllChildren() first. If @c dir.isDirectory(), for each
-     *  @c config::Themes::get() entry reads the file from disk through
-     *  @c jam::Model::fromLua and appends the result child to @c state.
-     *  Always calls @c buildGraphicsCallbacks() then
-     *  @c state.sendPropertyChangeMessage(ID::theme) last.
+     *  Never calls @c removeAllChildren — @c state is shared. If @c dir.isDirectory(),
+     *  for each @c config::Themes::get() entry reads the file from disk through
+     *  @c jam::Model::fromLua and overlays the result via @c setValuesFrom. Then
+     *  finds the THEME child via @c jam::Model::getChildWithName, gets or creates
+     *  a FLEX child under it, and scans @c flex/ subdirectory against
+     *  @c config::Flex bimap — populating FLEX with SVG content properties.
+     *  Fires @c state.sendPropertyChangeMessage(ID::theme) last.
      *
      *  @param dir  Theme directory to read from.
      */
     void loadFromPath (const juce::File& dir) override;
 
-    /** @brief Dispatches theme and SVG file changes.
-     *
-     *  On @c fileUpdated: if the extension matches @c config::Themes::extension
-     *  — calls @c loadFromPath(file.getParentDirectory()); @c loadFromPath
-     *  handles the notify. If extension matches @c jam::IDref::svg — looks up
-     *  the filename in @c graphicsCallbacks and calls the stored callback.
-     *
-     *  @param file   The file that changed.
-     *  @param event  Change event type.
-     */
-    void fileChanged (const juce::File& file, jam::File::Watcher::Event event) override;
-
 private:
-    /** @brief Rebuilds @c graphicsCallbacks from the live @c state tree.
-     *
-     *  Clears the map, then walks @c state via
-     *  @c jam::Model::applyFunctionRecursively reading the @c ID::graphics
-     *  property (@c jam::Model::toStringArray) on each node. For each
-     *  non-empty filename builds a callback that fires
-     *  @c state.sendPropertyChangeMessage on the matching identifier — either
-     *  the button-state suffix (when present in @c jam::map::ButtonState) or
-     *  the bare stem. Called at the end of every @c loadFromPath().
-     */
-    void buildGraphicsCallbacks();
-
-    /** @brief SVG filename to @c sendPropertyChangeMessage callback map.
-     *         Rebuilt by @c buildGraphicsCallbacks() after every disk load.
-     */
-    jam::Function::Map<juce::String, void> graphicsCallbacks;
-
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Theme)
 };
 
@@ -181,7 +146,7 @@ private:
 
     @details
     End is a terminal emulator. Every user-facing knob lives in lua files
-    under @c ~/.config/end/ — @c init.lua, @c popups.lua, @c keys.lua
+    under @c ~/.config/end/ — @c init.lua, @c popup.lua, @c keys.lua
     (the three root config sections). config::Model loads, validates, and
     exposes them as a live @c juce::ValueTree. It is NOT a @c Directory
     subclass — it handles only the root directory and owns one @c Theme and
@@ -194,6 +159,16 @@ private:
     from any code that includes this header), and
     @c jam::File::Watcher::Listener (receives root-directory filesystem
     change notifications).
+
+    @par Flat unified config tree
+    In the constructor, before the four phases run, @c theme.state and
+    @c shader.state are both reassigned to @c state (the config root ValueTree).
+    Children created by Theme (THEME, WHELMED) and Shader (GRAPHICS) appear
+    directly under @c \<CONFIG\>. The FLEX child (SVG content) is nested under
+    THEME; the SHADER child (GLSL source) is nested under GRAPHICS. Root-level
+    init.lua properties (gpu, size, theme, tabOrientation, …) and init.lua
+    sub-sections (TERMINAL, DAEMON, …) are flattened directly onto @c \<CONFIG\>
+    — no INIT wrapper node.
 
     @par Four-phase init (§1.5 binary-defaults → disk overlay contract)
     The constructor runs four phases in fixed order:
@@ -256,12 +231,15 @@ public:
         For every entry in @c File::get(), loads the file from @c File::path,
         builds a temporary ValueTree via @c jam::Model::fromLua with the
         populated validator map, collects any per-file errors, and (if the
-        tree is valid) overlays the result onto the live tree via
-        @c setValuesFrom. After the walk, sets @c loadMessage to @"RELOAD"
-        on success or the accumulated error text on failure, fires
-        @c sendPropertyChangeMessage on @c ID::loadMessage, then drives
-        @c theme.load() and @c shader.load() with the dir resolved directly
-        via the bimap.
+        tree is valid) wraps the result in a CONFIG-typed root before calling
+        @c setValuesFrom. For the @c init entry the root-level properties and
+        children are flattened onto the CONFIG wrapper before the overlay — so
+        the live tree never contains an INIT node. After the walk, sets
+        @c loadMessage to @"RELOAD" on success or the accumulated error text on
+        failure, fires @c sendPropertyChangeMessage on @c ID::loadMessage, then
+        drives @c theme.load() (theme name read from @c state root property) and
+        @c shader.load() (background read from the GRAPHICS child) directly via
+        the bimap.
     */
     void loadFromPath();
 
@@ -272,24 +250,20 @@ public:
     */
     const juce::String& getLoadMessage() const noexcept { return loadMessage; }
 
-    /** @brief Returns the theme model for listener registration. */
-    Theme& getTheme() noexcept { return theme; }
-
-    /** @brief Returns the shader model for listener registration. */
-    Shader& getShader() noexcept { return shader; }
-
 private:
     /**
         @brief Populates the live tree from BinaryData and builds the
                validator map in a single recursive walk.
         @details
         For every entry in @c File::get(), runs the corresponding BinaryData
-        lua source through @c jam::Model::fromLua with @c &validators,
-        appending the child to @c state. Then walks every subtree via
-        @c jam::Model::applyFunctionRecursively and registers a type-based
-        predicate per property; for string properties whose default matches a
-        known @c end::Map (Position, DropMode) the predicate is replaced with
-        a Map-aware predicate via @c registerValidator.
+        lua source through @c jam::Model::fromLua with @c &validators. For the
+        @c init entry, root-level properties are copied onto @c state and each
+        child is moved directly under @c state (no INIT wrapper). For all other
+        entries the child is appended to @c state unchanged. Then walks every
+        subtree via @c jam::Model::applyFunctionRecursively and registers a
+        type-based predicate per property; for string properties whose default
+        matches a known @c end::Map (Position, DropMode) the predicate is
+        replaced with a Map-aware predicate via @c registerValidator.
     */
     void initialise();
 
@@ -316,7 +290,7 @@ private:
 
         Only @c fileUpdated for a @c File::extension file triggers work — calls
         @c loadFromPath(). All other events and extensions are ignored.
-        SVG dispatch is owned by @c Theme::fileChanged().
+        SVG/theme watching is owned entirely by @c Theme (via @c Directory::fileChanged).
 
         @param file   The file that changed.
         @param event  The change event type.

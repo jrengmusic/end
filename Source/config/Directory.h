@@ -37,7 +37,10 @@ public:
         @brief Constructs the directory model.
         @param treeType  Forwarded to @c jam::Model as the ValueTree type.
     */
-    explicit Directory (const juce::Identifier& treeType) : jam::Model (treeType) {}
+    explicit Directory (const juce::Identifier& treeType)
+        : jam::Model (treeType)
+    {
+    }
 
     ~Directory() override = default;
 
@@ -61,16 +64,15 @@ public:
         startWatcher (dir);
     }
 
-    /** @brief Event coalescing window shared by all config watchers — 300 ms. */
     static constexpr int coalesceMs { 300 };
 
 protected:
     //==========================================================================
     /** @brief Build in-memory defaults from BinaryData (called before disk ops). */
-    virtual void initialise() = 0;
+    virtual void initialise() {}
 
     /** @brief Write missing files to @c dir from BinaryData inline. */
-    virtual void saveToPath (const juce::File& dir) = 0;
+    virtual void saveToPath (const juce::File& dir) {}
 
     /** @brief Clear @c state, populate it by reading files from @c dir, then
      *         fire @c state.sendPropertyChangeMessage with the subclass-owned
@@ -99,6 +101,19 @@ private:
             watcher.coalesceEvents (coalesceMs);
             watcher.addListener (this);
         }
+    }
+
+    /**
+        @brief On @c fileUpdated — reloads from the changed file's parent
+               directory. @c loadFromPath handles the notify.
+
+        @param file   The file that changed.
+        @param event  Change event type.
+    */
+    void fileChanged (const juce::File& file, jam::File::Watcher::Event event) override
+    {
+        if (event == jam::File::Watcher::Event::fileUpdated)
+            loadFromPath (file.getParentDirectory());
     }
 
     jam::File::Watcher watcher;

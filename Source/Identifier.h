@@ -26,7 +26,7 @@
     X (init, "init")                         \
     X (end, "end")                           \
     X (keys, "keys")                         \
-    X (popups, "popups")                     \
+    X (popup, "popup")                       \
     X (whelmed, "whelmed")                   \
     X (graphics, "graphics")                 \
     X (loadMessage, "load_message")          \
@@ -62,15 +62,16 @@
     X (tab, "tab")                                 \
     X (tabBar, "tab_bar")                          \
     X (tabButton, "tab_button")                    \
+    X (tabButtonNormalOn, "tab_button_normalOn")   \
     X (tabHighlight, "tab_highlight")              \
     X (resizerBar, "resizer_bar")                  \
+    X (flex, "flex")                               \
     X (tabs, "tabs")                               \
     X (pane, "pane")                               \
     X (window, "window")                           \
     X (windowFx, "window_fx")                      \
     X (size, "size")                               \
     X (view, "view")                               \
-    X (popup, "popup")                             \
     X (ligatures, "ligatures")                     \
     X (embolden, "embolden")                       \
     X (lineHeight, "line_height")                  \
@@ -189,6 +190,7 @@
 // jam::gpu has string "GPU" (uppercase) — "gpu" (lowercase) is a distinct lua key, declared here
 #define IDENTIFIER_APP(X)                 \
     X (gpu, "gpu")                        \
+    X (shader, "shader")                  \
     X (shaders, "shaders")                \
     X (daemon, "daemon")                  \
     X (autoReload, "auto_reload")         \
@@ -204,7 +206,7 @@
     X (border, "border")                  \
     X (tabOrientation, "tab_orientation")
 
-// Popup entry keys (popups.lua) — cols, rows already in COMMON
+// Popup entry keys (popup.lua) — cols, rows already in COMMON
 #define IDENTIFIER_POPUPS(X) \
     X (command, "command")   \
     X (modal, "modal")

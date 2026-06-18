@@ -38,13 +38,22 @@ static std::function<bool (const juce::var&)> getEnumValidator (const juce::Stri
 //==============================================================================
 void Model::initialise()
 {
+    state = jam::Model::fromLua (
+        BinaryData::getString (File::getName (File::init)), IDtype::config, {}, &validators);
+
+    theme.state = state;
+    shader.state = state;
+
     for (auto& [key, value] : File::get())
     {
-        auto child { jam::Model::fromLua (
-            BinaryData::getString (File::getName (key)), value.toUpperCase(), {}, &validators) };
+        if (key != File::init)
+        {
+            auto child { jam::Model::fromLua (
+                BinaryData::getString (File::getName (key)), value.toUpperCase(), {}, &validators) };
 
-        if (child.isValid())
-            state.appendChild (child, nullptr);
+            if (child.isValid())
+                state.appendChild (child, nullptr);
+        }
     }
 
     jam::Model::applyFunctionRecursively (
@@ -56,13 +65,14 @@ void Model::initialise()
 
             auto treeType { tree.getType() };
 
-            jam::Model::forEachProperty (tree,
-                                         [this, treeType] (const juce::Identifier& name, const juce::var& value)
-                                         {
-                                             if (value.isString())
-                                                 if (auto validator { getEnumValidator (value.toString()) })
-                                                     registerValidator (treeType, name, std::move (validator));
-                                         });
+            jam::Model::forEachProperty (
+                tree,
+                [this, treeType] (const juce::Identifier& name, const juce::var& value)
+                {
+                    if (value.isString())
+                        if (auto validator { getEnumValidator (value.toString()) })
+                            registerValidator (treeType, name, std::move (validator));
+                });
 
             return false;
         });
@@ -97,8 +107,11 @@ void Model::loadFromPath()
         const juce::File file { File::path.getChildFile (File::getName (key)) };
         juce::String fileErrors;
 
-        auto child { jam::Model::fromLua (
-            file.loadFileAsString(), value.toUpperCase(), file.getFileName(), &validators, &fileErrors) };
+        auto child { jam::Model::fromLua (file.loadFileAsString(),
+                                          value.toUpperCase(),
+                                          file.getFileName(),
+                                          &validators,
+                                          &fileErrors) };
 
         if (fileErrors.isNotEmpty())
             errors << file.getFileName() << ":\n" << fileErrors;
@@ -106,7 +119,27 @@ void Model::loadFromPath()
         if (child.isValid())
         {
             juce::ValueTree root { state.getType() };
-            root.appendChild (child, nullptr);
+
+            if (key == File::init)
+            {
+                for (int i { 0 }; i < child.getNumProperties(); ++i)
+                {
+                    auto name { child.getPropertyName (i) };
+                    root.setProperty (name, child.getProperty (name), nullptr);
+                }
+
+                while (child.getNumChildren() > 0)
+                {
+                    auto sub { child.getChild (0) };
+                    child.removeChild (0, nullptr);
+                    root.appendChild (sub, nullptr);
+                }
+            }
+            else
+            {
+                root.appendChild (child, nullptr);
+            }
+
             setValuesFrom (root);
         }
     }
@@ -118,9 +151,9 @@ void Model::loadFromPath()
 
     state.sendPropertyChangeMessage (ID::loadMessage);
 
-    theme.load (config::Themes::getPath (getValue (IDtype::init, ID::theme).toString()));
+    theme.load (config::Themes::getPath (state.getProperty (ID::theme).toString()));
 
-    shader.load (config::Shaders::getPath (getValue (IDtype::shaders, ID::background).toString()));
+    shader.load (config::Shaders::getPath (getValue (IDtype::graphics, ID::background).toString()));
 }
 
 void Model::startWatcher()
@@ -133,8 +166,7 @@ void Model::startWatcher()
 //==============================================================================
 void Model::fileChanged (const juce::File& file, jam::File::Watcher::Event event)
 {
-    if (event == jam::File::Watcher::Event::fileUpdated
-        and file.hasFileExtension (File::extension))
+    if (event == jam::File::Watcher::Event::fileUpdated and file.hasFileExtension (File::extension))
     {
         loadFromPath();
     }
@@ -152,33 +184,31 @@ void Model::registerValidator (juce::Identifier treeType,
 //==============================================================================
 void Shader::loadFromPath (const juce::File& dir)
 {
-    state.removeAllProperties (nullptr);
+    auto graphics { jam::Model::getChildWithName (state, IDtype::graphics) };
 
-    if (dir.isDirectory())
+    if (graphics.isValid())
     {
-        for (auto& [key, value] : config::Shaders::get())
-        {
-            const juce::File file { dir.getChildFile (value) };
+        auto shaderChild { graphics.getOrCreateChildWithName (IDtype::shader, nullptr) };
 
-            if (file.existsAsFile())
-                state.setProperty (juce::Identifier { value }, file.loadFileAsString(), nullptr);
+        if (dir.isDirectory())
+        {
+            for (auto& [key, value] : config::Shaders::get())
+            {
+                const juce::File file { dir.getChildFile (value) };
+
+                if (file.existsAsFile())
+                    shaderChild.setProperty (
+                        juce::Identifier { value }, file.loadFileAsString(), nullptr);
+            }
         }
     }
 
-    state.sendPropertyChangeMessage (IDtype::shaders);
-}
-
-void Shader::fileChanged (const juce::File& file, jam::File::Watcher::Event event)
-{
-    if (event == jam::File::Watcher::Event::fileUpdated)
-        loadFromPath (file.getParentDirectory());
+    state.sendPropertyChangeMessage (IDtype::graphics);
 }
 
 //==============================================================================
 void Theme::initialise()
 {
-    state.removeAllChildren (nullptr);
-
     for (auto& [key, value] : config::Themes::get())
     {
         auto child { jam::Model::fromLua (
@@ -211,25 +241,15 @@ void Theme::saveToPath (const juce::File& dir)
         for (auto& [key, value] : config::Themes::get())
             writeWhenNeeded (dir, config::Themes::getName (key));
 
-        auto graphicsDir { jam::File::getOrCreateDirectory (dir, jam::IDref::graphics) };
+        auto flexDir { jam::File::getOrCreateDirectory (dir, IDref::flex) };
 
-        jam::Model::applyFunctionRecursively (
-            state,
-            [graphicsDir, &writeWhenNeeded] (const juce::ValueTree& tree)
-            {
-                for (const auto& fileName : jam::Model::toStringArray (tree.getProperty (ID::graphics)))
-                    if (fileName.isNotEmpty())
-                        writeWhenNeeded (graphicsDir, fileName);
-
-                return false;
-            });
+        for (auto& [key, value] : config::Flex::get())
+            writeWhenNeeded (flexDir, config::Flex::getName (key));
     }
 }
 
 void Theme::loadFromPath (const juce::File& dir)
 {
-    state.removeAllChildren (nullptr);
-
     if (dir.isDirectory())
     {
         for (auto& [key, value] : config::Themes::get())
@@ -241,64 +261,37 @@ void Theme::loadFromPath (const juce::File& dir)
                 auto tree { jam::Model::fromLua (file.loadFileAsString(), value.toUpperCase()) };
 
                 if (tree.isValid())
-                    state.appendChild (tree, nullptr);
-            }
-        }
-    }
-
-    buildGraphicsCallbacks();
-
-    state.sendPropertyChangeMessage (ID::theme);
-}
-
-void Theme::fileChanged (const juce::File& file, jam::File::Watcher::Event event)
-{
-    if (event == jam::File::Watcher::Event::fileUpdated)
-    {
-        if (file.hasFileExtension (config::Themes::extension))
-            loadFromPath (file.getParentDirectory());
-        else if (file.hasFileExtension (jam::IDref::svg))
-        {
-            auto fileName { file.getFileName() };
-
-            if (graphicsCallbacks.contains (fileName))
-                graphicsCallbacks.get (fileName);
-        }
-    }
-}
-
-void Theme::buildGraphicsCallbacks()
-{
-    graphicsCallbacks.clear();
-
-    jam::Model::applyFunctionRecursively (
-        state,
-        [this] (const juce::ValueTree& tree)
-        {
-            for (const auto& fileName : jam::Model::toStringArray (tree.getProperty (ID::graphics)))
-            {
-                if (fileName.isNotEmpty())
                 {
-                    auto stem { jam::Format::getFilenameWithoutExtension (fileName) };
-                    auto suffix { stem.fromLastOccurrenceOf ("_", false, false) };
-
-                    juce::Identifier id {
-                        suffix.isNotEmpty()
-                                and jam::map::ButtonState::getInstance()->contains (suffix)
-                            ? suffix
-                            : stem
-                    };
-
-                    graphicsCallbacks.add<juce::ValueTree> (fileName,
-                                                            [id] (juce::ValueTree t)
-                                                            {
-                                                                t.sendPropertyChangeMessage (id);
-                                                            });
+                    juce::ValueTree root { state.getType() };
+                    root.appendChild (tree, nullptr);
+                    setValuesFrom (root);
                 }
             }
+        }
 
-            return false;
-        });
+        auto themeTree { jam::Model::getChildWithName (state, IDtype::theme) };
+
+        if (themeTree.isValid())
+        {
+            auto flexChild { themeTree.getOrCreateChildWithName (IDtype::flex, nullptr) };
+
+            auto flexDir { dir.getChildFile (IDref::flex) };
+
+            if (flexDir.isDirectory())
+            {
+                for (auto& [key, value] : config::Flex::get())
+                {
+                    const juce::File file { flexDir.getChildFile (config::Flex::getName (key)) };
+
+                    if (file.existsAsFile())
+                        flexChild.setProperty (
+                            juce::Identifier { value }, file.loadFileAsString(), nullptr);
+                }
+            }
+        }
+    }
+
+    state.sendPropertyChangeMessage (ID::theme);
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

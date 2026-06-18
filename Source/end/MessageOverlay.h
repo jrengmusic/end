@@ -108,9 +108,9 @@ public:
      */
     void paint (juce::Graphics& g) override
     {
-        auto& theme { config::Model::getInstance()->getTheme() };
-        auto family { theme.getValue (jam::IDtype::overlay, ID::fontFamily).toString() };
-        auto size { static_cast<float> (theme.getValue (jam::IDtype::overlay, ID::fontSize)) };
+        auto& cfg { *config::Model::getInstance() };
+        auto family { cfg.getValue (jam::IDtype::overlay, ID::fontFamily).toString() };
+        auto size { static_cast<float> (cfg.getValue (jam::IDtype::overlay, ID::fontSize)) };
         juce::Font font { juce::FontOptions().withName (family).withPointHeight (size) };
 
         auto bgColour { findColour (juce::Label::backgroundColourId) };

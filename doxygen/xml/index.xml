@@ -43,8 +43,8 @@
     <member refid="classconfig_1_1_directory_1ac8ce84c9839b82153f0f80c92a9fa672" kind="function"><name>Directory</name></member>
     <member refid="classconfig_1_1_directory_1aaf1021a0ac43bf490a3d677ba31ddc9c" kind="function"><name>~Directory</name></member>
     <member refid="classconfig_1_1_directory_1a1ea8c2e469d5d9c789fcc7aa117c2cb8" kind="function"><name>load</name></member>
-    <member refid="classconfig_1_1_directory_1ad22b695ac4e5bc7c68bd2b72478e47dc" kind="function"><name>initialise</name></member>
-    <member refid="classconfig_1_1_directory_1a4a70f2587a465bbdd46ffebf13e8fb8c" kind="function"><name>saveToPath</name></member>
+    <member refid="classconfig_1_1_directory_1ae83c28995bbec814ee15b291306be400" kind="function"><name>initialise</name></member>
+    <member refid="classconfig_1_1_directory_1ac6b1f4f0038136d519318d44ed3dec51" kind="function"><name>saveToPath</name></member>
     <member refid="classconfig_1_1_directory_1a51328cf49c3096beaca962a2a9b1db30" kind="function"><name>loadFromPath</name></member>
     <member refid="classconfig_1_1_directory_1ac1c41259565f810efbd2b1048f784076" kind="function"><name>startWatcher</name></member>
   </compound>
@@ -699,8 +699,6 @@
   <compound refid="classconfig_1_1_shader" kind="class"><name>config::Shader</name>
     <member refid="classconfig_1_1_shader_1ad48dcfeb714ddc12a66be1261e310093" kind="function"><name>Shader</name></member>
     <member refid="classconfig_1_1_shader_1a040aab72e915f4393a4dac916f658dcd" kind="function"><name>~Shader</name></member>
-    <member refid="classconfig_1_1_shader_1aa8b27be122a036faec6fccb1916faaa8" kind="function"><name>initialise</name></member>
-    <member refid="classconfig_1_1_shader_1a43a6029f5a5247916ea30c7f8df13b89" kind="function"><name>saveToPath</name></member>
     <member refid="classconfig_1_1_shader_1a36417d818db5236b3152f3d1c2533a4c" kind="function"><name>loadFromPath</name></member>
     <member refid="classconfig_1_1_shader_1a8c12579db7947e5e989808a7aca79c35" kind="function"><name>fileChanged</name></member>
   </compound>

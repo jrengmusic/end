@@ -68,7 +68,8 @@ private:
 
     int frameCounter { 0 };
 
-    juce::ValueTree shaders { config::Model::getInstance()->getShader().state };
+    juce::ValueTree shaders { jam::Model::getChildWithName (
+        config::Model::getInstance()->state, IDtype::shader) };
 
     struct Program
     {

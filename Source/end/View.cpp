@@ -18,7 +18,7 @@ View::View (jam::Model& m)
     addAndMakeVisible (tabs);
     addChildComponent (messageOverlay);
 
-    auto [width, height] = config.getInt (IDtype::init, ID::size);
+    auto [width, height] = config.getInt (IDtype::config, ID::size);
     state.setProperty (jam::ID::width, width, nullptr);
     state.setProperty (jam::ID::height, height, nullptr);
 
@@ -27,7 +27,6 @@ View::View (jam::Model& m)
     attachments.add (std::make_unique<jam::Model::Attachment> (tabs));
 
     config.addListener (this);
-    config.getTheme().addListener (this);
     model.addListener (this);
 
     setTabOrientation();
@@ -41,10 +40,9 @@ View::View (jam::Model& m)
         {
             // Fire window events for initial state — addListener doesn't replay.
             // Uses the SAME event handlers as VTPC hot-reload (DRY/SSOT).
-            auto endTree { config.state.getChildWithName (IDtype::init) };
-            events.get (ID::gpu, endTree);
-            events.get (ID::alwaysOnTop, endTree);
-            events.get (ID::titleBarButtons, endTree);
+            events.get (ID::gpu, config.state);
+            events.get (ID::alwaysOnTop, config.state);
+            events.get (ID::titleBarButtons, config.state);
             grabKeyboardFocus();
         });
 
@@ -54,7 +52,6 @@ View::View (jam::Model& m)
 View::~View()
 {
     model.removeListener (this);
-    config.getTheme().removeListener (this);
     config.removeListener (this);
     removeKeyListener (this);
 }
@@ -96,7 +93,7 @@ void View::setViewState (int width, int height)
 
 void View::setTabOrientation()
 {
-    auto pos { config.getValue (IDtype::init, ID::tabOrientation).toString() };
+    auto pos { config.state.getProperty (ID::tabOrientation).toString() };
 
     if (Position::getInstance()->contains (pos))
         tabs.setOrientation (Position::get (pos));

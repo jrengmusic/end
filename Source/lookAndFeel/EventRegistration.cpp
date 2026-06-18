@@ -23,8 +23,8 @@ void LookAndFeel::registerTypeface()
 
     // jam side: build the composite code typeface from theme, with emoji + nerd-font fallbacks
     // and a bold style variant.
-    juce::String fontFamily { theme.getValue (IDtype::code, ID::fontFamily) };
-    float fontSize { theme.getValue (IDtype::code, ID::fontSize) };
+    juce::String fontFamily { config.getValue (IDtype::code, ID::fontFamily) };
+    float fontSize { config.getValue (IDtype::code, ID::fontSize) };
 
     auto typeface { std::make_unique<jam::Typeface> (fontFamily,
 #if JUCE_MAC
@@ -50,7 +50,7 @@ void LookAndFeel::registerTypeface()
 
 void LookAndFeel::initialiseColours()
 {
-    colourMap = jam::ColourMap::fromValueTree (theme.state);
+    colourMap = jam::ColourMap::fromValueTree (config.state);
 
     setColourId (IDtype::code, jam::ID::text, jam::CodeView::textColourId);
     setColourId (IDtype::code, jam::ID::background, jam::CodeView::backgroundColourId);
@@ -79,44 +79,34 @@ void LookAndFeel::initialiseColours()
     setColourId (IDtype::hint, jam::ID::background, hintLabelBgColourId);
     setColourId (IDtype::hint, jam::ID::text, hintLabelFgColourId);
 
-    setColours (theme.state);
+    setColours (config.state);
 }
 
 void LookAndFeel::loadGraphics()
 {
-    auto themeName { config.getValue (IDtype::init, ID::theme).toString() };
-    auto directory { config::Themes::getPath (themeName)
-                         .getChildFile (jam::IDref::graphics) };
-
     graphics.clear();
 
-    jam::Model::applyFunctionRecursively (theme.state,
-        [&] (const juce::ValueTree& tree)
-        {
-            auto fileNames { jam::Model::toStringArray (tree.getProperty (ID::graphics)) };
-            const auto* colours { colourMap.getChildWithName (tree.getType()) };
+    auto graphicsTree { jam::Model::getChildWithName (config.state, IDtype::flex) };
 
-            for (const auto& fileName : fileNames)
+    if (graphicsTree.isValid())
+    {
+        jam::Model::forEachProperty (graphicsTree,
+            [this] (const juce::Identifier& propName, const juce::var& value)
             {
-                if (fileName.isNotEmpty())
+                if (value.isString())
                 {
-                    auto stem { jam::Format::getFilenameWithoutExtension (fileName) };
+                    auto stem { propName.toString() };
                     auto suffix { stem.fromLastOccurrenceOf ("_", false, false) };
 
                     juce::Identifier id { suffix.isNotEmpty()
                         and jam::map::ButtonState::getInstance()->contains (suffix)
                             ? suffix : stem };
 
-                    auto svg { directory.getChildFile (fileName).loadFileAsString() };
-
                     graphics.insert_or_assign (id,
-                        jam::SVG::Flex::getSegments (svg,
-                            colours != nullptr ? *colours : colourMap));
+                        jam::SVG::Flex::getSegments (value.toString(), colourMap));
                 }
-            }
-
-            return false;
-        });
+            });
+    }
 }
 
 void LookAndFeel::registerEvents()
@@ -125,66 +115,55 @@ void LookAndFeel::registerEvents()
                                   [this] (juce::ValueTree&)
                                   {
                                       initialiseColours();
-                                  });
-
-    events.add<juce::ValueTree&> (IDtype::graphics,
-                                  [this] (juce::ValueTree&)
-                                  {
-                                      loadGraphics();
-                                  });
-
-    events.add<juce::ValueTree&> (IDtype::tabButton,
-                                  [this] (juce::ValueTree&)
-                                  {
                                       loadGraphics();
                                   });
 
     events.add<juce::ValueTree&> (IDtype::code,
                                   [this] (juce::ValueTree&)
                                   {
-                                      setColours (theme.state);
+                                      setColours (config.state);
                                   });
 
     events.add<juce::ValueTree&> (IDtype::scrollbar,
                                   [this] (juce::ValueTree&)
                                   {
-                                      setColours (theme.state);
+                                      setColours (config.state);
                                   });
 
     events.add<juce::ValueTree&> (IDtype::tab,
                                   [this] (juce::ValueTree&)
                                   {
-                                      setColours (theme.state);
+                                      setColours (config.state);
                                   });
 
     events.add<juce::ValueTree&> (jam::IDtype::button,
                                   [this] (juce::ValueTree&)
                                   {
-                                      setColours (theme.state);
+                                      setColours (config.state);
                                   });
 
     events.add<juce::ValueTree&> (jam::IDtype::overlay,
                                   [this] (juce::ValueTree&)
                                   {
-                                      setColours (theme.state);
+                                      setColours (config.state);
                                   });
 
     events.add<juce::ValueTree&> (IDtype::pane,
                                   [this] (juce::ValueTree&)
                                   {
-                                      setColours (theme.state);
+                                      setColours (config.state);
                                   });
 
     events.add<juce::ValueTree&> (IDtype::statusBar,
                                   [this] (juce::ValueTree&)
                                   {
-                                      setColours (theme.state);
+                                      setColours (config.state);
                                   });
 
     events.add<juce::ValueTree&> (IDtype::hint,
                                   [this] (juce::ValueTree&)
                                   {
-                                      setColours (theme.state);
+                                      setColours (config.state);
                                   });
 }
 

@@ -600,19 +600,19 @@
       <anchor>a9ac471bcf600eba99126334cc78130e1</anchor>
       <arglist></arglist>
     </member>
-    <member kind="function" protection="protected" virtualness="pure">
+    <member kind="function" protection="protected" virtualness="virtual">
       <type>virtual void</type>
       <name>initialise</name>
       <anchorfile>classconfig_1_1_directory.html</anchorfile>
-      <anchor>ad22b695ac4e5bc7c68bd2b72478e47dc</anchor>
-      <arglist>()=0</arglist>
+      <anchor>ae83c28995bbec814ee15b291306be400</anchor>
+      <arglist>()</arglist>
     </member>
-    <member kind="function" protection="protected" virtualness="pure">
+    <member kind="function" protection="protected" virtualness="virtual">
       <type>virtual void</type>
       <name>saveToPath</name>
       <anchorfile>classconfig_1_1_directory.html</anchorfile>
-      <anchor>a4a70f2587a465bbdd46ffebf13e8fb8c</anchor>
-      <arglist>(const juce::File &amp;dir)=0</arglist>
+      <anchor>ac6b1f4f0038136d519318d44ed3dec51</anchor>
+      <arglist>(const juce::File &amp;dir)</arglist>
     </member>
     <member kind="function" protection="protected" virtualness="pure">
       <type>virtual void</type>
@@ -5115,20 +5115,6 @@
       <anchorfile>classconfig_1_1_shader.html</anchorfile>
       <anchor>a040aab72e915f4393a4dac916f658dcd</anchor>
       <arglist>() override=default</arglist>
-    </member>
-    <member kind="function" protection="protected">
-      <type>void</type>
-      <name>initialise</name>
-      <anchorfile>classconfig_1_1_shader.html</anchorfile>
-      <anchor>aa8b27be122a036faec6fccb1916faaa8</anchor>
-      <arglist>() override</arglist>
-    </member>
-    <member kind="function" protection="protected">
-      <type>void</type>
-      <name>saveToPath</name>
-      <anchorfile>classconfig_1_1_shader.html</anchorfile>
-      <anchor>a43a6029f5a5247916ea30c7f8df13b89</anchor>
-      <arglist>(const juce::File &amp;) override</arglist>
     </member>
     <member kind="function" protection="protected">
       <type>void</type>

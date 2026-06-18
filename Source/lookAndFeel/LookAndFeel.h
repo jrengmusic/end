@@ -22,9 +22,9 @@ namespace end
  *
  * Event dispatch uses a single-key lookup: property key takes priority; when no
  * event is registered for the property, the lookup falls back to tree.getType().
- * This routes theme rebuild (ID::theme), SVG reload (IDtype::graphics,
- * IDtype::tabButton), and per-component colour refresh (IDtype::code, scrollbar,
- * tab, button, overlay, pane, statusBar, hint) through one code path.
+ * This routes theme rebuild (ID::theme) and per-component colour refresh
+ * (IDtype::code, scrollbar, tab, button, overlay, pane, statusBar, hint)
+ * through one code path.
  */
 class LookAndFeel
     : public jam::LookAndFeel::Methods<LookAndFeel>
@@ -54,21 +54,21 @@ public:
     };
 
     /**
-     * @brief Registers typefaces, initialises colours from theme, loads SVG
-     *        graphics, registers events, and adds listeners to config and theme.
+     * @brief Registers typefaces, initialises colours from config, loads SVG
+     *        graphics from GRAPHICS child properties, registers events, and adds
+     *        a listener to config.
      */
     LookAndFeel();
 
-    /** @brief Removes listeners from theme and config. */
+    /** @brief Removes the listener from config. */
     ~LookAndFeel();
 
     /**
      * @brief Single-key event dispatch through the events map.
      *
      * Checks whether @p property has a registered handler; if not, falls back to
-     * @p tree.getType(). Routes theme rebuild (ID::theme), SVG reload
-     * (IDtype::graphics, IDtype::tabButton), and per-component colour refresh to
-     * their respective callbacks.
+     * @p tree.getType(). Routes theme rebuild (ID::theme) and per-component
+     * colour refresh to their respective callbacks.
      *
      * @param tree     The ValueTree whose property changed.
      * @param property The identifier of the changed property.
@@ -173,9 +173,6 @@ private:
     /** @brief Singleton config model reference — source for theme path and top-level config values. */
     config::Model& config { *config::Model::getInstance() };
 
-    /** @brief Theme subtree reference from the config model — source for all per-component colour and metric values. */
-    config::Theme& theme { config.getTheme() };
-
     //==============================================================================
     /** @brief JUCE embedded font ownership — Ptrs kept alive so font names resolve
      *  via juce::Font name lookup without requiring system-installed fonts.
@@ -183,19 +180,17 @@ private:
      */
     jam::HashMap<juce::String, juce::Typeface::Ptr> typefaces;
 
-    /** @brief Parsed SVG assets keyed by their GRAPHICS property id or button
-     *  state identifier.
+    /** @brief Parsed SVG assets keyed by their GRAPHICS child property name or
+     *  button state identifier.
      *
      *  Each entry is a SVG::Flex::Segments set (9-slice layout, paint-ready)
-     *  produced by SVG::Flex::getSegments from the SVG file named by the
-     *  matching property in the IDtype::graphics ValueTree. Rebuilt by
-     *  loadGraphics() on construction and on every SVG file-change event.
+     *  produced by SVG::Flex::getSegments from the SVG content stored as a
+     *  property of the GRAPHICS child of config.state. Rebuilt by loadGraphics()
+     *  on construction and on every ID::theme rebuild event.
      *
-     *  Keys are either:
-     *  - GRAPHICS property identifiers (ID::tabBar, ID::tabHighlight) for the
-     *    bar background and sliding highlight assets, or
-     *  - tab-button state identifiers (jam::ID::normal, jam::ID::over, …) for
-     *    the per-state button Segments, one entry per authored state slot.
+     *  Keys are resolved from the property name: the suffix after the last '_'
+     *  is used when it matches a jam::map::ButtonState entry; otherwise the full
+     *  property name is the key. All SVGs are coloured with the full colourMap.
      */
     jam::HashMap<juce::Identifier, jam::SVG::Flex::Segments> graphics;
 
@@ -203,9 +198,7 @@ private:
      * @brief Event dispatch map keyed by juce::Identifier (property or tree type).
      *
      * Populated by registerEvents(). Handles:
-     * - ID::theme         — full theme rebuild via initialiseColours()
-     * - IDtype::graphics  — SVG asset reload via loadGraphics()
-     * - IDtype::tabButton — SVG asset reload via loadGraphics()
+     * - ID::theme         — full theme rebuild via initialiseColours() + loadGraphics()
      * - IDtype::code, IDtype::scrollbar, IDtype::tab, jam::IDtype::button,
      *   jam::IDtype::overlay, IDtype::pane, IDtype::statusBar, IDtype::hint
      *                     — per-component colour refresh via setColours()
@@ -227,25 +220,24 @@ private:
     void registerTypeface();
 
     /**
-     * @brief Parses SVG assets from the theme graphics directory into SVG::Flex::Segments.
+     * @brief Reads SVG content from the GRAPHICS child of config.state and
+     *        parses each property into SVG::Flex::Segments.
      *
-     * Iterates the theme ValueTree recursively, reads each file listed in the
-     * ID::graphics property, resolves the key as a button-state identifier when the
-     * filename suffix matches jam::map::ButtonState, or as the filename stem
-     * otherwise. Stores the resulting jam::SVG::Flex::Segments in @ref graphics,
-     * keyed by that identifier. Colour map for each tree node is sourced from the
-     * matching child of colourMap, falling back to the root colourMap.
+     * Iterates properties of the GRAPHICS child via jam::Model::forEachProperty.
+     * For each string property: the key is the suffix after the last '_' when it
+     * matches a jam::map::ButtonState entry, or the full property name otherwise.
+     * All SVGs are coloured with the full colourMap. No disk I/O.
      * Defined in EventRegistration.cpp.
      */
     void loadGraphics();
 
     /**
-     * @brief Builds ColourMap from theme state and applies all component colours.
+     * @brief Builds ColourMap from config.state and applies all component colours.
      *
-     * Calls jam::ColourMap::fromValueTree on the theme state, then maps every
+     * Calls jam::ColourMap::fromValueTree on config.state, then maps every
      * component-tree colour property to its corresponding JUCE or END ColourId via
      * setColourId (code, scrollbar, tab, button, overlay, pane, statusBar, hint).
-     * Finalises by calling setColours on the full theme state.
+     * Finalises by calling setColours on config.state.
      * Defined in EventRegistration.cpp.
      */
     void initialiseColours();
@@ -254,12 +246,10 @@ private:
      * @brief Populates the events map with ValueTree property/type-keyed callbacks.
      *
      * Registers handlers for:
-     * - ID::theme         → initialiseColours()
-     * - IDtype::graphics  → loadGraphics()
-     * - IDtype::tabButton → loadGraphics()
+     * - ID::theme         → initialiseColours() + loadGraphics()
      * - IDtype::code, IDtype::scrollbar, IDtype::tab, jam::IDtype::button,
      *   jam::IDtype::overlay, IDtype::pane, IDtype::statusBar, IDtype::hint
-     *                     → setColours(theme.state)
+     *                     → setColours(config.state)
      * Defined in EventRegistration.cpp.
      */
     void registerEvents();

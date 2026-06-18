@@ -79,10 +79,10 @@ return {
 	-- When false, force CPU rendering (no blur, no transparency).
 	gpu = true,
 
-	-- Shader configuration.
-	-- Shader projects live in ~/.config/end/shaders/<name>/.
+	-- Graphics configuration.
+	-- Shader/graphics projects live in ~/.config/end/shaders/<name>/.
 	-- Files: Common, Image, BufferA, BufferB, BufferC, BufferD (Shadertoy convention).
-	shaders = {
+	graphics = {
 		-- Background shader project directory name. Empty string disables.
 		background = "",
 		-- Background shader opacity (0.0 = transparent, 1.0 = opaque).

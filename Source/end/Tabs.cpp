@@ -90,7 +90,7 @@ void Tabs::updateTabBarVisibility()
     else
     {
         auto& laf { static_cast<end::LookAndFeel&> (getLookAndFeel()) };
-        const float depth { config.getTheme().getValue (IDtype::tab, ID::depth) };
+        const float depth { config.getValue (IDtype::tab, ID::depth) };
 
         setTabBarDepth (juce::roundToInt (laf.getTabFont().getHeight() * depth));
     }
