@@ -146,7 +146,7 @@ private:
 
     @details
     End is a terminal emulator. Every user-facing knob lives in lua files
-    under @c ~/.config/end/ — @c init.lua, @c popup.lua, @c keys.lua
+    under @c ~/.config/end/ — @c config.lua, @c popup.lua, @c keys.lua
     (the three root config sections). config::Model loads, validates, and
     exposes them as a live @c juce::ValueTree. It is NOT a @c Directory
     subclass — it handles only the root directory and owns one @c Theme and
@@ -166,8 +166,7 @@ private:
     Children created by Theme (THEME, WHELMED) and Shader (GRAPHICS) appear
     directly under @c \<CONFIG\>. The FLEX child (SVG content) is nested under
     THEME; the SHADER child (GLSL source) is nested under GRAPHICS. Root-level
-    init.lua properties (gpu, size, theme, tabOrientation, …) and init.lua
-    sub-sections (TERMINAL, DAEMON, …) are flattened directly onto @c \<CONFIG\>
+    config.lua properties and sub-sections are flattened directly onto @c \<CONFIG\>
     — no INIT wrapper node.
 
     @par Four-phase init (§1.5 binary-defaults → disk overlay contract)

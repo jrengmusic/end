@@ -2,6 +2,42 @@
 
 ---
 
+## Sprint 28: init.lua → config.lua Rename — Single Triple ✅
+
+**Date:** 2026-06-18
+**Duration:** ~00:30
+
+### Agents Participated
+- COUNSELOR: orchestration, fact-checking
+- Engineer: rename across bimap, identifiers, lua files, doxygen
+
+### Files Modified (6 total)
+- `Source/config/lua/init.lua` → `Source/config/lua/config.lua` (renamed, self-ref comment updated)
+- `Source/Bimap.h` — enum `init`→`config`, bimap entry `{ File::config, IDref::config }`, `getDefault()`
+- `Source/Identifier.h` — comment updates to `config.lua` in IDENTIFIER_CONFIG/THEME context lines
+- `Source/config/Config.cpp` — `File::init`→`File::config` at lines 49/51/128; ternary collapsed to `toValidID(value, true)`; loadFromPath config branch parses as CONFIG type, no more removeChild in flatten loop
+- `Source/config/Config.h` — doxygen references updated
+- `Source/end/View.h` — doxygen references updated
+- `Source/config/lua/keys.lua` — comment updated
+
+### Alignment Check
+- [x] BLESSED principles followed (SSOT: one name = one role)
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied (Lean: tautology removed)
+
+### Problems Solved
+- Single bimap/tree/filename triple alignment: File::config / IDtype::config / config.lua
+- Tautology ternary collapsed in Model::initialise
+- removeChild anti-pattern eliminated from Model::loadFromPath flatten loop
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 27: Config Tree Flattening — Flat CONFIG, FLEX/SHADER Children ✅
 
 **Date:** 2026-06-18

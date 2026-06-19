@@ -113,7 +113,7 @@ private:
     /** @brief Populates the events map with ValueTree property/type-keyed callbacks.
      *
      *  Registers handlers for: loadMessage (shows config load message overlay),
-     *  tabOrientation (applies tab orientation from init.lua config), focus (updates focusedPane
+     *  tabOrientation (applies tab orientation from config.lua config), focus (updates focusedPane
      *  state), theme (propagates LookAndFeel change),
      *  alwaysOnTop and titleBarButtons (dispatch to jam::Window),
      *  gpu (attach/detach shader based on config and probe result).
@@ -121,7 +121,7 @@ private:
      */
     void registerEvents();
 
-    /** @brief Reads tab orientation from init.lua config and applies it to tabs. */
+    /** @brief Reads tab orientation from config.lua and applies it to tabs. */
     void setTabOrientation();
 
     /** @brief Writes the view dimensions into the view state tree.

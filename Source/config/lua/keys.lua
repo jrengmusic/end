@@ -47,7 +47,7 @@ return {
     -- Close active pane, then tab, then window.
     close_pane = "cmd+w",
 
-    -- Reload all configuration files (init.lua).
+    -- Reload all configuration files (config.lua).
     reload = "cmd+r",
 
     -- Increase font size.

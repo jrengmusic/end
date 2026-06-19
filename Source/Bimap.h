@@ -123,7 +123,7 @@ struct File : public jam::Bimap<File>
     /** @brief Integer keys for all lua config section files. */
     enum
     {
-        init,///< Application init config (init.lua).
+        config,///< Application config (config.lua).
         popup,///< Popup terminal definitions.
         keys,///< Key bindings.
     };
@@ -132,7 +132,7 @@ struct File : public jam::Bimap<File>
     File()
     {
         map = {
-            { File::init,  IDref::init  },
+            { File::config, IDref::config },
             { File::popup, IDref::popup },
             { File::keys,  IDref::keys  },
         };
@@ -170,7 +170,7 @@ struct File : public jam::Bimap<File>
     inline static const juce::String extension { "lua" };
 
 private:
-    const juce::String& getDefault() const noexcept override { return map.at (File::init); }
+    const juce::String& getDefault() const noexcept override { return map.at (File::config); }
 };
 
 //==============================================================================

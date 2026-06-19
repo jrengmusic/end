@@ -38,21 +38,25 @@ static std::function<bool (const juce::var&)> getEnumValidator (const juce::Stri
 //==============================================================================
 void Model::initialise()
 {
-    state = jam::Model::fromLua (
-        BinaryData::getString (File::getName (File::init)), IDtype::config, {}, &validators);
-
-    theme.state = state;
-    shader.state = state;
+    const auto& fromLua = [this] (int key, const juce::Identifier& type)
+    {
+        return jam::Model::fromLua (
+            BinaryData::getString (File::getName (key)), type, {}, &validators);
+    };
 
     for (auto& [key, value] : File::get())
     {
-        if (key != File::init)
+        juce::Identifier id { jam::Format::toValidID (value, true) };
+        juce::ValueTree tree { fromLua (key, id) };
+        if (key == File::config)
         {
-            auto child { jam::Model::fromLua (
-                BinaryData::getString (File::getName (key)), value.toUpperCase(), {}, &validators) };
-
-            if (child.isValid())
-                state.appendChild (child, nullptr);
+            state = tree;
+            theme.state = state;
+            shader.state = state;
+        }
+        else
+        {
+            state.appendChild (tree, nullptr);
         }
     }
 
@@ -107,40 +111,31 @@ void Model::loadFromPath()
         const juce::File file { File::path.getChildFile (File::getName (key)) };
         juce::String fileErrors;
 
-        auto child { jam::Model::fromLua (file.loadFileAsString(),
-                                          value.toUpperCase(),
-                                          file.getFileName(),
-                                          &validators,
-                                          &fileErrors) };
-
-        if (fileErrors.isNotEmpty())
-            errors << file.getFileName() << ":\n" << fileErrors;
-
-        if (child.isValid())
+        if (key == File::config)
         {
-            juce::ValueTree root { state.getType() };
+            auto configTree { jam::Model::fromLua (
+                file.loadFileAsString(), state.getType(), file.getFileName(), &validators, &fileErrors) };
 
-            if (key == File::init)
-            {
-                for (int i { 0 }; i < child.getNumProperties(); ++i)
-                {
-                    auto name { child.getPropertyName (i) };
-                    root.setProperty (name, child.getProperty (name), nullptr);
-                }
+            if (fileErrors.isNotEmpty())
+                errors << file.getFileName() << ":\n" << fileErrors;
 
-                while (child.getNumChildren() > 0)
-                {
-                    auto sub { child.getChild (0) };
-                    child.removeChild (0, nullptr);
-                    root.appendChild (sub, nullptr);
-                }
-            }
-            else
+            if (configTree.isValid())
+                setValuesFrom (configTree);
+        }
+        else
+        {
+            auto child { jam::Model::fromLua (
+                file.loadFileAsString(), value.toUpperCase(), file.getFileName(), &validators, &fileErrors) };
+
+            if (fileErrors.isNotEmpty())
+                errors << file.getFileName() << ":\n" << fileErrors;
+
+            if (child.isValid())
             {
+                juce::ValueTree root { state.getType() };
                 root.appendChild (child, nullptr);
+                setValuesFrom (root);
             }
-
-            setValuesFrom (root);
         }
     }
 

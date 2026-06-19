@@ -185,7 +185,7 @@
     X (scrollTop, "scroll_top")                        \
     X (scrollBottom, "scroll_bottom")
 
-// Application runtime keys (init.lua sections) — excludes jam::ID: editor ("editor"),
+// Application runtime keys (config.lua sections) — excludes jam::ID: editor ("editor"),
 // cwd ("cwd"), image ("image"), mode ("mode"), interval ("interval")
 // jam::gpu has string "GPU" (uppercase) — "gpu" (lowercase) is a distinct lua key, declared here
 #define IDENTIFIER_APP(X)                 \
@@ -211,7 +211,7 @@
     X (command, "command")   \
     X (modal, "modal")
 
-// Action entry keys (init.lua actions section)
+// Action entry keys (config.lua actions section)
 #define IDENTIFIER_ACTIONS(X)      \
     X (description, "description") \
     X (execute, "execute")
