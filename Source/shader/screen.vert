@@ -1,5 +1,7 @@
-attribute vec2 position;
-varying vec2 textureCoordOut;
+#version 410 core
+
+in vec2 position;
+out vec2 textureCoordOut;
 
 void main()
 {

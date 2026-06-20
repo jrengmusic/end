@@ -2,6 +2,92 @@
 
 ---
 
+## Sprint 30: Parameter/Adapter APVTS-Verbatim Split + Controller Model::Listener ✅
+
+**Date:** 2026-06-20
+**Duration:** ~04:00
+
+### Agents Participated
+- COUNSELOR: design, planning, CONTRACT enforcement, audit orchestration
+- Engineer: Parameter refactoring (6 passes), ParameterAdapter creation, Model rewire, Controller restore
+- Auditor: two full CONTRACT audits (initial + final)
+- Librarian: JUCE APVTS full API surface map (2 passes)
+- Pathfinder: codebase discovery (GL thread model, View state, end::Model ownership, caller migration)
+
+### Files Modified (12 total)
+
+**JAM Framework (4 files):**
+- `jam_data_structures/model/jam_parameter.h` — ParameterBase: added Listener nested struct, addListener/removeListener, sendValueChangedMessageToListeners, setValueFromVar/getValueAsVar pure virtuals. Deleted flush/restoreValues/onValueChanged. Fixed propertyId_ underscore. Parameter<int/float/int64_t>: stripped flush/restoreValues/setRawValue/ignoreCallbacks/needsUpdate/tree. Renamed store→setValue, load→getValue, raw→getRawValue. setValue calls sendValueChangedMessageToListeners.
+- `jam_data_structures/model/jam_parameter_text.h` — ParameterText: stripped flush/restoreValues/ignoreCallbacks/needsUpdate/tree. Renamed store→setValue, load→getValue. Constructor removed node param. Added setValueFromVar/getValueAsVar overrides.
+- `jam_data_structures/model/jam_model.h` — Added Model::Listener (parameterChanged), LockedListeners, ParameterAdapter forward decl, OwnedArray<ParameterAdapter> adapters, addParameterAdapter. Deleted storeValue/loadValue/loadText/addTextParameter/restoreValues. Added getParameter<T>. Rewired addProperties to create adapters. Updated getRawParameterValue to use getRawValue.
+- `jam_data_structures/model/jam_model.cpp` — Created ParameterAdapter (cpp-internal): setRawValue (positive nesting), flushToTree (CAS + equality-against-tree + loopback guard), parameterValueChanged (equality gate + listenersNeedCalling, fans out to Model::Listener). Rewired flush to iterate adapters. vtpc: no type branching, adapter scan by tree+propertyId. replaceState: iterates adapters restoreFromTree. Deleted restoreValues/addTextParameter bodies.
+
+**END Project (8 files):**
+- `Source/shader/Controller.h` — Drop VT::Listener, add Model::Listener. attach takes Model&. parameterChanged override. Removed buildQuad, Program::fbo, getFrameCounter (dead code).
+- `Source/shader/Controller.cpp` — parameterChanged calls loadShaders(). Original loadShaders body preserved. Restored setComponentPaintingEnabled/setContinuousRepainting. openGL4_1. Removed buildQuad definition.
+- `Source/shader/wrapper.frag` — #version 410 core, out vec4 fragColor instead of gl_FragColor.
+- `Source/shader/screen.vert` — #version 410 core, in/out instead of attribute/varying.
+- `Source/config/Config.h` — Added glslBufferSize constant (65536).
+- `Source/config/Config.cpp` — SHADER node ParameterText registration after shader.load. Shader::loadFromPath writes via ParameterText::setValue when registered.
+- `Source/end/EventRegistration.cpp` — shader.attach(*this, model).
+- `Source/Bimap.h`, `Source/Identifier.h`, `Source/config/lua/popup.lua`, `Source/config/lua/config.lua` — Sprint 29 carryover (validator cleanup, popup flattening, success_message).
+
+### Alignment Check
+- [x] BLESSED principles followed — Parameter/Adapter split is 1:1 JUCE APVTS topology
+- [x] NAMES.md adhered — propertyId_ underscore fixed, all new names follow conventions
+- [x] MANIFESTO.md principles applied — no bail-out guards (positive nesting), no type branching in vtpc, SSOT (adapter owns bridge state, parameter owns atomic only)
+
+### Problems Solved
+- Parameter+Adapter merger caused 10+ divergences from JUCE APVTS. Split restored verbatim topology.
+- Controller did GL work from vtpc on message thread (threading bug). Rewired via Model::Listener.
+- wrapper.frag/screen.vert used legacy GLSL (gl_FragColor, attribute, varying) with GL 3.2 core — fixed to 410 core.
+- ParameterText reverse sync would break SPSC (two producers on double buffer). Correctly excluded from vtpc.
+- vtpc if/else/if type chain eliminated — adapter scan, no branching.
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
+## Sprint 29: Validator Registration Cleanup ✅
+
+**Date:** 2026-06-20
+**Duration:** ~02:00
+
+### Agents Participated
+- COUNSELOR: design, planning
+- Engineer: implementation
+
+### Files Modified (7 total)
+- `Source/config/Config.h` — IIFE validator initialization, getValidators() static, Theme errors member
+- `Source/config/Config.cpp` — Deleted enumCheck/getBimapValidator/registerValidator. Theme validation with error accumulation. success_message field.
+- `Source/Bimap.h` — Added getValidator() to Position and DropMode
+- `Source/Identifier.h` — Added successMessage identifier
+- `Source/config/lua/popup.lua` — Flattened defaults, packed size, root position
+- `Source/config/lua/config.lua` — Added success_message field
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- Runtime Bimap probe chain replaced with upfront HashMap registration via IIFE
+- Structured bindings for try_emplace results (JRENG-CODING-STANDARD)
+- popup.lua defaults table eliminated, packed size
+- success_message configurable from config.lua
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 28: init.lua → config.lua Rename — Single Triple ✅
 
 **Date:** 2026-06-18

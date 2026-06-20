@@ -60,6 +60,9 @@ return {
 	-- regardless of this setting.
 	save_window_state = true,
 
+	-- Message shown briefly after a successful config reload (Cmd+R).
+	success_message = "RELOAD",
+
 	-- Show a confirmation dialog when Ctrl+Q / Cmd+Q is pressed.
 	-- When true, a Yes/No dialog asks before quitting (or saving the
 	-- session in daemon mode). When false, quit is immediate.

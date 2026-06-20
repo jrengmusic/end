@@ -14,28 +14,6 @@ Model::Model()
 }
 
 //==============================================================================
-/* Wraps a Bimap contains() check as a string-enum validator. */
-template<typename MapType>
-static std::function<bool (const juce::var&)> enumCheck (MapType* map)
-{
-    return [map] (const juce::var& v)
-    {
-        return v.isString() and map->contains (v.toString());
-    };
-}
-
-/* Resolves a BinaryData default string to its owning Map's validator.
-   Returns an empty function when the value belongs to no known Map. */
-static std::function<bool (const juce::var&)> getEnumValidator (const juce::String& value)
-{
-    if (end::Position::getInstance()->contains (value))
-        return enumCheck (end::Position::getInstance());
-    if (end::DropMode::getInstance()->contains (value))
-        return enumCheck (end::DropMode::getInstance());
-    return {};
-}
-
-//==============================================================================
 void Model::initialise()
 {
     const auto& fromLua = [this] (int key, const juce::Identifier& type)
@@ -46,8 +24,8 @@ void Model::initialise()
 
     for (auto& [key, value] : File::get())
     {
-        juce::Identifier id { jam::Format::toValidID (value, true) };
-        juce::ValueTree tree { fromLua (key, id) };
+        juce::ValueTree tree { fromLua (key, jam::Format::toValidID (value, true)) };
+
         if (key == File::config)
         {
             state = tree;
@@ -60,26 +38,14 @@ void Model::initialise()
         }
     }
 
-    jam::Model::applyFunctionRecursively (
-        state,
-        [this] (const juce::ValueTree& t)
-        {
-            auto tree { t };
-            addProperties (tree, params);
+    jam::Model::applyFunctionRecursively (state,
+                                          [this] (const juce::ValueTree& t)
+                                          {
+                                              auto tree { t };
+                                              addProperties (tree, params);
 
-            auto treeType { tree.getType() };
-
-            jam::Model::forEachProperty (
-                tree,
-                [this, treeType] (const juce::Identifier& name, const juce::var& value)
-                {
-                    if (value.isString())
-                        if (auto validator { getEnumValidator (value.toString()) })
-                            registerValidator (treeType, name, std::move (validator));
-                });
-
-            return false;
-        });
+                                              return false;
+                                          });
 }
 
 //==============================================================================
@@ -113,8 +79,11 @@ void Model::loadFromPath()
 
         if (key == File::config)
         {
-            auto configTree { jam::Model::fromLua (
-                file.loadFileAsString(), state.getType(), file.getFileName(), &validators, &fileErrors) };
+            auto configTree { jam::Model::fromLua (file.loadFileAsString(),
+                                                   state.getType(),
+                                                   file.getFileName(),
+                                                   &validators,
+                                                   &fileErrors) };
 
             if (fileErrors.isNotEmpty())
                 errors << file.getFileName() << ":\n" << fileErrors;
@@ -124,8 +93,11 @@ void Model::loadFromPath()
         }
         else
         {
-            auto child { jam::Model::fromLua (
-                file.loadFileAsString(), value.toUpperCase(), file.getFileName(), &validators, &fileErrors) };
+            auto child { jam::Model::fromLua (file.loadFileAsString(),
+                                              value.toUpperCase(),
+                                              file.getFileName(),
+                                              &validators,
+                                              &fileErrors) };
 
             if (fileErrors.isNotEmpty())
                 errors << file.getFileName() << ":\n" << fileErrors;
@@ -139,16 +111,25 @@ void Model::loadFromPath()
         }
     }
 
-    if (errors.isEmpty())
-        loadMessage = "RELOAD";
-    else
-        loadMessage = errors;
-
-    state.sendPropertyChangeMessage (ID::loadMessage);
-
     theme.load (config::Themes::getPath (state.getProperty (ID::theme).toString()));
 
+    if (theme.getErrors().isNotEmpty())
+        errors << theme.getErrors();
+
     shader.load (config::Shaders::getPath (getValue (IDtype::graphics, ID::background).toString()));
+
+    {
+        auto shaderChild { jam::Model::getChildWithName (state, IDtype::shader) };
+
+        if (shaderChild.isValid() and not params.contains (IDtype::shader))
+        {
+            params.add<jam::AnyMap> (IDtype::shader);
+            addProperties (shaderChild, *params.get<jam::AnyMap> (IDtype::shader), glslBufferSize);
+        }
+    }
+
+    loadMessage = errors.isEmpty() ? state.getProperty (ID::successMessage).toString() : errors;
+    state.sendPropertyChangeMessage (ID::loadMessage);
 }
 
 void Model::startWatcher()
@@ -168,15 +149,6 @@ void Model::fileChanged (const juce::File& file, jam::File::Watcher::Event event
 }
 
 //==============================================================================
-void Model::registerValidator (juce::Identifier treeType,
-                               juce::Identifier propertyName,
-                               std::function<bool (const juce::var&)> validator)
-{
-    validators.try_emplace (treeType).first->second.insert_or_assign (
-        propertyName, std::move (validator));
-}
-
-//==============================================================================
 void Shader::loadFromPath (const juce::File& dir)
 {
     auto graphics { jam::Model::getChildWithName (state, IDtype::graphics) };
@@ -192,8 +164,16 @@ void Shader::loadFromPath (const juce::File& dir)
                 const juce::File file { dir.getChildFile (value) };
 
                 if (file.existsAsFile())
-                    shaderChild.setProperty (
-                        juce::Identifier { value }, file.loadFileAsString(), nullptr);
+                {
+                    const juce::Identifier propertyId { value };
+                    auto* param { config::Model::getInstance()->getParameter<jam::ParameterText> (
+                        IDtype::shader, propertyId) };
+
+                    if (param != nullptr)
+                        param->setValue (file.loadFileAsString());
+                    else
+                        shaderChild.setProperty (propertyId, file.loadFileAsString(), nullptr);
+                }
             }
         }
     }
@@ -207,7 +187,10 @@ void Theme::initialise()
     for (auto& [key, value] : config::Themes::get())
     {
         auto child { jam::Model::fromLua (
-            BinaryData::getString (config::Themes::getName (key)), value.toUpperCase()) };
+            BinaryData::getString (config::Themes::getName (key)),
+            value.toUpperCase(),
+            {},
+            &config::Model::getValidators()) };
 
         if (child.isValid())
             state.appendChild (child, nullptr);
@@ -245,6 +228,8 @@ void Theme::saveToPath (const juce::File& dir)
 
 void Theme::loadFromPath (const juce::File& dir)
 {
+    errors.clear();
+
     if (dir.isDirectory())
     {
         for (auto& [key, value] : config::Themes::get())
@@ -253,7 +238,15 @@ void Theme::loadFromPath (const juce::File& dir)
 
             if (file.existsAsFile())
             {
-                auto tree { jam::Model::fromLua (file.loadFileAsString(), value.toUpperCase()) };
+                juce::String fileErrors;
+                auto tree { jam::Model::fromLua (file.loadFileAsString(),
+                                                 value.toUpperCase(),
+                                                 file.getFileName(),
+                                                 &config::Model::getValidators(),
+                                                 &fileErrors) };
+
+                if (fileErrors.isNotEmpty())
+                    errors << file.getFileName() << ":\n" << fileErrors;
 
                 if (tree.isValid())
                 {

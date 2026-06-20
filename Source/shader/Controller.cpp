@@ -5,36 +5,37 @@ namespace shader
 /*____________________________________________________________________________*/
 
 //==============================================================================
-Controller::~Controller() { shutdownOpenGL(); }
+Controller::Controller()
+{
+    registerEvents();
+    appModel.addListener (this);
+}
+
+Controller::~Controller()
+{
+    appModel.removeListener (this);
+    shutdownOpenGL();
+}
 
 //==============================================================================
-void Controller::shutdownOpenGL() { openGLContext.detach(); }
+void Controller::shutdownOpenGL() { context.detach(); }
 
 void Controller::attach (juce::Component& component)
 {
-    shaders.addListener (this);
-
-    openGLContext.setOpenGLVersionRequired (juce::OpenGLContext::openGL3_2);
-    openGLContext.setComponentPaintingEnabled (true);
-    openGLContext.setContinuousRepainting (true);
-    openGLContext.setRenderer (this);
-    openGLContext.attachTo (component);
+    context.setOpenGLVersionRequired (juce::OpenGLContext::openGL4_1);
+    // context.setComponentPaintingEnabled (true);
+    // context.setContinuousRepainting (true);
+    context.setMultisamplingEnabled (true);
+    context.setRenderer (this);
+    context.attachTo (component);
 }
 
-void Controller::detach()
-{
-    shaders.removeListener (this);
-    openGLContext.detach();
-}
+void Controller::detach() { context.detach(); }
 
-bool Controller::isAttached() const noexcept { return openGLContext.isAttached(); }
+bool Controller::isAttached() const noexcept { return context.isAttached(); }
 
 //==============================================================================
-void Controller::newOpenGLContextCreated()
-{
-    initialise();
-    loadShaders();
-}
+void Controller::newOpenGLContextCreated() { initialise(); }
 
 void Controller::renderOpenGL()
 {
@@ -57,35 +58,44 @@ void Controller::initialise()
 void Controller::shutdown() {}
 
 //==============================================================================
-void Controller::valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier&)
+void Controller::parameterChanged (const juce::Identifier& id, const juce::var&)
 {
-    loadShaders();
+    if (events.contains (id))
+        events.get (id);
 }
 
-void Controller::loadShaders()
-{
-    // const auto& files { *config::File::Shaders::getInstance() };
-    //
-    // juce::String common { shaders.getProperty (ID::common).toString() };
-    //
-    // cout (shaders.toXmlString());
-    //
-    // jam::Model::forEachProperty (shaders,
-    //                              [&files, this] (const juce::Identifier& id, const juce::var& var)
-    //                              {
-    //                                  if (id != ID::common)
-    //                                  {
-    //                                      if (files.contains (id.toString()))
-    //                                      {
-    //                                          auto p { std::make_unique<Program>() };
-    //
-    //                                          programs.insert_or_assign (id, std::move (p));
-    //                                      }
-    //                                  }
-    //                              });
-}
+//==============================================================================
 
-void Controller::buildQuad() {}
+void Controller::registerEvents()
+{
+    auto loadShaders = [this]
+    {
+        juce::String common { shaders.getProperty (ID::common).toString() };
+
+        jam::Model::forEachProperty (
+            shaders,
+            [common, this] (const juce::Identifier& id, const juce::var& var)
+            {
+                if (files.contains (id.toString()))
+                {
+                    juce::String shaderSourceCode { jam::Format::prependNewLine (
+                        var.toString(), common) };
+                    shaderSourceCode =
+                        jam::Format::replaceholder (wrapper, placeholder, shaderSourceCode);
+
+                    auto p { std::make_unique<juce::OpenGLShaderProgram> (context) };
+                    p->addFragmentShader (shaderSourceCode);
+
+                    auto program { std::make_unique<Program>() };
+                    program->p = std::move (p);
+
+                    programs.insert_or_assign (id, std::move (program));
+                }
+            });
+    };
+
+    events.add (IDtype::shader, loadShaders);
+}
 
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace shader

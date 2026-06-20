@@ -96,6 +96,8 @@ public:
     void valueTreeChildAdded (juce::ValueTree& parentTree,
                               juce::ValueTree& childWhichHasBeenAdded) override;
 
+    void parentHierarchyChanged() override;
+
 private:
     /** @brief Singleton config model reference. */
     config::Model& config { *config::Model::getInstance() };

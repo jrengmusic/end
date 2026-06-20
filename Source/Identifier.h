@@ -30,6 +30,7 @@
     X (whelmed, "whelmed")                   \
     X (graphics, "graphics")                 \
     X (loadMessage, "load_message")          \
+    X (successMessage, "success_message")    \
     X (theme, "theme")                       \
     X (themes, "themes")                     \
     X (ansi, "ansi")                         \
@@ -206,7 +207,7 @@
     X (border, "border")                  \
     X (tabOrientation, "tab_orientation")
 
-// Popup entry keys (popup.lua) — cols, rows already in COMMON
+// Popup entry keys (popup.lua)
 #define IDENTIFIER_POPUPS(X) \
     X (command, "command")   \
     X (modal, "modal")

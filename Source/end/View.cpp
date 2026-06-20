@@ -99,5 +99,7 @@ void View::setTabOrientation()
         tabs.setOrientation (Position::get (pos));
 }
 
+void View::parentHierarchyChanged() {}
+
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace end

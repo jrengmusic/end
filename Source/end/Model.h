@@ -5,7 +5,9 @@
 namespace end
 {
 /*____________________________________________________________________________*/
-class Model : public jam::Model
+class Model
+    : public jam::Model
+    , public jam::Instance<Model>
 {
 public:
     Model();

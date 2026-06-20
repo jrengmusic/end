@@ -16,8 +16,7 @@
 --   command  (string, required)  Shell command or executable to run.
 --   args     (string, optional)  Arguments passed to the command.
 --   cwd      (string, optional)  Working directory. Empty = inherit cwd.
---   cols     (number, optional)  Width in columns. Default: defaults.cols below.
---   rows     (number, optional)  Height in rows. Default: defaults.rows below.
+--   size     (table, optional)   {cols, rows}. Default: root size below.
 --   modal    (string, optional)  Key pressed after the prefix key (e.g. "t").
 --   global   (string, optional)  Direct shortcut, no prefix needed (e.g. "cmd+g").
 --
@@ -28,45 +27,32 @@
 
 return {
 
-    -- ========================================================================
-    -- POPUP DEFAULTS
-    -- ========================================================================
+    -- Default popup size in columns and rows {cols, rows}.
+    -- Individual popup entries can override with their own size.
+    size = { 70, 20 },
 
-    defaults = {
-        -- Default popup width in columns.
-        -- Individual popup entries can override this.
-        cols = 70,
-
-        -- Default popup height in rows.
-        -- Individual popup entries can override this.
-        rows = 20,
-
-        -- Default popup position: "center".
-        position = "center",
-    },
+    -- Default popup position: "center".
+    position = "center",
 
     tit = {
         command = "tit",
         args = "",
         cwd = "",
-        cols = 80,
-        rows = 30,
+        size = { 80, 30 },
         modal = "t",
     },
     cake = {
         command = "cake",
         args = "",
         cwd = "",
-        cols = 80,
-        rows = 30,
+        size = { 80, 30 },
         modal = "c",
     },
     btop = {
         command = "btop",
         args = "",
         cwd = "",
-        cols = 100,
-        rows = 40,
+        size = { 100, 40 },
         modal = "q",
     },
 }

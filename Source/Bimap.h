@@ -61,6 +61,15 @@ struct Position : public jam::Bimap<Position>
     }
 
     static const juce::String& get (int key) noexcept { return getInstance()->map.at (key); }
+
+    /** @brief Returns a lua validator predicate for the Position value set. */
+    static std::function<bool (const juce::var&)> getValidator()
+    {
+        return [] (const juce::var& v)
+        {
+            return v.isString() and getInstance()->contains (v.toString());
+        };
+    }
 };
 
 //==============================================================================
@@ -94,6 +103,15 @@ struct DropMode : public jam::Bimap<DropMode>
     const juce::String& getDefault() const noexcept override { return map.at (DropMode::space); }
 
     static const auto& get() noexcept { return getInstance()->map; }
+
+    /** @brief Returns a lua validator predicate for the DropMode value set. */
+    static std::function<bool (const juce::var&)> getValidator()
+    {
+        return [] (const juce::var& v)
+        {
+            return v.isString() and getInstance()->contains (v.toString());
+        };
+    }
 };
 
 /**______________________________END OF NAMESPACE______________________________*/
