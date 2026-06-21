@@ -38,28 +38,28 @@ void Model::initialise()
         }
     }
 
-    jam::Model::applyFunctionRecursively (state,
-                                          [this] (const juce::ValueTree& t)
-                                          {
-                                              auto tree { t };
+    jam::Model::applyFunctionRecursively (
+        state,
+        [this] (const juce::ValueTree& t)
+        {
+            auto tree { t };
 
-                                              Model::forEachProperty (tree,
-                                                  [this, &tree] (const juce::Identifier& name,
-                                                                 const juce::var& value)
-                                                  {
-                                                      if (value.isString())
-                                                          createAndAddParameter<jam::ParameterText> (
-                                                              tree, name, value.toString());
-                                                      else if (value.isDouble())
-                                                          createAndAddParameter<jam::Parameter<float>> (
-                                                              tree, name, static_cast<double> (value));
-                                                      else if (value.isInt() or value.isBool() or value.isInt64())
-                                                          createAndAddParameter<jam::Parameter<int>> (
-                                                              tree, name, static_cast<int> (value));
-                                                  });
+            Model::forEachProperty (
+                tree,
+                [this, &tree] (const juce::Identifier& name, const juce::var& value)
+                {
+                    if (value.isString())
+                        createAndAddParameter<jam::ParameterText> (tree, name, value.toString());
+                    else if (value.isDouble())
+                        createAndAddParameter<jam::Parameter<float>> (
+                            tree, name, static_cast<double> (value));
+                    else if (value.isInt() or value.isBool() or value.isInt64())
+                        createAndAddParameter<jam::Parameter<int>> (
+                            tree, name, static_cast<int> (value));
+                });
 
-                                              return false;
-                                          });
+            return false;
+        });
 }
 
 //==============================================================================
@@ -130,20 +130,23 @@ void Model::loadFromPath()
     if (theme.getErrors().isNotEmpty())
         errors << theme.getErrors();
 
-    shader.load (config::Shaders::getPath (getValue (IDtype::graphics, ID::background).toString()));
-
+    if (not params.contains (IDtype::shader))
     {
-        auto shaderChild { jam::Model::getChildWithName (state, IDtype::shader) };
+        auto graphics { jam::Model::getChildWithName (state, IDtype::graphics) };
 
-        if (shaderChild.isValid() and not params.contains (IDtype::shader))
+        if (graphics.isValid())
         {
-            Model::forEachProperty (shaderChild,
-                [this, &shaderChild] (const juce::Identifier& name, const juce::var&)
-                {
-                    createAndAddParameter<jam::ParameterText> (shaderChild, name, juce::String {}, glslBufferSize);
-                });
+            auto shaderChild { graphics.getOrCreateChildWithName (IDtype::shader, nullptr) };
+
+            for (auto& [key, value] : config::Shaders::get())
+            {
+                const juce::Identifier propertyId { value };
+                createAndAddParameter<jam::ParameterText> (shaderChild, propertyId, juce::String {}, glslBufferSize);
+            }
         }
     }
+
+    shader.load (config::Shaders::getPath (getValue (IDtype::graphics, ID::background).toString()));
 
     juce::String message { errors.isEmpty() ? state.getProperty (ID::successMessage).toString()
                                             : errors };
@@ -188,10 +191,11 @@ void Shader::loadFromPath (const juce::File& dir)
                     auto* param { config::Model::getInstance()->getParameter<jam::ParameterText> (
                         IDtype::shader, propertyId) };
 
+                    // params are pre-created in Model::loadFromPath before shader.load() — this must always resolve
+                    jassert (param != nullptr);
+
                     if (param != nullptr)
                         param->setValue (file.loadFileAsString());
-                    else
-                        shaderChild.setProperty (propertyId, file.loadFileAsString(), nullptr);
                 }
             }
         }

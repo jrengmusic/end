@@ -4,7 +4,6 @@ namespace shader
 {
 /*____________________________________________________________________________*/
 
-//==============================================================================
 Controller::Controller()
 {
     registerEvents();
@@ -23,7 +22,6 @@ void Controller::shutdownOpenGL() { context.detach(); }
 void Controller::attach (juce::Component& component)
 {
     context.setOpenGLVersionRequired (juce::OpenGLContext::openGL4_1);
-    // context.setComponentPaintingEnabled (true);
     context.setContinuousRepainting (true);
     context.setMultisamplingEnabled (true);
     context.setRenderer (this);
@@ -90,6 +88,7 @@ void Controller::registerEvents()
         context.executeOnGLThread (
             [this] (juce::OpenGLContext&)
             {
+                auto shaders { config.getChildWithName (IDtype::shader) };
                 juce::String common { shaders.getProperty (ID::common).toString() };
 
                 jam::Model::forEachProperty (

@@ -261,11 +261,18 @@ public:
         populated validator map, and collects any per-file errors. For the
         @c config entry, the tree is parsed as CONFIG type and overlaid
         directly via @c setValuesFrom. For other entries, the child is wrapped
-        in a CONFIG-typed root before @c setValuesFrom. After the walk, writes
-        the configured @c success_message on success or the accumulated error text
-        on failure to @c end::Model's @c ID::message property via @c setValue,
-        then drives @c theme.load() and @c shader.load() with directories
-        resolved via the bimap.
+        in a CONFIG-typed root before @c setValuesFrom. After the lua walk,
+        drives @c theme.load() with the directory resolved via the bimap, then
+        pre-creates all shader @c ParameterText parameters (one per
+        @c config::Shaders::get() entry, with @c glslBufferSize capacity) on
+        the SHADER child under GRAPHICS — guarded by
+        @c not params.contains(IDtype::shader) so watcher-triggered reloads
+        skip re-registration. Before calling @c shader.load(), this ordering
+        guarantees that @c Shader::loadFromPath always resolves a live
+        parameter (never falls back to @c setProperty). After @c shader.load(),
+        writes the configured @c success_message on success or the accumulated
+        error text on failure to @c end::Model's @c ID::message property via
+        @c setValue.
     */
     void loadFromPath();
 

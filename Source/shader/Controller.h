@@ -13,9 +13,9 @@ namespace shader
 
 /** @brief GL pipeline orchestrator — mirrors juce::OpenGLAppComponent.
  *
- *  Skeleton: OpenGLAppComponent lifecycle + runtime GPU switching via
- *  attach()/detach(). Config-driven shader loading will be built on top
- *  of this skeleton to mirror end::LookAndFeel's loadGraphics() pattern.
+ *  Owns the OpenGLContext lifecycle and config-driven shader loading.
+ *  Shader state is accessed via config::Model API (getChildWithName) —
+ *  never by storing a raw ValueTree snapshot.
  *
  *  Thread contract:
  *  - attach() / detach() / isAttached() : MESSAGE THREAD
@@ -65,11 +65,7 @@ private:
 
     //==========================================================================
 
-    int frameCounter { 0 };
-
-    juce::ValueTree shaders { jam::Model::getChildWithName (config::Model::getInstance()->state,
-                                                            IDtype::shader) };
-
+    config::Model& config { *config::Model::getInstance() };
     config::Shaders& files { *config::Shaders::getInstance() };
     end::Model& appModel { *end::Model::getInstance() };
     jam::Function::Map<juce::Identifier, void> events;
@@ -129,7 +125,7 @@ private:
     };
 
     std::unique_ptr<Quad> quad;
-
+    int frameCounter { 0 };
     //==============================================================================
     static inline const juce::String placeholder { "source" };
     static inline const juce::String wrapper { BinaryData::getString ("wrapper.frag") };
