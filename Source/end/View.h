@@ -43,9 +43,10 @@ class View
 public:
     /** @brief Constructs the View and wires all subsystems.
      *
-     *  Registers actions and events, creates model attachments and parameters
-     *  for View and Tabs state, adds this as a listener to config, theme, and
-     *  model trees, applies the initial tab orientation, and opens the first tab.
+     *  Registers actions and events, seeds the initial packed size property,
+     *  creates model attachments for View and Tabs state, adds this as a
+     *  listener to config and model trees, applies the initial tab orientation,
+     *  and opens the first tab.
      *
      *  @param m  Shared jam::Model that owns the application state tree.
      */
@@ -56,9 +57,8 @@ public:
 
     /** @brief Updates view-state dimensions and lays out tabs and the message overlay.
      *
-     *  Writes the current width and height into the view state tree via
-     *  @c setViewState, then bounds both @c tabs and @c messageOverlay to
-     *  @c getLocalBounds().
+     *  Packs current width + height into ID::size via @c setViewState (single atomic
+     *  VT write), then bounds both @c tabs and @c messageOverlay to @c getLocalBounds().
      */
     void resized() override;
 
@@ -103,6 +103,16 @@ private:
     config::Model& config { *config::Model::getInstance() };
 
     //==============================================================================
+    /** @brief Creates the packed ID::size parameter and grafts View, Tabs, and
+     *         MessageOverlay state into the model tree via Attachment.
+     *
+     *  Reads initial window size from config, packs into end::Size, creates
+     *  a Parameter\<int\> on the view state for ID::size, then constructs
+     *  Attachments for View, Tabs, and MessageOverlay. Called once from
+     *  the constructor after registerEvents().
+     */
+    void createAndAttachParameters();
+
     /** @brief Populates action::Registry with keybinding-triggered callbacks.
      *
      *  Registers actions for tab navigation (newTab, closeTab, nextTab, prevTab),
@@ -126,7 +136,8 @@ private:
     /** @brief Reads tab orientation from config.lua and applies it to tabs. */
     void setTabOrientation();
 
-    /** @brief Writes the view dimensions into the view state tree.
+    /** @brief Packs width + height into end::Size and writes as a single int
+     *         property (ID::size) on the view state tree.
      *  @param width   Current component width in pixels.
      *  @param height  Current component height in pixels.
      */

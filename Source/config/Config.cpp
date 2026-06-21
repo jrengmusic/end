@@ -130,8 +130,9 @@ void Model::loadFromPath()
     if (theme.getErrors().isNotEmpty())
         errors << theme.getErrors();
 
-    if (not params.contains (IDtype::shader))
     {
+        const juce::File shaderDir { config::Shaders::getPath (
+            getValue (IDtype::graphics, ID::background).toString()) };
         auto graphics { jam::Model::getChildWithName (state, IDtype::graphics) };
 
         if (graphics.isValid())
@@ -140,13 +141,24 @@ void Model::loadFromPath()
 
             for (auto& [key, value] : config::Shaders::get())
             {
-                const juce::Identifier propertyId { value };
-                createAndAddParameter<jam::ParameterText> (shaderChild, propertyId, juce::String {}, glslBufferSize);
+                const juce::File file { shaderDir.getChildFile (value) };
+
+                if (file.existsAsFile())
+                {
+                    const juce::Identifier propertyId { value };
+
+                    if (not params.contains (IDtype::shader)
+                        or getParameter<jam::ParameterText> (IDtype::shader, propertyId) == nullptr)
+                    {
+                        createAndAddParameter<jam::ParameterText> (
+                            shaderChild, propertyId, juce::String {}, glslBufferSize);
+                    }
+                }
             }
         }
-    }
 
-    shader.load (config::Shaders::getPath (getValue (IDtype::graphics, ID::background).toString()));
+        shader.load (shaderDir);
+    }
 
     juce::String message { errors.isEmpty() ? state.getProperty (ID::successMessage).toString()
                                             : errors };

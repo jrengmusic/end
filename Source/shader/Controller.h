@@ -17,10 +17,20 @@ namespace shader
  *  Shader state is accessed via config::Model API (getChildWithName) —
  *  never by storing a raw ValueTree snapshot.
  *
+ *  Resize flow:
+ *  - View::resized() packs width + height into end::Size and writes
+ *    ID::size as a single int property on the view state tree.
+ *  - Parameter\<int\> adapter fires parameterChanged(ID::size).
+ *  - ID::size event unpacks via end::Size and calls resizer.set().
+ *  - Resizer coalesces rapid changes (16ms timer) and fires the "stop"
+ *    trigger, which re-initialises FBOs on the GL thread via
+ *    context.executeOnGLThread().
+ *
  *  Thread contract:
  *  - attach() / detach() / isAttached() : MESSAGE THREAD
  *  - newOpenGLContextCreated / renderOpenGL / openGLContextClosing : GL THREAD
- *  - parameterChanged : any thread
+ *  - parameterChanged : MESSAGE THREAD (jam::Model::Listener AsyncUpdater)
+ *  - Resizer stop trigger : MESSAGE THREAD (juce::Timer callback)
  */
 struct Controller
     : private juce::OpenGLRenderer
@@ -64,16 +74,16 @@ private:
     void parameterChanged (const juce::Identifier& id, const juce::var& newValue) override;
 
     //==========================================================================
-
     config::Model& config { *config::Model::getInstance() };
     config::Shaders& files { *config::Shaders::getInstance() };
     end::Model& appModel { *end::Model::getInstance() };
     jam::Function::Map<juce::Identifier, void> events;
+    
     //==============================================================================
     struct Program
     {
         std::unique_ptr<juce::OpenGLShaderProgram> p;
-        std::optional<juce::OpenGLFrameBuffer> fbo;
+        std::optional<std::array<juce::OpenGLFrameBuffer, 2>> fbo;
     };
 
     jam::HashMap<juce::Identifier, std::unique_ptr<Program>> programs;
@@ -124,6 +134,7 @@ private:
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Quad)
     };
 
+    jam::Resizer resizer;
     std::unique_ptr<Quad> quad;
     int frameCounter { 0 };
     //==============================================================================

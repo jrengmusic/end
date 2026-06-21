@@ -70,7 +70,20 @@ void Controller::initialise()
     quad = std::make_unique<Quad>();
 }
 
-void Controller::shutdown() {}
+void Controller::shutdown()
+{
+    for (auto& [id, program] : programs)
+    {
+        if (program->fbo.has_value())
+        {
+            (*program->fbo)[0].release();
+            (*program->fbo)[1].release();
+        }
+    }
+
+    programs.clear();
+    quad.reset();
+}
 
 //==============================================================================
 void Controller::parameterChanged (const juce::Identifier& id, const juce::var&)
@@ -110,6 +123,27 @@ void Controller::registerEvents()
                                 auto program { std::make_unique<Program>() };
                                 program->p = std::move (p);
                                 programs.insert_or_assign (id, std::move (program));
+
+                                // Allocate FBO pair for buffer passes at load time
+                                // so the first rendered frame has valid render targets
+                                if (id.toString() != IDref::image)
+                                {
+                                    auto& stored { programs.at (id) };
+
+                                    if (not stored->fbo.has_value())
+                                        stored->fbo.emplace();
+
+                                    auto scale { context.getRenderingScale() };
+                                    auto* comp { context.getTargetComponent() };
+
+                                    if (comp != nullptr)
+                                    {
+                                        int fbW { juce::roundToInt (comp->getWidth() * scale) };
+                                        int fbH { juce::roundToInt (comp->getHeight() * scale) };
+                                        (*stored->fbo)[0].initialise (context, fbW, fbH);
+                                        (*stored->fbo)[1].initialise (context, fbW, fbH);
+                                    }
+                                }
                             }
                             else
                             {
@@ -123,6 +157,40 @@ void Controller::registerEvents()
     };
 
     events.add (IDtype::shader, loadShaders);
+
+    events.add (ID::size,
+                [this]
+                {
+                    end::Size size { appModel.getValue (IDtype::view, ID::size) };
+                    auto [w, h] = size;
+                    resizer.set (IDtype::view, w, h);
+                });
+
+    resizer.addTrigger (
+        juce::Identifier { jam::ID::stop },
+        [this] (int w, int h)
+        {
+            context.executeOnGLThread (
+                [this, w, h] (juce::OpenGLContext&)
+                {
+                    auto scale { context.getRenderingScale() };
+                    int scaledW { juce::roundToInt (w * scale) };
+                    int scaledH { juce::roundToInt (h * scale) };
+
+                    for (auto& [id, program] : programs)
+                    {
+                        if (id.toString() != IDref::image)
+                        {
+                            if (not program->fbo.has_value())
+                                program->fbo.emplace();
+
+                            (*program->fbo)[0].initialise (context, scaledW, scaledH);
+                            (*program->fbo)[1].initialise (context, scaledW, scaledH);
+                        }
+                    }
+                },
+                false);
+        });
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

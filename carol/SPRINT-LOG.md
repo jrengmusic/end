@@ -2,6 +2,51 @@
 
 ---
 
+## Sprint 32: Shader FBO Resize Pipeline — Packed Size, Event→Setter→Trigger ✅
+
+**Date:** 2026-06-21
+**Duration:** ~03:00
+
+### Agents Participated
+- COUNSELOR: design, plan, CONTRACT enforcement, event/trigger pattern analysis from KANJUT reference
+- Engineer: Config.cpp shader param pre-creation reorder, Controller VT member removal, Resizer wiring, FBO lifecycle, packed size migration (multiple iterations)
+- Pathfinder: View resize flow, Controller state, jam::Resizer API, OpenGLFrameBuffer API, KANJUT ProcessorChain pattern survey
+
+### Files Modified
+
+**JAM Framework (1 file):**
+- `jam_core/buffer/jam_resizer.h` — `set()` guards start trigger with `contains()` before `get()`. Start trigger now optional — no-op registration eliminated from consumers.
+
+**END Project (6 files):**
+- `Source/end/Model.h` — Added `end::Size` struct (inherits `jam::Union<int16_t, int16_t>`). Typed constructors: `Size(int, int)` packs, `Size(var)` unpacks. `toInt()` for VT storage. Structured binding support (`std::tuple_size`, `std::tuple_element`, ADL `get()`).
+- `Source/end/View.h` — Added `createAndAttachParameters()` declaration + doxygen. Updated `setViewState` doxygen (packed end::Size, int not int64).
+- `Source/end/View.cpp` — `createAndAttachParameters()`: replaced separate `createAndAddParameter<Parameter<int>>` for width/height with single `Parameter<int>` for packed `end::Size(w, h).toInt()` at ID::size. `setViewState()`: packs via `end::Size`, writes single int property.
+- `Source/shader/Controller.h` — Removed stale VT::Listener inheritance. Updated resize flow doxygen (end::Size, Parameter\<int\>, parameterChanged path). Added `jam::Resizer resizer` member.
+- `Source/shader/Controller.cpp` — `registerEvents()`: ID::size event unpacks `end::Size` from model, feeds `resizer.set()`. Resizer stop trigger: `executeOnGLThread` → loop programs, emplace + initialise FBOs at scaled dims. `loadShaders`: buffer passes (not Image) get FBO pair emplaced + initialised at load time. `shutdown()`: releases all FBOs, clears programs, resets quad. `parameterChanged`: clean single dispatch through events map.
+- `Source/config/Config.cpp` — Shader parameter pre-creation moved BEFORE `shader.load()`. Only creates ParameterText for files that exist on disk (file.existsAsFile guard). Removed post-load creation block. `Shader::loadFromPath`: removed fallback `setProperty` path, added jassert on param existence.
+- `ARCHITECTURE.md` — Comprehensive update: Parameter System section (APVTS analog, createAndAddParameter, ParameterAdapter, ParameterAttachment, flush timer). Packed Value Transport (end::Size). Shader Pipeline (loading, resize, FBO lifecycle, thread contract). Message System (MessageOverlay). Corrected state tree diagram (actual tree structure). Split Resize Path (shader FBO + terminal grid). Updated Plugin Architecture Mapping table. Status updated to ACTIVE.
+
+### Alignment Check
+- [x] BLESSED principles followed — B (FBO bound to Program, Resizer bound to Controller), L (no dead code, no dual dispatch), E (end::Size encapsulates pack/unpack, no casting at call sites), S (size is SSOT single property), D (one write → one VTPC → one event → atomic)
+- [x] NAMES.md adhered — end::Size approved by ARCHITECT, no improvised names
+- [x] MANIFESTO.md principles applied — event→setter→trigger follows KANJUT pattern (Encapsulation: established pattern, not reinvented)
+
+### Problems Solved
+- Shader source values empty on load — createAndAddParameter seeded VT with empty string AFTER shader.load() wrote source. Fixed: pre-create params BEFORE shader.load(), only for existing files.
+- Controller held raw VT reference to config internals (BLESSED E violation) — replaced with `config.getChildWithName()` at use time.
+- Resizer::set() threw on missing start trigger — added contains() guard, eliminated no-op trigger registration.
+- Separate width/height parameters fired two parameterChanged per resize — replaced with packed end::Size (single Parameter\<int\>, single event, atomic).
+- Dual dispatch mechanism (VT::Listener + Model::Listener on Controller) — eliminated VT::Listener, size notification goes through Parameter adapter → parameterChanged.
+- Manual Union pack/unpack at call sites — encapsulated in end::Size struct with typed constructors.
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 31: Model APVTS Conformance + GL Quad + ParameterAttachment + Message System ✅
 
 **Date:** 2026-06-21

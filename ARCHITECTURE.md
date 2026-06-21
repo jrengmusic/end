@@ -2,9 +2,9 @@
 
 **Purpose:** Single source of truth for architectural contracts, patterns, and invariants.
 
-**Status:** PRE-IMPLEMENTATION — mental model and contracts only. File/class details will be written after code exists as ground truth.
+**Status:** ACTIVE — parameter system, shader pipeline, and FBO resize implemented. Terminal pipeline pre-implementation.
 
-**Last Updated:** 2026-06-04
+**Last Updated:** 2026-06-21
 
 ---
 
@@ -69,7 +69,7 @@ Lock-free architecture, unidirectional data flow. No mutex on any hot path. No w
 | **Reader** (TTY) | high | terminal::Model atomics, Buffer\<Row\> cells, CellFifo push | Raw PTY bytes | ValueTree, CodeModel, mutex, allocation, block |
 | **Timer** (JUCE) | default | ValueTree properties (flush dirty atomics) | `needsFlush` atomic | Buffer\<Row\>, CodeModel |
 | **Message** (main) | user-interactive | ValueTree, CodeModel mutations (drain) | ValueTree (listener), CellFifo drain | Atomics (except flush) |
-| **GL** (OpenGL) | user-interactive | Shader uniforms, FBO | Shader source | Buffer\<Row\>, ValueTree, CodeModel |
+| **GL** (OpenGL) | user-interactive | Shader uniforms, FBO initialise/release, program compile/link | Shader source (via config ParameterText) | Buffer\<Row\>, ValueTree, CodeModel |
 
 ### HARD INVARIANTS
 
@@ -145,6 +145,17 @@ END does NOT use the terminal scanline model. See SPEC.md Section 1.0 for the fu
 
 ## Resize Path
 
+Two independent resize paths — shader FBO and terminal grid:
+
+### Shader FBO Resize (shader::Controller)
+
+- `end::View::resized()` → packs `end::Size` → writes ID::size as single int to view state
+- `Parameter<int>` adapter fires `parameterChanged(ID::size)` → Controller event dispatches
+- Event unpacks `end::Size`, calls `resizer.set()` → `jam::Resizer` coalesces (16ms timer)
+- Resizer stop trigger → `executeOnGLThread` → re-initialise FBO pair for each buffer pass at scaled dims
+
+### Terminal Grid Resize (terminal::Controller)
+
 - `terminal::View::resized()` → writes new pixel dimensions
 - `Controller` owns `jam::Resizer` — coalesces rapid changes via 16ms timer
 - Resizer start trigger → `Processor::suspendProcessing(true)` → `Processor::prepare()` (resizes Video grid only) → `Processor::suspendProcessing(false)`
@@ -175,19 +186,109 @@ When `screenDirty` fires on terminal::Model's ValueTree:
 
 ```
 config::Model (independent tree)          end::Model (independent tree)
-  CONFIG                                    WINDOW
-    DISPLAY                                 TABS
-    KEYS                                      TAB[N]
-    NEXUS                                       PANES
-    POPUPS                                        PANE (uuid)
-    ACTIONS                                         SESSION (terminal::Model, grafted)
-    WHELMED                                           VIEW (terminal::View, grafted)
+  CONFIG                                    END
+    GRAPHICS                                  VIEW
+      SHADER (ParameterText per pass)           ID::size (packed end::Size, Parameter<int>)
+    THEME                                       ID::focusedPane
+      FLEX                                    TABS
+    KEYS                                        TAB[N]
+    POPUP                                         PANE (uuid)
+    WHELMED                                   OVERLAY
+                                                ID::message (ParameterText)
 ```
 
-- **config::Model** — config constants. Changes on reload only. Lua files on disk are the SSOT. Config tree is derived state, rebuilt from disk on every reload (same code path as init).
-- **end::Model** — runtime state. Changes during app lifetime. Components graft their state nodes via `jam::ValueTree::Attachment` (RAII).
+- **config::Model** — config constants. Changes on reload only. Lua files on disk are the SSOT. Config tree is derived state, rebuilt from disk on every reload (same code path as init). Shader source stored as ParameterText under GRAPHICS→SHADER (one per existing pass file).
+- **end::Model** — runtime state. Changes during app lifetime. Components graft their state nodes via `jam::Model::Attachment` (RAII).
 
 No config values on end::Model. No runtime state on config::Model. Consumers that need both register as listener on both trees.
+
+---
+
+## Parameter System — jam::Model APVTS Analog
+
+jam::Model is a 1:1 APVTS analog for multi-type parameters. Key contracts:
+
+- **createAndAddParameter\<T\>** — creates typed Parameter (int, float, int64_t, ParameterText) in AnyMap, seeds VT property, registers ParameterAdapter. Parameters live on Model forever.
+- **ParameterAdapter** (cpp-internal) — bridges Parameter↔VT. Bidirectional: atomic→VT (flush timer), VT→atomic (valueTreePropertyChanged reverse sync). Loopback-guarded, equality-gated.
+- **ParameterAttachment** (public) — per-parameter listener bridge. Takes ParameterBase& + callback. Delivers changes on MESSAGE THREAD via AsyncUpdater. Does NOT create/destroy parameters.
+- **Model::Listener::parameterChanged** — fires on the calling thread when parameter value changes. Controller, View, and other listeners receive parameter events through this.
+- **Flush timer** — 10 Hz. Iterates adapters, writes dirty atomics to VT properties.
+
+### Packed Value Transport — end::Size
+
+Window dimensions are packed as `end::Size` (inherits `jam::Union<int16_t, int16_t>`), stored on VT as a single int property. One property write = one VTPC = one parameterChanged = atomic resize.
+
+- **Write:** `end::Size (width, height).toInt()` → `state.setProperty (ID::size, ...)`
+- **Read:** `end::Size { appModel.getValue (IDtype::view, ID::size) }` → structured binding `auto [w, h] = size`
+- **Parameter:** `Parameter<int>` with adapter fires `parameterChanged (ID::size)`
+
+This pattern avoids separate width/height parameters that would fire two events per resize.
+
+---
+
+## Shader Pipeline — shader::Controller
+
+shader::Controller owns the OpenGL lifecycle. Inherits `juce::OpenGLRenderer` + `jam::Model::Listener`.
+
+### Shader Loading
+
+```
+config::Model::loadFromPath()
+  → pre-creates ParameterText per existing shader file (bimap × file.existsAsFile())
+  → shader.load() reads files, calls param->setValue(source)
+  → ParameterAdapter fires parameterChanged(IDtype::shader)
+  → Controller event dispatches loadShaders
+  → executeOnGLThread: compile vertex+fragment, link, store in programs HashMap
+  → buffer passes (not Image) get FBO pair emplaced + initialised at current dims
+```
+
+### Resize Flow
+
+```
+View::resized()
+  → setViewState() packs end::Size, writes ID::size to VT
+  → Parameter<int> adapter fires parameterChanged (ID::size)
+  → Controller events map dispatches ID::size event
+  → event unpacks end::Size, calls resizer.set (IDtype::view, w, h)
+  → jam::Resizer coalesces (16ms timer)
+  → stop trigger: executeOnGLThread → loop programs, emplace + initialise FBOs at scaled dims
+```
+
+### FBO Lifecycle
+
+- **Program struct:** `{ OpenGLShaderProgram, optional<array<OpenGLFrameBuffer, 2>> }` — ping-pong pair per buffer pass.
+- **Creation:** emplaced in loadShaders for buffer passes (not Image). Image renders to default framebuffer.
+- **Resize:** Resizer stop trigger re-initialises both FBO slots at new scaled dimensions.
+- **Release:** shutdown() (called from openGLContextClosing) releases all FBOs, clears programs, resets quad.
+
+### Thread Contract
+
+| Method | Thread |
+|--------|--------|
+| attach / detach / isAttached | MESSAGE |
+| newOpenGLContextCreated / renderOpenGL / openGLContextClosing | GL |
+| parameterChanged | MESSAGE (AsyncUpdater delivery) |
+| Resizer stop trigger | MESSAGE (juce::Timer) |
+| FBO initialise / release | GL (via executeOnGLThread) |
+
+### Event → Setter → Trigger Pattern
+
+Controller follows the KANJUT event/trigger pattern:
+
+- **Events map** (`jam::Function::Map`) — dispatched from `parameterChanged`. One event per concern (IDtype::shader → loadShaders, ID::size → resize).
+- **Resizer** — trigger mechanism. `set()` fires optional start trigger, coalesces via timer, fires "stop" trigger with final dimensions.
+- **parameterChanged** is the single dispatch point. No dual-listener mechanisms (no VT::Listener on Controller).
+
+---
+
+## Message System — MessageOverlay
+
+MessageOverlay inherits `jam::Model::Component` (IDtype::overlay) + `juce::Timer`.
+
+- **registerParameters()** creates ParameterText for ID::message + ParameterAttachment with showMessage callback.
+- **Writers** call `end::Model::setMessage(text)` → retrieves ParameterText → setValue (any thread, lock-free).
+- **Delivery:** ParameterAttachment delivers to showMessage on MESSAGE THREAD via AsyncUpdater.
+- Called from config::Model (load success/error) and shader::Controller (compile errors).
 
 ---
 
@@ -237,8 +338,11 @@ CodeView never sees a Video-grid coordinate. Controller translates at the bounda
 | Host (DAW) | `Nexus` |
 | AudioProcessor | `terminal::Controller` |
 | ProcessorChain | `terminal::Processor` |
-| APVTS | `terminal::Model` |
-| PluginEditor | `terminal::View` |
+| APVTS | `jam::Model` (terminal::Model, end::Model, config::Model) |
+| APVTS::Listener | `jam::Model::Listener` |
+| ParameterAttachment | `jam::Model::ParameterAttachment` |
+| parameterChanged → parameters map → setter → trigger | event → setter → resizer/transition |
+| PluginEditor | `terminal::View` / `end::View` |
 | SpectrumFIFO | `CellFifo` |
 | SpectrumProcessor::outputDB | `CodeModel` |
 
@@ -288,4 +392,4 @@ See SPEC.md Section 1.8. Must be resolved before Phase 4 rendering work.
 
 ---
 
-*This document reflects the architectural contract. File-level module map, class inventory, and implementation details will be written after code exists as ground truth. If code diverges from these contracts, the code is wrong.*
+*This document reflects the architectural contract. Code is ground truth — if code diverges from this document, ARCHITECTURE.md is wrong and must be updated.*

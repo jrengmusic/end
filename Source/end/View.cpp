@@ -15,31 +15,13 @@ View::View (jam::Model& m)
     toFront (true);
     registerActions();
     registerEvents();
+    createAndAttachParameters();
 
     addAndMakeVisible (tabs);
     addChildComponent (messageOverlay);
 
-    auto [width, height] = config.getInt (IDtype::config, ID::size);
-
-    //==============================================================================
-
-    model.createAndAddParameter<jam::Parameter<int>> (state, jam::ID::width, width);
-    model.createAndAddParameter<jam::Parameter<int>> (state, jam::ID::height, height);
-
-    attachments.add (std::make_unique<jam::Model::Attachment> (*this));
-    attachments.add (std::make_unique<jam::Model::Attachment> (tabs));
-    attachments.add (std::make_unique<jam::Model::Attachment> (messageOverlay));
-
-    messageOverlay.registerParameters();
-
     config.addListener (this);
     model.addListener (this);
-
-    setTabOrientation();
-    tabs.addNewTab();
-
-    //==============================================================================
-    setSize (width, height);
 
     juce::MessageManager::callAsync (
         [this]
@@ -53,6 +35,8 @@ View::View (jam::Model& m)
         });
 
     //==============================================================================
+    setTabOrientation();
+    tabs.addNewTab();
 }
 
 View::~View()
@@ -91,10 +75,28 @@ void View::valueTreeChildAdded (juce::ValueTree& parentTree,
     state.setProperty (ID::focusedPane, id, nullptr);
 }
 
+void View::createAndAttachParameters()
+{
+    auto [width, height] = config.getInt (IDtype::config, ID::size);
+
+    //==============================================================================
+
+    model.createAndAddParameter<jam::Parameter<int>> (state, ID::size,
+                                                      end::Size (width, height).toInt());
+
+    attachments.add (std::make_unique<jam::Model::Attachment> (*this));
+    attachments.add (std::make_unique<jam::Model::Attachment> (tabs));
+    attachments.add (std::make_unique<jam::Model::Attachment> (messageOverlay));
+
+    messageOverlay.registerParameters();
+
+    //==============================================================================
+    setSize (width, height);
+}
+
 void View::setViewState (int width, int height)
 {
-    model.setValue (IDtype::view, jam::ID::width, width);
-    model.setValue (IDtype::view, jam::ID::height, height);
+    state.setProperty (ID::size, end::Size (width, height).toInt(), nullptr);
 }
 
 void View::setTabOrientation()
