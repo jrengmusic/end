@@ -6,6 +6,7 @@
 #include <JuceHeader.h>
 #include "end/Model.h"
 #include "config/Config.h"
+#include "shader/Program.h"
 
 namespace shader
 {
@@ -17,14 +18,25 @@ namespace shader
  *  Shader state is accessed via config::Model API (getChildWithName) —
  *  never by storing a raw ValueTree snapshot.
  *
+ *  Listens on TWO models:
+ *  - config::Model — per-pass property IDs (Common, Image, BufferA-D) trigger shader recompile.
+ *  - end::Model    — ID::size events trigger FBO resize via Resizer.
+ *
  *  Resize flow:
  *  - View::resized() packs width + height into end::Size and writes
  *    ID::size as a single int property on the view state tree.
  *  - Parameter\<int\> adapter fires parameterChanged(ID::size).
  *  - ID::size event unpacks via end::Size and calls resizer.set().
  *  - Resizer coalesces rapid changes (16ms timer) and fires the "stop"
- *    trigger, which re-initialises FBOs on the GL thread via
- *    context.executeOnGLThread().
+ *    trigger, which calls resize() on the GL thread — updates Uniform
+ *    viewport and re-initialises FBO pairs at scaled dimensions.
+ *
+ *  Render loop (single Image pass):
+ *  - renderOpenGL() clears, advances uniform state, sets viewport.
+ *  - Looks up the Image program in the programs HashMap.
+ *  - If found: use(), dispatches iResolution/iTime/iTimeDelta/iFrame via
+ *    uniform.set(), draws fullscreen quad.
+ *  - Multi-pass rendering (buffer passes) is not yet implemented.
  *
  *  Thread contract:
  *  - attach() / detach() / isAttached() : MESSAGE THREAD
@@ -68,6 +80,16 @@ private:
     void initialise();
     void shutdown();
     void registerEvents();
+
+    /** @brief Compiles all shader passes from config VT. Queues work on GL thread. */
+    void loadShaders();
+
+    /** @brief Compiles vertex + fragment shader, links. Returns nullptr on failure (error sent to message overlay). GL thread only. */
+    std::unique_ptr<juce::OpenGLShaderProgram> createProgram (juce::StringRef shaderSource);
+
+    /** @brief Updates viewport uniform and resizes FBO pairs for all non-Image programs. GL thread only. */
+    void resize (int w, int h);
+
     //==========================================================================
     // jam::Model::Listener
 
@@ -78,15 +100,7 @@ private:
     config::Shaders& files { *config::Shaders::getInstance() };
     end::Model& appModel { *end::Model::getInstance() };
     jam::Function::Map<juce::Identifier, void> events;
-    
-    //==============================================================================
-    struct Program
-    {
-        std::unique_ptr<juce::OpenGLShaderProgram> p;
-        std::optional<std::array<juce::OpenGLFrameBuffer, 2>> fbo;
-    };
-
-    jam::HashMap<juce::Identifier, std::unique_ptr<Program>> programs;
+    jam::HashMap<juce::Identifier, std::unique_ptr<Pass>> programs;
 
     //==============================================================================
     struct Quad
@@ -136,7 +150,7 @@ private:
 
     jam::Resizer resizer;
     std::unique_ptr<Quad> quad;
-    int frameCounter { 0 };
+    Uniform uniform;
     //==============================================================================
     static inline const juce::String placeholder { "source" };
     static inline const juce::String wrapper { BinaryData::getString ("wrapper.frag") };

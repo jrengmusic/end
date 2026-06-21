@@ -96,8 +96,6 @@ public:
     void valueTreeChildAdded (juce::ValueTree& parentTree,
                               juce::ValueTree& childWhichHasBeenAdded) override;
 
-    void parentHierarchyChanged() override;
-
 private:
     /** @brief Singleton config model reference. */
     config::Model& config { *config::Model::getInstance() };
@@ -138,10 +136,9 @@ private:
 
     /** @brief Packs width + height into end::Size and writes as a single int
      *         property (ID::size) on the view state tree.
-     *  @param width   Current component width in pixels.
-     *  @param height  Current component height in pixels.
+     *  @param size   Current component width and heightin pixels.
      */
-    void setViewState (int width, int height);
+    void setViewState (Size size);
 
     //==============================================================================
     /** @brief Action registry — maps key bindings to action callbacks. */
@@ -168,10 +165,10 @@ private:
     shader::Controller shader;
 
     //==============================================================================
-#if JUCE_DEBUG
-    /** @brief ValueTree inspector widget, debug builds only. */
-    jam::debug::Widget widget { this, config.state, false };
-#endif
+    // #if JUCE_DEBUG
+    //     /** @brief ValueTree inspector widget, debug builds only. */
+    //     jam::debug::Widget widget { this, config.state, false };
+    // #endif
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (View)
 };

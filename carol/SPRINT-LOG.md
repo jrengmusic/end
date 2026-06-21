@@ -2,6 +2,46 @@
 
 ---
 
+## Sprint 33: Shader Render Pipeline — Uniform/Pass/Quad, Image Pass Render ✅
+
+**Date:** 2026-06-21
+**Duration:** ~05:00
+
+### Agents Participated
+- COUNSELOR: design, JUCE OpenGL API research synthesis, Uniform architecture iteration (Function::Map pattern from KANJUT), SSOT method extraction, structural FBO distinction
+- Engineer: Controller refactors (multiple iterations), Uniform struct, Pass/Quad extraction to Program.h, Config param creation fix, ARCHITECTURE.md updates
+- Pathfinder: shader file discovery, config loading pipeline trace, Identifier macro expansion
+- Librarian: comprehensive JUCE OpenGL API surface inventory (OpenGLShaderProgram, OpenGLFrameBuffer, OpenGLContext, OpenGLTexture, OpenGLHelpers)
+
+### Files Modified (6 total)
+- `Source/end/Model.h` — Added `explicit Size(int packed)` constructor for unpacking from raw int without juce::var wrapper.
+- `Source/shader/Program.h` — NEW FILE. shader::Uniform (values HashMap + setters Function::Map, advance/resize/set/getSize), shader::Pass (compiled GL program + optional FBO pair, structural resize), shader::Quad (fullscreen triangle strip VAO+VBO, RAII).
+- `Source/shader/Controller.h` — Extracted Uniform/Pass/Quad to Program.h. Dual model listener (config + appModel). SSOT methods: loadShaders(), createProgram(), resize(). Clean 118-line orchestrator.
+- `Source/shader/Controller.cpp` — renderOpenGL: uniform.advance(), glViewport from uniform.getSize(), uniform.set() dispatch. Dual model listener wiring. Per-bimap-entry event registration. loadShaders() initial trigger from attach(). resize() unifies viewport uniform + FBO pairs. Config listener fix for shader parameterChanged delivery.
+- `Source/config/Config.cpp` — ParameterText created for ALL bimap entries unconditionally (not just existing files). Shader::loadFromPath only sets values for files that exist.
+- `ARCHITECTURE.md` — Shader Pipeline section rewritten: Uniform struct, Pass struct, shader loading flow, resize flow, render loop, thread contract, event→setter→trigger pattern. Status updated.
+
+### Alignment Check
+- [x] BLESSED principles followed — B (Uniform bound to Controller, Pass bound to programs map, Quad RAII), L (no scattered per-frame members, no redundant FBO release), E (Uniform encapsulates all uniform state, Pass encapsulates buffer resize, call site never touches individual keys), S (uniform values as SSOT int map, time accumulated not derived from shadow state), D (Function::Map dispatch, structural Image/buffer distinction at creation time)
+- [x] NAMES.md adhered — Pass (GL lingua for compiled program + render target), Uniform (shader uniform state), no improvised names, "seed" banned term avoided
+- [x] MANIFESTO.md principles applied — KANJUT Function::Map pattern for uniform dispatch, event→setter→trigger for resize, no bail-out guards (jassert preconditions)
+
+### Problems Solved
+- Controller listened on appModel only — shader parameterChanged never reached Controller. Fixed: dual model listener (config + appModel).
+- Shader params created only for existing files — dynamic set broke event registration. Fixed: create for ALL bimap entries, skip empty source at compile time.
+- Initial shader load missed — config loads before Controller exists. Fixed: loadShaders() called from attach() after GL context ready.
+- Per-frame uniform state scattered as individual members (viewportWidth, elapsedTime, deltaTime, frameCounter, startTime, lastFrameTime). Fixed: Uniform struct with int HashMap, advance/resize/set encapsulation.
+- FBO init duplicated in loadShaders and Resizer trigger. Fixed: unified resize() method, structural buffer distinction (emplace at creation, not at resize).
+- juce::OpenGLShaderProgram::Uniform asserts on optimized-away uniforms. Fixed: use program->setUniform() (handles -1 gracefully) via Function::Map dispatch.
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 32: Shader FBO Resize Pipeline — Packed Size, Event→Setter→Trigger ✅
 
 **Date:** 2026-06-21

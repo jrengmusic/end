@@ -136,7 +136,7 @@
     X (uppercase, "uppercase")                     \
     X (depth, "depth")                             \
     X (kerningFactor, "kerning_factor")            \
-    X (textPadding, "text_padding")    \
+    X (textPadding, "text_padding")                \
     X (overlay, "overlay")
 
 // Key binding names (keys.lua)

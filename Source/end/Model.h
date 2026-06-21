@@ -30,6 +30,12 @@ struct Size : jam::Union<int16_t, int16_t>
     {
     }
 
+    /** @brief Constructs from a raw packed int (unpacking). */
+    explicit Size (int packed) noexcept
+        : jam::Union<int16_t, int16_t> { static_cast<uint32_t> (packed) }
+    {
+    }
+
     /** @brief Pack to int for ValueTree storage. */
     int toInt() const noexcept { return static_cast<int> (bits); }
 };

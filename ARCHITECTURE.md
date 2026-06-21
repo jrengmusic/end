@@ -2,7 +2,7 @@
 
 **Purpose:** Single source of truth for architectural contracts, patterns, and invariants.
 
-**Status:** ACTIVE — parameter system, shader pipeline, and FBO resize implemented. Terminal pipeline pre-implementation.
+**Status:** ACTIVE — parameter system, shader pipeline with Image pass render, and FBO resize implemented. Terminal pipeline pre-implementation.
 
 **Last Updated:** 2026-06-21
 
@@ -229,17 +229,45 @@ This pattern avoids separate width/height parameters that would fire two events 
 ## Shader Pipeline — shader::Controller
 
 shader::Controller owns the OpenGL lifecycle. Inherits `juce::OpenGLRenderer` + `jam::Model::Listener`.
+Currently renders a single Image pass with Shadertoy-compatible uniforms (iResolution, iTime, iTimeDelta, iFrame).
+
+### Uniform Struct
+
+Self-contained per-frame shader state. Stores all uniform values as `HashMap<Identifier, int>`,
+paired with a `Function::Map` of setter lambdas registered at init. Call site never touches
+individual keys — uses advance(), resize(), set(), getSize() only.
+
+- **Values:** iResolution (packed end::Size), iTime (accumulated ms), iTimeDelta (frame delta ms), iFrame (count).
+- **Setters:** stateless lambdas registered once. Convert int → GL uniform call (Size unpack, ms→seconds, direct int).
+- **advance():** computes frame delta from integer millisecond clock, accumulates iTime, increments iFrame.
+- **resize(w, h):** packs viewport dims into end::Size, writes iResolution.
+- **set(program):** iterates values, dispatches each through its setter onto the bound program.
+- **getSize():** unpacks iResolution for glViewport.
+
+### Shader Struct
+
+Pure data — GL program and optional ping-pong FBO pair:
+
+```
+struct Shader
+{
+    unique_ptr<OpenGLShaderProgram> program;
+    optional<array<OpenGLFrameBuffer, 2>> buffer;
+};
+```
+
+No constructor, no behavior. Stored in `programs` HashMap keyed by pass Identifier (Image, BufferA, etc.).
 
 ### Shader Loading
 
 ```
 config::Model::loadFromPath()
-  → pre-creates ParameterText per existing shader file (bimap × file.existsAsFile())
-  → shader.load() reads files, calls param->setValue(source)
-  → ParameterAdapter fires parameterChanged(IDtype::shader)
-  → Controller event dispatches loadShaders
-  → executeOnGLThread: compile vertex+fragment, link, store in programs HashMap
-  → buffer passes (not Image) get FBO pair emplaced + initialised at current dims
+  → pre-creates ParameterText for all bimap entries (Common through Image)
+  → shader.load() reads files, calls param->setValue(source) for existing files
+  → ParameterAdapter fires parameterChanged per pass ID
+  → Controller events map dispatches loadShaders
+  → executeOnGLThread: compile vertex+fragment, link, store Shader in programs
+  → resize() updates Uniform viewport + initialises FBO pairs at scaled dims
 ```
 
 ### Resize Flow
@@ -251,15 +279,26 @@ View::resized()
   → Controller events map dispatches ID::size event
   → event unpacks end::Size, calls resizer.set (IDtype::view, w, h)
   → jam::Resizer coalesces (16ms timer)
-  → stop trigger: executeOnGLThread → loop programs, emplace + initialise FBOs at scaled dims
+  → stop trigger: executeOnGLThread → resize (scaledW, scaledH)
+    → uniform.resize (updates iResolution)
+    → FBO loop: emplace + initialise buffer pairs at new dims
 ```
 
-### FBO Lifecycle
+### Render Loop (GL Thread)
 
-- **Program struct:** `{ OpenGLShaderProgram, optional<array<OpenGLFrameBuffer, 2>> }` — ping-pong pair per buffer pass.
-- **Creation:** emplaced in loadShaders for buffer passes (not Image). Image renders to default framebuffer.
-- **Resize:** Resizer stop trigger re-initialises both FBO slots at new scaled dimensions.
-- **Release:** shutdown() (called from openGLContextClosing) releases all FBOs, clears programs, resets quad.
+Single Image pass — multi-pass (buffer passes → Image) not yet implemented.
+
+```
+renderOpenGL()
+  → OpenGLHelpers::clear (transparentBlack)
+  → uniform.advance() (time + frame counter)
+  → glViewport from uniform.getSize()
+  → look up Image in programs HashMap
+  → if found:
+      program->use()
+      uniform.set (program) — iterates values, dispatches through setters
+      quad->draw() (fullscreen triangle strip)
+```
 
 ### Thread Contract
 
@@ -269,15 +308,15 @@ View::resized()
 | newOpenGLContextCreated / renderOpenGL / openGLContextClosing | GL |
 | parameterChanged | MESSAGE (AsyncUpdater delivery) |
 | Resizer stop trigger | MESSAGE (juce::Timer) |
-| FBO initialise / release | GL (via executeOnGLThread) |
+| resize / FBO initialise | GL (via executeOnGLThread) |
 
 ### Event → Setter → Trigger Pattern
 
 Controller follows the KANJUT event/trigger pattern:
 
-- **Events map** (`jam::Function::Map`) — dispatched from `parameterChanged`. One event per concern (IDtype::shader → loadShaders, ID::size → resize).
-- **Resizer** — trigger mechanism. `set()` fires optional start trigger, coalesces via timer, fires "stop" trigger with final dimensions.
-- **parameterChanged** is the single dispatch point. No dual-listener mechanisms (no VT::Listener on Controller).
+- **Events map** (`jam::Function::Map`) — dispatched from `parameterChanged`. Per-pass shader IDs (Common, Image, BufferA-D) → loadShaders. ID::size → resize via Resizer.
+- **Resizer** — trigger mechanism. `set()` coalesces via timer, fires "stop" trigger with final dimensions.
+- **parameterChanged** is the single dispatch point. Controller listens on both config::Model (shader source) and end::Model (view state).
 
 ---
 

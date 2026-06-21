@@ -141,18 +141,13 @@ void Model::loadFromPath()
 
             for (auto& [key, value] : config::Shaders::get())
             {
-                const juce::File file { shaderDir.getChildFile (value) };
+                const juce::Identifier propertyId { value };
 
-                if (file.existsAsFile())
+                if (not params.contains (IDtype::shader)
+                    or getParameter<jam::ParameterText> (IDtype::shader, propertyId) == nullptr)
                 {
-                    const juce::Identifier propertyId { value };
-
-                    if (not params.contains (IDtype::shader)
-                        or getParameter<jam::ParameterText> (IDtype::shader, propertyId) == nullptr)
-                    {
-                        createAndAddParameter<jam::ParameterText> (
-                            shaderChild, propertyId, juce::String {}, glslBufferSize);
-                    }
+                    createAndAddParameter<jam::ParameterText> (
+                        shaderChild, propertyId, juce::String {}, glslBufferSize);
                 }
             }
         }
