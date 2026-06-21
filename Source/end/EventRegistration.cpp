@@ -6,12 +6,6 @@ namespace end
 
 void View::registerEvents()
 {
-    events.add<juce::ValueTree&> (ID::loadMessage,
-                                  [this] (juce::ValueTree&)
-                                  {
-                                      messageOverlay.showMessage (config.getLoadMessage());
-                                  });
-
     events.add<juce::ValueTree&> (ID::tabOrientation,
                                   [this] (juce::ValueTree&)
                                   {

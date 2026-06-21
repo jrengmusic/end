@@ -42,7 +42,21 @@ void Model::initialise()
                                           [this] (const juce::ValueTree& t)
                                           {
                                               auto tree { t };
-                                              addProperties (tree, params);
+
+                                              Model::forEachProperty (tree,
+                                                  [this, &tree] (const juce::Identifier& name,
+                                                                 const juce::var& value)
+                                                  {
+                                                      if (value.isString())
+                                                          createAndAddParameter<jam::ParameterText> (
+                                                              tree, name, value.toString());
+                                                      else if (value.isDouble())
+                                                          createAndAddParameter<jam::Parameter<float>> (
+                                                              tree, name, static_cast<double> (value));
+                                                      else if (value.isInt() or value.isBool() or value.isInt64())
+                                                          createAndAddParameter<jam::Parameter<int>> (
+                                                              tree, name, static_cast<int> (value));
+                                                  });
 
                                               return false;
                                           });
@@ -123,13 +137,18 @@ void Model::loadFromPath()
 
         if (shaderChild.isValid() and not params.contains (IDtype::shader))
         {
-            params.add<jam::AnyMap> (IDtype::shader);
-            addProperties (shaderChild, *params.get<jam::AnyMap> (IDtype::shader), glslBufferSize);
+            Model::forEachProperty (shaderChild,
+                [this, &shaderChild] (const juce::Identifier& name, const juce::var&)
+                {
+                    createAndAddParameter<jam::ParameterText> (shaderChild, name, juce::String {}, glslBufferSize);
+                });
         }
     }
 
-    loadMessage = errors.isEmpty() ? state.getProperty (ID::successMessage).toString() : errors;
-    state.sendPropertyChangeMessage (ID::loadMessage);
+    juce::String message { errors.isEmpty() ? state.getProperty (ID::successMessage).toString()
+                                            : errors };
+
+    appModel.setMessage (message);
 }
 
 void Model::startWatcher()
@@ -186,11 +205,10 @@ void Theme::initialise()
 {
     for (auto& [key, value] : config::Themes::get())
     {
-        auto child { jam::Model::fromLua (
-            BinaryData::getString (config::Themes::getName (key)),
-            value.toUpperCase(),
-            {},
-            &config::Model::getValidators()) };
+        auto child { jam::Model::fromLua (BinaryData::getString (config::Themes::getName (key)),
+                                          value.toUpperCase(),
+                                          {},
+                                          &config::Model::getValidators()) };
 
         if (child.isValid())
             state.appendChild (child, nullptr);

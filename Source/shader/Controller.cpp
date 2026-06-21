@@ -24,7 +24,7 @@ void Controller::attach (juce::Component& component)
 {
     context.setOpenGLVersionRequired (juce::OpenGLContext::openGL4_1);
     // context.setComponentPaintingEnabled (true);
-    // context.setContinuousRepainting (true);
+    context.setContinuousRepainting (true);
     context.setMultisamplingEnabled (true);
     context.setRenderer (this);
     context.attachTo (component);
@@ -39,7 +39,22 @@ void Controller::newOpenGLContextCreated() { initialise(); }
 
 void Controller::renderOpenGL()
 {
+    using namespace ::juce::gl;
+
     juce::OpenGLHelpers::clear (juce::Colours::transparentBlack);
+
+    auto scale { context.getRenderingScale() };
+    auto* comp { context.getTargetComponent() };
+
+    if (comp != nullptr)
+    {
+        int w { juce::roundToInt (comp->getWidth() * scale) };
+        int h { juce::roundToInt (comp->getHeight() * scale) };
+        glViewport (0, 0, w, h);
+    }
+
+    if (quad != nullptr)
+        quad->draw();
 
     //==============================================================================
     ++frameCounter;
@@ -53,6 +68,8 @@ void Controller::initialise()
 #if JUCE_MAC or JUCE_WINDOWS
     jam::BackgroundBlur::enableWindowTransparency();
 #endif
+
+    quad = std::make_unique<Quad>();
 }
 
 void Controller::shutdown() {}
@@ -70,28 +87,40 @@ void Controller::registerEvents()
 {
     auto loadShaders = [this]
     {
-        juce::String common { shaders.getProperty (ID::common).toString() };
-
-        jam::Model::forEachProperty (
-            shaders,
-            [common, this] (const juce::Identifier& id, const juce::var& var)
+        context.executeOnGLThread (
+            [this] (juce::OpenGLContext&)
             {
-                if (files.contains (id.toString()))
-                {
-                    juce::String shaderSourceCode { jam::Format::prependNewLine (
-                        var.toString(), common) };
-                    shaderSourceCode =
-                        jam::Format::replaceholder (wrapper, placeholder, shaderSourceCode);
+                juce::String common { shaders.getProperty (ID::common).toString() };
 
-                    auto p { std::make_unique<juce::OpenGLShaderProgram> (context) };
-                    p->addFragmentShader (shaderSourceCode);
+                jam::Model::forEachProperty (
+                    shaders,
+                    [common, this] (const juce::Identifier& id, const juce::var& var)
+                    {
+                        if (files.contains (id.toString()))
+                        {
+                            juce::String shaderSourceCode { jam::Format::prependNewLine (
+                                var.toString(), common) };
+                            shaderSourceCode =
+                                jam::Format::replaceholder (wrapper, placeholder, shaderSourceCode);
 
-                    auto program { std::make_unique<Program>() };
-                    program->p = std::move (p);
+                            auto p { std::make_unique<juce::OpenGLShaderProgram> (context) };
 
-                    programs.insert_or_assign (id, std::move (program));
-                }
-            });
+                            if (p->addVertexShader (screenQuad)
+                                and p->addFragmentShader (shaderSourceCode) and p->link())
+                            {
+                                auto program { std::make_unique<Program>() };
+                                program->p = std::move (p);
+                                programs.insert_or_assign (id, std::move (program));
+                            }
+                            else
+                            {
+                                auto error { p->getLastError() };
+                                appModel.setMessage (error);
+                            }
+                        }
+                    });
+            },
+            false);
     };
 
     events.add (IDtype::shader, loadShaders);

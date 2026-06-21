@@ -2,6 +2,70 @@
 
 ---
 
+## Sprint 31: Model APVTS Conformance + GL Quad + ParameterAttachment + Message System ✅
+
+**Date:** 2026-06-21
+**Duration:** ~08:00
+
+### Agents Participated
+- COUNSELOR: design, planning, CONTRACT enforcement, APVTS audit orchestration
+- Engineer: Quad RAII, shader compile pipeline, ParameterAttachment refactor (multiple passes), config migration, MessageOverlay Component, Model APVTS fixes
+- Auditor: full APVTS 1:1 gap audit (12-section exhaustive comparison)
+- Librarian: JUCE OpenGL API surface, juce::var type system research
+- Pathfinder: full model layer survey, Attachment + lua converter survey, APVTS vs jam::Model constructor comparison
+
+### Files Modified
+
+**JAM Framework (4 files):**
+- `jam_data_structures/model/jam_model.h` — startTimerHz(10) in both constructors. ParameterAdapter inherits AsyncUpdater (parameterValueChanged: isThisTheMessageThread → cancelPendingUpdate/handleAsyncUpdate or triggerAsyncUpdate). OwnedArray<ParameterAdapter> → HashMap<Identifier, unique_ptr<ParameterAdapter>>. Added valueTreeChildAdded/valueTreeRedirected/updateAdapterConnections overrides. ParameterAttachment class (non-template, 1:1 JUCE: takes ParameterBase& + callback, Listener + AsyncUpdater, sendInitialUpdate). createAndAddParameter<T> template (seeds VT, creates Parameter in AnyMap, registers adapter, returns ParameterBase&). removeParameter deleted. addParameterAdapter moved public. Deleted: addProperties, addProperty overloads, addParameter template, Property struct, initializer_list Component ctor.
+- `jam_data_structures/model/jam_model.cpp` — ParameterAttachment ctor/dtor/sendInitialUpdate/parameterValueChanged/handleAsyncUpdate implementations. removeParameter out-of-line implementation (then deleted). addParameterAdapter uses insert_or_assign on HashMap. All adapter loops use structured bindings. loadState rewritten using applyFunctionRecursively.
+- `jam_data_structures/model/jam_model_utils.cpp` — Attachment destructor: removed params.remove (parameter cleanup no longer Attachment's job). Deleted Component initializer_list ctor. loadState rewritten.
+- `jam_data_structures/model/jam_model.h` — ParameterAdapter constructor param `node` → `parameterTree`.
+
+**END Project (12 files):**
+- `Source/shader/Controller.h` — Quad RAII struct (VAO+VBO, GL 4.1 core). appModel typed as end::Model&.
+- `Source/shader/Controller.cpp` — Quad in initialise/shutdown. renderOpenGL: viewport + quad draw. loadShaders: executeOnGLThread + addVertexShader + addFragmentShader + link. Shader errors via appModel.setMessage.
+- `Source/end/Model.h` — Added setMessage(const String&) public method.
+- `Source/end/Model.cpp` — Empty constructor (message owned by MessageOverlay).
+- `Source/end/View.h` — Removed parameterAttachments member (creation-only, no callbacks needed).
+- `Source/end/View.cpp` — createAndAddParameter for width/height. MessageOverlay Attachment + registerParameters. Tab name setProperty moved after Attachment.
+- `Source/end/Tabs.cpp` — setProperty for tab name reordered after Attachment (fix: VTPC fires, adapter syncs).
+- `Source/end/Panes.h` — Removed parameterAttachments member.
+- `Source/end/Panes.cpp` — createAndAddParameter for name ParameterText.
+- `Source/end/PaneView.h` — createAndAddParameter for focus. Removed Property initializer_list usage.
+- `Source/end/MessageOverlay.h` — Inherits Model::Component. ParameterAttachment with showMessage callback. registerParameters(). Owner<ParameterAttachment> member.
+- `Source/end/EventRegistration.cpp` — Removed ID::message VTPC handler (ParameterAttachment delivers directly). Removed ID::loadMessage handler.
+- `Source/config/Config.h` — Added end::Model.h include. Removed loadMessage member + getLoadMessage(). Removed parameterAttachments member. Updated doxygen.
+- `Source/config/Config.cpp` — initialise: createAndAddParameter per property (isString/isDouble/isInt guard). loadFromPath: shader createAndAddParameter<ParameterText>. appModel.setMessage for load results. Array property guard (else if isInt, not bare else).
+- `Source/Identifier.h` — Removed loadMessage from IDENTIFIER_CONFIG. Added message to IDENTIFIER_MODEL. Added overlay to IDENTIFIER_THEME.
+
+### Alignment Check
+- [x] BLESSED principles followed — ParameterAttachment 1:1 JUCE (B: bound lifecycle, E: encapsulation, S: SSOT creation/attachment separation)
+- [x] NAMES.md adhered — node→tree rename, no forbidden terminology (handle, graft, node, adder)
+- [x] MANIFESTO.md principles applied — no friend, no bail-out guards, positive nesting, no if/else in ParameterAttachment
+
+### Problems Solved
+- jam::Model timer never started — flush pipeline was dead. Fixed: startTimerHz(10) in constructor (APVTS analog).
+- ParameterAdapter fan-out synchronous on calling thread — no message-thread delivery. Fixed: AsyncUpdater (JUCE ParameterAttachment pattern).
+- OwnedArray linear scan in vtpc. Fixed: HashMap<Identifier, unique_ptr<ParameterAdapter>>.
+- replaceState left adapter tree handles stale. Fixed: valueTreeChildAdded/valueTreeRedirected/updateAdapterConnections.
+- addProperties if/else var type dispatch. Fixed: createAndAddParameter typed template + ParameterAttachment as separate listener bridge.
+- loadState hand-rolled recursive garbage. Fixed: applyFunctionRecursively two-tree overload.
+- Message overlay on config private string + fake sendPropertyChangeMessage. Fixed: MessageOverlay as Model::Component, ParameterText for message, ParameterAttachment callback.
+- Shader compile on wrong thread. Fixed: executeOnGLThread.
+- Tab name lost on first tab. Fixed: setProperty after Attachment (VTPC fires, adapter syncs).
+- Config size=0. Fixed: bare else caught array properties, narrowed to isInt/isBool/isInt64 guard.
+- friend class Model on ParameterAttachment. Fixed: deleted (JRENG-CODING-STANDARD violation).
+- removeParameter invented (JUCE doesn't remove parameters). Fixed: deleted.
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 30: Parameter/Adapter APVTS-Verbatim Split + Controller Model::Listener ✅
 
 **Date:** 2026-06-20

@@ -71,8 +71,9 @@ private:
                                                             IDtype::shader) };
 
     config::Shaders& files { *config::Shaders::getInstance() };
-    jam::Model& appModel { *end::Model::getInstance() };
-
+    end::Model& appModel { *end::Model::getInstance() };
+    jam::Function::Map<juce::Identifier, void> events;
+    //==============================================================================
     struct Program
     {
         std::unique_ptr<juce::OpenGLShaderProgram> p;
@@ -80,7 +81,54 @@ private:
     };
 
     jam::HashMap<juce::Identifier, std::unique_ptr<Program>> programs;
-    jam::Function::Map<juce::Identifier, void> events;
+
+    //==============================================================================
+    struct Quad
+    {
+        Quad()
+        {
+            using namespace ::juce::gl;
+
+            glGenVertexArrays (1, &vao);
+            glBindVertexArray (vao);
+
+            glGenBuffers (1, &vbo);
+            glBindBuffer (GL_ARRAY_BUFFER, vbo);
+
+            static constexpr float vertices[] { -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f };
+            glBufferData (GL_ARRAY_BUFFER, sizeof (vertices), vertices, GL_STATIC_DRAW);
+
+            glVertexAttribPointer (0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+            glEnableVertexAttribArray (0);
+
+            glBindVertexArray (0);
+        }
+
+        ~Quad()
+        {
+            using namespace ::juce::gl;
+
+            glDeleteBuffers (1, &vbo);
+            glDeleteVertexArrays (1, &vao);
+        }
+
+        void draw() const noexcept
+        {
+            using namespace ::juce::gl;
+
+            glBindVertexArray (vao);
+            glDrawArrays (GL_TRIANGLE_STRIP, 0, 4);
+            glBindVertexArray (0);
+        }
+
+        GLuint vao { 0 };
+        GLuint vbo { 0 };
+
+        //==============================================================================
+        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Quad)
+    };
+
+    std::unique_ptr<Quad> quad;
 
     //==============================================================================
     static inline const juce::String placeholder { "source" };

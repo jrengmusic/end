@@ -1,6 +1,7 @@
 #pragma once
 #include <JuceHeader.h>
 #include "../Bimap.h"
+#include "../end/Model.h"
 #include "Directory.h"
 
 namespace config
@@ -47,6 +48,7 @@ protected:
     void loadFromPath (const juce::File& dir) override;
 
 private:
+    //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Shader)
 };
 
@@ -86,8 +88,8 @@ private:
 
     LookAndFeel listens on the @c ID::theme notify channel.
     @c config::Model::loadFromPath() reads @c getErrors() after @c load() and
-    appends any theme errors to the root load message before firing
-    @c sendPropertyChangeMessage(ID::loadMessage).
+    appends any theme errors to the root load message before writing it to
+    @c end::Model's @c ID::message property via @c setValue.
 
     @see config::Directory
     @see config::Model
@@ -155,6 +157,7 @@ private:
     /** @brief Accumulated validation errors from the most recent load. */
     juce::String errors;
 
+    //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Theme)
 };
 
@@ -258,25 +261,20 @@ public:
         populated validator map, and collects any per-file errors. For the
         @c config entry, the tree is parsed as CONFIG type and overlaid
         directly via @c setValuesFrom. For other entries, the child is wrapped
-        in a CONFIG-typed root before @c setValuesFrom. After the walk, sets
-        @c loadMessage to the configured @c success_message on success or the accumulated error text
-        on failure, fires @c sendPropertyChangeMessage on @c ID::loadMessage,
+        in a CONFIG-typed root before @c setValuesFrom. After the walk, writes
+        the configured @c success_message on success or the accumulated error text
+        on failure to @c end::Model's @c ID::message property via @c setValue,
         then drives @c theme.load() and @c shader.load() with directories
         resolved via the bimap.
     */
     void loadFromPath();
 
-    /**
-        @brief Returns the most recent load result.
-        @return Configured @c success_message on success; the accumulated per-file error text
-                on failure. Never stored on the value tree.
-    */
-    const juce::String& getLoadMessage() const noexcept { return loadMessage; }
-
     /** @brief Returns the shared validator map from the live Model instance. */
     static jam::lua::Validators& getValidators() noexcept { return getInstance()->validators; }
 
 private:
+    end::Model& appModel { *end::Model::getInstance() };
+
     /**
         @brief Populates the live tree from BinaryData.
         @details
@@ -285,8 +283,9 @@ private:
         entries pre-populated via IIFE on the member declaration). For the
         @c config entry, @c state IS the parsed tree (flat CONFIG root). For
         all other entries the child is appended to @c state unchanged. Then
-        walks every subtree via @c jam::Model::applyFunctionRecursively to
-        register CONTEXT properties via @c jam::Model::addProperties.
+        walks every subtree via @c jam::Model::applyFunctionRecursively and
+        creates one typed parameter per property via
+        @c createAndAddParameter<T>(). Parameters live on Model for the process lifetime.
     */
     void initialise();
 
@@ -325,13 +324,6 @@ private:
                @c .lua changes.
     */
     jam::File::Watcher watcher;
-
-    /**
-        @brief Most recent load result — configured @c success_message on success, error
-               text on failure. Written by @c loadFromPath(); read via
-               @c getLoadMessage(). Never stored on the value tree.
-    */
-    juce::String loadMessage;
 
     /**
         @brief Bimap and type-based validators consumed during

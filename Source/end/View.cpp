@@ -7,6 +7,7 @@ namespace end
 View::View (jam::Model& m)
     : jam::Model::Component { m, IDtype::view }
     , tabs (m)
+    , messageOverlay (m)
 {
     setOpaque (false);
     addKeyListener (this);
@@ -19,12 +20,17 @@ View::View (jam::Model& m)
     addChildComponent (messageOverlay);
 
     auto [width, height] = config.getInt (IDtype::config, ID::size);
-    state.setProperty (jam::ID::width, width, nullptr);
-    state.setProperty (jam::ID::height, height, nullptr);
 
     //==============================================================================
+
+    model.createAndAddParameter<jam::Parameter<int>> (state, jam::ID::width, width);
+    model.createAndAddParameter<jam::Parameter<int>> (state, jam::ID::height, height);
+
     attachments.add (std::make_unique<jam::Model::Attachment> (*this));
     attachments.add (std::make_unique<jam::Model::Attachment> (tabs));
+    attachments.add (std::make_unique<jam::Model::Attachment> (messageOverlay));
+
+    messageOverlay.registerParameters();
 
     config.addListener (this);
     model.addListener (this);

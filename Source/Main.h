@@ -33,10 +33,10 @@ private:
     // single-global-pointer Instance<T> slot is populated before first use.
     Map context;
 
+    Model model;
     config::Model config;
 
     //==============================================================================
-    Model model;
     LookAndFeel lookAndFeel;
     std::unique_ptr<end::Window> window;
 

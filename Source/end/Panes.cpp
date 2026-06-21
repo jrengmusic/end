@@ -10,7 +10,7 @@ Panes::Panes (jam::UUID uuid, jam::Model& m)
 {
     setName (IDtype::tab.toString());
     setComponentID (uuid.toString());
-    state.setProperty (jam::ID::name, juce::String {}, nullptr);
+    model.createAndAddParameter<jam::ParameterText> (state, jam::ID::name, juce::String {});
 
     const int thickness { config::Model::getInstance()->getValue (IDtype::pane, ID::resizeBarThickness) };
     paneManager.setResizerBarSize (thickness);

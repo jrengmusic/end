@@ -5,8 +5,9 @@
  * MessageOverlay is a non-interactive, semi-transparent overlay that appears
  * briefly over the application to communicate transient text status:
  *
- * - **Config reload** — `config.getLoadMessage()` shown for the default
- *   duration (5000 ms) via View::valueTreePropertyChanged.
+ * - **Config reload** — success or error text written to the overlay's own
+ *   @c ID::message property (owned as a @c jam::Model::Component), shown for
+ *   the default duration (5000 ms) via View::valueTreePropertyChanged.
  * - **Arbitrary messages** — multi-line text shown via showMessage().
  *
  * ### Fade animation
@@ -45,8 +46,9 @@ namespace end
  * @class MessageOverlay
  * @brief Semi-transparent overlay for transient status messages (text-only mode).
  *
- * Inherits `juce::Component` for rendering and `juce::Timer` (private) for
- * the auto-hide delay.  All display logic is inline; there is no separate .cpp.
+ * Inherits `juce::Component` for rendering, `jam::Model::Component` for owned
+ * ValueTree state, and `juce::Timer` (private) for the auto-hide delay.
+ * All display logic is inline; there is no separate .cpp.
  *
  * @par Thread context
  * **MESSAGE THREAD** — all public methods.
@@ -55,18 +57,22 @@ namespace end
  */
 class MessageOverlay
     : public juce::Component
+    , public jam::Model::Component
     , private juce::Timer
 {
 public:
     /**
-     * @brief Constructs MessageOverlay: sets non-opaque and disables mouse interception.
+     * @brief Constructs MessageOverlay: binds model state, sets non-opaque, disables mouse interception.
      *
      * The component starts hidden (`addChildComponent` in the parent).
      * Visibility is managed entirely by `jam::Animator::toggleFade()`.
+     * Call registerParameters() after Attachment is constructed in View.
      *
+     * @param m  Shared jam::Model that owns the application state tree.
      * @note MESSAGE THREAD.
      */
-    MessageOverlay()
+    explicit MessageOverlay (jam::Model& m)
+        : jam::Model::Component (m, IDtype::overlay)
     {
         setOpaque (false);
         setInterceptsMouseClicks (false, false);
@@ -74,6 +80,24 @@ public:
 
     /** @brief Default destructor. */
     ~MessageOverlay() override = default;
+
+    /**
+     * @brief Registers the ID::message ParameterText on the overlay's state.
+     *
+     * Must be called after the Attachment for MessageOverlay is constructed in
+     * View, so the state is already parented in the model tree before the
+     * adapter is registered.
+     *
+     * @note MESSAGE THREAD — called once during View construction.
+     */
+    void registerParameters()
+    {
+        auto& messageParam { model.createAndAddParameter<jam::ParameterText> (
+            state, ID::message, juce::String {}, 4096) };
+
+        parameterAttachments.add (std::make_unique<jam::Model::ParameterAttachment> (
+            messageParam, [this] (const juce::var& v) { showMessage (v.toString()); }));
+    }
 
     /**
      * @brief Shows an arbitrary message for a configurable duration.
@@ -133,6 +157,9 @@ private:
     //==============================================================================
     /** @brief The text currently displayed. */
     juce::String message;
+
+    /** @brief RAII parameter attachment for ID::message — delivers changes to showMessage. */
+    jam::Owner<jam::Model::ParameterAttachment> parameterAttachments;
 
     //==============================================================================
     /** @brief Background fill alpha [0, 1]; applied on top of the window content. */

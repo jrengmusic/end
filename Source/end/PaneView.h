@@ -28,13 +28,14 @@ public:
      *  @param model  Model reference — forwarded to Component.
      */
     PaneView (jam::UUID uuid, jam::Model& model)
-        : jam::Model::Component (model, IDtype::pane, { { ID::focus, 0 } })
+        : jam::Model::Component (model, IDtype::pane)
     {
         setName (IDtype::pane.toString());
         state.setProperty (jam::ID::id, uuid.value, nullptr);
         setComponentID (uuid.toString());
         setOpaque (false);
         setWantsKeyboardFocus (true);
+        model.createAndAddParameter<jam::Parameter<int>> (state, ID::focus, 0);
     }
 
     void resized() override {}

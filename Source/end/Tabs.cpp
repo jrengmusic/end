@@ -25,13 +25,15 @@ void Tabs::addNewTab()
     static constexpr int numNames { 7 };
 
     const auto tabName { tabNames[getNumTabs() % numNames] };
-    panes->state.setProperty (jam::ID::name, juce::String { tabName }, nullptr);
 
     addTab (tabName, juce::Colours::transparentBlack, panes, true);
 
     setCurrentTabIndex (getNumTabs() - 1);
 
     attachments.add (std::make_unique<jam::Model::Attachment> (*panes));
+
+    // State is parented in model tree after Attachment — VTPC now fires on setProperty.
+    panes->state.setProperty (jam::ID::name, juce::String { tabName }, nullptr);
 
     // Wire label value to model state — must happen AFTER Attachment grafts the state.
     auto* tab { getBar().getTabButton (getNumTabs() - 1) };

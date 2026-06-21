@@ -29,7 +29,6 @@
     X (popup, "popup")                       \
     X (whelmed, "whelmed")                   \
     X (graphics, "graphics")                 \
-    X (loadMessage, "load_message")          \
     X (successMessage, "success_message")    \
     X (theme, "theme")                       \
     X (themes, "themes")                     \
@@ -137,7 +136,8 @@
     X (uppercase, "uppercase")                     \
     X (depth, "depth")                             \
     X (kerningFactor, "kerning_factor")            \
-    X (textPadding, "text_padding")
+    X (textPadding, "text_padding")    \
+    X (overlay, "overlay")
 
 // Key binding names (keys.lua)
 #define IDENTIFIER_KEYS(X)                             \
@@ -304,7 +304,8 @@
     X (focusedPane, "focused_pane") \
     X (focus, "focus")              \
     X (zoom, "zoom")                \
-    X (renderer, "renderer")
+    X (renderer, "renderer")        \
+    X (message, "message")
 
 // ============================================================================
 #define END_MAKE_VIEW(ViewName, EXPANDER) \

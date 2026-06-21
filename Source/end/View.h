@@ -43,9 +43,9 @@ class View
 public:
     /** @brief Constructs the View and wires all subsystems.
      *
-     *  Registers actions and events, creates model attachments for View and
-     *  Tabs state, adds this as a listener to config, theme, and model trees,
-     *  applies the initial tab orientation, and opens the first tab.
+     *  Registers actions and events, creates model attachments and parameters
+     *  for View and Tabs state, adds this as a listener to config, theme, and
+     *  model trees, applies the initial tab orientation, and opens the first tab.
      *
      *  @param m  Shared jam::Model that owns the application state tree.
      */
@@ -114,11 +114,11 @@ private:
 
     /** @brief Populates the events map with ValueTree property/type-keyed callbacks.
      *
-     *  Registers handlers for: loadMessage (shows config load message overlay),
-     *  tabOrientation (applies tab orientation from config.lua config), focus (updates focusedPane
-     *  state), theme (propagates LookAndFeel change),
-     *  alwaysOnTop and titleBarButtons (dispatch to jam::Window),
-     *  gpu (attach/detach shader based on config and probe result).
+     *  Registers handlers for: tabOrientation (applies tab orientation from
+     *  config.lua config), focus (updates focusedPane state), theme (propagates
+     *  LookAndFeel change), alwaysOnTop and titleBarButtons (dispatch to
+     *  jam::Window), gpu (attach/detach shader based on config and probe result).
+     *  Message display is handled directly by MessageOverlay via ParameterAttachment.
      *  Defined in EventRegistration.cpp.
      */
     void registerEvents();
