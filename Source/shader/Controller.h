@@ -108,7 +108,7 @@ private:
     void parameterChanged (const juce::Identifier& id, const juce::var& newValue) override;
 
     //==========================================================================
-    // config::Model& config { *config::Model::getInstance() };
+    config::Model& config { *config::Model::getInstance() };
     file::Shaders& files { *file::Shaders::getInstance() };
     end::Model& appModel { *end::Model::getInstance() };
     jam::Function::Map<juce::Identifier, void> events;

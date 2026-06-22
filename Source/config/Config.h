@@ -35,9 +35,18 @@ public:
 
     ~Shader() override = default;
 
-protected:
-    /** @brief Reads GLSL source from the active shader project directory into @c state. */
-    void loadFromPath() override;
+    /** @brief Reads GLSL source from the active shader project directory into @c state.
+     *
+     *  Resolves the active project from @c config::Model's GRAPHICS/ID::background
+     *  property, locates the shader directory via @c file::Shaders::getPath, and
+     *  overlays @c state via @c jam::Model::fromFiles + @c setValuesFrom.
+     *  Fires @c state.sendPropertyChangeMessage(IDtype::graphics) so downstream
+     *  listeners (shader::Controller) pick up the new source.
+     *
+     *  @param errors  Accumulation channel (unused by shader — no lua parse).
+     *                 Kept to satisfy the @c Directory contract.
+     */
+    void loadFromPath (juce::String& errors) override;
 
 private:
     //==========================================================================
@@ -72,14 +81,27 @@ public:
 
     ~Theme() override = default;
 
-protected:
     /** @brief Reads each theme lua from disk and overlays valid properties onto @c state
      *         via @c setValuesFrom. Re-populates FLEX from the flex/ subdirectory. Fires
      *         @c state.sendPropertyChangeMessage(ID::theme). Accumulates errors in @c errors.
+     *
+     *  Resolves the active theme name from @c config::Model's DISPLAY/ID::theme
+     *  property, locates the theme directory via @c file::Themes::getPath, and
+     *  performs a single @c setValuesFrom pass after assembling a disk-mirror
+     *  THEMES tree (THEME, WHELMED via @c fromLua + FLEX via @c fromFiles).
+     *
+     *  @param errors  Accumulation channel; lua parse errors are appended here
+     *                 and also passed up to the @c config::Model caller.
      */
-    void loadFromPath() override;
+    void loadFromPath (juce::String& errors) override;
 
-    /** @brief Writes missing theme lua and SVG files to the active theme directory. */
+    /** @brief Writes missing theme lua and SVG files to the active theme directory.
+     *
+     *  Resolves the active theme name from @c config::Model, creates the theme
+     *  directory and its @c flex/ subdirectory if absent, then seeds any missing
+     *  lua and SVG assets from BinaryData. No-op when the directory already
+     *  contains all expected files.
+     */
     void saveToPath();
 
 private:
@@ -154,12 +176,12 @@ public:
     /**
         @brief Reads each root lua config file from disk and overlays @c state.
 
-        For every entry in @c file::Config::get(), loads the file via
-        @c jam::Model::fromLua with @c validators, overlays valid properties
-        via @c setValuesFrom, and accumulates per-file errors. Drives
-        @c theme.loadFromPath() and @c shader.loadFromPath() in sequence.
-        Writes the load result (success message or accumulated errors) to
-        @c end::Model's @c ID::message property via @c setValue.
+        Builds a CONFIG-rooted disk mirror via @c jam::Model::fromLua with
+        @c validators, overlays valid properties via @c setValuesFrom, then
+        drives @c theme.loadFromPath(errors) and @c shader.loadFromPath(errors)
+        in sequence. Writes the final result to @c end::Model's message overlay:
+        @c ID::successMessage on success, or the accumulated error string on
+        failure.
     */
     void loadFromPath();
 

@@ -2,6 +2,51 @@
 
 ---
 
+## Sprint 35: Config Four-Phase Lifecycle Wiring — Shaders Compile & Render ✅
+
+**Date:** 2026-06-22
+**Duration:** ~01:00
+
+### Agents Participated
+- COUNSELOR: led the wiring — restored the four-phase logic from 49e0205 onto the Sprint 34 tree, designed the load/save seam (public param-less `loadFromPath(errors)`, self-sourced dir via jam utils, single error accumulator), caught the DISPLAY-vs-root property bug
+- Pathfinder: extracted 49e0205 verbatim bodies, enumerated jam::Model recursive utils API, surveyed git/diff state for this log
+- Engineer: implemented the four phases + seam changes, two compile fixes
+- ARCHITECT: restored shader::Controller (uncommented config listener + loadShaders + registerEvents), Bimap dedup, confirmed shaders compile and render
+
+### Files Modified
+**Config wiring (COUNSELOR-led):**
+- `Source/config/Directory.h` — `loadFromPath` moved to public, signature `void loadFromPath (juce::String& errors)`; doxygen updated (errors& is the accumulation channel, dir self-sourced)
+- `Source/config/Config.h` — `Shader::loadFromPath(errors)` / `Theme::loadFromPath(errors)` public; `Theme::saveToPath()` public param-less; `Model::loadFromPath()` doxygen
+- `Source/config/Config.cpp` — implemented all four phases (were stubs): `Model::saveToPath` (seed missing root lua from BinaryData + drive `theme.saveToPath`), `Model::loadFromPath` (fromLua disk-mirror + validators → setValuesFrom → cascade theme/shader → setMessage), `Model::startWatcher` (addFolder/coalesce/addListener), `Model::fileChanged` (reload on `.lua` fileUpdated); `Theme::saveToPath`/`Theme::loadFromPath` (disk-mirror THEMES tree, FLEX as sibling, single setValuesFrom); `Shader::loadFromPath` (fromFiles disk-mirror → setValuesFrom). Active theme/background resolved via `getValue` recursive lookup; `success_message` read from DISPLAY child
+
+**In the same working tree (ARCHITECT-authored):**
+- `Source/shader/Controller.h` — `config::Model&` member uncommented (line 111)
+- `Source/shader/Controller.cpp` — config listener add/remove, `loadShaders()` (GL-thread program/Pass build), `registerEvents()` (ID::background→loadShaders, ID::size→resize) uncommented and live
+- `Source/Bimap.h` — `Shaders` enum `common` before `image`, map reordered; `BufferChannel` enum removed (dedup to `Shaders`); `getDefault` → `Shaders::bufferA`
+- `Source/end/EventRegistration.cpp` — modified
+- `END.ode` — session log timestamp
+- removed completed `PLAN-config-restructure.md`, `PLAN-jam-gui-tab-system.md`; `docs/` doxygen regen
+
+### Alignment Check
+- [x] BLESSED principles followed — SSOT: loadFromPath reuses the same fromLua/fromFiles builders as the ctor, just with a disk reader (one builder, two readers); Encapsulation: each Directory self-sources its own folder, no manual getRoot/getParent walking; Lean: no per-file manual parse loop, single setValuesFrom overlay
+- [x] NAMES.md adhered — no improvised names; `errors` accumulator named honestly; reused existing `fromLua`/`fromFiles`/`setValuesFrom`/`getValue`
+- [x] MANIFESTO.md principles applied — Deterministic: load reads disk into the already-built tree, never appends; Bound: watcher owned solely by Model, Directory subclasses never watch
+
+### Problems Solved
+- 90ed3b5 left the four methods as stubs; restored proven 49e0205 logic adapted to the new tree (THEMES root, file:: bimap, build-in-ctor).
+- Old logic depended on deleted seam (public `load(dir)`, `state = state` reassignment, `getErrors()`). Reconciled: public param-less `loadFromPath(juce::String& errors)`, dir self-sourced, one Model-owned accumulator, single setMessage.
+- Manual tree traversal is fragile — replaced with jam::Model recursive utils (`getValue`, `getChildWithName`).
+- `success_message` was read from the CONFIG root but lives on the DISPLAY child (top-level display.lua key) → empty message. Fixed to `getValue(IDtype::display, ID::successMessage)`.
+- `file::Shaders::get().at(key)` returns `juce::String`; spurious `.toString()` broke compile. Removed.
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 34: Config Tree Rebuild — JAM Bimap Aggregators, Build-in-Ctor ✅
 
 **Date:** 2026-06-22

@@ -38,10 +38,14 @@ public:
     /** @brief Defaulted — lifetime is bound to the owning @c config::Model. */
     ~Directory() override = default;
 
-protected:
     //==========================================================================
-    /** @brief Read from disk and overlay into @c state. */
-    virtual void loadFromPath() = 0;
+    /** @brief Read from disk and overlay into @c state.
+     *  @param errors  Accumulation channel for parse/IO errors; callers pass
+     *                 their own string and append to it across calls.
+     *                 Self-sourced directory path is resolved internally via
+     *                 jam utils — no path argument is needed at the call site.
+     */
+    virtual void loadFromPath (juce::String& errors) = 0;
 
 private:
     //==========================================================================

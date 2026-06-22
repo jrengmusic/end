@@ -347,20 +347,20 @@ struct Shaders : public jam::Bimap<Shaders>
         bufferB,///< Intermediate BufferChannel pass B.
         bufferC,///< Intermediate BufferChannel pass C.
         bufferD,///< Intermediate BufferChannel pass D.
-        image,///< Main output pass (always present). Last = renders last.
         common,///< Shared library code, prepended to all passes.
+        image,///< Main output pass (always present). Last = renders last.
     };
 
     /** @brief Populates the bimap — render order matches enum key order. */
     Shaders()
     {
         map = {
+            { Shaders::common,  IDref::common  },
+            { Shaders::image,   IDref::image   },
             { Shaders::bufferA, IDref::bufferA },
             { Shaders::bufferB, IDref::bufferB },
             { Shaders::bufferC, IDref::bufferC },
             { Shaders::bufferD, IDref::bufferD },
-            { Shaders::image,   IDref::image   },
-            { Shaders::common,  IDref::common  },
         };
     }
 
@@ -388,20 +388,6 @@ private:
 //==============================================================================
 struct BufferChannel : public jam::Bimap<BufferChannel>
 {
-    /** @brief Integer keys for Shadertoy pass types.
-     *
-     *  Enum order = render order: common (skipped), buffers first, image
-     *  last. Bimap::map is std::map — iteration follows ascending key order.
-     *  loadShaders iterates the bimap directly; no manual ordering array needed.
-     */
-    enum
-    {
-        bufferA,///< Intermediate BufferChannel pass A.
-        bufferB,///< Intermediate BufferChannel pass B.
-        bufferC,///< Intermediate BufferChannel pass C.
-        bufferD,///< Intermediate BufferChannel pass D.
-    };
-
     /** @brief Populates the bimap — render order matches enum key order. */
     BufferChannel()
     {
@@ -419,7 +405,7 @@ struct BufferChannel : public jam::Bimap<BufferChannel>
 private:
     const juce::String& getDefault() const noexcept override
     {
-        return map.at (BufferChannel::bufferA);
+        return map.at (Shaders::bufferA);
     }
 };
 

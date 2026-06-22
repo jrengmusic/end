@@ -28,16 +28,17 @@ void View::registerEvents()
                                       getTopLevelComponent()->sendLookAndFeelChange();
                                   });
 
-    events.add<juce::ValueTree&> (ID::gpu,
-                                  [this] (juce::ValueTree&)
-                                  {
-                                      const auto gpu { jam::GpuProbe::probe() };
-                                      bool canUseGpu { config.state.getProperty (ID::gpu) and gpu.isAvailable };
-                                      jam::BackgroundBlur::setEnabled (canUseGpu);
+    events.add<juce::ValueTree&> (
+        ID::gpu,
+        [this] (juce::ValueTree&)
+        {
+            const auto gpu { jam::GpuProbe::probe() };
+            bool canUseGpu { config.getValue (IDtype::display, ID::gpu) and gpu.isAvailable };
+            jam::BackgroundBlur::setEnabled (canUseGpu);
 
-                                      if (canUseGpu != shader.isAttached())
-                                          canUseGpu ? shader.attach (*this) : shader.detach();
-                                  });
+            if (canUseGpu != shader.isAttached())
+                canUseGpu ? shader.attach (*this) : shader.detach();
+        });
 
     events.add<juce::ValueTree&> (
         ID::alwaysOnTop,

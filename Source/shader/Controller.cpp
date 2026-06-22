@@ -7,14 +7,14 @@ namespace shader
 Controller::Controller()
 {
     registerEvents();
-    // config.addListener (this);
+    config.addListener (this);
     appModel.addListener (this);
 }
 
 Controller::~Controller()
 {
     appModel.removeListener (this);
-    // config.removeListener (this);
+    config.removeListener (this);
     shutdownOpenGL();
 }
 
@@ -156,80 +156,80 @@ void Controller::unbindChannels()
 
 void Controller::loadShaders()
 {
-    // context.executeOnGLThread (
-    //     [this] (juce::OpenGLContext&)
-    //     {
-    //         programs.clear();
-    //
-    //         juce::String common { config.getValue (IDtype::shader, ID::common) };
-    //         auto shader { config.getChildWithName (IDtype::shader) };
-    //
-    //         jam::Model::forEachProperty (
-    //             shader,
-    //             [common, this] (const juce::Identifier& id, const juce::var& var)
-    //             {
-    //                 if (id != ID::common and files.contains (id.toString()))
-    //                 {
-    //                     if (auto code { var.toString() }; code.isNotEmpty())
-    //                     {
-    //                         if (common.isNotEmpty())
-    //                             code = jam::Format::prependNewLine (code, common);
-    //
-    //                         code = jam::Format::replaceholder (wrapper, placeholder, code);
-    //
-    //                         if (auto p { createProgram (code) })
-    //                         {
-    //                             auto pass { std::make_unique<Pass>() };
-    //                             pass->program = std::move (p);
-    //
-    //                             if (id != ID::image)
-    //                                 pass->buffer.emplace();
-    //
-    //                             programs.addOrReplace (id, std::move (pass));
-    //                         }
-    //                     }
-    //                 }
-    //             });
-    //
-    //         auto* comp { context.getTargetComponent() };
-    //         jassert (comp != nullptr);
-    //
-    //         auto scale { context.getRenderingScale() };
-    //         resize (juce::roundToInt (comp->getWidth() * scale),
-    //                 juce::roundToInt (comp->getHeight() * scale));
-    //     },
-    //     false);
+    context.executeOnGLThread (
+        [this] (juce::OpenGLContext&)
+        {
+            programs.clear();
+
+            juce::String common { config.getValue (IDtype::shader, ID::common) };
+            auto shader { config.getChildWithName (IDtype::shader) };
+
+            jam::Model::forEachProperty (
+                shader,
+                [common, this] (const juce::Identifier& id, const juce::var& var)
+                {
+                    if (id != ID::common and files.contains (id.toString()))
+                    {
+                        if (auto code { var.toString() }; code.isNotEmpty())
+                        {
+                            if (common.isNotEmpty())
+                                code = jam::Format::prependNewLine (code, common);
+
+                            code = jam::Format::replaceholder (wrapper, placeholder, code);
+
+                            if (auto p { createProgram (code) })
+                            {
+                                auto pass { std::make_unique<Pass>() };
+                                pass->program = std::move (p);
+
+                                if (id != ID::image)
+                                    pass->buffer.emplace();
+
+                                programs.addOrReplace (id, std::move (pass));
+                            }
+                        }
+                    }
+                });
+
+            auto* comp { context.getTargetComponent() };
+            jassert (comp != nullptr);
+
+            auto scale { context.getRenderingScale() };
+            resize (juce::roundToInt (comp->getWidth() * scale),
+                    juce::roundToInt (comp->getHeight() * scale));
+        },
+        false);
 }
 
 void Controller::registerEvents()
 {
-    // events.add<const juce::var&> (ID::background,
-    //                               [this] (const juce::var&)
-    //                               {
-    //                                   loadShaders();
-    //                               });
-    //
-    // events.add<const juce::var&> (ID::size,
-    //                               [this] (const juce::var& newValue)
-    //                               {
-    //                                   end::Size size { static_cast<int> (newValue) };
-    //                                   auto [w, h] = size;
-    //                                   resizer.set (IDtype::view, w, h);
-    //                               });
-    //
-    // resizer.addTrigger (juce::Identifier { jam::ID::stop },
-    //                     [this] (int w, int h)
-    //                     {
-    //                         context.executeOnGLThread (
-    //                             [this, w, h] (juce::OpenGLContext&)
-    //                             {
-    //                                 const auto scale { context.getRenderingScale() };
-    //                                 int scaledW { juce::roundToInt (w * scale) };
-    //                                 int scaledH { juce::roundToInt (h * scale) };
-    //                                 resize (scaledW, scaledH);
-    //                             },
-    //                             false);
-    //                     });
+    events.add<const juce::var&> (ID::background,
+                                  [this] (const juce::var&)
+                                  {
+                                      loadShaders();
+                                  });
+
+    events.add<const juce::var&> (ID::size,
+                                  [this] (const juce::var& newValue)
+                                  {
+                                      end::Size size { static_cast<int> (newValue) };
+                                      auto [w, h] = size;
+                                      resizer.set (IDtype::view, w, h);
+                                  });
+
+    resizer.addTrigger (juce::Identifier { jam::ID::stop },
+                        [this] (int w, int h)
+                        {
+                            context.executeOnGLThread (
+                                [this, w, h] (juce::OpenGLContext&)
+                                {
+                                    const auto scale { context.getRenderingScale() };
+                                    int scaledW { juce::roundToInt (w * scale) };
+                                    int scaledH { juce::roundToInt (h * scale) };
+                                    resize (scaledW, scaledH);
+                                },
+                                false);
+                        });
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
