@@ -23,6 +23,7 @@
 // Config + theme section and tree type names
 #define IDENTIFIER_CONFIG(X)                 \
     X (config, "config")                     \
+    X (display, "display")                   \
     X (init, "init")                         \
     X (end, "end")                           \
     X (keys, "keys")                         \
@@ -264,7 +265,7 @@
 // these match the Shadertoy on-disk filenames (uppercase first letter).
 // background shadows jam::ID::background intentionally — END's ID struct is separate from jam::ID.
 // iChannel0..3 mirror the GLSL uniform keyword names declared in Source/shader/wrapper.frag —
-// the C++ side uses them as iChannel slot identifiers in config::Shaders.
+// the C++ side uses them as iChannel slot identifiers in file::Shaders.
 #define IDENTIFIER_SHADER(X)                    \
     X (iResolution, "iResolution")              \
     X (iTime, "iTime")                          \

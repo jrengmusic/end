@@ -11,7 +11,7 @@ void LookAndFeel::registerTypeface()
     auto add = [this] (const void* data, int size)
     {
         auto ptr { juce::Typeface::createSystemTypefaceFor (data, size) };
-        typefaces.insert_or_assign (ptr->getName(), ptr);
+        typefaces.addOrReplace (ptr->getName(), ptr);
     };
 
     add (jam::fonts::DisplayBold_ttf, jam::fonts::DisplayBold_ttfSize);
@@ -27,13 +27,13 @@ void LookAndFeel::registerTypeface()
     float fontSize { config.getValue (IDtype::code, ID::fontSize) };
 
     auto typeface { std::make_unique<jam::Typeface> (fontFamily,
-#if JUCE_MAC
+    #if JUCE_MAC
                                                      "Apple Color Emoji",
-#elif JUCE_WINDOWS
+    #elif JUCE_WINDOWS
                                                      "Segoe UI Emoji",
-#else
+    #else
                                                      "Noto Color Emoji",
-#endif
+    #endif
                                                      fontSize) };
 
     typeface->addFallbackFont (
@@ -102,7 +102,7 @@ void LookAndFeel::loadGraphics()
                         and jam::map::ButtonState::getInstance()->contains (suffix)
                             ? suffix : stem };
 
-                    graphics.insert_or_assign (id,
+                    graphics.addOrReplace (id,
                         jam::SVG::Flex::getSegments (value.toString(), colourMap));
                 }
             });

@@ -9,219 +9,117 @@ namespace config
 /*____________________________________________________________________________*/
 
 /**
-    @brief Shader source model — @c config::Directory subclass that populates
-           the SHADER child nested under GRAPHICS in the shared config @c state
-           with raw GLSL source strings.
+    @brief Shader source model — @c config::Directory subclass that holds the
+           SHADER tree as its own @c state.
 
-    @c state is reassigned to config::Model::state in the Model constructor, so
-    all children created here appear directly under @c \<CONFIG\>.
+    The constructor init-list builds the SHADER tree via
+    @c jam::Model::fromFiles and adopts it through @c Directory's ValueTree
+    ctor. After construction, @c config::Model attaches @c shader.state
+    directly under the GRAPHICS child — @c shader.state then IS the live
+    SHADER tree inside the CONFIG tree. @c loadFromPath() reads pass files
+    from disk and sets properties on the live SHADER tree.
 
-    Reads shader pass files (Common, Image, BufferA-D) from the active shader
-    project directory passed directly as a resolved @c juce::File. Each present
-    file becomes a property on the SHADER child (under GRAPHICS) keyed by its
-    bare filename. Absent files are silently skipped.
+    Load policy: @c saveToPath is a no-op (shader source is never seeded from
+    BinaryData). @c loadFromPath reads GLSL from the active shader project dir.
 
-    Load policy: no BinaryData defaults (@c initialise is a no-op); no disk
-    writing (@c saveToPath is a no-op). Only @c loadFromPath performs work
-    (fileChanged is inherited from @c Directory). @c loadFromPath ends by firing
-    @c state.sendPropertyChangeMessage(IDtype::graphics). Controller listens on
-    the @c IDtype::graphics notify channel.
+    @see config::Directory
+    @see config::Model
 */
 class Shader : public Directory
 {
 public:
-    /** @brief Constructs with treeType = shaders. */
-    Shader()
-        : Directory (IDtype::shaders)
-    {
-    }
+    /** @brief Constructs with the SHADER tree built in the init-list via
+     *         @c jam::Model::fromFiles and adopted through @c Directory.
+     */
+    Shader();
 
     ~Shader() override = default;
 
 protected:
-    /** @brief Finds GRAPHICS child on @c state (shared config.state), gets or
-     *         creates a SHADER child under it, then reads each present pass file
-     *         from @c dir as a string property. Fires
-     *         @c state.sendPropertyChangeMessage(IDtype::graphics) last.
-     *  @param dir  Shader project directory (may be invalid when name is empty).
-     */
-    void loadFromPath (const juce::File& dir) override;
+    /** @brief Reads GLSL source from the active shader project directory into @c state. */
+    void loadFromPath() override;
 
 private:
-    //==============================================================================
+    //==========================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Shader)
 };
 
 //==============================================================================
 /**
-    @brief Theme state model — @c config::Directory subclass that creates
-           THEME and WHELMED children directly on the shared config @c state,
-           and a FLEX child nested under THEME.
+    @brief Theme state model — @c config::Directory subclass mirroring the
+           on-disk @c themes/ directory as a THEMES subtree.
 
-    @c state is reassigned to config::Model::state in the Model constructor, so
-    all children created here appear directly under @c \<CONFIG\>. This class
-    never calls @c removeAllChildren or @c removeChild — @c state is shared
-    with other config sections (KEYS, POPUP).
-
-    Manages the full lifecycle for a named theme subdirectory passed as a
-    resolved @c juce::File:
-
-    - @c initialise()         appends THEME/WHELMED children to @c state from
-                              BinaryData defaults. Called before @c saveToPath
-                              so the bimap-driven SVG list is available for disk
-                              seeding. Passes @c Model::getValidators() to
-                              @c jam::Model::fromLua so type-based predicates
-                              are registered during the BinaryData walk.
-    - @c saveToPath(dir)      writes each theme lua and every SVG from the
-                              @c config::Flex bimap into @c dir inline via a
-                              local lambda — no CSV manifest, no @c ID::flex
-                              property walk.
-    - @c loadFromPath(dir)    reads each lua from disk through
-                              @c jam::Model::fromLua with @c Model::getValidators(),
-                              accumulates per-file errors into the @c errors member,
-                              creates a FLEX child nested under the THEME child
-                              populated by scanning the @c config::Flex bimap,
-                              then fires @c state.sendPropertyChangeMessage(ID::theme).
-                              Callers read accumulated errors via @c getErrors().
-    - @c fileChanged(...)     inherited from @c Directory — on @c fileUpdated
-                              calls @c loadFromPath (which handles the notify).
-
-    LookAndFeel listens on the @c ID::theme notify channel.
-    @c config::Model::loadFromPath() reads @c getErrors() after @c load() and
-    appends any theme errors to the root load message before writing it to
-    @c end::Model's @c ID::message property via @c setValue.
+    The constructor init-list builds a THEMES-rooted tree via
+    @c jam::Model::fromLua from @c file::Themes BinaryData lua (THEME and
+    WHELMED children) and adopts it through @c Directory's ValueTree ctor. The
+    body appends a FLEX child (from @c file::Flex SVGs) as a sibling of THEME
+    and WHELMED. @c config::Model attaches the whole @c theme.state THEMES
+    subtree under its CONFIG tree with a single @c appendChild — no unwrapping.
+    @c theme.state remains the live THEMES tree, so @c loadFromPath() and
+    @c saveToPath() operate on it directly.
 
     @see config::Directory
     @see config::Model
-    @see end::LookAndFeel
 */
 class Theme : public Directory
 {
 public:
-    /** @brief Constructs with treeType = themes. */
-    Theme()
-        : Directory (IDtype::themes)
-    {
-    }
+    /** @brief Constructs with the THEMES-rooted tree (THEME, WHELMED) built in
+     *         the init-list via @c jam::Model::fromLua and adopted through
+     *         @c Directory. A FLEX sibling is appended in the constructor body.
+     */
+    Theme();
 
     ~Theme() override = default;
 
-    /** @brief Returns accumulated errors from the most recent loadFromPath. */
-    const juce::String& getErrors() const noexcept { return errors; }
-
 protected:
-    /** @brief Appends THEME and WHELMED children to @c state (shared config.state)
-     *         from BinaryData defaults — required so @c saveToPath has bimap
-     *         entries available for SVG seeding.
-     *
-     *  For each @c config::Themes::get() entry, runs the BinaryData lua source
-     *  through @c jam::Model::fromLua with @c Model::getValidators() and appends
-     *  the result to @c state.
+    /** @brief Reads each theme lua from disk and overlays valid properties onto @c state
+     *         via @c setValuesFrom. Re-populates FLEX from the flex/ subdirectory. Fires
+     *         @c state.sendPropertyChangeMessage(ID::theme). Accumulates errors in @c errors.
      */
-    void initialise() override;
+    void loadFromPath() override;
 
-    /** @brief Writes each theme lua file and every SVG from @c config::Flex
-     *         bimap into @c dir inline.
-     *
-     *  Guards on @c dir.getFullPathName().isNotEmpty(). Uses a local lambda to
-     *  write each file only when absent and the BinaryData entry exists. Calls
-     *  @c jam::File::getOrCreateDirectory to create @c dir and the @c flex/
-     *  subdirectory. Iterates @c config::Flex::get() for SVG filenames —
-     *  no CSV manifest, no @c ID::flex property walk.
-     *
-     *  @param dir  Theme directory to write into (may be invalid if empty name).
-     */
-    void saveToPath (const juce::File& dir) override;
-
-    /** @brief Reads each lua from disk via @c Model::getValidators(), accumulates
-     *         per-file errors into @c errors, creates a FLEX child nested under
-     *         the THEME child from the @c config::Flex bimap scan, then fires
-     *         @c state.sendPropertyChangeMessage(ID::theme).
-     *
-     *  Clears @c errors at entry. Never calls @c removeAllChildren — @c state is
-     *  shared. If @c dir.isDirectory(), for each @c config::Themes::get() entry
-     *  reads the file from disk through @c jam::Model::fromLua with
-     *  @c Model::getValidators() and a per-file error string; any non-empty error
-     *  string is appended to @c errors prefixed by the filename. Overlays valid
-     *  trees via @c setValuesFrom. Then finds the THEME child via
-     *  @c jam::Model::getChildWithName, gets or creates a FLEX child under it,
-     *  and scans @c flex/ subdirectory against @c config::Flex bimap — populating
-     *  FLEX with SVG content properties. Fires
-     *  @c state.sendPropertyChangeMessage(ID::theme) last.
-     *
-     *  @param dir  Theme directory to read from.
-     */
-    void loadFromPath (const juce::File& dir) override;
+    /** @brief Writes missing theme lua and SVG files to the active theme directory. */
+    void saveToPath();
 
 private:
-    /** @brief Accumulated validation errors from the most recent load. */
-    juce::String errors;
 
-    //==============================================================================
+    //==========================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Theme)
 };
 
 //==============================================================================
 /**
-    @brief END's root configuration model — owns the live ValueTree for all
-           root lua config files and drives the Theme/Shader sub-models.
+    @brief END's root configuration model — owns the live CONFIG ValueTree and
+           drives the Theme and Shader sub-models.
 
-    @details
-    End is a terminal emulator. Every user-facing knob lives in lua files
-    under @c ~/.config/end/ — @c config.lua, @c popup.lua, @c keys.lua
-    (the three root config sections). config::Model loads, validates, and
-    exposes them as a live @c juce::ValueTree. It is NOT a @c Directory
-    subclass — it handles only the root directory and owns one @c Theme and
-    one @c Shader instance, driving their @c load() cycle after every root
-    reload.
+    @par Build-in-ctor composition
+    @c theme and @c shader are member objects whose constructors build their
+    own subtrees via @c jam::Model::fromLua / @c jam::Model::fromFiles and
+    adopt the result directly. @c Model's init-list builds the CONFIG tree
+    from @c file::Config BinaryData via @c jam::Model::fromLua and adopts it
+    through @c jam::Model's ValueTree ctor. The constructor body then attaches
+    the @c theme (THEMES) and @c shader (SHADER) subtrees into the CONFIG tree.
 
-    @par Inherited roles
-    Inherits from @c jam::Model (ValueTree wrapper exposing CONTEXT and tree
-    children), @c jam::Instance<Model> (so the live instance is reachable
-    from any code that includes this header), and
-    @c jam::File::Watcher::Listener (receives root-directory filesystem
-    change notifications).
+    @par Construction order
+    @c jam::Model base runs first (adopting the CONFIG tree). @c theme and
+    @c shader members are constructed before the body executes. The body
+    attaches @c theme.state under CONFIG and @c shader.state under GRAPHICS,
+    each with a single @c appendChild — both are single-rooted subtrees, so no
+    unwrapping is needed.
 
-    @par Flat unified config tree
-    In the constructor, before the four phases run, @c theme.state and
-    @c shader.state are both reassigned to @c state (the config root ValueTree).
-    Children created by Theme (THEME, WHELMED) and Shader (GRAPHICS) appear
-    directly under @c \<CONFIG\>. The FLEX child (SVG content) is nested under
-    THEME; the SHADER child (GLSL source) is nested under GRAPHICS. Root-level
-    config.lua properties and sub-sections are flattened directly onto @c \<CONFIG\>
-    — no INIT wrapper node.
+    @par Three-phase init (in constructor body)
+    1. @c saveToPath()     — writes missing root lua files to @c file::Config::path.
+    2. @c loadFromPath()   — reads lua from disk and overlays via @c setValuesFrom.
+    3. @c startWatcher()   — installs @c jam::File::Watcher on @c file::Config::path.
 
-    @par Four-phase init (§1.5 binary-defaults → disk overlay contract)
-    The constructor runs four phases in fixed order:
-
-    1. @c initialise() — builds the live tree from BinaryData defaults.
-       Type-based predicates are registered via @c jam::Model::fromLua
-       during the BinaryData walk. Bimap validators (Position, DropMode)
-       are pre-populated at member init time.
-    2. @c saveToPath() — writes each missing root lua file inline from BinaryData.
-       Files already on disk are left untouched (written once). Theme lua and
-       SVG writing is owned entirely by @c Theme::saveToPath().
-    3. @c loadFromPath() — reads each lua file from disk, overlays the
-       result on the live tree via @c setValuesFrom, then drives
-       @c theme.load() and @c shader.load() with the dir resolved directly
-       via the bimap.
-    4. @c startWatcher() — installs the @c jam::File::Watcher on
-       @c File::path with @c Directory::coalesceMs (300 ms) coalescing.
-
-    @par Validator map
-    @c validators is a nested @c juce::Identifier → Identifier → predicate
-    map built during @c initialise() and consumed during @c loadFromPath().
-    When a predicate returns @c false for an on-disk value the property is
-    dropped and an error is appended to the load report.
-
-    @par File watcher
-    Watches @c ~/.config/end/ for @c .lua edits only. On change triggers a
-    full @c loadFromPath() cycle (which in turn drives @c theme.load() and
-    @c shader.load()). SVG/theme watching is owned entirely by @c Theme.
-
-    @par Lifetime
-    One instance per process, owned by @c end::Application. Survives until
-    Application shutdown.
+    @par Composition via jam::Model aggregators
+    @c jam::Model::fromLua and @c jam::Model::fromFiles are the SSOT builders.
+    @c fromLua iterates any @c jam::HashMap\<int, juce::String\> bimap, calls
+    @c read(key) for lua content, parses via the single-source @c fromLua overload,
+    and returns a @p rootTag-typed tree. @c fromFiles sets one property per bimap
+    entry on a fresh @p rootTag tree — key = stem, value = @c read(key).
+    No validation when @p validators and @p errors are nullptr.
 
     @see config::Directory
     @see config::Theme
@@ -244,35 +142,24 @@ public:
 
     //==========================================================================
     /**
-        @brief Construct the model — runs initialise, saveToPath,
-               loadFromPath, startWatcher in that fixed order.
+        @brief Construct the model — adopts CONFIG tree built in the init-list,
+               then composes theme/shader subtrees, runs saveToPath,
+               loadFromPath, and startWatcher in that fixed order.
     */
     Model();
 
-    /** @brief Defaulted — Model is owned by end::Application for the
-                process lifetime. */
+    /** @brief Defaulted — Model is owned by end::Application for the process lifetime. */
     ~Model() override = default;
 
     /**
-        @brief Reads each root lua config file from disk and updates state.
+        @brief Reads each root lua config file from disk and overlays @c state.
 
-        For every entry in @c File::get(), loads the file from @c File::path,
-        builds a temporary ValueTree via @c jam::Model::fromLua with the
-        populated validator map, and collects any per-file errors. For the
-        @c config entry, the tree is parsed as CONFIG type and overlaid
-        directly via @c setValuesFrom. For other entries, the child is wrapped
-        in a CONFIG-typed root before @c setValuesFrom. After the lua walk,
-        drives @c theme.load() with the directory resolved via the bimap, then
-        pre-creates all shader @c ParameterText parameters (one per
-        @c config::Shaders::get() entry, with @c glslBufferSize capacity) on
-        the SHADER child under GRAPHICS — guarded by
-        @c not params.contains(IDtype::shader) so watcher-triggered reloads
-        skip re-registration. Before calling @c shader.load(), this ordering
-        guarantees that @c Shader::loadFromPath always resolves a live
-        parameter (never falls back to @c setProperty). After @c shader.load(),
-        writes the configured @c success_message on success or the accumulated
-        error text on failure to @c end::Model's @c ID::message property via
-        @c setValue.
+        For every entry in @c file::Config::get(), loads the file via
+        @c jam::Model::fromLua with @c validators, overlays valid properties
+        via @c setValuesFrom, and accumulates per-file errors. Drives
+        @c theme.loadFromPath() and @c shader.loadFromPath() in sequence.
+        Writes the load result (success message or accumulated errors) to
+        @c end::Model's @c ID::message property via @c setValue.
     */
     void loadFromPath();
 
@@ -283,43 +170,21 @@ private:
     end::Model& appModel { *end::Model::getInstance() };
 
     /**
-        @brief Populates the live tree from BinaryData.
-        @details
-        For every entry in @c File::get(), runs the corresponding BinaryData
-        lua source through @c jam::Model::fromLua with @c &validators (Bimap
-        entries pre-populated via IIFE on the member declaration). For the
-        @c config entry, @c state IS the parsed tree (flat CONFIG root). For
-        all other entries the child is appended to @c state unchanged. Then
-        walks every subtree via @c jam::Model::applyFunctionRecursively and
-        creates one typed parameter per property via
-        @c createAndAddParameter<T>(). Parameters live on Model for the process lifetime.
-    */
-    void initialise();
-
-    /**
-        @brief Writes missing root lua files from BinaryData to @c File::path inline.
-        @details
-        For every entry in @c File::get(), writes the file from BinaryData to
-        @c File::path only when the file does not already exist and the
-        BinaryData entry is present (written once). Theme lua and SVG writing is
-        owned entirely by @c Theme::saveToPath().
+        @brief Writes missing root lua files from BinaryData to @c file::Config::path.
     */
     void saveToPath();
 
     /**
-        @brief Installs the file watcher on @c File::path with
-               @c Directory::coalesceMs (300 ms) event coalescing and
-               registers this Model as a listener. Watches root only — theme
-               directory watching is owned by @c Theme.
+        @brief Installs @c watcher on @c file::Config::path with @c coalesceMs
+               event coalescing and registers this Model as a listener.
     */
     void startWatcher();
 
     /**
         @brief Reloads root lua config on @c .lua @c fileUpdated events.
 
-        Only @c fileUpdated for a @c File::extension file triggers work — calls
+        Only @c fileUpdated for a @c file::Config::extension file triggers
         @c loadFromPath(). All other events and extensions are ignored.
-        SVG/theme watching is owned entirely by @c Theme (via @c Directory::fileChanged).
 
         @param file   The file that changed.
         @param event  The change event type.
@@ -327,19 +192,21 @@ private:
     void fileChanged (const juce::File& file, jam::File::Watcher::Event event) override;
 
     /**
-        @brief Watches @c File::path (root lua directory only) for
+        @brief Watches @c file::Config::path (root lua directory only) for
                @c .lua changes.
     */
     jam::File::Watcher watcher;
 
+    /** @brief Coalescing window in milliseconds for the filesystem watcher. */
+    static constexpr int coalesceMs { 300 };
+
     /**
-        @brief Bimap and type-based validators consumed during
-               @c loadFromPath() to validate on-disk values.
-        @details
+        @brief Bimap and type-based validators consumed during @c loadFromPath().
+
         Outer key = tree type. Inner key = property name. Bimap validators
         (Position, DropMode) are pre-populated via IIFE at member init time.
         Type-based predicates for all other properties are appended by
-        @c jam::Model::fromLua during @c initialise().
+        @c jam::Model::fromLua during @c loadFromPath().
     */
     jam::lua::Validators validators = []
     {
@@ -351,7 +218,7 @@ private:
         {
             auto [treeEntry, inserted] = v.try_emplace (treeType);
             auto& [treeKey, treeValidators] = *treeEntry;
-            treeValidators.insert_or_assign (propertyName, std::move (validator));
+            treeValidators.addOrReplace (propertyName, std::move (validator));
         };
 
         add (IDtype::statusBar, ID::position, end::Position::getValidator());
@@ -366,8 +233,9 @@ private:
     Theme theme;
     Shader shader;
 
-    //==============================================================================
+    //==========================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Model)
 };
+
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace config

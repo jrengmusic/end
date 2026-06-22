@@ -97,7 +97,7 @@ public:
                               juce::ValueTree& childWhichHasBeenAdded) override;
 
 private:
-    /** @brief Singleton config model reference. */
+    // /** @brief Singleton config model reference. */
     config::Model& config { *config::Model::getInstance() };
 
     //==============================================================================
@@ -164,11 +164,11 @@ private:
     /** @brief GL pipeline orchestrator — attach/detach driven by the gpu event. */
     shader::Controller shader;
 
-    //==============================================================================
-    // #if JUCE_DEBUG
-    //     /** @brief ValueTree inspector widget, debug builds only. */
-    //     jam::debug::Widget widget { this, config.state, false };
-    // #endif
+//==============================================================================
+#if JUCE_DEBUG
+    /** @brief ValueTree inspector widget, debug builds only. */
+    jam::debug::Widget widget { this, config.state, false };
+#endif
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (View)
 };

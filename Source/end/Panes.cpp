@@ -1,5 +1,5 @@
 #include "end/Panes.h"
-#include "config/Config.h"
+// #include "config/Config.h"
 
 namespace end
 {
@@ -12,7 +12,8 @@ Panes::Panes (jam::UUID uuid, jam::Model& m)
     setComponentID (uuid.toString());
     model.createAndAddParameter<jam::ParameterText> (state, jam::ID::name, juce::String {});
 
-    const int thickness { config::Model::getInstance()->getValue (IDtype::pane, ID::resizeBarThickness) };
+    // const int thickness { config::Model::getInstance()->getValue (IDtype::pane, ID::resizeBarThickness) };
+    const int thickness { 4 };
     paneManager.setResizerBarSize (thickness);
 
     auto pane { std::make_unique<PaneView> (uuid, model) };

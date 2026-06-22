@@ -76,7 +76,7 @@ void View::valueTreeChildAdded (juce::ValueTree& parentTree,
 
 void View::createAndAttachParameters()
 {
-    auto [width, height] = config.getInt (IDtype::config, ID::size);
+    auto [width, height] = config.getInt (IDtype::display, ID::size);
 
     //==============================================================================
     model.createAndAddParameter<jam::Parameter<int>> (

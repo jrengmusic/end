@@ -107,16 +107,34 @@ struct Uniform
  *
  *  Buffer is emplaced at creation time for non-Image passes.
  *  Image renders to default framebuffer (no buffer).
+ *  Ping-pong state is tracked via readIndex — readBuffer() is the current
+ *  read source, writeBuffer() is the current render target. Call swap()
+ *  after each pass to advance the pair.
  */
 struct Pass
 {
     std::unique_ptr<juce::OpenGLShaderProgram> program;
     std::optional<std::array<juce::OpenGLFrameBuffer, 2>> buffer;
 
+    /** @brief Index of the current read FBO in the ping-pong pair (0 or 1). */
+    int readIndex { 0 };
+
     Pass() = default;
     ~Pass() = default;
 
-    /** @brief Initialises existing FBO pair at given pixel dims. No-op if no buffer (Image pass).
+    /** @brief Returns the current read FBO — the source for this pass's sampler. */
+    juce::OpenGLFrameBuffer& readBuffer() { return (*buffer).at (readIndex); }
+
+    /** @brief Returns the current write FBO — the render target for this pass. */
+    juce::OpenGLFrameBuffer& writeBuffer() { return (*buffer).at (readIndex ^ 1); }
+
+    /** @brief Swaps read and write FBOs by toggling readIndex. */
+    void swap() noexcept { readIndex ^= 1; }
+
+    /** @brief Initialises and clears the FBO pair at given pixel dims.
+     *         No-op if no buffer (Image pass). FBO content after initialise()
+     *         is undefined per GL spec — explicit clear ensures first-frame
+     *         reads get black, not garbage.
      *  @param context  Active GL context.
      *  @param w        Width in pixels.
      *  @param h        Height in pixels.
@@ -125,8 +143,12 @@ struct Pass
     {
         if (buffer.has_value())
         {
-            (*buffer).at (0).initialise (context, w, h);
-            (*buffer).at (1).initialise (context, w, h);
+            for (auto& fbo : *buffer)
+            {
+                fbo.initialise (context, w, h);
+                fbo.makeCurrentAndClear();
+                fbo.releaseAsRenderingTarget();
+            }
         }
     }
 

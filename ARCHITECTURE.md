@@ -2,7 +2,7 @@
 
 **Purpose:** Single source of truth for architectural contracts, patterns, and invariants.
 
-**Status:** ACTIVE — parameter system, shader pipeline with Image pass render, and FBO resize implemented. Terminal pipeline pre-implementation.
+**Status:** ACTIVE — parameter system, multi-pass shader pipeline (BufferA-D + Image), and FBO resize implemented. Terminal pipeline pre-implementation.
 
 **Last Updated:** 2026-06-21
 
@@ -78,6 +78,15 @@ Lock-free architecture, unidirectional data flow. No mutex on any hot path. No w
 - The **GL thread NEVER writes** ValueTree or CodeModel.
 - `Controller::drain()` runs on the **message thread ONLY.**
 - Violation of any of these is a **B violation** (BLESSED Bound — thread binding).
+
+### Parameter Access by Thread
+
+- **ValueTree read/write** is EXCLUSIVE to the **message thread**. VT listeners (`valueTreePropertyChanged`) fire on the message thread.
+- **Non-message threads** (GL, reader, timer) read parameter values through **atomics only**:
+  - `Parameter<T>`: `getRawParameterValue<T>(tag, id)->load()`
+  - `ParameterText`: `getParameter<jam::ParameterText>(tag, id)->getValue()`
+- **Model::Listener::parameterChanged** delivers the new value directly — use `newValue` parameter, do not re-read from VT or atomic.
+- Any VT access from the GL thread is a **B violation** (thread binding).
 
 ### Scalar Data — Parameters, Mode Flags, Strings, Metadata
 
@@ -185,7 +194,7 @@ When `screenDirty` fires on terminal::Model's ValueTree:
 ## Two Independent State Trees
 
 ```
-config::Model (independent tree)          end::Model (independent tree)
+config::Model (independent tree)           end::Model (independent tree)
   CONFIG                                    END
     GRAPHICS                                  VIEW
       SHADER (ParameterText per pass)           ID::size (packed end::Size, Parameter<int>)
@@ -229,7 +238,8 @@ This pattern avoids separate width/height parameters that would fire two events 
 ## Shader Pipeline — shader::Controller
 
 shader::Controller owns the OpenGL lifecycle. Inherits `juce::OpenGLRenderer` + `jam::Model::Listener`.
-Currently renders a single Image pass with Shadertoy-compatible uniforms (iResolution, iTime, iTimeDelta, iFrame).
+Renders multi-pass Shadertoy pipeline: buffer passes (BufferA-D) to ping-pong FBOs, then Image to screen.
+All passes receive Shadertoy-compatible uniforms (iResolution, iTime, iTimeDelta, iFrame) and iChannel0-3 samplers.
 
 ### Uniform Struct
 
@@ -244,19 +254,25 @@ individual keys — uses advance(), resize(), set(), getSize() only.
 - **set(program):** iterates values, dispatches each through its setter onto the bound program.
 - **getSize():** unpacks iResolution for glViewport.
 
-### Shader Struct
+### Pass Struct
 
-Pure data — GL program and optional ping-pong FBO pair:
+Pure data — GL program, optional ping-pong FBO pair, and ping-pong read index:
 
 ```
-struct Shader
+struct Pass
 {
     unique_ptr<OpenGLShaderProgram> program;
     optional<array<OpenGLFrameBuffer, 2>> buffer;
+    int readIndex { 0 };
 };
 ```
 
-No constructor, no behavior. Stored in `programs` HashMap keyed by pass Identifier (Image, BufferA, etc.).
+Buffer is emplaced at creation time for non-Image passes only. readBuffer() and writeBuffer()
+select the current read/write FBO via readIndex. swap() toggles after each frame. Image has
+no buffer — renders to default framebuffer.
+
+Stored in `programs` HashMap keyed by pass Identifier (Image, BufferA, etc.). HashMap insertion
+order matches bimap constructor order (bufferA → bufferB → bufferC → bufferD → image).
 
 ### Shader Loading
 
@@ -264,11 +280,15 @@ No constructor, no behavior. Stored in `programs` HashMap keyed by pass Identifi
 config::Model::loadFromPath()
   → pre-creates ParameterText for all bimap entries (Common through Image)
   → shader.load() reads files, calls param->setValue(source) for existing files
-  → ParameterAdapter fires parameterChanged per pass ID
-  → Controller events map dispatches loadShaders
-  → executeOnGLThread: compile vertex+fragment, link, store Shader in programs
+  → ParameterAdapter fires parameterChanged (ID::background) once per reload
+  → Controller events map dispatches loadShaders (single trigger — not per pass)
+  → executeOnGLThread: programs.clear(), read ParameterText atomics, compile, store Pass
   → resize() updates Uniform viewport + initialises FBO pairs at scaled dims
 ```
+
+loadShaders reads shader source via `param->getValue()` (ParameterText atomic) —
+never from VT properties. VT lags behind the atomic by one flush tick; the GL thread
+must read the atomic directly to get the current value.
 
 ### Resize Flow
 
@@ -281,24 +301,54 @@ View::resized()
   → jam::Resizer coalesces (16ms timer)
   → stop trigger: executeOnGLThread → resize (scaledW, scaledH)
     → uniform.resize (updates iResolution)
-    → FBO loop: emplace + initialise buffer pairs at new dims
+    → FBO loop: initialise + clear buffer pairs at new dims (GL spec: uninitialised content undefined)
 ```
 
 ### Render Loop (GL Thread)
 
-Single Image pass — multi-pass (buffer passes → Image) not yet implemented.
+Multi-pass Shadertoy pipeline. Buffer passes render in HashMap insertion order
+(= bimap constructor order: BufferA → BufferB → BufferC → BufferD), then Image.
 
 ```
 renderOpenGL()
-  → OpenGLHelpers::clear (transparentBlack)
   → uniform.advance() (time + frame counter)
-  → glViewport from uniform.getSize()
-  → look up Image in programs HashMap
-  → if found:
+  → get viewport size from uniform.getSize()
+
+  → for each pass with buffer (insertion order = A, B, C, D):
+      writeBuffer().makeCurrentAndClear()
+      glViewport
       program->use()
-      uniform.set (program) — iterates values, dispatches through setters
-      quad->draw() (fullscreen triangle strip)
+      setChannels() — bind BufferA-D read textures to iChannel0-3 texture units
+      uniform.set() — dispatch iResolution, iTime, iTimeDelta, iFrame
+      quad->draw()
+      writeBuffer().releaseAsRenderingTarget()
+      swap() — flip ping-pong read/write index
+
+  → clear default framebuffer
+  → glViewport
+  → Image pass:
+      program->use()
+      setChannels() — same binding, reads buffer outputs from previous passes
+      uniform.set()
+      quad->draw()
+  → unbindChannels() — clean up texture units 0-3
 ```
+
+### Channel Binding Convention
+
+Hardwired Shadertoy standard: all passes receive identical binding.
+
+| Texture Unit | Sampler Uniform | Source |
+|---|---|---|
+| 0 | iChannel0 | BufferA read FBO |
+| 1 | iChannel1 | BufferB read FBO |
+| 2 | iChannel2 | BufferC read FBO |
+| 3 | iChannel3 | BufferD read FBO |
+
+Missing buffers are not bound — GLSL sampler returns black. Self-reference works
+because buffer reads from readBuffer() while writing to writeBuffer() (ping-pong).
+`setChannels()` only binds and sets uniforms for channels with existing buffer passes.
+Missing buffers are skipped entirely — no texture bound, no uniform set.
 
 ### Thread Contract
 
@@ -307,16 +357,27 @@ renderOpenGL()
 | attach / detach / isAttached | MESSAGE |
 | newOpenGLContextCreated / renderOpenGL / openGLContextClosing | GL |
 | parameterChanged | MESSAGE (AsyncUpdater delivery) |
+| loadShaders (GL callback) | GL (via executeOnGLThread) |
 | Resizer stop trigger | MESSAGE (juce::Timer) |
 | resize / FBO initialise | GL (via executeOnGLThread) |
+
+**Parameter read contract:** All GL-thread code reads parameter values via
+the parameter atomic (`ParameterText::getValue()`, `Parameter<T>::get()`) —
+never from VT properties. VT properties lag behind the atomic by one flush
+tick. The GL thread cannot wait for flush; it reads the atomic directly.
+This applies to loadShaders, resize, and any future GL-thread parameter
+consumers. shader::Controller's entire execution surface is the GL thread;
+all parameter reads in Controller use atomics.
 
 ### Event → Setter → Trigger Pattern
 
 Controller follows the KANJUT event/trigger pattern:
 
-- **Events map** (`jam::Function::Map`) — dispatched from `parameterChanged`. Per-pass shader IDs (Common, Image, BufferA-D) → loadShaders. ID::size → resize via Resizer.
+- **Events map** (`jam::Function::Map`) — dispatched from `parameterChanged`. Lambdas receive `const juce::var& newValue` directly — no re-read from VT or atomic.
+  - `ID::background` → `loadShaders()`. Config file watcher coalesces reload notifications: one `background` property change = one full recompile across all passes. `loadShaders` reads all pass sources from ParameterText atomics (GL-safe).
+  - `ID::size` → unpack `end::Size` from `newValue`, call `resizer.set()` with width and height.
 - **Resizer** — trigger mechanism. `set()` coalesces via timer, fires "stop" trigger with final dimensions.
-- **parameterChanged** is the single dispatch point. Controller listens on both config::Model (shader source) and end::Model (view state).
+- **parameterChanged** is the single dispatch point. Controller listens on both config::Model (`ID::background`) and end::Model (`ID::size`).
 
 ---
 

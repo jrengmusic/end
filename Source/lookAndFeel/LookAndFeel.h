@@ -170,7 +170,7 @@ private:
     /** @brief Rendering-context grapheme cluster table — self-registers as jam::Grapheme::getInstance(). */
     jam::Grapheme graphemeInstance;
 
-    /** @brief Singleton config model reference — source for theme path and top-level config values. */
+    // /** @brief Singleton config model reference — source for theme path and top-level config values. */
     config::Model& config { *config::Model::getInstance() };
 
     //==============================================================================

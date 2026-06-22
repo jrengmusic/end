@@ -2,6 +2,46 @@
 
 ---
 
+## Sprint 34: Config Tree Rebuild — JAM Bimap Aggregators, Build-in-Ctor ✅
+
+**Date:** 2026-06-22
+**Duration:** ~06:00
+
+### Agents Participated
+- COUNSELOR: led the rebuild — directory/namespace renames, config tree architecture redesign, jam::Model aggregator design, build-in-ctor pattern
+- Pathfinder: reference-mapping for renames, theme/shader init discovery, bimap API survey, git/sprint-log reads
+- Engineer: executed renames, jam::Model aggregator + adopt-ctor additions, config rewire
+
+### Files Modified (8 total)
+- `Source/config/` — renamed from `watcher/` and back; `Config.h`/`Config.cpp` restored from `Watcher.h`/`.cpp`
+- `Source/config/Directory.h` — stripped to ValueTree-adopting ctor + pure-virtual `loadFromPath()`; removed `initialise`/`saveToPath`/`startWatcher`/`Watcher`/`fileChanged`/`load`/dir params
+- `Source/config/Config.h` — `file::Config` (was `File`), namespace `file::`; Theme/Shader/Model build-in-ctor; removed `getTreeFrom`/`getPropertiesFrom`/`buildTree`/`initialise` decls; doxygen rewritten
+- `Source/config/Config.cpp` — Theme (THEMES root + FLEX), Shader (SHADER from `file::Shaders`), Model (adopt CONFIG, compose theme/shader in body); builders deleted, absorbed into jam
+- `Source/Bimap.h` — namespace `config::` → `file::`, `File` → `Config`, enum `config` → `display`
+- `Source/Identifier.h` — added `X (display, "display")` to IDENTIFIER_CONFIG
+- `Source/config/lua/display.lua` — renamed from `config.lua`
+- `~/Documents/Poems/dev/jam/.../jam_model.h` + `jam_model.cpp` — `fromLua(rootTag,map,read,...)` + `fromFiles(rootTag,map,read)` bimap aggregators; `Model(juce::ValueTree)` adopt-tree ctor
+
+### Alignment Check
+- [x] BLESSED principles followed — SSOT: aggregation absorbed into jam::Model (one builder, two consumers init/load); Lean: removed END-local wrapper builders, throwaway-copy eliminated via adopt-ctor; Bound: adopt-ctor welds listener to the pre-built tree, no orphaned listener
+- [x] NAMES.md adhered — `fromFiles` named for honest semantics (raw file content, not lua); `file::Config` / `display.lua` triple; no `graft`/`node` introduced in new code/doxygen
+- [x] MANIFESTO.md principles applied — Encapsulation: jam stays ignorant of END file layout via injected reader; Explicit: reader is the binary/disk axis, visible in signature
+
+### Problems Solved
+- Directory base called `initialise()` in `load()` → tree duplication on reload. Removed `load()`; build moved to ctor init-list (virtual-in-ctor avoided by building in init-list, not body).
+- Theme CONFIG-wrapper (a COUNSELOR mis-framed AskUserQuestion option) caused double-nested CONFIG + a drain/reassign dance. Corrected to THEMES root mirroring `themes/` dir → single `appendChild(theme.state)`.
+- `state = fromLua` orphaned jam::Model's listener (welded to ctor-created tree). Solved with `Model(juce::ValueTree)` adopt-ctor — state IS the built tree, listener on it.
+- JUCE `addChild` asserts `child->parent == nullptr` — append-without-remove crash. Eliminated by single-rooted-subtree attach (no child draining).
+- `getTreeFrom` redundant to `fromLua` → absorbed bimap aggregation into jam::Model as a `fromLua` overload; properties variant became `fromFiles`.
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 33: Shader Render Pipeline — Uniform/Pass/Quad, Image Pass Render ✅
 
 **Date:** 2026-06-21

@@ -35,7 +35,7 @@
 #pragma once
 #include <JuceHeader.h>
 #include "Identifier.h"
-#include "../config/Config.h"
+// #include "../config/Config.h"
 #include "../lookAndFeel/LookAndFeel.h"
 
 namespace end
@@ -132,10 +132,10 @@ public:
      */
     void paint (juce::Graphics& g) override
     {
-        auto& cfg { *config::Model::getInstance() };
-        auto family { cfg.getValue (jam::IDtype::overlay, ID::fontFamily).toString() };
-        auto size { static_cast<float> (cfg.getValue (jam::IDtype::overlay, ID::fontSize)) };
-        juce::Font font { juce::FontOptions().withName (family).withPointHeight (size) };
+        // auto& cfg { *config::Model::getInstance() };
+        // auto family { cfg.getValue (jam::IDtype::overlay, ID::fontFamily).toString() };
+        // auto size { static_cast<float> (cfg.getValue (jam::IDtype::overlay, ID::fontSize)) };
+        juce::Font font { juce::FontOptions() };
 
         auto bgColour { findColour (juce::Label::backgroundColourId) };
         auto fgColour { findColour (juce::Label::textColourId) };

@@ -15,11 +15,13 @@ namespace shader
 /** @brief GL pipeline orchestrator — mirrors juce::OpenGLAppComponent.
  *
  *  Owns the OpenGLContext lifecycle and config-driven shader loading.
- *  Shader state is accessed via config::Model API (getChildWithName) —
- *  never by storing a raw ValueTree snapshot.
+ *  Shader state is accessed via ParameterText atomics on GL thread —
+ *  never from VT properties (VT lags by one flush tick).
  *
  *  Listens on TWO models:
- *  - config::Model — per-pass property IDs (Common, Image, BufferA-D) trigger shader recompile.
+ *  - config::Model — ID::background triggers full shader recompile (loadShaders).
+ *    Config file watcher coalesces reload notifications: one background property
+ *    change = one loadShaders call across all passes.
  *  - end::Model    — ID::size events trigger FBO resize via Resizer.
  *
  *  Resize flow:
@@ -31,12 +33,13 @@ namespace shader
  *    trigger, which calls resize() on the GL thread — updates Uniform
  *    viewport and re-initialises FBO pairs at scaled dimensions.
  *
- *  Render loop (single Image pass):
- *  - renderOpenGL() clears, advances uniform state, sets viewport.
- *  - Looks up the Image program in the programs HashMap.
- *  - If found: use(), dispatches iResolution/iTime/iTimeDelta/iFrame via
- *    uniform.set(), draws fullscreen quad.
- *  - Multi-pass rendering (buffer passes) is not yet implemented.
+ *  Render loop (multi-pass):
+ *  - renderOpenGL() advances uniform state.
+ *  - Buffer passes (BufferA-D): iterate in HashMap insertion order, render
+ *    each into its writeBuffer() FBO, swap ping-pong after each pass.
+ *  - Image pass: renders to default framebuffer after all buffer passes.
+ *  - All passes receive iChannel0-3 bound to BufferA-D read textures via
+ *    setChannels() / unbindChannels().
  *
  *  Thread contract:
  *  - attach() / detach() / isAttached() : MESSAGE THREAD
@@ -90,63 +93,26 @@ private:
     /** @brief Updates viewport uniform and resizes FBO pairs for all non-Image programs. GL thread only. */
     void resize (int w, int h);
 
+    /** @brief Sets iChannel sampler uniforms and binds buffer pass read textures to corresponding texture units.
+     *         Only binds channels with existing buffer passes. GL thread only.
+     *  @param program  The active GL program (must be use()'d first).
+     */
+    void setChannels (juce::OpenGLShaderProgram& program);
+
+    /** @brief Unbinds texture units 0-3. GL thread only. */
+    void unbindChannels();
+
     //==========================================================================
     // jam::Model::Listener
 
     void parameterChanged (const juce::Identifier& id, const juce::var& newValue) override;
 
     //==========================================================================
-    config::Model& config { *config::Model::getInstance() };
-    config::Shaders& files { *config::Shaders::getInstance() };
+    // config::Model& config { *config::Model::getInstance() };
+    file::Shaders& files { *file::Shaders::getInstance() };
     end::Model& appModel { *end::Model::getInstance() };
     jam::Function::Map<juce::Identifier, void> events;
     jam::HashMap<juce::Identifier, std::unique_ptr<Pass>> programs;
-
-    //==============================================================================
-    struct Quad
-    {
-        Quad()
-        {
-            using namespace ::juce::gl;
-
-            glGenVertexArrays (1, &vao);
-            glBindVertexArray (vao);
-
-            glGenBuffers (1, &vbo);
-            glBindBuffer (GL_ARRAY_BUFFER, vbo);
-
-            static constexpr float vertices[] { -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f };
-            glBufferData (GL_ARRAY_BUFFER, sizeof (vertices), vertices, GL_STATIC_DRAW);
-
-            glVertexAttribPointer (0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
-            glEnableVertexAttribArray (0);
-
-            glBindVertexArray (0);
-        }
-
-        ~Quad()
-        {
-            using namespace ::juce::gl;
-
-            glDeleteBuffers (1, &vbo);
-            glDeleteVertexArrays (1, &vao);
-        }
-
-        void draw() const noexcept
-        {
-            using namespace ::juce::gl;
-
-            glBindVertexArray (vao);
-            glDrawArrays (GL_TRIANGLE_STRIP, 0, 4);
-            glBindVertexArray (0);
-        }
-
-        GLuint vao { 0 };
-        GLuint vbo { 0 };
-
-        //==============================================================================
-        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Quad)
-    };
 
     jam::Resizer resizer;
     std::unique_ptr<Quad> quad;

@@ -118,55 +118,55 @@ struct DropMode : public jam::Bimap<DropMode>
 }// namespace end
 
 //==============================================================================
-namespace config
+namespace file
 {
 /*____________________________________________________________________________*/
 
 /**
  * @brief Registry of lua config files — 3 section keys.
- *        Top-level registry. CRTP-derived from jam::Bimap\<File\>.
+ *        Top-level registry. CRTP-derived from jam::Bimap\<Config\>.
  *
  * Maps each enum key to its Identifier stem (e.g. init → "init") and
  * resolves the on-disk filename via getName(). All keys produce "stem.lua".
  *
  * Owns the user config directory and the lua extension. The live instance
  * is owned by end::Application — static get() resolves through
- * jam::Instance\<File\>.
+ * jam::Instance\<Config\>.
  *
  * getPath() is the canonical child-path resolver used by Themes and Shaders
  * to seed their own static path members.
  */
-struct File : public jam::Bimap<File>
+struct Config : public jam::Bimap<Config>
 {
     /** @brief Integer keys for all lua config section files. */
     enum
     {
-        config,///< Application config (config.lua).
+        display,///< Application config (display.lua).
         popup,///< Popup terminal definitions.
         keys,///< Key bindings.
     };
 
     /** @brief Populates the bimap with all 3 entries. */
-    File()
+    Config()
     {
         map = {
-            { File::config, IDref::config },
-            { File::popup, IDref::popup },
-            { File::keys,  IDref::keys  },
+            { Config::display, IDref::display },
+            { Config::popup,   IDref::popup   },
+            { Config::keys,    IDref::keys    },
         };
     }
 
     /**
      * @brief Returns the int→Identifier-stem map from the live context instance.
      *
-     * Caller must ensure a config::File owner is live (end::Application is).
+     * Caller must ensure a file::Config owner is live (end::Application is).
      */
     static const auto& get() noexcept { return getInstance()->map; }
 
     /**
      * @brief Returns the filename for the given enum key (always "stem.lua").
      *
-     * @param key  One of the File enum values.
+     * @param key  One of the Config enum values.
      * @return     Filename string including extension (e.g. "init.lua").
      */
     static const juce::String getName (int key) noexcept
@@ -188,7 +188,7 @@ struct File : public jam::Bimap<File>
     inline static const juce::String extension { "lua" };
 
 private:
-    const juce::String& getDefault() const noexcept override { return map.at (File::config); }
+    const juce::String& getDefault() const noexcept override { return map.at (Config::display); }
 };
 
 //==============================================================================
@@ -247,7 +247,7 @@ struct Themes : public jam::Bimap<Themes>
     }
 
     /** @brief Themes root directory: ~/.config/end/themes/ */
-    inline static const juce::File path { File::getPath (IDref::themes) };
+    inline static const juce::File path { Config::getPath (IDref::themes) };
     /** @brief Lua extension for theme files. */
     inline static const juce::String extension { "lua" };
 
@@ -325,7 +325,7 @@ private:
  * manifest: present files are loaded, absent files are skipped.
  *
  * Enum order equals render order: common (shared library, prepended),
- * buffers A–D (intermediate FBO passes), image (main output, last).
+ * buffers A–D (intermediate BufferChannel passes), image (main output, last).
  * jam::Bimap::map is std::map — iteration follows ascending key order,
  * so no manual ordering array is needed.
  *
@@ -343,24 +343,24 @@ struct Shaders : public jam::Bimap<Shaders>
      */
     enum
     {
-        common,///< Shared library code, prepended to all passes.
-        bufferA,///< Intermediate FBO pass A.
-        bufferB,///< Intermediate FBO pass B.
-        bufferC,///< Intermediate FBO pass C.
-        bufferD,///< Intermediate FBO pass D.
+        bufferA,///< Intermediate BufferChannel pass A.
+        bufferB,///< Intermediate BufferChannel pass B.
+        bufferC,///< Intermediate BufferChannel pass C.
+        bufferD,///< Intermediate BufferChannel pass D.
         image,///< Main output pass (always present). Last = renders last.
+        common,///< Shared library code, prepended to all passes.
     };
 
     /** @brief Populates the bimap — render order matches enum key order. */
     Shaders()
     {
         map = {
-            { Shaders::common,  IDref::common  },
             { Shaders::bufferA, IDref::bufferA },
             { Shaders::bufferB, IDref::bufferB },
             { Shaders::bufferC, IDref::bufferC },
             { Shaders::bufferD, IDref::bufferD },
             { Shaders::image,   IDref::image   },
+            { Shaders::common,  IDref::common  },
         };
     }
 
@@ -370,7 +370,7 @@ struct Shaders : public jam::Bimap<Shaders>
     /**
      * @brief Returns the shader project subdirectory for the given name.
      *
-     * @param shadersName  Shader project directory name (e.g. "sea-at-night").
+     * @param shadersName  Shader project directory name (e.g. "singularity").
      * @return             Resolved path: ~/.config/end/shaders/@p shadersName/
      */
     static const juce::File getPath (const juce::String& shadersName) noexcept
@@ -379,14 +379,52 @@ struct Shaders : public jam::Bimap<Shaders>
     }
 
     /** @brief Shaders root directory: ~/.config/end/shaders/ */
-    inline static const juce::File path { File::getPath (IDref::shaders) };
+    inline static const juce::File path { Config::getPath (IDref::shaders) };
 
 private:
     const juce::String& getDefault() const noexcept override { return map.at (Shaders::image); }
 };
 
+//==============================================================================
+struct BufferChannel : public jam::Bimap<BufferChannel>
+{
+    /** @brief Integer keys for Shadertoy pass types.
+     *
+     *  Enum order = render order: common (skipped), buffers first, image
+     *  last. Bimap::map is std::map — iteration follows ascending key order.
+     *  loadShaders iterates the bimap directly; no manual ordering array needed.
+     */
+    enum
+    {
+        bufferA,///< Intermediate BufferChannel pass A.
+        bufferB,///< Intermediate BufferChannel pass B.
+        bufferC,///< Intermediate BufferChannel pass C.
+        bufferD,///< Intermediate BufferChannel pass D.
+    };
+
+    /** @brief Populates the bimap — render order matches enum key order. */
+    BufferChannel()
+    {
+        map = {
+            { Shaders::bufferA, IDref::iChannel0 },
+            { Shaders::bufferB, IDref::iChannel1 },
+            { Shaders::bufferC, IDref::iChannel2 },
+            { Shaders::bufferD, IDref::iChannel3 },
+        };
+    }
+
+    /** @brief Returns the int→Identifier-stem map from the live context instance. */
+    static const auto& get() noexcept { return getInstance()->map; }
+
+private:
+    const juce::String& getDefault() const noexcept override
+    {
+        return map.at (BufferChannel::bufferA);
+    }
+};
+
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace config
+}// namespace file
 
 //==============================================================================
 namespace end
@@ -396,10 +434,11 @@ struct Map
 {
     end::Position position;
     end::DropMode dropMode;
-    config::File file;
-    config::Themes themes;
-    config::Flex flex;
-    config::Shaders shaders;
+    file::Config file;
+    file::Themes themes;
+    file::Flex flex;
+    file::Shaders shaders;
+    file::BufferChannel fbo;
     jam::map::WindowFX window;
     jam::map::Segment segment;
     jam::map::ButtonState button;

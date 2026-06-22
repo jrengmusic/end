@@ -63,7 +63,7 @@ return {
 		-- Window visual effect style per platform.
 		-- macOS: "backgroundBlur", "visualFXWindowBackground", "glassFXRegular", "glassFXClear"
 		-- Windows: "blurBehind", "acrylic10", "acrylic11", "mica"
-		window_fx = {
+		style = {
 			mac = "backgroundBlur",
 			win = "blurBehind",
 		},

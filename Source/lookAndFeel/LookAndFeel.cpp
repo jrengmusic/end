@@ -4,7 +4,6 @@ namespace end
 {
 /*____________________________________________________________________________*/
 
-//==============================================================================
 LookAndFeel::LookAndFeel()
 {
     registerTypeface();
@@ -148,9 +147,9 @@ LookAndFeel::Glass LookAndFeel::getWindowGlass() const
     int fx { 0 };
 
 #if JUCE_MAC
-    auto name { config.getValue (IDtype::windowFx, ID::mac).toString() };
+    auto name { config.getValue (jam::IDtype::style, ID::mac).toString() };
 #elif JUCE_WINDOWS
-    auto name { config.getValue (IDtype::windowFx, ID::win).toString() };
+    auto name { config.getValue (jam::IDtype::style, ID::win).toString() };
 #endif
 
     if (jam::map::WindowFX::getInstance()->contains (name))
