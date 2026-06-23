@@ -40,12 +40,18 @@ public:
 
     //==========================================================================
     /** @brief Read from disk and overlay into @c state.
+     *  @param path    Active config value (e.g. theme name, shader project name)
+     *                 passed by the owning config::Model.
      *  @param errors  Accumulation channel for parse/IO errors; callers pass
      *                 their own string and append to it across calls.
-     *                 Self-sourced directory path is resolved internally via
-     *                 jam utils — no path argument is needed at the call site.
      */
-    virtual void loadFromPath (juce::String& errors) = 0;
+    virtual void loadFromPath (const juce::var& path, juce::String& errors) = 0;
+
+    /** @brief Write default assets to disk when missing.
+     *  @param path  Active config value passed by the owning config::Model.
+     *  Default no-op — override in subclasses that seed assets (Theme).
+     */
+    virtual void saveToPath (const juce::var& path) {}
 
 private:
     //==========================================================================

@@ -62,12 +62,22 @@ struct Position : public jam::Bimap<Position>
 
     static const juce::String& get (int key) noexcept { return getInstance()->map.at (key); }
 
-    /** @brief Returns a lua validator predicate for the Position value set. */
-    static std::function<bool (const juce::var&)> getValidator()
+    /** @brief Returns a fused Validator for the Position value set.
+     *
+     *  check  — accepts any string present in the Position bimap.
+     *  create — registers a ParameterText on the model for the given property.
+     */
+    static jam::lua::Validator getValidator()
     {
-        return [] (const juce::var& v)
-        {
-            return v.isString() and getInstance()->contains (v.toString());
+        return jam::lua::Validator {
+            [] (const juce::var& v)
+            {
+                return v.isString() and getInstance()->contains (v.toString());
+            },
+            [] (jam::Model& model, juce::ValueTree& tree, const juce::Identifier& id, const juce::var& value)
+            {
+                model.createAndAddParameter<jam::ParameterText> (tree, id, value.toString());
+            }
         };
     }
 };
@@ -104,12 +114,22 @@ struct DropMode : public jam::Bimap<DropMode>
 
     static const auto& get() noexcept { return getInstance()->map; }
 
-    /** @brief Returns a lua validator predicate for the DropMode value set. */
-    static std::function<bool (const juce::var&)> getValidator()
+    /** @brief Returns a fused Validator for the DropMode value set.
+     *
+     *  check  — accepts any string present in the DropMode bimap.
+     *  create — registers a ParameterText on the model for the given property.
+     */
+    static jam::lua::Validator getValidator()
     {
-        return [] (const juce::var& v)
-        {
-            return v.isString() and getInstance()->contains (v.toString());
+        return jam::lua::Validator {
+            [] (const juce::var& v)
+            {
+                return v.isString() and getInstance()->contains (v.toString());
+            },
+            [] (jam::Model& model, juce::ValueTree& tree, const juce::Identifier& id, const juce::var& value)
+            {
+                model.createAndAddParameter<jam::ParameterText> (tree, id, value.toString());
+            }
         };
     }
 };

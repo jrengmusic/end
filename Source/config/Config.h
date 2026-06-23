@@ -37,16 +37,16 @@ public:
 
     /** @brief Reads GLSL source from the active shader project directory into @c state.
      *
-     *  Resolves the active project from @c config::Model's GRAPHICS/ID::background
-     *  property, locates the shader directory via @c file::Shaders::getPath, and
-     *  overlays @c state via @c jam::Model::fromFiles + @c setValuesFrom.
-     *  Fires @c state.sendPropertyChangeMessage(IDtype::graphics) so downstream
+     *  Locates the shader directory via @c file::Shaders::getPath and overlays
+     *  @c state via @c jam::Model::fromFiles + @c setValuesFrom. Fires
+     *  @c state.sendPropertyChangeMessage(IDtype::graphics) so downstream
      *  listeners (shader::Controller) pick up the new source.
      *
+     *  @param path    Active shader project name from config::Model.
      *  @param errors  Accumulation channel (unused by shader — no lua parse).
      *                 Kept to satisfy the @c Directory contract.
      */
-    void loadFromPath (juce::String& errors) override;
+    void loadFromPath (const juce::var& path, juce::String& errors) override;
 
 private:
     //==========================================================================
@@ -85,24 +85,25 @@ public:
      *         via @c setValuesFrom. Re-populates FLEX from the flex/ subdirectory. Fires
      *         @c state.sendPropertyChangeMessage(ID::theme). Accumulates errors in @c errors.
      *
-     *  Resolves the active theme name from @c config::Model's DISPLAY/ID::theme
-     *  property, locates the theme directory via @c file::Themes::getPath, and
-     *  performs a single @c setValuesFrom pass after assembling a disk-mirror
-     *  THEMES tree (THEME, WHELMED via @c fromLua + FLEX via @c fromFiles).
+     *  Locates the theme directory via @c file::Themes::getPath and performs a
+     *  single @c setValuesFrom pass after assembling a disk-mirror THEMES tree
+     *  (THEME, WHELMED via @c fromLua + FLEX via @c fromFiles).
      *
+     *  @param path    Active theme name from config::Model.
      *  @param errors  Accumulation channel; lua parse errors are appended here
      *                 and also passed up to the @c config::Model caller.
      */
-    void loadFromPath (juce::String& errors) override;
+    void loadFromPath (const juce::var& path, juce::String& errors) override;
 
     /** @brief Writes missing theme lua and SVG files to the active theme directory.
      *
-     *  Resolves the active theme name from @c config::Model, creates the theme
-     *  directory and its @c flex/ subdirectory if absent, then seeds any missing
-     *  lua and SVG assets from BinaryData. No-op when the directory already
-     *  contains all expected files.
+     *  Creates the theme directory and its @c flex/ subdirectory if absent, then
+     *  seeds any missing lua and SVG assets from BinaryData. No-op when the
+     *  directory already contains all expected files.
+     *
+     *  @param path  Active theme name from config::Model.
      */
-    void saveToPath();
+    void saveToPath (const juce::var& path) override;
 
 private:
 
@@ -162,6 +163,36 @@ public:
      */
     static constexpr int glslBufferSize { 65536 };
 
+    /**
+        @brief Bimap and type-based validators consumed during @c loadFromPath().
+
+        Outer key = tree type. Inner key = property name. Bimap validators
+        (Position, DropMode) are pre-populated via IIFE at static init time.
+        Type-based predicates for all other properties are appended by
+        @c jam::Model::fromLua during the init-list build walk.
+    */
+    static inline jam::lua::Validators validators = []
+    {
+        jam::lua::Validators v;
+
+        const auto& add = [&v] (juce::Identifier treeType,
+                                juce::Identifier propertyName,
+                                jam::lua::Validator validator)
+        {
+            auto [treeEntry, inserted] = v.try_emplace (treeType);
+            auto& [treeKey, treeValidators] = *treeEntry;
+            treeValidators.addOrReplace (propertyName, std::move (validator));
+        };
+
+        add (IDtype::statusBar,  ID::position,       end::Position::getValidator());
+        add (IDtype::actionList, ID::position,       end::Position::getValidator());
+        add (IDtype::config,     ID::tabOrientation, end::Position::getValidator());
+        add (IDtype::popup,      ID::position,       end::Position::getValidator());
+        add (IDtype::terminal,   ID::dropMultifiles, end::DropMode::getValidator());
+
+        return v;
+    }();
+
     //==========================================================================
     /**
         @brief Construct the model — adopts CONFIG tree built in the init-list,
@@ -185,9 +216,6 @@ public:
     */
     void loadFromPath();
 
-    /** @brief Returns the shared validator map from the live Model instance. */
-    static jam::lua::Validators& getValidators() noexcept { return getInstance()->validators; }
-
 private:
     end::Model& appModel { *end::Model::getInstance() };
 
@@ -201,6 +229,15 @@ private:
                event coalescing and registers this Model as a listener.
     */
     void startWatcher();
+
+    /** @brief Walks the state tree and registers atomic parameters from Validator::create.
+     *
+     *  For each property on each node, if the static validators map has an entry with
+     *  a non-empty create function, calls it to register a jam::Parameter via
+     *  createAndAddParameter. Shader properties (no validator — loaded via fromFiles)
+     *  are registered explicitly as ParameterText with glslBufferSize.
+     */
+    void registerParameters();
 
     /**
         @brief Reloads root lua config on @c .lua @c fileUpdated events.
@@ -221,36 +258,6 @@ private:
 
     /** @brief Coalescing window in milliseconds for the filesystem watcher. */
     static constexpr int coalesceMs { 300 };
-
-    /**
-        @brief Bimap and type-based validators consumed during @c loadFromPath().
-
-        Outer key = tree type. Inner key = property name. Bimap validators
-        (Position, DropMode) are pre-populated via IIFE at member init time.
-        Type-based predicates for all other properties are appended by
-        @c jam::Model::fromLua during @c loadFromPath().
-    */
-    jam::lua::Validators validators = []
-    {
-        jam::lua::Validators v;
-
-        const auto& add = [&v] (juce::Identifier treeType,
-                                juce::Identifier propertyName,
-                                std::function<bool (const juce::var&)> validator)
-        {
-            auto [treeEntry, inserted] = v.try_emplace (treeType);
-            auto& [treeKey, treeValidators] = *treeEntry;
-            treeValidators.addOrReplace (propertyName, std::move (validator));
-        };
-
-        add (IDtype::statusBar, ID::position, end::Position::getValidator());
-        add (IDtype::actionList, ID::position, end::Position::getValidator());
-        add (IDtype::config, ID::tabOrientation, end::Position::getValidator());
-        add (IDtype::popup, ID::position, end::Position::getValidator());
-        add (IDtype::terminal, ID::dropMultifiles, end::DropMode::getValidator());
-
-        return v;
-    }();
 
     Theme theme;
     Shader shader;

@@ -2,6 +2,50 @@
 
 ---
 
+## Sprint 36: Fused Validator Parameter Factory + Config Parameter Registration ✅
+
+**Date:** 2026-06-23
+**Duration:** ~03:00
+
+### Agents Participated
+- COUNSELOR: strategic analysis, plan, delegation, bug diagnosis
+- Engineer: implementation (JAM Validator struct, IIFE create fields, Directory interface, registerParameters, Bimap getValidator)
+- Pathfinder (×3): JAM Model API survey, END config parameter flow, full source read
+
+### Files Modified (10 total)
+
+**JAM (~/Documents/Poems/dev/jam/):**
+- `jam_data_structures/model/jam_lua_value_tree.h:1-28` — forward-decl jam::Model, Validator type alias → struct {check, create, operator(), 1-arg ctor, 2-arg ctor}, Validators doxygen updated
+- `jam_data_structures/model/jam_lua_value_tree.cpp:29-99` — toValidator IIFE returns Validator{check, create} per Tag (int64/float/int/ParameterText); toTableValidator flat → ParameterText create, array → explicit Validator{check}
+- `jam_data_structures/model/jam_model.h:735-736` — adapters: flat HashMap → nested HashMap<Id, HashMap<Id, unique_ptr<Adapter>>>
+- `jam_data_structures/model/jam_model.cpp:156-165,232-240,320-329,393-426` — addParameterAdapter try_emplace+nested insert; valueTreePropertyChanged direct group+property lookup; updateAdapterConnections via applyFunctionRecursively; flush/replaceState nested iteration
+
+**END (~/Documents/Poems/dev/end/):**
+- `source/config/Directory.h:42-54` — loadFromPath(var, errors) pure virtual, saveToPath(var) virtual default
+- `source/config/Config.h:164-197,200-210,240-268` — static inline validators IIFE, registerParameters() decl, getValidators() removed
+- `source/config/Config.cpp:17-32,38-42,50-101,108-196` — Shader/Theme/Model loadFromPath/saveToPath receive path from parent; init-list passes &validators; registerParameters() impl; loadFromPath reordered: shader/theme load BEFORE setValuesFrom
+- `source/Bimap.h:65-83,117-135` — Position/DropMode getValidator() returns Validator{check, create}
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered — `node` forbidden term caught and fixed to `tree`/`target`
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- **Config properties → atomic parameters**: all config entries registered as jam::Parameter via Validator::create during tree construction; hot-reload auto-syncs via ParameterAdapter reverse-sync
+- **Adapter key collision**: flat adapters HashMap caused same-named properties (background, position, font_size) across tree nodes to overwrite each other; restructured to nested HashMap mirroring params hierarchy
+- **Directory upstream poking**: Theme/Shader called getInstance()->getValue() to resolve paths; refactored to receive path from parent Model via loadFromPath/saveToPath arguments
+- **Stale shader source on reload**: setValuesFrom fired parameterChanged before shader.loadFromPath loaded new source; reordered to load dependent resources from disk tree values before overlay
+- **C++17 aggregate init suppression**: user-declared constructors on Validator blocked brace-init; added 2-arg constructor
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 35: Config Four-Phase Lifecycle Wiring — Shaders Compile & Render ✅
 
 **Date:** 2026-06-22

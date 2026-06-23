@@ -165,10 +165,10 @@ private:
     shader::Controller shader;
 
 //==============================================================================
-#if JUCE_DEBUG
-    /** @brief ValueTree inspector widget, debug builds only. */
-    jam::debug::Widget widget { this, config.state, false };
-#endif
+// #if JUCE_DEBUG
+//     /** @brief ValueTree inspector widget, debug builds only. */
+//     jam::debug::Widget widget { this, config.state, false };
+// #endif
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (View)
 };

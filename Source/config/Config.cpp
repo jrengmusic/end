@@ -14,14 +14,11 @@ Shader::Shader()
 {
 }
 
-void Shader::loadFromPath (juce::String& errors)
+void Shader::loadFromPath (const juce::var& path, juce::String& errors)
 {
-    // errors is unused — shader source has no lua parse step.
-    // The param satisfies the Directory contract; leave it untouched.
     juce::ignoreUnused (errors);
 
-    const juce::String project { config::Model::getInstance()->getValue (IDtype::graphics, ID::background).toString() };
-    const juce::File dir { file::Shaders::getPath (project) };
+    const juce::File dir { file::Shaders::getPath (path.toString()) };
 
     if (dir.isDirectory())
     {
@@ -41,7 +38,8 @@ void Shader::loadFromPath (juce::String& errors)
 Theme::Theme()
     : Directory (jam::Model::fromLua (
           IDtype::themes, file::Themes::get(),
-          [] (int key) { return BinaryData::getString (file::Themes::getName (key)); }))
+          [] (int key) { return BinaryData::getString (file::Themes::getName (key)); },
+          &config::Model::validators))
 {
     auto flex { jam::Model::fromFiles (
         IDtype::flex, file::Flex::get(),
@@ -50,10 +48,9 @@ Theme::Theme()
     state.appendChild (flex, nullptr);
 }
 
-void Theme::saveToPath()
+void Theme::saveToPath (const juce::var& path)
 {
-    const auto themeName { config::Model::getInstance()->getValue (IDtype::display, ID::theme).toString() };
-    const juce::File dir { file::Themes::getPath (themeName) };
+    const juce::File dir { file::Themes::getPath (path.toString()) };
 
     if (dir.getFullPathName().isNotEmpty())
     {
@@ -82,16 +79,15 @@ void Theme::saveToPath()
     }
 }
 
-void Theme::loadFromPath (juce::String& errors)
+void Theme::loadFromPath (const juce::var& path, juce::String& errors)
 {
-    const juce::File dir { file::Themes::getPath (
-        config::Model::getInstance()->getValue (IDtype::display, ID::theme).toString()) };
+    const juce::File dir { file::Themes::getPath (path.toString()) };
 
     if (dir.isDirectory())
     {
         auto disk { jam::Model::fromLua (IDtype::themes, file::Themes::get(),
             [dir] (int key) { return dir.getChildFile (file::Themes::getName (key)).loadFileAsString(); },
-            &config::Model::getValidators(), &errors) };
+            &config::Model::validators, &errors) };
 
         const juce::File flexDir { dir.getChildFile (IDref::flex) };
         auto flexDisk { jam::Model::fromFiles (IDtype::flex, file::Flex::get(),
@@ -112,7 +108,8 @@ void Theme::loadFromPath (juce::String& errors)
 Model::Model()
     : jam::Model (jam::Model::fromLua (
           IDtype::config, file::Config::get(),
-          [] (int key) { return BinaryData::getString (file::Config::getName (key)); }))
+          [] (int key) { return BinaryData::getString (file::Config::getName (key)); },
+          &validators))
 {
     // theme and shader members are now constructed — attach their subtrees.
     state.appendChild (theme.state, nullptr);
@@ -120,9 +117,44 @@ Model::Model()
     auto graphics { jam::Model::getChildWithName (state, IDtype::graphics) };
     graphics.appendChild (shader.state, nullptr);
 
+    registerParameters();
+
     saveToPath();
     loadFromPath();
     startWatcher();
+}
+
+void Model::registerParameters()
+{
+    jam::Model::applyFunctionRecursively (state,
+        [this] (const juce::ValueTree& tree)
+        {
+            const auto tag { tree.getType() };
+
+            if (validators.contains (tag))
+            {
+                const auto& tagValidators { validators.at (tag) };
+                auto target { tree };
+
+                jam::Model::forEachProperty (tree,
+                    [this, &tagValidators, &target] (const juce::Identifier& id, const juce::var& value)
+                    {
+                        if (tagValidators.contains (id) and tagValidators.at (id).create)
+                            tagValidators.at (id).create (*this, target, id, value);
+                    });
+            }
+
+            return false;
+        });
+
+    // Shader properties (GLSL source) have no validator — fromFiles does not populate them.
+    // Register each as ParameterText with glslBufferSize.
+    jam::Model::forEachProperty (shader.state,
+        [this] (const juce::Identifier& id, const juce::var& value)
+        {
+            if (value.isString())
+                createAndAddParameter<jam::ParameterText> (shader.state, id, value.toString(), glslBufferSize);
+        });
 }
 
 void Model::saveToPath()
@@ -143,7 +175,7 @@ void Model::saveToPath()
         }
     }
 
-    theme.saveToPath();
+    theme.saveToPath (getValue (IDtype::display, ID::theme));
 }
 
 void Model::loadFromPath()
@@ -154,10 +186,13 @@ void Model::loadFromPath()
         [] (int key) { return file::Config::getPath (file::Config::getName (key)).loadFileAsString(); },
         &validators, &errors) };
 
-    setValuesFrom (disk);
+    // Load dependent resources BEFORE overlay — setValuesFrom fires parameter
+    // notifications and consumers must read fresh source at that point.
+    auto diskDisplay { jam::Model::getChildWithName (disk, IDtype::display) };
+    theme.loadFromPath (diskDisplay.getProperty (ID::theme), errors);
+    shader.loadFromPath (jam::Model::getChildWithName (disk, IDtype::graphics).getProperty (ID::background), errors);
 
-    theme.loadFromPath (errors);
-    shader.loadFromPath (errors);
+    setValuesFrom (disk);
 
     const juce::String message { errors.isEmpty() ? getValue (IDtype::display, ID::successMessage).toString() : errors };
     appModel.setMessage (message);

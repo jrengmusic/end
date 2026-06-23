@@ -177,6 +177,8 @@ void Controller::loadShaders()
 
                             code = jam::Format::replaceholder (wrapper, placeholder, code);
 
+                            cout (code);
+
                             if (auto p { createProgram (code) })
                             {
                                 auto pass { std::make_unique<Pass>() };
