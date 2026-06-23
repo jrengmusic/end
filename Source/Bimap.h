@@ -69,16 +69,19 @@ struct Position : public jam::Bimap<Position>
      */
     static jam::lua::Validator getValidator()
     {
-        return jam::lua::Validator {
-            [] (const juce::var& v)
-            {
-                return v.isString() and getInstance()->contains (v.toString());
-            },
-            [] (jam::Model& model, juce::ValueTree& tree, const juce::Identifier& id, const juce::var& value)
-            {
-                model.createAndAddParameter<jam::ParameterText> (tree, id, value.toString());
-            }
-        };
+        return jam::lua::Validator { [] (const juce::var& v)
+                                     {
+                                         return v.isString()
+                                                and getInstance()->contains (v.toString());
+                                     },
+                                     [] (jam::Model& model,
+                                         juce::ValueTree& tree,
+                                         const juce::Identifier& id,
+                                         const juce::var& value)
+                                     {
+                                         model.createAndAddParameter<jam::ParameterText> (
+                                             tree, id, value.toString());
+                                     } };
     }
 };
 
@@ -121,16 +124,84 @@ struct DropMode : public jam::Bimap<DropMode>
      */
     static jam::lua::Validator getValidator()
     {
-        return jam::lua::Validator {
-            [] (const juce::var& v)
-            {
-                return v.isString() and getInstance()->contains (v.toString());
-            },
-            [] (jam::Model& model, juce::ValueTree& tree, const juce::Identifier& id, const juce::var& value)
-            {
-                model.createAndAddParameter<jam::ParameterText> (tree, id, value.toString());
-            }
+        return jam::lua::Validator { [] (const juce::var& v)
+                                     {
+                                         return v.isString()
+                                                and getInstance()->contains (v.toString());
+                                     },
+                                     [] (jam::Model& model,
+                                         juce::ValueTree& tree,
+                                         const juce::Identifier& id,
+                                         const juce::var& value)
+                                     {
+                                         model.createAndAddParameter<jam::ParameterText> (
+                                             tree, id, value.toString());
+                                     } };
+    }
+};
+
+//==============================================================================
+/**
+ * @brief Bimap for texture filter mode — "linear" or "nearest".
+ *
+ * Used by graphics.filter config field. Integer keys are GL enum
+ * values so the looked-up key can be used directly as a GL parameter.
+ *   GL_LINEAR  → "linear"   — bilinear filtering (default)
+ *   GL_NEAREST → "nearest"  — pixel-sharp nearest-neighbour
+ *
+ * Registered in Application CONTEXT before config::Model construction.
+ */
+struct Filter : public jam::Bimap<Filter>
+{
+    /** @brief Integer keys are GL texture filter enum values.
+     *  Looked-up keys are used directly as glTexParameteri arguments.
+     */
+    enum : GLenum
+    {
+        linear = juce::gl::GL_LINEAR,
+        nearest = juce::gl::GL_NEAREST,
+    };
+
+    /** @brief Populates the bimap with both entries. */
+    Filter()
+    {
+        map = {
+            { Filter::linear,  "linear"  },
+            { Filter::nearest, "nearest" },
         };
+    }
+
+    const juce::String& getDefault() const noexcept override { return map.at (Filter::linear); }
+
+    static const auto& get() noexcept { return getInstance()->map; }
+
+    static int get (const juce::String& value) noexcept
+    {
+        return jam::Map::getKey (get()).at (value);
+    }
+
+    static const juce::String& get (int key) noexcept { return getInstance()->map.at (key); }
+
+    /** @brief Returns a fused Validator for the Filter value set.
+     *
+     *  check  — accepts any string present in the Filter bimap.
+     *  create — registers a ParameterText on the model for the given property.
+     */
+    static jam::lua::Validator getValidator()
+    {
+        return jam::lua::Validator { [] (const juce::var& v)
+                                     {
+                                         return v.isString()
+                                                and getInstance()->contains (v.toString());
+                                     },
+                                     [] (jam::Model& model,
+                                         juce::ValueTree& tree,
+                                         const juce::Identifier& id,
+                                         const juce::var& value)
+                                     {
+                                         model.createAndAddParameter<jam::ParameterText> (
+                                             tree, id, value.toString());
+                                     } };
     }
 };
 
@@ -154,7 +225,7 @@ namespace file
  * jam::Instance\<Config\>.
  *
  * getPath() is the canonical child-path resolver used by Themes and Shaders
- * to seed their own static path members.
+ * to derive their own static path members.
  */
 struct Config : public jam::Bimap<Config>
 {
@@ -219,7 +290,7 @@ private:
  * Maps each enum key to its Identifier stem and resolves the on-disk
  * filename via getName(). All keys produce "stem.lua".
  *
- * Owns the themes root directory path (seeded from File::getPath).
+ * Owns the themes root directory path (derived from File::getPath).
  * The live instance is owned by end::Application — static get() resolves
  * through jam::Instance\<Themes\>.
  */
@@ -349,7 +420,7 @@ private:
  * jam::Bimap::map is std::map — iteration follows ascending key order,
  * so no manual ordering array is needed.
  *
- * Owns the shaders root directory path (seeded from File::getPath).
+ * Owns the shaders root directory path (derived from File::getPath).
  * The live instance is owned by end::Application — static get() resolves
  * through jam::Instance\<Shaders\>.
  */
@@ -423,10 +494,7 @@ struct BufferChannel : public jam::Bimap<BufferChannel>
     static const auto& get() noexcept { return getInstance()->map; }
 
 private:
-    const juce::String& getDefault() const noexcept override
-    {
-        return map.at (Shaders::bufferA);
-    }
+    const juce::String& getDefault() const noexcept override { return map.at (Shaders::bufferA); }
 };
 
 /**______________________________END OF NAMESPACE______________________________*/
@@ -445,6 +513,7 @@ struct Map
     file::Flex flex;
     file::Shaders shaders;
     file::BufferChannel fbo;
+    end::Filter filter;
     jam::map::WindowFX window;
     jam::map::Segment segment;
     jam::map::ButtonState button;

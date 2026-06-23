@@ -27,7 +27,12 @@ struct Uniform
     };
 
     jam::Function::Map<juce::Identifier, void> setters;
-    int lastFrameTime { 0 };
+
+    int frameDelta { 1000 / 30 };
+    int screenResolution { 0 };
+    float resolutionScale { 0.5f };
+    float opacity { 0.5f };
+    GLenum textureFilter { juce::gl::GL_LINEAR };
 
     /** @brief Registers per-uniform conversion setters. Called once at init. */
     Uniform()
@@ -65,19 +70,39 @@ struct Uniform
 
     ~Uniform() = default;
 
-    /** @brief Updates viewport dimensions from pixel width and height.
-     *  @param w  Viewport width in pixels.
-     *  @param h  Viewport height in pixels.
+    /** @brief Updates screen and buffer dimensions from pixel width and height.
+     *  Buffer dimensions are screen dimensions scaled by resolutionScale.
+     *  @param w  Screen viewport width in pixels.
+     *  @param h  Screen viewport height in pixels.
      */
-    void resize (int w, int h) { values.at (ID::iResolution) = end::Size (w, h).toInt(); }
+    void resize (int w, int h)
+    {
+        screenResolution = end::Size (w, h).toInt();
+        int bw { juce::roundToInt (w * resolutionScale) };
+        int bh { juce::roundToInt (h * resolutionScale) };
+        values.at (ID::iResolution) = end::Size (bw, bh).toInt();
+    }
 
-    /** @brief Advances per-frame time and frame counter. Called once per frame. */
+    /** @brief Precomputes frame time delta from configured fps.
+     *  @param fps  Target frame rate (1-120).
+     */
+    void setFrameRate (int fps) { frameDelta = 1000 / fps; }
+
+    /** @brief Returns current screen dimensions by unpacking the stored screenResolution value. */
+    juce::Point<int> getScreenSize() const
+    {
+        end::Size size { screenResolution };
+        auto [w, h] = size;
+        return { w, h };
+    }
+
+    /** @brief Advances per-frame time and frame counter. Called once per frame.
+     *  Uses constant frameDelta — deterministic, no clock dependency.
+     */
     void advance()
     {
-        auto now { static_cast<int> (juce::Time::getMillisecondCounterHiRes()) };
-        values.at (ID::iTimeDelta) = now - lastFrameTime;
-        values.at (ID::iTime) = values.at (ID::iTime) + values.at (ID::iTimeDelta);
-        lastFrameTime = now;
+        values.at (ID::iTimeDelta) = frameDelta;
+        values.at (ID::iTime) += frameDelta;
         ++values.at (ID::iFrame);
     }
 

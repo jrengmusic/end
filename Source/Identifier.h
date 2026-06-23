@@ -283,7 +283,12 @@
     X (bufferD, "BufferD")                      \
     X (background, "background")                \
     X (backgroundOpacity, "background_opacity") \
-    X (postProcessing, "post_processing")
+    X (postProcessing, "post_processing")       \
+    X (frameRate, "frame_rate")                 \
+    X (resolutionScale, "resolution_scale")     \
+    X (filter, "filter")                        \
+    X (iOpacity, "iOpacity")                    \
+    X (outputTexture, "outputTexture")
 
 // Platform + BackgroundBlur WindowFX keys (theme.lua / window.window_fx)
 // "mac"/"win" identify the platform in the window_fx table;

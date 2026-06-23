@@ -189,6 +189,7 @@ public:
         add (IDtype::config,     ID::tabOrientation, end::Position::getValidator());
         add (IDtype::popup,      ID::position,       end::Position::getValidator());
         add (IDtype::terminal,   ID::dropMultifiles, end::DropMode::getValidator());
+        add (IDtype::graphics,   ID::filter,         end::Filter::getValidator());
 
         return v;
     }();

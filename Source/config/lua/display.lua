@@ -92,6 +92,14 @@ return {
 		background_opacity = 0.5,
 		-- Post-processing shader project directory name. Empty string disables.
 		post_processing = "",
+		-- Shader frame rate (1-120). Controls how many times per second
+		-- shader passes execute. Lower values reduce GPU load.
+		frame_rate = 30,
+		-- Resolution scale (0.1-1.0). Shader passes render at this fraction
+		-- of the screen resolution, then upscale to full size.
+		resolution_scale = 0.5,
+		-- Texture filter mode for shader upscaling: "linear" (bilinear) or "nearest" (pixel-sharp).
+		filter = "linear",
 	},
 
 	-- ==========================================================================

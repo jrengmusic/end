@@ -2,6 +2,54 @@
 
 ---
 
+## Sprint 37: Shader Pipeline Optimization — Frame Rate, Resolution Scaling, Opacity, Filter ✅
+
+**Date:** 2026-06-23
+**Duration:** ~02:30
+
+### Agents Participated
+- COUNSELOR: plan, delegation, bug diagnosis (opacity premultiply, double-scaling, font, FBO assertion), audit triage
+- Engineer (×8): identifiers, display.lua, Filter bimap, output.frag, Uniform refactor, Controller Timer/output/resize, audit fixes, bug fixes
+- Pathfinder (×2): shader pipeline discovery, FBO assertion JUCE source
+- Auditor: BLESSED/NAMES/JRENG-CODING-STANDARD validation
+- Librarian: (via Pathfinder) font/message overlay flow
+
+### Files Modified (8 total)
+- `Source/Identifier.h:287-291` — 5 new identifiers in IDENTIFIER_SHADER: frameRate, resolutionScale, filter, iOpacity, outputTexture
+- `Source/config/lua/display.lua:95-102` — frame_rate, resolution_scale, filter fields under graphics
+- `Source/Bimap.h:137-197,510` — end::Filter bimap (enum : GLenum, GL_LINEAR/GL_NEAREST keys, getValidator), end::Map::filter member; doxygen "seed" → "derive" (×3)
+- `Source/config/Config.h:192` — Filter validator registered in config::Model::validators IIFE
+- `Source/shader/output.frag` — **NEW** output pass fragment shader (premultiplied alpha, textureCoordOut from screen.vert)
+- `Source/shader/Program.h:29-97` — Uniform: removed lastFrameTime/clock; added frameDelta, screenResolution, resolutionScale, opacity, textureFilter; resize computes buffer from screen*scale; advance is pure arithmetic; setFrameRate, getScreenSize methods
+- `Source/shader/Controller.h:50-53,94-118,126-132` — Timer inheritance; renderBuffers/renderImage/renderOutput decls (semantic names); refreshParameters decl; outputFBO, outputProgram, outputShader members; unbindChannels removed
+- `Source/shader/Controller.cpp:25-33,43-117,125-136,139-144,156-179,182-198,200-257,259-271,273-339` — setContinuousRepainting(false) + timerCallback→triggerRepaint; renderOpenGL split to renderBuffers/renderImage/renderOutput; outputProgram compiled in initialise; GL_BLEND premultiplied in renderOutput; resize stores screen+buffer via Uniform; setChannels applies textureFilter; refreshParameters fires all events for initial sync; 4 new event handlers (frameRate, resolutionScale, filter, backgroundOpacity); unbindChannels removed; semantic param names throughout
+- `Source/end/MessageOverlay.h:38,135-138` — config include restored; paint reads overlay fontFamily+fontSize from theme
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered — forbidden term "seed" fixed; clarity over brevity (bufferWidth/Height, screenWidth/Height)
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- **Frame rate control**: Timer-driven repaint replaces VSync-locked continuous rendering; configurable 1-120 fps from display.lua
+- **Resolution scaling**: all shader passes render at reduced resolution, output pass upscales via textured quad + configurable filter
+- **Opacity**: output.frag premultiplied alpha + GL_BLEND(GL_ONE, GL_ONE_MINUS_SRC_ALPHA) for correct window compositor blending
+- **Deterministic time**: wall-clock removed from Uniform, advance() is pure arithmetic from constant frameDelta
+- **Initial parameter sync**: refreshParameters() fires all events at attach() — Controller no longer misses initial config values
+- **Double-scaling bug**: resolutionScale handler bypasses resizer (screenResolution already scaled), calls resize directly on GL thread
+- **FBO assertion**: guard on resolutionScale resize — named threat: screenResolution unpopulated before first loadShaders resize
+- **MessageOverlay font**: uncommented config font reading (overlay.fontFamily + overlay.fontSize from theme)
+- **Forbidden term**: "seed" in Bimap.h doxygen replaced with "derive"
+- **Debug output**: cout(code) removed from loadShaders
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 36: Fused Validator Parameter Factory + Config Parameter Registration ✅
 
 **Date:** 2026-06-23

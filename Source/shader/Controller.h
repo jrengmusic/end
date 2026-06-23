@@ -50,6 +50,7 @@ namespace shader
 struct Controller
     : private juce::OpenGLRenderer
     , private jam::Model::Listener
+    , private juce::Timer
 {
     Controller();
     ~Controller() override;
@@ -91,7 +92,7 @@ private:
     std::unique_ptr<juce::OpenGLShaderProgram> createProgram (juce::StringRef shaderSource);
 
     /** @brief Updates viewport uniform and resizes FBO pairs for all non-Image programs. GL thread only. */
-    void resize (int w, int h);
+    void resize (int screenWidth, int screenHeight);
 
     /** @brief Sets iChannel sampler uniforms and binds buffer pass read textures to corresponding texture units.
      *         Only binds channels with existing buffer passes. GL thread only.
@@ -99,13 +100,29 @@ private:
      */
     void setChannels (juce::OpenGLShaderProgram& program);
 
-    /** @brief Unbinds texture units 0-3. GL thread only. */
-    void unbindChannels();
+    /** @brief Renders buffer passes (BufferA-D) at buffer resolution. GL thread only. */
+    void renderBuffers (int bufferWidth, int bufferHeight);
+
+    /** @brief Renders Image pass into outputFBO at buffer resolution. GL thread only. */
+    void renderImage (int bufferWidth, int bufferHeight);
+
+    /** @brief Upscales outputFBO to screen resolution with opacity and filter. GL thread only. */
+    void renderOutput();
+
+    /** @brief Fires config-driven events with current parameter values.
+     *  Ensures Uniform state matches config after construction or reload.
+     */
+    void refreshParameters();
 
     //==========================================================================
     // jam::Model::Listener
 
     void parameterChanged (const juce::Identifier& id, const juce::var& newValue) override;
+
+    //==========================================================================
+    // juce::Timer
+
+    void timerCallback() override;
 
     //==========================================================================
     config::Model& config { *config::Model::getInstance() };
@@ -117,10 +134,13 @@ private:
     jam::Resizer resizer;
     std::unique_ptr<Quad> quad;
     Uniform uniform;
+    juce::OpenGLFrameBuffer outputFBO;
+    std::unique_ptr<juce::OpenGLShaderProgram> outputProgram;
     //==============================================================================
     static inline const juce::String placeholder { "source" };
     static inline const juce::String wrapper { BinaryData::getString ("wrapper.frag") };
     static inline const juce::String screenQuad { BinaryData::getString ("screen.vert") };
+    static inline const juce::String outputShader { BinaryData::getString ("output.frag") };
     //==========================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Controller)
 };
