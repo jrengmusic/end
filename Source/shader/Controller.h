@@ -103,10 +103,10 @@ private:
     /** @brief Renders buffer passes (BufferA-D) at buffer resolution. GL thread only. */
     void renderBuffers (int bufferWidth, int bufferHeight);
 
-    /** @brief Renders Image pass into outputFBO at buffer resolution. GL thread only. */
+    /** @brief Renders Image pass into output pass FBO at buffer resolution. GL thread only. */
     void renderImage (int bufferWidth, int bufferHeight);
 
-    /** @brief Upscales outputFBO to screen resolution with opacity and filter. GL thread only. */
+    /** @brief Upscales output pass FBO to screen resolution with opacity and filter. GL thread only. */
     void renderOutput();
 
     /** @brief Fires config-driven events with current parameter values.
@@ -134,8 +134,6 @@ private:
     jam::Resizer resizer;
     std::unique_ptr<Quad> quad;
     Uniform uniform;
-    juce::OpenGLFrameBuffer outputFBO;
-    std::unique_ptr<juce::OpenGLShaderProgram> outputProgram;
     //==============================================================================
     static inline const juce::String placeholder { "source" };
     static inline const juce::String wrapper { BinaryData::getString ("wrapper.frag") };

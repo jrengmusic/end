@@ -2,6 +2,84 @@
 
 ---
 
+## Sprint 39: Collapse outputFBO + outputProgram into Pass ✅
+
+**Date:** 2026-06-23
+**Duration:** ~00:20
+
+### Agents Participated
+- COUNSELOR: analysis (output pass lifecycle, renderBuffers discrimination, Pass single-FBO usage), delegation, audit triage
+- Engineer (×3): Identifier.h output entry, Controller.h/.cpp refactor, audit fix (H1 bail-out, M1 .at())
+- Auditor: BLESSED/NAMES/JRENG-CODING-STANDARD validation (3 findings: H1 bail-out guard, M1 operator[] → .at(), M2 stale doxygen — H1+M1 fixed, M2 requires ninja doxygen)
+
+### Files Modified (3 total)
+- `Source/Identifier.h:292` — added `X (output, "output")` to IDENTIFIER_SHADER macro
+- `Source/shader/Controller.h:106,109,137-138` — removed `outputFBO` and `outputProgram` member declarations; updated doxygen refs
+- `Source/shader/Controller.cpp:58,78-93,96-124,131-150,174-181,207-216` — output Pass created in initialise() and loadShaders() via createProgram(outputShader) + buffer.emplace(); renderImage uses (*outputPass->buffer).at(0); renderOutput uses programs.at(ID::output); renderBuffers skips output via id != ID::output; shutdown/resize simplified (programs.clear() handles all)
+
+### Alignment Check
+- [x] BLESSED principles followed — S (single Pass type for all passes), E (encapsulated in programs map)
+- [x] NAMES.md adhered — ID::output follows existing shader identifier convention
+- [x] MANIFESTO.md principles applied — no bail-out guards (jassert preconditions), .at() for bounds-checked access
+
+### Problems Solved
+- Standalone outputFBO and outputProgram collapsed into Pass abstraction stored in programs map — eliminates structural inconsistency where output stage bypassed the Pass type used by all other passes
+- renderBuffers discriminates output pass via id != ID::output (output has buffer but is not a buffer pass)
+- Pass single-FBO usage: buffer array emplaced, only index 0 used (never swap), consistent with ARCHITECT's "1 channel" directive
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+## Sprint 38: Rendering Optimization — GPU Instanced Glyph Draw + CPU Background Fill ✅
+
+**Date:** 2026-06-23
+**Duration:** ~03:00
+
+### Agents Participated
+- COUNSELOR: plan, design (unified accumulate-then-render architecture, 3-layer pipeline analysis), delegation, audit triage, incomplete-type fixes
+- Pathfinder (×3): glyph::Graphics internals, JUCE OpenGL paint FBO contract, END/CodeView integration
+- Engineer (×5): CPU bg fill, atlas dirty tracking, GLResources+shaders+popGL, audit fixes (C1/H1/H2/H3/L2/L3/M1), unified accumulate-then-render refactor
+- Auditor: BLESSED/NAMES/JRENG-CODING-STANDARD validation (13 findings, all resolved except M5)
+
+### Files Modified (12 total, all in JAM ~/Documents/Poems/dev/jam/)
+- `jam_graphics/fonts/font/glyph/jam_glyph_graphics.h` — removed gpuMode/needsClear members + 4 GPU/CPU split function decls; added GLResources forward decl, isGLReady(), initGL(), popGL(), popSoftware(), fillBackground(), drawGlyphInstanced(), drawBackgroundInstanced(); snapshot + gl members; static inline shader strings via BinaryData::getString
+- `jam_graphics/fonts/font/glyph/jam_glyph_graphics.cpp` — unified push() (no branches, always resets snapshot, stores viewport); drawGlyphs simple overload always accumulates (single implementation); pop() dispatches via isGLReady(); popSoftware() iterates snapshot (bg→mono→emoji→decorations→blit); fillBackground() helper with std::fill_n
+- `jam_graphics/fonts/font/glyph/jam_glyph_graphics_cells.cpp` — CPU bg fill optimization (packed uint32_t + std::fill_n); unified cells drawGlyphs always accumulates (backgrounds, glyphs, decorations into separate snapshot arrays)
+- `jam_graphics/fonts/font/glyph/jam_glyph_gl.cpp` — **NEW** — GLResources struct, Graphics ctor/dtor (incomplete type), isGLReady(), initGL() (positive nesting), drawGlyphInstanced(), drawBackgroundInstanced(), popGL() (GL state save/restore, atlas dirty sync, bg→mono→emoji→decorations render order)
+- `jam_graphics/fonts/font/glyph/jam_glyph_render.h` — SnapshotBase: added decorations HeapBlock + count/capacity + ensureDecorationCapacity(); ensureCapacity uses realloc() to preserve data
+- `jam_graphics/fonts/font/glyph/jam_glyph_atlas.h` — dirty flags (monoDirty/emojiDirty); dirty accessors (isMonoDirty/isEmojiDirty/clearMonoDirty/clearEmojiDirty); AtlasSize enum moved here from packer.h; removed #include <memory> and forward declaration
+- `jam_graphics/fonts/font/glyph/jam_glyph_atlas_impl.h` — dirty set in writePixels/rebuild/ensureImages; dirty accessor inline definitions
+- `jam_graphics/fonts/font/glyph/jam_glyph_packer.h` — AtlasSize enum removed (moved to atlas.h)
+- `jam_graphics/fonts/font/shaders/glyph.vert` — **NEW** — instanced glyph vertex shader (pixel→NDC with Y-flip, per-instance position/size/texcoords/color)
+- `jam_graphics/fonts/font/shaders/glyph_mono.frag` — **NEW** — mono atlas fragment shader (R8 alpha × foreground, premultiplied)
+- `jam_graphics/fonts/font/shaders/glyph_emoji.frag` — **NEW** — emoji atlas fragment shader (RGBA passthrough)
+- `jam_graphics/fonts/font/shaders/background.vert` — **NEW** — instanced background vertex shader
+- `jam_graphics/fonts/font/shaders/background.frag` — **NEW** — background passthrough fragment shader
+- `jam_graphics/jam_graphics.cpp:20` — jam_glyph_gl.cpp module registration
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered — isGLReady, fillBackground, drawGlyphInstanced, drawBackgroundInstanced
+- [x] MANIFESTO.md principles applied — unified accumulate-then-render eliminates SSOT violation; positive nesting in initGL; no bail-out guards
+
+### Problems Solved
+- GPU instanced draw pipeline: glyph rendering bypasses CPU software compositing when GL context active, drawing instanced quads directly into JUCE's component FBO during paint()
+- CPU background fill: scalar per-pixel BGRA write replaced with packed uint32_t + std::fill_n (vectorizable)
+- Decoration z-order: underline/strikethrough separated from cell backgrounds into own array, rendered after glyphs (fixes strikethrough hidden by glyph pixels)
+- Atlas dirty tracking: monoDirty/emojiDirty flags enable incremental GL texture upload
+- SnapshotBase data preservation: realloc() replaces allocate() to preserve accumulated quads across capacity growth
+- Incomplete type with unique_ptr<GLResources>: constructor + destructor defined in jam_glyph_gl.cpp after GLResources definition
+- Code duplication: unified accumulate-then-render eliminates 4 GPU/CPU split functions; drawGlyphs has single implementation per overload
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
 ## Sprint 37: Shader Pipeline Optimization — Frame Rate, Resolution Scaling, Opacity, Filter ✅
 
 **Date:** 2026-06-23

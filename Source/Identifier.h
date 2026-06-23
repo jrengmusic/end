@@ -288,7 +288,8 @@
     X (resolutionScale, "resolution_scale")     \
     X (filter, "filter")                        \
     X (iOpacity, "iOpacity")                    \
-    X (outputTexture, "outputTexture")
+    X (outputTexture, "outputTexture")          \
+    X (output, "output")
 
 // Platform + BackgroundBlur WindowFX keys (theme.lua / window.window_fx)
 // "mac"/"win" identify the platform in the window_fx table;

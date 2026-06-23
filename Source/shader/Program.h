@@ -115,6 +115,18 @@ struct Uniform
             setters.get (name, p, value);
     }
 
+    /** @brief Dispatches all uniforms but overrides iResolution with the full
+     *         screen resolution. Used by the post-processing pipeline, whose
+     *         passes normalise gl_FragCoord against the screen-size iResolution
+     *         (post renders at full physical screen res, not the scaled buffer res).
+     *  @param p  The active GL program (must be use()'d first).
+     */
+    void setScene (juce::OpenGLShaderProgram& p)
+    {
+        set (p);
+        setters.get (ID::iResolution, p, screenResolution);
+    }
+
     /** @brief Returns current viewport dimensions by unpacking the stored iResolution value. */
     juce::Point<int> getSize() const
     {
